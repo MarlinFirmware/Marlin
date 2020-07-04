@@ -193,14 +193,14 @@ void lv_draw_acceleration_settings(void) {
   LV_IMG_DECLARE(bmp_para_bank);
 
   if (uiCfg.para_ui_page != 1) {
-    buttonPrintText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonPrintText, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
-    lv_obj_set_size(buttonPrintText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonPrintText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+    lv_obj_set_pos(buttonPrintText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
+    lv_obj_set_size(buttonPrintText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
     lv_obj_set_event_cb(buttonPrintText, event_handler);
     lv_btn_set_style(buttonPrintText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonPrintText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonPrintText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
     lv_btn_set_layout(buttonPrintText, LV_LAYOUT_OFF);
-    labelPrintText = lv_label_create(buttonPrintText, NULL);        /*Add a label to the button*/
+    labelPrintText = lv_label_create(buttonPrintText, NULL);                    /*Add a label to the button*/
 
     buttonPrintValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonPrintValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
@@ -215,14 +215,14 @@ void lv_draw_acceleration_settings(void) {
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonRetraText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonRetraText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                       /*Set its position*/
-    lv_obj_set_size(buttonRetraText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonRetraText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+    lv_obj_set_pos(buttonRetraText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
+    lv_obj_set_size(buttonRetraText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
     lv_obj_set_event_cb(buttonRetraText, event_handler);
     lv_btn_set_style(buttonRetraText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonRetraText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonRetraText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
     lv_btn_set_layout(buttonRetraText, LV_LAYOUT_OFF);
-    labelRetraText = lv_label_create(buttonRetraText, NULL);        /*Add a label to the button*/
+    labelRetraText = lv_label_create(buttonRetraText, NULL);                    /*Add a label to the button*/
 
     buttonRetraValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonRetraValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
@@ -237,14 +237,14 @@ void lv_draw_acceleration_settings(void) {
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonTravelText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonTravelText, PARA_UI_POS_X, PARA_UI_POS_Y * 3);                       /*Set its position*/
-    lv_obj_set_size(buttonTravelText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonTravelText = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+    lv_obj_set_pos(buttonTravelText, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
+    lv_obj_set_size(buttonTravelText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
     lv_obj_set_event_cb(buttonTravelText, event_handler);
-    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
+    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
     lv_btn_set_layout(buttonTravelText, LV_LAYOUT_OFF);
-    labelTravelText = lv_label_create(buttonTravelText, NULL);        /*Add a label to the button*/
+    labelTravelText = lv_label_create(buttonTravelText, NULL);                  /*Add a label to the button*/
 
     buttonTravelValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonTravelValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
@@ -259,14 +259,14 @@ void lv_draw_acceleration_settings(void) {
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonXText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonXText, PARA_UI_POS_X, PARA_UI_POS_Y * 4);                       /*Set its position*/
-    lv_obj_set_size(buttonXText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonXText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+    lv_obj_set_pos(buttonXText, PARA_UI_POS_X, PARA_UI_POS_Y * 4);          /*Set its position*/
+    lv_obj_set_size(buttonXText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
     lv_obj_set_event_cb(buttonXText, event_handler);
     lv_btn_set_style(buttonXText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonXText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonXText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
     lv_btn_set_layout(buttonXText, LV_LAYOUT_OFF);
-    labelXText = lv_label_create(buttonXText, NULL);        /*Add a label to the button*/
+    labelXText = lv_label_create(buttonXText, NULL);                        /*Add a label to the button*/
 
     buttonXValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
@@ -290,14 +290,14 @@ void lv_draw_acceleration_settings(void) {
     lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_REL, &tft_style_label_rel);
   }
   else {
-    buttonYText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonYText, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
-    lv_obj_set_size(buttonYText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonYText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+    lv_obj_set_pos(buttonYText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
+    lv_obj_set_size(buttonYText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
     lv_obj_set_event_cb(buttonYText, event_handler);
     lv_btn_set_style(buttonYText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonYText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonYText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
     lv_btn_set_layout(buttonYText, LV_LAYOUT_OFF);
-    labelYText = lv_label_create(buttonYText, NULL);        /*Add a label to the button*/
+    labelYText = lv_label_create(buttonYText, NULL);                        /*Add a label to the button*/
 
     buttonYValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
@@ -312,14 +312,14 @@ void lv_draw_acceleration_settings(void) {
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonZText = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonZText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                       /*Set its position*/
-    lv_obj_set_size(buttonZText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonZText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
+    lv_obj_set_pos(buttonZText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
+    lv_obj_set_size(buttonZText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
     lv_obj_set_event_cb(buttonZText, event_handler);
     lv_btn_set_style(buttonZText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonZText, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonZText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
     lv_btn_set_layout(buttonZText, LV_LAYOUT_OFF);
-    labelZText = lv_label_create(buttonZText, NULL);        /*Add a label to the button*/
+    labelZText = lv_label_create(buttonZText, NULL);                        /*Add a label to the button*/
 
     buttonZValue = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
@@ -334,14 +334,14 @@ void lv_draw_acceleration_settings(void) {
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonE0Text = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 3);                       /*Set its position*/
-    lv_obj_set_size(buttonE0Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonE0Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+    lv_obj_set_pos(buttonE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
+    lv_obj_set_size(buttonE0Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
     lv_obj_set_event_cb(buttonE0Text, event_handler);
-    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
+    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
     lv_btn_set_layout(buttonE0Text, LV_LAYOUT_OFF);
-    labelE0Text = lv_label_create(buttonE0Text, NULL);        /*Add a label to the button*/
+    labelE0Text = lv_label_create(buttonE0Text, NULL);                      /*Add a label to the button*/
 
     buttonE0Value = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonE0Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
@@ -356,14 +356,14 @@ void lv_draw_acceleration_settings(void) {
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonE1Text = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
-    lv_obj_set_pos(buttonE1Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4);                       /*Set its position*/
-    lv_obj_set_size(buttonE1Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
+    buttonE1Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
+    lv_obj_set_pos(buttonE1Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4);         /*Set its position*/
+    lv_obj_set_size(buttonE1Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
     lv_obj_set_event_cb(buttonE1Text, event_handler);
-    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
+    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
     lv_btn_set_layout(buttonE1Text, LV_LAYOUT_OFF);
-    labelE1Text = lv_label_create(buttonE1Text, NULL);        /*Add a label to the button*/
+    labelE1Text = lv_label_create(buttonE1Text, NULL);                      /*Add a label to the button*/
 
     buttonE1Value = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);

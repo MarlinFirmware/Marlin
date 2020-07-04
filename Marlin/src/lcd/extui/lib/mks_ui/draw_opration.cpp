@@ -252,7 +252,7 @@ void lv_draw_opration(void) {
   else {
     lv_obj_set_pos(buttonPowerOff, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   }
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4,  BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
   /*Create a label on the Image button*/
   lv_btn_set_layout(buttonPreHeat, LV_LAYOUT_OFF);

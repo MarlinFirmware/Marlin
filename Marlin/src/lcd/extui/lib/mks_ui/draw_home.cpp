@@ -195,15 +195,15 @@ void lv_draw_home(void) {
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
   #endif
 
-  /*lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
-  lv_obj_set_pos(buttonFan,BTN_X_PIXEL+INTERVAL_V*2,titleHeight);
-  lv_obj_set_pos(buttonAbout,BTN_X_PIXEL*2+INTERVAL_V*3,titleHeight);
-  lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
-  lv_obj_set_pos(buMotorOff,INTERVAL_V,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  lv_obj_set_pos(buttonLanguage,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);*/
+  /*lv_obj_set_pos(buttonWifi, INTERVAL_V, titleHeight);
+  lv_obj_set_pos(buttonFan, BTN_X_PIXEL+INTERVAL_V*2, titleHeight);
+  lv_obj_set_pos(buttonAbout, BTN_X_PIXEL*2+INTERVAL_V*3, titleHeight);
+  lv_obj_set_pos(buttonContinue, BTN_X_PIXEL*3+INTERVAL_V*4, titleHeight);
+  lv_obj_set_pos(buMotorOff, INTERVAL_V,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  lv_obj_set_pos(buttonLanguage, BTN_X_PIXEL+INTERVAL_V*2, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  lv_obj_set_pos(buttonBack, BTN_X_PIXEL*3+INTERVAL_V*4, BTN_Y_PIXEL+INTERVAL_H+titleHeight);*/
 
-  //lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
+  //lv_obj_set_pos(buttonWifi, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonHomeX, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
   lv_obj_set_pos(buttonHomeY, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
   //lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
