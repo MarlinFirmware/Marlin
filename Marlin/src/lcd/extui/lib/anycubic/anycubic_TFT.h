@@ -90,7 +90,7 @@ private:
   void RenderCurrentFolder(uint16_t);
   void GetCommandFromTFT();
   void CheckSDCardChange();
-  void CheckHeaterError();
+  // void CheckHeaterError();
   void CheckPauseState();
   void CheckPrintCompletion();
   void HandleSpecialMenu();

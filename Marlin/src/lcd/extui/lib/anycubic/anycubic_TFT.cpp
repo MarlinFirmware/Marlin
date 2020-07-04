@@ -29,33 +29,6 @@
 #include "../../ui_api.h"
 #include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
 
-/* not sure i need these */
-/*
-
-#include "../../../../sd/cardreader.h"   
-#include "../../../../core/language.h"
-#include "../../../../core/macros.h"
-#include "../../../../core/serial.h"
-#include "../../../../feature/pause.h"
-
-#include "../../../../module/stepper.h"
-*/
-
-/* these are in ui_api */
-/*
-#include "../../../../module/temperature.h"
-#include "../../../../module/printcounter.h"
-#include "../../../../feature/e_parser.h"
-#include "../../../../gcode/queue.h"
-#include "../../../../module/planner.h"
-*/
-/* main includes, need to confirm which of these i actually need */
-// #include "Arduino.h"
-// #include <inttypes.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-
 char _conv[8];
 
 char *itostr2(const uint8_t &x)
@@ -105,25 +78,34 @@ void AnycubicTFTClass::OnSetup() {
   AnycubicSerial.begin(115200);
   ANYCUBIC_SENDCOMMAND_DBG_PGM("J17", "TFT Serial Debug: Main board reset... J17"); // J17 Main board reset
   ExtUI::delay_ms(10);
-  ANYCUBIC_SENDCOMMAND_DBG_PGM("J12", "TFT Serial Debug: Ready... J12");  // J12 Ready
+  
+  // initialise the state of the key pins running on the tft
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+    pinMode(SD_DETECT_PIN, INPUT);
+    WRITE(SD_DETECT_PIN, HIGH);
+  #endif
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    pinMode(FIL_RUNOUT_PIN,INPUT);
+    WRITE(FIL_RUNOUT_PIN,HIGH);
+  #endif
 
-  DoSDCardStateCheck();
+  // DoSDCardStateCheck();
+  ANYCUBIC_SENDCOMMAND_DBG_PGM("J12", "TFT Serial Debug: Ready... J12");  // J12 Ready
+  ExtUI::delay_ms(10);
+
   DoFilamentRunoutCheck();
- 
-  SelectedDirectory[0]=0;
   SelectedFile[0]=0;
   
   #ifdef STARTUP_CHIME
     ExtUI::injectCommands_P(PSTR("M300 P250 S554\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P250 S740\nM300 P250 S554\nM300 P500 S831"));
   #endif
-
   #if ENABLED(ANYCUBIC_TFT_DEBUG)
     SERIAL_ECHOLNPGM("TFT Serial Debug: Finished startup");
   #endif
 }
 
 void AnycubicTFTClass::OnCommandScan() {
-  CheckHeaterError();
+  // CheckHeaterError();
   
   if(TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
@@ -463,19 +445,19 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
   }
 }
 
-void AnycubicTFTClass::CheckHeaterError() {
-  if ((ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) < 5) || (ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) > 290)) {
-    if (HeaterCheckCount > 60000) {
-      HeaterCheckCount = 0;
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J10", "TFT Serial Debug: Hotend temperature abnormal... J10"); // J10 Hotend temperature abnormal
-    }
-    else {
-      HeaterCheckCount++;
-    }
-  } else {
-    HeaterCheckCount = 0;
-  }
-}
+// void AnycubicTFTClass::CheckHeaterError() {
+//   if ((ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) < 5) || (ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) > 290)) {
+//     if (HeaterCheckCount > 60000) {
+//       HeaterCheckCount = 0;
+//       ANYCUBIC_SENDCOMMAND_DBG_PGM("J10", "TFT Serial Debug: Hotend temperature abnormal... J10"); // J10 Hotend temperature abnormal
+//     }
+//     else {
+//       HeaterCheckCount++;
+//     }
+//   } else {
+//     HeaterCheckCount = 0;
+//   }
+// }
 
 void AnycubicTFTClass::OnPrintTimerStarted() {
   #if ENABLED(SDSUPPORT)
@@ -952,9 +934,16 @@ void AnycubicTFTClass::DoSDCardStateCheck() {
 
 void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    // TODO: JBA There is no EXtUI method to check the state of the filament runout sensor which is werid
     if (ExtUI::getFilamentRunoutState()) {
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J15", "TFT Serial Debug: Filament runout... J15");
+      if(IsPrintingFromMedia or ExtUI::isPrintingFromMedia()) {
+        // play tone to indicate filament is out
+        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
+      
+        // tell the user that the filament has run out and wait 
+        ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: Blocking filament prompt... J23");
+      } else {
+        ANYCUBIC_SENDCOMMAND_DBG_PGM("J15", "TFT Serial Debug: Non blocking filament runout... J15");
+      }
     }
   #endif // FILAMENT_RUNOUT_SENSOR
 }
@@ -979,15 +968,15 @@ void AnycubicTFTClass::PausePrint() {
     if(ExtUI::isPrintingFromMedia()) {
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
 
-      ExtUI::pausePrint();
-    
       if (ExtUI::getFilamentRunoutState()) {
-        // play tone to indicate filament is out
-        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
-      
         // tell the user that the filament has run out and wait 
         ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: Show filament prompt... J23");
+      
+        // play tone to indicate filament is out
+        ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
       }
+
+      ExtUI::pausePrint();
     }
   #endif // SDSUPPORT
 }
@@ -995,24 +984,21 @@ void AnycubicTFTClass::PausePrint() {
 void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      // TODO: JBA There is no EXtUI method to check the state of the filament runout sensor which is werid
       if (ExtUI::getFilamentRunoutState()) {
         PausePrint();
         return;
       }
     #endif
 
-    ExtUI::resumePrint();
-
     ANYCUBIC_SENDCOMMAND_DBG_PGM("J04", "TFT Serial Debug: SD print resumed... J04"); // J04 printing form sd card now
+    ExtUI::resumePrint();
   #endif
 }
 
 void AnycubicTFTClass::StopPrint() {
   #if ENABLED(SDSUPPORT)
-    ExtUI::stopPrint();
-    
     ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stopped... J16");
+    ExtUI::stopPrint();
   #endif // SDSUPPORT
 }
 
