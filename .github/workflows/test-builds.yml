@@ -14,6 +14,14 @@ on:
     - data/**
     - docs/**
     - '**/*.md'
+  push:
+    branches:
+    - bugfix-2.0.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - '**/*.md'
 
 jobs:
   test_builds:
