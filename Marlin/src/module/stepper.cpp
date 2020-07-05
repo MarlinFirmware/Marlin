@@ -1390,13 +1390,13 @@ void Stepper::isr() {
         WRITE(X_STEP_PIN, HIGH);
         WRITE(Y_STEP_PIN, HIGH);
         WRITE(Z_STEP_PIN, HIGH);
-        #if EXTRUDERS
+        #if E_STEPPERS
           WRITE(E0_STEP_PIN, HIGH);
         #endif
-        #if EXTRUDERS > 1
+        #if E_STEPPERS > 1
           WRITE(E1_STEP_PIN, HIGH);
         #endif
-        #if EXTRUDERS > 2
+        #if E_STEPPERS > 2
           WRITE(E2_STEP_PIN, HIGH);
         #endif
       }
@@ -1493,13 +1493,13 @@ void Stepper::isr() {
         WRITE(X_STEP_PIN, LOW);
         WRITE(Y_STEP_PIN, LOW);
         WRITE(Z_STEP_PIN, LOW);
-        #if EXTRUDERS
+        #if E_STEPPERS
           WRITE(E0_STEP_PIN, LOW);
         #endif
-        #if EXTRUDERS > 1
+        #if E_STEPPERS > 1
           WRITE(E1_STEP_PIN, LOW);
         #endif
-        #if EXTRUDERS > 2
+        #if E_STEPPERS > 2
           WRITE(E2_STEP_PIN, LOW);
         #endif
       }
@@ -2591,7 +2591,7 @@ void Stepper::init() {
     AXIS_INIT(Z, Z);
   #endif
 
-  #if E_STEPPERS > 0 && HAS_E0_STEP
+  #if E_STEPPERS && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
   #if E_STEPPERS > 1 && HAS_E1_STEP
