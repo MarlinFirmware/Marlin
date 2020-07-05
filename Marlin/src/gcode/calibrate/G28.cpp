@@ -203,14 +203,14 @@
  */
 void GcodeSuite::G28() {
 
-#if ENABLED(LASER_MOVE_G28_OFF)
-  cutter.set_inline_enabled(false);       // turn off laser
-#endif
-
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPGM(">>> G28");
     log_machine_info();
   }
+
+  #if ENABLED(LASER_MOVE_G28_OFF)
+    cutter.set_inline_enabled(false);       // turn off laser
+  #endif
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
 
@@ -250,6 +250,9 @@ void GcodeSuite::G28() {
   #endif
 
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+
+  // Count this command as movement / activity
+  reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
   #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)

@@ -277,9 +277,8 @@ void HAL_clear_reset_source() { }
 
 /**
  * TODO: Check this and change or remove.
- * currently returns 1 that's equal to poweron reset.
  */
-uint8_t HAL_get_reset_source() { return 1; }
+uint8_t HAL_get_reset_source() { return RST_POWER_ON; }
 
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 

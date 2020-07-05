@@ -1222,16 +1222,27 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
-  void extruder_migration() {
+  bool extruder_migration() {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
-      if (thermalManager.targetTooColdToExtrude(active_extruder)) return;
+      if (thermalManager.targetTooColdToExtrude(active_extruder)) {
+        #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+          SERIAL_ECHOLN("Migration Source Too Cold");
+        #endif
+        return false;
+      }
     #endif
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
+      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+        SERIAL_ECHO_MSG("No Migration Target");
+        SERIAL_ECHO_MSG("Target: ", migration.target,
+                        " Last: ", migration.last,
+                        " Active: ", active_extruder);
+      #endif
       migration.automode = false;
-      return;
+      return false;
     }
 
     // Migrate to a target or the next extruder
@@ -1239,6 +1250,9 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     uint8_t migration_extruder = active_extruder;
 
     if (migration.target) {
+      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+        SERIAL_ECHOLN("Migration using fixed target");
+      #endif
       // Specified target ok?
       const int16_t t = migration.target - 1;
       if (t != active_extruder) migration_extruder = t;
@@ -1246,9 +1260,17 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     else if (migration.automode && migration_extruder < migration.last && migration_extruder < EXTRUDERS - 1)
       migration_extruder++;
 
-    if (migration_extruder == active_extruder) return;
+    if (migration_extruder == active_extruder) {
+      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+        SERIAL_ECHOLN("Migration source matches active");
+      #endif
+      return false;
+    }
 
     // Migration begins
+    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+      SERIAL_ECHOLN("Beginning migration");
+    #endif
 
     migration.in_progress = true; // Prevent runout script
     planner.synchronize();
@@ -1294,6 +1316,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
+    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+      SERIAL_ECHOLN("Migration Complete");
+    #endif
+    return true;
   }
 
 #endif // TOOLCHANGE_MIGRATION_FEATURE

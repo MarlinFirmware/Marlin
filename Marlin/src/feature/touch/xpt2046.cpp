@@ -81,7 +81,6 @@
 #endif
 
 XPT2046 touch;
-extern int8_t encoderDiff;
 
 void XPT2046::init() {
   SET_INPUT(TOUCH_MISO_PIN);
@@ -101,39 +100,41 @@ void XPT2046::init() {
 #include "../../lcd/ultralcd.h" // For EN_C bit mask
 
 uint8_t XPT2046::read_buttons() {
-  int16_t tsoffsets[4] = { 0 };
+  #ifdef HAS_SPI_LCD
+    int16_t tsoffsets[4] = { 0 };
 
-  if (tsoffsets[0] + tsoffsets[1] == 0) {
-    // Not yet set, so use defines as fallback...
-    tsoffsets[0] = XPT2046_X_CALIBRATION;
-    tsoffsets[1] = XPT2046_X_OFFSET;
-    tsoffsets[2] = XPT2046_Y_CALIBRATION;
-    tsoffsets[3] = XPT2046_Y_OFFSET;
-  }
+    if (tsoffsets[0] + tsoffsets[1] == 0) {
+      // Not yet set, so use defines as fallback...
+      tsoffsets[0] = XPT2046_X_CALIBRATION;
+      tsoffsets[1] = XPT2046_X_OFFSET;
+      tsoffsets[2] = XPT2046_Y_CALIBRATION;
+      tsoffsets[3] = XPT2046_Y_OFFSET;
+    }
 
-  // We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
+    // We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
 
-  if (!isTouched()) return 0;
-  const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
-                 y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
-  if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
+    if (!isTouched()) return 0;
+    const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
+                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
+    if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
 
-  // Touch within the button area simulates an encoder button
-  if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
-    return WITHIN(x,  14,  77) ? EN_D
-         : WITHIN(x,  90, 153) ? EN_A
-         : WITHIN(x, 166, 229) ? EN_B
-         : WITHIN(x, 242, 305) ? EN_C
-         : 0;
+    // Touch within the button area simulates an encoder button
+    if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
+      return WITHIN(x,  14,  77) ? EN_D
+          : WITHIN(x,  90, 153) ? EN_A
+          : WITHIN(x, 166, 229) ? EN_B
+          : WITHIN(x, 242, 305) ? EN_C
+          : 0;
 
-  if (x > TOUCH_SCREEN_WIDTH || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)) return 0;
+    if (x > TOUCH_SCREEN_WIDTH || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)) return 0;
 
-  // Column and row above BUTTON_AREA_TOP
-  int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
-         row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
+    // Column and row above BUTTON_AREA_TOP
+    int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
+          row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
 
-  // Send the touch to the UI (which will simulate the encoder wheel)
-  MarlinUI::screen_click(row, col, x, y);
+    // Send the touch to the UI (which will simulate the encoder wheel)
+    MarlinUI::screen_click(row, col, x, y);
+  #endif
   return 0;
 }
 

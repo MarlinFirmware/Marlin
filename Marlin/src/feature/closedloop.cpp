@@ -29,12 +29,14 @@
 
 #include "closedloop.h"
 
-void init_closedloop() {
+ClosedLoop closedloop;
+
+void ClosedLoop::init() {
   OUT_WRITE(CLOSED_LOOP_ENABLE_PIN, LOW);
   SET_INPUT_PULLUP(CLOSED_LOOP_MOVE_COMPLETE_PIN);
 }
 
-void set_closedloop(const byte val) {
+void ClosedLoop::set(const byte val) {
   OUT_WRITE(CLOSED_LOOP_ENABLE_PIN, val);
 }
 
