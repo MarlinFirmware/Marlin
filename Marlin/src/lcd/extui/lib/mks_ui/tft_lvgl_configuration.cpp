@@ -644,12 +644,9 @@ static void xpt2046_corr(uint16_t *x, uint16_t *y) {
 
 int SPI2_ReadWrite2Bytes(void) {
   #define SPI_READ_WRITE_BYTE(B) TERN(SPI_GRAPHICAL_TFT, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
-  uint16_t temp = SPI_READ_WRITE_BYTE(0xFF);
-  volatile uint16_t ans = temp << 8;
-  temp = SPI_READ_WRITE_BYTE(0xFF);
-  ans |= temp;
-  ans >>= 3;
-  return ans & 0x0FFF;
+  const uint16_t t1 = SPI_READ_WRITE_BYTE(0xFF),
+                 t2 = SPI_READ_WRITE_BYTE(0xFF);
+  return (((t1 << 8) | t2) >> 3) & 0x0FFF;
 }
 
 uint16_t x_addata[times], y_addata[times];
