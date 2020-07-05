@@ -226,7 +226,7 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       ABL_VAR int abl_points;
-    #elif EITHER(ABL_GRID, PROBE_MANUALLY)
+    #else
       int constexpr abl_points = GRID_MAX_POINTS;
     #endif
 
