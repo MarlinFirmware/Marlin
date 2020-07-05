@@ -275,9 +275,9 @@ void menu_cancelobject();
       #define __PID_BASE_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
         raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_BASE_MENU_ITEMS(N) \
