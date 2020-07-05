@@ -246,7 +246,7 @@ void MarlinUI::init_lcd() {
       OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
     #endif
 
-    #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
+    #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864)
       SET_OUTPUT(LCD_PINS_DC);
       #ifndef LCD_RESET_PIN
         #define LCD_RESET_PIN LCD_PINS_RS

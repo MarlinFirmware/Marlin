@@ -211,58 +211,77 @@
 //
 // LCDs and Controllers
 //
-#define BEEPER_PIN                            37
 #define SD_DETECT_PIN                         49
 
-#if ENABLED(FYSETC_MINI_12864)
-  //
-  // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
-  //
-  #define DOGLCD_A0                           16
-  #define DOGLCD_CS                           17
-
-  #if ENABLED(FYSETC_GENERIC_12864_1_1)
-    #define LCD_BACKLIGHT_PIN                 27
-  #endif
-
-  #define KILL_PIN                            41
-  #define LCD_RESET_PIN                       23  // Must be high or open for LCD to operate normally.
-                                // Seems to work best if left open.
-
-  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-    #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN                   25
-    #endif
-    #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN                   27
-    #endif
-    #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN                   29
-    #endif
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      25
-  #endif
-
-#elif HAS_GRAPHICAL_LCD
-
-  #define LCD_PINS_RS                         16
-  #define LCD_PINS_ENABLE                     17
-  #define LCD_PINS_D4                         23
-  #define LCD_PINS_D5                         25
-  #define LCD_PINS_D6                         27
-  #define LCD_PINS_D7                         29
-
-  #if ENABLED(MKS_MINI_12864)
-    #define DOGLCD_CS                         25
-    #define DOGLCD_A0                         27
-  #endif
-
-#endif
-
-#if ENABLED(NEWPANEL)
-  #define BTN_EN1                             31
-  #define BTN_EN2                             33
+#if ENABLED(FYSETC_242_OLED_12864)
+  #define BTN_EN1                             37
+  #define BTN_EN2                             29
   #define BTN_ENC                             35
+  #define BEEPER_PIN                          31
+
+  #define LCD_PINS_DC                         25
+  #define LCD_PINS_RS                         33
+  #define DOGLCD_CS                           16
+  #define DOGLCD_MOSI                         23
+  #define DOGLCD_SCK                          17
+  #define DOGLCD_A0                  LCD_PINS_DC
+
+  #define KILL_PIN                            -1  // NC
+  #define NEOPIXEL_PIN                        27
+
+#else
+  #define BEEPER_PIN                          37
+
+  #if ENABLED(FYSETC_MINI_12864)
+    //
+    // See https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+    //
+    #define DOGLCD_A0                         16
+    #define DOGLCD_CS                         17
+
+    #if ENABLED(FYSETC_GENERIC_12864_1_1)
+      #define LCD_BACKLIGHT_PIN               27
+    #endif
+
+    #define KILL_PIN                          41
+    #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
+                                  // Seems to work best if left open.
+
+    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN                 25
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN                 27
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN                 29
+      #endif
+    #elif ENABLED(FYSETC_MINI_12864_2_1)
+      #define NEOPIXEL_PIN                    25
+    #endif
+
+  #elif HAS_GRAPHICAL_LCD
+
+    #define LCD_PINS_RS                       16
+    #define LCD_PINS_ENABLE                   17
+    #define LCD_PINS_D4                       23
+    #define LCD_PINS_D5                       25
+    #define LCD_PINS_D6                       27
+    #define LCD_PINS_D7                       29
+
+    #if ENABLED(MKS_MINI_12864)
+      #define DOGLCD_CS                       25
+      #define DOGLCD_A0                       27
+    #endif
+
+  #endif
+
+  #if ENABLED(NEWPANEL)
+    #define BTN_EN1                           31
+    #define BTN_EN2                           33
+    #define BTN_ENC                           35
+  #endif
 #endif
 
 #ifndef RGB_LED_R_PIN

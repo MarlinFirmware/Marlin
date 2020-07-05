@@ -2587,12 +2587,59 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(PIDTEMP)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      constexpr float defKp[] =
+        #ifdef DEFAULT_Kp_LIST
+          DEFAULT_Kp_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
+        #endif
+      , defKi[] =
+        #ifdef DEFAULT_Ki_LIST
+          DEFAULT_Ki_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
+        #endif
+      , defKd[] =
+        #ifdef DEFAULT_Kd_LIST
+          DEFAULT_Kd_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
+        #endif
+      ;
+      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        constexpr float defKc[] =
+          #ifdef DEFAULT_Kc_LIST
+            DEFAULT_Kc_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #if ENABLED(PID_FAN_SCALING)
+        constexpr float defKf[] =
+          #ifdef DEFAULT_Kf_LIST
+            DEFAULT_Kf_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #define PID_DEFAULT(N,E) def##N[E]
+    #else
+      #define PID_DEFAULT(N,E) DEFAULT_##N
+    #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) = float(DEFAULT_Kp);
-      PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
-      PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = DEFAULT_Kc);
-      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = DEFAULT_Kf);
+      PID_PARAM(Kp, e) = float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
+      PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
+      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
+      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
     }
   #endif
 
@@ -3140,7 +3187,7 @@ void MarlinSettings::reset() {
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(
-            #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+            #if ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
               SP_P_STR
             #else

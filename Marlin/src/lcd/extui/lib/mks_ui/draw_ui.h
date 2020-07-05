@@ -28,6 +28,11 @@ extern "C" { /* C-declarations for C++ */
 #include <stdint.h>
 #include <string.h>
 #include "lvgl.h"
+
+//the colors of the last MKS Ui
+#undef LV_COLOR_BACKGROUND
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
+
 #include "tft_multi_language.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
@@ -214,7 +219,9 @@ extern void tft_style_init();
 extern char *creat_title_text(void);
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
-extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+#if HAS_GCODE_PREVIEW
+  extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+#endif
 extern void GUI_RefreshPage();
 extern void clear_cur_ui();
 extern void draw_return_ui();
