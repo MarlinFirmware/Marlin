@@ -1495,7 +1495,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
     if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
-      DEBUG_ECHOLNPAIR("Selected home phase ", home_phase[axis],
+      SERIAL_ECHOLNPAIR("Selected home phase ", home_phase[axis],
                        " too close to endstop trigger phase ", phaseCurrent,
                        ". Pick a different phase for ", axis_codes[axis]);
 
