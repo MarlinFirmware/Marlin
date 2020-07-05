@@ -1502,8 +1502,8 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Convert tmc µsteps(phase) to whole Marlin µsteps to mm to effector backout direction
-    const float mmDelta = int16_t(phaseDelta / phasePerUStep) * planner.steps_to_mm[axis] * effectorBackoutDir ;
+    // Convert tmc µsteps(phase) to whole Marlin µsteps to effector to backout direction to mm 
+    const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.steps_to_mm[axis];
 
     // optional debug messages.
     if (DEBUGGING(LEVELING)) {
