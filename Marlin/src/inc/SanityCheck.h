@@ -519,7 +519,9 @@
   #else
     #warning "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update Configuration.h."
   #endif
-  #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+  #endif
 #endif
 
 /**
