@@ -14,8 +14,9 @@ on:
 
 jobs:
   bad_target:
-
     name: PR Bad Target
+    if: github.repository == 'MarlinFirmware/Marlin'
+
     runs-on: ubuntu-latest
 
     steps:

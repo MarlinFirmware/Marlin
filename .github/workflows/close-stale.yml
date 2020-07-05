@@ -3,7 +3,7 @@
 # Close open issues after a period of inactivity
 #
 
-name: "Close stale issues"
+name: Close Stale Issues
 
 on:
   schedule:
@@ -11,7 +11,11 @@ on:
 
 jobs:
   stale:
+    name: Close Stale Issues
+    if: github.repository == 'MarlinFirmware/Marlin'
+
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/stale@v3
       with:
