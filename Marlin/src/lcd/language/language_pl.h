@@ -394,7 +394,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Błąd: MINTEMP STÓŁ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Błąd: MAXTEMP KOMORA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Błąd: MINTEMP KOMORA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Najpierw Home XY");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("Drukarka zatrzym.");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Proszę zresetować");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
