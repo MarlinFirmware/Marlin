@@ -514,7 +514,7 @@
 #endif
 
 #ifdef FIL_RUNOUT_INVERTING
-  #if !FIL_RUNOUT_INVERTING
+  #if FIL_RUNOUT_INVERTING
     #warning "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update Configuration.h."
   #else
     #warning "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update Configuration.h."
