@@ -1468,7 +1468,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
           phasePerUStep = 256 / (X_MICROSTEPS);
           phaseCurrent = stepperX.get_microstep_counter();
           effectorBackoutDir = -X_HOME_DIR;
-          stepperBackoutDir = INVERT_X_DIR ? -effectorBackoutDir : effectorBackoutDir;
+          stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       #ifdef Y_MICROSTEPS
@@ -1476,7 +1476,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
           phasePerUStep = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.get_microstep_counter();
           effectorBackoutDir = -Y_HOME_DIR;
-          stepperBackoutDir = INVERT_Y_DIR ? -effectorBackoutDir : effectorBackoutDir;
+          stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       #ifdef Z_MICROSTEPS
@@ -1484,7 +1484,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
           phasePerUStep = 256 / (Z_MICROSTEPS);
           phaseCurrent = stepperZ.get_microstep_counter();
           effectorBackoutDir = -Z_HOME_DIR;
-          stepperBackoutDir = INVERT_Y_DIR ? -effectorBackoutDir : effectorBackoutDir;
+          stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       default: return;
@@ -1502,7 +1502,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Convert tmc µsteps(phase) to whole Marlin µsteps to effector to backout direction to mm 
+    // Convert tmc µsteps(phase) to whole Marlin µsteps to effector backout direction to mm 
     const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.steps_to_mm[axis];
 
     // optional debug messages.
