@@ -110,17 +110,6 @@ void AnycubicTFTClass::OnSetup() {
 void AnycubicTFTClass::OnCommandScan() {
   // CheckHeaterError();
   
-  // if (mediaPrintingState == AMPRINTSTATE_PAUSED && !ExtUI::isMoving()) {
-  //   mediaPrintingState = AMPRINTSTATE_PAUSED;
-  //   ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: SD print paused done... J18");
-  // } else 
-  
-  if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && !ExtUI::isMoving()) {
-    mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-    mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-    ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stopped... J16");
-  }
-  
   if(TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
   }
@@ -175,21 +164,29 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
      * "Reheat finished."
      */
     if (strcmp_P(msg, PSTR("Nozzle Parked")) == 0) {
-      mediaPrintingState = AMPRINTSTATE_PAUSED;
-      mediaPauseState = AMPAUSESTATE_PARKED;
-      // enable continue button
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
+      if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED) {
+        mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+        mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+        ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
+        // TODO: JBA I might need to send a J14 for printing done to make the printer leave the in printing state
+      } else {
+        mediaPrintingState = AMPRINTSTATE_PAUSED;
+        mediaPauseState = AMPAUSESTATE_PARKED;
+        // enable continue button
+        ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
+      }
     } else if (strcmp_P(msg, PSTR("Load Filament")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_FILAMENT_OUT;
       // enable continue button
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is out... J18");
+      // TODO: JBA this might not need to happen as it may have already been sent out
       // tell the user that the filament has run out and wait 
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: UserConfirm Blocking filament prompt... J23");
     } else if (strcmp_P(msg, PSTR("Filament Purging...")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_PARKING;
-      // disable all buttons
+      // disable continue button
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
     } else if (strcmp_P(msg, PSTR("HeaterTimeout")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
@@ -506,7 +503,7 @@ void AnycubicTFTClass::OnPrintTimerStarted() {
 
 void AnycubicTFTClass::OnPrintTimerPaused() {
   #if ENABLED(SDSUPPORT)
-    if (ExtUI::isPrintingFromMedia) {
+    if (ExtUI::isPrintingFromMedia()) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_PARKING;
     }
@@ -520,7 +517,6 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J14", "TFT Serial Debug: SD Print Completed... J14");
     }
-
     // otherwise it was stopped by the printer so don't send print completed signal to TFT
   #endif
 }
@@ -806,7 +802,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 22: // A22 move X/Y/Z or extrude
-            if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
+            if (!ExtUI::isPrinting()) {
               float coorvalue;
               unsigned int movespeed = 0;
               char commandStr[30];
@@ -870,7 +866,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 23: // A23 preheat pla
-            if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
+            if (!ExtUI::isPrinting()) {
               if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10) {
                 ExtUI::injectCommands_P(PSTR("G1 Z10")); //RASE Z AXIS
               }
@@ -883,7 +879,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 24:// A24 preheat abs
-            if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
+            if (!ExtUI::isPrinting()) {
               if (ExtUI::getAxisPosition_mm(ExtUI::Z) < 10) {
                 ExtUI::injectCommands_P(PSTR("G1 Z10")); //RASE Z AXIS
               }
@@ -897,7 +893,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 25: // A25 cool down
-            if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
+            if (!ExtUI::isPrinting()) {
               ExtUI::setTargetTemp_celsius(0, (ExtUI::heater_t) ExtUI::BED);
               ExtUI::setTargetTemp_celsius(0, (ExtUI::extruder_t) ExtUI::E0);
 
@@ -1046,6 +1042,8 @@ void AnycubicTFTClass::StopPrint() {
   #if ENABLED(SDSUPPORT)
     mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
     mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+
+    ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
     ExtUI::stopPrint();
   #endif // SDSUPPORT
 }
