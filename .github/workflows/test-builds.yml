@@ -14,9 +14,19 @@ on:
     - data/**
     - docs/**
     - '**/*.md'
+  push:
+    branches:
+    - bugfix-2.0.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - '**/*.md'
 
 jobs:
   test_builds:
+    name: Run All Tests
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
@@ -103,7 +113,6 @@ jobs:
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         # Inline tests script
-        [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         chmod +x buildroot/bin/*
         chmod +x buildroot/tests/*
         export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}

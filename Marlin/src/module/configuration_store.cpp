@@ -3163,16 +3163,16 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_HEADING("Material heatup parameters:");
       LOOP_L_N(i, PREHEAT_COUNT) {
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR(
-          "  M145 S", (int)i
+        SERIAL_ECHOLNPAIR_P(
+          PSTR("  M145 S"), (int)i
           #if HAS_HOTEND
-            , " H", TEMP_UNIT(ui.material_preset[i].hotend_temp)
+            , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
           #endif
           #if HAS_HEATED_BED
-            , " B", TEMP_UNIT(ui.material_preset[i].bed_temp)
+            , SP_B_STR, TEMP_UNIT(ui.material_preset[i].bed_temp)
           #endif
           #if HAS_FAN
-            , " F", ui.material_preset[i].fan_speed
+            , PSTR(" F"), ui.material_preset[i].fan_speed
           #endif
         );
       }
@@ -3198,7 +3198,7 @@ void MarlinSettings::reset() {
             , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
           );
           #if ENABLED(PID_EXTRUSION_SCALING)
-            SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
+            SERIAL_ECHOPAIR_P(SP_C_STR, PID_PARAM(Kc, e));
             if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
           #endif
           #if ENABLED(PID_FAN_SCALING)
