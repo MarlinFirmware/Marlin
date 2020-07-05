@@ -1457,44 +1457,44 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // check if home phase is disabled for this axis.
     if (home_phase[axis] < 0) return;
 
-    int16_t axisMicrostepSize,
-            phaseCurrent,
-            homeDir;
-    bool invertDir;
+    int16_t phasePerUStep, // tmc µsteps(phase) per marlin µsteps
+            phaseCurrent,  // the tmc µsteps(phase) count of the current position
+            effectorBackoutDir, // direction in which the effector mm coordinates move away from endstop.
+            stepperBackoutDir; // direction in which the tmc µstep count(phase) move away from endstop.
 
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
-          axisMicrostepSize = 256 / (X_MICROSTEPS);
+          phasePerUStep = 256 / (X_MICROSTEPS);
           phaseCurrent = stepperX.get_microstep_counter();
-          invertDir = (INVERT_X_DIR) ^ (X_HOME_DIR > 0);
-          homeDir = X_HOME_DIR;
+          effectorBackoutDir = -X_HOME_DIR;
+          stepperBackoutDir = INVERT_X_DIR ? -effectorBackoutDir : effectorBackoutDir;
           break;
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
-          axisMicrostepSize = 256 / (Y_MICROSTEPS);
+          phasePerUStep = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.get_microstep_counter();
-          invertDir = (INVERT_Y_DIR) ^ (Y_HOME_DIR > 0);
-          homeDir = Y_HOME_DIR;
+          effectorBackoutDir = -Y_HOME_DIR;
+          stepperBackoutDir = INVERT_Y_DIR ? -effectorBackoutDir : effectorBackoutDir;
           break;
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
-          axisMicrostepSize = 256 / (Z_MICROSTEPS);
+          phasePerUStep = 256 / (Z_MICROSTEPS);
           phaseCurrent = stepperZ.get_microstep_counter();
-          invertDir = (INVERT_Z_DIR) ^ (Z_HOME_DIR > 0);
-          homeDir = Z_HOME_DIR;
+          effectorBackoutDir = -Z_HOME_DIR;
+          stepperBackoutDir = INVERT_Y_DIR ? -effectorBackoutDir : effectorBackoutDir;
           break;
       #endif
       default: return;
     }
 
-    // Depending on invert dir measure the distance to nearest home phase.
-    int16_t phaseDelta = (invertDir ? -1 : 1) * (home_phase[axis] - phaseCurrent);
+    // Phase distance to nearest home phase position when moving in the backout direction from endstop(may be negative).
+    int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
-    if (ABS(phaseDelta) * planner.steps_to_mm[axis] / axisMicrostepSize < 0.05f)
+    if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
       DEBUG_ECHOLNPAIR("Selected home phase ", home_phase[axis],
                        " too close to endstop trigger phase ", phaseCurrent,
                        ". Pick a different phase for ", axis_codes[axis]);
@@ -1502,8 +1502,8 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Convert µsteps to mm to be on phase
-    const float mmDelta = (-phaseDelta * homeDir) * planner.steps_to_mm[axis] / axisMicrostepSize;
+    // Convert tmc µsteps(phase) to whole Marlin µsteps to mm to effector backout direction
+    const float mmDelta = int16_t(phaseDelta / phasePerUStep) * planner.steps_to_mm[axis] * effectorBackoutDir ;
 
     // optional debug messages.
     if (DEBUGGING(LEVELING)) {
@@ -1519,7 +1519,6 @@ void set_axis_not_trusted(const AxisEnum axis) {
     }
   }
 #endif
-
 
 /**
  * Home an individual "raw axis" to its endstop.

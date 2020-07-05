@@ -688,7 +688,7 @@
       case TMC_TBL: SERIAL_PRINT(st.blank_time(), DEC); break;
       case TMC_HEND: SERIAL_PRINT(st.hysteresis_end(), DEC); break;
       case TMC_HSTRT: SERIAL_PRINT(st.hysteresis_start(), DEC); break;
-      case TMC_MSCNT: SERIAL_PRINT(st.MSCNT(), DEC); break;
+      case TMC_MSCNT: SERIAL_PRINT(st.get_microstep_counter(), DEC); break;
       default: _tmc_status(st, i); break;
     }
   }
