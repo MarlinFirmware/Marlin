@@ -405,7 +405,7 @@ void init_tft() {
   }
 }
 
-#endif // if DISABLED(SPI_GRAPHICAL_TFT)
+#endif // !SPI_GRAPHICAL_TFT
 
 extern uint8_t bmp_public_buf[17 * 1024];
 
@@ -523,7 +523,9 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
     lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
     W25QXX.init(SPI_QUARTER_SPEED);
-  #else
+
+  #else // !SPI_GRAPHICAL_TFT
+
     #if 1
       uint16_t i, width, height;
       uint16_t clr_temp;
@@ -541,7 +543,8 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
       lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
     #endif
-  #endif // SPI_GRAPHICAL_TFT
+
+  #endif // !SPI_GRAPHICAL_TFT
 }
 
 #define TICK_CYCLE 1
@@ -562,12 +565,12 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #define XPT2046_HOR_RES   480
-    #define XPT2046_VER_RES   320
-    #define XPT2046_X_MIN     201
-    #define XPT2046_Y_MIN     164
-    #define XPT2046_X_MAX     3919
-    #define XPT2046_Y_MAX     3776
+    #define XPT2046_HOR_RES 480
+    #define XPT2046_VER_RES 320
+    #define XPT2046_X_MIN   201
+    #define XPT2046_Y_MIN   164
+    #define XPT2046_X_MAX  3919
+    #define XPT2046_Y_MAX  3776
     #define XPT2046_AVG       4
     #define XPT2046_INV       1
   #endif
@@ -577,34 +580,34 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #ifndef USE_XPT2046
     #define USE_XPT2046       1
     #ifndef XPT2046_XY_SWAP
-      #define XPT2046_XY_SWAP   1
+      #define XPT2046_XY_SWAP 1
     #endif
     #ifndef XPT2046_X_INV
-      #define XPT2046_X_INV     0
+      #define XPT2046_X_INV   0
     #endif
     #ifndef XPT2046_Y_INV
-      #define XPT2046_Y_INV     1
+      #define XPT2046_Y_INV   1
     #endif
   #endif
 
   #if USE_XPT2046
     #ifndef XPT2046_HOR_RES
-      #define XPT2046_HOR_RES   480
+      #define XPT2046_HOR_RES 480
     #endif
     #ifndef XPT2046_VER_RES
-      #define XPT2046_VER_RES   320
+      #define XPT2046_VER_RES 320
     #endif
     #ifndef XPT2046_X_MIN
-      #define XPT2046_X_MIN     201
+      #define XPT2046_X_MIN   201
     #endif
     #ifndef XPT2046_Y_MIN
-      #define XPT2046_Y_MIN     164
+      #define XPT2046_Y_MIN   164
     #endif
     #ifndef XPT2046_X_MAX
-      #define XPT2046_X_MAX     3919
+      #define XPT2046_X_MAX  3919
     #endif
     #ifndef XPT2046_Y_MAX
-      #define XPT2046_Y_MAX     3776
+      #define XPT2046_Y_MAX  3776
     #endif
     #ifndef XPT2046_AVG
       #define XPT2046_AVG       4
@@ -640,21 +643,12 @@ static void xpt2046_corr(uint16_t *x, uint16_t *y) {
 #define CHY   0xD0
 
 int SPI2_ReadWrite2Bytes(void) {
-  volatile uint16_t ans = 0;
-  uint16_t temp = 0;
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    temp = SPI_TFT.spi_read_write_byte(0xFF);
-    ans = temp << 8;
-    temp = SPI_TFT.spi_read_write_byte(0xFF);
-    ans |= temp;
-    ans >>= 3;
-  #else
-    temp = W25QXX.spi_flash_read_write_byte(0xFF);
-    ans = temp << 8;
-    temp = W25QXX.spi_flash_read_write_byte(0xFF);
-    ans |= temp;
-    ans >>= 3;
-  #endif
+  #define SPI_READ_WRITE_BYTE(B) TERN(SPI_GRAPHICAL_TFT, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
+  uint16_t temp = SPI_READ_WRITE_BYTE(0xFF);
+  volatile uint16_t ans = temp << 8;
+  temp = SPI_READ_WRITE_BYTE(0xFF);
+  ans |= temp;
+  ans >>= 3;
   return ans & 0x0FFF;
 }
 
@@ -662,11 +656,7 @@ uint16_t x_addata[times], y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
   uint16_t i, j, k;
 
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    SPI_TFT.spi_init(SPI_SPEED_6);
-  #else
-    W25QXX.init(SPI_SPEED_6);
-  #endif
+  TERN(SPI_GRAPHICAL_TFT, SPI_TFT.spi_init, W25QXX.init)(SPI_SPEED_6);
 
   for (i = 0; i < times; i++) {
     #if ENABLED(SPI_GRAPHICAL_TFT)
@@ -692,9 +682,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
     #endif
 
   }
-  #if DISABLED(SPI_GRAPHICAL_TFT)
-    W25QXX.init(SPI_QUARTER_SPEED);
-  #endif
+  TERN(SPI_GRAPHICAL_TFT,,W25QXX.init(SPI_QUARTER_SPEED));
 
   for (i = 0; i < times; i++)
     for (j = i + 1; j < times; j++)

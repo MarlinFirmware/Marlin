@@ -1355,7 +1355,7 @@ HAL_STEP_TIMER_ISR() {
 #endif
 
 #if ENABLED(TFT_LVGL_UI)
-extern uint8_t mks_test_flag;
+  extern uint8_t mks_test_flag;
 #endif
 
 void Stepper::isr() {
@@ -1390,9 +1390,15 @@ void Stepper::isr() {
         WRITE(X_STEP_PIN, HIGH);
         WRITE(Y_STEP_PIN, HIGH);
         WRITE(Z_STEP_PIN, HIGH);
-        WRITE(E0_STEP_PIN, HIGH);
-        WRITE(E1_STEP_PIN, HIGH);
-        //WRITE(E2_STEP_PIN, HIGH);
+        #if EXTRUDERS
+          WRITE(E0_STEP_PIN, HIGH);
+        #endif
+        #if EXTRUDERS > 1
+          WRITE(E1_STEP_PIN, HIGH);
+        #endif
+        #if EXTRUDERS > 2
+          WRITE(E2_STEP_PIN, HIGH);
+        #endif
       }
     #endif
 
@@ -1482,18 +1488,24 @@ void Stepper::isr() {
      * is less than the current count due to something preempting between the
      * read and the write of the new period value).
      */
-     #if ENABLED(TFT_LVGL_UI)
-       if (mks_test_flag == 0x1E) {
-         WRITE(X_STEP_PIN, LOW);
-         WRITE(Y_STEP_PIN, LOW);
-         WRITE(Z_STEP_PIN, LOW);
-         WRITE(E0_STEP_PIN, LOW);
-         WRITE(E1_STEP_PIN, LOW);
-         //WRITE(E2_STEP_PIN, LOW);
-       }
-     #endif
+    #if ENABLED(TFT_LVGL_UI)
+      if (mks_test_flag == 0x1E) {
+        WRITE(X_STEP_PIN, LOW);
+        WRITE(Y_STEP_PIN, LOW);
+        WRITE(Z_STEP_PIN, LOW);
+        #if EXTRUDERS
+          WRITE(E0_STEP_PIN, LOW);
+        #endif
+        #if EXTRUDERS > 1
+          WRITE(E1_STEP_PIN, LOW);
+        #endif
+        #if EXTRUDERS > 2
+          WRITE(E2_STEP_PIN, LOW);
+        #endif
+      }
+    #endif
 
-     DISABLE_ISRS();
+    DISABLE_ISRS();
 
     /**
      * Get the current tick value + margin
