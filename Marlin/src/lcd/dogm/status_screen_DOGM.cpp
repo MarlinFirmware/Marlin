@@ -123,12 +123,16 @@
       const bool wflag = power_monitor.power_display_enabled();
     #endif
 
-    #if ENABLED(POWER_MONITOR_CURRENT) || HAS_POWER_MONITOR_VREF
+    #if ENABLED(POWER_MONITOR_CURRENT) && HAS_POWER_MONITOR_VREF
       // cycle between current, voltage, and power
       if (ELAPSED(millis(), power_monitor.display_item_ms)) {
         power_monitor.display_item_ms = millis() + 1000UL;
         ++power_monitor.display_item;
       }
+    #elif ENABLED(POWER_MONITOR_CURRENT)
+      power_monitor.display_item = 0;
+    #elif HAS_POWER_MONITOR_VREF
+      power_monitor.display_item = 1;
     #endif
 
     // ensure we have the right one selected for display
@@ -139,7 +143,7 @@
       #if HAS_POWER_MONITOR_VREF
         if (power_monitor.display_item == 1 && !vflag) ++power_monitor.display_item;
       #endif
-      #if ENABLED(POWER_MONITOR_CURRENT)
+      #if HAS_POWER_MONITOR_WATTS
         if (power_monitor.display_item == 2 && !wflag) ++power_monitor.display_item;
       #endif
       if (power_monitor.display_item >= 3) power_monitor.display_item = 0;
