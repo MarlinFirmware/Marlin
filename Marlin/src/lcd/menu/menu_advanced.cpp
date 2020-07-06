@@ -179,7 +179,13 @@ void menu_cancelobject();
   #endif
 
   #if ENABLED(PIDTEMPBED)
-    int16_t autotune_temp_bed = 50;
+    int16_t autotune_temp_bed = (
+      #ifdef PREHEAT_1_TEMP_BED
+        PREHEAT_1_TEMP_BED
+      #else
+        50
+      #endif
+    );
   #endif
 
   #include "../../gcode/queue.h"
