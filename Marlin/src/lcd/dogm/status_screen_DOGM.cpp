@@ -113,18 +113,18 @@
 
     lcd_moveto(x, y);
 
+    #if HAS_POWER_MONITOR_WATTS
+      const bool wflag = power_monitor.power_display_enabled();
+    #endif
     #if ENABLED(POWER_MONITOR_CURRENT)
       const bool iflag = power_monitor.current_display_enabled();
     #endif
     #if HAS_POWER_MONITOR_VREF
       const bool vflag = power_monitor.voltage_display_enabled();
     #endif
-    #if HAS_POWER_MONITOR_WATTS
-      const bool wflag = power_monitor.power_display_enabled();
-    #endif
 
-    #if BOTH(POWER_MONITOR_CURRENT, HAS_POWER_MONITOR_VREF)
-      // cycle between current, voltage, and power
+    #if HAS_POWER_MONITOR_WATTS
+      // Cycle between current, voltage, and power
       if (ELAPSED(millis(), power_monitor.display_item_ms)) {
         power_monitor.display_item_ms = millis() + 1000UL;
         ++power_monitor.display_item;
