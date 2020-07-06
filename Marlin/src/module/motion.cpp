@@ -1457,10 +1457,10 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // check if home phase is disabled for this axis.
     if (home_phase[axis] < 0) return;
 
-    int16_t phasePerUStep, // tmc µsteps(phase) per marlin µsteps
-            phaseCurrent,  // the tmc µsteps(phase) count of the current position
-            effectorBackoutDir, // direction in which the effector mm coordinates move away from endstop.
-            stepperBackoutDir; // direction in which the tmc µstep count(phase) move away from endstop.
+    int16_t phasePerUStep,      // TMC µsteps(phase) per Marlin µsteps
+            phaseCurrent,       // The TMC µsteps(phase) count of the current position
+            effectorBackoutDir, // Direction in which the effector mm coordinates move away from endstop.
+            stepperBackoutDir;  // Direction in which the TMC µstep count(phase) move away from endstop.
 
     switch (axis) {
       #ifdef X_MICROSTEPS
@@ -1502,10 +1502,10 @@ void set_axis_not_trusted(const AxisEnum axis) {
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Convert tmc µsteps(phase) to whole Marlin µsteps to effector backout direction to mm 
+    // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm 
     const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.steps_to_mm[axis];
 
-    // optional debug messages.
+    // Optional debug messages
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOLNPAIR(
         "Endstop ", axis_codes[axis], " hit at Phase:", phaseCurrent,
@@ -1514,7 +1514,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
     }
 
     if (mmDelta != 0) {
-      // retrace by the amount computed in mmDelta.
+      // Retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
   }
