@@ -99,13 +99,13 @@ private:
   int serial3_count = 0;
   char *TFTstrchr_pointer;
   uint16_t HeaterCheckCount = 0;
-  uint16_t StoppingCounter = 0;
   uint8_t SpecialMenu = false;
   AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
   AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
   
   float CodeValue();
   bool CodeSeen(char);
+  bool IsNozzleHomed();
   void RenderCurrentFileList();
   void RenderSpecialMenu(uint16_t); 
   void RenderCurrentFolder(uint16_t);

@@ -109,19 +109,13 @@ void AnycubicTFTClass::OnSetup() {
 
 void AnycubicTFTClass::OnCommandScan() {
   // CheckHeaterError();
-  if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && !ExtUI::isMoving()) {
-    // give the head a chance to park before releasing the motors
-    if(StoppingCounter < 60000) {
-      StoppingCounter++;
-    } else {
-      StoppingCounter = 0;
-      #if ENABLED(ANYCUBIC_TFT_DEBUG)
-        SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
-      #endif
-      mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-      ExtUI::injectCommands_P(PSTR("M84\nG4 P500\nM27")); // disable stepper motors and force report of SD status
-    }
+  if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
+    #if ENABLED(ANYCUBIC_TFT_DEBUG)
+      SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
+    #endif
+    mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+    mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+    ExtUI::injectCommands_P(PSTR("M84\nG4 P500\nM27")); // disable stepper motors and force report of SD status
   }
   
   if(TFTbuflen<(TFTBUFSIZE-1)) {
@@ -216,6 +210,13 @@ float AnycubicTFTClass::CodeValue() {
 bool AnycubicTFTClass::CodeSeen(char code) {
   TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindr], code);
   return (TFTstrchr_pointer != NULL); //Return True if a character was found
+}
+
+bool AnycubicTFTClass::IsNozzleHomed() {
+  const float xPosition = ExtUI::getAxisPosition_mm((ExtUI::axis_t) ExtUI::X);
+  const float yPosition = ExtUI::getAxisPosition_mm((ExtUI::axis_t) ExtUI::Y);
+  return WITHIN(xPosition, X_MIN_POS - 0.1, X_MIN_POS + 0.1) &&
+          WITHIN(yPosition, Y_MIN_POS - 0.1, Y_MIN_POS + 0.1);
 }
 
 void AnycubicTFTClass::HandleSpecialMenu() {
@@ -1017,7 +1018,7 @@ void AnycubicTFTClass::StartPrint() {
 
 void AnycubicTFTClass::PausePrint() {
   #if ENABLED(SDSUPPORT)
-    if(ExtUI::isPrintingFromMedia()) {
+    if(ExtUI::isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
       mediaPrintingState = AMPRINTSTATE_PAUSE_REQUESTED;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
@@ -1031,7 +1032,15 @@ void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       if (ExtUI::getFilamentRunoutState()) {
+        #if ENABLED(ANYCUBIC_TFT_DEBUG)
+          SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
+        #endif
+        
+        // trigger the user message box
         DoFilamentRunoutCheck();
+
+        // re-enable the continue button
+        ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: Resume Print with filament sensor still tripped... J18");
         return;
       }
     #endif
