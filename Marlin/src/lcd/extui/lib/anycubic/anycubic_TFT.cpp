@@ -109,6 +109,20 @@ void AnycubicTFTClass::OnSetup() {
 
 void AnycubicTFTClass::OnCommandScan() {
   // CheckHeaterError();
+  if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && !ExtUI::isMoving()) {
+    // give the head a chance to park before releasing the motors
+    if(StoppingCounter < 60000) {
+      StoppingCounter++;
+    } else {
+      StoppingCounter = 0;
+      #if ENABLED(ANYCUBIC_TFT_DEBUG)
+        SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
+      #endif
+      mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+      ExtUI::injectCommands_P(PSTR("M84\nG4 P500\nM27")); // disable stepper motors and force report of SD status
+    }
+  }
   
   if(TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
@@ -164,17 +178,10 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
      * "Reheat finished."
      */
     if (strcmp_P(msg, PSTR("Nozzle Parked")) == 0) {
-      if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED) {
-        mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-        mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-        ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
-        // TODO: JBA I might need to send a J14 for printing done to make the printer leave the in printing state
-      } else {
-        mediaPrintingState = AMPRINTSTATE_PAUSED;
-        mediaPauseState = AMPAUSESTATE_PARKED;
-        // enable continue button
-        ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
-      }
+      mediaPrintingState = AMPRINTSTATE_PAUSED;
+      mediaPauseState = AMPAUSESTATE_PARKED;
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm SD print paused done... J18");
     } else if (strcmp_P(msg, PSTR("Load Filament")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_FILAMENT_OUT;

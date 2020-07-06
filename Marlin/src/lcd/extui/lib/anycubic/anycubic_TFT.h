@@ -99,6 +99,7 @@ private:
   int serial3_count = 0;
   char *TFTstrchr_pointer;
   uint16_t HeaterCheckCount = 0;
+  uint16_t StoppingCounter = 0;
   uint8_t SpecialMenu = false;
   AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
   AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
