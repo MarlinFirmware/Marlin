@@ -169,17 +169,10 @@ void menu_cancelobject();
 #if ENABLED(PID_AUTOTUNE_MENU)
 
   #if ENABLED(PIDTEMP)
-    #ifdef PREHEAT_1_TEMP_HOTEND
-      #define PID_TUNE_TEMP PREHEAT_1_TEMP_HOTEND
-    #else
-      #define PID_TUNE_TEMP 200
-    #endif
-    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PID_TUNE_TEMP);
-    #undef PID_TUNE_TEMP
+    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PREHEAT_1_TEMP_HOTEND);
   #endif
-
   #if ENABLED(PIDTEMPBED)
-    int16_t autotune_temp_bed = 70;
+    int16_t autotune_temp_bed = PREHEAT_1_TEMP_BED;
   #endif
 
   #include "../../gcode/queue.h"
@@ -324,7 +317,7 @@ void menu_cancelobject();
         #ifndef BED_OVERSHOOT
           #define BED_OVERSHOOT 5
         #endif
-        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
+        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, PREHEAT_1_TEMP_BED, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
       #endif
     #endif
 
