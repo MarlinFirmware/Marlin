@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F1 ARMED
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+use_example_configs ArmEd
+exec_test $1 $2 "ArmEd Example Configuration"
+
+# clean up
+restore_configs
