@@ -45,7 +45,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 //#ifndef Z_MIN_PROBE_PIN
-//  #define Z_MIN_PROBE_PIN  PG6
+//  #define Z_MIN_PROBE_PIN                 PG6
 //#endif
 
 //
@@ -61,35 +61,35 @@
 #define X_DIR_PIN                           PB10
 #define X_ENABLE_PIN                        PG0
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN       PE0
+//  #define X_CS_PIN                        PE0
 //#endif
 
 #define Y_STEP_PIN                          PF14
 #define Y_DIR_PIN                           PF15
 #define Y_ENABLE_PIN                        PF13
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN       PE1
+//  #define Y_CS_PIN                        PE1
 //#endif
 
 #define Z_STEP_PIN                          PF11
 #define Z_DIR_PIN                           PF12
 #define Z_ENABLE_PIN                        PC5
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN       PE2
+//  #define Z_CS_PIN                        PE2
 //#endif
 
 #define E0_STEP_PIN                         PC14
 #define E0_DIR_PIN                          PC13
 #define E0_ENABLE_PIN                       PC15
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN      PE3
+//  #define E0_CS_PIN                       PE3
 //#endif
 
 #define E1_STEP_PIN                         PF1
 #define E1_DIR_PIN                          PF0
 #define E1_ENABLE_PIN                       PF2
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN      PE4
+//  #define E1_CS_PIN                       PE4
 //#endif
 
 //
@@ -129,13 +129,13 @@
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
 #ifndef RGB_LED_R_PIN
-  #define RGB_LED_R_PIN     PB7
+  #define RGB_LED_R_PIN                     PB7
 #endif
 #ifndef RGB_LED_G_PIN
-  #define RGB_LED_G_PIN     PB8
+  #define RGB_LED_G_PIN                     PB8
 #endif
 #ifndef RGB_LED_B_PIN
-  #define RGB_LED_B_PIN     PB9
+  #define RGB_LED_B_PIN                     PB9
 #endif
 
 //
@@ -167,8 +167,8 @@
 #define TFT_RESET_PIN                       PD6
 #define TFT_BACKLIGHT_PIN                   PD3
 
-#define TFT_CS_PIN                         PD7
-#define TFT_RS_PIN                         PD11
+#define TFT_CS_PIN                          PD7
+#define TFT_RS_PIN                          PD11
 
 #define TOUCH_CS_PIN                        PG15
 #define TOUCH_SCK_PIN                       PB3
