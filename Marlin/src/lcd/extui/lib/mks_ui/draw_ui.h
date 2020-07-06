@@ -294,8 +294,8 @@ extern DISP_STATE last_disp_state;
 extern DISP_STATE_STACK disp_state_stack;
 
 extern lv_style_t tft_style_scr;
-extern lv_style_t tft_style_lable_pre;
-extern lv_style_t tft_style_lable_rel;
+extern lv_style_t tft_style_label_pre;
+extern lv_style_t tft_style_label_rel;
 extern lv_style_t style_line;
 extern lv_style_t style_para_value_pre;
 extern lv_style_t style_para_value_rel;

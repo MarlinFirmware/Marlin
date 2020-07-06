@@ -239,7 +239,7 @@ void tft_style_init() {
   style_num_text.body.grad_color   = LV_COLOR_WHITE;
   style_num_text.text.color        = LV_COLOR_BLACK;
   style_num_text.text.sel_color    = LV_COLOR_BLACK;
-  style_num_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT)
+  style_num_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
   style_num_text.line.width        = 0;
   style_num_text.text.letter_space = 0;
   style_num_text.text.line_space   = -5;
