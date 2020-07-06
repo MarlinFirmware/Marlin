@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##############################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/28
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/28 20/07/06
  * ##############################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 20/06/30" // ALTER TO SAVED DATE ########################### // 20/06/28
+#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 20/07/06" // ALTER TO SAVED DATE ########################### // 20/07/06
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -961,7 +961,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, 0 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/06/28
+#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -2.7 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/06
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1478,13 +1478,13 @@
 
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
-#define PREHEAT_1_TEMP_HOTEND 200 // 20/06/28
-#define PREHEAT_1_TEMP_BED     60 // 20/06/28
+#define PREHEAT_1_TEMP_HOTEND 205 // 20/06/28
+#define PREHEAT_1_TEMP_BED     63 // 20/07/06
 #define PREHEAT_1_FAN_SPEED   255 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PET" // 20/06/28
 #define PREHEAT_2_TEMP_HOTEND  210 // 20/06/28
-#define PREHEAT_2_TEMP_BED      55 // 20/06/28
+#define PREHEAT_2_TEMP_BED      60 // 20/07/06
 #define PREHEAT_2_FAN_SPEED      0 // Value from 0 to 255 // 20/06/28
 
 /**
