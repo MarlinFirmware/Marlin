@@ -60,7 +60,10 @@ void GcodeSuite::M140() {
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
     got_temp = parser.seenval('I');
-    if (got_temp) temp = ui.material_preset[_MIN(parser.value_byte(), PREHEAT_COUNT - 1)].bed_temp;
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+    }
   #endif
 
   // If no 'I' get the temperature from 'S'
