@@ -7,7 +7,7 @@ name: Lock Closed Issues
 
 on:
   schedule:
-    - cron: '* */12 * * *'
+    - cron: '0 1/13 * * *'
 
 jobs:
   lock:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: dessant/lock-threads@v2
+    - uses: netniV/lock-threads@patch-1
       with:
         github-token: ${{ github.token }}
         process-only: 'issues'
