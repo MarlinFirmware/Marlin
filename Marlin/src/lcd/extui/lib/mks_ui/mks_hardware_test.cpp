@@ -43,144 +43,157 @@
 uint8_t pw_det_sta, pw_off_sta, mt_det_sta, mt_det2_sta, mt_det3_sta;
 uint8_t endstopx1_sta, endstopx2_sta, endstopy1_sta, endstopy2_sta, endstopz1_sta, endstopz2_sta;
 void test_gpio_readlevel_L() {
-  volatile uint32_t itest;
-  WRITE(WIFI_IO0_PIN, HIGH);
-  itest = 10000;
-  while (itest--);
-  pw_det_sta = (READ(POWER_LOSS_PIN) == 0);
-  pw_off_sta = (READ(PS_ON_PIN) == 0);
-  mt_det_sta = (READ(MT_DET_1_PIN) == 0);
-  mt_det2_sta = (READ(MT_DET_2_PIN) == 0);
-  //mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 0);
-  endstopx1_sta = (READ(X_MIN_PIN) == 0);
-  endstopx2_sta = (READ(X_MAX_PIN) == 0);
-  endstopy1_sta = (READ(Y_MIN_PIN) == 0);
-  endstopy2_sta = (READ(Y_MAX_PIN) == 0);
-  endstopz1_sta = (READ(Z_MIN_PIN) == 0);
-  endstopz2_sta = (READ(Z_MAX_PIN) == 0);
+  #if ENABLED(MKS_TEST)
+    volatile uint32_t itest;
+    WRITE(WIFI_IO0_PIN, HIGH);
+    itest = 10000;
+    while (itest--);
+    pw_det_sta = (READ(POWER_LOSS_PIN) == 0);
+    pw_off_sta = (READ(PS_ON_PIN) == 0);
+    mt_det_sta = (READ(MT_DET_1_PIN) == 0);
+    mt_det2_sta = (READ(MT_DET_2_PIN) == 0);
+    //mt_det3_sta = (READ(FIL_RUNOUT_3_PIN) == 0);
+    endstopx1_sta = (READ(X_MIN_PIN) == 0);
+    endstopx2_sta = (READ(X_MAX_PIN) == 0);
+    endstopy1_sta = (READ(Y_MIN_PIN) == 0);
+    endstopy2_sta = (READ(Y_MAX_PIN) == 0);
+    endstopz1_sta = (READ(Z_MIN_PIN) == 0);
+    endstopz2_sta = (READ(Z_MAX_PIN) == 0);
+  #endif
 }
 
 void test_gpio_readlevel_H() {
-  volatile uint32_t itest;
-  WRITE(WIFI_IO0_PIN, LOW);
-  itest = 10000;
-  while (itest--);
-  pw_det_sta = (READ(POWER_LOSS_PIN) == 1);
-  pw_off_sta = (READ(PS_ON_PIN) == 1);
-  mt_det_sta = (READ(MT_DET_1_PIN) == 1);
-  mt_det2_sta = (READ(MT_DET_2_PIN) == 1);
-  //mt_det3_sta = (READ(MT_DET_3_PIN) == 1);
-  endstopx1_sta = (READ(X_MIN_PIN) == 1);
-  endstopx2_sta = (READ(X_MAX_PIN) == 1);
-  endstopy1_sta = (READ(Y_MIN_PIN) == 1);
-  endstopy2_sta = (READ(Y_MAX_PIN) == 1);
-  endstopz1_sta = (READ(Z_MIN_PIN) == 1);
-  endstopz2_sta = (READ(Z_MAX_PIN) == 1);
+  #if ENABLED(MKS_TEST)
+    volatile uint32_t itest;
+    WRITE(WIFI_IO0_PIN, LOW);
+    itest = 10000;
+    while (itest--);
+    pw_det_sta = (READ(POWER_LOSS_PIN) == 1);
+    pw_off_sta = (READ(PS_ON_PIN) == 1);
+    mt_det_sta = (READ(MT_DET_1_PIN) == 1);
+    mt_det2_sta = (READ(MT_DET_2_PIN) == 1);
+    //mt_det3_sta = (READ(MT_DET_3_PIN) == 1);
+    endstopx1_sta = (READ(X_MIN_PIN) == 1);
+    endstopx2_sta = (READ(X_MAX_PIN) == 1);
+    endstopy1_sta = (READ(Y_MIN_PIN) == 1);
+    endstopy2_sta = (READ(Y_MAX_PIN) == 1);
+    endstopz1_sta = (READ(Z_MIN_PIN) == 1);
+    endstopz2_sta = (READ(Z_MAX_PIN) == 1);
+  #endif
 }
 
 void init_test_gpio() {
-  SET_INPUT_PULLUP(X_MIN_PIN);
-  SET_INPUT_PULLUP(X_MAX_PIN);
-  SET_INPUT_PULLUP(Y_MIN_PIN);
-  SET_INPUT_PULLUP(Y_MAX_PIN);
-  SET_INPUT_PULLUP(Z_MIN_PIN);
-  SET_INPUT_PULLUP(Z_MAX_PIN);
+  #ifdef MKS_TEST
+    SET_INPUT_PULLUP(X_MIN_PIN);
+    SET_INPUT_PULLUP(X_MAX_PIN);
+    SET_INPUT_PULLUP(Y_MIN_PIN);
+    SET_INPUT_PULLUP(Y_MAX_PIN);
+    SET_INPUT_PULLUP(Z_MIN_PIN);
+    SET_INPUT_PULLUP(Z_MAX_PIN);
 
-  SET_OUTPUT(WIFI_IO0_PIN);
+    SET_OUTPUT(WIFI_IO0_PIN);
 
-  SET_INPUT_PULLUP(MT_DET_1_PIN);
-  SET_INPUT_PULLUP(MT_DET_2_PIN);
-  //SET_INPUT_PULLUP(MT_DET_3_PIN);
+    SET_INPUT_PULLUP(MT_DET_1_PIN);
+    SET_INPUT_PULLUP(MT_DET_2_PIN);
+    //SET_INPUT_PULLUP(MT_DET_3_PIN);
 
-  SET_INPUT_PULLUP(POWER_LOSS_PIN);
-  SET_INPUT_PULLUP(PS_ON_PIN);
+    SET_INPUT_PULLUP(POWER_LOSS_PIN);
+    SET_INPUT_PULLUP(PS_ON_PIN);
 
-  SET_INPUT_PULLUP(SERVO0_PIN);
+    SET_INPUT_PULLUP(SERVO0_PIN);
 
-  SET_OUTPUT(X_ENABLE_PIN);
-  SET_OUTPUT(Y_ENABLE_PIN);
-  SET_OUTPUT(Z_ENABLE_PIN);
-  SET_OUTPUT(E0_ENABLE_PIN);
-  SET_OUTPUT(E1_ENABLE_PIN);
+    SET_OUTPUT(X_ENABLE_PIN);
+    SET_OUTPUT(Y_ENABLE_PIN);
+    SET_OUTPUT(Z_ENABLE_PIN);
+    SET_OUTPUT(E0_ENABLE_PIN);
+    SET_OUTPUT(E1_ENABLE_PIN);
 
-  WRITE(X_ENABLE_PIN, LOW);
-  WRITE(Y_ENABLE_PIN, LOW);
-  WRITE(Z_ENABLE_PIN, LOW);
-  WRITE(E0_ENABLE_PIN, LOW);
-  WRITE(E1_ENABLE_PIN, LOW);
-  //WRITE(E2_ENABLE_PIN, LOW);
+    WRITE(X_ENABLE_PIN, LOW);
+    WRITE(Y_ENABLE_PIN, LOW);
+    WRITE(Z_ENABLE_PIN, LOW);
+    WRITE(E0_ENABLE_PIN, LOW);
+    WRITE(E1_ENABLE_PIN, LOW);
+    //WRITE(E2_ENABLE_PIN, LOW);
+  #endif
 }
 
 void mks_test_beeper() {
-  WRITE(BEEPER_PIN, HIGH);
-  delay(100);
-  WRITE(BEEPER_PIN, LOW);
-  delay(100);
+  #ifdef MKS_TEST
+    WRITE(BEEPER_PIN, HIGH);
+    delay(100);
+    WRITE(BEEPER_PIN, LOW);
+    delay(100);
+  #endif
 }
 
 void mks_gpio_test(){
-  init_test_gpio();
+  #if ENABLED(MKS_TEST)
+    init_test_gpio();
 
-  test_gpio_readlevel_L();
-  test_gpio_readlevel_H();
-  test_gpio_readlevel_L();
-  if ((pw_det_sta == 1) && (mt_det_sta == 1) && (mt_det2_sta == 1)) // &&(mt_det3_sta == 1))
-    disp_det_ok();
-  else
-    disp_det_error();
+    test_gpio_readlevel_L();
+    test_gpio_readlevel_H();
+    test_gpio_readlevel_L();
+    if ((pw_det_sta == 1) && (mt_det_sta == 1) && (mt_det2_sta == 1)) // &&(mt_det3_sta == 1))
+      disp_det_ok();
+    else
+      disp_det_error();
 
-  if ( (endstopx1_sta == 1)
-    && (endstopx2_sta == 1)
-    && (endstopy1_sta == 1)
-    && (endstopy2_sta == 1)
-    && (endstopz1_sta == 1)
-    && (endstopz2_sta == 1)
-  )
-    disp_Limit_ok();
-  else
-    disp_Limit_error();
+    if ( (endstopx1_sta == 1)
+      && (endstopx2_sta == 1)
+      && (endstopy1_sta == 1)
+      && (endstopy2_sta == 1)
+      && (endstopz1_sta == 1)
+      && (endstopz2_sta == 1)
+    )
+      disp_Limit_ok();
+    else
+      disp_Limit_error();
+    #endif
 }
 
 void mks_hardware_test(){
-  if (millis() % 2000 < 1000) {
-    WRITE(X_DIR_PIN, LOW);
-    WRITE(Y_DIR_PIN, LOW);
-    WRITE(Z_DIR_PIN, LOW);
-    WRITE(E0_DIR_PIN, LOW);
-    WRITE(E1_DIR_PIN, LOW);
-    //WRITE(E2_DIR_PIN, LOW);
-    thermalManager.fan_speed[0] = 255;
-    //WRITE(HEATER_2_PIN, HIGH); // HE2
-    WRITE(HEATER_1_PIN, HIGH); // HE1
-    WRITE(HEATER_0_PIN, HIGH); // HE0
-    WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
-  }
-  else {
-    WRITE(X_DIR_PIN, HIGH);
-    WRITE(Y_DIR_PIN, HIGH);
-    WRITE(Z_DIR_PIN, HIGH);
-    WRITE(E0_DIR_PIN, HIGH);
-    WRITE(E1_DIR_PIN, HIGH);
-    //WRITE(E2_DIR_PIN, HIGH);
-    thermalManager.fan_speed[0] = 0;
-    //WRITE(HEATER_2_PIN, LOW); // HE2
-    WRITE(HEATER_1_PIN, LOW); // HE1
-    WRITE(HEATER_0_PIN, LOW); // HE0
-    WRITE(HEATER_BED_PIN, LOW); // HOT-BED
-  }
+  #if ENABLED(MKS_TEST)
+    if (millis() % 2000 < 1000) {
+      WRITE(X_DIR_PIN, LOW);
+      WRITE(Y_DIR_PIN, LOW);
+      WRITE(Z_DIR_PIN, LOW);
+      WRITE(E0_DIR_PIN, LOW);
+      WRITE(E1_DIR_PIN, LOW);
+      //WRITE(E2_DIR_PIN, LOW);
+      thermalManager.fan_speed[0] = 255;
+      //WRITE(HEATER_2_PIN, HIGH); // HE2
+      WRITE(HEATER_1_PIN, HIGH); // HE1
+      WRITE(HEATER_0_PIN, HIGH); // HE0
+      WRITE(HEATER_BED_PIN, HIGH); // HOT-BED
+    }
+    else {
+      WRITE(X_DIR_PIN, HIGH);
+      WRITE(Y_DIR_PIN, HIGH);
+      WRITE(Z_DIR_PIN, HIGH);
+      WRITE(E0_DIR_PIN, HIGH);
+      WRITE(E1_DIR_PIN, HIGH);
+      //WRITE(E2_DIR_PIN, HIGH);
+      thermalManager.fan_speed[0] = 0;
+      //WRITE(HEATER_2_PIN, LOW); // HE2
+      WRITE(HEATER_1_PIN, LOW); // HE1
+      WRITE(HEATER_0_PIN, LOW); // HE0
+      WRITE(HEATER_BED_PIN, LOW); // HOT-BED
+    }
 
-  if ( (endstopx1_sta == 1) && (endstopx2_sta == 1)
-    && (endstopy1_sta == 1) && (endstopy2_sta == 1)
-    && (endstopz1_sta == 1) && (endstopz2_sta == 1)
-  ) {
-    // nothing here
-  }
-  else {
-    //mks_test_beeper();
-  }
+    if ( (endstopx1_sta == 1) && (endstopx2_sta == 1)
+      && (endstopy1_sta == 1) && (endstopy2_sta == 1)
+      && (endstopz1_sta == 1) && (endstopz2_sta == 1)
+    ) {
+      // nothing here
+    }
+    else {
+      //mks_test_beeper();
+    }
 
-  if (disp_state == PRINT_READY_UI)
-    mks_disp_test();
+    if (disp_state == PRINT_READY_UI)
+      mks_disp_test();
+
+  #endif
 }
 
 static const uint16_t ASCII_Table_16x24[] PROGMEM = {
