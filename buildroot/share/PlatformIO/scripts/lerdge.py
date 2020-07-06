@@ -42,5 +42,5 @@ def encrypt(source, target, env):
 if 'firmware' in board.get("build").keys():
   env.AddPostAction("$BUILD_DIR/${PROGNAME}.bin", encrypt);
 else:
-  print("You need to define output file via board_build.firmware = 'filename' parameter", file=sys.stderr)
+  print("You need to define output file via board_build.firmware = 'filename' parameter")
   exit(1);
