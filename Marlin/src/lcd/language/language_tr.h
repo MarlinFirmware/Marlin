@@ -423,7 +423,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Hata: MIN.SIC. TABLA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Hata: MAX.SIC ODA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Hata: MIN.SIC ODA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Önce XY Sıfırla");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("YAZICI DURDURULDU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Lütfen Resetleyin");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("G"); // One character only

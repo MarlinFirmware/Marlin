@@ -74,6 +74,7 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
+  void injectCommands(char * const);
   bool commandsInQueue();
 
   bool isHeaterIdle(const heater_t);
@@ -236,8 +237,10 @@ namespace ExtUI {
   #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
+    bool getFilamentRunoutState();
+    void setFilamentRunoutState(const bool);
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
     #endif

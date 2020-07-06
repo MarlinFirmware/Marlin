@@ -65,6 +65,7 @@
 // pl         Polish
 // pt         Portuguese
 // pt_br      Portuguese (Brazilian)
+// ro         Romanian
 // ru         Russian
 // sk         Slovak
 // tr         Turkish
@@ -162,7 +163,7 @@
 #define STR_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define STR_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
 #define STR_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
-#define STR_ERR_MESH_XY                     "Mesh point cannot be resolved"
+#define STR_ERR_MESH_XY                     "Mesh point out of range"
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
@@ -204,7 +205,6 @@
 #define STR_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define STR_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define STR_ERR_HOTEND_TOO_COLD             "Hotend too cold"
-#define STR_ERR_Z_HOMING_SER                "Home XY first"
 #define STR_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define STR_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"

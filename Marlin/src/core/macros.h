@@ -97,10 +97,13 @@
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
 
+#define TBI(N,B) (N ^= _BV(B))
+
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
+#define TBI32(N,B) (N ^= _BV32(B))
 
 #define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
@@ -267,7 +270,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.00005f : 0.00005f);})
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.0000005f : 0.0000005f);})
 
 //
 // Maths macros that can be overridden by HAL

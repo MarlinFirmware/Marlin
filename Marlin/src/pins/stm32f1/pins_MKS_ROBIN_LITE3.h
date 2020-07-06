@@ -115,8 +115,6 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-    // Required for MKS_MINI_12864 with this board
-    #define MKS_LCD12864B
     #undef SHOW_BOOTSCREEN
 
   #else                                           // !MKS_MINI_12864
@@ -142,12 +140,12 @@
 #define MOSI_PIN                            PB15
 #define SS_PIN                              PA15
 
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
 #endif

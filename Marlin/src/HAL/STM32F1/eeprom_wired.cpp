@@ -31,9 +31,15 @@
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
 
-size_t PersistentStore::capacity()    { return E2END + 1; }
+#ifndef MARLIN_EEPROM_SIZE
+  #error "MARLIN_EEPROM_SIZE is required for I2C / SPI EEPROM."
+#endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
+
+bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::access_start() {
+  eeprom_init();
   #if ENABLED(SPI_EEPROM)
     #if SPI_CHAN_EEPROM1 == 1
       SET_OUTPUT(BOARD_SPI1_SCK_PIN);
@@ -45,7 +51,6 @@ bool PersistentStore::access_start() {
   #endif
   return true;
 }
-bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {

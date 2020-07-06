@@ -291,7 +291,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
   return uint32_t(data);
 }
 
-#if ENABLED(LCD_USE_DMA_FSMC)
+#ifdef LCD_USE_DMA_FSMC
 
 void LCD_IO_WriteMultiple(uint16_t color, uint32_t count) {
   while (count > 0) {

@@ -28,7 +28,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_NAME "MKS_ROBIN2"
+  #define BOARD_INFO_NAME "MKS_ROBIN2"
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME

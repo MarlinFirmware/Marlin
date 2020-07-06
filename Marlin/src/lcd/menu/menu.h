@@ -65,10 +65,10 @@ class MenuItemBase {
   public:
     // An index to interject in the item label and for
     // use by the action
-    static uint8_t itemIndex;
+    static int8_t itemIndex;
 
     // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const uint8_t ind) { itemIndex = ind; }
+    FORCE_INLINE static void init(const int8_t ind) { itemIndex = ind; }
 
     // Draw an item either selected (pre_char) or not (space) with post_char
     static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
@@ -587,6 +587,17 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
+
+  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
+    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
+    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
+  #else
+    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
+  #endif
+
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)

@@ -30,7 +30,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "GTM32 Pro VB"
+#define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "M201"
 
 //#define DISABLE_DEBUG
@@ -54,7 +54,7 @@
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define E2END 0xFFF                             // 4KB
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
 #endif
 
 //
@@ -145,12 +145,13 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     // connected with a flat wire to J2 connector on the board.
     //
-    #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
-    #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
-    #define LCD_PINS_D5                     PD9
-    #define LCD_PINS_D6                     PD10
-    #define LCD_PINS_D7                     PE15
+    #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
+    // RW is hardwired to VSS
+    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
+    #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
+    #define LCD_PINS_D5                     PD4
+    #define LCD_PINS_D6                     PD5
+    #define LCD_PINS_D7                     PD7
 
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE9
@@ -168,14 +169,14 @@
   #endif
 
   #if HAS_GRAPHICAL_LCD
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1        DELAY_NS(96)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
     #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2        DELAY_NS(48)
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
     #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3       DELAY_NS(715)
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
     #endif
   #endif
 
