@@ -468,7 +468,10 @@ uint8_t public_buf[512];
 
         dir_t d;
         while (dir.readDir(&d, card.longFilename) > 0) {
-          if (card.longFilename[0] == 0) break;
+          // if we dont get a long name, but gets a short one, try it
+          if (card.longFilename[0] == 0 && d.name[0] != 0)
+            dosName2LongName((const char*)d.name, card.longFilename);
+          if (card.longFilename[0] == 0) continue;
           if (card.longFilename[0] == '.') continue;
 
           fn = card.longFilename;
