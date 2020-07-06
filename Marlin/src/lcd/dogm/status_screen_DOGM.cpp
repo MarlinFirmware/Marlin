@@ -123,7 +123,7 @@
       const bool wflag = power_monitor.power_display_enabled();
     #endif
 
-    #if ENABLED(POWER_MONITOR_CURRENT) && HAS_POWER_MONITOR_VREF
+    #if BOTH(POWER_MONITOR_CURRENT, HAS_POWER_MONITOR_VREF)
       // cycle between current, voltage, and power
       if (ELAPSED(millis(), power_monitor.display_item_ms)) {
         power_monitor.display_item_ms = millis() + 1000UL;
