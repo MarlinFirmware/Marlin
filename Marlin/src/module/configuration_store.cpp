@@ -94,7 +94,7 @@
   #include "../feature/powerloss.h"
 #endif
 
-#if ENABLED(POWER_MONITOR)
+#if HAS_POWER_MONITOR
   #include "../feature/power_monitor.h"
 #endif
 
