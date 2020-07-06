@@ -246,8 +246,14 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       // Disable all heaters to reduce power loss
       thermalManager.disable_all_heaters();
       quickstop_stepper();
-      // Raise Z axis
-      gcode.process_subcommands_now_P(PSTR("G91\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
+      // Retract then raise Z axis, using relative coordinates
+      gcode.process_subcommands_now_P(PSTR("G91"));
+      #if POWER_LOSS_RETRACT_LEN
+        gcode.process_subcommands_now_P(PSTR("G1 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
+      #endif
+      #if POWER_LOSS_ZRAISE
+        gcode.process_subcommands_now_P(PSTR("G0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
+      #endif
       planner.synchronize();
     }
 
@@ -400,15 +406,14 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // Extrude and retract to clean the nozzle
+  // Purge Nozzle
   #if POWER_LOSS_PURGE_LEN
-    //sprintf_P(cmd, PSTR("G1 E%d F200"), POWER_LOSS_PURGE_LEN);
-    //gcode.process_subcommands_now(cmd);
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
   #endif
 
+  // Retract, in an attempt to loosen the purged filament (will be reversed later)
   #if POWER_LOSS_RETRACT_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN - (POWER_LOSS_RETRACT_LEN));
+    sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) - (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
   #endif
 
@@ -430,9 +435,7 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
 
   // Un-retract
-  #if POWER_LOSS_PURGE_LEN
-    //sprintf_P(cmd, PSTR("G1 E%d F3000"), POWER_LOSS_PURGE_LEN);
-    //gcode.process_subcommands_now(cmd);
+  #if POWER_LOSS_RETRACT_LEN
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F3000"));
   #endif
 
