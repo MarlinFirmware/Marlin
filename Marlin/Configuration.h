@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware BUGFIX Tronxy X3A using SKR1.3 with two Z axis Driver
- * WEW 07/03/2020
+ * WEW 07/03/2020 07/05/2020
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
