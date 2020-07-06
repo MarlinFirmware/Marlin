@@ -360,7 +360,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:Temp Mesa Mín");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Máx");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Min");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY Primeiro");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PAROU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Favor resetar");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");
