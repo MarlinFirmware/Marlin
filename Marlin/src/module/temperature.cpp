@@ -1281,8 +1281,8 @@ void Temperature::manage_heater() {
 
     SERIAL_ECHOPAIR_F(" R", t.series_res, 1);
     SERIAL_ECHOPAIR_F_P(SP_T_STR, t.res_25, 1);
-    SERIAL_ECHOPAIR_F(" B", t.beta, 1);
-    SERIAL_ECHOPAIR_F(" C", t.sh_c_coeff, 9);
+    SERIAL_ECHOPAIR_F_P(SP_B_STR, t.beta, 1);
+    SERIAL_ECHOPAIR_F_P(SP_C_STR, t.sh_c_coeff, 9);
     SERIAL_ECHOPGM(" ; ");
     serialprintPGM(
       TERN_(HEATER_0_USER_THERMISTOR, t_index == CTI_HOTEND_0 ? PSTR("HOTEND 0") :)
@@ -1804,76 +1804,55 @@ void Temperature::init() {
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
 
-    #if THERMISTOR_HEATER_0
-      #ifdef HEATER_0_MINTEMP
+    #define _MINMAX_TEST(N,M) (HOTENDS > N && THERMISTOR_HEATER_##N && THERMISTOR_HEATER_##N != 998 && THERMISTOR_HEATER_##N != 999 && defined(HEATER_##N##_##M##TEMP))
+  
+    #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
-      #endif
-      #ifdef HEATER_0_MAXTEMP
-        _TEMP_MAX_E(0);
-      #endif
     #endif
-
-    #if HAS_MULTI_HOTEND && THERMISTOR_HEATER_1
-      #ifdef HEATER_1_MINTEMP
-        _TEMP_MIN_E(1);
-      #endif
-      #ifdef HEATER_1_MAXTEMP
-        _TEMP_MAX_E(1);
-      #endif
+    #if _MINMAX_TEST(0, MAX)
+      _TEMP_MAX_E(0); 
     #endif
-
-    #if HOTENDS > 2 && THERMISTOR_HEATER_2
-      #ifdef HEATER_2_MINTEMP
-        _TEMP_MIN_E(2);
-      #endif
-      #ifdef HEATER_2_MAXTEMP
-        _TEMP_MAX_E(2);
-      #endif
+    #if _MINMAX_TEST(1, MIN)
+      _TEMP_MIN_E(1);
     #endif
-
-    #if HOTENDS > 3 && THERMISTOR_HEATER_3
-      #ifdef HEATER_3_MINTEMP
-        _TEMP_MIN_E(3);
-      #endif
-      #ifdef HEATER_3_MAXTEMP
-        _TEMP_MAX_E(3);
-      #endif
+    #if _MINMAX_TEST(1, MAX)
+      _TEMP_MAX_E(1);
     #endif
-
-    #if HOTENDS > 4 && THERMISTOR_HEATER_4
-      #ifdef HEATER_4_MINTEMP
-        _TEMP_MIN_E(4);
-      #endif
-      #ifdef HEATER_4_MAXTEMP
-        _TEMP_MAX_E(4);
-      #endif
+    #if _MINMAX_TEST(2, MIN)
+      _TEMP_MIN_E(2);
     #endif
-
-    #if HOTENDS > 5 && THERMISTOR_HEATER_5
-      #ifdef HEATER_5_MINTEMP
-        _TEMP_MIN_E(5);
-      #endif
-      #ifdef HEATER_5_MAXTEMP
-        _TEMP_MAX_E(5);
-      #endif
+    #if _MINMAX_TEST(2, MAX)
+      _TEMP_MAX_E(2);
     #endif
-
-    #if HOTENDS > 6 && THERMISTOR_HEATER_6
-      #ifdef HEATER_6_MINTEMP
-        _TEMP_MIN_E(6);
-      #endif
-      #ifdef HEATER_6_MAXTEMP
-        _TEMP_MAX_E(6);
-      #endif
+    #if _MINMAX_TEST(3, MIN)
+      _TEMP_MIN_E(3);
     #endif
-
-    #if HOTENDS > 7 && THERMISTOR_HEATER_7
-      #ifdef HEATER_7_MINTEMP
-        _TEMP_MIN_E(7);
-      #endif
-      #ifdef HEATER_7_MAXTEMP
-        _TEMP_MAX_E(7);
-      #endif
+    #if _MINMAX_TEST(3, MAX)
+      _TEMP_MAX_E(3);
+    #endif
+    #if _MINMAX_TEST(4, MIN)
+      _TEMP_MIN_E(4);
+    #endif
+    #if _MINMAX_TEST(4, MAX)
+      _TEMP_MAX_E(4);
+    #endif
+    #if _MINMAX_TEST(5, MIN)
+      _TEMP_MIN_E(5);
+    #endif
+    #if _MINMAX_TEST(5, MAX)
+      _TEMP_MAX_E(5);
+    #endif
+    #if _MINMAX_TEST(6, MIN)
+      _TEMP_MIN_E(6);
+    #endif
+    #if _MINMAX_TEST(6, MAX)
+      _TEMP_MAX_E(6);
+    #endif
+    #if _MINMAX_TEST(7, MIN)
+      _TEMP_MIN_E(7);
+    #endif
+    #if _MINMAX_TEST(7, MAX)
+      _TEMP_MAX_E(7);
     #endif
 
   #endif // HAS_HOTEND

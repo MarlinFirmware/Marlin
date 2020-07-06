@@ -205,7 +205,6 @@
 #define STR_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define STR_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define STR_ERR_HOTEND_TOO_COLD             "Hotend too cold"
-#define STR_ERR_Z_HOMING_SER                "Home XY first"
 #define STR_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define STR_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"

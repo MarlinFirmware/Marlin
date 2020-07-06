@@ -156,7 +156,6 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: TEMP MAXIMA");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: TEMP MINIMA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY primer");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PARADA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reinicieu");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only

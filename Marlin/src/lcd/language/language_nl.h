@@ -163,7 +163,6 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: Min. temp");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: Max.tmp bed");
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: Min.tmp bed");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY Eerst");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER GESTOPT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reset A.U.B.");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); //  One character only. Keep English standard
