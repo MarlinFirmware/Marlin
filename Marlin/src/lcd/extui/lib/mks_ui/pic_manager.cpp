@@ -40,7 +40,7 @@ extern unsigned char bmp_public_buf[17 * 1024];
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
-static char assets[][30] = {
+static char assets[][LONG_FILENAME_LENGTH] = {
   //homing screen
   "bmp_Zero.bin",
   "bmp_zeroX.bin",
@@ -201,9 +201,8 @@ static char assets[][30] = {
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][50] = {
-    "GBK16.bin",
-    "UNIGBK.bin",
+  static char fonts[][LONG_FILENAME_LENGTH] = {
+    "FontUNIGBK.bin",
   };
 #endif
 
@@ -361,6 +360,14 @@ uint8_t public_buf[512];
     longName[j] = '\0';
   }
 
+  static int8_t arrayFindStr(const char arr[][LONG_FILENAME_LENGTH], uint8_t arraySize, const char* str) {
+    for (uint8_t a = 0; a < arraySize; a++) {
+      if (strcasecmp(arr[a], str) == 0)
+        return a;
+    }
+    return -1;
+  }
+
   void UpdatePic() {
     char *fn;
     unsigned char logoFlag;
@@ -387,11 +394,7 @@ uint8_t public_buf[512];
         if (card.longFilename[0] == '.')
           continue;
 
-        uint8_t a = -1;
-        for (a = 0; a < COUNT(assets); a++) {
-          if (strcasecmp(assets[a], card.longFilename) == 0)
-            break;
-        }
+        uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
         if (a < 0 || a >= COUNT(assets)) continue;
 
         fn = assets[a];
@@ -488,6 +491,9 @@ uint8_t public_buf[512];
           if (card.longFilename[0] == 0) continue;
           if (card.longFilename[0] == '.') continue;
 
+          uint8_t a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
+          if (a < 0 || a >= COUNT(fonts)) continue;
+
           fn = card.longFilename;
 
           if (strstr(fn, ".bin")) {
@@ -507,6 +513,7 @@ uint8_t public_buf[512];
                 if (pbr < BMP_WRITE_BUF_LEN) break;
               }
               file.close();
+              break; //only on address, load only one font...
             }
 
           }
