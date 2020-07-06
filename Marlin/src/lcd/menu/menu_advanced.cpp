@@ -154,7 +154,7 @@ void menu_cancelobject();
     #endif
 
     #if ENABLED(FILAMENT_RUNOUT_SENSOR) && FILAMENT_RUNOUT_DISTANCE_MM
-      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, 30, []{
+      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &lcd_runout_distance_mm, 1, FILAMENT_RUNOUT_DISTANCE_MM*1.5, []{
         runout.set_runout_distance(lcd_runout_distance_mm);
       });
     #endif
