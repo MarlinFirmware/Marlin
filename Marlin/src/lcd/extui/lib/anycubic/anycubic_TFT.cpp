@@ -333,6 +333,11 @@ void AnycubicTFTClass::HandleSpecialMenu() {
               ExtUI::injectCommands_P(PSTR("M500\nM300 P105 S1108\nM300 P210 S1661"));
               break;
 
+            case '7':   // <07SendM108>
+              SERIAL_ECHOLNPGM("Special Menu: Send User Confirmation");
+              ExtUI::injectCommands_P(PSTR("M108"));
+              break;
+
             default:
               break;
           }
@@ -434,6 +439,8 @@ void AnycubicTFTClass::RenderSpecialMenu(uint16_t selectedNumber) {
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Load FW Defaults>");
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<06SvEEPROM>");
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Save EEPROM>");
+      ANYCUBIC_SERIAL_PROTOCOLLNPGM("<07SendM108>");
+      ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Send User Confirmation>");
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Exit>");
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Exit>");
       break;
