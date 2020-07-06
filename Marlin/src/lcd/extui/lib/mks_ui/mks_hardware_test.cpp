@@ -29,13 +29,13 @@
 #include "W25Qxx.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-#include "pic_manager.h"
 
 #if ENABLED(SPI_GRAPHICAL_TFT)
   #include "SPI_TFT.h"
 #endif
 
 #include "../../../../MarlinCore.h"
+#include "pic_manager.h"
 #include "../../../../module/temperature.h"
 #include "../../../../feature/touch/xpt2046.h"
 #include "../../../../sd/cardreader.h"

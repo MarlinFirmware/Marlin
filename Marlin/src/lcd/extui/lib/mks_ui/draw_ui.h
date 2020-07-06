@@ -33,8 +33,8 @@
 #undef LV_COLOR_BACKGROUND
 #define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) // LV_COLOR_MAKE(0x00, 0x00, 0x00)
 
+#include "../../inc/MarlinConfigPre.h"
 #include "tft_multi_language.h"
-#include "pic_manager.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
 #include "draw_set.h"
