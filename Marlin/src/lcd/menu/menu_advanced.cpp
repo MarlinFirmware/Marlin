@@ -169,23 +169,10 @@ void menu_cancelobject();
 #if ENABLED(PID_AUTOTUNE_MENU)
 
   #if ENABLED(PIDTEMP)
-    #ifdef PREHEAT_1_TEMP_HOTEND
-      #define PID_TUNE_TEMP PREHEAT_1_TEMP_HOTEND
-    #else
-      #define PID_TUNE_TEMP 200
-    #endif
-    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PID_TUNE_TEMP);
-    #undef PID_TUNE_TEMP
+    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PREHEAT_1_TEMP_HOTEND);
   #endif
-
   #if ENABLED(PIDTEMPBED)
-    int16_t autotune_temp_bed = (
-      #ifdef PREHEAT_1_TEMP_BED
-        PREHEAT_1_TEMP_BED
-      #else
-        50
-      #endif
-    );
+    int16_t autotune_temp_bed = PREHEAT_1_TEMP_BED;
   #endif
 
   #include "../../gcode/queue.h"
