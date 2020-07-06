@@ -90,7 +90,7 @@ static char assets[][30] = {
   //select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
-  //"bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
   "bmp_Dir.bin",
   "bmp_File.bin",
 
@@ -182,7 +182,21 @@ static char assets[][30] = {
   "bmp_Set.bin",
   "bmp_Tool.bin",
 
+  #if ENABLED(HAS_STEALTHCHOP)
+    // "bmp_back70x40.bin",
+    "bmp_disable.bin",
+    "bmp_enable.bin",
+  #endif
+
+  //settings screen
+  "bmp_eeprom_settings.bin",
+  "bmp_machine_para.bin",
+  "bmp_function1.bin",
+
   //base icons
+  "bmp_arrow.bin",
+  "bmp_back70x40.bin",
+  "bmp_value_blank.bin",
   "bmp_Return.bin"
 };
 
