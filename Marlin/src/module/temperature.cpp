@@ -3101,10 +3101,10 @@ void Temperature::tick() {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_WINDOW) {
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_RESIDENCY_TIME) / 3 : 0);
-          }
-          else if (temp_diff > TEMP_HYSTERESIS) {
-            // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
+            } else if (temp_diff > TEMP_HYSTERESIS) {
+              // Restart the timer whenever the temperature falls outside the hysteresis.
+              residency_start_ms = now;
+            }
           }
 
           first_loop = false;
