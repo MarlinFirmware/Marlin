@@ -408,15 +408,19 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // Purge Nozzle
-  #if POWER_LOSS_PURGE_LEN
-    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F200"));
+  // Un-retract
+  #if POWER_LOSS_RETRACT_LEN
+    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
   #endif
 
-  // Retract, in an attempt to loosen the purged filament (will be reversed later)
-  #if POWER_LOSS_RETRACT_LEN
-    sprintf_P(cmd, PSTR("G1 E%d F3000"), (POWER_LOSS_PURGE_LEN) - (POWER_LOSS_RETRACT_LEN));
+  // Purge Nozzle
+  #if POWER_LOSS_PURGE_LEN
+    sprintf_P(cmd, PSTR("G1 E%d F200"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
+  #endif
+
+  #if ENABLED(NOZZLE_CLEAN_FEATURE)
+    gcode.process_subcommands_now_P(PSTR("G12"));
   #endif
 
   // Move back to the saved XY
@@ -435,11 +439,6 @@ void PrintJobRecovery::resume() {
     sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
   #endif
   gcode.process_subcommands_now(cmd);
-
-  // Un-retract
-  #if POWER_LOSS_RETRACT_LEN
-    gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_PURGE_LEN) " F3000"));
-  #endif
 
   // Restore the feedrate
   sprintf_P(cmd, PSTR("G1 F%d"), info.feedrate);
