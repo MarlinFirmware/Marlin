@@ -51,10 +51,7 @@
         if (uiCfg.waitEndMoves > 20) {
           uiCfg.waitEndMoves = 0;
           planner.synchronize();
-          gcode.process_subcommands_now_P(PSTR("M25"));
-          gcode.process_subcommands_now_P(PSTR("G91"));
-          gcode.process_subcommands_now_P(PSTR("G1 Z5"));
-          gcode.process_subcommands_now_P(PSTR("G90"));
+          gcode.process_subcommands_now_P(PSTR("M25\nG91\nG1 Z5\nG90"));
 
           uiCfg.print_state = PAUSED;
 
@@ -76,10 +73,7 @@
 
     if (uiCfg.print_state == RESUMING) {
       if (IS_SD_PAUSED()) {
-        gcode.process_subcommands_now_P(PSTR("G91"));
-        gcode.process_subcommands_now_P(PSTR("G1 Z-5"));
-        gcode.process_subcommands_now_P(PSTR("G90"));
-        gcode.process_subcommands_now_P(PSTR("M24"));
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 Z-5\nG90\nM24"));
         uiCfg.print_state = WORKING;
         start_print_time();
 
@@ -104,11 +98,8 @@
       }
       #endif
 
-      if (gCfgItems.pause_reprint == 1) {
-        gcode.process_subcommands_now_P(PSTR("G91"));
-        gcode.process_subcommands_now_P(PSTR("G1 Z-5"));
-        gcode.process_subcommands_now_P(PSTR("G90"));
-      }
+      if (gCfgItems.pause_reprint == 1)
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 Z-5\nG90"));
       recovery.resume();
 
       uiCfg.print_state = WORKING;
