@@ -79,112 +79,112 @@ static void disp_key_value() {
   switch (value) {
     case PrintAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.acceleration);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.acceleration);
       break;
     case RetractAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.retract_acceleration);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.retract_acceleration);
       break;
     case TravelAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.travel_acceleration);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.travel_acceleration);
       break;
     case XAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
       break;
     case YAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
       break;
     case ZAcceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
       break;
     case E0Acceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
       break;
     case E1Acceleration:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%d", (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
+      sprintf_P(public_buf_m, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
       break;
     case XMaxFeedRate:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[X_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[X_AXIS]);
       break;
     case YMaxFeedRate:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[Y_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Y_AXIS]);
       break;
     case ZMaxFeedRate:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[Z_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Z_AXIS]);
       break;
     case E0MaxFeedRate:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS]);
       break;
     case E1MaxFeedRate:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
       break;
 
     case XJerk:
       #if HAS_CLASSIC_JERK
         ZERO(public_buf_m);
-        sprintf(public_buf_m, "%.1f", planner.max_jerk[X_AXIS]);
+        sprintf_P(public_buf_m, PSTR("%.1f"), planner.max_jerk[X_AXIS]);
       #endif
       break;
     case YJerk:
       #if HAS_CLASSIC_JERK
         ZERO(public_buf_m);
-        sprintf(public_buf_m, "%.1f", planner.max_jerk[Y_AXIS]);
+        sprintf_P(public_buf_m, PSTR("%.1f"), planner.max_jerk[Y_AXIS]);
       #endif
       break;
     case ZJerk:
       #if HAS_CLASSIC_JERK
         ZERO(public_buf_m);
-        sprintf(public_buf_m, "%.1f", planner.max_jerk[Z_AXIS]);
+        sprintf_P(public_buf_m, PSTR("%.1f"), planner.max_jerk[Z_AXIS]);
       #endif
       break;
     case EJerk:
       #if HAS_CLASSIC_JERK
         ZERO(public_buf_m);
-        sprintf(public_buf_m, "%.1f", planner.max_jerk[E_AXIS]);
+        sprintf_P(public_buf_m, PSTR("%.1f"), planner.max_jerk[E_AXIS]);
       #endif
       break;
 
     case Xstep:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[X_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.axis_steps_per_mm[X_AXIS]);
 
       break;
     case Ystep:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[Y_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.axis_steps_per_mm[Y_AXIS]);
 
       break;
     case Zstep:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[Z_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.axis_steps_per_mm[Z_AXIS]);
 
       break;
     case E0step:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[E_AXIS]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.axis_steps_per_mm[E_AXIS]);
 
       break;
     case E1step:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
+      sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
       break;
 
     case Xcurrent:
       #if AXIS_IS_TMC(X)
         ZERO(public_buf_m);
         milliamps = stepperX.getMilliamps();
-        sprintf(public_buf_m, "%.1f", milliamps);
+        sprintf_P(public_buf_m, PSTR("%.1f"), milliamps);
       #endif
       break;
 
@@ -192,7 +192,7 @@ static void disp_key_value() {
       #if AXIS_IS_TMC(Y)
         ZERO(public_buf_m);
         milliamps = stepperY.getMilliamps();
-        sprintf(public_buf_m, "%.1f", milliamps);
+        sprintf_P(public_buf_m, PSTR("%.1f"), milliamps);
       #endif
       break;
 
@@ -200,7 +200,7 @@ static void disp_key_value() {
       #if AXIS_IS_TMC(Z)
         ZERO(public_buf_m);
         milliamps = stepperZ.getMilliamps();
-        sprintf(public_buf_m, "%.1f", milliamps);
+        sprintf_P(public_buf_m, PSTR("%.1f"), milliamps);
       #endif
       break;
 
@@ -208,7 +208,7 @@ static void disp_key_value() {
       #if AXIS_IS_TMC(E0)
         ZERO(public_buf_m);
         milliamps = stepperE0.getMilliamps();
-        sprintf(public_buf_m, "%.1f", milliamps);
+        sprintf_P(public_buf_m, PSTR("%.1f"), milliamps);
       #endif
       break;
 
@@ -216,21 +216,21 @@ static void disp_key_value() {
       #if AXIS_IS_TMC(E1)
         ZERO(public_buf_m);
         milliamps = stepperE1.getMilliamps();
-        sprintf(public_buf_m, "%.1f", milliamps);
+        sprintf_P(public_buf_m, PSTR("%.1f"), milliamps);
       #endif
       break;
 
     case pause_pos_x:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", gCfgItems.pausePosX);
+      sprintf_P(public_buf_m, PSTR("%.1f"), gCfgItems.pausePosX);
       break;
     case pause_pos_y:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", gCfgItems.pausePosY);
+      sprintf_P(public_buf_m, PSTR("%.1f"), gCfgItems.pausePosY);
       break;
     case pause_pos_z:
       ZERO(public_buf_m);
-      sprintf(public_buf_m, "%.1f", gCfgItems.pausePosZ);
+      sprintf_P(public_buf_m, PSTR("%.1f"), gCfgItems.pausePosZ);
       break;
   }
   ZERO(key_value);

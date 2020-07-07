@@ -55,14 +55,14 @@ void printer_state_polling() {
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 Z%.1f", gCfgItems.pausePosZ);
-          gcode.process_subcommands_now_P(PSTR(public_buf_l));
+          sprintf_P(public_buf_l, PSTR("G1 Z%.1f"), gCfgItems.pausePosZ);
+          gcode.process_subcommands_now(public_buf_l);
           gcode.process_subcommands_now_P(PSTR("G90"));
         }
         if (gCfgItems.pausePosX != (float)-1 && gCfgItems.pausePosY != (float)-1) {
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%.1f Y%.1f", gCfgItems.pausePosX, gCfgItems.pausePosY);
-          gcode.process_subcommands_now_P(PSTR(public_buf_l));
+          sprintf_P(public_buf_l, PSTR("G1 X%.1f Y%.1f"), gCfgItems.pausePosX, gCfgItems.pausePosY);
+          gcode.process_subcommands_now(public_buf_l);
         }
         uiCfg.print_state = PAUSED;
 

@@ -245,7 +245,6 @@ void lv_draw_max_feedrate_settings(void) {
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
-
     buttonTurnPage = lv_imgbtn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_FEED_DOWN, "bmp_back70x40.bin", 0);
     lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_REL, &bmp_para_back);
@@ -318,22 +317,22 @@ void lv_draw_max_feedrate_settings(void) {
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
       ZERO(public_buf_l);
-      sprintf(public_buf_l, "%.1f", planner.settings.max_feedrate_mm_s[X_AXIS]);
+      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[X_AXIS]);
       lv_label_set_text(labelXValue, public_buf_l);
       lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
       ZERO(public_buf_l);
-      sprintf(public_buf_l, "%.1f", planner.settings.max_feedrate_mm_s[Y_AXIS]);
+      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Y_AXIS]);
       lv_label_set_text(labelYValue, public_buf_l);
       lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
       ZERO(public_buf_l);
-      sprintf(public_buf_l, "%.1f", planner.settings.max_feedrate_mm_s[Z_AXIS]);
+      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Z_AXIS]);
       lv_label_set_text(labelZValue, public_buf_l);
       lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
 
       ZERO(public_buf_l);
-      sprintf(public_buf_l, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS]);
+      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS]);
       lv_label_set_text(labelE0Value, public_buf_l);
       lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
     }
@@ -345,7 +344,7 @@ void lv_draw_max_feedrate_settings(void) {
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
       ZERO(public_buf_l);
-      sprintf(public_buf_l, "%.1f", planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
+      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
       lv_label_set_text(labelE1Value, public_buf_l);
       lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
     }

@@ -57,8 +57,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         if (fanSpeed + 1 <= 255) {
           fanSpeed++;
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "M106 S%d", fanSpeed);
-          gcode.process_subcommands_now_P(PSTR(public_buf_l));
+          sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
+          gcode.process_subcommands_now(public_buf_l);
         }
       }
       break;
@@ -70,8 +70,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         if (fanSpeed > 0) {
           fanSpeed--;
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "M106 S%d", fanSpeed);
-          gcode.process_subcommands_now_P(PSTR(public_buf_l));
+          sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
+          gcode.process_subcommands_now(public_buf_l);
         }
       }
 
@@ -238,8 +238,8 @@ void disp_fan_value() {
   char buf1[10] = {0};
   public_buf_l[0] = '\0';
   strcat(public_buf_l, fan_menu.state);
-  strcat(public_buf_l, ": ");
-  sprintf(buf1, "%3d", thermalManager.fan_speed[0]);
+  strcat_P(public_buf_l, PSTR(": "));
+  sprintf_P(buf1, PSTR("%3d"), thermalManager.fan_speed[0]);
   strcat(public_buf_l, buf1);
   lv_label_set_text(fanText, public_buf_l);
   lv_obj_align(fanText, NULL, LV_ALIGN_CENTER, 0, -65);

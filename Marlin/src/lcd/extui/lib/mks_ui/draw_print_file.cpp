@@ -85,7 +85,7 @@ uint8_t sel_id = 0;
           //
           memset(list_file.file_name[valid_name_cnt], 0, strlen(list_file.file_name[valid_name_cnt]));
           strcpy(list_file.file_name[valid_name_cnt], list_file.curDirPath);
-          strcat(list_file.file_name[valid_name_cnt], "/");
+          strcat_P(list_file.file_name[valid_name_cnt], PSTR("/"));
           strcat(list_file.file_name[valid_name_cnt], card.filename);
           //
           memset(list_file.long_name[valid_name_cnt], 0, strlen(list_file.long_name[valid_name_cnt]));
@@ -582,7 +582,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
       #else
         // strncpy(outStr, beginIndex, len - 3);
         strncpy(outStr, beginIndex, len - 4);
-        strcat(outStr, "~.g");
+        strcat_P(outStr, PSTR("~.g"));
       #endif
     }
     else {
@@ -591,7 +591,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
         wcscat(outStr, (const WCHAR *)&gFileTail[3]);
       #else
         strncpy(outStr, beginIndex, strIndex2 - beginIndex + 1);
-        strcat(outStr, "g");
+        strcat_P(outStr, PSTR("g"));
       #endif
     }
   }
@@ -611,7 +611,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
       strcat(outStr, secSeg);
     }
     else {
-      strcat(outStr, "\n");
+      strcat_P(outStr, PSTR("\n"));
     }
   #endif
 }

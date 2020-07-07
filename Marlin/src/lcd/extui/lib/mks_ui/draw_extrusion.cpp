@@ -59,11 +59,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-          queue.enqueue_one_now(PSTR("G91"));
+          queue.enqueue_now_P(PSTR("G91"));
           ZERO(public_buf_l);
-          sprintf((char *)public_buf_l, "G1 E%d F%d", uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-          queue.enqueue_one_now(PSTR(public_buf_l));
-          queue.enqueue_one_now(PSTR("G90"));
+          sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G90"));
           extructAmount += uiCfg.extruStep;
           disp_extru_amount();
         }
@@ -75,11 +75,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-          queue.enqueue_one_now(PSTR("G91"));
+          queue.enqueue_now_P(PSTR("G91"));
           ZERO(public_buf_l);
-          sprintf((char *)public_buf_l, "G1 E%d F%d", 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-          queue.enqueue_one_now(PSTR(public_buf_l));
-          queue.enqueue_one_now(PSTR("G90"));
+          sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G90"));
           extructAmount -= uiCfg.extruStep;
           disp_extru_amount();
         }

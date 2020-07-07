@@ -85,7 +85,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         #if HAS_SUICIDE
           suicide();
         #else
-          queue.enqueue_one_now(PSTR("M84"));
+          queue.enqueue_now_P(PSTR("M84"));
         #endif
       }
       break;

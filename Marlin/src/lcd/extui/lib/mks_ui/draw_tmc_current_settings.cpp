@@ -333,28 +333,28 @@ void lv_draw_tmc_current_settings(void) {
       #if AXIS_IS_TMC(X)
         milliamps = stepperX.getMilliamps();
         ZERO(public_buf_l);
-        sprintf(public_buf_l, "%.1f", milliamps);
+        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelXValue, public_buf_l);
         lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
       #endif
       #if AXIS_IS_TMC(Y)
         milliamps = stepperY.getMilliamps();
         ZERO(public_buf_l);
-        sprintf(public_buf_l, "%.1f", milliamps);
+        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelYValue, public_buf_l);
         lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
       #endif
       #if AXIS_IS_TMC(Z)
         milliamps = stepperZ.getMilliamps();
         ZERO(public_buf_l);
-        sprintf(public_buf_l, "%.1f", milliamps);
+        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelZValue, public_buf_l);
         lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
       #endif
       #if AXIS_IS_TMC(E0)
         milliamps = stepperE0.getMilliamps();
         ZERO(public_buf_l);
-        sprintf(public_buf_l, "%.1f", milliamps);
+        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelE0Value, public_buf_l);
         lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
       #endif
@@ -369,7 +369,7 @@ void lv_draw_tmc_current_settings(void) {
 
         milliamps = stepperE1.getMilliamps();
         ZERO(public_buf_l);
-        sprintf(public_buf_l, "%.1f", milliamps);
+        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelE1Value, public_buf_l);
         lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
       #endif

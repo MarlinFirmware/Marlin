@@ -113,20 +113,20 @@ void mks_disp_test() {
   // lv_obj_t * label_tool2 = lv_label_create(scr, NULL);
   // lv_obj_set_pos(label_tool,20,50);
   ZERO(buf);
-  sprintf(buf, "e1:%d", (int)thermalManager.temp_hotend[0].celsius);
+  sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
   lv_label_set_text(e1, buf);
   #if HAS_MULTI_HOTEND
     ZERO(buf);
-    sprintf(buf, "e2:%d", (int)thermalManager.temp_hotend[1].celsius);
+    sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
     lv_label_set_text(e2, buf);
   #endif
 
   //ZERO(buf);
-  //sprintf(buf, "e3:%d", (int)thermalManager.temp_hotend[2].celsius);
+  //sprintf_P(buf, PSTR("e3:%d"), (int)thermalManager.temp_hotend[2].celsius);
   //lv_label_set_text(e3, buf);
   #if HAS_HEATED_BED
     ZERO(buf);
-    sprintf(buf, "bed:%d", (int)thermalManager.temp_bed.celsius);
+    sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
     lv_label_set_text(bed, buf);
   #endif
 }
@@ -219,24 +219,24 @@ void lv_draw_ready_print(void) {
     #if 1
       e1 = lv_label_create(scr, NULL);
       lv_obj_set_pos(e1, 20, 20);
-      sprintf(buf, "e1:  %d", (int)thermalManager.temp_hotend[0].celsius);
+      sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[0].celsius);
       lv_label_set_text(e1, buf);
       #if HAS_MULTI_HOTEND
         e2 = lv_label_create(scr, NULL);
         lv_obj_set_pos(e2, 20, 45);
-        sprintf(buf, "e1:  %d", (int)thermalManager.temp_hotend[1].celsius);
+        sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[1].celsius);
         lv_label_set_text(e2, buf);
       #endif
 
       // e3 = lv_label_create(scr, NULL);
       // lv_obj_set_pos(e3,20,70);
-      // sprintf(buf,"e1:  %d",(int)thermalManager.temp_hotend[2].celsius);
+      // sprintf_P(buf, PSTR("e1:  %d"), (int)thermalManager.temp_hotend[2].celsius);
       // lv_label_set_text(e3, buf);
 
       #if HAS_HEATED_BED
         bed = lv_label_create(scr, NULL);
         lv_obj_set_pos(bed, 20, 95);
-        sprintf(buf, "bed:  %d", (int)thermalManager.temp_bed.celsius);
+        sprintf_P(buf, PSTR("bed:  %d"), (int)thermalManager.temp_bed.celsius);
         lv_label_set_text(bed, buf);
       #endif
 

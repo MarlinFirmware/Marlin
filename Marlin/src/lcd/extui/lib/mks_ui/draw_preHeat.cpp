@@ -352,7 +352,7 @@ void disp_desire_temp() {
       sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_bed.celsius,  (int)thermalManager.temp_bed.target);
     }
   #endif
-  strcat(public_buf_l, ": ");
+  strcat_P(public_buf_l, PSTR(": "));
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText1, public_buf_l);
   lv_obj_align(tempText1, NULL, LV_ALIGN_CENTER, 0, -50);

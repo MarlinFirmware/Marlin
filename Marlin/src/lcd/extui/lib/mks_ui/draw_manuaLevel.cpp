@@ -52,16 +52,16 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         if (queue.length == 0) {
           if (uiCfg.leveling_first_time) {
-            queue.enqueue_one_P(PSTR("G28"));
+            queue.enqueue_now_P(PSTR("G28"));
             uiCfg.leveling_first_time = 0;
           }
 
-          queue.enqueue_one_P(PSTR("G1 Z10"));
+          queue.enqueue_now_P(PSTR("G1 Z10"));
 
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%d Y%d", X_MIN_POS + 30, Y_MIN_POS + 30);
-          queue.enqueue_one_P(PSTR(public_buf_l));
-          queue.enqueue_one_P(PSTR("G1 Z0"));
+          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), X_MIN_POS + 30, Y_MIN_POS + 30);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G1 Z0"));
         }
       }
       break;
@@ -72,16 +72,16 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length == 0) {
           if (uiCfg.leveling_first_time) {
-            queue.enqueue_one_P(PSTR("G28"));
+            queue.enqueue_now_P(PSTR("G28"));
             uiCfg.leveling_first_time = 0;
           }
 
-          queue.enqueue_one_P(PSTR("G1 Z10"));
+          queue.enqueue_now_P(PSTR("G1 Z10"));
 
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%d Y%d", X_MAX_POS - 30, Y_MIN_POS + 30);
-          queue.enqueue_one_P(PSTR(public_buf_l));
-          queue.enqueue_one_P(PSTR("G1 Z0"));
+          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), X_MAX_POS - 30, Y_MIN_POS + 30);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G1 Z0"));
         }
       }
       break;
@@ -92,16 +92,16 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length == 0) {
           if (uiCfg.leveling_first_time) {
-            queue.enqueue_one_P(PSTR("G28"));
+            queue.enqueue_now_P(PSTR("G28"));
             uiCfg.leveling_first_time = 0;
           }
 
-          queue.enqueue_one_P(PSTR("G1 Z10"));
+          queue.enqueue_now_P(PSTR("G1 Z10"));
 
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%d Y%d", X_MAX_POS - 30, Y_MAX_POS - 30);
-          queue.enqueue_one_P(PSTR(public_buf_l));
-          queue.enqueue_one_P(PSTR("G1 Z0"));
+          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), X_MAX_POS - 30, Y_MAX_POS - 30);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G1 Z0"));
         }
       }
 
@@ -113,16 +113,16 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length == 0) {
           if (uiCfg.leveling_first_time) {
-            queue.enqueue_one_P(PSTR("G28"));
+            queue.enqueue_now_P(PSTR("G28"));
             uiCfg.leveling_first_time = 0;
           }
 
-          queue.enqueue_one_P(PSTR("G1 Z10"));
+          queue.enqueue_now_P(PSTR("G1 Z10"));
 
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%d Y%d", X_MIN_POS + 30, Y_MAX_POS - 30);
-          queue.enqueue_one_P(PSTR(public_buf_l));
-          queue.enqueue_one_P(PSTR("G1 Z0"));
+          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), X_MIN_POS + 30, Y_MAX_POS - 30);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G1 Z0"));
         }
       }
       break;
@@ -133,16 +133,16 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length == 0) {
           if (uiCfg.leveling_first_time) {
-            queue.enqueue_one_P(PSTR("G28"));
+            queue.enqueue_now_P(PSTR("G28"));
             uiCfg.leveling_first_time = 0;
           }
 
-          queue.enqueue_one_P(PSTR("G1 Z10"));
+          queue.enqueue_now_P(PSTR("G1 Z10"));
 
           ZERO(public_buf_l);
-          sprintf(public_buf_l, "G1 X%d Y%d", X_BED_SIZE / 2, Y_BED_SIZE / 2);
-          queue.enqueue_one_P(PSTR(public_buf_l));
-          queue.enqueue_one_P(PSTR("G1 Z0"));
+          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), X_BED_SIZE / 2, Y_BED_SIZE / 2);
+          queue.enqueue_one_now(public_buf_l);
+          queue.enqueue_now_P(PSTR("G1 Z0"));
         }
       }
 

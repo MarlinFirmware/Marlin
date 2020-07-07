@@ -292,14 +292,14 @@ void disp_print_speed() {
 
   if (speedType == 0) { // move
     strcat(public_buf_l, speed_menu.move_speed);
-    strcat(public_buf_l, ": ");
-    sprintf(buf, "%d%%", feedrate_percentage);
+    strcat_P(public_buf_l, PSTR(": "));
+    sprintf_P(buf, PSTR("%d%%"), feedrate_percentage);
     strcat(public_buf_l, buf);
   }
   else if (speedType == 1) { // e1
     strcat(public_buf_l, speed_menu.extrude_speed);
-    strcat(public_buf_l, ": ");
-    sprintf(buf, "%d%%", planner.flow_percentage[0]);
+    strcat_P(public_buf_l, PSTR(": "));
+    sprintf_P(buf, PSTR("%d%%"), planner.flow_percentage[0]);
     strcat(public_buf_l, buf);
   }
   lv_label_set_text(printSpeedText, public_buf_l);
