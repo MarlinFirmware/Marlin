@@ -71,6 +71,9 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
+//First make: 21 June 2020 
+//Second: 7th July 2020
+#define STRING_CONFIG_H_AUTHOR "(Steve, dual z)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -109,6 +112,7 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
+#define SERIAL_PORT_2 2
 
 /**
  * This setting determines the communication speed of the printer.
@@ -488,6 +492,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
+  #define DEFAULT_Kp 14.67
+  #define DEFAULT_Ki 0.93
+  #define DEFAULT_Kd 57.70
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -567,6 +574,7 @@
  * *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
  */
 #define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 225
 
 /**
  * Prevent a single extrusion longer than EXTRUDE_MAXLENGTH.
@@ -683,6 +691,7 @@
 #define Z_DRIVER_TYPE  TMC2209
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
+#define Z2_DRIVER_TYPE TMC2209
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
 #define E0_DRIVER_TYPE TMC2209
@@ -737,6 +746,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
 
 /**
  * Default Max Feed Rate (mm/s)
