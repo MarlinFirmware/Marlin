@@ -171,6 +171,10 @@ static char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_preview.bin",
   #endif
 
+  #if HAS_LOGO_IN_FLASH
+    "bmp_logo.bin",
+  #endif
+
   //settings screen
   "bmp_About.bin",
   //"bmp_Language.bin",

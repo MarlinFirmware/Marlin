@@ -150,6 +150,7 @@
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
   #define HAS_LANG_SELECT_SCREEN 0
   #define HAS_BAK_VIEW_IN_FLASH 0
+  #define HAS_LOGO_IN_FLASH 0
 
   //SPI 2
   #define W25QXX_CS_PIN                     PB12
