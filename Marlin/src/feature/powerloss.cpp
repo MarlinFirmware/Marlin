@@ -247,13 +247,15 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       thermalManager.disable_all_heaters();
       quickstop_stepper();
       // Retract then raise Z axis, using relative coordinates
-      gcode.process_subcommands_now_P(PSTR("G91"));
-      #if POWER_LOSS_RETRACT_LEN
-        gcode.process_subcommands_now_P(PSTR("G1 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
-      #endif
-      #if POWER_LOSS_ZRAISE
-        gcode.process_subcommands_now_P(PSTR("G0 Z" STRINGIFY(POWER_LOSS_ZRAISE)));
-      #endif
+      gcode.process_subcommands_now_P(PSTR(
+        "G91"
+        #if POWER_LOSS_RETRACT_LEN
+          "\nG1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)
+        #endif
+        #if POWER_LOSS_ZRAISE
+          "\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)
+        #endif
+      ));
       planner.synchronize();
     }
 
