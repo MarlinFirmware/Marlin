@@ -1598,10 +1598,18 @@ void Temperature::init() {
   #if MB(RUMBA)
     // Disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
     #define _AD(N) ANY(HEATER_##N##_USES_AD595, HEATER_##N##_USES_AD8495)
-    #if  _AD(0) || _AD(1) || _AD(2) || _AD(BED) || _AD(CHAMBER)
+    #if _AD(0) || _AD(1) || _AD(2) || _AD(BED) || _AD(CHAMBER)
       MCUCR = _BV(JTD);
       MCUCR = _BV(JTD);
     #endif
+  #endif
+
+  // Thermistor activation by MCU pin
+  #if PIN_EXISTS(TEMP_0_TR_ENABLE_PIN)
+    OUT_WRITE(TEMP_0_TR_ENABLE_PIN, ENABLED(HEATER_0_USES_MAX6675));
+  #endif
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
+    OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(HEATER_1_USES_MAX6675));
   #endif
 
   #if BOTH(PIDTEMP, PID_EXTRUSION_SCALING)
@@ -3092,9 +3100,7 @@ void Temperature::tick() {
           if (!residency_start_ms) {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_WINDOW) {
-              residency_start_ms = now;
-              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_RESIDENCY_TIME);
-            }
+              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_RESIDENCY_TIME) / 3 : 0);
           }
           else if (temp_diff > TEMP_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
@@ -3219,10 +3225,8 @@ void Temperature::tick() {
 
           if (!residency_start_ms) {
             // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_BED_WINDOW) {
-              residency_start_ms = now;
-              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_BED_RESIDENCY_TIME);
-            }
+            if (temp_diff < TEMP_BED_WINDOW)
+              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
           }
           else if (temp_diff > TEMP_BED_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
@@ -3311,7 +3315,7 @@ void Temperature::tick() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
+        if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
           next_temp_ms = now + 1000UL;
           print_heater_states(active_extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
@@ -3335,10 +3339,8 @@ void Temperature::tick() {
 
           if (!residency_start_ms) {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_CHAMBER_WINDOW) {
-              residency_start_ms = now;
-              if (first_loop) residency_start_ms += SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME);
-            }
+            if (temp_diff < TEMP_CHAMBER_WINDOW)
+              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) / 3 : 0);
           }
           else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
