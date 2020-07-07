@@ -324,12 +324,6 @@ void PrintJobRecovery::resume() {
 
   char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
 
-  // Select the previously active tool (with no_move)
-  #if EXTRUDERS > 1
-    sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
-    gcode.process_subcommands_now(cmd);
-  #endif
-
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
     #if EXTRUDERS > 1
@@ -373,6 +367,12 @@ void PrintJobRecovery::resume() {
         gcode.process_subcommands_now(cmd);
       }
     }
+  #endif
+
+  // Select the previously active tool (with no_move)
+  #if EXTRUDERS > 1
+    sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
+    gcode.process_subcommands_now(cmd);
   #endif
 
   // Restore print cooling fan speeds
