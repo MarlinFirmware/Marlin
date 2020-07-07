@@ -79,7 +79,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Nastavit ofsety");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastaveny");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastavit počátek");
-  #ifdef PREHEAT_1_LABEL
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Zahřát ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
@@ -87,42 +87,14 @@ namespace Language_cz {
     PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
     PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
     PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Zahřát ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Zahřát ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" vše");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" podlož");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" nast");
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Zahřát ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Zahřát ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Zahřát ") PREHEAT_3_LABEL _UxGT(" end");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Zahřát ") PREHEAT_3_LABEL _UxGT(" end ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Zahřát ") PREHEAT_3_LABEL _UxGT(" vše");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Zahřát ") PREHEAT_3_LABEL _UxGT(" podlož");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Zahřát ") PREHEAT_3_LABEL _UxGT(" nast");
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Zahřát ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Zahřát ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Zahřát ") PREHEAT_4_LABEL _UxGT(" end");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Zahřát ") PREHEAT_4_LABEL _UxGT(" end ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Zahřát ") PREHEAT_4_LABEL _UxGT(" vše");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Zahřát ") PREHEAT_4_LABEL _UxGT(" podlož");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Zahřát ") PREHEAT_4_LABEL _UxGT(" nast");
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Zahřát ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Zahřát ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Zahřát ") PREHEAT_5_LABEL _UxGT(" end");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Zahřát ") PREHEAT_5_LABEL _UxGT(" end ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Zahřát ") PREHEAT_5_LABEL _UxGT(" vše");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Zahřát ") PREHEAT_5_LABEL _UxGT(" podlož");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Zahřát ") PREHEAT_5_LABEL _UxGT(" nast");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Zahřát $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Zahřát $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Zahřát $ end");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Zahřát $ end ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Zahřát $ vše");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Zahřát $ podlož");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Zahřát $ nast");
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Zahřát vlastní");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Zchladit");
@@ -187,40 +159,14 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Konec úprav sítě");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Vlastní síť");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Vytvořit síť");
-  #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Síť bodů ") PREHEAT_1_LABEL;
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Síť bodů ") PREHEAT_2_LABEL;
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M3             = _UxGT("Síť bodů ") PREHEAT_3_LABEL;
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Síť bodů ") PREHEAT_4_LABEL;
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Síť bodů ") PREHEAT_5_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Síť bodů $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Kontrola sítě $");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Studená síť bodů");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Upravit výšku sítě");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Výška");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Zkontrolovat síť");
-  #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Kontrola sítě ") PREHEAT_1_LABEL;
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Kontrola sítě ") PREHEAT_2_LABEL;
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Kontrola sítě ") PREHEAT_3_LABEL;
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Kontrola sítě ") PREHEAT_4_LABEL;
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Kontrola sítě ") PREHEAT_5_LABEL;
-  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Kontrola vlast. sítě");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 zahřívání podl.");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 zařívání trysky");

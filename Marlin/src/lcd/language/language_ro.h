@@ -70,7 +70,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Seteaza Offseturile Acasa");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offseturi Aplicate");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Seteaza Originea");
-  #ifdef PREHEAT_1_LABEL
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
@@ -78,42 +78,14 @@ namespace Language_ro {
     PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Tot");
     PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Patul");
     PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Conf");
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Preincalzeste ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Preincalzeste ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Capatul");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Capatul ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Tot");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Patul");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Conf");
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Preincalzeste ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Preincalzeste ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Preincalzeste ") PREHEAT_3_LABEL _UxGT(" Capatul");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Preincalzeste ") PREHEAT_3_LABEL _UxGT(" Capatul ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Preincalzeste ") PREHEAT_3_LABEL _UxGT(" Tot");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_3_LABEL _UxGT(" Patul");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_3_LABEL _UxGT(" Conf");
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Preincalzeste ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Preincalzeste ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Preincalzeste ") PREHEAT_4_LABEL _UxGT(" Capatul");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Preincalzeste ") PREHEAT_4_LABEL _UxGT(" Capatul ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Preincalzeste ") PREHEAT_4_LABEL _UxGT(" Tot");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_4_LABEL _UxGT(" Patul");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_4_LABEL _UxGT(" Conf");
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Preincalzeste ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Preincalzeste ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Preincalzeste ") PREHEAT_5_LABEL _UxGT(" Capatul");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Preincalzeste ") PREHEAT_5_LABEL _UxGT(" Capatul ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Preincalzeste ") PREHEAT_5_LABEL _UxGT(" Tot");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_5_LABEL _UxGT(" Patul");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_5_LABEL _UxGT(" Conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Preincalzeste $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Preincalzeste $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Preincalzeste $ Capatul");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Preincalzeste $ Capatul ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Preincalzeste $ Tot");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Preincalzeste $ Patul");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Preincalzeste $ Conf");
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preincalzeste Personalizat");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Racire");
@@ -177,40 +149,14 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Done Editing Mesh");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Build Custom Mesh");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Build Mesh");
-  #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1             = _UxGT("Build Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Build Mesh (") PREHEAT_2_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2             = _UxGT("Build Mesh (") PREHEAT_3_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M4             = _UxGT("Build Mesh (") PREHEAT_4_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M5             = _UxGT("Build Mesh (") PREHEAT_5_LABEL _UxGT(")");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Build Mesh ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Validate Mesh ($)");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Build Cold Mesh");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Adjust Mesh Height");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Height Amount");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Validate Mesh");
-  #ifdef PREHEAT_1_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Validate Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Validate Mesh (") PREHEAT_2_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M3          = _UxGT("Validate Mesh (") PREHEAT_3_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M4          = _UxGT("Validate Mesh (") PREHEAT_4_LABEL _UxGT(")");
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M5          = _UxGT("Validate Mesh (") PREHEAT_5_LABEL _UxGT(")");
-  #endif
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Validate Custom Mesh");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Heating Bed");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Heating Nozzle");

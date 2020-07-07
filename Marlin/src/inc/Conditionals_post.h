@@ -2137,11 +2137,9 @@
     #define PREHEAT_COUNT 3
   #elif defined(PREHEAT_2_LABEL)
     #define PREHEAT_COUNT 2
-  #else
+  #elif defined(PREHEAT_1_LABEL)
     #define PREHEAT_COUNT 1
   #endif
-#else
-  #undef PREHEAT_COUNT
 #endif
 
 /**

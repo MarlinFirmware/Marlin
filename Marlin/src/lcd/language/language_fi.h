@@ -45,7 +45,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Vapauta moottorit");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Aja referenssiin");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Aseta origo");
-  #ifdef PREHEAT_1_LABEL
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
@@ -53,42 +53,14 @@ namespace Language_fi {
     PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
     PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
     PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Esilämmitä ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Esilämmitä ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Esilä. ") PREHEAT_2_LABEL _UxGT("Suutin");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Esilä. ") PREHEAT_2_LABEL _UxGT("Suutin ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Esilä. ") PREHEAT_2_LABEL _UxGT(" Kaikki");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Esilä. ") PREHEAT_2_LABEL _UxGT(" Alusta");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_2_LABEL _UxGT(" konf");
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Esilämmitä ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Esilämmitä ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Esilä. ") PREHEAT_3_LABEL _UxGT("Suutin");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Esilä. ") PREHEAT_3_LABEL _UxGT("Suutin ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Esilä. ") PREHEAT_3_LABEL _UxGT(" Kaikki");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Esilä. ") PREHEAT_3_LABEL _UxGT(" Alusta");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_3_LABEL _UxGT(" konf");
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Esilämmitä ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Esilämmitä ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Esilä. ") PREHEAT_4_LABEL _UxGT("Suutin");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Esilä. ") PREHEAT_4_LABEL _UxGT("Suutin ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Esilä. ") PREHEAT_4_LABEL _UxGT(" Kaikki");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Esilä. ") PREHEAT_4_LABEL _UxGT(" Alusta");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_4_LABEL _UxGT(" konf");
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Esilämmitä ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Esilämmitä ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Esilä. ") PREHEAT_5_LABEL _UxGT("Suutin");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Esilä. ") PREHEAT_5_LABEL _UxGT("Suutin ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Esilä. ") PREHEAT_5_LABEL _UxGT(" Kaikki");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Esilä. ") PREHEAT_5_LABEL _UxGT(" Alusta");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_5_LABEL _UxGT(" konf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Esilämmitä $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Esilämmitä $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Esilä. $Suutin");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Esilä. $Suutin ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Esilä. $ Kaikki");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Esilä. $ Alusta");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Esilämm. $ konf");
   #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Jäähdytä");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Virta päälle");
