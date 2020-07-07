@@ -58,10 +58,7 @@
 
 static lv_disp_buf_t disp_buf;
 #if ENABLED(SDSUPPORT)
-  extern void UpdatePic();
-  #if HAS_SPI_FLASH_FONT
-    extern void UpdateFont();
-  #endif
+  extern void UpdateAssets();
 #endif
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
@@ -428,8 +425,7 @@ void tft_lvgl_init() {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    UpdatePic();
-    TERN_(HAS_SPI_FLASH_FONT, UpdateFont());
+    UpdateAssets();
   #endif
   mks_test_get();
 

@@ -240,11 +240,8 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   return addr;
 }
 
-const char *picPath = "mks_pic";
-const char *bakPath = "bak_pic";
-
-const char *fontPath = "mks_font";
-const char *bakFont = "bak_font";
+const char *assetsPath = "assets";
+const char *bakPath = "_assets";
 
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
@@ -368,94 +365,115 @@ uint8_t public_buf[512];
     return -1;
   }
 
-  void UpdatePic() {
-    char *fn;
-    unsigned char logoFlag;
+  #define ASSET_TYPE_ICON       0
+  #define ASSET_TYPE_LOGO       1
+  #define ASSET_TYPE_TITLE_LOGO 2
+  #define ASSET_TYPE_G_PREVIEW  3
+  #define ASSET_TYPE_FONT       4
+  static void loadAsset(SdFile &dir, dir_t& entry, const char *fn, int8_t assetType) {
+    SdFile file;
+    char dosFilename[FILENAME_LENGTH];
+    createFilename(dosFilename, entry);
+    if (!file.open(&dir, dosFilename, O_READ)) {
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
+      #endif
+      return;
+    }
+
+    disp_assets_update_progress(fn);
     uint16_t pbr;
     uint32_t pfileSize;
     uint32_t totalSizeLoaded = 0;
     uint32_t Pic_Write_Addr;
+    pfileSize = file.fileSize();
+    totalSizeLoaded += pfileSize;
+    if (assetType == ASSET_TYPE_LOGO) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_TITLE_LOGO) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_G_PREVIEW) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        default_view_Write(public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_ICON) {
+      Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+        Pic_Write_Addr += pbr;
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_FONT) {
+      Pic_Write_Addr = UNIGBK_FLASH_ADDR;
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+        Pic_Write_Addr += pbr;
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
 
+    file.close();
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      SERIAL_ECHOLNPAIR("Asset added: ", fn);
+    #endif
+  }
+
+  void UpdateAssets() {
     SdFile dir, root = card.getroot();
-    if (dir.open(&root, picPath, O_RDONLY)) {
+    if (dir.open(&root, assetsPath, O_RDONLY)) {
 
-      disp_pic_update();
+      disp_assets_update();
       spiFlashErase_PIC();
+      #if HAS_SPI_FLASH_FONT
+        spiFlashErase_FONT();
+      #endif
 
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
         // if we dont get a long name, but gets a short one, try it
-        if (card.longFilename[0] == 0 && d.name[0] != 0) {
+        if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
-        }
-
-        if (card.longFilename[0] == 0)
-          continue;
-        if (card.longFilename[0] == '.')
-          continue;
+        if (card.longFilename[0] == 0) continue;
+        if (card.longFilename[0] == '.') continue;
 
         uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
-        if (a < 0 || a >= COUNT(assets)) continue;
+        if (a >= 0 && a < COUNT(assets)) {
+          uint8_t assetType = ASSET_TYPE_ICON;
+          if (strstr(assets[a], "_logo"))
+            assetType = ASSET_TYPE_LOGO;
+          else if (strstr(assets[a], "_titlelogo"))
+            assetType = ASSET_TYPE_TITLE_LOGO;
+          else if (strstr(assets[a], "_preview"))
+            assetType = ASSET_TYPE_G_PREVIEW;
 
-        fn = assets[a];
-        char dosFilename[FILENAME_LENGTH];
-        createFilename(dosFilename, d);
+          loadAsset(dir, d, assets[a], assetType);
 
-        SdFile file;
-        if (!file.open(&dir, dosFilename, O_READ)) {
-          #if ENABLED(MARLIN_DEV_MODE)
-            SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
-          #endif
           continue;
         }
 
-        if (strstr(fn, "_logo"))
-          logoFlag = 1;
-        else if (strstr(fn, "_titlelogo"))
-          logoFlag = 2;
-        else if (strstr(fn, "_preview"))
-          logoFlag = 3;
-        else
-          logoFlag = 0;
-
-        pfileSize = file.fileSize();
-        totalSizeLoaded += pfileSize;
-        if (logoFlag == 1) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN) break;
+        #if HAS_SPI_FLASH_FONT
+          a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
+          if (a >= 0 && a < COUNT(fonts)) {
+            loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
           }
-        }
-        else if (logoFlag == 2) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN) break;
-          }
-        }
-        else if (logoFlag == 3) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            default_view_Write(public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN) break;
-          }
-        }
-        else {
-          Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
-            Pic_Write_Addr += pbr;
-            if (pbr < BMP_WRITE_BUF_LEN) break;
-          }
-        }
-
-        #if ENABLED(MARLIN_DEV_MODE)
-          SERIAL_ECHOLNPAIR("Asset added: ", fn);
         #endif
-
-        file.close();
       }
       dir.rename(&root, bakPath);
     }
@@ -464,66 +482,12 @@ uint8_t public_buf[512];
     #if ENABLED(MARLIN_DEV_MODE)
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
-      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter, ", Total size: ", totalSizeLoaded);
+      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
     #endif
   }
 
   #if HAS_SPI_FLASH_FONT
-
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
-
-    void UpdateFont() {
-      char *fn;
-      uint16_t pbr;
-      uint32_t flashaddr = 0;
-
-      SdFile dir, root = card.getroot();
-      if (dir.open(&root, fontPath, O_RDONLY)) {
-
-        disp_font_update();
-        spiFlashErase_FONT();
-
-        dir_t d;
-        while (dir.readDir(&d, card.longFilename) > 0) {
-          // if we dont get a long name, but gets a short one, try it
-          if (card.longFilename[0] == 0 && d.name[0] != 0)
-            dosName2LongName((const char*)d.name, card.longFilename);
-          if (card.longFilename[0] == 0) continue;
-          if (card.longFilename[0] == '.') continue;
-
-          uint8_t a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
-          if (a < 0 || a >= COUNT(fonts)) continue;
-
-          fn = card.longFilename;
-
-          if (strstr(fn, ".bin")) {
-            char dosFilename[FILENAME_LENGTH];
-            createFilename(dosFilename, d);
-            //strcat(public_buf, dosFilename);
-
-            SdFile file;
-            if (file.open(&dir, dosFilename, O_READ)) {
-
-              flashaddr = UNIGBK_FLASH_ADDR;
-              pbr = 0;
-              while (1) {
-                flashaddr += pbr;
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                W25QXX.SPI_FLASH_BufferWrite(public_buf, flashaddr, pbr);
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-              file.close();
-              break; //only on address, load only one font...
-            }
-
-          }
-        }
-
-        dir.rename(&root, bakFont);
-        dir.close();
-      }
-    }
-
   #endif // HAS_SPI_FLASH_FONT
 
 #endif // SDSUPPORT

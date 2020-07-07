@@ -598,18 +598,19 @@ void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor
 }
 
 //static lv_obj_t * scr_test;
-void disp_pic_update() {
+void disp_assets_update() {
   #if DISABLED(SPI_GRAPHICAL_TFT)
     LCD_Clear(0x0000);
   #endif
-  disp_string(120, 150, "PIC Updating...", 0xFFFF, 0x0000);
+  disp_string(100, 150, "Assets Updating...", 0xFFFF, 0x0000);
 }
 
-void disp_font_update() {
-  #if DISABLED(SPI_GRAPHICAL_TFT)
-    LCD_Clear(0x0000);
-  #endif
-  disp_string(120, 150, "FONT Updating...", 0xFFFF, 0x0000);
+void disp_assets_update_progress(const char *msg) {
+  char buf[30];
+  memset(buf, ' ', COUNT(buf));
+  strncpy(buf, msg, strlen(msg));
+  buf[COUNT(buf)-1] = '\0';
+  disp_string(100, 200, buf, 0xFFFF, 0x0000);
 }
 
 uint8_t mks_test_flag = 0;
