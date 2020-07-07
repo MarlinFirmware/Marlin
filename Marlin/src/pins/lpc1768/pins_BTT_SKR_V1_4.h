@@ -261,6 +261,7 @@
     #define LCD_PINS_D4                    P1_20
 
     #define LCD_SDSS                       P0_16  // (16) J3-7 & AUX-4
+    #define SDSS                           LCD_SDSS
 
     #if SD_CONNECTION_IS(LCD)
       #define SD_DETECT_PIN                P1_31  // (49) (NOT 5V tolerant)
