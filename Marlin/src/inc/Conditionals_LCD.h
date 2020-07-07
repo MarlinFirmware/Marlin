@@ -121,10 +121,10 @@
   #define IS_U8GLIB_SSD1306
 
 #elif ENABLED(FYSETC_242_OLED_12864)
-      
+
   #define IS_RRD_SC
   #define U8GLIB_SH1106
-    
+
   #define LED_CONTROL_MENU
   #define NEOPIXEL_LED
   #undef NEOPIXEL_TYPE
@@ -136,7 +136,7 @@
   #ifndef NEOPIXEL_BRIGHTNESS
     #define NEOPIXEL_BRIGHTNESS 127
   #endif
-    
+
   #if ENABLED(PSU_CONTROL)
     #define LED_BACKLIGHT_TIMEOUT 10000
   #endif

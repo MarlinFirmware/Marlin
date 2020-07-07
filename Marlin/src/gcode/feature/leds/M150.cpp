@@ -47,7 +47,7 @@
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
- */  
+ */
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
     neo.set_neo_index(parser.intval('I', -1));
