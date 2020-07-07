@@ -35,7 +35,7 @@
  * lcd_put_u8str_ind_P
  * Print a string with an index substituted within it
  */
-lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
+lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   uint8_t *p = (uint8_t*)pstr;
   lcd_uint_t n = maxlen;
   for (; n; n--) {
@@ -57,6 +57,9 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, const lcd_uin
       if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n);
       break;
     }
+    else if (ch == '$')
+      n -= lcd_put_u8str_max_P(inStr, n);
+
     lcd_put_wchar(ch);
   }
   return n;

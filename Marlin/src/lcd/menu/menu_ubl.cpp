@@ -216,21 +216,21 @@ void _lcd_ubl_edit_mesh() {
     #if PREHEAT_COUNT
       #if HAS_HEATED_BED
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##M, PSTR("G28\nG26 C P I" STRINGIFY(DECREMENT(M))))
+          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26 C P I" STRINGIFY(M)))
       #else
         #define VALIDATE_MESH_GCODE_ITEM(M) \
-          GCODES_ITEM(MSG_UBL_VALIDATE_MESH_M##M, PSTR("G28\nG26 C P B0 I" STRINGIFY(DECREMENT(M))))
+          GCODES_ITEM_N_S(M, ui.get_preheat_label(M), MSG_UBL_VALIDATE_MESH_M, PSTR("G28\nG26 C P B0 I" STRINGIFY(M)))
       #endif
 
-      VALIDATE_MESH_GCODE_ITEM(1);
-      #if PREHEAT_COUNT >= 2
-        VALIDATE_MESH_GCODE_ITEM(2);
-        #if PREHEAT_COUNT >= 3
-          VALIDATE_MESH_GCODE_ITEM(3);
-          #if PREHEAT_COUNT >= 4
-            VALIDATE_MESH_GCODE_ITEM(4);
-            #if PREHEAT_COUNT >= 5
-              VALIDATE_MESH_GCODE_ITEM(5);
+      VALIDATE_MESH_GCODE_ITEM(0);
+      #if PREHEAT_COUNT > 1
+        VALIDATE_MESH_GCODE_ITEM(1);
+        #if PREHEAT_COUNT > 2
+          VALIDATE_MESH_GCODE_ITEM(2);
+          #if PREHEAT_COUNT > 3
+            VALIDATE_MESH_GCODE_ITEM(3);
+            #if PREHEAT_COUNT > 4
+              VALIDATE_MESH_GCODE_ITEM(4);
             #endif
           #endif
         #endif
@@ -331,37 +331,34 @@ void _lcd_ubl_build_mesh() {
   BACK_ITEM(MSG_UBL_TOOLS);
   #if PREHEAT_COUNT
     #if HAS_HEATED_BED
-      #define BUILD_MESH_GCODE_ITEM(M)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##M, PSTR( \
-                                          "G28\n" \
-                                          "M190 I" STRINGIFY(DECREMENT(M)) "\n" \
-                                          "M109 I" STRINGIFY(DECREMENT(M)) "\n" \
-                                          "G29 P1\n" \
-                                          "M104 S0\n" \
-                                          "M140 S0" \
-                                        ))
+      #define PREHEAT_BED_GCODE(M) "M190 I" STRINGIFY(M) "\n"
     #else
-      #define BUILD_MESH_GCODE_ITEM(M)  GCODES_ITEM(MSG_UBL_BUILD_MESH_M##M, PSTR( \
-                                          "G28\n" \
-                                          "M109 I" STRINGIFY(DECREMENT(M)) "\n" \
-                                          "G29 P1\n" \
-                                          "M104 S0" \
-                                        ))
+      #define PREHEAT_BED_GCODE(M) ""
     #endif
-
-    BUILD_MESH_GCODE_ITEM(1);
-    #if PREHEAT_COUNT >= 2
-      BUILD_MESH_GCODE_ITEM(2);
-      #if PREHEAT_COUNT >= 3
-        BUILD_MESH_GCODE_ITEM(3);
-        #if PREHEAT_COUNT >= 4
-          BUILD_MESH_GCODE_ITEM(4);
-          #if PREHEAT_COUNT >= 5
-            BUILD_MESH_GCODE_ITEM(5);
+    #define BUILD_MESH_GCODE_ITEM(M) GCODES_ITEM_S(ui.get_preheat_label(M), MSG_UBL_BUILD_MESH_M, \
+      PSTR( \
+        "G28\n" \
+        PREHEAT_BED_GCODE(M) \
+        "M109 I" STRINGIFY(M) "\n" \
+        "G29 P1\n" \
+        "M104 S0\n" \
+        "M140 S0" \
+      ) )
+    BUILD_MESH_GCODE_ITEM(0);
+    #if PREHEAT_COUNT > 1
+      BUILD_MESH_GCODE_ITEM(1);
+      #if PREHEAT_COUNT > 2
+        BUILD_MESH_GCODE_ITEM(2);
+        #if PREHEAT_COUNT > 3
+          BUILD_MESH_GCODE_ITEM(3);
+          #if PREHEAT_COUNT > 4
+            BUILD_MESH_GCODE_ITEM(4);
           #endif
         #endif
       #endif
     #endif
   #endif // PREHEAT_COUNT
+
   SUBMENU(MSG_UBL_BUILD_CUSTOM_MESH, _lcd_ubl_custom_mesh);
   GCODES_ITEM(MSG_UBL_BUILD_COLD_MESH, PSTR("G28\nG29 P1"));
   SUBMENU(MSG_UBL_FILLIN_MESH, _menu_ubl_fillin);

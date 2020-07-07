@@ -300,11 +300,12 @@ void menu_advanced_settings();
 
 #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
-  void _menu_configuration_preheat_settings(const uint8_t m) {
+  void _menu_configuration_preheat_settings() {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
     #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
     #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
+    const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
@@ -320,20 +321,6 @@ void menu_advanced_settings();
     #endif
     END_MENU();
   }
-
-  void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(1-1); }
-  #if PREHEAT_COUNT >= 2
-    void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(2-1); }
-    #if PREHEAT_COUNT >= 3
-      void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(3-1); }
-      #if PREHEAT_COUNT >= 4
-        void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(4-1); }
-        #if PREHEAT_COUNT >= 5
-          void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(5-1); }
-        #endif
-      #endif
-    #endif
-  #endif
 
 #endif
 
@@ -414,19 +401,8 @@ void menu_configuration() {
 
   // Preheat configurations
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
-    SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    #if PREHEAT_COUNT >= 2
-      SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
-      #if PREHEAT_COUNT >= 3
-        SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
-        #if PREHEAT_COUNT >= 4
-          SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
-          #if PREHEAT_COUNT >= 5
-            SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
-          #endif
-        #endif
-      #endif
-    #endif
+    LOOP_L_N(m, PREHEAT_COUNT)
+      SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

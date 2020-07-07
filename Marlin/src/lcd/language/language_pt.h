@@ -54,7 +54,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Definir desvio");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Definir origem");
-  #ifdef PREHEAT_1_LABEL
+  #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
     PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
@@ -62,42 +62,14 @@ namespace Language_pt {
     PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
     PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
     PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Definições ") PREHEAT_1_LABEL;
-  #endif
-  #ifdef PREHEAT_2_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_2                     = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_2_H                   = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_2_END                 = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_2_END_E               = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_2_ALL                 = _UxGT("Pre-aq. ") PREHEAT_2_LABEL _UxGT(" Tudo");
-    PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_2_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS            = _UxGT("Definições ") PREHEAT_2_LABEL;
-  #endif
-  #ifdef PREHEAT_3_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_3                     = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_3_H                   = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_3_END                 = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_3_END_E               = _UxGT("Pre-aquecer ") PREHEAT_3_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_3_ALL                 = _UxGT("Pre-aq. ") PREHEAT_3_LABEL _UxGT(" Tudo");
-    PROGMEM Language_Str MSG_PREHEAT_3_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_3_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    PROGMEM Language_Str MSG_PREHEAT_3_SETTINGS            = _UxGT("Definições ") PREHEAT_3_LABEL;
-  #endif
-  #ifdef PREHEAT_4_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_4                     = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_4_H                   = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_4_END                 = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_4_END_E               = _UxGT("Pre-aquecer ") PREHEAT_4_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_4_ALL                 = _UxGT("Pre-aq. ") PREHEAT_4_LABEL _UxGT(" Tudo");
-    PROGMEM Language_Str MSG_PREHEAT_4_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_4_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    PROGMEM Language_Str MSG_PREHEAT_4_SETTINGS            = _UxGT("Definições ") PREHEAT_4_LABEL;
-  #endif
-  #ifdef PREHEAT_5_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_5                     = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_5_H                   = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_5_END                 = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_5_END_E               = _UxGT("Pre-aquecer ") PREHEAT_5_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_5_ALL                 = _UxGT("Pre-aq. ") PREHEAT_5_LABEL _UxGT(" Tudo");
-    PROGMEM Language_Str MSG_PREHEAT_5_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_5_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    PROGMEM Language_Str MSG_PREHEAT_5_SETTINGS            = _UxGT("Definições ") PREHEAT_5_LABEL;
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Pre-aquecer $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Pre-aquecer $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Pre-aquecer $ Bico");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Pre-aquecer $ Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Pre-aq. $ Tudo");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Pre-aq. $ ") LCD_STR_THERMOMETER _UxGT("Base");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Definições $");
   #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefecer");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ligar");
