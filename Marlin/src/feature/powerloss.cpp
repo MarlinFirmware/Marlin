@@ -360,7 +360,7 @@ void PrintJobRecovery::resume() {
       const int16_t et = info.target_temperature[e];
       if (et) {
         #if HAS_MULTI_HOTEND
-          sprintf_P(cmd, PSTR("T%i"), e);
+          sprintf_P(cmd, PSTR("T%i S"), e);
           gcode.process_subcommands_now(cmd);
         #endif
         sprintf_P(cmd, PSTR("M109 S%i"), et);
