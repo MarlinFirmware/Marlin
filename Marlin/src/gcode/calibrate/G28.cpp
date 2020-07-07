@@ -115,13 +115,8 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
-
-    // Disallow Z homing if X or Y are unknown
-    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_MSG(STR_ERR_Z_HOMING_SER);
-      return;
-    }
+    // Disallow Z homing if X or Y homing is needed
+    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("home_z_safely >>>");
 

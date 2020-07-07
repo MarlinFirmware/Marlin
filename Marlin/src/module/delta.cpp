@@ -122,7 +122,7 @@ void recalc_delta_settings() {
 
 #define DELTA_DEBUG(VAR) do { \
     SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
-    SERIAL_ECHOLNPAIR("Delta A", delta.a, " B", delta.b, " C", delta.c); \
+    SERIAL_ECHOLNPAIR_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
   }while(0)
 
 void inverse_kinematics(const xyz_pos_t &raw) {

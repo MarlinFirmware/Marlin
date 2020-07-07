@@ -124,11 +124,11 @@
   #endif
 
 #elif ENABLED(FYSETC_242_OLED_12864)
-  
+
   // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
-      
+
   #define FORCE_SOFT_SPI                                        // SW-SPI
-  
+
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
   #else

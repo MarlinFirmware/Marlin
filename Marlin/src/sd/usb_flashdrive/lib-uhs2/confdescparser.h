@@ -30,10 +30,10 @@
 
 class UsbConfigXtracter {
 public:
-  //virtual void ConfigXtract(const USB_FD_CONFIGURATION_DESCRIPTOR *conf) = 0;
-  //virtual void InterfaceXtract(uint8_t conf, const USB_FD_INTERFACE_DESCRIPTOR *iface) = 0;
+  //virtual void ConfigXtract(const USB_CONFIGURATION_DESCRIPTOR *conf) = 0;
+  //virtual void InterfaceXtract(uint8_t conf, const USB_INTERFACE_DESCRIPTOR *iface) = 0;
 
-  virtual void EndpointXtract(uint8_t conf __attribute__((unused)), uint8_t iface __attribute__((unused)), uint8_t alt __attribute__((unused)), uint8_t proto __attribute__((unused)), const USB_FD_ENDPOINT_DESCRIPTOR *ep __attribute__((unused))) {
+  virtual void EndpointXtract(uint8_t conf __attribute__((unused)), uint8_t iface __attribute__((unused)), uint8_t alt __attribute__((unused)), uint8_t proto __attribute__((unused)), const USB_ENDPOINT_DESCRIPTOR *ep __attribute__((unused))) {
   }
 };
 
@@ -50,7 +50,7 @@ class ConfigDescParser : public USBReadParser {
   MultiValueBuffer theBuffer;
   MultiByteValueParser valParser;
   ByteSkipper theSkipper;
-  uint8_t varBuffer[16 /*sizeof(USB_FD_CONFIGURATION_DESCRIPTOR)*/];
+  uint8_t varBuffer[16 /*sizeof(USB_CONFIGURATION_DESCRIPTOR)*/];
 
   uint8_t stateParseDescr; // ParseDescriptor state
 
@@ -97,8 +97,8 @@ void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::Parse(const uin
   compare masks for them. When the match is found, calls EndpointXtract passing buffer containing endpoint descriptor */
 template <const uint8_t CLASS_ID, const uint8_t SUBCLASS_ID, const uint8_t PROTOCOL_ID, const uint8_t MASK>
 bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor(uint8_t **pp, uint16_t *pcntdn) {
-  USB_FD_CONFIGURATION_DESCRIPTOR* ucd = reinterpret_cast<USB_FD_CONFIGURATION_DESCRIPTOR*>(varBuffer);
-  USB_FD_INTERFACE_DESCRIPTOR* uid = reinterpret_cast<USB_FD_INTERFACE_DESCRIPTOR*>(varBuffer);
+  USB_CONFIGURATION_DESCRIPTOR* ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR*>(varBuffer);
+  USB_INTERFACE_DESCRIPTOR* uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR*>(varBuffer);
   switch (stateParseDescr) {
     case 0:
       theBuffer.valueSize = 2;
@@ -155,7 +155,7 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
         case USB_DESCRIPTOR_ENDPOINT:
           if (!valParser.Parse(pp, pcntdn)) return false;
           if (isGoodInterface && theXtractor)
-            theXtractor->EndpointXtract(confValue, ifaceNumber, ifaceAltSet, protoValue, (USB_FD_ENDPOINT_DESCRIPTOR*)varBuffer);
+            theXtractor->EndpointXtract(confValue, ifaceNumber, ifaceAltSet, protoValue, (USB_ENDPOINT_DESCRIPTOR*)varBuffer);
           break;
           //case HID_DESCRIPTOR_HID:
           //  if (!valParser.Parse(pp, pcntdn)) return false;

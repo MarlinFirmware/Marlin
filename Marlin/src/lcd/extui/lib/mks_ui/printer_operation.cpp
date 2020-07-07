@@ -45,7 +45,7 @@ extern uint8_t flash_preview_begin, default_preview_flg, gcode_preview_over;
 void printer_state_polling() {
   if (uiCfg.print_state == PAUSING) {
     #if ENABLED(SDSUPPORT)
-      if (!planner.has_blocks_queued() &&  card.getIndex() > MIN_FILE_PRINTED)
+      if (!planner.has_blocks_queued() && card.getIndex() > MIN_FILE_PRINTED)
         uiCfg.waitEndMoves++;
 
       if (uiCfg.waitEndMoves > 20) {
@@ -82,11 +82,7 @@ void printer_state_polling() {
 
   if (uiCfg.print_state == RESUMING) {
     if (IS_SD_PAUSED()) {
-      gcode.process_subcommands_now_P(PSTR("M24"));
-      gcode.process_subcommands_now_P(PSTR("G91"));
-      gcode.process_subcommands_now_P(PSTR("G1 Z-5"));
-      gcode.process_subcommands_now_P(PSTR("G90"));
-      // gcode.process_subcommands_now_P(PSTR("M24"));
+      gcode.process_subcommands_now_P(PSTR("M24\nG91\nG1 Z-5\nG90"));
       uiCfg.print_state = WORKING;
       start_print_time();
 
@@ -112,9 +108,7 @@ void printer_state_polling() {
       #endif
 
       if (gCfgItems.pause_reprint == 1) {
-        gcode.process_subcommands_now_P(PSTR("G91"));
-        gcode.process_subcommands_now_P(PSTR("G1 Z-5"));
-        gcode.process_subcommands_now_P(PSTR("G90"));
+        gcode.process_subcommands_now_P(PSTR("G91\nG1 Z-5\nG90"));
       }
       recovery.resume();
 

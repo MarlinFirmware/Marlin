@@ -399,7 +399,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("Err THERMIQUE");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err TEMP. MAX");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err TEMP. MIN");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Origine XY Premier");
 
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPR. STOPPÉE");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Redémarrer SVP");

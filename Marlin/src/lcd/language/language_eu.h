@@ -243,7 +243,6 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: Tenp Minimoa");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: Ohe Tenp Max");
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: Ohe Tenp Min");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Etxera XY lehenengo");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("INPRIMA. GELDIRIK");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Berrabia. Mesedez");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
