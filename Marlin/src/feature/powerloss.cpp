@@ -523,7 +523,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
+          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), " fade: ", info.fade);
         #endif
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
