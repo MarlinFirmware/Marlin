@@ -1813,12 +1813,12 @@ void Temperature::init() {
     }while(0)
 
     #define _MINMAX_TEST(N,M) (HOTENDS > N && THERMISTOR_HEATER_##N && THERMISTOR_HEATER_##N != 998 && THERMISTOR_HEATER_##N != 999 && defined(HEATER_##N##_##M##TEMP))
-  
+
     #if _MINMAX_TEST(0, MIN)
       _TEMP_MIN_E(0);
     #endif
     #if _MINMAX_TEST(0, MAX)
-      _TEMP_MAX_E(0); 
+      _TEMP_MAX_E(0);
     #endif
     #if _MINMAX_TEST(1, MIN)
       _TEMP_MIN_E(1);
@@ -3099,7 +3099,7 @@ void Temperature::tick() {
 
           if (!residency_start_ms) {
             // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_WINDOW) 
+            if (temp_diff < TEMP_WINDOW)
               residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_RESIDENCY_TIME) / 3 : 0);
           }
           else if (temp_diff > TEMP_HYSTERESIS) {
