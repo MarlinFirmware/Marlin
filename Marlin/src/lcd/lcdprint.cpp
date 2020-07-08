@@ -29,6 +29,7 @@
 #if HAS_SPI_LCD
 
 #include "../inc/MarlinConfig.h"
+#include "dogm/ultralcd_DOGM.h"
 #include "lcdprint.h"
 
 /**
@@ -46,19 +47,20 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
       // lcd_put_int(ind); n--; if (ind >= 10) n--;
       if (ind >= 0) {
         if (ch == '*') { lcd_put_wchar('E'); n--; }
-        lcd_put_wchar(ind + ((ch == '=') ? '0' : LCD_FIRST_TOOL));
-        n--;
+        if (n) { lcd_put_wchar(ind + ((ch == '=') ? '0' : LCD_FIRST_TOOL)); n--; }
       }
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
         lcd_put_u8str_P(b);
         n -= utf8_strlen_P(b);
       }
-      if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n);
-      break;
+      if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+      continue;
     }
-    else if (ch == '$')
-      n -= lcd_put_u8str_max_P(inStr, n);
+    else if (ch == '$') {
+      n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+      continue;
+    }
 
     lcd_put_wchar(ch);
   }
