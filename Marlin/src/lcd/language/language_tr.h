@@ -76,6 +76,14 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofset Tamam");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sıfır Belirle");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Ön Isınma $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Ön Isınma $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Ön Isınma $ Nozul");

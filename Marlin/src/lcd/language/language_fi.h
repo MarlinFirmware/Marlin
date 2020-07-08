@@ -46,6 +46,14 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Aja referenssiin");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Aseta origo");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Esilämmitä ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Esilämmitä ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT("Suutin ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Kaikki");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Esilä. ") PREHEAT_1_LABEL _UxGT(" Alusta");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Esilämm. ") PREHEAT_1_LABEL _UxGT(" konf");
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Esilämmitä $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Esilämmitä $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Esilä. $Suutin");

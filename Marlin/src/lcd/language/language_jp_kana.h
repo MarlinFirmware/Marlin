@@ -64,8 +64,16 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("オフセットガテキヨウサレマシタ");       // "Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("キジュンセット");                 // "Set origin"
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ ヨネツ");       // "Preheat " PREHEAT_n_LABEL
-    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ ヨネツ ~");       // "Preheat " PREHEAT_n_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" ヨネツノズル ~");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" スベテヨネツ");  // " All"
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" ベッドヨネツ");  // " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" ヨネツセッテイ");  // " conf"
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ ヨネツ");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("$ ヨネツノズル");  // " Nozzle"
     PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("$ ヨネツノズル ~");  // " Nozzle"
     PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("$ スベテヨネツ");  // " All"

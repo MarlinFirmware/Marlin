@@ -59,6 +59,14 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsetak ezarrita");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Hasiera ipini");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Berotu ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Berotu $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Berotu $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Berotu $ Amaia");
@@ -94,8 +102,8 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Sarea editatzea eginda");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Sarea sortu");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("($) sarea sortu");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("($) sarea balioetsi");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("$ sarea sortu");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("$ sarea balioetsi");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Sare hotza sortu");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Sarearen altuera doitu");
