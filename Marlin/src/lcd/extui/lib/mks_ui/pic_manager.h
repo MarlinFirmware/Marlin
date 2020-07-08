@@ -46,6 +46,9 @@ extern "C" { /* C-declarations for C++ */
 #ifndef HAS_GCODE_DEFAULT_VIEW_IN_FLASH
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 1
 #endif
+#ifndef HAS_LOGO_IN_FLASH
+  #define HAS_LOGO_IN_FLASH 1
+#endif
 #ifndef SPI_FLASH_SIZE
   #define SPI_FLASH_SIZE                0x1000000 // 16MB
 #endif
@@ -82,6 +85,10 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_DATA_ADDR_TFT32           0x00F000
   #define PIC_ICON_LOGO_ADDR_TFT32      0x5D8000
   #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
+
+  // font
+  #define FONTINFOADDR                  0x183000 // 6M -- font addr
+  #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
 
 #else
   //pic

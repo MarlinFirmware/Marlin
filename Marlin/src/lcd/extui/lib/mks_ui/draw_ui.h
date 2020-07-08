@@ -33,8 +33,8 @@
 #undef LV_COLOR_BACKGROUND
 #define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) // LV_COLOR_MAKE(0x00, 0x00, 0x00)
 
+#include "../../inc/MarlinConfigPre.h"
 #include "tft_multi_language.h"
-#include "pic_manager.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
 #include "draw_set.h"
@@ -294,8 +294,8 @@ extern DISP_STATE last_disp_state;
 extern DISP_STATE_STACK disp_state_stack;
 
 extern lv_style_t tft_style_scr;
-extern lv_style_t tft_style_lable_pre;
-extern lv_style_t tft_style_lable_rel;
+extern lv_style_t tft_style_label_pre;
+extern lv_style_t tft_style_label_rel;
 extern lv_style_t style_line;
 extern lv_style_t style_para_value_pre;
 extern lv_style_t style_para_value_rel;
