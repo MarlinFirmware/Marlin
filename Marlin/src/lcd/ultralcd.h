@@ -27,6 +27,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(SDSUPPORT)
+  #include "../sd/cardreader.h"
+#endif
+
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -95,9 +99,6 @@
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
 
-    // Manual Movement
-    extern float move_menu_scale;
-
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_pause_show_message(const PauseMessage message,
                                   const PauseMode mode=PAUSE_MODE_SAME,
@@ -111,7 +112,7 @@
 
   #endif // HAS_LCD_MENU
 
-#endif
+#endif // HAS_SPI_LCD
 
 // REPRAPWORLD_KEYPAD (and ADC_KEYPAD)
 #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -252,6 +253,43 @@
   };
 #endif
 
+#if PREHEAT_COUNT
+  typedef struct {
+    TERN_(HAS_HOTEND,     uint16_t hotend_temp);
+    TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
+    TERN_(HAS_FAN,        uint16_t fan_speed  );
+  } preheat_t;
+#endif
+
+#if HAS_LCD_MENU
+
+  // Manual Movement class
+  class ManualMove {
+  public:
+    static millis_t start_time;
+    static float menu_scale;
+    TERN_(IS_KINEMATIC, static float offset);
+    #if IS_KINEMATIC
+      static bool processing;
+    #else
+      static bool constexpr processing = false;
+    #endif
+    #if MULTI_MANUAL
+      static int8_t e_index;
+    #else
+      static int8_t constexpr e_index = 0;
+    #endif
+    static uint8_t axis;
+    static void task();
+    static void soon(AxisEnum axis
+      #if MULTI_MANUAL
+        , const int8_t eindex=-1
+      #endif
+    );
+  };
+
+#endif
+
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
@@ -287,9 +325,13 @@ public:
     static void init_lcd();
     FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
   #else
+    #if ENABLED(DWIN_CREALITY_LCD)
+      static void refresh();
+    #else
+      static inline void refresh()  {}
+    #endif
     static inline bool detected() { return true; }
     static inline void init_lcd() {}
-    static inline void refresh()  {}
   #endif
 
   #if HAS_DISPLAY
@@ -417,6 +459,11 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
+      #if ENABLED(TOUCH_BUTTONS)
+        static bool on_edit_screen;
+        static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
+      #endif
+
       static void status_screen();
 
     #endif
@@ -446,6 +493,20 @@ public:
 
   #endif
 
+  #if ENABLED(SDSUPPORT)
+    #if BOTH(SCROLL_LONG_FILENAMES, HAS_LCD_MENU)
+      #define MARLINUI_SCROLL_NAME 1
+    #endif
+    #if MARLINUI_SCROLL_NAME
+      static uint8_t filename_scroll_pos, filename_scroll_max;
+    #endif
+    static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
+  #endif
+
+  #if PREHEAT_COUNT
+    static preheat_t material_preset[PREHEAT_COUNT];
+  #endif
+
   #if HAS_LCD_MENU
 
     #if ENABLED(TOUCH_BUTTONS)
@@ -459,34 +520,13 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
-    #if ENABLED(SDSUPPORT)
-      #if ENABLED(SCROLL_LONG_FILENAMES)
-        static uint8_t filename_scroll_pos, filename_scroll_max;
-      #endif
-      static const char * scrolled_filename(CardReader &theCard, const uint8_t maxlen, uint8_t hash, const bool doScroll);
-    #endif
-
-    #if IS_KINEMATIC
-      static bool processing_manual_move;
-    #else
-      static constexpr bool processing_manual_move = false;
-    #endif
-
-    #if E_MANUAL > 1
-      static int8_t manual_move_e_index;
-    #else
-      static constexpr int8_t manual_move_e_index = 0;
-    #endif
-
-    static int16_t preheat_hotend_temp[2], preheat_bed_temp[2];
-    static uint8_t preheat_fan_speed[2];
+    // Manual Movement
+    static ManualMove manual_move;
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
-
-    static void manage_manual_move();
 
     static bool lcd_clicked;
     static bool use_click();
@@ -580,6 +620,9 @@ public:
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      static void external_encoder();
+    #endif
   #else
     static constexpr bool external_control = false;
   #endif

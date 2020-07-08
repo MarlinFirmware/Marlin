@@ -35,7 +35,15 @@
   #define IS_CARTESIAN 1
 #endif
 
-#if ENABLED(CARTESIO_UI)
+#if ENABLED(MKS_LCD12864)
+  #define MKS_MINI_12864
+#endif
+
+#if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  #define MINIPANEL
+
+#elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
   #define IS_ULTIPANEL
@@ -98,15 +106,9 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -118,9 +120,26 @@
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
 
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+#elif ENABLED(FYSETC_242_OLED_12864)
 
-  #define MINIPANEL
+  #define IS_RRD_SC
+  #define U8GLIB_SH1106
+
+  #define LED_CONTROL_MENU
+  #define NEOPIXEL_LED
+  #undef NEOPIXEL_TYPE
+  #define NEOPIXEL_TYPE       NEO_RGB
+  #if NEOPIXEL_PIXELS < 3
+    #undef NEOPIXELS_PIXELS
+    #define NEOPIXEL_PIXELS     3
+  #endif
+  #ifndef NEOPIXEL_BRIGHTNESS
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    #define LED_BACKLIGHT_TIMEOUT 10000
+  #endif
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -240,6 +259,8 @@
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define DOGLCD
   #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(SPI_GRAPHICAL_TFT)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -477,6 +498,8 @@
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
 #endif
 
 // Helper macros for extruder and hotend arrays
@@ -525,6 +548,15 @@
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
 #endif
 
 /**

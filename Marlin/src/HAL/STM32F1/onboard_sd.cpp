@@ -20,7 +20,7 @@
 #include "SPI.h"
 #include "fastio.h"
 
-#if ENABLED(SHARED_SD_CARD)
+#if HAS_SHARED_MEDIA
   #ifndef ON_BOARD_SPI_DEVICE
     #define ON_BOARD_SPI_DEVICE SPI_DEVICE
   #endif

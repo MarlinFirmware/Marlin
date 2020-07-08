@@ -37,13 +37,8 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if HOTENDS <= 1
-  #define HOTEND_INDEX  0
-  #define E_NAME
-#else
-  #define HOTEND_INDEX  e
-  #define E_NAME e
-#endif
+#define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
+#define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 // Identifiers for other heaters
 typedef enum : int8_t {
@@ -74,29 +69,17 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
+#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0))
+#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
+#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
+#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
 #if ENABLED(PIDTEMP)
-  #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
-  #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
-  #define _PID_Kd(H) Temperature::temp_hotend[H].pid.Kd
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    #define _PID_Kc(H) Temperature::temp_hotend[H].pid.Kc
-  #else
-    #define _PID_Kc(H) 1
-  #endif
-
-  #if ENABLED(PID_FAN_SCALING)
-    #define _PID_Kf(H) Temperature::temp_hotend[H].pid.Kf
-  #else
-    #define _PID_Kf(H) 0
-  #endif
+  #define _PID_Kc(H) TERN(PID_EXTRUSION_SCALING, Temperature::temp_hotend[H].pid.Kc, 1)
+  #define _PID_Kf(H) TERN(PID_FAN_SCALING,       Temperature::temp_hotend[H].pid.Kf, 0)
 #else
-  #define _PID_Kp(H) NAN
-  #define _PID_Ki(H) NAN
-  #define _PID_Kd(H) NAN
   #define _PID_Kc(H) 1
+  #define _PID_Kf(H) 0
 #endif
-
-#define PID_PARAM(F,H) _PID_##F(H)
 
 /**
  * States for ADC reading in the ISR
@@ -147,6 +130,14 @@ enum ADCSensorState : char {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH, Measure_FILWIDTH,
+  #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    Prepare_POWER_MONITOR_CURRENT,
+    Measure_POWER_MONITOR_CURRENT,
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    Prepare_POWER_MONITOR_VOLTAGE,
+    Measure_POWER_MONITOR_VOLTAGE,
   #endif
   #if HAS_ADC_BUTTONS
     Prepare_ADC_KEY, Measure_ADC_KEY,
@@ -322,7 +313,7 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-      static const int16_t heater_maxtemp[HOTENDS];
+      static const uint16_t heater_maxtemp[HOTENDS];
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
@@ -417,7 +408,7 @@ class Temperature {
   public:
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
-      static uint8_t ADCKey_count;
+      static uint16_t ADCKey_count;
     #endif
 
     TERN_(PID_EXTRUSION_SCALING, static int16_t lpq_len);
@@ -617,7 +608,7 @@ class Temperature {
         return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
       }
 
-    #endif // HOTENDS
+    #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
 
@@ -789,7 +780,7 @@ class Temperature {
 
     TERN_(HAS_DISPLAY, static void set_heating_message(const uint8_t e));
 
-    #if HAS_LCD_MENU
+    #if HAS_LCD_MENU && HAS_TEMPERATURE
       static void lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb);
     #endif
 

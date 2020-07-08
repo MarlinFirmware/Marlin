@@ -123,6 +123,18 @@
     #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
   #endif
 
+#elif ENABLED(FYSETC_242_OLED_12864)
+
+  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+  #endif
+
 #elif ENABLED(U8GLIB_SH1106)
 
   // Generic SH1106 OLED I2C LCD
@@ -199,10 +211,18 @@
 // LCD_FULL_PIXEL_WIDTH =
 // LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
 #if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define LCD_FULL_PIXEL_WIDTH  320
-  #define LCD_PIXEL_OFFSET_X    32
-  #define LCD_FULL_PIXEL_HEIGHT 240
-  #define LCD_PIXEL_OFFSET_Y    32
+  #ifndef LCD_FULL_PIXEL_WIDTH
+    #define LCD_FULL_PIXEL_WIDTH  320
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_X
+    #define LCD_PIXEL_OFFSET_X    32
+  #endif
+  #ifndef LCD_FULL_PIXEL_HEIGHT
+    #define LCD_FULL_PIXEL_HEIGHT 240
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_Y
+    #define LCD_PIXEL_OFFSET_Y    32
+  #endif
 #endif
 
 // For selective rendering within a Y range
@@ -245,5 +265,9 @@
 #define INFO_FONT_DESCENT 2
 #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
 #define INFO_FONT_WIDTH   6
+
+#ifndef FSMC_UPSCALE
+  #define FSMC_UPSCALE 2
+#endif
 
 extern U8G_CLASS u8g;

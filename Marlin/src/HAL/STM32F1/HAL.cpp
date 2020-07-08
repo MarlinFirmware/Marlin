@@ -139,9 +139,15 @@ const uint8_t adc_pins[] = {
   #if HAS_JOY_ADC_Z
     JOY_Z_PIN,
   #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    POWER_MONITOR_CURRENT_PIN,
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    POWER_MONITOR_VOLTAGE_PIN,
+  #endif
 };
 
-enum TEMP_PINS : char {
+enum TempPinIndex : char {
   #if HAS_TEMP_ADC_0
     TEMP_0,
   #endif
@@ -186,6 +192,12 @@ enum TEMP_PINS : char {
   #endif
   #if HAS_JOY_ADC_Z
     JOY_Z,
+  #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    POWERMON_CURRENT,
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    POWERMON_VOLTS,
   #endif
   ADC_PIN_COUNT
 };
@@ -246,7 +258,7 @@ void HAL_init() {
 // HAL idle task
 void HAL_idletask() {
   #ifdef USE_USB_COMPOSITE
-    #if ENABLED(SHARED_SD_CARD)
+    #if HAS_SHARED_MEDIA
       // If Marlin is using the SD card we need to lock it to prevent access from
       // a PC via USB.
       // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
@@ -254,7 +266,7 @@ void HAL_idletask() {
       // the disk if Marlin has it mounted. Unfortunately there is currently no way
       // to unmount the disk from the LCD menu.
       // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-      /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/
+      /* copy from lpc1768 framework, should be fixed later for process HAS_SHARED_MEDIA*/
     #endif
     // process USB mass storage device class loop
     MarlinMSC.loop();
@@ -265,9 +277,8 @@ void HAL_clear_reset_source() { }
 
 /**
  * TODO: Check this and change or remove.
- * currently returns 1 that's equal to poweron reset.
  */
-uint8_t HAL_get_reset_source() { return 1; }
+uint8_t HAL_get_reset_source() { return RST_POWER_ON; }
 
 void _delay_ms(const int delay_ms) { delay(delay_ms); }
 
@@ -323,7 +334,8 @@ void HAL_adc_init() {
 }
 
 void HAL_adc_start_conversion(const uint8_t adc_pin) {
-  TEMP_PINS pin_index;
+  //TEMP_PINS pin_index;
+  TempPinIndex pin_index;
   switch (adc_pin) {
     default: return;
     #if HAS_TEMP_ADC_0
@@ -370,6 +382,12 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if ENABLED(ADC_KEYPAD)
       case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
+    #endif
+    #if ENABLED(POWER_MONITOR_CURRENT)
+      case POWER_MONITOR_CURRENT_PIN: pin_index = POWERMON_CURRENT; break;
+    #endif
+    #if ENABLED(POWER_MONITOR_VOLTAGE)
+      case POWER_MONITOR_VOLTAGE_PIN: pin_index = POWERMON_VOLTS; break;
     #endif
   }
   HAL_adc_result = (HAL_adc_results[(int)pin_index] >> 2) & 0x3FF; // shift to get 10 bits only.

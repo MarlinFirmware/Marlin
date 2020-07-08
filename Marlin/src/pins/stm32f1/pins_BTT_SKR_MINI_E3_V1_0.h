@@ -21,9 +21,9 @@
  */
 #pragma once
 
-#include "pins_BTT_SKR_MINI_E3.h"
+#include "pins_BTT_SKR_MINI_E3_common.h"
 
-#define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
+#define BOARD_INFO_NAME "BTT SKR Mini E3 V1.0"
 
 /**
  * TMC220x stepper drivers

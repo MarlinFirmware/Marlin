@@ -48,3 +48,9 @@
 #if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
   #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4 hardware."
 #endif
+
+#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+#elif ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
+#endif

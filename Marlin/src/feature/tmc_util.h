@@ -152,8 +152,8 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     TMCMarlin(Stream * SerialPort, const float RS, uint8_t addr, const uint16_t mul_pin1, const uint16_t mul_pin2) :
       TMC2208Stepper(SerialPort, RS, addr, mul_pin1, mul_pin2)
      {}
-    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t, const bool has_rx=true) :
-      TMC2208Stepper(RX, TX, RS, has_rx)
+    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t) :
+      TMC2208Stepper(RX, TX, RS)
       {}
 
     uint16_t rms_current() { return TMC2208Stepper::rms_current(); }
@@ -197,7 +197,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     TMCMarlin(Stream * SerialPort, const float RS, const uint8_t addr) :
       TMC2209Stepper(SerialPort, RS, addr)
       {}
-    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t addr, const bool) :
+    TMCMarlin(const uint16_t RX, const uint16_t TX, const float RS, const uint8_t addr) :
       TMC2209Stepper(RX, TX, RS, addr)
       {}
     uint8_t get_address() { return slave_address; }
