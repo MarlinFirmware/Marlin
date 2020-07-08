@@ -28,8 +28,6 @@
 
 #if HAS_SPI_LCD
 
-#include "../inc/MarlinConfig.h"
-#include "dogm/ultralcd_DOGM.h"
 #include "lcdprint.h"
 
 /**
