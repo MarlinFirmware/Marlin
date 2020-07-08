@@ -53,6 +53,9 @@ void GcodeSuite::T(const uint8_t tool_index) {
     DEBUG_POS("BEFORE", current_position);
   }
 
+  // Count this command as movement / activity
+  reset_stepper_timeout();
+
   #if ENABLED(PRUSA_MMU2)
     if (parser.string_arg) {
       mmu2.tool_change(parser.string_arg);   // Special commands T?/Tx/Tc

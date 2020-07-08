@@ -152,7 +152,7 @@ void menu_cancelobject();
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       editable.decimal = runout.runout_distance();
-      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, 30,
+      EDIT_ITEM(float3, MSG_RUNOUT_DISTANCE_MM, &editable.decimal, 1, float(FILAMENT_RUNOUT_DISTANCE_MM) * 1.5f,
         []{ runout.set_runout_distance(editable.decimal); }, true
       );
     #endif
@@ -169,17 +169,10 @@ void menu_cancelobject();
 #if ENABLED(PID_AUTOTUNE_MENU)
 
   #if ENABLED(PIDTEMP)
-    #ifdef PREHEAT_1_TEMP_HOTEND
-      #define PID_TUNE_TEMP PREHEAT_1_TEMP_HOTEND
-    #else
-      #define PID_TUNE_TEMP 200
-    #endif
-    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PID_TUNE_TEMP);
-    #undef PID_TUNE_TEMP
+    int16_t autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(PREHEAT_1_TEMP_HOTEND);
   #endif
-
   #if ENABLED(PIDTEMPBED)
-    int16_t autotune_temp_bed = 70;
+    int16_t autotune_temp_bed = PREHEAT_1_TEMP_BED;
   #endif
 
   #include "../../gcode/queue.h"
@@ -205,16 +198,12 @@ void menu_cancelobject();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
-      UNUSED(e);
-    #endif
+    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int16_t e) {
-    #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
-      UNUSED(e);
-    #endif
+    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     thermalManager.updatePID();
   }
@@ -239,7 +228,7 @@ void menu_cancelobject();
 
 #if HAS_HOTEND
   DEFINE_PIDTEMP_FUNCS(0);
-  #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+  #if ENABLED(PID_PARAMS_PER_HOTEND)
     REPEAT_S(1, HOTENDS, DEFINE_PIDTEMP_FUNCS)
   #endif
 #endif
@@ -279,9 +268,9 @@ void menu_cancelobject();
       #define __PID_BASE_MENU_ITEMS(N) \
         raw_Ki = unscalePID_i(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Ki, PID_PARAM(Ki, N))); \
         raw_Kd = unscalePID_d(TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kd, PID_PARAM(Kd, N))); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
-        EDIT_ITEM_N(float52sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_P_E, &TERN(PID_BED_MENU_SECTION, thermalManager.temp_bed.pid.Kp, PID_PARAM(Kp, N)), 1, 9990); \
+        EDIT_ITEM_FAST_N(float52sign, N, MSG_PID_I_E, &raw_Ki, 0.01f, 9990, []{ copy_and_scalePID_i(N); }); \
+        EDIT_ITEM_FAST_N(float41sign, N, MSG_PID_D_E, &raw_Kd, 1, 9990, []{ copy_and_scalePID_d(N); })
 
       #if ENABLED(PID_EXTRUSION_SCALING)
         #define _PID_BASE_MENU_ITEMS(N) \
@@ -314,7 +303,7 @@ void menu_cancelobject();
     #endif
 
     PID_EDIT_MENU_ITEMS(0);
-    #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
       REPEAT_S(1, HOTENDS, PID_EDIT_MENU_ITEMS)
     #endif
 
@@ -328,7 +317,7 @@ void menu_cancelobject();
         #ifndef BED_OVERSHOOT
           #define BED_OVERSHOOT 5
         #endif
-        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, 70, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
+        EDIT_ITEM_FAST_N(int3, -1, MSG_PID_AUTOTUNE_E, &autotune_temp_bed, PREHEAT_1_TEMP_BED, BED_MAXTEMP - BED_OVERSHOOT, []{ _lcd_autotune(-1); });
       #endif
     #endif
 

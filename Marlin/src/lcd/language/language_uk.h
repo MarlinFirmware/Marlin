@@ -536,7 +536,6 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" СТОЛУ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("ПЕРЕГРІВ КАМЕРИ");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" КАМЕРИ");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Першим дім по XY");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("ПРИНТЕР ЗУПИНЕНО");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Перезавантажте");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("д"); // One character only

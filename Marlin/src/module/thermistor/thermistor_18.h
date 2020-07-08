@@ -22,7 +22,7 @@
 #pragma once
 
 // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327 - version (measured/tested/approved)
-const short temptable_18[][2] PROGMEM = {
+const temp_entry_t temptable_18[] PROGMEM = {
   { OV(   1), 713 },
   { OV(  17), 284 },
   { OV(  20), 275 },

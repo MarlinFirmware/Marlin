@@ -43,12 +43,12 @@ void StepperBumpSensitivityScreen::onRedraw(draw_mode_t what) {
 bool StepperBumpSensitivityScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT(TMCBumpSensitivity, X  ); break;
-    case  3: UI_INCREMENT(TMCBumpSensitivity, X2 ); break;
-    case  4: UI_DECREMENT(TMCBumpSensitivity, Y  ); break;
-    case  5: UI_INCREMENT(TMCBumpSensitivity, Y2 ); break;
-    case  6: UI_DECREMENT(TMCBumpSensitivity, Z  ); break;
-    case  7: UI_INCREMENT(TMCBumpSensitivity, Z2 ); break;
+    case  2: UI_DECREMENT(TMCBumpSensitivity, X); break;
+    case  3: UI_INCREMENT(TMCBumpSensitivity, X); break;
+    case  4: UI_DECREMENT(TMCBumpSensitivity, Y); break;
+    case  5: UI_INCREMENT(TMCBumpSensitivity, Y); break;
+    case  6: UI_DECREMENT(TMCBumpSensitivity, Z); break;
+    case  7: UI_INCREMENT(TMCBumpSensitivity, Z); break;
     default:
       return false;
   }

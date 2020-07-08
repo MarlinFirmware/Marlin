@@ -29,6 +29,12 @@
 
 /**
  * M412: Enable / Disable filament runout detection
+ *
+ * Parameters
+ *  R         : Reset the runout sensor
+ *  S<bool>   : Reset and enable/disable the runout sensor
+ *  H<bool>   : Enable/disable host handling of filament runout
+ *  D<linear> : Extra distance to continue after runout is triggered
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
