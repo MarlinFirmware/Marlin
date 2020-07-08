@@ -47,6 +47,14 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Изходна точка");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Подгряване ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Подгряване ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Всички");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Подгр. ") PREHEAT_1_LABEL _UxGT(" Легло");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Настройки ") PREHEAT_1_LABEL;
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Подгряване $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Подгряване $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Подгряване $ Дюза");

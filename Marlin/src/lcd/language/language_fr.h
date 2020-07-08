@@ -71,6 +71,14 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Décalages appliqués");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Régler origine");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Régler préch. ") PREHEAT_1_LABEL;
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Préchauffage $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Préchauffage $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Préch. $ buse");
@@ -142,8 +150,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Terminer");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Créer la grille");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Créer grille ($)");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Impr. grille ($)");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Créer grille $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Impr. grille $");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Créer grille ...");
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Mesure à froid");

@@ -65,8 +65,16 @@ namespace Language_de {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" Vorwärmen") " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" Extr. Vorwärm. ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" Alles Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" Bett Vorwärmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" Einstellungen");
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ Vorwärmen");
-    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ Vorwärmen ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ Vorwärmen") " ~";
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("$ Extr. Vorwärmen");
     PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("$ Extr. Vorwärm. ~");
     PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("$ Alles Vorwärmen");
@@ -136,8 +144,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Eigenes Netz erst.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Netz erstellen");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("($) Netz erstellen");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("($) Netz validieren");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("$ Netz erstellen");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("$ Netz validieren");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Netz erstellen kalt");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Netzhöhe einst.");

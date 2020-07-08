@@ -56,6 +56,11 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("다음 Point");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("레벨링 완료!");
   #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("예열하기 - $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("예열하기 - $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("예열하기 - $ 노즐");
