@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##################################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26 20/07/09
  * ##################################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -154,7 +154,7 @@
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
-  #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops // 20/06/26
+ // #define ADAPTIVE_FAN_SLOWING              // Slow part cooling fan if temperature drops // 20/06/26 tiral on // 20/07/09 off
   #if BOTH(ADAPTIVE_FAN_SLOWING, PIDTEMP)
     //#define NO_FAN_SLOWING_IN_PID_TUNING    // Don't slow fan speed during M303
   #endif
