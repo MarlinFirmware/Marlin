@@ -1798,7 +1798,7 @@ void Temperature::init() {
   delay(250);
 
   #if HAS_HOTEND
-  
+
     #define _TEMP_MIN_E(NR) do{ \
       const int16_t tmin = THERMISTOR_HEATER_##NR != 1000 ?_MAX(HEATER_ ##NR## _MINTEMP, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MINTEMP_IND].celsius)):HEATER_ ##NR## _MINTEMP; \
       temp_range[NR].mintemp = tmin; \
