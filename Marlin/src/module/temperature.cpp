@@ -1798,15 +1798,15 @@ void Temperature::init() {
   delay(250);
 
   #if HAS_HOTEND
-
+  
     #define _TEMP_MIN_E(NR) do{ \
-      const int16_t tmin = _MAX(HEATER_ ##NR## _MINTEMP, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MINTEMP_IND].celsius)); \
+      const int16_t tmin = THERMISTOR_HEATER_##NR != 1000 ?_MAX(HEATER_ ##NR## _MINTEMP, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MINTEMP_IND].celsius)):HEATER_ ##NR## _MINTEMP; \
       temp_range[NR].mintemp = tmin; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_min, NR) < tmin) \
         temp_range[NR].raw_min += TEMPDIR(NR) * (OVERSAMPLENR); \
     }while(0)
     #define _TEMP_MAX_E(NR) do{ \
-      const int16_t tmax = _MIN(HEATER_ ##NR## _MAXTEMP, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1); \
+      const int16_t tmax = THERMISTOR_HEATER_##NR != 1000 ? _MIN(HEATER_ ##NR## _MAXTEMP, (int16_t)pgm_read_word(&HEATER_ ##NR## _TEMPTABLE[HEATER_ ##NR## _SENSOR_MAXTEMP_IND].celsius) - 1):HEATER_ ##NR## _MAXTEMP; \
       temp_range[NR].maxtemp = tmax; \
       while (analog_to_celsius_hotend(temp_range[NR].raw_max, NR) > tmax) \
         temp_range[NR].raw_max -= TEMPDIR(NR) * (OVERSAMPLENR); \
