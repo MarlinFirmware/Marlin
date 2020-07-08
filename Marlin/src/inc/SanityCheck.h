@@ -521,6 +521,7 @@
   #endif
   #ifndef FIL_RUNOUT_STATE
     #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+    #undef FIL_RUNOUT_INVERTING
   #endif
 #endif
 
