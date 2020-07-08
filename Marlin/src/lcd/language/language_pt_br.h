@@ -70,14 +70,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Alteração aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ajustar Origem");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Extrusora ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Ajustar ") PREHEAT_1_LABEL;
-
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Pre-aquecer $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Pre-aquecer $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Extrusora $");
@@ -136,8 +128,8 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Montar Malha Custom");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Montar ");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Montar $");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Checar $");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Montar ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Checar ($)");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Montar Malha fria");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajustar Altura");
