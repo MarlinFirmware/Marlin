@@ -170,7 +170,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     #endif
 
     #define _PLBL(N) preheat_##N##_label,
-    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = ARRAY_N(PREHEAT_COUNT, REPEAT(PREHEAT_COUNT, _PLBL));
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
 
     return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
   }
