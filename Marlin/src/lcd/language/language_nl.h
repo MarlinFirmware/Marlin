@@ -56,14 +56,6 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("H offset toegep.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nulpunt instellen");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" verw. conf");
-
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ voorverwarmen");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ voorverw. ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("$ voorverw. Einde");

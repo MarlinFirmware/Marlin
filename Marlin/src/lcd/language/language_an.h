@@ -57,14 +57,6 @@ namespace Language_an {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfase aplicau");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Establir orichen");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Precalentar ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
-
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Precalentar $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Precalentar $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Precal. $ Boquilla");

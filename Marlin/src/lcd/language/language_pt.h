@@ -55,14 +55,6 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Definir origem");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Definições ") PREHEAT_1_LABEL;
-
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Pre-aquecer $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Pre-aquecer $ ~");
     PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Pre-aquecer $ Bico");
