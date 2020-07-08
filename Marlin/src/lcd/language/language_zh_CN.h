@@ -35,7 +35,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("简体中文");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就绪.");     //" ready."
-  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
+  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("马林");
   PROGMEM Language_Str MSG_YES                             = _UxGT("是");
   PROGMEM Language_Str MSG_NO                              = _UxGT("否");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("返回");     // ”Back“
@@ -201,7 +201,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6. 细调所有的");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. 保存热床网格");
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("灯管控制");     // "LED Control")
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("LED控制");     // "LED Control")
   PROGMEM Language_Str MSG_LEDS                            = _UxGT("灯");     // "Lights")
   PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("灯预置");     // "Light Presets")
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("红");     // "Red")
@@ -234,11 +234,11 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("热床Z");     //"Bed Z"
-  PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" 喷嘴");     //"Nozzle" 噴嘴
-  PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" 喷嘴 ~");     //"Nozzle" 噴嘴
+  PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("喷嘴");     //"Nozzle" 噴嘴
+  PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("喷嘴 ~");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("喷嘴已停靠");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("喷嘴待命中");
-  PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" 热床");     //"Bed"
+  PROGMEM Language_Str MSG_BED                             = _UxGT("热床");     //"Bed"
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("机箱壳");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("风扇速率");     //"Fan speed"
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("风扇速率 ~");     //"Fan speed"
@@ -310,8 +310,10 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("挤出机~步数/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("温度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("运动");     //"Motion"
-  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("丝料测容");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("测容积mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("料丝");     //"Filament" menu_advanced_filament
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("丝料直径");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("丝料直径 *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("卸载 mm");     // "Unload mm"
@@ -329,10 +331,14 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("设置已保存");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("存储器更新");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("复位打印机");
-  PROGMEM Language_Str MSG_REFRESH                         = _UxGT("刷新");     //"Refresh"
+  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("刷新");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("准备");     //"Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("调整");     //"Tune"
+  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("电源监控");
+  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("电流");
+  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("电压");
+  PROGMEM Language_Str MSG_POWER                           = _UxGT("功率");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("开始打印");
   PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("下一个");
   PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("初始");
