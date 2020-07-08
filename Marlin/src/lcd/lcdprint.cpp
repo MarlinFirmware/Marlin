@@ -38,8 +38,8 @@
  */
 lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   uint8_t *p = (uint8_t*)pstr;
-  lcd_uint_t n = maxlen;
-  for (; n; n--) {
+  int8_t n = maxlen;
+  for (; n > 0; n--) {
     wchar_t ch;
     p = get_utf8_value_cb(p, read_byte_rom, &ch);
     if (!ch) break;
@@ -57,8 +57,10 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
       if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
       continue;
     }
-    else if (ch == '$')
+    else if (ch == '$' && inStr) {
       n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+      continue;
+    }
 
     lcd_put_wchar(ch);
   }
