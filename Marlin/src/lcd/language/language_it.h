@@ -152,8 +152,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crea Mesh personal.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crea Mesh");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Crea Mesh $");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Valida Mesh $");
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Crea Mesh ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Valida Mesh ($)");
   #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crea Mesh a freddo");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Aggiusta Alt. Mesh");
