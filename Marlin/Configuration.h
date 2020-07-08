@@ -1370,7 +1370,7 @@
 
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60) // 20/06/28
-#define HOMING_FEEDRATE_Z  (4*60) // USED 2*60 BEFORE UBL TRIAL // 20/06/28
+#define HOMING_FEEDRATE_Z  (20*60) // USED 4*60 BEFORE UBL TRIAL // 20/06/28
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
