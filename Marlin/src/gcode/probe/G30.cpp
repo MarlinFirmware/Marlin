@@ -57,9 +57,8 @@ void GcodeSuite::G30() {
 
   restore_feedrate_and_scaling();
 
-  #ifdef Z_AFTER_PROBING
-    if (raise_after == PROBE_PT_STOW) probe.move_z_after_probing();
-  #endif
+  if (raise_after == PROBE_PT_STOW)
+    probe.move_z_after_probing();
 
   report_current_position();
 }

@@ -622,8 +622,7 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen('D'));
 
-  if (current_position.z < Z_CLEARANCE_BETWEEN_PROBES)
-    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+  do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_was_enabled = parser.volumetric_enabled;
