@@ -59,7 +59,7 @@
     } migration_settings_t;
     constexpr migration_settings_t migration_defaults = { 0, 0, false, false };
     extern migration_settings_t migration;
-    bool extruder_migration();
+    void extruder_migration();
   #endif
 #endif
 

@@ -25,7 +25,7 @@
 #if HAS_POWER_MONITOR
 
 #include "../../../feature/power_monitor.h"
-#include "../../../MarlinCore.h"
+#include "../../../Marlin.h"
 #include "../../gcode.h"
 
 /**

@@ -36,7 +36,7 @@
 // @section temperature
 
 //===========================================================================
-//============================= Thermal Settings ============================
+//=============================Thermal Settings  ============================
 //===========================================================================
 
 /**
@@ -1519,7 +1519,7 @@
 // ADC Button Debounce
 //
 #if HAS_ADC_BUTTONS
-  #define ADC_BUTTON_DEBOUNCE_DELAY 16  // Increase if buttons bounce or repeat too fast
+  #define ADC_BUTTON_DEBOUNCE_DELAY 16  // (ms) Increase if buttons bounce or repeat too fast
 #endif
 
 // @section safety
@@ -1553,9 +1553,8 @@
   //#define BABYSTEP_WITHOUT_HOMING
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
-  //#define BABYSTEP_MILLIMETER_UNITS       // Specify BABYSTEP_MULTIPLICATOR_(XY|Z) in mm instead of micro-steps
-  #define BABYSTEP_MULTIPLICATOR_Z  1       // (steps or mm) Steps or millimeter distance for each Z babystep
-  #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
+  #define BABYSTEP_MULTIPLICATOR_Z  1       // Babysteps are very small. Increase for faster motion.
+  #define BABYSTEP_MULTIPLICATOR_XY 1
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
@@ -1829,7 +1828,7 @@
 
 // @section motion
 
-// The number of linear moves that can be in the planner at once.
+// The number of lineear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
 #if BOTH(SDSUPPORT, DIRECT_STEPPING)
   #define BLOCK_BUFFER_SIZE  8
@@ -1901,9 +1900,6 @@
 // Printrun may have trouble receiving long strings all at once.
 // This option inserts short delays between lines of serial output.
 #define SERIAL_OVERRUN_PROTECTION
-
-// For serial echo, the number of digits after the decimal point
-//#define SERIAL_FLOAT_PRECISION 4
 
 // @section extras
 
@@ -3429,15 +3425,12 @@
 
   /**
    * MMU Extruder Sensor
-   *
-   * Support for a Prusa (or other) IR Sensor to detect filament near the extruder
-   * and make loading more reliable. Suitable for an extruder equipped with a filament
-   * sensor less than 38mm from the gears.
-   *
-   * During loading the extruder will stop when the sensor is triggered, then do a last
-   * move up to the gears. If no filament is detected, the MMU2 can make some more attempts.
-   * If all attempts fail, a filament runout will be triggered.
+   * Add support for Prusa IR Sensor (or other) to detect that filament reach the extruder to make loading filament more reliable
+   * If your extruder is equipped with a filament sensor located less than 38mm from the gears you can use this feature
+   * During loading to the extruder, the sensor will stop the loading command when he's triggered and make a last move to load filament to the gears
+   * If no filament is detected, MMU2 will make more loading attemps, if finally no filament is detected, the printer will enter in runout state
    */
+
   //#define MMU_EXTRUDER_SENSOR
   #if ENABLED(MMU_EXTRUDER_SENSOR)
     #define MMU_LOADING_ATTEMPTS_NR 5 //max. number of attempts to load filament if first load fail
@@ -3445,9 +3438,10 @@
 
   /**
    * Using a sensor like the MMU2S
-   * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
+   * This mode only work if you have a MK3S extruder with sensor sensing the extruder idler mmu2s
    * See https://help.prusa3d.com/en/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560, step 11
    */
+
   //#define PRUSA_MMU2_S_MODE
   #if ENABLED(PRUSA_MMU2_S_MODE)
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)

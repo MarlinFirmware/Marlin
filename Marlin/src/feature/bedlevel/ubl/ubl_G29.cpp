@@ -54,18 +54,7 @@
   #define UBL_G29_P31
 
   #if HAS_LCD_MENU
-
-    bool unified_bed_leveling::lcd_map_control = false;
-
-    void unified_bed_leveling::steppers_were_disabled() {
-      if (lcd_map_control) {
-        lcd_map_control = false;
-        ui.defer_status_screen(false);
-      }
-    }
-
-    void ubl_map_screen();
-
+    void _lcd_ubl_output_map_lcd();
   #endif
 
   #define SIZE_OF_LITTLE_RAISE 1
@@ -444,7 +433,7 @@
             if (g29_verbose_level > 1) {
               SERIAL_ECHOPAIR("Probing around (", g29_pos.x);
               SERIAL_CHAR(',');
-              SERIAL_DECIMAL(g29_pos.y);
+              SERIAL_ECHO(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
             const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
@@ -462,7 +451,7 @@
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
             SERIAL_ECHOLNPGM("Manually probing unreachable points.");
-            do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+            do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
 
             if (parser.seen('C') && !xy_seen) {
 
@@ -780,7 +769,9 @@
       probe.stow();
       TERN_(HAS_LCD_MENU, ui.capture());
 
-      probe.move_z_after_probing();
+      #ifdef Z_AFTER_PROBING
+        probe.move_z_after_probing();
+      #endif
 
       restore_ubl_active_state_and_leave();
 
@@ -798,11 +789,11 @@
 
     bool click_and_hold(const clickFunc_t func=nullptr) {
       if (ui.button_pressed()) {
-        ui.quick_feedback(false);         // Preserve button state for click-and-hold
+        ui.quick_feedback(false);                // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
-        while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
-          idle();                         // idle, of course
-          if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
+        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                                 // idle, of course
+          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
             ui.quick_feedback();
             if (func) (*func)();
             ui.wait_for_release();
@@ -835,7 +826,7 @@
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
     float unified_bed_leveling::measure_business_card_thickness(float in_height) {
-      ui.capture();
+      TERN_(HAS_LCD_MENU, ui.capture());
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
       do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
@@ -856,6 +847,7 @@
       echo_and_take_a_measurement();
 
       const float z2 = measure_point_with_encoder();
+
       do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
 
       const float thickness = ABS(z1 - z2);
@@ -865,13 +857,15 @@
         SERIAL_ECHOLNPGM("mm thick.");
       }
 
+      ui.release();
+
       restore_ubl_active_state_and_leave();
 
       return thickness;
     }
 
     void unified_bed_leveling::manually_probe_remaining_mesh(const xy_pos_t &pos, const float &z_clearance, const float &thick, const bool do_ubl_mesh_map) {
-      ui.capture();
+      TERN_(HAS_LCD_MENU, ui.capture());
 
       save_ubl_active_state_and_disable();  // No bed level correction so only raw data is obtained
       do_blocking_move_to_xy_z(current_position, z_clearance);
@@ -896,10 +890,10 @@
         LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
 
         do_blocking_move_to(ppos);
-        do_z_clearance(z_clearance);
+        do_blocking_move_to_z(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
-        ui.capture();
+        TERN_(HAS_LCD_MENU, ui.capture());
 
         if (do_ubl_mesh_map) display_map(g29_map_type);  // show user where we're probing
 
@@ -912,7 +906,8 @@
 
         if (click_and_hold()) {
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-          do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
+          do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+          ui.release();
           return restore_ubl_active_state_and_leave();
         }
 
@@ -937,7 +932,7 @@
 
     void abort_fine_tune() {
       ui.return_to_status();
-      do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
+      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
       set_message_with_feedback(GET_TEXT(MSG_EDITING_STOPPED));
     }
 
@@ -963,9 +958,9 @@
       save_ubl_active_state_and_disable();
 
       LCD_MESSAGEPGM(MSG_UBL_FINE_TUNE_MESH);
-      ui.capture();                                               // Take over control of the LCD encoder
+      TERN_(HAS_LCD_MENU, ui.capture());                    // Take over control of the LCD encoder
 
-      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
+      do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES); // Move to the given XY with probe clearance
 
       TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset));  // Move Z to the given 'H' offset
 
@@ -1003,9 +998,9 @@
         lcd_mesh_edit_setup(new_z);
 
         do {
-          idle();
           new_z = lcd_mesh_edit();
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
+          idle();
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
 
@@ -1021,6 +1016,8 @@
 
       } while (lpos.x >= 0 && --g29_repetition_cnt > 0);
 
+      ui.release();
+
       if (do_ubl_mesh_map) display_map(g29_map_type);
       restore_ubl_active_state_and_leave();
 
@@ -1030,7 +1027,7 @@
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
       if (lcd_map_control)
-        ui.goto_screen(ubl_map_screen);
+        ui.goto_screen(_lcd_ubl_output_map_lcd);
       else
         ui.return_to_status();
     }
@@ -1171,7 +1168,6 @@
   }
 
   void unified_bed_leveling::restore_ubl_active_state_and_leave() {
-    TERN_(HAS_LCD_MENU, ui.release());
     #if ENABLED(UBL_DEVEL_DEBUGGING)
       if (--ubl_state_recursion_chk) {
         SERIAL_ECHOLNPGM("restore_ubl_active_state_and_leave() called too many times.");
@@ -1412,7 +1408,9 @@
         }
 
         probe.stow();
-        probe.move_z_after_probing();
+        #ifdef Z_AFTER_PROBING
+          probe.move_z_after_probing();
+        #endif
 
         if (abort_flag) {
           SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1473,7 +1471,9 @@
         }
       }
       probe.stow();
-      probe.move_z_after_probing();
+      #ifdef Z_AFTER_PROBING
+        probe.move_z_after_probing();
+      #endif
 
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
         SERIAL_ECHOPGM("Could not complete LSF!");

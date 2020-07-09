@@ -28,12 +28,9 @@
 #include "../../feature/closedloop.h"
 
 void GcodeSuite::M12() {
-
   planner.synchronize();
-
   if (parser.seenval('S'))
-    closedloop.set(parser.value_int()); // Force a CLC set
-
+    set_closedloop(parser.value_int()); // Force a CLC set
 }
 
 #endif

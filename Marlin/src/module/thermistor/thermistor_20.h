@@ -21,10 +21,10 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_20 1
+#define REVERSE_TEMP_SENSOR_RANGE
 
 // Pt100 with INA826 amp on Ultimaker v2.0 electronics
-const temp_entry_t temptable_20[] PROGMEM = {
+const short temptable_20[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
   { OV(236),   10 },

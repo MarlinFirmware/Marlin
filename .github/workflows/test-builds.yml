@@ -9,14 +9,7 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
-    paths-ignore:
-    - config/**
-    - data/**
-    - docs/**
-    - '**/*.md'
-  push:
-    branches:
-    - bugfix-2.0.x
+    - dev-2.1.x
     paths-ignore:
     - config/**
     - data/**
@@ -25,8 +18,6 @@ on:
 
 jobs:
   test_builds:
-    name: Run All Tests
-    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
@@ -76,7 +67,6 @@ jobs:
         - rumba32
         - mks_robin_pro
         - STM32F103RET6_creality
-        - LERDGEX
 
         # Put lengthy tests last
 
@@ -114,7 +104,8 @@ jobs:
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
         # Inline tests script
+        [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         chmod +x buildroot/bin/*
-        chmod +x buildroot/tests/*
-        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
+        chmod +x buildroot/share/tests/*
+        export PATH=./buildroot/bin/:./buildroot/share/tests/:${PATH}
         run_tests . ${{ matrix.test-platform }}

@@ -33,26 +33,26 @@
 
 void menu_power_monitor() {
   START_MENU();
-  BACK_ITEM(MSG_MAIN);
+  MENU_BACK(MSG_MAIN);
 
   #if ENABLED(POWER_MONITOR_CURRENT)
   {
     bool ena = power_monitor.current_display_enabled();
-    EDIT_ITEM(bool, MSG_CURRENT, &ena, power_monitor.toggle_current_display);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_CURRENT, &ena, power_monitor.toggle_current_display);
   }
   #endif
 
   #if HAS_POWER_MONITOR_VREF
   {
     bool ena = power_monitor.voltage_display_enabled();
-    EDIT_ITEM(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLTAGE, &ena, power_monitor.toggle_voltage_display);
   }
   #endif
 
   #if HAS_POWER_MONITOR_WATTS
   {
     bool ena = power_monitor.power_display_enabled();
-    EDIT_ITEM(bool, MSG_POWER, &ena, power_monitor.toggle_power_display);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_POWER, &ena, power_monitor.toggle_power_display);
   }
   #endif
 

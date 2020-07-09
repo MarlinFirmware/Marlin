@@ -21,13 +21,11 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if ENABLED(TFT_LITTLE_VGL_UI)
 
 #include "../../../../MarlinCore.h"
 #include "lvgl.h"
 #include "pic_manager.h"
-
-#if HAS_SPI_FLASH_FONT
 
 typedef struct {
   uint16_t min;
@@ -110,6 +108,4 @@ void init_gb2312_font() {
   gb2312_puhui32.base_line = 0;
 }
 
-#endif // HAS_SPI_FLASH_FONT
-
-#endif // TFT_LVGL_UI
+#endif // TFT_LITTLE_VGL_UI

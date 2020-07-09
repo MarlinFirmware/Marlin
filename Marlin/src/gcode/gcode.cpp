@@ -59,10 +59,7 @@ GcodeSuite gcode;
 
 #include "../MarlinCore.h" // for idle()
 
-// Inactivity shutdown
-millis_t GcodeSuite::previous_move_ms = 0,
-         GcodeSuite::max_inactive_time = 0,
-         GcodeSuite::stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_DEACTIVE_TIME);
+millis_t GcodeSuite::previous_move_ms;
 
 // Relative motion mode for each logical axis
 static constexpr xyze_bool_t ar_init = AXIS_RELATIVE_MODES;
@@ -330,8 +327,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(G38_PROBE_TARGET)
         case 38:                                                  // G38.2, G38.3: Probe towards target
-          if (WITHIN(parser.subcode, 2, TERN(G38_PROBE_AWAY, 5, 3)))
-            G38(parser.subcode);                                  // G38.4, G38.5: Probe away from target
+          if (WITHIN(parser.subcode, 2,
+            #if ENABLED(G38_PROBE_AWAY)
+              5
+            #else
+              3
+            #endif
+          )) G38(parser.subcode);                                 // G38.4, G38.5: Probe away from target
           break;
       #endif
 
@@ -483,10 +485,14 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 108: M108(); break;                                  // M108: Cancel Waiting
         case 112: M112(); break;                                  // M112: Full Shutdown
         case 410: M410(); break;                                  // M410: Quickstop - Abort all the planned moves.
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)                     // M876: Handle Host prompt responses
+        #if ENABLED(HOST_PROMPT_SUPPORT)
+          case 876: M876(); break;                                // M876: Handle Host prompt responses
+        #endif
       #else
         case 108: case 112: case 410:
-        TERN_(HOST_PROMPT_SUPPORT, case 876:)
+        #if ENABLED(HOST_PROMPT_SUPPORT)
+          case 876:
+        #endif
         break;
       #endif
 
@@ -544,7 +550,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       case 120: M120(); break;                                    // M120: Enable endstops
       case 121: M121(); break;                                    // M121: Disable endstops
 
-      #if PREHEAT_COUNT
+      #if HAS_HOTEND && HAS_LCD_MENU
         case 145: M145(); break;                                  // M145: Set material heatup parameters
       #endif
 

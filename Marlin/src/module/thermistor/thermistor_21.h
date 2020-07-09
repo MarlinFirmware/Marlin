@@ -21,13 +21,13 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_21 1
+#define REVERSE_TEMP_SENSOR_RANGE
 
 #undef OV_SCALE
 #define OV_SCALE(N) (float((N) * 5) / 3.3f)
 
 // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
-const temp_entry_t temptable_21[] PROGMEM = {
+const short temptable_21[][2] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
   { OV(236),   10 },

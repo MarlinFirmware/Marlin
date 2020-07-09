@@ -191,10 +191,11 @@
     #define LCD_PINS_ENABLE                 PD1
     #define LCD_PINS_D4                     PC12
 
-    // CR10_STOCKDISPLAY default timing is too fast
-    #undef BOARD_ST7920_DELAY_1
-    #undef BOARD_ST7920_DELAY_2
-    #undef BOARD_ST7920_DELAY_3
+    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
+    // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
+    #undef ST7920_DELAY_1
+    #undef ST7920_DELAY_2
+    #undef ST7920_DELAY_3
 
   #else
 
@@ -241,14 +242,14 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+    #ifndef ST7920_DELAY_1
+      #define ST7920_DELAY_1        DELAY_NS(96)
     #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+    #ifndef ST7920_DELAY_2
+      #define ST7920_DELAY_2        DELAY_NS(48)
     #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #ifndef ST7920_DELAY_3
+      #define ST7920_DELAY_3       DELAY_NS(600)
     #endif
   #endif
 

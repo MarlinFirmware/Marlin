@@ -21,10 +21,10 @@
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_201 1
+#define REVERSE_TEMP_SENSOR_RANGE
 
 // Pt100 with LMV324 amp on Overlord v1.1 electronics
-const temp_entry_t temptable_201[] PROGMEM = {
+const short temptable_201[][2] PROGMEM = {
   { OV(   0),   0 },
   { OV(   8),   1 },
   { OV(  23),   6 },

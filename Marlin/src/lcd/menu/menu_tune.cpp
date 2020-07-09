@@ -55,10 +55,9 @@
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
         #if ENABLED(BABYSTEP_XY)
-          axis == X_AXIS ? BABYSTEP_SIZE_X :
-          axis == Y_AXIS ? BABYSTEP_SIZE_Y :
+          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
         #endif
-        BABYSTEP_SIZE_Z
+        BABYSTEP_MULTIPLICATOR_Z
       );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);

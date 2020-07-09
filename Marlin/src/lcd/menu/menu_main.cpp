@@ -157,9 +157,7 @@ void menu_main() {
     SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
   #endif
 
-  #if HAS_TEMPERATURE
-    SUBMENU(MSG_TEMPERATURE, menu_temperature);
-  #endif
+  SUBMENU(MSG_TEMPERATURE, menu_temperature);
 
   #if HAS_POWER_MONITOR
     MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);

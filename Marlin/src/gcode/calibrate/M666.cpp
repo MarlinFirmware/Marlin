@@ -38,7 +38,7 @@
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
-    DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
     LOOP_XYZ(i) {
       if (parser.seen(XYZ_CHAR(i))) {
         const float v = parser.value_linear_units();
@@ -46,6 +46,7 @@
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", XYZ_CHAR(i), "] = ", delta_endstop_adj[i]);
       }
     }
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
   }
 
 #elif HAS_EXTRA_ENDSTOPS

@@ -48,11 +48,10 @@
  */
 void GcodeSuite::T(const uint8_t tool_index) {
 
-  DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("...(", tool_index, ")");
-
-  // Count this command as movement / activity
-  reset_stepper_timeout();
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPAIR(">>> T(", tool_index, ")");
+    DEBUG_POS("BEFORE", current_position);
+  }
 
   #if ENABLED(PRUSA_MMU2)
     if (parser.string_arg) {
@@ -73,4 +72,9 @@ void GcodeSuite::T(const uint8_t tool_index) {
     );
 
   #endif
+
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_POS("AFTER", current_position);
+    DEBUG_ECHOLNPGM("<<< T()");
+  }
 }

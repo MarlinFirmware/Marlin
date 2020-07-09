@@ -22,7 +22,7 @@
 #pragma once
 
 // 100k Zonestar thermistor. Adjusted By Hally
-const temp_entry_t temptable_501[] PROGMEM = {
+const short temptable_501[][2] PROGMEM = {
    { OV(   1), 713 },
    { OV(  14), 300 }, // Top rating 300C
    { OV(  16), 290 },
