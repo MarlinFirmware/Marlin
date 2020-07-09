@@ -78,20 +78,23 @@ namespace Language_ru {
   #endif
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Смещения применены");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Установить ноль");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Нагрев ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" всё");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" стол");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" правка");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Преднагрев ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Нагрев ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Нагрев ") PREHEAT_2_LABEL _UxGT(" сопло");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Нагрев ") PREHEAT_2_LABEL _UxGT(" сопло ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Нагрев ") PREHEAT_2_LABEL _UxGT(" всё");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Нагрев ") PREHEAT_2_LABEL _UxGT(" стол");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Нагрев ") PREHEAT_2_LABEL _UxGT(" правка");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Преднагрев ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Нагрев ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" всё");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" стол");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" правка");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Преднагрев $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Нагрев $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Нагрев $ сопло");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Нагрев $ сопло ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Нагрев $ всё");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Нагрев $ стол");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Нагрев $ правка");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Нагрев Свой");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Охлаждение");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Частота");
@@ -184,8 +187,9 @@ namespace Language_ru {
   #endif
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Точная правка сетки");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Построить сетку");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Построить сетку ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Построить сетку ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Построить сетку $");
+  #endif
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH           = _UxGT("Построить холодную сетку");
   #else
@@ -195,12 +199,14 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Высота");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Проверить сетку");
   #if LCD_WIDTH > 21
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Проверить сетку ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Проверить сетку ") PREHEAT_2_LABEL;
+    #if PREHEAT_COUNT
+      PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M         = _UxGT("Проверить сетку $");
+    #endif
     PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH      = _UxGT("Проверить свою сетку");
   #else
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1          = _UxGT("Провер. сетку ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2          = _UxGT("Провер. сетку ") PREHEAT_2_LABEL;
+    #if PREHEAT_COUNT
+      PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M         = _UxGT("Провер. сетку $");
+    #endif
     PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH      = _UxGT("Провер. свою сетку");
   #endif
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 нагрев стола");

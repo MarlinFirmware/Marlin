@@ -47,6 +47,8 @@
  *
  *   H #  Hotend      Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
  *
+ *   I #  Preset      Heat the Nozzle and Bed based on a Material Preset (if material presets are defined).
+ *
  *   F #  Filament    Used to specify the diameter of the filament being used. If not specified
  *                    1.75mm filament is assumed. If you are not getting acceptable results by using the
  *                    'correct' numbers, you can scale this number up or down a little bit to change the amount
@@ -140,7 +142,7 @@
 constexpr float g26_e_axis_feedrate = 0.025;
 
 static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
-float random_deviation = 0.0;
+float g26_random_deviation = 0.0;
 
 static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
                                    // retracts/recovers won't result in a bad state.
@@ -193,7 +195,7 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
       f += (g26_xy_pos - m).magnitude() / 15.0f;
 
       // Add the specified amount of Random Noise to our search
-      if (random_deviation > 1.0) f += random(0.0, random_deviation);
+      if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
 
       if (f < closest) {
         closest = f;          // Found a closer un-printed location
@@ -508,15 +510,35 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
+  // Accept 'I' if temperature presets are defined
+  const uint8_t preset_index = (0
+    #if PREHEAT_COUNT
+      + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0)
+    #endif
+  );
+
   #if HAS_HEATED_BED
-    if (parser.seenval('B')) {
-      g26_bed_temp = parser.value_celsius();
-      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, BED_MAX_TARGET)) {
+
+    // Get a temperature from 'I' or 'B'
+    int16_t bedtemp = 0;
+
+    // Use the 'I' index if temperature presets are defined
+    #if PREHEAT_COUNT
+      if (preset_index) bedtemp = ui.material_preset[preset_index - 1].bed_temp;
+    #endif
+
+    // Look for 'B' Bed Temperature
+    if (parser.seenval('B')) bedtemp = parser.value_celsius();
+
+    if (bedtemp) {
+      if (!WITHIN(bedtemp, 40, BED_MAX_TARGET)) {
         SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAX_TARGET), "C).");
         return;
       }
+      g26_bed_temp = bedtemp;
     }
-  #endif
+
+  #endif // HAS_HEATED_BED
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -580,20 +602,34 @@ void GcodeSuite::G26() {
 
   g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
-  if (parser.seenval('H')) {
-    g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))) {
+  // Get a temperature from 'I' or 'H'
+  int16_t noztemp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    if (preset_index) noztemp = ui.material_preset[preset_index - 1].hotend_temp;
+  #endif
+
+  // Look for 'H' Hotend Temperature
+  if (parser.seenval('H')) noztemp = parser.value_celsius();
+
+  // If any preset or temperature was specified
+  if (noztemp) {
+    if (!WITHIN(noztemp, 165, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
+    g26_hotend_temp = noztemp;
   }
 
+  // 'U' to Randomize and optionally set circle deviation
   if (parser.seen('U')) {
     randomSeed(millis());
     // This setting will persist for the next G26
-    random_deviation = parser.has_value() ? parser.value_float() : 50.0;
+    g26_random_deviation = parser.has_value() ? parser.value_float() : 50.0;
   }
 
+  // Get repeat from 'R', otherwise do one full circuit
   int16_t g26_repeats;
   #if HAS_LCD_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
@@ -610,6 +646,7 @@ void GcodeSuite::G26() {
     return;
   }
 
+  // Set a position with 'X' and/or 'Y'. Default: current_position
   g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
                  parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
   if (!position_is_reachable(g26_xy_pos)) {
