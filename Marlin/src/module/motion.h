@@ -234,6 +234,8 @@ void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
+void do_z_clearance(const float &zclear, const bool z_known=true, const bool raise_on_unknown=true, const bool lower_allowed=false);
+
 //
 // Homing
 //

@@ -144,31 +144,26 @@
     #if AXIS_DRIVER_TYPE_X(TMC2130)
       #define X_CS_PIN                     P4_28
       #undef X_ENABLE_PIN
-      #define X_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Y(TMC2130)
       #define Y_CS_PIN                     P2_00
       #undef Y_ENABLE_PIN
-      #define Y_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Z(TMC2130)
       #define Z_CS_PIN                     P0_19
       #undef Z_ENABLE_PIN
-      #define Z_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_E0(TMC2130)
       #define E0_CS_PIN                    P2_12
       #undef E0_ENABLE_PIN
-      #define E0_ENABLE_PIN                -1
     #endif
 
     #if AXIS_DRIVER_TYPE_E1(TMC2130)
       #define E1_CS_PIN                    P0_10
       #undef E1_ENABLE_PIN
-      #define E1_ENABLE_PIN                -1
     #endif
 
   #else                                           // !SOFTWARE_DRIVER_ENABLE
