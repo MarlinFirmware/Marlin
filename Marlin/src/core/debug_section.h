@@ -19,30 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "serial.h"
+#include "../module/motion.h"
 
-#if HAS_BED_PROBE
+class SectionLog {
+public:
+  SectionLog(PGM_P const msg=nullptr, bool inbug=true) {
+    the_msg = msg;
+    if ((debug = inbug)) echo_msg(PSTR(">>>"));
+  }
 
-#include "../gcode.h"
-#include "../../module/motion.h"
-#include "../../module/probe.h"
+  ~SectionLog() { if (debug) echo_msg(PSTR("<<<")); }
 
-/**
- * M401: Deploy and activate the Z probe
- */
-void GcodeSuite::M401() {
-  probe.deploy();
-  report_current_position();
-}
+private:
+  PGM_P the_msg;
+  bool debug;
 
-/**
- * M402: Deactivate and stow the Z probe
- */
-void GcodeSuite::M402() {
-  probe.stow();
-  probe.move_z_after_probing();
-  report_current_position();
-}
-
-#endif // HAS_BED_PROBE
+  void echo_msg(PGM_P const pre) {
+    serialprintPGM(pre);
+    if (the_msg) {
+      SERIAL_CHAR(' ');
+      serialprintPGM(the_msg);
+    }
+    SERIAL_CHAR(' ');
+    print_xyz(current_position);
+  }
+};
