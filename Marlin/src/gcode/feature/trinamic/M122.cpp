@@ -38,7 +38,7 @@ void GcodeSuite::M122() {
 
   if (print_all) LOOP_XYZE(i) print_axis[i] = true;
 
-  if (parser.seen('I')) restore_stepper_drivers();
+  if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)
