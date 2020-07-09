@@ -2142,8 +2142,10 @@
 //
 // TFT LVGL UI
 //
-// Default MKS icons and fonts: https://git.io/JJvzK
-// Copy mks_pic and mks_font folders to the root of your SD
+// Just copy the `assets` folder from the build directory to the root
+// of your SD, together with the compiled firmware.
+//
+// Default MKS icons and fonts used: https://git.io/JJvzK
 //
 //#define TFT_LVGL_UI
 
