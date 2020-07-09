@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define REVERSE_TEMP_SENSOR_RANGE_147 1
+
 // Pt100 with 4k7 pullup
 const temp_entry_t temptable_147[] PROGMEM = {
   // only a few values are needed as the curve is very flat

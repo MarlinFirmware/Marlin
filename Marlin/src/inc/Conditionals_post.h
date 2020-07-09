@@ -2129,9 +2129,17 @@
 #endif
 
 #if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
-  #define PREHEAT_COUNT 2
-#else
-  #undef PREHEAT_COUNT
+  #ifdef PREHEAT_5_LABEL
+    #define PREHEAT_COUNT 5
+  #elif defined(PREHEAT_4_LABEL)
+    #define PREHEAT_COUNT 4
+  #elif defined(PREHEAT_3_LABEL)
+    #define PREHEAT_COUNT 3
+  #elif defined(PREHEAT_2_LABEL)
+    #define PREHEAT_COUNT 2
+  #elif defined(PREHEAT_1_LABEL)
+    #define PREHEAT_COUNT 1
+  #endif
 #endif
 
 /**

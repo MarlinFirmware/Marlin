@@ -387,7 +387,8 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
  * Plan a move to (X, Y, Z) and set the current_position
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s/*=0.0*/) {
-  if (DEBUGGING(LEVELING)) DEBUG_XYZ(">>> do_blocking_move_to", rx, ry, rz);
+  DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", rx, ry, rz);
 
   const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS),
                   xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
@@ -471,8 +472,6 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
   #endif
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< do_blocking_move_to");
-
   planner.synchronize();
 }
 
@@ -505,6 +504,13 @@ void do_blocking_move_to_xy(const xy_pos_t &raw, const feedRate_t &fr_mm_s/*=0.0
 
 void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float &z, const feedRate_t &fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(raw.x, raw.y, z, fr_mm_s);
+}
+
+void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool raise_on_unknown/*=true*/, const bool lower_allowed/*=false*/) {
+  const bool rel = raise_on_unknown && !z_known;
+  float zdest = zclear + (rel ? current_position.z : 0.0f);
+  if (!lower_allowed) NOLESS(zdest, current_position.z);
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 }
 
 //
@@ -1272,11 +1278,12 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
  * Home an individual linear axis
  */
 void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
+  DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
 
   const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
   if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOPAIR(">>> do_homing_move(", axis_codes[axis], ", ", distance, ", ");
+    DEBUG_ECHOPAIR("...(", axis_codes[axis], ", ", distance, ", ");
     if (fr_mm_s)
       DEBUG_ECHO(fr_mm_s);
     else
@@ -1349,8 +1356,6 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     TERN_(SENSORLESS_HOMING, end_sensorless_homing_per_axis(axis, stealth_states));
   }
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< do_homing_move(", axis_codes[axis], ")");
 }
 
 /**

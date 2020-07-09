@@ -250,7 +250,8 @@
     #define LCD_PINS_ENABLE                P1_23
     #define LCD_PINS_D4                    P1_21
 
-  #else
+  #elif HAS_GRAPHICAL_LCD
+
     #define BTN_ENC                        P0_28  // (58) open-drain
     #define LCD_PINS_RS                    P1_19
 
@@ -310,6 +311,10 @@
       #endif
 
     #endif // !FYSETC_MINI_12864
+
+  #elif HAS_CHARACTER_LCD
+
+    #error "Character LCD not yet supported for SKR 1.4."
 
   #endif
 

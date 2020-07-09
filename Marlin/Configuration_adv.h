@@ -36,7 +36,7 @@
 // @section temperature
 
 //===========================================================================
-//=============================Thermal Settings  ============================
+//============================= Thermal Settings ============================
 //===========================================================================
 
 /**
@@ -1829,7 +1829,7 @@
 
 // @section motion
 
-// The number of lineear moves that can be in the planner at once.
+// The number of linear moves that can be in the planner at once.
 // The value of BLOCK_BUFFER_SIZE must be a power of 2 (e.g. 8, 16, 32)
 #if BOTH(SDSUPPORT, DIRECT_STEPPING)
   #define BLOCK_BUFFER_SIZE  8
@@ -3429,12 +3429,15 @@
 
   /**
    * MMU Extruder Sensor
-   * Add support for Prusa IR Sensor (or other) to detect that filament reach the extruder to make loading filament more reliable
-   * If your extruder is equipped with a filament sensor located less than 38mm from the gears you can use this feature
-   * During loading to the extruder, the sensor will stop the loading command when he's triggered and make a last move to load filament to the gears
-   * If no filament is detected, MMU2 will make more loading attemps, if finally no filament is detected, the printer will enter in runout state
+   *
+   * Support for a Prusa (or other) IR Sensor to detect filament near the extruder
+   * and make loading more reliable. Suitable for an extruder equipped with a filament
+   * sensor less than 38mm from the gears.
+   *
+   * During loading the extruder will stop when the sensor is triggered, then do a last
+   * move up to the gears. If no filament is detected, the MMU2 can make some more attempts.
+   * If all attempts fail, a filament runout will be triggered.
    */
-
   //#define MMU_EXTRUDER_SENSOR
   #if ENABLED(MMU_EXTRUDER_SENSOR)
     #define MMU_LOADING_ATTEMPTS_NR 5 //max. number of attempts to load filament if first load fail
@@ -3442,10 +3445,9 @@
 
   /**
    * Using a sensor like the MMU2S
-   * This mode only work if you have a MK3S extruder with sensor sensing the extruder idler mmu2s
+   * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
    * See https://help.prusa3d.com/en/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560, step 11
    */
-
   //#define PRUSA_MMU2_S_MODE
   #if ENABLED(PRUSA_MMU2_S_MODE)
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)

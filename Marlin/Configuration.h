@@ -1162,7 +1162,6 @@
  *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
- * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -1376,14 +1375,14 @@
 //
 // - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
-// - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
+// - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
+  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
 #endif
 
 // Homing speeds (mm/m)
