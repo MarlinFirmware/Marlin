@@ -513,27 +513,27 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define SUBMENU_N_S_P(N, S, PLABEL, DEST)            MENU_ITEM_N_S_P(submenu, N, S, PLABEL, DEST)
 #define SUBMENU_N_S(N, S, LABEL, DEST)                 SUBMENU_N_S_P(N, S, GET_TEXT(LABEL), DEST)
-#define SUBMENU_N_P(N, PLABEL, DEST)                   MENU_ITEM_N_P(submenu, N, PLABEL, DEST)
-#define SUBMENU_N(N, LABEL, DEST)                        SUBMENU_N_P(N, GET_TEXT(LABEL), DEST)
 #define SUBMENU_S_P(S, PLABEL, DEST)                   MENU_ITEM_S_P(submenu, S, PLABEL, DEST)
 #define SUBMENU_S(S, LABEL, DEST)                        SUBMENU_S_P(S, GET_TEXT(LABEL), DEST)
+#define SUBMENU_N_P(N, PLABEL, DEST)                   MENU_ITEM_N_P(submenu, N, PLABEL, DEST)
+#define SUBMENU_N(N, LABEL, DEST)                        SUBMENU_N_P(N, GET_TEXT(LABEL), DEST)
 #define SUBMENU_P(PLABEL, DEST)                          MENU_ITEM_P(submenu, PLABEL, DEST)
 #define SUBMENU(LABEL, DEST)                               SUBMENU_P(GET_TEXT(LABEL), DEST)
 
 #define EDIT_ITEM_N_S_P(TYPE, N, S, PLABEL, V...)    MENU_ITEM_N_S_P(TYPE, N, S, PLABEL, ##V)
 #define EDIT_ITEM_N_S(TYPE, N, S, LABEL, V...)       EDIT_ITEM_N_S_P(TYPE, N, S, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_N_P(TYPE, N, PLABEL, V...)           MENU_ITEM_N_P(TYPE, N, PLABEL, ##V)
-#define EDIT_ITEM_N(TYPE, N, LABEL, V...)              EDIT_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
 #define EDIT_ITEM_S_P(TYPE, S, PLABEL, V...)           MENU_ITEM_S_P(TYPE, S, PLABEL, ##V)
 #define EDIT_ITEM_S(TYPE, S, LABEL, V...)              EDIT_ITEM_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
+#define EDIT_ITEM_N_P(TYPE, N, PLABEL, V...)           MENU_ITEM_N_P(TYPE, N, PLABEL, ##V)
+#define EDIT_ITEM_N(TYPE, N, LABEL, V...)              EDIT_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
 #define EDIT_ITEM_P(TYPE, PLABEL, V...)                  MENU_ITEM_P(TYPE, PLABEL, ##V)
 #define EDIT_ITEM(TYPE, LABEL, V...)                     EDIT_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
 
 #define EDIT_ITEM_FAST_N_S_P(TYPE, N, S, PLABEL, V...)  _MENU_ITEM_N_S_P(TYPE, N, S, true, PLABEL, ##V)
 #define EDIT_ITEM_FAST_N_S(TYPE, N, S, LABEL, V...) EDIT_ITEM_FAST_N_S_P(TYPE, N, S, true, GET_TEXT(LABEL), ##V)
-#define EDIT_ITEM_FAST_N_P(TYPE, N, PLABEL, V...)         _MENU_ITEM_N_P(TYPE, N, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST_S(TYPE, S, LABEL, V...)        EDIT_ITEM_FAST_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
 #define EDIT_ITEM_FAST_S_P(TYPE, S, PLABEL, V...)         _MENU_ITEM_S_P(TYPE, S, true, PLABEL, ##V)
+#define EDIT_ITEM_FAST_S(TYPE, S, LABEL, V...)        EDIT_ITEM_FAST_S_P(TYPE, S, GET_TEXT(LABEL), ##V)
+#define EDIT_ITEM_FAST_N_P(TYPE, N, PLABEL, V...)         _MENU_ITEM_N_P(TYPE, N, true, PLABEL, ##V)
 #define EDIT_ITEM_FAST_N(TYPE, N, LABEL, V...)        EDIT_ITEM_FAST_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
 #define EDIT_ITEM_FAST_P(TYPE, PLABEL, V...)                _MENU_ITEM_P(TYPE, true, PLABEL, ##V)
 #define EDIT_ITEM_FAST(TYPE, LABEL, V...)               EDIT_ITEM_FAST_P(TYPE, GET_TEXT(LABEL), ##V)
@@ -575,12 +575,14 @@ class MenuItem_bool : public MenuEditItemBase {
 #define YESNO_ITEM(LABEL, V...)            YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
 
 #define CONFIRM_ITEM_N_S_P(N,S,PLABEL,A,B,V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...) _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM_N(N,LABEL, V...)        CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_N_S(N,S,LABEL,V...)         CONFIRM_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
+#define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...)       _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
+#define CONFIRM_ITEM_N(N,LABEL, V...)              CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
 #define YESNO_ITEM_N_S_P(N,S,PLABEL, V...) _CONFIRM_ITEM_N_S_P(N, S, PLABEL, ##V)
-#define YESNO_ITEM_N_P(N,PLABEL, V...)      _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)            YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_S(N,S,LABEL, V...)       YESNO_ITEM_N_S_P(N, S, GET_TEXT(LABEL), ##V)
+#define YESNO_ITEM_N_P(N,PLABEL, V...)       _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
+#define YESNO_ITEM_N(N,LABEL, V...)             YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////
