@@ -69,20 +69,23 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("设置原点偏移");     //"Set home offsets"
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("偏移已启用");     //"Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("设置原点");     //"Set origin"
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("预热 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床");     //MSG_PREHEAT_1 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置");     //MSG_PREHEAT_1 " conf"
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("预热 ") PREHEAT_2_LABEL;     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("预热 ") PREHEAT_2_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 全部");     //MSG_PREHEAT_2 " All"
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 热床");     //MSG_PREHEAT_2 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 设置");     //MSG_PREHEAT_2 " conf"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("预热 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置");     //MSG_PREHEAT_1 " conf"
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("预热 $");     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("预热 $ ~");     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("预热 $ 喷嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("预热 $ 喷嘴 ~");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("预热 $ 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("预热 $ 热床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("预热 $ 设置");     //MSG_PREHEAT_1 " conf"
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("预热自定义");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降温");     //"Cooldown"
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("切割频率");
@@ -145,14 +148,14 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("完成编辑网格");     // "Done Editing Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("创设客户网格");     // "Build Custom Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("创设网格");     // "Build Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("创设 ") PREHEAT_1_LABEL _UxGT(" 网格");     // "Build PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("创设 ") PREHEAT_2_LABEL _UxGT(" 网格");     // "Build PREHEAT_2_LABEL Mesh"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("创设 $ 网格");     // "Build PREHEAT_1_LABEL Mesh"
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("批准 $ 网格");     // "Validate PREHEAT_1_LABEL Mesh"
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("创设冷网格");     // "Build Cold Mesh"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("调整网格高度");     // "Adjust Mesh Height"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("高度合计");     // "Height Amount"
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("批准网格");     // "Validate Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("批准 ") PREHEAT_1_LABEL _UxGT(" 网格");     // "Validate PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("批准 ") PREHEAT_2_LABEL _UxGT(" 网格");     // "Validate PREHEAT_2_LABEL Mesh"
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("批准客户网格");     // "Validate Custom Mesh"
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26加热热床");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26加热喷嘴");

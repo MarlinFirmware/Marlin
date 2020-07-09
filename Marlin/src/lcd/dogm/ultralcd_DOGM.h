@@ -230,42 +230,6 @@
 #define PAGE_UNDER(yb)        ((yb) >= u8g.getU8g()->current_page.y0) // Does the current page precede a region bottom?
 #define PAGE_CONTAINS(ya, yb) ((yb) >= u8g.getU8g()->current_page.y0 && (ya) <= u8g.getU8g()->current_page.y1) // Do two vertical regions overlap?
 
-// Only Western languages support big / small fonts
-#if DISABLED(DISPLAY_CHARSET_ISO10646_1)
-  #undef USE_BIG_EDIT_FONT
-  #undef USE_SMALL_INFOFONT
-#endif
-
-#define MENU_FONT_NAME    ISO10646_1_5x7
-#define MENU_FONT_WIDTH    6
-#define MENU_FONT_ASCENT  10
-#define MENU_FONT_DESCENT  2
-#define MENU_FONT_HEIGHT  (MENU_FONT_ASCENT + MENU_FONT_DESCENT)
-
-#if ENABLED(USE_BIG_EDIT_FONT)
-  #define EDIT_FONT_NAME    u8g_font_9x18
-  #define EDIT_FONT_WIDTH    9
-  #define EDIT_FONT_ASCENT  10
-  #define EDIT_FONT_DESCENT  3
-#else
-  #define EDIT_FONT_NAME    MENU_FONT_NAME
-  #define EDIT_FONT_WIDTH   MENU_FONT_WIDTH
-  #define EDIT_FONT_ASCENT  MENU_FONT_ASCENT
-  #define EDIT_FONT_DESCENT MENU_FONT_DESCENT
-#endif
-#define EDIT_FONT_HEIGHT (EDIT_FONT_ASCENT + EDIT_FONT_DESCENT)
-
-// Get the Ascent, Descent, and total Height for the Info Screen font
-#if ENABLED(USE_SMALL_INFOFONT)
-  extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
-  #define INFO_FONT_ASCENT 7
-#else
-  #define INFO_FONT_ASCENT 8
-#endif
-#define INFO_FONT_DESCENT 2
-#define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
-#define INFO_FONT_WIDTH   6
-
 #ifndef FSMC_UPSCALE
   #define FSMC_UPSCALE 2
 #endif

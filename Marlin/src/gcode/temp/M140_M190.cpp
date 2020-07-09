@@ -47,11 +47,33 @@
 
 /**
  * M140: Set bed temperature
+ *
+ *  I<index>  : Preset index (if material presets are defined)
+ *  S<target> : The target temperature in current units
  */
 void GcodeSuite::M140() {
   if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) {
-    thermalManager.setTargetBed(parser.value_celsius());
+
+  bool got_temp = false;
+  int16_t temp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+    }
+  #endif
+
+  // If no 'I' get the temperature from 'S'
+  if (!got_temp) {
+    got_temp = parser.seenval('S');
+    if (got_temp) temp = parser.value_celsius();
+  }
+
+  if (got_temp) {
+    thermalManager.setTargetBed(temp);
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
@@ -65,20 +87,48 @@ void GcodeSuite::M140() {
 }
 
 /**
- * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
- *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
+ * M190 - Set Bed Temperature target and wait
  *
- * With PRINTJOB_TIMER_AUTOSTART also start the job timer on heating.
+ * Parameters:
+ *  I<index>  : Preset index (if material presets are defined)
+ *  S<target> : The target temperature in current units. Wait for heating only.
+ *  R<target> : The target temperature in current units. Wait for heating and cooling.
+ *
+ * Examples:
+ *  M190 S60 : Set target to 60°. Wait until the bed is at or above 60°.
+ *  M190 R40 : Set target to 40°. Wait until the bed gets close to 40°.
+ *
+ * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
+ *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
  */
 void GcodeSuite::M190() {
   if (DEBUGGING(DRYRUN)) return;
 
-  const bool no_wait_for_cooling = parser.seenval('S');
-  if (no_wait_for_cooling || parser.seenval('R')) {
-    thermalManager.setTargetBed(parser.value_celsius());
-    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.check_timer_autostart(true, false));
+  bool got_temp = false;
+  int16_t temp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].bed_temp;
+    }
+  #endif
+
+  // Get the temperature from 'S' or 'R'
+  bool no_wait_for_cooling = false;
+  if (!got_temp) {
+    no_wait_for_cooling = parser.seenval('S');
+    got_temp = no_wait_for_cooling || parser.seenval('R');
+    if (got_temp) temp = int16_t(parser.value_celsius());
   }
-  else return;
+
+  if (!got_temp) return;
+
+  thermalManager.setTargetBed(temp);
+
+  TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.check_timer_autostart(true, false));
 
   ui.set_status_P(thermalManager.isHeatingBed() ? GET_TEXT(MSG_BED_HEATING) : GET_TEXT(MSG_BED_COOLING));
 
