@@ -144,7 +144,7 @@ void PrintJobRecovery::prepare() {
 /**
  * Save the current machine state to the power-loss recovery file
  */
-void PrintJobRecovery::save(const bool force/*=false*/) {
+void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/) {
 
   #if SAVE_INFO_INTERVAL_MS > 0
     static millis_t next_save_ms; // = 0
@@ -177,6 +177,7 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
 
     // Machine state
     info.current_position = current_position;
+    info.zraise = zraise;
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
@@ -234,29 +235,45 @@ void PrintJobRecovery::save(const bool force/*=false*/) {
       if (lock) return; // No re-entrance from idle() during raise_z()
       lock = true;
     #endif
-    if (IS_SD_PRINTING()) save(true);
-    TERN_(BACKUP_POWER_SUPPLY, raise_z());
 
-    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
+    if (IS_SD_PRINTING()) {
+
+      // Disable all heaters to reduce power loss
+      thermalManager.disable_all_heaters();
+
+      // Save with the actual (limited) Z-raise (done now or on resume)
+      const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
+      save(true, zraise);
+
+      #if ENABLED(BACKUP_POWER_SUPPLY)
+        quickstop_stepper();
+        raise_z(zraise);
+      #endif
+
+      kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
+    }
   }
 
   #if ENABLED(BACKUP_POWER_SUPPLY)
 
-    void PrintJobRecovery::raise_z() {
-      // Disable all heaters to reduce power loss
-      thermalManager.disable_all_heaters();
-      quickstop_stepper();
-      // Retract then raise Z axis, using relative coordinates
-      gcode.process_subcommands_now_P(PSTR(
-        "G91"
+    void PrintJobRecovery::raise_z(const float zraise) {
+      #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
+
+        // Retract filament, then raise Z axis
+
+        gcode.set_relative_mode(true);  // Use relative coordinates
+
         #if POWER_LOSS_RETRACT_LEN
-          "\nG1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)
+          gcode.process_subcommands_now_P(PSTR("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
         #endif
-        #if POWER_LOSS_ZRAISE
-          "\nG0 Z" STRINGIFY(POWER_LOSS_ZRAISE)
-        #endif
-      ));
-      planner.synchronize();
+
+        char cmd[20], str_1[16];
+        sprintf_P(cmd, PSTR("G0 Z%s"), dtostrf(info.zraise, 1, 3, str_1));
+        gcode.process_subcommands_now(cmd);
+
+        //gcode.axis_relative = info.axis_relative;
+        planner.synchronize();
+      #endif
     }
 
   #endif
@@ -282,6 +299,8 @@ void PrintJobRecovery::write() {
  */
 void PrintJobRecovery::resume() {
 
+  char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
+
   const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
 
   #if HAS_LEVELING
@@ -290,46 +309,46 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Reset E, raise Z, home XY...
-  gcode.process_subcommands_now_P(PSTR("G92.9 E0"
-    #if Z_HOME_DIR > 0
+  #if Z_HOME_DIR > 0
 
-      // If Z homing goes to max, just reset E and home all
-      "\n"
-      "G28R0"
-      TERN_(MARLIN_DEV_MODE, "S")
+    // If Z homing goes to max, just reset E and home all
+    gcode.process_subcommands_now_P(PSTR(
+      "G92.9 E0\n"
+      "G28R0" TERN_(MARLIN_DEV_MODE, "S")
+    ));
 
-    #else // "G92.9 E0 ..."
+  #else // "G92.9 E0 ..."
 
-      // Set Z to 0, raise Z by RECOVERY_ZRAISE, and Home (XY only for Cartesian)
-      // with no raise. (Only do simulated homing in Marlin Dev Mode.)
-      #if ENABLED(BACKUP_POWER_SUPPLY)
-        "Z" STRINGIFY(POWER_LOSS_ZRAISE)    // Z-axis was already raised at outage
-      #else
-        "Z0\n"                              // Set Z=0
-        "G1Z" STRINGIFY(POWER_LOSS_ZRAISE)  // Raise Z
-      #endif
-      "\n"
+    // Set Z to 0, raise Z by info.zraise, and Home (XY only for Cartesian)
+    // with no raise. (Only do simulated homing in Marlin Dev Mode.)
 
-      "G28R0"
-      #if ENABLED(MARLIN_DEV_MODE)
-        "S"
-      #elif !IS_KINEMATIC
-        "XY"
-      #endif
-    #endif
-  ));
+    sprintf_P(cmd, PSTR("G92.9 E0 "
+        #if ENABLED(BACKUP_POWER_SUPPLY)
+          "Z%s"                             // Z was already raised at outage
+        #else
+          "Z0\nG1Z%s"                       // Set Z=0 and Raise Z now
+        #endif
+      ),
+      dtostrf(info.zraise, 1, 3, str_1)
+    );
+    gcode.process_subcommands_now(cmd);
+
+    gcode.process_subcommands_now_P(PSTR(
+      "G28R0"                               // No raise during G28
+      TERN_(MARLIN_DEV_MODE, "S")           // Simulated Homing
+      TERN_(IS_CARTESIAN, "XY")             // Don't home Z on Cartesian
+    ));
+
+  #endif
 
   // Pretend that all axes are homed
   axis_homed = axis_known_position = xyz_bits;
-
-  char cmd[MAX_CMD_SIZE+16], str_1[16], str_2[16];
 
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
     #if EXTRUDERS > 1
       for (int8_t e = 0; e < EXTRUDERS; e++) {
-        dtostrf(info.filament_size[e], 1, 3, str_1);
-        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, str_1);
+        sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
       if (!info.volumetric_enabled) {
@@ -338,8 +357,7 @@ void PrintJobRecovery::resume() {
       }
     #else
       if (info.volumetric_enabled) {
-        dtostrf(info.filament_size[0], 1, 3, str_1);
-        sprintf_P(cmd, PSTR("M200 D%s"), str_1);
+        sprintf_P(cmd, PSTR("M200 D%s"), dtostrf(info.filament_size[0], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
       }
     #endif
@@ -527,7 +545,7 @@ void PrintJobRecovery::resume() {
         #endif
 
         #if HAS_LEVELING
-          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), "\n fade: ", int(info.fade));
+          DEBUG_ECHOLNPAIR("leveling: ", int(info.leveling), " fade: ", int(info.fade));
         #endif
         #if ENABLED(FWRETRACT)
           DEBUG_ECHOPGM("retract: ");
