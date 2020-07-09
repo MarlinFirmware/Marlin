@@ -172,10 +172,8 @@ G29_TYPE GcodeSuite::G29() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     const uint8_t old_debug_flags = marlin_debug_flags;
     if (seenQ) marlin_debug_flags |= MARLIN_DEBUG_LEVELING;
-    if (DEBUGGING(LEVELING)) {
-      DEBUG_POS(">>> G29", current_position);
-      log_machine_info();
-    }
+    DEBUG_SECTION(log_G29, "G29", DEBUGGING(LEVELING));
+    if (DEBUGGING(LEVELING)) log_machine_info();
     marlin_debug_flags = old_debug_flags;
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
@@ -188,7 +186,7 @@ G29_TYPE GcodeSuite::G29() {
   if (axis_unhomed_error()) G29_RETURN(false);
 
   if (!no_action && planner.leveling_active && parser.boolval('O')) { // Auto-level only if needed
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip\n<<< G29");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> Auto-level not needed, skip");
     G29_RETURN(false);
   }
 
@@ -416,7 +414,7 @@ G29_TYPE GcodeSuite::G29() {
     // Deploy certain probes before starting probing
     #if HAS_BED_PROBE
       if (ENABLED(BLTOUCH))
-        do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+        do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
       else if (probe.deploy()) {
         set_bed_leveling_enabled(abl_should_enable);
         G29_RETURN(false);
@@ -884,7 +882,7 @@ G29_TYPE GcodeSuite::G29() {
   // Sync the planner from the current_position
   if (planner.leveling_active) sync_plan_position();
 
-  #if HAS_BED_PROBE && defined(Z_AFTER_PROBING)
+  #if HAS_BED_PROBE
     probe.move_z_after_probing();
   #endif
 
@@ -899,8 +897,6 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G29");
 
   G29_RETURN(isnan(measured_z));
 }
