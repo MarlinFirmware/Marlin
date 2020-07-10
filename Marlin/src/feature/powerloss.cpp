@@ -66,11 +66,15 @@ PrintJobRecovery recovery;
 #ifndef POWER_LOSS_PURGE_LEN
   #define POWER_LOSS_PURGE_LEN 0
 #endif
+#ifndef POWER_LOSS_ZRAISE
+  #define POWER_LOSS_ZRAISE 2   // Move on loss with backup power, or on resume without it
+#endif
+
+#if !PIN_EXISTS(POWER_LOSS) || DISABLED(BACKUP_POWER_SUPPLY)
+  #undef POWER_LOSS_RETRACT_LEN
+#endif
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
-#endif
-#ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2
 #endif
 
 /**
@@ -229,10 +233,48 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
 #if PIN_EXISTS(POWER_LOSS)
 
+  #if ENABLED(BACKUP_POWER_SUPPLY)
+
+    void PrintJobRecovery::retract_and_lift(const float &zraise) {
+      #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
+
+        gcode.set_relative_mode(true);  // Use relative coordinates
+
+        #if POWER_LOSS_RETRACT_LEN
+          // Retract filament now
+          gcode.process_subcommands_now_P(PSTR("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
+        #endif
+
+        #if POWER_LOSS_ZRAISE
+          // Raise the Z axis now
+          if (zraise) {
+            char cmd[20], str_1[16];
+            sprintf_P(cmd, PSTR("G0 Z%s"), dtostrf(zraise, 1, 3, str_1));
+            gcode.process_subcommands_now(cmd);
+          }
+        #else
+          UNUSED(zraise);
+        #endif
+
+        //gcode.axis_relative = info.axis_relative;
+        planner.synchronize();
+      #endif
+    }
+
+  #endif
+
+  /**
+   * An outage was detected by a sensor pin.
+   *  - If not SD printing, let the machine turn off on its own with no "KILL" screen
+   *  - Disable all heaters first to save energy
+   *  - Save the recovery data for the current instant
+   *  - If backup power is available Retract E and Raise Z
+   *  - Go to the KILL screen
+   */
   void PrintJobRecovery::_outage() {
     #if ENABLED(BACKUP_POWER_SUPPLY)
       static bool lock = false;
-      if (lock) return; // No re-entrance from idle() during raise_z()
+      if (lock) return; // No re-entrance from idle() during retract_and_lift()
       lock = true;
     #endif
 
@@ -241,42 +283,26 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       // Disable all heaters to reduce power loss
       thermalManager.disable_all_heaters();
 
-      // Save with the actual (limited) Z-raise (done now or on resume)
-      const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
+      #if POWER_LOSS_ZRAISE
+        // Get the limited Z-raise to do now or on resume
+        const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
+      #else
+        constexpr float zraise = 0;
+      #endif
+
+      // Save, including the limited Z raise
       save(true, zraise);
 
       #if ENABLED(BACKUP_POWER_SUPPLY)
+        // Do a hard-stop of the steppers (with possibly a loud thud)
         quickstop_stepper();
-        raise_z(zraise);
+        // With backup power a retract and raise can be done now
+        retract_and_lift(zraise);
       #endif
 
       kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
     }
   }
-
-  #if ENABLED(BACKUP_POWER_SUPPLY)
-
-    void PrintJobRecovery::raise_z(const float zraise) {
-      #if POWER_LOSS_RETRACT_LEN || POWER_LOSS_ZRAISE
-
-        // Retract filament, then raise Z axis
-
-        gcode.set_relative_mode(true);  // Use relative coordinates
-
-        #if POWER_LOSS_RETRACT_LEN
-          gcode.process_subcommands_now_P(PSTR("G1 F3000 E-" STRINGIFY(POWER_LOSS_RETRACT_LEN)));
-        #endif
-
-        char cmd[20], str_1[16];
-        sprintf_P(cmd, PSTR("G0 Z%s"), dtostrf(info.zraise, 1, 3, str_1));
-        gcode.process_subcommands_now(cmd);
-
-        //gcode.axis_relative = info.axis_relative;
-        planner.synchronize();
-      #endif
-    }
-
-  #endif
 
 #endif
 
@@ -427,7 +453,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Un-retract
-  #if POWER_LOSS_RETRACT_LEN
+  #if PIN_EXISTS(POWER_LOSS) && ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
   #endif
 

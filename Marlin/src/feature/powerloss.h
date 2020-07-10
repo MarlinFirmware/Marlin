@@ -183,7 +183,7 @@ class PrintJobRecovery {
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
-      static void raise_z();
+      static void retract_and_lift(const float &zraise);
     #endif
 
     #if PIN_EXISTS(POWER_LOSS)
