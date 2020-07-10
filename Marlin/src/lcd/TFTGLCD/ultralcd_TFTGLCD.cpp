@@ -161,10 +161,13 @@ void TFTGLCD::print_line(){
       SPI.transfer(LCD_WRITE);
       SPI.transfer(cour_line); //x=0, y=line
       for (uint16_t i = 0; i < LCD_WIDTH; i++)  SPI.transfer(framebuffer[cour_line * LCD_WIDTH + i]);
-    #elif defined(__STM32F1__)
-      SPI.write(LCD_WRITE);
-      SPI.write(cour_line);
-      SPI.write(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);
+    #elif defined(TARGET_STM32F1)
+//      SPI.write(LCD_WRITE);
+//      SPI.write(cour_line);
+//      SPI.write(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);
+      SPI.transfer(LCD_WRITE);
+      SPI.transfer(cour_line);
+      for (uint16_t i = 0; i < LCD_WIDTH; i++)  SPI.transfer(framebuffer[cour_line * LCD_WIDTH + i]);
     #elif defined(STM32F4)
       SPI.transfer(LCD_WRITE, SPI_CONTINUE);
       SPI.transfer(cour_line, SPI_CONTINUE);
@@ -198,12 +201,14 @@ void TFTGLCD::print_screen(){
     #elif defined(MCU_LPC1768)
       SPI.transfer(LCD_PUT);
       for (uint16_t i = 0; i < FBSIZE; i++) SPI.transfer(framebuffer[i]);
-    #elif defined(__STM32F1__)
-      SPI.write(LCD_PUT);
-      SPI.write(&framebuffer[0], FBSIZE);
+    #elif defined(TARGET_STM32F1)
+//      SPI.write(LCD_PUT);
+//      SPI.write(&framebuffer[0], FBSIZE);
+      SPI.transfer(LCD_PUT);
+      for (uint16_t i = 0; i < FBSIZE; i++) SPI.transfer(framebuffer[i]);
     #elif defined(STM32F4)
       SPI.transfer(LCD_PUT, SPI_CONTINUE);
-      SPI.transfer(&framebuffer[cour_line * LCD_WIDTH], FBSIZE, SPI_CONTINUE);
+      SPI.transfer(&framebuffer[0], FBSIZE, SPI_CONTINUE);
     #elif defined(ARDUINO_ARCH_SAM)
       SPI.transfer(LCD_PUT);
       SPI.transfer(&framebuffer[0], FBSIZE);
@@ -239,9 +244,11 @@ void TFTGLCD::setContrast(uint16_t contrast) {
     #if defined(__AVR__) || defined(MCU_LPC1768)
       SPI.transfer(CONTRAST);
       SPI.transfer((uint8_t)contrast);
-    #elif defined(__STM32F1__)
-      SPI.write(CONTRAST);
-      SPI.write((uint8_t)contrast);
+    #elif defined(TARGET_STM32F1)
+//      SPI.write(CONTRAST);
+//      SPI.write((uint8_t)contrast);
+      SPI.transfer(CONTRAST);
+      SPI.transfer((uint8_t)contrast);
     #elif defined(STM32F4)
       SPI.transfer(CONTRAST, SPI_CONTINUE);
       SPI.transfer((uint8_t)contrast, SPI_CONTINUE);
@@ -268,13 +275,13 @@ void TFTGLCD::setContrast(uint16_t contrast) {
     #if ENABLED(LCD_CONNECT_BY_SPI)
       uint8_t b = 0;
       digitalWrite(DOGLCD_CS, LOW);
-      #if defined(__AVR__) || defined(MCU_LPC1768) || defined(__STM32F1__)
+      #if defined(__AVR__) || defined(MCU_LPC1768) || defined(TARGET_STM32F1)
         SPI.transfer(READ_ENCODER);
         digitalWrite(DOGLCD_CS, LOW); //for delay
         encoderDiff += SPI.transfer(READ_BUTTONS);
         digitalWrite(DOGLCD_CS, LOW); //for delay
         b = SPI.transfer(GET_SPI_DATA);
-/*      #elif defined(__STM32F1__)
+/*      #elif defined(TARGET_STM32F1)
         SPI.send(READ_ENCODER); SPI.recv();
         SPI.send(GET_SPI_DATA); encoderDiff += SPI.recv();
         SPI.send(READ_BUTTONS); SPI.recv();
@@ -298,7 +305,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
       Wire.endTransmission();
       #if defined(__AVR__)
         Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2, 0, 0, 1);
-      #elif defined(__STM32F1__) || defined(ARDUINO_ARCH_SAM)
+      #elif defined(TARGET_STM32F1) || defined(ARDUINO_ARCH_SAM)
         Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2);
       #endif
       encoderDiff += Wire.read();
@@ -319,10 +326,13 @@ void TFTGLCD::setContrast(uint16_t contrast) {
         SPI.transfer(BUZZER);
         SPI.transfer16((uint16_t)duration);
         SPI.transfer16(freq);
-      #elif defined(__STM32F1__)
-        SPI.write(BUZZER);
-        SPI.write16((uint16_t)duration);
-        SPI.write16(freq);
+      #elif defined(TARGET_STM32F1)
+//        SPI.write(BUZZER);
+//        SPI.write16((uint16_t)duration);
+//        SPI.write16(freq);
+        SPI.transfer(BUZZER);
+        SPI.transfer16((uint16_t)duration);
+        SPI.transfer16(freq);
       #elif defined(STM32F4)
         SPI.transfer(BUZZER, SPI_CONTINUE);
         SPI.transfer16((uint16_t)duration, SPI_CONTINUE);
@@ -348,6 +358,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
 
 void MarlinUI::init_lcd() {
   uint8_t t;
+  lcd.clear_buffer();
   #if ENABLED(LCD_CONNECT_BY_SPI)
     t = 0;
     pinMode(DOGLCD_CS, OUTPUT);
@@ -357,8 +368,9 @@ void MarlinUI::init_lcd() {
     #if defined(__AVR__) || defined(MCU_LPC1768)
       SPI.transfer(GET_LCD_ROW);
       t = SPI.transfer(GET_SPI_DATA);
-    #elif defined(__STM32F1__)
-      SPI.write(GET_LCD_ROW);
+    #elif defined(TARGET_STM32F1)
+//      SPI.write(GET_LCD_ROW);
+      SPI.transfer(GET_LCD_ROW);
       t = SPI.transfer(GET_SPI_DATA);
     #elif defined(STM32F4)
       SPI.transfer(GET_LCD_ROW, SPI_CONTINUE);
@@ -391,9 +403,11 @@ void MarlinUI::init_lcd() {
         #if defined(__AVR__) || defined(MCU_LPC1768)
           SPI.transfer(INIT_SCREEN);
           SPI.transfer(2);    //protocol Marlin
-        #elif defined(__STM32F1__)
-          SPI.write(INIT_SCREEN);
-          SPI.write(2);
+        #elif defined(TARGET_STM32F1)
+//          SPI.write(INIT_SCREEN);
+//          SPI.write(2);
+          SPI.transfer(INIT_SCREEN);
+          SPI.transfer(2);
         #elif defined(STM32F4)
           SPI.transfer(INIT_SCREEN, SPI_CONTINUE);
           SPI.transfer(2, SPI_CONTINUE);
@@ -470,7 +484,7 @@ void MarlinUI::draw_kill_screen() {
   if (!PanelDetected) return;
   lcd.clear_buffer();
   lcd.setCursor(0, 3);  lcd.write(COLOR_ERROR);
-  lcd.setCursor((LCD_WIDTH - utf8_strlen(status_message)) / 2, 3);
+  lcd.setCursor((LCD_WIDTH - utf8_strlen(status_message)) / 2 + 1, 3);
   lcd_put_u8str(status_message);
   center_text_P(GET_TEXT(MSG_HALTED), 5);
   center_text_P(GET_TEXT(MSG_PLEASE_RESET), 6);

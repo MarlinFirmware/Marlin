@@ -77,7 +77,7 @@ static const spi_pins board_spi_pins[] __FLASH__ = {
       BOARD_SPI3_MOSI_PIN },
   #endif
 };
-
+/*
 #if BOARD_NR_SPI >= 1
   static void *_spi1_this;
 #endif
@@ -87,7 +87,7 @@ static const spi_pins board_spi_pins[] __FLASH__ = {
 #if BOARD_NR_SPI >= 3
   static void *_spi3_this;
 #endif
-
+*/
 /**
  * Constructor
  */
@@ -168,6 +168,12 @@ void SPIClass::beginSlave() {
   // added for DMA callbacks.
   _currentSetting->state = SPI_STATE_READY;
 }
+
+static inline void waitSpiTxEnd(spi_dev *spi_d) {
+  while (spi_is_tx_empty(spi_d) == 0) { /* nada */ } // wait until TXE=1
+  while (spi_is_busy(spi_d) != 0) { /* nada */ }     // wait until BSY=0
+}
+
 
 void SPIClass::end() {
   if (!spi_is_enabled(_currentSetting->spi_d)) return;

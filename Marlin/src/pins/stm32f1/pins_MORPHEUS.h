@@ -23,14 +23,14 @@
 
  /**
   * 2017 Victor Perez Marlin for stm32f1 test
-  * 2018 Modified by Pablo Crespo for Morpheus Board (https://github.com/pscrespo/Morpheus-STM32)
+  * 2018 Modified by PAblo Crespo for Morpheus Board (https://github.com/pscrespo/Morpheus-STM32)
   */
 
 /**
  * MORPHEUS Board pin assignments
  */
 
-#ifndef __STM32F1__
+#if !defined(__STM32F1__) && !defined(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -85,8 +85,23 @@
 #define FAN_PIN                             PA1   // FAN1 header on board - PRINT FAN
 
 //
+// SPI
+//
+#define PIN_SPI_MOSI            PA7
+#define PIN_SPI_MISO            PA6
+#define PIN_SPI_SCK             PA5
+
+
+// I2C
+#define PIN_WIRE_SDA            PB11
+#define PIN_WIRE_SCL            PB10
+
+//
 // Misc.
 //
 #define LED_PIN                             PC13
-#define SDSS                                PA3
-#define DOGLCD_CS                           PA4
+#define SDSS                                PA4
+#define DOGLCD_CS                           PA3
+
+//PB10, PB11 - I2C2
+//PA4-PA7 - SPI1
