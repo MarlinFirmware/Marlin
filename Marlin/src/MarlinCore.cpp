@@ -444,19 +444,13 @@ void startOrResumeJob() {
       queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
     #endif
 
-    #if BOTH(PASSWORD_FEATURE, PASSWORD_AFTER_SD_PRINT_ABORT)
-      password.authenticate_user_persistent();
-    #endif
+    TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.authenticate_user_persistent());
   }
 
   inline void finishSDPrinting() {
     if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
-
-      #if BOTH(PASSWORD_FEATURE, PASSWORD_AFTER_SD_PRINT_END)
-        password.authenticate_user_persistent();
-      #endif
-
+      TERN_(PASSWORD_AFTER_SD_PRINT_END, password.authenticate_user_persistent());
     }
   }
 
@@ -1205,7 +1199,7 @@ void setup() {
     SETUP_RUN(tft_lvgl_init());
   #endif
 
-  #if BOTH(PASSWORD_FEATURE, PASSWORD_ON_STARTUP)
+  #if ENABLED(PASSWORD_ON_STARTUP)
     SETUP_RUN(password.authenticate_user_persistent());      // Will not proceed until correct password provided
   #endif
 
