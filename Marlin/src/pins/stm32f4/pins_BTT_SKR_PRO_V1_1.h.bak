@@ -45,7 +45,7 @@
 #define X_MAX_PIN                           PE15
 #define Y_MIN_PIN                           PE12
 #define Y_MAX_PIN                           PE10
-#define Z_MIN_PIN                           PA2    //ACK PG8   // Z-
+#define Z_MIN_PIN                           PG8
 #define Z_MAX_PIN                           PG5
 
 //
@@ -99,21 +99,7 @@
 #ifndef E2_CS_PIN
   #define E2_CS_PIN                         PG12
 #endif
-////////////TRIPLE Z-AXIS DOPISANA SEKCJA /////////////////////////////
-#define Z2_STEP_PIN        PD15
-#define Z2_DIR_PIN         PE7
-#define Z2_ENABLE_PIN      PA3
-#ifndef Z2_CS_PIN
-  #define Z2_CS_PIN        PG15
-#endif
 
-#define Z3_STEP_PIN        PD13
-#define Z3_DIR_PIN         PG9
-#define Z3_ENABLE_PIN      PF0
-#ifndef Z3_CS_PIN
-  #define Z3_CS_PIN        PG12
-#endif
-//////////////////////////////////////////////////////////////////////
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -163,11 +149,11 @@
   #define E0_SERIAL_TX_PIN                  PD4
   #define E0_SERIAL_RX_PIN                  PD4
 
-  #define Z2_SERIAL_TX_PIN                  PD1
-  #define Z2_SERIAL_RX_PIN                  PD1
+  #define E1_SERIAL_TX_PIN                  PD1
+  #define E1_SERIAL_RX_PIN                  PD1
 
-  #define Z3_SERIAL_TX_PIN                  PD6
-  #define Z3_SERIAL_RX_PIN                  PD6
+  #define E2_SERIAL_TX_PIN                  PD6
+  #define E2_SERIAL_RX_PIN                  PD6
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
@@ -191,10 +177,6 @@
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
 #define FAN2_PIN                            PE6   // Fan2
-/*#ifndef E0_AUTO_FAN_PIN                					//ACK				SEKCJA USUNIETA W 2.0.5.4
-  #define E0_AUTO_FAN_PIN               FAN1_PIN			//ACK				SEKCJA USUNIETA W 2.0.5.4
-#endif														//ACK				SEKCJA USUNIETA W 2.0.5.4
-*/
 
 //
 // Misc. Functions
