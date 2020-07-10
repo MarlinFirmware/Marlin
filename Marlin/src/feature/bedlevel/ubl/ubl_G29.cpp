@@ -54,7 +54,18 @@
   #define UBL_G29_P31
 
   #if HAS_LCD_MENU
-    void _lcd_ubl_output_map_lcd();
+
+    bool unified_bed_leveling::lcd_map_control = false;
+
+    void unified_bed_leveling::steppers_were_disabled() {
+      if (lcd_map_control) {
+        lcd_map_control = false;
+        ui.defer_status_screen(false);
+      }
+    }
+
+    void ubl_map_screen();
+
   #endif
 
   #define SIZE_OF_LITTLE_RAISE 1
@@ -451,7 +462,7 @@
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
             SERIAL_ECHOLNPGM("Manually probing unreachable points.");
-            do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+            do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
             if (parser.seen('C') && !xy_seen) {
 
@@ -769,9 +780,7 @@
       probe.stow();
       TERN_(HAS_LCD_MENU, ui.capture());
 
-      #ifdef Z_AFTER_PROBING
-        probe.move_z_after_probing();
-      #endif
+      probe.move_z_after_probing();
 
       restore_ubl_active_state_and_leave();
 
@@ -789,11 +798,11 @@
 
     bool click_and_hold(const clickFunc_t func=nullptr) {
       if (ui.button_pressed()) {
-        ui.quick_feedback(false);                // Preserve button state for click-and-hold
+        ui.quick_feedback(false);         // Preserve button state for click-and-hold
         const millis_t nxt = millis() + 1500UL;
-        while (ui.button_pressed()) {                // Loop while the encoder is pressed. Uses hardware flag!
-          idle();                                 // idle, of course
-          if (ELAPSED(millis(), nxt)) {           // After 1.5 seconds
+        while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
+          idle();                         // idle, of course
+          if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
             ui.quick_feedback();
             if (func) (*func)();
             ui.wait_for_release();
@@ -847,7 +856,6 @@
       echo_and_take_a_measurement();
 
       const float z2 = measure_point_with_encoder();
-
       do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
 
       const float thickness = ABS(z1 - z2);
@@ -888,7 +896,7 @@
         LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
 
         do_blocking_move_to(ppos);
-        do_blocking_move_to_z(z_clearance);
+        do_z_clearance(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         ui.capture();
@@ -904,7 +912,7 @@
 
         if (click_and_hold()) {
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-          do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+          do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
           return restore_ubl_active_state_and_leave();
         }
 
@@ -929,7 +937,7 @@
 
     void abort_fine_tune() {
       ui.return_to_status();
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+      do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
       set_message_with_feedback(GET_TEXT(MSG_EDITING_STOPPED));
     }
 
@@ -995,9 +1003,9 @@
         lcd_mesh_edit_setup(new_z);
 
         do {
+          idle();
           new_z = lcd_mesh_edit();
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
-          idle();
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
 
@@ -1022,7 +1030,7 @@
       SERIAL_ECHOLNPGM("Done Editing Mesh");
 
       if (lcd_map_control)
-        ui.goto_screen(_lcd_ubl_output_map_lcd);
+        ui.goto_screen(ubl_map_screen);
       else
         ui.return_to_status();
     }
@@ -1404,9 +1412,7 @@
         }
 
         probe.stow();
-        #ifdef Z_AFTER_PROBING
-          probe.move_z_after_probing();
-        #endif
+        probe.move_z_after_probing();
 
         if (abort_flag) {
           SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1467,9 +1473,7 @@
         }
       }
       probe.stow();
-      #ifdef Z_AFTER_PROBING
-        probe.move_z_after_probing();
-      #endif
+      probe.move_z_after_probing();
 
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
         SERIAL_ECHOPGM("Could not complete LSF!");

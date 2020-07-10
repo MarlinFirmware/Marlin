@@ -590,6 +590,8 @@ namespace ExtUI {
   #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled()                 { return runout.enabled; }
     void setFilamentRunoutEnabled(const bool value) { runout.enabled = value; }
+    bool getFilamentRunoutState()                   { return runout.filament_ran_out; }
+    void setFilamentRunoutState(const bool value)   { runout.filament_ran_out = value; }
 
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm()                 { return runout.runout_distance(); }
@@ -884,6 +886,7 @@ namespace ExtUI {
   #endif
 
   void injectCommands_P(PGM_P const gcode) { queue.inject_P(gcode); }
+  void injectCommands(char * const gcode)  { queue.inject(gcode); }
 
   bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 

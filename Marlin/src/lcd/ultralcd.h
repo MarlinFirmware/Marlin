@@ -78,14 +78,6 @@
 
   #if HAS_LCD_MENU
 
-    #if HAS_GRAPHICAL_LCD
-      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #else
-      #define SETCURSOR(col, row) lcd_moveto(col, row)
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
-    #endif
-
     #include "lcdprint.h"
 
     void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
@@ -98,9 +90,6 @@
 
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
-
-    // Manual Movement
-    extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_pause_show_message(const PauseMessage message,
@@ -262,6 +251,35 @@
     TERN_(HAS_HEATED_BED, uint16_t bed_temp   );
     TERN_(HAS_FAN,        uint16_t fan_speed  );
   } preheat_t;
+#endif
+
+#if HAS_LCD_MENU
+
+  // Manual Movement class
+  class ManualMove {
+  public:
+    static millis_t start_time;
+    static float menu_scale;
+    TERN_(IS_KINEMATIC, static float offset);
+    #if IS_KINEMATIC
+      static bool processing;
+    #else
+      static bool constexpr processing = false;
+    #endif
+    #if MULTI_MANUAL
+      static int8_t e_index;
+    #else
+      static int8_t constexpr e_index = 0;
+    #endif
+    static uint8_t axis;
+    static void task();
+    static void soon(AxisEnum axis
+      #if MULTI_MANUAL
+        , const int8_t eindex=-1
+      #endif
+    );
+  };
+
 #endif
 
 ////////////////////////////////////////////
@@ -479,6 +497,7 @@ public:
 
   #if PREHEAT_COUNT
     static preheat_t material_preset[PREHEAT_COUNT];
+    static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
   #if HAS_LCD_MENU
@@ -494,28 +513,13 @@ public:
       static void enable_encoder_multiplier(const bool onoff);
     #endif
 
-    static int8_t manual_move_axis;
-    static millis_t manual_move_start_time;
-
-    #if IS_KINEMATIC
-      static float manual_move_offset;
-      static bool processing_manual_move;
-    #else
-      static constexpr bool processing_manual_move = false;
-    #endif
-
-    #if E_MANUAL > 1
-      static int8_t manual_move_e_index;
-    #else
-      static constexpr int8_t manual_move_e_index = 0;
-    #endif
+    // Manual Movement
+    static ManualMove manual_move;
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
-
-    static void manage_manual_move();
 
     static bool lcd_clicked;
     static bool use_click();
@@ -609,6 +613,9 @@ public:
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      static void external_encoder();
+    #endif
   #else
     static constexpr bool external_control = false;
   #endif
