@@ -75,10 +75,9 @@ static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY pos
  *               51 - Counter-Clockwise M5
  **/
 void GcodeSuite::G35() {
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPGM(">>> G35");
-    log_machine_info();
-  }
+  DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
+
+  if (DEBUGGING(LEVELING)) log_machine_info();
 
   float z_measured[G35_PROBE_COUNT] = { 0 };
 
@@ -127,18 +126,16 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOLNPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")"
-                        " X", screws_tilt_adjust_pos[i].x,
-                        " Y", screws_tilt_adjust_pos[i].y);
+      SERIAL_ECHOPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")");
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y);
       err_break = true;
       break;
     }
 
-    if (DEBUGGING(LEVELING))
-      DEBUG_ECHOLNPAIR("Probing point ", int(i), " (", tramming_point_name[i], ")"
-                       " X", screws_tilt_adjust_pos[i].x,
-                       " Y", screws_tilt_adjust_pos[i].y,
-                       " Z", z_probed_height);
+    if (DEBUGGING(LEVELING)) {
+      DEBUG_ECHOPAIR("Probing point ", int(i), " (", tramming_point_name[i], ")");
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
+    }
 
     z_measured[i] = z_probed_height;
   }
@@ -183,8 +180,6 @@ void GcodeSuite::G35() {
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G35");
 }
 
 #endif // ASSISTED_TRAMMING
