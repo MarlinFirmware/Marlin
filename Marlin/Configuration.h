@@ -1626,35 +1626,30 @@
 //#define PRINTCOUNTER
 
 /**
- * Printer Password
+ * Password
  *
- * Set a numerical password for the printer.
+ * Set a numerical password for the printer which can be requested:
+ *  - When the printer boots up
+ *  - Upon opening the 'Print from Media' Menu
+ *  - When SD printing is completed or aborted
  *
- * This is not meant to be a security feature, but a simple form of Access control.
- * The password can be easily circumvented by:
- *  - removing it from the Password Settings / EEPROM menu if the printer is unlocked
- *  - sending remote gcode commands, even if the printer is locked
- *  - removing the password while prinitng
+ * Not meant as a security feature but as a simple form of Access Control.
+ * The password can be easily circumvented by...
+ *  - Removing it from the Password Settings / EEPROM menu if the printer is unlocked
+ *  - Sending remote gcode commands, even if the printer is locked
+ *  - Removing the password while printing
  *
- * A password can be set that is asked when
- *  - Printer boots
- *  - Accessing 'Print from Media' Menu
- *  - SD card prinitng completes/aborts
- *
- * If you forget the password and are locked out, you can:
- *  - Send an M502, then M500 gcode to reset EEPROM, then reboot
- * If that does not work then:
- *  - Reflash the firmware with this feature disabled, Re-init EEPROM
+ * If you forget the password and get locked out, you can:
+ *  - Send M502, M500 to reset EEPROM, then reboot.
+ * If that doesn't work:
+ *  - Reflash the firmware with this feature disabled, ee-init EEPROM,
  *    and (optionally) reflash the firmware again with this feature enabled.
  *
- * This requires an LCD Menu
+ * An LCD supporting the Marlin Menu tree is required for this feature.
  */
 //#define PASSWORD_FEATURE
 #if ENABLED(PASSWORD_FEATURE)
-  // No of digits (1 to 9). 3 or 4 is recommended
-  // If reflashing firmware with less digits than before
-  // ensure Password is removed in Settings first!
-  #define PASSWORD_LENGTH 4
+  #define PASSWORD_LENGTH 4               // (#) Number of digits (1-9). 3 or 4 is recommended
   #define PASSWORD_ON_STARTUP
   #define PASSWORD_ON_SD_PRINT_MENU
   #define PASSWORD_AFTER_SD_PRINT_END
