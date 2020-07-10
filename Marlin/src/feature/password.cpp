@@ -29,13 +29,17 @@
 
 Password password;
 
-uint32_t     Password::value, Password::value_keyed_in;
-bool         Password::is_set;
-char         Password::string[INCREMENT(PASSWORD_LENGTH)];
+// private:
+char         Password::string[PASSWORD_LENGTH + 1];
 uint8_t      Password::digit, Password::digit_no;
+uint32_t     Password::value_entry;
 screenFunc_t Password::return_fn,
              Password::success_fn,
              Password::fail_fn;
+
+// public:
+bool         Password::is_set;
+uint32_t     Password::value;
 
 //
 // Authenticate user with password
@@ -58,7 +62,7 @@ void Password::authenticate_user() {
 }
 
 void Password::authenticate_user_return() {
-  if (value_keyed_in == value)
+  if (value_entry == value)
     ui.goto_screen(success_fn);
   else {
     ui.buzz(200,600);
@@ -77,17 +81,17 @@ void Password::menu_media() {
 // Password entry screens
 //
 void Password::screen_password_entry() {
-  value_keyed_in = 0;
-  digit_no = PASSWORD_LENGTH;
+  value_entry = 0;
+  digit_no = 0;
   digit = 0;
-  LOOP_L_N(i, PASSWORD_LENGTH) password_string[i] = '*';
-  password_string[PASSWORD_LENGTH] = '\0';
+  memset(string, '*', PASSWORD_LENGTH);
+  string[PASSWORD_LENGTH] = '\0';
   menu_password_entry();
 }
 
 void Password::menu_password_entry() {
   START_MENU();
-  STATIC_ITEM(MSG_PASSWORD, SS_LEFT, &password_string[0]);
+  STATIC_ITEM(MSG_PASSWORD, SS_LEFT, string);
   EDIT_ITEM_FAST(uint8, MSG_ENTER_DIGIT, &digit, 0, 9, digit_entered, false);
   SUBMENU(MSG_CLEAR, clear);
   END_MENU();
@@ -99,9 +103,8 @@ void Password::clear() {
 }
 
 void Password::digit_entered() {
-  password_string[PASSWORD_LENGTH - digit_no] = '0' + digit;
-  --digit_no;
-  value_keyed_in += digit * POW(10, digit_no);
+  value_entry += digit * POW(10, PASSWORD_LENGTH - 1 - digit_no);
+  string[digit_no++] = '0' + digit;
 
   // Exit edit screen menu and go to another screen
   ui.goto_previous_screen();
@@ -109,8 +112,7 @@ void Password::digit_entered() {
   ui.goto_screen(menu_password_entry);
 
   // After password has been keyed in
-  if (digit_no == 0)
-    (*return_fn)();
+  if (digit_no == PASSWORD_LENGTH) (*return_fn)();
 }
 
 //
@@ -123,7 +125,7 @@ void Password::screen_set_password() {
 
 void Password::set_password_return() {
   is_set = true;
-  value = value_keyed_in;
+  value = value_entry;
   ui.completion_feedback(true);
   ui.goto_screen(menu_password_return);
 }
@@ -131,15 +133,15 @@ void Password::set_password_return() {
 void Password::menu_password_return() {
   START_SCREEN();
   BACK_ITEM(MSG_PASSWORD_SETTINGS);
-  STATIC_ITEM(MSG_PASSWORD_SET, SS_LEFT, &password_string[0]);
+  STATIC_ITEM(MSG_PASSWORD_SET, SS_LEFT, string);
   STATIC_ITEM(MSG_REMINDER_SAVE_SETTINGS, SS_LEFT);
   END_SCREEN();
 }
 
 void Password::remove_password() {
   is_set = false;
-  password_string[0] = '0';
-  password_string[1] = '\0';
+  string[0] = '0';
+  string[1] = '\0';
   ui.completion_feedback(true);
   ui.goto_screen(menu_password_return);
 }

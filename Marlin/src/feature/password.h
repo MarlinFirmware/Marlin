@@ -24,10 +24,15 @@
 #include "../lcd/ultralcd.h"
 
 class Password {
+private:
+  static char string[INCREMENT(PASSWORD_LENGTH)];
+  static uint8_t digit, digit_no;
+  static uint32_t value_entry;
+  static screenFunc_t return_fn, success_fn, fail_fn;
 
+public:
   static bool is_set;
-  static uint32_t value, value_keyed_in;
-  static screenFunc_t success_fn, fail_fn;
+  static uint32_t value;
 
   static void authenticate_user();
   static void authenticate_user_persistent();
@@ -42,7 +47,6 @@ class Password {
   static void remove_password();
   static void clear();
   static void menu_media();
-
 };
 
 extern Password password;

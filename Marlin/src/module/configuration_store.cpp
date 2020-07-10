@@ -152,7 +152,7 @@ typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                          
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, COUNT(ARR) - 1)
+#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
@@ -411,7 +411,7 @@ typedef struct SettingsDataStruct {
   // PASSWORD_FEATURE
   //
   #if ENABLED(PASSWORD_FEATURE)
-    bool password_set;
+    bool password_is_set;
     uint32_t password_value;
   #endif
 
@@ -1350,9 +1350,10 @@ void MarlinSettings::postprocess() {
     // Password feature
     //
     #if ENABLED(PASSWORD_FEATURE)
-      EEPROM_WRITE(password_set);
-      EEPROM_WRITE(password_value);
+      EEPROM_WRITE(password.is_set);
+      EEPROM_WRITE(password.value);
     #endif
+
     //
     // Validate CRC and Data Size
     //
@@ -2190,9 +2191,9 @@ void MarlinSettings::postprocess() {
       // Password feature
       //
       #if ENABLED(PASSWORD_FEATURE)
-        _FIELD_TEST(password_value);
-        EEPROM_READ(password_set);
-        EEPROM_READ(password_value);
+        _FIELD_TEST(password_is_set);
+        EEPROM_READ(password.is_set);
+        EEPROM_READ(password.value);
       #endif
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2663,7 +2664,7 @@ void MarlinSettings::reset() {
       #define PID_DEFAULT(N,E) DEFAULT_##N
     #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) = float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
       PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
       PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
       TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
@@ -2782,7 +2783,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
-    password_set = false;
+    password.remove_password();
   #endif
 
   postprocess();
