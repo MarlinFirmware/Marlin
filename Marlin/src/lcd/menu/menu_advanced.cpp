@@ -617,7 +617,6 @@ void menu_advanced_settings() {
     );
   #endif
 
-
   END_MENU();
 }
 
