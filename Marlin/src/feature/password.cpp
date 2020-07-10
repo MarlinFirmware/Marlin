@@ -23,146 +23,139 @@
 #include "../inc/MarlinConfigPre.h"
 
 #if ENABLED(PASSWORD_FEATURE)
-  #include "password.h"
-  #include "../lcd/menu/menu.h"
-  #define INC_9 10
 
-  uint32_t password_value;
-  uint32_t password_value_keyed_in;
-  bool password_set;
-  char password_string[INCREMENT(PASSWORD_LENGTH)];
-  uint8_t password_digit;
-  uint8_t password_digit_no;
-  selectFunc_t password_return_fn;
-  selectFunc_t password_success;
-  selectFunc_t password_fail;
-  
-  //
-  // Authenticate user with password
-  //
-  void password_authenticate_user_persistent() {
-    password_success = ui.status_screen;
-    password_fail = password_key_in;
-    password_authenticate_user();
+#include "password.h"
+#include "../lcd/menu/menu.h"
+
+Password password;
+
+uint32_t     Password::value, Password::value_keyed_in;
+bool         Password::is_set;
+char         Password::string[INCREMENT(PASSWORD_LENGTH)];
+uint8_t      Password::digit, Password::digit_no;
+screenFunc_t Password::return_fn,
+             Password::success_fn,
+             Password::fail_fn;
+
+//
+// Authenticate user with password
+//
+void Password::authenticate_user_persistent() {
+  success_fn = ui.status_screen;
+  fail_fn = screen_password_entry;
+  authenticate_user();
+}
+
+void Password::authenticate_user() {
+  if (is_set) {
+    return_fn = authenticate_user_return;
+    ui.goto_screen(screen_password_entry);
+    ui.defer_status_screen();
+    ui.update();
   }
+  else
+    ui.goto_screen(success_fn);
+}
 
-  void password_authenticate_user() {
-    if (password_set) {
-      password_return_fn = password_authenticate_user_return;
-      
-      ui.defer_status_screen();
-      ui.goto_screen(password_key_in);
-      ui.update();
-    } else {
-      ui.goto_screen(password_success);
-    }
+void Password::authenticate_user_return() {
+  if (value_keyed_in == value)
+    ui.goto_screen(success_fn);
+  else {
+    ui.buzz(200,600);
+    ui.buzz(0,0);
+    ui.goto_screen(fail_fn);
   }
+}
 
-  void password_authenticate_user_return() {
-    if (password_value_keyed_in == password_value) {
-      ui.defer_status_screen(false);
-      ui.goto_screen(password_success);
-    } else {
-      ui.buzz(200,600);
-      ui.buzz(0,0);
-      ui.goto_screen(password_fail);
-    }
-  }
-  
-  void password_menu_media() {
-    password_success = menu_media;
-    password_fail = menu_main;
-    password_authenticate_user();
-  }
+void Password::menu_media() {
+  success_fn = menu_media;
+  fail_fn = menu_main;
+  authenticate_user();
+}
 
-  //
-  // Password key-in screens
-  //
-  void password_key_in() {
-    
-    password_value_keyed_in = 0;
-    password_digit_no = PASSWORD_LENGTH;
-    password_digit = 0;
-    for (uint8_t i=0 ; i<PASSWORD_LENGTH ; i++) {
-      password_string[i] = '*';
-    }
-    password_string[PASSWORD_LENGTH] = '\0';
-    password_key_in_menu();
-    
-  }
+//
+// Password entry screens
+//
+void Password::screen_password_entry() {
+  value_keyed_in = 0;
+  digit_no = PASSWORD_LENGTH;
+  digit = 0;
+  LOOP_L_N(i, PASSWORD_LENGTH) password_string[i] = '*';
+  password_string[PASSWORD_LENGTH] = '\0';
+  menu_password_entry();
+}
 
-  void password_key_in_menu() {
-    START_MENU();
-    STATIC_ITEM(MSG_PASSWORD, SS_LEFT, &password_string[0]);
-    EDIT_ITEM_FAST(uint8, MSG_ENTER_DIGIT, &password_digit, 0, 9, password_digit_keyed_in, false);
-    SUBMENU(MSG_CLEAR, password_clear);
-    END_MENU();
-  }
+void Password::menu_password_entry() {
+  START_MENU();
+  STATIC_ITEM(MSG_PASSWORD, SS_LEFT, &password_string[0]);
+  EDIT_ITEM_FAST(uint8, MSG_ENTER_DIGIT, &digit, 0, 9, digit_entered, false);
+  SUBMENU(MSG_CLEAR, clear);
+  END_MENU();
+}
 
-  void password_clear() {
-    ui.goto_previous_screen();
-    ui.goto_screen(password_key_in);
-  }
+void Password::clear() {
+  ui.goto_previous_screen();
+  ui.goto_screen(screen_password_entry);
+}
 
-  void password_digit_keyed_in() {
+void Password::digit_entered() {
+  password_string[PASSWORD_LENGTH - digit_no] = '0' + digit;
+  --digit_no;
+  value_keyed_in += digit * POW(10, digit_no);
 
-    password_string[PASSWORD_LENGTH - password_digit_no] = '0' + password_digit;
-    --password_digit_no;
-    password_value_keyed_in += password_digit * POW(10, password_digit_no);
+  // Exit edit screen menu and go to another screen
+  ui.goto_previous_screen();
+  ui.use_click();
+  ui.goto_screen(menu_password_entry);
 
-    // Exit edit screen menu and go to another screen
-    ui.goto_previous_screen();
-    ui.use_click();
-    ui.goto_screen(password_key_in_menu);
-    
-    // After password has been keyed in
-    if (password_digit_no == 0) {
-      (*password_return_fn)();
-    }
-  }
+  // After password has been keyed in
+  if (digit_no == 0)
+    (*return_fn)();
+}
 
-  // 
-  // Set/Change Password
-  //
-  void set_change_password() {
-      password_return_fn = set_change_password_return;
-      password_key_in();
-  }
+//
+// Set/Change Password
+//
+void Password::screen_set_password() {
+  return_fn = set_password_return;
+  screen_password_entry();
+}
 
-  void set_change_password_return() {
-    password_set = true;
-    password_value = password_value_keyed_in;
-    ui.completion_feedback(true);
-    ui.goto_screen(set_change_password_return_menu);
-  }
+void Password::set_password_return() {
+  is_set = true;
+  value = value_keyed_in;
+  ui.completion_feedback(true);
+  ui.goto_screen(menu_password_return);
+}
 
-  void set_change_password_return_menu() {
-    START_SCREEN();
-    BACK_ITEM(MSG_PASSWORD_SETTINGS);
-    STATIC_ITEM(MSG_PASSWORD_SET, SS_LEFT, &password_string[0]);
-    STATIC_ITEM(MSG_REMINDER_SAVE_SETTINGS, SS_LEFT);
-    END_SCREEN();
-  }
-  
-  void remove_password() {
-    password_set = false;
-    password_string[0] = '0';
-    password_string[1] = '\0';
-    ui.completion_feedback(true);
-    ui.goto_screen(set_change_password_return_menu);
-  }
+void Password::menu_password_return() {
+  START_SCREEN();
+  BACK_ITEM(MSG_PASSWORD_SETTINGS);
+  STATIC_ITEM(MSG_PASSWORD_SET, SS_LEFT, &password_string[0]);
+  STATIC_ITEM(MSG_REMINDER_SAVE_SETTINGS, SS_LEFT);
+  END_SCREEN();
+}
 
-  //
-  // Password Menu
-  //
-  void menu_password() {
-    START_MENU();
-    BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    SUBMENU(MSG_SET_CHANGE_PASSWORD, set_change_password);
-    SUBMENU(MSG_REMOVE_PASSWORD, remove_password);
-    #if ENABLED(EEPROM_SETTINGS)
+void Password::remove_password() {
+  is_set = false;
+  password_string[0] = '0';
+  password_string[1] = '\0';
+  ui.completion_feedback(true);
+  ui.goto_screen(menu_password_return);
+}
+
+//
+// Password Menu
+//
+void Password::menu_password() {
+  START_MENU();
+  BACK_ITEM(MSG_ADVANCED_SETTINGS);
+  SUBMENU(MSG_SET_CHANGE_PASSWORD, screen_set_password);
+  SUBMENU(MSG_REMOVE_PASSWORD, remove_password);
+  #if ENABLED(EEPROM_SETTINGS)
     ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
-    #endif
-    END_MENU();
-  }
-#endif // ENABLED(PASSWORD_FEATURE)
+  #endif
+  END_MENU();
+}
+
+#endif // PASSWORD_FEATURE

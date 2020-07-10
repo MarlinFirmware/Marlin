@@ -445,7 +445,7 @@ void startOrResumeJob() {
     #endif
 
     #if BOTH(PASSWORD_FEATURE, PASSWORD_AFTER_SD_PRINT_ABORT)
-      password_authenticate_user_persistent();
+      password.authenticate_user_persistent();
     #endif
   }
 
@@ -454,7 +454,7 @@ void startOrResumeJob() {
       marlin_state = MF_RUNNING;
 
       #if BOTH(PASSWORD_FEATURE, PASSWORD_AFTER_SD_PRINT_END)
-        password_authenticate_user_persistent();
+        password.authenticate_user_persistent();
       #endif
 
     }
@@ -1015,7 +1015,7 @@ void setup() {
   #if ENABLED(TOUCH_BUTTONS)
     SETUP_RUN(touch.init());
   #endif
-  
+
 
   TERN_(HAS_M206_COMMAND, current_position += home_offset); // Init current position based on home_offset
 
@@ -1206,7 +1206,7 @@ void setup() {
   #endif
 
   #if BOTH(PASSWORD_FEATURE, PASSWORD_ON_STARTUP)
-    SETUP_RUN(password_authenticate_user_persistent());      // Will not proceed until correct password provided
+    SETUP_RUN(password.authenticate_user_persistent());      // Will not proceed until correct password provided
   #endif
 
   marlin_state = MF_RUNNING;

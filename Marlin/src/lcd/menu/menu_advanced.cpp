@@ -606,7 +606,7 @@ void menu_advanced_settings() {
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
-    SUBMENU(MSG_PASSWORD_SETTINGS, menu_password);
+    SUBMENU(MSG_PASSWORD_SETTINGS, Password::menu_password);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)

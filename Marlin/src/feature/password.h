@@ -20,29 +20,29 @@
  *
  */
 #pragma once
-#include "../lcd/menu/menu.h"
-#if ENABLED(PASSWORD_FEATURE)
-  extern uint32_t password_value;
-  extern bool password_set;
-  extern selectFunc_t password_success;
-  extern selectFunc_t password_fail;
-  
-  
 
-  extern void password_authenticate_user();
-  extern void password_authenticate_user_persistent();
-  extern void password_authenticate_user_return();
-  extern void menu_password();
-  extern void password_key_in_menu();
-  extern void password_key_in();
-  extern void password_digit_keyed_in();
-  extern void set_change_password();
-  extern void set_change_password_return();
-  extern void set_change_password_return_menu();
-  extern void remove_password();
-  extern void password_clear();
-  extern void password_menu_media();
+#include "../lcd/ultralcd.h"
 
-  
+class Password {
 
-#endif
+  static bool is_set;
+  static uint32_t value, value_keyed_in;
+  static screenFunc_t success_fn, fail_fn;
+
+  static void authenticate_user();
+  static void authenticate_user_persistent();
+  static void authenticate_user_return();
+  static void menu_password();
+  static void menu_password_entry();
+  static void screen_password_entry();
+  static void digit_entered();
+  static void screen_set_password();
+  static void set_password_return();
+  static void menu_password_return();
+  static void remove_password();
+  static void clear();
+  static void menu_media();
+
+};
+
+extern Password password;

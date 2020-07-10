@@ -1627,43 +1627,40 @@
 
 /**
  * Printer Password
- * 
+ *
  * Set a numerical password for the printer.
- * 
+ *
  * This is not meant to be a security feature, but a simple form of Access control.
  * The password can be easily circumvented by:
  *  - removing it from the Password Settings / EEPROM menu if the printer is unlocked
  *  - sending remote gcode commands, even if the printer is locked
  *  - removing the password while prinitng
- * 
+ *
  * A password can be set that is asked when
  *  - Printer boots
  *  - Accessing 'Print from Media' Menu
  *  - SD card prinitng completes/aborts
- * 
+ *
  * If you forget the password and are locked out, you can:
  *  - Send an M502, then M500 gcode to reset EEPROM, then reboot
  * If that does not work then:
  *  - Reflash the firmware with this feature disabled, Re-init EEPROM
  *    and (optionally) reflash the firmware again with this feature enabled.
- * 
+ *
  * This requires an LCD Menu
  */
 //#define PASSWORD_FEATURE
-
 #if ENABLED(PASSWORD_FEATURE)
   // No of digits (1 to 9). 3 or 4 is recommended
   // If reflashing firmware with less digits than before
   // ensure Password is removed in Settings first!
   #define PASSWORD_LENGTH 4
-
   #define PASSWORD_ON_STARTUP
   #define PASSWORD_ON_SD_PRINT_MENU
-
   #define PASSWORD_AFTER_SD_PRINT_END
   #define PASSWORD_AFTER_SD_PRINT_ABORT
-  
 #endif
+
 //=============================================================================
 //============================= LCD and SD support ============================
 //=============================================================================
