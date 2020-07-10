@@ -67,11 +67,11 @@ PrintJobRecovery recovery;
   #define POWER_LOSS_PURGE_LEN 0
 #endif
 #ifndef POWER_LOSS_ZRAISE
-  #define POWER_LOSS_ZRAISE 2   // Move on loss with backup power, or on resume without it
+  #define POWER_LOSS_ZRAISE 2     // Move on loss with backup power, or on resume without it
 #endif
 
-#if !PIN_EXISTS(POWER_LOSS) || DISABLED(BACKUP_POWER_SUPPLY)
-  #undef POWER_LOSS_RETRACT_LEN
+#if DISABLED(BACKUP_POWER_SUPPLY)
+  #undef POWER_LOSS_RETRACT_LEN   // No retract at outage without backup power
 #endif
 #ifndef POWER_LOSS_RETRACT_LEN
   #define POWER_LOSS_RETRACT_LEN 0
@@ -452,12 +452,12 @@ void PrintJobRecovery::resume() {
     memcpy(&mixer.gradient, &info.gradient, sizeof(info.gradient));
   #endif
 
-  // Un-retract
-  #if PIN_EXISTS(POWER_LOSS) && ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN
+  // Un-retract if there was a retract at outage
+  #if POWER_LOSS_RETRACT_LEN
     gcode.process_subcommands_now_P(PSTR("G1 E" STRINGIFY(POWER_LOSS_RETRACT_LEN) " F3000"));
   #endif
 
-  // Purge Nozzle
+  // Additional purge if configured
   #if POWER_LOSS_PURGE_LEN
     sprintf_P(cmd, PSTR("G1 E%d F200"), (POWER_LOSS_PURGE_LEN) + (POWER_LOSS_RETRACT_LEN));
     gcode.process_subcommands_now(cmd);
