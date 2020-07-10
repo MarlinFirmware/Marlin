@@ -27,12 +27,11 @@ class Password {
 private:
   static char string[INCREMENT(PASSWORD_LENGTH)];
   static uint8_t digit, digit_no;
-  static uint32_t value_entry;
   static screenFunc_t return_fn, success_fn, fail_fn;
 
 public:
-  static bool is_set;
-  static uint32_t value;
+  static bool is_set, is_locked;
+  static uint32_t value, value_entry;
 
   static void authenticate_user();
   static void authenticate_user_persistent();
@@ -50,3 +49,6 @@ public:
 };
 
 extern Password password;
+
+void GcodeSuite::M510();
+void GcodeSuite::M511();

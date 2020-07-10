@@ -1649,11 +1649,14 @@
  */
 #define PASSWORD_FEATURE
 #if ENABLED(PASSWORD_FEATURE)
-  #define PASSWORD_LENGTH 4               // (#) Number of digits (1-9). 3 or 4 is recommended
+  #define PASSWORD_LENGTH 4                     // (#) Number of digits (1-9). 3 or 4 is recommended
   #define PASSWORD_ON_STARTUP
-  //#define PASSWORD_ON_SD_PRINT_MENU
+  //#define PASSWORD_ON_SD_PRINT_MENU           // This does not prevent gcodes from running
   //#define PASSWORD_AFTER_SD_PRINT_END
   //#define PASSWORD_AFTER_SD_PRINT_ABORT
+
+  #define DISABLE_M511                          // Disable unlocking through host if concerned about brute force attacks
+  #define DISABLE_M512                          // Disable setting/changing password through host
 #endif
 
 //=============================================================================

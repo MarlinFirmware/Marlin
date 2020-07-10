@@ -28,23 +28,23 @@
 #include "../lcd/menu/menu.h"
 
 Password password;
-
+password.is_locked = false;
 // private:
 char         Password::string[PASSWORD_LENGTH + 1];
 uint8_t      Password::digit, Password::digit_no;
-uint32_t     Password::value_entry;
 screenFunc_t Password::return_fn,
              Password::success_fn,
              Password::fail_fn;
 
 // public:
-bool         Password::is_set;
-uint32_t     Password::value;
+bool         Password::is_set, Password::is_locked;
+uint32_t     Password::value, Password::value_entry;
 
 //
 // Authenticate user with password
 //
 void Password::authenticate_user_persistent() {
+  is_locked = true;
   success_fn = ui.status_screen;
   fail_fn = screen_password_entry;
   authenticate_user();
@@ -59,11 +59,13 @@ void Password::authenticate_user() {
   }
   else
     ui.goto_screen(success_fn);
+    is_locked = false;
 }
 
 void Password::authenticate_user_return() {
   if (value_entry == value)
     ui.goto_screen(success_fn);
+    is_locked = false;
   else {
     ui.buzz(200,600);
     ui.buzz(0,0);
@@ -71,9 +73,17 @@ void Password::authenticate_user_return() {
   }
 }
 
-void Password::menu_media() {
-  success_fn = menu_media;
-  fail_fn = menu_main;
+#if ENABLED(PASSWORD_ON_SD_PRINT_MENU)
+  void Password::menu_media() {
+    success_fn = menu_media;
+    fail_fn = menu_main;
+    authenticate_user();
+  }
+#endif
+
+void Password::access_menu_password() {
+  success_fn = menu_password;
+  fail_fn = menu_advanced_settings;
   authenticate_user();
 }
 
@@ -160,4 +170,32 @@ void Password::menu_password() {
   END_MENU();
 }
 
+//
+// M510 Lock Printer
+//
+void GcodeSuite::M510() {
+  password.authenticate_user_persistent();
+}
+
+//
+// M511 Unlock Printer
+//
+void GcodeSuite::M511() {
+  if(password.is_locked) {
+    password.value_entry = parser.ulongval('P');
+    password.authenticate_user_return();
+  }
+}
+
+//
+// M512 Set/Change Password
+//
+void GcodeSuite::M512() {
+  if (password.is_set && (parser.ulongval('P') != password.value) ) {break;}
+  password.value_entry = parser.ulongval('N');
+  if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
+    password.is_set = true;
+    password.value = password.value_entry;
+  }
+}
 #endif // PASSWORD_FEATURE

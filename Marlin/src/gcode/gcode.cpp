@@ -736,6 +736,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 504: M504(); break;                                  // M504: Validate EEPROM contents
       #endif
 
+      #if ENABLED(PASSWORD_FEATURE)
+        case 510: M510(); break;                                  // M510: Lock Printer
+        case 511: M511(); break;                                  // M511: Unlock Printer
+        case 512: M512(); break;                                  // M512: Set/Change Password
+      #endif
+
       #if ENABLED(SDSUPPORT)
         case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
