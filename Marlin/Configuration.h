@@ -1651,9 +1651,9 @@
 #if ENABLED(PASSWORD_FEATURE)
   #define PASSWORD_LENGTH 4               // (#) Number of digits (1-9). 3 or 4 is recommended
   #define PASSWORD_ON_STARTUP
-  #define PASSWORD_ON_SD_PRINT_MENU
-  #define PASSWORD_AFTER_SD_PRINT_END
-  #define PASSWORD_AFTER_SD_PRINT_ABORT
+  //#define PASSWORD_ON_SD_PRINT_MENU
+  //#define PASSWORD_AFTER_SD_PRINT_END
+  //#define PASSWORD_AFTER_SD_PRINT_ABORT
 #endif
 
 //=============================================================================
