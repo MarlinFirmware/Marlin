@@ -23,7 +23,7 @@
 
  /**
   * 2017 Victor Perez Marlin for stm32f1 test
-  * 2018 Modified by PAblo Crespo for Morpheus Board (https://github.com/pscrespo/Morpheus-STM32)
+  * 2018 Modified by Pablo Crespo for Morpheus Board (https://github.com/pscrespo/Morpheus-STM32)
   */
 
 /**
