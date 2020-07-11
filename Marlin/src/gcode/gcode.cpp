@@ -251,7 +251,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   */
   #if ENABLED(PASSWORD_FEATURE)
     if (password.is_locked) {
-      if ((parser.command_letter != 'M') || (parser.codenum = 511)) {
+      if ((parser.command_letter != 'M') || (parser.codenum != 511)) {
         SERIAL_ECHOPGM(STR_PRINTER_LOCKED);
         return;
       }
