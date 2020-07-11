@@ -117,7 +117,7 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
     #if ENABLED(PRUSA_MMU2_S_MODE)
       , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
       , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
-      , slowly_spin_sequence[] PROGMEM = { MMU2_SLOWLY_SPIN_SEQUENCE }
+      , slowly_spin_sequence[] PROGMEM = { MMU2_C0_SPIN_E0_SEQUENCE }
     #endif
   ;
 
