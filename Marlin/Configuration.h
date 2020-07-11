@@ -1661,8 +1661,8 @@
   //#define PASSWORD_AFTER_SD_PRINT_END
   //#define PASSWORD_AFTER_SD_PRINT_ABORT
 
-  #define DISABLE_M511                          // Disable unlocking through host if concerned about brute force attacks
-  #define DISABLE_M512                          // Disable setting/changing password through host
+  //#define DISABLE_M511                        // Disable unlocking through host if concerned about brute force attacks
+  //#define DISABLE_M512                        // Disable setting/changing password through host
 #endif
 
 //=============================================================================
@@ -1747,7 +1747,7 @@
  * just remove some extraneous menu items to recover space.
  */
 //#define NO_LCD_MENUS
-//#define SLIM_LCD_MENUS
+#define SLIM_LCD_MENUS
 
 //
 // ENCODER SETTINGS
