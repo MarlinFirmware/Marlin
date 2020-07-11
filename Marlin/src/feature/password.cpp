@@ -32,6 +32,8 @@
 
 #include "../gcode/gcode.h"
 
+#include "../core/serial.h"
+
 Password password;
 
 
@@ -75,6 +77,8 @@ void Password::authenticate_user_return() {
     ui.buzz(200,600);
     ui.buzz(0,0);
     ui.goto_screen(fail_fn);
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
+    SERIAL_EOL();
   }
 }
 
@@ -216,9 +220,13 @@ void GcodeSuite::M510() {
       #else
         if (password.value_entry == password.value) {
           is_locked = false;  
-        } 
+        } else {
+          SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
+          SERIAL_EOL();
+        }
       #endif
     }
+      
   }
 #endif
 
@@ -228,20 +236,31 @@ void GcodeSuite::M510() {
 #if DISABLED(DISABLE_M512)
   void GcodeSuite::M512() {
     if (password.is_set && (parser.ulongval('P') != password.value) ) {
-      // wrong password
+      SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
+      SERIAL_EOL();
       return;
      }
 
     if (parser.seenval('N')) {
       password.value_entry = parser.ulongval('N');
-      if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
+
+      uint32_t multiplier = 1;
+      for (uint8_t i=0 ; i< PASSWORD_LENGTH; i++) {
+      multiplier *= 10;
+      }
+      if (password.value_entry < multiplier) {
         password.is_set = true;
         password.value = password.value_entry;
-        //SERIAL_ECHOPAIR(MSG_PASSWORD_SET, password.value);
+        serial_echopair_PGM(GET_TEXT(MSG_PASSWORD_SET), password.value);
+        SERIAL_EOL();
       }
     } else {
       password.is_set = false;
+      SERIAL_ECHOPGM_P(GET_TEXT(MSG_PASSWORD_REMOVED));
+      SERIAL_EOL();
     }
+    SERIAL_ECHOPGM_P(GET_TEXT(MSG_REMINDER_SAVE_SETTINGS));
+    SERIAL_EOL();
   }
 #endif
 

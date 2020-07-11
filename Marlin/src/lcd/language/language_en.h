@@ -595,6 +595,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Password is ");
   PROGMEM Language_Str MSG_CLEAR                           = _UxGT("Clear");
   PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Remember to save!");
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Password removed");
+  PROGMEM Language_Str MSG_WRONG_PASSWORD                  = _UxGT("Incorrect Password");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
