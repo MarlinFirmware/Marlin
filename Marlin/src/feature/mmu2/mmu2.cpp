@@ -94,7 +94,7 @@ MMU2 mmu2;
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
 #if ENABLED(PRUSA_MMU2_S_MODE)
   bool MMU2::mmu2s_triggered;
-  int8_t MMU2::slowly_spin_extruder_status = 0; // NEUDA: Variable para controlar la funcion de debug
+  int8_t MMU2::slowly_spin_extruder_status = 0; // Variable for controlling E0 spinning
 #endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
@@ -270,8 +270,7 @@ void MMU2::mmu_loop() {
           DEBUG_ECHOLNPGM("MMU <= 'C0'");
           tx_str_P(PSTR("C0\n"));
           #if ENABLED(PRUSA_MMU2_S_MODE)
-            // NEUDA: C0 SENT, SPIN EXTRUDER
-            DEBUG_ECHOLNPGM("MMU: NEUDA: slowly_spin_extruder_status=1");
+            DEBUG_ECHOLNPGM("MMU: slowly_spin_extruder_status=1");
             slowly_spin_extruder_status = 1;
           #endif
           state = 3; // wait for response
