@@ -25,10 +25,20 @@
 #if ENABLED(PASSWORD_FEATURE)
 
 #include "password.h"
-#include "../lcd/menu/menu.h"
+
+#if HAS_LCD_MENU
+  #include "../lcd/menu/menu.h"
+#endif
+
+#include "../gcode/gcode.h"
 
 Password password;
-password.is_locked = false;
+
+
+// public:
+bool         Password::is_set, Password::is_locked;
+uint32_t     Password::value, Password::value_entry;
+
 
 #if HAS_LCD_MENU
 
@@ -39,19 +49,9 @@ screenFunc_t Password::return_fn,
              Password::success_fn,
              Password::fail_fn;
 
-// public:
-bool         Password::is_set, Password::is_locked;
-uint32_t     Password::value, Password::value_entry;
 
-//
-// Authenticate user with password
-//
-void Password::authenticate_user_persistent() {
-  is_locked = true;
-  success_fn = ui.status_screen;
-  fail_fn = screen_password_entry;
-  authenticate_user();
-}
+
+
 
 void Password::authenticate_user() {
   if (is_set) {
@@ -178,14 +178,23 @@ void Password::menu_password() {
 #endif // HAS_LCD_MENU
 
 //
+// Authenticate user with password. 
+// Called from Setup, after SD Prinitng Stops/Aborts, and M510
+//
+void Password::authenticate_user_persistent() {
+  is_locked = true;
+  #if HAS_LCD_MENU
+    success_fn = ui.status_screen;
+    fail_fn = screen_password_entry;
+    authenticate_user();
+  #endif
+}
+
+//
 // M510 Lock Printer
 //
 void GcodeSuite::M510() {
-  #if HAS_LCD_MENU
-    password.authenticate_user_persistent();
-  #else
-    password.is_locked = true;
-  #endif
+  password.authenticate_user_persistent();
 }
 
 //

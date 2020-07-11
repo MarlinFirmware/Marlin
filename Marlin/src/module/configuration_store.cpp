@@ -2783,7 +2783,7 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
-    password.remove_password();
+    password.is_set = false;
   #endif
 
   postprocess();

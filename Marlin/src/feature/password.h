@@ -36,9 +36,11 @@ public:
   static bool is_set, is_locked;
   static uint32_t value, value_entry;
 
+  static void authenticate_user_persistent();
+  Password() {is_locked = false;}
+
 #if HAS_LCD_MENU
   static void authenticate_user();
-  static void authenticate_user_persistent();
   static void authenticate_user_return();
   static void menu_password();
   static void menu_password_entry();
