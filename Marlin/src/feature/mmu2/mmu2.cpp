@@ -94,7 +94,7 @@ MMU2 mmu2;
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
 #if ENABLED(PRUSA_MMU2_S_MODE)
   bool MMU2::mmu2s_triggered;
-  int8_t MMU2::slowly_spin_extruder_status = 0; // Variable for controlling E0 spinning
+  int8_t MMU2::c0_command_in_progress = 0; // Variable for controlling E0 spinning
 #endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
@@ -270,8 +270,8 @@ void MMU2::mmu_loop() {
           DEBUG_ECHOLNPGM("MMU <= 'C0'");
           tx_str_P(PSTR("C0\n"));
           #if ENABLED(PRUSA_MMU2_S_MODE)
-            DEBUG_ECHOLNPGM("MMU: slowly_spin_extruder_status=1");
-            slowly_spin_extruder_status = 1;
+            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=1");
+            c0_command_in_progress = 1;
           #endif
           state = 3; // wait for response
         }
@@ -351,11 +351,19 @@ void MMU2::mmu_loop() {
         ready = true;
         state = 1;
         last_cmd = MMU_CMD_NONE;
+        #if ENABLED(PRUSA_MMU2_S_MODE)
+          DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+          c0_command_in_progress = 0;
+        #endif
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
+          #if ENABLED(PRUSA_MMU2_S_MODE)
+            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+            c0_command_in_progress = 0;
+          #endif
           cmd = last_cmd;
           last_cmd = MMU_CMD_NONE;
         }
@@ -868,15 +876,16 @@ void MMU2::filament_runout() {
 
   void MMU2::check_filament() {
     const bool present = FILAMENT_PRESENT();
-    if (present && !mmu2s_triggered) {
+    if (present && !mmu2s_triggered && c0_command_in_progress!=0) {
+      DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+      c0_command_in_progress = 0; // C0 finished
       DEBUG_ECHOLNPGM("MMU <= 'A'");
       tx_str_P(PSTR("A\n"));
       DEBUG_ECHOLNPGM("MMU: STOP E0 SPIN");
-      slowly_spin_extruder_status = 0; // Disable E0 spinning
       planner.quick_stop(); // Abort any pending/current movement
     }
     // Slowly spins the extruder while C0 is being executed
-    else if((planner.movesplanned()<1) && slowly_spin_extruder_status!=0)
+    else if((planner.movesplanned()<1) && c0_command_in_progress!=0)
     {
       slowly_spin_extruder((const E_Step *)slowly_spin_sequence, sizeof(slowly_spin_sequence) / sizeof(E_Step));
     }
@@ -895,6 +904,8 @@ void MMU2::filament_runout() {
       DEBUG_CHAR(mmu2s_triggered ? 'O' : 'o');
       if (mmu2s_triggered) ++filament_detected_count;
     }
+
+    DEBUG_ECHOLNPGM("MMU can_load: ENDLOOP");
 
     if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION) / (MMU2_CAN_LOAD_INCREMENT)) {
       DEBUG_ECHOLNPGM(" failed.");
