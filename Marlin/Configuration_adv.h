@@ -3466,7 +3466,7 @@
     #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
       { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
 
-    #define MMU2_SLOWLY_SPIN_SEQUENCE { 5.0, 60 }        // Extruder spin sequence while C0 command, this loops until sensor filament is triggered
+    #define MMU2_C0_SPIN_E0_SEQUENCE { 10.0, 120 }        // Extruder spin sequence while C0 command, this loops until sensor filament is triggered
 
   #endif
 
