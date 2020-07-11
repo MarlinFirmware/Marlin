@@ -161,7 +161,11 @@ uint8_t MMU2::get_current_tool() {
 }
 
 #if EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE)
+  #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+    #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != filament_runout_state)
+  #else
+    #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE)
+  #endif
 #endif
 
 void MMU2::mmu_loop() {

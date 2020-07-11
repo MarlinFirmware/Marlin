@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V81"
+#define EEPROM_VERSION "V82"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -188,6 +188,7 @@ typedef struct SettingsDataStruct {
   //
   bool runout_sensor_enabled;                           // M412 S
   float runout_distance_mm;                             // M412 D
+  bool runout_runout_state;
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -625,9 +626,15 @@ void MarlinSettings::postprocess() {
       #else
         constexpr float runout_distance_mm = 0;
       #endif
+      #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+        const bool &runout_runout_state = filament_runout_state;
+      #else
+        constexpr bool runout_runout_state = LOW;
+      #endif
       _FIELD_TEST(runout_sensor_enabled);
       EEPROM_WRITE(runout_sensor_enabled);
       EEPROM_WRITE(runout_distance_mm);
+      EEPROM_WRITE(runout_runout_state);
     }
 
     //
@@ -1488,6 +1495,13 @@ void MarlinSettings::postprocess() {
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           if (!validating) runout.set_runout_distance(runout_distance_mm);
         #endif
+
+        #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+          const bool &runout_runout_state = filament_runout_state;
+        #else
+          bool runout_runout_state;
+        #endif
+        EEPROM_READ(runout_runout_state);
       }
 
       //
@@ -2417,6 +2431,9 @@ void MarlinSettings::reset() {
     runout.enabled = true;
     runout.reset();
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
+    #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+      filament_runout_state = FIL_RUNOUT_STATE;
+    #endif
   #endif
 
   //

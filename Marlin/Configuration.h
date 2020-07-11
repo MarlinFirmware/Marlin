@@ -1186,6 +1186,7 @@
     // large enough to avoid false positives.)
     //#define FILAMENT_MOTION_SENSOR
   #endif
+  //#define VARIABLE_FIL_RUNOUT_STATE
 #endif
 
 //===========================================================================
