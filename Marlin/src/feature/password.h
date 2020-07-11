@@ -24,15 +24,19 @@
 #include "../lcd/ultralcd.h"
 
 class Password {
+
+#if HAS_LCD_MENU
 private:
   static char string[INCREMENT(PASSWORD_LENGTH)];
   static uint8_t digit, digit_no;
   static screenFunc_t return_fn, success_fn, fail_fn;
+#endif
 
 public:
   static bool is_set, is_locked;
   static uint32_t value, value_entry;
 
+#if HAS_LCD_MENU
   static void authenticate_user();
   static void authenticate_user_persistent();
   static void authenticate_user_return();
@@ -46,9 +50,7 @@ public:
   static void remove_password();
   static void clear();
   static void menu_media();
+#endif
 };
 
 extern Password password;
-
-void GcodeSuite::M510();
-void GcodeSuite::M511();
