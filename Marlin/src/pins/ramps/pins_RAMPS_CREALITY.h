@@ -47,6 +47,9 @@
   #define CASE_LIGHT_PIN                      65
 #endif
 
+#define Z_MIN_PIN                         19
+#define Z_MAX_PIN                         18
+
 #include "pins_RAMPS.h"
 
 #ifndef BEEPER_PIN
