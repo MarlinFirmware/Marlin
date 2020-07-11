@@ -57,3 +57,5 @@ public:
 };
 
 extern Password password;
+
+extern void menu_advanced_settings();
