@@ -1639,19 +1639,15 @@
  *  - Upon opening the 'Print from Media' Menu
  *  - When SD printing is completed or aborted
  *
- * Not meant as a security feature but as a simple form of Access Control.
- * The password can be easily circumvented by...
- *  - Removing it from the Password Settings / EEPROM menu if the printer is unlocked
- *  - Sending remote gcode commands, even if the printer is locked
- *  - Removing the password while printing
+ * The following Gcodes can be used:
+ * M510 - Lock Printer, preventing subsequent Gcodes from running
+ * M511 - Unlock Printer
+ * M512 - Set, Change and Remove Password
  *
- * If you forget the password and get locked out, you can:
- *  - Send M502, M500 to reset EEPROM, then reboot.
- * If that doesn't work:
- *  - Reflash the firmware with this feature disabled, ee-init EEPROM,
+ * If you forget the password and get locked out, you need to:
+ *  - Reflash the firmware with this feature disabled, re-init EEPROM,
  *    and (optionally) reflash the firmware again with this feature enabled.
  *
- * An LCD supporting the Marlin Menu tree is required for this feature.
  */
 #define PASSWORD_FEATURE
 #if ENABLED(PASSWORD_FEATURE)
