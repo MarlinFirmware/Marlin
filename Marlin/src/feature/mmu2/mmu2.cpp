@@ -270,8 +270,11 @@ void MMU2::mmu_loop() {
           DEBUG_ECHOLNPGM("MMU <= 'C0'");
           tx_str_P(PSTR("C0\n"));
           #if ENABLED(PRUSA_MMU2_S_MODE)
-            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=1");
-            c0_command_in_progress = 1;
+            if(c0_command_in_progress!=1)
+            {
+              DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=1");
+              c0_command_in_progress = 1;
+            }
           #endif
           state = 3; // wait for response
         }
@@ -352,8 +355,11 @@ void MMU2::mmu_loop() {
         state = 1;
         last_cmd = MMU_CMD_NONE;
         #if ENABLED(PRUSA_MMU2_S_MODE)
-          DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
-          c0_command_in_progress = 0;
+          if(c0_command_in_progress!=0)
+          {
+            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+            c0_command_in_progress = 0;
+          }
         #endif
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
@@ -361,8 +367,11 @@ void MMU2::mmu_loop() {
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
           #if ENABLED(PRUSA_MMU2_S_MODE)
-            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
-            c0_command_in_progress = 0;
+            if(c0_command_in_progress!=0)
+            {
+              DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+              c0_command_in_progress = 0;
+            }
           #endif
           cmd = last_cmd;
           last_cmd = MMU_CMD_NONE;
