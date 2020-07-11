@@ -35,14 +35,21 @@
  *  S<bool>   : Reset and enable/disable the runout sensor
  *  H<bool>   : Enable/disable host handling of filament runout
  *  D<linear> : Extra distance to continue after runout is triggered
+ *
+ * With VARIABLE_FIL_RUNOUT_STATE:
+ *  V<bool>   : Set the pin state corresponding to filament runout
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
     TERN_(HOST_ACTION_COMMANDS, "H")
+    TERN_(VARIABLE_FIL_RUNOUT_STATE, "V")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
+    #endif
+    #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+      if (parser.seen('V')) runout.outage_value = parser.value_bool();
     #endif
     const bool seenR = parser.seen('R'), seenS = parser.seen('S');
     if (seenR || seenS) runout.reset();
