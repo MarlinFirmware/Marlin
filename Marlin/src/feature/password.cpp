@@ -215,7 +215,6 @@ void GcodeSuite::M510() {
     if(password.is_locked) {
       password.value_entry = parser.ulongval('P');
       #if HAS_LCD_MENU
-        SERIAL_ECHOPAIR("Pwd is ", password.value);
         password.authenticate_user_return();
       #else
         if (password.value_entry == password.value) {
@@ -252,6 +251,9 @@ void GcodeSuite::M510() {
         password.is_set = true;
         password.value = password.value_entry;
         serial_echopair_PGM(GET_TEXT(MSG_PASSWORD_SET), password.value);
+        SERIAL_EOL();
+      } else {
+        SERIAL_ECHOPGM_P(GET_TEXT(MSG_PASSWORD_TOO_LONG));
         SERIAL_EOL();
       }
     } else {
