@@ -94,6 +94,7 @@ MMU2 mmu2;
 bool MMU2::enabled, MMU2::ready, MMU2::mmu_print_saved;
 #if ENABLED(PRUSA_MMU2_S_MODE)
   bool MMU2::mmu2s_triggered;
+  int8_t MMU2::slowly_spin_extruder_status = 0; // NEUDA: Variable para controlar la funcion de debug
 #endif
 uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
@@ -116,6 +117,7 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
     #if ENABLED(PRUSA_MMU2_S_MODE)
       , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
       , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
+      , slowly_spin_sequence[] PROGMEM = { MMU2_SLOWLY_SPIN_SEQUENCE }
     #endif
   ;
 
@@ -267,6 +269,11 @@ void MMU2::mmu_loop() {
           // continue loading
           DEBUG_ECHOLNPGM("MMU <= 'C0'");
           tx_str_P(PSTR("C0\n"));
+          #if ENABLED(PRUSA_MMU2_S_MODE)
+            // NEUDA: C0 SENT, SPIN EXTRUDER
+            DEBUG_ECHOLNPGM("MMU: NEUDA: slowly_spin_extruder_status=1");
+            slowly_spin_extruder_status = 1;
+          #endif
           state = 3; // wait for response
         }
         else if (cmd == MMU_CMD_U0) {
@@ -865,6 +872,14 @@ void MMU2::filament_runout() {
     if (present && !mmu2s_triggered) {
       DEBUG_ECHOLNPGM("MMU <= 'A'");
       tx_str_P(PSTR("A\n"));
+      DEBUG_ECHOLNPGM("MMU: STOP E0 SPIN");
+      slowly_spin_extruder_status = 0; // Disable E0 spinning
+      planner.quick_stop(); // Abort any pending/current movement
+    }
+    // Slowly spins the extruder while C0 is being executed
+    else if((planner.movesplanned()<1) && slowly_spin_extruder_status!=0)
+    {
+      slowly_spin_extruder((const E_Step *)slowly_spin_sequence, sizeof(slowly_spin_sequence) / sizeof(E_Step));
     }
     mmu2s_triggered = present;
   }
@@ -890,6 +905,21 @@ void MMU2::filament_runout() {
     DEBUG_ECHOLNPGM(" succeeded.");
     return true;
   }
+
+  // Extrudes asynchronously and slowly while C0 command is in progress
+  void MMU2::slowly_spin_extruder(const E_Step * sequence, int steps) {
+    ENABLE_AXIS_E0();
+    const E_Step* step = sequence;
+    LOOP_L_N(i, steps) {
+      const float es = pgm_read_float(&(step->extrude));
+      const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
+      DEBUG_ECHOLNPAIR("E step loading filament", es, "/", fr_mm_m);
+      current_position.e += es;
+      line_to_current_position(MMM_TO_MMS(fr_mm_m));
+      step++;
+    }
+  }
+
 #endif
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)

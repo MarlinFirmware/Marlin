@@ -31,8 +31,12 @@
   #define MMU_RX_SIZE 256
   #define MMU_TX_SIZE 256
 #else
-  #define MMU_RX_SIZE  16
-  #define MMU_TX_SIZE  16
+  // NEUDA: Very low buffers, increasing it to 256
+  // https://github.com/MarlinFirmware/Marlin/issues/15888
+  #define MMU_RX_SIZE  256
+  #define MMU_TX_SIZE  256
+  ///#define MMU_RX_SIZE  16
+  ///#define MMU_TX_SIZE  16
 #endif
 
 struct E_Step;
@@ -82,6 +86,8 @@ private:
 
   #if ENABLED(PRUSA_MMU2_S_MODE)
     static bool mmu2s_triggered;
+    static int8_t slowly_spin_extruder_status; // Controls if we are in C0 command
+  static void slowly_spin_extruder(const E_Step * sequence, int steps); // Function for spining E0 slowly
     static void check_filament();
     static bool can_load();
     static bool load_to_gears();
