@@ -3026,7 +3026,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
   #if ANY(DISABLE_M511, DISABLE_M512)
     #if !HAS_LCD_MENU
-      #error "With DISABLE_M511 and No LCD supporting the Marlin Menu Tree there would be no way to unlock the printer or set a password"
+      #error "With DISABLE_M511 or DISABLE_M512 and No LCD supporting the Marlin Menu Tree there would be no way to unlock the printer or set a password"
     #endif
   #endif
 #endif
