@@ -3021,9 +3021,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Sanity Check for Password Feature
  */
 #if ENABLED(PASSWORD_FERATURE)
-  #if !HAS_LCD_MENU
-    #error "PASSWORD_FEATURE requires an LCD that supports the Marlin menu tree."
-  #endif
   #if DISABLED(EEPROM_SETTINGS)
     #warning "PASSWORD_FEATURE settings will be lost on power-off without EEPROM_SETTINGS."
   #endif

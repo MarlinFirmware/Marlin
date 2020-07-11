@@ -29,6 +29,9 @@
 
 Password password;
 password.is_locked = false;
+
+#if HAS_LCD_MENU
+
 // private:
 char         Password::string[PASSWORD_LENGTH + 1];
 uint8_t      Password::digit, Password::digit_no;
@@ -57,15 +60,17 @@ void Password::authenticate_user() {
     ui.defer_status_screen();
     ui.update();
   }
-  else
+  else {
     ui.goto_screen(success_fn);
     is_locked = false;
+  }
 }
 
 void Password::authenticate_user_return() {
-  if (value_entry == value)
+  if (value_entry == value) {
     ui.goto_screen(success_fn);
-    is_locked = false;
+    is_locked = false;  
+  } 
   else {
     ui.buzz(200,600);
     ui.buzz(0,0);
@@ -170,11 +175,17 @@ void Password::menu_password() {
   END_MENU();
 }
 
+#endif // HAS_LCD_MENU
+
 //
 // M510 Lock Printer
 //
 void GcodeSuite::M510() {
-  password.authenticate_user_persistent();
+  #if HAS_LCD_MENU
+    password.authenticate_user_persistent();
+  #else
+    password.is_locked = true;
+  #endif
 }
 
 //
@@ -184,7 +195,13 @@ void GcodeSuite::M510() {
   void GcodeSuite::M511() {
     if(password.is_locked) {
       password.value_entry = parser.ulongval('P');
-      password.authenticate_user_return();
+      #if HAS_LCD_MENU
+        password.authenticate_user_return();
+      #else
+        if (password.value_entry == password.value) {
+          is_locked = false;  
+        } 
+      #endif
     }
   }
 #endif
