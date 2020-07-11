@@ -35,6 +35,10 @@ FilamentMonitor runout;
 bool FilamentMonitorBase::enabled = true,
      FilamentMonitorBase::filament_ran_out;  // = false
 
+#if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+  bool FilamentMonitorBase::outage_value = FIL_RUNOUT_STATE;
+#endif
+
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
 #endif
@@ -51,10 +55,6 @@ bool FilamentMonitorBase::enabled = true,
 void FilamentSensorBase::filament_present(const uint8_t extruder) {
   runout.filament_present(extruder); // calls response.filament_present(extruder)
 }
-
-#if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-  bool filament_runout_state = !FIL_RUNOUT_STATE;
-#endif
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;

@@ -188,7 +188,7 @@ typedef struct SettingsDataStruct {
   //
   bool runout_sensor_enabled;                           // M412 S
   float runout_distance_mm;                             // M412 D
-  bool runout_runout_state;
+  bool runout_outage_value;                             // M412 V
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -627,14 +627,14 @@ void MarlinSettings::postprocess() {
         constexpr float runout_distance_mm = 0;
       #endif
       #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-        const bool &runout_runout_state = filament_runout_state;
+        const bool &runout_outage_value = runout.outage_value;
       #else
-        constexpr bool runout_runout_state = LOW;
+        constexpr bool runout_outage_value = FIL_RUNOUT_STATE;
       #endif
       _FIELD_TEST(runout_sensor_enabled);
       EEPROM_WRITE(runout_sensor_enabled);
       EEPROM_WRITE(runout_distance_mm);
-      EEPROM_WRITE(runout_runout_state);
+      EEPROM_WRITE(runout_outage_value);
     }
 
     //
@@ -1497,11 +1497,11 @@ void MarlinSettings::postprocess() {
         #endif
 
         #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-          const bool &runout_runout_state = filament_runout_state;
+          const bool &runout_outage_value = runout.outage_value;
         #else
-          bool runout_runout_state;
+          bool runout_outage_value;
         #endif
-        EEPROM_READ(runout_runout_state);
+        EEPROM_READ(runout_outage_value);
       }
 
       //
@@ -2431,9 +2431,7 @@ void MarlinSettings::reset() {
     runout.enabled = true;
     runout.reset();
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
-    #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-      filament_runout_state = FIL_RUNOUT_STATE;
-    #endif
+    TERN_(VARIABLE_FIL_RUNOUT_STATE, runout.outage_value = FIL_RUNOUT_STATE);
   #endif
 
   //
@@ -3685,6 +3683,9 @@ void MarlinSettings::reset() {
         "  M412 S", int(runout.enabled)
         #if HAS_FILAMENT_RUNOUT_DISTANCE
           , " D", LINEAR_UNIT(runout.runout_distance())
+        #endif
+        #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+          , " V", LINEAR_UNIT(runout.outage_value)
         #endif
       );
     #endif

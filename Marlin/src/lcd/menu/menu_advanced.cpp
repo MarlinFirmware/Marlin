@@ -158,7 +158,7 @@ void menu_cancelobject();
     #endif
 
     #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-      EDIT_ITEM_P(bool, PSTR("Runout State HIGH"), &filament_runout_state);
+      EDIT_ITEM(bool, MSG_RUNOUT_STATE_HIGH, &runout.outage_value);
     #endif
 
     END_MENU();

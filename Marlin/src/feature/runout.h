@@ -46,15 +46,17 @@
   #define FILAMENT_RUNOUT_THRESHOLD 5
 #endif
 
-#if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-  extern bool filament_runout_state;
-#endif
-
 void event_filament_runout();
 
 class FilamentMonitorBase {
   public:
     static bool enabled, filament_ran_out;
+
+    #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
+      static bool outage_value;
+    #else
+      static constexpr bool outage_value = FIL_RUNOUT_STATE;
+    #endif
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       static bool host_handling;
@@ -152,18 +154,7 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      #if ENABLED(VARIABLE_FIL_RUNOUT_STATE)
-        if (filament_runout_state)
-          return poll_runout_pins();
-        else
-          return poll_runout_pins() ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1);
-      #else
-        return poll_runout_pins()
-        #if FIL_RUNOUT_STATE == LOW
-          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
-        #endif
-        ;
-      #endif
+      return poll_runout_pins() ^ uint8_t(outage_value ? 0 : _BV(NUM_RUNOUT_SENSORS) - 1)
     }
 };
 
