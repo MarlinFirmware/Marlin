@@ -214,6 +214,10 @@
   #define WATCH_CHAMBER_TEMP_INCREASE           2 // Degrees Celsius
 #endif
 
+// Disable thermocouple disconected and max temp kill error when thermocouple is disconnected
+// useful to debug and calibrate when working with thermocouples
+//#define IGNORE_THERMOCOUPLE_ERRORS
+
 #if ENABLED(PIDTEMP)
   // Add an experimental additional term to the heater power, proportional to the extrusion speed.
   // A well-chosen Kc value should add just enough power to melt the increased material volume.

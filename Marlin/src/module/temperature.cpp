@@ -1010,7 +1010,7 @@ void Temperature::manage_heater() {
   if (!raw_temps_ready) return;
 
   updateTemperaturesFromRawValues(); // also resets the watchdog
-
+#if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
   #if ENABLED(HEATER_0_USES_MAX6675)
     if (temp_hotend[0].celsius > _MIN(HEATER_0_MAXTEMP, HEATER_0_MAX6675_TMAX - 1.0)) max_temp_error(H_E0);
     if (temp_hotend[0].celsius < _MAX(HEATER_0_MINTEMP, HEATER_0_MAX6675_TMIN + .01)) min_temp_error(H_E0);
@@ -1020,7 +1020,7 @@ void Temperature::manage_heater() {
     if (temp_hotend[1].celsius > _MIN(HEATER_1_MAXTEMP, HEATER_1_MAX6675_TMAX - 1.0)) max_temp_error(H_E1);
     if (temp_hotend[1].celsius < _MAX(HEATER_1_MINTEMP, HEATER_1_MAX6675_TMIN + .01)) min_temp_error(H_E1);
   #endif
-
+#endif
   millis_t ms = millis();
 
   #if HAS_HOTEND
@@ -2180,7 +2180,7 @@ void Temperature::disable_all_heaters() {
 
     WRITE_MAX6675(HIGH); // disable TT_MAX6675
 
-    if (max6675_temp & MAX6675_ERROR_MASK) {
+    if (max6675_temp & MAX6675_ERROR_MASK & DISABLED(IGNORE_THERMOCOUPLE_ERRORS)) {
       max6675_errors[hindex] += 1;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
