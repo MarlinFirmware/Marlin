@@ -117,7 +117,7 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
     #if ENABLED(PRUSA_MMU2_S_MODE)
       , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
       , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
-      , slowly_spin_sequence[] PROGMEM = { MMU2_C0_SPIN_E0_SEQUENCE }
+      , c0_spin_e0_sequence[] PROGMEM = { MMU2_C0_SPIN_E0_SEQUENCE }
     #endif
   ;
 
@@ -887,7 +887,7 @@ void MMU2::filament_runout() {
     // Slowly spins the extruder while C0 is being executed
     else if((planner.movesplanned()<1) && c0_command_in_progress!=0)
     {
-      slowly_spin_extruder((const E_Step *)slowly_spin_sequence, sizeof(slowly_spin_sequence) / sizeof(E_Step));
+      c0_slowly_spin_extruder((const E_Step *)c0_spin_e0_sequence, sizeof(c0_spin_e0_sequence) / sizeof(E_Step));
     }
     mmu2s_triggered = present;
   }
@@ -917,7 +917,7 @@ void MMU2::filament_runout() {
   }
 
   // Extrudes asynchronously and slowly while C0 command is in progress
-  void MMU2::slowly_spin_extruder(const E_Step * sequence, int steps) {
+  void MMU2::c0_slowly_spin_extruder(const E_Step * sequence, int steps) {
     ENABLE_AXIS_E0();
     const E_Step* step = sequence;
     LOOP_L_N(i, steps) {
