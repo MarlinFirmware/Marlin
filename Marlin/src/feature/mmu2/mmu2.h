@@ -91,6 +91,7 @@ private:
     static void check_filament();
     static bool can_load();
     static bool load_to_gears();
+    static void cancel_filament_loading();
   #else
     FORCE_INLINE static bool load_to_gears() { return true; }
   #endif

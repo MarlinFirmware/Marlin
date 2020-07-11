@@ -53,6 +53,9 @@ MMU2 mmu2;
 #define MMU_TIMEOUT 10
 #define MMU_CMD_TIMEOUT 45000UL // 45s timeout for mmu commands (except P0)
 #define MMU_P0_TIMEOUT 3000UL   // Timeout for P0 command: 3seconds
+#if ENABLED(PRUSA_MMU2_S_MODE)
+  #define MMU_C0_TIMEOUT 90000UL   // Timeout for C0 command: 90seconds (MMU2 will do the retries)
+#endif
 
 #if ENABLED(MMU_EXTRUDER_SENSOR)
   uint8_t mmu_idl_sens = 0;
@@ -275,8 +278,10 @@ void MMU2::mmu_loop() {
               DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=1");
               c0_command_in_progress = 1;
             }
+            state = 4; // wait for C0 response
+          #else
+            state = 3; // wait for response
           #endif
-          state = 3; // wait for response
         }
         else if (cmd == MMU_CMD_U0) {
           // unload current
@@ -354,25 +359,11 @@ void MMU2::mmu_loop() {
         ready = true;
         state = 1;
         last_cmd = MMU_CMD_NONE;
-        #if ENABLED(PRUSA_MMU2_S_MODE)
-          if(c0_command_in_progress!=0)
-          {
-            DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
-            c0_command_in_progress = 0;
-          }
-        #endif
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
-          #if ENABLED(PRUSA_MMU2_S_MODE)
-            if(c0_command_in_progress!=0)
-            {
-              DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
-              c0_command_in_progress = 0;
-            }
-          #endif
           cmd = last_cmd;
           last_cmd = MMU_CMD_NONE;
         }
@@ -380,6 +371,46 @@ void MMU2::mmu_loop() {
       }
       TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
+
+#if ENABLED(PRUSA_MMU2_S_MODE)
+    case 4:   // response to C0 mmu command in PRUSA_MMU2_S_MODE
+      if (rx_ok()) {
+        if(c0_command_in_progress)
+        {
+          DEBUG_ECHOLNPGM("MMU => 'nok'");
+          DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
+          tx_str_P(PSTR("C0\n"));
+        }
+        else if(!mmu2s_triggered)
+        {
+          DEBUG_ECHOLNPGM("MMU => 'nok'");
+          DEBUG_ECHOLNPGM("MMU: C0 failed, keep trying");
+          tx_str_P(PSTR("C0\n"));
+        }
+        else
+        {
+          DEBUG_ECHOLNPGM("MMU => 'ok'");
+          ready = true;
+          state = 1;
+          last_cmd = MMU_CMD_NONE;
+        }
+      }
+      else if (ELAPSED(millis(), prev_request + MMU_C0_TIMEOUT)) {
+        // resend request after timeout
+        if (last_cmd) {
+          DEBUG_ECHOLNPGM("MMU C0 failed");
+          if(c0_command_in_progress)
+          {
+            cancel_filament_loading();
+          }
+          cmd = last_cmd;
+          last_cmd = MMU_CMD_NONE;
+        }
+        state = 1;
+      }
+      TERN_(PRUSA_MMU2_S_MODE, check_filament());
+      break;
+#endif
   }
 }
 
@@ -883,18 +914,22 @@ void MMU2::filament_runout() {
 
 #if ENABLED(PRUSA_MMU2_S_MODE)
 
+  void MMU2::cancel_filament_loading() {
+    DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
+    c0_command_in_progress = 0; // C0 finished
+    DEBUG_ECHOLNPGM("MMU <= 'A'");
+    tx_str_P(PSTR("A\n"));
+    DEBUG_ECHOLNPGM("MMU: STOP E0 SPIN");
+    planner.quick_stop(); // Abort any pending/current movement
+  }
+
   void MMU2::check_filament() {
     const bool present = FILAMENT_PRESENT();
-    if (present && !mmu2s_triggered && c0_command_in_progress!=0) {
-      DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
-      c0_command_in_progress = 0; // C0 finished
-      DEBUG_ECHOLNPGM("MMU <= 'A'");
-      tx_str_P(PSTR("A\n"));
-      DEBUG_ECHOLNPGM("MMU: STOP E0 SPIN");
-      planner.quick_stop(); // Abort any pending/current movement
+    if (present && !mmu2s_triggered && c0_command_in_progress) {
+      cancel_filament_loading();
     }
     // Slowly spins the extruder while C0 is being executed
-    else if((planner.movesplanned()<1) && c0_command_in_progress!=0)
+    else if((planner.movesplanned()<1) && c0_command_in_progress)
     {
       c0_slowly_spin_extruder((const E_Step *)c0_spin_e0_sequence, sizeof(c0_spin_e0_sequence) / sizeof(E_Step));
     }
