@@ -52,6 +52,7 @@ public:
   static void remove_password();
   static void clear();
   static void menu_media();
+  static void access_menu_password();
 #endif
 };
 
