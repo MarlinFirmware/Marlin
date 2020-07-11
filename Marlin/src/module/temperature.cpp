@@ -24,9 +24,6 @@
  * temperature.cpp - temperature control
  */
 
-// Useful when debugging thermocouples
-//#define IGNORE_THERMOCOUPLE_ERRORS
-
 #include "temperature.h"
 #include "endstops.h"
 
