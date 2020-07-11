@@ -278,30 +278,27 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       lock = true;
     #endif
 
-    if (IS_SD_PRINTING()) {
+    // Disable all heaters to reduce power loss
+    thermalManager.disable_all_heaters();
 
-      // Disable all heaters to reduce power loss
-      thermalManager.disable_all_heaters();
+    #if POWER_LOSS_ZRAISE
+      // Get the limited Z-raise to do now or on resume
+      const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
+    #else
+      constexpr float zraise = 0;
+    #endif
 
-      #if POWER_LOSS_ZRAISE
-        // Get the limited Z-raise to do now or on resume
-        const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
-      #else
-        constexpr float zraise = 0;
-      #endif
+    // Save, including the limited Z raise
+    if (IS_SD_PRINTING()) save(true, zraise);
 
-      // Save, including the limited Z raise
-      save(true, zraise);
+    #if ENABLED(BACKUP_POWER_SUPPLY)
+      // Do a hard-stop of the steppers (with possibly a loud thud)
+      quickstop_stepper();
+      // With backup power a retract and raise can be done now
+      retract_and_lift(zraise);
+    #endif
 
-      #if ENABLED(BACKUP_POWER_SUPPLY)
-        // Do a hard-stop of the steppers (with possibly a loud thud)
-        quickstop_stepper();
-        // With backup power a retract and raise can be done now
-        retract_and_lift(zraise);
-      #endif
-
-      kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
-    }
+    kill(GET_TEXT(MSG_OUTAGE_RECOVERY));
   }
 
 #endif
