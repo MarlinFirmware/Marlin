@@ -266,6 +266,8 @@
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_LEVELING                  "LEVELING"
 
+#define STR_PRINTER_LOCKED                  "Printer is locked. Unlock with passcode via menu or using M511 P(passcode)"
+
 // LCD Menu Messages
 
 #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)

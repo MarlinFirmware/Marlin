@@ -180,22 +180,31 @@ void GcodeSuite::M510() {
 //
 // M511 Unlock Printer
 //
-void GcodeSuite::M511() {
-  if(password.is_locked) {
-    password.value_entry = parser.ulongval('P');
-    password.authenticate_user_return();
+#if DISABLED(DISABLE_M511)
+  void GcodeSuite::M511() {
+    if(password.is_locked) {
+      password.value_entry = parser.ulongval('P');
+      password.authenticate_user_return();
+    }
   }
-}
+#endif
 
 //
-// M512 Set/Change Password
+// M512 Set/Change/Remove Password
 //
-void GcodeSuite::M512() {
-  if (password.is_set && (parser.ulongval('P') != password.value) ) {break;}
-  password.value_entry = parser.ulongval('N');
-  if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
-    password.is_set = true;
-    password.value = password.value_entry;
+#if DISABLED(DISABLE_M512)
+  void GcodeSuite::M512() {
+    if (password.is_set && (parser.ulongval('P') != password.value) ) {
+      // wrong password
+      return;
+     }
+    password.value_entry = parser.ulongval('N');
+    if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
+      password.is_set = true;
+      password.value = password.value_entry;
+      SERIAL_ECHOPAIR(MSG_PASSWORD_SET, password.value);
+    }
   }
-}
+#endif
+
 #endif // PASSWORD_FEATURE

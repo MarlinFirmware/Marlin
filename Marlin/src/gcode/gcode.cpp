@@ -57,6 +57,10 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password.h"
+#endif
+
 #include "../MarlinCore.h" // for idle()
 
 // Inactivity shutdown
@@ -240,6 +244,19 @@ void GcodeSuite::dwell(millis_t time) {
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   KEEPALIVE_STATE(IN_HANDLER);
+
+  /** 
+  *   Block all Gcodes except M511 Unlock Printer, if printer is locked
+  *   Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
+  */
+  #if ENABLED(PASSWORD_FEATURE)
+    if (password.is_locked) {
+      if ((parser.command_letter != 'M') || (parser.codenum = 511)) {
+        SERIAL_ECHOPGM(STR_PRINTER_LOCKED);
+        return;
+      }
+    }
+  #endif
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
@@ -738,8 +755,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(PASSWORD_FEATURE)
         case 510: M510(); break;                                  // M510: Lock Printer
-        case 511: M511(); break;                                  // M511: Unlock Printer
-        case 512: M512(); break;                                  // M512: Set/Change Password
+        #if DISABLED(DISABLE_M511)
+          case 511: M511(); break;                                // M511: Unlock Printer
+        #endif
+        #if DISABLED(DISABLE_M512)
+          case 512: M512(); break;
+        #endif                                                    // M512: Set/Change/Remove Password
       #endif
 
       #if ENABLED(SDSUPPORT)

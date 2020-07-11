@@ -227,7 +227,7 @@
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
  * M510 - Lock Printer
  * M511 - Unlock Printer
- * M512 - Set/Change Password
+ * M512 - Set/Change/Remove Password
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
@@ -762,9 +762,14 @@ private:
 
   #if ENABLED(PASSWORD_FEATURE)
     static void M510();
-    static void M511();
-    static void M512();
+    #if DISABLED(DISABLE_M511)
+      static void M511();
+    #endif
+    #if DISABLED(DISABLE_M512)
+      static void M512();
+    #endif
   #endif
+  
   TERN_(SDSUPPORT, static void M524());
 
   TERN_(SD_ABORT_ON_ENDSTOP_HIT, static void M540());
