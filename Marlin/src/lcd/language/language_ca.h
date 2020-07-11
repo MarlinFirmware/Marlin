@@ -54,20 +54,23 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ajusta decalatge");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Decalatge aplicat");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Estableix origen");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Llit");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Conf.");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preescalfa ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preescalfa ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preescalfa ") PREHEAT_2_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preescalfa ") PREHEAT_2_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preescalfa ") PREHEAT_2_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preescalfa ") PREHEAT_2_LABEL _UxGT(" Llit");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preescalfa ") PREHEAT_2_LABEL _UxGT(" Conf.");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Tot");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Llit");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Conf.");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Preescalfa $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Preescalfa $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Preescalfa $ End");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Preescalfa $ End ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Preescalfa $ Tot");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Preescalfa $ Llit");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Preescalfa $ Conf.");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Refreda");
 
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrudeix");
