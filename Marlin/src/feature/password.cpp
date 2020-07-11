@@ -198,11 +198,16 @@ void GcodeSuite::M510() {
       // wrong password
       return;
      }
-    password.value_entry = parser.ulongval('N');
-    if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
-      password.is_set = true;
-      password.value = password.value_entry;
-      SERIAL_ECHOPAIR(MSG_PASSWORD_SET, password.value);
+
+    if (parser.seenval('N')) {
+      password.value_entry = parser.ulongval('N');
+      if (password.value_entry < POW(10, PASSWORD_LENGTH)) {
+        password.is_set = true;
+        password.value = password.value_entry;
+        SERIAL_ECHOPAIR(MSG_PASSWORD_SET, password.value);
+      }
+    } else {
+      password.is_set = false;
     }
   }
 #endif
