@@ -118,7 +118,13 @@ void Password::clear() {
 }
 
 void Password::digit_entered() {
-  value_entry += digit * POW(10, PASSWORD_LENGTH - 1 - digit_no);
+  // The previous POW() function resulted in rounding errors for larger passwords
+  uint32_t multiplier = 1;
+  for (uint8_t i=0 ; i< PASSWORD_LENGTH - 1 - digit_no ; i++) {
+    multiplier *= 10;
+  }
+  
+  value_entry += digit * multiplier;
   string[digit_no++] = '0' + digit;
 
   // Exit edit screen menu and go to another screen
@@ -205,6 +211,7 @@ void GcodeSuite::M510() {
     if(password.is_locked) {
       password.value_entry = parser.ulongval('P');
       #if HAS_LCD_MENU
+        SERIAL_ECHOPAIR("Pwd is ", password.value);
         password.authenticate_user_return();
       #else
         if (password.value_entry == password.value) {
