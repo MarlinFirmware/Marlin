@@ -415,6 +415,7 @@ void startOrResumeJob() {
     #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
       ui.reset_remaining_time();
     #endif
+    TERN_(HAS_FILAMENT_SENSOR, runout.run(true));   // Check filament runout with no delay / distance
   }
   print_job_timer.start();
 }

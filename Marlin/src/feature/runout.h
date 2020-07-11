@@ -99,14 +99,14 @@ class TFilamentMonitor : public FilamentMonitorBase {
     }
 
     // Give the response a chance to update its counter.
-    static inline void run() {
+    static inline void run(const bool no_delay=false) {
       if ( enabled && !filament_ran_out
         && (printingIsActive() || TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print))
       ) {
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, cli()); // Prevent RunoutResponseDelayed::block_completed from accumulating here
         response.run();
         sensor.run();
-        const bool ran_out = response.has_run_out();
+        const bool ran_out = response.has_run_out(no_delay);
         TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, sei());
         if (ran_out) {
           filament_ran_out = true;
@@ -273,8 +273,8 @@ class FilamentSensorBase {
         #endif
       }
 
-      static inline bool has_run_out() {
-        return runout_mm_countdown[active_extruder] < 0;
+      static inline bool has_run_out(const bool no_delay=false) {
+        return no_delay || runout_mm_countdown[active_extruder] < 0;
       }
 
       static inline void filament_present(const uint8_t extruder) {
@@ -305,7 +305,7 @@ class FilamentSensorBase {
     public:
       static inline void reset()                                  { runout_count = runout_threshold; }
       static inline void run()                                    { if (runout_count >= 0) runout_count--; }
-      static inline bool has_run_out()                            { return runout_count < 0; }
+      static inline bool has_run_out(const bool no_delay)         { return no_delay || runout_count < 0; }
       static inline void block_completed(const block_t* const)    { }
       static inline void filament_present(const uint8_t)          { runout_count = runout_threshold; }
   };
