@@ -218,7 +218,7 @@ void GcodeSuite::M510() {
         password.authenticate_user_return();
       #else
         if (password.value_entry == password.value) {
-          is_locked = false;  
+          password.is_locked = false;  
         } else {
           SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
           SERIAL_EOL();
