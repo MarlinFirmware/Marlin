@@ -190,8 +190,11 @@
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD        20 // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS     2 // Degrees Celsius
+  // NEUDA: Relajamos las condiciones de alerta/proteccion termica
+  #define THERMAL_PROTECTION_BED_PERIOD 60    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 10 // Degrees Celsius
+  ///#define THERMAL_PROTECTION_BED_PERIOD        20 // Seconds
+  ///#define THERMAL_PROTECTION_BED_HYSTERESIS     2 // Degrees Celsius
 
   /**
    * As described above, except for the bed (M140/M190/M303).
@@ -628,7 +631,9 @@
 
 //#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
 
-#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
+// NEUDA: No tiene sentido rebotar varias veces con el sensorless homing
+#define HOMING_BUMP_MM      { 0, 0, 1 }       // (mm) Backoff from endstops after first bump
+///#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
@@ -941,6 +946,8 @@
  * lowest stepping frequencies.
  */
 //#define ADAPTIVE_STEP_SMOOTHING
+// NEUDA: Incorporado en 1.1.9, interesante para reducir vibraciones
+//#define ADAPTIVE_STEP_SMOOTHING
 
 /**
  * Custom Microstepping
@@ -1041,6 +1048,8 @@
 
   // Include a page of printer information in the LCD Main Menu
   //#define LCD_INFO_MENU
+  // NEUDA: Activamos un menu informativo
+  #define LCD_INFO_MENU
   #if ENABLED(LCD_INFO_MENU)
     //#define LCD_PRINTER_INFO_IS_BOOTSCREEN // Show bootscreen(s) instead of Printer Info pages
   #endif
@@ -1069,6 +1078,8 @@
 
 // Scroll a longer status message into view
 //#define STATUS_MESSAGE_SCROLLING
+// NEUDA: Activamos el scroll de mensajes largos
+#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -1078,6 +1089,8 @@
 
 // Add an 'M73' G-code to set the current percentage
 //#define LCD_SET_PROGRESS_MANUALLY
+// NEUDA: Activamos la opcion de definir el % de completado desde el LCD
+#define LCD_SET_PROGRESS_MANUALLY
 
 // Show the E position (filament used) during printing
 //#define LCD_SHOW_E_TOTAL
@@ -1284,6 +1297,8 @@
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
   //#define SDCARD_CONNECTION LCD
+  // NEUDA: Utilizamos el lector SD de la pantalla LCD
+  #define SDCARD_CONNECTION ONBOARD // Si queremos usar el lector de la SKR
 
 #endif // SDSUPPORT
 
@@ -1366,6 +1381,11 @@
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
+  // NEUDA: Dado que tenemos recursos, activamos opciones
+  #define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
+  #define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
+  #define STATUS_FAN_FRAMES 4       // :[0,1,2,3,4] Number of fan animation frames
+  #define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
 
@@ -1548,6 +1568,8 @@
  * Warning: Does not respect endstops!
  */
 //#define BABYSTEPPING
+// NEUDA: Activamos babystepping para controlar mejor la nivelacion de la cama
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   //#define INTEGRATED_BABYSTEPPING         // EXPERIMENTAL integration of babystepping into the Stepper ISR
   //#define BABYSTEP_WITHOUT_HOMING
@@ -1558,6 +1580,8 @@
   #define BABYSTEP_MULTIPLICATOR_XY 1       // (steps or mm) Steps or millimeter distance for each XY babystep
 
   //#define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
+  // NEUDA: Activamos acceso directo con doble clic en la pantalla de estado
+  #define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
     #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
                                             // Note: Extra time may be added to mitigate controller latency.
@@ -1569,8 +1593,12 @@
   #endif
 
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
+  // NEUDA: Activamos mostrar babysteps
+  #define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
   //#define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
+  // NEUDA: Combimanos babystepping y zprobe
+  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
@@ -1595,9 +1623,13 @@
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
 //#define LIN_ADVANCE
+// NEUDA: Activamos Linear Advance - DESACTIVAMOS PORQUE DA PROBLEMAS Y DEJA DE EXTRUIR
+//#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
+  // NEUDA: Por defecto, dejamos valor a 0 para definirlo en cada impresion desde el slicer
+  #define LIN_ADVANCE_K 0       // Unit: mm compression per 1mm/s extruder speed
+  ///#define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
   //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
@@ -2032,6 +2064,8 @@
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
 //#define ADVANCED_PAUSE_FEATURE
+// NEUDA: Necesario para el MMU2 / SMUFF
+#define ADVANCED_PAUSE_FEATURE
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #define PAUSE_PARK_RETRACT_FEEDRATE         60  // (mm/s) Initial retract feedrate.
   #define PAUSE_PARK_RETRACT_LENGTH            2  // (mm) Initial retract.
@@ -2070,8 +2104,12 @@
   #define PAUSE_PARK_NO_STEPPER_TIMEOUT           // Enable for XYZ steppers to stay powered on during filament change.
 
   //#define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.
+  // NEUDA: Aparcamos el nozzle cuando pausamos impresion
+  #define PARK_HEAD_ON_PAUSE                    // Park the nozzle during pause and filament change.
   //#define HOME_BEFORE_FILAMENT_CHANGE           // If needed, home before parking for filament change
 
+  // NEUDA: Activamos los comandos M701/M702 necesarios para usar MMU2/SMUFF con el sensor de filamento en el extrusor
+  #define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_LOAD_UNLOAD_GCODES           // Add M701/M702 Load/Unload G-codes, plus Load/Unload in the LCD Prepare menu.
   //#define FILAMENT_UNLOAD_ALL_EXTRUDERS         // Allow M702 to unload all extruders above a minimum target temp (as set by M302)
 #endif
@@ -2208,7 +2246,9 @@
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
+    // NEUDA: Con 650mA es suficiente para los motores de 1.7A y velocidades de hasta 400mm/s
+    #define X_CURRENT       650        // (mA) RMS current. Multiply by 1.414 for peak current.
+    ///#define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16    // 0..256
     #define X_RSENSE          0.11
@@ -2224,7 +2264,9 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT       800
+    // NEUDA: Con 650mA es suficiente para los motores de 1.7A y velocidades de hasta 400mm/s
+    #define Y_CURRENT       650
+    ///#define Y_CURRENT       800
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
@@ -2240,7 +2282,9 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       800
+    // NEUDA: Lo subimos a 850mA porque tenemos 2 motores en este driver
+    #define Z_CURRENT       850
+    ///#define Z_CURRENT       800
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16
     #define Z_RSENSE          0.11
@@ -2272,7 +2316,9 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      800
+    // NEUDA: Con 650mA es suficiente para los motores de 1.7A y velocidades de hasta 100mm/s en el BMG
+    #define E0_CURRENT      650
+    ///#define E0_CURRENT      800
     #define E0_MICROSTEPS    16
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -2401,7 +2447,8 @@
    */
   #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
-  #define STEALTHCHOP_E
+  // NEUDA: Desactivamos StealthChop en el extrusor
+  ///#define STEALTHCHOP_E
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
@@ -2431,6 +2478,8 @@
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
   //#define MONITOR_DRIVER_STATUS
+  // NEUDA: Activamos monitor para comprobar sensorless
+  #define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -2488,12 +2537,18 @@
    * homing and adds a guard period for endstop triggering.
    */
   //#define SENSORLESS_HOMING // StallGuard capable drivers only
+  // NEUDA: Activamos el homing sin sensores en X e Y
+  #define SENSORLESS_HOMING // StallGuard capable drivers only
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  8
+    // NEUDA: Ajustamos sensibilidad a 100
+    #define X_STALL_SENSITIVITY  100
+    ///#define X_STALL_SENSITIVITY  8
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  8
+    // NEUDA: Ajustamos sensibilidad a 100
+    #define Y_STALL_SENSITIVITY  100
+    ///#define Y_STALL_SENSITIVITY  8
     #define Y2_STALL_SENSITIVITY Y_STALL_SENSITIVITY
     //#define Z_STALL_SENSITIVITY  8
     //#define Z2_STALL_SENSITIVITY Z_STALL_SENSITIVITY
@@ -2520,12 +2575,16 @@
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
   //#define SQUARE_WAVE_STEPPING
+  // NEUDA: Aunque es beta, lo activamos para tener mejor rendimiento
+  //#define SQUARE_WAVE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
   //#define TMC_DEBUG
+  // NEUDA: Activamos el modo debug para los TMC, así podremos revisar valores en caso de tener problemas
+  #define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -3389,30 +3448,44 @@
   // Serial port used for communication with MMU2.
   // For AVR enable the UART port used for the MMU. (e.g., internalSerial)
   // For 32-bit boards check your HAL for available serial ports. (e.g., Serial2)
-  #define INTERNAL_SERIAL_PORT 2
-  #define MMU2_SERIAL internalSerial
+  // NEUDA: Definimos el puerto serial correcto
+  #define MMU2_SERIAL Serial
+  #define INTERNAL_SERIAL_PORT 0
+  ///#define INTERNAL_SERIAL_PORT 2
+  ///#define MMU2_SERIAL internalSerial
 
   // Use hardware reset for MMU if a pin is defined for it
   //#define MMU2_RST_PIN 23
 
   // Enable if the MMU2 has 12V stepper motors (MMU2 Firmware 1.0.2 and up)
   //#define MMU2_MODE_12V
+  // NEUDA: Definimos el voltaje a 12V
+  #define MMU2_MODE_12V
 
   // G-code to execute when MMU2 F.I.N.D.A. probe detects filament runout
   #define MMU2_FILAMENT_RUNOUT_SCRIPT "M600"
 
   // Add an LCD menu for MMU2
   //#define MMU2_MENUS
+  // NEUDA: Activamos los menus MMU2 / SMUFF en el LCD
+  #define MMU2_MENUS
   #if ENABLED(MMU2_MENUS)
     // Settings for filament load / unload from the LCD menu.
     // This is for Prusa MK3-style extruders. Customize for your hardware.
-    #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+    // NEUDA: Cambiamos la longitud de nuestro tubo PTFE
+    #define MMU2_FILAMENTCHANGE_EJECT_FEED 70.0
+    ///#define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
+    // NEUDA: Probamos nuestros valores
     #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
-      {  7.2, 1145 }, \
-      { 14.4,  871 }, \
-      { 36.0, 1393 }, \
-      { 14.4,  871 }, \
-      { 50.0,  198 }
+      { 60.0,   95 }, \
+      { 60.0, 1393 }, \
+      { 10.0,  871 }
+    ///#define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
+    ///  {  7.2, 1145 }, \
+    ///  { 14.4,  871 }, \
+    ///  { 36.0, 1393 }, \
+    ///  { 14.4,  871 }, \
+    ///  { 50.0,  198 }
 
     #define MMU2_RAMMING_SEQUENCE \
       {   1.0, 1000 }, \
@@ -3450,14 +3523,23 @@
    * See https://help.prusa3d.com/en/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560, step 11
    */
   //#define PRUSA_MMU2_S_MODE
+  // NEUDA: Activamos el tipo de sensor de filamento como el de la MK3S y MMU2S, en el idler de las ruedas BMG
+  #define PRUSA_MMU2_S_MODE
   #if ENABLED(PRUSA_MMU2_S_MODE)
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)
 
+    #define MMU2_SLOWLY_SPIN_SEQUENCE { 5.0, 60 }        // Extruder spin sequence while C0 command, this loops until sensor filament is triggered
+
     #define MMU2_CAN_LOAD_FEEDRATE 800    // (mm/m)
+    // NEUDA: Ajusto distancias para mi extrusor
     #define MMU2_CAN_LOAD_SEQUENCE \
       {  0.1, MMU2_CAN_LOAD_FEEDRATE }, \
-      {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
-      { -52.0, MMU2_CAN_LOAD_FEEDRATE }
+      {  28.0, MMU2_CAN_LOAD_FEEDRATE }, \
+      { -20.0, MMU2_CAN_LOAD_FEEDRATE }
+    ///#define MMU2_CAN_LOAD_SEQUENCE \
+    ///  {  0.1, MMU2_CAN_LOAD_FEEDRATE }, \
+    ///  {  60.0, MMU2_CAN_LOAD_FEEDRATE }, \
+    ///  { -52.0, MMU2_CAN_LOAD_FEEDRATE }
 
     #define MMU2_CAN_LOAD_RETRACT   6.0   // (mm) Keep under the distance between Load Sequence values
     #define MMU2_CAN_LOAD_DEVIATION 0.8   // (mm) Acceptable deviation
@@ -3466,11 +3548,11 @@
     #define MMU2_CAN_LOAD_INCREMENT_SEQUENCE \
       { -MMU2_CAN_LOAD_INCREMENT, MMU2_CAN_LOAD_FEEDRATE }
 
-    #define MMU2_SLOWLY_SPIN_SEQUENCE { 5.0, 60 }        // Extruder spin sequence while C0 command, this loops until sensor filament is triggered
-
   #endif
 
   //#define MMU2_DEBUG  // Write debug info to serial output
+  // NEUDA: Activamos el modo debug para el MMU2 / SMUFF
+  #define MMU2_DEBUG
 
 #endif // PRUSA_MMU2
 
