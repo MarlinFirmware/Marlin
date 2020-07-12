@@ -123,6 +123,10 @@ tags
 .gcc-flags.json
 /lib/
 
+# User Configurations
+Marlin/Configuration.h
+Marlin/Configuration_adv.h
+
 # Workaround for Deviot+platformio quirks
 Marlin/lib
 Marlin/platformio.ini
