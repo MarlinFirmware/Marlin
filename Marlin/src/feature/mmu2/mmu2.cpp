@@ -401,13 +401,13 @@ void MMU2::mmu_loop() {
           else
           {
         #endif
-            // resend request after timeout
-            if (last_cmd) {
-              DEBUG_ECHOLNPGM("MMU retry");
-              cmd = last_cmd;
-              last_cmd = MMU_CMD_NONE;
-            }
-            state = 1;
+        // resend request after timeout
+        if (last_cmd) {
+          DEBUG_ECHOLNPGM("MMU retry");
+          cmd = last_cmd;
+          last_cmd = MMU_CMD_NONE;
+        }
+        state = 1;
         #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
           }
         #endif
