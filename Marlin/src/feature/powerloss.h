@@ -26,6 +26,8 @@
  */
 
 #include "../sd/cardreader.h"
+#include "../gcode/gcode.h"
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(MIXING_EXTRUDER)
@@ -180,8 +182,6 @@ class PrintJobRecovery {
     #endif
 
   private:
-    friend GcodeSuite::M413();
-
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
@@ -189,6 +189,7 @@ class PrintJobRecovery {
     #endif
 
     #if PIN_EXISTS(POWER_LOSS)
+      friend class GcodeSuite;
       static void _outage();
     #endif
 };
