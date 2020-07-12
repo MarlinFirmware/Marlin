@@ -180,6 +180,8 @@ class PrintJobRecovery {
     #endif
 
   private:
+    friend GcodeSuite::M413();
+
     static void write();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
