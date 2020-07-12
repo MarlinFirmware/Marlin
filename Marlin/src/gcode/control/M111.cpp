@@ -28,28 +28,25 @@
 void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  static const char str_debug_1[] PROGMEM = STR_DEBUG_ECHO,
-                    str_debug_2[] PROGMEM = STR_DEBUG_INFO,
-                    str_debug_4[] PROGMEM = STR_DEBUG_ERRORS,
-                    str_debug_8[] PROGMEM = STR_DEBUG_DRYRUN,
-                    str_debug_16[] PROGMEM = STR_DEBUG_COMMUNICATION
-                    #if ENABLED(DEBUG_LEVELING_FEATURE)
-                      , str_debug_lvl[] PROGMEM = STR_DEBUG_LEVELING
-                    #endif
-                    ;
+  static PGMSTR(str_debug_1, STR_DEBUG_ECHO);
+  static PGMSTR(str_debug_2, STR_DEBUG_INFO);
+  static PGMSTR(str_debug_4, STR_DEBUG_ERRORS);
+  static PGMSTR(str_debug_8, STR_DEBUG_DRYRUN);
+  static PGMSTR(str_debug_16, STR_DEBUG_COMMUNICATION);
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    static PGMSTR(str_debug_lvl, STR_DEBUG_LEVELING);
+  #endif
 
   static PGM_P const debug_strings[] PROGMEM = {
-    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      , str_debug_lvl
-    #endif
+    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
+    TERN_(DEBUG_LEVELING_FEATURE, str_debug_lvl)
   };
 
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(STR_DEBUG_PREFIX);
   if (marlin_debug_flags) {
     uint8_t comma = 0;
-    for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
+    LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
         serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));

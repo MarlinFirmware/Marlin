@@ -56,6 +56,7 @@
  *  L[distance] - Extrude distance for insertion (manual reload)
  *  B[count]    - Number of times to beep, -1 for indefinite (if equipped with a buzzer)
  *  T[toolhead] - Select extruder for filament change
+ *  R[temp]     - Resume temperature (in current units)
  *
  *  Default values are used for omitted arguments.
  */
@@ -83,7 +84,7 @@ void GcodeSuite::M600() {
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
         if (dxc_is_duplicating())
-          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING) ? 1 : 0;
+          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_STATE) ? 1 : 0;
       #else
         DXC_ext = active_extruder;
       #endif
@@ -96,27 +97,19 @@ void GcodeSuite::M600() {
   #endif
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
-    // Don't allow filament change without homing first
-    if (axes_need_homing()) home_all_axes();
+    // If needed, home before parking for filament change
+    if (!all_axes_known()) home_all_axes();
   #endif
 
   #if EXTRUDERS > 1
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = active_extruder;
-    if (
-      active_extruder != target_extruder
-      #if ENABLED(DUAL_X_CARRIAGE)
-        && dual_x_carriage_mode != DXC_DUPLICATION_MODE && dual_x_carriage_mode != DXC_MIRRORED_MODE
-      #endif
-    ) tool_change(target_extruder, false);
+    if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !dxc_is_duplicating()))
+      tool_change(target_extruder, false);
   #endif
 
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : 0
-    #ifdef PAUSE_PARK_RETRACT_LENGTH
-      + (PAUSE_PARK_RETRACT_LENGTH)
-    #endif
-  );
+  const float retract = -ABS(parser.seen('E') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
 
   xyz_pos_t park_point NOZZLE_PARK_POINT;
 
@@ -149,11 +142,9 @@ void GcodeSuite::M600() {
                                                         : fc_settings[active_extruder].load_length);
   #endif
 
-  const int beep_count = parser.intval('B',
+  const int beep_count = parser.intval('B', -1
     #ifdef FILAMENT_CHANGE_ALERT_BEEPS
-      FILAMENT_CHANGE_ALERT_BEEPS
-    #else
-      -1
+      + 1 + FILAMENT_CHANGE_ALERT_BEEPS
     #endif
   );
 
@@ -163,7 +154,8 @@ void GcodeSuite::M600() {
       resume_print(slow_load_length, fast_load_length, 0, beep_count DXC_PASS);
     #else
       wait_for_confirmation(true, beep_count DXC_PASS);
-      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH, beep_count DXC_PASS);
+      resume_print(slow_load_length, fast_load_length, ADVANCED_PAUSE_PURGE_LENGTH,
+                   beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
     #endif
   }
 
@@ -173,9 +165,7 @@ void GcodeSuite::M600() {
       tool_change(active_extruder_before_filament_change, false);
   #endif
 
-  #if ENABLED(MIXING_EXTRUDER)
-    mixer.T(old_mixing_tool); // Restore original mixing tool
-  #endif
+  TERN_(MIXING_EXTRUDER, mixer.T(old_mixing_tool)); // Restore original mixing tool
 }
 
 #endif // ADVANCED_PAUSE_FEATURE

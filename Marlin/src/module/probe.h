@@ -47,7 +47,6 @@ public:
 
     static bool set_deployed(const bool deploy);
 
-
     #if IS_KINEMATIC
 
       #if HAS_PROBE_XY_OFFSET
@@ -55,11 +54,11 @@ public:
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static inline bool can_reach(const float &rx, const float &ry) {
           return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
-              && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));       // Can the nozzle also go near there?
+              && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the nozzle also go near there?
         }
       #else
         FORCE_INLINE static bool can_reach(const float &rx, const float &ry) {
-          return position_is_reachable(rx, ry, MIN_PROBE_EDGE);
+          return position_is_reachable(rx, ry, PROBING_MARGIN);
         }
       #endif
 
@@ -80,18 +79,26 @@ public:
 
     #endif
 
-    #ifdef Z_AFTER_PROBING
-      static void move_z_after_probing();
-    #endif
+    static inline void move_z_after_probing() {
+      #ifdef Z_AFTER_PROBING
+        do_z_clearance(Z_AFTER_PROBING, true, true, true); // Move down still permitted
+      #endif
+    }
+    static inline void move_z_after_homing() {
+      #ifdef Z_AFTER_HOMING
+        do_z_clearance(Z_AFTER_HOMING, true, true, true);
+      #elif defined(Z_AFTER_PROBING)
+        move_z_after_probing();
+      #endif
+    }
     static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
-    #if HAS_HEATED_BED && ENABLED(WAIT_FOR_BED_HEATER)
-      static const char msg_wait_for_bed_heating[25];
-    #endif
 
   #else
+
+    FORCE_INLINE static void move_z_after_homing() {}
 
     static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
 
@@ -135,7 +142,7 @@ public:
       );
 
       static inline float probe_radius() {
-        return printable_radius - _MAX(MIN_PROBE_EDGE, HYPOT(offset_xy.x, offset_xy.y));
+        return printable_radius - _MAX(PROBING_MARGIN, HYPOT(offset_xy.x, offset_xy.y));
       }
     #endif
 
@@ -144,7 +151,7 @@ public:
         #if IS_KINEMATIC
           (X_CENTER) - probe_radius()
         #else
-          _MAX((X_MIN_BED) + (MIN_PROBE_EDGE_LEFT), (X_MIN_POS) + offset_xy.x)
+          _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
         #endif
       );
     }
@@ -153,7 +160,7 @@ public:
         #if IS_KINEMATIC
           (X_CENTER) + probe_radius()
         #else
-          _MIN((X_MAX_BED) - (MIN_PROBE_EDGE_RIGHT), (X_MAX_POS) + offset_xy.x)
+          _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
         #endif
       );
     }
@@ -162,7 +169,7 @@ public:
         #if IS_KINEMATIC
           (Y_CENTER) - probe_radius()
         #else
-          _MAX((Y_MIN_BED) + (MIN_PROBE_EDGE_FRONT), (Y_MIN_POS) + offset_xy.y)
+          _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
         #endif
       );
     }
@@ -171,7 +178,7 @@ public:
         #if IS_KINEMATIC
           (Y_CENTER) + probe_radius()
         #else
-          _MIN((Y_MAX_BED) - (MIN_PROBE_EDGE_BACK), (Y_MAX_POS) + offset_xy.y)
+          _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
         #endif
       );
     }
@@ -180,7 +187,7 @@ public:
       // Retrieve three points to probe the bed. Any type exposing set(X,Y) may be used.
       template <typename T>
       static inline void get_three_points(T points[3]) {
-        #if ENABLED(HAS_FIXED_3POINT)
+        #if HAS_FIXED_3POINT
           points[0].set(PROBE_PT_1_X, PROBE_PT_1_Y);
           points[1].set(PROBE_PT_2_X, PROBE_PT_2_Y);
           points[2].set(PROBE_PT_3_X, PROBE_PT_3_Y);
@@ -194,7 +201,7 @@ public:
           #else
             points[0].set(min_x(), min_y());
             points[1].set(max_x(), min_y());
-            points[2].set((max_x() - min_x()) / 2, max_y());
+            points[2].set((min_x() + max_x()) / 2, max_y());
           #endif
         #endif
       }

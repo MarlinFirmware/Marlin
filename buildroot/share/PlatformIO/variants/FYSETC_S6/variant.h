@@ -115,7 +115,7 @@ extern "C" {
 #define NUM_ANALOG_FIRST        80
 
 // PWM resolution
-#define PWM_RESOLUTION          8
+#define PWM_RESOLUTION          12
 #define PWM_FREQUENCY           20000 // >= 20 Khz => inaudible noise for fans
 #define PWM_MAX_DUTY_CYCLE      255
 
@@ -132,7 +132,7 @@ extern "C" {
 // Timer Definitions
 // Do not use timer used by PWM pin. See PinMap_PWM.
 #define TIMER_TONE              TIM6
-#define TIMER_SERVO             TIM2
+#define TIMER_SERVO             TIM5
 #define TIMER_SERIAL            TIM7
 
 // UART Definitions

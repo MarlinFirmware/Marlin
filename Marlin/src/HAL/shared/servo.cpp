@@ -68,7 +68,7 @@ uint8_t ServoCount = 0;                         // the total number of attached 
 
 static boolean isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
-  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
+  LOOP_L_N(channel, SERVOS_PER_TIMER) {
     if (SERVO(timer, channel).Pin.isActive)
       return true;
   }
@@ -150,9 +150,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

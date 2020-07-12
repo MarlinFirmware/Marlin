@@ -38,7 +38,7 @@
  */
 void GcodeSuite::M206() {
   LOOP_XYZ(i)
-    if (parser.seen(axis_codes[i]))
+    if (parser.seen(XYZ_CHAR(i)))
       set_home_offset((AxisEnum)i, parser.value_linear_units());
 
   #if ENABLED(MORGAN_SCARA)

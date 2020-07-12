@@ -116,12 +116,17 @@
 // Utility functions
 //
 
-// Location of a variable on its stack frame. Returns a value above
-// the stack (once the function returns to the caller).
-char* top_of_stack() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
+
+// Location of a variable in its stack frame.
+// The returned address will be above the stack (after it returns).
+char *top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
+
+#pragma GCC diagnostic pop
 
 // Count the number of test bytes at the specified location.
 inline int32_t count_test_bytes(const char * const start_free_memory) {
@@ -158,14 +163,14 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     while (start_free_memory < end_free_memory) {
       print_hex_address(start_free_memory);             // Print the address
       SERIAL_CHAR(':');
-      for (uint8_t i = 0; i < 16; i++) {  // and 16 data bytes
+      LOOP_L_N(i, 16) {  // and 16 data bytes
         if (i == 8) SERIAL_CHAR('-');
         print_hex_byte(start_free_memory[i]);
         SERIAL_CHAR(' ');
       }
       serial_delay(25);
       SERIAL_CHAR('|');                   // Point out non test bytes
-      for (uint8_t i = 0; i < 16; i++) {
+      LOOP_L_N(i, 16) {
         char ccc = (char)start_free_memory[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
         ccc = (ccc == TEST_BYTE) ? ' ' : '?';
         SERIAL_CHAR(ccc);

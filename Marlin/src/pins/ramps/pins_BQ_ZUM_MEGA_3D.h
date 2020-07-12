@@ -34,30 +34,38 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN       10
-#define RAMPS_D9_PIN       12
-#define RAMPS_D10_PIN       9
-#define MOSFET_D_PIN        7
+#define RAMPS_D8_PIN                          10
+#define RAMPS_D9_PIN                          12
+#define RAMPS_D10_PIN                          9
+#define MOSFET_D_PIN                           7
 
 //
 // Auto fans
 //
-#define ORIG_E0_AUTO_FAN_PIN 11
-#define ORIG_E1_AUTO_FAN_PIN  6
-#define ORIG_E2_AUTO_FAN_PIN  6
-#define ORIG_E3_AUTO_FAN_PIN  6
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     11
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN                      6
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN                      6
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN                      6
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN    40   // Pullup or pulldown!
-#define SPINDLE_LASER_PWM_PIN    44   // Hardware PWM
-#define SPINDLE_DIR_PIN          42
+#define SPINDLE_LASER_ENA_PIN                 40  // Pullup or pulldown!
+#define SPINDLE_LASER_PWM_PIN                 44  // Hardware PWM
+#define SPINDLE_DIR_PIN                       42
 
 //
 // Limit Switches
 //
-#define X_MAX_PIN          79   // 2
+#define X_MAX_PIN                             79  // 2
 
 //
 // Import RAMPS 1.3 pins
@@ -68,34 +76,35 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #undef Z_MIN_PROBE_PIN
-#define Z_MIN_PROBE_PIN    19   // IND_S_5V
+#define Z_MIN_PROBE_PIN                       19  // IND_S_5V
 
 #undef Z_ENABLE_PIN
-#define Z_ENABLE_PIN       77   // 62
+#define Z_ENABLE_PIN                          77  // 62
 
 //
 // Steppers
 //
-#define DIGIPOTSS_PIN      22
+#define DIGIPOTSS_PIN                         22
 #define DIGIPOT_CHANNELS   { 4, 5, 3, 0, 1 }
 
 //
 // Temperature Sensors
 //
 #undef TEMP_1_PIN
-#define TEMP_1_PIN         14   // Analog Input (15)
+#define TEMP_1_PIN                            14  // Analog Input (15)
 
 #undef TEMP_BED_PIN
-#define TEMP_BED_PIN       15   // Analog Input (14)
+#define TEMP_BED_PIN                          15  // Analog Input (14)
 
 //
 // Misc. Functions
 //
-#undef PS_ON_PIN                // 12
-#define PS_ON_PIN          81   // External Power Supply
+#undef PS_ON_PIN                                  // 12
+#define PS_ON_PIN                             81  // External Power Supply
 
-#define CASE_LIGHT_PIN     44   // Hardware PWM
-
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      44  // Hardware PWM
+#endif
 
 // This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
 // decided to ship the printer only with the probe and no additional Z-min
@@ -104,8 +113,8 @@
 #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PIN
   #undef Z_MAX_PIN
-  #define Z_MIN_PIN        19   // IND_S_5V
-  #define Z_MAX_PIN        18   // Z-MIN Label
+  #define Z_MIN_PIN                           19  // IND_S_5V
+  #define Z_MAX_PIN                           18  // Z-MIN Label
 #endif
 
 //
@@ -113,5 +122,5 @@
 //
 #if ENABLED(HEPHESTOS2_HEATED_BED_KIT)
   #undef HEATER_BED_PIN
-  #define HEATER_BED_PIN    8
+  #define HEATER_BED_PIN                       8
 #endif

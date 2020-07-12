@@ -43,7 +43,7 @@
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 #ifndef GET_PIN_MAP_PIN_M43
@@ -57,16 +57,21 @@ inline void toggle_pins() {
             end = PARSED_PIN_INDEX('L', NUM_DIGITAL_PINS - 1),
             wait = parser.intval('W', 500);
 
-  for (uint8_t i = start; i <= end; i++) {
+  LOOP_S_LE_N(i, start, end) {
     pin_t pin = GET_PIN_MAP_PIN_M43(i);
     if (!VALID_PIN(pin)) continue;
     if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) {
-      report_pin_state_extended(pin, ignore_protection, true, "Untouched ");
+      report_pin_state_extended(pin, ignore_protection, true, PSTR("Untouched "));
       SERIAL_EOL();
     }
     else {
       watchdog_refresh();
-      report_pin_state_extended(pin, ignore_protection, true, "Pulsing   ");
+      report_pin_state_extended(pin, ignore_protection, true, PSTR("Pulsing   "));
+      #ifdef __STM32F1__
+        const auto prior_mode = _GET_MODE(i);
+      #else
+        const bool prior_mode = GET_PINMODE(pin);
+      #endif
       #if AVR_AT90USB1286_FAMILY // Teensy IDEs don't know about these pins so must use FASTIO
         if (pin == TEENSY_E2) {
           SET_OUTPUT(TEENSY_E2);
@@ -95,6 +100,11 @@ inline void toggle_pins() {
           watchdog_refresh();
         }
       }
+      #ifdef __STM32F1__
+        _SET_MODE(i, prior_mode);
+      #else
+        pinMode(pin, prior_mode);
+      #endif
     }
     SERIAL_EOL();
   }
@@ -313,7 +323,7 @@ void GcodeSuite::M43() {
       NOLESS(first_pin, 2); // Don't hijack the UART pins
     #endif
     uint8_t pin_state[last_pin - first_pin + 1];
-    for (uint8_t i = first_pin; i <= last_pin; i++) {
+    LOOP_S_LE_N(i, first_pin, last_pin) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (!VALID_PIN(pin)) continue;
       if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -330,16 +340,12 @@ void GcodeSuite::M43() {
     #if HAS_RESUME_CONTINUE
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       wait_for_user = true;
-      #if ENABLED(HOST_PROMPT_SUPPORT)
-        host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR);
-      #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called"));
-      #endif
+      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, PSTR("M43 Wait Called"), CONTINUE_STR));
+      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("M43 Wait Called")));
     #endif
 
     for (;;) {
-      for (uint8_t i = first_pin; i <= last_pin; i++) {
+      LOOP_S_LE_N(i, first_pin, last_pin) {
         pin_t pin = GET_PIN_MAP_PIN_M43(i);
         if (!VALID_PIN(pin)) continue;
         if (M43_NEVER_TOUCH(i) || (!ignore_protection && pin_is_protected(pin))) continue;
@@ -356,16 +362,14 @@ void GcodeSuite::M43() {
         }
       }
 
-      #if HAS_RESUME_CONTINUE
-        if (!wait_for_user) break;
-      #endif
+      if (TERN0(HAS_RESUME_CONTINUE, !wait_for_user)) break;
 
       safe_delay(200);
     }
   }
   else {
     // Report current state of selected pin(s)
-    for (uint8_t i = first_pin; i <= last_pin; i++) {
+    LOOP_S_LE_N(i, first_pin, last_pin) {
       pin_t pin = GET_PIN_MAP_PIN_M43(i);
       if (VALID_PIN(pin)) report_pin_state_extended(pin, ignore_protection, true);
     }

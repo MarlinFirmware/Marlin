@@ -53,11 +53,13 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
       current_position[axis] = cartes[axis];
     #else
       // MP_SCARA uses a Cartesian XY home position
-      // SERIAL_ECHOLNPAIR("homeposition X:", homeposition.x, " Y:", homeposition.y);
+      // SERIAL_ECHOPGM("homeposition");
+      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
       current_position[axis] = homeposition[axis];
     #endif
 
-    // SERIAL_ECHOLNPAIR("Cartesian X:", current_position.x, " Y:", current_position.y);
+    // SERIAL_ECHOPGM("Cartesian");
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
     update_software_endstops(axis);
   }
 }

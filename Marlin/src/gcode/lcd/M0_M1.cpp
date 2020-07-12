@@ -24,21 +24,17 @@
 
 #if HAS_RESUME_CONTINUE
 
-#include "../gcode.h"
-#include "../../module/planner.h"
-
 #include "../../inc/MarlinConfig.h"
+
+#include "../gcode.h"
+
+#include "../../module/planner.h" // for synchronize()
+#include "../../MarlinCore.h"     // for wait_for_user_response()
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
-#endif
-
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
-#endif
-
-#if HAS_LEDS_OFF_FLAG
-  #include "../../feature/leds/printer_event_leds.h"
+#elif ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -50,32 +46,16 @@
  * M1: Conditional stop   - Wait for user button press on LCD
  */
 void GcodeSuite::M0_M1() {
-  const char * const args = parser.string_arg;
-
   millis_t ms = 0;
-  bool hasP = false, hasS = false;
-  if (parser.seenval('P')) {
-    ms = parser.value_millis(); // milliseconds to wait
-    hasP = ms > 0;
-  }
-  if (parser.seenval('S')) {
-    ms = parser.value_millis_from_seconds(); // seconds to wait
-    hasS = ms > 0;
-  }
-
-  const bool has_message = !hasP && !hasS && args && *args;
+  if (parser.seenval('P')) ms = parser.value_millis();              // Milliseconds to wait
+  if (parser.seenval('S')) ms = parser.value_millis_from_seconds(); // Seconds to wait
 
   planner.synchronize();
 
-  #if HAS_LEDS_OFF_FLAG
-    if (parser.seen('Q'))
-      printerEventLEDs.onPrintCompleted();  // Change LED color for Print Completed
-  #endif
-
   #if HAS_LCD_MENU
 
-    if (has_message)
-      ui.set_status(args, true);
+    if (parser.string_arg)
+      ui.set_status(parser.string_arg, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
@@ -84,40 +64,24 @@ void GcodeSuite::M0_M1() {
     }
 
   #elif ENABLED(EXTENSIBLE_UI)
-
-    if (has_message)
-      ExtUI::onUserConfirmRequired(args); // Can this take an SRAM string??
+    if (parser.string_arg)
+      ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
       ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
-
   #else
 
-    if (has_message) {
+    if (parser.string_arg) {
       SERIAL_ECHO_START();
-      SERIAL_ECHOLN(args);
+      SERIAL_ECHOLN(parser.string_arg);
     }
 
   #endif
 
-  KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;
+  TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
-  #endif
+  wait_for_user_response(ms);
 
-  if (ms > 0) ms += millis();  // wait until this time for a click
-  while (wait_for_user && (ms == 0 || PENDING(millis(), ms))) idle();
-
-  #if HAS_LEDS_OFF_FLAG
-    printerEventLEDs.onResumeAfterWait();
-  #endif
-
-  #if HAS_LCD_MENU
-    ui.reset_status();
-  #endif
-
-  wait_for_user = false;
+  TERN_(HAS_LCD_MENU, ui.reset_status());
 }
 
 #endif // HAS_RESUME_CONTINUE

@@ -508,7 +508,7 @@ uint8_t L64XX_Marlin::get_user_input(uint8_t &driver_count, L64XX_axis_t axis_in
   // Work on the drivers
   //
 
-  for (uint8_t k = 0; k < driver_count; k++) {
+  LOOP_L_N(k, driver_count) {
     uint8_t not_found = true;
     for (j = 1; j <= L64XX::chain[0]; j++) {
       PGM_P const str = (PGM_P)pgm_read_ptr(&index_to_axis[L64XX::chain[j]]);
@@ -923,9 +923,7 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
           monitor_update(E5);
         #endif
 
-        #if ENABLED(L6470_DEBUG)
-          if (report_L6470_status) DEBUG_EOL();
-        #endif
+        if (TERN0(L6470_DEBUG, report_L6470_status)) DEBUG_EOL();
 
         spi_active = false;   // done with all SPI transfers - clear handshake flags
         spi_abort = false;

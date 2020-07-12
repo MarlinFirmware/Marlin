@@ -73,20 +73,12 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
       );
     }
 
-    const bool should_set = last_written_mode != (false
-      #if ENABLED(BLTOUCH_SET_5V_MODE)
-        || true
-      #endif
-    );
+    const bool should_set = last_written_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 
   #endif
 
   if (should_set && set_voltage)
-    mode_conv_proc((false
-      #if ENABLED(BLTOUCH_SET_5V_MODE)
-        || true
-      #endif
-    ));
+    mode_conv_proc(ENABLED(BLTOUCH_SET_5V_MODE));
 }
 
 void BLTouch::clear() {
@@ -132,9 +124,7 @@ bool BLTouch::deploy_proc() {
   }
 
   // One of the recommended ANTClabs ways to probe, using SW MODE
-  #if ENABLED(BLTOUCH_FORCE_SW_MODE)
-   _set_SW_mode();
-  #endif
+  TERN_(BLTOUCH_FORCE_SW_MODE, _set_SW_mode());
 
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse

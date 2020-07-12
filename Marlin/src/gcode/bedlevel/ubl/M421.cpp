@@ -32,7 +32,7 @@
 #include "../../../feature/bedlevel/bedlevel.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 /**
@@ -63,9 +63,7 @@ void GcodeSuite::M421() {
   else {
     float &zval = ubl.z_values[ij.x][ij.y];
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onMeshUpdate(ij.x, ij.y, zval);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));
   }
 }
 

@@ -24,7 +24,7 @@
 #include "../../MarlinCore.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
 
-#if FAN_COUNT > 0
+#if HAS_FAN
   #include "../../module/temperature.h"
 #endif
 
@@ -37,17 +37,33 @@
  *
  *  S<byte> Pin status from 0 - 255
  *  I       Flag to ignore Marlin's pin protection
+ *
+ *  M<mode> Pin mode: 0=INPUT  1=OUTPUT  2=INPUT_PULLUP  3=INPUT_PULLDOWN
  */
 void GcodeSuite::M42() {
-  if (!parser.seenval('S')) return;
-  const byte pin_status = parser.value_byte();
-
   const int pin_index = PARSED_PIN_INDEX('P', GET_PIN_MAP_INDEX(LED_PIN));
   if (pin_index < 0) return;
 
   const pin_t pin = GET_PIN_MAP_PIN(pin_index);
 
-  #if FAN_COUNT > 0
+  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
+
+  if (parser.seenval('M')) {
+    switch (parser.value_byte()) {
+      case 0: pinMode(pin, INPUT); break;
+      case 1: pinMode(pin, OUTPUT); break;
+      case 2: pinMode(pin, INPUT_PULLUP); break;
+      #ifdef INPUT_PULLDOWN
+        case 3: pinMode(pin, INPUT_PULLDOWN); break;
+      #endif
+      default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
+    }
+  }
+
+  if (!parser.seenval('S')) return;
+  const byte pin_status = parser.value_byte();
+
+  #if HAS_FAN
     switch (pin) {
       #if HAS_FAN0
         case FAN0_PIN: thermalManager.fan_speed[0] = pin_status; return;
@@ -75,8 +91,6 @@ void GcodeSuite::M42() {
       #endif
     }
   #endif
-
-  if (!parser.boolval('I') && pin_is_protected(pin)) return protected_pin_err();
 
   pinMode(pin, OUTPUT);
   extDigitalWrite(pin, pin_status);

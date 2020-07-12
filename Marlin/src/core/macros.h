@@ -21,6 +21,10 @@
  */
 #pragma once
 
+#if !defined(__has_include)
+  #define __has_include(...) 1
+#endif
+
 #define ABCE 4
 #define XYZE 4
 #define ABC  3
@@ -72,13 +76,6 @@
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
-// Macros to make sprintf_P read from PROGMEM (AVR extension)
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -100,12 +97,15 @@
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
 
+#define TBI(N,B) (N ^= _BV(B))
+
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
+#define TBI32(N,B) (N ^= _BV32(B))
 
-#define cu(x)      ((x)*(x)*(x))
+#define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
@@ -113,7 +113,7 @@
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
-#define SIGN(a) ((a>0)-(a<0))
+#define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
@@ -133,8 +133,6 @@
 
 #else
 
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
   #define NOLESS(v, n) \
     do{ \
       __typeof__(n) _n = (n); \
@@ -177,17 +175,25 @@
 // Macros to support option testing
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
-#define _DIS_1(O)           !_ENA_1(O)
+
+#define _ISENA_     ~,1
+#define _ISENA_1    ~,1
+#define _ISENA_0x1  ~,1
+#define _ISENA_true ~,1
+#define _ISENA(V...)        IS_PROBE(V)
+
+#define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+#define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
@@ -243,6 +249,11 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
 #define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
@@ -259,7 +270,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.0000005f : 0.0000005f);})
 
 //
 // Maths macros that can be overridden by HAL
@@ -274,12 +285,6 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
@@ -390,8 +395,9 @@
 //
 // Primitives supporting precompiler REPEAT
 //
-#define FIRST(a,...)    a
-#define SECOND(a,b,...) b
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
 
 // Defer expansion
 #define EMPTY()
@@ -473,7 +479,18 @@
     ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
     ( /* Do nothing */ )
 #define __RREPEAT2() _RREPEAT2
-#define RREPEAT_S(S,N,OP)        EVAL(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
 #define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
-#define RREPEAT2_S(S,N,OP,V...)  EVAL(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
 #define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+
+// See https://github.com/swansontec/map-macro
+#define MAP_OUT
+#define MAP_END(...)
+#define MAP_GET_END() 0, MAP_END
+#define MAP_NEXT0(test, next, ...) next MAP_OUT
+#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
+#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
+#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
+#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
+#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))

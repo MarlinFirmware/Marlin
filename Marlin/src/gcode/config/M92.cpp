@@ -34,7 +34,7 @@ void report_M92(const bool echo=true, const int8_t e=-1) {
   SERIAL_EOL();
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    for (uint8_t i = 0; i < E_STEPPERS; i++) {
+    LOOP_L_N(i, E_STEPPERS) {
       if (e >= 0 && i != e) continue;
       if (echo) SERIAL_ECHO_START(); else SERIAL_CHAR(' ');
       SERIAL_ECHOLNPAIR_P(PSTR(" M92 T"), (int)i,
@@ -105,7 +105,7 @@ void GcodeSuite::M92() {
       if (wanted) {
         const float best = uint16_t(wanted / z_full_step_mm) * z_full_step_mm;
         SERIAL_ECHOPAIR(", best:[", best);
-        if (best != wanted) { SERIAL_CHAR(','); SERIAL_ECHO(best + z_full_step_mm); }
+        if (best != wanted) { SERIAL_CHAR(','); SERIAL_DECIMAL(best + z_full_step_mm); }
         SERIAL_CHAR(']');
       }
       SERIAL_ECHOLNPGM(" }");

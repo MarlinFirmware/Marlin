@@ -27,7 +27,7 @@
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
 #endif
 
@@ -46,9 +46,16 @@
 #endif
 
 #include "../../lcd/ultralcd.h"
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../../lcd/dwin/dwin.h"
+#endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
+#endif
+
+#if ENABLED(LASER_MOVE_G28_OFF)
+  #include "../../feature/spindle_laser.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -62,13 +69,7 @@
     current_position.set(0.0, 0.0);
     sync_plan_position();
 
-    const int x_axis_home_dir =
-      #if ENABLED(DUAL_X_CARRIAGE)
-        x_home_dir(active_extruder)
-      #else
-        home_dir(X_AXIS)
-      #endif
-    ;
+    const int x_axis_home_dir = x_home_dir(active_extruder);
 
     const float mlx = max_length(X_AXIS),
                 mly = max_length(Y_AXIS),
@@ -106,8 +107,6 @@
       #if AXIS_HAS_STALLGUARD(Y2)
         tmc_disable_stallguard(stepperY2, stealth_states.y2);
       #endif
-      do_blocking_move_to_xy(-0.5 * x_axis_home_dir, -0.5 * home_dir(Y_AXIS), fr_mm_s / 2);
-      safe_delay(100);
     #endif
   }
 
@@ -116,15 +115,10 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+    DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
-    // Disallow Z homing if X or Y are unknown
-    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_MSG(STR_ERR_Z_HOMING_SER);
-      return;
-    }
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("home_z_safely >>>");
+    // Disallow Z homing if X or Y homing is needed
+    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     sync_plan_position();
 
@@ -134,22 +128,16 @@
      */
     destination.set(safe_homing_xy, current_position.z);
 
-    #if HOMING_Z_WITH_PROBE
-      destination -= probe.offset_xy;
-    #endif
+    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
     if (position_is_reachable(destination)) {
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
       // This causes the carriage on Dual X to unpark
-      #if ENABLED(DUAL_X_CARRIAGE)
-        active_extruder_parked = false;
-      #endif
+      TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
 
-      #if ENABLED(SENSORLESS_HOMING)
-        safe_delay(500); // Short delay needed to settle
-      #endif
+      TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
       do_blocking_move_to_xy(destination);
       homeaxis(Z_AXIS);
@@ -158,8 +146,6 @@
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
       SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
     }
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< home_z_safely");
   }
 
 #endif // Z_SAFE_HOMING
@@ -183,9 +169,7 @@
   void end_slow_homing(const slow_homing_t &slow_homing) {
     planner.settings.max_acceleration_mm_per_s2[X_AXIS] = slow_homing.acceleration.x;
     planner.settings.max_acceleration_mm_per_s2[Y_AXIS] = slow_homing.acceleration.y;
-    #if HAS_CLASSIC_JERK
-      planner.max_jerk = slow_homing.jerk_xy;
-    #endif
+    TERN_(HAS_CLASSIC_JERK, planner.max_jerk = slow_homing.jerk_xy);
     planner.reset_acceleration_rates();
   }
 
@@ -210,11 +194,13 @@
  *  Z   Home to the Z endstop
  *
  */
-void GcodeSuite::G28(const bool always_home_all) {
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPGM(">>> G28");
-    log_machine_info();
-  }
+void GcodeSuite::G28() {
+  DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) log_machine_info();
+
+  TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
+
+  TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -227,14 +213,13 @@ void GcodeSuite::G28(const bool always_home_all) {
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
       return;
     }
   #endif
 
   // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
 
@@ -245,64 +230,59 @@ void GcodeSuite::G28(const bool always_home_all) {
   #if HAS_LEVELING
 
     // Cancel the active G29 session
-    #if ENABLED(PROBE_MANUALLY)
-      g29_in_progress = false;
-    #endif
+    TERN_(PROBE_MANUALLY, g29_in_progress = false);
 
-    #if ENABLED(RESTORE_LEVELING_AFTER_G28)
-      const bool leveling_was_active = planner.leveling_active;
-    #endif
+    TERN_(RESTORE_LEVELING_AFTER_G28, const bool leveling_was_active = planner.leveling_active);
     set_bed_leveling_enabled(false);
   #endif
 
-  #if ENABLED(CNC_WORKSPACE_PLANES)
-    workspace_plane = PLANE_XY;
-  #endif
+  TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+
+  // Count this command as movement / activity
+  reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
-  #define HAS_HOMING_CURRENT (HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2))
+  #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
+    #define HAS_HOMING_CURRENT 1
+  #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](const char * const s, const int16_t a, const int16_t b){
-      DEBUG_ECHO(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
+    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b){
+      serialprintPGM(s); DEBUG_ECHOLNPAIR(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
       stepperX.rms_current(X_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("X", tmc_save_current_X, X_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("X"), tmc_save_current_X, X_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(X2)
       const int16_t tmc_save_current_X2 = stepperX2.getMilliamps();
       stepperX2.rms_current(X2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("X2", tmc_save_current_X2, X2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("X2"), tmc_save_current_X2, X2_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y)
       const int16_t tmc_save_current_Y = stepperY.getMilliamps();
       stepperY.rms_current(Y_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("Y", tmc_save_current_Y, Y_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y"), tmc_save_current_Y, Y_CURRENT_HOME);
     #endif
     #if HAS_CURRENT_HOME(Y2)
       const int16_t tmc_save_current_Y2 = stepperY2.getMilliamps();
       stepperY2.rms_current(Y2_CURRENT_HOME);
-      if (DEBUGGING(LEVELING)) debug_current("Y2", tmc_save_current_Y2, Y2_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Y2"), tmc_save_current_Y2, Y2_CURRENT_HOME);
     #endif
   #endif
 
-  #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-    slow_homing_t slow_homing = begin_slow_homing();
-  #endif
+  TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing_t slow_homing = begin_slow_homing());
 
   // Always home with tool 0 active
-  #if HOTENDS > 1
+  #if HAS_MULTI_HOTEND
     #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
       const uint8_t old_tool_index = active_extruder;
     #endif
     tool_change(0, true);
   #endif
 
-  #if HAS_DUPLICATION_MODE
-    extruder_duplication_enabled = false;
-  #endif
+  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
 
   remember_feedrate_scaling_off();
 
@@ -310,20 +290,20 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   #if ENABLED(DELTA)
 
-    home_delta();
-    UNUSED(always_home_all);
+    constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    home_delta();
+
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
   #else // NOT DELTA
 
-    const bool homeX = parser.seen('X'), homeY = parser.seen('Y'), homeZ = parser.seen('Z'),
-               home_all = always_home_all || (homeX == homeY && homeX == homeZ),
+    const bool homeZ = parser.seen('Z'),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
+               home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
-
-    destination = current_position;
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
@@ -331,20 +311,15 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     #endif
 
-    const float z_homing_height = (
-      #if ENABLED(UNKNOWN_Z_NO_RAISE)
-        !TEST(axis_known_position, Z_AXIS) ? 0 :
-      #endif
-          (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-    );
+    const float z_homing_height =
+      ENABLED(UNKNOWN_Z_NO_RAISE) && TEST(axis_known_position, Z_AXIS)
+        ? 0
+        : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    if (z_homing_height && (doX || doY)) {
+    if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
-      if (destination.z > current_position.z) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination.z);
-        do_blocking_move_to_z(destination.z);
-      }
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+      do_z_clearance(z_homing_height, TEST(axis_known_position, Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
     #if ENABLED(QUICK_HOME)
@@ -354,22 +329,11 @@ void GcodeSuite::G28(const bool always_home_all) {
     #endif
 
     // Home Y (before X)
-    #if ENABLED(HOME_Y_BEFORE_X)
-
-      if (doY
-        #if ENABLED(CODEPENDENT_XY_HOMING)
-          || doX
-        #endif
-      ) homeaxis(Y_AXIS);
-
-    #endif
+    if (ENABLED(HOME_Y_BEFORE_X) && (doY || (ENABLED(CODEPENDENT_XY_HOMING) && doX)))
+      homeaxis(Y_AXIS);
 
     // Home X
-    if (doX
-      #if ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X)
-        || doY
-      #endif
-    ) {
+    if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
 
       #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -397,36 +361,20 @@ void GcodeSuite::G28(const bool always_home_all) {
     }
 
     // Home Y (after X)
-    #if DISABLED(HOME_Y_BEFORE_X)
-      if (doY) homeaxis(Y_AXIS);
-    #endif
+    if (DISABLED(HOME_Y_BEFORE_X) && doY)
+      homeaxis(Y_AXIS);
 
-    #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-      end_slow_homing(slow_homing);
-    #endif
+    TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
 
       if (doZ) {
-        #if ENABLED(BLTOUCH)
-          bltouch.init();
-        #endif
-        #if ENABLED(Z_SAFE_HOMING)
-          home_z_safely();
-        #else
-          homeaxis(Z_AXIS);
-        #endif
+        TERN_(BLTOUCH, bltouch.init());
 
-        #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
-          #if Z_AFTER_HOMING > Z_AFTER_PROBING
-            do_blocking_move_to_z(Z_AFTER_HOMING);
-          #else
-            probe.move_z_after_probing();
-          #endif
-        #elif defined(Z_AFTER_HOMING)
-          do_blocking_move_to_z(Z_AFTER_HOMING);
-        #endif
+        TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
+
+        probe.move_z_after_homing();
 
       } // doZ
 
@@ -446,9 +394,7 @@ void GcodeSuite::G28(const bool always_home_all) {
 
     if (dxc_is_duplicating()) {
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        slow_homing = begin_slow_homing();
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
 
       // Always home the 2nd (right) extruder first
       active_extruder = 1;
@@ -469,9 +415,7 @@ void GcodeSuite::G28(const bool always_home_all) {
       dual_x_carriage_mode         = IDEX_saved_mode;
       stepper.set_directions();
 
-      #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-        end_slow_homing(slow_homing);
-      #endif
+      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
     }
 
   #endif // DUAL_X_CARRIAGE
@@ -479,29 +423,20 @@ void GcodeSuite::G28(const bool always_home_all) {
   endstops.not_homing();
 
   // Clear endstop state for polled stallGuard endstops
-  #if ENABLED(SPI_ENDSTOPS)
-    endstops.clear_endstop_state();
-  #endif
+  TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
 
   #if BOTH(DELTA, DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G28)
-    set_bed_leveling_enabled(leveling_was_active);
-  #endif
+  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_was_active));
 
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
-  #if HOTENDS > 1 && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
-    #if EITHER(PARKING_EXTRUDER, DUAL_X_CARRIAGE)
-      #define NO_FETCH false // fetch the previous toolhead
-    #else
-      #define NO_FETCH true
-    #endif
-    tool_change(old_tool_index, NO_FETCH);
+  #if HAS_MULTI_HOTEND && (DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE))
+    tool_change(old_tool_index, NONE(PARKING_EXTRUDER, DUAL_X_CARRIAGE));   // Do move if one of these
   #endif
 
   #if HAS_HOMING_CURRENT
@@ -522,19 +457,12 @@ void GcodeSuite::G28(const bool always_home_all) {
 
   ui.refresh();
 
+  TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
+
   report_current_position();
 
-  #if ENABLED(NANODLP_Z_SYNC)
-    #if ENABLED(NANODLP_ALL_AXIS)
-      #define _HOME_SYNC true       // For any axis, output sync text.
-    #else
-      #define _HOME_SYNC doZ        // Only for Z-axis
-    #endif
-    if (_HOME_SYNC)
-      SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
-  #endif
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
+  if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
+    SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
 
   #if HAS_L64XX
     // Set L6470 absolute position registers to counts

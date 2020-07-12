@@ -37,7 +37,7 @@
 Joystick joystick;
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../lcd/extensible_ui/ui_api.h"
+  #include "../lcd/extui/ui_api.h"
 #endif
 
 #if HAS_JOY_ADC_X
@@ -154,9 +154,7 @@ Joystick joystick;
     // Other non-joystick poll-based jogging could be implemented here
     // with "jogging" encapsulated as a more general class.
 
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::_joystick_update(norm_jog);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::_joystick_update(norm_jog));
 
     // norm_jog values of [-1 .. 1] maps linearly to [-feedrate .. feedrate]
     xyz_float_t move_dist{0};
@@ -173,6 +171,7 @@ Joystick joystick;
 
     if (!UNEAR_ZERO(hypot2)) {
       current_position += move_dist;
+      apply_motion_limits(current_position);
       const float length = sqrt(hypot2);
       injecting_now = true;
       planner.buffer_line(current_position, length / seg_time, active_extruder, length);

@@ -26,7 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -46,7 +46,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("メディアガソウニュウサレマシタ");        // "Card inserted"
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("メディアガアリマセン");               // "Card removed"
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("メディアノトリダシ");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("メディアガアリマセン");               // "Card removed"
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("メイン");                       // "Main"
   PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("ジドウカイシ");                   // "Autostart"
@@ -64,20 +63,23 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("キジュンオフセットセッテイ");         // "Set home offsets"
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("オフセットガテキヨウサレマシタ");       // "Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("キジュンセット");                 // "Set origin"
-  PROGMEM Language_Str MSG_PREHEAT_1                       = PREHEAT_1_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_1_LABEL
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = PREHEAT_1_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = PREHEAT_1_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = PREHEAT_1_LABEL _UxGT(" ヨネツノズル ~");  // " Nozzle"
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = PREHEAT_1_LABEL _UxGT(" スベテヨネツ");  // " All"
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = PREHEAT_1_LABEL _UxGT(" ベッドヨネツ");  // " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = PREHEAT_1_LABEL _UxGT(" ヨネツセッテイ");  // " conf"
-  PROGMEM Language_Str MSG_PREHEAT_2                       = PREHEAT_2_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_1_LABEL
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = PREHEAT_2_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = PREHEAT_2_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = PREHEAT_2_LABEL _UxGT(" ヨネツノズル ~");  // " Nozzle"
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = PREHEAT_2_LABEL _UxGT(" スベテヨネツ");  // " All"
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" ベッドヨネツ");  // " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" ヨネツセッテイ");  // " conf"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" ヨネツ");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" ヨネツノズル");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" ヨネツノズル ~");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" スベテヨネツ");  // " All"
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" ベッドヨネツ");  // " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" ヨネツセッテイ");  // " conf"
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ ヨネツ");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ ヨネツ ~");       // "Preheat " PREHEAT_1_LABEL
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("$ ヨネツノズル");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("$ ヨネツノズル ~");  // " Nozzle"
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("$ スベテヨネツ");  // " All"
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("$ ベッドヨネツ");  // " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("$ ヨネツセッテイ");  // " conf"
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("カネツテイシ");                  // "Cooldown"
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("デンゲン オン");                 // "Switch power on"
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("デンゲン オフ");                 // "Switch power off"
@@ -184,7 +186,6 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("エラー:サイテイオンミマン");          // "Err: MINTEMP"
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("エラー:ベッド サイコウオンチョウカ");    // "Err: MAXTEMP BED"
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("エラー:ベッド サイテイオンミマン");     // "Err: MINTEMP BED"
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("サキニ XY ヲフッキサセテクダサイ");     // "Home XY first"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("プリンターハテイシシマシタ");         // "PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("リセットシテクダサイ");              // "Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");                          // One character only
@@ -228,7 +229,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD            = _UxGT(MSG_2_LINE("フィラメントソウテンチュウ", "シバラクオマチクダサイ"));   // "Wait for filament load"
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME          = _UxGT(MSG_2_LINE("プリントヲサイカイシマス", "シバラクオマチクダサイ"));   // "Wait for print to resume"
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("マチガッタプリンター");               // "Wrong printer"
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("マチガッタプリンター");               // "Wrong printer"
 
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("セッテイカンリ");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("ショウサイセッテイ");
