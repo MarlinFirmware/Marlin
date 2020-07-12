@@ -26,6 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
+#include "../../../module/stepper/indirection.h"
 
 /**
  * M122: Debug TMC drivers
@@ -36,6 +37,8 @@ void GcodeSuite::M122() {
   LOOP_XYZE(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
 
   if (print_all) LOOP_XYZE(i) print_axis[i] = true;
+
+  if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)

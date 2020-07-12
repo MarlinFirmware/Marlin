@@ -25,6 +25,10 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
+#ifndef PGM_P
+  #define PGM_P const char *
+#endif
+
 extern void lv_draw_error_message(PGM_P const msg);
 extern void lv_clear_error_message();
 

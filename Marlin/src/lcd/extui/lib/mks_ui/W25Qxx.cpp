@@ -22,7 +22,7 @@
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if 1 // ENABLED(SPI_FLASH)
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include <SPI.h>
 #include "../../../../inc/MarlinConfig.h"
@@ -391,5 +391,5 @@ void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16
 
 void ext_FLASH::lv_pic_read(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);}
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI
 #endif // 1 ... SPI_FLASH
