@@ -44,32 +44,27 @@ void TFT::init() {
 
   io.Init();
 
-  #if defined(TFT_DRIVER) && (TFT_DRIVER != AUTO)
-    #if TFT_DRIVER == ST7735
-      lcd_id = ST7735;
-      write_esc_sequence(st7735_init);
-    #elif TFT_DRIVER == ST7789
-      lcd_id = ST7789;
-      write_esc_sequence(st7789v_init);
-    #elif TFT_DRIVER == ST7796
-      lcd_id = ST7796;
-      write_esc_sequence(st7796s_init);
-    #elif TFT_DRIVER == ILI9328
-      lcd_id = ILI9328;
-      write_esc_sequence(ili9328_init);
-    #elif TFT_DRIVER == ILI9341
-      lcd_id = ILI9341;
-      write_esc_sequence(ili9341_init);
-    #elif TFT_DRIVER == ILI9488
-      lcd_id = ILI9488;
-      write_esc_sequence(ili9488_init);
-    #elif TFT_DRIVER == LERDGE_ST7796
-      lcd_id = ST7796;
-      write_esc_sequence(lerdge_st7796s_init);
-    #else
-      #error Unsupported TFT driver
-    #endif
-  #else // autodetect
+  #if TFT_DRIVER != AUTO
+    lcd_id = TFT_DRIVER;
+  #endif
+
+  #if TFT_DRIVER == ST7735
+    write_esc_sequence(st7735_init);
+  #elif TFT_DRIVER == ST7789
+    write_esc_sequence(st7789v_init);
+  #elif TFT_DRIVER == ST7796
+    write_esc_sequence(st7796s_init);
+  #elif TFT_DRIVER == ILI9328
+    write_esc_sequence(ili9328_init);
+  #elif TFT_DRIVER == ILI9341
+    write_esc_sequence(ili9341_init);
+  #elif TFT_DRIVER == ILI9488
+    write_esc_sequence(ili9488_init);
+  #elif TFT_DRIVER == LERDGE_ST7796
+    write_esc_sequence(lerdge_st7796s_init);
+
+  #elif TFT_DRIVER == AUTO // autodetect
+
     lcd_id = io.GetID() & 0xFFFF;
 
     switch (lcd_id) {
@@ -100,6 +95,8 @@ void TFT::init() {
       default:
         lcd_id = 0;
     }
+  #else
+    #error Unsupported TFT driver
   #endif
 }
 
