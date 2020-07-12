@@ -1467,7 +1467,6 @@ void Stepper::isr() {
      * is less than the current count due to something preempting between the
      * read and the write of the new period value).
      */
-
     DISABLE_ISRS();
 
     /**
