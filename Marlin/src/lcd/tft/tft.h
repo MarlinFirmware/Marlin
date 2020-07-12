@@ -49,6 +49,10 @@
 #define LERDGE_ST7796   0xFFFE
 #define AUTO            0xFFFF
 
+#ifndef TFT_DRIVER
+  #define TFT_DRIVER    AUTO
+#endif
+
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
