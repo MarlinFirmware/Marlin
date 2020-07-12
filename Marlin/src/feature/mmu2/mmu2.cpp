@@ -407,7 +407,6 @@ void MMU2::mmu_loop() {
               cmd = last_cmd;
               last_cmd = MMU_CMD_NONE;
             }
-            DEBUG_ECHOLNPGM("MMU NEUDA END timeout");
             state = 1;
         #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
           }
@@ -536,7 +535,6 @@ static bool mmu2_not_responding() {
 #if ENABLED(PRUSA_MMU2_S_MODE)
 
   bool MMU2::load_to_gears() {
-    DEBUG_ECHOLNPGM("MMU NEUDA Load to gears");
     command(MMU_CMD_C0);
     manage_response(true, true);
     LOOP_L_N(i, MMU2_C0_RETRY) {  // Keep loading until filament reaches gears
@@ -822,7 +820,6 @@ void MMU2::command(const uint8_t mmu_cmd) {
  * Wait for response from MMU
  */
 bool MMU2::get_response() {
-DEBUG_ECHOLNPGM("MMU NEUDA get_response_init");
   while (cmd != MMU_CMD_NONE) idle();
 
   while (!ready) {
@@ -833,7 +830,6 @@ DEBUG_ECHOLNPGM("MMU NEUDA get_response_init");
   const bool ret = ready;
   ready = false;
 
-DEBUG_ECHOLNPGM("MMU NEUDA get_response_fin");
   return ret;
 }
 
@@ -849,7 +845,6 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
   int16_t resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
-DEBUG_ECHOLNPGM("MMU NEUDA Manage_response wait finished");
   while (!response) {
 
     response = get_response(); // wait for "ok" from mmu
