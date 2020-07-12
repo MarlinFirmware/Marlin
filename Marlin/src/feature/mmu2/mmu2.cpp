@@ -845,6 +845,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
   int16_t resume_hotend_temp = thermalManager.degTargetHotend(active_extruder);
 
   KEEPALIVE_STATE(PAUSED_FOR_USER);
+
   while (!response) {
 
     response = get_response(); // wait for "ok" from mmu
@@ -971,8 +972,6 @@ void MMU2::filament_runout() {
       if (mmu2s_triggered) ++filament_detected_count;
     }
 
-    DEBUG_ECHOLNPGM("MMU can_load: ENDLOOP");
-
     if (filament_detected_count <= steps - (MMU2_CAN_LOAD_DEVIATION) / (MMU2_CAN_LOAD_INCREMENT)) {
       DEBUG_ECHOLNPGM(" failed.");
       return false;
@@ -981,7 +980,6 @@ void MMU2::filament_runout() {
     DEBUG_ECHOLNPGM(" succeeded.");
     return true;
   }
-
 #endif
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
