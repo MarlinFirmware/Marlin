@@ -31,12 +31,8 @@
   #define MMU_RX_SIZE 256
   #define MMU_TX_SIZE 256
 #else
-  // NEUDA: Very low buffers, increasing it to 256
-  // https://github.com/MarlinFirmware/Marlin/issues/15888
-  #define MMU_RX_SIZE  256
-  #define MMU_TX_SIZE  256
-  ///#define MMU_RX_SIZE  16
-  ///#define MMU_TX_SIZE  16
+  #define MMU_RX_SIZE  16
+  #define MMU_TX_SIZE  16
 #endif
 
 struct E_Step;
