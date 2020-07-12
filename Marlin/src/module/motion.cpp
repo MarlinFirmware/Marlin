@@ -1617,7 +1617,7 @@ void homeaxis(const AxisEnum axis) {
       }
       if (TEST(endstops.state(), es)) {
         SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
-        kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
       }
     #endif
 
