@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
 git checkout Marlin/Configuration*.h 2>/dev/null
+cp Marlin/Configuration_template.h Marlin/Configuration.h
+cp Marlin/Configuration_adv_template.h Marlin/Configuration_adv.h
 git checkout Marlin/src/pins/ramps/pins_RAMPS.h 2>/dev/null
 rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h
