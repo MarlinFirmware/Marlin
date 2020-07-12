@@ -84,7 +84,7 @@ void GcodeSuite::M600() {
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
         if (dxc_is_duplicating())
-          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_INVERTING) ? 1 : 0;
+          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_STATE) ? 1 : 0;
       #else
         DXC_ext = active_extruder;
       #endif

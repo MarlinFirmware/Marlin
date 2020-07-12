@@ -389,7 +389,7 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static uint8_t prev_stat = TERN(INIT_SDCARD_ON_BOOT, 2, 0);
+  static uint8_t prev_stat = 2;       // First call, no prior state
   uint8_t stat = uint8_t(IS_SD_INSERTED());
   if (stat == prev_stat) return;
 

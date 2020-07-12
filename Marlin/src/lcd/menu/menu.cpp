@@ -62,6 +62,7 @@ menuPosition screen_history[6];
 uint8_t screen_history_depth = 0;
 
 int8_t MenuItemBase::itemIndex;   // Index number for draw and action
+PGM_P MenuItemBase::itemString;   // A PSTR for substitution
 chimera_t editable;               // Value Editing
 
 // Menu Edit Items

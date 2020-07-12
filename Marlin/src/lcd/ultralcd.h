@@ -78,14 +78,6 @@
 
   #if HAS_LCD_MENU
 
-    #if HAS_GRAPHICAL_LCD
-      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #else
-      #define SETCURSOR(col, row) lcd_moveto(col, row)
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
-    #endif
-
     #include "lcdprint.h"
 
     void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
@@ -505,6 +497,7 @@ public:
 
   #if PREHEAT_COUNT
     static preheat_t material_preset[PREHEAT_COUNT];
+    static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
   #if HAS_LCD_MENU

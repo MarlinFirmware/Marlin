@@ -86,10 +86,6 @@ MarlinUI ui;
   }
 #endif
 
-#if PREHEAT_COUNT
-  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
-#endif
-
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -151,6 +147,33 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
+#endif
+
+#if PREHEAT_COUNT
+  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
+
+  PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
+    #ifdef PREHEAT_1_LABEL
+      static PGMSTR(preheat_0_label, PREHEAT_1_LABEL);
+    #endif
+    #ifdef PREHEAT_2_LABEL
+      static PGMSTR(preheat_1_label, PREHEAT_2_LABEL);
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      static PGMSTR(preheat_2_label, PREHEAT_3_LABEL);
+    #endif
+    #ifdef PREHEAT_4_LABEL
+      static PGMSTR(preheat_3_label, PREHEAT_4_LABEL);
+    #endif
+    #ifdef PREHEAT_5_LABEL
+      static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
+    #endif
+
+    #define _PLBL(N) preheat_##N##_label,
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
+
+    return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
+  }
 #endif
 
 #if ENABLED(SDSUPPORT)

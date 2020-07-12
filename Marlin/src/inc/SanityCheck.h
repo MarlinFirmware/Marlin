@@ -513,6 +513,17 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #endif
 
+#ifdef FIL_RUNOUT_INVERTING
+  #if FIL_RUNOUT_INVERTING
+    #warning "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update Configuration.h."
+  #else
+    #warning "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update Configuration.h."
+  #endif
+  #ifndef FIL_RUNOUT_STATE
+    #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+  #endif
+#endif
+
 /**
  * Probe temp compensation requirements
  */
