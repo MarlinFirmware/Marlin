@@ -368,7 +368,7 @@ void MMU2::mmu_loop() {
               state = 1;
               last_cmd = MMU_CMD_NONE;
             }
-            else if(c0_command_in_progress) // MMU ok received but   filament sensor not triggered
+            else if(c0_command_in_progress) // MMU ok received but filament sensor not triggered
             {
               DEBUG_ECHOLNPGM("MMU => 'ok' (filament not present in gears)");
               DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
@@ -376,8 +376,7 @@ void MMU2::mmu_loop() {
             }
             else // C0 timeout
             {
-              DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
-              tx_str_P(PSTR("C0\n"));
+              DEBUG_ECHOLNPGM("MMU DEBUG NUNCA DEBERIAMOS LLEGAR AQUI");
             }
           }
           else
@@ -394,12 +393,7 @@ void MMU2::mmu_loop() {
       else if (ELAPSED(millis(), prev_request + cmd_timeout)) {
         #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
           if(last_cmd == MMU_CMD_C0)
-          {
-            DEBUG_ECHOLNPGM("MMU: C0 timeout");
             cancel_filament_loading();
-          }
-          else
-          {
         #endif
         // resend request after timeout
         if (last_cmd) {
@@ -408,9 +402,6 @@ void MMU2::mmu_loop() {
           last_cmd = MMU_CMD_NONE;
         }
         state = 1;
-        #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
-          }
-        #endif
       }
       TERN_(PRUSA_MMU2_S_MODE, check_filament());
       break;
@@ -925,7 +916,7 @@ void MMU2::filament_runout() {
       DEBUG_ECHOLNPGM("MMU: c0_command_in_progress=0");
       c0_command_in_progress = 0; // C0 finished
       DEBUG_ECHOLNPGM("MMU: STOP E0 SPIN");
-      planner.quick_stop(); // Abort any pending/current movement
+      //planner.quick_stop(); // Abort any pending/current movement
     }
   }
 
