@@ -154,7 +154,7 @@ void GcodeSuite::G35() {
 
       SERIAL_ECHOPAIR("Turn ", tramming_point_name[i],
              " ", (screw_thread & 1) == (adjust > 0) ? "Counter-Clockwise" : "Clockwise",
-             "by ", abs(full_turns), " turns");
+             " by ", abs(full_turns), " turns");
       if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
       SERIAL_EOL();
     }
