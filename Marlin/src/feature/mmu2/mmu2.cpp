@@ -383,10 +383,10 @@ void MMU2::mmu_loop() {
           else
           {
         #endif
-            DEBUG_ECHOLNPGM("MMU => 'ok'");
-            ready = true;
-            state = 1;
-            last_cmd = MMU_CMD_NONE;
+        DEBUG_ECHOLNPGM("MMU => 'ok'");
+        ready = true;
+        state = 1;
+        last_cmd = MMU_CMD_NONE;
         #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
           }
         #endif
