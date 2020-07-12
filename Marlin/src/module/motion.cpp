@@ -1608,9 +1608,9 @@ void homeaxis(const AxisEnum axis) {
 
     #if ENABLED(DETECT_BROKEN_ENDSTOP)
       // Check for a broken endstop
-      EndstopEnum es = X_MIN;
+      EndstopEnum es;
       switch (axis) {
-        default: break;
+        default:
         case X_AXIS: es = X_ENDSTOP; break;
         case Y_AXIS: es = Y_ENDSTOP; break;
         case Z_AXIS: es = Z_ENDSTOP; break;
