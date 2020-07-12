@@ -1597,35 +1597,22 @@ void homeaxis(const AxisEnum axis) {
         , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
       #endif
     );
-    
-	//check for inactive endstop
-switch (axis) {
-		case X_AXIS:
-			if((TEST(endstops.state(), X_HOME_DIR < 0 ? X_MIN : X_MAX))){
-				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}
-			break;
-		case Y_AXIS:
-			if((TEST(endstops.state(), Y_HOME_DIR < 0 ? Y_MIN : Y_MAX))){
-				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}
-			break;
-		case Z_AXIS:
-			if((TEST(endstops.state(), Z_HOME_DIR < 0 ? 
-			#if HOMING_Z_WITH_PROBE
-				Z_MIN
-			#else
-				Z_MIN_PROBE
-			#endif
-			: Z_MAX))){
-				SERIAL_ECHO_MSG("Err ",axis_codes[axis]," Bump. Bump_value too low or endstop broken?");
-				kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
-			}
-			break;
-		default: break;	
-	}
+
+    #if ENABLED(DETECT_BROKEN_ENDSTOP)
+      // Check for a broken endstop
+      EndstopEnum es = X_MIN;
+      switch (axis) {
+        default: break;
+        case X_AXIS: es = X_HOME_DIR < 0 ? X_MIN : X_MAX; break;
+        case Y_AXIS: es = Y_HOME_DIR < 0 ? Y_MIN : Y_MAX; break;
+        case Z_AXIS: es = Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX; break;
+      }
+      if (TEST(endstops.state(), es)) {
+        SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
+        kill(GET_TEXT(MSG_LCD_HOMING_FAILED));
+      }
+    #endif
+
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
