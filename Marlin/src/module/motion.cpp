@@ -1603,9 +1603,9 @@ void homeaxis(const AxisEnum axis) {
       EndstopEnum es = X_MIN;
       switch (axis) {
         default: break;
-        case X_AXIS: es = X_HOME_DIR < 0 ? X_MIN : X_MAX; break;
-        case Y_AXIS: es = Y_HOME_DIR < 0 ? Y_MIN : Y_MAX; break;
-        case Z_AXIS: es = Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX; break;
+        case X_AXIS: es = X_ENDSTOP; break;
+        case Y_AXIS: es = Y_ENDSTOP; break;
+        case Z_AXIS: es = Z_ENDSTOP; break;
       }
       if (TEST(endstops.state(), es)) {
         SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
