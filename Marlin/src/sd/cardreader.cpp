@@ -37,6 +37,7 @@
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
 #include "../module/configuration_store.h"
+#include "../module/stepper/indirection.h"
 
 #if ENABLED(EMERGENCY_PARSER)
   #include "../feature/e_parser.h"
@@ -388,7 +389,7 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static uint8_t prev_stat = TERN(INIT_SDCARD_ON_BOOT, 2, 0);
+  static uint8_t prev_stat = 2;       // First call, no prior state
   uint8_t stat = uint8_t(IS_SD_INSERTED());
   if (stat == prev_stat) return;
 
@@ -402,7 +403,7 @@ void CardReader::manage_media() {
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
       mount();                        // Try to mount the media
-      #if MB(FYSETC_CHEETAH, FYSETC_AIO_II)
+      #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
       if (!isMounted()) stat = 0;     // Not mounted?

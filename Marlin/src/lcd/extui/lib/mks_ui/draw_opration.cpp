@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -116,7 +116,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.finish_power_off == 1) {
           gCfgItems.finish_power_off = 0;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_Mamual.bin", 0);
+          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_manual_off.bin", 0); //dindt find bmp_Mamual...
           lv_label_set_text(label_PowerOff, printing_more_menu.manual);
           lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
           lv_obj_refresh_ext_draw_pad(label_PowerOff);
@@ -124,7 +124,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         }
         else {
           gCfgItems.finish_power_off = 1;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_Auto.bin", 0);
+          lv_obj_set_event_cb_mks(obj, event_handler, ID_O_POWER_OFF, "bmp_auto_off.bin", 0);
           lv_label_set_text(label_PowerOff, printing_more_menu.auto_close);
           lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
           lv_obj_refresh_ext_draw_pad(label_PowerOff);
@@ -218,9 +218,9 @@ void lv_draw_opration(void) {
       lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_REL, &tft_style_lable_rel);
     }
     if (gCfgItems.finish_power_off == 1)
-      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_Auto.bin", 0);
+      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_auto_off.bin", 0);
     else
-      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_Mamual.bin", 0);
+      lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, "bmp_manual_off.bin", 0);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -319,4 +319,4 @@ void lv_draw_opration(void) {
 
 void lv_clear_opration() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

@@ -459,7 +459,7 @@ void _O2 Endstops::report_states() {
   #endif
   #if HAS_FILAMENT_SENSOR
     #if NUM_RUNOUT_SENSORS == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
     #else
       #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
       LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
@@ -470,7 +470,7 @@ void _O2 Endstops::report_states() {
         }
         SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) SERIAL_CHAR(' ', '0' + i);
-        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
+        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_STATE);
       }
       #undef _CASE_RUNOUT
     #endif

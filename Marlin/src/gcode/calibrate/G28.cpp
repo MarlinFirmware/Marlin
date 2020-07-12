@@ -115,15 +115,10 @@
 #if ENABLED(Z_SAFE_HOMING)
 
   inline void home_z_safely() {
+    DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
-    // Disallow Z homing if X or Y are unknown
-    if (!TEST(axis_known_position, X_AXIS) || !TEST(axis_known_position, Y_AXIS)) {
-      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
-      SERIAL_ECHO_MSG(STR_ERR_Z_HOMING_SER);
-      return;
-    }
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("home_z_safely >>>");
+    // Disallow Z homing if X or Y homing is needed
+    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     sync_plan_position();
 
@@ -151,8 +146,6 @@
       LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
       SERIAL_ECHO_MSG(STR_ZPROBE_OUT_SER);
     }
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< home_z_safely");
   }
 
 #endif // Z_SAFE_HOMING
@@ -202,15 +195,10 @@
  *
  */
 void GcodeSuite::G28() {
+  DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) log_machine_info();
 
-#if ENABLED(LASER_MOVE_G28_OFF)
-  cutter.set_inline_enabled(false);       // turn off laser
-#endif
-
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPGM(">>> G28");
-    log_machine_info();
-  }
+  TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
 
@@ -225,14 +213,13 @@ void GcodeSuite::G28() {
       sync_plan_position();
       SERIAL_ECHOLNPGM("Simulated Homing");
       report_current_position();
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
       return;
     }
   #endif
 
   // Home (O)nly if position is unknown
   if (!homing_needed() && parser.boolval('O')) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip\n<<< G28");
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
 
@@ -250,6 +237,9 @@ void GcodeSuite::G28() {
   #endif
 
   TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+
+  // Count this command as movement / activity
+  reset_stepper_timeout();
 
   #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
   #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
@@ -315,8 +305,6 @@ void GcodeSuite::G28() {
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
-    destination = current_position;
-
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
       if (doZ) homeaxis(Z_AXIS);
@@ -324,17 +312,14 @@ void GcodeSuite::G28() {
     #endif
 
     const float z_homing_height =
-      (DISABLED(UNKNOWN_Z_NO_RAISE) || TEST(axis_known_position, Z_AXIS))
-        ? (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
-        : 0;
+      ENABLED(UNKNOWN_Z_NO_RAISE) && TEST(axis_known_position, Z_AXIS)
+        ? 0
+        : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    if (z_homing_height && (doX || doY || ENABLED(Z_SAFE_HOMING))) {
+    if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
-      if (destination.z > current_position.z) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) to ", destination.z);
-        do_blocking_move_to_z(destination.z);
-      }
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+      do_z_clearance(z_homing_height, TEST(axis_known_position, Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
     #if ENABLED(QUICK_HOME)
@@ -389,15 +374,7 @@ void GcodeSuite::G28() {
 
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
 
-        #if HOMING_Z_WITH_PROBE && defined(Z_AFTER_PROBING)
-          #if Z_AFTER_HOMING > Z_AFTER_PROBING
-            do_blocking_move_to_z(Z_AFTER_HOMING);
-          #else
-            probe.move_z_after_probing();
-          #endif
-        #elif defined(Z_AFTER_HOMING)
-          do_blocking_move_to_z(Z_AFTER_HOMING);
-        #endif
+        probe.move_z_after_homing();
 
       } // doZ
 
@@ -486,8 +463,6 @@ void GcodeSuite::G28() {
 
   if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G28");
 
   #if HAS_L64XX
     // Set L6470 absolute position registers to counts

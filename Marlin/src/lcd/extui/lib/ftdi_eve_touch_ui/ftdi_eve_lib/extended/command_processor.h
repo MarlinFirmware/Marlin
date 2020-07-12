@@ -315,7 +315,7 @@ class CommandProcessor : public CLCD::CommandFifo {
       #ifdef TOUCH_UI_USE_UTF8
         const bool is_utf8 = has_utf8_chars(text);
       #endif
-      for (;font >= 26;) {
+      for (;font > 26;) {
         int16_t width, height;
         #ifdef TOUCH_UI_USE_UTF8
           if (is_utf8) {

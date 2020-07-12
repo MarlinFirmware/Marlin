@@ -99,6 +99,19 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PE15
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   PE10
+#endif
+#ifndef FIL_RUNOUT3_PIN
+  #define FIL_RUNOUT3_PIN                   PG5
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                          PE9
@@ -275,11 +288,10 @@
     #define LCD_PINS_ENABLE                 PG7
     #define LCD_PINS_D4                     PG3
 
-    // CR10_Stock Display needs a different delay setting on SKR PRO v1.1, so undef it here.
-    // It will be defined again at the #HAS_GRAPHICAL_LCD section below.
-    #undef ST7920_DELAY_1
-    #undef ST7920_DELAY_2
-    #undef ST7920_DELAY_3
+    // CR10_STOCKDISPLAY default timing is too fast
+    #undef BOARD_ST7920_DELAY_1
+    #undef BOARD_ST7920_DELAY_2
+    #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
     #define DOGLCD_A0                       PG6
@@ -328,9 +340,15 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
 #endif // HAS_SPI_LCD

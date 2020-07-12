@@ -270,7 +270,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.00005f : 0.00005f);})
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.0000005f : 0.0000005f);})
 
 //
 // Maths macros that can be overridden by HAL

@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "../../../../MarlinCore.h"
 
@@ -390,226 +390,226 @@ void disp_language_init() {
         #if 1
 
           case LANG_COMPLEX_CHINESE:
-            common_menu.dialog_confirm_title = TITLE_DIALOG_CONFIRM_T_CN;
-            common_menu.text_back = BACK_TEXT_T_CN;
-            common_menu.close_machine_tips = DIALOG_CLOSE_MACHINE_T_CN;
-            common_menu.unbind_printer_tips = DIALOG_UNBIND_PRINTER_T_CN;
+            common_menu.dialog_confirm_title = TITLE_DIALOG_CONFIRM_CN;
+            common_menu.text_back = BACK_TEXT_CN;
+            common_menu.close_machine_tips = DIALOG_CLOSE_MACHINE_CN;
+            common_menu.unbind_printer_tips = DIALOG_UNBIND_PRINTER_CN;
             common_menu.print_special_title = PRINTING_GBK;
             common_menu.pause_special_title = PRINTING_PAUSE_GBK;
             common_menu.operate_special_title = PRINTING_OPERATION_GBK;
             //
-            main_menu.title = TITLE_READYPRINT_T_CN;
-            main_menu.preheat = PREHEAT_TEXT_T_CN;
-            main_menu.move = MOVE_TEXT_T_CN;
-            main_menu.home = HOME_TEXT_T_CN;
-            main_menu.print = PRINT_TEXT_T_CN;
-            main_menu.extrude = EXTRUDE_TEXT_T_CN;
-            main_menu.leveling = LEVELING_TEXT_T_CN;
-            main_menu.autoleveling = AUTO_LEVELING_TEXT_T_CN;
-            main_menu.fan = FAN_TEXT_T_CN;
-            main_menu.set = SET_TEXT_T_CN;
-            main_menu.more = MORE_TEXT_T_CN;
-            main_menu.tool = TOOL_TEXT_T_CN;
+            main_menu.title = TITLE_READYPRINT_CN;
+            main_menu.preheat = PREHEAT_TEXT_CN;
+            main_menu.move = MOVE_TEXT_CN;
+            main_menu.home = HOME_TEXT_CN;
+            main_menu.print = PRINT_TEXT_CN;
+            main_menu.extrude = EXTRUDE_TEXT_CN;
+            main_menu.leveling = LEVELING_TEXT_CN;
+            main_menu.autoleveling = AUTO_LEVELING_TEXT_CN;
+            main_menu.fan = FAN_TEXT_CN;
+            main_menu.set = SET_TEXT_CN;
+            main_menu.more = MORE_TEXT_CN;
+            main_menu.tool = TOOL_TEXT_CN;
             //TOOL
-            tool_menu.title = TOOL_TEXT_T_CN;
-            tool_menu.preheat = TOOL_PREHEAT_T_CN;
-            tool_menu.extrude = TOOL_EXTRUDE_T_CN;
-            tool_menu.move = TOOL_MOVE_T_CN;
-            tool_menu.home = TOOL_HOME_T_CN;
-            tool_menu.leveling = TOOL_LEVELING_T_CN;
-            tool_menu.autoleveling = TOOL_AUTO_LEVELING_T_CN;
-            tool_menu.filament = TOOL_FILAMENT_T_CN;
-            tool_menu.more = TOOL_MORE_T_CN;
+            tool_menu.title = TOOL_TEXT_CN;
+            tool_menu.preheat = TOOL_PREHEAT_CN;
+            tool_menu.extrude = TOOL_EXTRUDE_CN;
+            tool_menu.move = TOOL_MOVE_CN;
+            tool_menu.home = TOOL_HOME_CN;
+            tool_menu.leveling = TOOL_LEVELING_CN;
+            tool_menu.autoleveling = TOOL_AUTO_LEVELING_CN;
+            tool_menu.filament = TOOL_FILAMENT_CN;
+            tool_menu.more = TOOL_MORE_CN;
             //
-            preheat_menu.adjust_title = TITLE_ADJUST_T_CN;
-            preheat_menu.title = TITLE_PREHEAT_T_CN;
-            preheat_menu.add = ADD_TEXT_T_CN;
-            preheat_menu.dec = DEC_TEXT_T_CN;
-            preheat_menu.ext1 = EXTRUDER_1_TEXT_T_CN;
-            preheat_menu.ext2 = EXTRUDER_2_TEXT_T_CN;
-            preheat_menu.hotbed = HEATBED_TEXT_T_CN;
-            preheat_menu.off = CLOSE_TEXT_T_CN;
-            preheat_menu.value_state = TEXT_VALUE_T_CN;
-            preheat_menu.step_1c = TEXT_1C_T_CN;
-            preheat_menu.step_5c = TEXT_5C_T_CN;
-            preheat_menu.step_10c = TEXT_10C_T_CN;
+            preheat_menu.adjust_title = TITLE_ADJUST_CN;
+            preheat_menu.title = TITLE_PREHEAT_CN;
+            preheat_menu.add = ADD_TEXT_CN;
+            preheat_menu.dec = DEC_TEXT_CN;
+            preheat_menu.ext1 = EXTRUDER_1_TEXT_CN;
+            preheat_menu.ext2 = EXTRUDER_2_TEXT_CN;
+            preheat_menu.hotbed = HEATBED_TEXT_CN;
+            preheat_menu.off = CLOSE_TEXT_CN;
+            preheat_menu.value_state = TEXT_VALUE_CN;
+            preheat_menu.step_1c = TEXT_1C_CN;
+            preheat_menu.step_5c = TEXT_5C_CN;
+            preheat_menu.step_10c = TEXT_10C_CN;
             //
-            move_menu.title = MOVE_TEXT_T_CN;
-            more_menu.zoffset = ZOFFSET_T_CN;
+            move_menu.title = MOVE_TEXT_CN;
+            more_menu.zoffset = ZOFFSET_CN;
             //
-            home_menu.title = TITLE_HOME_T_CN;
-            home_menu.stopmove = HOME_STOPMOVE_T_CN;
+            home_menu.title = TITLE_HOME_CN;
+            home_menu.stopmove = HOME_STOPMOVE_CN;
             //
-            file_menu.title = TITLE_CHOOSEFILE_T_CN;
-            file_menu.page_up = PAGE_UP_TEXT_T_CN;
-            file_menu.page_down = PAGE_DOWN_TEXT_T_CN;
-            file_menu.file_loading = FILE_LOADING_T_CN;
-            file_menu.no_file = NO_FILE_T_CN;
-            file_menu.no_file_and_check = NO_FILE_T_CN;//NO_FILE_AND_CHECK_T_CN;
+            file_menu.title = TITLE_CHOOSEFILE_CN;
+            file_menu.page_up = PAGE_UP_TEXT_CN;
+            file_menu.page_down = PAGE_DOWN_TEXT_CN;
+            file_menu.file_loading = FILE_LOADING_CN;
+            file_menu.no_file = NO_FILE_CN;
+            file_menu.no_file_and_check = NO_FILE_CN;//NO_FILE_AND_CHECK_T_CN;
             //
-            extrude_menu.title = TITLE_EXTRUDE_T_CN;
-            extrude_menu.in = EXTRUDER_IN_TEXT_T_CN;
-            extrude_menu.out = EXTRUDER_OUT_TEXT_T_CN;
-            extrude_menu.ext1 = EXTRUDER_1_TEXT_T_CN;
-            extrude_menu.ext2 = EXTRUDER_2_TEXT_T_CN;
-            extrude_menu.low = EXTRUDE_LOW_SPEED_TEXT_T_CN;
-            extrude_menu.normal = EXTRUDE_MEDIUM_SPEED_TEXT_T_CN;
-            extrude_menu.high = EXTRUDE_HIGH_SPEED_TEXT_T_CN;
-            extrude_menu.temper_text = EXTRUDER_TEMP_TEXT_T_CN;
-            extrude_menu.temp_value = EXTRUDE_TEXT_VALUE_T_T_CN;
+            extrude_menu.title = TITLE_EXTRUDE_CN;
+            extrude_menu.in = EXTRUDER_IN_TEXT_CN;
+            extrude_menu.out = EXTRUDER_OUT_TEXT_CN;
+            extrude_menu.ext1 = EXTRUDER_1_TEXT_CN;
+            extrude_menu.ext2 = EXTRUDER_2_TEXT_CN;
+            extrude_menu.low = EXTRUDE_LOW_SPEED_TEXT_CN;
+            extrude_menu.normal = EXTRUDE_MEDIUM_SPEED_TEXT_CN;
+            extrude_menu.high = EXTRUDE_HIGH_SPEED_TEXT_CN;
+            extrude_menu.temper_text = EXTRUDER_TEMP_TEXT_CN;
+            extrude_menu.temp_value = EXTRUDE_TEXT_VALUE_T_CN;
             //
             leveling_menu.title = TITLE_LEVELING_CN;
-            leveling_menu.position1 = LEVELING_POINT1_TEXT_T_CN;
-            leveling_menu.position2 = LEVELING_POINT2_TEXT_T_CN;
-            leveling_menu.position3 = LEVELING_POINT3_TEXT_T_CN;
-            leveling_menu.position4 = LEVELING_POINT4_TEXT_T_CN;
-            leveling_menu.position5 = LEVELING_POINT5_TEXT_T_CN;
+            leveling_menu.position1 = LEVELING_POINT1_TEXT_CN;
+            leveling_menu.position2 = LEVELING_POINT2_TEXT_CN;
+            leveling_menu.position3 = LEVELING_POINT3_TEXT_CN;
+            leveling_menu.position4 = LEVELING_POINT4_TEXT_CN;
+            leveling_menu.position5 = LEVELING_POINT5_TEXT_CN;
             //
-            set_menu.title = TITLE_SET_T_CN;
-            set_menu.filesys = FILESYS_TEXT_T_CN;
-            set_menu.wifi = WIFI_TEXT_T_CN;
-            set_menu.about = ABOUT_TEXT_T_CN;
-            set_menu.fan = FAN_TEXT_T_CN;
-            set_menu.filament = FILAMENT_TEXT_T_CN;
-            set_menu.breakpoint = BREAK_POINT_TEXT_T_CN;
-            set_menu.motoroff = MOTOR_OFF_TEXT_T_CN;
-            set_menu.motoroffXY = MOTOR_OFF_XY_TEXT_T_CN;
-            set_menu.language = LANGUAGE_TEXT_T_CN;
-            set_menu.shutdown = SHUTDOWN_TEXT_T_CN;
-            //set_menu.machine_para = MACHINE_PARA_T_CN;
+            set_menu.title = TITLE_SET_CN;
+            set_menu.filesys = FILESYS_TEXT_CN;
+            set_menu.wifi = WIFI_TEXT_CN;
+            set_menu.about = ABOUT_TEXT_CN;
+            set_menu.fan = FAN_TEXT_CN;
+            set_menu.filament = FILAMENT_TEXT_CN;
+            set_menu.breakpoint = BREAK_POINT_TEXT_CN;
+            set_menu.motoroff = MOTOR_OFF_TEXT_CN;
+            set_menu.motoroffXY = MOTOR_OFF_XY_TEXT_CN;
+            set_menu.language = LANGUAGE_TEXT_CN;
+            set_menu.shutdown = SHUTDOWN_TEXT_CN;
+            //set_menu.machine_para = MACHINE_PARA_CN;
             //
-            filesys_menu.title = TITLE_FILESYS_T_CN;
-            filesys_menu.sd_sys = SD_CARD_TEXT_T_CN;
-            filesys_menu.usb_sys = U_DISK_TEXT_T_CN;
+            filesys_menu.title = TITLE_FILESYS_CN;
+            filesys_menu.sd_sys = SD_CARD_TEXT_CN;
+            filesys_menu.usb_sys = U_DISK_TEXT_CN;
             //
-            more_menu.title = TITLE_MORE_T_CN;
+            more_menu.title = TITLE_MORE_CN;
             //WIFI
             wifi_menu.title = WIFI_TEXT;
             //wifi_menu.key = WIFI_KEY_TEXT_CN;
             //wifi_menu.ip = WIFI_IP_TEXT_CN;
             //wifi_menu.state = WIFI_STA_TEXT_CN;
-            wifi_menu.cloud = CLOUD_TEXT_T_CN;
-            wifi_menu.reconnect = WIFI_RECONNECT_TEXT_T_CN;
+            wifi_menu.cloud = CLOUD_TEXT_CN;
+            wifi_menu.reconnect = WIFI_RECONNECT_TEXT_CN;
             //CLOUD
-            cloud_menu.title = TITLE_CLOUD_TEXT_T_CN;
-            cloud_menu.bind = CLOUD_BINDED_T_CN;
-            cloud_menu.binded = CLOUD_BINDED_T_CN;
-            cloud_menu.unbind = CLOUD_UNBIND_T_CN;
-            cloud_menu.unbinding = CLOUD_UNBINDED_T_CN;
-            cloud_menu.disconnected = CLOUD_DISCONNECTED_T_CN;
-            cloud_menu.disable = CLOUD_DISABLE_T_CN;
+            cloud_menu.title = TITLE_CLOUD_TEXT_CN;
+            cloud_menu.bind = CLOUD_BINDED_CN;
+            cloud_menu.binded = CLOUD_BINDED_CN;
+            cloud_menu.unbind = CLOUD_UNBIND_CN;
+            cloud_menu.unbinding = CLOUD_UNBINDED_CN;
+            cloud_menu.disconnected = CLOUD_DISCONNECTED_CN;
+            cloud_menu.disable = CLOUD_DISABLE_CN;
             //
-            about_menu.title = ABOUT_TEXT_T_CN;
-            about_menu.type = ABOUT_TYPE_TEXT_T_CN;
-            about_menu.version = ABOUT_VERSION_TEXT_T_CN;
-            about_menu.wifi = ABOUT_WIFI_TEXT_T_CN;
+            about_menu.title = ABOUT_TEXT_CN;
+            about_menu.type = ABOUT_TYPE_TEXT_CN;
+            about_menu.version = ABOUT_VERSION_TEXT_CN;
+            about_menu.wifi = ABOUT_WIFI_TEXT_CN;
 
             //
-            fan_menu.title = FAN_TEXT_T_CN;
-            fan_menu.add = FAN_ADD_TEXT_T_CN;
-            fan_menu.dec = FAN_DEC_TEXT_T_CN;
-            fan_menu.state = FAN_TIPS1_TEXT_T_CN;
+            fan_menu.title = FAN_TEXT_CN;
+            fan_menu.add = FAN_ADD_TEXT_CN;
+            fan_menu.dec = FAN_DEC_TEXT_CN;
+            fan_menu.state = FAN_TIPS1_TEXT_CN;
             //
-            filament_menu.title = TITLE_FILAMENT_T_CN;
-            filament_menu.in = FILAMENT_IN_TEXT_T_CN;
-            filament_menu.out = FILAMENT_OUT_TEXT_T_CN;
-            filament_menu.ext1 = FILAMENT_EXT0_TEXT_T_CN;
-            filament_menu.ext2 = FILAMENT_EXT1_TEXT_T_CN;
-            filament_menu.ready_replace = FILAMENT_CHANGE_TEXT_T_CN;
-            filament_menu.filament_dialog_load_heat = FILAMENT_DIALOG_LOAD_HEAT_TIPS_T_CN;
-            filament_menu.filament_dialog_load_heat_confirm = FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_T_CN;
-            filament_menu.filament_dialog_loading = FILAMENT_DIALOG_LOADING_TIPS_T_CN;
-            filament_menu.filament_dialog_load_completed = FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_T_CN;
-            filament_menu.filament_dialog_unload_heat = FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_T_CN;
-            filament_menu.filament_dialog_unload_heat_confirm = FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_T_CN;
-            filament_menu.filament_dialog_unloading = FILAMENT_DIALOG_UNLOADING_TIPS_T_CN;
-            filament_menu.filament_dialog_unload_completed = FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_T_CN;
+            filament_menu.title = TITLE_FILAMENT_CN;
+            filament_menu.in = FILAMENT_IN_TEXT_CN;
+            filament_menu.out = FILAMENT_OUT_TEXT_CN;
+            filament_menu.ext1 = FILAMENT_EXT0_TEXT_CN;
+            filament_menu.ext2 = FILAMENT_EXT1_TEXT_CN;
+            filament_menu.ready_replace = FILAMENT_CHANGE_TEXT_CN;
+            filament_menu.filament_dialog_load_heat = FILAMENT_DIALOG_LOAD_HEAT_TIPS_CN;
+            filament_menu.filament_dialog_load_heat_confirm = FILAMENT_DIALOG_LOAD_CONFIRM1_TIPS_CN;
+            filament_menu.filament_dialog_loading = FILAMENT_DIALOG_LOADING_TIPS_CN;
+            filament_menu.filament_dialog_load_completed = FILAMENT_DIALOG_LOAD_COMPLETE_TIPS_CN;
+            filament_menu.filament_dialog_unload_heat = FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_CN;
+            filament_menu.filament_dialog_unload_heat_confirm = FILAMENT_DIALOG_UNLOAD_CONFIRM_TIPS_CN;
+            filament_menu.filament_dialog_unloading = FILAMENT_DIALOG_UNLOADING_TIPS_CN;
+            filament_menu.filament_dialog_unload_completed = FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_CN;
 
 
             //
-            language_menu.title = TITLE_LANGUAGE_T_CN;
-            language_menu.next = PAGE_DOWN_TEXT_T_CN;
-            language_menu.up = PAGE_UP_TEXT_T_CN;
+            language_menu.title = TITLE_LANGUAGE_CN;
+            language_menu.next = PAGE_DOWN_TEXT_CN;
+            language_menu.up = PAGE_UP_TEXT_CN;
 
             //
-            printing_menu.title = TITLE_PRINTING_T_CN;
-            printing_menu.option = PRINTING_OPERATION_T_CN;
-            printing_menu.stop = PRINTING_STOP_T_CN;
-            printing_menu.pause = PRINTING_PAUSE_T_CN;
-            printing_menu.resume = PRINTING_RESUME_T_CN;
+            printing_menu.title = TITLE_PRINTING_CN;
+            printing_menu.option = PRINTING_OPERATION_CN;
+            printing_menu.stop = PRINTING_STOP_CN;
+            printing_menu.pause = PRINTING_PAUSE_CN;
+            printing_menu.resume = PRINTING_RESUME_CN;
 
             //
-            operation_menu.title = TITLE_OPERATION_T_CN;
-            operation_menu.pause = PRINTING_PAUSE_T_CN;
-            operation_menu.stop = PRINTING_STOP_T_CN;
-            operation_menu.temp = PRINTING_TEMP_T_CN;
-            operation_menu.fan = FAN_TEXT_T_CN;
-            operation_menu.extr = PRINTING_EXTRUDER_T_CN;
-            operation_menu.speed = PRINTING_CHANGESPEED_T_CN;
-            operation_menu.filament = FILAMENT_TEXT_T_CN;
-            operation_menu.more = PRINTING_MORE_T_CN;
-            operation_menu.move = PRINTING_MOVE_T_CN;
-            operation_menu.auto_off = AUTO_SHUTDOWN_T_CN;
-            operation_menu.manual_off = MANUAL_SHUTDOWN_T_CN;
+            operation_menu.title = TITLE_OPERATION_CN;
+            operation_menu.pause = PRINTING_PAUSE_CN;
+            operation_menu.stop = PRINTING_STOP_CN;
+            operation_menu.temp = PRINTING_TEMP_CN;
+            operation_menu.fan = FAN_TEXT_CN;
+            operation_menu.extr = PRINTING_EXTRUDER_CN;
+            operation_menu.speed = PRINTING_CHANGESPEED_CN;
+            operation_menu.filament = FILAMENT_TEXT_CN;
+            operation_menu.more = PRINTING_MORE_CN;
+            operation_menu.move = PRINTING_MOVE_CN;
+            operation_menu.auto_off = AUTO_SHUTDOWN_CN;
+            operation_menu.manual_off = MANUAL_SHUTDOWN_CN;
             //
-            pause_menu.title = TITLE_PAUSE_T_CN;
-            pause_menu.resume = PRINTING_RESUME_T_CN;
-            pause_menu.stop = PRINTING_STOP_T_CN;
-            pause_menu.extrude = PRINTING_EXTRUDER_T_CN;
-            pause_menu.move = PRINTING_MOVE_T_CN;
-            pause_menu.filament = FILAMENT_TEXT_T_CN;
-            pause_menu.more = PRINTING_MORE_T_CN;
+            pause_menu.title = TITLE_PAUSE_CN;
+            pause_menu.resume = PRINTING_RESUME_CN;
+            pause_menu.stop = PRINTING_STOP_CN;
+            pause_menu.extrude = PRINTING_EXTRUDER_CN;
+            pause_menu.move = PRINTING_MOVE_CN;
+            pause_menu.filament = FILAMENT_TEXT_CN;
+            pause_menu.more = PRINTING_MORE_CN;
 
             //
-            speed_menu.title = PRINTING_CHANGESPEED_T_CN;
-            speed_menu.add = ADD_TEXT_T_CN;
-            speed_menu.dec = DEC_TEXT_T_CN;
-            speed_menu.move = MOVE_SPEED_T_CN;
-            speed_menu.extrude = EXTRUDER_SPEED_T_CN;
-            speed_menu.extrude_speed = EXTRUDER_SPEED_STATE_T_CN;
-            speed_menu.move_speed = MOVE_SPEED_STATE_T_CN;
+            speed_menu.title = PRINTING_CHANGESPEED_CN;
+            speed_menu.add = ADD_TEXT_CN;
+            speed_menu.dec = DEC_TEXT_CN;
+            speed_menu.move = MOVE_SPEED_CN;
+            speed_menu.extrude = EXTRUDER_SPEED_CN;
+            speed_menu.extrude_speed = EXTRUDER_SPEED_STATE_CN;
+            speed_menu.move_speed = MOVE_SPEED_STATE_CN;
             //
-            printing_more_menu.title = TITLE_MORE_T_CN;
-            printing_more_menu.fan = FAN_TEXT_T_CN;
-            printing_more_menu.auto_close = AUTO_SHUTDOWN_T_CN;
-            printing_more_menu.manual = MANUAL_SHUTDOWN_T_CN;
-            printing_more_menu.speed = PRINTING_CHANGESPEED_T_CN;
-            printing_more_menu.temp = PRINTING_TEMP_T_CN;
+            printing_more_menu.title = TITLE_MORE_CN;
+            printing_more_menu.fan = FAN_TEXT_CN;
+            printing_more_menu.auto_close = AUTO_SHUTDOWN_CN;
+            printing_more_menu.manual = MANUAL_SHUTDOWN_CN;
+            printing_more_menu.speed = PRINTING_CHANGESPEED_CN;
+            printing_more_menu.temp = PRINTING_TEMP_CN;
 
             //print_file_dialog_menu.title = TITLE_DIALOG_CONFIRM_CN;
-            print_file_dialog_menu.confirm = DIALOG_CONFIRM_T_CN;
-            print_file_dialog_menu.cancle = DIALOG_CANCLE_T_CN;
-            print_file_dialog_menu.print_file = DIALOG_PRINT_MODEL_T_CN;
-            print_file_dialog_menu.cancle_print = DIALOG_CANCEL_PRINT_T_CN;
-            print_file_dialog_menu.retry = DIALOG_RETRY_T_CN;
-            print_file_dialog_menu.stop = DIALOG_STOP_T_CN;
-            print_file_dialog_menu.no_file_print_tips = DIALOG_ERROR_TIPS1_T_CN;
-            print_file_dialog_menu.print_from_breakpoint = DIALOG_REPRINT_FROM_BREAKPOINT_T_CN;
+            print_file_dialog_menu.confirm = DIALOG_CONFIRM_CN;
+            print_file_dialog_menu.cancle = DIALOG_CANCLE_CN;
+            print_file_dialog_menu.print_file = DIALOG_PRINT_MODEL_CN;
+            print_file_dialog_menu.cancle_print = DIALOG_CANCEL_PRINT_CN;
+            print_file_dialog_menu.retry = DIALOG_RETRY_CN;
+            print_file_dialog_menu.stop = DIALOG_STOP_CN;
+            print_file_dialog_menu.no_file_print_tips = DIALOG_ERROR_TIPS1_CN;
+            print_file_dialog_menu.print_from_breakpoint = DIALOG_REPRINT_FROM_BREAKPOINT_CN;
 
-            print_file_dialog_menu.close_machine_error = DIALOG_ERROR_TIPS2_T_CN;
-            print_file_dialog_menu.filament_no_press = DIALOG_FILAMENT_NO_PRESS_T_CN;
-            print_file_dialog_menu.print_finish = DIALOG_PRINT_FINISH_T_CN;
-            print_file_dialog_menu.print_time = DIALOG_PRINT_TIME_T_CN;
-            print_file_dialog_menu.reprint = DIALOG_REPRINT_T_CN;
-            print_file_dialog_menu.wifi_enable_tips = DIALOG_WIFI_ENABLE_TIPS_T_CN;
+            print_file_dialog_menu.close_machine_error = DIALOG_ERROR_TIPS2_CN;
+            print_file_dialog_menu.filament_no_press = DIALOG_FILAMENT_NO_PRESS_CN;
+            print_file_dialog_menu.print_finish = DIALOG_PRINT_FINISH_CN;
+            print_file_dialog_menu.print_time = DIALOG_PRINT_TIME_CN;
+            print_file_dialog_menu.reprint = DIALOG_REPRINT_CN;
+            print_file_dialog_menu.wifi_enable_tips = DIALOG_WIFI_ENABLE_TIPS_CN;
             //ZOFFSET
-            zoffset_menu.title = TITLE_ZOFFSET_T_CN;
-            zoffset_menu.inc = ZOFFSET_INC_T_CN;
-            zoffset_menu.dec = ZOFFSET_DEC_T_CN;
+            zoffset_menu.title = TITLE_ZOFFSET_CN;
+            zoffset_menu.inc = ZOFFSET_INC_CN;
+            zoffset_menu.dec = ZOFFSET_DEC_CN;
 
-            pause_msg_menu.pausing = MESSEGE_PAUSING_T_CN;
-            pause_msg_menu.changing = MESSEGE_CHANGING_T_CN;
-            pause_msg_menu.unload = MESSEGE_UNLOAD_T_CN;
-            pause_msg_menu.waiting = MESSEGE_WAITING_T_CN;
-            pause_msg_menu.insert = MESSEGE_INSERT_T_CN;
-            pause_msg_menu.load = MESSEGE_LOAD_T_CN;
-            pause_msg_menu.purge = MESSEGE_PURGE_T_CN;
-            pause_msg_menu.resume = MESSEGE_RESUME_T_CN;
-            pause_msg_menu.heat = MESSEGE_HEAT_T_CN;
-            pause_msg_menu.heating = MESSEGE_HEATING_T_CN;
-            pause_msg_menu.option = MESSEGE_OPTION_T_CN;
-            pause_msg_menu.purgeMore = MESSEGE_PURGE_MORE_T_CN;
-            pause_msg_menu.continuePrint = MESSEGE_CONTINUE_PRINT_T_CN;
+            pause_msg_menu.pausing = MESSEGE_PAUSING_CN;
+            pause_msg_menu.changing = MESSEGE_CHANGING_CN;
+            pause_msg_menu.unload = MESSEGE_UNLOAD_CN;
+            pause_msg_menu.waiting = MESSEGE_WAITING_CN;
+            pause_msg_menu.insert = MESSEGE_INSERT_CN;
+            pause_msg_menu.load = MESSEGE_LOAD_CN;
+            pause_msg_menu.purge = MESSEGE_PURGE_CN;
+            pause_msg_menu.resume = MESSEGE_RESUME_CN;
+            pause_msg_menu.heat = MESSEGE_HEAT_CN;
+            pause_msg_menu.heating = MESSEGE_HEATING_CN;
+            pause_msg_menu.option = MESSEGE_OPTION_CN;
+            pause_msg_menu.purgeMore = MESSEGE_PURGE_MORE_CN;
+            pause_msg_menu.continuePrint = MESSEGE_CONTINUE_PRINT_CN;
             break;
           case LANG_ENGLISH:
             common_menu.dialog_confirm_title = TITLE_DIALOG_CONFIRM_EN;
@@ -1900,4 +1900,4 @@ void disp_language_init() {
   }
 }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI
