@@ -148,7 +148,7 @@ typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                          
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, COUNT(ARR) - 1)
+#define ALIM(I,ARR) _MIN(I, signed(COUNT(ARR) - 1))
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;

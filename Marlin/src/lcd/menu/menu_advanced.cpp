@@ -435,19 +435,20 @@ void menu_cancelobject();
     END_MENU();
   }
 
-  // M205 Jerk
-  void menu_advanced_jerk() {
-    START_MENU();
-    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+  #if HAS_CLASSIC_JERK
 
-    #if HAS_JUNCTION_DEVIATION
-      #if ENABLED(LIN_ADVANCE)
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
-      #else
-        EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.5f);
+    void menu_advanced_jerk() {
+      START_MENU();
+      BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+      #if HAS_JUNCTION_DEVIATION
+        #if ENABLED(LIN_ADVANCE)
+          EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f, planner.recalculate_max_e_jerk);
+        #else
+          EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.5f);
+        #endif
       #endif
-    #endif
-    #if HAS_CLASSIC_JERK
+
       constexpr xyze_float_t max_jerk_edit =
         #ifdef MAX_JERK_EDIT_VALUES
           MAX_JERK_EDIT_VALUES
@@ -468,10 +469,11 @@ void menu_cancelobject();
       #if HAS_CLASSIC_E_JERK
         EDIT_ITEM_FAST(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
       #endif
-    #endif
 
-    END_MENU();
-  }
+      END_MENU();
+    }
+
+  #endif
 
   // M851 - Z Probe Offsets
   #if HAS_BED_PROBE
@@ -479,8 +481,8 @@ void menu_cancelobject();
       START_MENU();
       BACK_ITEM(MSG_ADVANCED_SETTINGS);
       #if HAS_PROBE_XY_OFFSET
-        EDIT_ITEM(float51sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(X_BED_SIZE), X_BED_SIZE);
-        EDIT_ITEM(float51sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
+        EDIT_ITEM(float31sign, MSG_ZPROBE_XOFFSET, &probe.offset.x, -(X_BED_SIZE), X_BED_SIZE);
+        EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
       #endif
       EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
       END_MENU();
@@ -500,7 +502,6 @@ void menu_advanced_steps_per_mm() {
   EDIT_QSTEPS(C);
 
   #if ENABLED(DISTINCT_E_FACTORS)
-    EDIT_ITEM_FAST(float51, MSG_E_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(active_extruder)], 5, 9999, []{ planner.refresh_positioning(); });
     LOOP_L_N(n, E_STEPPERS)
       EDIT_ITEM_FAST_N(float51, n, MSG_EN_STEPS, &planner.settings.axis_steps_per_mm[E_AXIS_N(n)], 5, 9999, []{ _planner_refresh_e_positioning(MenuItemBase::itemIndex); });
   #elif E_STEPPERS
@@ -535,8 +536,16 @@ void menu_advanced_settings() {
     // M201 - Acceleration items
     SUBMENU(MSG_ACCELERATION, menu_advanced_acceleration);
 
-    // M205 - Max Jerk
-    SUBMENU(MSG_JERK, menu_advanced_jerk);
+    #if HAS_CLASSIC_JERK
+      // M205 - Max Jerk
+      SUBMENU(MSG_JERK, menu_advanced_jerk);
+    #elif HAS_JUNCTION_DEVIATION
+      EDIT_ITEM(float43, MSG_JUNCTION_DEVIATION, &planner.junction_deviation_mm, 0.001f, 0.3f
+        #if ENABLED(LIN_ADVANCE)
+          , planner.recalculate_max_e_jerk
+        #endif
+      );
+    #endif
 
     // M851 - Z Probe Offsets
     #if HAS_BED_PROBE
