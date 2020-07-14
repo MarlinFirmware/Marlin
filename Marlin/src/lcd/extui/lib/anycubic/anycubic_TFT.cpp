@@ -118,6 +118,7 @@ void AnycubicTFTClass::OnCommandScan() {
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
+      ExtUI::delay_ms(200);
       // tell printer to releas resources of print to indicate it is done
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J14", "TFT Serial Debug: SD Print Stopped... J14");
     }
