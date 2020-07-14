@@ -74,7 +74,6 @@ AnycubicTFTClass::AnycubicTFTClass() {
 }
 
 void AnycubicTFTClass::OnSetup() {
-  
   AnycubicSerial.begin(115200);
   ANYCUBIC_SENDCOMMAND_DBG_PGM("J17", "TFT Serial Debug: Main board reset... J17"); // J17 Main board reset
   ExtUI::delay_ms(10);
@@ -141,7 +140,7 @@ void AnycubicTFTClass::OnKillTFT()
 
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_TFT_DEBUG)
-    SERIAL_ECHOPGM(" DEBUG: OnSDCardStateChange event triggered ");
+    SERIAL_ECHOPGM("TFT Serial Debug: OnSDCardStateChange event triggered...");
     SERIAL_ECHO(itostr2(isInserted));
     SERIAL_EOL();
   #endif
@@ -149,6 +148,9 @@ void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
 }
 
 void AnycubicTFTClass::OnSDCardError() {
+  #if ENABLED(ANYCUBIC_TFT_DEBUG)
+    SERIAL_ECHOLNPGM("TFT Serial Debug: OnSDCardError event triggered...");    
+  #endif
   ANYCUBIC_SENDCOMMAND_DBG_PGM("J21", "TFT Serial Debug: On SD Card Error ... J21");
 }
 
@@ -156,7 +158,6 @@ void AnycubicTFTClass::OnFilamentRunout() {
   #if ENABLED(ANYCUBIC_TFT_DEBUG)
     SERIAL_ECHOLNPGM("TFT Serial Debug: FilamentRunout triggered...");
   #endif
-
   DoFilamentRunoutCheck();
 }
 
@@ -193,8 +194,8 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
     } else if (strcmp_P(msg, PSTR("Filament Purging...")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_PARKING;
+      // TODO: JBA I don't think J05 just disables the continue button, i think it injects a rogue M25. So taking this out
       // disable continue button
-      // TODO: JBA i think this is throwing a rogue delayed pause into the mix so don't do this
       //ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
       
       // enable continue button
@@ -897,7 +898,6 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             
               ExtUI::setTargetTemp_celsius(PREHEAT_2_TEMP_BED, (ExtUI::heater_t) ExtUI::BED);
               ExtUI::setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, (ExtUI::extruder_t) ExtUI::E0);
-
               ANYCUBIC_SERIAL_SUCC_START;
               ANYCUBIC_SERIAL_ENTER();
             }
@@ -982,7 +982,6 @@ void AnycubicTFTClass::DoSDCardStateCheck() {
 
 void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    
     // NOTE: ExtUI::getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
     if (READ(FIL_RUNOUT_PIN)) {
@@ -1048,8 +1047,10 @@ void AnycubicTFTClass::ResumePrint() {
     
     if(mediaPauseState == AMPAUSESTATE_HEATER_TIMEOUT) {
       mediaPauseState = AMPAUSESTATE_REHEATING;
-      // disable the continue button 
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: Resume called with heater timeout... J05"); // J05 printing pause
+      // TODO: JBA I don't think J05 just disables the continue button, i think it injects a rogue M25. So taking this out
+      // // disable the continue button 
+      // ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: Resume called with heater timeout... J05"); // J05 printing pause
+      
       // reheat the nozzle
       ExtUI::setUserConfirmed();
     } else {
@@ -1066,12 +1067,10 @@ void AnycubicTFTClass::StopPrint() {
   #if ENABLED(SDSUPPORT)
     mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
     mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-
     ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
     
-    // for some reason pausing the print doesn't retract the extruder so force a manual one here
-    ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
-      
+    // for some reason stopping the print doesn't retract the extruder so force a manual one here
+    ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));      
     ExtUI::stopPrint();
   #endif // SDSUPPORT
 }
