@@ -1981,7 +1981,7 @@
 //#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
 //
-// Factory display for Creality CR-10
+// Factory display for Creality CR-10 and Creality Ender 3
 // https://www.aliexpress.com/item/32833148327.html
 //
 // This is RAMPS-compatible using a single 10-pin connector.
