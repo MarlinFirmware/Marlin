@@ -961,7 +961,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -2.75 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/09
+#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -2.75 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/09 -2.535 for smooth PEI
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
