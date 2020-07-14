@@ -85,8 +85,8 @@ void AnycubicTFTClass::OnSetup() {
     WRITE(SD_DETECT_PIN, HIGH);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    pinMode(FIL_RUNOUT_PIN,INPUT);
-    WRITE(FIL_RUNOUT_PIN,HIGH);
+    pinMode(FIL_RUNOUT_PIN, INPUT);
+    WRITE(FIL_RUNOUT_PIN, HIGH);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
@@ -108,7 +108,6 @@ void AnycubicTFTClass::OnSetup() {
 }
 
 void AnycubicTFTClass::OnCommandScan() {
-  // CheckHeaterError();
   if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
     #if ENABLED(ANYCUBIC_TFT_DEBUG)
       SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
@@ -117,7 +116,7 @@ void AnycubicTFTClass::OnCommandScan() {
     mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
     ExtUI::injectCommands_P(PSTR("M84\nG4 P500\nM27")); // disable stepper motors and force report of SD status
   }
-  
+
   if(TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
   }
@@ -493,20 +492,6 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
     }
   }
 }
-
-// void AnycubicTFTClass::CheckHeaterError() {
-//   if ((ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) < 5) || (ExtUI::getActualTemp_celsius((ExtUI::extruder_t) ExtUI::E0) > 290)) {
-//     if (HeaterCheckCount > 60000) {
-//       HeaterCheckCount = 0;
-//       ANYCUBIC_SENDCOMMAND_DBG_PGM("J10", "TFT Serial Debug: Hotend temperature abnormal... J10"); // J10 Hotend temperature abnormal
-//     }
-//     else {
-//       HeaterCheckCount++;
-//     }
-//   } else {
-//     HeaterCheckCount = 0;
-//   }
-// }
 
 void AnycubicTFTClass::OnPrintTimerStarted() {
   #if ENABLED(SDSUPPORT)
@@ -986,7 +971,10 @@ void AnycubicTFTClass::DoSDCardStateCheck() {
 
 void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if (ExtUI::getFilamentRunoutState()) {
+    
+    // NOTE: ExtUI::getFilamentRunoutState() only returns the runout state if the job is printing
+    // we want to actually check the status of the pin here, regardless of printstate
+    if (READ(FIL_RUNOUT_PIN)) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
         ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
@@ -1031,7 +1019,7 @@ void AnycubicTFTClass::PausePrint() {
 void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if (ExtUI::getFilamentRunoutState()) {
+      if (READ(FIL_RUNOUT_PIN)) {
         #if ENABLED(ANYCUBIC_TFT_DEBUG)
           SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
         #endif
@@ -1065,6 +1053,9 @@ void AnycubicTFTClass::StopPrint() {
   #if ENABLED(SDSUPPORT)
     mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
     mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+
+    // retract the nozzle a little
+    ExtUI::injectCommands_P(PSTR("G91\nG1 E-1 F1800\nG90"));
 
     ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
     ExtUI::stopPrint();
