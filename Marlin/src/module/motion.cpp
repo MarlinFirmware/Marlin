@@ -946,7 +946,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   millis_t delayed_move_time             = 0;                             // used in mode 1
   int16_t duplicate_extruder_temp_offset = 0;                             // used in mode 2
 
-  float x_home_pos(const int extruder) {
+  float x_home_pos(const uint8_t extruder) {
     if (extruder == 0)
       return base_home_pos(X_AXIS);
     else
