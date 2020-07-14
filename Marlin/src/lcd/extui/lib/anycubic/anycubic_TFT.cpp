@@ -108,13 +108,19 @@ void AnycubicTFTClass::OnSetup() {
 }
 
 void AnycubicTFTClass::OnCommandScan() {
-  if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
-    #if ENABLED(ANYCUBIC_TFT_DEBUG)
-      SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
-    #endif
-    mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
-    mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-    ExtUI::injectCommands_P(PSTR("M84\nG4 P500\nM27")); // disable stepper motors and force report of SD status
+  millis_t currentTicks = millis ();
+  if(currentTicks - clockTicks > 1000) {
+    clockTicks = currentTicks;
+    if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
+      #if ENABLED(ANYCUBIC_TFT_DEBUG)
+        SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
+      #endif
+      mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
+      mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+      ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
+      // tell printer to releas resources of print to indicate it is done
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J14", "TFT Serial Debug: SD Print Stopped... J14");
+    }
   }
 
   if(TFTbuflen<(TFTBUFSIZE-1)) {
@@ -187,7 +193,11 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_PARKING;
       // disable continue button
-      ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
+      // TODO: JBA i think this is throwing a rogue delayed pause into the mix so don't do this
+      //ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: UserConfirm SD Filament Purging... J05"); // J05 printing pause
+      
+      // enable continue button
+      ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is purging... J18");      
     } else if (strcmp_P(msg, PSTR("HeaterTimeout")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
       mediaPauseState = AMPAUSESTATE_HEATER_TIMEOUT;
@@ -1011,6 +1021,8 @@ void AnycubicTFTClass::PausePrint() {
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
 
+      // for some reason pausing the print doesn't retract the extruder so force a manual one here
+      ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
       ExtUI::pausePrint();
     }
   #endif // SDSUPPORT
@@ -1054,10 +1066,11 @@ void AnycubicTFTClass::StopPrint() {
     mediaPrintingState = AMPRINTSTATE_STOP_REQUESTED;
     mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
 
-    // retract the nozzle a little
-    ExtUI::injectCommands_P(PSTR("G91\nG1 E-1 F1800\nG90"));
-
     ANYCUBIC_SENDCOMMAND_DBG_PGM("J16", "TFT Serial Debug: SD print stop called... J16");
+    
+    // for some reason pausing the print doesn't retract the extruder so force a manual one here
+    ExtUI::injectCommands_P(PSTR("G91\nG1 E-2 F1800\nG90"));
+      
     ExtUI::stopPrint();
   #endif // SDSUPPORT
 }

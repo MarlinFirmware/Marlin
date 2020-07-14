@@ -102,6 +102,7 @@ private:
   uint8_t SpecialMenu = false;
   AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
   AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
+  millis_t clockTicks = millis();   // used to slow the stopped print check down to reasonable times
   
   float CodeValue();
   bool CodeSeen(char);
