@@ -168,22 +168,19 @@ bool Stepper::abort_current_block;
 
 #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
-       #if NUM_Z_STEPPER_DRIVERS >= 3
-         , Stepper::locked_Z3_motor = false
-         #if NUM_Z_STEPPER_DRIVERS >= 4
-           , Stepper::locked_Z4_motor = false
-         #endif
-       #endif
-       ;
+    #if NUM_Z_STEPPER_DRIVERS >= 3
+      , Stepper::locked_Z3_motor = false
+      #if NUM_Z_STEPPER_DRIVERS >= 4
+        , Stepper::locked_Z4_motor = false
+      #endif
+    #endif
+  ;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 uint8_t Stepper::steps_per_isr;
 
-#if DISABLED(ADAPTIVE_STEP_SMOOTHING)
-  constexpr
-#endif
-    uint8_t Stepper::oversampling_factor;
+TERN(ADAPTIVE_STEP_SMOOTHING,,constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -2099,17 +2096,18 @@ uint32_t Stepper::block_phase_isr() {
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
 
-      uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
-
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+        uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
+        uint32_t max_rate = current_block->nominal_rate;    // Get the maximum rate (maximum event speed)
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
           max_rate <<= 1;                                   // Try to double the rate
           if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break; // Don't exceed the estimated ISR limit
           ++oversampling;                                   // Increase the oversampling (used for left-shift)
         }
         oversampling_factor = oversampling;                 // For all timer interval calculations
+      #else
+        constexpr uint8_t oversampling = 0;
       #endif
 
       // Based on the oversampling factor, do the calculations

@@ -35,7 +35,7 @@ struct pm_lpf_t {
     filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
   }
   void capture() {
-    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));
+    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE)))) + (POWER_MONITOR_CURRENT_OFFSET);
   }
   void reset(uint16_t reset_value = 0) {
     filter_buf = uint32_t(reset_value) << (K_VALUE + K_SCALE);
