@@ -335,7 +335,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Điều sai: nhiệt độ tối thiểu");         // Err: MINTEMP
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Điều sai: nhiệt độ bàn tối đa");        // Err: MAXTEMP BED
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Điều sai: nhiệt độ bàn tối thiểu");     // Err: MINTEMP BED
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Về nhà XY Trước");                      // Home XY First
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("MÁY IN ĐÃ DỪNG LẠI");                   // PRINTER HALTED
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Xin bặt lại");                          // Please reset
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n");                                    // d - ngày - One character only

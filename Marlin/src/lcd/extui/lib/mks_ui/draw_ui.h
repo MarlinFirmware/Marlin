@@ -28,25 +28,30 @@ extern "C" { /* C-declarations for C++ */
 #include <stdint.h>
 #include <string.h>
 #include "lvgl.h"
-#include "inc/tft_multi_language.h"
-#include "inc/draw_ready_print.h"
-#include "inc/draw_language.h"
-#include "inc/draw_set.h"
-#include "inc/draw_tool.h"
-#include "inc/draw_print_file.h"
-#include "inc/draw_dialog.h"
-#include "inc/draw_printing.h"
-#include "inc/draw_opration.h"
-#include "inc/draw_preHeat.h"
-#include "inc/draw_extrusion.h"
-#include "inc/draw_home.h"
-#include "inc/draw_move_motor.h"
-#include "inc/draw_fan.h"
-#include "inc/draw_about.h"
-#include "inc/draw_change_speed.h"
-#include "inc/draw_manuaLevel.h"
-#include "inc/draw_error_message.h"
-#include "inc/printer_opration.h"
+
+//the colors of the last MKS Ui
+#undef LV_COLOR_BACKGROUND
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) //LV_COLOR_MAKE(0x00, 0x00, 0x00)
+
+#include "tft_multi_language.h"
+#include "draw_ready_print.h"
+#include "draw_language.h"
+#include "draw_set.h"
+#include "draw_tool.h"
+#include "draw_print_file.h"
+#include "draw_dialog.h"
+#include "draw_printing.h"
+#include "draw_opration.h"
+#include "draw_preHeat.h"
+#include "draw_extrusion.h"
+#include "draw_home.h"
+#include "draw_move_motor.h"
+#include "draw_fan.h"
+#include "draw_about.h"
+#include "draw_change_speed.h"
+#include "draw_manuaLevel.h"
+#include "draw_error_message.h"
+#include "printer_opration.h"
 
 #define TFT35
 
@@ -214,7 +219,9 @@ extern void tft_style_init();
 extern char *creat_title_text(void);
 extern void preview_gcode_prehandle(char *path);
 extern void update_spi_flash();
-extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+#if HAS_GCODE_PREVIEW
+  extern void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
+#endif
 extern void GUI_RefreshPage();
 extern void clear_cur_ui();
 extern void draw_return_ui();

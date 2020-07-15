@@ -49,9 +49,9 @@
 //
 // Servos
 //
-#define SERVO0_PIN                           3
-#define SERVO1_PIN                           4
-#define SERVO2_PIN                           5
+#define SERVO0_PIN                             3
+#define SERVO1_PIN                             4
+#define SERVO2_PIN                             5
 //
 // Limit Switches
 //

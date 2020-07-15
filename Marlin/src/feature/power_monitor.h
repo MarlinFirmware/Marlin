@@ -100,13 +100,13 @@ public:
       static void draw_voltage();
       FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, PM_DISP_BIT_V); }
       FORCE_INLINE static void set_voltage_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_V, b); }
-      FORCE_INLINE static void toggle_voltage_display() { TBI(flags, PM_DISP_BIT_I); }
+      FORCE_INLINE static void toggle_voltage_display() { TBI(flags, PM_DISP_BIT_V); }
     #endif
     #if HAS_POWER_MONITOR_WATTS
       static void draw_power();
       FORCE_INLINE static bool power_display_enabled() { return TEST(flags, PM_DISP_BIT_P); }
       FORCE_INLINE static void set_power_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_P, b); }
-      FORCE_INLINE static void toggle_power_display() { TBI(flags, PM_DISP_BIT_I); }
+      FORCE_INLINE static void toggle_power_display() { TBI(flags, PM_DISP_BIT_P); }
     #endif
   #endif
 

@@ -334,8 +334,14 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_move_ms;
-  FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
+  static millis_t previous_move_ms, max_inactive_time, stepper_inactive_time;
+  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+  FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
+    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+  }
+  FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
+    return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+  }
 
   static int8_t get_target_extruder_from_command();
   static int8_t get_target_e_stepper_from_command();
@@ -608,7 +614,7 @@ private:
     static void M191();
   #endif
 
-  #if HAS_HOTEND && HAS_LCD_MENU
+  #if PREHEAT_COUNT
     static void M145();
   #endif
 

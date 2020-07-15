@@ -85,7 +85,7 @@ void GcodeSuite::G35() {
   const uint8_t screw_thread = parser.byteval('S', TRAMMING_SCREW_THREAD);
   if (!WITHIN(screw_thread, 30, 51) || screw_thread % 10 > 1) {
     SERIAL_ECHOLNPGM("?(S)crew thread must be 30, 31, 40, 41, 50, or 51.");
-    goto EXIT_G35;
+    return;
   }
 
   // Wait for planner moves to finish!
@@ -127,18 +127,16 @@ void GcodeSuite::G35() {
     const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[i], PROBE_PT_RAISE, 0, true);
 
     if (isnan(z_probed_height)) {
-      SERIAL_ECHOLNPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")"
-                        " X", screws_tilt_adjust_pos[i].x,
-                        " Y", screws_tilt_adjust_pos[i].y);
+      SERIAL_ECHOPAIR("G35 failed at point ", int(i), " (", tramming_point_name[i], ")");
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y);
       err_break = true;
       break;
     }
 
-    if (DEBUGGING(LEVELING))
-      DEBUG_ECHOLNPAIR("Probing point ", int(i), " (", tramming_point_name[i], ")"
-                       " X", screws_tilt_adjust_pos[i].x,
-                       " Y", screws_tilt_adjust_pos[i].y,
-                       " Z", z_probed_height);
+    if (DEBUGGING(LEVELING)) {
+      DEBUG_ECHOPAIR("Probing point ", int(i), " (", tramming_point_name[i], ")");
+      SERIAL_ECHOLNPAIR_P(SP_X_STR, screws_tilt_adjust_pos[i].x, SP_Y_STR, screws_tilt_adjust_pos[i].y, SP_Z_STR, z_probed_height);
+    }
 
     z_measured[i] = z_probed_height;
   }
@@ -183,8 +181,6 @@ void GcodeSuite::G35() {
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));
-
-  EXIT_G35:
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G35");
 }
