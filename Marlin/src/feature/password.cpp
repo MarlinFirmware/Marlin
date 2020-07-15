@@ -118,12 +118,8 @@ void Password::clear() {
 }
 
 void Password::digit_entered() {
-  // The previous POW() function resulted in rounding errors for larger passwords
-  uint32_t multiplier = 1;
-  for (uint8_t i=0 ; i< PASSWORD_LENGTH - 1 - digit_no ; i++) {
-    multiplier *= 10;
-  }
-  
+  const uint32_t multiplier = LROUND(pow(10, PASSWORD_LENGTH - 1 - digit_no));
+
   value_entry += digit * multiplier;
   string[digit_no++] = '0' + digit;
 
@@ -240,11 +236,7 @@ void GcodeSuite::M510() {
     if (parser.seenval('N')) {
       password.value_entry = parser.ulongval('N');
 
-      uint32_t multiplier = 1;
-      for (uint8_t i=0 ; i< PASSWORD_LENGTH; i++) {
-      multiplier *= 10;
-      }
-      if (password.value_entry < multiplier) {
+      if (password.value_entry < LROUND(pow(10, (PASSWORD_LENGTH - 1)))) {
         password.is_set = true;
         password.value = password.value_entry;
         serial_echopair_PGM(GET_TEXT(MSG_PASSWORD_SET), password.value);
