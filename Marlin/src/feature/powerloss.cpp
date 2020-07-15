@@ -521,6 +521,8 @@ void PrintJobRecovery::resume() {
         }
         DEBUG_EOL();
 
+        DEBUG_ECHOLNPAIR("zraise: ", info.zraise);
+
         #if HAS_HOME_OFFSET
           DEBUG_ECHOPGM("home_offset: ");
           LOOP_XYZ(i) {
