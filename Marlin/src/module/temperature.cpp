@@ -2026,33 +2026,29 @@ void Temperature::disable_all_heaters() {
 
   TERN_(AUTOTEMP, planner.autotemp_enabled = false);
 
-  #if HAS_HOTEND
-    HOTEND_LOOP() setTargetHotend(0, e);
-  #endif
-  TERN_(HAS_HEATED_BED, setTargetBed(0));
-  TERN_(HAS_HEATED_CHAMBER, setTargetChamber(0));
-
   // Unpause and reset everything
   TERN_(PROBING_HEATERS_OFF, pause(false));
 
-  #define DISABLE_HEATER(N) {           \
-    setTargetHotend(0, N);              \
-    temp_hotend[N].soft_pwm_amount = 0; \
-    WRITE_HEATER_##N(LOW);              \
-  }
+  #if HAS_HOTEND
+    HOTEND_LOOP() {
+      setTargetHotend(0, e);
+      temp_hotend[e].soft_pwm_amount = 0;
+    }
+  #endif
 
   #if HAS_TEMP_HOTEND
+    #define DISABLE_HEATER(N) WRITE_HEATER_##N(LOW)
     REPEAT(HOTENDS, DISABLE_HEATER);
   #endif
 
   #if HAS_HEATED_BED
-    temp_bed.target = 0;
+    setTargetBed(0);
     temp_bed.soft_pwm_amount = 0;
     WRITE_HEATER_BED(LOW);
   #endif
 
   #if HAS_HEATED_CHAMBER
-    temp_chamber.target = 0;
+    setTargetChamber(0);
     temp_chamber.soft_pwm_amount = 0;
     WRITE_HEATER_CHAMBER(LOW);
   #endif
