@@ -24,13 +24,12 @@
 #include "../lcd/ultralcd.h"
 
 class Password {
-
-#if HAS_LCD_MENU
 private:
-  static char string[INCREMENT(PASSWORD_LENGTH)];
-  static uint8_t digit, digit_no;
-  static screenFunc_t return_fn, success_fn, fail_fn;
-#endif
+  #if HAS_LCD_MENU
+    static char string[INCREMENT(PASSWORD_LENGTH)];
+    static uint8_t digit, digit_no;
+    static screenFunc_t return_fn, success_fn, fail_fn;
+  #endif
 
 public:
   static bool is_set, is_locked;
@@ -39,23 +38,21 @@ public:
   static void authenticate_user_persistent();
   Password() {is_locked = false;}
 
-#if HAS_LCD_MENU
-  static void authenticate_user();
-  static void authenticate_user_return();
-  static void menu_password();
-  static void menu_password_entry();
-  static void screen_password_entry();
-  static void digit_entered();
-  static void screen_set_password();
-  static void set_password_return();
-  static void menu_password_return();
-  static void remove_password();
-  static void clear();
-  static void menu_media();
-  static void access_menu_password();
-#endif
+  #if HAS_LCD_MENU
+    static void authenticate_user();
+    static void authenticate_user_return();
+    static void menu_password();
+    static void menu_password_entry();
+    static void screen_password_entry();
+    static void digit_entered();
+    static void screen_set_password();
+    static void set_password_return();
+    static void menu_password_return();
+    static void remove_password();
+    static void clear();
+    static void menu_media();
+    static void access_menu_password();
+  #endif
 };
 
 extern Password password;
-
-extern void menu_advanced_settings();
