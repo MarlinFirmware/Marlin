@@ -26,19 +26,10 @@
 #include "extui/lib/anycubic/anycubic_TFT.h"
 #include "extui/ui_api.h"
 
-#include <Arduino.h>
+#include <Arduino.h>    // for the ::tone() call
 
 namespace ExtUI {
   void onStartup() {
-    /* Initialize the display module here. The following
-     * routines are available for access to the GPIO pins:
-     *
-     *   SET_OUTPUT(pin)
-     *   SET_INPUT_PULLUP(pin)
-     *   SET_INPUT(pin)
-     *   WRITE(pin,value)
-     *   READ(pin)
-     */
     AnycubicTFT.OnSetup();
   }
 
@@ -137,6 +128,6 @@ namespace ExtUI {
   #endif
 }
 
-#endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
+#endif // EANYCUBIC_TFT_MODEL && EXTENSIBLE_UI
 
 
