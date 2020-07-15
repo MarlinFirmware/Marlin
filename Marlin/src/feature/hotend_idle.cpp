@@ -43,7 +43,7 @@ millis_t HotendIdleProtection::next_protect_ms = 0;
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
   bool do_prot = false;
   HOTEND_LOOP() {
-    if (thermalManager.degHotendNear(e, HOTEND_IDLE_MIN_TRIGGER)) {
+    if (thermalManager.degHotend(active_extruder) >= HOTEND_IDLE_MIN_TRIGGER) {
       do_prot = true; break;
     }
   }
