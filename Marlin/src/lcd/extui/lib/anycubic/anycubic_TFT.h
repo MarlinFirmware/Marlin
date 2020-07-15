@@ -46,16 +46,6 @@ char *itostr2(const uint8_t &x);
 #define TFTBUFSIZE 4
 #define TFT_MAX_CMD_SIZE 96
 
-// TODO: JBA don't think these are needed
-/*
-#define ANYCUBIC_TFT_STATE_IDLE           0
-#define ANYCUBIC_TFT_STATE_SDPRINT        1
-#define ANYCUBIC_TFT_STATE_SDPAUSE        2
-#define ANYCUBIC_TFT_STATE_SDPAUSE_REQ    3
-#define ANYCUBIC_TFT_STATE_SDPAUSE_OOF    4
-#define ANYCUBIC_TFT_STATE_SDSTOP_REQ     5
-#define ANYCUBIC_TFT_STATE_SDOUTAGE       99
-*/
 enum AnycubicMediaPrintState {
   AMPRINTSTATE_NOT_PRINTING,
   AMPRINTSTATE_PRINTING,
@@ -88,7 +78,6 @@ public:
   void OnPrintTimerStarted();
   void OnPrintTimerPaused();
   void OnPrintTimerStopped();
-
   
 private:
   char TFTcmdbuffer[TFTBUFSIZE][TFT_MAX_CMD_SIZE];
@@ -98,11 +87,9 @@ private:
   char serial3_char;
   int serial3_count = 0;
   char *TFTstrchr_pointer;
-  uint16_t HeaterCheckCount = 0;
   uint8_t SpecialMenu = false;
   AnycubicMediaPrintState mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
   AnycubicMediaPauseState mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
-  millis_t clockTicks = millis();   // used to slow the stopped print check down to reasonable times
   
   float CodeValue();
   bool CodeSeen(char);
@@ -112,7 +99,6 @@ private:
   void RenderCurrentFolder(uint16_t);
   void GetCommandFromTFT();
   void CheckSDCardChange();
-  // void CheckHeaterError();
   void CheckPauseState();
   void CheckPrintCompletion();
   void HandleSpecialMenu();
@@ -123,9 +109,8 @@ private:
   void ResumePrint();
   void StopPrint();
 
-  char     SelectedDirectory[30];
-  char     SelectedFile[FILENAME_LENGTH];
-  
+  char SelectedDirectory[30];
+  char SelectedFile[FILENAME_LENGTH];  
 };
 
 extern AnycubicTFTClass AnycubicTFT;

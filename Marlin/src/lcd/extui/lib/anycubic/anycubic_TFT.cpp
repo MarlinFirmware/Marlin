@@ -31,8 +31,7 @@
 
 char _conv[8];
 
-char *itostr2(const uint8_t &x)
-{
+char *itostr2(const uint8_t &x) {
   //sprintf(conv,"%5.1f",x);
   int xx=x;
   _conv[0]=(xx/10)%10+'0';
@@ -46,7 +45,6 @@ char *itostr2(const uint8_t &x)
   #define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
   #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
   #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
-
 
   char* itostr3(const int x) {
     int xx = x;
@@ -70,8 +68,7 @@ char *itostr2(const uint8_t &x)
 
 #endif
 
-AnycubicTFTClass::AnycubicTFTClass() {
-}
+AnycubicTFTClass::AnycubicTFTClass() {}
 
 void AnycubicTFTClass::OnSetup() {
   AnycubicSerial.begin(115200);
@@ -107,10 +104,11 @@ void AnycubicTFTClass::OnSetup() {
 }
 
 void AnycubicTFTClass::OnCommandScan() {
-  millis_t currentTicks = millis ();
-  if(currentTicks - clockTicks > 1000) {
-    clockTicks = currentTicks;
-    if(mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
+  static millis_t nextStopCheck = 0;   // used to slow the stopped print check down to reasonable times
+  const millis_t ms = millis();
+  if (ELAPSED(ms, nextStopCheck)) {
+    nextStopCheck = ms + 1000UL;
+    if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && IsNozzleHomed()) {
       #if ENABLED(ANYCUBIC_TFT_DEBUG)
         SERIAL_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
       #endif
@@ -118,16 +116,16 @@ void AnycubicTFTClass::OnCommandScan() {
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED;
       ExtUI::injectCommands_P(PSTR("M84\nM27")); // disable stepper motors and force report of SD status
       ExtUI::delay_ms(200);
-      // tell printer to releas resources of print to indicate it is done
+      // tell printer to release resources of print to indicate it is done
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J14", "TFT Serial Debug: SD Print Stopped... J14");
     }
   }
 
-  if(TFTbuflen<(TFTBUFSIZE-1)) {
+  if (TFTbuflen<(TFTBUFSIZE-1)) {
     GetCommandFromTFT();
   }
  
-  if(TFTbuflen) {
+  if (TFTbuflen) {
     TFTbuflen = (TFTbuflen-1);
     TFTbufindr = (TFTbufindr + 1)%TFTBUFSIZE;
   }
@@ -168,8 +166,6 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    //
-    // The only way to handle these states is strcmp_P with the msg unfortunately 
     /**
      * Need to handle the process of following states
      * "Nozzle Parked"
@@ -177,6 +173,8 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
      * "Filament Purging..."
      * "HeaterTimeout"
      * "Reheat finished."
+     * 
+     * NOTE:  The only way to handle these states is strcmp_P with the msg unfortunately (very expensive)
      */
     if (strcmp_P(msg, PSTR("Nozzle Parked")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
@@ -188,8 +186,6 @@ void AnycubicTFTClass::OnUserConfirmRequired(const char * const msg) {
       mediaPauseState = AMPAUSESTATE_FILAMENT_OUT;
       // enable continue button
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J18", "TFT Serial Debug: UserConfirm Filament is out... J18");
-      // TODO: JBA this might not need to happen as it may have already been sent out
-      // tell the user that the filament has run out and wait 
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J23", "TFT Serial Debug: UserConfirm Blocking filament prompt... J23");
     } else if (strcmp_P(msg, PSTR("Filament Purging...")) == 0) {
       mediaPrintingState = AMPRINTSTATE_PAUSED;
@@ -231,9 +227,9 @@ bool AnycubicTFTClass::IsNozzleHomed() {
 }
 
 void AnycubicTFTClass::HandleSpecialMenu() {
-  //
-  // NOTE: that the file selection command actual lowercases the entire selected file/foldername, so charracter comparisons need to be lowercase.
-  //
+  /**
+   * NOTE: that the file selection command actual lowercases the entire selected file/foldername, so charracter comparisons need to be lowercase.
+   */
   if (SelectedDirectory[0] == '<' ) {
     switch (SelectedDirectory[1]) {
       case 'e': // "<exit>"
@@ -361,7 +357,7 @@ void AnycubicTFTClass::HandleSpecialMenu() {
     }
     #if ENABLED(ANYCUBIC_TFT_DEBUG)
       } else {
-        SERIAL_ECHOPGM ("TFT Serial Debug: Attempted to HandleSpecialMenu on non-special menu... ");
+        SERIAL_ECHOPGM("TFT Serial Debug: Attempted to HandleSpecialMenu on non-special menu... ");
         SERIAL_ECHOLN(SelectedDirectory);
     #endif
   }
@@ -376,14 +372,14 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     ANYCUBIC_SERIAL_PROTOCOLPGM("FN "); // Filelist start
     ANYCUBIC_SERIAL_ENTER();
 
-    if(!ExtUI::isMediaInserted() && !SpecialMenu) {
+    if (!ExtUI::isMediaInserted() && !SpecialMenu) {
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to render Current File List... J02");
 
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special_Menu>");
       ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special_Menu>");
     }
     else {
-      if(CodeSeen('S')) {
+      if (CodeSeen('S')) {
         selectedNumber = CodeValue();
       }
 
@@ -478,7 +474,7 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
 
   for (cnt = selectedNumber; cnt <= max_files; cnt++) {
     if (cnt == 0) {  // Special Entry
-      if(currentFileList.isAtRootDir()) {
+      if (currentFileList.isAtRootDir()) {
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<specialmnu>");
         ANYCUBIC_SERIAL_PROTOCOLLNPGM("<Special Menu>");
       } else {
@@ -535,20 +531,20 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
 
 void AnycubicTFTClass::GetCommandFromTFT() {
   char *starpos = NULL;
-  while( AnycubicSerial.available() > 0  && TFTbuflen < TFTBUFSIZE) {
+  while (AnycubicSerial.available() > 0  && TFTbuflen < TFTBUFSIZE) {
     serial3_char = AnycubicSerial.read();
     if (serial3_char == '\n' ||
         serial3_char == '\r' ||
         serial3_char == ':'  ||
         serial3_count >= (TFT_MAX_CMD_SIZE - 1) ) {
       
-      if(!serial3_count) { //if empty line
+      if (!serial3_count) { //if empty line
        return;
       }
 
       TFTcmdbuffer[TFTbufindw][serial3_count] = 0; //terminate string
 
-      if((strchr(TFTcmdbuffer[TFTbufindw], 'A') != NULL)) {
+      if ((strchr(TFTcmdbuffer[TFTbufindw], 'A') != NULL)) {
         int16_t a_command;
         TFTstrchr_pointer = strchr(TFTcmdbuffer[TFTbufindw], 'A');
         a_command=((int)((strtod(&TFTcmdbuffer[TFTbufindw][TFTstrchr_pointer - TFTcmdbuffer[TFTbufindw] + 1], NULL))));
@@ -664,7 +660,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 9: // A9 pause sd print
             #if ENABLED(SDSUPPORT)
-              if(ExtUI::isPrintingFromMedia()) {
+              if (ExtUI::isPrintingFromMedia()) {
                 PausePrint();
               } 
             #endif
@@ -706,7 +702,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                 } else {
                   SelectedDirectory[0]=0;
 
-                  if(starpos!=NULL) {
+                  if (starpos!=NULL) {
                     *(starpos-1)='\0';
                   }
 
@@ -719,7 +715,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           
           case 14: // A14 START PRINTING
             #if ENABLED(SDSUPPORT)
-              if(!ExtUI::isPrinting() && strlen(SelectedFile) > 0) {
+              if (!ExtUI::isPrinting() && strlen(SelectedFile) > 0) {
                 StartPrint();
               }
             #endif
@@ -749,7 +745,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 17:// A17 set heated bed temp
             {
               unsigned int tempbed;
-              if(CodeSeen('S')) {
+              if (CodeSeen('S')) {
                 tempbed = constrain(CodeValue(), 0, 100);
                 ExtUI::setTargetTemp_celsius(tempbed, (ExtUI::heater_t)ExtUI::BED);
               }
@@ -773,7 +769,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 19: // A19 stop stepper drivers - sent on stop extrude command and on turn motors off command
-            if(!ExtUI::isPrinting()) {
+            if (!ExtUI::isPrinting()) {
               quickstop_stepper();
               disable_all_steppers();
             }
@@ -785,7 +781,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             {
               int16_t feedrate_percentage = 100;
 
-              if(CodeSeen('S')) {
+              if (CodeSeen('S')) {
                 feedrate_percentage=constrain(CodeValue(),40,999);
               }
               else {
@@ -797,13 +793,13 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 21: // A21 all home
             if (!ExtUI::isPrinting() && !ExtUI::isPrintingFromMediaPaused()) {
               if (CodeSeen('X') || CodeSeen('Y') || CodeSeen('Z')) {
-                if(CodeSeen('X')) {
+                if (CodeSeen('X')) {
                   ExtUI::injectCommands_P(PSTR("G28 X"));
                 }
-                if(CodeSeen('Y')) {
+                if (CodeSeen('Y')) {
                   ExtUI::injectCommands_P(PSTR("G28 Y"));
                 }
-                if(CodeSeen('Z')) {
+                if (CodeSeen('Z')) {
                   ExtUI::injectCommands_P(PSTR("G28 Z"));
                 }
               }
@@ -865,7 +861,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
                 }
               }
 
-              if(strlen(commandStr) > 0) {
+              if (strlen(commandStr) > 0) {
                 sprintf_P(fullCommandStr, PSTR("G91\n%s\nG90"), commandStr);
                 #if ENABLED(ANYCUBIC_TFT_DEBUG)
                   SERIAL_ECHOPGM("TFT Serial Debug: A22 Move final request with gcode... ");
@@ -914,7 +910,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
 
           case 26: // A26 refresh SD
             #if ENABLED(SDSUPPORT)
-              if(ExtUI::isMediaInserted()) {
+              if (ExtUI::isMediaInserted()) {
                 if (strlen(SelectedDirectory) > 0) { 
                   ExtUI::FileList currentFileList;
                   if ((SelectedDirectory[0] == '.') && (SelectedDirectory[1] == '.')) {
@@ -941,9 +937,9 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           #endif
 
           case 28: // A28 filament test
-            if(CodeSeen('O')) {
+            if (CodeSeen('O')) {
               NOOP;
-            } else if(CodeSeen('C')) {
+            } else if (CodeSeen('C')) {
               NOOP;
             }
             ANYCUBIC_SERIAL_ENTER();
@@ -1000,7 +996,7 @@ void AnycubicTFTClass::DoFilamentRunoutCheck() {
 
 void AnycubicTFTClass::StartPrint() {
   #if ENABLED(SDSUPPORT)
-    if(!ExtUI::isPrinting() && strlen(SelectedFile) > 0) {
+    if (!ExtUI::isPrinting() && strlen(SelectedFile) > 0) {
       #if ENABLED(ANYCUBIC_TFT_DEBUG)
         SERIAL_ECHOPGM("TFT Serial Debug: About to print file ... ");
         SERIAL_ECHO(ExtUI::isPrinting());
@@ -1016,7 +1012,7 @@ void AnycubicTFTClass::StartPrint() {
 
 void AnycubicTFTClass::PausePrint() {
   #if ENABLED(SDSUPPORT)
-    if(ExtUI::isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
+    if (ExtUI::isPrintingFromMedia() && mediaPrintingState != AMPRINTSTATE_STOP_REQUESTED && mediaPauseState == AMPAUSESTATE_NOT_PAUSED) {
       mediaPrintingState = AMPRINTSTATE_PAUSE_REQUESTED;
       mediaPauseState = AMPAUSESTATE_NOT_PAUSED; // need the userconfirm method to update pause state
       ANYCUBIC_SENDCOMMAND_DBG_PGM("J05", "TFT Serial Debug: SD print pause started... J05"); // J05 printing pause
@@ -1045,7 +1041,7 @@ void AnycubicTFTClass::ResumePrint() {
       }
     #endif
     
-    if(mediaPauseState == AMPAUSESTATE_HEATER_TIMEOUT) {
+    if (mediaPauseState == AMPAUSESTATE_HEATER_TIMEOUT) {
       mediaPauseState = AMPAUSESTATE_REHEATING;
       // TODO: JBA I don't think J05 just disables the continue button, i think it injects a rogue M25. So taking this out
       // // disable the continue button 
