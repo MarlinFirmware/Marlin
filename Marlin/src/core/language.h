@@ -271,7 +271,7 @@
 #define STR_PASSWORD_TOO_LONG               "Password too long"
 #define STR_PASSWORD_REMOVED                "Password removed"
 #define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
-#define STR_PASSWORD_SET                    "Password is ";
+#define STR_PASSWORD_SET                    "Password is "
 
 // LCD Menu Messages
 
