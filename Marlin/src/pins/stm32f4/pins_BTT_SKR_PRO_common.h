@@ -40,7 +40,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA1
+#define SERVO0_PIN                          PA1   // e.g. BLTOUCH (Marlin defaults the BLTouch control to the first servo pin)
 
 //
 // Trinamic Stallguard pins
@@ -48,67 +48,67 @@
 #define X_DIAG_PIN                          PB10  // X-
 #define Y_DIAG_PIN                          PE12  // Y-
 #define Z_DIAG_PIN                          PG8   // Z-
-#define E0_DIAG_PIN                         PE15  // E0
-#define E1_DIAG_PIN                         PE10  // E1
-#define E2_DIAG_PIN                         PG5   // E2
+#define E0_DIAG_PIN                         PE15  // E0 (X+)
+#define E1_DIAG_PIN                         PE10  // E1 (Y+)
+#define E2_DIAG_PIN                         PG5   // E2 (Z+)
 
 //
 // Limit Switches
 //
 #ifdef X_STALL_SENSITIVITY
-  #define X_STOP_PIN                  X_DIAG_PIN
+  #define X_STOP_PIN                        X_DIAG_PIN
   #if X_HOME_DIR < 0
-    #define X_MAX_PIN                       PE15  // E0
+    #define X_MAX_PIN                       E0_DIAG_PIN  // X+
   #else
-    #define X_MIN_PIN                       PE15  // E0
+    #define X_MIN_PIN                       E0_DIAG_PIN  // X+
   #endif
 #else
-  #define X_MIN_PIN                         PB10  // X-
-  #define X_MAX_PIN                         PE15  // E0
+  #define X_MIN_PIN                         X_DIAG_PIN   // X-
+  #define X_MAX_PIN                         E0_DIAG_PIN  // X+
 #endif
 
 #ifdef Y_STALL_SENSITIVITY
-  #define Y_STOP_PIN                  Y_DIAG_PIN
+  #define Y_STOP_PIN                        Y_DIAG_PIN
   #if Y_HOME_DIR < 0
-    #define Y_MAX_PIN                       PE10  // E1
+    #define Y_MAX_PIN                       E1_DIAG_PIN  // Y+
   #else
-    #define Y_MIN_PIN                       PE10  // E1
+    #define Y_MIN_PIN                       E1_DIAG_PIN  // Y+
   #endif
 #else
-  #define Y_MIN_PIN                         PE12  // Y-
-  #define Y_MAX_PIN                         PE10  // E1
+  #define Y_MIN_PIN                         Y_DIAG_PIN   // Y-
+  #define Y_MAX_PIN                         E1_DIAG_PIN  // Y+
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
-  #define Z_STOP_PIN                  Z_DIAG_PIN
+  #define Z_STOP_PIN                        Z_DIAG_PIN
   #if Z_HOME_DIR < 0
-    #define Z_MAX_PIN                       PG5   // E2
+    #define Z_MAX_PIN                       E2_DIAG_PIN   // Z+
   #else
-    #define Z_MIN_PIN                       PG5   // E2
+    #define Z_MIN_PIN                       E2_DIAG_PIN   // Z+
   #endif
 #else
-  #define Z_MIN_PIN                         PG8   // Z-
-  #define Z_MAX_PIN                         PG5   // E2
+  #define Z_MIN_PIN                         Z_DIAG_PIN    // Z-
+  #define Z_MAX_PIN                         E2_DIAG_PIN   // Z+
 #endif
 
 //
 // Z Probe must be this pin
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                   PA2
+  #define Z_MIN_PROBE_PIN                   PA2   // e.g. BLTOUCH (z-sensing)
 #endif
 
 //
 // Filament Runout Sensor
 //
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PE15
+  #define FIL_RUNOUT_PIN                    E0_DIAG_PIN
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   PE10
+  #define FIL_RUNOUT2_PIN                   E1_DIAG_PIN
 #endif
 #ifndef FIL_RUNOUT3_PIN
-  #define FIL_RUNOUT3_PIN                   PG5
+  #define FIL_RUNOUT3_PIN                   E2_DIAG_PIN
 #endif
 
 //
@@ -218,21 +218,21 @@
 //
 // Temperature Sensors
 //
+#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
 #define TEMP_0_PIN                          PF4   // T1 <-> E0
 #define TEMP_1_PIN                          PF5   // T2 <-> E1
 #define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#define HEATER_2_PIN                        PB0   // Heater2
 #define HEATER_BED_PIN                      PD12  // Hotbed
-#define FAN_PIN                             PC8   // Fan0
-#define FAN1_PIN                            PE5   // Fan1
-#define FAN2_PIN                            PE6
+#define FAN_PIN                             PC8   // Fan0 (parts cooling fan)
+#define FAN1_PIN                            PE5   // Fan1 (e.g. extruder cooling fan)
+#define FAN2_PIN                            PE6   // Fan2 (e.g. controller cooling fan)
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN               FAN1_PIN
