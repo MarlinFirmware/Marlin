@@ -907,7 +907,10 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
           {
-            SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+            SERIAL_ECHOPAIR(
+              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
+              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
+              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif
