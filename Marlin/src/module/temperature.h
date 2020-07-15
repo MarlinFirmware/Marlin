@@ -576,7 +576,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }
@@ -631,7 +631,7 @@ class Temperature {
             celsius
           #endif
         ;
-        TERN_(AUTO_POWER_CONTROL, if (temp_bed.target) powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         start_watching_bed();
       }
 
