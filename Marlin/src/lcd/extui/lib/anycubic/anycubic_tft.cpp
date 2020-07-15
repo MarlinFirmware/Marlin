@@ -23,7 +23,7 @@
 
 #if ENABLED(ANYCUBIC_TFT_MODEL)
 
-#include "anycubic_TFT.h"
+#include "anycubic_tft.h"
 #include "anycubic_serial.h"
 
 #include "../../../../inc/MarlinConfig.h"

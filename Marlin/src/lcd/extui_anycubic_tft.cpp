@@ -28,7 +28,7 @@
 
 #if BOTH(ANYCUBIC_TFT_MODEL, EXTENSIBLE_UI)
 
-#include "extui/lib/anycubic/anycubic_TFT.h"
+#include "extui/lib/anycubic/anycubic_tft.h"
 #include "extui/ui_api.h"
 
 #include <Arduino.h>    // for the ::tone() call
