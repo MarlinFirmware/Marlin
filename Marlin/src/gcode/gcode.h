@@ -762,14 +762,14 @@ private:
 
   #if ENABLED(PASSWORD_FEATURE)
     static void M510();
-    #if DISABLED(DISABLE_M511)
+    #if ENABLED(PASSWORD_UNLOCK_GCODE)
       static void M511();
     #endif
-    #if DISABLED(DISABLE_M512)
+    #if ENABLED(PASSWORD_CHANGE_GCODE)
       static void M512();
     #endif
   #endif
-  
+
   TERN_(SDSUPPORT, static void M524());
 
   TERN_(SD_ABORT_ON_ENDSTOP_HIT, static void M540());

@@ -51,10 +51,6 @@ screenFunc_t Password::return_fn,
              Password::success_fn,
              Password::fail_fn;
 
-
-
-
-
 void Password::authenticate_user() {
   if (is_set) {
     return_fn = authenticate_user_return;
@@ -71,8 +67,8 @@ void Password::authenticate_user() {
 void Password::authenticate_user_return() {
   if (value_entry == value) {
     ui.goto_screen(success_fn);
-    is_locked = false;  
-  } 
+    is_locked = false;
+  }
   else {
     ui.buzz(200,600);
     ui.buzz(0,0);
@@ -188,7 +184,7 @@ void Password::menu_password() {
 #endif // HAS_LCD_MENU
 
 //
-// Authenticate user with password. 
+// Authenticate user with password.
 // Called from Setup, after SD Prinitng Stops/Aborts, and M510
 //
 void Password::authenticate_user_persistent() {
@@ -201,16 +197,17 @@ void Password::authenticate_user_persistent() {
 }
 
 //
-// M510 Lock Printer
+// M510: Lock Printer
 //
 void GcodeSuite::M510() {
   password.authenticate_user_persistent();
 }
 
 //
-// M511 Unlock Printer
+// M511: Unlock Printer
 //
-#if DISABLED(DISABLE_M511)
+#if ENABLED(PASSWORD_UNLOCK_GCODE)
+
   void GcodeSuite::M511() {
     if(password.is_locked) {
       password.value_entry = parser.ulongval('P');
@@ -218,25 +215,25 @@ void GcodeSuite::M510() {
         password.authenticate_user_return();
       #else
         if (password.value_entry == password.value) {
-          password.is_locked = false;  
-        } else {
-          SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
-          SERIAL_EOL();
+          password.is_locked = false;
         }
+        else
+          SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
       #endif
     }
-      
+
   }
-#endif
+
+#endif // PASSWORD_UNLOCK_GCODE
 
 //
-// M512 Set/Change/Remove Password
+// M512: Set/Change/Remove Password
 //
-#if DISABLED(DISABLE_M512)
+#if ENABLED(PASSWORD_CHANGE_GCODE)
+
   void GcodeSuite::M512() {
     if (password.is_set && (parser.ulongval('P') != password.value) ) {
-      SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
-      SERIAL_EOL();
+      SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
       return;
      }
 
@@ -252,18 +249,17 @@ void GcodeSuite::M510() {
         password.value = password.value_entry;
         serial_echopair_PGM(GET_TEXT(MSG_PASSWORD_SET), password.value);
         SERIAL_EOL();
-      } else {
-        SERIAL_ECHOPGM_P(GET_TEXT(MSG_PASSWORD_TOO_LONG));
-        SERIAL_EOL();
       }
-    } else {
-      password.is_set = false;
-      SERIAL_ECHOPGM_P(GET_TEXT(MSG_PASSWORD_REMOVED));
-      SERIAL_EOL();
+      else
+        SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_PASSWORD_TOO_LONG));
     }
-    SERIAL_ECHOPGM_P(GET_TEXT(MSG_REMINDER_SAVE_SETTINGS));
-    SERIAL_EOL();
+    else {
+      password.is_set = false;
+      SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_PASSWORD_REMOVED));
+    }
+    SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_REMINDER_SAVE_SETTINGS));
   }
-#endif
+
+#endif // PASSWORD_CHANGE_GCODE
 
 #endif // PASSWORD_FEATURE

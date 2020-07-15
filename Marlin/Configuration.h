@@ -1629,30 +1629,31 @@
  * Password
  *
  * Set a numerical password for the printer which can be requested:
+ *
  *  - When the printer boots up
  *  - Upon opening the 'Print from Media' Menu
  *  - When SD printing is completed or aborted
  *
- * The following Gcodes can be used:
- * M510 - Lock Printer, preventing subsequent Gcodes from running
- * M511 - Unlock Printer
- * M512 - Set, Change and Remove Password
+ * The following G-codes can be used:
  *
- * If you forget the password and get locked out, you need to:
- *  - Reflash the firmware with this feature disabled, re-init EEPROM,
- *    and (optionally) reflash the firmware again with this feature enabled.
+ *  M510 - Lock Printer. Blocks all commands except M511.
+ *  M511 - Unlock Printer.
+ *  M512 - Set, Change and Remove Password.
  *
+ * If you forget the password and get locked out you'll need to re-flash
+ * the firmware with the feature disabled, reset EEPROM, and (optionally)
+ * re-flash the firmware again with this feature enabled.
  */
 //#define PASSWORD_FEATURE
 #if ENABLED(PASSWORD_FEATURE)
-  #define PASSWORD_LENGTH 4                     // (#) Number of digits (1-9). 3 or 4 is recommended
+  #define PASSWORD_LENGTH 4                 // (#) Number of digits (1-9). 3 or 4 is recommended
   #define PASSWORD_ON_STARTUP
-  //#define PASSWORD_ON_SD_PRINT_MENU           // This does not prevent gcodes from running
+  //#define PASSWORD_ON_SD_PRINT_MENU       // This does not prevent gcodes from running
   //#define PASSWORD_AFTER_SD_PRINT_END
   //#define PASSWORD_AFTER_SD_PRINT_ABORT
 
-  //#define DISABLE_M511                        // Disable unlocking through host if concerned about brute force attacks
-  //#define DISABLE_M512                        // Disable setting/changing password through host
+  #define PASSWORD_UNLOCK_GCODE             // Unlock with the M511 P<password> command. Disable to prevent brute-force attack.
+  #define PASSWORD_CHANGE_GCODE             // Change the password with M512 P<password>.
 #endif
 
 //=============================================================================
