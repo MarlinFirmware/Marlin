@@ -70,11 +70,9 @@ void Password::authenticate_user_return() {
     is_locked = false;
   }
   else {
-    ui.buzz(200,600);
-    ui.buzz(0,0);
+    ui.buzz(200, 600);
     ui.goto_screen(fail_fn);
-    SERIAL_ECHOPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
-    SERIAL_EOL();
+    SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
   }
 }
 
@@ -210,11 +208,10 @@ void GcodeSuite::M510() {
       #if HAS_LCD_MENU
         password.authenticate_user_return();
       #else
-        if (password.value_entry == password.value) {
+        if (password.value_entry == password.value)
           password.is_locked = false;
-        }
         else
-          SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
+          SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
       #endif
     }
 
@@ -228,8 +225,8 @@ void GcodeSuite::M510() {
 #if ENABLED(PASSWORD_CHANGE_GCODE)
 
   void GcodeSuite::M512() {
-    if (password.is_set && (parser.ulongval('P') != password.value) ) {
-      SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_WRONG_PASSWORD));
+    if (password.is_set && parser.ulongval('P') != password.value) {
+      SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
       return;
      }
 
@@ -239,17 +236,16 @@ void GcodeSuite::M510() {
       if (password.value_entry < LROUND(pow(10, (PASSWORD_LENGTH - 1)))) {
         password.is_set = true;
         password.value = password.value_entry;
-        serial_echopair_PGM(GET_TEXT(MSG_PASSWORD_SET), password.value);
-        SERIAL_EOL();
+        SERIAL_ECHOLNPAIR(STR_PASSWORD_SET, password.value); // TODO: Update password.string
       }
       else
-        SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_PASSWORD_TOO_LONG));
+        SERIAL_ECHOLNPGM(STR_PASSWORD_TOO_LONG);
     }
     else {
       password.is_set = false;
-      SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_PASSWORD_REMOVED));
+      SERIAL_ECHOLNPGM(STR_PASSWORD_REMOVED);
     }
-    SERIAL_ECHOLNPGM_P(GET_TEXT(MSG_REMINDER_SAVE_SETTINGS));
+    SERIAL_ECHOLNPGM(STR_REMINDER_SAVE_SETTINGS);
   }
 
 #endif // PASSWORD_CHANGE_GCODE
