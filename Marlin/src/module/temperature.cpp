@@ -2037,7 +2037,7 @@ void Temperature::disable_all_heaters() {
   #endif
 
   #if HAS_TEMP_HOTEND
-    #define DISABLE_HEATER(N) WRITE_HEATER_##N(LOW)
+    #define DISABLE_HEATER(N) WRITE_HEATER_##N(LOW);
     REPEAT(HOTENDS, DISABLE_HEATER);
   #endif
 
