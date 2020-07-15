@@ -1,5 +1,5 @@
 /*
-  AnycubicSerial.cpp  --- Support for Anycubic i3 Mega TFT serial connection
+  anycubic_serial.cpp  --- Support for Anycubic i3 Mega TFT serial connection
   Created by Christian Hopp on 09.12.17.
 
   Original file:
@@ -25,22 +25,23 @@
   Modified 14 August 2012 by Alarus
 */
 
+#include "../../../../inc/MarlinConfig.h"
+
+#if ENABLED(ANYCUBIC_TFT_MODEL)
+
+#include "Arduino.h"
+
+// this next line disables the entire HardwareSerial.cpp,
+// so I can support AtTiny series and other chips without a UART
+#ifdef UBRR3H
+
+#include "anycubic_serial.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
-#include "Arduino.h"
 #include "wiring_private.h"
-#include "../../../../MarlinCore.h"
-
-
-#ifdef ANYCUBIC_TFT_MODEL
-
-// this next line disables the entire HardwareSerial.cpp,
-// this is so I can support Attiny series and any other chip without a uart
-#if defined(UBRR3H)
-
-#include "anycubic_serial.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which head is the index of the location
@@ -52,20 +53,18 @@
   #define SERIAL_BUFFER_SIZE 128
 #endif
 
-struct ring_buffer
-{
+struct ring_buffer {
   unsigned char buffer[SERIAL_BUFFER_SIZE];
   volatile unsigned int head;
   volatile unsigned int tail;
 };
 
-#if defined(UBRR3H)
+#ifdef UBRR3H
   ring_buffer rx_buffer_ajg  =  { { 0 }, 0, 0 };
   ring_buffer tx_buffer_ajg  =  { { 0 }, 0, 0 };
 #endif
 
-inline void store_char(unsigned char c, ring_buffer *buffer)
-{
+inline void store_char(unsigned char c, ring_buffer *buffer) {
   int i = (unsigned int)(buffer->head + 1) % SERIAL_BUFFER_SIZE;
 
   // if we should be storing the received character into the location
@@ -82,34 +81,34 @@ inline void store_char(unsigned char c, ring_buffer *buffer)
   void serialEvent3() __attribute__((weak));
   void serialEvent3() {}
   #define serialEvent3_implemented
-  ISR(USART3_RX_vect)
-  {
+  ISR(USART3_RX_vect) {
     if (bit_is_clear(UCSR3A, UPE3)) {
       unsigned char c = UDR3;
       store_char(c, &rx_buffer_ajg);
-    } else {
+    }
+    else {
       unsigned char c = UDR3;
-    };
+    }
   }
 #endif
 
 #ifdef USART3_UDRE_vect
-ISR(USART3_UDRE_vect)
-{
-  if (tx_buffer_ajg.head == tx_buffer_ajg.tail) {
-	// Buffer empty, so disable interrupts
-    cbi(UCSR3B, UDRIE3);
-  }
-  else {
-    // There is more data in the output buffer. Send the next byte
-    unsigned char c = tx_buffer_ajg.buffer[tx_buffer_ajg.tail];
-    tx_buffer_ajg.tail = (tx_buffer_ajg.tail + 1) % SERIAL_BUFFER_SIZE;
 
-    UDR3 = c;
+  ISR(USART3_UDRE_vect) {
+    if (tx_buffer_ajg.head == tx_buffer_ajg.tail) {
+  	// Buffer empty, so disable interrupts
+      cbi(UCSR3B, UDRIE3);
+    }
+    else {
+      // There is more data in the output buffer. Send the next byte
+      unsigned char c = tx_buffer_ajg.buffer[tx_buffer_ajg.tail];
+      tx_buffer_ajg.tail = (tx_buffer_ajg.tail + 1) % SERIAL_BUFFER_SIZE;
+
+      UDR3 = c;
+    }
   }
-}
+
 #endif
-
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -117,8 +116,8 @@ AnycubicSerialClass::AnycubicSerialClass(ring_buffer *rx_buffer, ring_buffer *tx
   volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
   volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
   volatile uint8_t *ucsrc, volatile uint8_t *udr,
-  uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udrie, uint8_t u2x)
-{
+  uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udrie, uint8_t u2x
+) {
   _rx_buffer = rx_buffer;
   _tx_buffer = tx_buffer;
   _ubrrh = ubrrh;
@@ -136,19 +135,16 @@ AnycubicSerialClass::AnycubicSerialClass(ring_buffer *rx_buffer, ring_buffer *tx
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void AnycubicSerialClass::begin(unsigned long baud)
-{
+void AnycubicSerialClass::begin(unsigned long baud) {
   uint16_t baud_setting;
   bool use_u2x = true;
 
-#if F_CPU == 16000000UL
-  // hardcoded exception for compatibility with the bootloader shipped
-  // with the Duemilanove and previous boards and the firmware on the 8U2
-  // on the Uno and Mega 2560.
-  if (baud == 57600) {
-    use_u2x = false;
-  }
-#endif
+  #if F_CPU == 16000000UL
+    // hardcoded exception for compatibility with the bootloader shipped
+    // with the Duemilanove and previous boards and the firmware on the 8U2
+    // on the Uno and Mega 2560.
+    if (baud == 57600) use_u2x = false;
+  #endif
 
 try_again:
 
@@ -160,8 +156,7 @@ try_again:
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
 
-  if ((baud_setting > 4095) && use_u2x)
-  {
+  if ((baud_setting > 4095) && use_u2x) {
     use_u2x = false;
     goto try_again;
   }
@@ -178,33 +173,30 @@ try_again:
   cbi(*_ucsrb, _udrie);
 }
 
-void AnycubicSerialClass::begin(unsigned long baud, byte config)
-{
+void AnycubicSerialClass::begin(unsigned long baud, byte config) {
   uint16_t baud_setting;
   uint8_t current_config;
   bool use_u2x = true;
 
-#if F_CPU == 16000000UL
-  // hardcoded exception for compatibility with the bootloader shipped
-  // with the Duemilanove and previous boards and the firmware on the 8U2
-  // on the Uno and Mega 2560.
-  if (baud == 57600) {
-    use_u2x = false;
-  }
-#endif
+  #if F_CPU == 16000000UL
+    // hardcoded exception for compatibility with the bootloader shipped
+    // with the Duemilanove and previous boards and the firmware on the 8U2
+    // on the Uno and Mega 2560.
+    if (baud == 57600) use_u2x = false;
+  #endif
 
 try_again:
 
   if (use_u2x) {
     *_ucsra = 1 << _u2x;
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
-  } else {
+  }
+  else {
     *_ucsra = 0;
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
 
-  if ((baud_setting > 4095) && use_u2x)
-  {
+  if ((baud_setting > 4095) && use_u2x) {
     use_u2x = false;
     goto try_again;
   }
@@ -214,9 +206,9 @@ try_again:
   *_ubrrl = baud_setting;
 
   //set the data bits, parity, and stop bits
-#if defined(__AVR_ATmega8__)
-  config |= 0x80; // select UCSRC register (shared with UBRRH)
-#endif
+  #ifdef __AVR_ATmega8__
+    config |= 0x80; // select UCSRC register (shared with UBRRH)
+  #endif
   *_ucsrc = config;
 
   sbi(*_ucsrb, _rxen);
@@ -225,8 +217,7 @@ try_again:
   cbi(*_ucsrb, _udrie);
 }
 
-void AnycubicSerialClass::end()
-{
+void AnycubicSerialClass::end() {
   // wait for transmission of outgoing data
   while (_tx_buffer->head != _tx_buffer->tail)
     ;
@@ -240,13 +231,11 @@ void AnycubicSerialClass::end()
   _rx_buffer->head = _rx_buffer->tail;
 }
 
-int AnycubicSerialClass::available(void)
-{
+int AnycubicSerialClass::available(void) {
   return (int)(SERIAL_BUFFER_SIZE + _rx_buffer->head - _rx_buffer->tail) % SERIAL_BUFFER_SIZE;
 }
 
-int AnycubicSerialClass::peek(void)
-{
+int AnycubicSerialClass::peek(void) {
   if (_rx_buffer->head == _rx_buffer->tail) {
     return -1;
   } else {
@@ -254,8 +243,7 @@ int AnycubicSerialClass::peek(void)
   }
 }
 
-int AnycubicSerialClass::read(void)
-{
+int AnycubicSerialClass::read(void) {
   // if the head isn't ahead of the tail, we don't have any characters
   if (_rx_buffer->head == _rx_buffer->tail) {
     return -1;
@@ -266,15 +254,13 @@ int AnycubicSerialClass::read(void)
   }
 }
 
-void AnycubicSerialClass::flush()
-{
+void AnycubicSerialClass::flush() {
   // UDR is kept full while the buffer is not empty, so TXC triggers when EMPTY && SENT
   while (transmitting && ! (*_ucsra & _BV(TXC0)));
   transmitting = false;
 }
 
-size_t AnycubicSerialClass::write(uint8_t c)
-{
+size_t AnycubicSerialClass::write(uint8_t c) {
   int i = (_tx_buffer->head + 1) % SERIAL_BUFFER_SIZE;
 
   // If the output buffer is full, there's nothing for it other than to
@@ -300,10 +286,9 @@ AnycubicSerialClass::operator bool() {
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-#if defined(UBRR3H)
+#ifdef UBRR3H
   AnycubicSerialClass AnycubicSerial(&rx_buffer_ajg, &tx_buffer_ajg, &UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3, RXEN3, TXEN3, RXCIE3, UDRIE3, U2X3);
 #endif
 
-#endif
-
-#endif // whole file
+#endif // UBRR3H
+#endif // ANYCUBIC_TFT_MODEL

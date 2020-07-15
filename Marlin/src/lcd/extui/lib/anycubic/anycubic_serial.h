@@ -1,7 +1,7 @@
 /*
-  AnycubicSerial.h  --- Support for Anycubic i3 Mega TFT serial connection
+  anycubic_serial.h  --- Support for Anycubic i3 Mega TFT serial connection
   Created by Christian Hopp on 09.12.17.
- 
+
   Original file:
 
   HardwareSerial.h - Hardware serial library for Wiring
@@ -24,21 +24,18 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
 */
-
-#ifndef AnycubicSerial_h
-#define AnycubicSerial_h
+#pragma once
 
 #include <inttypes.h>
 #include <avr/pgmspace.h>
 
 #include "Stream.h"
 
-#define  FORCE_INLINE __attribute__((always_inline)) inline
+#define FORCE_INLINE __attribute__((always_inline)) inline
 
 struct ring_buffer;
 
-class AnycubicSerialClass : public Stream
-{
+class AnycubicSerialClass : public Stream {
   private:
     ring_buffer *_rx_buffer;
     ring_buffer *_tx_buffer;
@@ -59,7 +56,8 @@ class AnycubicSerialClass : public Stream
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
       volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
       volatile uint8_t *ucsrc, volatile uint8_t *udr,
-      uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udrie, uint8_t u2x);
+      uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udrie, uint8_t u2x
+    );
     void begin(unsigned long);
     void begin(unsigned long, uint8_t);
     void end();
@@ -102,10 +100,6 @@ class AnycubicSerialClass : public Stream
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-#if defined(UBRR3H)
-  extern AnycubicSerialClass AnycubicSerial;
-#endif
-
 extern void serialEventRun(void) __attribute__((weak));
 
 #define ANYCUBIC_SERIAL_PROTOCOL(x) (AnycubicSerial.print(x))
@@ -120,8 +114,8 @@ extern void serialEventRun(void) __attribute__((weak));
 #define ANYCUBIC_SERIAL_ENTER() (AnycubicSerial.write('\r'),AnycubicSerial.write('\n'))
 #define ANYCUBIC_SERIAL_SPACE() (AnycubicSerial.write(' '))
 
-const char newErr[] PROGMEM ="ERR ";
-const char newSucc[] PROGMEM ="OK";
+const char newErr[] PROGMEM = "ERR ";
+const char newSucc[] PROGMEM = "OK";
 
 #define ANYCUBIC_SERIAL_ERROR_START (AnycubicSerialprintPGM(newErr))
 #define ANYCUBIC_SERIAL_ERROR(x) ANYCUBIC_SERIAL_PROTOCOL(x)
@@ -136,14 +130,14 @@ const char newSucc[] PROGMEM ="OK";
 #define ANYCUBIC_SERIAL_ECHOPGM(x) ANYCUBIC_SERIAL_PROTOCOLPGM(x)
 #define ANYCUBIC_SERIAL_ECHO(x) ANYCUBIC_SERIAL_PROTOCOL(x)
 
-FORCE_INLINE void AnycubicSerialprintPGM(const char *str)
-{
+FORCE_INLINE void AnycubicSerialprintPGM(const char *str) {
   char ch=pgm_read_byte(str);
-  while(ch)
-  {
+  while (ch) {
     AnycubicSerial.write(ch);
     ch=pgm_read_byte(++str);
   }
 }
 
+#ifdef UBRR3H
+  extern AnycubicSerialClass AnycubicSerial;
 #endif
