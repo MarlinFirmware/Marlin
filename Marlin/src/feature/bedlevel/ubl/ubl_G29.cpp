@@ -462,7 +462,7 @@
             // Manually Probe Mesh in areas that can't be reached by the probe
             //
             SERIAL_ECHOLNPGM("Manually probing unreachable points.");
-            do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+            do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
             if (parser.seen('C') && !xy_seen) {
 
@@ -780,9 +780,7 @@
       probe.stow();
       TERN_(HAS_LCD_MENU, ui.capture());
 
-      #ifdef Z_AFTER_PROBING
-        probe.move_z_after_probing();
-      #endif
+      probe.move_z_after_probing();
 
       restore_ubl_active_state_and_leave();
 
@@ -858,7 +856,6 @@
       echo_and_take_a_measurement();
 
       const float z2 = measure_point_with_encoder();
-
       do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES);
 
       const float thickness = ABS(z1 - z2);
@@ -899,7 +896,7 @@
         LCD_MESSAGEPGM(MSG_UBL_MOVING_TO_NEXT);
 
         do_blocking_move_to(ppos);
-        do_blocking_move_to_z(z_clearance);
+        do_z_clearance(z_clearance);
 
         KEEPALIVE_STATE(PAUSED_FOR_USER);
         ui.capture();
@@ -915,7 +912,7 @@
 
         if (click_and_hold()) {
           SERIAL_ECHOLNPGM("\nMesh only partially populated.");
-          do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
+          do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE);
           return restore_ubl_active_state_and_leave();
         }
 
@@ -940,7 +937,7 @@
 
     void abort_fine_tune() {
       ui.return_to_status();
-      do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+      do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
       set_message_with_feedback(GET_TEXT(MSG_EDITING_STOPPED));
     }
 
@@ -1415,9 +1412,7 @@
         }
 
         probe.stow();
-        #ifdef Z_AFTER_PROBING
-          probe.move_z_after_probing();
-        #endif
+        probe.move_z_after_probing();
 
         if (abort_flag) {
           SERIAL_ECHOLNPGM("?Error probing point. Aborting operation.");
@@ -1478,9 +1473,7 @@
         }
       }
       probe.stow();
-      #ifdef Z_AFTER_PROBING
-        probe.move_z_after_probing();
-      #endif
+      probe.move_z_after_probing();
 
       if (abort_flag || finish_incremental_LSF(&lsf_results)) {
         SERIAL_ECHOPGM("Could not complete LSF!");

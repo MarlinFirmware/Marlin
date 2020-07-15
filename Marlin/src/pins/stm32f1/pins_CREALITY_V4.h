@@ -38,27 +38,31 @@
 //
 // EEPROM
 //
+#if NO_EEPROM_SELECTED
+  // FLASH
+  //#define FLASH_EEPROM_EMULATION
 
-/* I2C */
-#define IIC_BL24CXX_EEPROM                        // EEPROM on I2C-0
-//#define E2END 0x3FFF                            // 16Kb (24c16)
-#define IIC_EEPROM_SDA                      PA11
-#define IIC_EEPROM_SCL                      PA12
+  // I2C
+  //#define IIC_BL24CXX_EEPROM                    // EEPROM on I2C-0
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    #define IIC_EEPROM_SDA                  PA11
+    #define IIC_EEPROM_SCL                  PA12
+    #define MARLIN_EEPROM_SIZE 0x4000             // 16Kb (24c16)
+  #else
+    #define SDCARD_EEPROM_EMULATION               // SD EEPROM was in the original build, so...
+  #endif
 
-// SD EEPROM was in your original build, so...
-#define SDCARD_EEPROM_EMULATION
+  // SPI
+  //#define SPI_EEPROM                            // EEPROM on SPI-0
+  //#define SPI_CHAN_EEPROM1  ?
+  //#define SPI_EEPROM1_CS    ?
 
-/* SPI */
-//#define SPI_EEPROM                              // EEPROM on SPI-0
-//#define SPI_CHAN_EEPROM1        ?
-//#define SPI_EEPROM1_CS          ?
-// 2K EEPROM
-//#define SPI_EEPROM2_CS          ?
-// 32Mb FLASH
-//#define SPI_FLASH_CS            ?
+  // 2K EEPROM
+  //#define SPI_EEPROM2_CS    ?
 
-/* FLASH */
-//#define FLASH_EEPROM_EMULATION
+  // 32Mb FLASH
+  //#define SPI_FLASH_CS      ?
+#endif
 
 //
 // Servos

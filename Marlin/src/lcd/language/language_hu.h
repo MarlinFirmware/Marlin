@@ -74,20 +74,23 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Kezdöpont eltolás");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Eltolás beállítva.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Eredeti Be");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Fütés ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Mind");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Ágy");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Beáll");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Fütés ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Fütés ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Fütés ") PREHEAT_2_LABEL _UxGT(" Fej");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Fütés ") PREHEAT_2_LABEL _UxGT(" Fej ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Fütés ") PREHEAT_2_LABEL _UxGT(" Mind");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Fütés ") PREHEAT_2_LABEL _UxGT(" Ágy");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Fütés ") PREHEAT_2_LABEL _UxGT(" Beáll");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Fütés ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Fütés ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Fej ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Mind");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Ágy");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Fütés ") PREHEAT_1_LABEL _UxGT(" Beáll");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Fütés $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Fütés $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Fütés $ Fej");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Fütés $ Fej ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Fütés $ Mind");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Fütés $ Ágy");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Fütés $ Beáll");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Egyedi Elömelegítés");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Visszahütés");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
@@ -150,14 +153,14 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Háló Kész");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Egyéni Háló Építés");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Háló Építés");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Háló Építés (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Háló Építés (") PREHEAT_2_LABEL _UxGT(")");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Háló Építés ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Háló Elfogadás ($)");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Hideg Háló Építés");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("AHáló Magasság Állítása");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Összmagasság");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Háló Elfogadás");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Háló Elfogadás (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Háló Elfogadás (") PREHEAT_2_LABEL _UxGT(")");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Valódi Háló Elfogadása");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Ágy Fűtés");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Fúvóka Fűtés");
