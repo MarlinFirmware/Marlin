@@ -1606,6 +1606,21 @@ void homeaxis(const AxisEnum axis) {
       #endif
     );
 
+    #if ENABLED(DETECT_BROKEN_ENDSTOP)
+      // Check for a broken endstop
+      EndstopEnum es;
+      switch (axis) {
+        default:
+        case X_AXIS: es = X_ENDSTOP; break;
+        case Y_AXIS: es = Y_ENDSTOP; break;
+        case Z_AXIS: es = Z_ENDSTOP; break;
+      }
+      if (TEST(endstops.state(), es)) {
+        SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
+        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+      }
+    #endif
+
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
