@@ -541,9 +541,9 @@
 #elif MB(CCROBOT_MEEB_3DP)
   #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
 #elif MB(CHITU3D_V5)
-  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103 env:chitu_v5_gpio_init
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103 env:chitu_v5_gpio_init env:chitu_f103_lvgl
 #elif MB(CHITU3D_V6)
-  #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
+  #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103 env:chitu_f103_lvgl
 #elif MB(CREALITY_V4)
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
 
@@ -586,8 +586,10 @@
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
+#elif MB(LERDGE_S)
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)

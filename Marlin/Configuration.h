@@ -719,6 +719,9 @@
  */
 //#define ENDSTOP_NOISE_THRESHOLD 2
 
+// Check for stuck or disconnected endstops during homing moves.
+//#define DETECT_BROKEN_ENDSTOP
+
 //=============================================================================
 //============================== Movement Settings ============================
 //=============================================================================
@@ -1162,12 +1165,11 @@
  *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
- * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
+  #define FIL_RUNOUT_STATE     LOW   // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
@@ -1376,14 +1378,14 @@
 //
 // - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
-// - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
+// - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
 //#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing when homing all axes (G28).
-  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing when homing all axes (G28).
+  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
+  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
 #endif
 
 // Homing speeds (mm/m)
@@ -2091,6 +2093,11 @@
 //
 //#define OVERLORD_OLED
 
+//
+// FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER with WS2812 RGB
+// Where to find : https://www.aliexpress.com/item/4000345255731.html
+//#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
+
 //=============================================================================
 //========================== Extensible UI Displays ===========================
 //=============================================================================
@@ -2135,9 +2142,12 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
-// TFT Little VGL UI
+// TFT LVGL UI
 //
-//#define TFT_LITTLE_VGL_UI
+// Default MKS icons and fonts: https://git.io/JJvzK
+// Copy mks_pic and mks_font folders to the root of your SD
+//
+//#define TFT_LVGL_UI
 
 //=============================================================================
 //============================  Other Controllers  ============================
@@ -2206,7 +2216,7 @@
 // then the BLUE led is on. Otherwise the RED led is on. (1C hysteresis)
 //#define TEMP_STAT_LEDS
 
-// SkeinForge sends the wrong arc g-codes when using Arc Point as fillet procedure
+// SkeinForge sends the wrong arc G-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
 // Support for the BariCUDA Paste Extruder
