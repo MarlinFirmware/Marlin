@@ -624,7 +624,6 @@ class Temperature {
       #endif
 
       static void setTargetBed(const int16_t celsius) {
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
         temp_bed.target =
           #ifdef BED_MAX_TARGET
             _MIN(celsius, BED_MAX_TARGET)
@@ -632,6 +631,7 @@ class Temperature {
             celsius
           #endif
         ;
+        TERN_(AUTO_POWER_CONTROL, if (temp_bed.target) powerManager.power_on());
         start_watching_bed();
       }
 

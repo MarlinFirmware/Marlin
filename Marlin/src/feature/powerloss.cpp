@@ -278,9 +278,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
       lock = true;
     #endif
 
-    // Disable all heaters to reduce power loss
-    thermalManager.disable_all_heaters();
-
     #if POWER_LOSS_ZRAISE
       // Get the limited Z-raise to do now or on resume
       const float zraise = _MAX(0, _MIN(current_position.z + POWER_LOSS_ZRAISE, Z_MAX_POS - 1) - current_position.z);
@@ -290,6 +287,9 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
 
     // Save, including the limited Z raise
     if (IS_SD_PRINTING()) save(true, zraise);
+
+    // Disable all heaters to reduce power loss
+    thermalManager.disable_all_heaters();
 
     #if ENABLED(BACKUP_POWER_SUPPLY)
       // Do a hard-stop of the steppers (with possibly a loud thud)
