@@ -2026,7 +2026,6 @@ void Temperature::disable_all_heaters() {
   TERN_(PROBING_HEATERS_OFF, pause(false));
 
   #define DISABLE_HEATER(N) {           \
-    setTargetHotend(0, N);              \
     temp_hotend[N].soft_pwm_amount = 0; \
     WRITE_HEATER_##N(LOW);              \
   }
