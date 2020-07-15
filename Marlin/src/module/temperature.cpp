@@ -216,17 +216,20 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     if (target >= FAN_COUNT) return;
 
     fan_speed[target] = speed;
-    report_fan_speed(target);
+
+    TERN_(REPORT_FAN_CHANGE, report_fan_speed(target));
   }
 
-  /**
-   * Report print fan speed for a target extruder
-   */
-  void Temperature::report_fan_speed(const uint8_t target) {
-    if (target >= FAN_COUNT) return;
-    PORT_REDIRECT(SERIAL_BOTH);
-    SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
-  }
+  #if ENABLED(REPORT_FAN_CHANGE)
+    /**
+     * Report print fan speed for a target extruder
+     */
+    void Temperature::report_fan_speed(const uint8_t target) {
+      if (target >= FAN_COUNT) return;
+      PORT_REDIRECT(SERIAL_BOTH);
+      SERIAL_ECHOLNPAIR("M106 P", target, " S", fan_speed[target]);
+    }
+  #endif
 
   #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
 
@@ -904,7 +907,10 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
           SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)
           {
-            SERIAL_ECHOPAIR( STR_PID_DEBUG_PTERM, work_pid[ee].Kp, STR_PID_DEBUG_ITERM, work_pid[ee].Ki, STR_PID_DEBUG_DTERM, work_pid[ee].Kd
+            SERIAL_ECHOPAIR(
+              STR_PID_DEBUG_PTERM, work_pid[ee].Kp,
+              STR_PID_DEBUG_ITERM, work_pid[ee].Ki,
+              STR_PID_DEBUG_DTERM, work_pid[ee].Kd
               #if ENABLED(PID_EXTRUSION_SCALING)
                 , STR_PID_DEBUG_CTERM, work_pid[ee].Kc
               #endif

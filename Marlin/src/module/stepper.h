@@ -191,7 +191,6 @@
   #error "Expected at least one of MINIMUM_STEPPER_PULSE or MAXIMUM_STEPPER_RATE to be defined"
 #endif
 
-
 // But the user could be enforcing a minimum time, so the loop time is
 #define ISR_LOOP_CYCLES (ISR_LOOP_BASE_CYCLES + _MAX(MIN_STEPPER_PULSE_CYCLES, MIN_ISR_LOOP_CYCLES))
 
@@ -558,7 +557,7 @@ class Stepper {
         // In case of high-performance processor, it is able to calculate in real-time
         timer = uint32_t(STEPPER_TIMER_RATE) / step_rate;
       #else
-        constexpr uint32_t min_step_rate = F_CPU / 500000U;
+        constexpr uint32_t min_step_rate = (F_CPU) / 500000U;
         NOLESS(step_rate, min_step_rate);
         step_rate -= min_step_rate; // Correct for minimal speed
         if (step_rate >= (8 * 256)) { // higher step rate
