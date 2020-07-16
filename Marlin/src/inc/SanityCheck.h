@@ -771,6 +771,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
+  #elif !defined(BABYSTEP_MULTIPLICATOR_Z)
+    #error "BABYSTEPPING requires BABYSTEP_MULTIPLICATOR_Z."
+  #elif ENABLED(BABYSTEP_XY) && !defined(BABYSTEP_MULTIPLICATOR_XY)
+    #error "BABYSTEP_XY requires BABYSTEP_MULTIPLICATOR_XY."
+  #elif ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    static_assert(BABYSTEP_MULTIPLICATOR_Z <= 0.1f, "BABYSTEP_MULTIPLICATOR_Z must be less or equal to 0.1mm.");
+    #if ENABLED(BABYSTEP_XY)
+      static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
+    #endif
   #endif
 #endif
 
