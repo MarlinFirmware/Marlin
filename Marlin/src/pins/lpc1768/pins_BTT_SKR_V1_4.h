@@ -312,10 +312,6 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #elif HAS_ADC_BUTTONS
-
-    #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
-
   #elif HAS_CHARACTER_LCD
 
     #error "Character LCD not yet supported for SKR 1.4."
@@ -323,6 +319,10 @@
   #endif
 
 #endif // HAS_SPI_LCD
+
+#if HAS_ADC_BUTTONS
+  #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
+#endif
 
 //
 // Neopixel LED
