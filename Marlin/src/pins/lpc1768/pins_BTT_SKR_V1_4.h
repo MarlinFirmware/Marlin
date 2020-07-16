@@ -312,9 +312,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #elif ENABLED(ADC_KEYPAD)
+  #elif HAS_ADC_BUTTONS
 
-    #error "ADC KEYPADs do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
+    #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
 
   #endif
 
