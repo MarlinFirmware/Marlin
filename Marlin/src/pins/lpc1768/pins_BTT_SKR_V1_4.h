@@ -312,9 +312,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #elif HAS_CHARACTER_LCD
+  #elif ENABLED(ADC_KEYPAD)
 
-    #error "Character LCD not yet supported for SKR 1.4."
+    #error "ADC KEYPADs do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
 
   #endif
 
