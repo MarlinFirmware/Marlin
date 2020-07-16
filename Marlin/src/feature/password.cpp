@@ -39,7 +39,6 @@ Password password;
 bool         Password::is_set, Password::is_locked;
 uint32_t     Password::value, Password::value_entry;
 
-
 #if HAS_LCD_MENU
 
   // private:
