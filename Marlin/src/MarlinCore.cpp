@@ -767,6 +767,13 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr*/, const bool steppers_off/*=false*/) {
   thermalManager.disable_all_heaters();
 
+  #if PIN_EXISTS(FAN)
+    TERN_(USING_FAN_PIN, WRITE(FAN_PIN, 0));    // Kill fan_pin if requested.  
+  #endif
+  #if PIN_EXISTS(FAN1)
+    TERN_(USING_FAN1_PIN, WRITE(FAN1_PIN, 0));  // Kill fan1_pin if requested.  
+  #endif
+
   TERN_(HAS_CUTTER, cutter.kill()); // Full cutter shutdown including ISR control
 
   SERIAL_ERROR_MSG(STR_ERR_KILLED);
@@ -797,6 +804,13 @@ void minkill(const bool steppers_off/*=false*/) {
 
   // Reiterate heaters off
   thermalManager.disable_all_heaters();
+
+  #if PIN_EXISTS(FAN)
+    TERN_(USING_FAN_PIN, WRITE(FAN_PIN, 0));    // Reiterate Kill fan_pin if requested.  
+  #endif
+  #if PIN_EXISTS(FAN1)
+    TERN_(USING_FAN1_PIN, WRITE(FAN1_PIN, 0));  // Reiterate Kill fan1_pin if requested.  
+  #endif
 
   TERN_(HAS_CUTTER, cutter.kill());  // Reiterate cutter shutdown
 
