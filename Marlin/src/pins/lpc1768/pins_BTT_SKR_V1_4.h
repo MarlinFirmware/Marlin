@@ -312,11 +312,7 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #elif HAS_CHARACTER_LCD
-
-    #error "Character LCD not yet supported for SKR 1.4."
-
-  #endif
+  #endif // HAS_GRAPHICAL_LCD
 
 #endif // HAS_SPI_LCD
 
