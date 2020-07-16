@@ -145,7 +145,7 @@
 #define EXTRUDERS 1
 
 // Generally expected filament diameter (1.75, 2.85, 3.0, ...). Used for Volumetric, Filament Width Sensor, etc.
-#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75 //!!
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.82 //!!
 
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
@@ -1310,7 +1310,7 @@
   #define MESH_EDIT_GFX_OVERLAY   //!! Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 20              //!! Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 6      //!! Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 4      //!! Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
