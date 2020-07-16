@@ -22,15 +22,6 @@
 #pragma once
 
 /**
- * Override default LCD timing for Formbot T-Rex 2+ machines.
- * The long LCD cables and the routing near electrically noisy stepper motors
- * requires a slightly longer setup and hold time on the signals.
- */
-#define BOARD_ST7920_DELAY_1 DELAY_NS(200)
-#define BOARD_ST7920_DELAY_2 DELAY_NS(200)
-#define BOARD_ST7920_DELAY_3 DELAY_NS(200)
-
-/**
  * Formbot pin assignments
  */
 
@@ -204,4 +195,16 @@
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27
   #define LCD_PINS_D7                         29
+#endif
+
+#if HAS_GRAPHICAL_LCD
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1 DELAY_NS(200)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2 DELAY_NS(200)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3 DELAY_NS(200)
+  #endif
 #endif

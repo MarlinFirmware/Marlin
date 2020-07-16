@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if ENABLED(TFT_LVGL_UI)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -61,7 +61,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonCN, event_handler, ID_CN, "bmp_Simple_cn_sel.bin", 0);
+        lv_obj_set_event_cb_mks(buttonCN, event_handler, ID_CN, "bmp_simplified_cn_sel.bin", 0);
         gCfgItems.language = LANG_SIMPLE_CHINESE;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -73,7 +73,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         disp_language(gCfgItems.language, UNSELECTED);
-        lv_obj_set_event_cb_mks(buttonT_CN, event_handler, ID_T_CN, "bmp_Tradition_cn_sel.bin", 0);
+        lv_obj_set_event_cb_mks(buttonT_CN, event_handler, ID_T_CN, "bmp_traditional_cn_sel.bin", 0);
         gCfgItems.language = LANG_COMPLEX_CHINESE;
         gCfg_to_spiFlah();
         disp_language_init();
@@ -258,14 +258,14 @@ void lv_draw_language(void) {
   buttonBack = lv_imgbtn_create(scr, NULL);
 
 
-  lv_obj_set_event_cb_mks(buttonCN, event_handler, ID_CN, "bmp_Simple_cn.bin", 0);
+  lv_obj_set_event_cb_mks(buttonCN, event_handler, ID_CN, "bmp_simplified_cn.bin", 0);
   lv_imgbtn_set_src(buttonCN, LV_BTN_STATE_REL, &bmp_pic);
   lv_imgbtn_set_src(buttonCN, LV_BTN_STATE_PR, &bmp_pic);
   lv_imgbtn_set_style(buttonCN, LV_BTN_STATE_PR, &tft_style_lable_pre);
   lv_imgbtn_set_style(buttonCN, LV_BTN_STATE_REL, &tft_style_lable_rel);
   lv_obj_clear_protect(buttonCN, LV_PROTECT_FOLLOW);
   #if 1
-    lv_obj_set_event_cb_mks(buttonT_CN, event_handler, ID_T_CN, "bmp_Tradition_cn.bin", 0);
+    lv_obj_set_event_cb_mks(buttonT_CN, event_handler, ID_T_CN, "bmp_traditional_cn.bin", 0);
     lv_imgbtn_set_src(buttonT_CN, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonT_CN, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonT_CN, LV_BTN_STATE_PR, &tft_style_lable_pre);
@@ -367,4 +367,4 @@ void lv_draw_language(void) {
 
 void lv_clear_language() { lv_obj_del(scr); }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // TFT_LVGL_UI

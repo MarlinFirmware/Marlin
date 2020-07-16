@@ -251,6 +251,7 @@
     #define LCD_PINS_D4                    P1_21
 
   #else
+
     #define BTN_ENC                        P0_28  // (58) open-drain
     #define LCD_PINS_RS                    P1_19
 
@@ -311,9 +312,13 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif
+  #endif // HAS_GRAPHICAL_LCD
 
 #endif // HAS_SPI_LCD
+
+#if HAS_ADC_BUTTONS
+  #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
+#endif
 
 //
 // Neopixel LED
