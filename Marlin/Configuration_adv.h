@@ -2838,7 +2838,7 @@
 //#define SPINDLE_FEATURE
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
-  #define USING_FAN_PIN                 fasle  // set if your actually using the fan_pin for spindle or laser control 
+  #define USING_FAN_PIN                 false  // set if your actually using the fan_pin for spindle or laser control 
   #define USING_FAN1_PIN                false  // set if your actually using the fan1_pin for spindle or laser control 
   #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
