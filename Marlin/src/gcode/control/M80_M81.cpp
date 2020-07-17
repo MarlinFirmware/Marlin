@@ -72,9 +72,9 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(PSU_POWERUP_DELAY);
+      safe_delay(PSU_POWERUP_DELAY);
       restore_stepper_drivers();
-      TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
+      TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
     #endif
 
     TERN_(HAS_LCD_MENU, ui.reset_status());
