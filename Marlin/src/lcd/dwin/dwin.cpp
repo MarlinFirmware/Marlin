@@ -1547,8 +1547,9 @@ millis_t shift_ms; // = 0
 inline void Init_Shift_Name() {
   const bool is_subdir = !card.flag.workDirIsRoot;
   const int8_t filenum = select_file.now - 1 - is_subdir; // Skip "Back" and ".."
-  if (WITHIN(filenum, 0, card.get_num_Files() - 1)) {
-    card.getfilename_sorted(filenum);
+  const uint16_t fileCnt = card.get_num_Files();
+  if (WITHIN(filenum, 0, fileCnt - 1)) {
+    card.getfilename_sorted(SD_ORDER(filenum, fileCnt));
     char * const name = card.longest_filename();
     make_name_without_ext(shift_name, name, 100);
   }
@@ -1561,8 +1562,8 @@ inline void Init_SDItem_Shift() {
 }
 
 /**
-* Display an SD item, adding a CDUP for subfolders.
-*/
+ * Display an SD item, adding a CDUP for subfolders.
+ */
 inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   if (row < 0) row = item + 1 + MROWS - index_file;
   const bool is_subdir = !card.flag.workDirIsRoot;
@@ -1617,7 +1618,7 @@ inline void Redraw_SD_List() {
 
   // As many files as will fit
   LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
-  Draw_SDItem(i, i + 1);
+    Draw_SDItem(i, i + 1);
 
   Init_SDItem_Shift();
 }
@@ -1898,7 +1899,7 @@ void HMI_SelectFile(void) {
     }
     else {
       const uint16_t filenum = select_file.now - 1 - hasUpDir;
-      card.getfilename_sorted(filenum);
+      card.getfilename_sorted(SD_ORDER(filenum, card.get_num_Files()));
 
       // Enter that folder!
       if (card.flag.filenameIsDir) {
@@ -3415,10 +3416,11 @@ void EachMomentUpdate(void) {
       DWIN_Draw_Rectangle(0, c2, 144, 305, 247, 346);
     };
 
-    LOOP_L_N(i, card.get_num_Files()) {
+    const uint16_t fileCnt = card.get_num_Files();
+    for (uint16_t i = 0; i < fileCnt; i++) {
       // TODO: Resume print via M1000 then update the UI
       // with the active filename which can come from CardReader.
-      card.getfilename_sorted(i);
+      card.getfilename_sorted(SD_ORDER(i, fileCnt));
       if (!strcmp(card.filename, &recovery.info.sd_filename[1])) { // Resume print before power failure while have the same file
         recovery_flag = 1;
         HMI_flag.select_flag = 1;

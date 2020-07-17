@@ -31,7 +31,11 @@
   #define SD_RESORT 1
 #endif
 
-#define SD_ORDER(N,C) (TERN(SDCARD_RATHERRECENTFIRST, C - 1 - (N), N))
+#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+  #define SD_ORDER(N,C) ((C) - 1 - (N))
+#else
+  #define SD_ORDER(N,C) N
+#endif
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
