@@ -1511,6 +1511,9 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       if (recdat.data[0] == 1) //Filament is out, resume / resume selected on screen
       {
         if(
+          #if (FIL_RUNOUT_STATE == LOW)
+            #define FIL_RUNOUT_INVERTING true
+          #endif
         #if DISABLED(FILAMENT_RUNOUT_SENSOR) || ENABLED(FILAMENT_MOTION_SENSOR)
           true
         #elif NUM_RUNOUT_SENSORS > 1
