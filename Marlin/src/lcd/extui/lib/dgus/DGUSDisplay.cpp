@@ -1208,7 +1208,7 @@ void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t val
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
-  WriteVariable(adr, static_cast<const void*>(&value), sizeof(T));
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 
 void DGUSScreenVariableHandler::GotoScreen(DGUSLCD_Screens screen, bool ispopup) {
