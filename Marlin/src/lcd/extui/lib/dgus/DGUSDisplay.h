@@ -54,10 +54,7 @@ public:
   // Variable access.
   static void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
   static void WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
-  template<typename T>
-  static void WriteVariable(uint16_t adr, T value) {
-    WriteVariable(adr, static_cast<const void*>(&value), sizeof(T));
-  }
+  static void WriteVariable(uint16_t adr, uint16_t value);
 
   // Until now I did not need to actively read from the display. That's why there is no ReadVariable
   // (I extensively use the auto upload of the display)
