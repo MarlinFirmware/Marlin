@@ -253,7 +253,7 @@
 
 // RAMPS 1.4 DIO 4 on the servos connector
 #if ENABLED(CR20_STOCKDISPLAY)
-  #define FIL_RUNOUT_PIN 2 
+  #define FIL_RUNOUT_PIN                       2 
 #endif
 
 #ifndef FIL_RUNOUT_PIN
