@@ -43,14 +43,14 @@
   //#define FLASH_EEPROM_EMULATION
 
   // I2C
-  //#define IIC_BL24CXX_EEPROM                    // EEPROM on I2C-0
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
   #if ENABLED(IIC_BL24CXX_EEPROM)
     #define IIC_EEPROM_SDA                  PA11
     #define IIC_EEPROM_SCL                  PA12
     #define MARLIN_EEPROM_SIZE 0x4000             // 16Kb (24c16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM was in the original build, so...
   #endif
+
+  #define SDCARD_EEPROM_EMULATION                 // SD EEPROM until all EEPROM is BL24CXX
 
   // SPI
   //#define SPI_EEPROM                            // EEPROM on SPI-0
