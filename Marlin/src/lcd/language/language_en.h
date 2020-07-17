@@ -330,7 +330,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Store Settings");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Load Settings");
   PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Restore Defaults");
-  PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialize  EEPROM");
+  PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("Initialize EEPROM");
   PROGMEM Language_Str MSG_ERR_EEPROM_CRC                  = _UxGT("EEPROM CRC Error");
   PROGMEM Language_Str MSG_ERR_EEPROM_INDEX                = _UxGT("EEPROM Index Error");
   PROGMEM Language_Str MSG_ERR_EEPROM_VERSION              = _UxGT("EEPROM Version Error");
