@@ -251,13 +251,12 @@
   #define FILWIDTH_PIN                         5  // Analog Input on AUX2
 #endif
 
-// RAMPS 1.4 DIO 4 on the servos connector
-#if ENABLED(CR20_STOCKDISPLAY)
-  #define FIL_RUNOUT_PIN                       2 
-#endif
-
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                       4
+  #if ENABLED(CR20_STOCKDISPLAY)
+    #define FIL_RUNOUT_PIN                     2
+  #else
+    #define FIL_RUNOUT_PIN                     4  // DIO 4 on the Servos connector
+  #endif
 #endif
 
 #ifndef PS_ON_PIN
