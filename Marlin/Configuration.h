@@ -2026,7 +2026,7 @@
 //#define CR10_STOCKDISPLAY
 
 //
-// CR-20/ CR-20 Pro OEM display, a variant of the MKS_MINI_12864
+// CR-20/CR-20 Pro OEM display, a variant of the MKS_MINI_12864
 //
 //#define CR20_STOCKDISPLAY
 
