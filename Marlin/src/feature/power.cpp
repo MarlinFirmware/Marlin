@@ -29,7 +29,6 @@
 #if ENABLED(AUTO_POWER_CONTROL)
 
 #include "power.h"
-#include "../gcode/gcode.h"
 #include "../module/temperature.h"
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
@@ -106,9 +105,9 @@ void Power::power_on() {
   lastPowerOn = millis();
   if (!powersupply_on) {
     PSU_PIN_ON();
-    gcode.dwell(PSU_POWERUP_DELAY);
+    safe_delay(PSU_POWERUP_DELAY);
     restore_stepper_drivers();
-    TERN_(HAS_TRINAMIC_CONFIG, gcode.dwell(PSU_POWERUP_DELAY));
+    TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
   }
 }
 
