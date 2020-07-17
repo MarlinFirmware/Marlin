@@ -252,6 +252,10 @@
 #endif
 
 // RAMPS 1.4 DIO 4 on the servos connector
+#if ENABLED(CR20_STOCKDISPLAY)
+  #define FIL_RUNOUT_PIN 2 
+#endif
+
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                       4
 #endif
@@ -593,7 +597,7 @@
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        41
 
-    #elif EITHER(MKS_MINI_12864, FYSETC_MINI_12864)
+    #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864, CR20_STOCKDISPLAY)
 
       #define BEEPER_PIN                      37
       #define BTN_ENC                         35
@@ -603,7 +607,7 @@
         #define KILL_PIN                      41
       #endif
 
-      #if ENABLED(MKS_MINI_12864)
+      #if EITHER(MKS_MINI_12864, CR20_STOCKDISPLAY)
 
         #define DOGLCD_A0                     27
         #define DOGLCD_CS                     25

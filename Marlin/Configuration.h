@@ -2026,6 +2026,11 @@
 //#define CR10_STOCKDISPLAY
 
 //
+// CR-20 OEM display, a variant of the MKS_MINI_12864
+//
+//#define CR20_STOCKDISPLAY
+
+//
 // Ender-2 OEM display, a variant of the MKS_MINI_12864
 //
 //#define ENDER2_STOCKDISPLAY
