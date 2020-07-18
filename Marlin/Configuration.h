@@ -428,6 +428,20 @@
 #define TEMP_SENSOR_PROBE 0
 #define TEMP_SENSOR_CHAMBER 0
 
+// Temperature offsets enable the user to make the reported room temperature readings match for all sensors
+#define TEMP_SENSOR_0_OFFSET 0
+#define TEMP_SENSOR_1_OFFSET 0
+#define TEMP_SENSOR_2_OFFSET 0
+#define TEMP_SENSOR_3_OFFSET 0
+#define TEMP_SENSOR_4_OFFSET 0
+#define TEMP_SENSOR_5_OFFSET 0
+#define TEMP_SENSOR_6_OFFSET 0
+#define TEMP_SENSOR_7_OFFSET 0
+#define TEMP_SENSOR_BED_OFFSET 0
+#define TEMP_SENSOR_PROBE_OFFSET 0
+#define TEMP_SENSOR_CHAMBER_OFFSET 0
+
+
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
 #define DUMMY_THERMISTOR_999_VALUE 100

@@ -1536,6 +1536,9 @@ void Temperature::manage_heater() {
  * as it would block the stepper routine.
  */
 void Temperature::updateTemperaturesFromRawValues() {
+  float temperature_offset[] = {TEMP_SENSOR_0_OFFSET, TEMP_SENSOR_1_OFFSET, TEMP_SENSOR_2_OFFSET,
+                                TEMP_SENSOR_3_OFFSET, TEMP_SENSOR_4_OFFSET, TEMP_SENSOR_5_OFFSET,
+                                TEMP_SENSOR_6_OFFSET, TEMP_SENSOR_7_OFFSET};
   #if ENABLED(HEATER_0_USES_MAX6675)
     temp_hotend[0].raw = READ_MAX6675(0);
   #endif
@@ -1543,13 +1546,13 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_hotend[1].raw = READ_MAX6675(1);
   #endif
   #if HAS_HOTEND
-    HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e);
+    HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e) + temperature_offset[e];
   #endif
 
-  TERN_(HAS_HEATED_BED, temp_bed.celsius = analog_to_celsius_bed(temp_bed.raw));
-  TERN_(HAS_TEMP_CHAMBER, temp_chamber.celsius = analog_to_celsius_chamber(temp_chamber.raw));
-  TERN_(HAS_TEMP_PROBE, temp_probe.celsius = analog_to_celsius_probe(temp_probe.raw));
-  TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1));
+  TERN_(HAS_HEATED_BED, temp_bed.celsius = analog_to_celsius_bed(temp_bed.raw) + TEMP_SENSOR_BED_OFFSET);
+  TERN_(HAS_TEMP_CHAMBER, temp_chamber.celsius = analog_to_celsius_chamber(temp_chamber.raw) + TEMP_SENSOR_CHAMBER_OFFSET);
+  TERN_(HAS_TEMP_PROBE, temp_probe.celsius = analog_to_celsius_probe(temp_probe.raw) + TEMP_SENSOR_PROBE_OFFSET);
+  TERN_(TEMP_SENSOR_1_AS_REDUNDANT, redundant_temperature = analog_to_celsius_hotend(redundant_temperature_raw, 1) + TEMP_SENSOR_1_OFFSET);
   TERN_(FILAMENT_WIDTH_SENSOR, filwidth.update_measured_mm());
   TERN_(HAS_POWER_MONITOR, power_monitor.capture_values());
 
