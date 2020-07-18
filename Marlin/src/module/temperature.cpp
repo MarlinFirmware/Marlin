@@ -1536,9 +1536,6 @@ void Temperature::manage_heater() {
  * as it would block the stepper routine.
  */
 void Temperature::updateTemperaturesFromRawValues() {
-  float temperature_offset[] = {TEMP_SENSOR_0_OFFSET, TEMP_SENSOR_1_OFFSET, TEMP_SENSOR_2_OFFSET,
-                                TEMP_SENSOR_3_OFFSET, TEMP_SENSOR_4_OFFSET, TEMP_SENSOR_5_OFFSET,
-                                TEMP_SENSOR_6_OFFSET, TEMP_SENSOR_7_OFFSET};
   #if ENABLED(HEATER_0_USES_MAX6675)
     temp_hotend[0].raw = READ_MAX6675(0);
   #endif
@@ -1546,6 +1543,10 @@ void Temperature::updateTemperaturesFromRawValues() {
     temp_hotend[1].raw = READ_MAX6675(1);
   #endif
   #if HAS_HOTEND
+    const uint8_t temperature_offset[] = ARRAY_BY_HOTENDS(
+      TEMP_SENSOR_0_OFFSET, TEMP_SENSOR_1_OFFSET, TEMP_SENSOR_2_OFFSET, TEMP_SENSOR_3_OFFSET,
+      TEMP_SENSOR_4_OFFSET, TEMP_SENSOR_5_OFFSET, TEMP_SENSOR_6_OFFSET, TEMP_SENSOR_7_OFFSET
+    );
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(temp_hotend[e].raw, e) + temperature_offset[e];
   #endif
 
