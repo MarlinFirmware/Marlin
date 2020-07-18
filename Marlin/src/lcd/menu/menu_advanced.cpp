@@ -187,6 +187,7 @@ void menu_cancelobject();
       #endif
     );
     queue.inject(cmd);
+    ui.return_to_status();
   }
 
 #endif // PID_AUTOTUNE_MENU
