@@ -902,13 +902,9 @@ void MarlinUI::update() {
         // A user will perceive this as unreliable: a step without any update.
         // The fix will treat this condition as a full step.
         static int8_t lastEncoderDiff;
-        if (ABS(encoderDiff) < ENCODER_PULSES_PER_STEP) {     // Only when not past threshold
-          if (encoderDiff > 0 && lastEncoderDiff < 0) {       // Reversing to positive
-            encoderDiff = ENCODER_PULSES_PER_STEP;            // Treat as full postive step
-          }
-          else if (encoderDiff < 0 && lastEncoderDiff > 0) {  // Reversing to negative
-            encoderDiff = -ENCODER_PULSES_PER_STEP;           // Treat as full negative step
-          }
+        if (ABS(encoderDiff) < (ENCODER_PULSES_PER_STEP)) {     // Only when not past threshold
+          if ((encoderDiff > 0) != (lastEncoderDiff < 0))       // Reversing
+            encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
         }
         lastEncoderDiff = encoderDiff;
       #endif
