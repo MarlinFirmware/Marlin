@@ -896,20 +896,21 @@ void MarlinUI::update() {
       if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
+      float abs_diff = ABS(encoderDiff);
+
       #if ENCODER_PULSES_PER_STEP > 1
-        // When reversing the encoder direction, a movement step can be missed.
-        // This happens when ABS(encoderDiff) has a non-zero residual value.
-        // A user will perceive this as unreliable: a step without any update.
-        // The fix will treat this condition as a full step.
+        // When reversing the encoder direction, a movement step can be missed because
+        // encoderDiff has a non-zero residual value, making the controller unresponsive.
+        // The fix clears the residual value when the encoder is reversed.
         static int8_t lastEncoderDiff;
-        if (ABS(encoderDiff) < (ENCODER_PULSES_PER_STEP)) {     // Only when not past threshold
-          if ((encoderDiff > 0) == (lastEncoderDiff < 0))       // Reversing
-            encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
+        // When not past threshold, and reversing...
+        if (abs_diff < (ENCODER_PULSES_PER_STEP) && (encoderDiff > 0) == (lastEncoderDiff < 0)) {
+          encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
+          abs_diff = ENCODER_PULSES_PER_STEP;
         }
         lastEncoderDiff = encoderDiff;
       #endif
 
-      const float abs_diff = ABS(encoderDiff);
       const bool encoderPastThreshold = (abs_diff >= (ENCODER_PULSES_PER_STEP));
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
