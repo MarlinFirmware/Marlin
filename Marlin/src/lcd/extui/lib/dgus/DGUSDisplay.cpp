@@ -1180,6 +1180,10 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
   }
 }
 
+void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+}
+
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
