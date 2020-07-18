@@ -1744,71 +1744,70 @@
   #endif
 #endif
 
+// Temperature Sensors
+#if TEMP_SENSOR_0 && !defined(TEMP_SENSOR_0_OFFSET)
+  #define TEMP_SENSOR_0_OFFSET 0
+#endif
+#if TEMP_SENSOR_1 && !defined(TEMP_SENSOR_1_OFFSET)
+  #define TEMP_SENSOR_1_OFFSET 0
+#endif
+#if TEMP_SENSOR_2 && !defined(TEMP_SENSOR_2_OFFSET)
+  #define TEMP_SENSOR_2_OFFSET 0
+#endif
+#if TEMP_SENSOR_3 && !defined(TEMP_SENSOR_3_OFFSET)
+  #define TEMP_SENSOR_3_OFFSET 0
+#endif
+#if TEMP_SENSOR_4 && !defined(TEMP_SENSOR_4_OFFSET)
+  #define TEMP_SENSOR_4_OFFSET 0
+#endif
+#if TEMP_SENSOR_5 && !defined(TEMP_SENSOR_5_OFFSET)
+  #define TEMP_SENSOR_5_OFFSET 0
+#endif
+#if TEMP_SENSOR_6 && !defined(TEMP_SENSOR_6_OFFSET)
+  #define TEMP_SENSOR_6_OFFSET 0
+#endif
+#if TEMP_SENSOR_7 && !defined(TEMP_SENSOR_7_OFFSET)
+  #define TEMP_SENSOR_7_OFFSET 0
+#endif
+
 // Heaters
 #if PIN_EXISTS(HEATER_0)
   #define HAS_HEATER_0 1
-  #ifndef TEMP_SENSOR_0_OFFSET
-    #define TEMP_SENSOR_0_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_1)
   #define HAS_HEATER_1 1
-  #ifndef TEMP_SENSOR_1_OFFSET
-    #define TEMP_SENSOR_1_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_2)
   #define HAS_HEATER_2 1
-  #ifndef TEMP_SENSOR_2_OFFSET
-    #define TEMP_SENSOR_2_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_3)
   #define HAS_HEATER_3 1
-  #ifndef TEMP_SENSOR_3_OFFSET
-    #define TEMP_SENSOR_3_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_4)
   #define HAS_HEATER_4 1
-  #ifndef TEMP_SENSOR_4_OFFSET
-    #define TEMP_SENSOR_4_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_5)
   #define HAS_HEATER_5 1
-  #ifndef TEMP_SENSOR_5_OFFSET
-    #define TEMP_SENSOR_5_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_6)
   #define HAS_HEATER_6 1
-  #ifndef TEMP_SENSOR_6_OFFSET
-    #define TEMP_SENSOR_6_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_7)
   #define HAS_HEATER_7 1
-  #ifndef TEMP_SENSOR_7_OFFSET
-    #define TEMP_SENSOR_7_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_BED)
   #define HAS_HEATER_BED 1
-  #ifndef TEMP_SENSOR_BED_OFFSET
-    #define TEMP_SENSOR_BED_OFFSET 0
-  #endif
 #endif
 #if PIN_EXISTS(HEATER_CHAMBER)
   #define HAS_HEATER_CHAMBER 1
-  #ifndef TEMP_SENSOR_CHAMBER_OFFSET
-    #define TEMP_SENSOR_CHAMBER_OFFSET 0
-  #endif
 #endif
 
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
+  #ifndef TEMP_SENSOR_BED_OFFSET
+    #define TEMP_SENSOR_BED_OFFSET 0
+  #endif
   #ifndef BED_OVERSHOOT
     #define BED_OVERSHOOT 10
   #endif
@@ -1822,6 +1821,9 @@
 #endif
 #if HAS_TEMP_CHAMBER && PIN_EXISTS(HEATER_CHAMBER)
   #define HAS_HEATED_CHAMBER 1
+  #ifndef TEMP_SENSOR_CHAMBER_OFFSET
+    #define TEMP_SENSOR_CHAMBER_OFFSET 0
+  #endif
 #endif
 
 // PID heating
