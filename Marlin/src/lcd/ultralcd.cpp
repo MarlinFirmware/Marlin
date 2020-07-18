@@ -950,7 +950,7 @@ void MarlinUI::update() {
           #endif // ENCODER_RATE_MULTIPLIER
 
           encoderPosition += (encoderDiff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
-          encoderDiff = 0;
+          encoderDiff = 0;  // Move this and clear always?
         }
 
         RESET_STATUS_TIMEOUT();
