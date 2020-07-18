@@ -38,15 +38,38 @@
 #endif
 
 //
-// Custom Limit Switches
+// Limit Switches
 //
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
+
+#define X_MIN_PIN                              3
+
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
-  #define Y_MIN_PIN                           19
+#else
+  #define X_MAX_PIN                           43
 #endif
 
-// Labeled pins
+#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
+  #define Y_STOP_PIN                          19
+#else
+  #define Y_STOP_PIN                          42
+#endif
+
+#define Z_STOP_PIN                            18
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#define Z_MIN_PROBE_PIN                        2
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      19
+#endif
+
+//
+// Heaters / Fans
+//
 #define TG_HEATER_BED_PIN                      8
 #define TG_HEATER_0_PIN                       10
 #define TG_HEATER_1_PIN                       45  // Anycubic Kossel: Unused
@@ -54,6 +77,11 @@
 #define TG_FAN0_PIN                            9  // Anycubic Kossel: Usually the part cooling fan
 #define TG_FAN1_PIN                            7  // Anycubic Kossel: Unused
 #define TG_FAN2_PIN                           44  // Anycubic Kossel: Hotend fan
+
+#define CONTROLLER_FAN_PIN           TG_FAN1_PIN
+
+#define BEEPER_PIN                            31
+#define SD_DETECT_PIN                         49
 
 // Remap MOSFET pins to common usages:
 
