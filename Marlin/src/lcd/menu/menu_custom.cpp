@@ -47,7 +47,7 @@ void menu_user() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
   #define HAS_USER_ITEM(N) (defined(USER_DESC_##N) && defined(USER_GCODE_##N))
-  #define USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), []{ _lcd_user_gcode(PSTR(USER_GCODE_##N _DONE_SCRIPT)); });
+  #define USER_ITEM(N) ACTION_ITEM_P(PSTR(USER_DESC_##N), []{ _lcd_user_gcode(PSTR("M117" USER_DESC_##N "\n" USER_GCODE_##N _DONE_SCRIPT)); });
   #if HAS_USER_ITEM(1)
     USER_ITEM(1);
   #endif
