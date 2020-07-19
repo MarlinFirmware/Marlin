@@ -32,13 +32,21 @@ def install_features_dependencies():
 		if 'lib_deps' in FEATURE_DEPENDENCIES[feature]:
 			print("Adding lib_deps for %s... " % feature)
 
-			# first check if the env already have the dep
+			# deps to add
 			deps_to_add = {}
 			for dep in FEATURE_DEPENDENCIES[feature]['lib_deps']:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				deps_to_add[name] = dep
 
+			# first check if the env already have the dep
 			deps = env.GetProjectOption("lib_deps")
+			for dep in deps:
+				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				if name in deps_to_add:
+					del deps_to_add[name]
+
+			# check if we need ignore any lib
+			lib_ignore = env.GetProjectOption("lib_ignore")
 			for dep in deps:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				if name in deps_to_add:
