@@ -63,10 +63,7 @@ def load_marlin_features():
 
 def MarlinFeatureIsEnabled(env, feature):
 	load_marlin_features()
-	if feature in env["MARLIN_FEATURES"]:
-		return True
-	else:
-		return False
+	return feature in env["MARLIN_FEATURES"]
 
 # add a method for others scripts to check if a feature is enabled
 env.AddMethod(MarlinFeatureIsEnabled)
