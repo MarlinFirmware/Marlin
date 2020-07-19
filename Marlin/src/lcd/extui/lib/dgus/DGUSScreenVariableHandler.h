@@ -25,9 +25,9 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-class DGUSScreenVariableHandler {
+class DGUSScreenHandler {
 public:
-  DGUSScreenVariableHandler() = default;
+  DGUSScreenHandler() = default;
 
   static bool loop();
 
@@ -240,4 +240,4 @@ private:
   static void (*confirm_action_cb)();
 };
 
-extern DGUSScreenVariableHandler ScreenHandler;
+extern DGUSScreenHandler ScreenHandler;
