@@ -72,7 +72,8 @@
 
 // Author info of this build printed to the host during boot and M115
 //steps per unit and x_min_pos, manual_x_hom_pos, nozzle_to_probe_offset ###### Tue Jul 14 11:16:35 BST 2020
-#define STRING_CONFIG_H_AUTHOR "(Steve, SKR 1.4 Turbo, S42b)" // Who made the changes.
+//change to TMC2209 ###### Sun Jul 19 16:48:45 BST 2020
+#define STRING_CONFIG_H_AUTHOR "(Steve, SKR 1.4 Turbo, TMC2209)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -111,7 +112,6 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-
 
 /**
  * This setting determines the communication speed of the printer.
@@ -491,9 +491,9 @@
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
   // Ultimaker
-  #define DEFAULT_Kp 22.2
-  #define DEFAULT_Ki 1.08
-  #define DEFAULT_Kd 114
+  #define DEFAULT_Kp 14.67
+  #define DEFAULT_Ki 0.93
+  #define DEFAULT_Kd 57.70
 
   // MakerGear
   //#define DEFAULT_Kp 7.0
@@ -661,8 +661,8 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // Set to true to invert the logic of the endstop.
@@ -685,15 +685,15 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#define X_DRIVER_TYPE  A4988
-#define Y_DRIVER_TYPE  A4988
-#define Z_DRIVER_TYPE  A4988
+#define X_DRIVER_TYPE  TMC2209
+#define Y_DRIVER_TYPE  TMC2209
+#define Z_DRIVER_TYPE  TMC2209
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
-#define Z2_DRIVER_TYPE A4988
+#define Z2_DRIVER_TYPE TMC2209
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE A4988
+#define E0_DRIVER_TYPE TMC2209
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -745,7 +745,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 200, 200, 1066.67, 1064.28 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 500 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1083,7 +1083,7 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_Z_DIR false
 
 // @section extruder
 
