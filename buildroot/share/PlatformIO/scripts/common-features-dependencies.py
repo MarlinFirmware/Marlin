@@ -1,5 +1,5 @@
 #
-# common-check-deps.py
+# common-features-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import subprocess
@@ -18,6 +18,9 @@ FEATURE_DEPENDENCIES = {
 		#'src_filter': '+<src/lcd/extui/lib/mks_ui>',
 		# script in another PR
 		#'extra_scripts': 'buildroot/share/PlatformIO/scripts/dowload_mks_assets.py', 
+	},
+	'HAS_TRINAMIC': {
+		'lib_deps': ['TMCStepper@~0.7.1']
 	}
 }
 
@@ -42,7 +45,15 @@ def install_features_dependencies():
 def load_marlin_features():
 	if "MARLIN_FEATURES" in env:
 		return
-	define_list = subprocess.check_output(' '.join([env.get('CXX'), '-w -dM -E -x c++ Marlin/Configuration.h -includeMarlin/src/core/macros.h']), shell=True).splitlines()
+	
+	# procces defines
+	build_flags = env.get('BUILD_FLAGS')
+	build_flags = env.ParseFlagsExtended(build_flags)
+	cmd = ['-D' + s for s in build_flags['CPPDEFINES']]
+	cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
+	cmd = [env.get('CXX')] + cmd
+	cmd = ' '.join(cmd)
+	define_list = subprocess.check_output(cmd, shell=True).splitlines()
 	marlin_features = {}
 	for define in define_list:
 		feature = define[8:].strip().decode().split(' ')
