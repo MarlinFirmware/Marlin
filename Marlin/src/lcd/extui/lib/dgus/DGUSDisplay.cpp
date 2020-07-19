@@ -115,7 +115,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
     tmp[1] = endian.lb[2];
     tmp[2] = endian.lb[1];
     tmp[3] = endian.lb[0];
-    WriteVariable(adr, static_cast<const void*>(&value), sizeof(long));
+    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
