@@ -8,6 +8,7 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
+from platformio.managers.package import PackageManager
 
 Import("env")
 
@@ -28,12 +29,28 @@ def install_features_dependencies():
 		if not env.MarlinFeatureIsEnabled(feature):
 			continue
 
-		#print("Feature enabled: %s" % feature)
 		if 'lib_deps' in FEATURE_DEPENDENCIES[feature]:
 			print("Adding lib_deps for %s... " % feature)
-			proj = env.GetProjectConfig()
+
+			# first check if the env already have the dep
+			deps_to_add = {}
+			for dep in FEATURE_DEPENDENCIES[feature]['lib_deps']:
+				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				deps_to_add[name] = dep
+
 			deps = env.GetProjectOption("lib_deps")
-			proj.set("env:" + env["PIOENV"], "lib_deps", deps + FEATURE_DEPENDENCIES[feature]['lib_deps'])
+			for dep in deps:
+				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				if name in deps_to_add:
+					del deps_to_add[name]
+
+			# any left?
+			if len(deps_to_add) <= 0:
+				continue
+
+			# add only the missing deps
+			proj = env.GetProjectConfig()
+			proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
 		if 'extra_scripts' in FEATURE_DEPENDENCIES[feature]:
 			print("Executing extra_scripts for %s... " % feature)
 			env.SConscript(FEATURE_DEPENDENCIES[feature]['extra_scripts'], exports="env")
