@@ -896,17 +896,22 @@ void MarlinUI::update() {
       if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
-      float abs_diff = ABS(encoderDiff);
+      uint8_t abs_diff = ABS(encoderDiff);
 
       #if ENCODER_PULSES_PER_STEP > 1
         // When reversing the encoder direction, a movement step can be missed because
         // encoderDiff has a non-zero residual value, making the controller unresponsive.
         // The fix clears the residual value when the encoder is reversed.
+        // Also check if passed half the threshold. This will compensate for missed single steps.
         static int8_t lastEncoderDiff;
-        // When not past threshold, and reversing...
-        if (abs_diff < (ENCODER_PULSES_PER_STEP) && (encoderDiff > 0) == (lastEncoderDiff < 0)) {
-          encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
-          abs_diff = ENCODER_PULSES_PER_STEP;
+        // When not past threshold, and reversing... or past half the threshold
+        if (encoderDiff != 0 && abs_diff < (ENCODER_PULSES_PER_STEP)) {
+          if ((encoderDiff > 0 && lastEncoderDiff < 0) ||
+              (encoderDiff < 0 && lastEncoderDiff > 0) ||
+              (abs_diff > (ENCODER_PULSES_PER_STEP) / 2)) {
+            encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
+            abs_diff = ENCODER_PULSES_PER_STEP;
+          }
         }
         lastEncoderDiff = encoderDiff;
       #endif
@@ -920,7 +925,7 @@ void MarlinUI::update() {
             int32_t encoderMultiplier = 1;
 
             if (encoderRateMultiplierEnabled) {
-              const float encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+              const float encoderMovementSteps = float(abs_diff) / (ENCODER_PULSES_PER_STEP);
 
               if (lastEncoderMovementMillis) {
                 // Note that the rate is always calculated between two passes through the
