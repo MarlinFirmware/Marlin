@@ -905,15 +905,18 @@ void MarlinUI::update() {
         // Also check if passed half the threshold. This will compensate for missed single steps.
         static int8_t lastEncoderDiff;
         // When not past threshold, and reversing... or past half the threshold
-        if (encoderDiff != 0 && abs_diff < (ENCODER_PULSES_PER_STEP)) {
-          if ((encoderDiff > 0 && lastEncoderDiff < 0) ||
-              (encoderDiff < 0 && lastEncoderDiff > 0) ||
-              (abs_diff > (ENCODER_PULSES_PER_STEP) / 2)) {
+        if ((encoderDiff != 0 && abs_diff < (ENCODER_PULSES_PER_STEP)) && // Not past threshold
+            (
+              abs_diff > (ENCODER_PULSES_PER_STEP) / 2 || // Passed half the threshold
+              (ABS(encoderDiff - lastEncoderDiff) >= (ENCODER_PULSES_PER_STEP) && ABS(lastEncoderDiff) < (ENCODER_PULSES_PER_STEP)) // Or direction change through zero
+            )) {
+            lastEncoderDiff = encoderDiff; // Store before updating encoderDiff, we want actual steps
             encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
             abs_diff = ENCODER_PULSES_PER_STEP;
-          }
         }
-        lastEncoderDiff = encoderDiff;
+        else {
+          lastEncoderDiff = encoderDiff;
+        }
       #endif
 
       const bool encoderPastThreshold = (abs_diff >= (ENCODER_PULSES_PER_STEP));
