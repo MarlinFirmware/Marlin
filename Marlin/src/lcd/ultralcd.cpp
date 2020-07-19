@@ -915,8 +915,8 @@ void MarlinUI::update() {
                )
              )
         ) {
-          encoderDiff = (encoderDiff < 0 ? -1 : 1) * (ENCODER_PULSES_PER_STEP); // Treat as full step
           abs_diff = ENCODER_PULSES_PER_STEP;
+          encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;  // Treat as full step
         }
       #endif
 
