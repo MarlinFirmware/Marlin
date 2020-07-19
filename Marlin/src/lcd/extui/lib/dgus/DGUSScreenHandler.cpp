@@ -20,7 +20,7 @@
  *
  */
 
-#include "DGUSScreenVariableHandler.h"
+#include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"

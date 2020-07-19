@@ -28,7 +28,7 @@
 
 #include "../DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
-#include "../DGUSScreenVariableHandler.h"
+#include "../DGUSScreenHandler.h"
 
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
