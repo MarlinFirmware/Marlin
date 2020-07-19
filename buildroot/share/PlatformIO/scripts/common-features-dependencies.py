@@ -58,7 +58,8 @@ def load_marlin_features():
 			cmd += ['-D' + s[0] + '=' + str(s[1])]
 		else:
 			cmd += ['-D' + s]
-	cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
+	# cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
+	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
 	cmd = [env.get('CXX')] + cmd
 	cmd = ' '.join(cmd)
 	print(cmd)
