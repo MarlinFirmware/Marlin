@@ -30,6 +30,8 @@
 /**
  * M301: Set PID parameters P I D (and optionally C, L)
  *
+ *   E[extruder] Default: 0
+ *
  *   P[float] Kp term
  *   I[float] Ki term (unscaled)
  *   D[float] Kd term (unscaled)
@@ -65,6 +67,7 @@ void GcodeSuite::M301() {
     #endif
 
     thermalManager.updatePID();
+
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output

@@ -19,29 +19,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * I2C/SPI EEPROM interface for LPC1768
- */
-
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
 
+/**
+ * PersistentStore for Arduino-style EEPROM interface
+ * with implementations supplied by the framework.
+ */
+
+#include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
-#include <Wire.h>
 
-#ifndef EEPROM_SIZE
-  #define EEPROM_SIZE           0x8000 // 32kB‬
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE           0x8000 // 32KB‬
 #endif
+size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 
-bool PersistentStore::access_start() {
-  TERN_(SPI_EEPROM, eeprom_init());
-  return true;
-}
-
+bool PersistentStore::access_start()  { eeprom_init(); return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -79,8 +76,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;
 }
-
-size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // USE_WIRED_EEPROM
 #endif // TARGET_LPC1768

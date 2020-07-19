@@ -98,7 +98,8 @@ namespace FTDI {
       if (ms == 0 && fx == SILENCE && nt == END_SONG) {
         sequence = 0;
         play(SILENCE, REST);
-      } else {
+      }
+      else {
         wait = ms;
         timer.start();
         play(fx, nt);

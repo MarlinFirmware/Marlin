@@ -42,7 +42,7 @@ void GcodeSuite::M575() {
       if (set0) {
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPAIR(" Serial "
-          #if NUM_SERIAL > 1
+          #if HAS_MULTI_SERIAL
             , '0',
           #else
             "0"
@@ -50,7 +50,7 @@ void GcodeSuite::M575() {
           " baud rate set to ", baud
         );
       }
-      #if NUM_SERIAL > 1
+      #if HAS_MULTI_SERIAL
         const bool set1 = (port == -99 || port == 1);
         if (set1) {
           SERIAL_ECHO_START();
@@ -62,7 +62,7 @@ void GcodeSuite::M575() {
 
       if (set0) { MYSERIAL0.end(); MYSERIAL0.begin(baud); }
 
-      #if NUM_SERIAL > 1
+      #if HAS_MULTI_SERIAL
         if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #endif
 

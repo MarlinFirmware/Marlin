@@ -251,3 +251,9 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 
   #undef USEDI2CDEV_M
 #endif
+
+#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
+  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
+#elif ENABLED(SERIAL_STATS_DROPPED_RX)
+  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
+#endif

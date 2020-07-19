@@ -31,8 +31,7 @@
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#undef E2END
-#define E2END 0xFFF                               // 4KB
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 //
 // Servos
@@ -258,12 +257,12 @@
 //
 // ST7920 Delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
 #endif

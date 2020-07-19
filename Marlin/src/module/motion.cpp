@@ -221,11 +221,7 @@ void report_real_position() {
   npos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
-    planner.unapply_modifiers(npos
-      #if HAS_LEVELING
-        , true
-      #endif
-    );
+    planner.unapply_modifiers(npos, true);
   #endif
 
   report_logical_position(npos);
@@ -304,11 +300,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   pos.e = planner.get_axis_position_mm(E_AXIS);
 
   #if HAS_POSITION_MODIFIERS
-    planner.unapply_modifiers(pos
-      #if HAS_LEVELING
-        , true
-      #endif
-    );
+    planner.unapply_modifiers(pos, true);
   #endif
 
   if (axis == ALL_AXES)
@@ -356,6 +348,11 @@ void line_to_current_position(const feedRate_t &fr_mm_s/*=feedrate_mm_s*/) {
 
 #endif // IS_KINEMATIC
 
+/**
+ * Do a fast or normal move to 'destination' with an optional FR.
+ *  - Move at normal speed regardless of feedrate percentage.
+ *  - Extrude the specified length regardless of flow percentage.
+ */
 void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
   #if IS_KINEMATIC
     , const bool is_fast/*=false*/
@@ -368,8 +365,8 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
   feedrate_percentage = 100;
 
   #if EXTRUDERS
-     const float old_fac = planner.e_factor[active_extruder];
-     planner.e_factor[active_extruder] = 1.0f;
+    const float old_fac = planner.e_factor[active_extruder];
+    planner.e_factor[active_extruder] = 1.0f;
   #endif
 
   #if IS_KINEMATIC
@@ -390,7 +387,8 @@ void _internal_move_to_destination(const feedRate_t &fr_mm_s/*=0.0f*/
  * Plan a move to (X, Y, Z) and set the current_position
  */
 void do_blocking_move_to(const float rx, const float ry, const float rz, const feedRate_t &fr_mm_s/*=0.0*/) {
-  if (DEBUGGING(LEVELING)) DEBUG_XYZ(">>> do_blocking_move_to", rx, ry, rz);
+  DEBUG_SECTION(log_move, "do_blocking_move_to", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) DEBUG_XYZ("> ", rx, ry, rz);
 
   const feedRate_t z_feedrate = fr_mm_s ?: homing_feedrate(Z_AXIS),
                   xy_feedrate = fr_mm_s ?: feedRate_t(XY_PROBE_FEEDRATE_MM_S);
@@ -474,8 +472,6 @@ void do_blocking_move_to(const float rx, const float ry, const float rz, const f
 
   #endif
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< do_blocking_move_to");
-
   planner.synchronize();
 }
 
@@ -508,6 +504,13 @@ void do_blocking_move_to_xy(const xy_pos_t &raw, const feedRate_t &fr_mm_s/*=0.0
 
 void do_blocking_move_to_xy_z(const xy_pos_t &raw, const float &z, const feedRate_t &fr_mm_s/*=0.0f*/) {
   do_blocking_move_to(raw.x, raw.y, z, fr_mm_s);
+}
+
+void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool raise_on_unknown/*=true*/, const bool lower_allowed/*=false*/) {
+  const bool rel = raise_on_unknown && !z_known;
+  float zdest = zclear + (rel ? current_position.z : 0.0f);
+  if (!lower_allowed) NOLESS(zdest, current_position.z);
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 }
 
 //
@@ -943,7 +946,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   millis_t delayed_move_time             = 0;                             // used in mode 1
   int16_t duplicate_extruder_temp_offset = 0;                             // used in mode 2
 
-  float x_home_pos(const int extruder) {
+  float x_home_pos(const uint8_t extruder) {
     if (extruder == 0)
       return base_home_pos(X_AXIS);
     else
@@ -1275,11 +1278,12 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
  * Home an individual linear axis
  */
 void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
+  DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
 
   const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
   if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOPAIR(">>> do_homing_move(", axis_codes[axis], ", ", distance, ", ");
+    DEBUG_ECHOPAIR("...(", axis_codes[axis], ", ", distance, ", ");
     if (fr_mm_s)
       DEBUG_ECHO(fr_mm_s);
     else
@@ -1319,16 +1323,18 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     current_position[axis] = distance;
     line_to_current_position(real_fr_mm_s);
   #else
+    // Get the ABC or XYZ positions in mm
     abce_pos_t target = planner.get_axis_positions_mm();
-    target[axis] = 0;
-    planner.set_machine_position_mm(target);
-    target[axis] = distance;
+
+    target[axis] = 0;                         // Set the single homing axis to 0
+    planner.set_machine_position_mm(target);  // Update the machine position
 
     #if HAS_DIST_MM_ARG
       const xyze_float_t cart_dist_mm{0};
     #endif
 
     // Set delta/cartesian axes directly
+    target[axis] = distance;                  // The move will be towards the endstop
     planner.buffer_segment(target
       #if HAS_DIST_MM_ARG
         , cart_dist_mm
@@ -1350,8 +1356,6 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     TERN_(SENSORLESS_HOMING, end_sensorless_homing_per_axis(axis, stealth_states));
   }
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< do_homing_move(", axis_codes[axis], ")");
 }
 
 /**
@@ -1444,65 +1448,69 @@ void set_axis_not_trusted(const AxisEnum axis) {
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
 }
 
-/**
- * Move the axis back to its home_phase if set and driver is capable (TMC)
- *
- * Improves homing repeatability by homing to stepper coil's nearest absolute
- * phase position. Trinamic drivers use a stepper phase table with 1024 values
- * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
- */
-void backout_to_tmc_homing_phase(const AxisEnum axis) {
-  #ifdef TMC_HOME_PHASE
-    const abc_long_t home_phase = TMC_HOME_PHASE;
+#ifdef TMC_HOME_PHASE
+  /**
+   * Move the axis back to its home_phase if set and driver is capable (TMC)
+   *
+   * Improves homing repeatability by homing to stepper coil's nearest absolute
+   * phase position. Trinamic drivers use a stepper phase table with 1024 values
+   * spanning 4 full steps with 256 positions each (ergo, 1024 positions).
+   */
+  void backout_to_tmc_homing_phase(const AxisEnum axis) {
+    const xyz_long_t home_phase = TMC_HOME_PHASE;
 
     // check if home phase is disabled for this axis.
     if (home_phase[axis] < 0) return;
 
-    int16_t axisMicrostepSize;
-    int16_t phaseCurrent;
-    bool invertDir;
+    int16_t phasePerUStep,      // TMC µsteps(phase) per Marlin µsteps
+            phaseCurrent,       // The TMC µsteps(phase) count of the current position
+            effectorBackoutDir, // Direction in which the effector mm coordinates move away from endstop.
+            stepperBackoutDir;  // Direction in which the TMC µstep count(phase) move away from endstop.
 
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
-          axisMicrostepSize = 256 / (X_MICROSTEPS);
+          phasePerUStep = 256 / (X_MICROSTEPS);
           phaseCurrent = stepperX.get_microstep_counter();
-          invertDir = INVERT_X_DIR;
+          effectorBackoutDir = -X_HOME_DIR;
+          stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
-          axisMicrostepSize = 256 / (Y_MICROSTEPS);
+          phasePerUStep = 256 / (Y_MICROSTEPS);
           phaseCurrent = stepperY.get_microstep_counter();
-          invertDir = INVERT_Y_DIR;
+          effectorBackoutDir = -Y_HOME_DIR;
+          stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
-          axisMicrostepSize = 256 / (Z_MICROSTEPS);
+          phasePerUStep = 256 / (Z_MICROSTEPS);
           phaseCurrent = stepperZ.get_microstep_counter();
-          invertDir = INVERT_Z_DIR;
+          effectorBackoutDir = -Z_HOME_DIR;
+          stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
           break;
       #endif
       default: return;
     }
 
-    // Depending on invert dir measure the distance to nearest home phase.
-    int16_t phaseDelta = (invertDir ? -1 : 1) * (home_phase[axis] - phaseCurrent);
+    // Phase distance to nearest home phase position when moving in the backout direction from endstop(may be negative).
+    int16_t phaseDelta = (home_phase[axis] - phaseCurrent) * stepperBackoutDir;
 
     // Check if home distance within endstop assumed repeatability noise of .05mm and warn.
-    if (ABS(phaseDelta) * planner.steps_to_mm[axis] / axisMicrostepSize < 0.05f)
-      DEBUG_ECHOLNPAIR("Selected home phase ", home_phase[axis],
+    if (ABS(phaseDelta) * planner.steps_to_mm[axis] / phasePerUStep < 0.05f)
+      SERIAL_ECHOLNPAIR("Selected home phase ", home_phase[axis],
                        " too close to endstop trigger phase ", phaseCurrent,
                        ". Pick a different phase for ", axis_codes[axis]);
 
     // Skip to next if target position is behind current. So it only moves away from endstop.
     if (phaseDelta < 0) phaseDelta += 1024;
 
-    // Get the integer µsteps to target. Unreachable phase? Consistently stop at the µstep before / after based on invertDir.
-    const float mmDelta = -(int16_t(phaseDelta / axisMicrostepSize) * planner.steps_to_mm[axis] * (Z_HOME_DIR));
+    // Convert TMC µsteps(phase) to whole Marlin µsteps to effector backout direction to mm
+    const float mmDelta = int16_t(phaseDelta / phasePerUStep) * effectorBackoutDir * planner.steps_to_mm[axis];
 
-    // optional debug messages.
+    // Optional debug messages
     if (DEBUGGING(LEVELING)) {
       DEBUG_ECHOLNPAIR(
         "Endstop ", axis_codes[axis], " hit at Phase:", phaseCurrent,
@@ -1511,12 +1519,11 @@ void backout_to_tmc_homing_phase(const AxisEnum axis) {
     }
 
     if (mmDelta != 0) {
-      // retrace by the amount computed in mmDelta.
+      // Retrace by the amount computed in mmDelta.
       do_homing_move(axis, mmDelta, get_homing_bump_feedrate(axis));
     }
-  #endif
-}
-
+  }
+#endif
 
 /**
  * Home an individual "raw axis" to its endstop.
@@ -1535,24 +1542,13 @@ void homeaxis(const AxisEnum axis) {
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
-    #define _CAN_HOME(A) \
-      (axis == _AXIS(A) && ((A##_MIN_PIN > -1 && A##_HOME_DIR < 0) || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0)))
-    #if X_SPI_SENSORLESS
-      #define CAN_HOME_X true
-    #else
-      #define CAN_HOME_X _CAN_HOME(X)
-    #endif
-    #if Y_SPI_SENSORLESS
-      #define CAN_HOME_Y true
-    #else
-      #define CAN_HOME_Y _CAN_HOME(Y)
-    #endif
-    #if Z_SPI_SENSORLESS
-      #define CAN_HOME_Z true
-    #else
-      #define CAN_HOME_Z _CAN_HOME(Z)
-    #endif
-    if (!CAN_HOME_X && !CAN_HOME_Y && !CAN_HOME_Z) return;
+    #define _CAN_HOME(A) (axis == _AXIS(A) && ( \
+         ENABLED(A##_SPI_SENSORLESS) \
+      || (_AXIS(A) == Z_AXIS && ENABLED(HOMING_Z_WITH_PROBE)) \
+      || (A##_MIN_PIN > -1 && A##_HOME_DIR < 0) \
+      || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0) \
+    ))
+    if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
   #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
@@ -1610,6 +1606,21 @@ void homeaxis(const AxisEnum axis) {
       #endif
     );
 
+    #if ENABLED(DETECT_BROKEN_ENDSTOP)
+      // Check for a broken endstop
+      EndstopEnum es;
+      switch (axis) {
+        default:
+        case X_AXIS: es = X_ENDSTOP; break;
+        case Y_AXIS: es = Y_ENDSTOP; break;
+        case Z_AXIS: es = Z_ENDSTOP; break;
+      }
+      if (TEST(endstops.state(), es)) {
+        SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
+        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+      }
+    #endif
+
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");
 
@@ -1656,9 +1667,9 @@ void homeaxis(const AxisEnum axis) {
 
           const float adj = ABS(endstops.z2_endstop_adj);
           if (adj) {
-            if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+            if (pos_dir ? (endstops.z2_endstop_adj > 0) : (endstops.z2_endstop_adj < 0)) stepper.set_z1_lock(true); else stepper.set_z2_lock(true);
             do_homing_move(axis, pos_dir ? -adj : adj);
-            stepper.set_z_lock(false);
+            stepper.set_z1_lock(false);
             stepper.set_z2_lock(false);
           }
 
@@ -1669,7 +1680,7 @@ void homeaxis(const AxisEnum axis) {
           typedef void (*adjustFunc_t)(const bool);
 
           adjustFunc_t lock[] = {
-            stepper.set_z_lock, stepper.set_z2_lock, stepper.set_z3_lock
+            stepper.set_z1_lock, stepper.set_z2_lock, stepper.set_z3_lock
             #if NUM_Z_STEPPER_DRIVERS >= 4
               , stepper.set_z4_lock
             #endif
@@ -1737,7 +1748,7 @@ void homeaxis(const AxisEnum axis) {
             do_homing_move(axis, adj[0] - adj[1]);
           }
 
-          stepper.set_z_lock(false);
+          stepper.set_z1_lock(false);
           stepper.set_z2_lock(false);
           stepper.set_z3_lock(false);
           #if NUM_Z_STEPPER_DRIVERS >= 4
@@ -1758,8 +1769,10 @@ void homeaxis(const AxisEnum axis) {
     }
   #endif
 
-  // move back to homing phase if configured and capable
-  backout_to_tmc_homing_phase(axis);
+  #ifdef TMC_HOME_PHASE
+    // move back to homing phase if configured and capable
+    backout_to_tmc_homing_phase(axis);
+  #endif
 
   #if IS_SCARA
 

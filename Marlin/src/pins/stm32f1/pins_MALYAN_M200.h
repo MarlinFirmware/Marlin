@@ -29,12 +29,14 @@
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 
-#define BOARD_INFO_NAME "Malyan M200"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "Malyan M200"
+#endif
 
-// Enable EEPROM Emulation for this board
-// This setting should probably be in configuration.h
-// but it is literally the only board which uses it.
-#define FLASH_EEPROM_EMULATION
+// Assume Flash EEPROM
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+#endif
 
 #define SDSS                              SS_PIN
 
@@ -42,8 +44,6 @@
 // On STM32F103:
 // PB3, PB6, PB7, and PB8 can be used with pwm, which rules out TIM2 and TIM4.
 // On STM32F070, 16 and 17 are in use, but 1 and 3 are available.
-#undef STEP_TIMER
-#undef TEMP_TIMER
 #define STEP_TIMER 1
 #define TEMP_TIMER 3
 

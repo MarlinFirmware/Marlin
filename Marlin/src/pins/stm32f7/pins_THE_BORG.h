@@ -30,8 +30,8 @@
 #define BOARD_INFO_NAME      "The-Borge"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#ifndef E2END
-  #define E2END 0xFFF                             // EEPROM end address
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000
 #endif
 
 // Ignore temp readings during development.

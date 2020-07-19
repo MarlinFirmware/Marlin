@@ -160,7 +160,10 @@
 #define SDSS                                  20  // B0
 #define LED_PIN                                6  // D6
 #define PS_ON_PIN                             27  // B7
-#define CASE_LIGHT_PIN                         1  // D1 PWM2B  MUST BE HARDWARE PWM
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       1  // D1 PWM2B  MUST BE HARDWARE PWM
+#endif
 
 //
 // LCD / Controller

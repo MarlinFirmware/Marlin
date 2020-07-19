@@ -34,18 +34,29 @@
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
 #ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+  #ifdef BOARD_ST7920_DELAY_1
+    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
+  #else
+    #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+  #endif
 #endif
 #ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+  #ifdef BOARD_ST7920_DELAY_2
+    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
+  #else
+    #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+  #endif
 #endif
 #ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+  #ifdef BOARD_ST7920_DELAY_3
+    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
+  #else
+    #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+  #endif
 #endif
 
 // Optimize this code with -O3
 #pragma GCC optimize (3)
-
 
 #ifdef ARDUINO_ARCH_STM32F1
   #define ST7920_DAT(V) !!((V) & 0x80)

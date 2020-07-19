@@ -20,8 +20,3 @@
  *
  */
 #pragma once
-
-#undef USE_WIRED_EEPROM
-#if ENABLED(EEPROM_SETTINGS) && DISABLED(FLASH_EEPROM_EMULATION)
-  #define USE_WIRED_EEPROM 1
-#endif

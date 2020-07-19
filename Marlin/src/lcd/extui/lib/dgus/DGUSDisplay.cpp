@@ -592,7 +592,7 @@ void DGUSScreenVariableHandler::HandleManualExtrude(DGUS_VP_Variable &var, void 
       case VP_MOVE_E0: target_extruder = ExtUI::extruder_t::E0; break;
     #endif
     #if HOTENDS >= 2
-      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break
+      case VP_MOVE_E1: target_extruder = ExtUI::extruder_t::E1; break;
     #endif
     default: return;
   }
@@ -734,10 +734,10 @@ void DGUSScreenVariableHandler::HandleSettings(DGUS_VP_Variable &var, void *val_
     default: break;
     case 1:
       TERN_(PRINTCOUNTER, print_job_timer.initStats());
-      queue.enqueue_now_P(PSTR("M502\nM500"));
+      queue.inject_P(PSTR("M502\nM500"));
       break;
-    case 2: queue.enqueue_now_P(PSTR("M501")); break;
-    case 3: queue.enqueue_now_P(PSTR("M500")); break;
+    case 2: queue.inject_P(PSTR("M501")); break;
+    case 3: queue.inject_P(PSTR("M500")); break;
   }
 }
 
@@ -851,14 +851,16 @@ void DGUSScreenVariableHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable 
   }
 #endif
 
-void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
-  DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
+#if HAS_BED_PROBE
+  void DGUSScreenVariableHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
 
-  const float offset = float(int16_t(swap16(*(uint16_t*)val_ptr))) / 100.0f;
-  ExtUI::setZOffset_mm(offset);
-  ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
-  return;
-}
+    const float offset = float(int16_t(swap16(*(uint16_t*)val_ptr))) / 100.0f;
+    ExtUI::setZOffset_mm(offset);
+    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    return;
+  }
+#endif
 
 #if ENABLED(BABYSTEPPING)
   void DGUSScreenVariableHandler::HandleLiveAdjustZ(DGUS_VP_Variable &var, void *val_ptr) {
@@ -905,49 +907,41 @@ void DGUSScreenVariableHandler::HandleHeaterControl(DGUS_VP_Variable &var, void 
 }
 
 #if ENABLED(DGUS_PREHEAT_UI)
+
   void DGUSScreenVariableHandler::HandlePreheat(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandlePreheat");
 
     uint8_t e_temp = 0;
-    uint8_t bed_temp = 0;
+    TERN_(HAS_HEATED_BED, uint8_t bed_temp = 0);
     const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
     switch (preheat_option) {
+      default:
       case 0: // Preheat PLA
         #if defined(PREHEAT_1_TEMP_HOTEND) && defined(PREHEAT_1_TEMP_BED)
           e_temp = PREHEAT_1_TEMP_HOTEND;
-          bed_temp = PREHEAT_1_TEMP_BED;
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_1_TEMP_BED);
         #endif
         break;
       case 1: // Preheat ABS
         #if defined(PREHEAT_2_TEMP_HOTEND) && defined(PREHEAT_2_TEMP_BED)
           e_temp = PREHEAT_2_TEMP_HOTEND;
-          bed_temp = PREHEAT_2_TEMP_BED;
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_2_TEMP_BED);
         #endif
         break;
       case 2: // Preheat PET
         #if defined(PREHEAT_3_TEMP_HOTEND) && defined(PREHEAT_3_TEMP_BED)
           e_temp = PREHEAT_3_TEMP_HOTEND;
-          bed_temp = PREHEAT_3_TEMP_BED;
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_3_TEMP_BED);
         #endif
         break;
       case 3: // Preheat FLEX
         #if defined(PREHEAT_4_TEMP_HOTEND) && defined(PREHEAT_4_TEMP_BED)
           e_temp = PREHEAT_4_TEMP_HOTEND;
-          bed_temp = PREHEAT_4_TEMP_BED;
+          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_4_TEMP_BED);
         #endif
         break;
-      case 7: // Custom preheat
-        break;
-      case 9: // Cool down
-        e_temp = 0;
-        bed_temp = 0;
-        break;
-      default:
-        #if defined(PREHEAT_1_TEMP_HOTEND) && defined(PREHEAT_1_TEMP_BED)
-          e_temp = PREHEAT_1_TEMP_HOTEND;
-          bed_temp = PREHEAT_1_TEMP_BED;
-        #endif
-        break;
+      case 7: break; // Custom preheat
+      case 9: break; // Cool down
     }
 
     switch (var.VP) {
@@ -969,6 +963,7 @@ void DGUSScreenVariableHandler::HandleHeaterControl(DGUS_VP_Variable &var, void 
     // Go to the preheat screen to show the heating progress
     GotoScreen(DGUSLCD_SCREEN_PREHEAT);
   }
+
 #endif
 
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
@@ -1185,6 +1180,10 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
   }
 }
 
+void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+}
+
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
@@ -1304,7 +1303,7 @@ void DGUSDisplay::ProcessRx() {
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
-          const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
+          //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
           //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {

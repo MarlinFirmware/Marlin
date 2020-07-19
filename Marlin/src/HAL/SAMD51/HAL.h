@@ -27,7 +27,6 @@
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "timers.h"
 
 #ifdef ADAFRUIT_GRAND_CENTRAL_M4
   #include "MarlinSerial_AGCM4.h"
@@ -114,12 +113,6 @@ void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
 //
-// EEPROM
-//
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-
-//
 // ADC
 //
 extern uint16_t HAL_adc_result;     // Most recent ADC conversion
@@ -129,13 +122,13 @@ extern uint16_t HAL_adc_result;     // Most recent ADC conversion
 void HAL_adc_init();
 
 //#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10      // ... 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-inline uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 //
 // Pin Map

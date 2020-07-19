@@ -28,11 +28,10 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
-#define BOARD_NAME           "STM32F4 VAkE"
+#define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
-
-#define E2END 0xFFF                               // EEPROM end address (4kB)
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 //
 // Servos
@@ -185,12 +184,12 @@
 //
 // ST7920 Delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
 #endif

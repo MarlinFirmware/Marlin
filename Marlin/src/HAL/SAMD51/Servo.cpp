@@ -29,11 +29,9 @@
 
 #if HAS_SERVOS
 
-#include "../shared/Marduino.h"
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 #include "SAMD51.h"
-#include "timers.h"
 
 #define __TC_GCLK_ID(t)         TC##t##_GCLK_ID
 #define _TC_GCLK_ID(t)          __TC_GCLK_ID(t)

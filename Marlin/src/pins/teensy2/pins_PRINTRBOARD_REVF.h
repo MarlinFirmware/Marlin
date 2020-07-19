@@ -246,7 +246,7 @@
     //#define MOSI                            22  //         12               B2                ICSP-03             EXP2-05
     //#define MISO                            23  //         13               B3                ICSP-06             EXP2-05
 
-    // increase delays
+    // Alter timing for graphical display
     #define BOARD_ST7920_DELAY_1 DELAY_NS(313)
     #define BOARD_ST7920_DELAY_2 DELAY_NS(313)
     #define BOARD_ST7920_DELAY_3 DELAY_NS(313)

@@ -114,7 +114,8 @@ void FilesScreen::drawFileList() {
   for(uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
     if (files.seek(fileIndex)) {
       drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
-    } else {
+    }
+    else {
       break;
     }
   }

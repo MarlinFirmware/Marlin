@@ -28,9 +28,14 @@
 #include "../shared/eeprom_api.h"
 #include <stdio.h>
 
-#define LINUX_EEPROM_SIZE (E2END + 1)
-uint8_t buffer[LINUX_EEPROM_SIZE];
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB of Emulated EEPROM
+#endif
+
+uint8_t buffer[MARLIN_EEPROM_SIZE];
 char filename[] = "eeprom.dat";
+
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
@@ -40,8 +45,8 @@ bool PersistentStore::access_start() {
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);
 
-  if (file_size < LINUX_EEPROM_SIZE) {
-    memset(buffer + file_size, eeprom_erase_value, LINUX_EEPROM_SIZE - file_size);
+  if (file_size < MARLIN_EEPROM_SIZE) {
+    memset(buffer + file_size, eeprom_erase_value, MARLIN_EEPROM_SIZE - file_size);
   }
   else {
     fseek(eeprom_file, 0L, SEEK_SET);
@@ -94,8 +99,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos = pos + size;
   return bytes_read != size;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // EEPROM_SETTINGS
 #endif // __PLAT_LINUX__

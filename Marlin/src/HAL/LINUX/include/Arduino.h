@@ -106,12 +106,6 @@ bool digitalRead(pin_t);
 void analogWrite(pin_t, int);
 uint16_t analogRead(pin_t);
 
-// EEPROM
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
-
 int32_t random(int32_t);
 int32_t random(int32_t, int32_t);
 void randomSeed(uint32_t);

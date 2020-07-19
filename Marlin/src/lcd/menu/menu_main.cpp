@@ -59,6 +59,14 @@ void menu_configuration();
   void menu_user();
 #endif
 
+#if HAS_POWER_MONITOR
+  void menu_power_monitor();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
@@ -68,17 +76,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
   void menu_led();
 #endif
 
 #if HAS_CUTTER
-  #include "../../feature/spindle_laser.h"
   void menu_spindle_laser();
-#endif
-
-#if ENABLED(MIXING_EXTRUDER)
-  void menu_mixer();
 #endif
 
 extern const char M21_STR[];
@@ -103,7 +106,7 @@ void menu_main() {
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
           ui.abort_print, ui.goto_previous_screen,
-          GET_TEXT(MSG_STOP_PRINT), (PGM_P)nullptr, PSTR("?")
+          GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
     #endif
@@ -144,7 +147,7 @@ void menu_main() {
 
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    MENU_ITEM_IF (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     SUBMENU(MSG_MOTION, menu_motion);
@@ -154,7 +157,13 @@ void menu_main() {
     SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
   #endif
 
-  SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
+  #if HAS_POWER_MONITOR
+    MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     SUBMENU(MSG_MIXER, menu_mixer);
@@ -176,9 +185,9 @@ void menu_main() {
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     #if E_STEPPERS == 1 && DISABLED(FILAMENT_LOAD_UNLOAD_GCODES)
-      MENU_ITEM_IF (thermalManager.targetHotEnoughToExtrude(active_extruder))
+      if (thermalManager.targetHotEnoughToExtrude(active_extruder))
         GCODES_ITEM(MSG_FILAMENTCHANGE, PSTR("M600 B0"));
-      MENU_ITEM_ELSE
+      else
         SUBMENU(MSG_FILAMENTCHANGE, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, 0); });
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
@@ -189,17 +198,17 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    SUBMENU(MSG_LED_CONTROL, menu_led);
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    SUBMENU(MSG_LEDS, menu_led);
   #endif
 
   //
   // Switch power on/off
   //
   #if ENABLED(PSU_CONTROL)
-    MENU_ITEM_IF (powersupply_on)
+    if (powersupply_on)
       GCODES_ITEM(MSG_SWITCH_PS_OFF, PSTR("M81"));
-    MENU_ITEM_ELSE
+    else
       GCODES_ITEM(MSG_SWITCH_PS_ON, PSTR("M80"));
   #endif
 

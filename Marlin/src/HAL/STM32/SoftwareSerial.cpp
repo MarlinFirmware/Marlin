@@ -36,8 +36,9 @@
 //
 #if defined(PLATFORMIO) && defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
+#include "../../inc/MarlinConfig.h"
+
 #include "SoftwareSerial.h"
-#include "timers.h"
 
 #define OVERSAMPLE 3 // in RX, Timer will generate interruption OVERSAMPLE time during a bit. Thus OVERSAMPLE ticks in a bit. (interrupt not synchonized with edge).
 

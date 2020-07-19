@@ -106,7 +106,10 @@
 //
 #define SDSS                                  17
 #define DEBUG_PIN                              0
-#define CASE_LIGHT_PIN                        16  // Hardware PWM
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      16  // Hardware PWM
+#endif
 
 // RS485 pins
 #define TX_ENABLE_PIN                         12

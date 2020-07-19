@@ -152,6 +152,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 #else
   constexpr bool soft_endstops_enabled = false;
   //constexpr axis_limits_t soft_endstop = {
@@ -159,6 +160,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
   #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
 #endif
 
 void report_real_position();
@@ -231,6 +233,8 @@ FORCE_INLINE void do_blocking_move_to_xy_z(const xyze_pos_t &raw, const float &z
 void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
+
+void do_z_clearance(const float &zclear, const bool z_known=true, const bool raise_on_unknown=true, const bool lower_allowed=false);
 
 //
 // Homing
@@ -374,7 +378,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
-  float x_home_pos(const int extruder);
+  float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 

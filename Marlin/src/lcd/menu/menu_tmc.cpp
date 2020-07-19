@@ -157,15 +157,27 @@ void menu_tmc_current() {
     BACK_ITEM(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
       TMC_EDIT_STORED_SGT(X);
-    #endif
-    #if X2_SENSORLESS
-      TMC_EDIT_STORED_SGT(X2);
+      #if X2_SENSORLESS
+        TMC_EDIT_STORED_SGT(X2);
+      #endif
     #endif
     #if Y_SENSORLESS
       TMC_EDIT_STORED_SGT(Y);
+      #if Y2_SENSORLESS
+        TMC_EDIT_STORED_SGT(Y2);
+      #endif
     #endif
     #if Z_SENSORLESS
       TMC_EDIT_STORED_SGT(Z);
+      #if Z2_SENSORLESS
+        TMC_EDIT_STORED_SGT(Z2);
+      #endif
+      #if Z3_SENSORLESS
+        TMC_EDIT_STORED_SGT(Z3);
+      #endif
+      #if Z4_SENSORLESS
+        TMC_EDIT_STORED_SGT(Z4);
+      #endif
     #endif
     END_MENU();
   }

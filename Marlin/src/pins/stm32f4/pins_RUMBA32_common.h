@@ -23,6 +23,7 @@
 
 /**
  * Common pin assignments for all RUMBA32 boards
+ *
  */
 
 #ifndef STM32F4
@@ -31,14 +32,22 @@
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
 #endif
 
-#define RUMBA32_V1_0
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-//#define I2C_EEPROM
-#ifdef E2END
-  #undef E2END
-#endif
-#define E2END 0xFFF                               // 4KB
+// Use soft PWM for fans - PWM is not working properly when paired with STM32 Arduino Core v1.7.0
+// This can be removed when Core version is updated and PWM behaviour is fixed.
+#define FAN_SOFT_PWM
+
+//
+// Configure Timers
+// TIM6 is used for TONE
+// TIM7 is used for SERVO
+// TIMER_SERIAL defaults to TIM7 so we'll override it here
+//
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
+#define TIMER_SERIAL                        TIM9
+#define HAL_TIMER_RATE                     F_CPU
 
 //
 // Limit Switches
@@ -83,6 +92,18 @@
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
 
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PA7
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PA6
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PA5
+  #endif
+#endif
+
 //
 // Temperature Sensors
 //
@@ -104,7 +125,7 @@
 #define FAN1_PIN                            PA8
 
 //
-// I2C
+// SPI
 //
 #define SCK_PIN                             PA5
 #define MISO_PIN                            PA6
@@ -144,6 +165,19 @@
     #define LCD_PINS_D5                     PE13
     #define LCD_PINS_D6                     PE14
     #define LCD_PINS_D7                     PE15
+  #endif
+
+  // Alter timing for graphical display
+  #if HAS_GRAPHICAL_LCD
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
 #endif

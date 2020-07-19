@@ -34,15 +34,15 @@
 #include "../shared/eeprom_api.h"
 #include "../../sd/cardreader.h"
 
-#ifndef E2END
-  #define E2END 0xFFF // 4KB
+#define EEPROM_FILENAME "eeprom.dat"
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000 // 4KB
 #endif
-#define HAL_EEPROM_SIZE (E2END + 1)
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 #define _ALIGN(x) __attribute__ ((aligned(x))) // SDIO uint32_t* compat.
-static char _ALIGN(4) HAL_eeprom_data[HAL_EEPROM_SIZE];
-
-#define EEPROM_FILENAME "eeprom.dat"
+static char _ALIGN(4) HAL_eeprom_data[MARLIN_EEPROM_SIZE];
 
 bool PersistentStore::access_start() {
   if (!card.isMounted()) return false;
@@ -51,9 +51,9 @@ bool PersistentStore::access_start() {
   if (!file.open(&root, EEPROM_FILENAME, O_RDONLY))
     return true; // false aborts the save
 
-  int bytes_read = file.read(HAL_eeprom_data, HAL_EEPROM_SIZE);
+  int bytes_read = file.read(HAL_eeprom_data, MARLIN_EEPROM_SIZE);
   if (bytes_read < 0) return false;
-  for (; bytes_read < HAL_EEPROM_SIZE; bytes_read++)
+  for (; bytes_read < MARLIN_EEPROM_SIZE; bytes_read++)
     HAL_eeprom_data[bytes_read] = 0xFF;
   file.close();
   return true;
@@ -65,10 +65,10 @@ bool PersistentStore::access_finish() {
   SdFile file, root = card.getroot();
   int bytes_written = 0;
   if (file.open(&root, EEPROM_FILENAME, O_CREAT | O_WRITE | O_TRUNC)) {
-    bytes_written = file.write(HAL_eeprom_data, HAL_EEPROM_SIZE);
+    bytes_written = file.write(HAL_eeprom_data, MARLIN_EEPROM_SIZE);
     file.close();
   }
-  return (bytes_written == HAL_EEPROM_SIZE);
+  return (bytes_written == MARLIN_EEPROM_SIZE);
 }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -88,8 +88,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos += size;
   return false;
 }
-
-size_t PersistentStore::capacity() { return HAL_EEPROM_SIZE; }
 
 #endif // SDCARD_EEPROM_EMULATION
 #endif // __STM32F1__

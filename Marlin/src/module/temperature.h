@@ -37,13 +37,8 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if HOTENDS <= 1
-  #define HOTEND_INDEX  0
-  #define E_NAME
-#else
-  #define HOTEND_INDEX  e
-  #define E_NAME e
-#endif
+#define HOTEND_INDEX TERN(HAS_MULTI_HOTEND, e, 0)
+#define E_NAME TERN_(HAS_MULTI_HOTEND, e)
 
 // Identifiers for other heaters
 typedef enum : int8_t {
@@ -74,29 +69,17 @@ hotend_pid_t;
   typedef IF<(LPQ_MAX_LEN > 255), uint16_t, uint8_t>::type lpq_ptr_t;
 #endif
 
+#define PID_PARAM(F,H) _PID_##F(TERN(PID_PARAMS_PER_HOTEND, H, 0))
+#define _PID_Kp(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kp, NAN)
+#define _PID_Ki(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Ki, NAN)
+#define _PID_Kd(H) TERN(PIDTEMP, Temperature::temp_hotend[H].pid.Kd, NAN)
 #if ENABLED(PIDTEMP)
-  #define _PID_Kp(H) Temperature::temp_hotend[H].pid.Kp
-  #define _PID_Ki(H) Temperature::temp_hotend[H].pid.Ki
-  #define _PID_Kd(H) Temperature::temp_hotend[H].pid.Kd
-  #if ENABLED(PID_EXTRUSION_SCALING)
-    #define _PID_Kc(H) Temperature::temp_hotend[H].pid.Kc
-  #else
-    #define _PID_Kc(H) 1
-  #endif
-
-  #if ENABLED(PID_FAN_SCALING)
-    #define _PID_Kf(H) Temperature::temp_hotend[H].pid.Kf
-  #else
-    #define _PID_Kf(H) 0
-  #endif
+  #define _PID_Kc(H) TERN(PID_EXTRUSION_SCALING, Temperature::temp_hotend[H].pid.Kc, 1)
+  #define _PID_Kf(H) TERN(PID_FAN_SCALING,       Temperature::temp_hotend[H].pid.Kf, 0)
 #else
-  #define _PID_Kp(H) NAN
-  #define _PID_Ki(H) NAN
-  #define _PID_Kd(H) NAN
   #define _PID_Kc(H) 1
+  #define _PID_Kf(H) 0
 #endif
-
-#define PID_PARAM(F,H) _PID_##F(H)
 
 /**
  * States for ADC reading in the ISR
@@ -147,6 +130,14 @@ enum ADCSensorState : char {
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     Prepare_FILWIDTH, Measure_FILWIDTH,
+  #endif
+  #if ENABLED(POWER_MONITOR_CURRENT)
+    Prepare_POWER_MONITOR_CURRENT,
+    Measure_POWER_MONITOR_CURRENT,
+  #endif
+  #if ENABLED(POWER_MONITOR_VOLTAGE)
+    Prepare_POWER_MONITOR_VOLTAGE,
+    Measure_POWER_MONITOR_VOLTAGE,
   #endif
   #if HAS_ADC_BUTTONS
     Prepare_ADC_KEY, Measure_ADC_KEY,
@@ -322,7 +313,7 @@ class Temperature {
     #if HAS_HOTEND
       #define HOTEND_TEMPS (HOTENDS + ENABLED(TEMP_SENSOR_1_AS_REDUNDANT))
       static hotend_info_t temp_hotend[HOTEND_TEMPS];
-      static const int16_t heater_maxtemp[HOTENDS];
+      static const uint16_t heater_maxtemp[HOTENDS];
     #endif
     TERN_(HAS_HEATED_BED, static bed_info_t temp_bed);
     TERN_(HAS_TEMP_PROBE, static probe_info_t temp_probe);
@@ -417,7 +408,7 @@ class Temperature {
   public:
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
-      static uint8_t ADCKey_count;
+      static uint16_t ADCKey_count;
     #endif
 
     TERN_(PID_EXTRUSION_SCALING, static int16_t lpq_len);
@@ -484,6 +475,10 @@ class Temperature {
 
       static void set_fan_speed(const uint8_t target, const uint16_t speed);
 
+      #if ENABLED(REPORT_FAN_CHANGE)
+        static void report_fan_speed(const uint8_t target);
+      #endif
+
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
         static uint8_t saved_fan_speed[FAN_COUNT];
@@ -495,13 +490,7 @@ class Temperature {
 
       static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
         UNUSED(target); // Potentially unused!
-        return (fs * uint16_t(
-          #if ENABLED(ADAPTIVE_FAN_SLOWING)
-            fan_speed_scaler[target]
-          #else
-            128
-          #endif
-        )) >> 7;
+        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[target], 128))) >> 7;
       }
 
       static inline uint8_t scaledFanSpeed(const uint8_t target) {
@@ -587,7 +576,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }
@@ -612,7 +601,11 @@ class Temperature {
         return degTargetHotend(e) > TEMP_HYSTERESIS && ABS(degHotend(e) - degTargetHotend(e)) > TEMP_HYSTERESIS;
       }
 
-    #endif // HOTENDS
+      FORCE_INLINE static bool degHotendNear(const uint8_t e, const float &temp) {
+        return ABS(degHotend(e) - temp) < (TEMP_HYSTERESIS);
+      }
+
+    #endif // HAS_HOTEND
 
     #if HAS_HEATED_BED
 
@@ -631,9 +624,9 @@ class Temperature {
       #endif
 
       static void setTargetBed(const int16_t celsius) {
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target =
-          #ifdef BED_MAXTEMP
+          #ifdef BED_MAX_TARGET
             _MIN(celsius, BED_MAX_TARGET)
           #else
             celsius
@@ -649,6 +642,10 @@ class Temperature {
       );
 
       static void wait_for_bed_heating();
+
+      FORCE_INLINE static bool degBedNear(const float &temp) {
+        return ABS(degBed() - temp) < (TEMP_BED_HYSTERESIS);
+      }
 
     #endif // HAS_HEATED_BED
 
@@ -780,7 +777,7 @@ class Temperature {
 
     TERN_(HAS_DISPLAY, static void set_heating_message(const uint8_t e));
 
-    #if HAS_LCD_MENU
+    #if HAS_LCD_MENU && HAS_TEMPERATURE
       static void lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb);
     #endif
 
@@ -790,11 +787,7 @@ class Temperature {
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
     #if HAS_MAX6675
-      #if BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-        #define COUNT_6675 2
-      #else
-        #define COUNT_6675 1
-      #endif
+      #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
       #if COUNT_6675 > 1
         #define READ_MAX6675(N) read_max6675(N)
       #else

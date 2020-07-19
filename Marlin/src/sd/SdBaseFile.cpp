@@ -47,6 +47,8 @@ void (*SdBaseFile::dateTime_)(uint16_t* date, uint16_t* time) = 0;
 
 // add a cluster to a file
 bool SdBaseFile::addCluster() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   if (!vol_->allocContiguous(1, &curCluster_)) return false;
 
   // if first cluster of file link to directory entry
@@ -60,6 +62,8 @@ bool SdBaseFile::addCluster() {
 // Add a cluster to a directory file and zero the cluster.
 // return with first block of cluster in the cache
 bool SdBaseFile::addDirCluster() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t block;
   // max folder size
   if (fileSize_ / sizeof(dir_t) >= 0xFFFF) return false;
@@ -153,6 +157,8 @@ bool SdBaseFile::contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock) {
  *
  */
 bool SdBaseFile::createContiguous(SdBaseFile* dirFile, const char* path, uint32_t size) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t count;
   // don't allow zero length file
   if (size == 0) return false;
@@ -419,6 +425,8 @@ bool SdBaseFile::make83Name(const char* str, uint8_t* name, const char** ptr) {
  * directory, \a path is invalid or already exists in \a parent.
  */
 bool SdBaseFile::mkdir(SdBaseFile* parent, const char* path, bool pFlag) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint8_t dname[11];
   SdBaseFile dir1, dir2;
   SdBaseFile* sub = &dir1;
@@ -449,6 +457,8 @@ bool SdBaseFile::mkdir(SdBaseFile* parent, const char* path, bool pFlag) {
 }
 
 bool SdBaseFile::mkdir(SdBaseFile* parent, const uint8_t dname[11]) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t block;
   dir_t d;
   dir_t* p;
@@ -632,7 +642,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile, const uint8_t dname[11], uint8_t ofla
   }
   else {
     // don't create unless O_CREAT and O_WRITE
-    if (!(oflag & O_CREAT) || !(oflag & O_WRITE)) return false;
+    if ((oflag & (O_CREAT | O_WRITE)) != (O_CREAT | O_WRITE)) return false;
     if (emptyFound) {
       index = dirIndex_;
       p = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
@@ -716,8 +726,14 @@ bool SdBaseFile::open(SdBaseFile* dirFile, uint16_t index, uint8_t oflag) {
 
 // open a cached directory entry. Assumes vol_ is initialized
 bool SdBaseFile::openCachedEntry(uint8_t dirIndex, uint8_t oflag) {
+  dir_t* p;
+
+  #if ENABLED(SDCARD_READONLY)
+    if (oflag & (O_WRITE | O_CREAT | O_TRUNC)) goto FAIL;
+  #endif
+
   // location of entry in cache
-  dir_t* p = &vol_->cache()->dir[dirIndex];
+  p = &vol_->cache()->dir[dirIndex];
 
   // write or truncate is an error for a directory or read-only file
   if (p->attributes & (DIR_ATT_READ_ONLY | DIR_ATT_DIRECTORY)) {
@@ -1135,6 +1151,8 @@ dir_t* SdBaseFile::readDirCache() {
  * or an I/O error occurred.
  */
 bool SdBaseFile::remove() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   dir_t* d;
   // free any clusters - will fail if read-only or directory
   if (!truncate(0)) return false;
@@ -1172,6 +1190,8 @@ bool SdBaseFile::remove() {
  * or an I/O error occurred.
  */
 bool SdBaseFile::remove(SdBaseFile* dirFile, const char* path) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   SdBaseFile file;
   return file.open(dirFile, path, O_WRITE) ? file.remove() : false;
 }
@@ -1187,6 +1207,8 @@ bool SdBaseFile::remove(SdBaseFile* dirFile, const char* path) {
  * file, newPath is invalid or already exists, or an I/O error occurs.
  */
 bool SdBaseFile::rename(SdBaseFile* dirFile, const char* newPath) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   dir_t entry;
   uint32_t dirCluster = 0;
   SdBaseFile file;
@@ -1279,6 +1301,8 @@ restore:
  * directory, is not empty, or an I/O error occurred.
  */
 bool SdBaseFile::rmdir() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   // must be open subdirectory
   if (!isSubDir()) return false;
 
@@ -1317,6 +1341,8 @@ bool SdBaseFile::rmdir() {
  * \return true for success, false for failure.
  */
 bool SdBaseFile::rmRfStar() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t index;
   SdBaseFile f;
   rewind();
@@ -1424,7 +1450,7 @@ void SdBaseFile::setpos(filepos_t* pos) {
  */
 bool SdBaseFile::sync() {
   // only allow open files and directories
-  if (!isOpen()) goto FAIL;
+  if (ENABLED(SDCARD_READONLY) || !isOpen()) goto FAIL;
 
   if (flags_ & F_FILE_DIR_DIRTY) {
     dir_t* d = cacheDirEntry(SdVolume::CACHE_FOR_WRITE);
@@ -1524,6 +1550,8 @@ bool SdBaseFile::timestamp(SdBaseFile* file) {
  */
 bool SdBaseFile::timestamp(uint8_t flags, uint16_t year, uint8_t month,
                            uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint16_t dirDate, dirTime;
   dir_t* d;
 
@@ -1575,6 +1603,8 @@ bool SdBaseFile::timestamp(uint8_t flags, uint16_t year, uint8_t month,
  * \a length is greater than the current file size or an I/O error occurs.
  */
 bool SdBaseFile::truncate(uint32_t length) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t newPos;
   // error if not a normal file or read-only
   if (!isFile() || !(flags_ & O_WRITE)) return false;
@@ -1636,6 +1666,10 @@ bool SdBaseFile::truncate(uint32_t length) {
  *
  */
 int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
+  #if ENABLED(SDCARD_READONLY)
+    writeError = true; return -1;
+  #endif
+
   // convert void* to uint8_t*  -  must be before goto statements
   const uint8_t* src = reinterpret_cast<const uint8_t*>(buf);
 

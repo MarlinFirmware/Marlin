@@ -134,7 +134,10 @@
 // Misc. Functions
 //
 #define SDSS                                  20  // B0 JP31-6
-#define CASE_LIGHT_PIN                         0  // D0 IO-14  PWM0B
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       0  // D0 IO-14  PWM0B
+#endif
 
 //
 // LCD / Controller

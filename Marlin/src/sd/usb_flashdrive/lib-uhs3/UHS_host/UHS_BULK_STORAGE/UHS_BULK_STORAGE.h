@@ -174,7 +174,7 @@ protected:
         volatile uint16_t CurrentSectorSize[MASS_MAX_SUPPORTED_LUN]; // Sector size, clipped to 16 bits
         volatile bool LUNOk[MASS_MAX_SUPPORTED_LUN]; // use this to check for media changes.
         volatile bool WriteOk[MASS_MAX_SUPPORTED_LUN];
-        void PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR* ep_ptr);
+        void PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR* ep_ptr);
 
 public:
         UHS_Bulk_Storage(UHS_USB_HOST_BASE *p);

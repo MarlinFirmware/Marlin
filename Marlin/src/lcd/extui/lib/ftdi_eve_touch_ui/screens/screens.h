@@ -103,7 +103,7 @@ enum {
 
 class BaseScreen : public UIScreen {
   protected:
-    #if LCD_TIMEOUT_TO_STATUS
+    #if LCD_TIMEOUT_TO_STATUS > 0
       static uint32_t last_interaction;
     #endif
 

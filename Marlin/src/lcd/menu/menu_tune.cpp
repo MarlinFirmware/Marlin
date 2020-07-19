@@ -55,9 +55,10 @@
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
         #if ENABLED(BABYSTEP_XY)
-          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
+          axis == X_AXIS ? BABYSTEP_SIZE_X :
+          axis == Y_AXIS ? BABYSTEP_SIZE_Y :
         #endif
-        BABYSTEP_MULTIPLICATOR_Z
+        BABYSTEP_SIZE_Z
       );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);
@@ -147,10 +148,8 @@ void menu_tune() {
 
     #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
       auto fan_edit_items = [&](const uint8_t f) {
-        MENU_ITEM_IF(1) {
-          editable.uint8 = thermalManager.fan_speed[f];
-          EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
-        }
+        editable.uint8 = thermalManager.fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
         #if ENABLED(EXTRA_FAN_SPEED)
           EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
         #endif
@@ -160,18 +159,14 @@ void menu_tune() {
     #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
     #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
       auto singlenozzle_item = [&](const uint8_t f) {
-        MENU_ITEM_IF(1) {
-          editable.uint8 = singlenozzle_fan_speed[f];
-          EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
-        }
+        editable.uint8 = singlenozzle_fan_speed[f];
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
       };
     #endif
 
     #if HAS_FAN0
-      MENU_ITEM_IF(1) {
-        editable.uint8 = thermalManager.fan_speed[0];
-        EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
-      }
+      editable.uint8 = thermalManager.fan_speed[0];
+      EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
       #if ENABLED(EXTRA_FAN_SPEED)
         EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
       #endif

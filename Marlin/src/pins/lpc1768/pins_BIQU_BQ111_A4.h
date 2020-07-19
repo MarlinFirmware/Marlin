@@ -49,19 +49,19 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                         P2_0
-#define X_DIR_PIN                          P0_5
-#define X_ENABLE_PIN                       P0_4
+#define X_STEP_PIN                         P2_00
+#define X_DIR_PIN                          P0_05
+#define X_ENABLE_PIN                       P0_04
 
-#define Y_STEP_PIN                         P2_1
+#define Y_STEP_PIN                         P2_01
 #define Y_DIR_PIN                          P0_11
 #define Y_ENABLE_PIN                       P0_10
 
-#define Z_STEP_PIN                         P2_2
+#define Z_STEP_PIN                         P2_02
 #define Z_DIR_PIN                          P0_20
 #define Z_ENABLE_PIN                       P0_19
 
-#define E0_STEP_PIN                        P2_3
+#define E0_STEP_PIN                        P2_03
 #define E0_DIR_PIN                         P0_22
 #define E0_ENABLE_PIN                      P0_21
 
@@ -75,10 +75,10 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                       P2_7
-#define HEATER_BED_PIN                     P2_5
+#define HEATER_0_PIN                       P2_07
+#define HEATER_BED_PIN                     P2_05
 #ifndef FAN_PIN
-  #define FAN_PIN                          P2_4
+  #define FAN_PIN                          P2_04
 #endif
 
 //

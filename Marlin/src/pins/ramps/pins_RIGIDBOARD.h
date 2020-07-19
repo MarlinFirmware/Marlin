@@ -97,7 +97,6 @@
 // Misc. Functions
 //
 #undef PS_ON_PIN
-#define PS_ON_PIN                             -1
 
 //
 // LCD / Controller
@@ -120,9 +119,7 @@
 
   // Disable encoder
   #undef BTN_EN1
-  #define BTN_EN1                             -1
   #undef BTN_EN2
-  #define BTN_EN2                             -1
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22

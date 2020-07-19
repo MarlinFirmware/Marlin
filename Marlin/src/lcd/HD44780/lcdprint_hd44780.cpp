@@ -927,6 +927,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('ю'), '|', 'o'},
     {IV('я'), 'g', 0}, // 044F
     {IV('ё'), 'e', 0}, // 0451
+
   #endif
 
   {IV('•'), '.', 0}, // 2022 ·

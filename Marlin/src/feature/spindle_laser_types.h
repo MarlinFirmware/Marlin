@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -34,17 +34,20 @@
   #define _MSG_CUTTER(M) MSG_LASER_##M
 #endif
 #define MSG_CUTTER(M) _MSG_CUTTER(M)
-#if CUTTER_DISPLAY_IS(RPM) && SPEED_POWER_MAX > 255
-  #define cutter_power_t              uint16_t
-  #define cutter_setPower_t           uint16_t
-  #define CUTTER_MENU_POWER_TYPE      uint16_5
+
+typedef IF<(SPEED_POWER_MAX > 255), uint16_t, uint8_t>::type cutter_cpower_t;
+
+#if CUTTER_UNIT_IS(RPM) && SPEED_POWER_MAX > 255
+  typedef uint16_t cutter_power_t;
+  #define CUTTER_MENU_POWER_TYPE uint16_5
+  #define cutter_power2str       ui16tostr5rj
 #else
-  #define cutter_power_t              uint8_t
-  #define cutter_setPower_t           uint8_t
-  #define CUTTER_MENU_POWER_TYPE      uint8
+  typedef uint8_t cutter_power_t;
+  #define CUTTER_MENU_POWER_TYPE uint8
+  #define cutter_power2str       ui8tostr3rj
 #endif
 
 #if ENABLED(MARLIN_DEV_MODE)
-  #define cutter_frequency_t          uint16_t
-  #define CUTTER_MENU_FREQUENCY_TYPE  uint16_5
+  typedef uint16_t cutter_frequency_t;
+  #define CUTTER_MENU_FREQUENCY_TYPE uint16_5
 #endif

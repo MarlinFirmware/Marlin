@@ -75,20 +75,6 @@ uint16_t analogRead(pin_t adc_pin) {
   return Gpio::get(DIGITAL_PIN_TO_ANALOG_PIN(adc_pin));
 }
 
-// **************************
-// Persistent Config Storage
-// **************************
-
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {
-
-}
-
-unsigned char eeprom_read_byte(uint8_t * pos) { return '\0'; }
-
-void eeprom_read_block(void *__dst, const void *__src, size_t __n) { }
-
-void eeprom_update_block(const void *__src, void *__dst, size_t __n) { }
-
 char *dtostrf(double __val, signed char __width, unsigned char __prec, char *__s) {
   char format_string[20];
   snprintf(format_string, 20, "%%%d.%df", __width, __prec);

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.3"
+#define BOARD_INFO_NAME "BTT SKR V1.3"
 
 //
 // Trinamic Stallguard pins
@@ -260,6 +260,10 @@
 
     #define LCD_PINS_ENABLE         EXPA1_03_PIN
     #define LCD_PINS_D4             EXPA1_05_PIN
+
+  #elif HAS_ADC_BUTTONS
+
+    #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
   #else                                           // !CR10_STOCKDISPLAY
 

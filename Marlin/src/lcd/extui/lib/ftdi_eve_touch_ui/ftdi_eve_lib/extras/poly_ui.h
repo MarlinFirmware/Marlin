@@ -92,7 +92,8 @@ class PolyReader {
           close_loop();
         else
           p = NULL;
-      } else {
+      }
+      else {
         x = pgm_read_word_far(p++);
         if (x == eol)
           close_loop();
@@ -225,7 +226,8 @@ class DeduplicatedPolyReader : public POLY_READER {
       } while (POLY_READER::x == last_x && POLY_READER::y == last_y && !POLY_READER::end_of_loop());
       if (POLY_READER::end_of_loop()) {
         last_x = last_y = eol;
-      } else {
+      }
+      else {
         last_x = POLY_READER::x;
         last_y = POLY_READER::y;
       }
