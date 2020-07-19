@@ -1524,17 +1524,17 @@ void MarlinUI::update() {
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
-        encoderDiff = ENCODER_PULSES_PER_STEP * ydir;
+        encoderDiff = (ENCODER_PULSES_PER_STEP) * ydir;
       else if (screen_items > 0) {
         // Last 3 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
-          encoderDiff = ENCODER_PULSES_PER_STEP * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
+          encoderDiff = (ENCODER_PULSES_PER_STEP) * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
         else
-          encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
+          encoderDiff = (ENCODER_PULSES_PER_STEP) * (row - encoderPosition + encoderTopLine);
       }
       else if (!on_status_screen())
-        encoderDiff = ENCODER_PULSES_PER_STEP * xdir;
+        encoderDiff = (ENCODER_PULSES_PER_STEP) * xdir;
     }
 
   #endif
