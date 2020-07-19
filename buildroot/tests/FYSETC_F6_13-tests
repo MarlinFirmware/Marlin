@@ -11,6 +11,7 @@ set -e
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_FYSETC_F6_13
+opt_enable DGUS_LCD_UI_FYSETC
 exec_test $1 $2 "Default Configuration"
 
 # clean up
