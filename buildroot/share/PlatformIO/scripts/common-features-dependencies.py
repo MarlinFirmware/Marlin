@@ -48,7 +48,12 @@ def load_marlin_features():
 	# procces defines
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
-	cmd = ['-D' + s for s in build_flags['CPPDEFINES']]
+	cmd = []
+	for s in build_flags['CPPDEFINES']:
+		if isinstance(s, tuple):
+			cmd += ['-D' + s[0] + '=' + str(s[1])]
+		else:
+			cmd += ['-D' + s]
 	cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
 	cmd = [env.get('CXX')] + cmd
 	cmd = ' '.join(cmd)
