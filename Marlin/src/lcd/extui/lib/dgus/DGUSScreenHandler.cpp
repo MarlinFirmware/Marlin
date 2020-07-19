@@ -925,6 +925,16 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 #endif
 
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
+
+  typedef struct  {
+    ExtUI::extruder_t extruder; // which extruder to operate
+    uint8_t action; // load or unload
+    bool heated; // heating done ?
+    float purge_length; // the length to extrude before unload, prevent filament jam
+  } filament_data_t;
+
+  static filament_data_t filament_data;
+
   void DGUSScreenHandler::HandleFilamentOption(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleFilamentOption");
 

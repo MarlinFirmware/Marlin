@@ -59,16 +59,6 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
   bool dguslcd_local_debug; // = false;
 #endif
 
-#if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
-  typedef struct  {
-    ExtUI::extruder_t extruder; // which extruder to operate
-    uint8_t action; // load or unload
-    bool heated; // heating done ?
-    float purge_length; // the length to extrude before unload, prevent filament jam
-  } filament_data_t;
-  static filament_data_t filament_data;
-#endif
-
 #define dgusserial DGUS_SERIAL
 
 void DGUSDisplay::InitDisplay() {
