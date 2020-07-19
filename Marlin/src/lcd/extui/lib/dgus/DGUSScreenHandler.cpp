@@ -118,10 +118,10 @@ void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
     //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
     //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
-    uint8_t *tmp = (uint8_t *) var.memadr;
-    uint16_t data_to_send = tmp[0];
-    if (var.size >= 1) data_to_send |= tmp[1] << 8;
-    dgusdisplay.WriteVariable(var.VP, data_to_send);
+    if (var.size > 1)
+      dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
+    else
+      dgusdisplay.WriteVariable(var.VP, *(int8_t*)var.memadr);
   }
 }
 

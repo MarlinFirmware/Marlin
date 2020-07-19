@@ -184,15 +184,7 @@ public:
     if (var.memadr) {
       float f = *(float *)var.memadr;
       f *= cpow(10, decimals);
-      union { long l; char lb[4]; } endian;
-
-      char tmp[4];
-      endian.l = f;
-      tmp[0] = endian.lb[3];
-      tmp[1] = endian.lb[2];
-      tmp[2] = endian.lb[1];
-      tmp[3] = endian.lb[0];
-      dgusdisplay.WriteVariable(var.VP, tmp, 4);
+      dgusdisplay.WriteVariable(var.VP, (long)f);
     }
   }
 
@@ -205,13 +197,7 @@ public:
       float f = *(float *)var.memadr;
       DEBUG_ECHOLNPAIR_F(" >> ", f, 6);
       f *= cpow(10, decimals);
-      union { int16_t i; char lb[2]; } endian;
-
-      char tmp[2];
-      endian.i = f;
-      tmp[0] = endian.lb[1];
-      tmp[1] = endian.lb[0];
-      dgusdisplay.WriteVariable(var.VP, tmp, 2);
+      dgusdisplay.WriteVariable(var.VP, (int16_t)f);
     }
   }
 
