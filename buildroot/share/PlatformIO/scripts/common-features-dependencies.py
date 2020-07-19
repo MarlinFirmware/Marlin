@@ -25,45 +25,23 @@ LITTLEVGL         = 'MKS-LittlevGL=https://github.com/makerbase-mks/MKS-LittlevG
 
 FEATURE_DEPENDENCIES = {
 	'TFT_LVGL_UI': {
-		'lib_deps': [LITTLEVGL],
+		'lib_deps': [ LITTLEVGL ],
 		# not supported yet
 		#'src_filter': '+<src/lcd/extui/lib/mks_ui>',
 		# script in another PR
 		#'extra_scripts': 'buildroot/share/PlatformIO/scripts/dowload_mks_assets.py',
 	},
-	'HAS_TRINAMIC': {
-		'lib_deps': [TMCSTEPPER]
-	},
-	'SR_LCD_2W_NL': {
-		'lib_deps': [SAILFISHLCD]
-	},
-	'SR_LCD_3W_NL': {
-		'lib_deps': [SAILFISHLCD]
-	},
-	'DIGIPOT_MCP4018': {
-		'lib_deps': [SLOWSOFTI2CMASTER]
-	},
-	'DIGIPOT_MCP4451': {
-		'lib_deps': [SLOWSOFTI2CMASTER]
-	},
-	'HAS_TMC26X': {
-		'lib_deps': [TMC26XSTEPPER]
-	},
-	'HAS_L64XX': {
-		'lib_deps': [L64XX]
-	},
-	'NEOPIXEL_LED': {
-		'lib_deps': [NEOPIXEL]
-	},
-	'MAX6675_IS_MAX31865': {
-		'lib_deps': [MAX31865]
-	},
-	'HAS_GRAPHICAL_LCD': {
-		'lib_deps': [U8GLIB]
-	},
-	'HAS_CHARACTER_LCD': {
-		'lib_deps': [LIQUIDCRYSTAL, LIQUIDTWI2]
-	}
+	'HAS_TRINAMIC':        { 'lib_deps': [ TMCSTEPPER ] },
+	'SR_LCD_2W_NL':        { 'lib_deps': [ SAILFISHLCD ] },
+	'SR_LCD_3W_NL':        { 'lib_deps': [ SAILFISHLCD ] },
+	'DIGIPOT_MCP4018':     { 'lib_deps': [ SLOWSOFTI2CMASTER ] },
+	'DIGIPOT_MCP4451':     { 'lib_deps': [ SLOWSOFTI2CMASTER ] },
+	'HAS_TMC26X':          { 'lib_deps': [ TMC26XSTEPPER ] },
+	'HAS_L64XX':           { 'lib_deps': [ L64XX ] },
+	'NEOPIXEL_LED':        { 'lib_deps': [ NEOPIXEL ] },
+	'MAX6675_IS_MAX31865': { 'lib_deps': [ MAX31865 ] },
+	'HAS_GRAPHICAL_LCD':   { 'lib_deps': [ U8GLIB ] },
+	'HAS_CHARACTER_LCD':   { 'lib_deps': [ LIQUIDCRYSTAL, LIQUIDTWI2 ] }
 }
 
 def install_features_dependencies():
