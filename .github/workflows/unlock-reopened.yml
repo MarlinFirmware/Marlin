@@ -10,8 +10,12 @@ on:
     types: [reopened]
 
 jobs:
-  lock:
+  unlock:
+    name: Unlock Reopened
+    if: github.repository == 'MarlinFirmware/Marlin'
+
     runs-on: ubuntu-latest
+
     steps:
     - uses: OSDKDev/unlock-issues@v1.1
       with:
