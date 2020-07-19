@@ -909,9 +909,9 @@ void MarlinUI::update() {
 
         // When not past threshold, and reversing... or past half the threshold
         if (WITHIN(abs_diff, 1, (ENCODER_PULSES_PER_STEP) - 1)  // Not past threshold
-          && (abs_diff > (ENCODER_PULSES_PER_STEP) / 2          // Passed half the threshold?
-            || (ABS(encoderDiff - prevDiff) >= (ENCODER_PULSES_PER_STEP)  // Or a large change...
-                && ABS(prevDiff) < (ENCODER_PULSES_PER_STEP)    // ...starting from a partial or no step?
+          && (abs_diff > (ENCODER_PULSES_PER_STEP) / 2          // Passed half the threshold? Done! Call it a full step.
+            || (ABS(encoderDiff - prevDiff) >= (ENCODER_PULSES_PER_STEP)  // A big change when abs_diff is small implies reverse
+                && ABS(prevDiff) < (ENCODER_PULSES_PER_STEP)    // ...especially when starting from a partial or no step.
                )
              )
         ) {
