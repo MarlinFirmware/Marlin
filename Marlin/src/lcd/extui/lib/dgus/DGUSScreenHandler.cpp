@@ -20,6 +20,10 @@
  *
  */
 
+#include "../../../../inc/MarlinConfigPre.h"
+
+#if HAS_DGUS_LCD
+
 #include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
@@ -34,6 +38,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
@@ -1125,3 +1130,5 @@ void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
   const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
+
+#endif // HAS_DGUS_LCD

@@ -21,9 +21,12 @@
  */
 #pragma once
 
+#include "DGUSDisplay.h"
 #include "DGUSVPVariable.h"
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
+
+enum DGUSLCD_Screens : uint8_t;
 
 class DGUSScreenHandler {
 public:
