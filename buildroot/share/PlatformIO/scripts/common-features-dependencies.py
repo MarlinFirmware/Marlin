@@ -4,6 +4,7 @@
 #
 import subprocess
 import os
+import re
 try:
     import configparser
 except ImportError:
@@ -19,9 +20,21 @@ def load_config():
 	config.read("platformio.ini")
 	items = config.items('features')
 	for key in items:
-		FEATURE_DEPENDENCIES[key[0].upper()] = {
-			'lib_deps': key[1].split('\n')
-		}
+		deps = key[1].split('\n')
+		if not key[0].upper() in FEATURE_DEPENDENCIES:
+			FEATURE_DEPENDENCIES[key[0].upper()] = {
+				'lib_deps': []
+			}
+		for dep in deps:
+			parts = dep.split('=')
+			name = parts.pop(0)
+			rest = '='.join(parts)
+			if name == 'extra_scripts':
+				FEATURE_DEPENDENCIES[key[0].upper()]['extra_scripts'] = rest
+			elif name == 'src_filter':
+				FEATURE_DEPENDENCIES[key[0].upper()]['src_filter'] = rest
+			else:
+				FEATURE_DEPENDENCIES[key[0].upper()]['lib_deps'] += [dep]
 
 def install_features_dependencies():
 	load_config()
@@ -59,11 +72,26 @@ def install_features_dependencies():
 			# add only the missing deps
 			proj = env.GetProjectConfig()
 			proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
+
 		if 'extra_scripts' in FEATURE_DEPENDENCIES[feature]:
 			print("Executing extra_scripts for %s... " % feature)
 			env.SConscript(FEATURE_DEPENDENCIES[feature]['extra_scripts'], exports="env")
-		# if 'src_filter' in deps[d]:
-		# 	env.Replace(SRC_FILTER=''.join(env.get("SRC_FILTER")) + ' ' + deps[d]['src_filter'])
+
+		if 'src_filter' in FEATURE_DEPENDENCIES[feature]:
+			print("Adding src_filter for %s... " % feature)
+			proj = env.GetProjectConfig()
+			src_filter = env.GetProjectOption("src_filter")
+
+			# first we need to remove the references to the same folder
+			my_srcs = re.findall( r'[+-](<.*?>)', FEATURE_DEPENDENCIES[feature]['src_filter'])
+			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter[0])
+			for d in my_srcs:
+				if d in cur_srcs:
+					src_filter[0] = re.sub(r'[+-]' + d, '', src_filter[0])
+
+			src_filter[0] = FEATURE_DEPENDENCIES[feature]['src_filter'] + ' ' + src_filter[0]
+			proj.set("env:" + env["PIOENV"], "src_filter", src_filter)
+			env.Replace(SRC_FILTER=src_filter)
 
 # load marlin features
 def load_marlin_features():
