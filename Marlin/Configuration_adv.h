@@ -278,14 +278,12 @@
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT    0.98
-  // Turn on AUTOTEMP on M104/M109 by default using proportions set here
-  //#define AUTOTEMP_PROPORTIONAL
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
-    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
-    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
-  #endif
-#endif
+ #endif
+
+// Extra options for the M114 "Current Position" report
+//#define M114_DETAIL         // Use 'M114` for details to check planner calculations
+//#define M114_REALTIME       // Real current position based on forward kinematics
+//#define M114_LEGACY         // M114 used to synchronize on every call. Enable if needed.
 
 // Show Temperature ADC value
 // Enable for M105 to include ADC values read from temperature sensors.
@@ -563,16 +561,6 @@
   #endif
 #endif
 
-//#define Z_TRIPLE_STEPPER_DRIVERS
-#if ENABLED(Z_TRIPLE_STEPPER_DRIVERS)
-  //#define Z_TRIPLE_ENDSTOPS
-  #if ENABLED(Z_TRIPLE_ENDSTOPS)
-    #define Z2_USE_ENDSTOP _XMAX_
-    #define Z3_USE_ENDSTOP _YMAX_
-    #define Z_TRIPLE_ENDSTOPS_ADJUSTMENT2  0
-    #define Z_TRIPLE_ENDSTOPS_ADJUSTMENT3  0
-  #endif
-#endif
 
 /**
  * Dual X Carriage
@@ -714,13 +702,10 @@
 
 #endif // BLTOUCH
 
-// @section extras
-
 /**
  * Z Steppers Auto-Alignment
  * Add the G34 command to align multiple Z steppers using a bed probe.
  */
-/*
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
@@ -775,7 +760,10 @@
   // Re-homing might be more precise in reproducing the actual 'G28 Z' homing height, especially on an uneven bed.
   #define HOME_AFTER_G34
 #endif
-*/
+/**
+ * Z Steppers Auto-Alignment
+ * Add the G34 command to align multiple Z steppers using a bed probe.
+ */
 //#define Z_STEPPER_AUTO_ALIGN
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
   // Define probe X and Y positions for Z1, Z2 [, Z3 [, Z4]]
@@ -1709,10 +1697,10 @@
   //#define MIN_PROBE_EDGE_FRONT MIN_PROBE_EDGE
   //#define MIN_PROBE_EDGE_BACK MIN_PROBE_EDGE
   // WEW 01/20/2020
-  #define MIN_PROBE_EDGE_LEFT 15
-  #define MIN_PROBE_EDGE_RIGHT 15
-  #define MIN_PROBE_EDGE_FRONT 10
-  #define MIN_PROBE_EDGE_BACK 10
+  #define PROBING_MARGIN_LEFT 15
+  #define PROBING_MARGIN_RIGHT 15
+  #define PROBING_MARGIN_FRONT 10
+  #define PROBING_MARGIN_BACK 10
 #endif
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
