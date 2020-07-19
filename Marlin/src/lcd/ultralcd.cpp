@@ -896,7 +896,30 @@ void MarlinUI::update() {
       if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
-      const float abs_diff = ABS(encoderDiff);
+      uint8_t abs_diff = ABS(encoderDiff);
+
+      #if ENCODER_PULSES_PER_STEP > 1
+        // When reversing the encoder direction, a movement step can be missed because
+        // encoderDiff has a non-zero residual value, making the controller unresponsive.
+        // The fix clears the residual value when the encoder is reversed.
+        // Also check if past half the threshold to compensate for missed single steps.
+        static int8_t lastEncoderDiff;
+        int8_t prevDiff = lastEncoderDiff;
+        lastEncoderDiff = encoderDiff;  // Store before updating encoderDiff to save actual steps
+
+        // When not past threshold, and reversing... or past half the threshold
+        if (WITHIN(abs_diff, 1, (ENCODER_PULSES_PER_STEP) - 1)  // Not past threshold
+          && (abs_diff > (ENCODER_PULSES_PER_STEP) / 2          // Passed half the threshold? Done! Call it a full step.
+            || (ABS(encoderDiff - prevDiff) >= (ENCODER_PULSES_PER_STEP)  // A big change when abs_diff is small implies reverse
+                && ABS(prevDiff) < (ENCODER_PULSES_PER_STEP)    // ...especially when starting from a partial or no step.
+               )
+             )
+        ) {
+          abs_diff = ENCODER_PULSES_PER_STEP;
+          encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;  // Treat as full step
+        }
+      #endif
+
       const bool encoderPastThreshold = (abs_diff >= (ENCODER_PULSES_PER_STEP));
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
@@ -906,7 +929,7 @@ void MarlinUI::update() {
             int32_t encoderMultiplier = 1;
 
             if (encoderRateMultiplierEnabled) {
-              const float encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+              const float encoderMovementSteps = float(abs_diff) / (ENCODER_PULSES_PER_STEP);
 
               if (lastEncoderMovementMillis) {
                 // Note that the rate is always calculated between two passes through the
