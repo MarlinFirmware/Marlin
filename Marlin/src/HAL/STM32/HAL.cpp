@@ -79,7 +79,7 @@ void HAL_init() {
     while (!LL_PWR_IsActiveFlag_BRR());   // Wait until backup regulator is initialized
   #endif
 
-  SetSoftwareSerialTimerInterruptPriority();
+  SetTimerInterruptPriorities();
 
   TERN_(EMERGENCY_PARSER, USB_Hook_init());
 }
