@@ -118,10 +118,10 @@ void DGUSScreenHandler::DGUSLCD_SendWordValueToDisplay(DGUS_VP_Variable &var) {
   if (var.memadr) {
     //DEBUG_ECHOPAIR(" DGUS_LCD_SendWordValueToDisplay ", var.VP);
     //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
-    uint8_t *tmp = (uint8_t *) var.memadr;
-    uint16_t data_to_send = (tmp[0] << 8);
-    if (var.size >= 1) data_to_send |= tmp[1];
-    dgusdisplay.WriteVariable(var.VP, data_to_send);
+    if (var.size > 1)
+      dgusdisplay.WriteVariable(var.VP, *(int16_t*)var.memadr);
+    else
+      dgusdisplay.WriteVariable(var.VP, *(int8_t*)var.memadr);
   }
 }
 
@@ -132,8 +132,7 @@ void DGUSScreenHandler::DGUSLCD_SendPercentageToDisplay(DGUS_VP_Variable &var) {
     //DEBUG_ECHOLNPAIR(" data ", *(uint16_t *)var.memadr);
     uint16_t tmp = *(uint8_t *) var.memadr +1 ; // +1 -> avoid rounding issues for the display.
     tmp = map(tmp, 0, 255, 0, 100);
-    uint16_t data_to_send = swap16(tmp);
-    dgusdisplay.WriteVariable(var.VP, data_to_send);
+    dgusdisplay.WriteVariable(var.VP, tmp);
   }
 }
 
@@ -142,8 +141,7 @@ void DGUSScreenHandler::DGUSLCD_SendPrintProgressToDisplay(DGUS_VP_Variable &var
   //DEBUG_ECHOPAIR(" DGUSLCD_SendPrintProgressToDisplay ", var.VP);
   uint16_t tmp = ExtUI::getProgress_percent();
   //DEBUG_ECHOLNPAIR(" data ", tmp);
-  uint16_t data_to_send = swap16(tmp);
-  dgusdisplay.WriteVariable(var.VP, data_to_send);
+  dgusdisplay.WriteVariable(var.VP, tmp);
 }
 
 // Send the current print time to the display.
@@ -242,7 +240,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
       DEBUG_ECHOLNPAIR(" data ", *(uint8_t *)var.memadr);
       uint16_t data_to_send = 0;
       if (*(uint8_t *) var.memadr) data_to_send = 1;
-      data_to_send = swap16(data_to_send);
       dgusdisplay.WriteVariable(var.VP, data_to_send);
     }
   }
@@ -255,7 +252,6 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     DEBUG_ECHOLNPAIR(" data ", *(int16_t *)var.memadr);
     uint16_t data_to_send = 0;
     if (*(int16_t *) var.memadr) data_to_send = 1;
-    data_to_send = swap16(data_to_send);
     dgusdisplay.WriteVariable(var.VP, data_to_send);
   }
 }
@@ -268,7 +264,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     //DEBUG_ECHOPAIR(" DGUSLCD_SendWaitingStatusToDisplay ", var.VP);
     //DEBUG_ECHOLNPAIR(" data ", swap16(index));
     if (period++ > DGUS_UI_WAITING_STATUS_PERIOD) {
-      dgusdisplay.WriteVariable(var.VP, swap16(index));
+      dgusdisplay.WriteVariable(var.VP, index);
       //DEBUG_ECHOLNPAIR(" data ", swap16(index));
       if (++index >= DGUS_UI_WAITING_STATUS) index = 0;
       period = 0;

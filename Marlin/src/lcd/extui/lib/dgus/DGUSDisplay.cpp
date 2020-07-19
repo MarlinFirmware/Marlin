@@ -94,7 +94,28 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
+  value = (value & 0xffU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+}
+
+void DGUSDisplay::WriteVariable(uint16_t adr, int16_t value) {
+  value = (value & 0xffU) << 8U | (value >> 8U);
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+}
+
+void DGUSDisplay::WriteVariable(uint16_t adr, uint8_t value) {
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint8_t));
+}
+
+void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
+    union { long l; char lb[4]; } endian;
+    char tmp[4];
+    endian.l = value;
+    tmp[0] = endian.lb[3];
+    tmp[1] = endian.lb[2];
+    tmp[2] = endian.lb[1];
+    tmp[3] = endian.lb[0];
+    WriteVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
 
 void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
