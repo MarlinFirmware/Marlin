@@ -47,11 +47,8 @@ extern const struct DGUS_VP_Variable ListOfVP[];
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSDisplayDef.h"
-  #error "origin/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_FYSETC)
   #include "fysetc/DGUSDisplayDef.h"
-  #error "fysetc/DGUSDisplayDef.h"
 #elif ENABLED(DGUS_LCD_UI_HIPRECY)
   #include "hiprecy/DGUSDisplayDef.h"
-  #error "hiprecy/DGUSDisplayDef.h"
 #endif
