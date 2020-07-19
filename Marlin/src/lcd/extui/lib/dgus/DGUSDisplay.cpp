@@ -94,6 +94,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, uint16_t value) {
+  value = (value & 0xffU) << 8U | (value >> 8U);
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
 }
 
