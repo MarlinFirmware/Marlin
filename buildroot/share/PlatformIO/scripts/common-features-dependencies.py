@@ -49,10 +49,10 @@ def load_marlin_features():
 	# print(env.Dump())
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
-	cmd = [
-		# build flags from board.json
-		env.BoardConfig().get("build.extra_flags")
-	]
+	cmd = []
+	# build flags from board.json
+	if 'BOARD' in env:
+		cmd += [env.BoardConfig().get("build.extra_flags")]
 	for s in build_flags['CPPDEFINES']:
 		if isinstance(s, tuple):
 			cmd += ['-D' + s[0] + '=' + str(s[1])]
