@@ -23,7 +23,9 @@
 // --------------------------------------------------------------------------
 // Includes
 // --------------------------------------------------------------------------
+
 #include "../../inc/MarlinConfig.h"
+#include "ServoTimers.h" // for SERVO_TC
 
 // --------------------------------------------------------------------------
 // Local defines
@@ -39,7 +41,7 @@ const tTimerConfig TimerConfig[NUM_HARDWARE_TIMERS+1] = {
   { {.pTc=TC0},  TC0_IRQn, TC_PRIORITY(0) },  // 0 - stepper (assigned priority 2)
   { {.pTc=TC1},  TC1_IRQn, TC_PRIORITY(1) },  // 1 - stepper (needed by 32 bit timers)
   { {.pTc=TC2},  TC2_IRQn, 5              },  // 2 - tone (reserved by framework and fixed assigned priority 5)
-  { {.pTc=TC3},  TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo (no interrupts used)
+  { {.pTc=TC3},  TC3_IRQn, TC_PRIORITY(3) },  // 3 - servo (assigned priority 1)
   { {.pTc=TC4},  TC4_IRQn, TC_PRIORITY(4) },  // 4 - software serial (no interrupts used)
   { {.pTc=TC5},  TC5_IRQn, TC_PRIORITY(5) },
   { {.pTc=TC6},  TC6_IRQn, TC_PRIORITY(6) },

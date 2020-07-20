@@ -59,8 +59,9 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define TC_PRIORITY(t)        (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2   \
-                               : (t == TEMP_TIMER_NUM) ? 6                        \
+#define TC_PRIORITY(t)        t == SERVO_TC ? 1                                     \
+                               : (t == STEP_TIMER_NUM || t == PULSE_TIMER_NUM) ? 2  \
+                               : (t == TEMP_TIMER_NUM) ? 6                          \
                                : 7
 
 #define _TC_HANDLER(t)          void TC##t##_Handler()
