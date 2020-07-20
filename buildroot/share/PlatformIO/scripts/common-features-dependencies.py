@@ -4,6 +4,7 @@
 #
 import subprocess
 import os
+import re
 try:
     import configparser
 except ImportError:
@@ -19,8 +20,9 @@ def load_config():
 	config.read("platformio.ini")
 	items = config.items('features')
 	for key in items:
+		libdeps = re.sub(', *', '\n', key[1]).strip().split('\n')
 		FEATURE_DEPENDENCIES[key[0].upper()] = {
-			'lib_deps': key[1].split('\n')
+			'lib_deps': libdeps
 		}
 
 def install_features_dependencies():
