@@ -23,10 +23,6 @@
 
 #include <string.h>
 
-#ifndef LCD_CLASS
-  #include <LiquidCrystal.h>
-  #define LCD_CLASS LiquidCrystal
-#endif
 extern LCD_CLASS lcd;
 
 int lcd_glyph_height() { return 1; }
