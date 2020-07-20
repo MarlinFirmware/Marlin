@@ -78,17 +78,16 @@ def install_features_dependencies():
 		if 'src_filter' in FEATURE_DEPENDENCIES[feature]:
 			print("Adding src_filter for %s... " % feature)
 			proj = env.GetProjectConfig()
-			src_filter = env.GetProjectOption("src_filter")
-
+			src_filter = ' '.join(env.GetProjectOption("src_filter"))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall( r'[+-](<.*?>)', FEATURE_DEPENDENCIES[feature]['src_filter'])
-			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter[0])
+			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter)
 			for d in my_srcs:
 				if d in cur_srcs:
-					src_filter[0] = re.sub(r'[+-]' + d, '', src_filter[0])
+					src_filter = re.sub(r'[+-]' + d, '', src_filter)
 
-			src_filter[0] = FEATURE_DEPENDENCIES[feature]['src_filter'] + ' ' + src_filter[0]
-			proj.set("env:" + env["PIOENV"], "src_filter", src_filter)
+			src_filter = FEATURE_DEPENDENCIES[feature]['src_filter'] + ' ' + src_filter
+			proj.set("env:" + env["PIOENV"], "src_filter", [src_filter])
 			env.Replace(SRC_FILTER=src_filter)
 
 # search the current compiler, considering the OS
