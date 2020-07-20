@@ -93,6 +93,29 @@ def install_features_dependencies():
 			proj.set("env:" + env["PIOENV"], "src_filter", src_filter)
 			env.Replace(SRC_FILTER=src_filter)
 
+# search the current compiler, considering the OS
+def search_compiler():
+	if env['PLATFORM'] == 'win32':
+		# the first path have the compiler
+		compiler_path = None
+		for path in env['ENV']['PATH'].split(';'):
+			if re.search(r'platformio\\packages.*\\bin', path):
+				compiler_path = path
+				break
+		if compiler_path == None:
+			print("Could not find the g++ path")
+			return None
+		
+		print(compiler_path)
+		for file in os.listdir(compiler_path):
+			if file.endswith("g++.exe"):
+				return file
+		print("Could not find the g++")
+		return None
+	else:
+		return env.get('CXX')
+
+
 # load marlin features
 def load_marlin_features():
 	if "MARLIN_FEATURES" in env:
@@ -102,7 +125,10 @@ def load_marlin_features():
 	# print(env.Dump())
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
-	cmd = []
+
+	cxx = search_compiler()
+	cmd = [cxx]
+
 	# build flags from board.json
 	# if 'BOARD' in env:
 	# 	cmd += [env.BoardConfig().get("build.extra_flags")]
@@ -113,7 +139,6 @@ def load_marlin_features():
 			cmd += ['-D' + s]
 	# cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
 	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
-	cmd = [env.get('CXX')] + cmd
 	cmd = ' '.join(cmd)
 	print(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
