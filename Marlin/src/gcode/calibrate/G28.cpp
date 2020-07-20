@@ -218,7 +218,7 @@ void GcodeSuite::G28() {
   #endif
 
   // Home (O)nly if position is unknown
-  if (!homing_needed() && parser.boolval('O')) {
+  if (!homing_needed() && parser.seen('O')) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
     return;
   }
