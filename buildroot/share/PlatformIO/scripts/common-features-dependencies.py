@@ -66,12 +66,10 @@ def install_features_dependencies():
 					del deps_to_add[name]
 
 			# any left?
-			if len(deps_to_add) <= 0:
-				continue
-
-			# add only the missing deps
-			proj = env.GetProjectConfig()
-			proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
+			if len(deps_to_add) > 0:
+				# add only the missing deps
+				proj = env.GetProjectConfig()
+				proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
 
 		if 'extra_scripts' in FEATURE_DEPENDENCIES[feature]:
 			print("Executing extra_scripts for %s... " % feature)
