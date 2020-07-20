@@ -99,7 +99,7 @@ def search_compiler():
 		# the first path have the compiler
 		compiler_path = None
 		for path in env['ENV']['PATH'].split(';'):
-			if 'platformio\\packages' in path:
+			if re.search(r'platformio\\packages.*\\bin', path):
 				compiler_path = path
 				break
 		if compiler_path == None:
