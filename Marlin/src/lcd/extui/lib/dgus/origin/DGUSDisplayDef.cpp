@@ -35,6 +35,7 @@
 #include "../../../../../module/planner.h"
 
 #include "../../../../ultralcd.h"
+#include "../../../ui_api.h"
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 10;
@@ -190,8 +191,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Temperature Data
   #if HOTENDS >= 1
-    VPHELPER(VP_T_E0_Is, &thermalManager.temp_hotend[0].celsius, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<0>),
-    VPHELPER(VP_T_E0_Set, &thermalManager.temp_hotend[0].target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+    VPHELPER(VP_T_E0_Is, nullptr, nullptr, (&dgusdisplay.SetVariable<ExtUI::extruder_t, ExtUI::getActualTemp_celsius, ExtUI::E0, long>)),
+    VPHELPER(VP_T_E0_Set, nullptr,
+            (&dgusdisplay.GetVariable<ExtUI::extruder_t, ExtUI::setTargetTemp_celsius, ExtUI::E0>),
+            (&dgusdisplay.SetVariable<ExtUI::extruder_t, ExtUI::getTargetTemp_celsius, ExtUI::E0>)),
     VPHELPER(VP_Flowrate_E0, nullptr, ScreenHandler.HandleFlowRateChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
     VPHELPER(VP_EPos, &destination.e, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
     VPHELPER(VP_MOVE_E0, nullptr, &ScreenHandler.HandleManualExtrude, nullptr),
