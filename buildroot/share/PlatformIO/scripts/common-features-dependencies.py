@@ -20,7 +20,7 @@ def load_config():
 	config.read("platformio.ini")
 	items = config.items('features')
 	for key in items:
-		deps = re.sub(', *', '\n', key[1]).strip().split('\n')
+		deps = re.sub(',\\s*', '\n', key[1]).strip().split('\n')
 		if not key[0].upper() in FEATURE_DEPENDENCIES:
 			FEATURE_DEPENDENCIES[key[0].upper()] = {
 				'lib_deps': []
