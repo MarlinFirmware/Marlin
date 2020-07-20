@@ -93,6 +93,19 @@ def install_features_dependencies():
 			proj.set("env:" + env["PIOENV"], "src_filter", src_filter)
 			env.Replace(SRC_FILTER=src_filter)
 
+# search the current compiler, considering the OS
+def search_compiler():
+	if env['PLATFORM'] == 'win32':
+		# the first path have the compiler
+		compiler_path = env['ENV']['PATH'].split(';')[0]
+		print(compiler_path)
+		for file in os.listdir(compiler_path):
+			if file.endswith("g++.exe"):
+				return file
+	else:
+		return env.get('CXX')
+
+
 # load marlin features
 def load_marlin_features():
 	if "MARLIN_FEATURES" in env:
@@ -113,7 +126,8 @@ def load_marlin_features():
 			cmd += ['-D' + s]
 	# cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
 	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
-	cmd = [env.get('CXX')] + cmd
+	cxx = search_compiler()
+	cmd = [cxx] + cmd
 	cmd = ' '.join(cmd)
 	print(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
