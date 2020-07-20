@@ -125,7 +125,10 @@ def load_marlin_features():
 	# print(env.Dump())
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
-	cmd = []
+
+	cxx = search_compiler()
+	cmd = [cxx]
+
 	# build flags from board.json
 	# if 'BOARD' in env:
 	# 	cmd += [env.BoardConfig().get("build.extra_flags")]
@@ -136,8 +139,6 @@ def load_marlin_features():
 			cmd += ['-D' + s]
 	# cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
 	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
-	cxx = search_compiler()
-	cmd = [cxx] + cmd
 	cmd = ' '.join(cmd)
 	print(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
