@@ -102,6 +102,9 @@ private:
   static bool Initialized, no_reentrance;
 };
 
+#define GET_VARIABLE(f, t, ...) (&DGUSDisplay::GetVariable<decltype(t), f, t, ##__VA_ARGS__>)
+#define SET_VARIABLE(f, t, ...) (&DGUSDisplay::SetVariable<decltype(t), f, t, ##__VA_ARGS__>)
+
 extern DGUSDisplay dgusdisplay;
 
 // compile-time x^y
