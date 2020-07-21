@@ -126,7 +126,7 @@ def search_compiler():
 		# the first path have the compiler
 		for path in env['ENV']['PATH'].split(';'):
 			if not re.search(r'platformio\\packages.*\\bin', path):
-				continue			
+				continue
 			#print(path)
 			for file in os.listdir(path):
 				if file.endswith("g++.exe"):
@@ -172,7 +172,9 @@ def load_marlin_features():
 
 def MarlinFeatureIsEnabled(env, feature):
 	load_marlin_features()
-	return feature in env["MARLIN_FEATURES"]
+	r = re.compile(feature)
+	matches = list(filter(r.match, env["MARLIN_FEATURES"]))
+	return len(matches) > 0
 
 # add a method for others scripts to check if a feature is enabled
 env.AddMethod(MarlinFeatureIsEnabled)
