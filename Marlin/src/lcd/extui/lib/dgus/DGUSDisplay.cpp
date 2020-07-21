@@ -107,6 +107,10 @@ void DGUSDisplay::WriteVariable(uint16_t adr, uint8_t value) {
   WriteVariable(adr, static_cast<const void*>(&value), sizeof(uint8_t));
 }
 
+void DGUSDisplay::WriteVariable(uint16_t adr, int8_t value) {
+  WriteVariable(adr, static_cast<const void*>(&value), sizeof(int8_t));
+}
+
 void DGUSDisplay::WriteVariable(uint16_t adr, long value) {
     union { long l; char lb[4]; } endian;
     char tmp[4];
