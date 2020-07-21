@@ -127,19 +127,13 @@ def install_features_dependencies():
 def search_compiler():
 	if env['PLATFORM'] == 'win32':
 		# the first path have the compiler
-		compiler_path = None
 		for path in env['ENV']['PATH'].split(';'):
-			if re.search(r'platformio\\packages.*\\bin', path):
-				compiler_path = path
-				break
-		if compiler_path == None:
-			print("Could not find the g++ path")
-			return None
-		
-		print(compiler_path)
-		for file in os.listdir(compiler_path):
-			if file.endswith("g++.exe"):
-				return file
+			if not re.search(r'platformio\\packages.*\\bin', path):
+				continue			
+			#print(path)
+			for file in os.listdir(path):
+				if file.endswith("g++.exe"):
+					return file
 		print("Could not find the g++")
 		return None
 	else:
