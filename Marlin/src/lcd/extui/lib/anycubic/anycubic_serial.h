@@ -131,10 +131,10 @@ const char newSucc[] PROGMEM = "OK";
 #define ANYCUBIC_SERIAL_ECHO(x) ANYCUBIC_SERIAL_PROTOCOL(x)
 
 FORCE_INLINE void AnycubicSerialprintPGM(const char *str) {
-  char ch=pgm_read_byte(str);
+  char ch = pgm_read_byte(str);
   while (ch) {
-    AnycubicSerial.write(ch);
-    ch=pgm_read_byte(++str);
+    AnycubicSerialClass::write(ch);
+    ch = pgm_read_byte(++str);
   }
 }
 
