@@ -36,6 +36,36 @@ def load_config():
 			else:
 				FEATURE_DEPENDENCIES[key[0].upper()]['lib_deps'] += [dep]
 
+def get_all_known_libs():
+	known_libs = []
+	for feature in FEATURE_DEPENDENCIES:
+		if not 'lib_deps' in FEATURE_DEPENDENCIES[feature]:
+			continue
+		for dep in FEATURE_DEPENDENCIES[feature]['lib_deps']:
+			name, _, _ = PackageManager.parse_pkg_uri(dep)
+			known_libs.append(name)
+	return known_libs
+
+def get_all_env_libs():
+	env_libs = []
+	lib_deps = env.GetProjectOption("lib_deps")
+	for dep in lib_deps:
+		name, _, _ = PackageManager.parse_pkg_uri(dep)
+		env_libs.append(name)
+	return env_libs
+
+# We need to ignore all non-used libs,
+# so if a lib folder lay forgotten in .pio/lib_deps, it
+# will not break compiling
+def force_ignore_unused_libs():
+	env_libs = get_all_env_libs()
+	known_libs = get_all_known_libs()
+	diff = (list(set(known_libs) - set(env_libs)))
+	lib_ignore = env.GetProjectOption("lib_ignore") + diff
+	print("Ignoring libs: ", lib_ignore)
+	proj = env.GetProjectConfig()
+	proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
+
 def install_features_dependencies():
 	load_config()
 	for feature in FEATURE_DEPENDENCIES:
@@ -158,3 +188,4 @@ env.AddMethod(MarlinFeatureIsEnabled)
 
 # install all dependencies for features enabled in Configuration.h
 install_features_dependencies()
+force_ignore_unused_libs()
