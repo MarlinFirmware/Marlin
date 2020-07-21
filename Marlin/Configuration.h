@@ -65,6 +65,7 @@
  //#define E3DTitan
  //#define E3DHemera
  //#define CrealityTitan
+ //#define DDXExtruderKit
 
  //#define MicroswissDirectDrive
  //#define DirectDrive // Any direct drive extruder, reduces filament change lengths
@@ -149,13 +150,18 @@
 //#define SKR14Turbo
 //#define SKRPRO11
 
+// This board is NOT recommended and is HIGHLY advised against utilizing the expanded builds for.
+// The MCU is rated for 256kb and stability problems, including hangs with heaters on, have been reported.
+
+//#define SKRMiniE3V2
+
 //#define I2C_EEPROM  // use I2C EEPROM on SRK PRO v1.1 e.g AT24C256
 //#define SKR14_PowerLossKit // Bigtreetech power loss kit for SKR14
 
 //#define SKR_2209
 //#define SKR_2130
 //#define SKR_UART // Configure SKR board with drivers in UART mode or SPI for TMC2130
-//#define SKR13_ReverseSteppers // Some users reported directions backwards than others on SKR with various drivers.
+//#define SKR_ReverseSteppers // Some users reported directions backwards than others on SKR with various drivers.
 //#define DualZ // Uses 5th driver on CRX or SKR boards as Z2
 
  /*
@@ -295,8 +301,13 @@
   #endif
 #endif
 
+#if ENABLED(SKRMiniE3V2)
+  #define SKR_2209
+  #define SKR_UART
+  #define OrigLCD
+#endif
+
 #if ENABLED(CrealityTitan)
-  #define DirectDrive
   #define E3DTitan
 #endif
 
@@ -304,8 +315,12 @@
   #define SD_DETECT_PIN -1
 #endif
 
-#if ENABLED(MicroswissDirectDrive)
+#if ANY(MicroswissDirectDrive, DDXExtruderKit, CrealityTitan)
   #define DirectDrive
+#endif
+
+#if ENABLED(DDXExtruderKit)
+  #define Bondtech
 #endif
 
 #if ENABLED(MachineCR10SPro)
@@ -363,7 +378,7 @@
   #define Z_STOP_PIN 19
 #endif
 
-#if ANY(MachineEnder2, MachineEnder3, MachineEnder5, MachineCR10, MachineMini) && NONE(Melzi_To_SBoardUpgrade, SKR13, SKRPRO11)
+#if ANY(MachineEnder2, MachineEnder3, MachineEnder5, MachineCR10, MachineMini) && NONE(Melzi_To_SBoardUpgrade, SKR13, SKRPRO11, SKRMiniE3V2)
   #define MachineCR10Orig
 #endif
 
@@ -456,7 +471,7 @@
   #undef SolidBedMounts
 #endif
 
-#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus) || ENABLED(GraphicLCD)
+#if NONE(MachineCR10Orig, MachineEnder4, MachineCR10SPro, MachineCRX, MachineCR10Max, MachineEnder5Plus, SKRMiniE3V2) || ENABLED(GraphicLCD)
   #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
@@ -473,7 +488,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
   #define SERIAL_PORT -1
 #else
   #define SERIAL_PORT 0
@@ -486,6 +501,8 @@
 
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && (NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) || (ENABLED(GraphicLCD) && NONE(Force10SProDisplay, ForceCRXDisplay)))
   #define SERIAL_PORT_2 0
+#elif ENABLED(SKRMiniE3V2)
+  #define SERIAL_PORT_2 2
 #elif ANY(SKR13, SKR14, SKR14Turbo)
   #define DGUS_SERIAL_PORT 0
 #endif
@@ -514,6 +531,8 @@
     #define MOTHERBOARD BOARD_BTT_SKR_V1_3
   #elif ENABLED(SKRPRO11)
     #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
+  #elif ENABLED(SKRMiniE3V2)
+    #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
   #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
   #else
@@ -995,7 +1014,7 @@
  * heater. If your configuration is significantly different than this and you don't understand
  * the issues involved, don't use bed PID until someone else verifies that your hardware works.
  */
-#if NONE(MachineCR10Orig, LowMemoryBoard) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, LowMemoryBoard, SKRMiniE3V2) || ENABLED(MelziHostOnly)
   #define PIDTEMPBED
 #endif
 //#define BED_LIMIT_SWITCHING
@@ -1185,7 +1204,7 @@
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
 
-#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineCR10SV2, CrealitySilentBoard, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max) && DISABLED(SKR_UART)
+#if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, MachineCR10SV2, CrealitySilentBoard, MachineCR10SPro, MachineCR10SProV2, MachineCR10Max, SKRMiniE3V2) && DISABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209_STANDALONE
     #define Y_DRIVER_TYPE  TMC2209_STANDALONE
@@ -1217,7 +1236,7 @@
       #define E1_DRIVER_TYPE TMC2208_STANDALONE
     #endif
   #endif
-#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11) && ENABLED(SKR_UART)
+#elif ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2) && ENABLED(SKR_UART)
   #if ENABLED(SKR_2209)
     #define X_DRIVER_TYPE  TMC2209
     #define Y_DRIVER_TYPE  TMC2209
@@ -1465,7 +1484,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#if DISABLED(MachineCR10Orig) || ENABLED(MelziHostOnly)
+#if NONE(MachineCR10Orig, SKRMiniE3V2) || ENABLED(MelziHostOnly)
   #define S_CURVE_ACCELERATION
 #endif
 
@@ -1734,7 +1753,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 9
 
 // Enable the M48 repeatability test to test probe accuracy
-#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI) && DISABLED(MachineCR10Orig)
+#if ANY(ABL_EZABL, ABL_BLTOUCH, ABL_NCSW, ABL_TOUCH_MI) && NONE(MachineCR10Orig, SKRMiniE3V2)
   #define Z_MIN_PROBE_REPEATABILITY_TEST
 #endif
 
@@ -1798,7 +1817,7 @@
     #define INVERT_E0_DIR true
     #define INVERT_E1_DIR false
   #endif
-#elif ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo) && DISABLED(SKR13_ReverseSteppers)
+#elif ANY(MachineCR10Orig, SKR13, SKR14, SKR14Turbo, SKRMiniE3V2) && DISABLED(SKR_ReverseSteppers)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR false
@@ -2149,7 +2168,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #if DISABLED(MachineCR10Orig)
+  #if DISABLED(MachineCR10Orig, SKRMiniE3V2)
     #define ENABLE_LEVELING_FADE_HEIGHT
   #endif
 
@@ -2164,7 +2183,7 @@
   /**
    * Enable the G26 Mesh Validation Pattern tool.
    */
-#if(DISABLED(MachineCR10Orig))
+#if NONE(MachineCR10Orig, SKRMiniE3V2)
 #define G26_MESH_VALIDATION   // Enable G26 mesh validation
 #endif
   #if ENABLED(G26_MESH_VALIDATION)
@@ -2259,8 +2278,8 @@
  * Add a bed leveling sub-menu for ABL or MBL.
  * Include a guided procedure if manual probing is enabled.
  */
-#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
-#define LCD_BED_LEVELING
+#if NONE(ABL_EZABL, ABL_NCSW, ABL_BLTOUCH, ABL_TOUCH_MI, SKRMiniE3V2) && (DISABLED(MachineCRX) || ENABLED(GraphicLCD))
+  #define LCD_BED_LEVELING
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
@@ -2269,7 +2288,7 @@
   #define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
-#if NONE(SolidBedMounts)
+#if NONE(SolidBedMounts, SKRMiniE3V2)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -2311,8 +2330,8 @@
 #endif
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
-  #define Z_SAFE_HOMING_Y_POINT Y_CENTER  // Y point for Z homing
+  #define Z_SAFE_HOMING_X_POINT (X_BED_SIZE / 2)  // X point for Z homing
+  #define Z_SAFE_HOMING_Y_POINT (Y_BED_SIZE / 2)  // Y point for Z homing
 #endif
 
 // Homing speeds (mm/min)
@@ -2688,7 +2707,7 @@
  * Disable all menus and only display the Status Screen, or
  * just remove some extraneous menu items to recover space.
  */
-#if ENABLED(MachineCR10Orig) && DISABLED(MelziHostOnly) && ENABLED(ABL_BI)
+#if ANY(MachineCR10Orig, SKRMiniE3V2) && DISABLED(MelziHostOnly) && ENABLED(ABL_BI)
   //#define NO_LCD_MENUS
   #define SLIM_LCD_MENUS
 #endif
@@ -2755,7 +2774,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-#if ENABLED(MachineCR10Orig)
+#if ENABLED(MachineCR10Orig, SKRMiniE3V2)
   #define SPEAKER
 #endif
 
