@@ -45,7 +45,7 @@ void GcodeSuite::M145() {
       if (parser.seenval('H'))
         mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
     #endif
-    #if TEMP_SENSOR_BED != 0
+    #if HAS_HEATED_BED
       if (parser.seenval('B'))
         mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
     #endif
