@@ -326,6 +326,13 @@ void menu_motion() {
   #endif
 
   //
+  // Auto-calibration
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, PSTR("G425"));
+  #endif
+
+  //
   // Auto Z-Align
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
