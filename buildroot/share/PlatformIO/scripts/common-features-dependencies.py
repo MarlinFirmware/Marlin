@@ -33,6 +33,8 @@ def load_config():
 				FEATURE_DEPENDENCIES[key[0].upper()]['extra_scripts'] = rest
 			elif name == 'src_filter':
 				FEATURE_DEPENDENCIES[key[0].upper()]['src_filter'] = rest
+			elif name == 'lib_ignore':
+				FEATURE_DEPENDENCIES[key[0].upper()]['lib_ignore'] = rest
 			else:
 				FEATURE_DEPENDENCIES[key[0].upper()]['lib_deps'] += [dep]
 
