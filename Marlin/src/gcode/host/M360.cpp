@@ -115,8 +115,7 @@ void GcodeSuite::M360() {
   xyz_pos_t cmin = dmin, cmax = dmax;
   apply_motion_limits(cmin);
   apply_motion_limits(cmax);
-  const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
-                  wmin = cmin.asLogical(), wmax = cmax.asLogical();
+  const xyz_pos_t wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
   PGMSTR(MIN_STR, "Min");
   PGMSTR(MAX_STR, "Max");

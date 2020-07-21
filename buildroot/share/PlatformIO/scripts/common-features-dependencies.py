@@ -20,21 +20,24 @@ def load_config():
 	config.read("platformio.ini")
 	items = config.items('features')
 	for key in items:
-		deps = re.sub(',\\s*', '\n', key[1]).strip().split('\n')
-		if not key[0].upper() in FEATURE_DEPENDENCIES:
-			FEATURE_DEPENDENCIES[key[0].upper()] = {
+		ukey = key[0].upper()
+		if not ukey in FEATURE_DEPENDENCIES:
+			FEATURE_DEPENDENCIES[ukey] = {
 				'lib_deps': []
 			}
+		deps = re.sub(',\\s*', '\n', key[1]).strip().split('\n')
 		for dep in deps:
 			parts = dep.split('=')
 			name = parts.pop(0)
 			rest = '='.join(parts)
 			if name == 'extra_scripts':
-				FEATURE_DEPENDENCIES[key[0].upper()]['extra_scripts'] = rest
+				FEATURE_DEPENDENCIES[ukey]['extra_scripts'] = rest
 			elif name == 'src_filter':
-				FEATURE_DEPENDENCIES[key[0].upper()]['src_filter'] = rest
+				FEATURE_DEPENDENCIES[ukey]['src_filter'] = rest
+			elif name == 'lib_ignore':
+				FEATURE_DEPENDENCIES[ukey]['lib_ignore'] = rest
 			else:
-				FEATURE_DEPENDENCIES[key[0].upper()]['lib_deps'] += [dep]
+				FEATURE_DEPENDENCIES[ukey]['lib_deps'] += [dep]
 
 def get_all_known_libs():
 	known_libs = []
@@ -126,7 +129,7 @@ def search_compiler():
 		# the first path have the compiler
 		for path in env['ENV']['PATH'].split(';'):
 			if not re.search(r'platformio\\packages.*\\bin', path):
-				continue			
+				continue
 			#print(path)
 			for file in os.listdir(path):
 				if file.endswith("g++.exe"):
@@ -172,7 +175,9 @@ def load_marlin_features():
 
 def MarlinFeatureIsEnabled(env, feature):
 	load_marlin_features()
-	return feature in env["MARLIN_FEATURES"]
+	r = re.compile(feature)
+	matches = list(filter(r.match, env["MARLIN_FEATURES"]))
+	return len(matches) > 0
 
 # add a method for others scripts to check if a feature is enabled
 env.AddMethod(MarlinFeatureIsEnabled)
