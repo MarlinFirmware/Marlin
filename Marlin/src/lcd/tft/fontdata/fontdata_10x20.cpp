@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /*
   Fontname: -Misc-Fixed-Medium-R-Normal--20-200-75-75-C-100-ISO10646-1
@@ -29,6 +28,12 @@
   X Font      ascent =13 descent=-4
   Max Font    ascent =16 descent=-4
 */
+
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
+#include <stdint.h>
 
 const uint8_t font10x20[3453] = {
   0,10,20,0,252,13,2,74,4,153,32,255,252,16,252,13,
@@ -246,4 +251,7 @@ const uint8_t font10x20[3453] = {
   252,12,24,48,0,195,195,195,195,195,195,103,59,3,195,102,
   60,7,17,17,10,2,252,192,192,192,192,192,192,248,204,198,
   198,198,204,248,192,192,192,192,8,15,15,10,1,252,102,102,
-  0,195,195,195,195,195,195,103,59,3,195,102,60};
+  0,195,195,195,195,195,195,103,59,3,195,102,60
+};
+
+#endif // HAS_GRAPHICAL_TFT

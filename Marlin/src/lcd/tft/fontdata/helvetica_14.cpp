@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /*
   Fontname: Helvetica
@@ -30,9 +29,12 @@
   Max Font    ascent =16 descent=-4
 */
 
-#pragma once
+#include "../../../inc/MarlinConfigPre.h"
 
-#include "binary.h"
+#if HAS_GRAPHICAL_TFT
+
+#include <stdint.h>
+
 /*
 typedef struct __attribute__((__packed__)) {
   uint8_t BBXWidth;
@@ -44,7 +46,7 @@ typedef struct __attribute__((__packed__)) {
 } tGlyph;
 */
 
-const uint8_t Helvetica14_symbols[] = {
+const uint8_t Helvetica14_symbols[63] = {
   0,18,19,0,252,14,0,0,0,0,1,9,252,16,252,14,252, // tFont
   0,0,0,0,0,0,  // 0x01 - LCD_STR_REFRESH
   0,0,0,0,0,0,  // 0x02 - LCD_STR_FOLDER
@@ -370,4 +372,7 @@ const uint8_t Helvetica14[5005] = {
   252,192,0,192,0,192,0,192,0,222,0,255,0,227,0,193,
   128,193,128,193,128,193,128,227,0,255,0,222,0,192,0,192,
   0,192,0,192,0,8,18,18,10,1,252,102,102,0,0,195,
-  195,195,102,102,102,36,60,24,24,24,24,112,112};
+  195,195,102,102,102,36,60,24,24,24,24,112,112
+};
+
+#endif // HAS_GRAPHICAL_TFT

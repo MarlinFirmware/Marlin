@@ -10,7 +10,13 @@
   Max Font    ascent =24 descent=-5
 */
 
-const uint8_t Helvetica18_symbols[] = {
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
+#include <stdint.h>
+
+const uint8_t Helvetica18_symbols[71] = {
   0,28,37,253,248,19,4,37,9,49,1,9,251,24,251,19,251,  // tFont
   0,0,0,0,0,0,  // 0x01 - LCD_STR_REFRESH
   0,0,0,0,0,0,  // 0x02 - LCD_STR_FOLDER
@@ -480,4 +486,7 @@ const uint8_t Helvetica18[7307] = {
   0,192,0,192,0,192,0,12,23,46,13,0,251,25,128,25,
   128,0,0,0,0,192,48,192,48,96,48,112,96,48,96,56,
   224,24,192,24,192,13,128,13,128,7,128,7,0,3,0,3,
-  0,6,0,6,0,12,0,60,0,56,0};
+  0,6,0,6,0,12,0,60,0,56,0
+};
+
+#endif // HAS_GRAPHICAL_TFT

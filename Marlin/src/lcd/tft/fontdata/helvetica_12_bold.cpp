@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /*
   Fontname: Helvetica
@@ -29,6 +28,12 @@
   X Font      ascent =12 descent=-4
   Max Font    ascent =14 descent=-4
 */
+
+#include "../../../inc/MarlinConfigPre.h"
+
+#if HAS_GRAPHICAL_TFT
+
+#include <stdint.h>
 
 const uint8_t Helvetica12Bold[4172] = {
   0,16,17,0,252,12,2,74,5,106,32,255,252,14,252,12,
@@ -291,4 +296,7 @@ const uint8_t Helvetica12Bold[4172] = {
   12,16,0,195,195,99,102,54,54,60,28,24,24,24,112,96,
   8,16,16,10,1,252,192,192,192,220,254,231,195,195,195,231,
   254,220,192,192,192,192,8,16,16,9,0,252,54,54,0,195,
-  195,99,102,54,54,60,28,24,24,24,112,96};
+  195,99,102,54,54,60,28,24,24,24,112,96
+};
+
+#endif // HAS_GRAPHICAL_TFT
