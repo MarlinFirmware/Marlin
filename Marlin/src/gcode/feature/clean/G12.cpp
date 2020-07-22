@@ -47,9 +47,9 @@ void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
   if (axis_unhomed_error()) return;
 
-  #if defined(WIPE_SEQUENCE_COMMANDS)
-    if(!parser.seen("SRT")) {
-      GcodeSuite::process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
+  #ifdef WIPE_SEQUENCE_COMMANDS
+    if (!parser.seen_any()) {
+      gcode.process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
       return;
     }
   #endif
