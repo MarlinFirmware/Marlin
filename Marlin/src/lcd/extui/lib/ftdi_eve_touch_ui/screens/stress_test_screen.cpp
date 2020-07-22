@@ -87,9 +87,8 @@ void StressTestScreen::runTestOnBootup(bool enable) {
 }
 
 void StressTestScreen::startupCheck() {
-  if (LockScreen::get_hash() == 0xDEAD) {
+  if (LockScreen::get_hash() == 0xDEAD)
     GOTO_SCREEN(StressTestScreen);
-  }
 }
 
 void StressTestScreen::onEntry() {
@@ -120,20 +119,20 @@ void StressTestScreen::onIdle() {
   reset_menu_timeout();
 
   if (!commandsInQueue()) {
-      if (!isPositionKnown()) {
-        extern const char G28_STR[];
-        injectCommands_P(G28_STR);
-      }
-      else {
-        injectCommands_P(PSTR(
-          "G0 X100 Y100 Z100 F6000\n"
-          "T0\nG4 S1"
-          #if EXTRUDERS > 1
-            "\nT1\nG4 S1"
-          #endif
-          "\nG0 X150 Y150 Z150"
-        ));
-      }
+    if (!isPositionKnown()) {
+      extern const char G28_STR[];
+      injectCommands_P(G28_STR);
+    }
+    else {
+      injectCommands_P(PSTR(
+        "G0 X100 Y100 Z100 F6000\n"
+        "T0\nG4 S1"
+        #if EXTRUDERS > 1
+          "\nT1\nG4 S1"
+        #endif
+        "\nG0 X150 Y150 Z150"
+      ));
+    }
   }
 
   if (refresh_timer.elapsed(STRESS_TEST_CHANGE_INTERVAL)) {
@@ -141,10 +140,10 @@ void StressTestScreen::onIdle() {
   }
 
   if (watchDogTestNow()) {
-      if (random(2) % 2)
-        iterativeLockup();
-      else
-        recursiveLockup();
+    if (random(2) % 2)
+      iterativeLockup();
+    else
+      recursiveLockup();
   }
 
   BaseScreen::onIdle();

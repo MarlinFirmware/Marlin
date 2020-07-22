@@ -114,7 +114,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
-    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -139,9 +139,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      #if MULTI_MANUAL
-        MenuItemBase::init(eindex);
-      #endif
+      TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e

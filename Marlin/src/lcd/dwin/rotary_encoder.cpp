@@ -49,9 +49,9 @@ ENCODER_Rate EncoderRate;
 
 /*蜂鸣器响*/
 void Encoder_tick(void) {
-  WRITE(BEEPER_PIN,1);
+  WRITE(BEEPER_PIN, 1);
   delay(10);
-  WRITE(BEEPER_PIN,0);
+  WRITE(BEEPER_PIN, 0);
 }
 
 /*编码器初始化 PB12:Encoder_A PB13:Encoder_B PB14:Encoder_C*/
@@ -88,7 +88,9 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();
       #endif
-      return ENCODER_DIFF_ENTER;
+      const bool was_waiting = wait_for_user;
+      wait_for_user = false;
+      return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
     }
     else return ENCODER_DIFF_NO;
   }

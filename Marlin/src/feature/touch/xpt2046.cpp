@@ -23,7 +23,10 @@
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
-#include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
+#endif
+
 
 /*
  * Draw and Touch processing

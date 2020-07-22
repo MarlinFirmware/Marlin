@@ -25,6 +25,8 @@
 
 #include "DGUSVPVariable.h"
 
+#include <stdint.h>
+
 // This file defines the interaction between Marlin and the display firmware.
 
 // information on which screen which VP is displayed
@@ -40,6 +42,8 @@ extern const struct VPMapping VPMap[];
 
 // List of VPs handled by Marlin / The Display.
 extern const struct DGUS_VP_Variable ListOfVP[];
+
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
   #include "origin/DGUSDisplayDef.h"

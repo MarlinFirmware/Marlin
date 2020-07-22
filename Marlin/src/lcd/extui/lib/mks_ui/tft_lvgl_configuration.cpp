@@ -590,7 +590,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES   480
+    #ifndef XPT2046_HOR_RES
       #define XPT2046_HOR_RES   480
     #endif
     #ifndef XPT2046_VER_RES

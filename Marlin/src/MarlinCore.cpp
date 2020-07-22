@@ -395,6 +395,13 @@ void disable_all_steppers() {
 #endif
 
 /**
+ * A Print Job exists when the timer is running or SD printing
+ */
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
+
+/**
  * Printing is active when the print job timer is running
  */
 bool printingIsActive() {
@@ -690,7 +697,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks

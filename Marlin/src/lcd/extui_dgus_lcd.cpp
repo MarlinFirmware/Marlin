@@ -33,6 +33,7 @@
 #include "extui/ui_api.h"
 #include "extui/lib/dgus/DGUSDisplay.h"
 #include "extui/lib/dgus/DGUSDisplayDef.h"
+#include "extui/lib/dgus/DGUSScreenHandler.h"
 
 extern const char NUL_STR[];
 

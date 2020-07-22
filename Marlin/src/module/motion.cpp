@@ -946,7 +946,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   millis_t delayed_move_time             = 0;                             // used in mode 1
   int16_t duplicate_extruder_temp_offset = 0;                             // used in mode 2
 
-  float x_home_pos(const int extruder) {
+  float x_home_pos(const uint8_t extruder) {
     if (extruder == 0)
       return base_home_pos(X_AXIS);
     else
@@ -1605,6 +1605,21 @@ void homeaxis(const AxisEnum axis) {
         , MMM_TO_MMS(axis == Z_AXIS ? Z_PROBE_SPEED_FAST : 0)
       #endif
     );
+
+    #if ENABLED(DETECT_BROKEN_ENDSTOP)
+      // Check for a broken endstop
+      EndstopEnum es;
+      switch (axis) {
+        default:
+        case X_AXIS: es = X_ENDSTOP; break;
+        case Y_AXIS: es = Y_ENDSTOP; break;
+        case Z_AXIS: es = Z_ENDSTOP; break;
+      }
+      if (TEST(endstops.state(), es)) {
+        SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
+        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+      }
+    #endif
 
     // Slow move towards endstop until triggered
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 2 Slow:");

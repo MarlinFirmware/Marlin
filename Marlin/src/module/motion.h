@@ -378,7 +378,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
-  float x_home_pos(const int extruder);
+  float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 

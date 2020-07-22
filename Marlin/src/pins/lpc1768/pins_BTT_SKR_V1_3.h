@@ -261,6 +261,10 @@
     #define LCD_PINS_ENABLE         EXPA1_03_PIN
     #define LCD_PINS_D4             EXPA1_05_PIN
 
+  #elif HAS_ADC_BUTTONS
+
+    #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
+
   #else                                           // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS             EXPA1_07_PIN

@@ -1032,13 +1032,12 @@ void MarlinUI::draw_status_screen() {
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-
     uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
     if (value != nullptr) {
-      lcd_put_wchar(':');
-      int len = utf8_strlen(value);
-      const lcd_uint_t valrow = (n < len + 1) ? 2 : 1;          // Value on the next row if it won't fit
-      lcd_put_wchar((LCD_WIDTH - 1) - (len + 1), valrow, ' ');  // Right-justified, padded, leading space
+      lcd_put_wchar(':'); n--;
+      const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
+      const lcd_uint_t valrow = n < len ? 2 : 1;    // Value on the next row if it won't fit
+      lcd_put_wchar(LCD_WIDTH - len, valrow, ' ');  // Right-justified, padded, leading space
       lcd_put_u8str(value);
     }
   }

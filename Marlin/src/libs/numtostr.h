@@ -76,6 +76,9 @@ const char* ftostr53_63(const float &x);
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
 const char* ftostr63(const float &x);
 
+// Convert float to fixed-length string with +12.3 / -12.3 format
+const char* ftostr31sign(const float &x);
+
 // Convert float to fixed-length string with +123.4 / -123.4 format
 const char* ftostr41sign(const float &x);
 

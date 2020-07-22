@@ -74,6 +74,7 @@ void libServo::servoWrite(uint8_t inPin, uint16_t duty_cycle) {
 
 libServo::libServo() {
   servoIndex = ServoCount < MAX_SERVOS ? ServoCount++ : INVALID_SERVO;
+  timer_set_interrupt_priority(SERVO0_TIMER_NUM, SERVO0_TIMER_IRQ_PRIO);
 }
 
 bool libServo::attach(const int32_t inPin, const int32_t inMinAngle, const int32_t inMaxAngle) {

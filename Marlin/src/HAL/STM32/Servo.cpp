@@ -33,6 +33,18 @@ static libServo *servos[NUM_SERVOS] = {0};
 constexpr millis_t servoDelay[] = SERVO_DELAY;
 static_assert(COUNT(servoDelay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
 
+// Initialize to the default timer priority. This will be overridden by a call from timers.cpp.
+// This allows all timer interrupt priorities to be managed from a single location in the HAL.
+static uint32_t servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), TIM_IRQ_PRIO, TIM_IRQ_SUBPRIO);
+
+// This must be called after the STM32 Servo class has intialized the timer.
+// It may only be needed after the first call to attach(), but it is possible
+// that is is necessary after every detach() call. To be safe this is currently
+// called after every call to attach().
+static void fixServoTimerInterruptPriority() {
+  NVIC_SetPriority(getTimerUpIrq(TIMER_SERVO), servo_interrupt_priority);
+}
+
 libServo::libServo()
 : delay(servoDelay[servoCount]),
   was_attached_before_pause(false),
@@ -44,13 +56,17 @@ libServo::libServo()
 int8_t libServo::attach(const int pin) {
   if (servoCount >= MAX_SERVOS) return -1;
   if (pin > 0) servo_pin = pin;
-  return stm32_servo.attach(servo_pin);
+  auto result = stm32_servo.attach(servo_pin);
+  fixServoTimerInterruptPriority();
+  return result;
 }
 
 int8_t libServo::attach(const int pin, const int min, const int max) {
   if (servoCount >= MAX_SERVOS) return -1;
   if (pin > 0) servo_pin = pin;
-  return stm32_servo.attach(servo_pin, min, max);
+  auto result = stm32_servo.attach(servo_pin, min, max);
+  fixServoTimerInterruptPriority();
+  return result;
 }
 
 void libServo::move(const int value) {
@@ -84,6 +100,10 @@ void libServo::pause_all_servos() {
 void libServo::resume_all_servos() {
   for (auto& servo : servos)
     if (servo) servo->resume();
+}
+
+void libServo::setInterruptPriority(uint32_t preemptPriority, uint32_t subPriority) {
+  servo_interrupt_priority = NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preemptPriority, subPriority);
 }
 
 #endif // HAS_SERVOS

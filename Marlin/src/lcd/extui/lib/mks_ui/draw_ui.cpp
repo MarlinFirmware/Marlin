@@ -400,7 +400,6 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
     volatile uint16_t *p_index;
     //int res;
     char *cur_name;
-    uint16_t Color;
 
     cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
