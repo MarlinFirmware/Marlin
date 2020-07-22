@@ -154,7 +154,7 @@
   #define FSMC_DMA_CHANNEL                 DMA_CH5
 #endif
 
-#if ENABLED(TOUCH_SCREEN) || ENABLED(TOUCH_BUTTONS)
+#if EITHER(TOUCH_SCREEN, TOUCH_BUTTONS)
   #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
