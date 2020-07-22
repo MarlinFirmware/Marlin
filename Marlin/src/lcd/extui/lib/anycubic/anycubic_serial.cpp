@@ -29,10 +29,10 @@
 
 #if ENABLED(ANYCUBIC_TFT_MODEL)
 
-#include "Arduino.h"
+#include <Arduino.h>
 
-// this next line disables the entire HardwareSerial.cpp,
-// so I can support AtTiny series and other chips without a UART
+// This next line disables the entire anycubic_serial.cpp,
+// to support AtTiny series and other chips without a UART
 #ifdef UBRR3H
 
 #include "anycubic_serial.h"
@@ -59,10 +59,8 @@ struct ring_buffer {
   volatile unsigned int tail;
 };
 
-#ifdef UBRR3H
-  ring_buffer rx_buffer_ajg  =  { { 0 }, 0, 0 };
-  ring_buffer tx_buffer_ajg  =  { { 0 }, 0, 0 };
-#endif
+ring_buffer rx_buffer_ajg  =  { { 0 }, 0, 0 };
+ring_buffer tx_buffer_ajg  =  { { 0 }, 0, 0 };
 
 inline void store_char(unsigned char c, ring_buffer *buffer) {
   int i = (unsigned int)(buffer->head + 1) % SERIAL_BUFFER_SIZE;
@@ -286,9 +284,7 @@ AnycubicSerialClass::operator bool() {
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-#ifdef UBRR3H
-  AnycubicSerialClass AnycubicSerial(&rx_buffer_ajg, &tx_buffer_ajg, &UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3, RXEN3, TXEN3, RXCIE3, UDRIE3, U2X3);
-#endif
+AnycubicSerialClass AnycubicSerial(&rx_buffer_ajg, &tx_buffer_ajg, &UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3, RXEN3, TXEN3, RXCIE3, UDRIE3, U2X3);
 
 #endif // UBRR3H
 #endif // ANYCUBIC_TFT_MODEL

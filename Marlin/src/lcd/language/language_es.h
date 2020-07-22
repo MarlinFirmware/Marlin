@@ -70,21 +70,21 @@ namespace Language_es {
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfase aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Establecer origen");
   #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Precal. $");
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Precal. $ ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Precal. $ Fusor");
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Precal. $ Fusor ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Precal. $ Todo");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Precal. $ Cama");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Precal. $ Ajuste");
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Precal. ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
 
-    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Precal. ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
-    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
-    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
-    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
-    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
+    PROGMEM Language_Str MSG_PREHEAT_M                    = _UxGT("Precal. $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                  = _UxGT("Precal. $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                = _UxGT("Precal. $ Fusor");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E              = _UxGT("Precal. $ Fusor ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                = _UxGT("Precal. $ Todo");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY            = _UxGT("Precal. $ Cama");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS           = _UxGT("Precal. $ Ajuste");
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Precal. manual");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Enfriar");
