@@ -23,16 +23,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #ifdef ARDUINO_ARCH_STM32
-    #if HAS_SPI_TFT
-      #include HAL_PATH(../../HAL, tft/tft_spi.h)
-    #elif HAS_FSMC_TFT
-      #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
-    #else
-      #error "Get off my lawn!"
-    #endif
-  #else
-    #error "Sorry! Some TFT displays are only available with HAL/STM32."
-  #endif
+#if HAS_SPI_TFT
+  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+#elif HAS_FSMC_TFT
+  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #endif

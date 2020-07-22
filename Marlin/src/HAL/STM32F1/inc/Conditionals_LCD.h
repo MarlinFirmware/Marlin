@@ -25,3 +25,7 @@
   //#warning "SD_CHECK_AND_RETRY isn't needed with USE_USB_COMPOSITE."
   #undef SD_CHECK_AND_RETRY
 #endif
+
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/STM32F1."
+#endif
