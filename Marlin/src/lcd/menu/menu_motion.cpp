@@ -340,6 +340,12 @@ void menu_motion() {
   #endif
 
   //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING)
+    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+  #endif
+  //
   // Level Bed
   //
   #if ENABLED(AUTO_BED_LEVELING_UBL)
