@@ -134,7 +134,7 @@ void GcodeSuite::M900() {
         SERIAL_ECHOPGM("Advance K");
         LOOP_L_N(i, EXTRUDERS) {
           SERIAL_CHAR(' ', '0' + i, ':');
-          SERIAL_ECHO(planner.extruder_advance_K[i]);
+          SERIAL_DECIMAL(planner.extruder_advance_K[i]);
         }
         SERIAL_EOL();
       #endif

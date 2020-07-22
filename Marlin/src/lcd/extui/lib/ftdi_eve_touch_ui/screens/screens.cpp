@@ -68,7 +68,7 @@ SCREEN_TABLE {
 #if HAS_BED_PROBE
   DECL_SCREEN(ZOffsetScreen),
 #endif
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   DECL_SCREEN(NozzleOffsetScreen),
 #endif
 #if ENABLED(BACKLASH_GCODE)
@@ -78,7 +78,7 @@ SCREEN_TABLE {
   DECL_SCREEN(MaxVelocityScreen),
   DECL_SCREEN(MaxAccelerationScreen),
   DECL_SCREEN(DefaultAccelerationScreen),
-#if DISABLED(CLASSIC_JERK)
+#if HAS_JUNCTION_DEVIATION
   DECL_SCREEN(JunctionDeviationScreen),
 #else
   DECL_SCREEN(JerkScreen),

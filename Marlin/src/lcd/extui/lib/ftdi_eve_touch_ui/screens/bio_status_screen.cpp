@@ -198,16 +198,14 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
 void StatusScreen::draw_syringe(draw_mode_t what) {
   int16_t x, y, h, v;
-  #ifdef E_MAX_POS
-    const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_MAX_POS));
-  #else
-    const float fill_level = 0.75;
-  #endif
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
+  const float fill_level = (
+    #ifdef E_MAX_POS
+      1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_MAX_POS))
+    #else
+      0.75
     #endif
   );
+  const bool e_homed = TERN0(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0));
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -237,12 +235,8 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
 }
 
 void StatusScreen::draw_arrows(draw_mode_t what) {
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
-    #endif
-  );
-  const bool z_homed = isAxisPositionKnown(Z);
+  const bool e_homed = TERN1(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0)),
+             z_homed = isAxisPositionKnown(Z);
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -299,12 +293,8 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
 }
 
 void StatusScreen::draw_overlay_icons(draw_mode_t what) {
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
-    #endif
-  );
-  const bool z_homed = isAxisPositionKnown(Z);
+  const bool e_homed = TERN1(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0)),
+             z_homed = isAxisPositionKnown(Z);
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);

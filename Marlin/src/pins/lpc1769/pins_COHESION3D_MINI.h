@@ -32,12 +32,6 @@
 #define BOARD_INFO_NAME "Cohesion3D Mini"
 
 //
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P1_23
@@ -110,10 +104,15 @@
 // Auto fans
 //
 #define AUTO_FAN_PIN                       P2_04  // FET 4
-
-#define ORIG_E0_AUTO_FAN_PIN        AUTO_FAN_PIN
-#define ORIG_E1_AUTO_FAN_PIN        AUTO_FAN_PIN
-#define ORIG_E2_AUTO_FAN_PIN        AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // Misc. Functions

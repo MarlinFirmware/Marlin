@@ -34,9 +34,15 @@
 
 #define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq() / 2)  // frequency of timer peripherals
 
-#define STEP_TIMER_NUM 0  // index of timer to use for stepper
-#define TEMP_TIMER_NUM 1  // index of timer to use for temperature
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#ifndef STEP_TIMER_NUM
+  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#endif
 
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
@@ -62,8 +68,12 @@
 
 extern void TC5_Handler();
 extern void TC7_Handler();
-#define HAL_STEP_TIMER_ISR()  void TC5_Handler()
-#define HAL_TEMP_TIMER_ISR()  void TC7_Handler()
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR()  void TC5_Handler()
+#endif
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR()  void TC7_Handler()
+#endif
 
 // ------------------------
 // Types

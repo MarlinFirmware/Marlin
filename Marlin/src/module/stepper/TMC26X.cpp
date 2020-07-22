@@ -30,7 +30,7 @@
 //
 // TMC26X Driver objects and inits
 //
-#if HAS_DRIVER(TMC26X)
+#if HAS_TMC26X
 
 #include "TMC26X.h"
 
@@ -141,4 +141,4 @@ void tmc26x_init_to_defaults() {
   #endif
 }
 
-#endif // TMC26X
+#endif // HAS_TMC26X

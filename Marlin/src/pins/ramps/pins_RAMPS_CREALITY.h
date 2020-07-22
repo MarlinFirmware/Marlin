@@ -39,9 +39,13 @@
   #define FIL_RUNOUT2_PIN                     15  // Creality CR-X can use dual runout sensors
 #endif
 
-#define SD_DETECT_PIN                         49  // Always define onboard SD detect
+#ifndef SD_DETECT_PIN
+  #define SD_DETECT_PIN                       49  // Always define onboard SD detect
+#endif
 
-#define PS_ON_PIN                             40  // Used by CR2020 Industrial series
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN                           40  // Used by CR2020 Industrial series
+#endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN)
   #define CASE_LIGHT_PIN                      65
@@ -59,4 +63,6 @@
 #define EXP4_PIN                              12  // PS_ON_PIN
 
 #define SUICIDE_PIN                           12  // Used by CR2020 Industrial series
-#define SUICIDE_PIN_INVERTING true                // Used by CR2020 Industrial series
+#ifndef SUICIDE_PIN_INVERTING
+  #define SUICIDE_PIN_INVERTING true
+#endif

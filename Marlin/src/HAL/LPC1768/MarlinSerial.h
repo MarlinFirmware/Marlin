@@ -44,10 +44,9 @@ public:
   MarlinSerial(LPC_UART_TypeDef *UARTx) :
     HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx)
     #if ENABLED(EMERGENCY_PARSER)
-       , emergency_state(EmergencyParser::State::EP_RESET)
+      , emergency_state(EmergencyParser::State::EP_RESET)
     #endif
-    {
-    }
+    { }
 
   void end() {}
 

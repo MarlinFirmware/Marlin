@@ -491,7 +491,7 @@ protected:
   uint16_t CurrentSectorSize[MASS_MAX_SUPPORTED_LUN]; // Sector size, clipped to 16 bits
   bool LUNOk[MASS_MAX_SUPPORTED_LUN]; // use this to check for media changes.
   bool WriteOk[MASS_MAX_SUPPORTED_LUN];
-  void PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR* ep_ptr);
+  void PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR* ep_ptr);
 
   // Additional Initialization Method for Subclasses
 
@@ -526,7 +526,7 @@ public:
   virtual uint8_t GetAddress() { return bAddress; }
 
   // UsbConfigXtracter implementation
-  void EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto, const USB_ENDPOINT_DESCRIPTOR *ep);
+  void EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto, const USB_FD_ENDPOINT_DESCRIPTOR *ep);
 
   virtual bool DEVCLASSOK(uint8_t klass) { return klass == USB_CLASS_MASS_STORAGE; }
 

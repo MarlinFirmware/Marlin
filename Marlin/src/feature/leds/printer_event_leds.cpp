@@ -47,10 +47,10 @@ PrinterEventLEDs printerEventLEDs;
   inline void pel_set_rgb(const uint8_t r, const uint8_t g, const uint8_t b) {
     leds.set_color(
       MakeLEDColor(r, g, b, 0, neo.brightness())
-        #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
-          , true
-        #endif
-      );
+      #if ENABLED(NEOPIXEL_IS_SEQUENTIAL)
+        , true
+      #endif
+    );
   }
 
 #endif

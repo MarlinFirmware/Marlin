@@ -27,7 +27,7 @@
   #define DUMMY_THERMISTOR_998_VALUE 25
 #endif
 
-const short temptable_998[][2] PROGMEM = {
+const temp_entry_t temptable_998[] PROGMEM = {
   { OV(   1), DUMMY_THERMISTOR_998_VALUE },
   { OV(1023), DUMMY_THERMISTOR_998_VALUE }
 };

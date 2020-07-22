@@ -274,7 +274,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     else
       top = *timer.ICRn; // top = ICRn
 
-    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top / v_size)); // Scale 8/16-bit v to top value
+    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
   }
 }
 

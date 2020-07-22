@@ -27,7 +27,7 @@
  * (bypassing U8G), it will allow the LIGHTWEIGHT_UI to operate.
  */
 
-#if HAS_GRAPHICAL_LCD && ENABLED(LIGHTWEIGHT_UI)
+#if BOTH(HAS_GRAPHICAL_LCD, LIGHTWEIGHT_UI)
   void ST7920_cs();
   void ST7920_ncs();
   void ST7920_set_cmd();

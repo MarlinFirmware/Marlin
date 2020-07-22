@@ -40,8 +40,8 @@
 #define DEFAULT_MACHINE_NAME "STM32F407VET6"
 
 //#define I2C_EEPROM
-//#define E2END 0x1FFF                            // 8KB
 #define SRAM_EEPROM_EMULATION
+#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB
 
 //
 // Servos
@@ -142,7 +142,11 @@
 #define SDIO_CK_PIN                         PC12
 #define SDIO_CMD_PIN                        PD2
 
-#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#if SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT

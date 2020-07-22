@@ -84,7 +84,10 @@
 //
 #define SDSS                                -1
 #define LED_PIN                             -1
-#define CASE_LIGHT_PIN                      PA8   // 8
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                    PA8   // 8
+#endif
 
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            PD6   // LED strip 24v

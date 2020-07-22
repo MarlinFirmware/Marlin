@@ -11,7 +11,6 @@
     "ldscript": "jtagOffset.ld",
     "mcu": "stm32f103cb",
     "variant": "malyanM200",
-    "genericvariant" : "MALYAN_M200_V1",
     "vec_tab_addr": "0x8002000"
   },
   "debug": {

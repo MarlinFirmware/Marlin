@@ -129,7 +129,10 @@
 //
 #define SDSS                                  77
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                         9
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       9
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

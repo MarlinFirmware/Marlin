@@ -26,7 +26,7 @@
 // Verified by linagee.
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: Twice the resolution and better linearity from 150C to 200C
-const short temptable_51[][2] PROGMEM = {
+const temp_entry_t temptable_51[] PROGMEM = {
   { OV(   1), 350 },
   { OV( 190), 250 }, // top rating 250C
   { OV( 203), 245 },

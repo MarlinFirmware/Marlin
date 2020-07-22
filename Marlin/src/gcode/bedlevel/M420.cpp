@@ -73,9 +73,7 @@ void GcodeSuite::M420() {
       #endif
       GRID_LOOP(x, y) {
         Z_VALUES(x, y) = 0.001 * random(-200, 200);
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
       }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOPAIR(" (", x_min);
@@ -86,11 +84,11 @@ void GcodeSuite::M420() {
     }
   #endif
 
+  xyz_pos_t oldpos = current_position;
+
   // If disabling leveling do it right away
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
-
-  xyz_pos_t oldpos = current_position;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -178,13 +176,9 @@ void GcodeSuite::M420() {
             // Subtract the mean from all values
             GRID_LOOP(x, y) {
               Z_VALUES(x, y) -= zmean;
-              #if ENABLED(EXTENSIBLE_UI)
-                ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
-              #endif
+              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
             }
-            #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-              bed_level_virt_interpolate();
-            #endif
+            TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
           }
 
         #endif
@@ -206,9 +200,7 @@ void GcodeSuite::M420() {
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           print_bilinear_leveling_grid();
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            print_bilinear_leveling_grid_virt();
-          #endif
+          TERN_(ABL_BILINEAR_SUBDIVISION, print_bilinear_leveling_grid_virt());
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           mbl.report_mesh();

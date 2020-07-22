@@ -31,11 +31,6 @@ using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
 
-void ConfirmStartPrintDialogBox::onEntry() {
-  BaseScreen::onEntry();
-  sound.play(twinkle, PLAY_ASYNCHRONOUS);
-}
-
 void ConfirmStartPrintDialogBox::onRedraw(draw_mode_t) {
   const char *filename = getLongFilename();
   char buffer[strlen_P(GET_TEXT(MSG_START_PRINT_CONFIRMATION)) + strlen(filename) + 1];

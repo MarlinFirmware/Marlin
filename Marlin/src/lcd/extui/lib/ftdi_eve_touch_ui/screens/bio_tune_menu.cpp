@@ -50,11 +50,7 @@ void TuneMenu::onRedraw(draw_mode_t what) {
        .font(font_medium)
        .enabled( isPrinting()).tag(2).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_SPEED))
                               .tag(3).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_BED_TEMPERATURE))
-        .enabled(
-          #if ENABLED(BABYSTEPPING)
-            true
-          #endif
-        )
+       .enabled(TERN_(BABYSTEPPING, true))
                               .tag(4).button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
        .enabled(!isPrinting()).tag(5).button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_MOVE_TO_HOME))
        .enabled(!isPrinting()).tag(6).button( BTN_POS(1,6), BTN_SIZE(2,1), GET_TEXT_F(MSG_RAISE_PLUNGER))

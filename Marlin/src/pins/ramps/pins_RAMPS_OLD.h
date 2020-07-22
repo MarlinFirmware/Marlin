@@ -106,7 +106,10 @@
 #define SDPOWER_PIN                           48
 #define SDSS                                  53
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                        45  // Hardware PWM
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      45  // Hardware PWM
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

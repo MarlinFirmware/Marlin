@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 2.5 MOhm, beta25 = 4500 K, 4.7 kOhm pull-up, DyzeDesign 500 °C Thermistor
-const short temptable_66[][2] PROGMEM = {
+const temp_entry_t temptable_66[] PROGMEM = {
   { OV(  17.5), 850 },
   { OV(  17.9), 500 },
   { OV(  21.7), 480 },

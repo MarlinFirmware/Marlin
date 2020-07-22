@@ -250,10 +250,10 @@ bLastUsbError(0) {
  */
 uint8_t BulkOnly::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed) {
 
-  const uint8_t constBufSize = sizeof (USB_DEVICE_DESCRIPTOR);
+  const uint8_t constBufSize = sizeof (USB_FD_DEVICE_DESCRIPTOR);
 
   uint8_t buf[constBufSize];
-  USB_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR*>(buf);
+  USB_FD_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_FD_DEVICE_DESCRIPTOR*>(buf);
   uint8_t rcode;
   UsbDevice *p = nullptr;
   EpInfo *oldep_ptr = nullptr;
@@ -529,7 +529,7 @@ uint8_t BulkOnly::Init(uint8_t parent __attribute__((unused)), uint8_t port __at
  * @param proto
  * @param pep
  */
-void BulkOnly::EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto __attribute__((unused)), const USB_ENDPOINT_DESCRIPTOR * pep) {
+void BulkOnly::EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto __attribute__((unused)), const USB_FD_ENDPOINT_DESCRIPTOR * pep) {
   ErrorMessage<uint8_t> (PSTR("Conf.Val"), conf);
   ErrorMessage<uint8_t> (PSTR("Iface Num"), iface);
   ErrorMessage<uint8_t> (PSTR("Alt.Set"), alt);
@@ -1166,7 +1166,7 @@ uint8_t BulkOnly::HandleSCSIError(uint8_t status) {
  *
  * @param ep_ptr
  */
-void BulkOnly::PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR * ep_ptr) {
+void BulkOnly::PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR * ep_ptr) {
   Notify(PSTR("Endpoint descriptor:"), 0x80);
   Notify(PSTR("\r\nLength:\t\t"), 0x80);
   D_PrintHex<uint8_t> (ep_ptr->bLength, 0x80);

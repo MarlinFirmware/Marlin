@@ -24,7 +24,7 @@
 #include "../../MarlinCore.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
 
-#if FAN_COUNT > 0
+#if HAS_FAN
   #include "../../module/temperature.h"
 #endif
 
@@ -56,15 +56,14 @@ void GcodeSuite::M42() {
       #ifdef INPUT_PULLDOWN
         case 3: pinMode(pin, INPUT_PULLDOWN); break;
       #endif
-      default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
+      default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
     }
-    return;
   }
 
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     switch (pin) {
       #if HAS_FAN0
         case FAN0_PIN: thermalManager.fan_speed[0] = pin_status; return;

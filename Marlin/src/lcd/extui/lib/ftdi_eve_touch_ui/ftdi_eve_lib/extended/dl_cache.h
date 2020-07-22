@@ -33,10 +33,10 @@
  *     DLCache dlcache(UNIQUE_ID);
  *
  *     if (dlcache.hasData()) {
- *        dlcache.append();
+ *       dlcache.append();
  *     } else {
- *        // Add stuff to the DL
- *        dlcache.store();
+ *       // Add stuff to the DL
+ *       dlcache.store();
  *     }
  */
 class DLCache {

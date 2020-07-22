@@ -28,7 +28,9 @@
 #define BOARD_INFO_NAME      "RemRam v1"
 #define DEFAULT_MACHINE_NAME "RemRam"
 
-#define SRAM_EEPROM_EMULATION                     // Emulate the EEPROM using Backup SRAM
+#if NO_EEPROM_SELECTED
+  #define SRAM_EEPROM_EMULATION                   // Emulate the EEPROM using Backup SRAM
+#endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
   #error "RemRam supports only one hotend / E-stepper."
@@ -99,7 +101,9 @@
 #endif
 #define FAN1_PIN                              32  // "FAN2"
 
-#define ORIG_E0_AUTO_FAN_PIN                  32  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     32
+#endif
 
 //
 // Servos

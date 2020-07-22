@@ -14,7 +14,6 @@
         "0x3748"
       ]
     ],
-    "ldscript": "stm32f407xg.ld",
     "mcu": "stm32f407zgt6",
     "variant": "FLY_F407ZG"
   },

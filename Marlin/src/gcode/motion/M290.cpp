@@ -41,14 +41,10 @@
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   FORCE_INLINE void mod_probe_offset(const float &offs) {
-    if (true
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        && active_extruder == 0
-      #endif
-    ) {
+    if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET STR_Z ": ", probe.offset.z);
+      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)

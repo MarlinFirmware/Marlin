@@ -42,9 +42,7 @@ Nozzle nozzle;
    * @param strokes number of strokes to execute
    */
   void Nozzle::stroke(const xyz_pos_t &start, const xyz_pos_t &end, const uint8_t &strokes) {
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t oldpos = current_position;
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t oldpos = current_position);
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
@@ -59,9 +57,7 @@ Nozzle nozzle;
       do_blocking_move_to_xy(start);
     }
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(oldpos);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
   }
 
   /**
@@ -77,9 +73,7 @@ Nozzle nozzle;
     const xy_pos_t diff = end - start;
     if (!diff.x || !diff.y) return;
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t back = current_position;
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
 
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
       do_blocking_move_to_xy(start);
@@ -108,9 +102,7 @@ Nozzle nozzle;
       }
     }
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(back);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
   }
 
   /**
@@ -124,15 +116,8 @@ Nozzle nozzle;
   void Nozzle::circle(const xyz_pos_t &start, const xyz_pos_t &middle, const uint8_t &strokes, const float &radius) {
     if (strokes == 0) return;
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      const xyz_pos_t back = current_position;
-    #endif
-
-    #if ENABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to_xy(start);
-    #else
-      do_blocking_move_to(start);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, const xyz_pos_t back = current_position);
+    TERN(NOZZLE_CLEAN_NO_Z, do_blocking_move_to_xy, do_blocking_move_to)(start);
 
     LOOP_L_N(s, strokes)
       LOOP_L_N(i, NOZZLE_CLEAN_CIRCLE_FN)
@@ -144,9 +129,7 @@ Nozzle nozzle;
     // Let's be safe
     do_blocking_move_to_xy(start);
 
-    #if ENABLED(NOZZLE_CLEAN_GOBACK)
-      do_blocking_move_to(back);
-    #endif
+    TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(back));
   }
 
   /**
@@ -159,22 +142,50 @@ Nozzle nozzle;
   void Nozzle::clean(const uint8_t &pattern, const uint8_t &strokes, const float &radius, const uint8_t &objects, const uint8_t cleans) {
     xyz_pos_t start[HOTENDS] = NOZZLE_CLEAN_START_POINT, end[HOTENDS] = NOZZLE_CLEAN_END_POINT, middle[HOTENDS] = NOZZLE_CLEAN_CIRCLE_MIDDLE;
 
+    const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
+
+    #if HAS_SOFTWARE_ENDSTOPS
+
+      #define LIMIT_AXIS(A) do{ \
+        LIMIT( start[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+        LIMIT(middle[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+        LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
+      }while(0)
+
+      if (soft_endstops_enabled) {
+
+        LIMIT_AXIS(x);
+        LIMIT_AXIS(y);
+        LIMIT_AXIS(z);
+        const bool radiusOutOfRange = (middle[arrPos].x + radius > soft_endstop.max.x)
+                                   || (middle[arrPos].x - radius < soft_endstop.min.x)
+                                   || (middle[arrPos].y + radius > soft_endstop.max.y)
+                                   || (middle[arrPos].y - radius < soft_endstop.min.y);
+        if (radiusOutOfRange && pattern == 2) {
+          SERIAL_ECHOLNPGM("Warning: Radius Out of Range");
+          return;
+        }
+
+      }
+
+    #endif
+
     if (pattern == 2) {
       if (!(cleans & (_BV(X_AXIS) | _BV(Y_AXIS)))) {
-        SERIAL_ECHOLNPGM("Warning : Clean Circle requires XY");
+        SERIAL_ECHOLNPGM("Warning: Clean Circle requires XY");
         return;
       }
     }
     else {
-      if (!TEST(cleans, X_AXIS)) start[active_extruder].x = end[active_extruder].x = current_position.x;
-      if (!TEST(cleans, Y_AXIS)) start[active_extruder].y = end[active_extruder].y = current_position.y;
+      if (!TEST(cleans, X_AXIS)) start[arrPos].x = end[arrPos].x = current_position.x;
+      if (!TEST(cleans, Y_AXIS)) start[arrPos].y = end[arrPos].y = current_position.y;
     }
-    if (!TEST(cleans, Z_AXIS)) start[active_extruder].z = end[active_extruder].z = current_position.z;
+    if (!TEST(cleans, Z_AXIS)) start[arrPos].z = end[arrPos].z = current_position.z;
 
     switch (pattern) {
-       case 1: zigzag(start[active_extruder], end[active_extruder], strokes, objects); break;
-       case 2: circle(start[active_extruder], middle[active_extruder], strokes, radius);  break;
-      default: stroke(start[active_extruder], end[active_extruder], strokes);
+       case 1: zigzag(start[arrPos], end[arrPos], strokes, objects); break;
+       case 2: circle(start[arrPos], middle[arrPos], strokes, radius);  break;
+      default: stroke(start[arrPos], end[arrPos], strokes);
     }
   }
 
@@ -194,11 +205,22 @@ Nozzle nozzle;
         do_blocking_move_to_z(_MIN(current_position.z + park.z, Z_MAX_POS), fr_z);
         break;
 
-      default: // Raise to at least the Z-park height
-        do_blocking_move_to_z(_MAX(park.z, current_position.z), fr_z);
+      default: {
+        // Apply a minimum raise, overriding G27 Z
+        const float min_raised_z =_MIN(Z_MAX_POS, current_position.z
+          #ifdef NOZZLE_PARK_Z_RAISE_MIN
+            + NOZZLE_PARK_Z_RAISE_MIN
+          #endif
+        );
+        do_blocking_move_to_z(_MAX(park.z, min_raised_z), fr_z);
+      } break;
     }
 
-    do_blocking_move_to_xy(park, fr_xy);
+    do_blocking_move_to_xy(
+      TERN(NOZZLE_PARK_Y_ONLY, current_position, park).x,
+      TERN(NOZZLE_PARK_X_ONLY, current_position, park).y,
+      fr_xy
+    );
 
     report_current_position();
   }

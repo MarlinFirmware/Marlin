@@ -72,7 +72,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
         w.text_field(0, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
         w.text_field(0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif

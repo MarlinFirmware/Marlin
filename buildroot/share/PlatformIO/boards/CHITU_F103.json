@@ -1,0 +1,48 @@
+{
+  "build": {
+    "core": "maple",
+    "cpu": "cortex-m3",
+    "extra_flags": "-DSTM32F103xE -DSTM32F1",
+    "f_cpu": "72000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x1EAF",
+        "0x0004"
+      ]
+    ],
+    "mcu": "stm32f103zet6",
+    "variant": "CHITU_F103",
+    "ldscript": "chitu_f103.ld"
+  },
+  "debug": {
+    "jlink_device": "STM32F103ZE",
+    "openocd_target": "stm32f1x",
+    "svd_path": "STM32F103xx.svd"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "CHITU STM32F103Z (64k RAM. 512k Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 60536,
+    "maximum_size": 480288,
+    "protocol": "stlink",
+    "protocols": [
+      "jlink",
+      "stlink",
+      "blackmagic",
+      "serial",
+      "dfu"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "http://www.st.com/en/microcontrollers/stm32f103ze.html",
+  "vendor": "Generic"
+}

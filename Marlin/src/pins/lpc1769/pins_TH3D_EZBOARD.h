@@ -33,12 +33,6 @@
 #define BOARD_WEBSITE_URL "th3dstudio.com"
 
 //
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
-
-//
 // Servos
 //
 #define SERVO0_PIN                         P2_04
@@ -131,9 +125,15 @@
 // Auto fans
 //
 #define AUTO_FAN_PIN                       P1_22  // FET 3
-#define ORIG_E0_AUTO_FAN_PIN        AUTO_FAN_PIN
-#define ORIG_E1_AUTO_FAN_PIN        AUTO_FAN_PIN
-#define ORIG_E2_AUTO_FAN_PIN        AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // SD Card

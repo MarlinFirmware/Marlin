@@ -47,17 +47,9 @@
 #endif
 
 bool leveling_is_valid() {
-  return
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.has_mesh()
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      !!bilinear_grid_spacing.x
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.mesh_is_valid()
-    #else // 3POINT, LINEAR
-      true
-    #endif
-  ;
+  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
+      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bilinear_grid_spacing.x)
+      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
 }
 
 /**
@@ -69,11 +61,7 @@ bool leveling_is_valid() {
  */
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    const bool can_change = (!enable || leveling_is_valid());
-  #else
-    constexpr bool can_change = true;
-  #endif
+  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
 
   if (can_change && enable != planner.leveling_active) {
 
@@ -145,9 +133,7 @@ void reset_bed_level() {
       bilinear_grid_spacing.reset();
       GRID_LOOP(x, y) {
         z_values[x][y] = NAN;
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(x, y, 0);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, 0));
       }
     #elif ABL_PLANAR
       planner.bed_level_matrix.set_to_identity();
@@ -245,9 +231,7 @@ void reset_bed_level() {
 
     current_position = pos;
 
-    #if ENABLED(LCD_BED_LEVELING)
-      ui.wait_for_move = false;
-    #endif
+    TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
   }
 
 #endif

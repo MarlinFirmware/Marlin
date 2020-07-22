@@ -38,11 +38,13 @@
 //
 #define DISABLE_DEBUG
 
-#define FLASH_EEPROM_EMULATION
-// 2K in a AT24C16N
-#define EEPROM_PAGE_SIZE      (uint16)0x800 // 2048
-#define EEPROM_START_ADDRESS  ((uint32)(0x8000000 + 512 * 1024 - 2 * EEPROM_PAGE_SIZE))
-#define E2END (EEPROM_PAGE_SIZE - 1)
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  // 2K in a AT24C16N
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#endif
 
 //
 // Note: MKS Robin mini board is using SPI2 interface.
@@ -124,8 +126,6 @@
   #define FSMC_RS_PIN                       PD11  // A0
 
   #define LCD_RESET_PIN                     PC6
-  #define NO_LCD_REINIT                           // Suppress LCD re-initialization
-
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #if ENABLED(TOUCH_BUTTONS)

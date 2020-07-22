@@ -124,9 +124,7 @@ bool BLTouch::deploy_proc() {
   }
 
   // One of the recommended ANTClabs ways to probe, using SW MODE
-  #if ENABLED(BLTOUCH_FORCE_SW_MODE)
-   _set_SW_mode();
-  #endif
+  TERN_(BLTOUCH_FORCE_SW_MODE, _set_SW_mode());
 
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse

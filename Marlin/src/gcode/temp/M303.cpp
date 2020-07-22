@@ -25,6 +25,7 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
+#include "../../lcd/ultralcd.h"
 #include "../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -59,34 +60,26 @@ void GcodeSuite::M303() {
     }
   #endif
 
-  #if ENABLED(PIDTEMPBED)
-    #define SI H_BED
-  #else
-    #define SI H_E0
-  #endif
-  #if ENABLED(PIDTEMP)
-    #define EI HOTENDS - 1
-  #else
-    #define EI H_BED
-  #endif
+  #define SI TERN(PIDTEMPBED, H_BED, H_E0)
+  #define EI TERN(PIDTEMP, HOTENDS - 1, H_BED)
   const heater_ind_t e = (heater_ind_t)parser.intval('E');
   if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
-    #if ENABLED(EXTENSIBLE_UI)
-      ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM);
-    #endif
+    TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
     return;
   }
 
   const int c = parser.intval('C', 5);
   const bool u = parser.boolval('U');
-  const int16_t temp = parser.celsiusval('S', e < 0 ? 70 : 150);
+  const int16_t temp = parser.celsiusval('S', e < 0 ? PREHEAT_1_TEMP_BED : PREHEAT_1_TEMP_HOTEND);
 
   #if DISABLED(BUSY_WHILE_HEATING)
     KEEPALIVE_STATE(NOT_BUSY);
   #endif
 
+  ui.set_status(GET_TEXT(MSG_PID_AUTOTUNE));
   thermalManager.PID_autotune(temp, e, c, u);
+  ui.reset_status();
 }
 
 #endif // HAS_PID_HEATING

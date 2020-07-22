@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#include <stdint.h>
+
 /**
  * DGUSVPVariable.h
  *

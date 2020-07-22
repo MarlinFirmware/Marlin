@@ -38,10 +38,15 @@
 // Defines
 // ------------------------
 
-#define MULTIPLE_NEOPIXEL_TYPES (defined(NEOPIXEL2_TYPE) && (NEOPIXEL2_TYPE != NEOPIXEL_TYPE))
+#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE
+  #define MULTIPLE_NEOPIXEL_TYPES 1
+#endif
 
-#define NEOPIXEL_IS_RGB  (NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR)
-#define NEOPIXEL_IS_RGBW !NEOPIXEL_IS_RGB
+#if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
+  #define NEOPIXEL_IS_RGB 1
+#else
+  #define NEOPIXEL_IS_RGBW 1
+#endif
 
 #if NEOPIXEL_IS_RGB
   #define NEO_WHITE 255, 255, 255, 0
@@ -60,6 +65,7 @@ private:
       , adaneo2
     #endif
   ;
+  static int8_t neoindex;
 
 public:
   static void init();
@@ -67,29 +73,26 @@ public:
 
   static void set_color(const uint32_t c);
 
+  FORCE_INLINE static void set_neo_index(const int8_t neoIndex) { neoindex = neoIndex; }
+  FORCE_INLINE static int8_t get_neo_index() { return neoindex; }
+
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     static void set_color_background();
   #endif
 
   static inline void begin() {
     adaneo1.begin();
-    #if MULTIPLE_NEOPIXEL_TYPES
-      adaneo2.begin();
-    #endif
+    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.begin());
   }
 
   static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
     adaneo1.setPixelColor(n, c);
-    #if MULTIPLE_NEOPIXEL_TYPES
-      adaneo2.setPixelColor(n, c);
-    #endif
+    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
   }
 
   static inline void set_brightness(const uint8_t b) {
     adaneo1.setBrightness(b);
-    #if MULTIPLE_NEOPIXEL_TYPES
-      adaneo2.setBrightness(b);
-    #endif
+    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setBrightness(b));
   }
 
   static inline void show() {

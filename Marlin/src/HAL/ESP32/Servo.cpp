@@ -61,9 +61,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[channel]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 #endif // HAS_SERVOS

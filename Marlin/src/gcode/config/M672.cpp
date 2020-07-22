@@ -51,8 +51,8 @@
  *   Marlin: M672 R
  */
 
-#define M672_PROGBYTE    105								// magic byte to start programming custom sensitivity
-#define M672_ERASEBYTE   131								// magic byte to clear custom sensitivity
+#define M672_PROGBYTE    105                // magic byte to start programming custom sensitivity
+#define M672_ERASEBYTE   131                // magic byte to clear custom sensitivity
 
 //
 // Smart Effector byte send protocol:

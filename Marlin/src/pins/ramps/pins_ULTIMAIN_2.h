@@ -98,7 +98,9 @@
   #define FAN_PIN                              7
 #endif
 
-#define ORIG_E0_AUTO_FAN_PIN                  77
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     77
+#endif
 
 //
 // Misc. Functions

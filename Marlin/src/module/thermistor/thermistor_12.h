@@ -22,7 +22,7 @@
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 4700 K, 4.7 kOhm pull-up, (personal calibration for Makibox hot bed)
-const short temptable_12[][2] PROGMEM = {
+const temp_entry_t temptable_12[] PROGMEM = {
   { OV(  35), 180 }, // top rating 180C
   { OV( 211), 140 },
   { OV( 233), 135 },

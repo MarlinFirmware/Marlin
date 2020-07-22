@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_BED_PROBE
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_BED_PROBE)
 
 #include "screens.h"
 

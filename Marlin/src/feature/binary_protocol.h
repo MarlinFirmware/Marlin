@@ -32,7 +32,7 @@
 inline bool bs_serial_data_available(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.available();
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       case 1: return MYSERIAL1.available();
     #endif
   }
@@ -42,7 +42,7 @@ inline bool bs_serial_data_available(const uint8_t index) {
 inline int bs_read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       case 1: return MYSERIAL1.read();
     #endif
   }
@@ -82,9 +82,7 @@ private:
     }
     transfer_active = true;
     data_waiting = 0;
-    #if ENABLED(BINARY_STREAM_COMPRESSION)
-      heatshrink_decoder_reset(&hsd);
-    #endif
+    TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_reset(&hsd));
     return true;
   }
 
@@ -127,9 +125,7 @@ private:
       card.closefile();
       card.release();
     }
-    #if ENABLED(BINARY_STREAM_COMPRESSION)
-      heatshrink_decoder_finish(&hsd);
-    #endif
+    TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_finish(&hsd));
     transfer_active = false;
     return true;
   }
@@ -139,9 +135,7 @@ private:
       card.closefile();
       card.removeFile(card.filename);
       card.release();
-      #if ENABLED(BINARY_STREAM_COMPRESSION)
-        heatshrink_decoder_finish(&hsd);
-      #endif
+      TERN_(BINARY_STREAM_COMPRESSION, heatshrink_decoder_finish(&hsd));
     }
     transfer_active = false;
     return;
