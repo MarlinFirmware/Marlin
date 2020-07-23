@@ -134,15 +134,13 @@ static bool ensure_safe_temperature( const bool wait=true, const PauseMode mode=
     UNUSED(mode);
   #endif
 
-  if(wait)
+  if (wait)
     return thermalManager.wait_for_hotend(active_extruder);
-  else {
-    do{
-      idle();
-    }while (thermalManager.degHotend(active_extruder) < (thermalManager.degTargetHotend(active_extruder) - TEMP_WINDOW) || thermalManager.degHotend(active_extruder) > (thermalManager.degTargetHotend(active_extruder) + TEMP_WINDOW));
-    return true;
-  }
 
+  while (ABS(thermalManager.degHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > TEMP_WINDOW)
+    idle();
+
+  return true;
 }
 
 /**
