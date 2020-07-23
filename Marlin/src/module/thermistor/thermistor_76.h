@@ -39,7 +39,7 @@
 // run my printer is 60 for PLA, so that shouldn't be an issue for this
 // application.
 
-const short temptable_76[][2] PROGMEM = {
+const temp_entry_t temptable_76[] PROGMEM = {
   { OV( 634), 120 },
   { OV( 676), 115 },
   { OV( 717), 110 },
