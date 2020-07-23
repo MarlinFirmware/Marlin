@@ -577,7 +577,7 @@ inline void calibrate_all() {
  */
 void GcodeSuite::G425() {
 
-  #if defined(CALIBRATION_SCRIPT_PRE)
+  #ifdef CALIBRATION_SCRIPT_PRE
     GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
   #endif
 
@@ -612,7 +612,7 @@ void GcodeSuite::G425() {
   else
     calibrate_all();
 
-  #if defined(CALIBRATION_SCRIPT_POST)
+  #ifdef CALIBRATION_SCRIPT_POST
     GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));
   #endif
 }
