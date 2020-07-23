@@ -97,9 +97,14 @@
   #define Y_HARDWARE_SERIAL  Serial1
   #define Z_HARDWARE_SERIAL  Serial1
   #define E0_HARDWARE_SERIAL Serial1
-  #define TMC_SERIAL_MULTIPLEXER
-  #define SERIAL_MUL_PIN1                   PB13
-  #define SERIAL_MUL_PIN2                   PB12
+
+  // 4*TMC2209 module don't have serial multiplexer,
+  // And need to set *_SLAVE_ADDRESS in configuration_adv.h for X,Y,Z,E0
+  #if HAS_DRIVER(TMC2208)
+    #define TMC_SERIAL_MULTIPLEXER
+    #define SERIAL_MUL_PIN1                 PB13
+    #define SERIAL_MUL_PIN2                 PB12
+  #endif
 
 #endif
 
