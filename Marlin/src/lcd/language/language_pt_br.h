@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -36,10 +36,17 @@ namespace Language_pt_br {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("Portuguese (BR)");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT(" pronto.");
-
+  PROGMEM Language_Str MSG_YES                             = _UxGT("SIM");
+  PROGMEM Language_Str MSG_NO                              = _UxGT("NÃO");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("Voltar");
+  PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Abortando...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Cartão inserido");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Cartão removido");
+  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("Cartão liberado");
+  PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Aguardando cartão");
+  PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Erro de leitura");
+  PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB removido");
+  PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB falhou");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Fins de curso");
   PROGMEM Language_Str MSG_LCD_SOFT_ENDSTOPS               = _UxGT("Soft Fins curso");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principal");
@@ -62,20 +69,23 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Compensar origem");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Alteração aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ajustar Origem");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Extrusora ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ajustar ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Extrusora ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Extrusora ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Pre-aq.Todo ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Pre-aq.Mesa ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ajustar ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Extrusora ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Extrusora ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq.Todo ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq.Mesa ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Ajustar ") PREHEAT_1_LABEL;
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Pre-aquecer $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Pre-aquecer $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Extrusora $");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Extrusora $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Pre-aq.Todo $");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Pre-aq.Mesa $");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Ajustar $");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Customizar Pre-aq.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Esfriar");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ligar");
@@ -87,13 +97,16 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Nivelar Mesa");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Nivelar Cantos");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Próximo Canto");
+  PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor de Malha");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Editar Malha");
   PROGMEM Language_Str MSG_EDITING_STOPPED                 = _UxGT("Fim da Edição");
+  PROGMEM Language_Str MSG_PROBING_MESH                    = _UxGT("Sondando ponto");
   PROGMEM Language_Str MSG_MESH_X                          = _UxGT("Índice X");
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Índice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valor Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comando customizado");
-
+  PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Teste de sonda");
+  PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Ponto");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
   PROGMEM Language_Str MSG_IDEX_MODE_AUTOPARK              = _UxGT("Auto-Estacionar");
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplicação");
@@ -102,7 +115,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2o bico X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2o bico Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2o bico Z");
-
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("Executando G29");
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Ferramentas UBL");
   PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Nivel. Mesa Unif.");
@@ -114,24 +126,28 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_ACTIVATE_MESH               = _UxGT("Ativar UBL");
   PROGMEM Language_Str MSG_UBL_DEACTIVATE_MESH             = _UxGT("Desativar UBL");
   PROGMEM Language_Str MSG_UBL_SET_TEMP_BED                = _UxGT("Temp. Mesa");
-  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Bed Temp");
+  PROGMEM Language_Str MSG_UBL_BED_TEMP_CUSTOM             = _UxGT("Temp. Mesa");
   PROGMEM Language_Str MSG_UBL_SET_TEMP_HOTEND             = _UxGT("Temp. Extrusora");
-  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Hotend Temp");
+  PROGMEM Language_Str MSG_UBL_HOTEND_TEMP_CUSTOM          = _UxGT("Temp. Extrusora");
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Editar Malha");
   PROGMEM Language_Str MSG_UBL_EDIT_CUSTOM_MESH            = _UxGT("Editar Malha Custom");
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Ajuste Fino da Malha");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Fim da Edição");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Montar Malha Custom");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Montar ");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Montar ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Montar ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Montar $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Checar $");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Montar Malha fria");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajustar Altura");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Quant. de Altura");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Validar Malha");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Checar ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Checar ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Validar Malha Custom");
+  PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Aquecendo Mesa");
+  PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Aquecendo Ext.");
+  PROGMEM Language_Str MSG_G26_CANCELED                    = _UxGT("G26 Cancelado");
+  PROGMEM Language_Str MSG_G26_LEAVING                     = _UxGT("G26 Saindo");
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Continuar Malha");
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Nivelação da Malha");
   PROGMEM Language_Str MSG_UBL_3POINT_MESH_LEVELING        = _UxGT("Nivelação 3 pontos");
@@ -161,6 +177,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_UBL_NO_STORAGE                  = _UxGT("Sem armazenamento");
   PROGMEM Language_Str MSG_UBL_SAVE_ERROR                  = _UxGT("Erro ao salvar UBL");
   PROGMEM Language_Str MSG_UBL_RESTORE_ERROR               = _UxGT("Erro no restauro UBL");
+  PROGMEM Language_Str MSG_UBL_Z_OFFSET                    = _UxGT("Compensação Z: ");
   PROGMEM Language_Str MSG_UBL_Z_OFFSET_STOPPED            = _UxGT("Compensação Z parou");
   PROGMEM Language_Str MSG_UBL_STEP_BY_STEP_MENU           = _UxGT("UBL passo a passo");
   PROGMEM Language_Str MSG_UBL_1_BUILD_COLD_MESH           = _UxGT("1.Montar Malha fria");
@@ -189,6 +206,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("Intensidade Azul");
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("Intensidade Branco");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Brilho");
+
   PROGMEM Language_Str MSG_MOVING                          = _UxGT("Movendo...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Liberar XY");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Mover X");
@@ -260,9 +278,22 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Informações");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Ajustar");
+  PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Iniciar Impressão");
+  PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("Prox.");
+  PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("Iniciar");
+  PROGMEM Language_Str MSG_BUTTON_STOP                     = _UxGT("Parar");
+  PROGMEM Language_Str MSG_BUTTON_PRINT                    = _UxGT("Imprimir");
+  PROGMEM Language_Str MSG_BUTTON_RESET                    = _UxGT("Resetar");
+  PROGMEM Language_Str MSG_BUTTON_CANCEL                   = _UxGT("Cancelar");
+  PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Pronto");
+  PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Voltar");
+  PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Continuar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausar impressão");
-  PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resumir impressão");
+  PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Continuar impressão");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Parar impressão");
+  PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Imprimindo objeto");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancelar Objeto");
+  PROGMEM Language_Str MSG_CANCEL_OBJECT_N                 = _UxGT("Cancelar Objeto =");
   PROGMEM Language_Str MSG_OUTAGE_RECOVERY                 = _UxGT("Recuperar Impressão");
   PROGMEM Language_Str MSG_MEDIA_MENU                      = _UxGT("Imprimir do SD");
   PROGMEM Language_Str MSG_NO_MEDIA                        = _UxGT("Sem cartão SD");
@@ -284,43 +315,54 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("Des-RetTroca V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Retração Automática");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Distancia Retração");
+  PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Distancia Purga");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Mudar Ferramenta");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Levantar Z");
   PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Preparar Veloc.");
   PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Veloc. Retração");
+  PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Standby bico");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar Filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar Filamento *");
+  PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Carregar Filamento");
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Carregar Filamento *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Descarreg. Filamento");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Descarreg. Filamento *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Descarregar Todos");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Iniciar SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar SD");
+  PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("Liberar SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda fora da mesa");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Fator de Cisalho");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Testar BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reiniciar BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Estender BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Recolher BLTouch");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Estender BLTouch");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Estender Sonda-Z");
   PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Recolher Sonda-Z");
-
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Home %s%s%s Primeiro");
+  PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Compensar Sonda");
+  PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Compensar Sonda em X");
+  PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Compensar Sonda em Y");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Compensar Sonda em Z");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Passinho X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Passinho Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Passinho Z");
+  PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Abortar Fim de Curso");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Aquecer mesa falhou");
+  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Aquecer câmara falhou");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Erro:Temp Redundante");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ESCAPE TÉRMICO");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ESCAPE TÉRMICO MESA");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ESCAPE TÉRMICO CAMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Erro:Temp Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Erro:Temp Mínima");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Erro:Temp Mesa Máx");
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:Temp Mesa Mín");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY Primeiro");
+  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Máx");
+  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Min");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PAROU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Favor resetar");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");
@@ -330,12 +372,13 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Resfriando...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Aquecendo mesa...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Esfriando mesa...");
+  PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Aquecendo Câmara...");
+  PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Esfriando Câmara...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibrar Delta");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Calibrar X");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Y               = _UxGT("Calibrar Y");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Calibrar Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Calibrar Centro");
-
   PROGMEM Language_Str MSG_DELTA_SETTINGS                  = _UxGT("Configuração Delta");
   PROGMEM Language_Str MSG_DELTA_AUTO_CALIBRATE            = _UxGT("Auto-Calibração");
   PROGMEM Language_Str MSG_DELTA_HEIGHT_CALIBRATE          = _UxGT("Calibrar Altura");
@@ -356,9 +399,9 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_INFO_EXTRUDERS                  = _UxGT("Extrusoras");
   PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Taxa de Transmissão");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protocolo");
+
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Luz da Impressora");
   PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Intensidade Brilho");
-
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 
   #if LCD_WIDTH >= 20
@@ -380,7 +423,7 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("PSU");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Força do Motor");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Escrever EEPROM DAC");
-
+  PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER          = _UxGT("TROCA DE FILAMENTO");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("IMPRESSÃO PAUSADA");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("CARREGAR FILAMENTO");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_UNLOAD   = _UxGT("DESCARREG. FILAMENTO");
@@ -393,8 +436,34 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Falha ao sondar");
   PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muito frio");
 
+  PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ESCOLHER FILAMENTO");
+  PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
+
+  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Continuar Impressão");
+  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Continuando...");
+  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Carregar Filamento");
+  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Carregar Todos");
+  PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("Carregar para bocal");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Ejetar Filamento");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Ejetar Filamento ~");
+  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Liberar Filamento");
+  PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Carregando Fil. %i...");
+  PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Ejetando Fil. ...");
+  PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Carregando Fil....");
+  PROGMEM Language_Str MSG_MMU2_ALL                        = _UxGT("Todos");
+  PROGMEM Language_Str MSG_MMU2_FILAMENT_N                 = _UxGT("Filamento ~");
+  PROGMEM Language_Str MSG_MMU2_RESET                      = _UxGT("Resetar MMU");
+  PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Resetando MMU...");
+
+  PROGMEM Language_Str MSG_GAMES                           = _UxGT("Jogos");
+  PROGMEM Language_Str MSG_BRICKOUT                        = _UxGT("Brickout");
+  PROGMEM Language_Str MSG_INVADERS                        = _UxGT("Invaders");
+  PROGMEM Language_Str MSG_SNAKE                           = _UxGT("Sn4k3");
+  PROGMEM Language_Str MSG_MAZE                            = _UxGT("Labirinto");
+
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_2_LINE("Aperte o botão para", "continuar impressão"));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Estacionando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Esperando o", "inicio da", "troca de filamento"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_3_LINE("Coloque filamento", "pressione o botão", "para continuar..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_2_LINE("Pressione o botão", "p/ aquecer o bocal"));
@@ -406,8 +475,10 @@ namespace Language_pt_br {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Esperando impressão", "continuar"));
   #else // LCD_HEIGHT < 4
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Clique p. continuar"));
+    PROGMEM Language_Str MSG_PAUSE_PRINT_INIT              = _UxGT(MSG_1_LINE("Estacionando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_1_LINE("Aguarde..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INSERT        = _UxGT(MSG_1_LINE("Insira e Clique"));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEAT          = _UxGT(MSG_1_LINE("Clique para Aquecer"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEATING       = _UxGT(MSG_1_LINE("Aquecendo..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_UNLOAD        = _UxGT(MSG_1_LINE("Ejetando..."));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_1_LINE("Carregando..."));

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -546,6 +546,8 @@
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 #elif MB(CREALITY_V4)
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
+#elif MB(TRIGORILLA_PRO)
+  #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 
 //
 // ARM Cortex-M4F
@@ -578,14 +580,18 @@
   #include "stm32f4/pins_STEVAL_3DP001V1.h"     // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BTT_SKR_PRO_V1_2)
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BTT_GTR_V1_0)
   #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0
 #elif MB(BTT_BTT002_V1_0)
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
+#elif MB(LERDGE_S)
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
@@ -609,7 +615,6 @@
 //
 
 #elif MB(ESPRESSIF_ESP32)
-
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
 #elif MB(MRR_ESPA)
   #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -64,7 +64,7 @@
 
 #include <string.h>
 
-#if ENABLED(LCD_USE_DMA_FSMC)
+#ifdef LCD_USE_DMA_FSMC
   extern void LCD_IO_WriteReg(uint16_t Reg);
   extern void LCD_IO_WriteData(uint16_t RegValue);
   extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);

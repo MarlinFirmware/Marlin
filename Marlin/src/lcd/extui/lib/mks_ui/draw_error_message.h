@@ -16,13 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifdef __cplusplus
 extern "C" { /* C-declarations for C++ */
+#endif
+
+#ifndef PGM_P
+  #define PGM_P const char *
 #endif
 
 extern void lv_draw_error_message(PGM_P const msg);

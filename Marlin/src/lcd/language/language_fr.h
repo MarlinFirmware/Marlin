@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -70,20 +70,23 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Régl. décal origine");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Décalages appliqués");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Régler origine");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" Tout");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" lit");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Préchauffage ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Préchauffage ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" buse ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" Tout");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Préch. ") PREHEAT_2_LABEL _UxGT(" lit");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Régler préch. ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" Tout");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Préch. ") PREHEAT_1_LABEL _UxGT(" lit");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Régler préch. ") PREHEAT_1_LABEL;
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Préchauffage $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Préchauffage $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Préch. $ buse");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Préch. $ buse ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Préch. $ Tout");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Préch. $ lit");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Régler préch. $");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Préchauf. perso");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Refroidir");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Contrôle Laser");
@@ -146,15 +149,15 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_UBL_FINE_TUNE_MESH              = _UxGT("Réglage fin");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Terminer");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Créer la grille");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Créer grille ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Créer grille ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Créer grille $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Impr. grille $");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Créer grille ...");
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Mesure à froid");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajuster haut. couche");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Hauteur (x0.1mm)");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Vérifier grille");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Impr. grille ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Impr. grille ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Impr. grille ...");
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Continuer grille");
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Niveau par mailles");
@@ -369,13 +372,13 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonde Z hors lit");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Facteur écart");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Self-Test");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reset");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Ranger");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Déployer");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: Mode SW");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: Mode 5V");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: Mode OD");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Self-Test");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Ranger");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Déployer");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Mode SW");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Mode 5V");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Mode OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Appliquer Mode");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Mise en 5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Mise en OD");
@@ -399,7 +402,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("Err THERMIQUE");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err TEMP. MAX");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err TEMP. MIN");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Origine XY Premier");
 
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPR. STOPPÉE");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Redémarrer SVP");

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -84,11 +84,7 @@
     _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
   );
 
-  #if HAS_LCD_MENU
-    bool unified_bed_leveling::lcd_map_control = false;
-  #endif
-
-  volatile int unified_bed_leveling::encoder_diff;
+  volatile int16_t unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
     reset();
@@ -206,7 +202,7 @@
         if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         SERIAL_FLUSHTX();
-        idle();
+        idle_no_sleep();
       }
       if (!lcd) SERIAL_EOL();
 

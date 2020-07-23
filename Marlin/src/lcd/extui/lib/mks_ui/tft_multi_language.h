@@ -16,18 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#include "inc/tft_Language_en.h"
-#include "inc/tft_Language_s_cn.h"
-#include "inc/tft_Language_t_cn.h"
-#include "inc/tft_Language_ru.h"
-#include "inc/tft_Language_fr.h"
-#include "inc/tft_Language_sp.h"
-#include "inc/tft_Language_it.h"
+#include "tft_Language_en.h"
+#include "tft_Language_s_cn.h"
+#include "tft_Language_t_cn.h"
+#include "tft_Language_ru.h"
+#include "tft_Language_fr.h"
+#include "tft_Language_sp.h"
+#include "tft_Language_it.h"
 
 extern void disp_language_init();
 

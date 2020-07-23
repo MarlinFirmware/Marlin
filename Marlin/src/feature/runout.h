@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -148,7 +148,11 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return poll_runout_pins() ^ uint8_t(TERN(FIL_RUNOUT_INVERTING, 0, _BV(NUM_RUNOUT_SENSORS) - 1));
+      return poll_runout_pins()
+        #if FIL_RUNOUT_STATE == LOW
+          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
+        #endif
+      ;
     }
 };
 

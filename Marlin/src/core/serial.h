@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -285,6 +285,12 @@ extern uint8_t marlin_debug_flags;
 #define SERIAL_ECHO_SP(C)           serial_spaces(C)
 
 #define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, PSTR(PRE), PSTR(ON), PSTR(OFF), PSTR(POST))
+
+#if SERIAL_FLOAT_PRECISION
+  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
+#else
+  #define SERIAL_DECIMAL(V) SERIAL_ECHO(V)
+#endif
 
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)

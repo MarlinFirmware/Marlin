@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 // 100k hotend thermistor with 4.7k pull up to 3.3v and 220R to analog input as in GTM32 Pro vB
-const short temptable_22[][2] PROGMEM = {
+const temp_entry_t temptable_22[] PROGMEM = {
   { OV(   1), 352 },
   { OV(   6), 341 },
   { OV(  11), 330 },

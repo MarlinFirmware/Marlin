@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,11 +26,13 @@
 //  (or not) in a given .cpp file
 //
 
+#undef DEBUG_SECTION
 #undef DEBUG_PRINT_P
 #undef DEBUG_ECHO_START
 #undef DEBUG_ERROR_START
 #undef DEBUG_CHAR
 #undef DEBUG_ECHO
+#undef DEBUG_DECIMAL
 #undef DEBUG_ECHO_F
 #undef DEBUG_ECHOLN
 #undef DEBUG_ECHOPGM
@@ -50,13 +52,19 @@
 #undef DEBUG_POS
 #undef DEBUG_XYZ
 #undef DEBUG_DELAY
+#undef DEBUG_SYNCHRONIZE
 
 #if DEBUG_OUT
+
+  #include "debug_section.h"
+  #define DEBUG_SECTION(N,S,D)    SectionLog N(PSTR(S),D)
+
   #define DEBUG_PRINT_P(P)        serialprintPGM(P)
   #define DEBUG_ECHO_START        SERIAL_ECHO_START
   #define DEBUG_ERROR_START       SERIAL_ERROR_START
   #define DEBUG_CHAR              SERIAL_CHAR
   #define DEBUG_ECHO              SERIAL_ECHO
+  #define DEBUG_DECIMAL           SERIAL_DECIMAL
   #define DEBUG_ECHO_F            SERIAL_ECHO_F
   #define DEBUG_ECHOLN            SERIAL_ECHOLN
   #define DEBUG_ECHOPGM           SERIAL_ECHOPGM
@@ -76,12 +84,17 @@
   #define DEBUG_POS               SERIAL_POS
   #define DEBUG_XYZ               SERIAL_XYZ
   #define DEBUG_DELAY(ms)         serial_delay(ms)
+  #define DEBUG_SYNCHRONIZE()     planner.synchronize()
+
 #else
+
+  #define DEBUG_SECTION(...)        NOOP
   #define DEBUG_PRINT_P(P)          NOOP
   #define DEBUG_ECHO_START()        NOOP
   #define DEBUG_ERROR_START()       NOOP
   #define DEBUG_CHAR(...)           NOOP
   #define DEBUG_ECHO(...)           NOOP
+  #define DEBUG_DECIMAL(...)        NOOP
   #define DEBUG_ECHO_F(...)         NOOP
   #define DEBUG_ECHOLN(...)         NOOP
   #define DEBUG_ECHOPGM(...)        NOOP
@@ -101,6 +114,8 @@
   #define DEBUG_POS(...)            NOOP
   #define DEBUG_XYZ(...)            NOOP
   #define DEBUG_DELAY(...)          NOOP
+  #define DEBUG_SYNCHRONIZE()       NOOP
+
 #endif
 
 #undef DEBUG_OUT

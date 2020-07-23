@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
- * http://www.zahradniksebavi.cz
+ * https://www.zahradniksebavi.cz
  *
  */
 
@@ -79,20 +79,23 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Nastavit ofsety");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastaveny");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastavit počátek");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Zahřát ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Zahřát ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Zahřát ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" end ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" vše");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" podlož");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Zahřát ") PREHEAT_2_LABEL _UxGT(" nast");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Zahřát ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Zahřát ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" end ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" vše");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" podlož");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nast");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Zahřát $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Zahřát $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Zahřát $ end");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Zahřát $ end ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Zahřát $ vše");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Zahřát $ podlož");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Zahřát $ nast");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Zahřát vlastní");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Zchladit");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Ovládání laseru");
@@ -156,14 +159,14 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Konec úprav sítě");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Vlastní síť");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Vytvořit síť");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Síť bodů ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Síť bodů ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Síť bodů $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Kontrola sítě $");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Studená síť bodů");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Upravit výšku sítě");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Výška");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Zkontrolovat síť");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Kontrola sítě ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Kontrola sítě ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Kontrola vlast. sítě");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 zahřívání podl.");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 zařívání trysky");
@@ -413,7 +416,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("NÍZ. TEPL. PODL.");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP KOMORA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP KOMORA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Domů XY první");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("TISK. ZASTAVENA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Proveďte reset");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");

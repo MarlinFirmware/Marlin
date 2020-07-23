@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,9 +55,10 @@
     if (ui.encoderPosition) {
       const int16_t steps = int16_t(ui.encoderPosition) * (
         #if ENABLED(BABYSTEP_XY)
-          axis != Z_AXIS ? BABYSTEP_MULTIPLICATOR_XY :
+          axis == X_AXIS ? BABYSTEP_SIZE_X :
+          axis == Y_AXIS ? BABYSTEP_SIZE_Y :
         #endif
-        BABYSTEP_MULTIPLICATOR_Z
+        BABYSTEP_SIZE_Z
       );
       ui.encoderPosition = 0;
       ui.refresh(LCDVIEW_REDRAW_NOW);

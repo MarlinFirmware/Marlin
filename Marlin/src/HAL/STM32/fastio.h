@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -81,6 +81,7 @@ void FastIO_init(); // Must be called before using fast io macros
 #define IS_OUTPUT(IO)
 
 #define PWM_PIN(P)              digitalPinHasPWM(P)
+#define NO_COMPILE_TIME_PWM
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
