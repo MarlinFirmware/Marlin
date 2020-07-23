@@ -21,6 +21,7 @@
  */
 
 #include "tft_image.h"
+#include "cstddef"
 
 const tImage NoLogo                 = { (void *)NULL, 0, 0, NOCOLORS };
 

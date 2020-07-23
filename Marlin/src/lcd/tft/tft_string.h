@@ -23,16 +23,13 @@
 
 #include <stdint.h>
 
-extern const uint8_t ISO10646_1_5x7[1325];
-extern const uint8_t font10x20[3453];
+extern const uint8_t ISO10646_1_5x7[];
+extern const uint8_t font10x20[];
 
-extern const uint8_t Helvetica12Bold[4172];
+extern const uint8_t Helvetica12Bold[];
 
-extern const uint8_t Helvetica14_symbols[63]
-extern const uint8_t Helvetica14[5005];
-
-extern const uint8_t Helvetica18_symbols[71]
-extern const uint8_t Helvetica18[7307];
+extern const uint8_t Helvetica14[], Helvetica14_symbols[];
+extern const uint8_t Helvetica18[], Helvetica18_symbols[];
 
 #define NO_GLYPH          0xFF
 

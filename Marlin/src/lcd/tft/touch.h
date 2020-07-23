@@ -25,7 +25,7 @@
 #include "tft_color.h"
 #include "tft_image.h"
 
-#include "tft/xpt2046.h"
+#include HAL_PATH(../../HAL, tft/xpt2046.h)
 #define TOUCH_DRIVER XPT2046
 
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
@@ -166,12 +166,12 @@ class Touch {
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data = 0);
 
     static touch_calibration_t calibration;
+    static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
 
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       static calibrationState calibration_start() { calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE}; return calibration_state = CALIBRATION_POINT_1; }
       static void calibration_end() { calibration_state = CALIBRATION_NONE; }
       static calibrationState get_calibration_state() { return calibration_state; }
-      static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
     #endif // TOUCH_SCREEN_CALIBRATION
 };
 

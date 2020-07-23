@@ -28,6 +28,7 @@
 #include "st7735.h"
 #include "st7789v.h"
 #include "st7796s.h"
+#include "r65105.h"
 #include "ili9328.h"
 #include "ili9341.h"
 #include "ili9488.h"
@@ -54,6 +55,8 @@ void TFT::init() {
     write_esc_sequence(st7789v_init);
   #elif TFT_DRIVER == ST7796
     write_esc_sequence(st7796s_init);
+  #elif TFT_DRIVER == R61505
+    write_esc_sequence(r61505_init);
   #elif TFT_DRIVER == ILI9328
     write_esc_sequence(ili9328_init);
   #elif TFT_DRIVER == ILI9341
@@ -80,6 +83,10 @@ void TFT::init() {
       case ST7735:    // ST7735     160x128
         DEBUG_ECHO_MSG(" ST7735");
         write_esc_sequence(st7735_init);
+        break;
+      case R61505:    // R61505U    320x240
+        DEBUG_ECHO_MSG(" R61505U");
+        write_esc_sequence(r61505_init);
         break;
       case ILI9328:   // ILI9328    320x240
         DEBUG_ECHO_MSG(" ILI9328");
@@ -134,6 +141,7 @@ void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax)
       // RAMWR: Memory Write
       io.WriteReg(ILI9341_RAMWR);
       break;
+    case R61505:    // R61505U    320x240
     case ILI9328:   // ILI9328    320x240
       io.DataTransferBegin(DATASIZE_16BIT);
 

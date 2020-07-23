@@ -46,7 +46,7 @@ typedef struct __attribute__((__packed__)) {
 } tGlyph;
 */
 
-const uint8_t Helvetica14_symbols[63] = {
+extern const uint8_t Helvetica14_symbols[63] = {
   0,18,19,0,252,14,0,0,0,0,1,9,252,16,252,14,252, // tFont
   0,0,0,0,0,0,  // 0x01 - LCD_STR_REFRESH
   0,0,0,0,0,0,  // 0x02 - LCD_STR_FOLDER
@@ -59,7 +59,7 @@ const uint8_t Helvetica14_symbols[63] = {
   5,5,5,5,0,11,112,216,136,216,112,  // 0x09 - LCD_STR_DEGREE
 };
 
-const uint8_t Helvetica14[5005] = {
+extern const uint8_t Helvetica14[5005] = {
   0,18,19,0,252,14,2,150,6,83,32,255,252,16,252,14,252,  // tFont
   0,0,0,5,0,0,2,14,14,6,2,0,192,192,192,
   192,192,192,192,192,192,192,0,0,192,192,5,5,5,5,0,

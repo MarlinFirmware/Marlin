@@ -51,7 +51,7 @@ touch_calibration_t Touch::calibration;
 #endif
 
 void Touch::init() {
-  TERN_(TOUCH_SCREEN_CALIBRATION, calibration_reset());
+  calibration_reset();
   reset();
   io.Init();
 }

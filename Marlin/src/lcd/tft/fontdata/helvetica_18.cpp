@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-const uint8_t Helvetica18_symbols[71] = {
+extern const uint8_t Helvetica18_symbols[71] = {
   0,28,37,253,248,19,4,37,9,49,1,9,251,24,251,19,251,  // tFont
   0,0,0,0,0,0,  // 0x01 - LCD_STR_REFRESH
   0,0,0,0,0,0,  // 0x02 - LCD_STR_FOLDER
@@ -29,7 +29,7 @@ const uint8_t Helvetica18_symbols[71] = {
   7,7,7,7,0,15,56,124,198,198,198,124,56,  // 0x09 - LCD_STR_DEGREE
 };
 
-const uint8_t Helvetica18[7307] = {
+extern const uint8_t Helvetica18[7307] = {
   0,28,37,253,248,19,4,37,9,49,32,255,251,24,251,19,251,  // tFont
   0,0,0,6,0,1,2,19,19,6,2,0,192,192,192,
   192,192,192,192,192,192,192,192,192,128,128,0,0,192,192,192,
