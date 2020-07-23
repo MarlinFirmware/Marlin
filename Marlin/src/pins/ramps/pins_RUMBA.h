@@ -57,7 +57,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     32
+  #define Z_MIN_PROBE_PIN                     33
 #endif
 
 //
@@ -87,11 +87,31 @@
   #define E1_ENABLE_PIN                       27
 #endif
 
-#if E1_STEP_PIN != 29
-  #define E2_STEP_PIN                         29
-  #define E2_DIR_PIN                          28
-  #define E2_ENABLE_PIN                       39
+#ifndef E2_STEP_PIN
+  #define E2_STEP_PIN                         40
+  #define E2_DIR_PIN                          40
+  #define E2_ENABLE_PIN                       40
 #endif
+
+#ifndef E3_STEP_PIN
+  #define E3_STEP_PIN                         40
+  #define E3_DIR_PIN                          40
+  #define E3_ENABLE_PIN                       40
+#endif
+
+#ifndef E4_STEP_PIN
+  #define E4_STEP_PIN                         29
+  #define E4_DIR_PIN                          28
+  #define E4_ENABLE_PIN                       39
+#endif
+
+
+
+//#if E1_STEP_PIN != 29
+//  #define E2_STEP_PIN                         29
+//  #define E2_DIR_PIN                          28
+//  #define E2_ENABLE_PIN                       39
+//#endif
 
 //
 // Temperature Sensors
@@ -118,6 +138,12 @@
   #define TEMP_2_PIN                          13  // Analog Input (default connector for thermistor *T2* on rumba board is used)
 #endif
 
+#if TEMP_SENSOR_3 == -1
+  #define TEMP_3_PIN                           7  // Analog Input (connector *K3* on RUMBA thermocouple ADD ON is used <-- this can't be used when TEMP_SENSOR_BED is defined as thermocouple)
+#else
+  #define TEMP_3_PIN                          11  // Analog Input (default connector for thermistor *T2* on rumba board is used)
+#endif
+
 // Optional for extruder 4 or chamber:
 //#define TEMP_X_PIN                          12  // Analog Input (default connector for thermistor *T3* on rumba board is used)
 
@@ -137,14 +163,20 @@
 #define HEATER_0_PIN                           2
 #define HEATER_1_PIN                           3
 #define HEATER_2_PIN                           6
-#define HEATER_3_PIN                           8
-#define HEATER_BED_PIN                         9
+#define HEATER_3_PIN                           9
+//define HEATER_BED_PIN                         9
 
 #ifndef FAN_PIN
   #define FAN_PIN                              7
 #endif
 #ifndef FAN1_PIN
   #define FAN1_PIN                             8
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                             5
+#endif
+#ifndef FAN3_PIN
+  #define FAN3_PIN                             4
 #endif
 
 //
