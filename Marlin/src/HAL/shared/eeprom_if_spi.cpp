@@ -43,7 +43,7 @@ void eeprom_init() {}
   #define EEPROM_WRITE_DELAY    7
 #endif
 
-uint8_t eeprom_read_byte(uint8_t* pos) {
+uint8_t eeprom_read_byte(uint16_t &pos) {
   uint8_t v;
   uint8_t eeprom_temp[3];
 
@@ -61,7 +61,7 @@ uint8_t eeprom_read_byte(uint8_t* pos) {
   return v;
 }
 
-void eeprom_write_byte(uint8_t* pos, uint8_t value) {
+void eeprom_write_byte(uint16_t &pos, uint8_t value) {
   uint8_t eeprom_temp[3];
 
   /*write enable*/

@@ -25,5 +25,5 @@
 // EEPROM
 //
 void eeprom_init();
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
+void eeprom_write_byte(uint16_t &pos, unsigned char value);
+uint8_t eeprom_read_byte(uint16_t &pos);

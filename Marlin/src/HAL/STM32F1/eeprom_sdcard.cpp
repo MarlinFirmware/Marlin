@@ -71,7 +71,7 @@ bool PersistentStore::access_finish() {
   return (bytes_written == MARLIN_EEPROM_SIZE);
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(uint16_t &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++)
     HAL_eeprom_data[pos + i] = value[i];
   crc16(crc, value, size);
@@ -79,7 +79,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(uint16_t &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (size_t i = 0; i < size; i++) {
     uint8_t c = HAL_eeprom_data[pos + i];
     if (writing) value[i] = c;

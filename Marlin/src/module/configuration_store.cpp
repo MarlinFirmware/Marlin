@@ -513,7 +513,7 @@ void MarlinSettings::postprocess() {
 #if ENABLED(EEPROM_SETTINGS)
 
   #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; } \
-                                  int eeprom_index = EEPROM_OFFSET
+                                  uint16_t eeprom_index = EEPROM_OFFSET
   #define EEPROM_FINISH()         persistentStore.access_finish()
   #define EEPROM_SKIP(VAR)        (eeprom_index += sizeof(VAR))
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              }while(0)
@@ -2182,7 +2182,7 @@ void MarlinSettings::postprocess() {
       else if (!validating) {
         DEBUG_ECHO_START();
         DEBUG_ECHO(version);
-        DEBUG_ECHOLNPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET), " bytes; crc ", (uint32_t)working_crc, ")");
+        DEBUG_ECHOLNPAIR(" stored settings retrieved (", int(eeprom_index - (EEPROM_OFFSET)), " bytes; crc ", (uint32_t)working_crc, ")");
       }
 
       if (!validating && !eeprom_error) postprocess();

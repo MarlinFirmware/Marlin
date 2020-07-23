@@ -111,7 +111,7 @@ bool PersistentStore::access_finish() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(uint16_t &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   for (size_t i = 0; i < size; i++) ram_eeprom[pos + i] = value[i];
   eeprom_dirty = true;
   crc16(crc, value, size);
@@ -119,7 +119,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(uint16_t &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   const uint8_t * const buff = writing ? &value[0] : &ram_eeprom[pos];
   if (writing) for (size_t i = 0; i < size; i++) value[i] = ram_eeprom[pos + i];
   crc16(crc, buff, size);

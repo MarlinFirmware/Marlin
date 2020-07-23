@@ -38,8 +38,7 @@ void ee_write_byte(uint8_t *pos, unsigned char value) {
   HAL_FLASH_Unlock();
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
-  const unsigned eeprom_address = (unsigned)pos;
-  if (EE_WriteVariable(eeprom_address, uint16_t(value)) != EE_OK)
+  if (EE_WriteVariable(pos, uint16_t(value)) != EE_OK)
     for (;;) HAL_Delay(1); // Spin forever until watchdog reset
 
   HAL_FLASH_Lock();
@@ -47,8 +46,7 @@ void ee_write_byte(uint8_t *pos, unsigned char value) {
 
 uint8_t ee_read_byte(uint8_t *pos) {
   uint16_t data = 0xFF;
-  const unsigned eeprom_address = (unsigned)pos;
-  (void)EE_ReadVariable(eeprom_address, &data); // Data unchanged on error
+  (void)EE_ReadVariable(pos, &data); // Data unchanged on error
   return uint8_t(data);
 }
 
@@ -76,15 +74,14 @@ bool PersistentStore::access_start() {
   return true;
 }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(uint16_t &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
     // EEPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
-    if (v != ee_read_byte(p)) {
-      ee_write_byte(p, v);
-      if (ee_read_byte(p) != v) {
+    if (v != ee_read_byte(pos)) {
+      ee_write_byte(pos, v);
+      if (ee_read_byte(pos) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }
@@ -96,7 +93,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(uint16_t &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = ee_read_byte((uint8_t*)pos);
     if (writing) *value = c;

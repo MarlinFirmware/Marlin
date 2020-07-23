@@ -976,16 +976,15 @@ size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
 bool PersistentStore::access_start()  { ee_Init();  return true; }
 bool PersistentStore::access_finish() { ee_Flush(); return true; }
 
-bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
+bool PersistentStore::write_data(uint16_t &pos, const uint8_t *value, size_t size, uint16_t *crc) {
   while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
     uint8_t v = *value;
     // EEPROM has only ~100,000 write cycles,
     // so only write bytes that have changed!
-    if (v != ee_Read(uint32_t(p))) {
-      ee_Write(uint32_t(p), v);
+    if (v != ee_Read(uint32_t(pos))) {
+      ee_Write(uint32_t(pos), v);
       delay(2);
-      if (ee_Read(uint32_t(p)) != v) {
+      if (ee_Read(uint32_t(pos)) != v) {
         SERIAL_ECHO_MSG(STR_ERR_EEPROM_WRITE);
         return true;
       }
@@ -997,7 +996,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(uint16_t &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = ee_Read(uint32_t(pos));
     if (writing) *value = c;

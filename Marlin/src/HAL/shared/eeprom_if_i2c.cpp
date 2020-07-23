@@ -49,12 +49,10 @@ static constexpr uint8_t eeprom_device_address = I2C_ADDRESS(EEPROM_DEVICE_ADDRE
 // Public functions
 // ------------------------
 
-void eeprom_write_byte(uint8_t *pos, unsigned char value) {
-  const unsigned eeprom_address = (unsigned)pos;
-
+void eeprom_write_byte(uint16_t &pos, unsigned char value) {
   Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
+  Wire.write(int(pos >> 8));   // MSB
+  Wire.write(int(pos & 0xFF)); // LSB
   Wire.write(value);
   Wire.endTransmission();
 
@@ -63,12 +61,10 @@ void eeprom_write_byte(uint8_t *pos, unsigned char value) {
   delay(EEPROM_WRITE_DELAY);
 }
 
-uint8_t eeprom_read_byte(uint8_t *pos) {
-  const unsigned eeprom_address = (unsigned)pos;
-
+uint8_t eeprom_read_byte(uint16_t &pos) {
   Wire.beginTransmission(eeprom_device_address);
-  Wire.write(int(eeprom_address >> 8));   // MSB
-  Wire.write(int(eeprom_address & 0xFF)); // LSB
+  Wire.write(int(pos >> 8));   // MSB
+  Wire.write(int(pos & 0xFF)); // LSB
   Wire.endTransmission();
   Wire.requestFrom(eeprom_device_address, (byte)1);
   return Wire.available() ? Wire.read() : 0xFF;
