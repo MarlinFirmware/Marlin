@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,7 +38,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Grbl.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
@@ -2099,11 +2099,11 @@ uint32_t Stepper::block_phase_isr() {
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
         uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;    // Get the maximum rate (maximum event speed)
+        uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
           max_rate <<= 1;                                   // Try to double the rate
-          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break; // Don't exceed the estimated ISR limit
-          ++oversampling;                                   // Increase the oversampling (used for left-shift)
+          if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
+            ++oversampling;                                 // Increase the oversampling (used for left-shift)
         }
         oversampling_factor = oversampling;                 // For all timer interval calculations
       #else
@@ -2277,14 +2277,14 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
-      if (LA_steps >= 0)
+      if (LA_steps > 0)
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-      else
+      else if (LA_steps < 0)
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
     #else
-      if (LA_steps >= 0)
+      if (LA_steps > 0)
         NORM_E_DIR(stepper_extruder);
-      else
+      else if (LA_steps < 0)
         REV_E_DIR(stepper_extruder);
     #endif
 
@@ -2608,7 +2608,7 @@ void Stepper::init() {
 void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
   #if CORE_IS_XY
     // corexy positioning
-    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
     count_position.set(a + b, CORESIGN(a - b), c);
   #elif CORE_IS_XZ
     // corexz planning

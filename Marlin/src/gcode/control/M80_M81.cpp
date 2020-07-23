@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -72,9 +72,9 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(PSU_POWERUP_DELAY);
+      safe_delay(PSU_POWERUP_DELAY);
       restore_stepper_drivers();
-      TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
+      TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
     #endif
 
     TERN_(HAS_LCD_MENU, ui.reset_status());

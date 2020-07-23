@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -100,7 +100,7 @@ const uint8_t adc_pins[] = {
   #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
-  #if HAS_HEATED_CHAMBER
+  #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
@@ -154,7 +154,7 @@ enum TempPinIndex : char {
   #if HAS_HEATED_BED
     TEMP_BED,
   #endif
-  #if HAS_HEATED_CHAMBER
+  #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
@@ -344,7 +344,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
-    #if HAS_HEATED_CHAMBER
+    #if HAS_TEMP_CHAMBER
       case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
     #endif
     #if HAS_TEMP_ADC_1
