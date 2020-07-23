@@ -119,7 +119,7 @@ fil_change_settings_t fc_settings[EXTRUDERS];
  *
  * Returns 'true' if heating was completed, 'false' for abort
  */
-static bool ensure_safe_temperature( const bool wait=true, const PauseMode mode=PAUSE_MODE_SAME) {
+static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=PAUSE_MODE_SAME) {
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder)) {
