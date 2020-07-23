@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -100,9 +100,9 @@
  * M240: Trigger a camera by...
  *
  *  - CHDK                  : Emulate a Canon RC-1 with a configurable ON duration.
- *                            http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
+ *                            https://captain-slow.dk/2014/03/09/3d-printing-timelapses/
  *  - PHOTOGRAPH_PIN        : Pulse a digital pin 16 times.
- *                            See http://www.doc-diy.net/photo/rc-1_hacked/
+ *                            See https://www.doc-diy.net/photo/rc-1_hacked/
  *  - PHOTO_SWITCH_POSITION : Bump a physical switch with the X-carriage using a
  *                            configured position, delay, and retract length.
  *
