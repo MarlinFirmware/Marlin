@@ -898,8 +898,7 @@
 //#define CALIBRATION_GCODE
 #if ENABLED(CALIBRATION_GCODE)
 
-
-  //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating...\n"
+  //#define CALIBRATION_SCRIPT_PRE  "M117 Starting Auto-Calibration\nT0\nG28\nG12\nM117 Calibrating..."
   //#define CALIBRATION_SCRIPT_POST "M500\nM117 Calibration data saved"
 
   #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
