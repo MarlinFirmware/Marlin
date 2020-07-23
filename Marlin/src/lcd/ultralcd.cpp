@@ -901,23 +901,20 @@ void MarlinUI::update() {
       #if ENCODER_PULSES_PER_STEP > 1
         // When reversing the encoder direction, a movement step can be missed because
         // encoderDiff has a non-zero residual value, making the controller unresponsive.
-        // The fix clears the residual value when the encoder is reversed.
+        // The fix clears the residual value when the encoder is idle.
         // Also check if past half the threshold to compensate for missed single steps.
         static int8_t lastEncoderDiff;
-        int8_t prevDiff = lastEncoderDiff;
-        lastEncoderDiff = encoderDiff;  // Store before updating encoderDiff to save actual steps
 
-        // When not past threshold, and reversing... or past half the threshold
-        if (WITHIN(abs_diff, 1, (ENCODER_PULSES_PER_STEP) - 1)  // Not past threshold
-          && (abs_diff > (ENCODER_PULSES_PER_STEP) / 2          // Passed half the threshold? Done! Call it a full step.
-            || (ABS(encoderDiff - prevDiff) >= (ENCODER_PULSES_PER_STEP)  // A big change when abs_diff is small implies reverse
-                && ABS(prevDiff) < (ENCODER_PULSES_PER_STEP)    // ...especially when starting from a partial or no step.
-               )
-             )
-        ) {
+        // Timeout? No decoder change since last check. 10 or 20 times per second.
+        if (encoderDiff == lastEncoderDiff && abs_diff <= (ENCODER_PULSES_PER_STEP) / 2 ) {
+          encoderDiff = 0;  // Clear residual value
+        } else
+        // Passed half the threshold?
+        if (WITHIN(abs_diff, (ENCODER_PULSES_PER_STEP) / 2 + 1, (ENCODER_PULSES_PER_STEP) - 1)) {
           abs_diff = ENCODER_PULSES_PER_STEP;
           encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;  // Treat as full step
         }
+        lastEncoderDiff = encoderDiff;
       #endif
 
       const bool encoderPastThreshold = (abs_diff >= (ENCODER_PULSES_PER_STEP));
