@@ -2212,8 +2212,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
   + ENABLED(FSMC_GRAPHICAL_TFT) \
-  + ENABLED(TFT_LVGL_UI) \
-  + ENABLED(SPI_GRAPHICAL_TFT)
+  + ENABLED(TFT_LVGL_UI)
   #error "Please select no more than one LCD controller option."
 #endif
 
