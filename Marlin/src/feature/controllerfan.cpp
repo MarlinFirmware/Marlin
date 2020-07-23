@@ -64,7 +64,7 @@ void ControllerFan::update() {
         )
       ) || (
         DISABLED(CONTROLLER_FAN_USE_Z_ONLY) &&
-        ( MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
+        (    MOTOR_IS_ON(X,X) || MOTOR_IS_ON(Y,Y)
           || TERN0(HAS_X2_ENABLE, MOTOR_IS_ON(X2,X))
           || TERN0(HAS_Y2_ENABLE, MOTOR_IS_ON(Y2,Y))
           #if E_STEPPERS
