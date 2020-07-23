@@ -150,6 +150,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(75) // beta25 = 4100 K, R25 = 100 kOhm, Pull-up = 4.7 kOhm, "MGB18-104F39050L32 thermistor"
   #include "thermistor_75.h"
 #endif
+#if ANY_THERMISTOR_IS(76) // unknown thermistor in 600W pad
+  #include "thermistor_76.h"
+#endif
 #if ANY_THERMISTOR_IS(99) // 100k bed thermistor with a 10K pull-up resistor (on some Wanhao i3 models)
   #include "thermistor_99.h"
 #endif
