@@ -10,3 +10,7 @@ env.Append(CXXFLAGS=[
   #"-Wno-maybe-uninitialized",
   #"-Wno-sign-compare"
 ])
+
+env.Append(LINKFLAGS=[
+	"-Wl,--start-group"
+])
