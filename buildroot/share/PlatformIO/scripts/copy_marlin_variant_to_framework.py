@@ -15,19 +15,6 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
 variant = board.get("build.variant")
-variant_dir = ' +<buildroot/share/PlatformIO/variants/' + variant + '>';
-src_filter = env.get("SRC_FILTER")
-print("Starting SRC Filter:", env.get("SRC_FILTER"))
-src_filter_value = src_filter[0];
-
-src_filter_value = src_filter_value + variant_dir
-src_filter[0] = src_filter_value;
-env["SRC_FILTER"] = src_filter
-
-print("Modified SRC Filter:", env.get("SRC_FILTER"))
-
-cxx_flags = env['CXXFLAGS']
-print("CXXFLAGS", cxx_flags)
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-arduinoststm32")
 assert os.path.isdir(FRAMEWORK_DIR)
