@@ -80,6 +80,13 @@
 #define Z_PROBE_PIN                         PB1   // BLTouch IN
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    PA4   // "Pulled-high"
+#endif
+
+//
 // Steppers
 //
 #define X_ENABLE_PIN                        PC3
