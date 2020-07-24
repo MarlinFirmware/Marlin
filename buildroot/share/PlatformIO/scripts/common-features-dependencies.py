@@ -191,3 +191,7 @@ env.AddMethod(MarlinFeatureIsEnabled)
 # install all dependencies for features enabled in Configuration.h
 install_features_dependencies()
 force_ignore_unused_libs()
+
+print("Final src_filter = ", env.GetProjectOption("src_filter"))
+print("Final lib_deps = ", env.GetProjectOption("lib_deps"))
+print("Final lib_ignore = ", env.GetProjectOption("lib_ignore"))
