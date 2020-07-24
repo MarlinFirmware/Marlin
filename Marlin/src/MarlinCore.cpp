@@ -72,7 +72,7 @@
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #include "lcd/dwin/eeprom_BL24CXX.h"
+  #include "libs/BL24CXX.h"
 #endif
 
 #if ENABLED(DIRECT_STEPPING)
@@ -1171,7 +1171,7 @@ void setup() {
   #if ENABLED(IIC_BL24CXX_EEPROM)
     BL24CXX::init();
     const uint8_t err = BL24CXX::check();
-    SERIAL_ECHO_TERNARY(err, "I2C_EEPROM Check ", "failed", "succeeded", "!\n");
+    SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)

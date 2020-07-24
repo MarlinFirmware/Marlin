@@ -466,7 +466,7 @@ void MMU2::check_version() {
   }
 }
 
-static bool mmu2_not_responding() {
+static void mmu2_not_responding() {
   LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
   BUZZ(100, 659);
   BUZZ(200, 698);

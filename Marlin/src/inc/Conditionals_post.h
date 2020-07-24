@@ -50,6 +50,8 @@
     #define USE_EMULATED_EEPROM 1
   #elif ANY(I2C_EEPROM, SPI_EEPROM)
     #define USE_WIRED_EEPROM    1
+  #elif ENABLED(IIC_BL24CXX_EEPROM)
+    // nothing
   #else
     #define USE_FALLBACK_EEPROM 1
   #endif
@@ -60,6 +62,7 @@
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION
+  #undef IIC_BL24CXX_EEPROM
 #endif
 
 #ifdef TEENSYDUINO

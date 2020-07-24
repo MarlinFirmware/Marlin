@@ -23,7 +23,7 @@
 
 //
 // R25 = 200 kOhm, beta25 = 4338 K, 4.7 kOhm pull-up, ATC Semitec 204GT-2
-// Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
+// Verified by linagee. Source: https://www.mouser.com/datasheet/2/362/semitec%20usa%20corporation_gtthermistor-1202937.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 //
 const temp_entry_t temptable_2[] PROGMEM = {

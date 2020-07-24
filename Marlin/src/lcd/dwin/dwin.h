@@ -27,7 +27,7 @@
 
 #include "dwin_lcd.h"
 #include "rotary_encoder.h"
-#include "eeprom_BL24CXX.h"
+#include "../../libs/BL24CXX.h"
 
 #include <stdint.h>
 
