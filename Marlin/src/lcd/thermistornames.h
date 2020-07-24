@@ -105,7 +105,7 @@
 #elif THERMISTOR_ID == 75
   #define THERMISTOR_NAME "MGB18"
 #elif THERMISTOR_ID == 76
-  #define THERMISTOR_NAME "unknown in 600W pad"
+  #define THERMISTOR_NAME "Unknown in 600W pad"
 #elif THERMISTOR_ID == 99
   #define THERMISTOR_NAME "100k with 10k pull-up"
 
