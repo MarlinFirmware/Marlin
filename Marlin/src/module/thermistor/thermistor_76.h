@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
 
 // Values were determined by taping two type-5 thermistors to the printer bed:
 // a 12x12x1/4" slab of cast-aluminum tooling plate with the aforementioned
-// heater stuck underneath.  The thermistors were stuck to the side of the 
+// heater stuck underneath.  The thermistors were stuck to the side of the
 // bed with some kapton tape.  One was plugged into an SKR Pro 1.1 running
 // Marlin.  The other type-5 thermistor and the unknown thermistor in the
 // bed heater were connected to an Arduino Nano, programmed to write the temperature
