@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -397,6 +397,14 @@
       #define HAS_CHARACTER_LCD 1
     #endif
   #endif
+#endif
+
+#if ENABLED(SR_LCD_3W_NL)
+  // Feature checks for SR_LCD_3W_NL
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+  #define USES_LIQUIDTWI2
+#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+  #define USES_LIQUIDCRYSTAL
 #endif
 
 #if ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS)

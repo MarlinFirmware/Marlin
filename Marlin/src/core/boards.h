@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -311,6 +311,7 @@
 #define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4032  // Creality v4.x (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4033  // Trigorilla Pro (STM32F103ZET6)
 
 //
 // ARM Cortex-M4F

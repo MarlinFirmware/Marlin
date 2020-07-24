@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -590,7 +590,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES   480
+    #ifndef XPT2046_HOR_RES
       #define XPT2046_HOR_RES   480
     #endif
     #ifndef XPT2046_VER_RES

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
@@ -400,7 +400,6 @@ void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
     volatile uint16_t *p_index;
     //int res;
     char *cur_name;
-    uint16_t Color;
 
     cur_name = strrchr(path, '/');
     card.openFileRead(cur_name);
