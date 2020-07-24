@@ -24,7 +24,7 @@
  * mcp4728.cpp - Arduino library for MicroChip MCP4728 I2C D/A converter
  *
  * For implementation details, please take a look at the datasheet:
- * http://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
+ * https://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
  *
  * For discussion and feedback, please go to:
  * http://arduino.cc/forum/index.php/topic,51842.0.html

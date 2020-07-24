@@ -39,7 +39,7 @@
 
 /**
  * mostly from Microsoft document fatgen103.doc
- * http://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
+ * https://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
  */
 
 uint8_t const BOOTSIG0 = 0x55,          // Value for byte 510 of boot block or MBR
