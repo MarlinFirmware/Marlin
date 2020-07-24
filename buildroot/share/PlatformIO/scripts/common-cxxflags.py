@@ -10,3 +10,7 @@ env.Append(CXXFLAGS=[
   #"-Wno-maybe-uninitialized",
   #"-Wno-sign-compare"
 ])
+
+# to avoid ordering errors in linker
+env.Prepend(_LIBFLAGS="-Wl,--start-group ")
+env.Append(_LIBFLAGS=" -Wl,--end-group")
