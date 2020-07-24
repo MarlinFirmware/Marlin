@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -67,9 +67,9 @@
  *  http://www.hotmcu.com/43-graphical-lcd-touchscreen-480x272-spi-ft800-p-111.html?cPath=6_16
  *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-480x272-spi-ft800-p-124.html?cPath=6_16
  * Datasheet:
- *  http://www.hantronix.com/files/data/1278363262430-3.pdf
- *  http://www.haoyuelectronics.com/Attachment/HY43-LCD/LCD%20DataSheet.pdf
- *  http://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
+ *  https://www.hantronix.com/files/data/1278363262430-3.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY43-LCD/LCD%20DataSheet.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
  */
 #elif defined(LCD_HAOYU_FT800CB)
   #if !HAS_RESOLUTION
@@ -92,7 +92,7 @@
  * Settings for the Haoyu Electronics, 5" Graphical LCD Touchscreen, 800x480, SPI, FT810
  *  http://www.hotmcu.com/5-graphical-lcd-touchscreen-800x480-spi-ft810-p-286.html
  * Datasheet:
- *  http://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
+ *  https://www.haoyuelectronics.com/Attachment/HY5-LCD-HD/KD50G21-40NT-A1.pdf
  */
 #elif defined(LCD_HAOYU_FT810CB)
   #if !HAS_RESOLUTION

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,13 +26,13 @@
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
  *
- * Demonstrator: http://www.reprap.org/wiki/STB_Electronics
- * License: http://opensource.org/licenses/BSD-3-Clause
+ * Demonstrator: https://www.reprap.org/wiki/STB_Electronics
+ * License: https://opensource.org/licenses/BSD-3-Clause
  *
  * With the use of:
  *  u8glib by Oliver Kraus
  *  https://github.com/olikraus/U8glib_Arduino
- *  License: http://opensource.org/licenses/BSD-3-Clause
+ *  License: https://opensource.org/licenses/BSD-3-Clause
  */
 
 #include "../../inc/MarlinConfigPre.h"
