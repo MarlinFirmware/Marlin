@@ -27,8 +27,8 @@
 #include "draw_ui.h"
 #include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
-#include "../../../../../module/stepper/indirection.h"
-#include "../../../../../feature/tmc_util.h"
+#include "../../../../module/stepper/indirection.h"
+#include "../../../../feature/tmc_util.h"
 
 static lv_obj_t * scr;
 
