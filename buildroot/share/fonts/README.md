@@ -5,7 +5,7 @@
 The original author of the following font files is [A. Hardtung](https://github.com/AnHardt).
 
 Any copyright is dedicated to the Public Domain.
-http://creativecommons.org/publicdomain/zero/1.0/
+https://creativecommons.org/publicdomain/zero/1.0/
 
  - HD44780_C.fon ([fe2bd23](https://github.com/MarlinFirmware/Marlin/commit/fe2bd237d556439499dfdee852c1550c7a16430a))
  - HD44780_J.fon ([fe2bd23](https://github.com/MarlinFirmware/Marlin/commit/fe2bd237d556439499dfdee852c1550c7a16430a))
@@ -20,4 +20,4 @@ Additional changes to the original font files distributed with Marlin are copyri
 
 
 ## Documentation
-For detailed information about [adding new fonts](http://www.marlinfw.org/docs/development/fonts.html) to Marlin visit our documentation website.
+For detailed information about [adding new fonts](https://www.marlinfw.org/docs/development/fonts.html) to Marlin visit our documentation website.
