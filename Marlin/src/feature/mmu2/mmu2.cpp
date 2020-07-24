@@ -51,11 +51,8 @@ MMU2 mmu2;
 
 #define MMU_TODELAY 100
 #define MMU_TIMEOUT 10
-#define MMU_CMD_TIMEOUT 45000UL // 45s timeout for mmu commands (except P0 and C0 in MMU2_S_MODE)
+#define MMU_CMD_TIMEOUT 45000UL // 45s timeout for mmu commands (except P0)
 #define MMU_P0_TIMEOUT 3000UL   // Timeout for P0 command: 3seconds
-#if ENABLED(PRUSA_MMU2_S_MODE)
-  #define MMU_C0_TIMEOUT 30000UL   // Timeout for C0 command: 30seconds (MMU2 will do the retries)
-#endif
 
 #if ENABLED(MMU_EXTRUDER_SENSOR)
   uint8_t mmu_idl_sens = 0;
@@ -372,7 +369,7 @@ void MMU2::mmu_loop() {
         }
         #endif
       }
-      else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) { 
+      else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
