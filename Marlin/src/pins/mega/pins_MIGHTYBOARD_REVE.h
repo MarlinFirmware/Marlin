@@ -197,6 +197,10 @@
   #endif
 #endif
 
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN         EX2_FAN_PIN
+#endif
+
 //
 // Misc. Functions
 //
