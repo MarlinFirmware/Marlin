@@ -48,3 +48,4 @@
 #include "../../../../Marlin/Configuration_adv.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_adv.h"
+#include "../../../../Marlin/src/inc/Conditionals_post.h"
