@@ -22,22 +22,22 @@ def download_mks_assets():
 
 def copy_mks_assets():
 	print("Copying MKS Assets")
-	output_path = tempfile.TemporaryDirectory()
+	output_path = tempfile.mkdtemp()
 	zip_obj = zipfile.ZipFile(zip_path, 'r')
-	zip_obj.extractall(output_path.name)
+	zip_obj.extractall(output_path)
 	zip_obj.close()
 	if os.path.exists(assets_path) == True and os.path.isdir(assets_path) == False:
 		os.unlink(assets_path)
 	if os.path.exists(assets_path) == False:
 		os.mkdir(assets_path)
 	base_path = ''
-	for filename in os.listdir(output_path.name):
+	for filename in os.listdir(output_path):
 		base_path = filename
-	for filename in os.listdir(os.path.join(output_path.name, base_path, 'Firmware', 'mks_font')):
-		shutil.copy(os.path.join(output_path.name, base_path, 'Firmware', 'mks_font', filename), assets_path)
-	for filename in os.listdir(os.path.join(output_path.name, base_path, 'Firmware', 'mks_pic')):
-		shutil.copy(os.path.join(output_path.name, base_path, 'Firmware', 'mks_pic', filename), assets_path)
-	output_path.cleanup()
+	for filename in os.listdir(os.path.join(output_path, base_path, 'Firmware', 'mks_font')):
+		shutil.copy(os.path.join(output_path, base_path, 'Firmware', 'mks_font', filename), assets_path)
+	for filename in os.listdir(os.path.join(output_path, base_path, 'Firmware', 'mks_pic')):
+		shutil.copy(os.path.join(output_path, base_path, 'Firmware', 'mks_pic', filename), assets_path)
+	shutil.rmtree(output_path, ignore_errors=True)
 
 if os.path.exists(zip_path) == False:
 	download_mks_assets()
