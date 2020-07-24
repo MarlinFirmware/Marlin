@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -45,7 +45,7 @@ void GcodeSuite::M145() {
       if (parser.seenval('H'))
         mat.hotend_temp = constrain(parser.value_int(), EXTRUDE_MINTEMP, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT));
     #endif
-    #if TEMP_SENSOR_BED != 0
+    #if HAS_HEATED_BED
       if (parser.seenval('B'))
         mat.bed_temp = constrain(parser.value_int(), BED_MINTEMP, BED_MAX_TARGET);
     #endif
