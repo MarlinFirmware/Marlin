@@ -23,9 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../inc/MarlinConfig.h"
-#include "lvgl.h"
 #include "pic_manager.h"
+#include "lvgl.h"
+
+#include "../../../../inc/MarlinConfig.h"
 
 #if HAS_SPI_FLASH_FONT
 

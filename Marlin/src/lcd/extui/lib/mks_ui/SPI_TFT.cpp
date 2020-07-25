@@ -152,7 +152,7 @@ void TFT::SetCursor(uint16_t x, uint16_t y) {
 void TFT::SetPoint(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
 
-  SetCursor(x,y);
+  SetCursor(x, y);
 
   LCD_WriteRAM_Prepare();
   LCD_WR_DATA((uint8_t)(point >> 8));

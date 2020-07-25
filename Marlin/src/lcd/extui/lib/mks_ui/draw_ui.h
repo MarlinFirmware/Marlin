@@ -25,15 +25,15 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
+#include "lvgl.h"
+
 #include <stdint.h>
 #include <string.h>
-#include "lvgl.h"
 
 // the colors of the last MKS Ui
 #undef LV_COLOR_BACKGROUND
 #define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) // LV_COLOR_MAKE(0x00, 0x00, 0x00)
 
-#include "../../inc/MarlinConfigPre.h"
 #include "tft_multi_language.h"
 #include "draw_ready_print.h"
 #include "draw_language.h"
@@ -66,6 +66,8 @@
 #include "draw_eeprom_settings.h"
 #include "draw_max_feedrate_settings.h"
 #include "draw_tmc_step_mode_settings.h"
+
+#include "../../inc/MarlinConfigPre.h"
 
 #define TFT35
 

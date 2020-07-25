@@ -26,7 +26,6 @@
 #include "draw_ready_print.h"
 #include "draw_tool.h"
 #include "lv_conf.h"
-#include "lvgl.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
@@ -34,11 +33,12 @@
 #include "tft_lvgl_configuration.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-
-#include <stdio.h>
+#include "lvgl.h"
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+
+#include <stdio.h>
 
 //static lv_obj_t *buttonPrint,*buttonTool,*buttonSet;
 static lv_obj_t * scr;

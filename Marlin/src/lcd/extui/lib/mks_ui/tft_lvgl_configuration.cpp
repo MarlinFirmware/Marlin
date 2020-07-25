@@ -21,7 +21,7 @@
  */
 
 /**
- * @file lcd_lvgl_configuration.c
+ * @file tft_lvgl_configuration.cpp
  * @date    2020-02-21
  */
 
@@ -34,12 +34,12 @@
 #endif
 
 #include "tft_lvgl_configuration.h"
-#include "lvgl.h"
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "pic_manager.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
+#include "lvgl.h"
 
 #include "../../../../MarlinCore.h"
 #include "../../../../feature/touch/xpt2046.h"
