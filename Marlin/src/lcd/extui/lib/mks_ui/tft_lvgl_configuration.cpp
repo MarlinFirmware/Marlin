@@ -16,30 +16,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * @file lcd_lvgl_configuration.c
+ * @file tft_lvgl_configuration.cpp
  * @date    2020-02-21
  */
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
 
 #include "tft_lvgl_configuration.h"
-#include "lvgl.h"
-#include "../../../../feature/touch/xpt2046.h"
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "pic_manager.h"
-
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
+#include <lvgl.h>
+
+#include "../../../../MarlinCore.h"
+#include "../../../../feature/touch/xpt2046.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -47,26 +50,13 @@
 
 #include <SPI.h>
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
-  #include "SPI_TFT.h"
-#endif
-
-extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
-extern void LCD_IO_WriteData(uint16_t RegValue);
-extern void LCD_IO_WriteReg(uint16_t Reg);
-extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
-extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
-
 #if HAS_SPI_FLASH_FONT
   extern void init_gb2312_font();
 #endif
 
 static lv_disp_buf_t disp_buf;
 #if ENABLED(SDSUPPORT)
-  extern void UpdatePic();
-  #if HAS_SPI_FLASH_FONT
-    extern void UpdateFont();
-  #endif
+  extern void UpdateAssets();
 #endif
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
@@ -96,6 +86,13 @@ void SysTick_Callback() {
   print_time_count();
 }
 
+#if DISABLED(TFT_LVGL_UI_SPI)
+
+extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
+extern void LCD_IO_WriteData(uint16_t RegValue);
+extern void LCD_IO_WriteReg(uint16_t Reg);
+
+extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
 void tft_set_cursor(uint16_t x, uint16_t y) {
   LCD_IO_WriteReg(0x002A);
   LCD_IO_WriteData(x >> 8);
@@ -133,9 +130,9 @@ void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
   //}
   //**if ( (x>320)||(y>240) ) return;
-  tft_set_cursor(x, y); /*设置光标位置*/
+  tft_set_cursor(x, y);
 
-  LCD_WriteRAM_Prepare();   /* 开始写入GRAM*/
+  LCD_WriteRAM_Prepare();
   //LCD_WriteRAM(point);
   LCD_IO_WriteData(point);
 }
@@ -143,7 +140,7 @@ void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
 void LCD_WriteReg(uint16_t LCD_Reg, uint16_t LCD_RegValue) {
   /* Write 16-bit Index, then Write Reg */
   ClrCs
-    LCD_IO_WriteReg(LCD_Reg);
+  LCD_IO_WriteReg(LCD_Reg);
   /* Write 16-bit Reg */
   LCD_IO_WriteData(LCD_RegValue);
   SetCs
@@ -265,7 +262,6 @@ void LCD_Clear(uint16_t Color) {
 
 extern uint16_t ILI9488_ReadRAM();
 
-#if DISABLED(SPI_GRAPHICAL_TFT)
 
 void init_tft() {
   uint16_t i;
@@ -356,12 +352,10 @@ void init_tft() {
 
     LCD_IO_WriteReg(0x0036);
     //ILI9488_WriteData(0x0068);
-    //if (gCfgItems.overturn_180 != 0xEE)
-    //{
+    //if (gCfgItems.overturn_180 != 0xEE) {
     LCD_IO_WriteData(0x0068);
     //}
-    //else
-    //{
+    //else {
     //ILI9488_WriteData(0x00A8);
     //}
 
@@ -406,16 +400,22 @@ void init_tft() {
   }
 }
 
-#endif // if DISABLED(SPI_GRAPHICAL_TFT)
+#endif // !TFT_LVGL_UI_SPI
 
 extern uint8_t bmp_public_buf[17 * 1024];
+
 void tft_lvgl_init() {
+
   //uint16_t test_id=0;
   W25QXX.init(SPI_QUARTER_SPEED);
   //test_id=W25QXX.W25QXX_ReadID();
 
+  gCfgItems_init();
+  ui_cfg_init();
+  disp_language_init();
+
   //init tft first!
-  #if ENABLED(SPI_GRAPHICAL_TFT)
+  #if ENABLED(TFT_LVGL_UI_SPI)
     SPI_TFT.spi_init(SPI_FULL_SPEED);
     SPI_TFT.LCD_init();
   #else
@@ -423,20 +423,13 @@ void tft_lvgl_init() {
   #endif
 
   #if ENABLED(SDSUPPORT)
-    UpdatePic();
-    #if HAS_SPI_FLASH_FONT
-      UpdateFont();
-    #endif
+    UpdateAssets();
   #endif
+  mks_test_get();
 
-  gCfgItems_init();
-  ui_cfg_init();
-  disp_language_init();
   //spi_flash_read_test();
 
-  #if ENABLED(TOUCH_BUTTONS)
-    touch.init();
-  #endif
+  TERN_(TOUCH_BUTTONS, touch.init());
 
   lv_init();
 
@@ -465,33 +458,32 @@ void tft_lvgl_init() {
   filament_pin_setup();
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-  if (recovery.valid()) {
-    if (gCfgItems.from_flash_pic == 1)
-      flash_preview_begin = 1;
+    if (recovery.valid()) {
+      if (gCfgItems.from_flash_pic == 1)
+        flash_preview_begin = 1;
+      else
+        default_preview_flg = 1;
+
+      uiCfg.print_state = REPRINTING;
+
+      ZERO(public_buf_m);
+      strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+      card.printLongPath(public_buf_m);
+
+      strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
+
+      lv_draw_printing();
+    }
     else
-      default_preview_flg = 1;
-
-    uiCfg.print_state = REPRINTING;
-
-    memset(public_buf_m, 0, sizeof(public_buf_m));
-    strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
-    card.printLongPath(public_buf_m);
-
-    strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
-    lv_draw_printing();
-  }
-  else
   #endif
-  lv_draw_ready_print();
+    lv_draw_ready_print();
 
-  #if ENABLED(MKS_TEST)
-    Test_GPIO();
-  #endif
+  if (mks_test_flag == 0x1E)
+    mks_gpio_test();
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
-  #if ENABLED(SPI_GRAPHICAL_TFT)
+  #if ENABLED(TFT_LVGL_UI_SPI)
     uint16_t i, width, height;
     uint16_t clr_temp;
     uint8_t tbuf[480 * 2];
@@ -525,7 +517,9 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
     lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
     W25QXX.init(SPI_QUARTER_SPEED);
-  #else
+
+  #else // !TFT_LVGL_UI_SPI
+
     #if 1
       uint16_t i, width, height;
       uint16_t clr_temp;
@@ -543,7 +537,8 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
       lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
     #endif
-  #endif // SPI_GRAPHICAL_TFT
+
+  #endif // !TFT_LVGL_UI_SPI
 }
 
 #define TICK_CYCLE 1
@@ -554,7 +549,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
   #ifndef USE_XPT2046
     #define USE_XPT2046       1
@@ -564,12 +559,12 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #endif
 
   #if USE_XPT2046
-    #define XPT2046_HOR_RES   480
-    #define XPT2046_VER_RES   320
-    #define XPT2046_X_MIN     201
-    #define XPT2046_Y_MIN     164
-    #define XPT2046_X_MAX     3919
-    #define XPT2046_Y_MAX     3776
+    #define XPT2046_HOR_RES 480
+    #define XPT2046_VER_RES 320
+    #define XPT2046_X_MIN   201
+    #define XPT2046_Y_MIN   164
+    #define XPT2046_X_MAX  3919
+    #define XPT2046_Y_MAX  3776
     #define XPT2046_AVG       4
     #define XPT2046_INV       1
   #endif
@@ -579,34 +574,34 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   #ifndef USE_XPT2046
     #define USE_XPT2046       1
     #ifndef XPT2046_XY_SWAP
-      #define XPT2046_XY_SWAP   1
+      #define XPT2046_XY_SWAP 1
     #endif
     #ifndef XPT2046_X_INV
-      #define XPT2046_X_INV     0
+      #define XPT2046_X_INV   0
     #endif
     #ifndef XPT2046_Y_INV
-      #define XPT2046_Y_INV     1
+      #define XPT2046_Y_INV   1
     #endif
   #endif
 
   #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES   480
-      #define XPT2046_HOR_RES   480
+    #ifndef XPT2046_HOR_RES
+      #define XPT2046_HOR_RES 480
     #endif
     #ifndef XPT2046_VER_RES
-      #define XPT2046_VER_RES   320
+      #define XPT2046_VER_RES 320
     #endif
     #ifndef XPT2046_X_MIN
-      #define XPT2046_X_MIN     201
+      #define XPT2046_X_MIN   201
     #endif
     #ifndef XPT2046_Y_MIN
-      #define XPT2046_Y_MIN     164
+      #define XPT2046_Y_MIN   164
     #endif
     #ifndef XPT2046_X_MAX
-      #define XPT2046_X_MAX     3919
+      #define XPT2046_X_MAX  3919
     #endif
     #ifndef XPT2046_Y_MAX
-      #define XPT2046_Y_MAX     3776
+      #define XPT2046_Y_MAX  3776
     #endif
     #ifndef XPT2046_AVG
       #define XPT2046_AVG       4
@@ -637,39 +632,25 @@ static void xpt2046_corr(uint16_t *x, uint16_t *y) {
   #endif
 }
 
-#define  times  4
+#define times 4
 #define CHX   0x90
 #define CHY   0xD0
 
 int SPI2_ReadWrite2Bytes(void) {
-  volatile uint16_t ans = 0;
-  uint16_t temp = 0;
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    temp = SPI_TFT.spi_read_write_byte(0xFF);
-    ans = temp << 8;
-    temp = SPI_TFT.spi_read_write_byte(0xFF);
-    ans |= temp;
-    ans >>= 3;
-  #else
-    temp = W25QXX.spi_flash_read_write_byte(0xFF);
-    ans = temp << 8;
-    temp = W25QXX.spi_flash_read_write_byte(0xFF);
-    ans |= temp;
-    ans >>= 3;
-  #endif
-  return ans & 0x0FFF;
+  #define SPI_READ_WRITE_BYTE(B) TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
+  const uint16_t t1 = SPI_READ_WRITE_BYTE(0xFF),
+                 t2 = SPI_READ_WRITE_BYTE(0xFF);
+  return (((t1 << 8) | t2) >> 3) & 0x0FFF;
 }
 
 uint16_t x_addata[times], y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
   uint16_t i, j, k;
 
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    SPI_TFT.spi_init(SPI_QUARTER_SPEED);
-  #endif
+  TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_init, W25QXX.init)(SPI_SPEED_6);
 
   for (i = 0; i < times; i++) {
-    #if ENABLED(SPI_GRAPHICAL_TFT)
+    #if ENABLED(TFT_LVGL_UI_SPI)
       OUT_WRITE(TOUCH_CS_PIN, LOW);
       SPI_TFT.spi_read_write_byte(CHX);
       y_addata[i] = SPI2_ReadWrite2Bytes();
@@ -692,6 +673,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
     #endif
 
   }
+  TERN(TFT_LVGL_UI_SPI,,W25QXX.init(SPI_QUARTER_SPEED));
 
   for (i = 0; i < times; i++)
     for (j = i + 1; j < times; j++)
@@ -726,8 +708,10 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
 #define ADC_VALID_OFFSET  10
 
 uint8_t TOUCH_PressValid(uint16_t _usX, uint16_t _usY) {
-  if (   (_usX <= ADC_VALID_OFFSET) || (_usY <= ADC_VALID_OFFSET)
-      || (_usX >= 4095 - ADC_VALID_OFFSET) || (_usY >= 4095 - ADC_VALID_OFFSET)
+  if ( (_usX <= ADC_VALID_OFFSET)
+    || (_usY <= ADC_VALID_OFFSET)
+    || (_usX >= 4095 - ADC_VALID_OFFSET)
+    || (_usY >= 4095 - ADC_VALID_OFFSET)
   ) return 0;
   return 1;
 }
@@ -754,7 +738,7 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 
       data->state = LV_INDEV_STATE_PR;
 
-      /*Set the coordinates (if released use the last pressed coordinates)*/
+      /* Set the coordinates (if released use the last pressed coordinates) */
 
       // SERIAL_ECHOLNPAIR("antes X: ", last_x, ", y: ", last_y);
       xpt2046_corr((uint16_t *)&last_x, (uint16_t *)&last_y);
@@ -774,4 +758,4 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   return false; /*Return `false` because we are not buffering and no more data to read*/
 }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

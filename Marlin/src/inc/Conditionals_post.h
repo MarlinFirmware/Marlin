@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -50,6 +50,8 @@
     #define USE_EMULATED_EEPROM 1
   #elif ANY(I2C_EEPROM, SPI_EEPROM)
     #define USE_WIRED_EEPROM    1
+  #elif ENABLED(IIC_BL24CXX_EEPROM)
+    // nothing
   #else
     #define USE_FALLBACK_EEPROM 1
   #endif
@@ -60,6 +62,7 @@
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION
+  #undef IIC_BL24CXX_EEPROM
 #endif
 
 #ifdef TEENSYDUINO
@@ -1776,7 +1779,10 @@
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
-  #define BED_MAX_TARGET (BED_MAXTEMP - 10)
+  #ifndef BED_OVERSHOOT
+    #define BED_OVERSHOOT 10
+  #endif
+  #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
 #endif
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
@@ -2129,9 +2135,17 @@
 #endif
 
 #if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
-  #define PREHEAT_COUNT 2
-#else
-  #undef PREHEAT_COUNT
+  #ifdef PREHEAT_5_LABEL
+    #define PREHEAT_COUNT 5
+  #elif defined(PREHEAT_4_LABEL)
+    #define PREHEAT_COUNT 4
+  #elif defined(PREHEAT_3_LABEL)
+    #define PREHEAT_COUNT 3
+  #elif defined(PREHEAT_2_LABEL)
+    #define PREHEAT_COUNT 2
+  #elif defined(PREHEAT_1_LABEL)
+    #define PREHEAT_COUNT 1
+  #endif
 #endif
 
 /**

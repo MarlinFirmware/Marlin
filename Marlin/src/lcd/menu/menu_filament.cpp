@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,11 +55,19 @@ inline PGM_P _change_filament_command() {
 }
 
 // Initiate Filament Load/Unload/Change at the specified temperature
-static void _change_filament(const uint16_t celsius) {
+static void _change_filament_with_temp(const uint16_t celsius) {
   char cmd[11];
   sprintf_P(cmd, _change_filament_command(), _change_filament_extruder);
   thermalManager.setTargetHotend(celsius, _change_filament_extruder);
   queue.inject(cmd);
+}
+
+static void _change_filament_with_preset() {
+  _change_filament_with_temp(ui.material_preset[MenuItemBase::itemIndex].hotend_temp);
+}
+
+static void _change_filament_with_custom() {
+  _change_filament_with_temp(thermalManager.temp_hotend[MenuItemBase::itemIndex].target);
 }
 
 //
@@ -81,11 +89,14 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   START_MENU();
   if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
   BACK_ITEM(MSG_BACK);
-  ACTION_ITEM(MSG_PREHEAT_1, []{ _change_filament(ui.material_preset[0].hotend_temp); });
-  ACTION_ITEM(MSG_PREHEAT_2, []{ _change_filament(ui.material_preset[1].hotend_temp); });
-  EDIT_ITEM_FAST(int3, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[_change_filament_extruder].target, EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT, []{
-    _change_filament(thermalManager.temp_hotend[_change_filament_extruder].target);
-  });
+  #if PREHEAT_COUNT
+    LOOP_L_N(m, PREHEAT_COUNT)
+      ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
+  #endif
+  EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
+    EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT,
+    _change_filament_with_custom
+  );
   END_MENU();
 }
 

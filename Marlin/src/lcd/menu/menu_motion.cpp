@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -114,7 +114,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
-    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -139,9 +139,7 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      #if MULTI_MANUAL
-        MenuItemBase::init(eindex);
-      #endif
+      TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
@@ -328,12 +326,26 @@ void menu_motion() {
   #endif
 
   //
+  // Auto-calibration
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, PSTR("G425"));
+  #endif
+
+  //
   // Auto Z-Align
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
 
+  //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING)
+    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+  #endif
+  
   //
   // Level Bed
   //

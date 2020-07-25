@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,13 +26,13 @@
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
  *
- * Demonstrator: http://www.reprap.org/wiki/STB_Electronics
- * License: http://opensource.org/licenses/BSD-3-Clause
+ * Demonstrator: https://www.reprap.org/wiki/STB_Electronics
+ * License: https://opensource.org/licenses/BSD-3-Clause
  *
  * With the use of:
  *  u8glib by Oliver Kraus
  *  https://github.com/olikraus/U8glib_Arduino
- *  License: http://opensource.org/licenses/BSD-3-Clause
+ *  License: https://opensource.org/licenses/BSD-3-Clause
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -359,7 +359,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
           n -= MENU_FONT_WIDTH;
         }
 
-      n = lcd_put_u8str_ind_P(pstr, itemIndex, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
       if (valstr) n -= lcd_put_u8str_max(valstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
@@ -368,7 +368,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_wchar(' ');
@@ -376,17 +376,17 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
-      const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), data) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)data));
+      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
+                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
 
-      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
       if (vallen) {
         lcd_put_wchar(':');
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
-        if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
+        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str((char*)inStr);
       }
     }
   }
@@ -423,7 +423,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Assume the label is alpha-numeric (with a descender)
     bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex);
+    if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex, itemString);
 
     // If a value is included, print a colon, then print the value right-justified
     if (value != nullptr) {

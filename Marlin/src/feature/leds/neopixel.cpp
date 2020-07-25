@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -53,11 +53,11 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
 #endif
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
-  if (get_neo_index() >= 0) { 
+  if (get_neo_index() >= 0) {
     set_pixel_color(get_neo_index(), color);
     set_neo_index(-1);
   }
-  else { 
+  else {
     for (uint16_t i = 0; i < pixels(); ++i) {
       #ifdef NEOPIXEL_BKGD_LED_INDEX
         if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {

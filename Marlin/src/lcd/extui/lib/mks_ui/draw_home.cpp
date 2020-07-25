@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
@@ -48,8 +48,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_H_ALL:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("G28"));
@@ -57,8 +55,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_X:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("G28 X0"));
@@ -66,8 +62,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_Y:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("G28 Y0"));
@@ -75,8 +69,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_Z:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("G28 Z0"));
@@ -84,8 +76,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_OFF_ALL:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("M84"));
@@ -93,8 +83,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_OFF_XY:
       if (event == LV_EVENT_CLICKED) {
-
-
       }
       else if (event == LV_EVENT_RELEASED) {
         queue.inject_P(PSTR("M84 X Y"));
@@ -102,7 +90,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_H_RETURN:
       if (event == LV_EVENT_CLICKED) {
-
       }
       else if (event == LV_EVENT_RELEASED) {
         lv_obj_del(scr);
@@ -112,7 +99,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
   }
 }
-
 
 void lv_draw_home(void) {
   lv_obj_t *buttonHomeAll, *buttonHomeX, *buttonHomeY, *buttonHomeZ;
@@ -134,7 +120,7 @@ void lv_draw_home(void) {
   lv_obj_clean(scr);
 
   lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_lable_rel);
+  lv_obj_set_style(title, &tft_style_label_rel);
   lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
   lv_label_set_text(title, creat_title_text());
 
@@ -156,67 +142,68 @@ void lv_draw_home(void) {
   //lv_obj_set_event_cb_mks(buttonWifi, event_handler,ID_S_WIFI,"bmp_Wifi.bin",0);
   //lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_REL, &bmp_pic);
   //lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_PR, &bmp_pic);
-  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_PR, &tft_style_lable_pre);
-  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_REL, &tft_style_lable_rel);
+  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_PR, &tft_style_label_pre);
+  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_REL, &tft_style_label_rel);
   //lv_obj_clear_protect(buttonWifi, LV_PROTECT_FOLLOW);
   #if 1
-    lv_obj_set_event_cb_mks(buttonHomeAll, event_handler, ID_H_ALL, "bmp_Zero.bin", 0);
+    lv_obj_set_event_cb_mks(buttonHomeAll, event_handler,ID_H_ALL,"bmp_zero.bin",0);
     lv_imgbtn_set_src(buttonHomeAll, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHomeAll, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     lv_obj_set_event_cb_mks(buttonHomeX, event_handler, ID_H_X, "bmp_zeroX.bin", 0);
     lv_imgbtn_set_src(buttonHomeX, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHomeX, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     //lv_obj_set_event_cb_mks(buttonContinue, event_handler,ID_S_CONTINUE,"bmp_Breakpoint.bin",0);
     //lv_imgbtn_set_src(buttonContinue, LV_BTN_STATE_REL, &bmp_pic);
     //lv_imgbtn_set_src(buttonContinue, LV_BTN_STATE_PR, &bmp_pic);
-    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_PR, &tft_style_label_pre);
+    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     lv_obj_set_event_cb_mks(buttonHomeY, event_handler, ID_H_Y, "bmp_zeroY.bin", 0);
     lv_imgbtn_set_src(buttonHomeY, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHomeY, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     lv_obj_set_event_cb_mks(buttonHomeZ, event_handler, ID_H_Z, "bmp_zeroZ.bin", 0);
     lv_imgbtn_set_src(buttonHomeZ, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonHomeZ, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffAll, event_handler, ID_H_OFF_ALL, "bmp_manual_off.bin", 0);
+    lv_obj_set_event_cb_mks(buttonOffAll, event_handler,ID_H_OFF_ALL,"bmp_function1.bin",0);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    lv_obj_set_event_cb_mks(buttonOffXY, event_handler, ID_H_OFF_XY, "bmp_manual_off.bin", 0);
+    lv_obj_set_event_cb_mks(buttonOffXY, event_handler,ID_H_OFF_XY,"bmp_function1.bin",0);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_H_RETURN, "bmp_Return.bin", 0);
+    lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_H_RETURN,"bmp_return.bin",0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
   #endif
-         /*lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
-         lv_obj_set_pos(buttonFan,BTN_X_PIXEL+INTERVAL_V*2,titleHeight);
-         lv_obj_set_pos(buttonAbout,BTN_X_PIXEL*2+INTERVAL_V*3,titleHeight);
-         lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
-         lv_obj_set_pos(buMotorOff,INTERVAL_V,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-         lv_obj_set_pos(buttonLanguage,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-         lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);*/
 
-  //lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
+  /*lv_obj_set_pos(buttonWifi, INTERVAL_V, titleHeight);
+  lv_obj_set_pos(buttonFan, BTN_X_PIXEL+INTERVAL_V*2, titleHeight);
+  lv_obj_set_pos(buttonAbout, BTN_X_PIXEL*2+INTERVAL_V*3, titleHeight);
+  lv_obj_set_pos(buttonContinue, BTN_X_PIXEL*3+INTERVAL_V*4, titleHeight);
+  lv_obj_set_pos(buMotorOff, INTERVAL_V,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  lv_obj_set_pos(buttonLanguage, BTN_X_PIXEL+INTERVAL_V*2, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  lv_obj_set_pos(buttonBack, BTN_X_PIXEL*3+INTERVAL_V*4, BTN_Y_PIXEL+INTERVAL_H+titleHeight);*/
+
+  //lv_obj_set_pos(buttonWifi, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonHomeX, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
   lv_obj_set_pos(buttonHomeY, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
   //lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
@@ -280,4 +267,4 @@ void lv_draw_home(void) {
 
 void lv_clear_home() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

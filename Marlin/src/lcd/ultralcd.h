@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -77,14 +77,6 @@
   #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
-
-    #if HAS_GRAPHICAL_LCD
-      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #else
-      #define SETCURSOR(col, row) lcd_moveto(col, row)
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
-    #endif
 
     #include "lcdprint.h"
 
@@ -505,6 +497,7 @@ public:
 
   #if PREHEAT_COUNT
     static preheat_t material_preset[PREHEAT_COUNT];
+    static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
   #if HAS_LCD_MENU

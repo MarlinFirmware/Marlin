@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -100,7 +100,7 @@
 #define TEMP_BED_PIN                        PC0   // Analog Input
 
 // Lergde-K can choose thermocouple/thermistor mode in software.
-// For use with thermistors, these pins must be OUT/LOW. 
+// For use with thermistors, these pins must be OUT/LOW.
 // This is done automatically.
 #define TEMP_0_TR_ENABLE_PIN                PF10
 #define TEMP_1_TR_ENABLE_PIN                PF9

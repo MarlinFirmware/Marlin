@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -449,6 +449,10 @@
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
+#elif defined(TFT_LVGL_UI)
+  #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
+#elif defined(SPI_GRAPHICAL_TFT)
+  #error "SPI_GRAPHICAL_TFT is now TFT_LVGL_UI_SPI. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
@@ -773,6 +777,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
+  #elif !defined(BABYSTEP_MULTIPLICATOR_Z)
+    #error "BABYSTEPPING requires BABYSTEP_MULTIPLICATOR_Z."
+  #elif ENABLED(BABYSTEP_XY) && !defined(BABYSTEP_MULTIPLICATOR_XY)
+    #error "BABYSTEP_XY requires BABYSTEP_MULTIPLICATOR_XY."
+  #elif ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    static_assert(BABYSTEP_MULTIPLICATOR_Z <= 0.1f, "BABYSTEP_MULTIPLICATOR_Z must be less or equal to 0.1mm.");
+    #if ENABLED(BABYSTEP_XY)
+      static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
+    #endif
   #endif
 #endif
 
@@ -2126,8 +2139,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  */
 #if ENABLED(EEPROM_SETTINGS)
   #if 1 < 0 \
-    + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
-    + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+    + ENABLED(I2C_EEPROM) \
+    + ENABLED(SPI_EEPROM) \
+    + ENABLED(QSPI_EEPROM) \
+    + ENABLED(SDCARD_EEPROM_EMULATION) \
+    + ENABLED(FLASH_EEPROM_EMULATION) \
+    + ENABLED(SRAM_EEPROM_EMULATION) \
+    + ENABLED(IIC_BL24CXX_EEPROM)
     #error "Please select only one method of EEPROM Persistent Storage."
   #endif
 #endif
@@ -2200,12 +2218,15 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
+  + ENABLED(FYSETC_242_OLED_12864) \
   + ENABLED(DGUS_LCD_UI_ORIGIN) \
   + ENABLED(DGUS_LCD_UI_FYSETC) \
   + ENABLED(DGUS_LCD_UI_HIPRECY) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
-  + ENABLED(FSMC_GRAPHICAL_TFT)
+  + ENABLED(FSMC_GRAPHICAL_TFT) \
+  + ENABLED(TFT_LVGL_UI_FSMC) \
+  + ENABLED(TFT_LVGL_UI_SPI)
   #error "Please select no more than one LCD controller option."
 #endif
 

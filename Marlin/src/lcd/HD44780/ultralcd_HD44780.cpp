@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1004,7 +1004,7 @@ void MarlinUI::draw_status_screen() {
       int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }
-    n = lcd_put_u8str_ind_P(pstr, itemIndex, n);
+    n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n);
     if (valstr) n -= lcd_put_u8str_max(valstr, n);
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
@@ -1012,33 +1012,32 @@ void MarlinUI::draw_status_screen() {
   // Draw a generic menu item with pre_char (if selected) and post_char
   void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char) {
     lcd_put_wchar(0, row, sel ? pre_char : ' ');
-    uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2);
+    uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2);
     for (; n; --n) lcd_put_wchar(' ');
     lcd_put_wchar(post_char);
   }
 
   // Draw a menu item with a (potentially) editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
-    const uint8_t vlen = data ? (pgm ? utf8_strlen_P(data) : utf8_strlen(data)) : 0;
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
+    const uint8_t vlen = inStr ? (pgm ? utf8_strlen_P(inStr) : utf8_strlen(inStr)) : 0;
     lcd_put_wchar(0, row, sel ? LCD_STR_ARROW_RIGHT[0] : ' ');
-    uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2 - vlen);
+    uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vlen);
     if (vlen) {
       lcd_put_wchar(':');
       for (; n; --n) lcd_put_wchar(' ');
-      if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
+      if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str(inStr);
     }
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
-
-    uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, LCD_WIDTH - 1);
+    uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
     if (value != nullptr) {
-      lcd_put_wchar(':');
-      int len = utf8_strlen(value);
-      const lcd_uint_t valrow = (n < len + 1) ? 2 : 1;          // Value on the next row if it won't fit
-      lcd_put_wchar((LCD_WIDTH - 1) - (len + 1), valrow, ' ');  // Right-justified, padded, leading space
+      lcd_put_wchar(':'); n--;
+      const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
+      const lcd_uint_t valrow = n < len ? 2 : 1;    // Value on the next row if it won't fit
+      lcd_put_wchar(LCD_WIDTH - len, valrow, ' ');  // Right-justified, padded, leading space
       lcd_put_u8str(value);
     }
   }

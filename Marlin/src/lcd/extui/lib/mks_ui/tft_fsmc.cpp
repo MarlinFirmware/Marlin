@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
   #if defined(ARDUINO_ARCH_STM32F1) && PIN_EXISTS(FSMC_CS) // FSMC on 100/144 pins SoCs
 
@@ -270,4 +270,4 @@
 
     #endif // LCD_USE_DMA_FSMC
   #endif // ARDUINO_ARCH_STM32F1 && FSMC_CS_PIN
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI
