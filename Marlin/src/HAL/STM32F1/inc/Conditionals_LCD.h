@@ -26,7 +26,7 @@
   #undef SD_CHECK_AND_RETRY
 #endif
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
+#if HAS_GRAPHICAL_TFT
   #error "Sorry! TFT displays are not available for HAL/STM32F1."
 #endif
 
