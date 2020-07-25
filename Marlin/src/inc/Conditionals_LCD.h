@@ -276,22 +276,17 @@
   #define HAS_SPI_TFT 1
 #endif
 
+#if HAS_FSMC_TFT || HAS_SPI_TFT
+  #define HAS_GRAPHICAL_TFT 1
+  #define IS_ULTIPANEL
+#endif
+
 #if EITHER(TFT_320x240, TFT_320x240_SPI)
   #define UI_320x240
   #define LCD_HEIGHT  TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
   #define UI_480x320
   #define LCD_HEIGHT  TERN(TOUCH_SCREEN, 6, 7)
-#endif
-
-#if HAS_FSMC_TFT || HAS_SPI_TFT
-  #define HAS_GRAPHICAL_TFT 1
-  #define IS_ULTIPANEL
-#endif
-
-#if ENABLED(TOUCH_SCREEN) && defined(ARDUINO_ARCH_STM32F1)
-  #undef TOUCH_SCREEN
-  #define TOUCH_BUTTONS
 #endif
 
 /**

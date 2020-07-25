@@ -29,3 +29,8 @@
 #if HAS_SPI_TFT || HAS_FSMC_TFT
   #error "Sorry! TFT displays are not available for HAL/STM32F1."
 #endif
+
+#if ENABLED(TOUCH_SCREEN)
+  #undef TOUCH_SCREEN
+  #define TOUCH_BUTTONS
+#endif
