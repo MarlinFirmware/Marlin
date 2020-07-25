@@ -90,33 +90,33 @@ uint8_t TFT::spi_read_write_byte(uint8_t data) {
 }
 
 /**
-* @brief  Receive a number of bytes from the SPI port to a buffer
-*
-* @param  buf   Pointer to starting address of buffer to write to.
-* @param  nbyte Number of bytes to receive.
-* @return Nothing
-*
-* @details Uses DMA
-*/
+ * @brief  Receive a number of bytes from the SPI port to a buffer
+ *
+ * @param  buf   Pointer to starting address of buffer to write to.
+ * @param  nbyte Number of bytes to receive.
+ * @return Nothing
+ *
+ * @details Uses DMA
+ */
 void TFT::spi_Read(uint8_t* buf, uint16_t nbyte) {SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);}
 
 /**
-* @brief  Send a single byte on SPI port
-*
-* @param  b Byte to send
-*
-* @details
-*/
+ * @brief  Send a single byte on SPI port
+ *
+ * @param  b Byte to send
+ *
+ * @details
+ */
 void TFT::spi_Send(uint8_t b) {SPI.send(b);}
 
 /**
-* @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
-*
-* @param  buf   Pointer with buffer start address
-* @return Nothing
-*
-* @details Use DMA
-*/
+ * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
+ *
+ * @param  buf   Pointer with buffer start address
+ * @return Nothing
+ *
+ * @details Use DMA
+ */
 void TFT::spi_SendBlock(uint8_t token, const uint8_t* buf) {
   SPI.send(token);
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
