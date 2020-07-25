@@ -256,7 +256,8 @@ void spiFlashErase_PIC() {
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
-    for (Font_sectorcnt = 0; Font_sectorcnt < FONT_SIZE_xM * 1024 / 64; Font_sectorcnt++)
+    //for (Font_sectorcnt = 0; Font_sectorcnt < FONT_SIZE_xM * 1024 / 64; Font_sectorcnt++)
+    for(Font_sectorcnt=0;Font_sectorcnt<32-1;Font_sectorcnt++)
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
   }
 #endif
