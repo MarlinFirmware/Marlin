@@ -36,6 +36,8 @@
 //
 #include <stdint.h>
 
+#include "../../../../Marlin/src/HAL/platforms.h"
+
 #include "../../../../Marlin/src/core/boards.h"
 #include "../../../../Marlin/src/core/macros.h"
 #include "../../../../Marlin/Configuration.h"
@@ -43,8 +45,17 @@
 #include "../../../../Marlin/Version.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_LCD.h"
+#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
 
 #include "../../../../Marlin/src/core/drivers.h"
 #include "../../../../Marlin/Configuration_adv.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_adv.h"
+#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
+
+//#include "../../../../Marlin/src/pins/pins.h"
+//#include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
+//#include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
+
+#include "../../../../Marlin/src/inc/Conditionals_post.h"
+#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
