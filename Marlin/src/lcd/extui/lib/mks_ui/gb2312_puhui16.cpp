@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../inc/MarlinConfig.h"
 #include "lvgl.h"
@@ -111,4 +111,4 @@ void init_gb2312_font() {
 }
 
 #endif // HAS_SPI_FLASH_FONT
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

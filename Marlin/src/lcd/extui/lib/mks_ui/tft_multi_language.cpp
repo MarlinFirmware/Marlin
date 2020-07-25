@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 
@@ -2611,4 +2611,4 @@ void disp_language_init() {
   }
 }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

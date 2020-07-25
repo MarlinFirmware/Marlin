@@ -256,8 +256,8 @@
 #endif
 
 // LVGL UI, SPI or FSMC
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_LVGL_UI_SPI)
-  #define TFT_LVGL_UI
+#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
+  #define HAS_TFT_LVGL_UI 1
 #endif
 
 // FSMC/SPI TFT Panels

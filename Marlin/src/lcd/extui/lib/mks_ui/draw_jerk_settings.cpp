@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if BOTH(TFT_LVGL_UI, HAS_CLASSIC_JERK)
+#if BOTH(HAS_TFT_LVGL_UI, HAS_CLASSIC_JERK)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -260,4 +260,4 @@ void lv_draw_jerk_settings(void) {
 
 void lv_clear_jerk_settings() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI && HAS_CLASSIC_JERK
+#endif // HAS_TFT_LVGL_UI && HAS_CLASSIC_JERK

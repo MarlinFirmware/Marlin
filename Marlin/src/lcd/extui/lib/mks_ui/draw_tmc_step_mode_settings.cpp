@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if BOTH(TFT_LVGL_UI, HAS_STEALTHCHOP)
+#if BOTH(HAS_TFT_LVGL_UI, HAS_STEALTHCHOP)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -475,4 +475,4 @@ void lv_draw_tmc_step_mode_settings(void) {
 
 void lv_clear_tmc_step_mode_settings() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI && HAS_STEALTHCHOP
+#endif // HAS_TFT_LVGL_UI && HAS_STEALTHCHOP

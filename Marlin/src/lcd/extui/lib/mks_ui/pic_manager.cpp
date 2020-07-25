@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 
@@ -563,4 +563,4 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
   }
 #endif
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

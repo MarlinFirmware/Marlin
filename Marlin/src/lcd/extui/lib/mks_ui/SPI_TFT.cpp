@@ -333,4 +333,4 @@ void TFT::LCD_Draw_Logo() {
   SetWindows(0, 0, 479, 319);
 }
 
-#endif // TFT_LVGL_UI_SPI
+#endif // HAS_TFT_LVGL_UI_SPI

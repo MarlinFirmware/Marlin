@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
@@ -1511,4 +1511,4 @@ void LV_TASK_HANDLER() {
   // sd_detection();
 }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

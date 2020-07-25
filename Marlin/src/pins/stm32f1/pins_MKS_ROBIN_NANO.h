@@ -167,28 +167,27 @@
 
 #if ENABLED(TFT_LVGL_UI_SPI)
 
-    #define SPI_TFT_CS_PIN                  PD11
-    #define SPI_TFT_SCK_PIN                 PA5
-    #define SPI_TFT_MISO_PIN                PA6
-    #define SPI_TFT_MOSI_PIN                PA7
-    #define SPI_TFT_DC_PIN                  PD10
-    #define SPI_TFT_RST_PIN                 PC6
+  #define SPI_TFT_CS_PIN                    PD11
+  #define SPI_TFT_SCK_PIN                   PA5
+  #define SPI_TFT_MISO_PIN                  PA6
+  #define SPI_TFT_MOSI_PIN                  PA7
+  #define SPI_TFT_DC_PIN                    PD10
+  #define SPI_TFT_RST_PIN                   PC6
 
-    #define LCD_BACKLIGHT_PIN               PD13
+  #define LCD_BACKLIGHT_PIN                 PD13
 
-    #define TOUCH_CS_PIN                    PE14  // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
+  #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
+  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
+  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
+  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
-    #define BTN_EN1                         PE8
-    #define BTN_EN2                         PE11
-    #define BEEPER_PIN                      PC5
-    #define BTN_ENC                         PE13
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PE13
 
-#else
-  #if ENABLED(TFT_LVGL_UI)
-  //FSMC LCD
+#elif ENABLED(TFT_LVGL_UI_FSMC)
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
@@ -199,9 +198,7 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #endif  // TFT_LVGL_UI
-
-#endif // TFT_LVGL_UI_SPI
+#endif
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h

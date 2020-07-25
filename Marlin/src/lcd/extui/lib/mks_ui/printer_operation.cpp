@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 
@@ -214,4 +214,4 @@ void filament_check() {
   }
 }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

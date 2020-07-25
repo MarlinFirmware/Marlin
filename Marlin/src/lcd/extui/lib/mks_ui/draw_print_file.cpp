@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 #include "lv_conf.h"
@@ -618,4 +618,4 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
 
 void lv_clear_print_file() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

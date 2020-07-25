@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if BOTH(TFT_LVGL_UI, HAS_TRINAMIC_CONFIG)
+#if BOTH(HAS_TFT_LVGL_UI, HAS_TRINAMIC_CONFIG)
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -382,4 +382,4 @@ void lv_draw_tmc_current_settings(void) {
 
 void lv_clear_tmc_current_settings() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI && HAS_TRINAMIC_CONFIG
+#endif // HAS_TFT_LVGL_UI && HAS_TRINAMIC_CONFIG

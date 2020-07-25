@@ -26,7 +26,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -369,4 +369,4 @@ void lv_draw_dialog(uint8_t type) {
 
 void lv_clear_dialog() { lv_obj_del(scr); }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI
