@@ -73,7 +73,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           stepperX.refresh_stepping_mode();
           lv_obj_set_event_cb_mks(buttonXState, event_handler, ID_TMC_MODE_X, "bmp_disable.bin", 0);
           lv_label_set_text(labelXState, machine_menu.disable);
-          // lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
+          //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
           // gcode.process_subcommands_now_P(PSTR("M500"));
         }
         else {
@@ -96,7 +96,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           stepperY.refresh_stepping_mode();
           lv_obj_set_event_cb_mks(buttonYState, event_handler, ID_TMC_MODE_Y, "bmp_disable.bin", 0);
           lv_label_set_text(labelYState, machine_menu.disable);
-          // lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
+          //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
         }
         else {
           stepperY.stored.stealthChop_enabled = true;
@@ -117,7 +117,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           stepperZ.refresh_stepping_mode();
           lv_obj_set_event_cb_mks(buttonZState, event_handler, ID_TMC_MODE_Z, "bmp_disable.bin", 0);
           lv_label_set_text(labelZState, machine_menu.disable);
-          // lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
+          //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
         }
         else {
           stepperZ.stored.stealthChop_enabled = true;
@@ -138,7 +138,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           stepperE0.refresh_stepping_mode();
           lv_obj_set_event_cb_mks(buttonE0State, event_handler, ID_TMC_MODE_E0, "bmp_disable.bin", 0);
           lv_label_set_text(labelE0State, machine_menu.disable);
-          // lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
+          //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
         }
         else {
           stepperE0.stored.stealthChop_enabled = true;
@@ -160,7 +160,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
               stepperE1.refresh_stepping_mode();
               lv_obj_set_event_cb_mks(buttonE1State, event_handler, ID_TMC_MODE_E1, "bmp_disable.bin", 0);
               lv_label_set_text(labelE1State, machine_menu.disable);
-              // lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
+              //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
             }
             else {
               stepperE1.stored.stealthChop_enabled = true;

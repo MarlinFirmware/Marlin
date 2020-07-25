@@ -228,7 +228,7 @@ void lv_draw_move_motor(void) {
     lv_imgbtn_set_style(buttonZD, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonZD, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    // lv_obj_set_event_cb_mks(buttonV, event_handler,ID_T_MORE,"bmp_More.bin",0);
+    //lv_obj_set_event_cb_mks(buttonV, event_handler,ID_T_MORE,"bmp_More.bin",0);
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_REL, &bmp_pic);
     lv_imgbtn_set_src(buttonV, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonV, LV_BTN_STATE_PR, &tft_style_label_pre);

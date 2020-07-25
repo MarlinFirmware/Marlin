@@ -244,7 +244,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_print_file(void) {
-  // uint8_t i;
+  //uint8_t i;
   uint8_t file_count;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PRINT_FILE_UI) {
     disp_state_stack._disp_index++;

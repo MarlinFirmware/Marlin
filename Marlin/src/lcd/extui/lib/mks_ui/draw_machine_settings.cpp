@@ -144,7 +144,7 @@ void lv_draw_machine_settings(void) {
   buttonAcceleration = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
   lv_obj_set_pos(buttonAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y);             /*Set its position*/
   lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
-  // lv_obj_set_event_cb(buttonMachine, event_handler);
+  //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonAcceleration, event_handler, ID_MACHINE_ACCELERATION, NULL, 0);
   lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
   lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
@@ -166,7 +166,7 @@ void lv_draw_machine_settings(void) {
   buttonMaxFeedrate = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
   lv_obj_set_pos(buttonMaxFeedrate, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
   lv_obj_set_size(buttonMaxFeedrate, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
-  // lv_obj_set_event_cb(buttonMachine, event_handler);
+  //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonMaxFeedrate, event_handler, ID_MACHINE_FEEDRATE, NULL, 0);
   lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
@@ -189,7 +189,7 @@ void lv_draw_machine_settings(void) {
     buttonJerk = lv_btn_create(scr, NULL);                                      /*Add a button the current screen*/
     lv_obj_set_pos(buttonJerk, PARA_UI_POS_X, PARA_UI_POS_Y * 3);               /*Set its position*/
     lv_obj_set_size(buttonJerk, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                /*Set its size*/
-    // lv_obj_set_event_cb(buttonMotor, event_handler);
+    //lv_obj_set_event_cb(buttonMotor, event_handler);
     lv_obj_set_event_cb_mks(buttonJerk, event_handler, ID_MACHINE_JERK, NULL, 0);
     lv_btn_set_style(buttonJerk, LV_BTN_STYLE_REL, &tft_style_label_rel);       /*Set the button's released style*/
     lv_btn_set_style(buttonJerk, LV_BTN_STYLE_PR, &tft_style_label_pre);        /*Set the button's pressed style*/

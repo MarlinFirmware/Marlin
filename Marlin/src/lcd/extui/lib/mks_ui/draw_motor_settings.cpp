@@ -147,7 +147,7 @@ void lv_draw_motor_settings(void) {
   buttonSteps = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
   lv_obj_set_pos(buttonSteps, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
   lv_obj_set_size(buttonSteps, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
-  // lv_obj_set_event_cb(buttonMachine, event_handler);
+  //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonSteps, event_handler, ID_MOTOR_STEPS, NULL, 0);
   lv_btn_set_style(buttonSteps, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonSteps, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
@@ -169,7 +169,7 @@ void lv_draw_motor_settings(void) {
     buttonTMCcurrent = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
     lv_obj_set_pos(buttonTMCcurrent, PARA_UI_POS_X, PARA_UI_POS_Y * 2);         /*Set its position*/
     lv_obj_set_size(buttonTMCcurrent, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
-    // lv_obj_set_event_cb(buttonMachine, event_handler);
+    //lv_obj_set_event_cb(buttonMachine, event_handler);
     lv_obj_set_event_cb_mks(buttonTMCcurrent, event_handler, ID_MOTOR_TMC_CURRENT, NULL, 0);
     lv_btn_set_style(buttonTMCcurrent, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
     lv_btn_set_style(buttonTMCcurrent, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
@@ -192,7 +192,7 @@ void lv_draw_motor_settings(void) {
       buttonStepMode = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
       lv_obj_set_pos(buttonStepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
       lv_obj_set_size(buttonStepMode, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
-      // lv_obj_set_event_cb(buttonMachine, event_handler);
+      //lv_obj_set_event_cb(buttonMachine, event_handler);
       lv_obj_set_event_cb_mks(buttonStepMode, event_handler, ID_MOTOR_STEP_MODE, NULL, 0);
       lv_btn_set_style(buttonStepMode, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
       lv_btn_set_style(buttonStepMode, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
