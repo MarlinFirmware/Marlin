@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-#include "lvgl.h"
+#include <lvgl.h>
 
 #include <stdint.h>
 #include <string.h>

@@ -33,7 +33,8 @@
 #include "tft_lvgl_configuration.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-#include "lvgl.h"
+
+#include <lvgl.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"

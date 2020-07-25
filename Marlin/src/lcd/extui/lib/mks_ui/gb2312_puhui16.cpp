@@ -24,7 +24,7 @@
 #if HAS_TFT_LVGL_UI
 
 #include "pic_manager.h"
-#include "lvgl.h"
+#include <lvgl.h>
 
 #include "../../../../inc/MarlinConfig.h"
 

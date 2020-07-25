@@ -33,7 +33,7 @@
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
 #include "pic_manager.h"
-#include "lvgl.h"
+#include <lvgl.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"

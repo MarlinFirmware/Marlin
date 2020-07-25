@@ -39,7 +39,7 @@
 #include "pic_manager.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-#include "lvgl.h"
+#include <lvgl.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../feature/touch/xpt2046.h"

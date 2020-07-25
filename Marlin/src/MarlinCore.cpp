@@ -63,7 +63,7 @@
   #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/lib/mks_ui/draw_ui.h"
   #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
-  #include "lvgl.h"
+  #include <lvgl.h>
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)

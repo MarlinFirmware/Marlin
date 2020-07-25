@@ -25,11 +25,12 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
+#include "../../inc/MarlinConfigPre.h"
+
+#include <lvgl.h>
+
 #include <stdint.h>
 #include <string.h>
-#include "lvgl.h"
-
-#include "../../inc/MarlinConfigPre.h"
 
 #ifndef HAS_SPI_FLASH_FONT
   #define HAS_SPI_FLASH_FONT              1 // Disabled until fix the font load code

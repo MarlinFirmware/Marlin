@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "lvgl.h"
+#include <lvgl.h>
 
 void mks_gpio_test();
 void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint16_t bkColor);
