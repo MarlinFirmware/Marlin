@@ -1,0 +1,66 @@
+{
+  "build": {
+    "core": "stm32",
+    "cpu": "cortex-m4",
+    "extra_flags": "-DSTM32F4 -DSTM32F401xC",
+    "f_cpu": "84000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x0483",
+        "0x3748"
+      ]
+    ],
+    "ldscript": "stm32f401xe.ld",
+    "mcu": "stm32f401cc",
+    "variant": "BLACKPILL_F4x1"
+  },
+  "debug": {
+    "jlink_device": "STM32F401CC",
+    "openocd_target": "stm32f4x",
+    "svd_path": "STM32F40x.svd",
+    "tools": {
+      "stlink": {
+        "server": {
+          "arguments": [
+            "-f",
+            "scripts/interface/stlink.cfg",
+            "-c",
+            "transport select hla_swd",
+            "-f",
+            "scripts/target/stm32f4x.cfg",
+            "-c",
+            "reset_config none"
+          ],
+          "executable": "bin/openocd",
+          "package": "tool-openocd"
+        }
+      }
+    }
+  },
+  "frameworks": [
+    "arduino",
+    "stm32cube"
+  ],
+  "name": "STM32F401CC (64k RAM. 256k Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 64535,
+    "maximum_size": 262144,
+    "protocol": "blackmagic",
+    "protocols": [
+      "blackmagic",
+      "stlink",
+      "dfu",
+      "jlink"
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.st.com/en/microcontrollers-microprocessors/stm32f401cc.html",
+  "vendor": "Generic"
+}

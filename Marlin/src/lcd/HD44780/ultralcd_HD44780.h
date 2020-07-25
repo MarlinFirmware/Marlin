@@ -27,6 +27,22 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if DISABLED(TFTGLCD_ADAPTER)
+
+#if LCD_HEIGHT > 3
+  #include "../../libs/duration_t.h"
+#endif
+
+////////////////////////////////////
+// Setup button and encode mappings for each panel (into 'buttons' variable
+//
+// This is just to map common functions (across different panels) onto the same
+// macro name. The mapping is independent of whether the button is directly connected or
+// via a shift/i2c register.
+
+////////////////////////////////////
+// Create LCD class instance and chipset-specific information
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
 
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
@@ -100,3 +116,5 @@
 
 #include "../fontutils.h"
 #include "../lcdprint.h"
+
+#endif //TFTGLCD_ADAPTER
