@@ -164,9 +164,9 @@ static char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_French_sel.bin",
     "bmp_Italy.bin",
     "bmp_Italy_sel.bin",
-  #endif //HAS_LANG_SELECT_SCREEN
+  #endif // HAS_LANG_SELECT_SCREEN
 
-  //gcode preview
+  // gcode preview
   #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
     "bmp_preview.bin",
   #endif
@@ -175,7 +175,7 @@ static char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_logo.bin",
   #endif
 
-  //settings screen
+  // settings screen
   "bmp_About.bin",
   //"bmp_Language.bin",
   //"bmp_Fan.bin",
@@ -187,17 +187,17 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_Tool.bin",
 
   #if ENABLED(HAS_STEALTHCHOP)
-    // "bmp_back70x40.bin",
+    //"bmp_back70x40.bin",
     "bmp_disable.bin",
     "bmp_enable.bin",
   #endif
 
-  //settings screen
+  // settings screen
   "bmp_eeprom_settings.bin",
   "bmp_machine_para.bin",
   "bmp_function1.bin",
 
-  //base icons
+  // base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",

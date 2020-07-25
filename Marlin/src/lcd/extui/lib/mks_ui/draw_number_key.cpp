@@ -608,14 +608,14 @@ void lv_draw_number_key(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  // lv_obj_t * title = lv_label_create(scr, NULL);
-  // lv_obj_set_style(title, &tft_style_label_rel);
-  // lv_obj_set_pos(title,TITLE_XPOS,TITLE_YPOS);
-  // lv_label_set_text(title, creat_title_text());
+  //lv_obj_t * title = lv_label_create(scr, NULL);
+  //lv_obj_set_style(title, &tft_style_label_rel);
+  //lv_obj_set_pos(title,TITLE_XPOS,TITLE_YPOS);
+  //lv_label_set_text(title, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  // LV_IMG_DECLARE(bmp_pic);
+  //LV_IMG_DECLARE(bmp_pic);
 
   buttonValue = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(buttonValue, 92, 40);                                  /*Set its position*/

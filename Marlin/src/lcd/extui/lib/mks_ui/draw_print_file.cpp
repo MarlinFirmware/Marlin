@@ -54,13 +54,13 @@ uint8_t sel_id = 0;
 
   static uint8_t search_file() {
     int valid_name_cnt = 0;
-    // char tmp[SHORT_NEME_LEN*MAX_DIR_LEVEL+1];
+    //char tmp[SHORT_NEME_LEN*MAX_DIR_LEVEL+1];
 
     list_file.Sd_file_cnt = 0;
-    // list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
+    //list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
 
-    // root2.rewind();
-    // SERIAL_ECHOLN(list_file.curDirPath);
+    //root2.rewind();
+    //SERIAL_ECHOLN(list_file.curDirPath);
 
     if (curDirLever != 0) card.cd(list_file.curDirPath);
     else card.cdroot(); // while(card.cdup());
@@ -72,14 +72,14 @@ uint8_t sel_id = 0;
         const uint16_t nr = SD_ORDER(i, fileCnt);
         card.getfilename_sorted(nr);
 
-        if (card.flag.filenameIsDir)
-          /*
-            SERIAL_ECHOLN(card.longest_filename);
-          */
+        if (card.flag.filenameIsDir) {
+          //SERIAL_ECHOLN(card.longest_filename);
           list_file.IsFolder[valid_name_cnt] = 1;
-        else
-          // SERIAL_ECHOLN(card.longFilename);
+        }
+        else {
+          //SERIAL_ECHOLN(card.longFilename);
           list_file.IsFolder[valid_name_cnt] = 0;
+        }
 
         #if 1
           //
@@ -107,7 +107,7 @@ uint8_t sel_id = 0;
       }
       list_file.Sd_file_cnt++;
     }
-    // card.closefile(false);
+    //card.closefile(false);
     return valid_name_cnt;
   }
 
@@ -139,8 +139,8 @@ LV_IMG_DECLARE(bmp_pic_100x40);
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   uint8_t i, file_count = 0;
-  // switch (obj->mks_obj_id)
-  // {
+  //switch (obj->mks_obj_id)
+  //{
   if (obj->mks_obj_id == ID_P_UP) {
     if (event == LV_EVENT_CLICKED) {
     }
@@ -269,9 +269,9 @@ void lv_draw_print_file(void) {
   #endif
   disp_gcode_icon(file_count);
 
-  // lv_obj_t * labelPageUp = lv_label_create(buttonPageUp, NULL);
-  // lv_obj_t * labelPageDown = lv_label_create(buttonPageDown, NULL);
-  // lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  //lv_obj_t * labelPageUp = lv_label_create(buttonPageUp, NULL);
+  //lv_obj_t * labelPageDown = lv_label_create(buttonPageDown, NULL);
+  //lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
 
   /*
   if (gCfgItems.multiple_language != 0) {
@@ -292,7 +292,7 @@ void disp_gcode_icon(uint8_t file_num) {
 
   scr = lv_obj_create(NULL, NULL);
 
-  // static lv_style_t tool_style;
+  //static lv_style_t tool_style;
 
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
@@ -386,34 +386,34 @@ void disp_gcode_icon(uint8_t file_num) {
           if (i < 3) {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, NULL);
-            // lv_obj_set_event_cb(buttonText[i], event_handler);
+            //lv_obj_set_event_cb(buttonText[i], event_handler);
 
             lv_btn_set_style(buttonText[i], LV_BTN_STATE_PR, &tft_style_label_pre);
             lv_btn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
-            // lv_obj_set_style(buttonText[i], &tft_style_label_pre);
-            // lv_obj_set_style(buttonText[i], &tft_style_label_rel);
+            //lv_obj_set_style(buttonText[i], &tft_style_label_pre);
+            //lv_obj_set_style(buttonText[i], &tft_style_label_rel);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            // lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
-            // lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_REL, &bmp_pic_100x40);
-            // lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_PR, &bmp_pic_100x40);
+            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
+            //lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_REL, &bmp_pic_100x40);
+            //lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_PR, &bmp_pic_100x40);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
           else {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1) + FILE_PRE_PIC_X_OFFSET, BTN_Y_PIXEL + INTERVAL_H + titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, NULL);
-            // lv_obj_set_event_cb(buttonText[i], event_handler);
+            //lv_obj_set_event_cb(buttonText[i], event_handler);
 
             lv_btn_set_style(buttonText[i], LV_BTN_STATE_PR, &tft_style_label_pre);
             lv_btn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
 
-            // lv_imgbtn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
+            //lv_imgbtn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            // lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
-            // lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_REL, &bmp_pic_100x40);
-            // lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_PR, &bmp_pic_100x40);
+            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
+            //lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_REL, &bmp_pic_100x40);
+            //lv_imgbtn_set_src(buttonText[i], LV_BTN_STATE_PR, &bmp_pic_100x40);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1) + FILE_PRE_PIC_X_OFFSET, BTN_Y_PIXEL + INTERVAL_H + titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
@@ -458,7 +458,7 @@ void lv_open_gcode_file(char *path) {
       pre_sread_cnt = (uint32_t)ps4 - (uint32_t)((uint32_t *)(&public_buf[0]));
       card.setIndex(pre_sread_cnt);
     }
-  #endif //SDSUPPORT
+  #endif // SDSUPPORT
 }
 
 
@@ -514,22 +514,22 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       for (i = 0; i < 200;) {
         p_index = (uint16_t *)(&public_buf[i]);
 
-        // Color = (*p_index >> 8);
-        // *p_index = Color | ((*p_index & 0xff) << 8);
+        //Color = (*p_index >> 8);
+        //*p_index = Color | ((*p_index & 0xff) << 8);
         i += 2;
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
     #else
       for (i = 0; i < 200;) {
         p_index = (uint16_t *)(&public_buf[i]);
-        // Color = (*p_index >> 8);
-        // *p_index = Color | ((*p_index & 0xff) << 8);
+        //Color = (*p_index >> 8);
+        //*p_index = Color | ((*p_index & 0xff) << 8);
         i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3; //
+        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
       }
-    #endif //TFT_LVGL_UI_SPI
+    #endif // TFT_LVGL_UI_SPI
     memcpy(data_buf, public_buf, 200);
-  #endif //SDSUPPORT
+  #endif // SDSUPPORT
 }
 
 void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}
@@ -558,7 +558,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
   #endif
 
   beginIndex = (strIndex1 != 0
-                // && (strIndex2 != 0) && (strIndex1 < strIndex2)
+                //&& (strIndex2 != 0) && (strIndex1 < strIndex2)
                 ) ? strIndex1 + 1 : tmpFile;
 
   if (strIndex2 == 0 || (strIndex1 > strIndex2)) { // not gcode file
@@ -580,7 +580,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
         wcsncpy(outStr, (const WCHAR *)beginIndex, len - 3);
         wcscat(outStr, (const WCHAR *)gFileTail);
       #else
-        // strncpy(outStr, beginIndex, len - 3);
+        //strncpy(outStr, beginIndex, len - 3);
         strncpy(outStr, beginIndex, len - 4);
         strcat_P(outStr, PSTR("~.g"));
       #endif

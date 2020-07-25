@@ -12,7 +12,7 @@ assets_path = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env.Dictionary("
 def download_mks_assets():
 	print("Downloading MKS Assets")
 	r = requests.get(url, stream=True)
-	# the user may have a very clean workspace, 
+	# the user may have a very clean workspace,
 	# so create the PROJECT_LIBDEPS_DIR directory if not exits
 	if os.path.exists(env.Dictionary("PROJECT_LIBDEPS_DIR")) == False:
 		os.mkdir(env.Dictionary("PROJECT_LIBDEPS_DIR"))

@@ -111,10 +111,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_eeprom_settings(void) {
   lv_obj_t *buttonBack, *label_Back;
-  // lv_obj_t *buttonStore,*labelStore,*buttonStoreNarrow;
-  // lv_obj_t *buttonRead,*labelRead,*buttonReadNarrow;
+  //lv_obj_t *buttonStore,*labelStore,*buttonStoreNarrow;
+  //lv_obj_t *buttonRead,*labelRead,*buttonReadNarrow;
   lv_obj_t *buttonRevert, *labelRevert, *buttonRevertNarrow;
-  lv_obj_t * line1;// * line2,* line3;
+  lv_obj_t * line1; // * line2,* line3;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != EEPROM_SETTINGS_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = EEPROM_SETTINGS_UI;
@@ -140,7 +140,7 @@ void lv_draw_eeprom_settings(void) {
     buttonStore = lv_btn_create(scr, NULL); /*Add a button the current screen*/
     lv_obj_set_pos(buttonStore, PARA_UI_POS_X, PARA_UI_POS_Y);                       /*Set its position*/
     lv_obj_set_size(buttonStore, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                     /*Set its size*/
-    // lv_obj_set_event_cb(buttonMachine, event_handler);
+    //lv_obj_set_event_cb(buttonMachine, event_handler);
     lv_obj_set_event_cb_mks(buttonStore, event_handler, ID_EEPROM_STORE, NULL, 0);
     lv_btn_set_style(buttonStore, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
     lv_btn_set_style(buttonStore, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
@@ -162,7 +162,7 @@ void lv_draw_eeprom_settings(void) {
     buttonRead = lv_btn_create(scr, NULL); /*Add a button the current screen*/
     lv_obj_set_pos(buttonRead, PARA_UI_POS_X, PARA_UI_POS_Y * 2);                     /*Set its position*/
     lv_obj_set_size(buttonRead, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                     /*Set its size*/
-    // lv_obj_set_event_cb(buttonMotor, event_handler);
+    //lv_obj_set_event_cb(buttonMotor, event_handler);
     lv_obj_set_event_cb_mks(buttonRead, event_handler, ID_EEPROM_READ, NULL, 0);
     lv_btn_set_style(buttonRead, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
     lv_btn_set_style(buttonRead, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
@@ -184,7 +184,7 @@ void lv_draw_eeprom_settings(void) {
   buttonRevert = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
   lv_obj_set_pos(buttonRevert, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
   lv_obj_set_size(buttonRevert, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
-  // lv_obj_set_event_cb(buttonMotor, event_handler);
+  //lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonRevert, event_handler, ID_EEPROM_REVERT, NULL, 0);
   lv_btn_set_style(buttonRevert, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonRevert, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
@@ -200,8 +200,8 @@ void lv_draw_eeprom_settings(void) {
   lv_imgbtn_set_style(buttonRevertNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_btn_set_layout(buttonRevertNarrow, LV_LAYOUT_OFF);
 
-  // line3 = lv_line_create(scr, NULL);
-  // lv_ex_line(line3,line_points[2]);
+  //line3 = lv_line_create(scr, NULL);
+  //lv_ex_line(line3,line_points[2]);
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
@@ -220,11 +220,11 @@ void lv_draw_eeprom_settings(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
 
-    // lv_label_set_text(labelStore, eeprom_menu.store);
-    // lv_obj_align(labelStore, buttonStore, LV_ALIGN_IN_LEFT_MID,0, 0);
+    //lv_label_set_text(labelStore, eeprom_menu.store);
+    //lv_obj_align(labelStore, buttonStore, LV_ALIGN_IN_LEFT_MID,0, 0);
 
-    // lv_label_set_text(labelRead, eeprom_menu.read);
-    // lv_obj_align(labelRead, buttonRead, LV_ALIGN_IN_LEFT_MID,0, 0);
+    //lv_label_set_text(labelRead, eeprom_menu.read);
+    //lv_obj_align(labelRead, buttonRead, LV_ALIGN_IN_LEFT_MID,0, 0);
 
     lv_label_set_text(labelRevert, eeprom_menu.revert);
     lv_obj_align(labelRevert, buttonRevert, LV_ALIGN_IN_LEFT_MID, 0, 0);
