@@ -57,9 +57,8 @@ def get_all_env_libs():
 		env_libs.append(name)
 	return env_libs
 
-# We need to ignore all non-used libs,
-# so if a lib folder lay forgotten in .pio/lib_deps, it
-# will not break compiling
+# All unused libs should be ignored so that if a library exists
+# in .pio/lib_deps it will not break compilation.
 def force_ignore_unused_libs():
 	env_libs = get_all_env_libs()
 	known_libs = get_all_known_libs()
@@ -84,23 +83,23 @@ def install_features_dependencies():
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				deps_to_add[name] = dep
 
-			# first check if the env already have the dep
+			# Does the env already have the dependency?
 			deps = env.GetProjectOption("lib_deps")
 			for dep in deps:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
-			# check if we need ignore any lib
+			# Are there any libraries that should be ignored?
 			lib_ignore = env.GetProjectOption("lib_ignore")
 			for dep in deps:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
-			# any left?
+			# Is there anything left?
 			if len(deps_to_add) > 0:
-				# add only the missing deps
+				# Only add the missing dependencies
 				proj = env.GetProjectConfig()
 				proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
 
@@ -129,20 +128,21 @@ def install_features_dependencies():
 			proj = env.GetProjectConfig()
 			proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
 
-# search the current compiler, considering the OS
+# Find a compiler, considering the OS
 ENV_BUILD_PATH = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env["PIOENV"])
 GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
 	if os.path.exists(GCC_PATH_CACHE):
-		print('Loading g++ path from cache')
+		print('Getting g++ path from cache')
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
-	# CXX = CC means platformio dont found a default compiler
-	# It happes when:
-	#   - Windows users
-	#   - Docker users without a gcc installed in the image
-	#   - Linux users without a system gcc installed
-	#   - Mac users (but mac will find CC anyway...)
+
+	# CXX = 'CC' means platformio can't find a default compiler
+	# Pretty much the case for all mainstream operating systems:
+	#   - Windows
+	#   - Docker with no gcc installed
+	#   - Linux with no gcc installed
+	#   - macOS (but 'cc' found due to case-insensitive filesystem)
 	if env.get('CXX') == 'CC':
 		if env['PLATFORM'] == 'win32':
 			path_separator = ';'
@@ -153,7 +153,7 @@ def search_compiler():
 			path_regex = r'platformio/packages.*/bin'
 			gcc = "g++"
 
-		# search for the compiler
+		# Search for the compiler
 		for path in env['ENV']['PATH'].split(path_separator):
 			if not re.search(path_regex, path):
 				continue
@@ -161,40 +161,41 @@ def search_compiler():
 				if not file.endswith(gcc):
 					continue
 
-				# lets cache the g++ path to no search always
+				# Cache the g++ path to no search always
 				if os.path.exists(ENV_BUILD_PATH):
 					print('Caching g++ for current env')
 					with open(GCC_PATH_CACHE, 'w+') as f:
 						f.write(file)
+
 				return file
 
-		print("Could not find the g++")
-	# failback to CXX...
+		print("Couldn't find a (gcc) compiler!")
+
+	# Fall back to CXX...
 	return env.get('CXX')
 
-
-# load marlin features
+# Load marlin features
 def load_marlin_features():
 	if "MARLIN_FEATURES" in env:
 		return
 
-	# procces defines
-	# print(env.Dump())
+	# Process defines
+	#print(env.Dump())
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
 
 	cxx = search_compiler()
 	cmd = [cxx]
 
-	# build flags from board.json
-	# if 'BOARD' in env:
-	# 	cmd += [env.BoardConfig().get("build.extra_flags")]
+	# Build flags from board.json
+	#if 'BOARD' in env:
+	#	cmd += [env.BoardConfig().get("build.extra_flags")]
 	for s in build_flags['CPPDEFINES']:
 		if isinstance(s, tuple):
 			cmd += ['-D' + s[0] + '=' + str(s[1])]
 		else:
 			cmd += ['-D' + s]
-	# cmd += ['-w -dM -E -x c++ Marlin/src/inc/MarlinConfigPre.h']
+
 	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
 	cmd = ' '.join(cmd)
 	print(cmd)
