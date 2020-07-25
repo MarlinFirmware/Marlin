@@ -125,7 +125,7 @@ void lv_draw_tool(void) {
 
   scr = lv_obj_create(NULL, NULL);
 
-  // static lv_style_t tool_style;
+  //static lv_style_t tool_style;
 
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
@@ -182,17 +182,17 @@ void lv_draw_tool(void) {
     lv_imgbtn_set_style(buttonLevel, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonLevel, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    // lv_obj_set_event_cb_mks(buttonFilament, event_handler,ID_T_FILAMENT,"bmp_Filamentchange.bin",0);
-    // lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, &bmp_pic);
-    // lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, &bmp_pic);
-    // lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
-    // lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
+    //lv_obj_set_event_cb_mks(buttonFilament, event_handler,ID_T_FILAMENT,"bmp_Filamentchange.bin",0);
+    //lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, &bmp_pic);
+    //lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, &bmp_pic);
+    //lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
+    //lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-    // lv_obj_set_event_cb_mks(buttonMore, event_handler,ID_T_MORE,"bmp_More.bin",0);
-    // lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_REL, &bmp_pic);
-    // lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_PR, &bmp_pic);
-    // lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_PR, &tft_style_label_pre);
-    // lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_REL, &tft_style_label_rel);
+    //lv_obj_set_event_cb_mks(buttonMore, event_handler,ID_T_MORE,"bmp_More.bin",0);
+    //lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_REL, &bmp_pic);
+    //lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_PR, &bmp_pic);
+    //lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_PR, &tft_style_label_pre);
+    //lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_REL, &tft_style_label_rel);
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_T_RETURN, "bmp_return.bin", 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
@@ -206,8 +206,8 @@ void lv_draw_tool(void) {
   lv_obj_set_pos(buttonMove, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
   lv_obj_set_pos(buttonHome, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
   lv_obj_set_pos(buttonLevel, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  // lv_obj_set_pos(buttonFilament,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  // lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  //lv_obj_set_pos(buttonFilament,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  //lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
   /*Create a label on the Image button*/
@@ -216,8 +216,8 @@ void lv_draw_tool(void) {
   lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonHome, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonLevel, LV_LAYOUT_OFF);
-  // lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
-  // lv_btn_set_layout(buttonMore, LV_LAYOUT_OFF);
+  //lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
+  //lv_btn_set_layout(buttonMore, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
   lv_obj_t * labelPreHeat   = lv_label_create(buttonPreHeat, NULL);
@@ -251,11 +251,11 @@ void lv_draw_tool(void) {
     lv_label_set_text(label_Level, tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling));
     lv_obj_align(label_Level, buttonLevel, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
-    // lv_label_set_text(label_Filament, tool_menu.filament);
-    // lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    //lv_label_set_text(label_Filament, tool_menu.filament);
+    //lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
-    // lv_label_set_text(label_More, tool_menu.more);
-    // lv_obj_align(label_More, buttonMore, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    //lv_label_set_text(label_More, tool_menu.more);
+    //lv_obj_align(label_More, buttonMore, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

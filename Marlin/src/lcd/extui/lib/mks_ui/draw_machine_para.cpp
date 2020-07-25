@@ -137,7 +137,7 @@ void lv_draw_machine_para(void) {
   buttonMachine = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
   lv_obj_set_pos(buttonMachine, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
   lv_obj_set_size(buttonMachine, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
-  // lv_obj_set_event_cb(buttonMachine, event_handler);
+  //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonMachine, event_handler, ID_PARA_MACHINE, NULL, 0);
   lv_btn_set_style(buttonMachine, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonMachine, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
@@ -159,7 +159,7 @@ void lv_draw_machine_para(void) {
   buttonMotor = lv_btn_create(scr, NULL);                                   /*Add a button the current screen*/
   lv_obj_set_pos(buttonMotor, PARA_UI_POS_X, PARA_UI_POS_Y * 2);            /*Set its position*/
   lv_obj_set_size(buttonMotor, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);             /*Set its size*/
-  // lv_obj_set_event_cb(buttonMotor, event_handler);
+  //lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonMotor, event_handler, ID_PARA_MOTOR, NULL, 0);
   lv_btn_set_style(buttonMotor, LV_BTN_STYLE_REL, &tft_style_label_rel);    /*Set the button's released style*/
   lv_btn_set_style(buttonMotor, LV_BTN_STYLE_PR, &tft_style_label_pre);     /*Set the button's pressed style*/
@@ -181,7 +181,7 @@ void lv_draw_machine_para(void) {
   buttonAdvance = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
   lv_obj_set_pos(buttonAdvance, PARA_UI_POS_X, PARA_UI_POS_Y * 3);          /*Set its position*/
   lv_obj_set_size(buttonAdvance, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
-  // lv_obj_set_event_cb(buttonMotor, event_handler);
+  //lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonAdvance, event_handler, ID_PARA_ADVANCE, NULL, 0);
   lv_btn_set_style(buttonAdvance, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonAdvance, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/

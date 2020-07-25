@@ -253,9 +253,8 @@
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
 
-#else
-  #if ENABLED(TFT_LITTLE_VGL_UI)
-  //FSMC LCD
+#elif ENABLED(TFT_LITTLE_VGL_UI)
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
@@ -266,9 +265,7 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #endif // TFT_LITTLE_VGL_UI
-
-#endif // TFT_LVGL_UI_SPI
+#endif
 
 #if HAS_SPI_LCD
 

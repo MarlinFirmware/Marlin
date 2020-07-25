@@ -95,7 +95,7 @@ void lv_draw_advance_settings(void) {
   buttonPausePos = lv_btn_create(scr, NULL);   /*Add a button the current screen*/
   lv_obj_set_pos(buttonPausePos, PARA_UI_POS_X, PARA_UI_POS_Y);                         /*Set its position*/
   lv_obj_set_size(buttonPausePos, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
-  // lv_obj_set_event_cb(buttonMachine, event_handler);
+  //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonPausePos, event_handler, ID_PAUSE_POS, NULL, 0);
   lv_btn_set_style(buttonPausePos, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
   lv_btn_set_style(buttonPausePos, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/

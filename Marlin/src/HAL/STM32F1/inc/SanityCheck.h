@@ -29,10 +29,6 @@
   #error "EMERGENCY_PARSER is not yet implemented for STM32F1. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(SDIO_SUPPORT) && DISABLED(SDSUPPORT)
-  #error "SDIO_SUPPORT requires SDSUPPORT. Enable SDSUPPORT to continue."
-#endif
-
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
 #endif

@@ -72,12 +72,14 @@ uint8_t sel_id = 0;
         const uint16_t nr = SD_ORDER(i, fileCnt);
         card.getfilename_sorted(nr);
 
-        if (card.flag.filenameIsDir)
+        if (card.flag.filenameIsDir) {
           //SERIAL_ECHOLN(card.longest_filename);
           list_file.IsFolder[valid_name_cnt] = 1;
-        else
+        }
+        else {
           //SERIAL_ECHOLN(card.longFilename);
           list_file.IsFolder[valid_name_cnt] = 0;
+        }
 
         #if 1
           //
@@ -523,7 +525,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         //Color = (*p_index >> 8);
         //*p_index = Color | ((*p_index & 0xff) << 8);
         i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3; //
+        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
       }
     #endif // TFT_LVGL_UI_SPI
     memcpy(data_buf, public_buf, 200);
@@ -556,7 +558,7 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
   #endif
 
   beginIndex = (strIndex1 != 0
-                // && (strIndex2 != 0) && (strIndex1 < strIndex2)
+                //&& (strIndex2 != 0) && (strIndex1 < strIndex2)
                 ) ? strIndex1 + 1 : tmpFile;
 
   if (strIndex2 == 0 || (strIndex1 > strIndex2)) { // not gcode file
