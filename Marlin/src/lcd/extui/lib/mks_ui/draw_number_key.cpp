@@ -42,8 +42,8 @@
 #include "../../../../module/planner.h"
 
 #if HAS_TRINAMIC_CONFIG
-  #include "../../../../../module/stepper/indirection.h"
-  #include "../../../../../feature/tmc_util.h"
+  #include "../../../../module/stepper/indirection.h"
+  #include "../../../../feature/tmc_util.h"
 #endif
 
 static lv_obj_t * scr;

@@ -28,10 +28,10 @@
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
-#include "../../../../../module/stepper/indirection.h"
-#include "../../../../../feature/tmc_util.h"
-#include "../../../../../gcode/gcode.h"
-#include "../../../../../module/planner.h"
+#include "../../../../module/stepper/indirection.h"
+#include "../../../../feature/tmc_util.h"
+#include "../../../../gcode/gcode.h"
+#include "../../../../module/planner.h"
 
 static lv_obj_t * scr;
 
