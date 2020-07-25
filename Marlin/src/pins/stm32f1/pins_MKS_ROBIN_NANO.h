@@ -165,7 +165,7 @@
  * to let the bootloader init the screen.
  */
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
     #define SPI_TFT_CS_PIN                  PD11
     #define SPI_TFT_SCK_PIN                 PA5
@@ -201,7 +201,7 @@
 
   #endif  // TFT_LVGL_UI
 
-#endif // SPI_GRAPHICAL_TFT
+#endif // TFT_LVGL_UI_SPI
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h

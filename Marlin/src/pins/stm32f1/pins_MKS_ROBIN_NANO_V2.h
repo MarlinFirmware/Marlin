@@ -232,7 +232,7 @@
  * to let the bootloader init the screen.
  */
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
   #define SPI_TFT_CS_PIN                    PD11
   #define SPI_TFT_SCK_PIN                   PA5
@@ -268,7 +268,7 @@
 
   #endif  //TFT_LITTLE_VGL_UI
 
-#endif// SPI_GRAPHICAL_TFT
+#endif// TFT_LVGL_UI_SPI
 
 #if HAS_SPI_LCD
 
