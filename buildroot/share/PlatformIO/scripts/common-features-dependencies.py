@@ -131,19 +131,31 @@ def install_features_dependencies():
 
 # search the current compiler, considering the OS
 def search_compiler():
-	if env['PLATFORM'] == 'win32':
-		# the first path have the compiler
-		for path in env['ENV']['PATH'].split(';'):
-			if not re.search(r'platformio\\packages.*\\bin', path):
+	# CXX = CC means platformio dont found a default compiler
+	# It happes when:
+	#   - Windows users
+	#   - Docker users without a gcc installed in the image
+	#   - Linux users without a system gcc installed
+	#   - Mac users (but mac will find CC anyway...)
+	if env.get('CXX') == 'CC':
+		if env['PLATFORM'] == 'win32':
+			path_separator = ';'
+			path_regex = r'platformio\\packages.*\\bin'
+			gcc = "g++.exe"
+		else:
+			path_separator = ':'
+			path_regex = r'platformio/packages.*/bin'
+			gcc = "g++"
+		# search for the compiler
+		for path in env['ENV']['PATH'].split(path_separator):
+			if not re.search(path_regex, path):
 				continue
-			#print(path)
 			for file in os.listdir(path):
-				if file.endswith("g++.exe"):
+				if file.endswith(gcc):
 					return file
 		print("Could not find the g++")
-		return None
-	else:
-		return env.get('CXX')
+	# failback to CXX...
+	return env.get('CXX')
 
 
 # load marlin features
