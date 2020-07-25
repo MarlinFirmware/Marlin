@@ -47,7 +47,7 @@
 
 #include <SPI.h>
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
   #include "SPI_TFT.h"
 #endif
 
@@ -88,7 +88,7 @@ void SysTick_Callback() {
   print_time_count();
 }
 
-#if DISABLED(SPI_GRAPHICAL_TFT)
+#if DISABLED(TFT_LVGL_UI_SPI)
 
 extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
 extern void LCD_IO_WriteData(uint16_t RegValue);
@@ -402,7 +402,7 @@ void init_tft() {
   }
 }
 
-#endif // !SPI_GRAPHICAL_TFT
+#endif // !TFT_LVGL_UI_SPI
 
 extern uint8_t bmp_public_buf[17 * 1024];
 
@@ -417,7 +417,7 @@ void tft_lvgl_init() {
   disp_language_init();
 
   //init tft first!
-  #if ENABLED(SPI_GRAPHICAL_TFT)
+  #if ENABLED(TFT_LVGL_UI_SPI)
     SPI_TFT.spi_init(SPI_FULL_SPEED);
     SPI_TFT.LCD_init();
   #else
@@ -485,7 +485,7 @@ void tft_lvgl_init() {
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
-  #if ENABLED(SPI_GRAPHICAL_TFT)
+  #if ENABLED(TFT_LVGL_UI_SPI)
     uint16_t i, width, height;
     uint16_t clr_temp;
     uint8_t tbuf[480 * 2];
@@ -520,7 +520,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
 
     W25QXX.init(SPI_QUARTER_SPEED);
 
-  #else // !SPI_GRAPHICAL_TFT
+  #else // !TFT_LVGL_UI_SPI
 
     #if 1
       uint16_t i, width, height;
@@ -540,7 +540,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
       lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
     #endif
 
-  #endif // !SPI_GRAPHICAL_TFT
+  #endif // !TFT_LVGL_UI_SPI
 }
 
 #define TICK_CYCLE 1
@@ -551,7 +551,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
   #ifndef USE_XPT2046
     #define USE_XPT2046       1
@@ -639,7 +639,7 @@ static void xpt2046_corr(uint16_t *x, uint16_t *y) {
 #define CHY   0xD0
 
 int SPI2_ReadWrite2Bytes(void) {
-  #define SPI_READ_WRITE_BYTE(B) TERN(SPI_GRAPHICAL_TFT, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
+  #define SPI_READ_WRITE_BYTE(B) TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
   const uint16_t t1 = SPI_READ_WRITE_BYTE(0xFF),
                  t2 = SPI_READ_WRITE_BYTE(0xFF);
   return (((t1 << 8) | t2) >> 3) & 0x0FFF;
@@ -649,10 +649,10 @@ uint16_t x_addata[times], y_addata[times];
 void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
   uint16_t i, j, k;
 
-  TERN(SPI_GRAPHICAL_TFT, SPI_TFT.spi_init, W25QXX.init)(SPI_SPEED_6);
+  TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_init, W25QXX.init)(SPI_SPEED_6);
 
   for (i = 0; i < times; i++) {
-    #if ENABLED(SPI_GRAPHICAL_TFT)
+    #if ENABLED(TFT_LVGL_UI_SPI)
       OUT_WRITE(TOUCH_CS_PIN, LOW);
       SPI_TFT.spi_read_write_byte(CHX);
       y_addata[i] = SPI2_ReadWrite2Bytes();
@@ -675,7 +675,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
     #endif
 
   }
-  TERN(SPI_GRAPHICAL_TFT,,W25QXX.init(SPI_QUARTER_SPEED));
+  TERN(TFT_LVGL_UI_SPI,,W25QXX.init(SPI_QUARTER_SPEED));
 
   for (i = 0; i < times; i++)
     for (j = i + 1; j < times; j++)

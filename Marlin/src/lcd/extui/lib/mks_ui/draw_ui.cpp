@@ -28,7 +28,7 @@
 
 #include <SPI.h>
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
   #include "SPI_TFT.h"
 #endif
 
@@ -496,7 +496,7 @@ char *creat_title_text() {
         // SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
 
         card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-        #if ENABLED(SPI_GRAPHICAL_TFT)
+        #if ENABLED(TFT_LVGL_UI_SPI)
           SPI_TFT.spi_init(SPI_FULL_SPEED);
           // SPI_TFT.SetCursor(0,0);
           SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
@@ -517,7 +517,7 @@ char *creat_title_text() {
           }
           if (j >= 400) break;
         }
-        #if ENABLED(SPI_GRAPHICAL_TFT)
+        #if ENABLED(TFT_LVGL_UI_SPI)
           uint16_t Color, SpiColor;
           SpiColor = (LV_COLOR_BACKGROUND.full >> 8) | ((LV_COLOR_BACKGROUND.full & 0xFF) << 8);
           for (i = 0; i < 400;) {
@@ -619,7 +619,7 @@ char *creat_title_text() {
         card.openFileRead(cur_name);
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
-        #if ENABLED(SPI_GRAPHICAL_TFT)
+        #if ENABLED(TFT_LVGL_UI_SPI)
           SPI_TFT.spi_init(SPI_FULL_SPEED);
           // SPI_TFT.SetCursor(0,0);
           SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
@@ -653,7 +653,7 @@ char *creat_title_text() {
           //#endif
 
         }
-        #if ENABLED(SPI_GRAPHICAL_TFT)
+        #if ENABLED(TFT_LVGL_UI_SPI)
           for (i = 0; i < 400;) {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
 
@@ -754,7 +754,7 @@ char *creat_title_text() {
         }
         else {
           default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-          #if ENABLED(SPI_GRAPHICAL_TFT)
+          #if ENABLED(TFT_LVGL_UI_SPI)
             uint16_t Color;
             for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
               p_index = (uint16_t *)(&bmp_public_buf[i]);
@@ -766,7 +766,7 @@ char *creat_title_text() {
         }
       #else
         default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-        #if ENABLED(SPI_GRAPHICAL_TFT)
+        #if ENABLED(TFT_LVGL_UI_SPI)
           for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
             Color = (*p_index >> 8);
@@ -777,7 +777,7 @@ char *creat_title_text() {
       #endif
 
       i = 0;
-      #if ENABLED(SPI_GRAPHICAL_TFT)
+      #if ENABLED(TFT_LVGL_UI_SPI)
 
         // SPI_TFT.spi_init(SPI_FULL_SPEED);
         // SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel, 200,20);     //200*200
@@ -820,7 +820,7 @@ char *creat_title_text() {
           }
           if (i >= 8000) break;
         }
-      #endif // if ENABLED(SPI_GRAPHICAL_TFT)
+      #endif // if ENABLED(TFT_LVGL_UI_SPI)
       y_off++;
     }
     W25QXX.init(SPI_QUARTER_SPEED);

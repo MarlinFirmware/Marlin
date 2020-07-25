@@ -2152,16 +2152,18 @@
 // Just copy the `assets` folder from the build directory to the
 // root of your SD card, together with the compiled firmware.
 //
-//#define TFT_LVGL_UI
+// Robin nano v1.2 uses FSMC
+//
+//#define TFT_LVGL_UI_FSMC
+
+// Robin nano v2.0 uses SPI
+//
+//#define TFT_LVGL_UI_SPI
+
 
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
-
-//
-// Robin nano v2.0 SPI touch screen
-//
-//#define SPI_GRAPHICAL_TFT
 
 //
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.

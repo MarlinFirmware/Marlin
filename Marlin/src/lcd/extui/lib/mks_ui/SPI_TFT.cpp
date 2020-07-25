@@ -22,7 +22,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
 #include <SPI.h>
 #include "../../../../inc/MarlinConfig.h"
@@ -333,4 +333,4 @@ void TFT::LCD_Draw_Logo() {
   SetWindows(0, 0, 479, 319);
 }
 
-#endif // SPI_GRAPHICAL_TFT
+#endif // TFT_LVGL_UI_SPI
