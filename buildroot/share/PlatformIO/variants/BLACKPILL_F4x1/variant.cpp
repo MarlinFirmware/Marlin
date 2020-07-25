@@ -118,14 +118,14 @@ extern "C" {
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (HSI)
+  *            System Clock source            = PLL (HSE)
   *            SYSCLK(Hz)                     = 84000000
   *            HCLK(Hz)                       = 84000000
   *            AHB Prescaler                  = 1
   *            APB1 Prescaler                 = 2
   *            APB2 Prescaler                 = 1
-  *            HSI Frequency(Hz)              = 16000000
-  *            PLL_M                          = 16
+  *            HSE Frequency(Hz)              = 25000000
+  *            PLL_M                          = 25
   *            PLL_N                          = 336
   *            PLL_P                          = 4
   *            PLL_Q                          = 7
@@ -149,10 +149,10 @@ WEAK void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 15;
-  RCC_OscInitStruct.PLL.PLLN = 144;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
-  RCC_OscInitStruct.PLL.PLLQ = 5;
+  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = 4;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     Error_Handler();
   }

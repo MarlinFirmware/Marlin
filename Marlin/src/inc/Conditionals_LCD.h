@@ -173,7 +173,7 @@
   #endif
   #define LCD_WIDTH                   20    //20 or 24 chars in line
   #define LCD_HEIGHT                  10    //lines
-  #define LCD_I2C_ADDRESS             0x20  //used only when panel connected via I2C
+  #define LCD_I2C_ADDRESS             0x33  //used only when panel connected via I2C
   #define LCD_CONTRAST_MIN            127
   #define LCD_CONTRAST_MAX            255
   #define DEFAULT_LCD_CONTRAST        250

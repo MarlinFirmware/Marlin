@@ -307,6 +307,8 @@ void TFTGLCD::setContrast(uint16_t contrast) {
         Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2, 0, 0, 1);
       #elif defined(TARGET_STM32F1) || defined(ARDUINO_ARCH_SAM)
         Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2);
+      #elif defined(STM32F4)
+        Wire.requestFrom(LCD_I2C_ADDRESS, 2);
       #endif
       encoderDiff += Wire.read();
       return Wire.read();   //buttons
@@ -359,8 +361,8 @@ void TFTGLCD::setContrast(uint16_t contrast) {
 void MarlinUI::init_lcd() {
   uint8_t t;
   lcd.clear_buffer();
+  t = 0;
   #if ENABLED(LCD_CONNECT_BY_SPI)
-    t = 0;
     pinMode(DOGLCD_CS, OUTPUT);
     digitalWrite(DOGLCD_CS, HIGH);
     SPI.begin();
@@ -380,47 +382,52 @@ void MarlinUI::init_lcd() {
       t = SPI.transfer(GET_SPI_DATA);
     #endif
   #else
-    t = 1;
-    Wire.begin();   //init twi/I2C
+    Wire.begin((uint8_t)LCD_I2C_ADDRESS);   //init twi/I2C
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
-    Wire.write(INIT_SCREEN);
-    Wire.write(1);    //protocol Marlin1 (for I2C bus)
-    t = Wire.endTransmission();
+    Wire.write((uint8_t)GET_LCD_ROW); // put command to buffer
+    Wire.endTransmission(); // send buffer
+    #if defined(__AVR__)
+      Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 1, 0, 0, 1);
+    #elif defined(TARGET_STM32F1) || defined(ARDUINO_ARCH_SAM)
+      Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 1);
+    #elif defined(STM32F4)
+      Wire.requestFrom(LCD_I2C_ADDRESS, 1);
+    #endif
+    t = (uint8_t)Wire.peek();
   #endif
 
-  if (t == 0) {
+  if (t == LCD_HEIGHT) {
+    PanelDetected = 1;
     #if ENABLED(LCD_CONNECT_BY_SPI)
-      PanelDetected = 0;
+      PanelDetected = 1;
+      #if defined(__AVR__) || defined(MCU_LPC1768)
+        SPI.transfer(INIT_SCREEN);
+        SPI.transfer(2);    //protocol Marlin
+      #elif defined(TARGET_STM32F1)
+//        SPI.write(INIT_SCREEN);
+//        SPI.write(2);
+        SPI.transfer(INIT_SCREEN);
+        SPI.transfer(2);
+      #elif defined(STM32F4)
+        SPI.transfer(INIT_SCREEN, SPI_CONTINUE);
+        SPI.transfer(2, SPI_CONTINUE);
+      #elif defined(ARDUINO_ARCH_SAM)
+        SPI.transfer(INIT_SCREEN);
+        SPI.transfer(2);
+      #endif
       digitalWrite(DOGLCD_CS, HIGH);
     #else
-      PanelDetected = 1;
+      Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
+      Wire.write((uint8_t)INIT_SCREEN);
+      Wire.write(0x01);    //protocol Marlin1 (for I2C bus)
+      Wire.endTransmission();
     #endif
   }
   else {
+    PanelDetected = 0;
     #if ENABLED(LCD_CONNECT_BY_SPI)
-      if (t == LCD_HEIGHT) {
-        PanelDetected = 1;
-        #if defined(__AVR__) || defined(MCU_LPC1768)
-          SPI.transfer(INIT_SCREEN);
-          SPI.transfer(2);    //protocol Marlin
-        #elif defined(TARGET_STM32F1)
-//          SPI.write(INIT_SCREEN);
-//          SPI.write(2);
-          SPI.transfer(INIT_SCREEN);
-          SPI.transfer(2);
-        #elif defined(STM32F4)
-          SPI.transfer(INIT_SCREEN, SPI_CONTINUE);
-          SPI.transfer(2, SPI_CONTINUE);
-        #elif defined(ARDUINO_ARCH_SAM)
-          SPI.transfer(INIT_SCREEN);
-          SPI.transfer(2);
-        #endif
-      }
-      else
-        PanelDetected = 0;
       digitalWrite(DOGLCD_CS, HIGH);
     #else
-      PanelDetected = 0;
       #if DISABLED(DIGIPOT_I2C)
         Wire.end();    //twi/I2C off
       #endif
