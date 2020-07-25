@@ -130,7 +130,13 @@ def install_features_dependencies():
 			proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
 
 # search the current compiler, considering the OS
+ENV_BUILD_PATH = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env["PIOENV"])
+GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
+	if os.path.exists(GCC_PATH_CACHE):
+		print('Loading g++ path from cache')
+		with open(GCC_PATH_CACHE, 'r') as f:
+			return f.read()
 	# CXX = CC means platformio dont found a default compiler
 	# It happes when:
 	#   - Windows users
@@ -146,13 +152,22 @@ def search_compiler():
 			path_separator = ':'
 			path_regex = r'platformio/packages.*/bin'
 			gcc = "g++"
+
 		# search for the compiler
 		for path in env['ENV']['PATH'].split(path_separator):
 			if not re.search(path_regex, path):
 				continue
 			for file in os.listdir(path):
-				if file.endswith(gcc):
-					return file
+				if not file.endswith(gcc):
+					continue
+
+				# lets cache the g++ path to no search always
+				if os.path.exists(ENV_BUILD_PATH):
+					print('Caching g++ for current env')
+					with open(GCC_PATH_CACHE, 'w+') as f:
+						f.write(file)
+				return file
+
 		print("Could not find the g++")
 	# failback to CXX...
 	return env.get('CXX')
