@@ -2166,18 +2166,11 @@
 // TFT LVGL UI
 //
 // Using default MKS icons and fonts from: https://git.io/JJvzK
-// Just copy the `assets` folder from the build directory to the
+// Just copy the 'assets' folder from the build directory to the
 // root of your SD card, together with the compiled firmware.
-
 //
-// Robin nano v1.2 uses FSMC
-//
-//#define TFT_LVGL_UI_FSMC
-
-//
-// Robin nano v2.0 uses SPI
-//
-//#define TFT_LVGL_UI_SPI
+//#define TFT_LVGL_UI_FSMC  // Robin nano v1.2 uses FSMC
+//#define TFT_LVGL_UI_SPI   // Robin nano v2.0 uses SPI
 
 //=============================================================================
 //============================  Other Controllers  ============================
