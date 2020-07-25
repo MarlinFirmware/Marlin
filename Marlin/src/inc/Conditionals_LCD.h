@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -119,6 +119,27 @@
 
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
+
+#elif ENABLED(FYSETC_242_OLED_12864)
+
+  #define IS_RRD_SC
+  #define U8GLIB_SH1106
+
+  #define LED_CONTROL_MENU
+  #define NEOPIXEL_LED
+  #undef NEOPIXEL_TYPE
+  #define NEOPIXEL_TYPE       NEO_RGB
+  #if NEOPIXEL_PIXELS < 3
+    #undef NEOPIXELS_PIXELS
+    #define NEOPIXEL_PIXELS     3
+  #endif
+  #ifndef NEOPIXEL_BRIGHTNESS
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    #define LED_BACKLIGHT_TIMEOUT 10000
+  #endif
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -234,12 +255,17 @@
   #define IS_ULTIPANEL
 #endif
 
+// LVGL UI, SPI or FSMC
+#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
+  #define HAS_TFT_LVGL_UI 1
+#endif
+
 // FSMC/SPI TFT Panels
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(SPI_GRAPHICAL_TFT)
+#elif ENABLED(TFT_LVGL_UI_SPI)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -378,6 +404,14 @@
   #endif
 #endif
 
+#if ENABLED(SR_LCD_3W_NL)
+  // Feature checks for SR_LCD_3W_NL
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+  #define USES_LIQUIDTWI2
+#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+  #define USES_LIQUIDCRYSTAL
+#endif
+
 #if ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS)
   #define HAS_LCD_MENU 1
 #endif
@@ -477,6 +511,8 @@
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
 #endif
 
 // Helper macros for extruder and hotend arrays
@@ -564,14 +600,6 @@
 
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
-#endif
-
-#ifndef PREHEAT_1_LABEL
-  #define PREHEAT_1_LABEL "PLA"
-#endif
-
-#ifndef PREHEAT_2_LABEL
-  #define PREHEAT_2_LABEL "ABS"
 #endif
 
 /**

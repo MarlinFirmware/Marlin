@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,7 +33,7 @@
  * Helpful G-code references:
  *  - https://marlinfw.org/meta/gcode
  *  - https://reprap.org/wiki/G-code
- *  - http://linuxcnc.org/docs/html/gcode.html
+ *  - https://linuxcnc.org/docs/html/gcode.html
  *
  * Help to document Marlin's G-codes online:
  *  - https://github.com/MarlinFirmware/MarlinDocumentation
@@ -334,8 +334,14 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_move_ms;
-  FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
+  static millis_t previous_move_ms, max_inactive_time, stepper_inactive_time;
+  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+  FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
+    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+  }
+  FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
+    return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+  }
 
   static int8_t get_target_extruder_from_command();
   static int8_t get_target_e_stepper_from_command();

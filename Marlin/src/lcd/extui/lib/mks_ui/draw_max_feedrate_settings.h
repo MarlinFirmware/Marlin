@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,11 +25,8 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
-#define MIN_FILE_PRINTED   100 //5000
-
-extern void printer_state_polling();
-extern void filament_pin_setup();
-extern void filament_check();
+extern void lv_draw_max_feedrate_settings(void);
+extern void lv_clear_max_feedrate_settings();
 
 #ifdef __cplusplus
 } /* C-declarations for C++ */
