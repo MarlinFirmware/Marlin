@@ -123,6 +123,12 @@ def install_features_dependencies():
 			proj.set("env:" + env["PIOENV"], "src_filter", [src_filter])
 			env.Replace(SRC_FILTER=src_filter)
 
+		if 'lib_ignore' in FEATURE_DEPENDENCIES[feature]:
+			print("Ignoring libs for %s... " % feature)
+			lib_ignore = env.GetProjectOption("lib_ignore") + [FEATURE_DEPENDENCIES[feature]['lib_ignore']]
+			proj = env.GetProjectConfig()
+			proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
+
 # search the current compiler, considering the OS
 def search_compiler():
 	if env['PLATFORM'] == 'win32':
