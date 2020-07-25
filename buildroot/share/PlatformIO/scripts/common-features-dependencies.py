@@ -57,8 +57,8 @@ def get_all_env_libs():
 		env_libs.append(name)
 	return env_libs
 
-# All unused libs should be ignored so that if a library exists
-# in .pio/lib_deps it will not break compilation.
+# All unused libs should be ignored so that if a library
+# exists in .pio/lib_deps it will not break compilation.
 def force_ignore_unused_libs():
 	env_libs = get_all_env_libs()
 	known_libs = get_all_known_libs()
