@@ -64,7 +64,7 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption("lib_ignore") + diff
-	print("Ignoring libs: ", lib_ignore)
+	print("Ignoring libs:", lib_ignore)
 	proj = env.GetProjectConfig()
 	proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
 
@@ -128,7 +128,9 @@ def install_features_dependencies():
 			proj = env.GetProjectConfig()
 			proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
 
+#
 # Find a compiler, considering the OS
+#
 ENV_BUILD_PATH = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env["PIOENV"])
 GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
@@ -137,44 +139,41 @@ def search_compiler():
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
-	# CXX = 'CC' means platformio can't find a default compiler
-	# Pretty much the case for all mainstream operating systems:
-	#   - Windows
-	#   - Docker with no gcc installed
-	#   - Linux with no gcc installed
-	#   - macOS (but 'cc' found due to case-insensitive filesystem)
-	if env.get('CXX') == 'CC':
-		if env['PLATFORM'] == 'win32':
-			path_separator = ';'
-			path_regex = r'platformio\\packages.*\\bin'
-			gcc = "g++.exe"
-		else:
-			path_separator = ':'
-			path_regex = r'platformio/packages.*/bin'
-			gcc = "g++"
+	# PlatformIO inserts the toolchain bin folder on the front of the $PATH
+	# Find the current platform compiler by searching the $PATH
+	if env['PLATFORM'] == 'win32':
+		path_separator = ';'
+		path_regex = r'platformio\\packages.*\\bin'
+		gcc = "g++.exe"
+	else:
+		path_separator = ':'
+		path_regex = r'platformio/packages.*/bin'
+		gcc = "g++"
 
-		# Search for the compiler
-		for path in env['ENV']['PATH'].split(path_separator):
-			if not re.search(path_regex, path):
+	# Search for the compiler
+	for path in env['ENV']['PATH'].split(path_separator):
+		if not re.search(path_regex, path):
+			continue
+		for file in os.listdir(path):
+			if not file.endswith(gcc):
 				continue
-			for file in os.listdir(path):
-				if not file.endswith(gcc):
-					continue
 
-				# Cache the g++ path to no search always
-				if os.path.exists(ENV_BUILD_PATH):
-					print('Caching g++ for current env')
-					with open(GCC_PATH_CACHE, 'w+') as f:
-						f.write(file)
+			# Cache the g++ path to no search always
+			if os.path.exists(ENV_BUILD_PATH):
+				print('Caching g++ for current env')
+				with open(GCC_PATH_CACHE, 'w+') as f:
+					f.write(file)
 
-				return file
+			return file
 
-		print("Couldn't find a (gcc) compiler!")
+	cc = env.get('CC')
+	file = cc if cc != None else env.get('CXX')
+	print("Couldn't find a compiler! Fallback to", file)
+	return file
 
-	# Fall back to CXX...
-	return env.get('CXX')
-
-# Load marlin features
+#
+# Use the compiler to get a list of all enabled features
+#
 def load_marlin_features():
 	if "MARLIN_FEATURES" in env:
 		return
@@ -207,15 +206,22 @@ def load_marlin_features():
 		marlin_features[feature] = definition
 	env["MARLIN_FEATURES"] = marlin_features
 
+#
+# Return True if a matching feature is enabled
+#
 def MarlinFeatureIsEnabled(env, feature):
 	load_marlin_features()
 	r = re.compile(feature)
 	matches = list(filter(r.match, env["MARLIN_FEATURES"]))
 	return len(matches) > 0
 
-# add a method for others scripts to check if a feature is enabled
+#
+# Add a method for other PIO scripts to query enabled features
+#
 env.AddMethod(MarlinFeatureIsEnabled)
 
-# install all dependencies for features enabled in Configuration.h
+#
+# Add dependencies for enabled Marlin features
+#
 install_features_dependencies()
 force_ignore_unused_libs()
