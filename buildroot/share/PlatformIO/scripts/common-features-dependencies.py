@@ -30,12 +30,8 @@ def load_config():
 			parts = dep.split('=')
 			name = parts.pop(0)
 			rest = '='.join(parts)
-			if name == 'extra_scripts':
-				FEATURE_DEPENDENCIES[ukey]['extra_scripts'] = rest
-			elif name == 'src_filter':
-				FEATURE_DEPENDENCIES[ukey]['src_filter'] = rest
-			elif name == 'lib_ignore':
-				FEATURE_DEPENDENCIES[ukey]['lib_ignore'] = rest
+			if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
+				FEATURE_DEPENDENCIES[ukey][name] = rest
 			else:
 				FEATURE_DEPENDENCIES[ukey]['lib_deps'] += [dep]
 
@@ -166,8 +162,7 @@ def search_compiler():
 
 			return file
 
-	cc = env.get('CC')
-	file = cc if cc != None else env.get('CXX')
+	file = env.get('CXX')
 	print("Couldn't find a compiler! Fallback to", file)
 	return file
 
