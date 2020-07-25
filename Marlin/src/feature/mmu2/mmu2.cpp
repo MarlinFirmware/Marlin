@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -466,7 +466,7 @@ void MMU2::check_version() {
   }
 }
 
-static bool mmu2_not_responding() {
+static void mmu2_not_responding() {
   LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
   BUZZ(100, 659);
   BUZZ(200, 698);

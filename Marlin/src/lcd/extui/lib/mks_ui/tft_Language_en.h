@@ -16,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 //****************英文***************************//
-#define MACHINE_CONFIG_EN              "Machine\nSettings"
+#define MACHINE_CONFIG_EN              "Config"
 
 #define NEXT_EN                 "Next"
 #define PREVIOUS_EN             "Previous"
 #define DEFAULT_EN              "Default"
 #define KEY_BACK_EN             "Del"
-#define KEY_REST_EN             "Rest"
+#define KEY_REST_EN             "Reset"
 #define KEY_CONFIRM_EN          "Confirm"
 
 #define KEYBOARD_KEY0_EN "0"
@@ -44,12 +44,11 @@
 #define KEYBOARD_KEY_POINT_EN "."
 #define KEYBOARD_KEY_NEGATIVE_EN "-"
 
-#define MACHINE_PARA_EN             "Machine\nsettings"
-#define MACHINE_PARA_TITLE_EN       "Machine settings"
-#define MACHINE_TYPE_CNOFIG_EN      "Machine"
-#define TEMPERATURE_CONFIG_EN       "Temperature"
-#define MOTOR_CONFIG_EN             "Motor"
-#define ADVANCE_CONFIG_EN           "Adavance"
+#define MACHINE_PARA_TITLE_EN       "Config"
+#define MACHINE_TYPE_CNOFIG_EN      "Machine settings"
+#define TEMPERATURE_CONFIG_EN       "Temperature settings"
+#define MOTOR_CONFIG_EN             "Motor settings"
+#define ADVANCE_CONFIG_EN           "Adavance settings"
 
 #define MACHINE_CONFIG_TITLE_EN     "Machine Settings"
 #define MACHINE_TYPE_EN             "Machine type"
@@ -158,6 +157,8 @@
 #define ACCELERATION_CONF_EN            "Acceleration settings"
 #define JERKCONF_EN                     "Jerk settings"
 #define STEPSCONF_EN                    "Steps settings"
+#define TMC_CURRENT_EN                  "TMC Current settings"
+#define TMC_STEP_MODE_EN                "TMC Step mode settings"
 #define MOTORDIRCONF_EN                 "Motor direction settings"
 #define HOMEFEEDRATECONF_EN             "Home speed setting"
 
@@ -191,6 +192,20 @@
 #define E0_STEPS_EN                     "E0-axis steps"
 #define E1_STEPS_EN                     "E1-axis steps"
 
+#define TMC_CURRENT_CONF_TITLE_EN       "Machine Settings>TMC current settings"
+#define X_TMC_CURRENT_EN                "X axis current (mA)"
+#define Y_TMC_CURRENT_EN                "Y axis current (mA)"
+#define Z_TMC_CURRENT_EN                "Z axis current (mA)"
+#define E0_TMC_CURRENT_EN               "E0 axis current (mA)"
+#define E1_TMC_CURRENT_EN               "E1 axis current (mA)"
+
+#define TMC_MODE_CONF_TITLE_EN          "Machine Settings>TMC step mode settings"
+#define X_TMC_MODE_EN                   "Whether X axis enable stealthChop modes"
+#define Y_TMC_MODE_EN                   "Whether Y axis enable stealthChop modes"
+#define Z_TMC_MODE_EN                   "Whether Z axis enable stealthChop modes"
+#define E0_TMC_MODE_EN                  "Whether E0 axis enable stealthChop modes"
+#define E1_TMC_MODE_EN                  "Whether E1 axis enable stealthChop modes"
+
 #define MOTORDIR_CONF_TITLE_EN          "Machine Settings>Motor direction"
 #define X_MOTORDIR_EN                   "X-axis motor direction invert"
 #define Y_MOTORDIR_EN                   "Y-axis motor direction invert"
@@ -222,6 +237,11 @@
 #define Y_ENABLE_PINS_INVERT_EN         "Y_ENABLE_PIN_INVERT"
 #define Z_ENABLE_PINS_INVERT_EN         "Z_ENABLE_PIN_INVERT"
 #define E_ENABLE_PINS_INVERT_EN         "E_ENABLE_PIN_INVERT"
+
+#define PAUSE_POSITION_EN    "Printing pause position settings"
+#define PAUSE_POSITION_X_EN  "X axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Y_EN  "Y axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Z_EN  "Z axis position (Relative position,-1 invalid)"
 
 #define TOOL_TEXT_EN            "Tool"
 #define PREHEAT_TEXT_EN         "Preheat"
@@ -299,6 +319,8 @@
 #define MOTOR_OFF_TEXT_EN             "Motor-off"
 #define MOTOR_OFF_XY_TEXT_EN          "Off-XY"
 #define SHUTDOWN_TEXT_EN              "Shutdown"
+#define MACHINE_PARA_EN               "Config"
+#define EEPROM_SETTINGS_EN            "Eeprom Set"
 
 #define U_DISK_TEXT_EN                "USB"
 #define SD_CARD_TEXT_EN               "SD"
@@ -368,8 +390,8 @@
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
 
 
-#define PRE_HEAT_EXT_TEXT_EN                "E"
-#define PRE_HEAT_BED_TEXT_EN                "Bed"
+#define PRE_HEAT_EXT_TEXT_EN            "E"
+#define PRE_HEAT_BED_TEXT_EN            "Bed"
 
 #define FILE_LOADING_EN                 "Loading......"
 #if 0
@@ -703,16 +725,24 @@
 #define PRINTING_OPERATION_OTHER_LANGUGE    "Operation"
 #define PRINTING_PAUSE_OTHER_LANGUGE        "Pause"
 
-#define MESSEGE_PAUSING_EN          "Parking..."
-#define MESSEGE_CHANGING_EN         "Wait for filament change to start"
-#define MESSEGE_UNLOAD_EN           "Wait for filament unload"
-#define MESSEGE_WAITING_EN          "Press Button to resume print"
-#define MESSEGE_INSERT_EN           "Insert filament and press button to continue"
-#define MESSEGE_LOAD_EN             "Wait for filament load"
-#define MESSEGE_PURGE_EN            "Wait for filament purge"
-#define MESSEGE_RESUME_EN           "Wait for print to resume..."
-#define MESSEGE_HEAT_EN             "Press button to heat nozzle"
-#define MESSEGE_HEATING_EN          "Nozzle heating Please wait..."
-#define MESSEGE_OPTION_EN           "Purge more or continue print?"
-#define MESSEGE_PURGE_MORE_EN       "Purge"
-#define MESSEGE_CONTINUE_PRINT_EN   "Print"
+#define MESSAGE_PAUSING_EN        "Parking..."
+#define MESSAGE_CHANGING_EN       "Wait for filament change to start"
+#define MESSAGE_UNLOAD_EN         "Wait for filament unload"
+#define MESSAGE_WAITING_EN        "Press Button to resume print"
+#define MESSAGE_INSERT_EN         "Insert filament and press button to continue"
+#define MESSAGE_LOAD_EN           "Wait for filament load"
+#define MESSAGE_PURGE_EN          "Wait for filament purge"
+#define MESSAGE_RESUME_EN         "Wait for print to resume..."
+#define MESSAGE_HEAT_EN           "Press button to heat nozzle"
+#define MESSAGE_HEATING_EN        "Nozzle heating Please wait..."
+#define MESSAGE_OPTION_EN         "Purge more or continue print?"
+#define MESSAGE_PURGE_MORE_EN     "Purge"
+#define MESSAGE_CONTINUE_PRINT_EN "Print"
+#define EEPROM_SETTINGS_TITLE_EN  "EEPROM Settings"
+#define EEPROM_SETTINGS_STORE_EN  "Store settings to EEPROM"
+#define EEPROM_SETTINGS_READ_EN   "Read settings from EEPROM"
+#define EEPROM_SETTINGS_REVERT_EN "Revert settings to factory defaults"
+
+#define EEPROM_STORE_TIPS_EN  "Store settings to EEPROM?"
+#define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
+#define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"

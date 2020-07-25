@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -185,10 +185,11 @@ int temphot = 0, tempbed = 0;
 float zprobe_zoffset = 0;
 float last_zoffset = 0, last_probe_zoffset = 0;
 
-#define FONT_EEPROM_OFFSET 0
+#define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
+                                            // BL24CXX::check() uses 0x00
 
 void lcd_select_language(void) {
-  BL24CXX::read(FONT_EEPROM_OFFSET, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
+  BL24CXX::read(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
   if (HMI_flag.language_flag)
     DWIN_JPG_CacheTo1(Language_Chinese);
   else
@@ -198,12 +199,12 @@ void lcd_select_language(void) {
 void set_english_to_eeprom(void) {
   HMI_flag.language_flag = 0;
   DWIN_JPG_CacheTo1(Language_English);
-  BL24CXX::write(FONT_EEPROM_OFFSET, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
+  BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
 }
 void set_chinese_to_eeprom(void) {
   HMI_flag.language_flag = 1;
   DWIN_JPG_CacheTo1(Language_Chinese);
-  BL24CXX::write(FONT_EEPROM_OFFSET, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
+  BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&HMI_flag.language_flag, sizeof(HMI_flag.language_flag));
 }
 
 void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
@@ -2374,7 +2375,7 @@ void HMI_Control(void) {
 void HMI_Leveling(void) {
   Popup_Window_Leveling();
   DWIN_UpdateLCD();
-  queue.inject_P(PSTR("G29"));
+  queue.inject_P(PSTR("G28O\nG29"));
 }
 
 /* Axis Move */

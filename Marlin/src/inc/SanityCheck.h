@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -449,6 +449,10 @@
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
+#elif defined(TFT_LVGL_UI)
+  #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
+#elif defined(SPI_GRAPHICAL_TFT)
+  #error "SPI_GRAPHICAL_TFT is now TFT_LVGL_UI_SPI. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
@@ -2131,8 +2135,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  */
 #if ENABLED(EEPROM_SETTINGS)
   #if 1 < 0 \
-    + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
-    + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+    + ENABLED(I2C_EEPROM) \
+    + ENABLED(SPI_EEPROM) \
+    + ENABLED(QSPI_EEPROM) \
+    + ENABLED(SDCARD_EEPROM_EMULATION) \
+    + ENABLED(FLASH_EEPROM_EMULATION) \
+    + ENABLED(SRAM_EEPROM_EMULATION) \
+    + ENABLED(IIC_BL24CXX_EEPROM)
     #error "Please select only one method of EEPROM Persistent Storage."
   #endif
 #endif
@@ -2205,12 +2214,15 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(MKS_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
+  + ENABLED(FYSETC_242_OLED_12864) \
   + ENABLED(DGUS_LCD_UI_ORIGIN) \
   + ENABLED(DGUS_LCD_UI_FYSETC) \
   + ENABLED(DGUS_LCD_UI_HIPRECY) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
-  + ENABLED(FSMC_GRAPHICAL_TFT)
+  + ENABLED(FSMC_GRAPHICAL_TFT) \
+  + ENABLED(TFT_LVGL_UI_FSMC) \
+  + ENABLED(TFT_LVGL_UI_SPI)
   #error "Please select no more than one LCD controller option."
 #endif
 

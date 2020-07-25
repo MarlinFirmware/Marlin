@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -59,10 +59,11 @@
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
-#if ENABLED(TFT_LVGL_UI)
-  #include "lvgl.h"
+#if HAS_TFT_LVGL_UI
   #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
   #include "lcd/extui/lib/mks_ui/draw_ui.h"
+  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
+  #include <lvgl.h>
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -72,7 +73,7 @@
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #include "lcd/dwin/eeprom_BL24CXX.h"
+  #include "libs/BL24CXX.h"
 #endif
 
 #if ENABLED(DIRECT_STEPPING)
@@ -755,7 +756,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
 
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     LV_TASK_HANDLER();
   #endif
 }
@@ -1171,7 +1172,7 @@ void setup() {
   #if ENABLED(IIC_BL24CXX_EEPROM)
     BL24CXX::init();
     const uint8_t err = BL24CXX::check();
-    SERIAL_ECHO_TERNARY(err, "I2C_EEPROM Check ", "failed", "succeeded", "!\n");
+    SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)
@@ -1192,7 +1193,7 @@ void setup() {
     SETUP_RUN(page_manager.init());
   #endif
 
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     SETUP_RUN(tft_lvgl_init());
   #endif
@@ -1229,7 +1230,7 @@ void loop() {
 
     endstops.event_handler();
 
-    TERN_(TFT_LVGL_UI, printer_state_polling());
+    TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

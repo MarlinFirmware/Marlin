@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -49,7 +49,7 @@
  *       PWM (D 14) PD6 20|        |21  PD7 (D 15) PWM
  *                        +--------+
  *
- * REF http://sanguino.cc/hardware
+ * REF http://sanguino.wikidot.com/hardware
  */
 
 /**
@@ -70,7 +70,7 @@
  *
  * When installing select 1.0.2
  *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Installation instructions can be found at http://learn.sparkfun.com/pages/CustomBoardsArduino
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.

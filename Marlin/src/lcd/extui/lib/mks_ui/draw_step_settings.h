@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,10 +25,9 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_opration(void);
-extern void lv_clear_opration();
+extern void lv_draw_step_settings(void);
+extern void lv_clear_step_settings();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif
