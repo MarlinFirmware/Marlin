@@ -2375,7 +2375,7 @@ void HMI_Control(void) {
 void HMI_Leveling(void) {
   Popup_Window_Leveling();
   DWIN_UpdateLCD();
-  queue.inject_P(PSTR("G29"));
+  queue.inject_P(PSTR("G28O\nG29"));
 }
 
 /* Axis Move */
