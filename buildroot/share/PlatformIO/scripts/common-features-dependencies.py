@@ -185,10 +185,10 @@ def MarlinFeatureIsEnabled(env, feature):
 	matches = list(filter(r.match, env["MARLIN_FEATURES"]))
 	return len(matches) > 0
 
-# add a method for others scripts to check if a feature is enabled
+# Add a method for others scripts to check if a feature is enabled
 env.AddMethod(MarlinFeatureIsEnabled)
 
-# install all dependencies for features enabled in Configuration.h
+# Install all dependencies for features enabled in Configuration.h
 install_features_dependencies()
 force_ignore_unused_libs()
 
