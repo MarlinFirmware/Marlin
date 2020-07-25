@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,7 +29,7 @@
  * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  * Translated by Michal Holeš, Farma MaM
- * http://www.facebook.com/farmamam
+ * https://www.facebook.com/farmamam
  *
  */
 #define DISPLAY_CHARSET_ISO10646_SK
@@ -74,20 +74,23 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Nastaviť ofsety");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofsety nastavené");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nastaviť začiatok");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Zahriať ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" všetko");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" podlož");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nast.");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Zahriať ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Zahriať ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" hotend");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" hotend ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" všetko");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" podlož");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Zahriať ") PREHEAT_2_LABEL _UxGT(" nast.");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Zahriať ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Zahriať ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" všetko");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" podlož");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nast.");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Zahriať $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Zahriať $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Zahriať $ hotend");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Zahriať $ hotend ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Zahriať $ všetko");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Zahriať $ podlož");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Zahriať $ nast.");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Vlastná teplota");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Schladiť");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frekvencia");
@@ -150,14 +153,14 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Koniec úprav siete");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Vlastná sieť");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Vytvoriť sieť");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Sieť bodov ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Sieť bodov ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Sieť bodov $");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Kontrola siete $");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Studená sieť bodov");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Upraviť výšku siete");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Výška");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Skontrolovať sieť");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Kontrola siete ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Kontrola siete ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Kontrola vlast.siete");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 ohrev podlž.");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 ohrev trysky");
@@ -397,14 +400,14 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z mimo podl.");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Faktor skosenia");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Self-Test");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reset");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Zasunúť");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Vysunúť");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: Režim SW");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: Režim 5V");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: Režim OD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Ulož. režim");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Self-Test");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Zasunúť");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Vysunúť");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Režim SW");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Režim 5V");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Režim OD");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Ulož. režim");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Prepnúť do 5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Prepnúť do OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Zobraziť režim");
@@ -439,7 +442,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Chyba: MINTEMP PODL.");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Chyba: MAXTEMP KOMO.");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Chyba: MINTEMP KOMO.");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Najskôr os XY domov");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("TLAČIAREŇ ZASTAVENÁ");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reštartuje ju");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");

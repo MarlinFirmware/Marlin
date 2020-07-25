@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -44,8 +44,12 @@ typedef uint16_t hal_timer_t;
 
 #define HAL_TIMER_RATE uint32_t(F_CPU)  // frequency of timers peripherals
 
-#define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
-#define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#ifndef STEP_TIMER_CHAN
+  #define STEP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
+#ifndef TEMP_TIMER_CHAN
+  #define TEMP_TIMER_CHAN 1 // Channel of the timer to use for compare and interrupts
+#endif
 
 /**
  * Note: Timers may be used by platforms and libraries
@@ -87,8 +91,9 @@ typedef uint16_t hal_timer_t;
   #define SERVO0_TIMER_NUM 1  // SERVO0 or BLTOUCH
 #endif
 
-#define STEP_TIMER_IRQ_PRIO 1
-#define TEMP_TIMER_IRQ_PRIO 2
+#define STEP_TIMER_IRQ_PRIO 2
+#define TEMP_TIMER_IRQ_PRIO 3
+#define SERVO0_TIMER_IRQ_PRIO 1
 
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
@@ -188,5 +193,7 @@ FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
 FORCE_INLINE static void timer_no_ARR_preload_ARPE(timer_dev *dev) {
   bb_peri_set_bit(&(dev->regs).gen->CR1, TIMER_CR1_ARPE_BIT, 0);
 }
+
+void timer_set_interrupt_priority(uint_fast8_t timer_num, uint_fast8_t priority);
 
 #define TIMER_OC_NO_PRELOAD 0 // Need to disable preload also on compare registers.

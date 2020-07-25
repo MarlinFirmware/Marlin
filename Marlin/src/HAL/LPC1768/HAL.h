@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -149,6 +149,8 @@ int freeMemory();
                                     // (1 : 13, 2 : 32, 3 : 67, 4 : 139, 5 : 281, 6 : 565, 7 : 1135, 8 : 2273)
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
+
+#define HAL_ADC_VREF            3.3 // ADC voltage reference
 
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -89,6 +89,10 @@
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
+#endif
+
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "../feature/closedloop.h"
 #endif
 
 #if ENABLED(BACKLASH_COMPENSATION)
@@ -1634,11 +1638,8 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
  * Block until all buffered steps are executed / cleaned
  */
 void Planner::synchronize() {
-  while (
-    has_blocks_queued() || cleaning_buffer_counter
-    #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-      || (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
-    #endif
+  while (has_blocks_queued() || cleaning_buffer_counter
+      || TERN0(EXTERNAL_CLOSED_LOOP_CONTROLLER, CLOSED_LOOP_WAITING())
   ) idle();
 }
 
@@ -1653,7 +1654,7 @@ void Planner::synchronize() {
  *  extruder      - target extruder
  *  millimeters   - the length of the movement, if known
  *
- * Returns true if movement was properly queued, false otherwise
+ * Returns true if movement was properly queued, false otherwise (if cleaning)
  */
 bool Planner::_buffer_steps(const xyze_long_t &target
   #if HAS_POSITION_FLOAT
@@ -1832,7 +1833,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Number of steps for each axis
-  // See http://www.corexy.com/theory.html
+  // See https://www.corexy.com/theory.html
   #if CORE_IS_XY
     block->steps.set(ABS(da + db), ABS(da - db), ABS(dc));
   #elif CORE_IS_XZ
@@ -2039,7 +2040,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if EITHER(SLOWDOWN, ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if EITHER(SLOWDOWN, HAS_SPI_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2107,9 +2108,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
                             * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
       if (cs > max_fr) NOMORE(speed_factor, max_fr / cs); //respect max feedrate on any movement (doesn't matter if E axes only or not)
-      
+
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder] 
+        const feedRate_t max_vfr = volumetric_extruder_feedrate_limit[extruder]
                                    * TERN(HAS_MIXER_SYNC_CHANNEL, MIXING_STEPPERS, 1);
 
         // TODO: Doesn't work properly for joined segments. Set MIN_STEPS_PER_SEGMENT 1 as workaround.
@@ -2352,89 +2353,93 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
         vmax_junction_sqr = junction_acceleration * junction_deviation_mm * sin_theta_d2 / (1.0f - sin_theta_d2);
 
-        // For small moves with >135° junction (octagon) find speed for approximate arc
-        if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
+        #if ENABLED(JD_HANDLE_SMALL_SEGMENTS)
 
-          #if ENABLED(JD_USE_MATH_ACOS)
+          // For small moves with >135° junction (octagon) find speed for approximate arc
+          if (block->millimeters < 1 && junction_cos_theta < -0.7071067812f) {
 
-            #error "TODO: Inline maths with the MCU / FPU."
+            #if ENABLED(JD_USE_MATH_ACOS)
 
-          #elif ENABLED(JD_USE_LOOKUP_TABLE)
+              #error "TODO: Inline maths with the MCU / FPU."
 
-            // Fast acos approximation (max. error +-0.01 rads)
-            // Based on LUT table and linear interpolation
+            #elif ENABLED(JD_USE_LOOKUP_TABLE)
 
-            /**
-             *  // Generate the JD Lookup Table
-             *  constexpr float c = 1.00751495f; // Correction factor to center error around 0
-             *  for (int i = 0; i < jd_lut_count - 1; ++i) {
-             *    const float x0 = (sq(i) - 1) / sq(i),
-             *                y0 = acos(x0) * (i == 0 ? 1 : c),
-             *                x1 = i < jd_lut_count - 1 ?  0.5 * x0 + 0.5 : 0.999999f,
-             *                y1 = acos(x1) * (i < jd_lut_count - 1 ? c : 1);
-             *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
-             *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
-             *  }
-             *
-             *  // Compute correction factor (Set c to 1.0f first!)
-             *  float min = INFINITY, max = -min;
-             *  for (float t = 0; t <= 1; t += 0.0003f) {
-             *    const float e = acos(t) / approx(t);
-             *    if (isfinite(e)) {
-             *      if (e < min) min = e;
-             *      if (e > max) max = e;
-             *    }
-             *  }
-             *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
-             */
-            static constexpr int16_t  jd_lut_count = 16;
-            static constexpr uint16_t jd_lut_tll   = _BV(jd_lut_count - 1);
-            static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count + 1
-            static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
-              -1.03145837f, -1.30760646f, -1.75205851f, -2.41705704f,
-              -3.37769222f, -4.74888992f, -6.69649887f, -9.45661736f,
-              -13.3640480f, -18.8928222f, -26.7136841f, -37.7754593f,
-              -53.4201813f, -75.5458374f, -106.836761f, -218.532821f };
-            static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
-               1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
-               3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
-               13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
-               53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
+              // Fast acos approximation (max. error +-0.01 rads)
+              // Based on LUT table and linear interpolation
 
-            const float neg = junction_cos_theta < 0 ? -1 : 1,
-                        t = neg * junction_cos_theta;
+              /**
+               *  // Generate the JD Lookup Table
+               *  constexpr float c = 1.00751495f; // Correction factor to center error around 0
+               *  for (int i = 0; i < jd_lut_count - 1; ++i) {
+               *    const float x0 = (sq(i) - 1) / sq(i),
+               *                y0 = acos(x0) * (i == 0 ? 1 : c),
+               *                x1 = i < jd_lut_count - 1 ?  0.5 * x0 + 0.5 : 0.999999f,
+               *                y1 = acos(x1) * (i < jd_lut_count - 1 ? c : 1);
+               *    jd_lut_k[i] = (y0 - y1) / (x0 - x1);
+               *    jd_lut_b[i] = (y1 * x0 - y0 * x1) / (x0 - x1);
+               *  }
+               *
+               *  // Compute correction factor (Set c to 1.0f first!)
+               *  float min = INFINITY, max = -min;
+               *  for (float t = 0; t <= 1; t += 0.0003f) {
+               *    const float e = acos(t) / approx(t);
+               *    if (isfinite(e)) {
+               *      if (e < min) min = e;
+               *      if (e > max) max = e;
+               *    }
+               *  }
+               *  fprintf(stderr, "%.9gf, ", (min + max) / 2);
+               */
+              static constexpr int16_t  jd_lut_count = 16;
+              static constexpr uint16_t jd_lut_tll   = _BV(jd_lut_count - 1);
+              static constexpr int16_t  jd_lut_tll0  = __builtin_clz(jd_lut_tll) + 1; // i.e., 16 - jd_lut_count + 1
+              static constexpr float jd_lut_k[jd_lut_count] PROGMEM = {
+                -1.03145837f, -1.30760646f, -1.75205851f, -2.41705704f,
+                -3.37769222f, -4.74888992f, -6.69649887f, -9.45661736f,
+                -13.3640480f, -18.8928222f, -26.7136841f, -37.7754593f,
+                -53.4201813f, -75.5458374f, -106.836761f, -218.532821f };
+              static constexpr float jd_lut_b[jd_lut_count] PROGMEM = {
+                 1.57079637f,  1.70887053f,  2.04220939f,  2.62408352f,
+                 3.52467871f,  4.85302639f,  6.77020454f,  9.50875854f,
+                 13.4009285f,  18.9188995f,  26.7321243f,  37.7885055f,
+                 53.4293975f,  75.5523529f,  106.841369f,  218.534011f };
 
-            const int16_t idx = (t < 0.00000003f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
+              const float neg = junction_cos_theta < 0 ? -1 : 1,
+                          t = neg * junction_cos_theta;
 
-            float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
-            if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
+              const int16_t idx = (t < 0.00000003f) ? 0 : __builtin_clz(uint16_t((1.0f - t) * jd_lut_tll)) - jd_lut_tll0;
 
-          #else
+              float junction_theta = t * pgm_read_float(&jd_lut_k[idx]) + pgm_read_float(&jd_lut_b[idx]);
+              if (neg > 0) junction_theta = RADIANS(180) - junction_theta; // acos(-t)
 
-            // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
-            // Based on MinMax polynomial published by W. Randolph Franklin, see
-            // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
-            //  acos( t) = pi / 2 - asin(x)
-            //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
+            #else
 
-            const float neg = junction_cos_theta < 0 ? -1 : 1,
-                        t = neg * junction_cos_theta,
-                        asinx =       0.032843707f
-                              + t * (-1.451838349f
-                              + t * ( 29.66153956f
-                              + t * (-131.1123477f
-                              + t * ( 262.8130562f
-                              + t * (-242.7199627f
-                              + t * ( 84.31466202f ) ))))),
-                        junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
+              // Fast acos(-t) approximation (max. error +-0.033rad = 1.89°)
+              // Based on MinMax polynomial published by W. Randolph Franklin, see
+              // https://wrf.ecse.rpi.edu/Research/Short_Notes/arcsin/onlyelem.html
+              //  acos( t) = pi / 2 - asin(x)
+              //  acos(-t) = pi - acos(t) ... pi / 2 + asin(x)
 
-            // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
+              const float neg = junction_cos_theta < 0 ? -1 : 1,
+                          t = neg * junction_cos_theta,
+                          asinx =       0.032843707f
+                                + t * (-1.451838349f
+                                + t * ( 29.66153956f
+                                + t * (-131.1123477f
+                                + t * ( 262.8130562f
+                                + t * (-242.7199627f
+                                + t * ( 84.31466202f ) ))))),
+                          junction_theta = RADIANS(90) + neg * asinx; // acos(-t)
 
-          #endif
+              // NOTE: junction_theta bottoms out at 0.033 which avoids divide by 0.
 
-          const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
-          NOMORE(vmax_junction_sqr, limit_sqr);
-        }
+            #endif
+
+            const float limit_sqr = (block->millimeters * junction_acceleration) / junction_theta;
+            NOMORE(vmax_junction_sqr, limit_sqr);
+          }
+
+        #endif // JD_HANDLE_SMALL_SEGMENTS
       }
 
       // Get the lowest speed
@@ -2632,6 +2637,8 @@ void Planner::buffer_sync_block() {
  *  fr_mm_s     - (target) speed of the move
  *  extruder    - target extruder
  *  millimeters - the length of the movement, if known
+ *
+ * Return 'false' if no segment was queued due to cleaning, cold extrusion, full queue, etc.
  */
 bool Planner::buffer_segment(const float &a, const float &b, const float &c, const float &e
   #if HAS_DIST_MM_ARG
@@ -2701,7 +2708,7 @@ bool Planner::buffer_segment(const float &a, const float &b, const float &c, con
     SERIAL_ECHOLNPGM(")");
   //*/
 
-  // Queue the movement
+  // Queue the movement. Return 'false' if the move was not queued.
   if (!_buffer_steps(target
       #if HAS_POSITION_FLOAT
         , target_float

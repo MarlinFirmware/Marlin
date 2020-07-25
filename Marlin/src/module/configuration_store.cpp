@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V80"
+#define EEPROM_VERSION "V81"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -50,6 +50,11 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "../lcd/dwin/dwin.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -87,6 +92,10 @@
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
+#endif
+
+#if HAS_POWER_MONITOR
+  #include "../feature/power_monitor.h"
 #endif
 
 #include "../feature/pause.h"
@@ -139,7 +148,7 @@ typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                          
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, COUNT(ARR) - 1)
+#define ALIM(I,ARR) _MIN(I, signed(COUNT(ARR) - 1))
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
@@ -248,11 +257,12 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(DELTA)
     float delta_height;                                 // M666 H
-    abc_float_t delta_endstop_adj;                      // M666 XYZ
+    abc_float_t delta_endstop_adj;                      // M666 X Y Z
     float delta_radius,                                 // M665 R
           delta_diagonal_rod,                           // M665 L
           delta_segments_per_second;                    // M665 S
-    abc_float_t delta_tower_angle_trim;                 // M665 XYZ
+    abc_float_t delta_tower_angle_trim,                 // M665 X Y Z
+                delta_diagonal_rod_trim;                // M665 A B C
   #elif HAS_EXTRA_ENDSTOPS
     float x2_endstop_adj,                               // M666 X
           y2_endstop_adj,                               // M666 Y
@@ -272,11 +282,11 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // ULTIPANEL
+  // Material Presets
   //
-  int16_t ui_preheat_hotend_temp[2],                    // M145 S0 H
-          ui_preheat_bed_temp[2];                       // M145 S0 B
-  uint8_t ui_preheat_fan_speed[2];                      // M145 S0 F
+  #if PREHEAT_COUNT
+    preheat_t ui_material_preset[PREHEAT_COUNT];        // M145 S0 H B F
+  #endif
 
   //
   // PIDTEMP
@@ -295,6 +305,11 @@ typedef struct SettingsDataStruct {
   #if HAS_USER_THERMISTORS
     user_thermistor_t user_thermistor[USER_THERMISTORS]; // M305 P0 R4700 T100000 B3950
   #endif
+
+  //
+  // Power monitor
+  //
+  uint8_t power_monitor_flags;                          // M430 I V W
 
   //
   // HAS_LCD_CONTRAST
@@ -761,6 +776,7 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(delta_diagonal_rod);        // 1 float
         EEPROM_WRITE(delta_segments_per_second); // 1 float
         EEPROM_WRITE(delta_tower_angle_trim);    // 3 floats
+        EEPROM_WRITE(delta_diagonal_rod_trim);   // 3 floats
 
       #elif HAS_EXTRA_ENDSTOPS
 
@@ -797,23 +813,10 @@ void MarlinSettings::postprocess() {
     //
     // LCD Preheat settings
     //
-    {
-      _FIELD_TEST(ui_preheat_hotend_temp);
-
-      #if HAS_HOTEND && HAS_LCD_MENU
-        const int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
-                      (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
-        const uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
-      #else
-        constexpr int16_t ui_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                          ui_preheat_bed_temp[2]    = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED };
-        constexpr uint8_t ui_preheat_fan_speed[2]   = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
-      #endif
-
-      EEPROM_WRITE(ui_preheat_hotend_temp);
-      EEPROM_WRITE(ui_preheat_bed_temp);
-      EEPROM_WRITE(ui_preheat_fan_speed);
-    }
+    #if PREHEAT_COUNT
+      _FIELD_TEST(ui_material_preset);
+      EEPROM_WRITE(ui.material_preset);
+    #endif
 
     //
     // PIDTEMP
@@ -871,6 +874,19 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(thermalManager.user_thermistor);
     }
     #endif
+
+    //
+    // Power monitor
+    //
+    {
+      #if HAS_POWER_MONITOR
+        const uint8_t &power_monitor_flags = power_monitor.flags;
+      #else
+        constexpr uint8_t power_monitor_flags = 0x00;
+      #endif
+      _FIELD_TEST(power_monitor_flags);
+      EEPROM_WRITE(power_monitor_flags);
+    }
 
     //
     // LCD Contrast
@@ -1624,6 +1640,7 @@ void MarlinSettings::postprocess() {
           EEPROM_READ(delta_diagonal_rod);        // 1 float
           EEPROM_READ(delta_segments_per_second); // 1 float
           EEPROM_READ(delta_tower_angle_trim);    // 3 floats
+          EEPROM_READ(delta_diagonal_rod_trim);   // 3 floats
 
         #elif HAS_EXTRA_ENDSTOPS
 
@@ -1657,21 +1674,10 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
-      {
-        _FIELD_TEST(ui_preheat_hotend_temp);
-
-        #if HAS_HOTEND && HAS_LCD_MENU
-          int16_t (&ui_preheat_hotend_temp)[2]  = ui.preheat_hotend_temp,
-                  (&ui_preheat_bed_temp)[2]     = ui.preheat_bed_temp;
-          uint8_t (&ui_preheat_fan_speed)[2]    = ui.preheat_fan_speed;
-        #else
-          int16_t ui_preheat_hotend_temp[2], ui_preheat_bed_temp[2];
-          uint8_t ui_preheat_fan_speed[2];
-        #endif
-        EEPROM_READ(ui_preheat_hotend_temp); // 2 floats
-        EEPROM_READ(ui_preheat_bed_temp);    // 2 floats
-        EEPROM_READ(ui_preheat_fan_speed);   // 2 floats
-      }
+      #if PREHEAT_COUNT
+        _FIELD_TEST(ui_material_preset);
+        EEPROM_READ(ui.material_preset);
+      #endif
 
       //
       // Hotend PID
@@ -1731,6 +1737,19 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(thermalManager.user_thermistor);
       }
       #endif
+
+      //
+      // Power monitor
+      //
+      {
+        #if HAS_POWER_MONITOR
+          uint8_t &power_monitor_flags = power_monitor.flags;
+        #else
+          uint8_t power_monitor_flags;
+        #endif
+        _FIELD_TEST(power_monitor_flags);
+        EEPROM_READ(power_monitor_flags);
+      }
 
       //
       // LCD Contrast
@@ -2494,13 +2513,14 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(DELTA)
-    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM;
+    const abc_float_t adj = DELTA_ENDSTOP_ADJ, dta = DELTA_TOWER_ANGLE_TRIM, ddr = DELTA_DIAGONAL_ROD_TRIM_TOWER;
     delta_height = DELTA_HEIGHT;
     delta_endstop_adj = adj;
     delta_radius = DELTA_RADIUS;
     delta_diagonal_rod = DELTA_DIAGONAL_ROD;
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_tower_angle_trim = dta;
+    delta_diagonal_rod_trim = ddr;
   #endif
 
   #if ENABLED(X_DUAL_ENDSTOPS)
@@ -2539,14 +2559,27 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-
-  #if HAS_HOTEND && HAS_LCD_MENU
-    ui.preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
-    ui.preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
-    ui.preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
-    ui.preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
-    ui.preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
-    ui.preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+  #if PREHEAT_COUNT
+    #if HAS_HOTEND
+      constexpr uint16_t hpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND, PREHEAT_5_TEMP_HOTEND);
+    #endif
+    #if HAS_HEATED_BED
+      constexpr uint16_t bpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED, PREHEAT_3_TEMP_BED, PREHEAT_4_TEMP_BED, PREHEAT_5_TEMP_BED);
+    #endif
+    #if HAS_FAN
+      constexpr uint8_t fpre[] = ARRAY_N(PREHEAT_COUNT, PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED, PREHEAT_3_FAN_SPEED, PREHEAT_4_FAN_SPEED, PREHEAT_5_FAN_SPEED);
+    #endif
+    LOOP_L_N(i, PREHEAT_COUNT) {
+      #if HAS_HOTEND
+        ui.material_preset[i].hotend_temp = hpre[i];
+      #endif
+      #if HAS_HEATED_BED
+        ui.material_preset[i].bed_temp = bpre[i];
+      #endif
+      #if HAS_FAN
+        ui.material_preset[i].fan_speed = fpre[i];
+      #endif
+    }
   #endif
 
   //
@@ -2554,12 +2587,59 @@ void MarlinSettings::reset() {
   //
 
   #if ENABLED(PIDTEMP)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      constexpr float defKp[] =
+        #ifdef DEFAULT_Kp_LIST
+          DEFAULT_Kp_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kp)
+        #endif
+      , defKi[] =
+        #ifdef DEFAULT_Ki_LIST
+          DEFAULT_Ki_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Ki)
+        #endif
+      , defKd[] =
+        #ifdef DEFAULT_Kd_LIST
+          DEFAULT_Kd_LIST
+        #else
+          ARRAY_BY_HOTENDS1(DEFAULT_Kd)
+        #endif
+      ;
+      static_assert(WITHIN(COUNT(defKp), 1, HOTENDS), "DEFAULT_Kp_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKi), 1, HOTENDS), "DEFAULT_Ki_LIST must have between 1 and HOTENDS items.");
+      static_assert(WITHIN(COUNT(defKd), 1, HOTENDS), "DEFAULT_Kd_LIST must have between 1 and HOTENDS items.");
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        constexpr float defKc[] =
+          #ifdef DEFAULT_Kc_LIST
+            DEFAULT_Kc_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kc)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKc), 1, HOTENDS), "DEFAULT_Kc_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #if ENABLED(PID_FAN_SCALING)
+        constexpr float defKf[] =
+          #ifdef DEFAULT_Kf_LIST
+            DEFAULT_Kf_LIST
+          #else
+            ARRAY_BY_HOTENDS1(DEFAULT_Kf)
+          #endif
+        ;
+        static_assert(WITHIN(COUNT(defKf), 1, HOTENDS), "DEFAULT_Kf_LIST must have between 1 and HOTENDS items.");
+      #endif
+      #define PID_DEFAULT(N,E) def##N[E]
+    #else
+      #define PID_DEFAULT(N,E) DEFAULT_##N
+    #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) = float(DEFAULT_Kp);
-      PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
-      PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = DEFAULT_Kc);
-      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = DEFAULT_Kf);
+      PID_PARAM(Kp, e) = float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
+      PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
+      TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
+      TERN_(PID_FAN_SCALING, PID_PARAM(Kf, e) = float(PID_DEFAULT(Kf, ALIM(e, defKf))));
     }
   #endif
 
@@ -2582,6 +2662,11 @@ void MarlinSettings::reset() {
   // User-Defined Thermistors
   //
   TERN_(HAS_USER_THERMISTORS, thermalManager.reset_user_thermistors());
+
+  //
+  // Power Monitor
+  //
+  TERN_(POWER_MONITOR, power_monitor.reset());
 
   //
   // LCD Contrast
@@ -3031,7 +3116,7 @@ void MarlinSettings::reset() {
         , SP_Z_STR, LINEAR_UNIT(delta_endstop_adj.c)
       );
 
-      CONFIG_ECHO_HEADING("Delta settings: L<diagonal_rod> R<radius> H<height> S<segments_per_s> XYZ<tower angle corrections>");
+      CONFIG_ECHO_HEADING("Delta settings: L<diagonal rod> R<radius> H<height> S<segments per sec> XYZ<tower angle trim> ABC<rod trim>");
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
           PSTR("  M665 L"), LINEAR_UNIT(delta_diagonal_rod)
@@ -3041,6 +3126,9 @@ void MarlinSettings::reset() {
         , SP_X_STR, LINEAR_UNIT(delta_tower_angle_trim.a)
         , SP_Y_STR, LINEAR_UNIT(delta_tower_angle_trim.b)
         , SP_Z_STR, LINEAR_UNIT(delta_tower_angle_trim.c)
+        , PSTR(" A"), LINEAR_UNIT(delta_diagonal_rod_trim.a)
+        , PSTR(" B"), LINEAR_UNIT(delta_diagonal_rod_trim.b)
+        , PSTR(" C"), LINEAR_UNIT(delta_diagonal_rod_trim.c)
       );
 
     #elif HAS_EXTRA_ENDSTOPS
@@ -3070,16 +3158,22 @@ void MarlinSettings::reset() {
 
     #endif // [XYZ]_DUAL_ENDSTOPS
 
-    #if HAS_HOTEND && HAS_LCD_MENU
+    #if PREHEAT_COUNT
 
       CONFIG_ECHO_HEADING("Material heatup parameters:");
-      LOOP_L_N(i, COUNT(ui.preheat_hotend_temp)) {
+      LOOP_L_N(i, PREHEAT_COUNT) {
         CONFIG_ECHO_START();
-        SERIAL_ECHOLNPAIR(
-            "  M145 S", (int)i
-          , " H", TEMP_UNIT(ui.preheat_hotend_temp[i])
-          , " B", TEMP_UNIT(ui.preheat_bed_temp[i])
-          , " F", int(ui.preheat_fan_speed[i])
+        SERIAL_ECHOLNPAIR_P(
+          PSTR("  M145 S"), (int)i
+          #if HAS_HOTEND
+            , PSTR(" H"), TEMP_UNIT(ui.material_preset[i].hotend_temp)
+          #endif
+          #if HAS_HEATED_BED
+            , SP_B_STR, TEMP_UNIT(ui.material_preset[i].bed_temp)
+          #endif
+          #if HAS_FAN
+            , PSTR(" F"), ui.material_preset[i].fan_speed
+          #endif
         );
       }
 
@@ -3093,7 +3187,7 @@ void MarlinSettings::reset() {
         HOTEND_LOOP() {
           CONFIG_ECHO_START();
           SERIAL_ECHOPAIR_P(
-            #if BOTH(HAS_MULTI_HOTEND, PID_PARAMS_PER_HOTEND)
+            #if ENABLED(PID_PARAMS_PER_HOTEND)
               PSTR("  M301 E"), e,
               SP_P_STR
             #else
@@ -3104,7 +3198,7 @@ void MarlinSettings::reset() {
             , PSTR(" D"), unscalePID_d(PID_PARAM(Kd, e))
           );
           #if ENABLED(PID_EXTRUSION_SCALING)
-            SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
+            SERIAL_ECHOPAIR_P(SP_C_STR, PID_PARAM(Kc, e));
             if (e == 0) SERIAL_ECHOPAIR(" L", thermalManager.lpq_len);
           #endif
           #if ENABLED(PID_FAN_SCALING)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -49,9 +49,9 @@
 //
 // Servos
 //
-#define SERVO0_PIN                           3
-#define SERVO1_PIN                           4
-#define SERVO2_PIN                           5
+#define SERVO0_PIN                             3
+#define SERVO1_PIN                             4
+#define SERVO2_PIN                             5
 //
 // Limit Switches
 //

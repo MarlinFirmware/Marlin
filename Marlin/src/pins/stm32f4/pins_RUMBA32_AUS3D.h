@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
 #define BOARD_INFO_NAME "RUMBA32"
 
 #if NO_EEPROM_SELECTED
-  #if MB(RUMBA32_V1_0) 
+  #if MB(RUMBA32_V1_0)
     #define FLASH_EEPROM_EMULATION
     #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
   #elif MB(RUMBA32_V1_1)

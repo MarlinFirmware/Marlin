@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -420,7 +420,7 @@
     #elif ENABLED(LCD_I2C_VIKI)
 
       // TO TEST
-      //#define BTN_EN1                       40  // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      //#define BTN_EN1                       40  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       //#define BTN_EN2                       42
       //#define BTN_ENC                       -1
 
@@ -473,7 +473,7 @@
       //  #define KILL_PIN         41
       //#endif
 
-      #if ENABLED(MKS_MINI_12864)                 // Added in Marlin 1.1.6
+      #if ENABLED(MKS_MINI_12864)
 
         // TO TEST
         //#define DOGLCD_A0                   27
