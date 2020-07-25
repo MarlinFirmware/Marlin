@@ -32,6 +32,14 @@
 #define BOARD_INFO_NAME "RADDS"
 
 //
+// EEPROM
+//
+#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
+#endif
+
+//
 // Servos
 //
 #if !HAS_CUTTER
@@ -204,9 +212,6 @@
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                      39  // SERVO2_PIN
 #endif
-
-#define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB
 
 //
 // M3/M4/M5 - Spindle/Laser Control

@@ -576,6 +576,11 @@ inline void calibrate_all() {
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
 void GcodeSuite::G425() {
+
+  #ifdef CALIBRATION_SCRIPT_PRE
+    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
+  #endif
+
   TEMPORARY_SOFT_ENDSTOP_STATE(false);
   TEMPORARY_BED_LEVELING_STATE(false);
 
@@ -606,6 +611,10 @@ void GcodeSuite::G425() {
   #endif
   else
     calibrate_all();
+
+  #ifdef CALIBRATION_SCRIPT_POST
+    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));
+  #endif
 }
 
 #endif // CALIBRATION_GCODE

@@ -45,7 +45,7 @@
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE  // 2KB
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
 #define ENABLE_SPI2
@@ -123,8 +123,8 @@
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA2   // PW_DET
-//#define PS_ON_PIN                         PA3   // PW_OFF
+#define POWER_LOSS_PIN                      PA2   // PW_DET
+#define PS_ON_PIN                           PA3   // PW_OFF
 
 //#define SUICIDE_PIN                       PB2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 //#define SUICIDE_PIN_INVERTING false
@@ -132,12 +132,15 @@
 //#define KILL_PIN                          PA2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 //#define KILL_PIN_INVERTING true                 // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 
-//#define SERVO0_PIN                        PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
 
 //#define LED_PIN                           PB2
 
 #define MT_DET_1_PIN                        PA4
+#define MT_DET_2_PIN                        PE6
 #define MT_DET_PIN_INVERTING false
+
+#define WIFI_IO0_PIN                        PC13
 
 //
 // SD Card
@@ -162,76 +165,28 @@
  * to let the bootloader init the screen.
  */
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_LVGL_UI_SPI)
 
-  #if HAS_SPI_LCD
+  #define SPI_TFT_CS_PIN                    PD11
+  #define SPI_TFT_SCK_PIN                   PA5
+  #define SPI_TFT_MISO_PIN                  PA6
+  #define SPI_TFT_MOSI_PIN                  PA7
+  #define SPI_TFT_DC_PIN                    PD10
+  #define SPI_TFT_RST_PIN                   PC6
 
-    #define BEEPER_PIN                      PC5
-    #define BTN_ENC                         PE13
-    #define LCD_PINS_ENABLE                 PD13
-    #define LCD_PINS_RS                     PC6
-    #define BTN_EN1                         PE8
-    #define BTN_EN2                         PE11
-    #define LCD_BACKLIGHT_PIN               -1
+  #define LCD_BACKLIGHT_PIN                 PD13
 
-    // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-    #if ENABLED(MKS_MINI_12864)
-      #define LCD_BACKLIGHT_PIN             -1
-      #define LCD_RESET_PIN                 -1
-      #define DOGLCD_A0                     PD11
-      #define DOGLCD_CS                     PE15
-      #define DOGLCD_SCK                    PA5
-      #define DOGLCD_MOSI                   PA7
+  #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
+  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
+  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
+  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
-      // Required for MKS_MINI_12864 with this board
-      #define MKS_LCD12864B
-      #undef SHOW_BOOTSCREEN
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PE13
 
-    #else                                         // !MKS_MINI_12864
-
-      #define LCD_PINS_D4                   PE14
-      #if ENABLED(ULTIPANEL)
-        #define LCD_PINS_D5                 PE15
-        #define LCD_PINS_D6                 PD11
-        #define LCD_PINS_D7                 PD10
-      #endif
-
-      #ifndef BOARD_ST7920_DELAY_1
-        #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
-      #endif
-      #ifndef BOARD_ST7920_DELAY_2
-        #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
-      #endif
-      #ifndef BOARD_ST7920_DELAY_3
-        #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
-      #endif
-
-    #endif // !MKS_MINI_12864
-
-  #else
-
-    #define SPI_TFT_CS_PIN                  PD11
-    #define SPI_TFT_SCK_PIN                 PA5
-    #define SPI_TFT_MISO_PIN                PA6
-    #define SPI_TFT_MOSI_PIN                PA7
-    #define SPI_TFT_DC_PIN                  PD10
-    #define SPI_TFT_RST_PIN                 PC6
-
-    #define LCD_BACKLIGHT_PIN               PD13
-
-    #define TOUCH_CS_PIN                    PE14  // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
-
-    #define BTN_EN1                         PE8
-    #define BTN_EN2                         PE11
-    #define BEEPER_PIN                      PC5
-    #define BTN_ENC                         PE13
-
-  #endif // HAS_SPI_LCD
-
-#elif ENABLED(TFT_LVGL_UI)
+#elif ENABLED(TFT_LVGL_UI_FSMC)
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
@@ -243,7 +198,11 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#endif
+
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
+  //#define DOGLCD_SCK                      -1
 
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
@@ -257,8 +216,53 @@
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
     #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
-
 #endif
+
+#if HAS_SPI_LCD
+
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PE13
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+  #define LCD_BACKLIGHT_PIN                 -1
+
+  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
+  #if ENABLED(MKS_MINI_12864)
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN                   -1
+    #define DOGLCD_A0                       PD11
+    #define DOGLCD_CS                       PE15
+    #define DOGLCD_SCK                      PA5
+    #define DOGLCD_MOSI                     PA7
+
+    // Required for MKS_MINI_12864 with this board
+    #define MKS_LCD12864B
+    #undef SHOW_BOOTSCREEN
+
+  #else                                           // !MKS_MINI_12864
+
+    #define LCD_PINS_D4                     PE14
+    #if ENABLED(ULTIPANEL)
+      #define LCD_PINS_D5                   PE15
+      #define LCD_PINS_D6                   PD11
+      #define LCD_PINS_D7                   PD10
+    #endif
+
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+    #endif
+
+  #endif // !MKS_MINI_12864
+
+#endif // HAS_SPI_LCD
 
 #define SPI_FLASH
 #if ENABLED(SPI_FLASH)

@@ -865,14 +865,14 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
   #else
     #define  ENABLE_AXIS_E0() NOOP
   #endif
 #endif
 #ifndef DISABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
   #else
     #define DISABLE_AXIS_E0() NOOP

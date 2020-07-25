@@ -1098,11 +1098,7 @@ void prepare_line_to_destination() {
 }
 
 uint8_t axes_need_homing(uint8_t axis_bits/*=0x07*/) {
-  #if ENABLED(HOME_AFTER_DEACTIVATE)
-    #define HOMED_FLAGS axis_known_position
-  #else
-    #define HOMED_FLAGS axis_homed
-  #endif
+  #define HOMED_FLAGS TERN(HOME_AFTER_DEACTIVATE, axis_known_position, axis_homed)
   // Clear test bits that are homed
   if (TEST(axis_bits, X_AXIS) && TEST(HOMED_FLAGS, X_AXIS)) CBI(axis_bits, X_AXIS);
   if (TEST(axis_bits, Y_AXIS) && TEST(HOMED_FLAGS, Y_AXIS)) CBI(axis_bits, Y_AXIS);
