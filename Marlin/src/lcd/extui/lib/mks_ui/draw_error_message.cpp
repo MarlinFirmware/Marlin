@@ -23,6 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
+
 #include "lv_conf.h"
 #include "draw_ui.h"
 #include "tft_lvgl_configuration.h"
@@ -33,9 +37,6 @@
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../MarlinCore.h"
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
 
 static lv_obj_t * scr;
 

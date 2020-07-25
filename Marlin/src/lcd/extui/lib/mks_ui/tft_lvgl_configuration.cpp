@@ -29,28 +29,26 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
 
 #include "tft_lvgl_configuration.h"
 #include "lvgl.h"
-#include "../../../../feature/touch/xpt2046.h"
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "pic_manager.h"
-
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
+
+#include "../../../../MarlinCore.h"
+#include "../../../../feature/touch/xpt2046.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
 
 #include <SPI.h>
-
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
-
 
 #if HAS_SPI_FLASH_FONT
   extern void init_gb2312_font();

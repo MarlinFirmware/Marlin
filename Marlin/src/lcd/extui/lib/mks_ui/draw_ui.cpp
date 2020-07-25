@@ -23,21 +23,24 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "W25Qxx.h"
-#include "tft_lvgl_configuration.h"
-
-#include <SPI.h>
-
 #if ENABLED(TFT_LVGL_UI_SPI)
   #include "SPI_TFT.h"
 #endif
+
+#include "W25Qxx.h"
+#include "tft_lvgl_configuration.h"
+
+#include "pic_manager.h"
+
+#include "draw_ui.h"
+#include "mks_hardware_test.h"
+
+#include <SPI.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
-
-#include "pic_manager.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -46,9 +49,6 @@
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../../../feature/pause.h"
 #endif
-
-#include "draw_ui.h"
-#include "mks_hardware_test.h"
 
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;

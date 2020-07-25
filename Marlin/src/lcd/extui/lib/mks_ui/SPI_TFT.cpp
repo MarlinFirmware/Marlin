@@ -24,10 +24,12 @@
 
 #if ENABLED(TFT_LVGL_UI_SPI)
 
-#include <SPI.h>
-#include "../../../../inc/MarlinConfig.h"
 #include "SPI_TFT.h"
 #include "pic_manager.h"
+
+#include "../../../../inc/MarlinConfig.h"
+
+#include <SPI.h>
 
 TFT SPI_TFT;
 

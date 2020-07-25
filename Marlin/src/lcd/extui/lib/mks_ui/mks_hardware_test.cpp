@@ -23,19 +23,19 @@
 
 #if HAS_TFT_LVGL_UI
 
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
+
 #include "tft_lvgl_configuration.h"
 #include "lvgl.h"
 #include "draw_ready_print.h"
 #include "W25Qxx.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
+#include "pic_manager.h"
 
 #include "../../../../MarlinCore.h"
-#include "pic_manager.h"
 #include "../../../../module/temperature.h"
 #include "../../../../feature/touch/xpt2046.h"
 #include "../../../../sd/cardreader.h"
