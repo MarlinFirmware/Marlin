@@ -216,7 +216,7 @@ void SPIClass::setDataMode(uint8_t dataMode) {
   /**
    * Notes:
    * As far as we know the AVR numbers for dataMode match the numbers required by the STM32.
-   * From the AVR doc http://www.atmel.com/images/doc2585.pdf section 2.4
+   * From the AVR doc https://www.atmel.com/images/doc2585.pdf section 2.4
    *
    * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
    * 0       0     0     Falling     Rising

@@ -23,7 +23,7 @@
 
 /**
  * STM32F407VET6 with RAMPS-like shield
- * 'Black' STM32F407VET6 board - http://wiki.stm32duino.com/index.php?title=STM32F407
+ * 'Black' STM32F407VET6 board - https://www.stm32duino.com/viewtopic.php?t=485
  * Shield - https://github.com/jmz52/Hardware
  */
 

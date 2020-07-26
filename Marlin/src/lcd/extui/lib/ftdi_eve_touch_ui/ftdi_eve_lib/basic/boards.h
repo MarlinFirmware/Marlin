@@ -125,11 +125,11 @@
 /*
  * Settings for the 4D Systems,        4.3" Embedded SPI Display             480x272, SPI, FT800 (4DLCD-FT843)
  *
- *    http://www.4dsystems.com.au/product/4DLCD_FT843/
+ *    https://4dsystems.com.au/4dlcd-ft843
  *
  * Datasheet:
  *
- *    http://www.4dsystems.com.au/productpages/4DLCD-FT843/downloads/FT843-4.3-Display_datasheet_R_1_2.pdf
+ *    https://4dsystems.com.au/mwdownloads/download/link/id/52/
  *
  */
 
@@ -157,7 +157,7 @@
  *
  * Datasheet:
  *
- *    http://www.hantronix.com/files/data/s1501799605s500-gh7.pdf
+ *    https://www.hantronix.com/files/data/s1501799605s500-gh7.pdf
  *
  */
 #elif defined(LCD_ALEPHOBJECTS_CLCD_UI)
