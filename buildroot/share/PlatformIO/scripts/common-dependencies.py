@@ -47,11 +47,15 @@ def get_all_known_libs():
 
 def get_all_env_libs():
 	env_libs = []
-	lib_deps = env.GetProjectOption("lib_deps")
+	lib_deps = env.GetProjectOption('lib_deps')
 	for dep in lib_deps:
 		name, _, _ = PackageManager.parse_pkg_uri(dep)
 		env_libs.append(name)
 	return env_libs
+
+def set_env_field(field, value):
+	proj = env.GetProjectConfig()
+	proj.set("env:" + env['PIOENV'], field, value)
 
 # All unused libs should be ignored so that if a library
 # exists in .pio/lib_deps it will not break compilation.
@@ -59,10 +63,9 @@ def force_ignore_unused_libs():
 	env_libs = get_all_env_libs()
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
-	lib_ignore = env.GetProjectOption("lib_ignore") + diff
+	lib_ignore = env.GetProjectOption('lib_ignore') + diff
 	print("Ignoring libs:", lib_ignore)
-	proj = env.GetProjectConfig()
-	proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
+	set_env_field('lib_ignore', lib_ignore)
 
 def install_features_dependencies():
 	load_config()
@@ -80,14 +83,14 @@ def install_features_dependencies():
 				deps_to_add[name] = dep
 
 			# Does the env already have the dependency?
-			deps = env.GetProjectOption("lib_deps")
+			deps = env.GetProjectOption('lib_deps')
 			for dep in deps:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
 			# Are there any libraries that should be ignored?
-			lib_ignore = env.GetProjectOption("lib_ignore")
+			lib_ignore = env.GetProjectOption('lib_ignore')
 			for dep in deps:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				if name in deps_to_add:
@@ -96,8 +99,7 @@ def install_features_dependencies():
 			# Is there anything left?
 			if len(deps_to_add) > 0:
 				# Only add the missing dependencies
-				proj = env.GetProjectConfig()
-				proj.set("env:" + env["PIOENV"], "lib_deps", deps + list(deps_to_add.values()))
+				set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
 		if 'extra_scripts' in FEATURE_DEPENDENCIES[feature]:
 			print("Executing extra_scripts for %s... " % feature)
@@ -105,8 +107,7 @@ def install_features_dependencies():
 
 		if 'src_filter' in FEATURE_DEPENDENCIES[feature]:
 			print("Adding src_filter for %s... " % feature)
-			proj = env.GetProjectConfig()
-			src_filter = ' '.join(env.GetProjectOption("src_filter"))
+			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall( r'[+-](<.*?>)', FEATURE_DEPENDENCIES[feature]['src_filter'])
 			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter)
@@ -115,19 +116,18 @@ def install_features_dependencies():
 					src_filter = re.sub(r'[+-]' + d, '', src_filter)
 
 			src_filter = FEATURE_DEPENDENCIES[feature]['src_filter'] + ' ' + src_filter
-			proj.set("env:" + env["PIOENV"], "src_filter", [src_filter])
+			set_env_field('src_filter', [src_filter])
 			env.Replace(SRC_FILTER=src_filter)
 
 		if 'lib_ignore' in FEATURE_DEPENDENCIES[feature]:
 			print("Ignoring libs for %s... " % feature)
-			lib_ignore = env.GetProjectOption("lib_ignore") + [FEATURE_DEPENDENCIES[feature]['lib_ignore']]
-			proj = env.GetProjectConfig()
-			proj.set("env:" + env["PIOENV"], "lib_ignore", lib_ignore)
+			lib_ignore = env.GetProjectOption('lib_ignore') + [FEATURE_DEPENDENCIES[feature]['lib_ignore']]
+			set_env_field('lib_ignore', lib_ignore)
 
 #
 # Find a compiler, considering the OS
 #
-ENV_BUILD_PATH = os.path.join(env.Dictionary("PROJECT_BUILD_DIR"), env["PIOENV"])
+ENV_BUILD_PATH = os.path.join(env.Dictionary('PROJECT_BUILD_DIR'), env['PIOENV'])
 GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
 	if os.path.exists(GCC_PATH_CACHE):
