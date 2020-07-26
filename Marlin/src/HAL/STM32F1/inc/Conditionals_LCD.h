@@ -32,5 +32,6 @@
 
 #if ENABLED(TOUCH_SCREEN)
   #undef TOUCH_SCREEN
+  #undef TOUCH_SCREEN_CALIBRATION
   #define TOUCH_BUTTONS
 #endif

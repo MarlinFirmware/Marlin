@@ -347,7 +347,7 @@ void MarlinUI::draw_status_screen() {
 // Draw a static item with no left-right margin required. Centered by default.
 void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
   menu_item(row);
-  tft_string.set(pstr, itemIndex);
+  tft_string.set(pstr, itemIndex, itemString);
   if (valstr)
     tft_string.add(valstr);
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_YELLOW, tft_string);
@@ -371,7 +371,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, co
     tft.add_image(5, 5, image, COLOR_MENU_TEXT, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   }
 
-  tft_string.set(string, itemIndex);
+  tft_string.set(string, itemIndex, itemString);
   tft.add_text(offset, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 }
 
@@ -379,7 +379,7 @@ void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, co
 void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
   menu_item(row, sel);
 
-  tft_string.set(pstr, itemIndex);
+  tft_string.set(pstr, itemIndex, itemString);
   tft.add_text(MENU_TEXT_X_OFFSET, MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
   if (data) {
     tft_string.set(data);
@@ -395,7 +395,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
   uint16_t line = 1;
 
   menu_line(line++);
-  tft_string.set(pstr, itemIndex);
+  tft_string.set(pstr, itemIndex, itemString);
   tft_string.trim();
   tft.add_text(tft_string.center(TFT_WIDTH), MENU_TEXT_Y_OFFSET, COLOR_MENU_TEXT, tft_string);
 

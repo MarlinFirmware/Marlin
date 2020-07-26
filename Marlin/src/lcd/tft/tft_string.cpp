@@ -86,7 +86,7 @@ void TFT_String::set() {
 
 uint8_t read_byte(uint8_t *byte) { return *byte; }
 
-void TFT_String::add(uint8_t *string, uint8_t index) {
+void TFT_String::add(uint8_t *string, uint8_t index, uint8_t *itemString) {
   uint8_t character;
   wchar_t wchar;
 
@@ -97,11 +97,21 @@ void TFT_String::add(uint8_t *string, uint8_t index) {
     character = (uint8_t) (wchar & 0x00FF);
 
     if (character == '=' || character == '~' || character == '*') {
-      if (character == '*')
-        add_character('E');
-      add_character(index + ((character == '=') ? '0' : LCD_FIRST_TOOL));
-      break;
+      if (index >= 0) {
+        if (character == '*')
+          add_character('E');
+        add_character(index + ((character == '=') ? '0' : LCD_FIRST_TOOL));
+      }
+      else {
+        add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
+      }
+      continue;
     }
+    else if (character == '$' && itemString) {
+      add(itemString);
+      continue;
+    }
+
     add_character(character);
   }
   eol();

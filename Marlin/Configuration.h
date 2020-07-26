@@ -2152,7 +2152,7 @@
 //
 // Skip autodetect and force specific TFT driver
 // Mandatory for SPI screens with no MISO line
-// Available drivers are: ST7735, ST7789, ST7796, ILI9328, ILI9341, ILI9488
+// Available drivers are: ST7735, ST7789, ST7796, R61505, ILI9328, ILI9341, ILI9488
 //
 //#define TFT_DRIVER AUTO
 

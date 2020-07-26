@@ -20,8 +20,3 @@
  *
  */
 #pragma once
-
-#if ENABLED(TOUCH_SCREEN) && defined(ARDUINO_ARCH_STM32F1)
-  #undef TOUCH_SCREEN
-  #define TOUCH_BUTTONS
-#endif
