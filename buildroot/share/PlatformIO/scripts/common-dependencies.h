@@ -24,17 +24,13 @@
 /**
  * The purpose of this file is just include Marlin Configuration files,
  * to discover which FEATURES are enabled, without any HAL include.
- * Used by common-features-dependencies.py
+ * Used by common-dependencies.py
  */
 
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
-#endif
-
-//
-// Prefix header to acquire configurations
-//
 #include <stdint.h>
+
+// Include platform headers
+//#include "../../../../Marlin/src/HAL/platforms.h"
 
 #include "../../../../Marlin/src/core/boards.h"
 #include "../../../../Marlin/src/core/macros.h"
@@ -44,7 +40,28 @@
 
 #include "../../../../Marlin/src/inc/Conditionals_LCD.h"
 
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
+#endif
+
 #include "../../../../Marlin/src/core/drivers.h"
 #include "../../../../Marlin/Configuration_adv.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_adv.h"
+
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
+#endif
+
+//#include "../../../../Marlin/src/pins/pins.h"
+
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
+  #include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
+#endif
+
+#include "../../../../Marlin/src/inc/Conditionals_post.h"
+
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
+#endif
