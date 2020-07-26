@@ -249,6 +249,7 @@ const char *bakPath = "_assets";
 
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
+  W25QXX.init(SPI_QUARTER_SPEED);
   for (pic_sectorcnt = 0; pic_sectorcnt < PIC_SIZE_xM * 1024 / 64; pic_sectorcnt++)
     W25QXX.SPI_FLASH_BlockErase(PICINFOADDR + pic_sectorcnt * 64 * 1024);
 }
@@ -256,7 +257,8 @@ void spiFlashErase_PIC() {
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
-    for (Font_sectorcnt = 0; Font_sectorcnt < FONT_SIZE_xM * 1024 / 64; Font_sectorcnt++)
+    W25QXX.init(SPI_QUARTER_SPEED);
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++)
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
   }
 #endif
@@ -386,6 +388,9 @@ uint8_t public_buf[512];
     }
 
     disp_assets_update_progress(fn);
+
+    W25QXX.init(SPI_QUARTER_SPEED);
+
     uint16_t pbr;
     uint32_t pfileSize;
     uint32_t totalSizeLoaded = 0;
@@ -444,11 +449,14 @@ uint8_t public_buf[512];
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 
       disp_assets_update();
+      disp_assets_update_progress("Erasing pics...");
       spiFlashErase_PIC();
       #if HAS_SPI_FLASH_FONT
+        disp_assets_update_progress("Erasing fonts...");
         spiFlashErase_FONT();
       #endif
 
+      disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
         // if we dont get a long name, but gets a short one, try it
