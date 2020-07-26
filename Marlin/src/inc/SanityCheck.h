@@ -3037,3 +3037,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
   #endif
 #endif
+
+/**
+ * Sanity check for WIFI
+ */
+#if ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32) 
+    #error "ESP3D_WIFISUPPORT library is only for ESP32 based controllers. Is not needed for standalone ESP3D modules."
+#endif
