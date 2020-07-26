@@ -271,6 +271,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     } while (TERN0(HAS_LCD_MENU, show_lcd && pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
 
   #endif
+  TERN_(HOST_PROMPT_SUPPORT, host_action_prompt_end());
 
   return true;
 }
