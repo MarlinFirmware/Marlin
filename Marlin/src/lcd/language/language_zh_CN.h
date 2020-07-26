@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str LANGUAGE                            = _UxGT("简体中文");
 
   PROGMEM Language_Str WELCOME_MSG                         = MACHINE_NAME _UxGT("已就绪.");     //" ready."
-  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("Marlin");
+  PROGMEM Language_Str MSG_MARLIN                          = _UxGT("马林");
   PROGMEM Language_Str MSG_YES                             = _UxGT("是");
   PROGMEM Language_Str MSG_NO                              = _UxGT("否");
   PROGMEM Language_Str MSG_BACK                            = _UxGT("返回");     // ”Back“
@@ -69,20 +69,23 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("设置原点偏移");     //"Set home offsets"
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("偏移已启用");     //"Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("设置原点");     //"Set origin"
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("预热 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床");     //MSG_PREHEAT_1 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置");     //MSG_PREHEAT_1 " conf"
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("预热 ") PREHEAT_2_LABEL;     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("预热 ") PREHEAT_2_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 全部");     //MSG_PREHEAT_2 " All"
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 热床");     //MSG_PREHEAT_2 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("预热 ") PREHEAT_2_LABEL _UxGT(" 设置");     //MSG_PREHEAT_2 " conf"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("预热 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("预热 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 喷嘴 ~");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置");     //MSG_PREHEAT_1 " conf"
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("预热 $");     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("预热 $ ~");     //"Preheat PREHEAT_2_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("预热 $ 喷嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("预热 $ 喷嘴 ~");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("预热 $ 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("预热 $ 热床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("预热 $ 设置");     //MSG_PREHEAT_1 " conf"
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("预热自定义");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降温");     //"Cooldown"
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("切割频率");
@@ -145,14 +148,14 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("完成编辑网格");     // "Done Editing Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("创设客户网格");     // "Build Custom Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("创设网格");     // "Build Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("创设 ") PREHEAT_1_LABEL _UxGT(" 网格");     // "Build PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("创设 ") PREHEAT_2_LABEL _UxGT(" 网格");     // "Build PREHEAT_2_LABEL Mesh"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("创设 $ 网格");     // "Build PREHEAT_1_LABEL Mesh"
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("批准 $ 网格");     // "Validate PREHEAT_1_LABEL Mesh"
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("创设冷网格");     // "Build Cold Mesh"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("调整网格高度");     // "Adjust Mesh Height"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("高度合计");     // "Height Amount"
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("批准网格");     // "Validate Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("批准 ") PREHEAT_1_LABEL _UxGT(" 网格");     // "Validate PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("批准 ") PREHEAT_2_LABEL _UxGT(" 网格");     // "Validate PREHEAT_2_LABEL Mesh"
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("批准客户网格");     // "Validate Custom Mesh"
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26加热热床");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26加热喷嘴");
@@ -201,7 +204,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_UBL_6_FINE_TUNE_ALL             = _UxGT("6. 细调所有的");
   PROGMEM Language_Str MSG_UBL_7_SAVE_MESH                 = _UxGT("7. 保存热床网格");
 
-  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("灯管控制");     // "LED Control")
+  PROGMEM Language_Str MSG_LED_CONTROL                     = _UxGT("LED控制");     // "LED Control")
   PROGMEM Language_Str MSG_LEDS                            = _UxGT("灯");     // "Lights")
   PROGMEM Language_Str MSG_LED_PRESETS                     = _UxGT("灯预置");     // "Light Presets")
   PROGMEM Language_Str MSG_SET_LEDS_RED                    = _UxGT("红");     // "Red")
@@ -220,7 +223,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("白饱和度");     // "White Intensity")
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("亮度");     // "Brightness")
 
-  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移动 ...");     // "Moving...")
+  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移动...");     // "Moving...")
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("释放 XY");     // "Free XY")
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("移动X");     //"Move X"
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("移动Y");     //"Move Y"
@@ -234,11 +237,11 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("移动 10 mm");     //"Move 10mm"
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("速率");     //"Speed"
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("热床Z");     //"Bed Z"
-  PROGMEM Language_Str MSG_NOZZLE                          = " " LCD_STR_THERMOMETER _UxGT(" 喷嘴");     //"Nozzle" 噴嘴
-  PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" 喷嘴 ~");     //"Nozzle" 噴嘴
+  PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("喷嘴");     //"Nozzle" 噴嘴
+  PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("喷嘴 ~");     //"Nozzle" 噴嘴
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("喷嘴已停靠");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("喷嘴待命中");
-  PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" 热床");     //"Bed"
+  PROGMEM Language_Str MSG_BED                             = _UxGT("热床");     //"Bed"
   PROGMEM Language_Str MSG_CHAMBER                         = _UxGT("机箱壳");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("风扇速率");     //"Fan speed"
   PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("风扇速率 ~");     //"Fan speed"
@@ -303,15 +306,17 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("频率最大");
   PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("进给速度");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("轴步数/mm");     //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
-  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("轴步数/mm");     //"Asteps/mm"
-  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("轴步数/mm");     //"Bsteps/mm"
-  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("轴步数/mm");     //"Csteps/mm"
-  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("挤出机步数/mm");     //"Esteps/mm"
-  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("挤出机~步数/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("步数/mm");     //"Asteps/mm"
+  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("步数/mm");     //"Bsteps/mm"
+  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("步数/mm");     //"Csteps/mm"
+  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E 步数/mm");     //"Esteps/mm"
+  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* 步数/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("温度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("运动");     //"Motion"
-  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("丝料测容");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("测容积mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("料丝");     //"Filament" menu_advanced_filament
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E 限制 *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("丝料直径");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("丝料直径 *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("卸载 mm");     // "Unload mm"
@@ -329,10 +334,14 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SETTINGS_STORED                 = _UxGT("设置已保存");
   PROGMEM Language_Str MSG_MEDIA_UPDATE                    = _UxGT("存储器更新");
   PROGMEM Language_Str MSG_RESET_PRINTER                   = _UxGT("复位打印机");
-  PROGMEM Language_Str MSG_REFRESH                         = _UxGT("刷新");     //"Refresh"
+  PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT("刷新");
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("信息屏");     //"Info screen"
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("准备");     //"Prepare"
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("调整");     //"Tune"
+  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("电源监控");
+  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("电流");
+  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("电压");
+  PROGMEM Language_Str MSG_POWER                           = _UxGT("功率");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("开始打印");
   PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("下一个");
   PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("初始");
@@ -385,10 +394,10 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("风扇时间");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("自动开");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("自动关");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Tool Migration");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("Auto-migration");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Last Extruder");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migrate to *");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("工具迁移");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("自动迁移");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("上一个挤出机");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("迁移至 *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("更换丝料");     //"Change filament"
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("更换丝料 *");     //"Change filament"
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("装载丝料");     // "Load filament"
@@ -402,17 +411,17 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探针在热床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因数");     // "Skew Factor"
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");     // "BLTouch"
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: 自检");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: 重置");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: 装载");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: 部署");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW模式");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V模式");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD模式");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: 模式保存");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("自检");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("重置");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("装载");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("部署");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("SW模式");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("5V模式");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("OD模式");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("模式保存");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("设置BLTouch为5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("设置BLTouch为OD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("报告Drain");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("报告开漏");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("危险: 错误的设置将引起损坏! 是否继续?");
   PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("初始化TouchMI");
@@ -444,7 +453,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("错误：最低热床温度");     //"Err: MINTEMP BED"
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("错误：最高机箱温度");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("错误：最低机箱温度");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("归位 XY 先");     // "Home XY First"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("打印停机");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("请重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only

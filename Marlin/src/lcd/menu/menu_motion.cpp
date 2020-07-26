@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,29 +46,9 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-extern millis_t manual_move_start_time;
-extern int8_t manual_move_axis;
 #if ENABLED(MANUAL_E_MOVES_RELATIVE)
   float manual_move_e_origin = 0;
 #endif
-#if IS_KINEMATIC
-  extern float manual_move_offset;
-#endif
-
-//
-// Tell ui.update() to start a move to current_position" after a short delay.
-//
-inline void manual_move_to_current(AxisEnum axis
-  #if MULTI_MANUAL
-    , const int8_t eindex=-1
-  #endif
-) {
-  #if MULTI_MANUAL
-    if (axis == E_AXIS) ui.manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
-  #endif
-  manual_move_start_time = millis() + (move_menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
-  manual_move_axis = (int8_t)axis;
-}
 
 //
 // "Motion" > "Move Axis" submenu
@@ -76,7 +56,7 @@ inline void manual_move_to_current(AxisEnum axis
 
 static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
   if (ui.use_click()) return ui.goto_previous_screen_no_defer();
-  if (ui.encoderPosition && !ui.processing_manual_move) {
+  if (ui.encoderPosition && !ui.manual_move.processing) {
 
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
@@ -110,13 +90,13 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     #endif
 
     // Get the new position
-    const float diff = float(int32_t(ui.encoderPosition)) * move_menu_scale;
+    const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     #if IS_KINEMATIC
-      manual_move_offset += diff;
+      ui.manual_move.offset += diff;
       if (int32_t(ui.encoderPosition) < 0)
-        NOLESS(manual_move_offset, min - current_position[axis]);
+        NOLESS(ui.manual_move.offset, min - current_position[axis]);
       else
-        NOMORE(manual_move_offset, max - current_position[axis]);
+        NOMORE(ui.manual_move.offset, max - current_position[axis]);
     #else
       current_position[axis] += diff;
       if (int32_t(ui.encoderPosition) < 0)
@@ -125,17 +105,16 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
         NOMORE(current_position[axis], max);
     #endif
 
-    manual_move_to_current(axis);
+    ui.manual_move.soon(axis);
     ui.refresh(LCDVIEW_REDRAW_NOW);
   }
   ui.encoderPosition = 0;
   if (ui.should_draw()) {
-    const float pos = NATIVE_TO_LOGICAL(ui.processing_manual_move ? destination[axis] : current_position[axis]
-      #if IS_KINEMATIC
-        + manual_move_offset
-      #endif
-    , axis);
-    MenuEditItemBase::draw_edit_screen(name, move_menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr43sign(pos));
+    const float pos = NATIVE_TO_LOGICAL(
+      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      axis
+    );
+    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -147,10 +126,10 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
   static void lcd_move_e(TERN_(MULTI_MANUAL, const int8_t eindex=-1)) {
     if (ui.use_click()) return ui.goto_previous_screen_no_defer();
     if (ui.encoderPosition) {
-      if (!ui.processing_manual_move) {
-        const float diff = float(int32_t(ui.encoderPosition)) * move_menu_scale;
-        TERN(IS_KINEMATIC, manual_move_offset, current_position.e) += diff;
-        manual_move_to_current(E_AXIS
+      if (!ui.manual_move.processing) {
+        const float diff = float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
+        TERN(IS_KINEMATIC, ui.manual_move.offset, current_position.e) += diff;
+        ui.manual_move.soon(E_AXIS
           #if MULTI_MANUAL
             , eindex
           #endif
@@ -160,13 +139,11 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
       ui.encoderPosition = 0;
     }
     if (ui.should_draw()) {
-      #if MULTI_MANUAL
-        MenuItemBase::init(eindex);
-      #endif
+      TERN_(MULTI_MANUAL, MenuItemBase::init(eindex));
       MenuEditItemBase::draw_edit_screen(
         GET_TEXT(TERN(MULTI_MANUAL, MSG_MOVE_EN, MSG_MOVE_E)),
         ftostr41sign(current_position.e
-          + TERN0(IS_KINEMATIC, manual_move_offset)
+          + TERN0(IS_KINEMATIC, ui.manual_move.offset)
           - TERN0(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin)
         )
       );
@@ -187,7 +164,7 @@ screenFunc_t _manual_move_func_ptr;
 
 void _goto_manual_move(const float scale) {
   ui.defer_status_screen();
-  move_menu_scale = scale;
+  ui.manual_move.menu_scale = scale;
   ui.goto_screen(_manual_move_func_ptr);
 }
 
@@ -349,12 +326,26 @@ void menu_motion() {
   #endif
 
   //
+  // Auto-calibration
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, PSTR("G425"));
+  #endif
+
+  //
   // Auto Z-Align
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
 
+  //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING)
+    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+  #endif
+  
   //
   // Level Bed
   //

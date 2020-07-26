@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,7 @@
 
 #if ENABLED(LED_CONTROL_MENU)
   #include "../../feature/leds/leds.h"
-  
+
   #if ENABLED(LED_COLOR_PRESETS)
     void menu_led_presets() {
       START_MENU();
@@ -71,7 +71,7 @@
 
 #if ENABLED(CASE_LIGHT_MENU)
   #include "../../feature/caselight.h"
-  
+
   #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
     void menu_case_light() {
       START_MENU();

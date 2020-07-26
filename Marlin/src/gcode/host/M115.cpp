@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -77,6 +77,9 @@ void GcodeSuite::M115() {
     // AUTOLEVEL (G29)
     cap_line(PSTR("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
+    // RUNOUT (M412, M600)
+    cap_line(PSTR("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
+
     // Z_PROBE (G30)
     cap_line(PSTR("Z_PROBE"), ENABLED(HAS_BED_PROBE));
 
@@ -89,9 +92,8 @@ void GcodeSuite::M115() {
     // SOFTWARE_POWER (M80, M81)
     cap_line(PSTR("SOFTWARE_POWER"), ENABLED(PSU_CONTROL));
 
-    // CASE LIGHTS (M355)
+    // TOGGLE_LIGHTS (M355)
     cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(HAS_CASE_LIGHT));
-
     cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(HAS_CASE_LIGHT, PWM_PIN(CASE_LIGHT_PIN)));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
@@ -114,6 +116,9 @@ void GcodeSuite::M115() {
 
     // MOTION_MODES (M80-M89)
     cap_line(PSTR("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
+
+    // ARC_SUPPORT (G2-G3)
+    cap_line(PSTR("ARCS"), ENABLED(ARC_SUPPORT));
 
     // BABYSTEPPING (M290)
     cap_line(PSTR("BABYSTEPPING"), ENABLED(BABYSTEPPING));

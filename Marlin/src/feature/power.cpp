@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,6 +32,10 @@
 #include "../module/temperature.h"
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
+
+#if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+  #include "controllerfan.h"
+#endif
 
 Power powerManager;
 
@@ -101,9 +105,9 @@ void Power::power_on() {
   lastPowerOn = millis();
   if (!powersupply_on) {
     PSU_PIN_ON();
-    delay(PSU_POWERUP_DELAY);
+    safe_delay(PSU_POWERUP_DELAY);
     restore_stepper_drivers();
-    TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
+    TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
   }
 }
 

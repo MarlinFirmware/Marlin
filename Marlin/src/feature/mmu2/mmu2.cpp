@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -161,7 +161,7 @@ uint8_t MMU2::get_current_tool() {
 }
 
 #if EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING)
+  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE)
 #endif
 
 void MMU2::mmu_loop() {
@@ -466,7 +466,7 @@ void MMU2::check_version() {
   }
 }
 
-static bool mmu2_not_responding() {
+static void mmu2_not_responding() {
   LCD_MESSAGEPGM(MSG_MMU2_NOT_RESPONDING);
   BUZZ(100, 659);
   BUZZ(200, 698);

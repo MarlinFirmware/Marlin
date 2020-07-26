@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
@@ -29,38 +29,65 @@
 
 #define NUM_HARDWARE_TIMERS 2
 
+// Default timer priorities. Override by specifying alternate priorities in the board pins file.
+// The TONE timer is not present here, as it currently cannot be set programmatically. It is set
+// by defining TIM_IRQ_PRIO in the variant.h or platformio.ini file, which adjusts the default
+// priority for STM32 HardwareTimer objects.
+#define SWSERIAL_TIMER_IRQ_PRIO_DEFAULT  1 // Requires tight bit timing to communicate reliably with TMC drivers
+#define SERVO_TIMER_IRQ_PRIO_DEFAULT     1 // Requires tight PWM timing to control a BLTouch reliably
+#define STEP_TIMER_IRQ_PRIO_DEFAULT      2
+#define TEMP_TIMER_IRQ_PRIO_DEFAULT     14 // Low priority avoids interference with other hardware and timers
+
 #ifndef STEP_TIMER_IRQ_PRIO
-  #define STEP_TIMER_IRQ_PRIO 2
+  #define STEP_TIMER_IRQ_PRIO STEP_TIMER_IRQ_PRIO_DEFAULT
 #endif
 #ifndef TEMP_TIMER_IRQ_PRIO
-  #define TEMP_TIMER_IRQ_PRIO 14   // 14 = after hardware ISRs
+  #define TEMP_TIMER_IRQ_PRIO TEMP_TIMER_IRQ_PRIO_DEFAULT
 #endif
-
 #if HAS_TMC_SW_SERIAL
   #include <SoftwareSerial.h>
   #ifndef SWSERIAL_TIMER_IRQ_PRIO
-    #define SWSERIAL_TIMER_IRQ_PRIO 1
+    #define SWSERIAL_TIMER_IRQ_PRIO SWSERIAL_TIMER_IRQ_PRIO_DEFAULT
+  #endif
+#endif
+#if HAS_SERVOS
+  #include "Servo.h"
+  #ifndef SERVO_TIMER_IRQ_PRIO
+    #define SERVO_TIMER_IRQ_PRIO SERVO_TIMER_IRQ_PRIO_DEFAULT
+  #endif
+#endif
+#if ENABLED(SPEAKER)
+  // Ensure the default timer priority is somewhere between the STEP and TEMP priorities.
+  // The STM32 framework defaults to interrupt 14 for all timers. This should be increased so that
+  // timing-sensitive operations such as speaker output are not impacted by the long-running
+  // temperature ISR. This must be defined in the platformio.ini file or the board's variant.h,
+  // so that it will be consumed by framework code.
+  #if !(TIM_IRQ_PRIO > STEP_TIMER_IRQ_PRIO && TIM_IRQ_PRIO < TEMP_TIMER_IRQ_PRIO)
+    #error "Default timer interrupt priority is unspecified or set to a value which may degrade performance."
   #endif
 #endif
 
 #ifdef STM32F0xx
-  #define HAL_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
+  #define MCU_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
   #define MCU_STEP_TIMER 16
   #define MCU_TEMP_TIMER 17
 #elif defined(STM32F1xx)
-  #define HAL_TIMER_RATE (F_CPU)
+  #define MCU_TIMER_RATE (F_CPU)
   #define MCU_STEP_TIMER  4
   #define MCU_TEMP_TIMER  2
 #elif defined(STM32F401xC) || defined(STM32F401xE)
-  #define HAL_TIMER_RATE (F_CPU / 2)
+  #define MCU_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  9
   #define MCU_TEMP_TIMER 10
 #elif defined(STM32F4xx) || defined(STM32F7xx)
-  #define HAL_TIMER_RATE (F_CPU / 2)
+  #define MCU_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
 
+#ifndef HAL_TIMER_RATE
+  #define HAL_TIMER_RATE MCU_TIMER_RATE
+#endif
 #ifndef STEP_TIMER
   #define STEP_TIMER MCU_STEP_TIMER
 #endif
@@ -177,8 +204,9 @@ TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
   return nullptr;
 }
 
-void SetSoftwareSerialTimerInterruptPriority() {
+void SetTimerInterruptPriorities() {
   TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
+  TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIO, 0));
 }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

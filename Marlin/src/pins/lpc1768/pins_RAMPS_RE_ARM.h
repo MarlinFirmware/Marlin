@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -171,7 +171,7 @@
 #define TEMP_2_PIN                      P0_26_A3  // A3 - (63) - J5-3 & AUX-2
 #define TEMP_3_PIN                      P1_30_A4  // A4 - (37) - BUZZER_PIN
 //#define TEMP_4_PIN                    P1_31_A5  // A5 - (49) - SD_DETECT_PIN
-//#define ??                  P0_03_A6   // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
+//#define ??                  P0_03_A6            // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
 #define FILWIDTH_PIN                    P0_02_A7  // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
 
 //
@@ -293,7 +293,7 @@
  * All controllers can use J3 and J5 on the Re-ARM board. Custom cabling will be required.
  *
  * - https://github.com/wolfmanjm/universal-panel-adapter
- * - http://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
+ * - https://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
  */
 
 /**

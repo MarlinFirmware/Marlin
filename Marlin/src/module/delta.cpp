@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -59,6 +59,7 @@ abc_float_t delta_tower_angle_trim;
 xy_float_t delta_tower[ABC];
 abc_float_t delta_diagonal_rod_2_tower;
 float delta_clip_start_height = Z_MAX_POS;
+abc_float_t delta_diagonal_rod_trim;
 
 float delta_safe_distance_from_top();
 
@@ -67,17 +68,16 @@ float delta_safe_distance_from_top();
  * settings have been changed (e.g., by M665).
  */
 void recalc_delta_settings() {
-  constexpr abc_float_t trt = DELTA_RADIUS_TRIM_TOWER,
-                        drt = DELTA_DIAGONAL_ROD_TRIM_TOWER;
+  constexpr abc_float_t trt = DELTA_RADIUS_TRIM_TOWER;
   delta_tower[A_AXIS].set(cos(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a), // front left tower
                           sin(RADIANS(210 + delta_tower_angle_trim.a)) * (delta_radius + trt.a));
   delta_tower[B_AXIS].set(cos(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b), // front right tower
                           sin(RADIANS(330 + delta_tower_angle_trim.b)) * (delta_radius + trt.b));
   delta_tower[C_AXIS].set(cos(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c), // back middle tower
                           sin(RADIANS( 90 + delta_tower_angle_trim.c)) * (delta_radius + trt.c));
-  delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + drt.a),
-                                 sq(delta_diagonal_rod + drt.b),
-                                 sq(delta_diagonal_rod + drt.c));
+  delta_diagonal_rod_2_tower.set(sq(delta_diagonal_rod + delta_diagonal_rod_trim.a),
+                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.b),
+                                 sq(delta_diagonal_rod + delta_diagonal_rod_trim.c));
   update_software_endstops(Z_AXIS);
   set_all_unhomed();
 }
@@ -122,7 +122,7 @@ void recalc_delta_settings() {
 
 #define DELTA_DEBUG(VAR) do { \
     SERIAL_ECHOLNPAIR_P(PSTR("Cartesian X"), VAR.x, SP_Y_STR, VAR.y, SP_Z_STR, VAR.z); \
-    SERIAL_ECHOLNPAIR("Delta A", delta.a, " B", delta.b, " C", delta.c); \
+    SERIAL_ECHOLNPAIR_P(PSTR("Delta A"), delta.a, SP_B_STR, delta.b, SP_C_STR, delta.c); \
   }while(0)
 
 void inverse_kinematics(const xyz_pos_t &raw) {
@@ -233,7 +233,8 @@ void forward_kinematics_DELTA(const float &z1, const float &z2, const float &z3)
  * This is like quick_home_xy() but for 3 towers.
  */
 void home_delta() {
-  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
+  DEBUG_SECTION(log_home_delta, "home_delta", DEBUGGING(LEVELING));
+
   // Init the current position of all carriages to 0,0,0
   current_position.reset();
   destination.reset();
@@ -283,8 +284,6 @@ void home_delta() {
       line_to_current_position(homing_feedrate(Z_AXIS));
     }
   #endif
-
-  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< home_delta", current_position);
 }
 
 #endif // DELTA
