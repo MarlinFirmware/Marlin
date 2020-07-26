@@ -39,12 +39,12 @@
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32_F4_F7/NAME)
 #elif defined(ARDUINO_ARCH_STM32)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/STM32/NAME)
+#elif defined(ARDUINO_ARCH_ESP32)
+  #define HAL_PATH(PATH, NAME) XSTR(PATH/ESP32/NAME)
 #elif defined(__PLAT_LINUX__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/LINUX/NAME)
 #elif defined(__SAMD51__)
   #define HAL_PATH(PATH, NAME) XSTR(PATH/SAMD51/NAME)
-#elif defined(ARDUINO_ARCH_ESP32) || defined(__ELF__)
-  #define HAL_PATH(PATH, NAME) XSTR(PATH/ESP32/NAME)
 #else
   #error "Unsupported Platform!"
 #endif
