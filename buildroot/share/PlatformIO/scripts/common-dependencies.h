@@ -24,7 +24,7 @@
 /**
  * The purpose of this file is just include Marlin Configuration files,
  * to discover which FEATURES are enabled, without any HAL include.
- * Used by common-features-dependencies.py
+ * Used by common-dependencies.py
  */
 
 #include <stdint.h>

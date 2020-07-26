@@ -748,3 +748,10 @@
 #ifndef EXTRUDE_MINTEMP
   #define EXTRUDE_MINTEMP 170
 #endif
+
+/**
+ * To check if we need the folder src/features/leds
+ */
+#if ANY(TEMP_STAT_LEDS, HAS_COLOR_LEDS, HAS_CASE_LIGHT, PRINTER_EVENT_LEDS, LED_BACKLIGHT_TIMEOUT, PCA9632_BUZZER, LED_CONTROL_MENU)
+  #define HAS_LED_FEATURE 1
+#endif

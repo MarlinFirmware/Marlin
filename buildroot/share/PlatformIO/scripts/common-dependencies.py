@@ -1,5 +1,5 @@
 #
-# common-features-dependencies.py
+# common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
 import subprocess
@@ -190,7 +190,7 @@ def load_marlin_features():
 		else:
 			cmd += ['-D' + s]
 
-	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-features-dependencies.h']
+	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
 	cmd = ' '.join(cmd)
 	print(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
