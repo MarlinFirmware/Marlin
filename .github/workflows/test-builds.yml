@@ -9,7 +9,14 @@ on:
   pull_request:
     branches:
     - bugfix-2.0.x
-    - dev-2.1.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - '**/*.md'
+  push:
+    branches:
+    - bugfix-2.0.x
     paths-ignore:
     - config/**
     - data/**
@@ -18,6 +25,8 @@ on:
 
 jobs:
   test_builds:
+    name: Run All Tests
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 

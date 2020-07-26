@@ -34,16 +34,15 @@ This project and everyone participating in it is governed by the [Marlin Code of
 
 We have a Message Board and a Facebook group where our knowledgable user community can provide helpful advice if you have questions.
 
-* [Marlin RepRap forum](http://forums.reprap.org/list.php?415)
+* [Marlin RepRap forum](https://reprap.org/forum/list.php?415)
 * [MarlinFirmware on Facebook](https://www.facebook.com/groups/1049718498464482/)
 
-If chat is more your speed, you can join the MarlinFirmware Slack team:
+If chat is more your speed, you can join the MarlinFirmware Discord server:
 
-* Join the Marlin Slack Team
-  * To obtain group access, please [send a request](http://www.thinkyhead.com/contact/9) to @thinkyhead.
-  * Even though Slack is a chat service, sometimes it takes several hours for community members to respond &mdash; please be patient!
-  * Use the `#general` channel for general questions or discussion about Marlin.
-  * Other channels exist for certain topics. Check the channel list.
+* Use the link https://discord.gg/n5NJ59y to join up as a General User.
+* Even though our Discord is pretty active, it may take a while for community members to respond &mdash; please be patient!
+* Use the `#general` channel for general questions or discussion about Marlin.
+* Other channels exist for certain topics or are limited to Patrons. Check the channel list.
 
 ## How Can I Contribute?
 

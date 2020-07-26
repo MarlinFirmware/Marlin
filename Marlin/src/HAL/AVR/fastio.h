@@ -57,7 +57,7 @@
  *
  * Now you can simply SET_OUTPUT(PIN); WRITE(PIN, HIGH); WRITE(PIN, LOW);
  *
- * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ * Why double up on these macros? see https://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
 #define _READ(IO)             TEST(DIO ## IO ## _RPORT, DIO ## IO ## _PIN)

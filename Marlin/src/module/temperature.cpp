@@ -831,7 +831,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
 
 #if HOTENDS
   #if ENABLED(PID_DEBUG)
-    extern bool PID_Debug_Flag;
+    extern bool pid_debug_flag;
   #endif
 
   float Temperature::get_pid_output_hotend(const uint8_t E_NAME) {
@@ -914,7 +914,7 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
       #endif // PID_OPENLOOP
 
       #if ENABLED(PID_DEBUG)
-        if (ee == active_extruder && PID_Debug_Flag) {
+        if (ee == active_extruder && pid_debug_flag) {
           SERIAL_ECHO_START();
           SERIAL_ECHOPAIR(STR_PID_DEBUG, ee, STR_PID_DEBUG_INPUT, temp_hotend[ee].celsius, STR_PID_DEBUG_OUTPUT, pid_output);
           #if DISABLED(PID_OPENLOOP)

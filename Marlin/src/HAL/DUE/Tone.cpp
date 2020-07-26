@@ -24,7 +24,7 @@
 
 /**
  * Description: Tone function for Arduino Due and compatible (SAM3X8E)
- * Derived from http://forum.arduino.cc/index.php?topic=136500.msg2903012#msg2903012
+ * Derived from https://forum.arduino.cc/index.php?topic=136500.msg2903012#msg2903012
  */
 
 #ifdef ARDUINO_ARCH_SAM
