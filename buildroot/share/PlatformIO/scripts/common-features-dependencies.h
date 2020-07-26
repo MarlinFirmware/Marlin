@@ -27,13 +27,6 @@
  * Used by common-features-dependencies.py
  */
 
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
-#endif
-
-//
-// Prefix header to acquire configurations
-//
 #include <stdint.h>
 
 // Include platform headers
@@ -58,9 +51,11 @@
 
 #ifdef HAL_PATH
   #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
+#endif
 
-  #include "../../../../Marlin/src/pins/pins.h"
+//#include "../../../../Marlin/src/pins/pins.h"
 
+#ifdef HAL_PATH
   #include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
   #include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
 #endif
