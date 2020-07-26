@@ -753,19 +753,19 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
   }
 
-#endif // HAS_LCD_MENU
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-
-  void MarlinUI::external_encoder() {
-    if (external_control && encoderDiff) {
-      ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
-      encoderDiff = 0;                  // Hide encoder events from the screen handler
-      refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
+    void MarlinUI::external_encoder() {
+      if (external_control && encoderDiff) {
+        ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
+        encoderDiff = 0;                  // Hide encoder events from the screen handler
+        refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
+      }
     }
-  }
 
-#endif
+  #endif
+
+#endif // HAS_LCD_MENU
 
 /**
  * Update the LCD, read encoder buttons, etc.
@@ -1283,7 +1283,9 @@ void MarlinUI::update() {
           case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
           case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
         }
-        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
+        #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+          external_encoder();
+        #endif
         lastEncoderBits = enc;
       }
 

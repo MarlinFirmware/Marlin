@@ -126,6 +126,13 @@ void gCfgItems_init() {
     W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   }
+
+  uiCfg.F[0] = 'N';
+  uiCfg.F[1] = 'A';
+  uiCfg.F[2] = 'N';
+  uiCfg.F[3] = 'O';
+  W25QXX.SPI_FLASH_BlockErase(REFLSHE_FLGA_ADD + 32 - 64*1024);
+  W25QXX.SPI_FLASH_BufferWrite(uiCfg.F,REFLSHE_FLGA_ADD,4);
 }
 
 void gCfg_to_spiFlah() {
