@@ -29,6 +29,13 @@
   #error SPI TFT is currently only supported on STM32F1 and STM32F4 hardware.
 #endif
 
+#ifndef LCD_READ_ID
+  #define LCD_READ_ID 0x04   // Read display identification information (0xD3 on ILI9341)
+#endif
+#ifndef LCD_READ_ID4
+  #define LCD_READ_ID4 0xD3   // Read display identification information (0xD3 on ILI9341)
+#endif
+
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT   SPI_DATASIZE_16BIT
 #define TFT_IO TFT_SPI
@@ -38,6 +45,7 @@ private:
   static SPI_HandleTypeDef SPIx;
   static DMA_HandleTypeDef DMAtx;
 
+  static uint32_t ReadID(uint16_t Reg);
   static void Transmit(uint16_t Data);
   static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 
