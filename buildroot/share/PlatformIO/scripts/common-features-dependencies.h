@@ -45,17 +45,28 @@
 #include "../../../../Marlin/Version.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_LCD.h"
-#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
+
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
+#endif
 
 #include "../../../../Marlin/src/core/drivers.h"
 #include "../../../../Marlin/Configuration_adv.h"
 
 #include "../../../../Marlin/src/inc/Conditionals_adv.h"
-#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
 
-//#include "../../../../Marlin/src/pins/pins.h"
-//#include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
-//#include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
+#endif
+
+#include "../../../../Marlin/src/pins/pins.h"
+//#ifdef HAL_PATH
+//  #include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
+//  #include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
+//#endif
 
 #include "../../../../Marlin/src/inc/Conditionals_post.h"
-#include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
+
+#ifdef HAL_PATH
+  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
+#endif
