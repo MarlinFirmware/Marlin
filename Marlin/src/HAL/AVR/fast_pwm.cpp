@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __AVR__
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_PWM
+#if NEEDS_HARDWARE_PWM // Specific meta-flag for features that mandate PWM
 
 #include "HAL.h"
 
@@ -274,9 +274,9 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     else
       top = *timer.ICRn; // top = ICRn
 
-    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top / v_size)); // Scale 8/16-bit v to top value
+    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
   }
 }
 
-#endif // FAST_PWM_FAN || SPINDLE_LASER_PWM
+#endif // NEEDS_HARDWARE_PWM
 #endif // __AVR__

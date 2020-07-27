@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -174,7 +174,7 @@
 #define IS_OUTPUT(IO)        ((digitalPinToPort(IO)->PIO_OSR & digitalPinToBitMask(IO)) != 0)
 
 // Shorthand
-#define OUT_WRITE(IO,V)       { SET_OUTPUT(IO); WRITE(IO,V); }
+#define OUT_WRITE(IO,V)      do{ SET_OUTPUT(IO); WRITE(IO,V); }while(0)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

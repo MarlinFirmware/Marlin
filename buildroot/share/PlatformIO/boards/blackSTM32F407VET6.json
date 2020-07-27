@@ -14,7 +14,6 @@
         "0x3748"
       ]
     ],
-    "ldscript": "stm32f407xe.ld",
     "mcu": "stm32f407vet6",
     "variant": "MARLIN_F407VE"
   },

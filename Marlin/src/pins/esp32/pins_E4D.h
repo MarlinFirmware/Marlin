@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 /**
  * E4d@Box  pin assignments
  * E4d@Box is a small factor 3D printer control board based on the ESP32 microcontroller for Laser, CNC and 3d printers
- * for more info check http://atbox.tech/ and join to Facebook page E4d@box.
+ * for more info check https://atbox.tech/ and join to Facebook page E4d@box.
  */
 
 #ifndef ARDUINO_ARCH_ESP32

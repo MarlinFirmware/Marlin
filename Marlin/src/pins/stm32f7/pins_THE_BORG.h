@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,8 +30,8 @@
 #define BOARD_INFO_NAME      "The-Borge"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#ifndef E2END
-  #define E2END 0xFFF                             // EEPROM end address
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000
 #endif
 
 // Ignore temp readings during development.
@@ -127,7 +127,9 @@
 #define FAN1_PIN                            PA0
 #define FAN2_PIN                            PA1
 
-#define ORIG_E0_AUTO_FAN_PIN                PA1   // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PA1
+#endif
 
 //
 // Misc. Functions

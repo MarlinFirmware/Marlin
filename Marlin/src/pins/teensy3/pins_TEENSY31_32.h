@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 /**
  * Teensy 3.1 (MK20DX256) and Teensy 3.2 (MK20DX256) Breadboard pin assignments
  * Requires the Teensyduino software with Teensy 3.1 or Teensy 3.2 selected in Arduino IDE!
- * http://www.pjrc.com/teensy/teensyduino.html
+ * https://www.pjrc.com/teensy/teensyduino.html
  */
 
 #if !IS_32BIT_TEENSY
@@ -72,7 +72,7 @@
 // Heaters / Fans
 //
 #define HEATER_0_PIN                          20
-// #define HEATER_1_PIN      36
+//#define HEATER_1_PIN                        36
 #define HEATER_BED_PIN                        21
 #ifndef FAN_PIN
   #define FAN_PIN                             22
