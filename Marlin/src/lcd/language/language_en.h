@@ -637,6 +637,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Heater Timeout");
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+
+  PROGMEM Language_Str MSG_PROBE_OFFSET                   = _UxGT("Cal Z Probe Offset");
+
 }
 
 #if FAN_COUNT == 1
