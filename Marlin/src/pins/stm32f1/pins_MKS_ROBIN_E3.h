@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin E3D (STM32F103RCT6) board pin assignments
+ * MKS Robin E3 (STM32F103RCT6) board pin assignments
  */
 
 #ifndef __STM32F1__
