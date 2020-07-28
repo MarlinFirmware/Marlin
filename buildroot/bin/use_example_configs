@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 IFS=: read -r PART1 PART2 <<< "$@"
-[ -n "${PART2}" ] && { REPO="$PART1-2.0.x" ; RDIR="$PART2" ; } \
+[ -n "${PART2}" ] && { REPO="$PART1" ; RDIR="$PART2" ; } \
                   || { REPO=bugfix-2.0.x   ; RDIR="$PART1" ; }
 EXAMPLES="https://raw.githubusercontent.com/MarlinFirmware/Configurations/$REPO/config/examples"
 

@@ -6,7 +6,7 @@
 # exit on first failure
 set -e
 
-use_example_configs import:Mks/Robin_Pro
+use_example_configs import-2.0.x:Mks/Robin_Pro
 opt_set SDCARD_CONNECTION LCD
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130
