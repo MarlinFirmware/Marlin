@@ -294,6 +294,12 @@
     #define XPT2046_Y_OFFSET                0
   #endif
 
+  #define FSMC_UPSCALE                      3
+  #define LCD_FULL_PIXEL_WIDTH              480
+  #define LCD_PIXEL_OFFSET_X                48
+  #define LCD_FULL_PIXEL_HEIGHT             320
+  #define LCD_PIXEL_OFFSET_Y                48
+
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
   // TODO: fix beeper
