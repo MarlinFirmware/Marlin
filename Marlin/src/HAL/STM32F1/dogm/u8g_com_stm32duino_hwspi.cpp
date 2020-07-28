@@ -20,7 +20,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(HAS_GRAPHICAL_LCD) && DISABLED(FORCE_SOFT_SPI)
+#if BOTH(HAS_GRAPHICAL_LCD, SPI_GRAPHICAL_TFT) && DISABLED(FORCE_SOFT_SPI)
 
 #include "../HAL.h"
 #include <U8glib.h>
