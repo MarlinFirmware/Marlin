@@ -64,7 +64,7 @@
 
 #include <string.h>
 
-#if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
   extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
   extern uint16_t LCD_IO_ReadData(uint16_t Reg);
   extern uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
@@ -151,7 +151,7 @@ static uint32_t lcd_id = 0;
 
 
 static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
     LCD_IO_WriteReg(ILI9328_HASTART);
     LCD_IO_WriteData(Ymin);
     LCD_IO_WriteReg(ILI9328_HAEND);
@@ -190,7 +190,7 @@ static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_
 }
 
 static void setWindow_st7789v(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
     LCD_IO_WriteReg(ST7789V_CASET);
     LCD_IO_WriteData((Xmin >> 8) & 0xFF);
     LCD_IO_WriteData(Xmin & 0xFF);
@@ -230,7 +230,7 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
 #define ESC_END         0xFFFF, 0x7FFF
 #define ESC_FFFF        0xFFFF, 0xFFFF
 
-#if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
   void writeEscSequence(const uint16_t *sequence) {
     uint16_t data;
     for (;;) {
@@ -587,7 +587,7 @@ static const uint16_t st9677_init[] = {
           v = TFT_MARLINBG_COLOR;
         LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = v;
       }
-      #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+      #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
         LOOP_S_L_N(n, 1, FSMC_UPSCALE)
           for (uint16_t l = 0; l < length * (FSMC_UPSCALE); l++)
             buffer[l + (length * (FSMC_UPSCALE) * n)] = buffer[l];
@@ -618,7 +618,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     LCD_IO_Init(-1, -1);
   #endif
 
-  #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
     static uint16_t bufferA[WIDTH * sq(FSMC_UPSCALE)], bufferB[WIDTH * sq(FSMC_UPSCALE)];
     uint16_t* buffer = &bufferA[0];
     bool allow_async = DISABLED(SPI_GRAPHICAL_TFT);
@@ -632,7 +632,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       switch (lcd_id & 0xFFFF) {
         case 0x8552:   // ST7789V
-          #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
             writeEscSequence(st7789v_init);
           #else
             writeEscSequence8(u8g, dev, st7789v_init);
@@ -640,7 +640,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_st7789v;
           break;
         case 0x9328:  // ILI9328
-          #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
             writeEscSequence(ili9328_init);
           #else
             writeEscSequence16(u8g, dev, ili9328_init);
@@ -649,7 +649,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           break;
         case 0x9341:   // ILI9341
         case 0x8066:   // Anycubic / TronXY TFTs (480x320)
-          #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
             writeEscSequence(ili9341_init);
           #else
             writeEscSequence8(u8g, dev, ili9341_init);
@@ -657,7 +657,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_st7789v;
           break;
         case 0x7796:
-          #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
             writeEscSequence(st9677_init);
           #else
             writeEscSequence8(u8g, dev, ili9341_init);
@@ -685,7 +685,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       // Clear Screen
       setWindow(u8g, dev, 0, 0, LCD_FULL_PIXEL_WIDTH - 1, LCD_FULL_PIXEL_HEIGHT - 1);
-      #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+      #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
         LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, LCD_FULL_PIXEL_WIDTH * LCD_FULL_PIXEL_HEIGHT);
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, 160);
@@ -722,7 +722,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
-        #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+        #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
           buffer = (y & 1) ? bufferB : bufferA;
         #endif
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
@@ -730,7 +730,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
           LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = c;
         }
-        #if defined(LCD_USE_DMA_FSMC) || defined(LCD_USE_DMA_SPI)
+        #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
           LOOP_S_L_N(n, 1, FSMC_UPSCALE)
             for (uint16_t l = 0; l < WIDTH * (FSMC_UPSCALE); l++)
               buffer[l + WIDTH * (FSMC_UPSCALE) * n] = buffer[l];
