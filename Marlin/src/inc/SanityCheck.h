@@ -3047,8 +3047,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Sanity check for WIFI
  */
-#if ENABLED(ESP3D_WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32) 
-  #error "ESP3D_WIFISUPPORT requires an ESP32 controller. Use WIFISUPPORT for standalone ESP3D modules."
+#if EITHER(ESP3D_WIFISUPPORT, WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
+  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 controller."
 #endif
 
 // Misc. Cleanup
