@@ -65,6 +65,10 @@
 #include <string.h>
 
 #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+  #define HAS_LCD_IO 1
+#endif
+
+#if HAS_LCD_IO
   extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
   extern uint16_t LCD_IO_ReadData(uint16_t Reg);
   extern uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
@@ -151,46 +155,34 @@ static uint32_t lcd_id = 0;
 
 
 static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-    LCD_IO_WriteReg(ILI9328_HASTART);
-    LCD_IO_WriteData(Ymin);
-    LCD_IO_WriteReg(ILI9328_HAEND);
-    LCD_IO_WriteData(Ymax);
-    LCD_IO_WriteReg(ILI9328_VASTART);
-    LCD_IO_WriteData(Xmin);
-    LCD_IO_WriteReg(ILI9328_VAEND);
-    LCD_IO_WriteData(Xmax);
+  #if HAS_LCD_IO
+    #define IO_REG_DATA(R,D) do { LCD_IO_WriteReg(R); LCD_IO_WriteData(D); }while(0)
+  #else
+    #define IO_REG_DATA(R,D) do { u8g_WriteByte(u8g, dev, R); u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&D); }while(0)
+  #endif
 
-    LCD_IO_WriteReg(ILI9328_HASET);
-    LCD_IO_WriteData(Ymin);
-    LCD_IO_WriteReg(ILI9328_VASET);
-    LCD_IO_WriteData(Xmin);
+  #if NONE(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+    u8g_SetAddress(u8g, dev, 0);
+  #endif
 
+  IO_REG_DATA(ILI9328_HASTART, Ymin);
+  IO_REG_DATA(ILI9328_HAEND,   Ymax);
+  IO_REG_DATA(ILI9328_VASTART, Xmin);
+  IO_REG_DATA(ILI9328_VAEND,   Xmax);
+
+  IO_REG_DATA(ILI9328_HASET,   Ymin);
+  IO_REG_DATA(ILI9328_VASET,   Xmin);
+
+  #if HAS_LCD_IO
     LCD_IO_WriteReg(ILI9328_WRITE_RAM);
   #else
-    u8g_SetAddress(u8g, dev, 0);
-
-    u8g_WriteByte(u8g, dev, ILI9328_HASTART);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymin);
-    u8g_WriteByte(u8g, dev, ILI9328_HAEND);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymax);
-    u8g_WriteByte(u8g, dev, ILI9328_VASTART);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmin);
-    u8g_WriteByte(u8g, dev, ILI9328_VAEND);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmax);
-
-    u8g_WriteByte(u8g, dev, ILI9328_HASET);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Ymin);
-    u8g_WriteByte(u8g, dev, ILI9328_VASET);
-    u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&Xmin);
-
     u8g_WriteByte(u8g, dev, ILI9328_WRITE_RAM);
     u8g_SetAddress(u8g, dev, 1);
   #endif
 }
 
 static void setWindow_st7789v(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+  #if HAS_LCD_IO
     LCD_IO_WriteReg(ST7789V_CASET);
     LCD_IO_WriteData((Xmin >> 8) & 0xFF);
     LCD_IO_WriteData(Xmin & 0xFF);
@@ -230,7 +222,7 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
 #define ESC_END         0xFFFF, 0x7FFF
 #define ESC_FFFF        0xFFFF, 0xFFFF
 
-#if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+#if HAS_LCD_IO
   void writeEscSequence(const uint16_t *sequence) {
     uint16_t data;
     for (;;) {
@@ -250,6 +242,7 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
       }
     }
   }
+  #define WRITE_ESC_SEQUENCE(V) writeEscSequence(V)
 #else
   void writeEscSequence8(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
     uint16_t data;
@@ -273,6 +266,8 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
       }
     }
   }
+
+  #define WRITE_ESC_SEQUENCE(V) writeEscSequence8(u8g, dev, V)
 
   void writeEscSequence16(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
     uint16_t data;
@@ -587,7 +582,7 @@ static const uint16_t st9677_init[] = {
           v = TFT_MARLINBG_COLOR;
         LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = v;
       }
-      #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+      #if HAS_LCD_IO
         LOOP_S_L_N(n, 1, FSMC_UPSCALE)
           for (uint16_t l = 0; l < length * (FSMC_UPSCALE); l++)
             buffer[l + (length * (FSMC_UPSCALE) * n)] = buffer[l];
@@ -618,7 +613,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     LCD_IO_Init(-1, -1);
   #endif
 
-  #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+  #if HAS_LCD_IO
     static uint16_t bufferA[WIDTH * sq(FSMC_UPSCALE)], bufferB[WIDTH * sq(FSMC_UPSCALE)];
     uint16_t* buffer = &bufferA[0];
     bool allow_async = DISABLED(SPI_GRAPHICAL_TFT);
@@ -632,36 +627,20 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       switch (lcd_id & 0xFFFF) {
         case 0x8552:   // ST7789V
-          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-            writeEscSequence(st7789v_init);
-          #else
-            writeEscSequence8(u8g, dev, st7789v_init);
-          #endif
+          WRITE_ESC_SEQUENCE(st7789v_init);
           setWindow = setWindow_st7789v;
           break;
         case 0x9328:  // ILI9328
-          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-            writeEscSequence(ili9328_init);
-          #else
-            writeEscSequence16(u8g, dev, ili9328_init);
-          #endif
+          WRITE_ESC_SEQUENCE(ili9328_init);
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
         case 0x8066:   // Anycubic / TronXY TFTs (480x320)
-          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-            writeEscSequence(ili9341_init);
-          #else
-            writeEscSequence8(u8g, dev, ili9341_init);
-          #endif
+          WRITE_ESC_SEQUENCE(ili9341_init);
           setWindow = setWindow_st7789v;
           break;
         case 0x7796:
-          #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-            writeEscSequence(st9677_init);
-          #else
-            writeEscSequence8(u8g, dev, ili9341_init);
-          #endif
+          WRITE_ESC_SEQUENCE(TERN(HAS_LCD_IO, st9677_init, ili9341_init));
           setWindow = setWindow_st7789v;
           break;
         case 0x0404:  // No connected display on FSMC
@@ -685,7 +664,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       // Clear Screen
       setWindow(u8g, dev, 0, 0, LCD_FULL_PIXEL_WIDTH - 1, LCD_FULL_PIXEL_HEIGHT - 1);
-      #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+      #if HAS_LCD_IO
         LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, LCD_FULL_PIXEL_WIDTH * LCD_FULL_PIXEL_HEIGHT);
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, 160);
@@ -722,7 +701,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
-        #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+        #if HAS_LCD_IO
           buffer = (y & 1) ? bufferB : bufferA;
         #endif
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
@@ -730,7 +709,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
           LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = c;
         }
-        #if EITHER(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
+        #if HAS_LCD_IO
           LOOP_S_L_N(n, 1, FSMC_UPSCALE)
             for (uint16_t l = 0; l < WIDTH * (FSMC_UPSCALE); l++)
               buffer[l + WIDTH * (FSMC_UPSCALE) * n] = buffer[l];

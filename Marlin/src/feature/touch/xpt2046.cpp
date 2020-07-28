@@ -159,7 +159,7 @@ bool XPT2046::isTouched() {
   );
 }
 
-#ifdef TOUCH_BUTTONS_HW_SPI
+#if ENABLED(TOUCH_BUTTONS_HW_SPI)
   #include <SPI.h>
 
   static void touch_spi_init(uint8_t spiRate) {
@@ -184,13 +184,14 @@ bool XPT2046::isTouched() {
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
   }
-#endif
+#endif // TOUCH_BUTTONS_HW_SPI
 
 uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
   uint16_t data[3];
   const uint8_t coord = uint8_t(coordinate) | XPT2046_CONTROL | XPT2046_DFR_MODE;
 
-  #ifdef TOUCH_BUTTONS_HW_SPI
+  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
+
     touch_spi_init(SPI_SPEED_6);
     for (uint16_t i = 0; i < 3 ; i++) {
       OUT_WRITE(TOUCH_CS_PIN, LOW);
@@ -198,7 +199,9 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
       data[i] = (((SPI.transfer(0xFF) << 8) | SPI.transfer(0xFF)) >> 3) & 0x0FFF;
       WRITE(TOUCH_CS_PIN, HIGH);
     }
-  #else
+
+  #else // !TOUCH_BUTTONS_HW_SPI
+
     OUT_WRITE(TOUCH_CS_PIN, LOW);
     for (uint16_t i = 0; i < 3 ; i++) {
       for (uint8_t j = 0x80; j; j >>= 1) {
@@ -217,7 +220,8 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
       data[i] >>= 4;
     }
     WRITE(TOUCH_CS_PIN, HIGH);
-  #endif
+
+  #endif // !TOUCH_BUTTONS_HW_SPI
 
   uint16_t delta01 = _MAX(data[0], data[1]) - _MIN(data[0], data[1]),
            delta02 = _MAX(data[0], data[2]) - _MIN(data[0], data[2]),
