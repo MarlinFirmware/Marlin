@@ -78,7 +78,7 @@ void TFT_SPI::Init() {
   #endif
   pin_PullConfig(get_GPIO_Port(STM_PORT(digitalPinToPinName(TFT_SCK_PIN))), STM_LL_GPIO_PIN(digitalPinToPinName(TFT_SCK_PIN)), GPIO_PULLDOWN);
 
-  #if defined(SPI1_BASE)
+  #ifdef SPI1_BASE
     if (SPIx.Instance == SPI1) {
       __HAL_RCC_SPI1_CLK_ENABLE();
       __HAL_RCC_DMA1_CLK_ENABLE();
@@ -86,14 +86,14 @@ void TFT_SPI::Init() {
       DMAtx.Instance = DMA1_Channel3;
     }
   #endif
-  #if defined(SPI2_BASE)
+  #ifdef SPI2_BASE
     if (SPIx.Instance == SPI2) {
       __HAL_RCC_SPI2_CLK_ENABLE();
       __HAL_RCC_DMA1_CLK_ENABLE();
       DMAtx.Instance = DMA1_Channel5;
     }
   #endif
-  #if defined(SPI3_BASE)
+  #ifdef SPI3_BASE
     if (SPIx.Instance == SPI3) {
       __HAL_RCC_SPI3_CLK_ENABLE();
       __HAL_RCC_DMA2_CLK_ENABLE();
@@ -143,7 +143,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     for (i = 0; i < 4; i++) {
       #if TFT_MISO_PIN != TFT_MOSI_PIN
         //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
-          while((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
+          while ((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
           SPIx.Instance->DR = 0;
         //}
       #endif
@@ -181,8 +181,8 @@ void TFT_SPI::Transmit(uint16_t Data) {
 
   SPIx.Instance->DR = Data;
 
-  while((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
-  while((SPIx.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY) {}
+  while ((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
+  while ((SPIx.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY) {}
 
   #if TFT_MISO_PIN != TFT_MOSI_PIN
     __HAL_SPI_CLEAR_OVRFLAG(&SPIx);   /* Clear overrun flag in 2 Lines communication mode because received is not read */

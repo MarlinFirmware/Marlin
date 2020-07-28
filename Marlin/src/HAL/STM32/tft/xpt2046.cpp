@@ -63,7 +63,7 @@ void XPT2046::Init() {
     pinmap_pinout(digitalPinToPinName(TOUCH_MOSI_PIN), PinMap_SPI_MOSI);
     pinmap_pinout(digitalPinToPinName(TOUCH_MISO_PIN), PinMap_SPI_MISO);
 
-    #if defined(SPI1_BASE)
+    #ifdef SPI1_BASE
       if (SPIx.Instance == SPI1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
         SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_16;
@@ -75,7 +75,7 @@ void XPT2046::Init() {
         //SERIAL_ECHO_MSG(" Touch Screen on SPI1");
       }
     #endif
-    #if defined(SPI2_BASE)
+    #ifdef SPI2_BASE
       if (SPIx.Instance == SPI2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
         #ifdef STM32F1xx
@@ -86,7 +86,7 @@ void XPT2046::Init() {
         //SERIAL_ECHO_MSG(" Touch Screen on SPI2");
       }
     #endif
-    #if defined(SPI3_BASE)
+    #ifdef SPI3_BASE
       if (SPIx.Instance == SPI3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
         #ifdef STM32F1xx
