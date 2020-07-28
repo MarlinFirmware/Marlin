@@ -23,7 +23,7 @@
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
   #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 #endif
 

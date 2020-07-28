@@ -265,9 +265,46 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
+#elif ENABLED(SPI_GRAPHICAL_TFT) // Emulated DOGM SPI
+  #define SPI_TFT_CS_PIN                    PD11
+  #define SPI_TFT_SCK_PIN                   PA5
+  #define SPI_TFT_MISO_PIN                  PA6
+  #define SPI_TFT_MOSI_PIN                  PA7
+  #define SPI_TFT_DC_PIN                    PD10
+  #define SPI_TFT_RST_PIN                   PC6
+
+  #define LCD_BACKLIGHT_PIN                 PD13
+
+  #define LCD_READ_ID                       0xD3
+  #define LCD_USE_DMA_SPI
+
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE       1
+
+  #define TOUCH_BUTTONS
+  #if ENABLED(TOUCH_BUTTONS)
+    #define TOUCH_CS_PIN                    PE14  // SPI1_NSS
+    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
+    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
+    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
+
+    #define XPT2046_X_CALIBRATION           -5481
+    #define XPT2046_Y_CALIBRATION           4000
+    #define XPT2046_X_OFFSET                343
+    #define XPT2046_Y_OFFSET                0
+  #endif
+
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+  // TODO: fix beeper
+  // #define BEEPER_PIN                        PC5
+  #undef BEEPER_PIN
+  #define BEEPER_PIN                        -1
+  #define BTN_ENC                           PE13
+
 #endif
 
-#if HAS_SPI_LCD
+#if DISABLED(SPI_GRAPHICAL_TFT) && HAS_SPI_LCD
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13

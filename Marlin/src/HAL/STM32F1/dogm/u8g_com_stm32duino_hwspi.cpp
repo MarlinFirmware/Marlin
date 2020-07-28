@@ -43,7 +43,7 @@ void LCD_IO_WriteData(uint16_t RegValue);
 void LCD_IO_WriteReg(uint16_t Reg);
 uint16_t LCD_IO_ReadData(uint16_t RegValue);
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
-#ifdef LCD_USE_DMA_FSMC
+#ifdef LCD_USE_DMA_SPI
   void LCD_IO_WriteMultiple(uint16_t data, uint32_t count);
   void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
 #endif
@@ -61,114 +61,7 @@ void LCD_WR_DATA(uint8_t data) {
   SPI_TFT_CS_H;
 }
 
-uint32_t lcd_id1, lcd_id2, foo, foo1;
-void LCD_init() {
-  // if (msg == U8G_DEV_MSG_PAGE_NEXT) {
-       lcd_id1 = LCD_IO_ReadData(0x0000);
-       lcd_id2 = 0;
-      int LCD_READ_ID = 0x04;
-      if (lcd_id1 == 0 || lcd_id1 == 0xff)
-        lcd_id2 = (LCD_READ_ID << 24) | LCD_IO_ReadData(LCD_READ_ID, 3);
-       foo = LCD_IO_ReadData(LCD_READ_ID, 3);
-       foo1 = LCD_IO_ReadData(LCD_READ_ID);
-
-      // lcd_id1 = LCD_IO_ReadData(0x0000);
-      // lcd_id2 = 0;
-      // LCD_READ_ID = 0xD3;
-      // if (lcd_id1 == 0)
-      //   lcd_id2 = (LCD_READ_ID << 24) | LCD_IO_ReadData(LCD_READ_ID, 3);
-      // foo = LCD_IO_ReadData(LCD_READ_ID, 3);
-      // foo1 = LCD_IO_ReadData(LCD_READ_ID);
-      // SERIAL_ECHOLNPAIR("0xD3 ==> lcd_id1: ", lcd_id1, ", lcd_id2: ", lcd_id2, ", foo: ", foo, ", foo1: ", foo1);
-  // }
-
-  SPI_TFT_RST_H;
-  delay(150);
-  SPI_TFT_RST_L;
-  delay(150);
-  SPI_TFT_RST_H;
-
-  delay(120);
-  LCD_WR_REG(0x11);
-  delay(120);
-
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0xC3);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x96);
-
-  LCD_WR_REG(0x36);
-  LCD_WR_DATA(0x28);
-
-  LCD_WR_REG(0x3A);
-  LCD_WR_DATA(0x55);
-
-  LCD_WR_REG(0xB4);
-  LCD_WR_DATA(0x01);
-  LCD_WR_REG(0xB7);
-  LCD_WR_DATA(0xC6);
-  LCD_WR_REG(0xE8);
-  LCD_WR_DATA(0x40);
-  LCD_WR_DATA(0x8A);
-  LCD_WR_DATA(0x00);
-  LCD_WR_DATA(0x00);
-  LCD_WR_DATA(0x29);
-  LCD_WR_DATA(0x19);
-  LCD_WR_DATA(0xA5);
-  LCD_WR_DATA(0x33);
-  LCD_WR_REG(0xC1);
-  LCD_WR_DATA(0x06);
-  LCD_WR_REG(0xC2);
-  LCD_WR_DATA(0xA7);
-  LCD_WR_REG(0xC5);
-  LCD_WR_DATA(0x18);
-  LCD_WR_REG(0xE0);     // Positive Voltage Gamma Control
-  LCD_WR_DATA(0xF0);
-  LCD_WR_DATA(0x09);
-  LCD_WR_DATA(0x0B);
-  LCD_WR_DATA(0x06);
-  LCD_WR_DATA(0x04);
-  LCD_WR_DATA(0x15);
-  LCD_WR_DATA(0x2F);
-  LCD_WR_DATA(0x54);
-  LCD_WR_DATA(0x42);
-  LCD_WR_DATA(0x3C);
-  LCD_WR_DATA(0x17);
-  LCD_WR_DATA(0x14);
-  LCD_WR_DATA(0x18);
-  LCD_WR_DATA(0x1B);
-  LCD_WR_REG(0xE1);     // Negative Voltage Gamma Control
-  LCD_WR_DATA(0xF0);
-  LCD_WR_DATA(0x09);
-  LCD_WR_DATA(0x0B);
-  LCD_WR_DATA(0x06);
-  LCD_WR_DATA(0x04);
-  LCD_WR_DATA(0x03);
-  LCD_WR_DATA(0x2D);
-  LCD_WR_DATA(0x43);
-  LCD_WR_DATA(0x42);
-  LCD_WR_DATA(0x3B);
-  LCD_WR_DATA(0x16);
-  LCD_WR_DATA(0x14);
-  LCD_WR_DATA(0x17);
-  LCD_WR_DATA(0x1B);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x3C);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x69);
-  delay(120);     // Delay 120ms
-  LCD_WR_REG(0x29);     // Display ON
-
-  // LCD_clear(0x0000);    //
-  // LCD_Draw_Logo();
-  SPI_TFT_BLK_H;
-  // delay(2000);
-}
-
-void LCD_IO_Init(uint8_t cs, uint8_t rs)
-{
-  static bool init = true;
-
+void spi1Init(uint8_t spiRate) {
   SPI_TFT_CS_H;
 
   /**
@@ -177,7 +70,6 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs)
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
   uint8_t clock;
-  uint8_t spiRate = SPI_FULL_SPEED;
   switch (spiRate) {
     case SPI_FULL_SPEED:    clock = SPI_CLOCK_DIV4;  break;
     case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4; break;
@@ -192,94 +84,68 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs)
   SPI.setClockDivider(clock);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE0);
+}
 
-  if (init) {
-    init = false;
-    LCD_init();
-  }
+void LCD_IO_Init(uint8_t cs, uint8_t rs)
+{
+  spi1Init(SPI_FULL_SPEED);
 }
 
 void LCD_IO_WriteData(uint16_t RegValue)
 {
-  // LCD_WR_DATA(RegValue >> 8);
   LCD_WR_DATA(RegValue);
 }
 
 void LCD_IO_WriteReg(uint16_t Reg)
 {
-  // LCD_WR_REG(Reg >> 8);
   LCD_WR_REG(Reg);
 }
 
 uint16_t LCD_IO_ReadData(uint16_t RegValue)
 {
   uint16_t d = 0;
-
   SPI_TFT_CS_L;
-  SPI_TFT_DC_L;
-  d = SPI.transfer(RegValue);
-  // d = SPI.transfer(0xff);
-  // SPI.read((uint8_t*)&d, 1);
-  SPI_TFT_CS_H;
 
-  // SPI_TFT_CS_L;
-  // SPI.transfer(RegValue);
-  // SPI_TFT_CS_H;
-  // LCD_WR_REG(RegValue);
-  // SPI_TFT_CS_L;
-  // // d = SPI.read();
-  // SPI.dmaTransfer(NULL, &d, 1);
-  // SPI_TFT_CS_H;
-  // SPI_TFT_CS_L;
-  // SPI_TFT_DC_L;
-  // SPI.dmaTransfer(NULL, &d, 1);
-  // SPI_TFT_CS_H;
-  return d;
+  SPI_TFT_DC_L;
+  SPI.send(RegValue);
+  SPI_TFT_DC_H;
+
+  SPI.read((uint8_t*)&d, 1); //dummy read
+  SPI.read((uint8_t*)&d, 1);
+
+  SPI_TFT_CS_H;
+  return d >> 7;
 }
 
 uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 {
   uint32_t data = 0;
+  uint8_t d = 0;
   SPI_TFT_CS_L;
-  SPI_TFT_DC_L;
-  SPI.transfer(RegValue);
-  // data <<= 8;
-  // // SPI_TFT_DC_H;
-  // data |= SPI.transfer(0xFF) & 0xFF;
-  // data <<= 8;
-  // data |= SPI.transfer(0xFF) & 0xFF;
-  // data <<= 8;
-  // data |= SPI.transfer(0xFF) & 0xFF;
-  // uint16_t d = 0;
-  // SPI.read((uint8_t*)&d, 1);
-  // data = d & 0xff;
-  // while (--ReadSize) {
-  //   data <<= 8;
-  //   SPI.read((uint8_t*)&d, 1);
-  //   data |= (d & 0xFF);
-  // }
-  SPI.read((uint8_t*)&data, 4);
-  SPI_TFT_CS_H;
 
-  // LCD_WR_REG(RegValue);
-  // SPI_TFT_CS_L;
-  // SPI.dmaTransfer(NULL, &data, ReadSize);
-  // // data = SPI.read() & 0x00FF;
-  // // while (--ReadSize) {
-  // //   data <<= 8;
-  // //   data |= (SPI.read() & 0x00FF);
-  // // }
-  // SPI_TFT_CS_H;
-  // SPI_TFT_CS_L;
-  // SPI_TFT_DC_L;
-  // SPI.dmaTransfer(NULL, &data, ReadSize);
-  // SPI_TFT_CS_H;
-  return uint32_t(data);
+  SPI_TFT_DC_L;
+  SPI.send(RegValue);
+  SPI_TFT_DC_H;
+
+  SPI.read((uint8_t*)&d, 1); //dummy read
+  SPI.read((uint8_t*)&d, 1);
+  data = d;
+  while (--ReadSize) {
+    data <<= 8;
+    SPI.read((uint8_t*)&d, 1);
+    data |= (d & 0xFF);
+  }
+
+  SPI_TFT_CS_H;
+  return uint32_t(data >> 7);
 }
 
+#ifdef LCD_USE_DMA_SPI
   void LCD_IO_WriteMultiple(uint16_t data, uint32_t count)
   {
-    count *= 2;
+    if (SPI.getDataSize() == DATA_SIZE_8BIT) {
+      count *= 2;
+    }
     while (count > 0) {
       SPI_TFT_CS_L;
       SPI_TFT_DC_H;
@@ -291,16 +157,22 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 
   void LCD_IO_WriteSequence(uint16_t *data, uint16_t length)
   {
-      SPI_TFT_CS_L;
-      SPI_TFT_DC_H;
-      SPI.dmaSend(data, length * 2, true);
-      SPI_TFT_CS_H;
+    if (SPI.getDataSize() == DATA_SIZE_8BIT) {
+      length *= 2;
+    }
+    SPI_TFT_CS_L;
+    SPI_TFT_DC_H;
+    SPI.dmaSend(data, length, true);
+    SPI_TFT_CS_H;
   }
 
   void LCD_IO_WriteSequence_Async(uint16_t *data, uint16_t length) {
+    if (SPI.getDataSize() == DATA_SIZE_8BIT) {
+      length *= 2;
+    }
     SPI_TFT_CS_L;
     SPI_TFT_DC_H;
-    SPI.dmaSendAsync(data, length * 2, true);
+    SPI.dmaSendAsync(data, length, true);
     SPI_TFT_CS_H;
   }
 
@@ -310,6 +182,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
     SPI.dmaSendAsync(NULL, 0, true);
     SPI_TFT_CS_H;
   }
+#endif
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
@@ -335,9 +208,9 @@ uint8_t u8g_com_stm32duino_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
       u8g_Delay(50);
 
       if (arg_ptr) {
-        *((uint32_t *)arg_ptr) = LCD_IO_ReadData(0x0000);
-        if (*((uint32_t *)arg_ptr) == 0)
-          *((uint32_t *)arg_ptr) = (LCD_READ_ID << 24) | LCD_IO_ReadData(LCD_READ_ID, 3);
+        spi1Init(SPI_EIGHTH_SPEED);
+        *((uint32_t *)arg_ptr) = (LCD_READ_ID << 24) | LCD_IO_ReadData(LCD_READ_ID, 3);
+        spi1Init(SPI_FULL_SPEED);
       }
       isCommand = 0;
       break;
