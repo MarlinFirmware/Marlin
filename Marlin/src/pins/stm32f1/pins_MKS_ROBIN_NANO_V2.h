@@ -325,10 +325,11 @@
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE11
 
+    #undef BEEPER_PIN
+    #define BEEPER_PIN                      -1
+
     #define LCD_PINS_ENABLE                 PD13
     #define LCD_PINS_RS                     PC6
-
-    #define LCD_BACKLIGHT_PIN               -1
 
   #elif ENABLED(MKS_MINI_12864)
 
