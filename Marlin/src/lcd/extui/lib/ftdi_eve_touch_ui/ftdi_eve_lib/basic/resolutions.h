@@ -98,6 +98,20 @@
 
 #elif defined(TOUCH_UI_800x480)
   namespace FTDI {
+    #if defined(TOUCH_UI_800x480_GENERIC)
+      constexpr uint8_t Pclk                 =    2;
+      constexpr uint16_t Hsize               =  800;
+      constexpr uint16_t Vsize               =  480;
+
+      constexpr uint16_t Vsync0              =    0;
+      constexpr uint16_t Vsync1              =    3;
+      constexpr uint16_t Voffset             =   32;
+      constexpr uint16_t Vcycle              =  525;
+      constexpr uint16_t Hsync0              =    0;
+      constexpr uint16_t Hsync1              =   48;
+      constexpr uint16_t Hoffset             =   88;
+      constexpr uint16_t Hcycle              =  928;
+    #else
     constexpr uint8_t  Pclk                 =    3;
     constexpr uint8_t  Pclkpol              =    1;
     constexpr uint16_t Hsize                =  800;
@@ -121,6 +135,7 @@
     constexpr uint32_t default_transform_d  =  0xFFFFFF51;
     constexpr uint32_t default_transform_e  =  0xFFFF7E4F;
     constexpr uint32_t default_transform_f  =  0x01F0AF70;
+    #endif
   }
 
 #else
