@@ -29,6 +29,8 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#elif ENABLED(SPEAKER)
+  #error "MKS Robin nano do not have a SPEAKER"
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
@@ -324,9 +326,6 @@
     #define BTN_ENC                         PE13
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE11
-
-    #undef BEEPER_PIN
-    #define BEEPER_PIN                      -1
 
     #define LCD_PINS_ENABLE                 PD13
     #define LCD_PINS_RS                     PC6
