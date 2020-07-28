@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -964,7 +964,7 @@
 //
 
 /**
- * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+ * Z Probe to nozzle (X,Y) offset, relative to nozzle (0,0 is nozzle itself).
  *
  * In the following example the X and Y offsets are both positive:
  *
