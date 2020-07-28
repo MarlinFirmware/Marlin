@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -144,12 +144,13 @@
 
 #define SPI_FLASH_SIZE 0x200000                   // 2MB
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
   #define HAS_SPI_FLASH_FONT 0
   #define HAS_GCODE_PREVIEW 1
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
   #define HAS_LANG_SELECT_SCREEN 0
   #define HAS_BAK_VIEW_IN_FLASH 0
+  #define HAS_LOGO_IN_FLASH 0
 
   //SPI 2
   #define W25QXX_CS_PIN                     PB12

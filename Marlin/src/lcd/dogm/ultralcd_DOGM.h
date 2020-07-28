@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -70,7 +70,7 @@
 
 #elif ENABLED(U8GLIB_LM6059_AF)
 
-  // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
+  // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_LM6059                             // 8 stripes (HW-SPI)

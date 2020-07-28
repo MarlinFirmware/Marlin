@@ -326,12 +326,26 @@ void menu_motion() {
   #endif
 
   //
+  // Auto-calibration
+  //
+  #if ENABLED(CALIBRATION_GCODE)
+    GCODES_ITEM(MSG_AUTO_CALIBRATE, PSTR("G425"));
+  #endif
+
+  //
   // Auto Z-Align
   //
   #if ENABLED(Z_STEPPER_AUTO_ALIGN)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
 
+  //
+  // Assisted Bed Tramming
+  //
+  #if ENABLED(ASSISTED_TRAMMING)
+    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+  #endif
+  
   //
   // Level Bed
   //

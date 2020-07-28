@@ -47,6 +47,13 @@ void GcodeSuite::G12() {
   // Don't allow nozzle cleaning without homing first
   if (axis_unhomed_error()) return;
 
+  #ifdef WIPE_SEQUENCE_COMMANDS
+    if (!parser.seen_any()) {
+      gcode.process_subcommands_now_P(PSTR(WIPE_SEQUENCE_COMMANDS));
+      return;
+    }
+  #endif
+
   const uint8_t pattern = parser.ushortval('P', 0),
                 strokes = parser.ushortval('S', NOZZLE_CLEAN_STROKES),
                 objects = parser.ushortval('T', NOZZLE_CLEAN_TRIANGLES);

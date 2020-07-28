@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include "../../../../MarlinCore.h"
 
@@ -40,7 +40,7 @@ extern unsigned char bmp_public_buf[17 * 1024];
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
-static char assets[][30] = {
+static char assets[][LONG_FILENAME_LENGTH] = {
   //homing screen
   "bmp_Zero.bin",
   "bmp_zeroX.bin",
@@ -90,7 +90,7 @@ static char assets[][30] = {
   //select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
-  //"bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
   "bmp_Dir.bin",
   "bmp_File.bin",
 
@@ -164,14 +164,18 @@ static char assets[][30] = {
     "bmp_French_sel.bin",
     "bmp_Italy.bin",
     "bmp_Italy_sel.bin",
-  #endif //HAS_LANG_SELECT_SCREEN
+  #endif // HAS_LANG_SELECT_SCREEN
 
-  //gcode preview
+  // gcode preview
   #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
     "bmp_preview.bin",
   #endif
 
-  //settings screen
+  #if HAS_LOGO_IN_FLASH
+    "bmp_logo.bin",
+  #endif
+
+  // settings screen
   "bmp_About.bin",
   //"bmp_Language.bin",
   //"bmp_Fan.bin",
@@ -182,14 +186,27 @@ static char assets[][30] = {
   "bmp_Set.bin",
   "bmp_Tool.bin",
 
-  //base icons
+  #if ENABLED(HAS_STEALTHCHOP)
+    //"bmp_back70x40.bin",
+    "bmp_disable.bin",
+    "bmp_enable.bin",
+  #endif
+
+  // settings screen
+  "bmp_eeprom_settings.bin",
+  "bmp_machine_para.bin",
+  "bmp_function1.bin",
+
+  // base icons
+  "bmp_arrow.bin",
+  "bmp_back70x40.bin",
+  "bmp_value_blank.bin",
   "bmp_Return.bin"
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][50] = {
-    "GBK16.bin",
-    "UNIGBK.bin",
+  static char fonts[][LONG_FILENAME_LENGTH] = {
+    "FontUNIGBK.bin",
   };
 #endif
 
@@ -220,29 +237,28 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
         addr = PIC_DATA_ADDR_TFT35 + i * PER_PIC_MAX_SPACE_TFT35;
       else
         addr = PIC_DATA_ADDR_TFT32 + i * PER_PIC_MAX_SPACE_TFT32;
-      return (addr + 4);//The purpose of adding 4 is to remove 4-byte picture header information.
+      return addr;
     }
   }
 
   return addr;
 }
 
-const char *picPath = "mks_pic";
-const char *bakPath = "bak_pic";
-
-const char *fontPath = "mks_font";
-const char *bakFont = "bak_font";
+const char *assetsPath = "assets";
+const char *bakPath = "_assets";
 
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
-  for (pic_sectorcnt = 0; pic_sectorcnt < TERN(MKS_TEST, 2, PIC_SIZE_xM * 1024 / 64); pic_sectorcnt++)
+  W25QXX.init(SPI_QUARTER_SPEED);
+  for (pic_sectorcnt = 0; pic_sectorcnt < PIC_SIZE_xM * 1024 / 64; pic_sectorcnt++)
     W25QXX.SPI_FLASH_BlockErase(PICINFOADDR + pic_sectorcnt * 64 * 1024);
 }
 
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
-    for (Font_sectorcnt = 0; Font_sectorcnt < FONT_SIZE_xM * 1024 / 64; Font_sectorcnt++)
+    W25QXX.init(SPI_QUARTER_SPEED);
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++)
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
   }
 #endif
@@ -347,103 +363,129 @@ uint8_t public_buf[512];
     longName[j] = '\0';
   }
 
-  void UpdatePic() {
-    char *fn;
-    unsigned char logoFlag;
+  static int8_t arrayFindStr(const char arr[][LONG_FILENAME_LENGTH], uint8_t arraySize, const char* str) {
+    for (uint8_t a = 0; a < arraySize; a++) {
+      if (strcasecmp(arr[a], str) == 0)
+        return a;
+    }
+    return -1;
+  }
+
+  #define ASSET_TYPE_ICON       0
+  #define ASSET_TYPE_LOGO       1
+  #define ASSET_TYPE_TITLE_LOGO 2
+  #define ASSET_TYPE_G_PREVIEW  3
+  #define ASSET_TYPE_FONT       4
+  static void loadAsset(SdFile &dir, dir_t& entry, const char *fn, int8_t assetType) {
+    SdFile file;
+    char dosFilename[FILENAME_LENGTH];
+    createFilename(dosFilename, entry);
+    if (!file.open(&dir, dosFilename, O_READ)) {
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
+      #endif
+      return;
+    }
+
+    disp_assets_update_progress(fn);
+
+    W25QXX.init(SPI_QUARTER_SPEED);
+
     uint16_t pbr;
     uint32_t pfileSize;
     uint32_t totalSizeLoaded = 0;
     uint32_t Pic_Write_Addr;
+    pfileSize = file.fileSize();
+    totalSizeLoaded += pfileSize;
+    if (assetType == ASSET_TYPE_LOGO) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_TITLE_LOGO) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_G_PREVIEW) {
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        default_view_Write(public_buf, pbr); //
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_ICON) {
+      Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+        Pic_Write_Addr += pbr;
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
+    else if (assetType == ASSET_TYPE_FONT) {
+      Pic_Write_Addr = UNIGBK_FLASH_ADDR;
+      while (1) {
+        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+        Pic_Write_Addr += pbr;
+        if (pbr < BMP_WRITE_BUF_LEN) break;
+      }
+    }
 
+    file.close();
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      SERIAL_ECHOLNPAIR("Asset added: ", fn);
+    #endif
+  }
+
+  void UpdateAssets() {
     SdFile dir, root = card.getroot();
-    if (dir.open(&root, picPath, O_RDONLY)) {
+    if (dir.open(&root, assetsPath, O_RDONLY)) {
 
-      disp_pic_update();
+      disp_assets_update();
+      disp_assets_update_progress("Erasing pics...");
       spiFlashErase_PIC();
+      #if HAS_SPI_FLASH_FONT
+        disp_assets_update_progress("Erasing fonts...");
+        spiFlashErase_FONT();
+      #endif
 
+      disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
         // if we dont get a long name, but gets a short one, try it
-        if (card.longFilename[0] == 0 && d.name[0] != 0) {
+        if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
-        }
+        if (card.longFilename[0] == 0) continue;
+        if (card.longFilename[0] == '.') continue;
 
-        if (card.longFilename[0] == 0)
-          continue;
-        if (card.longFilename[0] == '.')
-          continue;
+        uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
+        if (a >= 0 && a < COUNT(assets)) {
+          uint8_t assetType = ASSET_TYPE_ICON;
+          if (strstr(assets[a], "_logo"))
+            assetType = ASSET_TYPE_LOGO;
+          else if (strstr(assets[a], "_titlelogo"))
+            assetType = ASSET_TYPE_TITLE_LOGO;
+          else if (strstr(assets[a], "_preview"))
+            assetType = ASSET_TYPE_G_PREVIEW;
 
-        uint8_t a = -1;
-        for(a = 0; a < COUNT(assets); a++) {
-          if (strcasecmp(assets[a], card.longFilename) == 0) {
-            break;
-          }
-        }
-        if (a < 0 || a >= COUNT(assets)) continue;
+          loadAsset(dir, d, assets[a], assetType);
 
-        fn = assets[a];
-        char dosFilename[FILENAME_LENGTH];
-        createFilename(dosFilename, d);
-
-        SdFile file;
-        if (!file.open(&dir, dosFilename, O_READ)) {
-          #if ENABLED(MARLIN_DEV_MODE)
-            SERIAL_ECHOLNPAIR("Error opening Asset: ", fn);
-          #endif
           continue;
         }
 
-        if (strstr(fn, "_logo"))
-          logoFlag = 1;
-        else if (strstr(fn, "_titlelogo"))
-          logoFlag = 2;
-        else if (strstr(fn, "_preview"))
-          logoFlag = 3;
-        else
-          logoFlag = 0;
-
-        pfileSize = file.fileSize();
-        totalSizeLoaded += pfileSize;
-        if (logoFlag == 1) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
+        #if HAS_SPI_FLASH_FONT
+          a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
+          if (a >= 0 && a < COUNT(fonts)) {
+            loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
           }
-        }
-        else if (logoFlag == 2) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
-          }
-        }
-        else if (logoFlag == 3) {
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            default_view_Write(public_buf, pbr); //
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
-          }
-        }
-        else {
-          Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
-          while (1) {
-            pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-            W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
-            Pic_Write_Addr += pbr;
-            if (pbr < BMP_WRITE_BUF_LEN)
-              break;
-          }
-        }
-
-        #if ENABLED(MARLIN_DEV_MODE)
-          SERIAL_ECHOLNPAIR("Asset added: ", fn);
         #endif
-
-        file.close();
       }
       dir.rename(&root, bakPath);
     }
@@ -452,62 +494,12 @@ uint8_t public_buf[512];
     #if ENABLED(MARLIN_DEV_MODE)
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
-      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter, ", Total size: ", totalSizeLoaded);
+      SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
     #endif
   }
 
   #if HAS_SPI_FLASH_FONT
-
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
-
-    void UpdateFont() {
-      char *fn;
-      uint16_t pbr;
-      uint32_t flashaddr = 0;
-
-      SdFile dir, root = card.getroot();
-      if (dir.open(&root, fontPath, O_RDONLY)) {
-
-        disp_font_update();
-        spiFlashErase_FONT();
-
-        dir_t d;
-        while (dir.readDir(&d, card.longFilename) > 0) {
-          if (card.longFilename[0] == 0)
-            break;
-
-          if (card.longFilename[0] == '.')
-            continue;
-
-          fn = card.longFilename;
-
-          if (strstr(fn, ".bin")) {
-            char dosFilename[FILENAME_LENGTH];
-            createFilename(dosFilename, d);
-            //strcat(public_buf, dosFilename);
-
-            SdFile file;
-            if (file.open(&dir, dosFilename, O_READ)) {
-
-              flashaddr = UNIGBK_FLASH_ADDR;
-              pbr = 0;
-              while (1) {
-                flashaddr += pbr;
-                pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-                W25QXX.SPI_FLASH_BufferWrite(public_buf, flashaddr, pbr);
-                if (pbr < BMP_WRITE_BUF_LEN) break;
-              }
-              file.close();
-            }
-
-          }
-        }
-
-        dir.rename(&root, bakFont);
-        dir.close();
-      }
-    }
-
   #endif // HAS_SPI_FLASH_FONT
 
 #endif // SDSUPPORT
@@ -552,6 +544,7 @@ void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
 
 uint32_t logo_addroffset = 0;
 void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize) {
+  W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BufferRead(Logo_Rbuff, PIC_LOGO_ADDR + logo_addroffset, LogoReadsize);
   logo_addroffset += LogoReadsize;
   if (logo_addroffset >= LOGO_MAX_SIZE_TFT35)
@@ -561,7 +554,6 @@ void Pic_Logo_Read(uint8_t *LogoName, uint8_t *Logo_Rbuff, uint32_t LogoReadsize
 uint32_t default_view_addroffset = 0;
 void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize) {
   W25QXX.init(SPI_QUARTER_SPEED);
-
   W25QXX.SPI_FLASH_BufferRead(default_view_Rbuff, DEFAULT_VIEW_ADDR_TFT35 + default_view_addroffset, default_view_Readsize);
   default_view_addroffset += default_view_Readsize;
   if (default_view_addroffset >= DEFAULT_VIEW_MAX_SIZE)
@@ -572,7 +564,6 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
   uint32_t flash_view_addroffset = 0;
   void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize) {
     W25QXX.init(SPI_QUARTER_SPEED);
-
     W25QXX.SPI_FLASH_BufferRead(flash_view_Rbuff, BAK_VIEW_ADDR_TFT35 + flash_view_addroffset, flash_view_Readsize);
     flash_view_addroffset += flash_view_Readsize;
     if (flash_view_addroffset >= FLASH_VIEW_MAX_SIZE)
@@ -580,4 +571,4 @@ void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsi
   }
 #endif
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

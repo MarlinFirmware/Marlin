@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -208,7 +208,7 @@
   #endif
 #endif
 
-#if ENABLED(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
+#if EITHER(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
   #define LED_CONTROL_MENU
   #define LED_USER_PRESET_STARTUP
   #define LED_COLOR_PRESETS

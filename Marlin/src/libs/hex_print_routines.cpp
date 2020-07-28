@@ -23,7 +23,7 @@
 #include "../inc/MarlinConfig.h"
 #include "../gcode/parser.h"
 
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
 
   #include "hex_print_routines.h"
 

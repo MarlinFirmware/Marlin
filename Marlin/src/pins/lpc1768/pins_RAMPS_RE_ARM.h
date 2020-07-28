@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -293,7 +293,7 @@
  * All controllers can use J3 and J5 on the Re-ARM board. Custom cabling will be required.
  *
  * - https://github.com/wolfmanjm/universal-panel-adapter
- * - http://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
+ * - https://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
  */
 
 /**

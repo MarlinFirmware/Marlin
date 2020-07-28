@@ -16,21 +16,36 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-#ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
-#endif
+/**
+ * Platform-independent Arduino functions for I2C EEPROM.
+ * Enable USE_SHARED_EEPROM if not supplied by the framework.
+ */
 
-#define MIN_FILE_PRINTED   100 //5000
+#include "../../inc/MarlinConfig.h"
 
-extern void printer_state_polling();
-extern void filament_pin_setup();
-extern void filament_check();
+#if ENABLED(IIC_BL24CXX_EEPROM)
 
-#ifdef __cplusplus
-} /* C-declarations for C++ */
-#endif
+#include "../../libs/BL24CXX.h"
+#include "../shared/eeprom_if.h"
+
+void eeprom_init() { BL24CXX::init(); }
+
+// ------------------------
+// Public functions
+// ------------------------
+
+void eeprom_write_byte(uint8_t *pos, unsigned char value) {
+  const unsigned eeprom_address = (unsigned)pos;
+  return BL24CXX::writeOneByte(eeprom_address, value);
+}
+
+uint8_t eeprom_read_byte(uint8_t *pos) {
+  const unsigned eeprom_address = (unsigned)pos;
+  return BL24CXX::readOneByte(eeprom_address);
+}
+
+#endif // IIC_BL24CXX_EEPROM

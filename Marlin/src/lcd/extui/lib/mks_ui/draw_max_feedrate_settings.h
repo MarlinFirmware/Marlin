@@ -16,35 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-/**
- * The purpose of this file is just include Marlin Configuration files,
- * to discover which FEATURES are enabled, without any HAL include.
- * Used by common-features-dependencies.py
- */
-
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
+#ifdef __cplusplus
+extern "C" { /* C-declarations for C++ */
 #endif
 
-//
-// Prefix header to acquire configurations
-//
-#include <stdint.h>
+extern void lv_draw_max_feedrate_settings(void);
+extern void lv_clear_max_feedrate_settings();
 
-#include "../../../../Marlin/src/core/boards.h"
-#include "../../../../Marlin/src/core/macros.h"
-#include "../../../../Marlin/Configuration.h"
-
-#include "../../../../Marlin/Version.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_LCD.h"
-
-#include "../../../../Marlin/src/core/drivers.h"
-#include "../../../../Marlin/Configuration_adv.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_adv.h"
+#ifdef __cplusplus
+} /* C-declarations for C++ */
+#endif
