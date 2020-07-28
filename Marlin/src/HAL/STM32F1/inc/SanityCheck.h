@@ -51,3 +51,7 @@
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
 #endif
+
+#if ENABLED(NEOPIXEL_LED)
+  #error "NEOPIXEL_LED (Adafruit NeoPixel) is not supported for this platform."
+#endif
