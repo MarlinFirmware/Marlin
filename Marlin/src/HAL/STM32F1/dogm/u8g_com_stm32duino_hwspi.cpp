@@ -86,23 +86,19 @@ void spi1Init(uint8_t spiRate) {
   SPI.setDataMode(SPI_MODE0);
 }
 
-void LCD_IO_Init(uint8_t cs, uint8_t rs)
-{
+void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   spi1Init(SPI_FULL_SPEED);
 }
 
-void LCD_IO_WriteData(uint16_t RegValue)
-{
+void LCD_IO_WriteData(uint16_t RegValue) {
   LCD_WR_DATA(RegValue);
 }
 
-void LCD_IO_WriteReg(uint16_t Reg)
-{
+void LCD_IO_WriteReg(uint16_t Reg) {
   LCD_WR_REG(Reg);
 }
 
-uint16_t LCD_IO_ReadData(uint16_t RegValue)
-{
+uint16_t LCD_IO_ReadData(uint16_t RegValue) {
   uint16_t d = 0;
   SPI_TFT_CS_L;
 
@@ -117,8 +113,7 @@ uint16_t LCD_IO_ReadData(uint16_t RegValue)
   return d >> 7;
 }
 
-uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
-{
+uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize) {
   uint32_t data = 0;
   uint8_t d = 0;
   SPI_TFT_CS_L;
@@ -141,8 +136,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
 }
 
 #ifdef LCD_USE_DMA_SPI
-  void LCD_IO_WriteMultiple(uint16_t data, uint32_t count)
-  {
+  void LCD_IO_WriteMultiple(uint16_t data, uint32_t count) {
     if (SPI.getDataSize() == DATA_SIZE_8BIT) {
       count *= 2;
     }
@@ -155,8 +149,7 @@ uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize)
     }
   }
 
-  void LCD_IO_WriteSequence(uint16_t *data, uint16_t length)
-  {
+  void LCD_IO_WriteSequence(uint16_t *data, uint16_t length) {
     if (SPI.getDataSize() == DATA_SIZE_8BIT) {
       length *= 2;
     }
