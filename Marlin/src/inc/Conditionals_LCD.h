@@ -265,6 +265,7 @@
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
+  #define TFT_SCALED_DOGLCD 1
 #elif ENABLED(TFT_LVGL_UI_SPI)
   #define DELAYED_BACKLIGHT_INIT
 #endif
