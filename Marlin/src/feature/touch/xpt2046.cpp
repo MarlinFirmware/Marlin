@@ -17,16 +17,15 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_XPT2046_BUTTONS
 
-#include "xpt2046.h"
-#include "../../inc/MarlinConfig.h"
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 #endif
 
+#include "xpt2046.h"
 
 /*
  * Draw and Touch processing
