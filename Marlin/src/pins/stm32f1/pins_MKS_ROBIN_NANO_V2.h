@@ -294,11 +294,21 @@
     #define XPT2046_Y_OFFSET                0
   #endif
 
-  #define FSMC_UPSCALE                      3
-  #define LCD_FULL_PIXEL_WIDTH              480
-  #define LCD_PIXEL_OFFSET_X                48
-  #define LCD_FULL_PIXEL_HEIGHT             320
-  #define LCD_PIXEL_OFFSET_Y                48
+  #ifndef FSMC_UPSCALE
+    #define FSMC_UPSCALE                    3
+  #endif
+  #ifndef LCD_FULL_PIXEL_WIDTH
+    #define LCD_FULL_PIXEL_WIDTH            480
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_X
+    #define LCD_PIXEL_OFFSET_X              48
+  #endif
+  #ifndef LCD_FULL_PIXEL_HEIGHT
+    #define LCD_FULL_PIXEL_HEIGHT           320
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_Y
+    #define LCD_PIXEL_OFFSET_Y              32
+  #endif
 
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
