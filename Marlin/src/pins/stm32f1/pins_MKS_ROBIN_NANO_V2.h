@@ -209,6 +209,14 @@
 #define MT_DET_2_PIN                        PE6
 #define MT_DET_PIN_INVERTING false
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                    MT_DET_1_PIN
+#endif
+
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN                   MT_DET_2_PIN
+#endif
+
 #define WIFI_IO0_PIN                        PC13
 
 //
