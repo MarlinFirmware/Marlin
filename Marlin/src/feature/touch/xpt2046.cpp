@@ -120,9 +120,14 @@ uint8_t XPT2046::read_buttons() {
     // We rely on XPT2046 compatible mode to ADS7843, hence no Z1 and Z2 measurements possible.
 
     if (!isTouched()) return 0;
-    const uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
-                  y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
+    uint16_t x = uint16_t(((uint32_t(getInTouch(XPT2046_X))) * tsoffsets[0]) >> 16) + tsoffsets[1],
+             y = uint16_t(((uint32_t(getInTouch(XPT2046_Y))) * tsoffsets[2]) >> 16) + tsoffsets[3];
     if (!isTouched()) return 0; // Fingers must still be on the TS for a valid read.
+
+    #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
+      x = TOUCH_SCREEN_WIDTH - x;
+      y = TOUCH_SCREEN_HEIGHT - y;
+    #endif
 
     // Touch within the button area simulates an encoder button
     if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
