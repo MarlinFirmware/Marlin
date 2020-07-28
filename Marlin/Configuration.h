@@ -2147,6 +2147,12 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
+// SPI display (MKS Robin Nano V2.0, MKS Gen L V2.0)
+// Upscaled 128x64 Marlin UI
+//
+//#define SPI_GRAPHICAL_TFT
+
+//
 // TFT LVGL UI
 //
 // Using default MKS icons and fonts from: https://git.io/JJvzK
