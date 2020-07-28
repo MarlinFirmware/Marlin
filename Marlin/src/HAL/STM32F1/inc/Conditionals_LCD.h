@@ -27,7 +27,7 @@
 #endif
 
 #if HAS_GRAPHICAL_TFT
-  #warning "Yo! TFT displays might not be available for HAL/STM32F1."
+  #error "Sorry! TFT displays are not available for HAL/STM32F1."
 #endif
 
 #if ENABLED(TOUCH_SCREEN)
