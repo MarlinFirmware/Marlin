@@ -398,7 +398,6 @@ void homeaxis(const AxisEnum axis);
 
 #if USE_SENSORLESS
   struct sensorless_t;
-
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
   void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif
