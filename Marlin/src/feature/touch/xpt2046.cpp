@@ -194,7 +194,7 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
   #if ENABLED(TOUCH_BUTTONS_HW_SPI)
 
     touch_spi_init(SPI_SPEED_6);
-    for (uint16_t i = 0; i < 3 ; i++) {
+    for (uint16_t i = 0; i < 3; i++) {
       OUT_WRITE(TOUCH_CS_PIN, LOW);
       SPI.transfer(coord);
       data[i] = (((SPI.transfer(0xFF) << 8) | SPI.transfer(0xFF)) >> 3) & 0x0FFF;
@@ -204,7 +204,7 @@ uint16_t XPT2046::getInTouch(const XPTCoordinate coordinate) {
   #else // !TOUCH_BUTTONS_HW_SPI
 
     OUT_WRITE(TOUCH_CS_PIN, LOW);
-    for (uint16_t i = 0; i < 3 ; i++) {
+    for (uint16_t i = 0; i < 3; i++) {
       for (uint8_t j = 0x80; j; j >>= 1) {
         WRITE(TOUCH_SCK_PIN, LOW);
         WRITE(TOUCH_MOSI_PIN, bool(coord & j));
