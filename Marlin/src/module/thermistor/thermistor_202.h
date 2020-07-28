@@ -3,7 +3,7 @@
 // Temptable sent from dealer technologyoutlet.co.uk
 //
 
-const short temptable_202[][2] PROGMEM = {
+const temp_entry_t temptable_202[] PROGMEM = {
   { OV(   1), 864 },
   { OV(  35), 300 },
   { OV(  38), 295 },

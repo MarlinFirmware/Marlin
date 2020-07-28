@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,10 +38,18 @@
 typedef uint64_t hal_timer_t;
 #define HAL_TIMER_TYPE_MAX 0xFFFFFFFFFFFFFFFFULL
 
-#define STEP_TIMER_NUM 0  // index of timer to use for stepper
-#define TEMP_TIMER_NUM 1  // index of timer to use for temperature
-#define PWM_TIMER_NUM  2  // index of timer to use for PWM outputs
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
+#ifndef STEP_TIMER_NUM
+  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#endif
+#ifndef PWM_TIMER_NUM
+  #define PWM_TIMER_NUM         2  // index of timer to use for PWM outputs
+#endif
 
 #define HAL_TIMER_RATE APB_CLK_FREQ // frequency of timer peripherals
 
@@ -79,9 +87,15 @@ typedef uint64_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT()  HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler()
-#define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
-#define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler()
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler()
+#endif
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
+#endif
+#ifndef HAL_PWM_TIMER_ISR
+  #define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler()
+#endif
 
 extern "C" void tempTC_Handler();
 extern "C" void stepTC_Handler();

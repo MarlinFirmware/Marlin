@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,12 +29,11 @@
   #error "Marlin extruder/hotends limit! Increase MAX_EXTRUDERS to continue."
 #endif
 
-#define BOARD_INFO_NAME "BIGTREE GTR 1.0"
+#define BOARD_INFO_NAME "BTT GTR V1.0"
 
-// Use one of these or SDCard-based Emulation will be used
-//#define I2C_EEPROM
-//#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-//#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
+// Onboard I2C EEPROM
+#define I2C_EEPROM
+#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB (24C64 ... 64Kb = 8KB)
 
 #define TP                                        // Enable to define servo and probe pins
 
@@ -321,17 +320,18 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
-    #define LCD_PINS_RS                     PA8
+    #define LCD_PINS_RS                     PG6
 
-    #define BTN_EN1                         PD10
-    #define BTN_EN2                         PH10
+    #define BTN_EN1                         PC10
+    #define BTN_EN2                         PG8
 
-    #define LCD_PINS_ENABLE                 PG7
-    #define LCD_PINS_D4                     PG8
+    #define LCD_PINS_ENABLE                 PG5
+    #define LCD_PINS_D4                     PG7
 
-    //#undef ST7920_DELAY_1
-    //#undef ST7920_DELAY_2
-    //#undef ST7920_DELAY_3
+    // CR10_STOCKDISPLAY default timing is too fast
+    #undef BOARD_ST7920_DELAY_1
+    #undef BOARD_ST7920_DELAY_2
+    #undef BOARD_ST7920_DELAY_3
 
   #else
 
@@ -378,9 +378,15 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
   //#define DOGLCD_CS                       PB12
@@ -389,3 +395,5 @@
   //#define DOGLCD_MOSI                     PB15
 
 #endif // HAS_SPI_LCD
+
+#undef TP

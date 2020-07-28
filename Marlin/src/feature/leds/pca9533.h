@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
 #define ENABLE_I2C_PULLUPS
 
 // Chip address (for Wire)
-#define PCA9533_Addr        0xC4 
+#define PCA9533_Addr        0xC4
 
 // Control registers
 #define PCA9533_REG_READ    0x00

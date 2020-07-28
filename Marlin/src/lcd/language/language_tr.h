@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -49,7 +49,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MEDIA_ABORTING                  = _UxGT("Durduruluyor...");
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("SD K. Yerleştirildi.");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("SD Kart Çıkarıldı.");
-  PROGMEM Language_Str MSG_MEDIA_RELEASED                  = _UxGT("SD Kart Serbest");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("SD Kart Bekleniyor");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Kart Okuma Hatası");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB Çıkarıldı");
@@ -76,20 +75,23 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ofset Ayarla");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Ofset Tamam");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sıfır Belirle");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Ön Isınma ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Ön Isınma ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Nozul ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tüm");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Tabla");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Ön Isınma ") PREHEAT_2_LABEL _UxGT(" Ayarlar");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Ön Isınma ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Ön Isınma ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Ön Isınma ") PREHEAT_1_LABEL _UxGT(" Ayarlar");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Ön Isınma $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Ön Isınma $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Ön Isınma $ Nozul");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Ön Isınma $ Nozul ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Ön Isınma $ Tüm");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Ön Isınma $ Tabla");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Ön Isınma $ Ayarlar");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Özel Ön Isınma");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Soğut/(Durdur)");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Lazer Kontrolü");
@@ -151,14 +153,14 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Mesh Düzenleme Tamam");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Özel Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Mesh Oluştur");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Mesh Oluştur (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Mesh Oluştur (") PREHEAT_2_LABEL _UxGT(")");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Mesh Oluştur ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Doğrulama Mesh ($)");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Soğuk Mesh Oluştur");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Mesh Yükseklik Ayarı");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Yükseklik miktarı");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Doğrulama Mesh");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Doğrulama Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Doğrulama Mesh (") PREHEAT_2_LABEL _UxGT(")");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Özel Mesh Doğrulama");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Isıtma Tablası");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Isıtma Memesi");
@@ -366,8 +368,8 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("Tasfiye uzunluğu");
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Takım Değişimi");
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Z Yükselt");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPD          = _UxGT("Birincil Hız");
-  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPD        = _UxGT("Geri Çekme Hızı");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_PRIME_SPEED        = _UxGT("Birincil Hız");
+  PROGMEM Language_Str MSG_SINGLENOZZLE_RETRACT_SPEED      = _UxGT("Geri Çekme Hızı");
   PROGMEM Language_Str MSG_NOZZLE_STANDBY                  = _UxGT("Nozul Beklemede");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Filaman Değiştir");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Filaman Değiştir *");
@@ -383,13 +385,13 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Çarpıklık Faktörü");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
   PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("BLTouch K. Test");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reset");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Kapat");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Aç");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW-Modu");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V-Modu");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD-Modu");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Mode-Store");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Kapat");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Aç");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("SW-Modu");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("5V-Modu");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("OD-Modu");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Mode-Store");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("BLTouch 5V Ayarla");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("BLTouch OD Ayarla");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Drenaj Raporu");
@@ -424,7 +426,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Hata: MIN.SIC. TABLA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Hata: MAX.SIC ODA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Hata: MIN.SIC ODA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Önce XY Sıfırla");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("YAZICI DURDURULDU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Lütfen Resetleyin");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("G"); // One character only

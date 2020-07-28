@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -78,7 +78,8 @@ class CommandProcessor : public CLCD::CommandFifo {
         y += (h - th) / 2;
         w -= tracker ? th * 5.0 : th * 2;
         h  = th;
-      } else {
+      }
+      else {
         x += (w - th) / 2;
         y += tracker ? th * 2.5 : th;
         w  = th;
@@ -254,7 +255,8 @@ class CommandProcessor : public CLCD::CommandFifo {
       if (is_tracking) {
         if (FTDI::EventLoop::is_touch_held()) {
           return CLCD::get_tracker(value);
-        } else {
+        }
+        else {
           CLCD::CommandFifo::track(0, 0, 0, 0, 0);
           CLCD::CommandFifo::execute();
           is_tracking = false;
@@ -313,13 +315,14 @@ class CommandProcessor : public CLCD::CommandFifo {
       #ifdef TOUCH_UI_USE_UTF8
         const bool is_utf8 = has_utf8_chars(text);
       #endif
-      for (;font >= 26;) {
+      for (;font > 26;) {
         int16_t width, height;
         #ifdef TOUCH_UI_USE_UTF8
           if (is_utf8) {
             width  = get_utf8_text_width(text, font_size_t::from_romfont(font));
             height = font_size_t::from_romfont(font).get_height();
-          } else
+          }
+          else
         #endif
           {
             CLCD::FontMetrics fm(font);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,10 +24,10 @@
  * mcp4728.cpp - Arduino library for MicroChip MCP4728 I2C D/A converter
  *
  * For implementation details, please take a look at the datasheet:
- * http://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
+ * https://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
  *
  * For discussion and feedback, please go to:
- * http://arduino.cc/forum/index.php/topic,51842.0.html
+ * https://forum.arduino.cc/index.php/topic,51842.0.html
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -43,7 +43,7 @@ xyze_uint_t mcp4728_values;
  */
 void mcp4728_init() {
   Wire.begin();
-  Wire.requestFrom(I2C_ADDRESS(DAC_DEV_ADDRESS), 24);
+  Wire.requestFrom(I2C_ADDRESS(DAC_DEV_ADDRESS), uint8_t(24));
   while (Wire.available()) {
     char deviceID = Wire.read(),
          hiByte = Wire.read(),

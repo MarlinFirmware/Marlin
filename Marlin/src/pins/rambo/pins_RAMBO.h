@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,7 +34,7 @@
  *
  * Instructions for installing the Arduino RAMBo board type for the
  * Arduino IDE are available at:
- * http://reprap.org/wiki/Rambo_firmware
+ * https://reprap.org/wiki/Rambo_firmware
  */
 
 /**
@@ -112,7 +112,7 @@
 #define E1_MS2_PIN                            64
 
 #define DIGIPOTSS_PIN                         38
-#define DIGIPOT_CHANNELS  { 4,5,3,0,1 }   // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define DIGIPOT_CHANNELS  { 4,5,3,0,1 }           // X Y Z E0 E1 digipot channels to stepper driver mapping
 #ifndef DIGIPOT_MOTOR_CURRENT
   #define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 #endif
@@ -144,7 +144,10 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 #define PS_ON_PIN                              4
-#define CASE_LIGHT_PIN                        46
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      46
+#endif
 
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                         3  // Analog Input

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -209,11 +209,11 @@
 
   }
 
-#endif // ENABLED(LPC_SOFTWARE_SPI)
+#endif // LPC_SOFTWARE_SPI
 
 void SPIClass::begin() { spiBegin(); }
 
-void SPIClass::beginTransaction(SPISettings cfg) {
+void SPIClass::beginTransaction(const SPISettings &cfg) {
   uint8_t spiRate;
   switch (cfg.spiRate()) {
     case 8000000: spiRate = 0; break;

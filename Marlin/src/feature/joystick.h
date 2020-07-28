@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,19 +35,11 @@
 class Joystick {
   friend class Temperature;
   private:
-    #if HAS_JOY_ADC_X
-      static temp_info_t x;
-    #endif
-    #if HAS_JOY_ADC_Y
-      static temp_info_t y;
-    #endif
-    #if HAS_JOY_ADC_Z
-      static temp_info_t z;
-    #endif
+    TERN_(HAS_JOY_ADC_X, static temp_info_t x);
+    TERN_(HAS_JOY_ADC_Y, static temp_info_t y);
+    TERN_(HAS_JOY_ADC_Z, static temp_info_t z);
   public:
-    #if ENABLED(JOYSTICK_DEBUG)
-      static void report();
-    #endif
+    TERN_(JOYSTICK_DEBUG, static void report());
     static void calculate(xyz_float_t &norm_jog);
     static void inject_jog_moves();
 };

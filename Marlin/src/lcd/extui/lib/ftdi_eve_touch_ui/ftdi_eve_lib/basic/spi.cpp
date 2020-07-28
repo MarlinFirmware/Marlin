@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "ftdi_basic.h"
@@ -27,8 +27,15 @@
 /********************************* SPI Functions *********************************/
 
 namespace FTDI {
+
   #ifndef CLCD_USE_SOFT_SPI
-    SPISettings SPI::spi_settings(SPI_FREQUENCY, MSBFIRST, SPI_MODE0);
+    #ifdef CLCD_SPI_BUS
+      SPIClass EVE_SPI(CLCD_SPI_BUS);
+    #endif
+    #ifndef CLCD_HW_SPI_SPEED
+      #define CLCD_HW_SPI_SPEED 8000000 >> SPI_SPEED
+    #endif
+    SPISettings SPI::spi_settings(CLCD_HW_SPI_SPEED, MSBFIRST, SPI_MODE0);
   #endif
 
   void SPI::spi_init() {
@@ -57,12 +64,12 @@ namespace FTDI {
 
       SET_INPUT_PULLUP(CLCD_SOFT_SPI_MISO);
     #else
-      ::SPI.begin();
+      SPI_OBJ.begin();
     #endif
   }
 
   #ifdef CLCD_USE_SOFT_SPI
-    uint8_t SPI::_soft_spi_xfer (uint8_t spiOutByte) {
+    uint8_t SPI::_soft_spi_xfer(uint8_t spiOutByte) {
       uint8_t spiIndex  = 0x80;
       uint8_t spiInByte = 0;
       uint8_t k;
@@ -71,8 +78,8 @@ namespace FTDI {
       for (k = 0; k < 8; k++) {  // Output and Read each bit of spiOutByte and spiInByte
         WRITE(CLCD_SOFT_SPI_MOSI, (spiOutByte & spiIndex) ? 1 : 0); // Output MOSI Bit
         WRITE(CLCD_SOFT_SPI_SCLK, 1);   // Pulse Clock
+        if (READ(CLCD_SOFT_SPI_MISO)) spiInByte |= spiIndex; // MISO changes on the falling edge of clock, so sample it before
         WRITE(CLCD_SOFT_SPI_SCLK, 0);
-        if (READ(CLCD_SOFT_SPI_MISO)) spiInByte |= spiIndex;
         spiIndex >>= 1;
       }
       interrupts();
@@ -81,7 +88,7 @@ namespace FTDI {
   #endif
 
   #ifdef CLCD_USE_SOFT_SPI
-    void SPI::_soft_spi_send (uint8_t spiOutByte) {
+    void SPI::_soft_spi_send(uint8_t spiOutByte) {
       uint8_t k, spiIndex  = 0x80;
 
       noInterrupts();
@@ -95,16 +102,12 @@ namespace FTDI {
     }
   #endif
 
-  void SPI::spi_read_bulk (void *data, uint16_t len) {
+  void SPI::spi_read_bulk(void *data, uint16_t len) {
     uint8_t* p = (uint8_t *)data;
-    #ifndef CLCD_USE_SOFT_SPI
-      ::SPI.transfer(p, len);
-    #else
-      while (len--) *p++ = spi_recv();
-    #endif
+    while (len--) *p++ = spi_recv();
   }
 
-  bool SPI::spi_verify_bulk (const void *data, uint16_t len) {
+  bool SPI::spi_verify_bulk(const void *data, uint16_t len) {
     const uint8_t* p = (const uint8_t *)data;
     while (len--) if (*p++ != spi_recv()) return false;
     return true;
@@ -113,7 +116,7 @@ namespace FTDI {
   // CLCD SPI - Chip Select
   void SPI::spi_ftdi_select() {
     #ifndef CLCD_USE_SOFT_SPI
-      ::SPI.beginTransaction(spi_settings);
+      SPI_OBJ.beginTransaction(spi_settings);
     #endif
     WRITE(CLCD_SPI_CS, 0);
     #ifdef CLCD_SPI_EXTRA_CS
@@ -129,25 +132,25 @@ namespace FTDI {
       WRITE(CLCD_SPI_EXTRA_CS, 1);
     #endif
     #ifndef CLCD_USE_SOFT_SPI
-      ::SPI.endTransaction();
+      SPI_OBJ.endTransaction();
     #endif
   }
 
   #ifdef SPI_FLASH_SS
   // Serial SPI Flash SPI - Chip Select
-  void SPI::spi_flash_select () {
+  void SPI::spi_flash_select() {
     #ifndef CLCD_USE_SOFT_SPI
-    ::SPI.beginTransaction(spi_settings);
+      SPI_OBJ.beginTransaction(spi_settings);
     #endif
     WRITE(SPI_FLASH_SS, 0);
     delayMicroseconds(1);
   }
 
   // Serial SPI Flash SPI - Chip Deselect
-  void SPI::spi_flash_deselect () {
+  void SPI::spi_flash_deselect() {
     WRITE(SPI_FLASH_SS, 1);
     #ifndef CLCD_USE_SOFT_SPI
-    ::SPI.endTransaction();
+      SPI_OBJ.endTransaction();
     #endif
   }
   #endif
