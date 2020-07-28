@@ -74,7 +74,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_XPT2046_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -149,7 +149,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC) || ENABLED(TOUCH_BUTTONS)
+  #if BUTTON_EXISTS(ENC) || HAS_XPT2046_BUTTONS
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
+#if BUTTON_EXISTS(BACK) || HAS_XPT2046_BUTTONS
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -451,7 +451,7 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
-      #if ENABLED(TOUCH_BUTTONS)
+      #if HAS_XPT2046_BUTTONS
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
@@ -505,7 +505,7 @@ public:
       static millis_t return_to_status_ms;
     #endif
 
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_XPT2046_BUTTONS
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
     #endif

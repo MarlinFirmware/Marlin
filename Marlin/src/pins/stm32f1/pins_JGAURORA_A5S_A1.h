@@ -126,7 +126,7 @@
 //
 // Touch support
 //
-#if ENABLED(TOUCH_BUTTONS)
+#if HAS_XPT2046_BUTTONS
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
 #endif

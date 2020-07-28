@@ -143,7 +143,7 @@
     #endif
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if HAS_XPT2046_BUTTONS
 
     #define TOUCH_CS_PIN                    PB12  // SPI2_NSS
     #define TOUCH_SCK_PIN                   PB13

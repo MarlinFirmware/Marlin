@@ -80,7 +80,7 @@
   #include "feature/direct_stepping.h"
 #endif
 
-#if ENABLED(TOUCH_BUTTONS)
+#if HAS_XPT2046_BUTTONS
   #include "feature/touch/xpt2046.h"
 #endif
 
@@ -1006,7 +1006,7 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if HAS_XPT2046_BUTTONS
     SETUP_RUN(touch.init());
   #endif
 

@@ -19,7 +19,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TOUCH_BUTTONS)
+#if HAS_XPT2046_BUTTONS
 
 #include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
@@ -197,4 +197,4 @@ bool XPT2046::getTouchPoint(uint16_t &x, uint16_t &y) {
   return isTouched();
 }
 
-#endif // TOUCH_BUTTONS
+#endif // HAS_XPT2046_BUTTONS

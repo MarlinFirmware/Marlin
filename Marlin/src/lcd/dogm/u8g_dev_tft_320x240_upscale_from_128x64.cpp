@@ -381,7 +381,7 @@ static const uint16_t ili9341_init[] = {
   ESC_END
 };
 
-#if ENABLED(TOUCH_BUTTONS)
+#if HAS_XPT2046_BUTTONS
 
   static const uint8_t buttonD[] = {
     B01111111,B11111111,B11111111,B11111110,
@@ -573,7 +573,7 @@ static const uint16_t ili9341_init[] = {
     }
   }
 
-#endif // TOUCH_BUTTONS
+#endif // HAS_XPT2046_BUTTONS
 
 // Used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
@@ -653,7 +653,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       #endif
 
       // Bottom buttons
-      #if ENABLED(TOUCH_BUTTONS)
+      #if HAS_XPT2046_BUTTONS
         setWindow(u8g, dev, BUTTOND_X_LO, BUTTON_Y_LO,  BUTTOND_X_HI, BUTTON_Y_HI);
         drawImage(buttonD, u8g, dev, 32, 20, TFT_BTCANCEL_COLOR);
 
@@ -665,7 +665,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
         setWindow(u8g, dev, BUTTONC_X_LO, BUTTON_Y_LO,  BUTTONC_X_HI, BUTTON_Y_HI);
         drawImage(buttonC, u8g, dev, 32, 20, TFT_BTOKMENU_COLOR);
-      #endif // TOUCH_BUTTONS
+      #endif // HAS_XPT2046_BUTTONS
 
       return 0;
 
