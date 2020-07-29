@@ -45,7 +45,7 @@ void CancelObject::set_active_object(const int8_t obj) {
 
   #if HAS_DISPLAY
     if (active_object >= 0)
-      ui.status_printf_P(0, PSTR(S_FMT " %i"), GET_TEXT(MSG_PRINTING_OBJECT), int(active_object + 1));
+      ui.status_printf_P(0, PSTR(S_FMT " %i"), GET_TEXT(MSG_PRINTING_OBJECT), int(active_object));
     else
       ui.reset_status();
   #endif
