@@ -210,11 +210,10 @@
 #define MT_DET_PIN_INVERTING false
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    MT_DET_1_PIN
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
 #endif
-
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   MT_DET_2_PIN
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
 #endif
 
 #define WIFI_IO0_PIN                        PC13
@@ -278,7 +277,7 @@
 
 #if HAS_SPI_LCD
 
-  #if ENABLED(SPI_GRAPHICAL_TFT) // Emulated DOGM SPI
+  #if ENABLED(SPI_GRAPHICAL_TFT)                  // Emulated DOGM SPI
     #define SPI_TFT_CS_PIN                  PD11
     #define SPI_TFT_SCK_PIN                 PA5
     #define SPI_TFT_MISO_PIN                PA6
@@ -316,19 +315,19 @@
     #endif
 
     #ifndef FSMC_UPSCALE
-      #define FSMC_UPSCALE                  3
+      #define FSMC_UPSCALE                     3
     #endif
     #ifndef LCD_FULL_PIXEL_WIDTH
-      #define LCD_FULL_PIXEL_WIDTH          480
+      #define LCD_FULL_PIXEL_WIDTH           480
     #endif
     #ifndef LCD_PIXEL_OFFSET_X
-      #define LCD_PIXEL_OFFSET_X            48
+      #define LCD_PIXEL_OFFSET_X              48
     #endif
     #ifndef LCD_FULL_PIXEL_HEIGHT
-      #define LCD_FULL_PIXEL_HEIGHT         320
+      #define LCD_FULL_PIXEL_HEIGHT          320
     #endif
     #ifndef LCD_PIXEL_OFFSET_Y
-      #define LCD_PIXEL_OFFSET_Y            32
+      #define LCD_PIXEL_OFFSET_Y              32
     #endif
 
     #define BTN_ENC                         PE13
