@@ -680,7 +680,7 @@
    * Danger: Don't activate 5V mode unless attached to a 5V-tolerant controller!
    * V3.0 or 3.1: Set default mode to 5V mode at Marlin startup.
    * If disabled, OD mode is the hard-coded default on 3.0
-   * On startup, Marlin will compare its eeprom to this vale. If the selected mode
+   * On startup, Marlin will compare its eeprom to this value. If the selected mode
    * differs, a mode set eeprom write will be completed at initialization.
    * Use the option below to force an eeprom write to a V3.1 probe regardless.
    */
