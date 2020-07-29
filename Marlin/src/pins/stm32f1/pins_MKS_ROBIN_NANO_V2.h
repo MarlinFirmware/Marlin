@@ -231,7 +231,9 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                          PC5
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
+#endif
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
@@ -380,4 +382,8 @@
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
+#endif
+
+#if ENABLED(SPEAKER) && BEEPER_PIN == PC5
+  #error "MKS Robin nano default BEEPER_PIN is not a SPEAKER."
 #endif
