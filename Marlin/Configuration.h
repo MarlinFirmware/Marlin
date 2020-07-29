@@ -2197,7 +2197,7 @@
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
-// https://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
+// https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/
 //
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
