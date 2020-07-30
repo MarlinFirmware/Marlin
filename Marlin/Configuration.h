@@ -2151,6 +2151,22 @@
 //=============================================================================
 
 //
+// TFT display with optional touch screen
+// Color Marlin UI with standard menu system
+//
+//#define TFT_320x240
+//#define TFT_320x240_SPI
+//#define TFT_480x320
+//#define TFT_480x320_SPI
+
+//
+// Skip autodetect and force specific TFT driver
+// Mandatory for SPI screens with no MISO line
+// Available drivers are: ST7735, ST7789, ST7796, R61505, ILI9328, ILI9341, ILI9488
+//
+//#define TFT_DRIVER AUTO
+
+//
 // FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 // Upscaled 128x64 Marlin UI
 //
@@ -2190,10 +2206,12 @@
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
-//#define TOUCH_BUTTONS
-#if ENABLED(TOUCH_BUTTONS)
+//#define TOUCH_SCREEN
+#if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
+
+  #define TOUCH_SCREEN_CALIBRATION
 
   //#define XPT2046_X_CALIBRATION 12316
   //#define XPT2046_Y_CALIBRATION -8981

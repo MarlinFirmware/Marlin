@@ -251,6 +251,17 @@
   #define EARLY_WATCHDOG 1
 #endif
 
+// Full Touch Screen needs 'tft/xpt2046'
+#if ENABLED(TOUCH_SCREEN)
+  #define HAS_TFT_XPT2046 1
+#endif
+
+// Touch Screen or "Touch Buttons" need XPT2046 pins
+// but they use different components
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+  #define NEED_TOUCH_PINS 1
+#endif
+
 // Extensible UI pin mapping for RepRapDiscount
 #if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
   #define TOUCH_UI_ULTIPANEL 1

@@ -503,7 +503,7 @@
 #elif MB(CHITU3D)
   #include "stm32f1/pins_CHITU3D.h"             // STM32F1                                env:STM32F103RE
 #elif MB(MKS_ROBIN)
-  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin
+  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_stm32
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
@@ -631,6 +631,12 @@
 
 #elif MB(AGCM4_RAMPS_144)
   #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
+// Custom board (with custom PIO env)
+//
+#elif MB(CUSTOM)
+  #include "pins_custom.h"                      //                                        env:custom
 
 //
 // Linux Native Debug board

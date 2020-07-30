@@ -20,3 +20,7 @@
  *
  */
 #pragma once
+
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+  #error "Sorry! TFT displays are not available for HAL/STM32F4_F7."
+#endif

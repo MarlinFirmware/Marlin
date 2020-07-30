@@ -25,3 +25,14 @@
   //#warning "SD_CHECK_AND_RETRY isn't needed with USE_USB_COMPOSITE."
   #undef SD_CHECK_AND_RETRY
 #endif
+
+#if HAS_GRAPHICAL_TFT
+  #error "Sorry! TFT displays are not available for HAL/STM32F1."
+#endif
+
+// This platform has 'touch/xpt2046', not 'tft/xpt2046'
+#if ENABLED(TOUCH_SCREEN)
+  #undef TOUCH_SCREEN
+  #undef TOUCH_SCREEN_CALIBRATION
+  #define HAS_TOUCH_XPT2046 1
+#endif

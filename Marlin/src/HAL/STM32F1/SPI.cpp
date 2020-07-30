@@ -277,7 +277,7 @@ void SPIClass::read(uint8_t *buf, uint32_t len) {
   regs->DR = 0x00FF;            // write the first byte
   // main loop
   while (--len) {
-    while(!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
+    while (!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
     noInterrupts();    // go atomic level - avoid interrupts to surely get the previously received data
     regs->DR = 0x00FF; // write the next data item to be transmitted into the SPI_DR register. This clears the TXE flag.
     while (!(regs->SR & SPI_SR_RXNE)) { /* nada */ } // wait till data is available in the DR register

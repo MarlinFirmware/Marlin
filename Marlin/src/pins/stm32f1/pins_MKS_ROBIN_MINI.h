@@ -128,7 +128,7 @@
   #define LCD_RESET_PIN                     PC6
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PC2
     #define TOUCH_SCK_PIN                   PB13
     #define TOUCH_MOSI_PIN                  PB15

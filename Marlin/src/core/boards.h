@@ -367,6 +367,11 @@
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
 
 //
+// Custom board
+//
+#define BOARD_CUSTOM                  9998  // Custom pins definition for development and/or rare boards
+
+//
 // Simulations
 //
 

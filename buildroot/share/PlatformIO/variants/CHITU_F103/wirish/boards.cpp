@@ -123,7 +123,7 @@ static void setup_clocks(void) {
 #if !USE_HSI_CLOCK
     // Enable HSE, and wait until it's ready.
     rcc_turn_on_clk(RCC_CLK_HSE);
-    while (!rcc_is_clk_ready(RCC_CLK_HSE))
+    while(!rcc_is_clk_ready(RCC_CLK_HSE))
         ;
 #endif
     // Configure AHBx, APBx, etc. prescalers and the main PLL.
