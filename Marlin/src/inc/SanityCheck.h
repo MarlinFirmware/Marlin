@@ -1797,7 +1797,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Test Heater, Temp Sensor, and Extruder Pins
  */
-#if !HAS_HEATER_0
+#if !HAS_HEATER_0 && EXTRUDERS
   #error "HEATER_0_PIN not defined for this board."
 #elif !ANY_PIN(TEMP_0, MAX6675_SS)
   #error "TEMP_0_PIN not defined for this board."
