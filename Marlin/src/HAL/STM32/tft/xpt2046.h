@@ -18,23 +18,23 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfig.h"
-
 #ifdef STM32F1xx
-  #include "stm32f1xx_hal.h"
+  #include <stm32f1xx_hal.h>
 #elif defined(STM32F4xx)
-  #include "stm32f4xx_hal.h"
+  #include <stm32f4xx_hal.h>
 #endif
+
+#include "../../../inc/MarlinConfig.h"
 
 // Not using regular SPI interface by default to avoid SPI mode conflicts with other SPI devices
 
-#ifndef TOUCH_MISO_PIN
+#if !PIN_EXISTS(TOUCH_MISO)
   #error "TOUCH_MISO_PIN is not defined."
-#elif !defined(TOUCH_MOSI_PIN)
+#elif !PIN_EXISTS(TOUCH_MOSI)
   #error "TOUCH_MOSI_PIN is not defined."
-#elif !defined(TOUCH_SCK_PIN)
+#elif !PIN_EXISTS(TOUCH_SCK)
   #error "TOUCH_SCK_PIN is not defined."
-#elif !defined(TOUCH_CS_PIN)
+#elif !PIN_EXISTS(TOUCH_CS)
   #error "TOUCH_CS_PIN is not defined."
 #endif
 
