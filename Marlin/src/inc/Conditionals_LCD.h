@@ -418,13 +418,14 @@
 // Aliases for LCD features
 #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
   #define HAS_DISPLAY 1
-  #if ENABLED(ULTRA_LCD)
-    #define HAS_SPI_LCD 1
-    #if ENABLED(DOGLCD)
-      #define HAS_GRAPHICAL_LCD 1
-    #elif DISABLED(HAS_GRAPHICAL_TFT)
-      #define HAS_CHARACTER_LCD 1
-    #endif
+#endif
+
+#if ENABLED(ULTRA_LCD)
+  #define HAS_SPI_LCD 1
+  #if ENABLED(DOGLCD)
+    #define HAS_GRAPHICAL_LCD 1
+  #elif DISABLED(HAS_GRAPHICAL_TFT)
+    #define HAS_CHARACTER_LCD 1
   #endif
 #endif
 
