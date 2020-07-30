@@ -783,7 +783,7 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define CLASSIC_JERK // 20/07/28 to do away with Scurve etc conflicts
+#define CLASSIC_JERK // 20/07/28 to do away with Scurve etc conflicts also commented out
 #if ENABLED(CLASSIC_JERK)
   #define DEFAULT_XJERK 10.0
   #define DEFAULT_YJERK 10.0
@@ -807,7 +807,7 @@
  *   http://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge // 20/06/28 was 0.08
+  #define JUNCTION_DEVIATION_MM 0.02  // (mm) Distance from real junction edge // 20/06/28 was 0.08 // 20/07/28 jerk re established for temp
 #endif
 
 /**
@@ -818,7 +818,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION // 20/06/28
+// #define S_CURVE_ACCELERATION // 20/07/28
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -961,7 +961,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -2.75 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/09 -2.535 for smooth PEI
+#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -0.537 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/28 for smooth pei
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
