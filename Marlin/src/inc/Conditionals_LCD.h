@@ -293,14 +293,6 @@
   #define LCD_HEIGHT  TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
-#if EITHER(TOUCH_SCREEN, HAS_TOUCH_XPT2046)
-  #define NEED_TOUCH_PINS 1
-#endif
-
-//#if ENABLED(TOUCH_SCREEN)
-//  #define HAS_TOUCH_XPT2046
-//#endif
-
 /**
  * I2C Panels
  */

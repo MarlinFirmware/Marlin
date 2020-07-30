@@ -19,7 +19,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(TOUCH_SCREEN)
+#if HAS_TFT_XPT2046
 
 #include "xpt2046.h"
 #include "pinconfig.h"
@@ -182,4 +182,4 @@ uint16_t XPT2046::SoftwareIO(uint16_t data) {
   return result;
 }
 
-#endif // TOUCH_SCREEN
+#endif // HAS_TFT_XPT2046

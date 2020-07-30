@@ -30,6 +30,7 @@
   #error "Sorry! TFT displays are not available for HAL/STM32F1."
 #endif
 
+// This platform has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN)
   #undef TOUCH_SCREEN
   #undef TOUCH_SCREEN_CALIBRATION
