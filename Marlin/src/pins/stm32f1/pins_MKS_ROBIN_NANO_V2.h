@@ -294,7 +294,7 @@
     #define TOUCH_BUTTONS_HW_SPI_DEVICE     1
 
     //#define TOUCH_SCREEN
-    #if EITHER(TOUCH_SCREEN, HAS_TOUCH_XPT2046)
+    #if NEED_TOUCH_PINS
       #define TOUCH_CS_PIN                  PE14  // SPI1_NSS
       #define TOUCH_SCK_PIN                 PA5   // SPI1_SCK
       #define TOUCH_MISO_PIN                PA6   // SPI1_MISO

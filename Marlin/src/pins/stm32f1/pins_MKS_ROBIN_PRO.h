@@ -221,7 +221,7 @@
   #define LCD_RESET_PIN                     PF6
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #if HAS_TOUCH_XPT2046
+  #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PA7
   #else
     #define BEEPER_PIN                      PC5
