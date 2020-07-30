@@ -31,7 +31,27 @@
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+//
+// EEPROM Emulation
+//
+#if NO_EEPROM_SELECTED
+  #define FLASH_EEPROM_EMULATION
+  //#define SRAM_EEPROM_EMULATION
+  //#define I2C_EEPROM
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  // Decrease delays and flash wear by spreading writes across the
+  // 128 kB sector allocated for EEPROM emulation.
+  #define FLASH_EEPROM_LEVELING
+#elif ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
+#endif
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+#endif
+
 
 //
 // Servos
@@ -139,7 +159,7 @@
 #define HEATER_2_PIN                        PE6
 #define HEATER_3_PIN                        PE5
 #define HEATER_4_PIN                        PE4
-#define HEATER_5_PIN                        PA2
+#define HEATER_5_PIN                        PE13
 #define HEATER_BED_PIN                      PE2
 
 #ifndef FAN_PIN
@@ -148,7 +168,7 @@
 #define FAN1_PIN                            PF9
 #define FAN2_PIN                            PE3
 #define FAN3_PIN                            PA1
-#define FAN4_PIN                            PE13
+#define FAN4_PIN                            PA2
 #define FAN5_PIN                            PB11
 
 //
@@ -178,6 +198,17 @@
     #define MOSI_PIN                SDIO_CMD_PIN
   #endif
 #endif
+
+ #if SD_CONNECTION_IS(LCD)
+   #define SCK_PIN                             PB13
+   #define MISO_PIN                            PB14
+   #define MOSI_PIN                            PB15
+   #define SDSS                                PF11
+   #define SD_DETECT_PIN                       PB2
+#endif
+
+
+
 
 //
 // Trinamic Software SPI
@@ -232,11 +263,7 @@
 //
 // LCD / Controller
 //
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-#define SDSS                                PF11
-#define SD_DETECT_PIN                       PB2
+
 #define BEEPER_PIN                          PB10
 #define LCD_PINS_RS                         PE12
 #define LCD_PINS_ENABLE                     PE14
