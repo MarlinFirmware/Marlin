@@ -1093,10 +1093,14 @@ void CLCD::init() {
     }
   }
 
-  if (ENABLED(USE_GT911))   /* switch BT815 to use Goodix GT911 touch controller */
+  #if ENABLED(USE_GT911)   /* switch BT815 to use Goodix GT911 touch controller */
+  {
     mem_write_32(REG::TOUCH_CONFIG, 0x000005d1);
+  }
+  #endif
 
-  if (ENABLED(PATCH_GT911)) { /* patch FT813 use Goodix GT911 touch controller */
+  #if ENABLED(PATCH_GT911) /* patch FT813 use Goodix GT911 touch controller */
+  {
     mem_write_pgm(REG::CMDB_WRITE, GT911_data, sizeof(GT911_data)); /* write binary blob to command-fifo */
     delay(10);
     mem_write_8(REG::TOUCH_OVERSAMPLE, 0x0F);  /* setup oversample to 0x0f as "hidden" in binary-blob for AN_336 */
@@ -1109,6 +1113,7 @@ void CLCD::init() {
     delay(56); /* wait more than 55ms */
     mem_write_16(REG::GPIOX_DIR,0x8000); /* setting GPIO3 back to input */
   }
+  #endif
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default
 
