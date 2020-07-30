@@ -1509,9 +1509,10 @@
 #endif
 
 //
-// FSMC Graphical TFT
+// FSMC / SPI Graphical TFT
 //
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if TFT_SCALED_DOGLCD
+  //#define GRAPHICAL_TFT_ROTATE_180
   //#define TFT_MARLINUI_COLOR 0xFFFF // White
   //#define TFT_MARLINBG_COLOR 0x0000 // Black
   //#define TFT_DISABLED_COLOR 0x0003 // Almost black

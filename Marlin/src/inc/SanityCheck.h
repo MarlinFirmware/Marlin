@@ -451,8 +451,6 @@
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
 #elif defined(TFT_LVGL_UI)
   #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
-#elif defined(SPI_GRAPHICAL_TFT)
-  #error "SPI_GRAPHICAL_TFT is now TFT_LVGL_UI_SPI. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
@@ -3036,11 +3034,27 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Sanity checks for stepper chunk support
+ * Stepper Chunk support
  */
-#if ENABLED(DIRECT_STEPPING)
-  #if ENABLED(LIN_ADVANCE)
-    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+#if BOTH(DIRECT_STEPPING, LIN_ADVANCE)
+  #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+#endif
+
+/**
+ * Touch Buttons
+ */
+#if ENABLED(TOUCH_BUTTONS)
+  #ifndef XPT2046_X_CALIBRATION
+    #error "XPT2046_X_CALIBRATION must be defined with TOUCH_BUTTONS."
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #error "XPT2046_Y_CALIBRATION must be defined with TOUCH_BUTTONS."
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #error "XPT2046_X_OFFSET must be defined with TOUCH_BUTTONS."
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #error "XPT2046_Y_OFFSET must be defined with TOUCH_BUTTONS."
   #endif
 #endif
 
