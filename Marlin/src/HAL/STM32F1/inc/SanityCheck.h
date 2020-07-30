@@ -53,5 +53,5 @@
 #endif
 
 #if ENABLED(NEOPIXEL_LED)
-  #error "NEOPIXEL_LED (Adafruit NeoPixel) is not supported for this platform. To proceed at their own risk, comment out this line to continue."
+  #error "NEOPIXEL_LED (Adafruit NeoPixel) is not supported for HAL/STM32F1. Comment out this line to proceed at your own risk!"
 #endif
