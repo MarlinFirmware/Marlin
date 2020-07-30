@@ -1065,63 +1065,50 @@ void CLCD::init() {
   for (counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
    if (device_id == 0x7c) {
-     #if ENABLED(TOUCH_UI_DEBUG)
-       SERIAL_ECHO_MSG("FTDI chip initialized ");
-     #endif
+     if (ENABLED(TOUCH_UI_DEBUG)) SERIAL_ECHO_MSG("FTDI chip initialized ");
      break;
    }
    else
      delay(1);
 
-   #if ENABLED(TOUCH_UI_DEBUG)
-   if (counter > 248) {
-       SERIAL_ECHO_START();
-       SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
+   if (ENABLED(TOUCH_UI_DEBUG) && counter > 248) {
+     SERIAL_ECHO_START();
+     SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
    }
-   #endif
   }
 
-  /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
+  /* Ensure all units are in working condition, usually the touch-controller needs a little more time */
   for (counter = 0; counter < 100; counter++) {
     uint8_t reset_status = mem_read_8(REG::CPURESET) & 0x03;
     if (reset_status == 0x00) {
-      #if ENABLED(TOUCH_UI_DEBUG)
-        SERIAL_ECHO_MSG("FTDI chip all units running ");
-      #endif
+      if (ENABLED(TOUCH_UI_DEBUG)) SERIAL_ECHO_MSG("FTDI chip all units running ");
       break;
     }
     else
       delay(1);
 
-    #if ENABLED(TOUCH_UI_DEBUG)
-    if (counter > 98) {
+    if (ENABLED(TOUCH_UI_DEBUG) && counter > 98) {
       SERIAL_ECHO_START();
       SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
     }
-    #endif
   }
 
-    #if ENABLED(USE_GT911) /* switch BT815 to use Goodix GT911 touch controller */
-    {
-      mem_write_32(REG::TOUCH_CONFIG, 0x000005d1);
-    }
-    #endif
+  if (ENABLED(USE_GT911))   /* switch BT815 to use Goodix GT911 touch controller */
+    mem_write_32(REG::TOUCH_CONFIG, 0x000005d1);
 
-    #if ENABLED(PATCH_GT911) /* patch FT813 use Goodix GT911 touch controller */
-    {
-      mem_write_pgm(REG::CMDB_WRITE, GT911_data, sizeof(GT911_data)); /* write binary blob to command-fifo */
-      delay(10);
-      mem_write_8(REG::TOUCH_OVERSAMPLE, 0x0F);  /* setup oversample to 0x0f as "hidden" in binary-blob for AN_336 */
-      mem_write_16(REG::TOUCH_CONFIG, 0x05d0); /* write magic cookie as requested by AN_336 */
+  if (ENABLED(PATCH_GT911)) { /* patch FT813 use Goodix GT911 touch controller */
+    mem_write_pgm(REG::CMDB_WRITE, GT911_data, sizeof(GT911_data)); /* write binary blob to command-fifo */
+    delay(10);
+    mem_write_8(REG::TOUCH_OVERSAMPLE, 0x0F);  /* setup oversample to 0x0f as "hidden" in binary-blob for AN_336 */
+    mem_write_16(REG::TOUCH_CONFIG, 0x05d0); /* write magic cookie as requested by AN_336 */
 
-		  /* specific to the EVE2 modules from Matrix-Orbital we have to use GPIO3 to reset GT911 */
-		  mem_write_16(REG::GPIOX_DIR,0x8008); /* Reset-Value is 0x8000, adding 0x08 sets GPIO3 to output, default-value for REG_GPIOX is 0x8000 -> Low output on GPIO3 */
-		  delay(1); /* wait more than 100µs */
-		  mem_write_8(REG::CPURESET, 0x00); /* clear all resets */
-		  delay(56); /* wait more than 55ms */
-		  mem_write_16(REG::GPIOX_DIR,0x8000); /* setting GPIO3 back to input */
-    }
-    #endif
+    /* specific to the EVE2 modules from Matrix-Orbital we have to use GPIO3 to reset GT911 */
+    mem_write_16(REG::GPIOX_DIR,0x8008); /* Reset-Value is 0x8000, adding 0x08 sets GPIO3 to output, default-value for REG_GPIOX is 0x8000 -> Low output on GPIO3 */
+    delay(1); /* wait more than 100µs */
+    mem_write_8(REG::CPURESET, 0x00); /* clear all resets */
+    delay(56); /* wait more than 55ms */
+    mem_write_16(REG::GPIOX_DIR,0x8000); /* setting GPIO3 back to input */
+  }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default
 
