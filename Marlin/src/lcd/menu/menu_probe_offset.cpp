@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PROBE_OFFSET_MENU)
+#if BOTH(HAS_LCD_MENU, PROBE_OFFSET_MENU) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
 
 #include "menu.h"
 #include "menu_addon.h"
@@ -37,7 +37,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+#if HAS_BED_PROBE 
   #include "../../module/probe.h"
 #endif
 
