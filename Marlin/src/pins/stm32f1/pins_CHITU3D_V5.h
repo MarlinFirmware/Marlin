@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -112,10 +112,10 @@
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define FSMC_UPSCALE 3
-  #define LCD_FULL_PIXEL_WIDTH 480
-  #define LCD_PIXEL_OFFSET_X 48
-  #define LCD_FULL_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_OFFSET_Y 48
+  #define LCD_FULL_PIXEL_WIDTH               480
+  #define LCD_PIXEL_OFFSET_X                  48
+  #define LCD_FULL_PIXEL_HEIGHT              320
+  #define LCD_PIXEL_OFFSET_Y                  48
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -135,21 +135,31 @@
     #define BUTTON_DELAY_EDIT 50                  // (ms) Button repeat delay for edit screens
     #define BUTTON_DELAY_MENU 250                 // (ms) Button repeat delay for menus
 
-    #define XPT2046_X_CALIBRATION  -12316
-    #define XPT2046_Y_CALIBRATION   8981
-    #define XPT2046_X_OFFSET        340
-    #define XPT2046_Y_OFFSET        -20
+    #ifndef XPT2046_X_CALIBRATION
+      #define XPT2046_X_CALIBRATION       -12316
+    #endif
+    #ifndef XPT2046_Y_CALIBRATION
+      #define XPT2046_Y_CALIBRATION         8981
+    #endif
+    #ifndef XPT2046_X_OFFSET
+      #define XPT2046_X_OFFSET               340
+    #endif
+    #ifndef XPT2046_Y_OFFSET
+      #define XPT2046_Y_OFFSET               -20
+    #endif
+
   #endif
 #endif
 
 #define SPI_FLASH_SIZE 0x200000                   // 2MB
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
   #define HAS_SPI_FLASH_FONT 0
   #define HAS_GCODE_PREVIEW 1
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
   #define HAS_LANG_SELECT_SCREEN 0
   #define HAS_BAK_VIEW_IN_FLASH 0
+  #define HAS_LOGO_IN_FLASH 0
 
   //SPI 2
   #define W25QXX_CS_PIN                     PB12

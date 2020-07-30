@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -223,7 +223,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("白饱和度");     // "White Intensity")
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("亮度");     // "Brightness")
 
-  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移动 ...");     // "Moving...")
+  PROGMEM Language_Str MSG_MOVING                          = _UxGT("移动...");     // "Moving...")
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("释放 XY");     // "Free XY")
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("移动X");     //"Move X"
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("移动Y");     //"Move Y"
@@ -306,17 +306,17 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_XY_FREQUENCY_LIMIT              = _UxGT("频率最大");
   PROGMEM Language_Str MSG_XY_FREQUENCY_FEEDRATE           = _UxGT("进给速度");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("轴步数/mm");     //"Steps/mm" axis_steps_per_mm, axis steps-per-unit G92
-  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("轴步数/mm");     //"Asteps/mm"
-  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("轴步数/mm");     //"Bsteps/mm"
-  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("轴步数/mm");     //"Csteps/mm"
-  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("挤出机步数/mm");     //"Esteps/mm"
-  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("挤出机~步数/mm");
+  PROGMEM Language_Str MSG_A_STEPS                         = LCD_STR_A _UxGT("步数/mm");     //"Asteps/mm"
+  PROGMEM Language_Str MSG_B_STEPS                         = LCD_STR_B _UxGT("步数/mm");     //"Bsteps/mm"
+  PROGMEM Language_Str MSG_C_STEPS                         = LCD_STR_C _UxGT("步数/mm");     //"Csteps/mm"
+  PROGMEM Language_Str MSG_E_STEPS                         = _UxGT("E 步数/mm");     //"Esteps/mm"
+  PROGMEM Language_Str MSG_EN_STEPS                        = _UxGT("* 步数/mm");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("温度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("运动");     //"Motion"
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("料丝");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");     //"E in mm3" volumetric_enabled
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm³");     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E 限制 *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("丝料直径");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("丝料直径 *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("卸载 mm");     // "Unload mm"
@@ -394,10 +394,10 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_SINGLENOZZLE_FAN_TIME           = _UxGT("风扇时间");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_ON               = _UxGT("自动开");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_OFF              = _UxGT("自动关");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("Tool Migration");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("Auto-migration");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Last Extruder");
-  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migrate to *");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION                  = _UxGT("工具迁移");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_AUTO             = _UxGT("自动迁移");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("上一个挤出机");
+  PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("迁移至 *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("更换丝料");     //"Change filament"
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("更换丝料 *");     //"Change filament"
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("装载丝料");     // "Load filament"
@@ -411,17 +411,17 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z探针在热床之外");     //"Z probe out. bed" Z probe is not within the physical limits
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("偏斜因数");     // "Skew Factor"
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");     // "BLTouch"
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: 自检");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: 重置");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: 装载");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: 部署");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW模式");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V模式");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD模式");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: 模式保存");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("自检");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("重置");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("装载");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("部署");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("SW模式");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("5V模式");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("OD模式");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("模式保存");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("设置BLTouch为5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("设置BLTouch为OD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("报告Drain");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("报告开漏");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("危险: 错误的设置将引起损坏! 是否继续?");
   PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("初始化TouchMI");

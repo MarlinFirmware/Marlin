@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -109,7 +109,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS)
+#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -208,7 +208,7 @@
   #endif
 #endif
 
-#if ENABLED(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
+#if EITHER(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
   #define LED_CONTROL_MENU
   #define LED_USER_PRESET_STARTUP
   #define LED_COLOR_PRESETS

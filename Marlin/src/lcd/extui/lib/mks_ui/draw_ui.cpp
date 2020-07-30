@@ -16,28 +16,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
+
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
 
 #include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
 
-#include <SPI.h>
+#include "pic_manager.h"
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
-  #include "SPI_TFT.h"
-#endif
+#include "draw_ui.h"
+#include "mks_hardware_test.h"
+
+#include <SPI.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
-
-#include "pic_manager.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -47,14 +50,13 @@
   #include "../../../../feature/pause.h"
 #endif
 
-#include "draw_ui.h"
-
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
 DISP_STATE disp_state = MAIN_UI;
 DISP_STATE last_disp_state;
 PRINT_TIME print_time;
+value_state value;
 
 uint32_t To_pre_view;
 uint8_t gcode_preview_over;
@@ -72,9 +74,15 @@ extern uint8_t bmp_public_buf[17 * 1024];
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
+lv_point_t line_points[4][2] = {
+  {{PARA_UI_POS_X, PARA_UI_POS_Y + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y + PARA_UI_SIZE_Y}},
+  {{PARA_UI_POS_X, PARA_UI_POS_Y*2 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*2 + PARA_UI_SIZE_Y}},
+  {{PARA_UI_POS_X, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*3 + PARA_UI_SIZE_Y}},
+  {{PARA_UI_POS_X, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y*4 + PARA_UI_SIZE_Y}}
+};
 void gCfgItems_init() {
   gCfgItems.multiple_language = MULTI_LANGUAGE_ENABLE;
-  #if 1 //LCD_LANGUAGE == en
+  #if 1 // LCD_LANGUAGE == en
     gCfgItems.language = LANG_ENGLISH;
   #elif LCD_LANGUAGE == zh_CN
     gCfgItems.language = LANG_SIMPLE_CHINESE;
@@ -101,12 +109,14 @@ void gCfgItems_init() {
   #elif LCD_LANGUAGE == pt
     gCfgItems.language = LANG_PORTUGUESE;
   #endif
-  gCfgItems.leveling_mode = 0;
-  gCfgItems.from_flash_pic = 0;
-  gCfgItems.curFilesize = 0;
+  gCfgItems.leveling_mode    = 0;
+  gCfgItems.from_flash_pic   = 0;
+  gCfgItems.curFilesize      = 0;
   gCfgItems.finish_power_off = 0;
-  gCfgItems.pause_reprint = 0;
-
+  gCfgItems.pause_reprint    = 0;
+  gCfgItems.pausePosX        = -1;
+  gCfgItems.pausePosY        = -1;
+  gCfgItems.pausePosZ        = 5;
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems.spi_flash_flag, VAR_INF_ADDR, sizeof(gCfgItems.spi_flash_flag));
   if (gCfgItems.spi_flash_flag == GCFG_FLAG_VALUE) {
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
@@ -117,6 +127,12 @@ void gCfgItems_init() {
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   }
 
+  uiCfg.F[0] = 'N';
+  uiCfg.F[1] = 'A';
+  uiCfg.F[2] = 'N';
+  uiCfg.F[3] = 'O';
+  W25QXX.SPI_FLASH_BlockErase(REFLSHE_FLGA_ADD + 32 - 64*1024);
+  W25QXX.SPI_FLASH_BufferWrite(uiCfg.F,REFLSHE_FLGA_ADD,4);
 }
 
 void gCfg_to_spiFlah() {
@@ -125,15 +141,16 @@ void gCfg_to_spiFlah() {
 }
 
 void ui_cfg_init() {
-  uiCfg.curTempType = 0;
-  uiCfg.curSprayerChoose = 0;
-  uiCfg.stepHeat = 10;
+  uiCfg.curTempType         = 0;
+  uiCfg.curSprayerChoose    = 0;
+  uiCfg.stepHeat            = 10;
   uiCfg.leveling_first_time = 0;
-  uiCfg.extruStep = 5;
-  uiCfg.extruSpeed = 10;
-  uiCfg.move_dist = 1;
-  uiCfg.moveSpeed = 3000;
-  uiCfg.stepPrintSpeed = 10;
+  uiCfg.para_ui_page        = 0;
+  uiCfg.extruStep           = 5;
+  uiCfg.extruSpeed          = 10;
+  uiCfg.move_dist           = 1;
+  uiCfg.moveSpeed           = 3000;
+  uiCfg.stepPrintSpeed      = 10;
 }
 
 void update_spi_flash() {
@@ -143,48 +160,106 @@ void update_spi_flash() {
 }
 
 lv_style_t tft_style_scr;
-lv_style_t tft_style_lable_pre;
-lv_style_t tft_style_lable_rel;
+lv_style_t tft_style_label_pre;
+lv_style_t tft_style_label_rel;
+lv_style_t style_line;
+lv_style_t style_para_value_pre;
+lv_style_t style_para_value_rel;
 
+lv_style_t style_num_key_pre;
+lv_style_t style_num_key_rel;
+
+lv_style_t style_num_text;
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
-  tft_style_scr.body.main_color = LV_COLOR_BACKGROUND;
-  tft_style_scr.body.grad_color = LV_COLOR_BACKGROUND;
-  tft_style_scr.text.color = LV_COLOR_TEXT;
-  tft_style_scr.text.sel_color = LV_COLOR_TEXT;
-  tft_style_scr.line.width = 0;
+  tft_style_scr.body.main_color   = LV_COLOR_BACKGROUND;
+  tft_style_scr.body.grad_color   = LV_COLOR_BACKGROUND;
+  tft_style_scr.text.color        = LV_COLOR_TEXT;
+  tft_style_scr.text.sel_color    = LV_COLOR_TEXT;
+  tft_style_scr.line.width        = 0;
   tft_style_scr.text.letter_space = 0;
-  tft_style_scr.text.line_space = 0;
+  tft_style_scr.text.line_space   = 0;
 
-  lv_style_copy(&tft_style_lable_pre, &lv_style_scr);
-  lv_style_copy(&tft_style_lable_rel, &lv_style_scr);
-  tft_style_lable_pre.body.main_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_pre.body.grad_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_pre.text.color = LV_COLOR_TEXT;
-  tft_style_lable_pre.text.sel_color = LV_COLOR_TEXT;
-  tft_style_lable_rel.body.main_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_rel.body.grad_color = LV_COLOR_BACKGROUND;
-  tft_style_lable_rel.text.color = LV_COLOR_TEXT;
-  tft_style_lable_rel.text.sel_color = LV_COLOR_TEXT;
+  lv_style_copy(&tft_style_label_pre, &lv_style_scr);
+  lv_style_copy(&tft_style_label_rel, &lv_style_scr);
+  tft_style_label_pre.body.main_color = LV_COLOR_BACKGROUND;
+  tft_style_label_pre.body.grad_color = LV_COLOR_BACKGROUND;
+  tft_style_label_pre.text.color      = LV_COLOR_TEXT;
+  tft_style_label_pre.text.sel_color  = LV_COLOR_TEXT;
+  tft_style_label_rel.body.main_color = LV_COLOR_BACKGROUND;
+  tft_style_label_rel.body.grad_color = LV_COLOR_BACKGROUND;
+  tft_style_label_rel.text.color      = LV_COLOR_TEXT;
+  tft_style_label_rel.text.sel_color  = LV_COLOR_TEXT;
+  tft_style_label_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  tft_style_label_pre.line.width        = 0;
+  tft_style_label_rel.line.width        = 0;
+  tft_style_label_pre.text.letter_space = 0;
+  tft_style_label_rel.text.letter_space = 0;
+  tft_style_label_pre.text.line_space   = -5;
+  tft_style_label_rel.text.line_space   = -5;
+  lv_style_copy(&style_para_value_pre, &lv_style_scr);
+  lv_style_copy(&style_para_value_rel, &lv_style_scr);
+  style_para_value_pre.body.main_color = LV_COLOR_BACKGROUND;
+  style_para_value_pre.body.grad_color = LV_COLOR_BACKGROUND;
+  style_para_value_pre.text.color      = LV_COLOR_BLACK;
+  style_para_value_pre.text.sel_color  = LV_COLOR_BLACK;
+  style_para_value_rel.body.main_color = LV_COLOR_BACKGROUND;
+  style_para_value_rel.body.grad_color = LV_COLOR_BACKGROUND;
+  style_para_value_rel.text.color      = LV_COLOR_BLACK;
+  style_para_value_rel.text.sel_color  = LV_COLOR_BLACK;
+  style_para_value_pre.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_rel.text.font       = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_para_value_pre.line.width        = 0;
+  style_para_value_rel.line.width        = 0;
+  style_para_value_pre.text.letter_space = 0;
+  style_para_value_rel.text.letter_space = 0;
+  style_para_value_pre.text.line_space   = -5;
+  style_para_value_rel.text.line_space   = -5;
+  lv_style_copy(&style_num_key_pre, &lv_style_scr);
+  lv_style_copy(&style_num_key_rel, &lv_style_scr);
+  style_num_key_pre.body.main_color = LV_COLOR_KEY_BACKGROUND;
+  style_num_key_pre.body.grad_color = LV_COLOR_KEY_BACKGROUND;
+  style_num_key_pre.text.color      = LV_COLOR_TEXT;
+  style_num_key_pre.text.sel_color  = LV_COLOR_TEXT;
+  style_num_key_rel.body.main_color = LV_COLOR_KEY_BACKGROUND;
+  style_num_key_rel.body.grad_color = LV_COLOR_KEY_BACKGROUND;
+  style_num_key_rel.text.color      = LV_COLOR_TEXT;
+  style_num_key_rel.text.sel_color  = LV_COLOR_TEXT;
   #if HAS_SPI_FLASH_FONT
-    tft_style_lable_pre.text.font = &gb2312_puhui32;
-    tft_style_lable_rel.text.font = &gb2312_puhui32;
+    style_num_key_pre.text.font = &gb2312_puhui32;
+    style_num_key_rel.text.font = &gb2312_puhui32;
   #else
-    tft_style_lable_pre.text.font = LV_FONT_DEFAULT;
-    tft_style_lable_rel.text.font = LV_FONT_DEFAULT;
+    style_num_key_pre.text.font = LV_FONT_DEFAULT;
+    style_num_key_rel.text.font = LV_FONT_DEFAULT;
   #endif
-  tft_style_lable_pre.line.width = 0;
-  tft_style_lable_rel.line.width = 0;
-  tft_style_lable_pre.text.letter_space = 0;
-  tft_style_lable_rel.text.letter_space = 0;
-  tft_style_lable_pre.text.line_space = -5;
-  tft_style_lable_rel.text.line_space = -5;
+
+  style_num_key_pre.line.width        = 0;
+  style_num_key_rel.line.width        = 0;
+  style_num_key_pre.text.letter_space = 0;
+  style_num_key_rel.text.letter_space = 0;
+  style_num_key_pre.text.line_space   = -5;
+  style_num_key_rel.text.line_space   = -5;
+  lv_style_copy(&style_num_text, &lv_style_scr);
+
+  style_num_text.body.main_color   = LV_COLOR_WHITE;
+  style_num_text.body.grad_color   = LV_COLOR_WHITE;
+  style_num_text.text.color        = LV_COLOR_BLACK;
+  style_num_text.text.sel_color    = LV_COLOR_BLACK;
+  style_num_text.text.font         = TERN(HAS_SPI_FLASH_FONT, &gb2312_puhui32, LV_FONT_DEFAULT);
+  style_num_text.line.width        = 0;
+  style_num_text.text.letter_space = 0;
+  style_num_text.text.line_space   = -5;
+
+  lv_style_copy(&style_line, &lv_style_plain);
+  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xff);
+  style_line.line.width   = 1;
+  style_line.line.rounded = 1;
 }
 
 #define MAX_TITLE_LEN 28
 
 char public_buf_m[100] = {0};
-
 char public_buf_l[30];
 
 void titleText_cat(char *str, int strSize, char *addPart) {
@@ -195,7 +270,7 @@ void titleText_cat(char *str, int strSize, char *addPart) {
 
 char *getDispText(int index) {
 
-  memset(public_buf_l, 0, sizeof(public_buf_l));
+  ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
     case PRINT_READY_UI:
@@ -206,11 +281,11 @@ char *getDispText(int index) {
       break;
     case PRINTING_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-          #ifndef TFT35
-            || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-            || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-          #endif
-          ) strcpy(public_buf_l, common_menu.print_special_title);
+        #ifndef TFT35
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+        #endif
+      )    strcpy(public_buf_l, common_menu.print_special_title);
       else strcpy(public_buf_l, printing_menu.title);
       break;
     case MOVE_MOTOR_UI:
@@ -218,19 +293,19 @@ char *getDispText(int index) {
       break;
     case OPERATE_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-          #ifndef TFT35
-            || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-            || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-          #endif
-          ) strcpy(public_buf_l, common_menu.operate_special_title);
+        #ifndef TFT35
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+        #endif
+      )    strcpy(public_buf_l, common_menu.operate_special_title);
       else strcpy(public_buf_l, operation_menu.title);
       break;
 
     case PAUSE_UI:
       if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-          || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
-          ) strcpy(public_buf_l, common_menu.pause_special_title);
+        || disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+        || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI
+      )    strcpy(public_buf_l, common_menu.pause_special_title);
       else strcpy(public_buf_l, pause_menu.title);
       break;
 
@@ -244,7 +319,8 @@ char *getDispText(int index) {
       strcpy(public_buf_l, fan_menu.title);
       break;
     case PRE_HEAT_UI:
-      if ((disp_state_stack._disp_state[disp_state_stack._disp_index - 1] == OPERATE_UI)) strcpy(public_buf_l, preheat_menu.adjust_title);
+      if ((disp_state_stack._disp_state[disp_state_stack._disp_index - 1] == OPERATE_UI))
+           strcpy(public_buf_l, preheat_menu.adjust_title);
       else strcpy(public_buf_l, preheat_menu.title);
       break;
     case SET_UI:
@@ -300,6 +376,9 @@ char *getDispText(int index) {
     case BABY_STEP_UI:
       strcpy(public_buf_l, operation_menu.babystep);
       break;
+    case EEPROM_SETTINGS_UI:
+      strcpy(public_buf_l, eeprom_menu.title);
+      break;
     default: break;
   }
 
@@ -307,11 +386,11 @@ char *getDispText(int index) {
 }
 
 char *creat_title_text() {
-  int index = 0;
+  int index     = 0;
   char *tmpText = 0;
   char tmpCurFileStr[20];
 
-  memset(tmpCurFileStr, 0, sizeof(tmpCurFileStr));
+  ZERO(tmpCurFileStr);
 
   #if _LFN_UNICODE
     //cutFileName((TCHAR *)curFileName, 16, 16, (TCHAR *)tmpCurFileStr);
@@ -319,7 +398,7 @@ char *creat_title_text() {
     cutFileName(list_file.long_name[sel_id], 16, 16, tmpCurFileStr);
   #endif
 
-  memset(public_buf_m, 0, sizeof(public_buf_m));
+  ZERO(public_buf_m);
 
   while (index <= disp_state_stack._disp_index) {
     tmpText = getDispText(index);
@@ -335,15 +414,15 @@ char *creat_title_text() {
   }
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] == PRINTING_UI
-      /*|| disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
-      || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI*/) {
+    /*|| disp_state_stack._disp_state[disp_state_stack._disp_index] == OPERATE_UI
+    || disp_state_stack._disp_state[disp_state_stack._disp_index] == PAUSE_UI*/
+  ) {
     titleText_cat(public_buf_m, sizeof(public_buf_m), (char *)":");
     titleText_cat(public_buf_m, sizeof(public_buf_m), tmpCurFileStr);
   }
 
   if (strlen(public_buf_m) > MAX_TITLE_LEN) {
-    memset(public_buf_m, 0, sizeof(public_buf_m));
-
+    ZERO(public_buf_m);
     tmpText = getDispText(0);
     if (*tmpText != 0) {
       titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
@@ -351,276 +430,425 @@ char *creat_title_text() {
       tmpText = getDispText(disp_state_stack._disp_index);
       if (*tmpText != 0) titleText_cat(public_buf_m, sizeof(public_buf_m), tmpText);
     }
-
   }
 
   return public_buf_m;
 }
 
 #if HAS_GCODE_PREVIEW
-uint32_t gPicturePreviewStart = 0;
 
-void preview_gcode_prehandle(char *path) {
-  #if ENABLED(SDSUPPORT)
-    //uint8_t re;
-    //uint32_t read;
-    uint32_t pre_read_cnt = 0;
-    uint32_t *p1;
-    char *cur_name;
+  uint32_t gPicturePreviewStart = 0;
 
-    gPicturePreviewStart = 0;
-    cur_name = strrchr(path, '/');
-    card.openFileRead(cur_name);
-    card.read(public_buf, 512);
-    p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
-
-    if (p1) {
-      pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
-
-      To_pre_view = pre_read_cnt;
-      gcode_preview_over = 1;
-      gCfgItems.from_flash_pic = 1;
-      update_spi_flash();
-    }
-    else {
-      gcode_preview_over = 0;
-      default_preview_flg = 1;
-      gCfgItems.from_flash_pic = 0;
-      update_spi_flash();
-    }
-    card.closefile();
-  #endif
-}
-
-void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
-  #if ENABLED(SDSUPPORT)
-    //uint8_t ress;
-    //uint32_t write;
-    volatile uint32_t i, j;
-    volatile uint16_t *p_index;
-    //int res;
-    char *cur_name;
-    uint16_t Color;
-
-    cur_name = strrchr(path, '/');
-    card.openFileRead(cur_name);
-
-    if (gPicturePreviewStart <= 0) {
-      while (1) {
-        uint32_t br = card.read(public_buf, 400);
-        uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
-        if (p1) {
-          gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
-          break;
-        }
-        else {
-          gPicturePreviewStart += br;
-        }
-        if (br < 400) break;
-      }
-    }
-
-    // SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
-
-    card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-    #if ENABLED(SPI_GRAPHICAL_TFT)
-      SPI_TFT.spi_init(SPI_FULL_SPEED);
-      //SPI_TFT.SetCursor(0,0);
-      SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-      SPI_TFT.LCD_WriteRAM_Prepare();
-    #else
-      ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-      LCD_WriteRAM_Prepare();
-    #endif
-
-    j = i = 0;
-
-    while (1) {
-      card.read(public_buf, 400);
-      for (i = 0; i < 400;) {
-        bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
-        i += 2;
-        j++;
-      }
-
-      //if (i > 800) break;
-      //#ifdef TFT70
-      //if (j>400) {
-      //  f_read(file, buff_pic, 1, &read);
-      //  break;
-      //}
-      //#elif defined(TFT35)
-      if (j >= 400)
-        //f_read(file, buff_pic, 1, &read);
-        break;
-      //#endif
-
-    }
-    #if ENABLED(SPI_GRAPHICAL_TFT)
-      for (i = 0; i < 400;) {
-        p_index = (uint16_t *)(&bmp_public_buf[i]);
-        Color = (*p_index >> 8);
-        *p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-      }
-      SPI_TFT_CS_L;
-      SPI_TFT_DC_H;
-      SPI.dmaSend(bmp_public_buf, 400, true);
-      SPI_TFT_CS_H;
-    #else
-      for (i = 0; i < 400;) {
-        p_index = (uint16_t *)(&bmp_public_buf[i]);
-        if (*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-        LCD_IO_WriteData(*p_index);
-        i += 2;
-      }
-    #endif
-    #if HAS_BAK_VIEW_IN_FLASH
-      W25QXX.init(SPI_QUARTER_SPEED);
-      if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
-      W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
-    #endif
-    row++;
-    if (row >= 200) {
-      size = 809;
-      row = 0;
-
-      gcode_preview_over = 0;
-      //flash_preview_begin = 1;
-
-      card.closefile();
-
-      /*
-      if (gCurFileState.file_open_flag != 0xaa) {
-        reset_file_info();
-        res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
-        if (res == FR_OK) {
-          f_lseek(file,PREVIEW_SIZE+To_pre_view);
-          gCurFileState.file_open_flag = 0xaa;
-          //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
-          srcfp = file;
-          mksReprint.mks_printer_state = MKS_WORKING;
-          once_flag = 0;
-        }
-      }
-      */
+  void preview_gcode_prehandle(char *path) {
+    #if ENABLED(SDSUPPORT)
+      //uint8_t re;
+      //uint32_t read;
+      uint32_t pre_read_cnt = 0;
+      uint32_t *p1;
       char *cur_name;
 
-      cur_name = strrchr(list_file.file_name[sel_id], '/');
+      gPicturePreviewStart = 0;
+      cur_name             = strrchr(path, '/');
+      card.openFileRead(cur_name);
+      card.read(public_buf, 512);
+      p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
-      SdFile file;
-      SdFile *curDir;
-      card.endFilePrint();
-      const char * const fname = card.diveToFile(true, curDir, cur_name);
-      if (!fname) return;
-      if (file.open(curDir, fname, O_READ)) {
-        gCfgItems.curFilesize = file.fileSize();
-        file.close();
+      if (p1) {
+        pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+
+        To_pre_view              = pre_read_cnt;
+        gcode_preview_over       = 1;
+        gCfgItems.from_flash_pic = 1;
         update_spi_flash();
       }
-
-      card.openFileRead(cur_name);
-      if (card.isFileOpen()) {
-        feedrate_percentage = 100;
-        // saved_feedrate_percentage = feedrate_percentage;
-        planner.flow_percentage[0] = 100;
-        planner.e_factor[0] = planner.flow_percentage[0] * 0.01;
-        if (EXTRUDERS == 2) {
-          planner.flow_percentage[1] = 100;
-          planner.e_factor[1] = planner.flow_percentage[1] * 0.01;
-        }
-        card.startFileprint();
-        TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-        once_flag = 0;
+      else {
+        gcode_preview_over       = 0;
+        default_preview_flg      = 1;
+        gCfgItems.from_flash_pic = 0;
+        update_spi_flash();
       }
-      return;
-    }
-    card.closefile();
-  #endif // SDSUPPORT
-}
-
-void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
-  int index;
-  int x_off = 0, y_off = 0;
-  int _y;
-  uint16_t *p_index;
-  int i;
-  uint16_t temp_p;
-
-  for (index = 0; index < 10; index++) { // 200*200
-    #if HAS_BAK_VIEW_IN_FLASH
-      if (sel == 1) flash_view_Read(bmp_public_buf, 8000); //20k
-      //memset(bmp_public_buf,0x1f,8000);
-      else
-        //memset(bmp_public_buf,0x1f,8000);
-        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); //20k
-    #else
-      default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); //20k
+      card.closefile();
     #endif
-
-    i = 0;
-    #if ENABLED(SPI_GRAPHICAL_TFT)
-      //SPI_TFT.spi_init(SPI_FULL_SPEED);
-      //SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel, 200,20);     //200*200
-      //SPI_TFT.LCD_WriteRAM_Prepare();
-      j = 0;
-      for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-        SPI_TFT.spi_init(SPI_FULL_SPEED);
-        SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel + j, 200, 1);    //200*200
-        SPI_TFT.LCD_WriteRAM_Prepare();
-
-        j++;
-        //memcpy(public_buf,&bmp_public_buf[i],400);
-        SPI_TFT_CS_L;
-        SPI_TFT_DC_H;
-        SPI.dmaSend(&bmp_public_buf[i], 400, true);
-        SPI_TFT_CS_H;
-
-        i += 400;
-        if (i >= 8000) break;
-      }
-    #else
-      ili9320_SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20);     //200*200
-
-      LCD_WriteRAM_Prepare();
-
-      for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-        for (x_off = 0; x_off < 200; x_off++) {
-          if (sel == 1) {
-            temp_p = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
-            p_index = &temp_p;
-          }
-          else {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-          }
-          if (*p_index == 0x0000)*p_index=LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-          LCD_IO_WriteData(*p_index);
-          i += 2;
-        }
-        if (i >= 8000) break;
-      }
-    #endif
-    y_off++;
   }
-  W25QXX.init(SPI_QUARTER_SPEED);
-}
 
-void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
-  if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
-  #if HAS_BAK_VIEW_IN_FLASH
-    if (flash_preview_begin == 1) {
-      flash_preview_begin = 0;
-      Draw_default_preview(xpos_pixel, ypos_pixel, 1);
+  #if 1
+
+    void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
+      #if ENABLED(SDSUPPORT)
+        //uint8_t ress;
+        //uint32_t write;
+        volatile uint32_t i, j;
+        volatile uint16_t *p_index;
+        //int res;
+        char *cur_name;
+
+        cur_name = strrchr(path, '/');
+        card.openFileRead(cur_name);
+
+        if (gPicturePreviewStart <= 0) {
+          while (1) {
+            uint32_t br  = card.read(public_buf, 400);
+            uint32_t* p1 = (uint32_t *)strstr((char *)public_buf, ";gimage:");
+            if (p1) {
+              gPicturePreviewStart += (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
+              break;
+            }
+            else {
+              gPicturePreviewStart += br;
+            }
+            if (br < 400) break;
+          }
+        }
+
+        //SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
+
+        card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
+        #if ENABLED(TFT_LVGL_UI_SPI)
+          SPI_TFT.spi_init(SPI_FULL_SPEED);
+          //SPI_TFT.SetCursor(0,0);
+          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          SPI_TFT.LCD_WriteRAM_Prepare();
+        #else
+          ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          LCD_WriteRAM_Prepare();
+        #endif
+
+        j = i = 0;
+
+        while (1) {
+          card.read(public_buf, 400);
+          for (i = 0; i < 400;) {
+            bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
+            i                += 2;
+            j++;
+          }
+          if (j >= 400) break;
+        }
+        #if ENABLED(TFT_LVGL_UI_SPI)
+          uint16_t Color, SpiColor;
+          SpiColor = (LV_COLOR_BACKGROUND.full >> 8) | ((LV_COLOR_BACKGROUND.full & 0xFF) << 8);
+          for (i = 0; i < 400;) {
+            p_index  = (uint16_t *)(&bmp_public_buf[i]);
+            Color    = (*p_index >> 8);
+            *p_index = Color | ((*p_index & 0xFF) << 8);
+            i       += 2;
+            if (*p_index == 0x0000) *p_index = SpiColor;
+          }
+          SPI_TFT_CS_L;
+          SPI_TFT_DC_H;
+          SPI.dmaSend(bmp_public_buf, 400, true);
+          SPI_TFT_CS_H;
+        #else
+          for (i = 0; i < 400;) {
+            p_index = (uint16_t *)(&bmp_public_buf[i]);
+            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
+            LCD_IO_WriteData(*p_index);
+            i += 2;
+          }
+        #endif
+        #if HAS_BAK_VIEW_IN_FLASH
+          W25QXX.init(SPI_QUARTER_SPEED);
+          if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
+          W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
+        #endif
+        row++;
+        if (row >= 200) {
+          size = 809;
+          row  = 0;
+
+          gcode_preview_over = 0;
+          //flash_preview_begin = 1;
+
+          card.closefile();
+
+          /*
+          if (gCurFileState.file_open_flag != 0xaa) {
+            reset_file_info();
+            res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
+            if (res == FR_OK) {
+              f_lseek(file,PREVIEW_SIZE+To_pre_view);
+              gCurFileState.file_open_flag = 0xaa;
+              //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
+              srcfp = file;
+              mksReprint.mks_printer_state = MKS_WORKING;
+              once_flag = 0;
+            }
+          }
+          */
+          char *cur_name;
+
+          cur_name = strrchr(list_file.file_name[sel_id], '/');
+
+          SdFile file;
+          SdFile *curDir;
+          card.endFilePrint();
+          const char * const fname = card.diveToFile(true, curDir, cur_name);
+          if (!fname) return;
+          if (file.open(curDir, fname, O_READ)) {
+            gCfgItems.curFilesize = file.fileSize();
+            file.close();
+            update_spi_flash();
+          }
+
+          card.openFileRead(cur_name);
+          if (card.isFileOpen()) {
+            feedrate_percentage = 100;
+            //saved_feedrate_percentage = feedrate_percentage;
+            planner.flow_percentage[0] = 100;
+            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
+            if (EXTRUDERS == 2) {
+              planner.flow_percentage[1] = 100;
+              planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
+            }
+            card.startFileprint();
+            TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+            once_flag = 0;
+          }
+          return;
+        }
+        card.closefile();
+      #endif // SDSUPPORT
     }
-  #endif
-  #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-    if (default_preview_flg == 1) {
-      Draw_default_preview(xpos_pixel, ypos_pixel, 0);
-      default_preview_flg = 0;
+
+  #else // if 1
+
+    void gcode_preview(char *path, int xpos_pixel, int ypos_pixel) {
+      #if ENABLED(SDSUPPORT)
+        //uint8_t ress;
+        //uint32_t write;
+        volatile uint32_t i, j;
+        volatile uint16_t *p_index;
+        //int res;
+        char *cur_name;
+        uint16_t Color;
+
+        cur_name = strrchr(path, '/');
+        card.openFileRead(cur_name);
+
+        card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
+        #if ENABLED(TFT_LVGL_UI_SPI)
+          SPI_TFT.spi_init(SPI_FULL_SPEED);
+          //SPI_TFT.SetCursor(0,0);
+          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          SPI_TFT.LCD_WriteRAM_Prepare();
+        #else
+          ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          LCD_WriteRAM_Prepare();
+        #endif
+
+        j = 0;
+        i = 0;
+
+        while (1) {
+          card.read(public_buf, 400);
+          for (i = 0; i < 400;) {
+            bmp_public_buf[j] = ascii2dec_test((char*)&public_buf[i]) << 4 | ascii2dec_test((char*)&public_buf[i + 1]);
+            i += 2;
+            j++;
+          }
+
+          //if (i > 800) break;
+          //#ifdef TFT70
+          //  if (j > 400) {
+          //    f_read(file, buff_pic, 1, &read);
+          //    break;
+          //  }
+          //#elif defined(TFT35)
+          if (j >= 400)
+            //f_read(file, buff_pic, 1, &read);
+            break;
+          //#endif
+
+        }
+        #if ENABLED(TFT_LVGL_UI_SPI)
+          for (i = 0; i < 400;) {
+            p_index = (uint16_t *)(&bmp_public_buf[i]);
+
+            Color    = (*p_index >> 8);
+            *p_index = Color | ((*p_index & 0xff) << 8);
+            i       += 2;
+            if (*p_index == 0x0000) *p_index = 0xC318;
+          }
+          SPI_TFT_CS_L;
+          SPI_TFT_DC_H;
+          SPI.dmaSend(bmp_public_buf, 400, true);
+          SPI_TFT_CS_H;
+
+        #else
+          for (i = 0; i < 400;) {
+            p_index = (uint16_t *)(&bmp_public_buf[i]);
+            if (*p_index == 0x0000) *p_index = 0x18C3;
+            LCD_IO_WriteData(*p_index);
+            i = i + 2;
+          }
+        #endif
+        W25QXX.init(SPI_QUARTER_SPEED);
+        if (row < 20)
+          W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
+        W25QXX.SPI_FLASH_BufferWrite(bmp_public_buf, BAK_VIEW_ADDR_TFT35 + row * 400, 400);
+        row++;
+        if (row >= 200) {
+          size = 809;
+          row  = 0;
+
+          gcode_preview_over = 0;
+          //flash_preview_begin = 1;
+
+          card.closefile();
+
+          /*
+          if (gCurFileState.file_open_flag != 0xaa) {
+            reset_file_info();
+            res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
+            if (res == FR_OK) {
+              f_lseek(file,PREVIEW_SIZE+To_pre_view);
+              gCurFileState.file_open_flag = 0xaa;
+              //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
+              srcfp = file;
+              mksReprint.mks_printer_state = MKS_WORKING;
+              once_flag = 0;
+            }
+          }
+          */
+          char *cur_name;
+
+          cur_name = strrchr(list_file.file_name[sel_id], '/');
+
+          SdFile file;
+          SdFile *curDir;
+          card.endFilePrint();
+          const char * const fname = card.diveToFile(true, curDir, cur_name);
+          if (!fname) return;
+          if (file.open(curDir, fname, O_READ)) {
+            gCfgItems.curFilesize = file.fileSize();
+            file.close();
+            update_spi_flash();
+          }
+
+          card.openFileRead(cur_name);
+          if (card.isFileOpen()) {
+            feedrate_percentage = 100;
+            //saved_feedrate_percentage = feedrate_percentage;
+            planner.flow_percentage[0] = 100;
+            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
+            if (EXTRUDERS == 2) {
+              planner.flow_percentage[1] = 100;
+              planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
+            }
+            card.startFileprint();
+            TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
+            once_flag = 0;
+          }
+          return;
+        }
+        card.closefile();
+      #endif // SDSUPPORT
     }
-  #endif
-}
-#endif
+
+  #endif // if 1
+
+  void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
+    int index;
+    int y_off = 0;
+    int _y;
+    uint16_t *p_index;
+    int i;
+
+    for (index = 0; index < 10; index++) { // 200*200
+      #if HAS_BAK_VIEW_IN_FLASH
+        if (sel == 1) {
+          flash_view_Read(bmp_public_buf, 8000); // 20k
+        }
+        else {
+          default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
+          #if ENABLED(TFT_LVGL_UI_SPI)
+            uint16_t Color;
+            for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
+              p_index = (uint16_t *)(&bmp_public_buf[i]);
+              Color = (*p_index >> 8);
+              *p_index = Color | ((*p_index & 0xff) << 8);
+              i += 2;
+            }
+          #endif
+        }
+      #else
+        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
+        #if ENABLED(TFT_LVGL_UI_SPI)
+          for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
+            p_index = (uint16_t *)(&bmp_public_buf[i]);
+            Color = (*p_index >> 8);
+            *p_index = Color | ((*p_index & 0xff) << 8);
+            i += 2;
+          }
+        #endif
+      #endif
+
+      i = 0;
+      #if ENABLED(TFT_LVGL_UI_SPI)
+
+        //SPI_TFT.spi_init(SPI_FULL_SPEED);
+        //SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel, 200,20);     //200*200
+        //SPI_TFT.LCD_WriteRAM_Prepare();
+        int j = 0;
+        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
+          SPI_TFT.spi_init(SPI_FULL_SPEED);
+          SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel + j, 200, 1); // 200*200
+          SPI_TFT.LCD_WriteRAM_Prepare();
+
+          j++;
+          //memcpy(public_buf,&bmp_public_buf[i],400);
+          SPI_TFT_CS_L;
+          SPI_TFT_DC_H;
+          SPI.dmaSend(&bmp_public_buf[i], 400, true);
+          SPI_TFT_CS_H;
+
+          i += 400;
+          if (i >= 8000) break;
+        }
+      #else
+        int x_off = 0;
+        uint16_t temp_p;
+        ili9320_SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+
+        LCD_WriteRAM_Prepare();
+
+        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
+          for (x_off = 0; x_off < 200; x_off++) {
+            if (sel == 1) {
+              temp_p  = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
+              p_index = &temp_p;
+            }
+            else {
+              p_index = (uint16_t *)(&bmp_public_buf[i]);
+            }
+            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
+            LCD_IO_WriteData(*p_index);
+            i += 2;
+          }
+          if (i >= 8000) break;
+        }
+      #endif // TFT_LVGL_UI_SPI
+      y_off++;
+    }
+    W25QXX.init(SPI_QUARTER_SPEED);
+  }
+
+  void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
+    if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
+    #if HAS_BAK_VIEW_IN_FLASH
+      if (flash_preview_begin == 1) {
+        flash_preview_begin = 0;
+        Draw_default_preview(xpos_pixel, ypos_pixel, 1);
+      }
+    #endif
+    #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
+      if (default_preview_flg == 1) {
+        Draw_default_preview(xpos_pixel, ypos_pixel, 0);
+        default_preview_flg = 0;
+      }
+    #endif
+  }
+#endif // HAS_GCODE_PREVIEW
 
 void print_time_run() {
   static uint8_t lastSec = 0;
@@ -645,7 +873,7 @@ void GUI_RefreshPage() {
 
   switch (disp_state) {
     case MAIN_UI:
-      lv_draw_ready_print();
+      //lv_draw_ready_print();
       break;
     case EXTRUSION_UI:
       if (temperature_change_frequency == 1) {
@@ -722,7 +950,7 @@ void GUI_RefreshPage() {
           {
             memset((char *)gCfgItems.move_z_coordinate, ' ', sizeof(gCfgItems.move_z_coordinate));
             GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
-            sprintf((char *)gCfgItems.move_z_coordinate, "Z: %.3f", current_position[Z_AXIS]);
+            sprintf_P((char *)gCfgItems.move_z_coordinate, PSTR("Z: %.3f"), current_position[Z_AXIS]);
             GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
           }
         }
@@ -845,7 +1073,7 @@ void clear_cur_ui() {
       lv_clear_move_motor();
       break;
     case OPERATE_UI:
-      lv_clear_opration();
+      lv_clear_operation();
       break;
     case PAUSE_UI:
       //Clear_pause();
@@ -932,16 +1160,16 @@ void clear_cur_ui() {
       //Clear_Tips();
       break;
     case MACHINE_PARA_UI:
-      //Clear_MachinePara();
+      lv_clear_machine_para();
       break;
     case MACHINE_SETTINGS_UI:
-      //Clear_MachineSettings();
+      lv_clear_machine_settings();
       break;
     case TEMPERATURE_SETTINGS_UI:
       //Clear_TemperatureSettings();
       break;
     case MOTOR_SETTINGS_UI:
-      //Clear_MotorSettings();
+      lv_clear_motor_settings();
       break;
     case MACHINETYPE_UI:
       //Clear_MachineType();
@@ -971,16 +1199,18 @@ void clear_cur_ui() {
       //Clear_XYZLevelPara();
       break;
     case MAXFEEDRATE_UI:
-      //Clear_MaxFeedRate();
+      lv_clear_max_feedrate_settings();
       break;
     case STEPS_UI:
-      //Clear_Steps();
+      lv_clear_step_settings();
       break;
     case ACCELERATION_UI:
-      //Clear_Acceleration();
+      lv_clear_acceleration_settings();
       break;
     case JERK_UI:
-      //Clear_Jerk();
+      #if HAS_CLASSIC_JERK
+        lv_clear_jerk_settings();
+      #endif
       break;
     case MOTORDIR_UI:
       //Clear_MotorDir();
@@ -995,7 +1225,7 @@ void clear_cur_ui() {
       //Clear_HotbedConfig();
       break;
     case ADVANCED_UI:
-      //Clear_Advanced();
+      lv_clear_advance_settings();
       break;
     case DOUBLE_Z_UI:
       //Clear_DoubleZ();
@@ -1004,11 +1234,27 @@ void clear_cur_ui() {
       //Clear_EnableInvert();
       break;
     case NUMBER_KEY_UI:
-      //Clear_NumberKey();
+      lv_clear_number_key();
       break;
     case BABY_STEP_UI:
       //Clear_babyStep();
       break;
+    case PAUSE_POS_UI:
+      lv_clear_pause_position();
+      break;
+      #if HAS_TRINAMIC_CONFIG
+        case TMC_CURRENT_UI:
+          lv_clear_tmc_current_settings();
+          break;
+      #endif
+    case EEPROM_SETTINGS_UI:
+      lv_clear_eeprom_settings();
+      break;
+      #if HAS_STEALTHCHOP
+        case TMC_MODE_UI:
+          lv_clear_tmc_step_mode_settings();
+          break;
+      #endif
     default:
       break;
   }
@@ -1035,13 +1281,13 @@ void draw_return_ui() {
         lv_draw_move_motor();
         break;
       case OPERATE_UI:
-        lv_draw_opration();
+        lv_draw_operation();
         break;
 
         #if 1
-      case PAUSE_UI:
-        //draw_pause();
-        break;
+          case PAUSE_UI:
+            //draw_pause();
+            break;
         #endif
 
       case EXTRUSION_UI:
@@ -1076,9 +1322,9 @@ void draw_return_ui() {
         break;
 
         #if tan_mask
-      case LOG_UI:
-        //draw_Connect();
-        break;
+          case LOG_UI:
+            //draw_Connect();
+            break;
         #endif
 
       case CALIBRATE_UI:
@@ -1107,9 +1353,9 @@ void draw_return_ui() {
         break;
 
         #if tan_mask
-      case ZOFFSET_UI:
-        //draw_Zoffset();
-        break;
+          case ZOFFSET_UI:
+            //draw_Zoffset();
+            break;
         #endif
 
       case TOOL_UI:
@@ -1131,16 +1377,16 @@ void draw_return_ui() {
         //draw_Tips();
         break;
       case MACHINE_PARA_UI:
-        //draw_MachinePara();
+        lv_draw_machine_para();
         break;
       case MACHINE_SETTINGS_UI:
-        //draw_MachineSettings();
+        lv_draw_machine_settings();
         break;
       case TEMPERATURE_SETTINGS_UI:
         //draw_TemperatureSettings();
         break;
       case MOTOR_SETTINGS_UI:
-        //draw_MotorSettings();
+        lv_draw_motor_settings();
         break;
       case MACHINETYPE_UI:
         //draw_MachineType();
@@ -1170,16 +1416,18 @@ void draw_return_ui() {
         //draw_XYZLevelPara();
         break;
       case MAXFEEDRATE_UI:
-        //draw_MaxFeedRate();
+        lv_draw_max_feedrate_settings();
         break;
       case STEPS_UI:
-        //draw_Steps();
+        lv_draw_step_settings();
         break;
       case ACCELERATION_UI:
-        //draw_Acceleration();
+        lv_draw_acceleration_settings();
         break;
       case JERK_UI:
-        //draw_Jerk();
+        #if HAS_CLASSIC_JERK
+          lv_draw_jerk_settings();
+        #endif
         break;
       case MOTORDIR_UI:
         //draw_MotorDir();
@@ -1194,7 +1442,7 @@ void draw_return_ui() {
         //draw_HotbedConfig();
         break;
       case ADVANCED_UI:
-        //draw_Advanced();
+        lv_draw_advance_settings();
         break;
       case DOUBLE_Z_UI:
         //draw_DoubleZ();
@@ -1203,7 +1451,7 @@ void draw_return_ui() {
         //draw_EnableInvert();
         break;
       case NUMBER_KEY_UI:
-        //draw_NumberKey();
+        lv_draw_number_key();
         break;
       case DIALOG_UI:
         //draw_dialog(DialogType);
@@ -1211,6 +1459,22 @@ void draw_return_ui() {
       case BABY_STEP_UI:
         //draw_babyStep();
         break;
+      case PAUSE_POS_UI:
+        lv_draw_pause_position();
+        break;
+        #if HAS_TRINAMIC_CONFIG
+          case TMC_CURRENT_UI:
+            lv_draw_tmc_current_settings();
+            break;
+        #endif
+      case EEPROM_SETTINGS_UI:
+        lv_draw_eeprom_settings();
+        break;
+        #if HAS_STEALTHCHOP
+          case TMC_MODE_UI:
+            lv_draw_tmc_step_mode_settings();
+            break;
+        #endif
       default: break;
     }
   }
@@ -1229,6 +1493,13 @@ void draw_return_ui() {
 
 #endif
 
+void lv_ex_line(lv_obj_t * line, lv_point_t *points) {
+  /*Copy the previous line and apply the new style*/
+  lv_line_set_points(line, points, 2);     /*Set the points*/
+  lv_line_set_style(line, LV_LINE_STYLE_MAIN, &style_line);
+  lv_obj_align(line, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
+}
+
 extern volatile uint32_t systick_uptime_millis;
 
 void print_time_count() {
@@ -1239,7 +1510,7 @@ void print_time_count() {
 void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
-  TERN_(MKS_TEST, mks_test());
+  if (mks_test_flag == 0x1e) mks_hardware_test();
   #if HAS_GCODE_PREVIEW
     disp_pre_gcode(2, 36);
   #endif
@@ -1247,4 +1518,4 @@ void LV_TASK_HANDLER() {
   //sd_detection();
 }
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI

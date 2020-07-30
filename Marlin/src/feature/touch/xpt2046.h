@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,10 +33,6 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z1 = 0x30,
   XPT2046_Z2 = 0x40
 };
-
-#ifndef XPT2046_Z1_THRESHOLD
-  #define XPT2046_Z1_THRESHOLD 10
-#endif
 
 class XPT2046 {
 public:

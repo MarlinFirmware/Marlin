@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if 1 // ENABLED(SPI_FLASH)
-#if ENABLED(TFT_LVGL_UI)
+#if HAS_TFT_LVGL_UI
 
 #include <SPI.h>
 #include "../../../../inc/MarlinConfig.h"
@@ -131,7 +131,7 @@ void ext_FLASH::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
 uint16_t ext_FLASH::W25QXX_ReadID(void) {
   uint16_t Temp = 0;
   W25QXX_CS_L;
-  spi_flash_Send(0x90);//���Ͷ�ȡID����
+  spi_flash_Send(0x90);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
   spi_flash_Send(0x00);
@@ -391,5 +391,5 @@ void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16
 
 void ext_FLASH::lv_pic_read(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);}
 
-#endif // TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI
 #endif // 1 ... SPI_FLASH

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -70,7 +70,7 @@
 
 #elif ENABLED(U8GLIB_LM6059_AF)
 
-  // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
+  // Based on the Adafruit ST7565 (https://www.adafruit.com/products/250)
 
   #if ENABLED(ALTERNATIVE_LCD)
     #define U8G_CLASS U8GLIB_LM6059                             // 8 stripes (HW-SPI)
@@ -182,12 +182,16 @@
   #define U8G_CLASS U8GLIB_SH1106_128X64
   #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
 
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#elif TFT_SCALED_DOGLCD
 
   // Unspecified 320x240 TFT pre-initialized by built-in bootloader
 
   #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
-  #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
+  #if ENABLED(FSMC_GRAPHICAL_TFT)
+    #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
+  #else
+    #define U8G_PARAM -1, -1
+  #endif
 
 #else
 
@@ -210,18 +214,18 @@
 
 // LCD_FULL_PIXEL_WIDTH =
 // LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if TFT_SCALED_DOGLCD
   #ifndef LCD_FULL_PIXEL_WIDTH
     #define LCD_FULL_PIXEL_WIDTH  320
   #endif
   #ifndef LCD_PIXEL_OFFSET_X
-    #define LCD_PIXEL_OFFSET_X    32
+    #define LCD_PIXEL_OFFSET_X     32
   #endif
   #ifndef LCD_FULL_PIXEL_HEIGHT
     #define LCD_FULL_PIXEL_HEIGHT 240
   #endif
   #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y    32
+    #define LCD_PIXEL_OFFSET_Y     32
   #endif
 #endif
 

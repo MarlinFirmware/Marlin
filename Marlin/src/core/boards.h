@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -288,29 +288,31 @@
 #define BOARD_MKS_ROBIN               4007  // MKS Robin (STM32F103ZET6)
 #define BOARD_MKS_ROBIN_MINI          4008  // MKS Robin Mini (STM32F103VET6)
 #define BOARD_MKS_ROBIN_NANO          4009  // MKS Robin Nano (STM32F103VET6)
-#define BOARD_MKS_ROBIN_LITE          4010  // MKS Robin Lite/Lite2 (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_LITE3         4011  // MKS Robin Lite3 (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_PRO           4012  // MKS Robin Pro (STM32F103ZET6)
-#define BOARD_BTT_SKR_MINI_V1_1       4013  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_0    4014  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_2    4015  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V2_0    4016  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
-#define BOARD_BTT_SKR_E3_DIP          4017  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4018  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4019  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4020  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4021  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4022  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_GTM32_MINI              4023  // STM32F103VET6 controller
-#define BOARD_GTM32_MINI_A30          4024  // STM32F103VET6 controller
-#define BOARD_GTM32_REV_B             4025  // STM32F103VET6 controller
-#define BOARD_MKS_ROBIN_E3D           4026  // MKS Robin E3D (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_E3            4027  // MKS Robin E3 (STM32F103RCT6)
-#define BOARD_MALYAN_M300             4028  // STM32F070-based delta
-#define BOARD_CCROBOT_MEEB_3DP        4029  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4030  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4031  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CREALITY_V4             4032  // Creality v4.x (STM32F103RE)
+#define BOARD_MKS_ROBIN_NANO_V2       4010  // MKS Robin Nano V2 (STM32F103VET6)
+#define BOARD_MKS_ROBIN_LITE          4011  // MKS Robin Lite/Lite2 (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_LITE3         4012  // MKS Robin Lite3 (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_PRO           4013  // MKS Robin Pro (STM32F103ZET6)
+#define BOARD_BTT_SKR_MINI_V1_1       4014  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_0    4015  // BigTreeTech SKR Mini E3 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_2    4016  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V2_0    4017  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
+#define BOARD_BTT_SKR_E3_DIP          4018  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4019  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4020  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4021  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4022  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4023  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_GTM32_MINI              4024  // STM32F103VET6 controller
+#define BOARD_GTM32_MINI_A30          4025  // STM32F103VET6 controller
+#define BOARD_GTM32_REV_B             4026  // STM32F103VET6 controller
+#define BOARD_MKS_ROBIN_E3D           4027  // MKS Robin E3D (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3            4028  // MKS Robin E3 (STM32F103RCT6)
+#define BOARD_MALYAN_M300             4029  // STM32F070-based delta
+#define BOARD_CCROBOT_MEEB_3DP        4030  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4031  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4032  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4033  // Creality v4.x (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4034  // Trigorilla Pro (STM32F103ZET6)
 
 //
 // ARM Cortex-M4F
