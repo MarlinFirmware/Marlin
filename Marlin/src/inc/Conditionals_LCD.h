@@ -286,10 +286,10 @@
 #endif
 
 #if EITHER(TFT_320x240, TFT_320x240_SPI)
-  #define UI_320x240
+  #define HAS_UI_320x240 1
   #define LCD_HEIGHT  TERN(TOUCH_SCREEN, 6, 7)
 #elif EITHER(TFT_480x320, TFT_480x320_SPI)
-  #define UI_480x320
+  #define HAS_UI_480x320 1
   #define LCD_HEIGHT  TERN(TOUCH_SCREEN, 6, 7)
 #endif
 

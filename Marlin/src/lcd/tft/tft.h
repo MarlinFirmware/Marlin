@@ -30,14 +30,14 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#ifdef UI_320x240
+#if HAS_UI_320x240
   #define TFT_WIDTH         320
   #define TFT_HEIGHT        240
-#elif defined(UI_480x320)
+#elif HAS_UI_480x320
   #define TFT_WIDTH         480
   #define TFT_HEIGHT        320
 #else
-  #error Unsupported display resolution!
+  #error "Unsupported display resolution!"
 #endif
 
 #define ST7735          0x89F0

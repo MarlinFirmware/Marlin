@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef UI_320x240
+#if HAS_UI_320x240
 
 #include "ui_320x240.h"
 
@@ -650,4 +650,4 @@ void menu_item(const uint8_t row, bool sel ) {
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
 }
 
-#endif // UI_320x240
+#endif // HAS_UI_320x240
