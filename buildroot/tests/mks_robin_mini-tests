@@ -7,7 +7,7 @@
 # exit on first failure
 set -e
 
-use_example_configs import-2.0.x:Mks/Robin
+use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_MINI
 opt_set EXTRUDERS 1
 opt_set TEMP_SENSOR_1 0

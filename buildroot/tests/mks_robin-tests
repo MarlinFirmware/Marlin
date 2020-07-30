@@ -7,7 +7,7 @@
 # exit on first failure
 set -e
 
-use_example_configs import-2.0.x:Mks/Robin
+use_example_configs Mks/Robin
 exec_test $1 $2 "MKS Robin base configuration"
 
 # cleanup

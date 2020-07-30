@@ -9,7 +9,7 @@ set -e
 #
 # Build with the default configurations
 #
-use_example_configs import-2.0.x:JGAurora/A5S
+use_example_configs JGAurora/A5S
 exec_test $1 $2 "JGAurora/A5S Configuration"
 
 # clean up
