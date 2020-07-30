@@ -154,7 +154,7 @@
   #define FSMC_DMA_CHANNEL               DMA_CH5
 #endif
 
-#if EITHER(TOUCH_SCREEN, HAS_TOUCH_XPT2046)
+#if HAS_TOUCH_XPT2046
   #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
