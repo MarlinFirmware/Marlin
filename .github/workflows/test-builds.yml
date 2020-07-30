@@ -66,7 +66,8 @@ jobs:
         - BIGTREE_BTT002
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
-        - mks_robin
+        - mks_robin_stm32
+        #- mks_robin
         - ARMED
         - FYSETC_S6
         - STM32F070RB_malyan
