@@ -19,7 +19,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_XPT2046_BUTTONS
+#if HAS_TOUCH_XPT2046
 
 #if TFT_SCALED_DOGLCD
   #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
@@ -242,4 +242,4 @@ bool XPT2046::getTouchPoint(uint16_t &x, uint16_t &y) {
   return isTouched();
 }
 
-#endif // HAS_XPT2046_BUTTONS
+#endif // HAS_TOUCH_XPT2046

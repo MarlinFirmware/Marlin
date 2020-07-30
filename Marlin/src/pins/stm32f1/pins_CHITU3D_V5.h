@@ -108,7 +108,7 @@
 // TronXY TFT Support
 //
 //#define FSMC_GRAPHICAL_TFT
-//#define HAS_XPT2046_BUTTONS 1
+//#define HAS_TOUCH_XPT2046 1
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define FSMC_UPSCALE 3
@@ -126,7 +126,7 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #if HAS_XPT2046_BUTTONS
+  #if HAS_TOUCH_XPT2046
     #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
     #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
     #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
