@@ -208,6 +208,8 @@ public:
    */
   void setDataSize(uint32_t ds);
 
+  uint32_t getDataSize() { return _currentSetting->dataSize; }
+
   /* Victor Perez 2017. Added to set and clear callback functions for callback
    * on DMA transfer completion.
    * onReceive used to set the callback in case of dmaTransfer (tx/rx), once rx is completed

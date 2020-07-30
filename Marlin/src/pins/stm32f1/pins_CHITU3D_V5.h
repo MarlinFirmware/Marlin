@@ -112,10 +112,10 @@
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define FSMC_UPSCALE 3
-  #define LCD_FULL_PIXEL_WIDTH 480
-  #define LCD_PIXEL_OFFSET_X 48
-  #define LCD_FULL_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_OFFSET_Y 48
+  #define LCD_FULL_PIXEL_WIDTH               480
+  #define LCD_PIXEL_OFFSET_X                  48
+  #define LCD_FULL_PIXEL_HEIGHT              320
+  #define LCD_PIXEL_OFFSET_Y                  48
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -135,10 +135,19 @@
     #define BUTTON_DELAY_EDIT 50                  // (ms) Button repeat delay for edit screens
     #define BUTTON_DELAY_MENU 250                 // (ms) Button repeat delay for menus
 
-    #define XPT2046_X_CALIBRATION  -12316
-    #define XPT2046_Y_CALIBRATION   8981
-    #define XPT2046_X_OFFSET        340
-    #define XPT2046_Y_OFFSET        -20
+    #ifndef XPT2046_X_CALIBRATION
+      #define XPT2046_X_CALIBRATION       -12316
+    #endif
+    #ifndef XPT2046_Y_CALIBRATION
+      #define XPT2046_Y_CALIBRATION         8981
+    #endif
+    #ifndef XPT2046_X_OFFSET
+      #define XPT2046_X_OFFSET               340
+    #endif
+    #ifndef XPT2046_Y_OFFSET
+      #define XPT2046_Y_OFFSET               -20
+    #endif
+
   #endif
 #endif
 
