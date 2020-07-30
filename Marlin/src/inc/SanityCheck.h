@@ -3047,18 +3047,18 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 /**
  * Touch Buttons
  */
-#if ENABLED(TOUCH_BUTTONS)
+#if ENABLED(TOUCH_SCREEN)
   #ifndef XPT2046_X_CALIBRATION
-    #error "XPT2046_X_CALIBRATION must be defined with TOUCH_BUTTONS."
+    #error "XPT2046_X_CALIBRATION must be defined with TOUCH_SCREEN."
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #error "XPT2046_Y_CALIBRATION must be defined with TOUCH_BUTTONS."
+    #error "XPT2046_Y_CALIBRATION must be defined with TOUCH_SCREEN."
   #endif
   #ifndef XPT2046_X_OFFSET
-    #error "XPT2046_X_OFFSET must be defined with TOUCH_BUTTONS."
+    #error "XPT2046_X_OFFSET must be defined with TOUCH_SCREEN."
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #error "XPT2046_Y_OFFSET must be defined with TOUCH_BUTTONS."
+    #error "XPT2046_Y_OFFSET must be defined with TOUCH_SCREEN."
   #endif
 #endif
 
