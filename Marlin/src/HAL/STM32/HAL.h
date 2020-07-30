@@ -213,5 +213,10 @@ uint16_t HAL_adc_get_result();
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
+#ifdef STM32F1xx
+  #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
+  #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
+#endif
+
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);

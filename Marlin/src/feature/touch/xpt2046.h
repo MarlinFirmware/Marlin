@@ -34,10 +34,6 @@ enum XPTCoordinate : uint8_t {
   XPT2046_Z2 = 0x40
 };
 
-#ifndef XPT2046_Z1_THRESHOLD
-  #define XPT2046_Z1_THRESHOLD 10
-#endif
-
 class XPT2046 {
 public:
   static void init();
