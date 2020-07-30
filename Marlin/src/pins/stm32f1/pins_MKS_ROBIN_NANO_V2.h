@@ -37,7 +37,7 @@
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
 
-//#define DISABLE_DEBUG
+#define DISABLE_DEBUG
 
 //
 // EEPROM
@@ -207,6 +207,13 @@
 #define MT_DET_2_PIN                        PE6
 #define MT_DET_PIN_INVERTING false
 
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN           MT_DET_2_PIN
+#endif
+
 #define WIFI_IO0_PIN                        PC13
 
 //
@@ -224,7 +231,9 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                          PC5
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
+#endif
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
@@ -250,7 +259,6 @@
 
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
-  #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PE13
 
 #elif ENABLED(TFT_LITTLE_VGL_UI)
@@ -269,16 +277,71 @@
 
 #if HAS_SPI_LCD
 
-  #define BEEPER_PIN                        PC5
-  #define BTN_ENC                           PE13
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
-  #define LCD_BACKLIGHT_PIN                 -1
+  #if ENABLED(SPI_GRAPHICAL_TFT)                  // Emulated DOGM SPI
+    #define SPI_TFT_CS_PIN                  PD11
+    #define SPI_TFT_SCK_PIN                 PA5
+    #define SPI_TFT_MISO_PIN                PA6
+    #define SPI_TFT_MOSI_PIN                PA7
+    #define SPI_TFT_DC_PIN                  PD10
+    #define SPI_TFT_RST_PIN                 PC6
 
-  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+    #define LCD_BACKLIGHT_PIN               PD13
+
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE     1
+
+    //#define TOUCH_SCREEN
+    #if NEED_TOUCH_PINS
+      #define TOUCH_CS_PIN                  PE14  // SPI1_NSS
+      #define TOUCH_SCK_PIN                 PA5   // SPI1_SCK
+      #define TOUCH_MISO_PIN                PA6   // SPI1_MISO
+      #define TOUCH_MOSI_PIN                PA7   // SPI1_MOSI
+
+      #ifndef XPT2046_X_CALIBRATION
+        #define XPT2046_X_CALIBRATION      -5481
+      #endif
+      #ifndef XPT2046_Y_CALIBRATION
+        #define XPT2046_Y_CALIBRATION       4000
+      #endif
+      #ifndef XPT2046_X_OFFSET
+        #define XPT2046_X_OFFSET             343
+      #endif
+      #ifndef XPT2046_Y_OFFSET
+        #define XPT2046_Y_OFFSET               0
+      #endif
+    #endif
+
+    #ifndef FSMC_UPSCALE
+      #define FSMC_UPSCALE                     3
+    #endif
+    #ifndef LCD_FULL_PIXEL_WIDTH
+      #define LCD_FULL_PIXEL_WIDTH           480
+    #endif
+    #ifndef LCD_PIXEL_OFFSET_X
+      #define LCD_PIXEL_OFFSET_X              48
+    #endif
+    #ifndef LCD_FULL_PIXEL_HEIGHT
+      #define LCD_FULL_PIXEL_HEIGHT          320
+    #endif
+    #ifndef LCD_PIXEL_OFFSET_Y
+      #define LCD_PIXEL_OFFSET_Y              32
+    #endif
+
+    #define BTN_ENC                         PE13
+    #define BTN_EN1                         PE8
+    #define BTN_EN2                         PE11
+
+    #define LCD_PINS_ENABLE                 PD13
+    #define LCD_PINS_RS                     PC6
+
+  #elif ENABLED(MKS_MINI_12864)
+
+    // MKS MINI12864 and MKS LCD12864B
+    // If using MKS LCD12864A (Need to remove RPK2 resistor)
+
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
     #define DOGLCD_A0                       PD11
@@ -319,4 +382,8 @@
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
+#endif
+
+#if ENABLED(SPEAKER) && BEEPER_PIN == PC5
+  #error "MKS Robin nano default BEEPER_PIN is not a SPEAKER."
 #endif
