@@ -964,24 +964,34 @@
 //
 
 /**
- * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+ * Nozzle-to-Probe offsets { X, Y, Z }
  *
- * In the following example the X and Y offsets are both positive:
+ * - Use a caliper or ruler to measure the distance from the tip of
+ *   the Nozzle to the center-point of the Probe in the X and Y axes.
+ * - For the Z offset use your best known value and adjust at runtime.
+ * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
  *
- *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+ * Assuming the typical work area orientation:
+ *  - Probe to RIGHT of the Nozzle has a Positive X offset
+ *  - Probe to LEFT  of the Nozzle has a Negative X offset
+ *  - Probe in BACK  of the Nozzle has a Positive Y offset
+ *  - Probe in FRONT of the Nozzle has a Negative Y offset
+ *
+ * Some examples:
+ *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, -1 }   // Example "1"
+ *   #define NOZZLE_TO_PROBE_OFFSET {-10,  5, -1 }   // Example "2"
+ *   #define NOZZLE_TO_PROBE_OFFSET {  5, -5, -1 }   // Example "3"
+ *   #define NOZZLE_TO_PROBE_OFFSET {-15,-10, -1 }   // Example "4"
  *
  *     +-- BACK ---+
- *     |           |
- *   L |    (+) P  | R <-- probe (20,20)
- *   E |           | I
- *   F | (-) N (+) | G <-- nozzle (10,10)
- *   T |           | H
- *     |    (-)    | T
- *     |           |
+ *     |    [+]    |
+ *   L |        1  | R <-- Example "1" (right+,  back+)
+ *   E |  2        | I <-- Example "2" ( left-,  back+)
+ *   F |[-]  N  [+]| G <-- Nozzle
+ *   T |       3   | H <-- Example "3" (right+, front-)
+ *     | 4         | T <-- Example "4" ( left-, front-)
+ *     |    [-]    |
  *     O-- FRONT --+
- *   (0,0)
- *
- * Specify a Probe position as { X, Y, Z }
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 
@@ -2163,6 +2173,12 @@
 //#define FSMC_GRAPHICAL_TFT
 
 //
+// SPI display (MKS Robin Nano V2.0, MKS Gen L V2.0)
+// Upscaled 128x64 Marlin UI
+//
+//#define SPI_GRAPHICAL_TFT
+
+//
 // TFT LVGL UI
 //
 // Using default MKS icons and fonts from: https://git.io/JJvzK
@@ -2197,15 +2213,15 @@
 
   #define TOUCH_SCREEN_CALIBRATION
 
-  #define XPT2046_X_CALIBRATION   12316
-  #define XPT2046_Y_CALIBRATION  -8981
-  #define XPT2046_X_OFFSET       -43
-  #define XPT2046_Y_OFFSET        257
+  //#define XPT2046_X_CALIBRATION 12316
+  //#define XPT2046_Y_CALIBRATION -8981
+  //#define XPT2046_X_OFFSET        -43
+  //#define XPT2046_Y_OFFSET        257
 #endif
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
-// https://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
+// https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/
 //
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distance to move per key-press
