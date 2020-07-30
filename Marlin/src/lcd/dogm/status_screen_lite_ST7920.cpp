@@ -714,8 +714,8 @@ bool ST7920_Lite_Status_Screen::indicators_changed() {
 void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink             = ui.get_blink();
-    const duration_t elapsed           = print_job_timer.duration(),
-                     remaining         = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
+    const duration_t elapsed           = print_job_timer.duration();
+    duration_t       remaining         = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
     const uint16_t   feedrate_perc     = feedrate_percentage;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
@@ -740,10 +740,19 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_fan_speed(thermalManager.fanPercent(spd));
-    if(ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink) && remaining.second())
+
+    // Draw elapsed/remaining time
+    const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);
+    if(show_remaining && !remaining.second()) {
+      const auto progress = ui.get_progress_percent();
+      if(progress)
+        remaining = elapsed.second() * (100 - progress) / progress;
+    }
+    if(show_remaining && remaining.second())
       draw_print_time(remaining, 'R');
     else
       draw_print_time(elapsed);
+
     draw_feedrate_percentage(feedrate_perc);
 
     // Update the fan and bed animations
