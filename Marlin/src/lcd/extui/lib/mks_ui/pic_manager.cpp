@@ -377,7 +377,9 @@ uint8_t public_buf[512];
   }
 
 
-  static uint32_t totalSizes = 0, totalCompressed = 0;
+  #if ENABLED(MARLIN_DEV_MODE)
+    static uint32_t totalSizes = 0, totalCompressed = 0;
+  #endif
 
   #define ASSET_TYPE_ICON       0
   #define ASSET_TYPE_LOGO       1
@@ -432,7 +434,9 @@ uint8_t public_buf[512];
       while (1) {
         #if HAS_SPI_FLASH_COMPRESSION
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
-          totalSizes += pbr;
+          #if ENABLED(MARLIN_DEV_MODE)
+            totalSizes += pbr;
+          #endif
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
           if (pbr < SPI_FLASH_PageSize) break;
         #else
@@ -442,8 +446,10 @@ uint8_t public_buf[512];
           if (pbr < BMP_WRITE_BUF_LEN) break;
         #endif
       }
-      SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
-      totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
+        totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
+      #endif
       SPIFlash.endWrite();
     }
     else if (assetType == ASSET_TYPE_FONT) {
