@@ -743,12 +743,12 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
 
     // Draw elapsed/remaining time
     const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);
-    if(show_remaining && !remaining.second()) {
+    if (show_remaining && !remaining.second()) {
       const auto progress = ui.get_progress_percent();
-      if(progress)
+      if (progress)
         remaining = elapsed.second() * (100 - progress) / progress;
     }
-    if(show_remaining && remaining.second())
+    if (show_remaining && remaining.second())
       draw_print_time(remaining, 'R');
     else
       draw_print_time(elapsed);
