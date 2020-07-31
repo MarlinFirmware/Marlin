@@ -430,7 +430,7 @@ uint8_t public_buf[512];
       Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
       SPIFlash.beginWrite(Pic_Write_Addr);
       while (1) {
-        #if HAS_COMPRESSION
+        #if HAS_SPI_FLASH_COMPRESSION
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
           totalSizes += pbr;
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
@@ -552,7 +552,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
 }
 
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
-  #if HAS_COMPRESSION
+  #if HAS_SPI_FLASH_COMPRESSION
     if (currentFlashPage == 0) {
       SPIFlash.beginRead(addr);
     }
