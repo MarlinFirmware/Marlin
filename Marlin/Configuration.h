@@ -645,7 +645,7 @@
   //#define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
   //#define ENDSTOPPULLUP_ZMIN
-  //#define ENDSTOPPULLUP_ZMIN_PROBE
+  #define ENDSTOPPULLUP_ZMIN_PROBE // (brant notsure)
 #endif
 
 // Enable pulldown for all endstops to prevent a floating state
@@ -833,7 +833,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-//#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -908,7 +908,7 @@
 /**
  * The BLTouch probe uses a Hall effect sensor and emulates a servo.
  */
-//#define BLTOUCH
+#define BLTOUCH
 
 /**
  * Pressure sensor with a BLTouch-like interface
@@ -995,14 +995,14 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#define NOZZLE_TO_PROBE_OFFSET { -40, -11, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/m) between probes
-#define XY_PROBE_SPEED 3000
+#define XY_PROBE_SPEED 10000
 
 // Feedrate (mm/m) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
@@ -1048,7 +1048,7 @@
 #define Z_PROBE_OFFSET_RANGE_MAX 10
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // Before deploy/stow pause for user confirmation
 //#define PAUSE_BEFORE_DEPLOY_STOW
@@ -1069,7 +1069,7 @@
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
-//#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+#define DELAY_BEFORE_PROBING 100  // (ms) To prevent vibrations from triggering piezo sensors
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1135,8 +1135,8 @@
 #define Y_BED_SIZE 220
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS -5
+#define Y_MIN_POS -10
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
@@ -1156,7 +1156,7 @@
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
-  #define MIN_SOFTWARE_ENDSTOP_Z
+  //#define MIN_SOFTWARE_ENDSTOP_Z  //M211 to turn on(brant convenient)
 #endif
 
 // Max software endstops constrain movement within maximum coordinate bounds
@@ -1177,11 +1177,12 @@
  *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
+ * By default the firmware assumes HIGH=FILAMENT PRESENT.
  */
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-  #define FIL_RUNOUT_STATE     LOW   // Pin state indicating that filament is NOT present.
+  #define FIL_RUNOUT_INVERTING false // Set to true to invert the logic of the sensor.
   #define FIL_RUNOUT_PULLUP          // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN      // Use internal pulldown for filament runout pins.
 
@@ -1242,7 +1243,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_BILINEAR
 //#define AUTO_BED_LEVELING_UBL
 //#define MESH_BED_LEVELING
 
@@ -1250,7 +1251,7 @@
  * Normally G28 leaves leveling disabled on completion. Enable
  * this option to have G28 restore the prior leveling state.
  */
-//#define RESTORE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -1289,7 +1290,7 @@
 #if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
-  #define GRID_MAX_POINTS_X 3
+  #define GRID_MAX_POINTS_X 4
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1393,7 +1394,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE - 10) / 2)    // X point for Z homing
