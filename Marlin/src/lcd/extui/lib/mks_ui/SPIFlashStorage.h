@@ -6,6 +6,55 @@
 
 #define HAS_SPI_FLASH_COMPRESSION 1
 
+/**
+ * This class manage and optimize SPI Flash data storage,
+ * keeping a internal buffer to write and save full
+ * SPI flash pages as needed.
+ *
+ * Its supports Compression too, compacting and uncompacting
+ * data on the fly, in real time, using a simple but fast
+ * RLE implementation.
+ *
+ * Using it in the current LVGL_UI, it compacts 2.9MB of icons
+ * down to 370kb!!!
+ * The LVGL UI refresh rate became faster, when now we can fit
+ * all LVGL UI in a tiny 2MB SPI Flash, like the Chitu Board.
+ *
+ * == Usage ==
+ *
+ * Writing:
+ *
+ * It have a internal buffer that keeps data until it
+ * fits in a full SPI Flash full page.
+ * When the buffer is full, it saves the data to spi flash.
+ *
+ *    SPIFlashStorage.beginWrite(myStartAddress);
+ *    while (you have data to save) {
+ *      SPIFlashStorage.addData(myBuffer, bufferSize);
+ *    }
+ *    SPIFlashStorage.endWrite(); //need to flush remaining buffer data
+ *
+ * Reading:
+ *
+ * When reading, it loads a full page from SPI Flash at once
+ * and keep it in a internal buffer. As the user are consuming the
+ * buffer, it will loading the data as needed.
+ *
+ *    SPIFlashStorage.beginRead(myStartAddress);
+ *    while (you have data to read) {
+ *      SPIFlashStorage.readData(myBuffer, bufferSize);
+ *    }
+ *
+ * Compression:
+ *
+ * Its the big gain of using this class is Compression.
+ * When compression is enabled, it keep another buffer, with the
+ * compressed data. And only when this buffer became full, it flush
+ * the page.
+ *
+ * The same is for reading: it read a compressed page, and
+ * uncompress as the user ask for data.
+ */
 class SPIFlashStorage
 {
 public:
