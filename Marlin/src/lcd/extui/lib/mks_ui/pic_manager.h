@@ -88,7 +88,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
   // font
-  #define FONTINFOADDR                  0x183000 // 6M -- font addr
+  #define FONTINFOADDR                  0x150000 // 6M -- font addr
   #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
 
 #else
