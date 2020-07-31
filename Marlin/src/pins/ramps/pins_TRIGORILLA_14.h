@@ -66,6 +66,9 @@
   #define FIL_RUNOUT_PIN                      33
   #define BEEPER_PIN                          31
   #define SD_DETECT_PIN                       49
+  #ifndef Z_MIN_PROBE_PIN
+    #define Z_MIN_PROBE_PIN                    2
+  #endif
 #endif
 
 #if ENABLED(ANYCUBIC_I3MEGA)
@@ -77,6 +80,9 @@
   #define BEEPER_PIN                          31
   #define SD_DETECT_PIN                       49
   #define CONTROLLER_FAN_PIN         TG_FAN1_PIN
+  #ifndef Z_MIN_PROBE_PIN
+    #define Z_MIN_PROBE_PIN                    2
+  #endif
 #endif
 
 // Remap MOSFET pins to common usages:
