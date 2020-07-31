@@ -39,7 +39,7 @@
 #define _CPP_U8GLIB
 
 #include <Print.h>
-#include "clib/u8g.h"
+#include "lib/u8g.h"
 
 
 class U8GLIB : public Print
