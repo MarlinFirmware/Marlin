@@ -6,7 +6,7 @@
 
 #if HAS_SPI_FLASH_COMPRESSION
   template <typename T>
-  static uint32_t RLECompress(T *output, uint32_t outputLength, T *input, uint32_t inputLength, uint32_t& inputProcessed)
+  static uint32_t rle_compress(T *output, uint32_t outputLength, T *input, uint32_t inputLength, uint32_t& inputProcessed)
   {
     uint32_t count = 0, out = 0, index, i;
     T pixel;
@@ -66,7 +66,7 @@
   }
 
   template <typename UT, typename T>
-  static uint32_t RLEUncompress(UT *output, uint32_t outputLength, UT *input, uint32_t inputLength, uint32_t &outputFilled)
+  static uint32_t rle_uncompress(UT *output, uint32_t outputLength, UT *input, uint32_t inputLength, uint32_t &outputFilled)
   {
     T count;
     UT i;
@@ -179,7 +179,7 @@ void SPIFlashStorage::flushPage()
   #if HAS_SPI_FLASH_COMPRESSION
     // work com with compressed in memory
     uint32_t inputProcessed;
-    uint32_t compressedSize = RLECompress<uint16_t>((uint16_t *)(m_compressedData + m_compressedDataUsed), m_compressedDataFree / 2, (uint16_t *)m_pageData, m_pageDataUsed / 2, inputProcessed) * 2;
+    uint32_t compressedSize = rle_compress<uint16_t>((uint16_t *)(m_compressedData + m_compressedDataUsed), m_compressedDataFree / 2, (uint16_t *)m_pageData, m_pageDataUsed / 2, inputProcessed) * 2;
     inputProcessed *= 2;
     m_compressedDataUsed += compressedSize;
     m_compressedDataFree -= compressedSize;
@@ -232,7 +232,7 @@ void SPIFlashStorage::readPage()
       m_pageDataFree = SPI_FLASH_PageSize;
       m_pageDataUsed = 0;
       uint32_t outpuProcessed = 0;
-      uint32_t inputProcessed = RLEUncompress<uint16_t, int16_t>((uint16_t *)(m_pageData + m_pageDataUsed), m_pageDataFree / 2, (uint16_t *)(m_compressedData + m_compressedDataUsed), m_compressedDataFree / 2, outpuProcessed);
+      uint32_t inputProcessed = rle_uncompress<uint16_t, int16_t>((uint16_t *)(m_pageData + m_pageDataUsed), m_pageDataFree / 2, (uint16_t *)(m_compressedData + m_compressedDataUsed), m_compressedDataFree / 2, outpuProcessed);
       inputProcessed *= 2;
       outpuProcessed *= 2;
       if (outpuProcessed < m_pageDataFree) {
