@@ -63,7 +63,7 @@ extern "C" { /* C-declarations for C++ */
 #define DEFAULT_VIEW_MAX_SIZE           (200*200*2)
 #define FLASH_VIEW_MAX_SIZE             (200*200*2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (32*1024)
+#define PER_PIC_MAX_SPACE_TFT35         (9*1024)
 #define PER_PIC_MAX_SPACE_TFT32         (16*1024)
 #define PER_FONT_MAX_SPACE              (16*1024)
 
