@@ -120,6 +120,7 @@ extern "C" { /* C-declarations for C++ */
 #endif
 
 // Flash flag
+#define REFLSHE_FLGA_ADD                (0X800000-32)
 #define FLASH_INF_VALID_FLAG            0xAA558761
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
@@ -139,7 +140,7 @@ typedef struct pic_msg PIC_MSG;
 
 #define BMP_WRITE_BUF_LEN 512
 
-#define PICINFOADDR   0
+#define PICINFOADDR   0x1000
 
 #define PIC_SIZE_xM   6
 #define FONT_SIZE_xM  2

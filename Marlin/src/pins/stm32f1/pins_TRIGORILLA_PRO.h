@@ -129,7 +129,7 @@
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI2_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI2_MISO

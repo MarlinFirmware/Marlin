@@ -210,7 +210,7 @@
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PD13
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if NEED_TOUCH_PINS
     #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
     #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
     #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO

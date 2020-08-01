@@ -19,32 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
-/**
- * The purpose of this file is just include Marlin Configuration files,
- * to discover which FEATURES are enabled, without any HAL include.
- * Used by common-features-dependencies.py
- */
+#include "../../inc/MarlinConfigPre.h"
 
-#ifndef __MARLIN_FIRMWARE__
-#define __MARLIN_FIRMWARE__
-#endif
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
 
-//
-// Prefix header to acquire configurations
-//
-#include <stdint.h>
+#include "menu.h"
+#include "../ultralcd.h"
 
-#include "../../../../Marlin/src/core/boards.h"
-#include "../../../../Marlin/src/core/macros.h"
-#include "../../../../Marlin/Configuration.h"
+void touch_screen_calibration() {
+  ui.touch_calibration();
+}
 
-#include "../../../../Marlin/Version.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_LCD.h"
-
-#include "../../../../Marlin/src/core/drivers.h"
-#include "../../../../Marlin/Configuration_adv.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_adv.h"
+#endif // TOUCH_SCREEN_CALIBRATION

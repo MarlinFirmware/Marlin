@@ -429,7 +429,7 @@ void tft_lvgl_init() {
 
   //spi_flash_read_test();
 
-  TERN_(TOUCH_BUTTONS, touch.init());
+  TERN_(HAS_TOUCH_XPT2046, touch.init());
 
   lv_init();
 
@@ -660,7 +660,7 @@ void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
       SPI_TFT.spi_read_write_byte(CHY);
       x_addata[i] = SPI2_ReadWrite2Bytes();
       WRITE(TOUCH_CS_PIN, HIGH);
-    #else // #if ENABLED(TOUCH_BUTTONS)
+    #else // #if HAS_TOUCH_XPT2046
       OUT_WRITE(TOUCH_CS_PIN, LOW);
       W25QXX.spi_flash_read_write_byte(CHX);
       y_addata[i] = SPI2_ReadWrite2Bytes();
@@ -729,7 +729,7 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   /*Save the pressed coordinates and the state*/
   if (diffTime > 10) {
     //use marlin touch code if enabled
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_TOUCH_XPT2046
       touch.getTouchPoint(reinterpret_cast<uint16_t&>(last_x), reinterpret_cast<uint16_t&>(last_y));
     #else
       XPT2046_Rd_Addata((uint16_t *)&last_x, (uint16_t *)&last_y);
