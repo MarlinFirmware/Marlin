@@ -2,7 +2,7 @@
 #include <HardwareSerial.h>
 #include <WString.h>
 #include <stdio.h>
-#include "../ui_api.h"
+#include "../../ui_api.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 namespace ExtUI
