@@ -59,11 +59,7 @@ inline float rounded_mesh_value() {
 static void _lcd_mesh_fine_tune(PGM_P const msg) {
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
-    #if ENABLED(TFTGLCD_ADAPTER) && ENABLED(HAS_SLOW_BUTTONS)
-      mesh_edit_accumulator += ubl.encoder_diff * 0.005f;
-    #else
-      mesh_edit_accumulator += ubl.encoder_diff > 0 ? 0.005f : -0.005f;
-    #endif
+    mesh_edit_accumulator += ubl.encoder_diff > 0 ? 0.005f : -0.005f;
     ubl.encoder_diff = 0;
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
   }

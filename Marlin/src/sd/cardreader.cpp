@@ -29,7 +29,7 @@
 #include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(DWIN_CREALITY_LCD) || ENABLED(TFTGLCD_ADAPTER)
+#if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/dwin.h"
 #endif
 

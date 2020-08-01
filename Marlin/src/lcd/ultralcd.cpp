@@ -146,7 +146,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
-  #if ENABLED(HAS_SLOW_BUTTONS)
+  #if HAS_SLOW_BUTTONS
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
   #if ENABLED(TOUCH_BUTTONS)
@@ -376,7 +376,7 @@ void MarlinUI::init() {
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
 
-  #if HAS_ENCODER_ACTION && ENABLED(HAS_SLOW_BUTTONS)
+  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
     slow_buttons = 0;
   #endif
 
@@ -510,7 +510,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_ADAPTER)
+#if ENABLED(LCD_PROGRESS_BAR)
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -521,7 +521,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_ADAPTER)
+  #if ENABLED(LCD_PROGRESS_BAR)
 
     //
     // HD44780 implements the following message blinking and
@@ -919,11 +919,7 @@ void MarlinUI::update() {
 
       const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
-        if (encoderPastThreshold
-          #if ENABLED(TFTGLCD_ADAPTER) && ENABLED(HAS_SLOW_BUTTONS)
-            && !external_control
-          #endif
-            ) {
+        if (encoderPastThreshold) {
 
           #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
@@ -1160,139 +1156,122 @@ void MarlinUI::update() {
    */
   void MarlinUI::update_buttons() {
     const millis_t now = millis();
+    if (ELAPSED(now, next_button_update_ms)) {
 
-    #if ENABLED(TFTGLCD_ADAPTER) && ENABLED(HAS_SLOW_BUTTONS)
+      #if HAS_DIGITAL_BUTTONS
 
-      if (ELAPSED(now, next_button_update_ms))
-      {
-        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
-        buttons = slow_buttons;
-        if (external_control) {
-          #if ENABLED(AUTO_BED_LEVELING_UBL)
-            ubl.encoder_diff = encoderDiff;   // Make encoder rotation available to UBL G29 mesh editing.
+        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
+
+          uint8_t newbutton = 0;
+
+          #if BUTTON_EXISTS(EN1)
+            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
           #endif
-          encoderDiff = 0;                    // Hide the encoder event from the current screen handler.
-        }
-      }
+          #if BUTTON_EXISTS(EN2)
+            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          #endif
+          #if BUTTON_EXISTS(ENC)
+            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          #endif
+          #if BUTTON_EXISTS(BACK)
+            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #endif
 
-    #else
+        #else
 
-      if (ELAPSED(now, next_button_update_ms)) {
+          constexpr uint8_t newbutton = 0;
 
-        #if HAS_DIGITAL_BUTTONS
+        #endif
 
-          #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-            uint8_t newbutton = 0;
-
-            #if BUTTON_EXISTS(EN1)
-              if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-            #endif
-            #if BUTTON_EXISTS(EN2)
-              if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-            #endif
-            #if BUTTON_EXISTS(ENC)
-              if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-            #endif
-            #if BUTTON_EXISTS(BACK)
-              if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-            #endif
-
-          #else
+        //
+        // Directional buttons
+        //
+        #if ANY_BUTTON(UP, DWN, LFT, RT)
 
           const int8_t pulses = epps * encoderDirection;
 
+          if (false) {
+            // for the else-ifs below
+          }
+          #if BUTTON_EXISTS(UP)
+            else if (BUTTON_PRESSED(UP)) {
+              encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(DWN)
+            else if (BUTTON_PRESSED(DWN)) {
+              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(LFT)
+            else if (BUTTON_PRESSED(LFT)) {
+              encoderDiff = -pulses;
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(RT)
+            else if (BUTTON_PRESSED(RT)) {
+              encoderDiff = pulses;
+              next_button_update_ms = now + 300;
+            }
           #endif
 
-          //
-          // Directional buttons
-          //
-          #if ANY_BUTTON(UP, DWN, LFT, RT)
+        #endif // UP || DWN || LFT || RT
 
-            const int8_t pulses = (ENCODER_PULSES_PER_STEP) * encoderDirection;
+        buttons = (newbutton
+          #if HAS_SLOW_BUTTONS
+            | slow_buttons
+          #endif
+          #if BOTH(TOUCH_BUTTONS, HAS_ENCODER_ACTION)
+            | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
+          #endif
+        );
 
-            if (false) {
-              // for the else-ifs below
-            }
-            #if BUTTON_EXISTS(UP)
-              else if (BUTTON_PRESSED(UP)) {
-                encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-                next_button_update_ms = now + 300;
-              }
-            #endif
-            #if BUTTON_EXISTS(DWN)
-              else if (BUTTON_PRESSED(DWN)) {
-                encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM) * pulses;
-                next_button_update_ms = now + 300;
-              }
-            #endif
-            #if BUTTON_EXISTS(LFT)
-              else if (BUTTON_PRESSED(LFT)) {
-                encoderDiff = -pulses;
-                next_button_update_ms = now + 300;
-              }
-            #endif
-            #if BUTTON_EXISTS(RT)
-              else if (BUTTON_PRESSED(RT)) {
-                encoderDiff = pulses;
-                next_button_update_ms = now + 300;
-              }
-            #endif
+      #elif HAS_ADC_BUTTONS
 
-          #endif // UP || DWN || LFT || RT
+        buttons = 0;
 
-          buttons = (newbutton
-            #if HAS_SLOW_BUTTONS
-              | slow_buttons
-            #endif
-            #if BOTH(TOUCH_BUTTONS, HAS_ENCODER_ACTION)
-              | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
-            #endif
-          );
+      #endif
 
-        #elif HAS_ADC_BUTTONS
+      #if HAS_ADC_BUTTONS
+        if (keypad_buttons == 0) {
+          const uint8_t b = get_ADC_keyValue();
+          if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
+        }
+      #endif
 
-          buttons = 0;
+      #if HAS_SHIFT_ENCODER
+        /**
+         * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
+         * These values are independent of which pins are used for EN_A / EN_B indications.
+         * The rotary encoder part is also independent of the LCD chipset.
+         */
+        uint8_t val = 0;
+        WRITE(SHIFT_LD, LOW);
+        WRITE(SHIFT_LD, HIGH);
+        LOOP_L_N(i, 8) {
+          val >>= 1;
+          if (READ(SHIFT_OUT)) SBI(val, 7);
+          WRITE(SHIFT_CLK, HIGH);
+          WRITE(SHIFT_CLK, LOW);
+        }
+        TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
+      #endif
 
-        #endif
+    } // next_button_update_ms
 
-        #if HAS_ADC_BUTTONS
-          if (keypad_buttons == 0) {
-            const uint8_t b = get_ADC_keyValue();
-            if (WITHIN(b, 1, 8)) keypad_buttons = _BV(b - 1);
-          }
-        #endif
+    #if HAS_ENCODER_WHEEL
+      static uint8_t lastEncoderBits;
 
-        #if HAS_SHIFT_ENCODER
-          /**
-          * Set up Rotary Encoder bit values (for two pin encoders to indicate movement).
-          * These values are independent of which pins are used for EN_A / EN_B indications.
-          * The rotary encoder part is also independent of the LCD chipset.
-          */
-          uint8_t val = 0;
-          WRITE(SHIFT_LD, LOW);
-          WRITE(SHIFT_LD, HIGH);
-          LOOP_L_N(i, 8) {
-            val >>= 1;
-            if (READ(SHIFT_OUT)) SBI(val, 7);
-            WRITE(SHIFT_CLK, HIGH);
-            WRITE(SHIFT_CLK, LOW);
-          }
-          TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
-        #endif
+      #define encrot0 0
+      #define encrot1 2
+      #define encrot2 3
+      #define encrot3 1
 
-      } // next_button_update_ms
-
-      #if HAS_ENCODER_WHEEL
-        static uint8_t lastEncoderBits;
-
-        #define encrot0 0
-        #define encrot1 2
-        #define encrot2 3
-        #define encrot3 1
-
-        // Manage encoder rotation
-        #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
+      // Manage encoder rotation
+      #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: encoderDiff += encoderDirection; break; case _E2: encoderDiff -= encoderDirection; }
 
       uint8_t enc = 0;
       if (buttons & EN_A) enc |= B01;
@@ -1308,9 +1287,7 @@ void MarlinUI::update() {
         lastEncoderBits = enc;
       }
 
-      #endif // HAS_ENCODER_WHEEL
-
-    #endif  //TFTGLCD_ADAPTER
+    #endif // HAS_ENCODER_WHEEL
   }
 
 #endif // HAS_ENCODER_ACTION
@@ -1352,7 +1329,7 @@ void MarlinUI::update() {
       const millis_t ms = millis();
     #endif
 
-    #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_ADAPTER)
+    #if ENABLED(LCD_PROGRESS_BAR)
       progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
         expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
