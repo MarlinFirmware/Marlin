@@ -338,6 +338,10 @@ inline void Draw_Title(const char * const title) {
   DWIN_Draw_String(false,false,HEADER_FONT,White,Background_blue, 14, 4, (char*)title);
 }
 
+inline void Draw_Title(const __FlashStringHelper * title) {
+  DWIN_Draw_String(false, false, HEADER_FONT, White, Background_blue, 14, 4, (char*)title);
+}
+
 inline void Clear_Menu_Area(void) {
   DWIN_Draw_Rectangle(1, Background_black,  0,  31, 272,  360);
 }
@@ -524,7 +528,7 @@ inline void Draw_Prepare_Menu() {
     DWIN_Frame_AreaCopy(1, 133, 1, 271-111, 479-465-1, 14, 8); // "Prepare"
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Prepare"); // TODO: GET_TEXT_F
+      Draw_Title(GET_TEXT_F(MSG_PREPARE));
     #else
       DWIN_Frame_AreaCopy(1, 178, 2, 271-42, 479-464-1, 14, 8); // "Prepare"
     #endif
@@ -567,7 +571,7 @@ inline void Draw_Control_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Control"); // TODO: GET_TEXT_F
+      Draw_Title(GET_TEXT_F(MSG_CONTROL));
     #else
       DWIN_Frame_AreaCopy(1, 128, 2, 271-95, 479-467, 14, 8);
     #endif
@@ -612,7 +616,7 @@ inline void Draw_Tune_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Tune"); // TODO: GET_TEXT
+      Draw_Title(GET_TEXT_F(MSG_TUNE));
     #else
       DWIN_Frame_AreaCopy(1, 94, 2, 271-145, 479-467, 14, 9);
     #endif
@@ -686,7 +690,7 @@ inline void Draw_Motion_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Motion"); // TODO: GET_TEXT_F
+      Draw_Title(GET_TEXT_F(MSG_MOTION));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271-82, 479-453, 14, 8);
     #endif
@@ -902,7 +906,7 @@ void Goto_MainMenu(void) {
     DWIN_Frame_AreaCopy(1, 2, 2, 271-244, 479-465, 14, 9); // "Home"
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Home"); // TODO: GET_TEXT
+      Draw_Title(GET_TEXT_F(MSG_MAIN));
     #else
       DWIN_Frame_AreaCopy(1, 0, 2, 271-232, 479-467, 14, 9);
     #endif
@@ -1651,7 +1655,7 @@ inline void Draw_Info_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Info"); // TODO: GET_TEXT_F
+      Draw_Title(GET_TEXT_F(MSG_INFO_SCREEN));
     #else
       DWIN_Frame_AreaCopy(1, 190, 16, 271-56, 479-453, 14, 8);
     #endif
@@ -2024,7 +2028,7 @@ inline void Draw_Move_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Move"); // TODO: GET_TEXT_F
+      Draw_Title(GET_FILE_F(MSG_MOVE_AXIS));
     #else
       DWIN_Frame_AreaCopy(1, 231, 2, 271-6, 479-467, 14, 8);
     #endif
@@ -2176,7 +2180,7 @@ void Draw_Temperature_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title("Temperature"); // TODO: GET_TEXT_F
+      Draw_Title(GET_TEXT_F(MSG_TEMPERATURE));
     #else
       DWIN_Frame_AreaCopy(1, 56, 16, 271-130, 479-450-1, 14, 8);
     #endif

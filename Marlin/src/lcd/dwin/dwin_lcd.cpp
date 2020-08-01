@@ -68,6 +68,14 @@ inline void DWIN_String(size_t &i, char * const string) {
   i += len;
 }
 
+inline void DWIN_String(size_t &i, const __FlashStringHelper * string) {
+  if (!string) return;
+  const size_t len = strlen_P((PGM_P)string); // cast it to PGM_P, which is basically const char *, and measure it using the _P version of strlen.
+  if (len == 0) return;
+  memcpy(&DWIN_SendBuf[i+1], string, len);
+  i += len;
+}
+
 /*发送当前BUF中的数据以及包尾数据 len:整包数据长度*/
 inline void DWIN_Send(size_t &i) {
   ++i;
@@ -186,6 +194,19 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
                   color:字符颜色 bColor:背景颜色 x/y:字符串左上坐标 *string:字符串*/
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x11);
+  DWIN_Byte(i, (widthAdjust? 0x80:0x00) | (bShow? 0x40:0x00) | size);
+  DWIN_Word(i, color);
+  DWIN_Word(i, bColor);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_String(i, string);
+  DWIN_Send(i);
+}
+
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   DWIN_Byte(i, (widthAdjust? 0x80:0x00) | (bShow? 0x40:0x00) | size);
