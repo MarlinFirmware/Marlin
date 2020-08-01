@@ -2232,6 +2232,10 @@
 
 // @section extras
 
+// Reduce installed fans (default to number of defined fan pins).
+// :[1,2,3,4,5,6,7,8]
+//#define FANS 1
+
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
 
