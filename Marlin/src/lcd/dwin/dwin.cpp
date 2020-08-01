@@ -2028,7 +2028,7 @@ inline void Draw_Move_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title(GET_FILE_F(MSG_MOVE_AXIS));
+      Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
     #else
       DWIN_Frame_AreaCopy(1, 231, 2, 271-6, 479-467, 14, 8);
     #endif
