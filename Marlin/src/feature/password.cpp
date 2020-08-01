@@ -47,6 +47,7 @@ uint32_t     Password::value, Password::value_entry;
   screenFunc_t Password::return_fn,
                Password::success_fn,
                Password::fail_fn;
+  uint32_t     Password::multiplier;
 
   void Password::authenticate_user() {
     if (is_set) {
@@ -94,6 +95,7 @@ uint32_t     Password::value, Password::value_entry;
     value_entry = 0;
     digit_no = 0;
     digit = 0;
+    multiplier = CAT(10e, DECREMENT(PASSWORD_LENGTH));
     memset(string, '*', PASSWORD_LENGTH);
     string[PASSWORD_LENGTH] = '\0';
     menu_password_entry();
@@ -113,8 +115,7 @@ uint32_t     Password::value, Password::value_entry;
   }
 
   void Password::digit_entered() {
-    const uint32_t multiplier = LROUND(pow(10, PASSWORD_LENGTH - 1 - digit_no));
-
+    multiplier /= 10;
     value_entry += digit * multiplier;
     string[digit_no++] = '0' + digit;
 
@@ -228,7 +229,7 @@ void GcodeSuite::M510() { password.authenticate_user_persistent(); }
     if (parser.seenval('N')) {
       password.value_entry = parser.ulongval('N');
 
-      if (password.value_entry < LROUND(pow(10, (PASSWORD_LENGTH - 1)))) {
+      if (password.value_entry < CAT(10e, PASSWORD_LENGTH)) {
         password.is_set = true;
         password.value = password.value_entry;
         SERIAL_ECHOLNPAIR(STR_PASSWORD_SET, password.value); // TODO: Update password.string

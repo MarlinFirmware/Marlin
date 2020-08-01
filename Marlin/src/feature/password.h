@@ -29,6 +29,7 @@ private:
     static char string[INCREMENT(PASSWORD_LENGTH)];
     static uint8_t digit, digit_no;
     static screenFunc_t return_fn, success_fn, fail_fn;
+    static uint32_t multiplier;
   #endif
 
 public:
