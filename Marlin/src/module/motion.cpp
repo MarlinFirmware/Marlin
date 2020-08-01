@@ -85,6 +85,12 @@
  */
 uint8_t axis_homed, axis_known_position; // = 0
 
+/**
+ * z_rise_flag
+ *   Flag that (unknown) Z-axis was rised for G28.
+ */
+bool z_rise_flag; // = 0
+
 // Relative Mode. Enable with G91, disable with G90.
 bool relative_mode; // = false;
 
@@ -1438,6 +1444,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
+  z_rise_flag = false;
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
 
