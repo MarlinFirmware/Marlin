@@ -25,6 +25,8 @@
 
 #include "string.h"
 #include "pic_manager.h"
+
+#include "../../../../sd/cardreader.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
 
