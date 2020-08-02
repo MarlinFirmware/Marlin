@@ -379,7 +379,7 @@ static const uint16_t ili9341_init[] = {
   ESC_END
 };
 
-static const uint16_t st9677_init[] = {
+static const uint16_t st7796_init[] = {
   ESC_REG(0x0010), ESC_DELAY(120),
   ESC_REG(0x0001), ESC_DELAY(120),
   ESC_REG(0x0011), ESC_DELAY(120),
@@ -640,7 +640,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_st7789v;
           break;
         case 0x7796:
-          WRITE_ESC_SEQUENCE(TERN(HAS_LCD_IO, st9677_init, ili9341_init));
+          WRITE_ESC_SEQUENCE(st7796_init);
           setWindow = setWindow_st7789v;
           break;
         case 0x0404:  // No connected display on FSMC
