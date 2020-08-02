@@ -379,6 +379,27 @@ static const uint16_t ili9341_init[] = {
   ESC_END
 };
 
+static const uint16_t ili9488_init[] = {
+  ESC_REG(0X00E0), 0X0000, 0X0007, 0X000F, 0X000D, 0X001B, 0X000A, 0X003C, 0X0078, 0X004A, 0X0007, 0X000E, 0X0009, 0X001B, 0X001E, 0X000F,
+  ESC_REG(0X00E1), 0X0000, 0X0022, 0X0024, 0X0006, 0X0012, 0X0007, 0X0036, 0X0047, 0X0047, 0X0006, 0X000A, 0X0007, 0X0030, 0X0037, 0X000F,
+  ESC_REG(0x00C0), 0x0010, 0x0010,
+  ESC_REG(0x00C1), 0x0041,
+  ESC_REG(0x00C5), 0x0000, 0x0022, 0x0080,
+  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x00A8, 0x0068),
+  ESC_REG(0x003A), 0x0055,
+  ESC_REG(0x00B0), 0x0000,
+  ESC_REG(0x00B1), 0x00B0, 0x0011,
+  ESC_REG(0x00B4), 0x0002,
+  ESC_REG(0x00B6), 0x0002, 0x0042,
+  ESC_REG(0x00B7), 0x00C6,
+  ESC_REG(0x00E9), 0x0000,
+  ESC_REG(0x00F0), 0x00A9, 0x0051, 0x002C, 0x0082,
+  ESC_REG(0x0029),
+  ESC_REG(0x0011),
+  ESC_DELAY(100),
+  ESC_END
+};
+
 static const uint16_t st7796_init[] = {
   ESC_REG(0x0010), ESC_DELAY(120),
   ESC_REG(0x0001), ESC_DELAY(120),
@@ -643,6 +664,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           WRITE_ESC_SEQUENCE(st7796_init);
           setWindow = setWindow_st7789v;
           break;
+        case 0x9488:
+          WRITE_ESC_SEQUENCE(ili9488_init);
+          setWindow = setWindow_st7789v;
         case 0x0404:  // No connected display on FSMC
           lcd_id = 0;
           return 0;
