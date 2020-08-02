@@ -95,7 +95,7 @@ uint32_t     Password::value, Password::value_entry;
     value_entry = 0;
     digit_no = 0;
     digit = 0;
-    multiplier = CAT(10e, DECREMENT(PASSWORD_LENGTH));
+    multiplier = CAT(1e, PASSWORD_LENGTH);
     memset(string, '*', PASSWORD_LENGTH);
     string[PASSWORD_LENGTH] = '\0';
     menu_password_entry();
@@ -229,7 +229,7 @@ void GcodeSuite::M510() { password.authenticate_user_persistent(); }
     if (parser.seenval('N')) {
       password.value_entry = parser.ulongval('N');
 
-      if (password.value_entry < CAT(10e, PASSWORD_LENGTH)) {
+      if (password.value_entry < CAT(1e, PASSWORD_LENGTH)) {
         password.is_set = true;
         password.value = password.value_entry;
         SERIAL_ECHOLNPAIR(STR_PASSWORD_SET, password.value); // TODO: Update password.string
