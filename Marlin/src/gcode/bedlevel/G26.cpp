@@ -405,7 +405,7 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU && DISABLED(TOUCH_BUTTONS) // ui.button_pressed issue with touchscreen
+  #if HAS_LCD_MENU && !HAS_TOUCH_XPT2046 // ui.button_pressed issue with touchscreen
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       float Total_Prime = 0.0;
     #endif

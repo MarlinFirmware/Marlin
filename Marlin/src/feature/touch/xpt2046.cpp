@@ -17,22 +17,21 @@
  *
  */
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(TOUCH_BUTTONS)
-
-#include "xpt2046.h"
 #include "../../inc/MarlinConfig.h"
+
+#if HAS_TOUCH_XPT2046
 
 #if TFT_SCALED_DOGLCD
   #include "../../lcd/dogm/ultralcd_DOGM.h" // for LCD_FULL_PIXEL_WIDTH, etc.
 #endif
 
+#include "xpt2046.h"
+
 #ifndef XPT2046_Z1_THRESHOLD
   #define XPT2046_Z1_THRESHOLD 10
 #endif
 
-/*
+/**
  * Draw and Touch processing
  *
  *      LCD_PIXEL_WIDTH/HEIGHT (128x64) is the (emulated DOGM) Pixel Drawing resolution.
@@ -245,4 +244,4 @@ bool XPT2046::getTouchPoint(uint16_t &x, uint16_t &y) {
   return isTouched();
 }
 
-#endif // TOUCH_BUTTONS
+#endif // HAS_TOUCH_XPT2046
