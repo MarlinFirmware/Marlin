@@ -720,6 +720,8 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     case U8G_DEV_MSG_PAGE_NEXT:
       if (++page > (HEIGHT / PAGE_HEIGHT)) return 1;
 
+      SERIAL_ECHOLNPAIR("LCD ID: ", lcd_id);
+
       LOOP_L_N(y, PAGE_HEIGHT) {
         uint32_t k = 0;
         #if HAS_LCD_IO
