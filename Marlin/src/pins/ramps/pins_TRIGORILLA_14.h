@@ -37,39 +37,7 @@
   #define SERVO3_PIN                           6
 #endif
 
-//
-// Limit Switches
-//
-//#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
-
-#define X_MIN_PIN                              3
-
-#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
-  #define X_MAX_PIN                           43
-#else
-  #define X_MAX_PIN                           43
-#endif
-
-#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
-  #define Y_STOP_PIN                          19
-#else
-  #define Y_STOP_PIN                          42
-#endif
-
-#define Z_STOP_PIN                            18
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#define Z_MIN_PROBE_PIN                        2
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      19
-#endif
-
-//
-// Heaters / Fans
-//
+// Labeled pins
 #define TG_HEATER_BED_PIN                      8
 #define TG_HEATER_0_PIN                       10
 #define TG_HEATER_1_PIN                       45  // Anycubic Kossel: Unused
@@ -78,10 +46,44 @@
 #define TG_FAN1_PIN                            7  // Anycubic Kossel: Unused
 #define TG_FAN2_PIN                           44  // Anycubic Kossel: Hotend fan
 
-#define CONTROLLER_FAN_PIN           TG_FAN1_PIN
 
-#define BEEPER_PIN                            31
-#define SD_DETECT_PIN                         49
+//  On most printers, endstops are NOT all wired to the appropriate pins on the Trigorilla board.
+//  For instance, on a Chiron, Y axis goes to an aux connector.
+//  There are also other things that have been wired in creative ways.
+//  To enable PIN definitions for a specific printer model, #define the appropriate symbol after
+//  MOTHERBOARD in Configuration.h
+
+#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
+  #define X_MAX_PIN                           43
+  #define Y_MIN_PIN                           19
+#endif
+
+#if ENABLED(ANYCUBIC_CHIRON)
+  #define X_MIN_PIN                            3
+  #define Y_MIN_PIN                           42
+  #define Z_MIN_PIN                           18
+  #define Z2_MIN_PIN                          43
+  #define FIL_RUNOUT_PIN                      33
+  #define BEEPER_PIN                          31
+  #define SD_DETECT_PIN                       49
+  #ifndef Z_MIN_PROBE_PIN
+    #define Z_MIN_PROBE_PIN                    2
+  #endif
+#endif
+
+#if ENABLED(ANYCUBIC_I3MEGA)
+  #define X_MIN_PIN                            3
+  #define Y_MIN_PIN                           42
+  #define Z_MIN_PIN                           18
+  #define Z2_MIN_PIN                          43
+  #define FIL_RUNOUT_PIN                      19
+  #define BEEPER_PIN                          31
+  #define SD_DETECT_PIN                       49
+  #define CONTROLLER_FAN_PIN         TG_FAN1_PIN
+  #ifndef Z_MIN_PROBE_PIN
+    #define Z_MIN_PROBE_PIN                    2
+  #endif
+#endif
 
 // Remap MOSFET pins to common usages:
 
@@ -100,7 +102,11 @@
 #elif TEMP_SENSOR_BED
   // EFB (Anycubic Kossel default)
   #define RAMPS_D9_PIN               TG_FAN0_PIN
-  #define RAMPS_D8_PIN         TG_HEATER_BED_PIN
+  #if ENABLED(ANYCUBIC_CHIRON)
+    #define RAMPS_D8_PIN         TG_HEATER_1_PIN // Heated bed is connected to HEATER1 output
+  #else
+    #define RAMPS_D8_PIN       TG_HEATER_BED_PIN
+  #endif
 #else
   // EFF
   #define RAMPS_D9_PIN               TG_FAN1_PIN
