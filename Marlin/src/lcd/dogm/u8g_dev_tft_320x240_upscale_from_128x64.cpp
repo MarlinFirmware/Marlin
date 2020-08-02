@@ -674,7 +674,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           lcd_id = 0;
           return 0;
         default:
-          setWindow = (lcd_id && 0xFF000000) ? setWindow_st7789v : setWindow_ili9328;
+          setWindow = (lcd_id & 0xFF000000) ? setWindow_st7789v : setWindow_ili9328;
           break;
       }
 
