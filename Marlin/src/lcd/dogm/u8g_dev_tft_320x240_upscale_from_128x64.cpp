@@ -243,6 +243,7 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
     }
   }
   #define WRITE_ESC_SEQUENCE(V) writeEscSequence(V)
+  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence(V)
 #else
   void writeEscSequence8(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
     uint16_t data;
@@ -290,6 +291,8 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
     }
     u8g_SetAddress(u8g, dev, 1);
   }
+
+  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence16(u8g, dev, V)
 #endif
 
 static const uint16_t st7789v_init[] = {
@@ -652,7 +655,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_st7789v;
           break;
         case 0x9328:  // ILI9328
-          WRITE_ESC_SEQUENCE(ili9328_init);
+          WRITE_ESC_SEQUENCE16(ili9328_init);
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
