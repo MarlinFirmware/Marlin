@@ -210,8 +210,8 @@
   #define BTN_EN2                           PE11
 
   #if ENABLED(FSMC_GRAPHICAL_TFT)
-    //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
-    //#define DOGLCD_SCK                      -1
+    #define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
+    #define DOGLCD_SCK                      -1
 
     #ifndef FSMC_UPSCALE
       #define FSMC_UPSCALE                     3
