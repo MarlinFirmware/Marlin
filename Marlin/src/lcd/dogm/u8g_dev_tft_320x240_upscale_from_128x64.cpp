@@ -610,8 +610,8 @@ static const uint16_t st7796_init[] = {
 
         LCD_IO_WriteSequence(buffer, length * sq(FSMC_UPSCALE));
       #else
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
+        for (uint8_t i = FSMC_UPSCALE; i--;)
+          u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
       #endif
     }
   }
@@ -639,7 +639,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     uint16_t* buffer = &bufferA[0];
     bool allow_async = DISABLED(SPI_GRAPHICAL_TFT);
   #else
-    uint16_t buffer[WIDTH*2]; // 16-bit RGB 565 pixel line buffer
+    uint16_t buffer[WIDTH * FSMC_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
 
   switch (msg) {
@@ -688,9 +688,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       #if HAS_LCD_IO
         LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, LCD_FULL_PIXEL_WIDTH * LCD_FULL_PIXEL_HEIGHT);
       #else
-        memset2(buffer, TFT_MARLINBG_COLOR, 160);
-        for (uint16_t i = 0; i < 960; i++)
-          u8g_WriteSequence(u8g, dev, 160, (uint8_t *)buffer);
+        memset2(buffer, TFT_MARLINBG_COLOR, LCD_FULL_PIXEL_WIDTH / 2);
+        for (uint16_t i = 0; i < LCD_FULL_PIXEL_HEIGHT * sq(FSMC_UPSCALE); i++)
+          u8g_WriteSequence(u8g, dev, LCD_FULL_PIXEL_WIDTH / 2, (uint8_t *)buffer);
       #endif
 
       // Bottom buttons
@@ -749,10 +749,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
           for (uint8_t i = FSMC_UPSCALE; i--;) {
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[0]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH*2]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH*3]);
+            LOOP_S_L_N(n, 0, FSMC_UPSCALE * 2) {
+              u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);
+            }
           }
         #endif
       }
