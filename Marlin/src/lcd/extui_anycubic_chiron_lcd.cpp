@@ -134,13 +134,9 @@ static float hundredthsToMm(int x) {
 namespace ExtUI {
 
   static void moveAxis(float delta, feedRate_t feedrate, axis_t axis) {
-    //The ExtUI API currently doesn't support variable feedrates when
-    //moving axes, it will always use MANUAL_FEEDRATE
-    UNUSED(feedrate);
-
     float pos = getAxisPosition_mm(axis);
     pos += delta;
-    setAxisPosition_mm(pos, axis);
+    setAxisPosition_mm(pos, axis, feedrate);
   }
 
   static void handleCmd(const char *rx) {
