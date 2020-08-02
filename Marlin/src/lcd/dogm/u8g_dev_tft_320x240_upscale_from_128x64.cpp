@@ -748,7 +748,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
             LCD_IO_WriteSequence(buffer, COUNT(bufferA));
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
-          for (uint8_t i = 2; i--;) {
+          for (uint8_t i = FSMC_UPSCALE; i--;) {
             u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[0]);
             u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH]);
             u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH*2]);
