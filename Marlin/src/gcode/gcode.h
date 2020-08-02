@@ -276,6 +276,8 @@
  * ************ Custom codes - This can change to suit future G-code regulations
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M993 - Backup SPI Flash to SD
+ * M994 - Load a Backup from SD to SPI Flash
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
@@ -845,6 +847,11 @@ private:
   TERN_(MAGNETIC_PARKING_EXTRUDER, static void M951());
 
   TERN_(TOUCH_SCREEN_CALIBRATION, static void M995());
+
+  #if BOTH(HAS_SPI_FLASH, SDSUPPORT)
+    static void M993();
+    static void M994();
+  #endif
 
   TERN_(PLATFORM_M997_SUPPORT, static void M997());
 
