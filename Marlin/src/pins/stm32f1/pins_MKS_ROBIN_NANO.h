@@ -200,24 +200,6 @@
 
 #endif
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
-  //#define DOGLCD_SCK                      -1
-
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
-  #endif
-#endif
-
 #if HAS_SPI_LCD
 
   #define BEEPER_PIN                        PC5
@@ -226,10 +208,42 @@
   #define LCD_PINS_RS                       PC6
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
-  #define LCD_BACKLIGHT_PIN                 -1
+
+  #if ENABLED(FSMC_GRAPHICAL_TFT)
+    //#define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
+    //#define DOGLCD_SCK                      -1
+
+    #ifndef FSMC_UPSCALE
+      #define FSMC_UPSCALE                     3
+    #endif
+    #ifndef LCD_FULL_PIXEL_WIDTH
+      #define LCD_FULL_PIXEL_WIDTH           480
+    #endif
+    #ifndef LCD_PIXEL_OFFSET_X
+      #define LCD_PIXEL_OFFSET_X              48
+    #endif
+    #ifndef LCD_FULL_PIXEL_HEIGHT
+      #define LCD_FULL_PIXEL_HEIGHT          320
+    #endif
+    #ifndef LCD_PIXEL_OFFSET_Y
+      #define LCD_PIXEL_OFFSET_Y              32
+    #endif
+
+    #define FSMC_CS_PIN                     PD7   // NE4
+    #define FSMC_RS_PIN                     PD11  // A0
+
+    #define LCD_RESET_PIN                   PC6   // FSMC_RST
+    #define LCD_BACKLIGHT_PIN               PD13
+
+    #if NEED_TOUCH_PINS
+      #define TOUCH_CS_PIN                  PA7   // SPI2_NSS
+      #define TOUCH_SCK_PIN                 PB13  // SPI2_SCK
+      #define TOUCH_MISO_PIN                PB14  // SPI2_MISO
+      #define TOUCH_MOSI_PIN                PB15  // SPI2_MOSI
+    #endif
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+  #elif ENABLED(MKS_MINI_12864)
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
     #define DOGLCD_A0                       PD11
@@ -243,6 +257,7 @@
 
   #else                                           // !MKS_MINI_12864
 
+    #define LCD_BACKLIGHT_PIN                 -1
     #define LCD_PINS_D4                     PE14
     #if ENABLED(ULTIPANEL)
       #define LCD_PINS_D5                   PE15
