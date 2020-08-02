@@ -660,7 +660,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           break;
         case 0x9341:   // ILI9341
         case 0x8066:   // Anycubic / TronXY TFTs (480x320)
-          WRITE_ESC_SEQUENCE(ili9341_init);
+          WRITE_ESC_SEQUENCE(ili9488_init);
           setWindow = setWindow_st7789v;
           break;
         case 0x7796:
