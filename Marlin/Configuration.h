@@ -71,8 +71,9 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-//steps per unit and x_min_pos, manual_x_hom_pos, nozzle_to_probe_offset ###### Tue Jul 14 11:16:35 BST 2020
-//change to TMC2209 ###### Sun Jul 19 16:48:45 BST 2020
+//steps per unit and x_min_pos, manual_x_hom_pos, nozzle_to_probe_offset  Tue Jul 14 11:16:35 BST 2020
+//change to TMC2209  Sun Jul 19 16:48:45 BST 2020
+//add resolution with microsteps  Sun Aug 2 18:06:40 BST 2020
 #define STRING_CONFIG_H_AUTHOR "(Steve, SKR 1.4 Turbo, TMC2209)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
@@ -745,14 +746,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 409.13 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 320, 320, 400, 409.13 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 10, 25 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
