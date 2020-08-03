@@ -50,8 +50,6 @@ FORCE_INLINE bool homing_needed() {
 // Error margin to work around float imprecision
 constexpr float fslop = 0.0001;
 
-extern bool z_rise_flag;
-
 extern bool relative_mode;
 
 extern xyze_pos_t current_position,  // High-level current tool position
