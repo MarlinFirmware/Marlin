@@ -199,40 +199,40 @@
   #define LCD_BACKLIGHT_PIN                 PD13
 
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
-  #define DOGLCD_MOSI                     -1    // prevent redefine Conditionals_post.h
-  #define DOGLCD_SCK                      -1
+  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_SCK                        -1
 
   #ifndef FSMC_UPSCALE
-    #define FSMC_UPSCALE                     3
+    #define FSMC_UPSCALE                    3
   #endif
   #ifndef LCD_FULL_PIXEL_WIDTH
-    #define LCD_FULL_PIXEL_WIDTH           480
+    #define LCD_FULL_PIXEL_WIDTH            480
   #endif
   #ifndef LCD_PIXEL_OFFSET_X
     #define LCD_PIXEL_OFFSET_X              48
   #endif
   #ifndef LCD_FULL_PIXEL_HEIGHT
-    #define LCD_FULL_PIXEL_HEIGHT          320
+    #define LCD_FULL_PIXEL_HEIGHT           320
   #endif
   #ifndef LCD_PIXEL_OFFSET_Y
     #define LCD_PIXEL_OFFSET_Y              32
   #endif
 
-  #define FSMC_CS_PIN                     PD7   // NE4
-  #define FSMC_RS_PIN                     PD11  // A0
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
 
-  #define LCD_USE_DMA_FSMC                // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                    DMA2
-  #define FSMC_DMA_CHANNEL                DMA_CH5
+  #define LCD_USE_DMA_FSMC                  // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL                  DMA_CH5
 
-  #define LCD_RESET_PIN                   PC6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN               PD13
+  #define LCD_RESET_PIN                     PC6   // FSMC_RST
+  #define LCD_BACKLIGHT_PIN                 PD13
 
   #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                  PA7   // SPI2_NSS
-    #define TOUCH_SCK_PIN                 PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                PB15  // SPI2_MOSI
+    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
 
 #endif
