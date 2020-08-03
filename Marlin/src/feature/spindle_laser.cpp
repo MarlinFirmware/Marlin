@@ -66,6 +66,9 @@ void SpindleLaser::init() {
   void SpindleLaser::set_ocr(const uint8_t ocr) {
     WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH);        // turn spindle on
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
+      set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #endif 
   }
   void SpindleLaser::ocr_off() {
     WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);       // Turn spindle off
