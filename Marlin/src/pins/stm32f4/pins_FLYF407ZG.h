@@ -188,8 +188,8 @@
 #endif
 
 #if SD_CONNECTION_IS(ONBOARD)
-  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
+  #define SDIO_SUPPORT                            // Use SDIO for onboard SD
   #ifndef SDIO_SUPPORT
     #define SOFTWARE_SPI                          // Use soft SPI for onboard SD
     #define SDSS                     SDIO_D3_PIN
@@ -197,18 +197,16 @@
     #define MISO_PIN                 SDIO_D0_PIN
     #define MOSI_PIN                SDIO_CMD_PIN
   #endif
+
+#elif SD_CONNECTION_IS(LCD)
+
+  #define SCK_PIN                           PB13
+  #define MISO_PIN                          PB14
+  #define MOSI_PIN                          PB15
+  #define SDSS                              PF11
+  #define SD_DETECT_PIN                     PB2
+
 #endif
-
- #if SD_CONNECTION_IS(LCD)
-   #define SCK_PIN                             PB13
-   #define MISO_PIN                            PB14
-   #define MOSI_PIN                            PB15
-   #define SDSS                                PF11
-   #define SD_DETECT_PIN                       PB2
-#endif
-
-
-
 
 //
 // Trinamic Software SPI
