@@ -39,25 +39,26 @@
 #include <math.h>
 
 #include "core/utility.h"
-#include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
-#include "module/stepper.h"
 #include "module/endstops.h"
-#include "module/probe.h"
 #include "module/temperature.h"
-#include "sd/cardreader.h"
 #include "module/configuration_store.h"
 #include "module/printcounter.h" // PrintCounter or Stopwatch
-#include "feature/closedloop.h"
 
+#include "module/stepper.h"
 #include "module/stepper/indirection.h"
-
-#include "libs/nozzle.h"
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
+
+#include "sd/cardreader.h"
+
+#include "lcd/ultralcd.h"
+#if HAS_TOUCH_XPT2046
+  #include "lcd/touch/xpt2046.h"
+#endif
 
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
@@ -80,16 +81,16 @@
   #include "feature/direct_stepping.h"
 #endif
 
-#if HAS_TOUCH_XPT2046
-  #include "feature/touch/xpt2046.h"
-#endif
-
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "feature/host_actions.h"
 #endif
 
 #if USE_BEEPER
   #include "libs/buzzer.h"
+#endif
+
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "feature/closedloop.h"
 #endif
 
 #if HAS_I2C_DIGIPOT
@@ -174,6 +175,10 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "feature/runout.h"
+#endif
+
+#if HAS_Z_SERVO_PROBE
+  #include "module/probe.h"
 #endif
 
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
@@ -1194,7 +1199,9 @@ void setup() {
   #endif
 
   #if HAS_TFT_LVGL_UI
-    if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
+    #if ENABLED(SDSUPPORT)
+      if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
+    #endif
     SETUP_RUN(tft_lvgl_init());
   #endif
 

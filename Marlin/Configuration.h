@@ -2139,13 +2139,10 @@
 //
 // Touch-screen LCD for Anycubic printers
 //
-//#define ANYCUBIC_LCD
-#if ENABLED(ANYCUBIC_LCD)
-  #define ANYCUBIC_LCD_I3MEGA
-  //#define ANYCUBIC_LCD_CHIRON
-
+//#define ANYCUBIC_LCD_I3MEGA
+//#define ANYCUBIC_LCD_CHIRON
+#if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
   #define ANYCUBIC_LCD_SERIAL_PORT 3
-
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 

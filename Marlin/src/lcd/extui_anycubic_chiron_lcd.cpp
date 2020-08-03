@@ -48,7 +48,7 @@
   #error ANYCUBIC CHIRON LCD does not currently support POWER_LOSS_RECOVERY
 #endif
 
-static bool is_auto_levelling = false;
+static bool is_auto_leveling = false;
 static bool is_printing_from_sd = false;
 static bool is_out_of_filament = false;
 
@@ -113,7 +113,7 @@ static float parseFloatArgument(const char *buffer, char letterId) {
 }
 
 static int mmToHundredths(float x) {
-  //Round
+  // Round
   if (x >= 0)
     x += 0.005f;
   else
@@ -129,7 +129,6 @@ static float hundredthsToMm(int x) {
 #define SENDLINE_PGM(str)                       sendLine_P(PSTR(str))
 #define SENDVALUE_PGM(prefix, value)            sendValue_P(PSTR(prefix), value)
 #define SENDVALUELINE_PGM(prefix, value)        sendValueLine_P(PSTR(prefix), value)
-
 
 namespace ExtUI {
 
@@ -152,41 +151,41 @@ namespace ExtUI {
 
     const int cmd = atoi(&rx[1]);
 
-    //Uncomment for debugging RX
+    // Uncomment for debugging RX
     //if (cmd > 7 && cmd != 20) {
     //  SERIAL_ECHOPGM("RX: ");
     //  SERIAL_ECHOLN(rx);
     //}
 
     switch (cmd) {
-      case 0: //Get Hotend Actual Temperature
+      case 0: // Get Hotend Actual Temperature
         SENDVALUELINE_PGM("A0V ", (int)getActualTemp_celsius(E0));
         break;
-      case 1: //Get Hotend Target Temperature
+      case 1: // Get Hotend Target Temperature
         SENDVALUELINE_PGM("A1V ", (int)getTargetTemp_celsius(E0));
         break;
-      case 2: //Get Bed Actual Temperature
+      case 2: // Get Bed Actual Temperature
         SENDVALUELINE_PGM("A2V ", (int)getActualTemp_celsius(BED));
         break;
-      case 3: //Get Bed Target Temperature
+      case 3: // Get Bed Target Temperature
         SENDVALUELINE_PGM("A3V ", (int)getTargetTemp_celsius(BED));
         break;
-      case 4: //Get Fan Speed
+      case 4: // Get Fan Speed
         SENDVALUELINE_PGM("A4V ", (int)getTargetFan_percent(FAN0));
         break;
-      case 5: //Get Current Coordinates
+      case 5: // Get Current Coordinates
         SENDVALUE_PGM("A5V X: ", getAxisPosition_mm(X));
         SENDVALUE_PGM(" Y: ", getAxisPosition_mm(Y));
         SENDVALUE_PGM(" Z: ", getAxisPosition_mm(Z));
         sendNewLine();
         break;
-      case 6: //Get SD Card Print Status
+      case 6: // Get SD Card Print Status
         if (isPrintingFromMedia())
           SENDVALUELINE_PGM("A6V ", (int)getProgress_percent());
         else
           SENDLINE_PGM("A6V ---");
         break;
-      case 7: //Get Printing Time
+      case 7: // Get Printing Time
         if (isPrinting()) {
           const int totalMinutes = getProgress_seconds_elapsed() / 60;
           SENDVALUE_PGM("A7V ", (int)(totalMinutes/60));
@@ -196,7 +195,7 @@ namespace ExtUI {
           SENDLINE_PGM("A7V 999:999");
         }
         break;
-      case 8: //Get SD Card File List
+      case 8: // Get SD Card File List
         if (isMediaInserted()) {
           const int startIndex = parseIntArgument(rx, 'S');
           SENDLINE_PGM("FN ");
@@ -216,84 +215,84 @@ namespace ExtUI {
           SENDLINE_PGM("J02");
         }
         break;
-      case 9: //Pause SD Card Print
+      case 9: // Pause SD Card Print
         if (isPrintingFromMedia()) {
           pausePrint();
           is_printing_from_sd = false;
           SENDLINE_PGM("J05");
         } else {
-          SENDLINE_PGM("J16"); //Print stopped
+          SENDLINE_PGM("J16"); // Print stopped
         }
         break;
-      case 10: //Resume SD Card Print
+      case 10: // Resume SD Card Print
         if (is_out_of_filament) {
           is_out_of_filament = false;
-          //Filament change did eject the old filament automatically,
-          //now continue and load the new one
+          // Filament change did eject the old filament automatically,
+          // now continue and load the new one
           setUserConfirmed();
-          SENDLINE_PGM("J04"); //Printing from SD card
+          SENDLINE_PGM("J04"); // Printing from SD card
         } else if (isPrintingFromMediaPaused()) {
           resumePrint();
-          SENDLINE_PGM("J04"); //Printing from SD card
+          SENDLINE_PGM("J04"); // Printing from SD card
         }
         break;
-      case 11: //Stop SD Card Print
+      case 11: // Stop SD Card Print
         if (isPrintingFromMedia()) {
           stopPrint();
           is_printing_from_sd = false;
-          SENDLINE_PGM("J16"); //Print stopped
+          SENDLINE_PGM("J16"); // Print stopped
         }
         break;
-      //case 12: //Kill
+      //case 12: // Kill
       //  break;
-      case 13: //Select File
+      case 13: // Select File
         if (!isPrinting()) {
-          //Store selected file name
+          // Store selected file name
           char *p = strchr(rx, ' ');
           if (p != nullptr && strlen(p+1) < sizeof(selectedFileShortName)) {
             strcpy(selectedFileShortName, p+1);
-            SENDLINE_PGM("J20"); //Open succeeded
+            SENDLINE_PGM("J20"); // Open succeeded
           }
           else
-            SENDLINE_PGM("J21"); //Open failed
+            SENDLINE_PGM("J21"); // Open failed
         }
         break;
-      case 14: //Start Print
+      case 14: // Start Print
         if (!isPrinting() && strcmp(selectedFileShortName, "") != 0) {
           printFile(selectedFileShortName);
           is_printing_from_sd = true;
-          SENDLINE_PGM("J04"); //Printing from SD card
+          SENDLINE_PGM("J04"); // Printing from SD card
         }
         break;
-      case 15: //Resume from power outage
-        //This is not supported, just report print as completed
-        SENDLINE_PGM("J16"); //Print stopped
+      case 15: // Resume from power outage
+        // This is not supported, just report print as completed
+        SENDLINE_PGM("J16"); // Print stopped
         break;
-      case 16: //Set Hotend Target Temperature
+      case 16: // Set Hotend Target Temperature
         {
           int temp = parseIntArgument(rx, 'S');
           if (temp >= 0)
             setTargetTemp_celsius(temp, E0);
         }
         break;
-      case 17: //Set Bed Target Temperature
+      case 17: // Set Bed Target Temperature
         {
           int temp = parseIntArgument(rx, 'S');
           if (temp >= 0)
             setTargetTemp_celsius(temp, BED);
         }
         break;
-      case 18: //Set Fan Speed
+      case 18: // Set Fan Speed
         {
           int temp = parseIntArgument(rx, 'S');
           if (temp >= 0)
             setTargetFan_percent(temp, FAN0);
         }
         break;
-      case 19: //Disable Motors
+      case 19: // Disable Motors
         injectCommands_P(PSTR("M84"));
         break;
-      case 20: //Get/Set Printing Speed
+      case 20: // Get/Set Printing Speed
         {
           int newPerc = parseIntArgument(rx, 'S');
           if (newPerc >= 0)
@@ -302,25 +301,22 @@ namespace ExtUI {
             SENDVALUELINE_PGM("A20V ", (int)getFeedrate_percent());
         }
         break;
-      case 21: //Home axes
+      case 21: // Home axes
         if (!isPrinting()) {
-          const bool hasX = strchr(rx, 'X') != nullptr;
-          const bool hasY = strchr(rx, 'Y') != nullptr;
-          const bool hasZ = strchr(rx, 'Z') != nullptr;
-          const bool hasC = strchr(rx, 'C') != nullptr;
+          const bool hasX = strchr(rx, 'X') != nullptr,
+                     hasY = strchr(rx, 'Y') != nullptr,
+                     hasZ = strchr(rx, 'Z') != nullptr,
+                     hasC = strchr(rx, 'C') != nullptr;
           if (hasX || hasY || hasZ) {
-            if (hasX)
-              injectCommands_P(PSTR("G28 X"));
-            if (hasY)
-              injectCommands_P(PSTR("G28 Y"));
-            if (hasZ)
-              injectCommands_P(PSTR("G28 Z"));
+            if (hasX) injectCommands_P(PSTR("G28 X"));
+            if (hasY) injectCommands_P(PSTR("G28 Y"));
+            if (hasZ) injectCommands_P(PSTR("G28 Z"));
           } else if (hasC) {
             injectCommands_P(PSTR("G28"));
           }
         }
         break;
-      case 22: //Move axes
+      case 22: // Move axes
         if (!isPrinting()) {
           const int feedrate = parseIntArgument(rx, 'F') / 60;
           float delta;
@@ -332,32 +328,32 @@ namespace ExtUI {
             moveAxis(delta, feedrate, Z);
         }
         break;
-      case 23: //Preheat PLA
+      case 23: // Preheat PLA
         setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, E0);
         setTargetTemp_celsius(PREHEAT_1_TEMP_BED, BED);
         SENDLINE_PGM("OK");
         break;
-      case 24: //Preheat ABS
+      case 24: // Preheat ABS
         setTargetTemp_celsius(PREHEAT_2_TEMP_HOTEND, E0);
         setTargetTemp_celsius(PREHEAT_2_TEMP_BED, BED);
         SENDLINE_PGM("OK");
         break;
-      case 25: //Cool down
+      case 25: // Cool down
         setTargetTemp_celsius(0, E0);
         setTargetTemp_celsius(0, BED);
         SENDLINE_PGM("J12");
         break;
-      case 26: //Refresh SD Card
+      case 26: // Refresh SD Card
         fileList.refresh();
         break;
-      //case 27: //Adjust Servo Angles
+      //case 27: // Adjust Servo Angles
       //  break;
-      //case 28: //Filament Test
+      //case 28: // Filament Test
       //  break;
-      case 29: //Get Bed Autolevel Grid
+      case 29: // Get Bed Autolevel Grid
         {
-          int x = parseIntArgument(rx, 'X');
-          int y = parseIntArgument(rx, 'Y');
+          int x = parseIntArgument(rx, 'X'),
+              y = parseIntArgument(rx, 'Y');
           if (x != -1 && y != -1) {
             xy_uint8_t coord;
             coord.set(x, y);
@@ -366,9 +362,9 @@ namespace ExtUI {
           }
         }
         break;
-      case 30: //Autolevel
-        if (strchr(rx, 'S')) { //Autoleveling started by clicking "PROBE" and then "OK"
-          //Note:
+      case 30: // Autolevel
+        if (strchr(rx, 'S')) { // Autoleveling started by clicking "PROBE" and then "OK"
+          // Note:
           //  We check for completion by monitoring the command queue.
           //  Since it will become empty *while* processing the last injected command,
           //  we enqueue an extra 10ms delay so we can the determine when all the others
@@ -377,47 +373,47 @@ namespace ExtUI {
             injectCommands_P(PSTR("G29\nG4 P10"));
           else
             injectCommands_P(PSTR("G28\nG29\nG4 P10"));
-          is_auto_levelling = true;
-        } else { //Entering Autoleveling screen
+          is_auto_leveling = true;
+        } else { // Entering Autoleveling screen
           if (isPrinting())
-            SENDLINE_PGM("J24"); //Disallow autoleveling
+            SENDLINE_PGM("J24"); // Disallow autoleveling
           else
-            SENDLINE_PGM("J26"); //Allow autoleveling
+            SENDLINE_PGM("J26"); // Allow autoleveling
         }
         break;
-      case 31: //Set Bed Autolevel Z offset
-        if (strchr(rx, 'G')) { //Get
+      case 31: // Set Bed Autolevel Z offset
+        if (strchr(rx, 'G')) { // Get
           SENDVALUELINE_PGM("A31V ", getZOffset_mm());
-        } else if (strchr(rx, 'S')) { //Set
+        } else if (strchr(rx, 'S')) { // Set
           float delta = parseFloatArgument(rx, 'S');
           delta = constrain(delta, -1.0, 1.0);
           setZOffset_mm(getZOffset_mm() + delta);
 
           SENDVALUELINE_PGM("A31V ", getZOffset_mm());
-        } else if (strchr(rx, 'D')) { //Save
+        } else if (strchr(rx, 'D')) { // Save
           injectCommands_P(PSTR("M500"));
         }
         break;
-      //case 32: //?
+      //case 32: // ?
       //  break;
-      case 33: //Get Version Info
+      case 33: // Get Version Info
         SENDLINE_PGM("J33 " SHORT_BUILD_VERSION);
         break;
-      case 34: //Set Bed Autolevel Grid
+      case 34: // Set Bed Autolevel Grid
         {
-          int x = parseIntArgument(rx, 'X');
-          int y = parseIntArgument(rx, 'Y');
-          int v = parseIntArgument(rx, 'V');
-          if (x != -1 && y != -1 && v != -1) { //Set new value
+          int x = parseIntArgument(rx, 'X'),
+              y = parseIntArgument(rx, 'Y'),
+              v = parseIntArgument(rx, 'V');
+          if (x != -1 && y != -1 && v != -1) { // Set new value
             float value = hundredthsToMm(v);
             value = constrain(value, -10, 10);
 
             xy_uint8_t coord;
             coord.set(x, y);
             setMeshPoint(coord, value);
-          } else if (strchr(rx, 'S')) { //Save (apply new values)
+          } else if (strchr(rx, 'S')) { // Save (apply new values)
             injectCommands_P(PSTR("M500"));
-          } else if (strchr(rx, 'C')) { //Cancel (discard new values)
+          } else if (strchr(rx, 'C')) { // Cancel (discard new values)
             injectCommands_P(PSTR("M501"));
           }
         }
@@ -433,12 +429,9 @@ namespace ExtUI {
     while (ANYCUBIC_LCD_SERIAL.available()) {
       const char c = ANYCUBIC_LCD_SERIAL.read();
       switch (c) {
-        case '\r':
-        case '\n':
+        case '\r': case '\n':
           if (rxLen > 0 && rxLen <= RX_LEN_MAX) {
-            //Terminate string
-            rxBuffer[rxLen] = '\0';
-
+            rxBuffer[rxLen] = '\0'; // Terminate string
             handleCmd(rxBuffer);
           }
           rxLen = 0;
@@ -447,7 +440,7 @@ namespace ExtUI {
           if (rxLen < RX_LEN_MAX)
             rxBuffer[rxLen++] = c;
           else {
-            rxLen = 0xFF; //Overrun
+            rxLen = 0xFF; // Overrun
             SERIAL_ECHOPGM("Warning: dropping long received line");
           }
           break;
@@ -456,28 +449,28 @@ namespace ExtUI {
   }
 
   static void detectPrintFromSdCompletion() {
-    //Note: printFile() queues some commands that actually start the print, so isPrintingFromMedia()
-    //      initially returns false 
+    // Note: printFile() queues some commands that actually start the print, so isPrintingFromMedia()
+    //       initially returns false
     if (is_printing_from_sd && !commandsInQueue() && !isPrintingFromMedia()) {
       is_printing_from_sd = false;
-      SENDLINE_PGM("J14"); //Print done
+      SENDLINE_PGM("J14"); // Print done
     }
   }
 
   static void detectAutolevelingCompletion() {
-    if (is_auto_levelling && !commandsInQueue()) {
-      is_auto_levelling = false;
+    if (is_auto_leveling && !commandsInQueue()) {
+      is_auto_leveling = false;
       injectCommands_P(PSTR("M500"));
-      SENDLINE_PGM("J25"); //Autoleveling done
+      SENDLINE_PGM("J25"); // Autoleveling done
     }
   }
 
   void onStartup() {
     ANYCUBIC_LCD_SERIAL.begin(115200);
     sendNewLine();
-    SENDLINE_PGM("J17"); //Reset
+    SENDLINE_PGM("J17"); // Reset
     delay_ms(10);
-    SENDLINE_PGM("J12"); //Ready
+    SENDLINE_PGM("J12"); // Ready
   }
 
   void onIdle() {
@@ -489,13 +482,13 @@ namespace ExtUI {
   void onPrinterKilled(PGM_P const error, PGM_P const component) { }
 
   void onMediaInserted() {
-    SENDLINE_PGM("J00"); //SD Inserted
+    SENDLINE_PGM("J00"); // SD Inserted
   }
 
   void onMediaError() { }
 
   void onMediaRemoved() {
-    SENDLINE_PGM("J01"); //SD Removed
+    SENDLINE_PGM("J01"); // SD Removed
   }
   
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
@@ -510,9 +503,9 @@ namespace ExtUI {
 
   void onFilamentRunout(const extruder_t extruder) {
     is_out_of_filament = true;
-    SENDLINE_PGM("J23"); //Filament runout
-    SENDLINE_PGM("J18"); //Print paused
-    //Note: printer will unload filament automatically
+    SENDLINE_PGM("J23"); // Filament runout
+    SENDLINE_PGM("J18"); // Print paused
+    // Note: printer will unload filament automatically
   }
 
   void onUserConfirmRequired(const char * const msg) { }
