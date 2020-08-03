@@ -41,8 +41,8 @@
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
-  // Decrease delays and flash wear by spreading writes across the
-  // 128 kB sector allocated for EEPROM emulation.
+  // Decrease delays and flash wear by spreading writes across
+  // the 128kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
   #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
@@ -51,7 +51,6 @@
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
 #endif
-
 
 //
 // Servos
