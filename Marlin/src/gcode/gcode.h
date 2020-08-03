@@ -557,7 +557,7 @@ private:
   static void M83();
   static void M85();
   static void M92();
-
+  static void M93();
   TERN_(M100_FREE_MEMORY_WATCHER, static void M100());
 
   #if EXTRUDERS

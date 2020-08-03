@@ -49,6 +49,11 @@
   #include "speed_lookuptable.h"
 #endif
 
+  extern bool flyX;
+  extern bool flyY;
+  extern bool flyZ;
+
+
 // Disable multiple steps per ISR
 //#define DISABLE_MULTI_STEPPING
 

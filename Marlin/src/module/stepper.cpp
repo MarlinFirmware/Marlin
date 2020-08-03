@@ -454,20 +454,23 @@ xyze_int8_t Stepper::count_direction{0};
  *   COREXZ: X_AXIS=A_AXIS and Z_AXIS=C_AXIS
  *   COREYZ: Y_AXIS=B_AXIS and Z_AXIS=C_AXIS
  */
+bool flyX=true;
+bool flyY=true;
+bool flyZ=true;
 void Stepper::set_directions() {
 
   DIR_WAIT_BEFORE();
 
   #define SET_STEP_DIR(A)                       \
     if (motor_direction(_AXIS(A))) {            \
-      A##_APPLY_DIR(INVERT_##A##_DIR, false);   \
+      A##_APPLY_DIR(fly##A, false);             \
       count_direction[_AXIS(A)] = -1;           \
     }                                           \
     else {                                      \
-      A##_APPLY_DIR(!INVERT_##A##_DIR, false);  \
+      A##_APPLY_DIR(!fly##A, false);            \
       count_direction[_AXIS(A)] = 1;            \
     }
-
+    
   #if HAS_X_DIR
     SET_STEP_DIR(X); // A
   #endif
