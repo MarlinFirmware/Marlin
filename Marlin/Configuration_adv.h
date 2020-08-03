@@ -1593,7 +1593,8 @@
   // Override the mesh area if the automatic (max) area is too large
   #define MESH_MIN_X -6
   #define MESH_MIN_Y 0
-  #define MESH_MAX_Y Y_BED_SIZE  - (MESH_INSET)
+  #define MESH_MAX_X X_BED_SIZE  //- (MESH_INSET)
+  #define MESH_MAX_Y Y_BED_SIZE  //- (MESH_INSET)
 #endif
 
 /**
@@ -2386,7 +2387,7 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  5
+    #define X_STALL_SENSITIVITY  8
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
     #define Y_STALL_SENSITIVITY  8
     #define Y2_STALL_SENSITIVITY Y_STALL_SENSITIVITY
