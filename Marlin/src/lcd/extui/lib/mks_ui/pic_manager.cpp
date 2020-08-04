@@ -405,42 +405,39 @@ uint8_t public_buf[512];
     pfileSize = file.fileSize();
     totalSizeLoaded += pfileSize;
     if (assetType == ASSET_TYPE_LOGO) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        default_view_Write(public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        default_view_Write(public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_ICON) {
       Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
       SPIFlash.beginWrite(Pic_Write_Addr);
-      while (1) {
-        #if HAS_SPI_FLASH_COMPRESSION
+      #if HAS_SPI_FLASH_COMPRESSION
+        do {
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
           TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
-          if (pbr < SPI_FLASH_PageSize) break;
-        #else
+        } while (pbr >= SPI_FLASH_PageSize);
+      #else
+        do {
           pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
           W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
           Pic_Write_Addr += pbr;
-          if (pbr < BMP_WRITE_BUF_LEN) break;
-        #endif
-      }
+        } while (pbr >= BMP_WRITE_BUF_LEN);
+      #endif
       #if ENABLED(MARLIN_DEV_MODE)
         SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
         totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
@@ -449,12 +446,11 @@ uint8_t public_buf[512];
     }
     else if (assetType == ASSET_TYPE_FONT) {
       Pic_Write_Addr = UNIGBK_FLASH_ADDR;
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
         Pic_Write_Addr += pbr;
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
 
     file.close();
@@ -479,7 +475,7 @@ uint8_t public_buf[512];
       disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
-        // if we dont get a long name, but gets a short one, try it
+        // If we dont get a long name, but gets a short one, try it
         if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
         if (card.longFilename[0] == 0) continue;
