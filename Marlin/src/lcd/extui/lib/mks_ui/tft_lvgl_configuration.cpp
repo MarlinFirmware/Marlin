@@ -41,14 +41,24 @@
 #include "draw_ui.h"
 #include <lvgl.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../feature/touch/xpt2046.h"
+#include "../../../../inc/MarlinConfig.h"
+
+#if HAS_TOUCH_XPT2046
+  #include "../../../touch/xpt2046.h"
+#endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
 
 #include <SPI.h>
+
+#ifndef LCD_FULL_PIXEL_WIDTH
+  #define LCD_FULL_PIXEL_WIDTH  480
+#endif
+#ifndef LCD_FULL_PIXEL_HEIGHT
+  #define LCD_FULL_PIXEL_HEIGHT 320
+#endif
 
 #if HAS_SPI_FLASH_FONT
   extern void init_gb2312_font();
@@ -127,9 +137,8 @@ void LCD_WriteRAM_Prepare(void) {
 
 void tft_set_point(uint16_t x, uint16_t y, uint16_t point) {
   //if (DeviceCode == 0x9488) {
-  if ((x > 480) || (y > 320)) return;
+  if (x > (LCD_FULL_PIXEL_WIDTH) || y > (LCD_FULL_PIXEL_HEIGHT)) return;
   //}
-  //**if ( (x>320)||(y>240) ) return;
   tft_set_cursor(x, y);
 
   LCD_WriteRAM_Prepare();
@@ -187,10 +196,10 @@ void ili9320_SetWindows(uint16_t StartX, uint16_t StartY, uint16_t width, uint16
      LCD_WriteReg(0x0052, StartY);
      LCD_WriteReg(0x0051, xEnd);
      LCD_WriteReg(0x0053, yEnd);*/
-    LCD_WriteReg(0x0050, StartY);      //Specify the start/end positions of the window address in the horizontal direction by an address unit
-    LCD_WriteReg(0x0051, yEnd);      //Specify the start positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0050, StartY);   // Specify the start/end positions of the window address in the horizontal direction by an address unit
+    LCD_WriteReg(0x0051, yEnd);     // Specify the start positions of the window address in the vertical direction by an address unit
     LCD_WriteReg(0x0052, 320 - xEnd);
-    LCD_WriteReg(0x0053, 320 - StartX - 1);      //Specify the end positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0053, 320 - StartX - 1); // Specify the end positions of the window address in the vertical direction by an address unit
 
   }
   else {
@@ -224,16 +233,16 @@ void LCD_Clear(uint16_t Color) {
 
   if (DeviceCode == 0x9488) {
     tft_set_cursor(0, 0);
-    ili9320_SetWindows(0, 0, 480, 320);
+    ili9320_SetWindows(0, 0, LCD_FULL_PIXEL_WIDTH, LCD_FULL_PIXEL_HEIGHT);
     LCD_WriteRAM_Prepare();
     #ifdef LCD_USE_DMA_FSMC
-      LCD_IO_WriteMultiple(Color, LCD_FULL_PIXEL_WIDTH * LCD_FULL_PIXEL_HEIGHT);
+      LCD_IO_WriteMultiple(Color, (LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
     #else
-    //index = (160*480);
-    for (index = 0; index < 320 * 480; index++)
-      LCD_IO_WriteData(Color);
+      //index = (LCD_FULL_PIXEL_HEIGHT) / 2 * (LCD_FULL_PIXEL_WIDTH);
+      for (index = 0; index < (LCD_FULL_PIXEL_HEIGHT) * (LCD_FULL_PIXEL_WIDTH); index++)
+        LCD_IO_WriteData(Color);
     #endif
-    //LCD_IO_WriteMultiple(Color, (480*320));
+    //LCD_IO_WriteMultiple(Color, (LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
     //while(index --) LCD_IO_WriteData(Color);
   }
   else if (DeviceCode == 0x5761) {
@@ -261,7 +270,6 @@ void LCD_Clear(uint16_t Color) {
 }
 
 extern uint16_t ILI9488_ReadRAM();
-
 
 void init_tft() {
   uint16_t i;
@@ -393,7 +401,7 @@ void init_tft() {
     for (i = 0; i < 65535; i++);
     LCD_IO_WriteReg(0x0029);
 
-    ili9320_SetWindows(0, 0, 480, 320);
+    ili9320_SetWindows(0, 0, LCD_FULL_PIXEL_WIDTH, LCD_FULL_PIXEL_HEIGHT);
     LCD_Clear(0x0000);
 
     OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
@@ -486,7 +494,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   #if ENABLED(TFT_LVGL_UI_SPI)
     uint16_t i, width, height;
     uint16_t clr_temp;
-    uint8_t tbuf[480 * 2];
+    uint8_t tbuf[(LCD_FULL_PIXEL_WIDTH) * 2];
 
     SPI_TFT.spi_init(SPI_FULL_SPEED);
 

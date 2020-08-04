@@ -294,7 +294,7 @@
     #define TOUCH_BUTTONS_HW_SPI_DEVICE     1
 
     //#define TOUCH_SCREEN
-    #if NEED_TOUCH_PINS
+    #if EITHER(TOUCH_SCREEN, NEED_TOUCH_PINS)
       #define TOUCH_CS_PIN                  PE14  // SPI1_NSS
       #define TOUCH_SCK_PIN                 PA5   // SPI1_SCK
       #define TOUCH_MISO_PIN                PA6   // SPI1_MISO
@@ -316,15 +316,6 @@
 
     #ifndef FSMC_UPSCALE
       #define FSMC_UPSCALE                     3
-    #endif
-    #ifndef LCD_FULL_PIXEL_WIDTH
-      #define LCD_FULL_PIXEL_WIDTH           480
-    #endif
-    #ifndef LCD_PIXEL_OFFSET_X
-      #define LCD_PIXEL_OFFSET_X              48
-    #endif
-    #ifndef LCD_FULL_PIXEL_HEIGHT
-      #define LCD_FULL_PIXEL_HEIGHT          320
     #endif
     #ifndef LCD_PIXEL_OFFSET_Y
       #define LCD_PIXEL_OFFSET_Y              32
