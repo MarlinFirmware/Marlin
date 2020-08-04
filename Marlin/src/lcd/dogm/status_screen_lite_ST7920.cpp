@@ -820,8 +820,7 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
 
     if (countdown == 0 && (forceUpdate || position_changed()
       || TERN(DISABLE_REDUCED_ACCURACY_WARNING, 0, blink_changed())
-    ))
-      draw_position(current_position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 0, all_axes_known()));
+    )) draw_position(current_position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, all_axes_known()));
   #endif
 }
 
