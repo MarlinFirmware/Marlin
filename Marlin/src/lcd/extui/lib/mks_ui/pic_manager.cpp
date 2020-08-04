@@ -23,16 +23,16 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-
 #include "string.h"
-
 #include "pic_manager.h"
-#include "W25Qxx.h"
-#include "../../../../sd/cardreader.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
+
 #include "SPIFlashStorage.h"
+#include "W25Qxx.h"
+
+#include "../../../../MarlinCore.h"
+#include "../../../../sd/cardreader.h"
 
 extern uint16_t DeviceCode;
 extern unsigned char bmp_public_buf[17 * 1024];
@@ -206,9 +206,7 @@ static char assets[][LONG_FILENAME_LENGTH] = {
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][LONG_FILENAME_LENGTH] = {
-    "FontUNIGBK.bin",
-  };
+  static char fonts[][LONG_FILENAME_LENGTH] = { "FontUNIGBK.bin" };
 #endif
 
 static uint8_t currentFlashPage = 0;
@@ -490,7 +488,7 @@ uint8_t public_buf[512];
         if (card.longFilename[0] == 0) continue;
         if (card.longFilename[0] == '.') continue;
 
-        uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
+        int8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
         if (a >= 0 && a < COUNT(assets)) {
           uint8_t assetType = ASSET_TYPE_ICON;
           if (strstr(assets[a], "_logo"))
@@ -507,9 +505,8 @@ uint8_t public_buf[512];
 
         #if HAS_SPI_FLASH_FONT
           a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
-          if (a >= 0 && a < COUNT(fonts)) {
+          if (a >= 0 && a < COUNT(fonts))
             loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
-          }
         #endif
       }
       dir.rename(&root, bakPath);
