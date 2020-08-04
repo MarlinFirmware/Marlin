@@ -242,6 +242,7 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
     }
   }
   #define WRITE_ESC_SEQUENCE(V) writeEscSequence(V)
+  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence(V)
 #else
   void writeEscSequence8(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
     uint16_t data;
@@ -289,6 +290,8 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
     }
     u8g_SetAddress(u8g, dev, 1);
   }
+
+  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence16(u8g, dev, V)
 #endif
 
 static const uint16_t st7789v_init[] = {
@@ -378,7 +381,28 @@ static const uint16_t ili9341_init[] = {
   ESC_END
 };
 
-static const uint16_t st9677_init[] = {
+static const uint16_t ili9488_init[] = {
+  ESC_REG(0x00E0), 0x0000, 0x0007, 0x000F, 0x000D, 0x001B, 0x000A, 0x003C, 0x0078, 0x004A, 0x0007, 0x000E, 0x0009, 0x001B, 0x001E, 0x000F,
+  ESC_REG(0x00E1), 0x0000, 0x0022, 0x0024, 0x0006, 0x0012, 0x0007, 0x0036, 0x0047, 0x0047, 0x0006, 0x000A, 0x0007, 0x0030, 0x0037, 0x000F,
+  ESC_REG(0x00C0), 0x0010, 0x0010,
+  ESC_REG(0x00C1), 0x0041,
+  ESC_REG(0x00C5), 0x0000, 0x0022, 0x0080,
+  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x00A8, 0x0068),
+  ESC_REG(0x003A), 0x0055,
+  ESC_REG(0x00B0), 0x0000,
+  ESC_REG(0x00B1), 0x00B0, 0x0011,
+  ESC_REG(0x00B4), 0x0002,
+  ESC_REG(0x00B6), 0x0002, 0x0042,
+  ESC_REG(0x00B7), 0x00C6,
+  ESC_REG(0x00E9), 0x0000,
+  ESC_REG(0x00F0), 0x00A9, 0x0051, 0x002C, 0x0082,
+  ESC_REG(0x0029),
+  ESC_REG(0x0011),
+  ESC_DELAY(100),
+  ESC_END
+};
+
+static const uint16_t st7796_init[] = {
   ESC_REG(0x0010), ESC_DELAY(120),
   ESC_REG(0x0001), ESC_DELAY(120),
   ESC_REG(0x0011), ESC_DELAY(120),
@@ -588,8 +612,8 @@ static const uint16_t st9677_init[] = {
 
         LCD_IO_WriteSequence(buffer, length * sq(FSMC_UPSCALE));
       #else
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
-        u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
+        for (uint8_t i = FSMC_UPSCALE; i--;)
+          u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
       #endif
     }
   }
@@ -617,7 +641,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     uint16_t* buffer = &bufferA[0];
     bool allow_async = DISABLED(SPI_GRAPHICAL_TFT);
   #else
-    uint16_t buffer[WIDTH*2]; // 16-bit RGB 565 pixel line buffer
+    uint16_t buffer[WIDTH * FSMC_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
 
   switch (msg) {
@@ -630,18 +654,21 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_st7789v;
           break;
         case 0x9328:  // ILI9328
-          WRITE_ESC_SEQUENCE(ili9328_init);
+          WRITE_ESC_SEQUENCE16(ili9328_init);
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
         case 0x8066:   // Anycubic / TronXY TFTs (480x320)
-          WRITE_ESC_SEQUENCE(ili9341_init);
+          WRITE_ESC_SEQUENCE(ili9488_init);
           setWindow = setWindow_st7789v;
           break;
         case 0x7796:
-          WRITE_ESC_SEQUENCE(TERN(HAS_LCD_IO, st9677_init, ili9341_init));
+          WRITE_ESC_SEQUENCE(st7796_init);
           setWindow = setWindow_st7789v;
           break;
+        case 0x9488:
+          WRITE_ESC_SEQUENCE(ili9488_init);
+          setWindow = setWindow_st7789v;
         case 0x0404:  // No connected display on FSMC
           lcd_id = 0;
           return 0;
@@ -664,8 +691,8 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, (LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, (LCD_FULL_PIXEL_WIDTH) / 2);
-        for (uint16_t i = 0; i < (LCD_FULL_PIXEL_WIDTH) * 3; i++)
-          u8g_WriteSequence(u8g, dev, (LCD_FULL_PIXEL_WIDTH) / 2, (uint8_t *)buffer);
+        for (uint16_t i = 0; i < (LCD_FULL_PIXEL_HEIGHT) * sq(FSMC_UPSCALE); i++)
+          u8g_WriteSequence(u8g, dev, LCD_FULL_PIXEL_WIDTH / 2, (uint8_t *)buffer);
       #endif
 
       // Bottom buttons
@@ -721,11 +748,10 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
             LCD_IO_WriteSequence(buffer, COUNT(bufferA));
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
-          for (uint8_t i = 2; i--;) {
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[0]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH*2]);
-            u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH*3]);
+          for (uint8_t i = FSMC_UPSCALE; i--;) {
+            LOOP_S_L_N(n, 0, FSMC_UPSCALE * 2) {
+              u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);
+            }
           }
         #endif
       }
