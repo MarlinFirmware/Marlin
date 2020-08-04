@@ -26,53 +26,51 @@
 #define HAS_SPI_FLASH_COMPRESSION 1
 
 /**
- * This class manage and optimize SPI Flash data storage,
- * keeping a internal buffer to write and save full
- * SPI flash pages as needed.
+ * This class manages and optimizes SPI Flash data storage,
+ * keeping an internal buffer to write and save full SPI flash
+ * pages as needed.
  *
- * Its supports Compression too, compacting and uncompacting
- * data on the fly, in real time, using a simple but fast
- * RLE implementation.
+ * Since the data is always in the buffer, the class is also
+ * able to support fast on-the-fly RLE compression/decompression.
  *
- * Using it in the current LVGL_UI, it compacts 2.9MB of icons
- * down to 370kb!!!
- * The LVGL UI refresh rate became faster, when now we can fit
- * all LVGL UI in a tiny 2MB SPI Flash, like the Chitu Board.
+ * In testing with the current LVGL_UI it compacts 2.9MB of icons
+ * (which have lots of runs) down to 370kB!!! As a result the UI
+ * refresh rate becomes faster and now all LVGL UI can fit into a
+ * tiny 2MB SPI Flash, such as the Chitu Board.
  *
  * == Usage ==
  *
  * Writing:
  *
- * It have a internal buffer that keeps data until it
- * fits in a full SPI Flash full page.
- * When the buffer is full, it saves the data to spi flash.
+ * The class keeps an internal buffer that caches data until it
+ * fits into a full SPI Flash page. Each time the buffer fills up
+ * the page is saved to SPI Flash. Sequential writes are optimal.
  *
  *    SPIFlashStorage.beginWrite(myStartAddress);
- *    while (you have data to save) {
+ *    while (there is data to write)
  *      SPIFlashStorage.addData(myBuffer, bufferSize);
- *    }
- *    SPIFlashStorage.endWrite(); //need to flush remaining buffer data
+ *    SPIFlashStorage.endWrite(); // Flush remaining buffer data
  *
  * Reading:
  *
- * When reading, it loads a full page from SPI Flash at once
- * and keep it in a internal buffer. As the user are consuming the
- * buffer, it will loading the data as needed.
+ * When reading, it loads a full page from SPI Flash at once and
+ * keeps it in a private SRAM buffer. Data is loaded as needed to
+ * fullfill requests. Sequential reads are optimal.
  *
  *    SPIFlashStorage.beginRead(myStartAddress);
- *    while (you have data to read) {
+ *    while (there is data to read)
  *      SPIFlashStorage.readData(myBuffer, bufferSize);
- *    }
  *
  * Compression:
  *
- * Its the big gain of using this class is Compression.
- * When compression is enabled, it keep another buffer, with the
- * compressed data. And only when this buffer became full, it flush
- * the page.
+ * The biggest advantage of this class is the RLE compression.
+ * With compression activated a second buffer holds the compressed
+ * data, so when writing data, as this buffer becomes full it is
+ * flushed to SPI Flash.
  *
- * The same is for reading: it read a compressed page, and
- * uncompress as the user ask for data.
+ * The same goes for reading: A compressed page is read from SPI
+ * flash, and the data is uncompressed as needed to provide the
+ * requested amount of data.
  */
 class SPIFlashStorage {
 public:
