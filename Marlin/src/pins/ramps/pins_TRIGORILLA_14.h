@@ -84,6 +84,10 @@
   #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
 #endif
 
+#if ENABLED(ANYCUBIC_I3MEGA)
+  #define CONTROLLER_FAN_PIN         TG_FAN1_PIN
+#endif
+
 //
 // AnyCubic standard pin mappings
 //
@@ -93,27 +97,29 @@
 //  To enable PIN definitions for a specific printer model, #define the appropriate symbol after
 //  MOTHERBOARD in Configuration.h
 
+//
+// Limit Switches
+//
+//#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
+
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
-  #define Y_MIN_PIN                           19
+  #define Y_STOP_PIN                          19
 #elif EITHER(ANYCUBIC_CHIRON, ANYCUBIC_I3MEGA)
-  #define Y_MIN_PIN                           42
+  #define Y_STOP_PIN                          42
   #define Z2_MIN_PIN                          43
-  #define BEEPER_PIN                          31
-  #define SD_DETECT_PIN                       49
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2
   #endif
-  #if ENABLED(ANYCUBIC_CHIRON)
-    #ifndef FIL_RUNOUT_PIN
+  #ifndef FIL_RUNOUT_PIN
+    #if ENABLED(ANYCUBIC_CHIRON)
       #define FIL_RUNOUT_PIN                  33
-    #endif
-  #elif ENABLED(ANYCUBIC_I3MEGA)
-    #ifndef FIL_RUNOUT_PIN
+    #else
       #define FIL_RUNOUT_PIN                  19
     #endif
-    #define CONTROLLER_FAN_PIN       TG_FAN1_PIN
   #endif
+  #define BEEPER_PIN                          31
+  #define SD_DETECT_PIN                       49
 #endif
 
 #include "pins_RAMPS.h"
