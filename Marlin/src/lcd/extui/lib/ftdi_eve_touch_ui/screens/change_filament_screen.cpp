@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -172,8 +172,8 @@ void ChangeFilamentScreen::onRedraw(draw_mode_t what) {
     const bool tog3  = screen_data.ChangeFilamentScreen.t_tag == 3;
     const bool tog4  = screen_data.ChangeFilamentScreen.t_tag == 4;
     const bool tog10 = screen_data.ChangeFilamentScreen.e_tag == 10;
-    #if HOTENDS > 1
-    const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
+    #if HAS_MULTI_HOTEND
+      const bool tog11 = screen_data.ChangeFilamentScreen.e_tag == 11;
     #endif
 
     #ifdef TOUCH_UI_PORTRAIT

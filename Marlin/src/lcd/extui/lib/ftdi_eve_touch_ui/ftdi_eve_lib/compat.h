@@ -12,7 +12,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -206,14 +206,58 @@
 
   // Define macros for compatibility
 
-  #define _CAT(a, ...)       a ## __VA_ARGS__
-  #define SWITCH_ENABLED_    1
-  #define ENABLED(b)         _CAT(SWITCH_ENABLED_, b)
-  #define DISABLED(b)        !ENABLED(b)
-  #define ANY(A,B)           (ENABLED(A) || ENABLED(B))
-  #define EITHER(A,B)        (ENABLED(A) || ENABLED(B))
-  #define BOTH(A,B)          (ENABLED(A) && ENABLED(B))
-  #define NONE(A,B)          (DISABLED(A) && DISABLED(B))
+  #define _CAT(a,V...) a##V
+  #define CAT(a,V...) _CAT(a,V)
+
+  #define FIRST(a,...)     a
+  #define SECOND(a,b,...)  b
+  #define THIRD(a,b,c,...) c
+
+  #define IS_PROBE(V...) SECOND(V, 0)     // Get the second item passed, or 0
+  #define PROBE() ~, 1                    // Second item will be 1 if this is passed
+  #define _NOT_0 PROBE()
+  #define NOT(x) IS_PROBE(_CAT(_NOT_, x)) // NOT('0') gets '1'. Anything else gets '0'.
+  #define _BOOL(x) NOT(NOT(x))            // NOT('0') gets '0'. Anything else gets '1'.
+
+  #define _DO_1(W,C,A)       (_##W##_1(A))
+  #define _DO_2(W,C,A,B)     (_##W##_1(A) C _##W##_1(B))
+  #define _DO_3(W,C,A,V...)  (_##W##_1(A) C _DO_2(W,C,V))
+  #define _DO_4(W,C,A,V...)  (_##W##_1(A) C _DO_3(W,C,V))
+  #define _DO_5(W,C,A,V...)  (_##W##_1(A) C _DO_4(W,C,V))
+  #define _DO_6(W,C,A,V...)  (_##W##_1(A) C _DO_5(W,C,V))
+  #define _DO_7(W,C,A,V...)  (_##W##_1(A) C _DO_6(W,C,V))
+  #define _DO_8(W,C,A,V...)  (_##W##_1(A) C _DO_7(W,C,V))
+  #define _DO_9(W,C,A,V...)  (_##W##_1(A) C _DO_8(W,C,V))
+  #define _DO_10(W,C,A,V...) (_##W##_1(A) C _DO_9(W,C,V))
+  #define _DO_11(W,C,A,V...) (_##W##_1(A) C _DO_10(W,C,V))
+  #define _DO_12(W,C,A,V...) (_##W##_1(A) C _DO_11(W,C,V))
+  #define __DO_N(W,C,N,V...) _DO_##N(W,C,V)
+  #define _DO_N(W,C,N,V...)  __DO_N(W,C,N,V)
+  #define DO(W,C,V...)       _DO_N(W,C,NUM_ARGS(V),V)
+
+  #define _ISENA_     ~,1
+  #define _ISENA_1    ~,1
+  #define _ISENA_0x1  ~,1
+  #define _ISENA_true ~,1
+  #define _ISENA(V...)        IS_PROBE(V)
+  #define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+  #define _DIS_1(O)           NOT(_ENA_1(O))
+  #define ENABLED(V...)       DO(ENA,&&,V)
+  #define DISABLED(V...)      DO(DIS,&&,V)
+
+  #define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
+  #define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
+  #define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
+  #define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+  #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+  #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+  #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+  #define ANY(V...)          !DISABLED(V)
+  #define NONE(V...)          DISABLED(V)
+  #define ALL(V...)           ENABLED(V)
+  #define BOTH(V1,V2)         ALL(V1,V2)
+  #define EITHER(V1,V2)       ANY(V1,V2)
 
   // Remove compiler warning on an unused variable
   #ifndef UNUSED

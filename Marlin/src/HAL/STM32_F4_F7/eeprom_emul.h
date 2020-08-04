@@ -50,7 +50,6 @@
 // ------------------------
 
 #include "../../inc/MarlinConfig.h"
-#include "HAL.h"
 
 /* Exported constants --------------------------------------------------------*/
 /* EEPROM emulation firmware error codes */

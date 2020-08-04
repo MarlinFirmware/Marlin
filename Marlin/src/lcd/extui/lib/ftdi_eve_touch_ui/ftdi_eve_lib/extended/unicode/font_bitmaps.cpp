@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
@@ -45,7 +45,8 @@ namespace FTDI {
       cmd.cmd(BITMAP_HANDLE(handle));
       cmd.cmd(CELL(cell));
       cmd.cmd(VERTEX2F(x * 16, y * 16));
-    } else {
+    }
+    else {
       cmd.cmd(VERTEX2II(x, y, handle, cell));
     }
   }

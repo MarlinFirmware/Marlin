@@ -243,7 +243,7 @@ void SPIClass::setDataMode(uint8_t dataMode) {
   _currentSetting->spi_d->regs->CR1 = cr1 | (dataMode & (SPI_CR1_CPOL|SPI_CR1_CPHA));
 }
 
-void SPIClass::beginTransaction(uint8_t pin, SPISettings settings) {
+void SPIClass::beginTransaction(uint8_t pin, const SPISettings &settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
@@ -251,7 +251,7 @@ void SPIClass::beginTransaction(uint8_t pin, SPISettings settings) {
   begin();
 }
 
-void SPIClass::beginTransactionSlave(SPISettings settings) {
+void SPIClass::beginTransactionSlave(const SPISettings &settings) {
   setBitOrder(settings.bitOrder);
   setDataMode(settings.dataMode);
   setDataSize(settings.dataSize);
@@ -266,7 +266,7 @@ void SPIClass::endTransaction() { }
 
 uint16_t SPIClass::read() {
   while (!spi_is_rx_nonempty(_currentSetting->spi_d)) { /* nada */ }
-  return (uint16)spi_rx_reg(_currentSetting->spi_d);
+  return (uint16_t)spi_rx_reg(_currentSetting->spi_d);
 }
 
 void SPIClass::read(uint8_t *buf, uint32_t len) {

@@ -17,9 +17,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
@@ -29,8 +30,6 @@
 /**
  * Adapted to the Marlin STM32F4/7 HAL
  */
-
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfig.h"
 
@@ -121,7 +120,7 @@ uint8_t spiRec() {
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
   SPI.beginTransaction(spiConfig);
-  #ifdef STM32GENERIC
+  #ifndef STM32GENERIC
     SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
   #else
     SPI.transfer((uint8_t*)buf, nbyte);
@@ -153,7 +152,7 @@ void spiSend(uint8_t b) {
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
-  #ifdef STM32GENERIC
+  #ifndef STM32GENERIC
     SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
   #else
     SPI.transfer((uint8_t*)buf, nullptr, 512);

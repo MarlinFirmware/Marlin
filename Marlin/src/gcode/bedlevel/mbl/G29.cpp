@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -62,9 +62,7 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
 void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
-  #if HAS_SOFTWARE_ENDSTOPS
-    static bool saved_soft_endstops_state;
-  #endif
+  TERN_(HAS_SOFTWARE_ENDSTOPS, static bool saved_soft_endstops_state);
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
@@ -111,9 +109,7 @@ void GcodeSuite::G29() {
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = saved_soft_endstops_state;
-        #endif
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
@@ -147,9 +143,7 @@ void GcodeSuite::G29() {
           planner.synchronize();
         #endif
 
-        #if ENABLED(LCD_BED_LEVELING)
-          ui.wait_for_move = false;
-        #endif
+        TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
       }
       break;
 
@@ -178,9 +172,7 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

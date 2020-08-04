@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
 // ATC Semitec 104GT-2/104NT-4-R025H42G (Used in ParCan)
 // Verified by linagee. Source: https://www.mouser.com/datasheet/2/362/semitec%20usa%20corporation_gtthermistor-1202937.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
-const short temptable_5[][2] PROGMEM = {
+const temp_entry_t temptable_5[] PROGMEM = {
   { OV(   1), 713 },
   { OV(  17), 300 }, // top rating 300C
   { OV(  20), 290 },

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,15 @@
   #define IS_CARTESIAN 1
 #endif
 
-#if ENABLED(CARTESIO_UI)
+#if ENABLED(MKS_LCD12864)
+  #define MKS_MINI_12864
+#endif
+
+#if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  #define MINIPANEL
+
+#elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
   #define IS_ULTIPANEL
@@ -98,15 +106,9 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -118,9 +120,26 @@
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
 
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+#elif ENABLED(FYSETC_242_OLED_12864)
 
-  #define MINIPANEL
+  #define IS_RRD_SC
+  #define U8GLIB_SH1106
+
+  #define LED_CONTROL_MENU
+  #define NEOPIXEL_LED
+  #undef NEOPIXEL_TYPE
+  #define NEOPIXEL_TYPE       NEO_RGB
+  #if NEOPIXEL_PIXELS < 3
+    #undef NEOPIXELS_PIXELS
+    #define NEOPIXEL_PIXELS     3
+  #endif
+  #ifndef NEOPIXEL_BRIGHTNESS
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    #define LED_BACKLIGHT_TIMEOUT 10000
+  #endif
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -236,10 +255,17 @@
   #define IS_ULTIPANEL
 #endif
 
+// LVGL UI, SPI or FSMC
+#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
+  #define HAS_TFT_LVGL_UI 1
+#endif
+
 // FSMC/SPI TFT Panels
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define DOGLCD
   #define IS_ULTIPANEL
+  #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(TFT_LVGL_UI_SPI)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -335,9 +361,7 @@
 #endif
 #if ENABLED(ULTIPANEL)
   #define IS_ULTRA_LCD
-  #ifndef NEWPANEL
-    #define NEWPANEL
-  #endif
+  #define NEWPANEL
 #endif
 
 #if ENABLED(IS_ULTRA_LCD)
@@ -361,7 +385,7 @@
   #define HAS_DGUS_LCD 1
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extensible_ui)
+// Extensible UI serial touch screens. (See src/lcd/extui)
 #if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
@@ -378,6 +402,14 @@
       #define HAS_CHARACTER_LCD 1
     #endif
   #endif
+#endif
+
+#if ENABLED(SR_LCD_3W_NL)
+  // Feature checks for SR_LCD_3W_NL
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+  #define USES_LIQUIDTWI2
+#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+  #define USES_LIQUIDCRYSTAL
 #endif
 
 #if ENABLED(ULTIPANEL) && DISABLED(NO_LCD_MENUS)
@@ -408,13 +440,15 @@
  */
 
 #if EXTRUDERS == 0
-  #undef DISTINCT_E_FACTORS
+  #undef EXTRUDERS
+  #define EXTRUDERS 0
   #undef SINGLENOZZLE
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
+  #undef HOTEND_IDLE_TIMEOUT
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -431,7 +465,9 @@
 #elif ENABLED(MIXING_EXTRUDER)
   #define E_STEPPERS      MIXING_STEPPERS
   #define E_MANUAL        1
-  #define DUAL_MIXING_EXTRUDER (MIXING_STEPPERS == 2)
+  #if MIXING_STEPPERS == 2
+    #define HAS_DUAL_MIXING 1
+  #endif
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
@@ -466,6 +502,19 @@
   #define E_MANUAL EXTRUDERS
 #endif
 
+#if HOTENDS
+  #define HAS_HOTEND 1
+  #ifndef HOTEND_OVERSHOOT
+    #define HOTEND_OVERSHOOT 15
+  #endif
+  #if HOTENDS > 1
+    #define HAS_MULTI_HOTEND 1
+    #define HAS_HOTEND_OFFSET 1
+  #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
+#endif
+
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
@@ -479,10 +528,6 @@
 
 #ifdef SWITCHING_NOZZLE_E1_SERVO_NR
   #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
-#if HOTENDS > 1
-  #define HAS_HOTEND_OFFSET 1
 #endif
 
 /**
@@ -504,14 +549,27 @@
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+  #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
 #else
   #undef DISTINCT_E_FACTORS
+  #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
 #endif
 
 /**
@@ -544,21 +602,13 @@
   #define NUM_SERVOS 0
 #endif
 
-#ifndef PREHEAT_1_LABEL
-  #define PREHEAT_1_LABEL "PLA"
-#endif
-
-#ifndef PREHEAT_2_LABEL
-  #define PREHEAT_2_LABEL "ABS"
-#endif
-
 /**
  * Set a flag for a servo probe (or BLTouch)
  */
 #if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if HAS_Z_SERVO_PROBE || EITHER(SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -572,7 +622,7 @@
   #define HAS_BED_PROBE 1
 #endif
 
-#if HAS_BED_PROBE || EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
+#if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
 
@@ -583,7 +633,7 @@
   #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define HAS_CUSTOM_PROBE_PIN 1
   #endif
-  #if Z_HOME_DIR < 0 && !HAS_CUSTOM_PROBE_PIN
+  #if Z_HOME_DIR < 0 && (!HAS_CUSTOM_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
     #define HOMING_Z_WITH_PROBE 1
   #endif
   #ifndef Z_PROBE_LOW_POINT
@@ -593,7 +643,7 @@
     #define PROBE_TRIGGERED_WHEN_STOWED_TEST 1 // Extra test for Allen Key Probe
   #endif
   #if MULTIPLE_PROBING > 1
-    #if EXTRA_PROBING
+    #if EXTRA_PROBING > 0
       #define TOTAL_PROBING (MULTIPLE_PROBING + EXTRA_PROBING)
     #else
       #define TOTAL_PROBING MULTIPLE_PROBING
@@ -670,8 +720,12 @@
 #endif
 
 // This flag indicates some kind of jerk storage is needed
-#if ENABLED(CLASSIC_JERK) || IS_KINEMATIC
+#if EITHER(CLASSIC_JERK, IS_KINEMATIC)
   #define HAS_CLASSIC_JERK 1
+#endif
+
+#if DISABLED(CLASSIC_JERK)
+  #define HAS_JUNCTION_DEVIATION 1
 #endif
 
 // E jerk exists with JD disabled (of course) but also when Linear Advance is disabled on Delta/SCARA
@@ -693,4 +747,11 @@
  */
 #ifndef EXTRUDE_MINTEMP
   #define EXTRUDE_MINTEMP 170
+#endif
+
+/**
+ * To check if we need the folder src/features/leds
+ */
+#if ANY(TEMP_STAT_LEDS, HAS_COLOR_LEDS, HAS_CASE_LIGHT, PRINTER_EVENT_LEDS, LED_BACKLIGHT_TIMEOUT, PCA9632_BUZZER, LED_CONTROL_MENU, NEOPIXEL_LED)
+  #define HAS_LED_FEATURE 1
 #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -40,8 +40,12 @@
   #include "game/game.h"
 #endif
 
-#define MACHINE_CAN_STOP (EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL))
-#define MACHINE_CAN_PAUSE (ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE))
+#if EITHER(SDSUPPORT, HOST_PROMPT_SUPPORT) || defined(ACTION_ON_CANCEL)
+  #define MACHINE_CAN_STOP 1
+#endif
+#if ANY(SDSUPPORT, HOST_PROMPT_SUPPORT, PARK_HEAD_ON_PAUSE) || defined(ACTION_ON_PAUSE)
+  #define MACHINE_CAN_PAUSE 1
+#endif
 
 #if ENABLED(PRUSA_MMU2)
   #include "../../lcd/menu/menu_mmu2.h"
@@ -59,6 +63,14 @@ void menu_sd();
   void menu_user();
 #endif
 
+#if HAS_POWER_MONITOR
+  void menu_power_monitor();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
+#endif
+
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   void _menu_temp_filament_op(const PauseMode, const int8_t);
   void menu_change_filament();
@@ -68,26 +80,26 @@ void menu_sd();
   void menu_info();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
   void menu_led();
 #endif
 
 #if HAS_CUTTER
-  #include "../../feature/spindle_laser.h"
   void menu_spindle_laser();
-#endif
-
-#if ENABLED(MIXING_EXTRUDER)
-  void menu_mixer();
 #endif
 
 extern const char M21_STR[];
 
 void menu_main() {
+  const bool busy = printingIsActive()
+    #if ENABLED(SDSUPPORT)
+      , card_detected = card.isMounted()
+      , card_open = card_detected && card.isFileOpen()
+    #endif
+  ;
+
   START_MENU();
   BACK_ITEM(MSG_INFO_SCREEN);
-
-  const bool busy = printingIsActive();
 
   if (busy) {
     #if MACHINE_CAN_PAUSE
@@ -98,7 +110,7 @@ void menu_main() {
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_STOP), GET_TEXT(MSG_BACK),
           ui.abort_print, ui.goto_previous_screen,
-          GET_TEXT(MSG_STOP_PRINT), (PGM_P)nullptr, PSTR("?")
+          GET_TEXT(MSG_STOP_PRINT), (const char *)nullptr, PSTR("?")
         );
       });
     #endif
@@ -114,7 +126,7 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        if (!busy) ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
       #endif
 
       if (card_detected) {
@@ -134,15 +146,13 @@ void menu_main() {
           ACTION_ITEM(MSG_NO_MEDIA, nullptr);
         #else
           GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
-          ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
         #endif
       }
 
     #endif // !HAS_ENCODER_WHEEL && SDSUPPORT
 
-    #if MACHINE_CAN_PAUSE
-      if (printingIsPaused()) ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
-    #endif
+    if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
+      ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
     SUBMENU(MSG_MOTION, menu_motion);
 	
@@ -157,7 +167,13 @@ void menu_main() {
     SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
   #endif
 
-  SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
+  #if HAS_POWER_MONITOR
+    MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     SUBMENU(MSG_MIXER, menu_mixer);
@@ -211,9 +227,7 @@ void menu_main() {
   #if HAS_SERVICE_INTERVALS
     static auto _service_reset = [](const int index) {
       print_job_timer.resetServiceInterval(index);
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      ui.completion_feedback();
       ui.reset_status();
       ui.return_to_status();
     };

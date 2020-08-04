@@ -78,10 +78,6 @@
 //! To define a Full speed device
 //#define USB_DEVICE_FULL_SPEED
 
-#if MB(ARCHIM1)
-  #define USB_DEVICE_FULL_SPEED
-#endif
-
 //! To authorize the High speed
 #ifndef USB_DEVICE_FULL_SPEED
   #if (UC3A3||UC3A4)

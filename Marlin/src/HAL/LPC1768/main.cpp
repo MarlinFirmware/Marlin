@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -38,8 +38,6 @@ extern "C" {
 #include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
-#include "HAL.h"
-#include "timers.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
@@ -124,7 +122,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if !BOTH(SHARED_SD_CARD, INIT_SDCARD_ON_BOOT) && DISABLED(NO_SD_HOST_DRIVE)
+  #if DISABLED(NO_SD_HOST_DRIVE)
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 
@@ -142,7 +140,7 @@ void HAL_init() {
 
 // HAL idle task
 void HAL_idletask() {
-  #if ENABLED(SHARED_SD_CARD)
+  #if HAS_SHARED_MEDIA
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but

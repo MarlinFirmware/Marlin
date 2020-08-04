@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -109,6 +109,7 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans
@@ -129,7 +130,10 @@
 //
 #define SDSS                                  77
 #define LED_PIN                               13
-#define CASE_LIGHT_PIN                         9
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       9
+#endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -263,9 +263,7 @@ void GcodeSuite::M48() {
   restore_feedrate_and_scaling();
 
   // Re-enable bed level correction if it had been on
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(was_enabled);
-  #endif
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(was_enabled));
 
   report_current_position();
 }
