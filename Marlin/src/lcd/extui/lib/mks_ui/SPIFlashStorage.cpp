@@ -27,9 +27,9 @@
 #include "../../../../MarlinCore.h"
 
 #if HAS_SPI_FLASH_COMPRESSION
+
   template <typename T>
-  static uint32_t rle_compress(T *output, uint32_t outputLength, T *input, uint32_t inputLength, uint32_t& inputProcessed)
-  {
+  static uint32_t rle_compress(T *output, uint32_t outputLength, T *input, uint32_t inputLength, uint32_t& inputProcessed) {
     uint32_t count = 0, out = 0, index, i;
     T pixel;
     //32767 for uint16_t
@@ -61,53 +61,47 @@
          */
         while (index < inputLength && input[index] == input[index - 1])
           index--;
-        //if we will overflow output buffer, stop at the remaining bytes
-        if (out + index - count + 1 > outputLength) {
+        // If the output buffer could overflow, stop at the remaining bytes
+        if (index > count + outputLength - out - 1)
           index = count + outputLength - out - 1;
-        }
         output[out++] = (uint16_t)(count - index);
         for (i = count; i < index; i++)
           output[out++] = input[i];
       }
       else {
-        //we need at least more 2 spaces
-        if ((out + 2) > outputLength) {
-          break;
-        }
+        // Need at least more 2 spaces
+        if (out > outputLength - 2) break;
         output[out++] = (uint16_t)(index - count);
         output[out++] = pixel;
       }
       count = index;
     }
     inputProcessed = count;
-    //padding
-    if (outputLength - out == 1) {
-      output[out++] = 0;
-    }
-    return (out);
+
+    // Padding
+    if (out == outputLength - 1) output[out++] = 0;
+
+    return out;
   }
 
   template <typename UT, typename T>
-  static uint32_t rle_uncompress(UT *output, uint32_t outputLength, UT *input, uint32_t inputLength, uint32_t &outputFilled)
-  {
+  static uint32_t rle_uncompress(UT *output, uint32_t outputLength, UT *input, uint32_t inputLength, uint32_t &outputFilled) {
     T count;
     UT i;
     uint32_t processedBytes = 0;
     outputFilled = 0;
 
-    while (outputLength > 0 && inputLength > 0)
-    {
+    while (outputLength > 0 && inputLength > 0) {
       processedBytes++;
       count = static_cast<T>(*input++);
       inputLength--;
-      if (count > 0) { // replicate run
-        for (i = 0; i < count && (outputLength - i) > 0; i++) {
+      if (count > 0) { // Replicate run
+        for (i = 0; i < count && outputLength > i; i++)
           output[i] = *input;
-        }
         outputFilled += i;
-        //if could not copy all, change the input buffer to start with remaining data in the next call
+        // If copy incomplete, change the input buffer to start with remaining data in the next call
         if (i < count) {
-          // change to process the diference in the next call
+          // Change to process the difference in the next call
           *(input - 1) = static_cast<UT>(count - i);
           return processedBytes - 1;
         }
@@ -117,15 +111,14 @@
       }
       else if (count < 0) { // literal run
         count = static_cast<T>(-count);
-        // copy validating if the output have enough space
-        for (i = 0; i < count && (outputLength - i) > 0; i++) {
+        // Copy validating if the output have enough space
+        for (i = 0; i < count && outputLength > i; i++)
           output[i] = input[i];
-        }
         outputFilled += i;
-        //if could not copy all, change the input buffer to start with remaining data in the next call
+        // If copy incomplete, change the input buffer to start with remaining data in the next call
         if (i < count) {
           input[i - 1] = static_cast<UT>((count - i) * -1);
-          //back one
+          // Back one
           return processedBytes + i - 1;
         }
         input += count;
@@ -140,22 +133,20 @@
   }
 #endif
 
-void SPIFlashStorage::beginWrite(uint32_t startAddress)
-{
+void SPIFlashStorage::beginWrite(uint32_t startAddress) {
   m_pageDataUsed = 0;
   m_currentPage = 0;
   m_pageDataFree = SPI_FLASH_PageSize; //empty
   m_startAddress = startAddress;
   #if HAS_SPI_FLASH_COMPRESSION
-    // restart the compressed buffer, keep the pointers of the uncompressed buffer
+    // Restart the compressed buffer, keep the pointers of the uncompressed buffer
     m_compressedDataFree = sizeof(m_compressedData);
     m_compressedDataUsed = 0;
   #endif
 }
 
 
-void SPIFlashStorage::endWrite()
-{
+void SPIFlashStorage::endWrite() {
   // flush remaining data
   #if HAS_SPI_FLASH_COMPRESSION
     if (m_compressedDataUsed > 0) {
@@ -163,14 +154,11 @@ void SPIFlashStorage::endWrite()
       savePage(m_compressedData);
     }
   #else
-    if (m_pageDataUsed > 0) {
-      flushPage();
-    }
+    if (m_pageDataUsed > 0) flushPage();
   #endif
 }
 
-void SPIFlashStorage::savePage(uint8_t* buffer)
-{
+void SPIFlashStorage::savePage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferWrite(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
 
   // test env
@@ -181,8 +169,7 @@ void SPIFlashStorage::savePage(uint8_t* buffer)
   // fclose(fp);
 }
 
-void SPIFlashStorage::loadPage(uint8_t* buffer)
-{
+void SPIFlashStorage::loadPage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferRead(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
 
   // test env
@@ -196,8 +183,7 @@ void SPIFlashStorage::loadPage(uint8_t* buffer)
   // }
 }
 
-void SPIFlashStorage::flushPage()
-{
+void SPIFlashStorage::flushPage() {
   #if HAS_SPI_FLASH_COMPRESSION
     // work com with compressed in memory
     uint32_t inputProcessed;
@@ -236,11 +222,10 @@ void SPIFlashStorage::flushPage()
     m_pageDataUsed = 0;
     m_pageDataFree = SPI_FLASH_PageSize;
   #endif
-    m_currentPage++;
+  m_currentPage++;
 }
 
-void SPIFlashStorage::readPage()
-{
+void SPIFlashStorage::readPage() {
   #if HAS_SPI_FLASH_COMPRESSION
     if (m_compressedDataFree == 0) {
       loadPage(m_compressedData);
@@ -275,12 +260,10 @@ void SPIFlashStorage::readPage()
   #endif
 }
 
-uint16_t SPIFlashStorage::inData(uint8_t* data, uint16_t size)
-{
-  // dont write more than we can
-  if (size > m_pageDataFree) {
+uint16_t SPIFlashStorage::inData(uint8_t* data, uint16_t size) {
+  // Don't write more than we can
+  if (size > m_pageDataFree)
     size = m_pageDataFree;
-  }
 
   memcpy(m_pageData + m_pageDataUsed, data, size);
   m_pageDataUsed += size;
@@ -289,14 +272,11 @@ uint16_t SPIFlashStorage::inData(uint8_t* data, uint16_t size)
   return size;
 }
 
-void SPIFlashStorage::writeData(uint8_t* data, uint16_t size)
-{
-  // flush a page if we need
-  if (m_pageDataFree == 0) {
-    flushPage();
-  }
+void SPIFlashStorage::writeData(uint8_t* data, uint16_t size) {
+  // Flush a page if needed
+  if (m_pageDataFree == 0) flushPage();
 
-  while(size > 0) {
+  while (size > 0) {
     uint16_t written = inData(data, size);
     size -= written;
     // need write more data? flush page and continue!
@@ -307,8 +287,7 @@ void SPIFlashStorage::writeData(uint8_t* data, uint16_t size)
   }
 }
 
-void SPIFlashStorage::beginRead(uint32_t startAddress)
-{
+void SPIFlashStorage::beginRead(uint32_t startAddress) {
   m_startAddress = startAddress;
   m_currentPage = 0;
   //we dont have nothing in memory now
@@ -320,12 +299,10 @@ void SPIFlashStorage::beginRead(uint32_t startAddress)
   #endif
 }
 
-uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size)
-{
+uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size) {
   // dont read more than we have
-  if (size > m_pageDataFree) {
+  if (size > m_pageDataFree)
     size = m_pageDataFree;
-  }
 
   memcpy(data, m_pageData + m_pageDataUsed, size);
   m_pageDataUsed += size;
@@ -334,14 +311,11 @@ uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size)
   return size;
 }
 
-void SPIFlashStorage::readData(uint8_t* data, uint16_t size)
-{
-  // read a page if we need
-  if (m_pageDataFree == 0) {
-    readPage();
-  }
+void SPIFlashStorage::readData(uint8_t* data, uint16_t size) {
+  // Read a page if needed
+  if (m_pageDataFree == 0) readPage();
 
-  while(size > 0) {
+  while (size > 0) {
     uint16_t read = outData(data, size);
     size -= read;
     // need write more data? flush page and continue!
@@ -354,4 +328,4 @@ void SPIFlashStorage::readData(uint8_t* data, uint16_t size)
 
 SPIFlashStorage SPIFlash;
 
-#endif
+#endif // HAS_TFT_LVGL_UI
