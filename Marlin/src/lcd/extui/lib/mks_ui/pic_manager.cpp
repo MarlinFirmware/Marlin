@@ -374,7 +374,6 @@ uint8_t public_buf[512];
     return -1;
   }
 
-
   #if ENABLED(MARLIN_DEV_MODE)
     static uint32_t totalSizes = 0, totalCompressed = 0;
   #endif
@@ -432,9 +431,7 @@ uint8_t public_buf[512];
       while (1) {
         #if HAS_SPI_FLASH_COMPRESSION
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
-          #if ENABLED(MARLIN_DEV_MODE)
-            totalSizes += pbr;
-          #endif
+          TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
           if (pbr < SPI_FLASH_PageSize) break;
         #else
@@ -524,7 +521,7 @@ uint8_t public_buf[512];
 
   #if HAS_SPI_FLASH_FONT
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
-  #endif // HAS_SPI_FLASH_FONT
+  #endif
 
 #endif // SDSUPPORT
 
