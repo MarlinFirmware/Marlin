@@ -1281,7 +1281,7 @@ void Planner::recalculate() {
 void Planner::check_axes_activity() {
 
   #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
-    xyze_bool_t axis_active = { false };
+    xyze_bool_t axis_active = { true, true, true, true };
   #endif
 
   #if HAS_FAN
@@ -1316,7 +1316,10 @@ void Planner::check_axes_activity() {
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
         block_t *block = &block_buffer[b];
-        LOOP_XYZE(i) if (block->steps[i]) axis_active[i] = true;
+        if (ENABLED(DISABLE_X) && block->steps[X_AXIS]) axis_active[X_AXIS] = true;
+        if (ENABLED(DISABLE_Y) && block->steps[Y_AXIS]) axis_active[Y_AXIS] = true;
+        if (ENABLED(DISABLE_Z) && block->steps[Z_AXIS]) axis_active[Z_AXIS] = true;
+        if (ENABLED(DISABLE_E) && block->steps[E_AXIS]) axis_active[E_AXIS] = true;
       }
     #endif
   }
