@@ -809,15 +809,6 @@
 #define INVERT_Z_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
-// Disable axis steppers immediately when they're not being stepped.
-// WARNING: When motors turn off there is a chance of losing position accuracy!
-#define DISABLE_X false
-#define DISABLE_Y false
-#define DISABLE_Z false
-
-// Turn off the display blinking that warns about possible accuracy reduction
-//#define DISABLE_REDUCED_ACCURACY_WARNING
-
 /**
  * Idle Stepper Shutdown
  * Set DISABLE_INACTIVE_? 'true' to shut down axis steppers after an idle period.

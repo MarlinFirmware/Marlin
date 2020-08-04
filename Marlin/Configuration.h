@@ -1076,6 +1076,15 @@
 #define Z_ENABLE_ON 0
 #define E_ENABLE_ON 0 // For all extruders
 
+// Disable axis steppers immediately when they're not being stepped.
+// WARNING: When motors turn off there is a chance of losing position accuracy!
+#define DISABLE_X false
+#define DISABLE_Y false
+#define DISABLE_Z false
+
+// Turn off the display blinking that warns about possible accuracy reduction
+//#define DISABLE_REDUCED_ACCURACY_WARNING
+
 // @section extruder
 
 #define DISABLE_E false             // Disable the extruder when not stepping
