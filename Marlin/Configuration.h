@@ -1115,7 +1115,7 @@
 
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
-//#define DROPPING_NOZZLE         // Z dropps to Z_MIN_POS if z-stepper is disabled. Activate if your nozzle/gantry dropps down to the bed when Z-stepper is disabled.
+//#define Z_ON_DEACTIVATE Z_MIN_POS // If the Bed or Gantry falls when the Z stepper is disabled, set its resting position here.
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
