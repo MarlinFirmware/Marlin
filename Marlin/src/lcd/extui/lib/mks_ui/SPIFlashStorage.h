@@ -19,10 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-#include "../../../../inc/MarlinConfigPre.h"
-
-#if HAS_TFT_LVGL_UI
+#pragma once
 
 #include "W25Qxx.h"
 
@@ -77,8 +74,7 @@
  * The same is for reading: it read a compressed page, and
  * uncompress as the user ask for data.
  */
-class SPIFlashStorage
-{
+class SPIFlashStorage {
 public:
   // Write operation
   void beginWrite(uint32_t startAddress);
@@ -112,5 +108,3 @@ private:
 };
 
 extern SPIFlashStorage SPIFlash;
-
-#endif
