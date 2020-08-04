@@ -67,7 +67,7 @@ void menu_sd() {
         ACTION_ITEM(MSG_NO_MEDIA, nullptr);
       #else
         GCODES_ITEM(MSG_ATTACH_MEDIA, M21_STR);
-        ACTION_ITEM(MSG_MEDIA_RELEASED, nullptr);
+        ACTION_ITEM(MSG_MEDIA_REMOVED, nullptr);
       #endif
     }
 
