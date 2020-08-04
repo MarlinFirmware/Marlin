@@ -75,33 +75,33 @@
 class SPIFlashStorage {
 public:
   // Write operation
-  void beginWrite(uint32_t startAddress);
-  void endWrite();
-  void writeData(uint8_t* data, uint16_t size);
+  static void beginWrite(uint32_t startAddress);
+  static void endWrite();
+  static void writeData(uint8_t* data, uint16_t size);
 
-  // Read operation
-  void beginRead(uint32_t startAddress);
-  void readData(uint8_t* data, uint16_t size);
+  static // Read operation
+  static void beginRead(uint32_t startAddress);
+  static void readData(uint8_t* data, uint16_t size);
 
-  uint32_t getCurrentPage() { return m_currentPage; }
+  static uint32_t getCurrentPage() { return m_currentPage; }
 
 private:
-  void flushPage();
-  void savePage(uint8_t* buffer);
-  void loadPage(uint8_t* buffer);
-  void readPage();
-  uint16_t inData(uint8_t* data, uint16_t size);
-  uint16_t outData(uint8_t* data, uint16_t size);
+  static void flushPage();
+  static void savePage(uint8_t* buffer);
+  static void loadPage(uint8_t* buffer);
+  static void readPage();
+  static uint16_t inData(uint8_t* data, uint16_t size);
+  static uint16_t outData(uint8_t* data, uint16_t size);
 
-  uint8_t m_pageData[SPI_FLASH_PageSize];
-  uint32_t m_currentPage;
-  uint16_t m_pageDataUsed;
-  uint16_t m_pageDataFree;
-  uint32_t m_startAddress;
+  static uint8_t m_pageData[SPI_FLASH_PageSize];
+  static uint32_t m_currentPage;
+  static uint16_t m_pageDataUsed;
+  static uint16_t m_pageDataFree;
+  static uint32_t m_startAddress;
   #if HAS_SPI_FLASH_COMPRESSION
-    uint8_t m_compressedData[SPI_FLASH_PageSize];
-    uint16_t m_compressedDataUsed;
-    uint16_t m_compressedDataFree;
+    static uint8_t m_compressedData[SPI_FLASH_PageSize];
+    static uint16_t m_compressedDataUsed;
+    static inline uint16_t compressedDataFree() { return sizeof(m_compressedData) - m_compressedDataUsed; }
   #endif
 };
 
