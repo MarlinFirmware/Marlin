@@ -63,7 +63,7 @@ extern "C" { /* C-declarations for C++ */
 #define DEFAULT_VIEW_MAX_SIZE           (200*200*2)
 #define FLASH_VIEW_MAX_SIZE             (200*200*2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (32*1024)
+#define PER_PIC_MAX_SPACE_TFT35         (9*1024)
 #define PER_PIC_MAX_SPACE_TFT32         (16*1024)
 #define PER_FONT_MAX_SPACE              (16*1024)
 
@@ -88,7 +88,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
   // font
-  #define FONTINFOADDR                  0x183000 // 6M -- font addr
+  #define FONTINFOADDR                  0x150000 // 6M -- font addr
   #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
 
 #else
