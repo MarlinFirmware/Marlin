@@ -20,7 +20,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_GRAPHICAL_LCD, SPI_GRAPHICAL_TFT) && DISABLED(FORCE_SOFT_SPI)
+#if ENABLED(SPI_GRAPHICAL_TFT) && DISABLED(FORCE_SOFT_SPI)
 
 #include "../HAL.h"
 #include <U8glib.h>
@@ -232,5 +232,5 @@ uint8_t u8g_com_stm32duino_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
   return 1;
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // SPI_GRAPHICAL_TFT && !FORCE_SOFT_SPI
 #endif // STM32F1
