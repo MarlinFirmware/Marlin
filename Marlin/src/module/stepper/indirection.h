@@ -849,11 +849,12 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 
 #define  ENABLE_AXIS_Z() do{ ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
 
-#if ENABLED(DROPPING_NOZZLE)
-  #define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); current_position.z = Z_MIN_POS }while(0)
+#ifdef Z_ON_DEACTIVATE
+  #define Z_RESET() do{ current_position.z = Z_ON_DEACTIVATE; planner.sync_plan_position(); }while(0)
 #else
-  #define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); }while(0)
+  #define Z_RESET()
 #endif
+#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); Z_RESET(); }while(0)
 
 //
 // Extruder steppers enable / disable macros
