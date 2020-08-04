@@ -556,9 +556,8 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
 
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
   #if HAS_SPI_FLASH_COMPRESSION
-    if (currentFlashPage == 0) {
+    if (currentFlashPage == 0)
       SPIFlash.beginRead(addr);
-    }
     SPIFlash.readData(P_Rbuff, size);
     currentFlashPage++;
   #else
