@@ -20,11 +20,11 @@
  *
  */
 
-#include "SPIFlashStorage.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
+#include "SPIFlashStorage.h"
 
 #if HAS_SPI_FLASH_COMPRESSION
 
@@ -111,7 +111,7 @@
       }
       else if (count < 0) { // literal run
         count = static_cast<T>(-count);
-        // Copy validating if the output have enough space
+        // Copy, validating if the output have enough space
         for (i = 0; i < count && outputLength > i; i++)
           output[i] = input[i];
         outputFilled += i;
@@ -131,7 +131,8 @@
 
     return processedBytes;
   }
-#endif
+
+#endif // HAS_SPI_FLASH_COMPRESSION
 
 void SPIFlashStorage::beginWrite(uint32_t startAddress) {
   m_pageDataUsed = 0;
@@ -147,7 +148,7 @@ void SPIFlashStorage::beginWrite(uint32_t startAddress) {
 
 
 void SPIFlashStorage::endWrite() {
-  // flush remaining data
+  // Flush remaining data
   #if HAS_SPI_FLASH_COMPRESSION
     if (m_compressedDataUsed > 0) {
       flushPage();
@@ -161,7 +162,7 @@ void SPIFlashStorage::endWrite() {
 void SPIFlashStorage::savePage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferWrite(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
 
-  // test env
+  // Test env
   // char fname[256];
   // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
   // FILE *fp = fopen(fname, "wb");
@@ -172,7 +173,7 @@ void SPIFlashStorage::savePage(uint8_t* buffer) {
 void SPIFlashStorage::loadPage(uint8_t* buffer) {
   W25QXX.SPI_FLASH_BufferRead(buffer, m_startAddress + (SPI_FLASH_PageSize * m_currentPage), SPI_FLASH_PageSize);
 
-  // test env
+  // Test env
   // char fname[256];
   // memset(buffer, 0, SPI_FLASH_PageSize);
   // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
@@ -185,28 +186,28 @@ void SPIFlashStorage::loadPage(uint8_t* buffer) {
 
 void SPIFlashStorage::flushPage() {
   #if HAS_SPI_FLASH_COMPRESSION
-    // work com with compressed in memory
+    // Work com with compressed in memory
     uint32_t inputProcessed;
     uint32_t compressedSize = rle_compress<uint16_t>((uint16_t *)(m_compressedData + m_compressedDataUsed), m_compressedDataFree / 2, (uint16_t *)m_pageData, m_pageDataUsed / 2, inputProcessed) * 2;
     inputProcessed *= 2;
     m_compressedDataUsed += compressedSize;
     m_compressedDataFree -= compressedSize;
 
-    //left space in the compressed buffer?
+    // Space remaining in the compressed buffer?
     if (m_compressedDataFree > 0) {
-      //free the uncompressed buffer
+      // Free the uncompressed buffer
       m_pageDataUsed = 0;
       m_pageDataFree = SPI_FLASH_PageSize;
       return;
     }
 
-    // part of the m_pageData was compressed, so ajust the pointers, freeing what was processed, shift the buffer
-    // todo: to avoid this copy, we can use a circular buffer
+    // Part of the m_pageData was compressed, so ajust the pointers, freeing what was processed, shift the buffer
+    // TOFO: To avoid this copy use a circular buffer
     memmove(m_pageData, m_pageData + inputProcessed, m_pageDataUsed - inputProcessed);
     m_pageDataUsed -= inputProcessed;
     m_pageDataFree += inputProcessed;
 
-    // no? so flush page with compressed data!!
+    // No? so flush page with compressed data!!
     uint8_t * buffer = m_compressedData;
   #else
     uint8_t * buffer = m_pageData;
@@ -215,7 +216,7 @@ void SPIFlashStorage::flushPage() {
   savePage(buffer);
 
   #if HAS_SPI_FLASH_COMPRESSION
-    // restart the compressed buffer, keep the pointers of the uncompressed buffer
+    // Restart the compressed buffer, keep the pointers of the uncompressed buffer
     m_compressedDataFree = sizeof(m_compressedData);
     m_compressedDataUsed = 0;
   #elif
@@ -234,7 +235,7 @@ void SPIFlashStorage::readPage() {
       m_compressedDataUsed = 0;
     }
 
-    // need uncompress data
+    // Need to uncompress data
     if (m_pageDataFree == 0) {
       m_pageDataFree = SPI_FLASH_PageSize;
       m_pageDataUsed = 0;
@@ -279,7 +280,7 @@ void SPIFlashStorage::writeData(uint8_t* data, uint16_t size) {
   while (size > 0) {
     uint16_t written = inData(data, size);
     size -= written;
-    // need write more data? flush page and continue!
+    // Need to write more? Flush page and continue!
     if (size > 0) {
       flushPage();
       data += written;
@@ -290,7 +291,7 @@ void SPIFlashStorage::writeData(uint8_t* data, uint16_t size) {
 void SPIFlashStorage::beginRead(uint32_t startAddress) {
   m_startAddress = startAddress;
   m_currentPage = 0;
-  //we dont have nothing in memory now
+  // Nothing in memory now
   m_pageDataUsed = SPI_FLASH_PageSize;
   m_pageDataFree = 0;
   #if HAS_SPI_FLASH_COMPRESSION
@@ -300,7 +301,7 @@ void SPIFlashStorage::beginRead(uint32_t startAddress) {
 }
 
 uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size) {
-  // dont read more than we have
+  // Don't read more than we have
   if (size > m_pageDataFree)
     size = m_pageDataFree;
 
@@ -318,7 +319,7 @@ void SPIFlashStorage::readData(uint8_t* data, uint16_t size) {
   while (size > 0) {
     uint16_t read = outData(data, size);
     size -= read;
-    // need write more data? flush page and continue!
+    // Need to write more? Flush page and continue!
     if (size > 0) {
       readPage();
       data += read;
