@@ -212,30 +212,9 @@
   #endif
 #endif
 
-// LCD_FULL_PIXEL_WIDTH =
-// LCD_PIXEL_OFFSET_X + (LCD_PIXEL_WIDTH * 2) + LCD_PIXEL_OFFSET_X
-#if TFT_SCALED_DOGLCD
-  #ifndef LCD_FULL_PIXEL_WIDTH
-    #define LCD_FULL_PIXEL_WIDTH  320
-  #endif
-  #ifndef LCD_PIXEL_OFFSET_X
-    #define LCD_PIXEL_OFFSET_X     32
-  #endif
-  #ifndef LCD_FULL_PIXEL_HEIGHT
-    #define LCD_FULL_PIXEL_HEIGHT 240
-  #endif
-  #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y     32
-  #endif
-#endif
-
 // For selective rendering within a Y range
 #define PAGE_OVER(ya)         ((ya) <= u8g.getU8g()->current_page.y1) // Does the current page follow a region top?
 #define PAGE_UNDER(yb)        ((yb) >= u8g.getU8g()->current_page.y0) // Does the current page precede a region bottom?
 #define PAGE_CONTAINS(ya, yb) ((yb) >= u8g.getU8g()->current_page.y0 && (ya) <= u8g.getU8g()->current_page.y1) // Do two vertical regions overlap?
-
-#ifndef FSMC_UPSCALE
-  #define FSMC_UPSCALE 2
-#endif
 
 extern U8G_CLASS u8g;
