@@ -14,6 +14,10 @@ We must be able to understand your proposed change from this description. If we 
 
 <!-- What does this fix or improve? -->
 
+### Configurations
+
+<!-- Attach the Configuration.h/Configuration_adv.h/platformio.ini needed to compile/test your Pull Request -->
+
 ### Related Issues
 
 <!-- Whether this fixes a bug or fulfills a feature request, please list any related Issues here. -->
