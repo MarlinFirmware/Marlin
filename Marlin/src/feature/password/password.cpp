@@ -20,15 +20,15 @@
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(PASSWORD_FEATURE)
 
 #include "password.h"
-#include "../gcode/gcode.h"
-#include "../core/serial.h"
+#include "../../gcode/gcode.h"
+#include "../../core/serial.h"
 #if HAS_LCD_MENU
-  #include "../lcd/menu/menu.h"
+  #include "../../lcd/menu/menu.h"
 #endif
 
 extern void menu_advanced_settings();
@@ -44,9 +44,9 @@ uint32_t     Password::value, Password::value_entry;
   // private:
   char         Password::string[PASSWORD_LENGTH + 1];
   uint8_t      Password::digit, Password::digit_no;
-  screenFunc_t Password::return_fn,
-               Password::success_fn,
-               Password::fail_fn;
+  returnFunc_t Password::return_fn;
+  screenFunc_t Password::success_screen,
+               Password::fail_screen;
   uint32_t     Password::multiplier;
 
   void Password::authenticate_user() {
@@ -57,34 +57,34 @@ uint32_t     Password::value, Password::value_entry;
       ui.update();
     }
     else {
-      ui.goto_screen(success_fn);
+      ui.goto_screen(success_screen);
       is_locked = false;
     }
   }
 
   void Password::authenticate_user_return() {
     if (value_entry == value) {
-      ui.goto_screen(success_fn);
+      ui.goto_screen(success_screen);
       is_locked = false;
     }
     else {
       ui.buzz(200, 600);
-      ui.goto_screen(fail_fn);
+      ui.goto_screen(fail_screen);
       SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
     }
   }
 
   #if ENABLED(PASSWORD_ON_SD_PRINT_MENU)
     void Password::menu_media() {
-      success_fn = menu_media;
-      fail_fn = menu_main;
+      success_screen = menu_media;
+      fail_screen = menu_main;
       authenticate_user();
     }
   #endif
 
   void Password::access_menu_password() {
-    success_fn = menu_password;
-    fail_fn = menu_advanced_settings;
+    success_screen = menu_password;
+    fail_screen = menu_advanced_settings;
     authenticate_user();
   }
 
@@ -182,68 +182,10 @@ uint32_t     Password::value, Password::value_entry;
 void Password::authenticate_user_persistent() {
   is_locked = true;
   #if HAS_LCD_MENU
-    success_fn = ui.status_screen;
-    fail_fn = screen_password_entry;
+    success_screen = ui.status_screen;
+    fail_screen = screen_password_entry;
     authenticate_user();
   #endif
 }
-
-//
-// M510: Lock Printer
-//
-void GcodeSuite::M510() { password.authenticate_user_persistent(); }
-
-//
-// M511: Unlock Printer
-//
-#if ENABLED(PASSWORD_UNLOCK_GCODE)
-
-  void GcodeSuite::M511() {
-    if(password.is_locked) {
-      password.value_entry = parser.ulongval('P');
-      #if HAS_LCD_MENU
-        password.authenticate_user_return();
-      #else
-        if (password.value_entry == password.value)
-          password.is_locked = false;
-        else
-          SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
-      #endif
-    }
-
-  }
-
-#endif // PASSWORD_UNLOCK_GCODE
-
-//
-// M512: Set/Change/Remove Password
-//
-#if ENABLED(PASSWORD_CHANGE_GCODE)
-
-  void GcodeSuite::M512() {
-    if (password.is_set && parser.ulongval('P') != password.value) {
-      SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
-      return;
-     }
-
-    if (parser.seenval('N')) {
-      password.value_entry = parser.ulongval('N');
-
-      if (password.value_entry < CAT(1e, PASSWORD_LENGTH)) {
-        password.is_set = true;
-        password.value = password.value_entry;
-        SERIAL_ECHOLNPAIR(STR_PASSWORD_SET, password.value); // TODO: Update password.string
-      }
-      else
-        SERIAL_ECHOLNPGM(STR_PASSWORD_TOO_LONG);
-    }
-    else {
-      password.is_set = false;
-      SERIAL_ECHOLNPGM(STR_PASSWORD_REMOVED);
-    }
-    SERIAL_ECHOLNPGM(STR_REMINDER_SAVE_SETTINGS);
-  }
-
-#endif // PASSWORD_CHANGE_GCODE
 
 #endif // PASSWORD_FEATURE

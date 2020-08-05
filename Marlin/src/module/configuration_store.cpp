@@ -141,7 +141,7 @@
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
-  #include "../feature/password.h"
+  #include "../feature/password/password.h"
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -418,7 +418,7 @@ typedef struct SettingsDataStruct {
     bool password_is_set;
     uint32_t password_value;
   #endif
-  
+
   //
   // TOUCH_SCREEN_CALIBRATION
   //
@@ -2214,7 +2214,7 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(password.value);
       #endif
 
-      //  
+      //
       // TOUCH_SCREEN_CALIBRATION
       //
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)

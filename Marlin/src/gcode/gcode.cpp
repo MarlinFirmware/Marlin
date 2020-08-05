@@ -58,7 +58,7 @@ GcodeSuite gcode;
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
-  #include "../feature/password.h"
+  #include "../feature/password/password.h"
 #endif
 
 #include "../MarlinCore.h" // for idle()
@@ -899,7 +899,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         case 995: M995(); break;                                  // M995: Touch screen calibration for TFT display
       #endif
-      
+
       #if ENABLED(PLATFORM_M997_SUPPORT)
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif

@@ -51,7 +51,7 @@
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
-  #include "../../feature/password.h"
+  #include "../../feature/password/password.h"
 #endif
 
 void menu_tune();

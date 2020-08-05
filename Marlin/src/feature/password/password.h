@@ -21,14 +21,17 @@
  */
 #pragma once
 
-#include "../lcd/ultralcd.h"
+#include "../../lcd/ultralcd.h"
+
+typedef void (*returnFunc_t)();
 
 class Password {
 private:
   #if HAS_LCD_MENU
     static char string[INCREMENT(PASSWORD_LENGTH)];
     static uint8_t digit, digit_no;
-    static screenFunc_t return_fn, success_fn, fail_fn;
+    static returnFunc_t return_fn;
+    static screenFunc_t success_screen, fail_screen;
     static uint32_t multiplier;
   #endif
 
