@@ -858,7 +858,7 @@ private:
   TERN_(MAGNETIC_PARKING_EXTRUDER, static void M951());
 
   TERN_(TOUCH_SCREEN_CALIBRATION, static void M995());
-  
+
   TERN_(PLATFORM_M997_SUPPORT, static void M997());
 
   static void M999();
