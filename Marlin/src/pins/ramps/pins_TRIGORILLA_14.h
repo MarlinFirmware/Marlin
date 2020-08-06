@@ -65,7 +65,7 @@
   // EFB (Anycubic Kossel default)
   #define RAMPS_D9_PIN               TG_FAN0_PIN
   #if ENABLED(ANYCUBIC_CHIRON)
-    #define RAMPS_D8_PIN         TG_HEATER_1_PIN // Heated bed is connected to HEATER1 output
+    #define RAMPS_D8_PIN         TG_HEATER_1_PIN  // Heated bed is connected to HEATER1 output
   #else
     #define RAMPS_D8_PIN       TG_HEATER_BED_PIN
   #endif
