@@ -6,14 +6,26 @@ import subprocess
 import os
 import re
 try:
-    import configparser
+	import configparser
 except ImportError:
-    import ConfigParser as configparser
+	import ConfigParser as configparser
 from platformio.managers.package import PackageManager
 
 Import("env")
 
 FEATURE_CONFIG = {}
+
+def add_to_feat_cnf(feature, flines):
+	feat = FEATURE_CONFIG[feature]
+	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
+	for dep in atoms:
+		parts = dep.split('=')
+		name = parts.pop(0)
+		rest = '='.join(parts)
+		if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
+			feat[name] = rest
+		else:
+			feat['lib_deps'] += [dep]
 
 def load_config():
 	config = configparser.ConfigParser()
@@ -23,16 +35,19 @@ def load_config():
 		feature = key[0].upper()
 		if not feature in FEATURE_CONFIG:
 			FEATURE_CONFIG[feature] = { 'lib_deps': [] }
-		feat = FEATURE_CONFIG[feature]
-		atoms = re.sub(',\\s*', '\n', key[1]).strip().split('\n')
-		for dep in atoms:
-			parts = dep.split('=')
-			name = parts.pop(0)
-			rest = '='.join(parts)
-			if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
-				feat[name] = rest
-			else:
-				feat['lib_deps'] += [dep]
+		add_to_feat_cnf(feature, key[1])
+
+	# Add options matching marlin.MY_OPTION to the pile
+	all_opts = env.GetProjectOptions()
+	for n in all_opts:
+		mat = re.match(r'marlin\.(.+)', n[0])
+		if mat:
+			try:
+				val = env.GetProjectOption(n[0])
+			except:
+				val = None
+			if val:
+				add_to_feat_cnf(mat.group(1).upper(), val)
 
 def get_all_known_libs():
 	known_libs = []
