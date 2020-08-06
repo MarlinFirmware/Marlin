@@ -510,9 +510,8 @@ uint8_t public_buf[512];
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
       SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
+      SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
     #endif
-
-    SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
   }
 
   #if HAS_SPI_FLASH_FONT
