@@ -241,9 +241,9 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
 
   // Set pin modes
   #if ENABLED(ZONESTAR_12864OLED)
-    if(chipSelectPin_ != DOGLCD_CS){
-	    SET_OUTPUT(DOGLCD_CS);
-  	  WRITE(DOGLCD_CS, HIGH);
+    if (chipSelectPin_ != DOGLCD_CS) {
+      SET_OUTPUT(DOGLCD_CS);
+      WRITE(DOGLCD_CS, HIGH);
     }
   #else
     extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first

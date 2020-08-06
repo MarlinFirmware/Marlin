@@ -159,45 +159,49 @@
   #define U8G_CLASS U8GLIB_SSD1309_128X64
   #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
 
+#elif ENABLED(ZONESTAR_12864OLED)
+
+  // Zonestar SSD1306 OLED SPI LCD
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1306_128X64_2X                   // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SH1306_128X64                      // 8 stripes
+  #endif
+
+#elif ENABLED(ZONESTAR_12864OLED)
+
+  // Zonestar SH1106 OLED SPI LCD
+
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
+  #endif
+
 #elif ENABLED(U8GLIB_SSD1306)
 
-  #if ENABLED(ZONESTAR_12864OLED)
-    // Generic SSD1306 OLED SPI LCD
-    #define FORCE_SOFT_SPI                                      // SW-SPI
-    #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SH1306_128X64_2X                 // 4 stripes
-    #else
-      #define U8G_CLASS U8GLIB_SH1306_128X64                    // 8 stripes
-    #endif
+  // Generic SSD1306 OLED I2C LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // 4 stripes
   #else
-    // Generic SSD1306 OLED I2C LCD
-    #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE     // 4 stripes
-    #else
-      #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                // 4 stripes
-    #endif
-    #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
   #endif
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
 
 #elif ENABLED(U8GLIB_SH1106)
 
-  #if ENABLED(ZONESTAR_12864OLED)
-    // Generic SH1106 OLED SPI LCD
-    #define FORCE_SOFT_SPI                                      // SW-SPI
-    #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SH1106_128X64_2X                 // 4 stripes
-    #else
-      #define U8G_CLASS U8GLIB_SH1106_128X64                    // 8 stripes
-    #endif
+  // Generic SH1106 OLED I2C LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE        // 4 stripes
   #else
-    // Generic SH1106 OLED I2C LCD
-    #if ENABLED(ALTERNATIVE_LCD)
-      #define U8G_CLASS U8GLIB_SH1106_128X64_2X_I2C_2_WIRE      // 4 stripes
-    #else
-      #define U8G_CLASS U8GLIB_SH1106_128X64_2X                 // 4 stripes
-    #endif
-    #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)     // I2C
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
   #endif
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
 
 #elif TFT_SCALED_DOGLCD
 

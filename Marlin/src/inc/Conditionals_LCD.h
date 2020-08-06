@@ -63,16 +63,14 @@
   #define ENCODER_FEEDRATE_DEADZONE 2
 
 #elif ENABLED(ZONESTAR_12864LCD)
-    //LCD drive chip defined
-	#define DOGLCD      // Full graphics display
-    #define U8GLIB_ST7920
-	//Contol panel
-    #define IS_RRD_SC
-
-#elif ENABLED(ZONESTAR_12864OLED)  
+	#define DOGLCD
+  #define U8GLIB_ST7920
   #define IS_RRD_SC
-  //#define IS_U8GLIB_SSD1306	//for 0.96 INCH OLED
-  #define U8GLIB_SH1106			//for 1.3 INCH OLED
+
+#elif ENABLED(ZONESTAR_12864OLED)
+  #define IS_RRD_SC
+  //#define IS_U8GLIB_SSD1306	// for 0.96 INCH OLED
+  #define U8GLIB_SH1106			  // for 1.3 INCH OLED
 
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL
