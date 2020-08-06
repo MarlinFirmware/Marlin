@@ -16,7 +16,7 @@ We must be able to understand your proposed change from this description. If we 
 
 ### Configurations
 
-<!-- Attach the Configuration.h/Configuration_adv.h/platformio.ini needed to compile/test your Pull Request -->
+<!-- Attach any Configuration.h, Configuration_adv.h, or platformio.ini files needed to compile/test your Pull Request. -->
 
 ### Related Issues
 
