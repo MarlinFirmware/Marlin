@@ -34,7 +34,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+#if NEED_LSF
 
 #include "least_squares_fit.h"
 
@@ -67,4 +67,4 @@ int finish_incremental_LSF(struct linear_fit_data *lsf) {
   return 0;
 }
 
-#endif // AUTO_BED_LEVELING_UBL || ENABLED(AUTO_BED_LEVELING_LINEAR)
+#endif // NEED_LSF
