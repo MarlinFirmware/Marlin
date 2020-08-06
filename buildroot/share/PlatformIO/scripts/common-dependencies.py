@@ -37,10 +37,10 @@ def load_config():
 			FEATURE_CONFIG[feature] = { 'lib_deps': [] }
 		add_to_feat_cnf(feature, key[1])
 
-	# Add options matching marlin.MY_OPTION to the pile
+	# Add options matching custom_marlin.MY_OPTION to the pile
 	all_opts = env.GetProjectOptions()
 	for n in all_opts:
-		mat = re.match(r'marlin\.(.+)', n[0])
+		mat = re.match(r'custom_marlin\.(.+)', n[0])
 		if mat:
 			try:
 				val = env.GetProjectOption(n[0])
