@@ -31,7 +31,7 @@
 #include "mks_hardware_test.h"
 
 #include "SPIFlashStorage.h"
-#include "W25Qxx.h"
+#include "../../../../libs/W25Qxx.h"
 
 #include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
