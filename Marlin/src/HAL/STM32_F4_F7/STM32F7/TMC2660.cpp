@@ -40,7 +40,7 @@
 #include "../../../module/stepper/indirection.h"
 #include "../../../module/printcounter.h"
 #include "../../../libs/duration_t.h"
-#include "../../../libs/hex_print_routines.h"
+#include "../../../libs/hex_print.h"
 
 //some default values used in initialization
 #define DEFAULT_MICROSTEPPING_VALUE 32

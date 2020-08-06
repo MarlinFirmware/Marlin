@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 #include "../queue.h"
-#include "../../libs/hex_print_routines.h"
+#include "../../libs/hex_print.h"
 
 #include "../../MarlinCore.h" // for idle()
 
