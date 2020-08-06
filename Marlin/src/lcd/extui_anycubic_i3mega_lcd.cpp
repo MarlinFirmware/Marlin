@@ -21,14 +21,14 @@
  */
 
 /**
- * extui_anycubic_tft.cpp
+ * extui_anycubic_i3mega_lcd.cpp
  */
 
 #include "../inc/MarlinConfigPre.h"
 
-#if BOTH(ANYCUBIC_TFT_MODEL, EXTENSIBLE_UI)
+#if ENABLED(ANYCUBIC_LCD_I3MEGA)
 
-#include "extui/lib/anycubic/anycubic_tft.h"
+#include "extui/lib/anycubic_i3mega/anycubic_i3mega_lcd.h"
 #include "extui/ui_api.h"
 
 #include <Arduino.h>    // for the ::tone() call
@@ -101,4 +101,4 @@ namespace ExtUI {
   #endif
 }
 
-#endif // ANYCUBIC_TFT_MODEL && EXTENSIBLE_UI
+#endif // ANYCUBIC_LCD_I3MEGA
