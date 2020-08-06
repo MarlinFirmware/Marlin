@@ -43,7 +43,7 @@ static void lcd_cancel_object_confirm() {
   };
   MenuItem_confirm::confirm_screen(
     []{
-      cancelable.cancel_object(MenuItemBase::itemIndex - 1);
+      cancelable.cancel_object(MenuItemBase::itemIndex);
       ui.completion_feedback();
       ui.goto_previous_screen();
     },
