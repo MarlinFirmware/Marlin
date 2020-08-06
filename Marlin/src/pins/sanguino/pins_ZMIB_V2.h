@@ -176,7 +176,9 @@
  *==================================================*/
 
 #if ENABLED(ZONESTAR_12864LCD)
-
+  //
+  // LCD 128x64
+  //
   #define LCDSCREEN_NAME  "ZONESTAR_12864LCD"
   #define FORCE_SOFT_SPI
   //#define LCD_SDSS                          11
@@ -193,8 +195,7 @@
   #define ST7920_DELAY_2             DELAY_2_NOP
   #define ST7920_DELAY_3             DELAY_2_NOP
 
-#elif ENABLED(ZONESTAR_12864OLED)
-
+#elif EITHER(ZONESTAR_12864OLED, ZONESTAR_12864OLED_SSD1306)
   //
   // OLED 128x64
   //
@@ -219,13 +220,15 @@
     #define DOGLCD_SCK               AVR_SCK_PIN  // SCK
   #endif
 
-#elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#endif
 
-  // Encoder
+//
+// All the above are also RRDSC with rotary encoder
+//
+#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
   #define BTN_EN1                              2
   #define BTN_EN2                             12
   #define BTN_ENC                             29
   #define BEEPER_PIN                          -1
   #define KILL_PIN                            -1
-
 #endif

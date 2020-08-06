@@ -46,6 +46,7 @@
 #elif ENABLED(U8GLIB_ST7920)
 
   // RepRap Discount Full Graphics Smart Controller
+  // and other variant LCDs using ST7920
 
   #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
@@ -91,45 +92,9 @@
     #define FORCE_SOFT_SPI                                      // SW-SPI
   #endif
 
-#elif ENABLED(MKS_12864OLED_SSD1306)
+#elif ANY(FYSETC_MINI_12864, MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-  // MKS 128x64 (SSD1306) OLED I2C LCD
-
-  #define FORCE_SOFT_SPI                                        // SW-SPI
-
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
-  #endif
-
-#elif ENABLED(MKS_12864OLED)
-
-  // MKS 128x64 (SH1106) OLED I2C LCD
-  #define FORCE_SOFT_SPI                                        // SW-SPI
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
-  #endif
-
-#elif ENABLED(FYSETC_242_OLED_12864)
-
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
-  #define FORCE_SOFT_SPI                                        // SW-SPI
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
-  #endif
-
-#elif ENABLED(FYSETC_MINI_12864)
-
-  // The FYSETC Mini 12864 display
-
-  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
-
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  // The FYSETC Mini 12864 display                              // "4 stripes"
 
   // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
   // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
@@ -145,21 +110,21 @@
     #define U8G_CLASS U8GLIB_MINI12864_2X                       // 8 stripes (HW-SPI)
   #endif
 
-#elif ENABLED(U8GLIB_SH1106_EINSTART)
+#elif EITHER(MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864)
 
-  // Connected via motherboard header
+  // MKS 128x64 (SSD1306) OLED I2C LCD
+  // - or -
+  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
 
-  #define U8G_CLASS U8GLIB_SH1106_128X64
-  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
+  #define FORCE_SOFT_SPI                                        // SW-SPI
 
-#elif ENABLED(U8GLIB_SSD1309)
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+  #endif
 
-  // Generic support for SSD1309 OLED I2C LCDs
-
-  #define U8G_CLASS U8GLIB_SSD1309_128X64
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
-
-#elif ENABLED(ZONESTAR_12864OLED)
+#elif ENABLED(ZONESTAR_12864OLED_SSD1306)
 
   // Zonestar SSD1306 OLED SPI LCD
 
@@ -170,8 +135,10 @@
     #define U8G_CLASS U8GLIB_SH1306_128X64                      // 8 stripes
   #endif
 
-#elif ENABLED(ZONESTAR_12864OLED)
+#elif EITHER(MKS_12864OLED, ZONESTAR_12864OLED)
 
+  // MKS 128x64 (SH1106) OLED I2C LCD
+  // - or -
   // Zonestar SH1106 OLED SPI LCD
 
   #define FORCE_SOFT_SPI                                        // SW-SPI
@@ -181,16 +148,12 @@
     #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
   #endif
 
-#elif ENABLED(U8GLIB_SSD1306)
+#elif ENABLED(U8GLIB_SH1106_EINSTART)
 
-  // Generic SSD1306 OLED I2C LCD
+  // Connected via motherboard header
 
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
-  #endif
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
+  #define U8G_CLASS U8GLIB_SH1106_128X64
+  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
 
 #elif ENABLED(U8GLIB_SH1106)
 
@@ -202,6 +165,24 @@
     #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
   #endif
   #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
+
+#elif ENABLED(U8GLIB_SSD1309)
+
+  // Generic support for SSD1309 OLED I2C LCDs
+
+  #define U8G_CLASS U8GLIB_SSD1309_128X64
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
+
+#elif ENABLED(U8GLIB_SSD1306)
+
+  // Generic SSD1306 OLED I2C LCD
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X_I2C_2_WIRE       // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #endif
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)
 
 #elif TFT_SCALED_DOGLCD
 

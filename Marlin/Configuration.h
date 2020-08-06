@@ -2098,6 +2098,13 @@
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 //
+// Zonestar OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
+//
+//#define ZONESTAR_12864LCD
+//#define ZONESTAR_12864OLED          // Uses the SH1106 controller (default)
+//#define ZONESTAR_12864OLED_SSD1306  // Uses the SSD1306 controller
+
+//
 // Einstart S OLED SSD1306
 //
 //#define U8GLIB_SH1106_EINSTART
