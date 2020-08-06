@@ -515,6 +515,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
+#elif defined(ANYCUBIC_TFT_MODEL)
+  #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #endif
 
 #ifdef FIL_RUNOUT_INVERTING
@@ -819,7 +821,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #if !HAS_RESUME_CONTINUE
-    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller or EMERGENCY_PARSER."
+    #error "ADVANCED_PAUSE_FEATURE requires a supported LCD controller (or EMERGENCY_PARSER)."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
     #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE."
   #elif !defined(FILAMENT_UNLOAD_PURGE_FEEDRATE)
@@ -2073,6 +2075,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * G35 Assisted Tramming
+ */
+#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
+  #error "ASSISTED_TRAMMING requires a bed probe."
+#endif
+
+/**
  * G38 Probe Target
  */
 #if ENABLED(G38_PROBE_TARGET)
@@ -2230,7 +2239,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_320x240_SPI) \
   + ENABLED(FSMC_GRAPHICAL_TFT) \
   + ENABLED(TFT_LVGL_UI_FSMC) \
-  + ENABLED(TFT_LVGL_UI_SPI)
+  + ENABLED(TFT_LVGL_UI_SPI) \
+  + ENABLED(ANYCUBIC_LCD_I3MEGA) \
+  + ENABLED(ANYCUBIC_LCD_CHIRON)
   #error "Please select no more than one LCD controller option."
 #endif
 

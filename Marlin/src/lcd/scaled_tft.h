@@ -19,18 +19,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
-#if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+#ifndef FSMC_UPSCALE
+  #define FSMC_UPSCALE 2
+#endif
 
-#include "menu.h"
-#include "../ultralcd.h"
+#ifndef LCD_FULL_PIXEL_WIDTH
+  #if FSMC_UPSCALE == 3
+    #define LCD_FULL_PIXEL_WIDTH 480
+  #else
+    #define LCD_FULL_PIXEL_WIDTH 320
+  #endif
+#endif
+#ifndef LCD_FULL_PIXEL_HEIGHT
+  #if FSMC_UPSCALE == 3
+    #define LCD_FULL_PIXEL_HEIGHT 320
+  #else
+    #define LCD_FULL_PIXEL_HEIGHT 240
+  #endif
+#endif
 
-void touch_screen_calibration() {
-
-  ui.touch_calibration();
-
-}
-
-#endif // TOUCH_SCREEN_CALIBRATION
+#ifndef LCD_PIXEL_OFFSET_X
+  #define LCD_PIXEL_OFFSET_X 48
+#endif
+#ifndef LCD_PIXEL_OFFSET_Y
+  #define LCD_PIXEL_OFFSET_Y 48
+#endif

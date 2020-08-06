@@ -112,10 +112,6 @@
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
   #define FSMC_UPSCALE 3
-  #define LCD_FULL_PIXEL_WIDTH               480
-  #define LCD_PIXEL_OFFSET_X                  48
-  #define LCD_FULL_PIXEL_HEIGHT              320
-  #define LCD_PIXEL_OFFSET_Y                  48
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -154,14 +150,14 @@
 #define SPI_FLASH_SIZE 0x200000                   // 2MB
 
 #if HAS_TFT_LVGL_UI
-  #define HAS_SPI_FLASH_FONT 0
+  #define HAS_SPI_FLASH_FONT 1
   #define HAS_GCODE_PREVIEW 1
   #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
-  #define HAS_LANG_SELECT_SCREEN 0
+  #define HAS_LANG_SELECT_SCREEN 1
   #define HAS_BAK_VIEW_IN_FLASH 0
   #define HAS_LOGO_IN_FLASH 0
 
-  //SPI 2
+  // SPI 2
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
@@ -171,31 +167,32 @@
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
-  // #define TOUCH_INT_PIN                   PB6
+  //#define TOUCH_INT_PIN                   PB6
 
-  #define SPI_TFT_CS_PIN            TOUCH_CS_PIN
-  #define SPI_TFT_SCK_PIN          TOUCH_SCK_PIN
-  #define SPI_TFT_MISO_PIN        TOUCH_MISO_PIN
-  #define SPI_TFT_MOSI_PIN        TOUCH_MOSI_PIN
-  #define SPI_TFT_DC_PIN                    PB6
-  #define SPI_TFT_RST_PIN                   PF11
+  #if ENABLED(TFT_LVGL_UI_SPI)
+    #define SPI_TFT_CS_PIN          TOUCH_CS_PIN
+    #define SPI_TFT_SCK_PIN        TOUCH_SCK_PIN
+    #define SPI_TFT_MISO_PIN      TOUCH_MISO_PIN
+    #define SPI_TFT_MOSI_PIN      TOUCH_MOSI_PIN
+    #define SPI_TFT_DC_PIN                  PB6
+    #define SPI_TFT_RST_PIN                 PF11
+  #endif
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define LCD_FULL_PIXEL_WIDTH 480
-  #define LCD_PIXEL_OFFSET_X 48
-  #define LCD_FULL_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_OFFSET_Y 48
-
-  #define LCD_PIXEL_HEIGHT 320
-  #define LCD_PIXEL_WIDTH 480
+  #define LCD_PIXEL_WIDTH       480
+  #define LCD_PIXEL_HEIGHT      320
+  #define LCD_FULL_PIXEL_WIDTH  LCD_PIXEL_WIDTH
+  #define LCD_FULL_PIXEL_HEIGHT LCD_PIXEL_HEIGHT
+  #define LCD_PIXEL_OFFSET_X     48
+  #define LCD_PIXEL_OFFSET_Y     48
 
   #define XPT2046_X_CALIBRATION  -12316
   #define XPT2046_Y_CALIBRATION   8981
