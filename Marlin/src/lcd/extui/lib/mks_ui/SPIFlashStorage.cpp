@@ -24,12 +24,13 @@
 
 #if HAS_TFT_LVGL_UI
 
+#include "../../../../inc/MarlinConfig.h"
 #include "SPIFlashStorage.h"
 
-uint8_t SPIFlashStorage::::m_pageData[SPI_FLASH_PageSize];
-uint32_t SPIFlashStorage::::m_currentPage;
-uint16_t SPIFlashStorage::::m_pageDataUsed;
-uint32_t SPIFlashStorage::::m_startAddress;
+uint8_t SPIFlashStorage::m_pageData[SPI_FLASH_PageSize];
+uint32_t SPIFlashStorage::m_currentPage;
+uint16_t SPIFlashStorage::m_pageDataUsed;
+uint32_t SPIFlashStorage::m_startAddress;
 
 #if HAS_SPI_FLASH_COMPRESSION
 
@@ -291,7 +292,7 @@ void SPIFlashStorage::beginRead(uint32_t startAddress) {
 
 uint16_t SPIFlashStorage::outData(uint8_t* data, uint16_t size) {
   // Don't read more than we have
-  NOMORE(size > pageDataFree());
+  NOMORE(size, pageDataFree());
   memcpy(data, m_pageData + m_pageDataUsed, size);
   m_pageDataUsed += size;
   return size;

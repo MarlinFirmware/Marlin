@@ -79,7 +79,7 @@ public:
   static void endWrite();
   static void writeData(uint8_t* data, uint16_t size);
 
-  static // Read operation
+  // Read operation
   static void beginRead(uint32_t startAddress);
   static void readData(uint8_t* data, uint16_t size);
 
