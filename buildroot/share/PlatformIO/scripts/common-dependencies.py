@@ -6,41 +6,56 @@ import subprocess
 import os
 import re
 try:
-    import configparser
+	import configparser
 except ImportError:
-    import ConfigParser as configparser
+	import ConfigParser as configparser
 from platformio.managers.package import PackageManager
 
 Import("env")
 
-FEATURE_DEPENDENCIES = {}
+FEATURE_CONFIG = {}
+
+def add_to_feat_cnf(feature, flines):
+	feat = FEATURE_CONFIG[feature]
+	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
+	for dep in atoms:
+		parts = dep.split('=')
+		name = parts.pop(0)
+		rest = '='.join(parts)
+		if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
+			feat[name] = rest
+		else:
+			feat['lib_deps'] += [dep]
 
 def load_config():
 	config = configparser.ConfigParser()
 	config.read("platformio.ini")
 	items = config.items('features')
 	for key in items:
-		ukey = key[0].upper()
-		if not ukey in FEATURE_DEPENDENCIES:
-			FEATURE_DEPENDENCIES[ukey] = {
-				'lib_deps': []
-			}
-		deps = re.sub(',\\s*', '\n', key[1]).strip().split('\n')
-		for dep in deps:
-			parts = dep.split('=')
-			name = parts.pop(0)
-			rest = '='.join(parts)
-			if name in ['extra_scripts', 'src_filter', 'lib_ignore']:
-				FEATURE_DEPENDENCIES[ukey][name] = rest
-			else:
-				FEATURE_DEPENDENCIES[ukey]['lib_deps'] += [dep]
+		feature = key[0].upper()
+		if not feature in FEATURE_CONFIG:
+			FEATURE_CONFIG[feature] = { 'lib_deps': [] }
+		add_to_feat_cnf(feature, key[1])
+
+	# Add options matching marlin.MY_OPTION to the pile
+	all_opts = env.GetProjectOptions()
+	for n in all_opts:
+		mat = re.match(r'marlin\.(.+)', n[0])
+		if mat:
+			try:
+				val = env.GetProjectOption(n[0])
+			except:
+				val = None
+			if val:
+				add_to_feat_cnf(mat.group(1).upper(), val)
 
 def get_all_known_libs():
 	known_libs = []
-	for feature in FEATURE_DEPENDENCIES:
-		if not 'lib_deps' in FEATURE_DEPENDENCIES[feature]:
+	for feature in FEATURE_CONFIG:
+		feat = FEATURE_CONFIG[feature]
+		if not 'lib_deps' in feat:
 			continue
-		for dep in FEATURE_DEPENDENCIES[feature]['lib_deps']:
+		for dep in feat['lib_deps']:
 			name, _, _ = PackageManager.parse_pkg_uri(dep)
 			known_libs.append(name)
 	return known_libs
@@ -64,21 +79,23 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption('lib_ignore') + diff
-	print("Ignoring libs:", lib_ignore)
+	print("Ignore libraries:", lib_ignore)
 	set_env_field('lib_ignore', lib_ignore)
 
-def install_features_dependencies():
+def apply_features_config():
 	load_config()
-	for feature in FEATURE_DEPENDENCIES:
+	for feature in FEATURE_CONFIG:
 		if not env.MarlinFeatureIsEnabled(feature):
 			continue
 
-		if 'lib_deps' in FEATURE_DEPENDENCIES[feature]:
+		feat = FEATURE_CONFIG[feature]
+
+		if 'lib_deps' in feat and len(feat['lib_deps']):
 			print("Adding lib_deps for %s... " % feature)
 
-			# deps to add
+			# feat to add
 			deps_to_add = {}
-			for dep in FEATURE_DEPENDENCIES[feature]['lib_deps']:
+			for dep in feat['lib_deps']:
 				name, _, _ = PackageManager.parse_pkg_uri(dep)
 				deps_to_add[name] = dep
 
@@ -101,27 +118,27 @@ def install_features_dependencies():
 				# Only add the missing dependencies
 				set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
-		if 'extra_scripts' in FEATURE_DEPENDENCIES[feature]:
-			print("Executing extra_scripts for %s... " % feature)
-			env.SConscript(FEATURE_DEPENDENCIES[feature]['extra_scripts'], exports="env")
+		if 'extra_scripts' in feat:
+			print("Running extra_scripts for %s... " % feature)
+			env.SConscript(feat['extra_scripts'], exports="env")
 
-		if 'src_filter' in FEATURE_DEPENDENCIES[feature]:
+		if 'src_filter' in feat:
 			print("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
-			my_srcs = re.findall( r'[+-](<.*?>)', FEATURE_DEPENDENCIES[feature]['src_filter'])
+			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
 			cur_srcs = re.findall( r'[+-](<.*?>)', src_filter)
 			for d in my_srcs:
 				if d in cur_srcs:
 					src_filter = re.sub(r'[+-]' + d, '', src_filter)
 
-			src_filter = FEATURE_DEPENDENCIES[feature]['src_filter'] + ' ' + src_filter
+			src_filter = feat['src_filter'] + ' ' + src_filter
 			set_env_field('src_filter', [src_filter])
 			env.Replace(SRC_FILTER=src_filter)
 
-		if 'lib_ignore' in FEATURE_DEPENDENCIES[feature]:
-			print("Ignoring libs for %s... " % feature)
-			lib_ignore = env.GetProjectOption('lib_ignore') + [FEATURE_DEPENDENCIES[feature]['lib_ignore']]
+		if 'lib_ignore' in feat:
+			print("Adding lib_ignore for %s... " % feature)
+			lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
 			set_env_field('lib_ignore', lib_ignore)
 
 #
@@ -170,7 +187,7 @@ def search_compiler():
 # Use the compiler to get a list of all enabled features
 #
 def load_marlin_features():
-	if "MARLIN_FEATURES" in env:
+	if 'MARLIN_FEATURES' in env:
 		return
 
 	# Process defines
@@ -199,16 +216,27 @@ def load_marlin_features():
 		feature = define[8:].strip().decode().split(' ')
 		feature, definition = feature[0], ' '.join(feature[1:])
 		marlin_features[feature] = definition
-	env["MARLIN_FEATURES"] = marlin_features
+	env['MARLIN_FEATURES'] = marlin_features
 
 #
 # Return True if a matching feature is enabled
 #
 def MarlinFeatureIsEnabled(env, feature):
 	load_marlin_features()
-	r = re.compile(feature)
-	matches = list(filter(r.match, env["MARLIN_FEATURES"]))
-	return len(matches) > 0
+	r = re.compile('^' + feature + '$')
+	found = list(filter(r.match, env['MARLIN_FEATURES']))
+
+	# Defines could still be 'false' or '0', so check
+	some_on = False
+	if len(found):
+		for f in found:
+			val = env['MARLIN_FEATURES'][f]
+			if val in [ '', '1', 'true' ]:
+				some_on = True
+			elif val in env['MARLIN_FEATURES']:
+				some_on = env.MarlinFeatureIsEnabled(val)
+
+	return some_on
 
 #
 # Add a method for other PIO scripts to query enabled features
@@ -218,5 +246,5 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 # Add dependencies for enabled Marlin features
 #
-install_features_dependencies()
+apply_features_config()
 force_ignore_unused_libs()
