@@ -137,7 +137,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 4:  GOTO_SCREEN(MoveAxisScreen);                             break;
     case 5:  injectCommands_P(PSTR("M84"));                           break;
     case 6:  GOTO_SCREEN(TemperatureScreen);                          break;
-    #if BOTH(TOUCH_UI_COCOA_PRESS, HAS_CASE_LIGHT)
+    #if BOTH(TOUCH_UI_COCOA_PRESS, CASE_LIGHT_ENABLE)
     case 7:  GOTO_SCREEN(CaseLightScreen);                            break;
     #else
     case 7:  GOTO_SCREEN(ChangeFilamentScreen);                       break;

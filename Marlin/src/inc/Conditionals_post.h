@@ -1944,9 +1944,6 @@
 #if PIN_EXISTS(PHOTOGRAPH)
   #define HAS_PHOTOGRAPH 1
 #endif
-#if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
-  #define HAS_CASE_LIGHT 1
-#endif
 
 // Digital control
 #if PIN_EXISTS(STEPPER_RESET)
@@ -2223,7 +2220,7 @@
 /**
  * MIN/MAX case light PWM scaling
  */
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   #ifndef CASE_LIGHT_MAX_PWM
     #define CASE_LIGHT_MAX_PWM 255
   #elif !WITHIN(CASE_LIGHT_MAX_PWM, 1, 255)

@@ -599,18 +599,18 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if HAS_CASE_LIGHT
-    bool getCaseLightState()                 { return case_light_on; }
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool getCaseLightState()                 { return caselight.on; }
     void setCaseLightState(const bool value) {
-      case_light_on = value;
-      update_case_light();
+      caselight.on = value;
+      caselight.update_enabled();
     }
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
+      float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const float value) {
-         case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
-         update_case_light();
+         caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         caselight.update_brightness();
       }
     #endif
   #endif
