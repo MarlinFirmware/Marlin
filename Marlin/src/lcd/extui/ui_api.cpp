@@ -304,7 +304,7 @@ namespace ExtUI {
     return epos;
   }
 
-  void setAxisPosition_mm(const float position, const axis_t axis) {
+  void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
           max = current_position[axis] + 1000;
@@ -337,14 +337,14 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(manual_feedrate_mm_s[axis]);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
-  void setAxisPosition_mm(const float position, const extruder_t extruder) {
+  void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(manual_feedrate_mm_s.e);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
