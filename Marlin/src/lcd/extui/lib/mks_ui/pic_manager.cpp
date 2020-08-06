@@ -482,7 +482,7 @@ uint8_t public_buf[512];
         if (card.longFilename[0] == '.') continue;
 
         int8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
-        if (a >= 0 && a < COUNT(assets)) {
+        if (a >= 0 && a < (int8_t)COUNT(assets)) {
           uint8_t assetType = ASSET_TYPE_ICON;
           if (strstr(assets[a], "_logo"))
             assetType = ASSET_TYPE_LOGO;
@@ -498,7 +498,7 @@ uint8_t public_buf[512];
 
         #if HAS_SPI_FLASH_FONT
           a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
-          if (a >= 0 && a < COUNT(fonts))
+          if (a >= 0 && a < (int8_t)COUNT(fonts))
             loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
         #endif
       }
