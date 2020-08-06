@@ -33,6 +33,9 @@
 //#define ALTERNATIVE_LCD
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+
+  // RepRapWorld Graphical LCD
+
   #define U8G_CLASS U8GLIB_ST7920_128X64_4X
   #if DISABLED(SDSUPPORT) && (LCD_PINS_D4 == SCK_PIN) && (LCD_PINS_ENABLE == MOSI_PIN)
     #define U8G_PARAM LCD_PINS_RS
@@ -100,6 +103,62 @@
     #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
   #endif
 
+#elif ENABLED(MKS_12864OLED)
+
+  // MKS 128x64 (SH1106) OLED I2C LCD
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
+  #endif
+
+#elif ENABLED(FYSETC_242_OLED_12864)
+
+  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
+  #define FORCE_SOFT_SPI                                        // SW-SPI
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
+  #else
+    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
+  #endif
+
+#elif ENABLED(FYSETC_MINI_12864)
+
+  // The FYSETC Mini 12864 display
+
+  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
+
+#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
+  // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
+  // extra delays added to remove glitches seen with fast MCUs.
+
+  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 8 stripes (HW-SPI)
+
+#elif ENABLED(MINIPANEL)
+
+  #if ENABLED(ALTERNATIVE_LCD)
+    #define U8G_CLASS U8GLIB_MINI12864
+  #else
+    #define U8G_CLASS U8GLIB_MINI12864_2X                       // 8 stripes (HW-SPI)
+  #endif
+
+#elif ENABLED(U8GLIB_SH1106_EINSTART)
+
+  // Connected via motherboard header
+
+  #define U8G_CLASS U8GLIB_SH1106_128X64
+  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
+
+#elif ENABLED(U8GLIB_SSD1309)
+
+  // Generic support for SSD1309 OLED I2C LCDs
+
+  #define U8G_CLASS U8GLIB_SSD1309_128X64
+  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
+
 #elif ENABLED(U8GLIB_SSD1306)
 
   #if ENABLED(ZONESTAR_12864OLED)
@@ -139,62 +198,6 @@
     #endif
     #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)     // I2C
   #endif
-
-#elif ENABLED(MKS_12864OLED)
-
-  // MKS 128x64 (SH1106) OLED I2C LCD
-  #define FORCE_SOFT_SPI                                        // SW-SPI
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SH1106_128X64_2X                   // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SH1106_128X64                      // 8 stripes
-  #endif
-
-#elif ENABLED(FYSETC_242_OLED_12864)
-
-  // FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER
-  #define FORCE_SOFT_SPI                                        // SW-SPI
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_SSD1306_128X64_2X                  // 4 stripes
-  #else
-    #define U8G_CLASS U8GLIB_SSD1306_128X64                     // 8 stripes
-  #endif
-
-#elif ENABLED(U8GLIB_SSD1309)
-
-  // Generic support for SSD1309 OLED I2C LCDs
-
-  #define U8G_CLASS U8GLIB_SSD1309_128X64
-  #define U8G_PARAM (U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST)       // I2C
-
-#elif ENABLED(FYSETC_MINI_12864)
-
-  // The FYSETC Mini 12864 display
-
-  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 4 stripes
-
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-  // The MKS_MINI_12864 V1/V2 aren't exact copies of the MiniPanel.
-  // Panel management is in u8g_dev_uc1701_mini12864_HAL.cpp with
-  // extra delays added to remove glitches seen with fast MCUs.
-
-  #define U8G_CLASS U8GLIB_MINI12864_2X_HAL                     // 8 stripes (HW-SPI)
-
-#elif ENABLED(MINIPANEL)
-
-  #if ENABLED(ALTERNATIVE_LCD)
-    #define U8G_CLASS U8GLIB_MINI12864
-  #else
-    #define U8G_CLASS U8GLIB_MINI12864_2X                       // 8 stripes (HW-SPI)
-  #endif
-
-#elif ENABLED(U8GLIB_SH1106_EINSTART)
-
-  // Connected via motherboard header
-
-  #define U8G_CLASS U8GLIB_SH1106_128X64
-  #define U8G_PARAM DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS
 
 #elif TFT_SCALED_DOGLCD
 
