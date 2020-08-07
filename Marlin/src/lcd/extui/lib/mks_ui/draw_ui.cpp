@@ -30,6 +30,8 @@
 #include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
 
+#include "pic_manager.h"
+
 #include "draw_ui.h"
 #include "mks_hardware_test.h"
 
@@ -47,8 +49,6 @@
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../../../feature/pause.h"
 #endif
-
-#include "pic_manager.h"
 
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;

@@ -24,6 +24,7 @@
 #if HAS_TFT_LVGL_UI
 
 #include "string.h"
+#include "pic_manager.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
 
@@ -32,7 +33,6 @@
 
 #include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
-#include "pic_manager.h"
 
 extern uint16_t DeviceCode;
 extern unsigned char bmp_public_buf[17 * 1024];
