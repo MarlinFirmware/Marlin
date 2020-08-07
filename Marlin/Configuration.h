@@ -2089,13 +2089,20 @@
 //#define OLED_PANEL_TINYBOY2
 
 //
-// MKS OLED 1.3" 128 × 64 FULL GRAPHICS CONTROLLER
+// MKS OLED 1.3" 128×64 FULL GRAPHICS CONTROLLER
 // https://reprap.org/wiki/MKS_12864OLED
 //
 // Tiny, but very sharp OLED display
 //
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
+
+//
+// Zonestar OLED 128×64 FULL GRAPHICS CONTROLLER
+//
+//#define ZONESTAR_12864LCD           // Graphical (DOGM) with ST7920 controller
+//#define ZONESTAR_12864OLED          // 1.3" OLED with SH1106 controller (default)
+//#define ZONESTAR_12864OLED_SSD1306  // 0.96" OLED with SSD1306 controller
 
 //
 // Einstart S OLED SSD1306
@@ -2108,7 +2115,7 @@
 //#define OVERLORD_OLED
 
 //
-// FYSETC OLED 2.42" 128 × 64 FULL GRAPHICS CONTROLLER with WS2812 RGB
+// FYSETC OLED 2.42" 128×64 FULL GRAPHICS CONTROLLER with WS2812 RGB
 // Where to find : https://www.aliexpress.com/item/4000345255731.html
 //#define FYSETC_242_OLED_12864   // Uses the SSD1309 controller
 

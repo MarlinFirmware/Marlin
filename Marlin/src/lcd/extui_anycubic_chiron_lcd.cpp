@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -145,7 +145,7 @@ namespace ExtUI {
     if (rx[0] != 'A') {
       SERIAL_ECHOPGM("Unexpected RX: ");
       SERIAL_ECHOLN(rx);
-    
+
       return;
     }
 
@@ -490,7 +490,7 @@ namespace ExtUI {
   void onMediaRemoved() {
     SENDLINE_PGM("J01"); // SD Removed
   }
-  
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     tone(BEEPER_PIN, frequency, duration);
   }

@@ -2227,6 +2227,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(MKS_12864OLED) \
   + ENABLED(MKS_12864OLED_SSD1306) \
+  + ENABLED(ZONESTAR_12864LCD) \
+  + ENABLED(ZONESTAR_12864OLED) \
+  + ENABLED(ZONESTAR_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
   + ENABLED(FYSETC_242_OLED_12864) \
@@ -2242,7 +2245,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_LVGL_UI_SPI) \
   + ENABLED(ANYCUBIC_LCD_I3MEGA) \
   + ENABLED(ANYCUBIC_LCD_CHIRON)
-  #error "Please select no more than one LCD controller option."
+  #error "Please select only one LCD controller option."
 #endif
 
 #undef IS_RRD_SC
