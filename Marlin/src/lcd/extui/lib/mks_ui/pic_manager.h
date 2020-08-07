@@ -25,7 +25,7 @@
 extern "C" { /* C-declarations for C++ */
 #endif
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #include <lvgl.h>
 

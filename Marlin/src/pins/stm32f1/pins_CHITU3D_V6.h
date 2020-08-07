@@ -158,21 +158,24 @@
   #endif
 #endif
 
-#define SPI_FLASH_SIZE 0x200000                   // 2MB
+// SPI Flash
+#define SPI_FLASH_SIZE                      0x200000  // 2MB
+#define HAS_SPI_FLASH                       1
+
+// SPI 2
+#define W25QXX_CS_PIN                       PB12
+#define W25QXX_MOSI_PIN                     PB15
+#define W25QXX_MISO_PIN                     PB14
+#define W25QXX_SCK_PIN                      PB13
 
 #if HAS_TFT_LVGL_UI
-  #define HAS_SPI_FLASH_FONT 0
-  #define HAS_GCODE_PREVIEW 1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH 0
-  #define HAS_LANG_SELECT_SCREEN 0
-  #define HAS_BAK_VIEW_IN_FLASH 0
-  #define HAS_LOGO_IN_FLASH 0
-
-  // SPI 2
-  #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
-  #define W25QXX_SCK_PIN                    PB13
+  #define HAS_SPI_FLASH_FONT                0
+  #define HAS_GCODE_PREVIEW                 1
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH   0
+  #define HAS_LANG_SELECT_SCREEN            0
+  #define HAS_BAK_VIEW_IN_FLASH             0
+  #define HAS_LOGO_IN_FLASH                 0
+  #define HAS_TOUCH_XPT2046                 1
 
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
