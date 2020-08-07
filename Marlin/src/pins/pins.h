@@ -300,6 +300,8 @@
   #include "sanguino/pins_STB_11.h"             // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(AZTEEG_X1)
   #include "sanguino/pins_AZTEEG_X1.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+#elif MB(ZMIB_V2)
+  #include "sanguino/pins_ZMIB_V2.h"            // ATmega644P, ATmega1284P                env:sanguino_atmega644p env:sanguino_atmega1284p
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
