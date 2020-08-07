@@ -251,6 +251,17 @@
   #define EARLY_WATCHDOG 1
 #endif
 
+// Full Touch Screen needs 'tft/xpt2046'
+#if ENABLED(TOUCH_SCREEN)
+  #define HAS_TFT_XPT2046 1
+#endif
+
+// Touch Screen or "Touch Buttons" need XPT2046 pins
+// but they use different components
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+  #define NEED_TOUCH_PINS 1
+#endif
+
 // Extensible UI pin mapping for RepRapDiscount
 #if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(AO_EXP1_PINMAP, AO_EXP2_PINMAP, CR10_TFT_PINMAP)
   #define TOUCH_UI_ULTIPANEL 1
@@ -366,4 +377,14 @@
 // Flag if an EEPROM type is pre-selected
 #if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
   #define NO_EEPROM_SELECTED 1
+#endif
+
+// Flag whether hex_print.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
+  #define NEED_HEX_PRINT 1
+#endif
+
+// Flag whether least_squares_fit.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #define NEED_LSF 1
 #endif

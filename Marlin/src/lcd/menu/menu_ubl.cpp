@@ -68,6 +68,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
     TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
 
@@ -77,6 +78,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
 float lcd_mesh_edit() { return rounded_mesh_value(); }
 
 void lcd_mesh_edit_setup(const float &initial) {
+  TERN_(HAS_GRAPHICAL_TFT, ui.clear_lcd());
   mesh_edit_accumulator = initial;
   ui.goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
 }
@@ -449,15 +451,15 @@ void ubl_map_screen() {
 
     #if IS_KINEMATIC
       // Index of the mesh point upon entry
-      const uint32_t old_pos_index = grid_index(x_plot, y_plot);
+      const int32_t old_pos_index = grid_index(x_plot, y_plot);
       // Direction from new (unconstrained) encoder value
       const int8_t step_dir = int32_t(ui.encoderPosition) < old_pos_index ? -1 : 1;
     #endif
 
     do {
       // Now, keep the encoder position within range
-      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS - 1;
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = 0;
+      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS, 0);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % (GRID_MAX_POINTS_X);

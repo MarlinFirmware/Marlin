@@ -35,9 +35,10 @@
 #include "pic_manager.h"
 #include <lvgl.h>
 
+#include "../../../touch/xpt2046.h"
+
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
-#include "../../../../feature/touch/xpt2046.h"
 #include "../../../../sd/cardreader.h"
 
 uint8_t pw_det_sta, pw_off_sta, mt_det_sta, mt_det2_sta, mt_det3_sta;

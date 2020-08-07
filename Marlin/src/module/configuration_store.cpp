@@ -140,6 +140,10 @@
   #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../lcd/tft/touch.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
@@ -400,7 +404,14 @@ typedef struct SettingsDataStruct {
   // HAS_CASE_LIGHT_BRIGHTNESS
   //
   #if HAS_CASE_LIGHT_BRIGHTNESS
-    uint8_t case_light_brightness;
+    uint8_t caselight_brightness;                        // M355 P
+  #endif
+
+  //
+  // TOUCH_SCREEN_CALIBRATION
+  //
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    touch_calibration_t touch_calibration;
   #endif
 
 } SettingsData;
@@ -454,7 +465,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, update_case_light());
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -1331,7 +1342,14 @@ void MarlinSettings::postprocess() {
     // Case Light Brightness
     //
     #if HAS_CASE_LIGHT_BRIGHTNESS
-      EEPROM_WRITE(case_light_brightness);
+      EEPROM_WRITE(caselight.brightness);
+    #endif
+
+    //
+    // TOUCH_SCREEN_CALIBRATION
+    //
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      EEPROM_WRITE(touch.calibration);
     #endif
 
     //
@@ -2163,8 +2181,16 @@ void MarlinSettings::postprocess() {
       // Case Light Brightness
       //
       #if HAS_CASE_LIGHT_BRIGHTNESS
-        _FIELD_TEST(case_light_brightness);
-        EEPROM_READ(case_light_brightness);
+        _FIELD_TEST(caselight_brightness);
+        EEPROM_READ(caselight.brightness);
+      #endif
+
+      //
+      // TOUCH_SCREEN_CALIBRATION
+      //
+      #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+        _FIELD_TEST(touch.calibration);
+        EEPROM_READ(touch.calibration);
       #endif
 
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2467,7 +2493,12 @@ void MarlinSettings::reset() {
   //
   // Case Light Brightness
   //
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+
+  //
+  // TOUCH_SCREEN_CALIBRATION
+  //
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
 
   //
   // Magnetic Parking Extruder

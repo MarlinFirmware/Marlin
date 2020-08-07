@@ -66,6 +66,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Domov os Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Domov os Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto-zarovn. Z");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Asist. vyrovnanie");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Parkovanie XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Kliknutím začnete");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Ďalší bod");
@@ -153,14 +154,12 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Koniec úprav siete");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Vlastná sieť");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Vytvoriť sieť");
-  #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Sieť bodov $");
-    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Kontrola siete $");
-  #endif
+  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M                = _UxGT("Sieť bodov ($)");
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Studená sieť bodov");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Upraviť výšku siete");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Výška");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Skontrolovať sieť");
+  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M             = _UxGT("Kontrola siete ($)");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Kontrola vlast.siete");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 ohrev podlž.");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 ohrev trysky");
@@ -309,7 +308,9 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Teplota");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Pohyb");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E na mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E v mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit v mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Priem. fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Priem. fil. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Vysunúť mm");
@@ -331,6 +332,10 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Info. obrazovka");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Príprava tlače");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Doladenie tlače");
+  PROGMEM Language_Str MSG_POWER_MONITOR                   = _UxGT("Monitor napájania");
+  PROGMEM Language_Str MSG_CURRENT                         = _UxGT("Prúd");
+  PROGMEM Language_Str MSG_VOLTAGE                         = _UxGT("Napätie");
+  PROGMEM Language_Str MSG_POWER                           = _UxGT("Výkon");
   PROGMEM Language_Str MSG_START_PRINT                     = _UxGT("Spustiť tlač");
   PROGMEM Language_Str MSG_BUTTON_NEXT                     = _UxGT("Ďalší");
   PROGMEM Language_Str MSG_BUTTON_INIT                     = _UxGT("Inicial.");

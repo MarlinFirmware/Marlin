@@ -21,11 +21,11 @@
  */
 
 /********************************************************************************
- * @file     dwin_lcd.c
+ * @file     dwin_lcd.cpp
  * @author   LEO / Creality3D
  * @date     2019/07/18
  * @version  2.0.1
- * @brief    迪文屏控制操作函数
+ * @brief    DWIN screen control functions
  ********************************************************************************/
 
 #include "../../inc/MarlinConfigPre.h"
@@ -68,7 +68,15 @@ inline void DWIN_String(size_t &i, char * const string) {
   i += len;
 }
 
-/*发送当前BUF中的数据以及包尾数据 len:整包数据长度*/
+inline void DWIN_String(size_t &i, const __FlashStringHelper * string) {
+  if (!string) return;
+  const size_t len = strlen_P((PGM_P)string); // cast it to PGM_P, which is basically const char *, and measure it using the _P version of strlen.
+  if (len == 0) return;
+  memcpy(&DWIN_SendBuf[i+1], string, len);
+  i += len;
+}
+
+// Send the data in the buffer and the packet end
 inline void DWIN_Send(size_t &i) {
   ++i;
   LOOP_L_N(n, i) {  MYSERIAL1.write(DWIN_SendBuf[n]);
@@ -77,8 +85,9 @@ inline void DWIN_Send(size_t &i) {
                     delayMicroseconds(1); }
 }
 
-/*----------------------------------------------系统变量函数----------------------------------------------*/
-/*握手 1: 握手成功  2: 握手失败*/
+/*-------------------------------------- System variable function --------------------------------------*/
+
+// Handshake (1: Success, 0: Fail)
 bool DWIN_Handshake(void) {
   size_t i = 0;
   DWIN_Byte(i, 0x00);
@@ -105,7 +114,8 @@ bool DWIN_Handshake(void) {
         && databuf[3] == 'K' );
 }
 
-/*设定背光亮度 luminance:亮度(0x00~0xFF)*/
+// Set the backlight luminance
+//  luminance: (0x00-0xFF)
 void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
   size_t i = 0;
   DWIN_Byte(i, 0x30);
@@ -113,7 +123,8 @@ void DWIN_Backlight_SetLuminance(const uint8_t luminance) {
   DWIN_Send(i);
 }
 
-/*设定画面显示方向 dir:0,0°; 1,90°; 2,180°; 3,270°*/
+// Set screen display direction
+//  dir: 0=0°, 1=90°, 2=180°, 3=270°
 void DWIN_Frame_SetDir(uint8_t dir) {
   size_t i = 0;
   DWIN_Byte(i, 0x34);
@@ -123,15 +134,17 @@ void DWIN_Frame_SetDir(uint8_t dir) {
   DWIN_Send(i);
 }
 
-/*更新显示*/
+// Update display
 void DWIN_UpdateLCD(void) {
   size_t i = 0;
   DWIN_Byte(i, 0x3D);
   DWIN_Send(i);
 }
 
-/*----------------------------------------------绘图相关函数----------------------------------------------*/
-/*画面清屏 color:清屏颜色*/
+/*---------------------------------------- Drawing functions ----------------------------------------*/
+
+// Clear screen
+//  color: Clear screen color
 void DWIN_Frame_Clear(const uint16_t color) {
   size_t i = 0;
   DWIN_Byte(i, 0x01);
@@ -139,7 +152,10 @@ void DWIN_Frame_Clear(const uint16_t color) {
   DWIN_Send(i);
 }
 
-/*画面画线 color:线段颜色 xStart:X起始坐标 yStart:Y起始坐标 xEnd:X终止坐标 yEnd:Y终止坐标*/
+// Draw a line
+//  color: Line segment color
+//  xStart/yStart: Start point
+//  xEnd/yEnd: End point
 void DWIN_Draw_Line(uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd) {
   size_t i = 0;
   DWIN_Byte(i, 0x03);
@@ -151,7 +167,11 @@ void DWIN_Draw_Line(uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t x
   DWIN_Send(i);
 }
 
-/*画面画矩形 mode:0,外框;1,填充;2,异或填充 color:颜色 xStart/yStart:矩形左上坐标 xEnd/yEnd:矩形右下坐标*/
+// Draw a rectangle
+//  mode: 0=frame, 1=fill, 2=XOR fill
+//  color: Rectangle color
+//  xStart/yStart: upper left point
+//  xEnd/yEnd: lower right point
 void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
                          uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd) {
   size_t i = 0;
@@ -165,8 +185,14 @@ void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
   DWIN_Send(i);
 }
 
-/*画面区域移动 mode:0,环移;1,平移 dir:0,向左移动;1,向右移动;2,向上移动;3,向下移动 dis:移动距离
-                color:填充颜色 xStart/yStart:选定区域左上坐标 xEnd/yEnd:选定区域右下坐标*/
+//
+// Move a screen area
+//  mode: 0, circle shift; 1, translation
+//  dir: 0=left, 1=right, 2=up, 3=down
+//  dis: Distance
+//  color: Fill color
+//  xStart/yStart: upper left point
+//  xEnd/yEnd: bottom right point
 void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
                          uint16_t color, uint16_t xStart, uint16_t yStart, uint16_t xEnd, uint16_t yEnd) {
   size_t i = 0;
@@ -181,14 +207,21 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
   DWIN_Send(i);
 }
 
-/*----------------------------------------------文本相关函数----------------------------------------------*/
-/*画面显示字符串 widthAdjust:true,自调整字符宽度;false,不调整字符宽度 bShow:true,显示背景色;false,不显示背景色 size:字号大小
-                  color:字符颜色 bColor:背景颜色 x/y:字符串左上坐标 *string:字符串*/
+/*---------------------------------------- Text related functions ----------------------------------------*/
+
+// Draw a string
+//  widthAdjust: true=self-adjust character width; false=no adjustment
+//  bShow: true=display background color; false=don't display background color
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  x/y: Upper-left coordinate of the string
+//  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
-  DWIN_Byte(i, (widthAdjust? 0x80:0x00) | (bShow? 0x40:0x00) | size);
+  DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);
   DWIN_Word(i, x);
@@ -197,13 +230,34 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
   DWIN_Send(i);
 }
 
-/*画面显示正整数 bShow:true,显示背景色;false,不显示背景色 zeroFill:true,补零;false,不补零 zeroMode:1,无效0显示为0; 0,无效0显示为空格 size:字号大小
-                  color:字符颜色 bColor:背景颜色 iNum:位数 x/y:变量左上坐标 value:整型变量*/
+void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
+                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *string) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x11);
+  DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
+  DWIN_Word(i, color);
+  DWIN_Word(i, bColor);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_String(i, string);
+  DWIN_Send(i);
+}
+
+// Draw a positive integer
+//  bShow: true=display background color; false=don't display background color
+//  zeroFill: true=zero fill; false=no zero fill
+//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of digits
+//  x/y: Upper-left coordinate
+//  value: Integer value
 void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
   size_t i = 0;
   DWIN_Byte(i, 0x14);
-  DWIN_Byte(i, (bShow? 0x80:0x00) | (zeroFill? 0x20:0x00) | (zeroMode? 0x10:0x00) | size);
+  DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);
   DWIN_Byte(i, iNum);
@@ -214,7 +268,7 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
     for (char count = 0; count < 8; count++) {
       DWIN_Byte(i, value);
       value >>= 8;
-      if ((value&0xFF) == 0x00) break;
+      if (!(value & 0xFF)) break;
     }
   #else
     // Write a big-endian 64 bit integer
@@ -229,14 +283,23 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
   DWIN_Send(i);
 }
 
-/*画面显示浮点数 bShow:true,显示背景色;false,不显示背景色 zeroFill:true,补零;false,不补零 zeroMode:1,无效0显示为0; 0,无效0显示为空格 size:字号大小
-                  color:字符颜色 bColor:背景颜色 iNum:整数位数 fNum:小数位数 x/y:变量左上坐标 value:浮点数变量*/
+// Draw a floating point number
+//  bShow: true=display background color; false=don't display background color
+//  zeroFill: true=zero fill; false=no zero fill
+//  zeroMode: 1=leading 0 displayed as 0; 0=leading 0 displayed as a space
+//  size: Font size
+//  color: Character color
+//  bColor: Background color
+//  iNum: Number of whole digits
+//  fNum: Number of decimal digits
+//  x/y: Upper-left point
+//  value: Float value
 void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t size, uint16_t color,
                             uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   //uint8_t *fvalue = (uint8_t*)&value;
   size_t i = 0;
   DWIN_Byte(i, 0x14);
-  DWIN_Byte(i, (bShow? 0x80:0x00) | (zeroFill? 0x20:0x00) | (zeroMode? 0x10:0x00) | size);
+  DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);
   DWIN_Byte(i, iNum);
@@ -253,16 +316,21 @@ void DWIN_Draw_FloatValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_
   DWIN_Send(i);
 }
 
-/*----------------------------------------------图片相关函数----------------------------------------------*/
-/*jpg图片显示并缓存在#0虚拟显示区 id:图片ID*/
+/*---------------------------------------- Picture related functions ----------------------------------------*/
+
+// Draw JPG and cached in #0 virtual display area
+// id: Picture ID
 void DWIN_JPG_ShowAndCache(const uint8_t id) {
   size_t i = 0;
   DWIN_Word(i, 0x2200);
   DWIN_Byte(i, id);
-  DWIN_Send(i);     //AA 23 00 00 00 00 08 00 01 02 03 CC 33 C3 3C
+  DWIN_Send(i);     // AA 23 00 00 00 00 08 00 01 02 03 CC 33 C3 3C
 }
 
-/*图标显示 libID:图标库ID picID:图标ID x/y:图标左上坐标*/
+// Draw an Icon
+//  libID: Icon library ID
+//  picID: Icon ID
+//  x/y: Upper-left point
 void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   NOMORE(x, DWIN_WIDTH - 1);
   NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
@@ -275,7 +343,8 @@ void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   DWIN_Send(i);
 }
 
-/*jpg图片解压到#1虚拟显示区 id:图片ID*/
+// Unzip the JPG picture to virtual display area #1
+//  id: picture ID
 void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
   size_t i = 0;
   DWIN_Byte(i, 0x25);
@@ -284,7 +353,11 @@ void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
   DWIN_Send(i);
 }
 
-/*从虚拟显示区复制区域至当前画面 cacheID:虚拟区号 xStart/yStart:虚拟区左上坐标 xEnd/yEnd:虚拟区右下坐标 x/y:当前画面粘贴坐标*/
+// Copy area from virtual display area to current screen
+//  cacheID: virtual area number
+//  xStart/yStart: Upper-left of virtual area
+//  xEnd/yEnd: Lower-right of virtual area
+//  x/y: Screen paste point
 void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y) {
   size_t i = 0;

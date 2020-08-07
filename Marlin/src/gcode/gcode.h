@@ -276,6 +276,7 @@
  * ************ Custom codes - This can change to suit future G-code regulations
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  *
@@ -701,7 +702,7 @@ private:
     static void M351();
   #endif
 
-  TERN_(HAS_CASE_LIGHT, static void M355());
+  TERN_(CASE_LIGHT_ENABLE, static void M355());
 
   TERN_(REPETIER_GCODE_M360, static void M360());
 
@@ -842,6 +843,8 @@ private:
   TERN_(SDSUPPORT, static void M928());
 
   TERN_(MAGNETIC_PARKING_EXTRUDER, static void M951());
+
+  TERN_(TOUCH_SCREEN_CALIBRATION, static void M995());
 
   TERN_(PLATFORM_M997_SUPPORT, static void M997());
 
