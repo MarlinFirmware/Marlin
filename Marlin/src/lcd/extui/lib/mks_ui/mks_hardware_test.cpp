@@ -32,7 +32,6 @@
 #include "W25Qxx.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
-#include "pic_manager.h"
 #include <lvgl.h>
 
 #include "../../../touch/xpt2046.h"
@@ -40,6 +39,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../sd/cardreader.h"
+#include "pic_manager.h"
 
 uint8_t pw_det_sta, pw_off_sta, mt_det_sta, mt_det2_sta, mt_det3_sta;
 uint8_t endstopx1_sta, endstopx2_sta, endstopy1_sta, endstopy2_sta, endstopz1_sta, endstopz2_sta;
