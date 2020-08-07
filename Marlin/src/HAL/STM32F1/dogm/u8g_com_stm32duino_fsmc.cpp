@@ -171,16 +171,17 @@ LCD_CONTROLLER_TypeDef *LCD;
 
 void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   uint32_t controllerAddress;
+  struct fsmc_nor_psram_reg_map* fsmcPsramRegion;
 
   if (fsmcInit) return;
   fsmcInit = 1;
 
   switch (cs) {
-    case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; break;
+    case FSMC_CS_NE1: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION1; fsmcPsramRegion = FSMC_NOR_PSRAM1_BASE; break;
     #if ENABLED(STM32_XL_DENSITY)
-      case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; break;
-      case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; break;
-      case FSMC_CS_NE4: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION4; break;
+      case FSMC_CS_NE2: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION2; fsmcPsramRegion = FSMC_NOR_PSRAM2_BASE; break;
+      case FSMC_CS_NE3: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION3; fsmcPsramRegion = FSMC_NOR_PSRAM3_BASE; break;
+      case FSMC_CS_NE4: controllerAddress = (uint32_t)FSMC_NOR_PSRAM_REGION4; fsmcPsramRegion = FSMC_NOR_PSRAM4_BASE; break;
     #endif
     default: return;
   }
@@ -246,13 +247,8 @@ void LCD_IO_Init(uint8_t cs, uint8_t rs) {
   gpio_set_mode(PIN_MAP[cs].gpio_device, PIN_MAP[cs].gpio_bit, GPIO_AF_OUTPUT_PP);  //FSMC_CS_NEx
   gpio_set_mode(PIN_MAP[rs].gpio_device, PIN_MAP[rs].gpio_bit, GPIO_AF_OUTPUT_PP);  //FSMC_RS_Ax
 
-  #if ENABLED(STM32_XL_DENSITY)
-    FSMC_NOR_PSRAM4_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
-    FSMC_NOR_PSRAM4_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
-  #else // PSRAM1 for STM32F103V (high density)
-    FSMC_NOR_PSRAM1_BASE->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
-    FSMC_NOR_PSRAM1_BASE->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
-  #endif
+  fsmcPsramRegion->BCR = FSMC_BCR_WREN | FSMC_BCR_MTYP_SRAM | FSMC_BCR_MWID_16BITS | FSMC_BCR_MBKEN;
+  fsmcPsramRegion->BTR = (FSMC_DATA_SETUP_TIME << 8) | FSMC_ADDRESS_SETUP_TIME;
 
   afio_remap(AFIO_REMAP_FSMC_NADV);
 
