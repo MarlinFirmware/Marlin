@@ -23,6 +23,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
+#include "../../../../libs/W25Qxx.h"
+
 #include <lvgl.h>
 
 #include <stdint.h>
