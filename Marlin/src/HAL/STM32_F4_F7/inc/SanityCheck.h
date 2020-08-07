@@ -33,7 +33,7 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM are not yet supported on STM32F4/F7."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on STM32F4/F7."
 #endif
 
 #if HAS_TMC_SW_SERIAL

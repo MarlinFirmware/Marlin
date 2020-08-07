@@ -48,5 +48,5 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM are not yet supported on SAMD51."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on SAMD51."
 #endif

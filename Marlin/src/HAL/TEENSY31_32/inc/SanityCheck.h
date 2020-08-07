@@ -30,7 +30,7 @@
 #endif
 
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM are not yet supported on Teensy 3.1/3.2."
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on Teensy 3.1/3.2."
 #endif
 
 #if HAS_TMC_SW_SERIAL
