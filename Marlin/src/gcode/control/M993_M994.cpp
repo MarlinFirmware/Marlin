@@ -52,7 +52,7 @@ void GcodeSuite::M993() {
     W25QXX.SPI_FLASH_BufferRead(buf, addr, COUNT(buf));
     addr += COUNT(buf);
     card.write(buf, COUNT(buf));
-    if (addr % COUNT(buf) * 100 == 0) {
+    if (addr % (COUNT(buf) * 10) == 0) {
       SERIAL_ECHO(".");
     }
   }
@@ -81,12 +81,13 @@ void GcodeSuite::M994() {
   uint8_t buf[1024];
   uint32_t addr = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
+  W25QXX.SPI_FLASH_BulkErase();
   SERIAL_ECHO("Loading backup to SPI Flash");
   while(addr < SPI_FLASH_SIZE) {
     card.read(buf, COUNT(buf));
     W25QXX.SPI_FLASH_BufferWrite(buf, addr, COUNT(buf));
     addr += COUNT(buf);
-    if (addr % COUNT(buf) * 100 == 0) {
+    if (addr % (COUNT(buf) * 10) == 0) {
       SERIAL_ECHO(".");
     }
   }
