@@ -59,6 +59,10 @@
  */
 static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are incompatible with FAST_PWM_FAN on LPC176x boards.");
 
+#if SPINDLE_LASER_FREQUENCY
+  static_assert(!NUM_SERVOS, "BLTOUCH and Servos are incompatible with SPINDLE_LASER_FREQUENCY on LPC176x boards.");
+#endif
+
 /**
  * Test LPC176x-specific configuration values for errors at compile-time.
  */
