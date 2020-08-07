@@ -26,15 +26,14 @@
 #include "string.h"
 #include "pic_manager.h"
 
-#include "../../../../sd/cardreader.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
 
 #include "SPIFlashStorage.h"
 #include "../../../../libs/W25Qxx.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
+#include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
 extern unsigned char bmp_public_buf[17 * 1024];
