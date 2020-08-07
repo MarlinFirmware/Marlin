@@ -3081,12 +3081,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Sanity check for SPINDLE_LASER_FREQUENCY
+ * Sanity check for Cutter PWM
  */
-#if SPINDLE_LASER_FREQUENCY && !(__AVR_ATmega2560__||__AVR_ATmega1280__||TARGET_LPC1768)
-  #error "SPINDLE_LASER_FREQUENCY requires a 8 bit AVR or a LPC176x."
+#if SPINDLE_LASER_FREQUENCY && !(__AVR_ATmega2560__ || __AVR_ATmega1280__ || TARGET_LPC1768)
+  #error "SPINDLE_LASER_FREQUENCY is currently only supported on ATmega- and LPC176x-based boards."
 #endif
-
 
 // Misc. Cleanup
 #undef _TEST_PWM
