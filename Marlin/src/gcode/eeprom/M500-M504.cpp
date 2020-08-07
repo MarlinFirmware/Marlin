@@ -60,7 +60,7 @@ void GcodeSuite::M502() {
 #if ENABLED(EEPROM_SETTINGS)
 
   #if ENABLED(MARLIN_DEV_MODE)
-    #include "../../libs/hex_print_routines.h"
+    #include "../../libs/hex_print.h"
   #endif
 
   /**

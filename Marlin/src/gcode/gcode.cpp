@@ -842,7 +842,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 351: M351(); break;                                  // M351: Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
       #endif
 
-      #if HAS_CASE_LIGHT
+      #if ENABLED(CASE_LIGHT_ENABLE)
         case 355: M355(); break;                                  // M355: Set case light brightness
       #endif
 
@@ -874,7 +874,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
         case 995: M995(); break;                                  // M995: Touch screen calibration for TFT display
       #endif
-      
+
       #if ENABLED(PLATFORM_M997_SUPPORT)
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif

@@ -189,7 +189,7 @@
   #include "feature/leds/tempstat.h"
 #endif
 
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   #include "feature/caselight.h"
 #endif
 
@@ -1082,11 +1082,11 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
-  #if HAS_CASE_LIGHT
+  #if ENABLED(CASE_LIGHT_ENABLE)
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-    SETUP_RUN(update_case_light());
+    SETUP_RUN(caselight.update_brightness());
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)

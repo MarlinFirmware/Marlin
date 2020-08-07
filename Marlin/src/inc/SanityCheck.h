@@ -515,6 +515,8 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
+#elif defined(ANYCUBIC_TFT_MODEL)
+  #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #endif
 
 #ifdef FIL_RUNOUT_INVERTING
@@ -2237,7 +2239,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_320x240_SPI) \
   + ENABLED(FSMC_GRAPHICAL_TFT) \
   + ENABLED(TFT_LVGL_UI_FSMC) \
-  + ENABLED(TFT_LVGL_UI_SPI)
+  + ENABLED(TFT_LVGL_UI_SPI) \
+  + ENABLED(ANYCUBIC_LCD_I3MEGA) \
+  + ENABLED(ANYCUBIC_LCD_CHIRON)
   #error "Please select no more than one LCD controller option."
 #endif
 

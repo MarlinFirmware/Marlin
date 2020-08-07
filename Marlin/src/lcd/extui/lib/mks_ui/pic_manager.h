@@ -21,11 +21,7 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
-#endif
-
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #include <lvgl.h>
 
@@ -124,6 +120,10 @@ extern "C" { /* C-declarations for C++ */
 #define FLASH_INF_VALID_FLAG            0xAA558761
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
+
+#ifdef __cplusplus
+extern "C" { /* C-declarations for C++ */
+#endif
 
 union union32 {
   uint8_t bytes[4];
