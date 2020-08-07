@@ -150,7 +150,8 @@
 // SPI Flash
 #define SPI_FLASH_SIZE                      0x200000  // 2MB
 #define HAS_SPI_FLASH                       1
-//SPI 2
+
+// SPI 2
 #define W25QXX_CS_PIN                       PB12
 #define W25QXX_MOSI_PIN                     PB15
 #define W25QXX_MISO_PIN                     PB14
