@@ -235,6 +235,8 @@
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
+
+  #define TFT_DRIVER                        ILI9488
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available

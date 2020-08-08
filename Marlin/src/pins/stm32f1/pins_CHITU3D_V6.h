@@ -177,6 +177,7 @@
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
+  #define TFT_DRIVER                        ILI9488
 #endif
 
 // SPI Flash

@@ -235,6 +235,7 @@
   #define TOUCH_MISO_PIN                    PB14   // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15   // SPI2_MOSI
 
+  #define TFT_DRIVER                        ILI9488
 #endif
 
 #define SPI_FLASH
