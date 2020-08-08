@@ -215,6 +215,28 @@
     #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
 
+#elif ENABLED(TFT_480x320)
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
+
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define XPT2046_X_CALIBRATION           -17181
+  #define XPT2046_Y_CALIBRATION            11434
+  #define XPT2046_X_OFFSET                   501
+  #define XPT2046_Y_OFFSET                    -9
+
+  #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
+  #define TOUCH_SCK_PIN                     PB13   // SPI2_SCK
+  #define TOUCH_MISO_PIN                    PB14   // SPI2_MISO
+  #define TOUCH_MOSI_PIN                    PB15   // SPI2_MOSI
+
+  #define TFT_DRIVER                        ILI9488
+  #define TFT_BUFFER_SIZE                   14400
 #endif
 
 #define SPI_FLASH
