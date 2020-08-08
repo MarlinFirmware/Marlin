@@ -26,7 +26,7 @@
   #undef SD_CHECK_AND_RETRY
 #endif
 
-#if EITHER(TFT_320x240_SPI, TFT_480x320_SPI)
+#if HAS_SPI_TFT
   #error "Sorry! SPI TFT displays are not available for HAL/STM32F1 (yet)."
 #endif
 
