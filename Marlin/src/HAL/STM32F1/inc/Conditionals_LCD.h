@@ -31,7 +31,7 @@
 #endif
 
 // This platform has 'touch/xpt2046', not 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN) && NONE(TFT_320x240, TFT_480x320)
+#if ENABLED(TOUCH_SCREEN) && !HAS_FSMC_TFT
   #undef TOUCH_SCREEN
   #undef TOUCH_SCREEN_CALIBRATION
   #define HAS_TOUCH_XPT2046 1
