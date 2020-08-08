@@ -95,12 +95,18 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
   uint16_t data[3];
 
   DataTransferBegin();
+  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
+    SPIx.begin();
+  #endif
 
   for (uint16_t i = 0; i < 3 ; i++) {
     IO(coordinate);
     data[i] = (IO() << 4) | (IO() >> 4);
   }
 
+  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
+    SPIx.end();
+  #endif
   DataTransferEnd();
 
   uint16_t delta01 = delta(data[0], data[1]),
@@ -114,14 +120,12 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
 }
 
 uint16_t XPT2046::IO(uint16_t data) {
-  TERN(TOUCH_BUTTONS_HW_SPI, HardwareIO, SoftwareIO)(data);
+  return TERN(TOUCH_BUTTONS_HW_SPI, HardwareIO, SoftwareIO)(data);
 }
 
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
   uint16_t XPT2046::HardwareIO(uint16_t data) {
-    SPIx.begin();
     uint16_t result = SPIx.transfer(data);
-    SPIx.end();
     return result;
   }
 #endif
