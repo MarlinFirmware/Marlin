@@ -44,7 +44,7 @@
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
 
-#include "configuration_store.h"
+#include "settings.h"
 
 #include "endstops.h"
 #include "planner.h"
@@ -404,7 +404,7 @@ typedef struct SettingsDataStruct {
   // HAS_CASE_LIGHT_BRIGHTNESS
   //
   #if HAS_CASE_LIGHT_BRIGHTNESS
-    uint8_t case_light_brightness;
+    uint8_t caselight_brightness;                        // M355 P
   #endif
 
   //
@@ -465,7 +465,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, update_case_light());
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -1342,7 +1342,7 @@ void MarlinSettings::postprocess() {
     // Case Light Brightness
     //
     #if HAS_CASE_LIGHT_BRIGHTNESS
-      EEPROM_WRITE(case_light_brightness);
+      EEPROM_WRITE(caselight.brightness);
     #endif
 
     //
@@ -2181,8 +2181,8 @@ void MarlinSettings::postprocess() {
       // Case Light Brightness
       //
       #if HAS_CASE_LIGHT_BRIGHTNESS
-        _FIELD_TEST(case_light_brightness);
-        EEPROM_READ(case_light_brightness);
+        _FIELD_TEST(caselight_brightness);
+        EEPROM_READ(caselight.brightness);
       #endif
 
       //
@@ -2493,7 +2493,7 @@ void MarlinSettings::reset() {
   //
   // Case Light Brightness
   //
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -2517,8 +2517,7 @@ void MarlinSettings::reset() {
     #if HAS_PROBE_XY_OFFSET
       LOOP_XYZ(a) probe.offset[a] = dpo[a];
     #else
-      probe.offset.x = probe.offset.y = 0;
-      probe.offset.z = dpo[Z_AXIS];
+      probe.offset.set(0, 0, dpo[Z_AXIS]);
     #endif
   #endif
 

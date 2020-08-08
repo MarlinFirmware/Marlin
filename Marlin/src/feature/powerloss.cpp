@@ -21,7 +21,7 @@
  */
 
 /**
- * power_loss_recovery.cpp - Resume an SD print after power-loss
+ * feature/powerloss.cpp - Resume an SD print after power-loss
  */
 
 #include "../inc/MarlinConfigPre.h"

@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * emergency_parser.h - Intercept special commands directly in the serial stream
+ * e_parser.h - Intercept special commands directly in the serial stream
  */
 
 #include "../inc/MarlinConfigPre.h"
