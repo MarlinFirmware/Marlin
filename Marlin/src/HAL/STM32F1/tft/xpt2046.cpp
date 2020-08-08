@@ -92,7 +92,7 @@ bool XPT2046::getRawPoint(int16_t *x, int16_t *y) {
 }
 
 uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
-    uint16_t data[3];
+  uint16_t data[3];
 
   DataTransferBegin();
 
@@ -103,26 +103,18 @@ uint16_t XPT2046::getRawData(const XPTCoordinate coordinate) {
 
   DataTransferEnd();
 
-  uint16_t delta01 = delta(data[0], data[1]);
-  uint16_t delta02 = delta(data[0], data[2]);
-  uint16_t delta12 = delta(data[1], data[2]);
+  uint16_t delta01 = delta(data[0], data[1]),
+           delta02 = delta(data[0], data[2]),
+           delta12 = delta(data[1], data[2]);
 
-  if (delta01 > delta02 || delta01 > delta12) {
-    if (delta02 > delta12)
-      data[0] = data[2];
-    else
-      data[1] = data[2];
-  }
+  if (delta01 > delta02 || delta01 > delta12)
+    data[delta02 > delta12 ? 0 : 1] = data[2];
 
   return (data[0] + data[1]) >> 1;
 }
 
 uint16_t XPT2046::IO(uint16_t data) {
-  #if ENABLED(TOUCH_BUTTONS_HW_SPI)
-    return HardwareIO(data);
-  #else
-    return SoftwareIO(data);
-  #endif
+  TERN(TOUCH_BUTTONS_HW_SPI, HardwareIO, SoftwareIO)(data);
 }
 
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
