@@ -26,12 +26,12 @@
   #undef SD_CHECK_AND_RETRY
 #endif
 
-#if HAS_GRAPHICAL_TFT
-  #error "Sorry! TFT displays are not available for HAL/STM32F1."
+#if EITHER(TFT_320x240_SPI, TFT_480x320_SPI)
+  #error "Sorry! SPI TFT displays are not available for HAL/STM32F1 (yet)."
 #endif
 
 // This platform has 'touch/xpt2046', not 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN)
+#if ENABLED(TOUCH_SCREEN) && NONE(TFT_320x240, TFT_480x320)
   #undef TOUCH_SCREEN
   #undef TOUCH_SCREEN_CALIBRATION
   #define HAS_TOUCH_XPT2046 1
