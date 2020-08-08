@@ -504,7 +504,7 @@ namespace Language_en {
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Print Count");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Completed");
-    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total Print time");
+    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total Print Time");
     PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("Longest Job Time");
     PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("Extruded Total");
   #else
