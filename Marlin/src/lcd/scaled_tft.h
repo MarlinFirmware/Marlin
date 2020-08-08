@@ -21,18 +21,30 @@
  */
 #pragma once
 
-/**
- * Test TEENSY35_36 specific configuration values for errors at compile-time.
- */
+#include "../inc/MarlinConfig.h"
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.1/3.2. Disable EMERGENCY_PARSER to continue."
+#ifndef FSMC_UPSCALE
+  #define FSMC_UPSCALE 2
 #endif
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on Teensy 3.1/3.2."
+#ifndef LCD_FULL_PIXEL_WIDTH
+  #if FSMC_UPSCALE == 3
+    #define LCD_FULL_PIXEL_WIDTH 480
+  #else
+    #define LCD_FULL_PIXEL_WIDTH 320
+  #endif
+#endif
+#ifndef LCD_FULL_PIXEL_HEIGHT
+  #if FSMC_UPSCALE == 3
+    #define LCD_FULL_PIXEL_HEIGHT 320
+  #else
+    #define LCD_FULL_PIXEL_HEIGHT 240
+  #endif
 #endif
 
-#if HAS_TMC_SW_SERIAL
-  #error "TMC220x Software Serial is not supported on this platform."
+#ifndef LCD_PIXEL_OFFSET_X
+  #define LCD_PIXEL_OFFSET_X 48
+#endif
+#ifndef LCD_PIXEL_OFFSET_Y
+  #define LCD_PIXEL_OFFSET_Y 48
 #endif

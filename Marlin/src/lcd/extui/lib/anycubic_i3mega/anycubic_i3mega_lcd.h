@@ -1,5 +1,5 @@
 /**
- * anycubic_tft.h  --- Support for Anycubic i3 Mega TFT
+ * anycubic_i3mega_lcd.h  --- Support for Anycubic i3 Mega TFT
  * Created by Christian Hopp on 09.12.17.
  * Improved by David Ramiro
  * Converted to ext_iu by John BouAntoun 21 June 2020
@@ -22,18 +22,6 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../../../sd/SdFatConfig.h"   // for the FILENAME_LENGTH macro
-
-// command sending macro's with debugging capability
-#define ANYCUBIC_SENDCOMMANDPGM(x)                  ANYCUBIC_SERIAL_PROTOCOLLNPGM(x)
-#define ANYCUBIC_SENDCOMMANDPGM_VAL(x,y)            (ANYCUBIC_SERIAL_PROTOCOLPGM(x), ANYCUBIC_SERIAL_PROTOCOLLN(itostr3(y)))
-#define ANYCUBIC_SENDCOMMAND(x)                     ANYCUBIC_SERIAL_PROTOCOLLN(x)
-#if ENABLED(ANYCUBIC_TFT_DEBUG)
-  #define ANYCUBIC_SENDCOMMAND_DBG_PGM(x,y)         (ANYCUBIC_SERIAL_PROTOCOLLNPGM(x), SERIAL_ECHOLNPGM(y))
-  #define ANYCUBIC_SENDCOMMAND_DBG_PGM_VAL(x,y,z)   (ANYCUBIC_SERIAL_PROTOCOLLNPGM(x), SERIAL_ECHOPGM(y), SERIAL_ECHOLN(z))
-#else
-  #define ANYCUBIC_SENDCOMMAND_DBG_PGM(x,y)         (ANYCUBIC_SERIAL_PROTOCOLLNPGM(x))
-  #define ANYCUBIC_SENDCOMMAND_DBG_PGM_VAL(x,y,z)   (ANYCUBIC_SERIAL_PROTOCOLLNPGM(x))
-#endif
 
 char *itostr2(const uint8_t &x);
 #ifndef ULTRA_LCD
