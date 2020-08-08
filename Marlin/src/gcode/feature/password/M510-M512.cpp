@@ -31,7 +31,9 @@
 //
 // M510: Lock Printer
 //
-void GcodeSuite::M510() { password.authenticate_user_persistent(); }
+void GcodeSuite::M510() {
+  password.lock_machine();
+}
 
 //
 // M511: Unlock Printer
@@ -39,18 +41,10 @@ void GcodeSuite::M510() { password.authenticate_user_persistent(); }
 #if ENABLED(PASSWORD_UNLOCK_GCODE)
 
   void GcodeSuite::M511() {
-    if(password.is_locked) {
+    if (password.is_locked) {
       password.value_entry = parser.ulongval('P');
-      #if HAS_LCD_MENU
-        password.authenticate_user_return();
-      #else
-        if (password.value_entry == password.value)
-          password.is_locked = false;
-        else
-          SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
-      #endif
+      password.authentication_check();
     }
-
   }
 
 #endif // PASSWORD_UNLOCK_GCODE

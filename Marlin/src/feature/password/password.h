@@ -23,39 +23,34 @@
 
 #include "../../lcd/ultralcd.h"
 
-typedef void (*returnFunc_t)();
-
 class Password {
-private:
-  #if HAS_LCD_MENU
-    static char string[INCREMENT(PASSWORD_LENGTH)];
-    static uint8_t digit, digit_no;
-    static returnFunc_t return_fn;
-    static screenFunc_t success_screen, fail_screen;
-    static uint32_t multiplier;
-  #endif
-
 public:
   static bool is_set, is_locked;
   static uint32_t value, value_entry;
 
-  static void authenticate_user_persistent();
-  Password() {is_locked = false;}
+  Password() { is_locked = false; }
+
+  static void lock_machine();
 
   #if HAS_LCD_MENU
-    static void authenticate_user();
-    static void authenticate_user_return();
+    static void access_menu_password();
+    static void authentication_check();
+    static void authentication_done();
+    static void media_gatekeeper();
+
+    private:
+    static void authenticate_user(const screenFunc_t, const screenFunc_t);
     static void menu_password();
     static void menu_password_entry();
     static void screen_password_entry();
-    static void digit_entered();
     static void screen_set_password();
-    static void set_password_return();
-    static void menu_password_return();
+    static void start_over();
+
+    static void digit_entered();
+    static void set_password_done();
+    static void menu_password_report();
+
     static void remove_password();
-    static void clear();
-    static void menu_media();
-    static void access_menu_password();
   #endif
 };
 
