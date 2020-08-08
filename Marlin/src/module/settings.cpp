@@ -44,7 +44,7 @@
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
 
-#include "configuration_store.h"
+#include "settings.h"
 
 #include "endstops.h"
 #include "planner.h"
@@ -2517,8 +2517,7 @@ void MarlinSettings::reset() {
     #if HAS_PROBE_XY_OFFSET
       LOOP_XYZ(a) probe.offset[a] = dpo[a];
     #else
-      probe.offset.x = probe.offset.y = 0;
-      probe.offset.z = dpo[Z_AXIS];
+      probe.offset.set(0, 0, dpo[Z_AXIS]);
     #endif
   #endif
 
