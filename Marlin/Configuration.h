@@ -1670,6 +1670,7 @@
   //#define PASSWORD_ON_SD_PRINT_MENU       // This does not prevent gcodes from running
   //#define PASSWORD_AFTER_SD_PRINT_END
   //#define PASSWORD_AFTER_SD_PRINT_ABORT
+  //#include "Configuration_Secure.h"       // External file with PASSWORD_DEFAULT_VALUE
 #endif
 
 //=============================================================================

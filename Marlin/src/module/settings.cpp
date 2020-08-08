@@ -2813,7 +2813,12 @@ void MarlinSettings::reset() {
   #endif
 
   #if ENABLED(PASSWORD_FEATURE)
-    password.is_set = false;
+    #ifdef PASSWORD_DEFAULT_VALUE
+      password.is_set = true;
+      password.value = PASSWORD_DEFAULT_VALUE;
+    #else
+      password.is_set = false;
+    #endif
   #endif
 
   postprocess();
