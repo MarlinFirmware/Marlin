@@ -165,7 +165,7 @@ def search_compiler():
 
 	# Search for the compiler
 	for path in env['ENV']['PATH'].split(path_separator):
-		if not re.search(path_regex, path):
+		if not re.search(path_regex, path, re.IGNORECASE):
 			continue
 		for file in os.listdir(path):
 			if not file.endswith(gcc):
