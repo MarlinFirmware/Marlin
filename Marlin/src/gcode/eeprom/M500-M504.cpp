@@ -21,7 +21,7 @@
  */
 
 #include "../gcode.h"
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 #include "../../core/serial.h"
 #include "../../inc/MarlinConfig.h"
 

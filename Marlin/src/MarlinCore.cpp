@@ -43,7 +43,7 @@
 #include "module/planner.h"
 #include "module/endstops.h"
 #include "module/temperature.h"
-#include "module/configuration_store.h"
+#include "module/settings.h"
 #include "module/printcounter.h" // PrintCounter or Stopwatch
 
 #include "module/stepper.h"

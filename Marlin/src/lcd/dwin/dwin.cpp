@@ -47,7 +47,7 @@
 #include "../../feature/powerloss.h"
 #include "../../feature/babystep.h"
 
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 #include "../../module/temperature.h"
 #include "../../module/printcounter.h"
 #include "../../module/motion.h"

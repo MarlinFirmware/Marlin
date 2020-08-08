@@ -29,7 +29,7 @@
   #include "../../../MarlinCore.h"
   #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print.h"
-  #include "../../../module/configuration_store.h"
+  #include "../../../module/settings.h"
   #include "../../../lcd/ultralcd.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"
