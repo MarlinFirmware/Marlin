@@ -70,6 +70,7 @@ jobs:
         - mks_robin_stm32
         - ARMED
         - FYSETC_S6
+        - STM32F070CB_malyan
         - STM32F070RB_malyan
         - malyan_M300
         - mks_robin_lite
@@ -94,7 +95,6 @@ jobs:
         #- at90usb1286_cdc
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
-        #- STM32F070CB_malyan
         #- mks_robin_mini
 
     steps:

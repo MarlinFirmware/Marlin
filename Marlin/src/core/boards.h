@@ -281,7 +281,7 @@
 
 #define BOARD_STM32F103RE             4000  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
-#define BOARD_MALYAN_M200_V2          4002  // STM32F070CB  Libmaple-based STM32F0 controller
+#define BOARD_MALYAN_M200_V2          4002  // STM32F070CB  STM32F0 controller
 #define BOARD_STM3R_MINI              4003  // STM32F103RE  Libmaple-based STM32F1 controller
 #define BOARD_GTM32_PRO_VB            4004  // STM32F103VET6 controller
 #define BOARD_MORPHEUS                4005  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
