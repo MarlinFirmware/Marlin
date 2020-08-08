@@ -48,7 +48,7 @@
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-  #include "../../module/configuration_store.h"
+  #include "../../module/settings.h"
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -57,7 +57,6 @@
 
 void menu_tmc();
 void menu_backlash();
-void menu_cancelobject();
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -562,10 +561,6 @@ void menu_advanced_settings() {
 
   #if ENABLED(BACKLASH_GCODE)
     SUBMENU(MSG_BACKLASH, menu_backlash);
-  #endif
-
-  #if ENABLED(CANCEL_OBJECTS)
-    SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
   #endif
 
   #if ENABLED(DAC_STEPPER_CURRENT)

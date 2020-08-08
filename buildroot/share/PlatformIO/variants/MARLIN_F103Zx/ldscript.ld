@@ -185,8 +185,6 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
-
-
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {
@@ -197,4 +195,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-

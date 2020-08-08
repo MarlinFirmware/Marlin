@@ -705,7 +705,7 @@ private:
     static void M351();
   #endif
 
-  TERN_(HAS_CASE_LIGHT, static void M355());
+  TERN_(CASE_LIGHT_ENABLE, static void M355());
 
   TERN_(REPETIER_GCODE_M360, static void M360());
 

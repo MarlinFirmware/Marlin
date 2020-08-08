@@ -55,6 +55,7 @@
 #endif
 
 void menu_tune();
+void menu_cancelobject();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
@@ -114,7 +115,12 @@ void menu_main() {
         );
       });
     #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
+
+    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    #endif
   }
   else {
 

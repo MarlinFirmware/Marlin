@@ -22,7 +22,6 @@
 #if ENABLED(TOUCH_SCREEN)
 
 #include "touch.h"
-#include "pinconfig.h"
 
 #include "../ultralcd.h"
 #include "../menu/menu.h"
