@@ -225,10 +225,10 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define XPT2046_X_CALIBRATION           -17181
-  #define XPT2046_Y_CALIBRATION            11434
-  #define XPT2046_X_OFFSET                   501
-  #define XPT2046_Y_OFFSET                    -9
+  #define XPT2046_X_CALIBRATION            17880
+  #define XPT2046_Y_CALIBRATION           -12234
+  #define XPT2046_X_OFFSET                   -45
+  #define XPT2046_Y_OFFSET                   349
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13   // SPI2_SCK
@@ -237,6 +237,7 @@
 
   #define TFT_DRIVER                        ILI9488
   #define TFT_BUFFER_SIZE                   14400
+  #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
 #endif
 
 #define SPI_FLASH
