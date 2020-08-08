@@ -167,10 +167,10 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define XPT2046_X_CALIBRATION             -17181
-  #define XPT2046_Y_CALIBRATION             11434
-  #define XPT2046_X_OFFSET                  501
-  #define XPT2046_Y_OFFSET                  -9
+  #define XPT2046_X_CALIBRATION           -17181
+  #define XPT2046_Y_CALIBRATION            11434
+  #define XPT2046_X_OFFSET                   501
+  #define XPT2046_Y_OFFSET                    -9
 
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
