@@ -236,6 +236,7 @@
   #define TOUCH_MOSI_PIN                    PB15   // SPI2_MOSI
 
   #define TFT_DRIVER                        ILI9488
+  #define TFT_BUFFER_SIZE                   14400
 #endif
 
 #define SPI_FLASH

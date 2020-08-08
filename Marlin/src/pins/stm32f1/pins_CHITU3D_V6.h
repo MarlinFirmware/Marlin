@@ -178,6 +178,7 @@
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
   #define TFT_DRIVER                        ILI9488
+  #define TFT_BUFFER_SIZE                   14400
 #endif
 
 // SPI Flash
