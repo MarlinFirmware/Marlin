@@ -44,7 +44,7 @@
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
 
-#include "configuration_store.h"
+#include "settings.h"
 
 #include "endstops.h"
 #include "planner.h"
