@@ -143,6 +143,9 @@
   #if ENABLED(MMU2_MENUS)
     #define HAS_MENU_MMU2
   #endif
+  #if ENABLED(PASSWORD_FEATURE)
+    #define HAS_MENU_PASSWORD
+  #endif
   #if HAS_TRINAMIC_CONFIG
     #define HAS_MENU_TMC
   #endif

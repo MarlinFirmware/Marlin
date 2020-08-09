@@ -213,6 +213,10 @@
   #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "feature/password/password.h"
+#endif
+
 PGMSTR(NUL_STR, "");
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 PGMSTR(G28_STR, "G28");
@@ -452,11 +456,15 @@ void startOrResumeJob() {
     #ifdef EVENT_GCODE_SD_STOP
       queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
     #endif
+
+    TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001")))
+    if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
+      TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
+    }
   }
 
 #endif // SDSUPPORT
@@ -1203,6 +1211,10 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  #if ENABLED(PASSWORD_ON_STARTUP)
+    SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
   marlin_state = MF_RUNNING;
