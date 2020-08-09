@@ -19,13 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../inc/MarlinConfigPre.h"
 
-#if 1 // ENABLED(SPI_FLASH)
-#if HAS_TFT_LVGL_UI
+#include "../inc/MarlinConfig.h"
+
+#if HAS_SPI_FLASH
 
 #include <SPI.h>
-#include "../../../../inc/MarlinConfig.h"
 
 #include "W25Qxx.h"
 
@@ -45,9 +44,7 @@
 #define W25QXX_CS_H OUT_WRITE(SPI_FLASH_CS_PIN, HIGH)
 #define W25QXX_CS_L OUT_WRITE(SPI_FLASH_CS_PIN, LOW)
 
-ext_FLASH W25QXX;
-
-void ext_FLASH::init(uint8_t spiRate) {
+void W25QXXFlash::init(uint8_t spiRate) {
 
   OUT_WRITE(SPI_FLASH_CS_PIN, HIGH);
 
@@ -85,12 +82,12 @@ void ext_FLASH::init(uint8_t spiRate) {
  *
  * @details
  */
-uint8_t ext_FLASH::spi_flash_Rec() {
+uint8_t W25QXXFlash::spi_flash_Rec() {
   uint8_t returnByte = SPI.transfer(ff);
   return returnByte;
 }
 
-uint8_t ext_FLASH::spi_flash_read_write_byte(uint8_t data) {
+uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
   uint8_t returnByte = SPI.transfer(data);
   return returnByte;
 }
@@ -104,7 +101,7 @@ uint8_t ext_FLASH::spi_flash_read_write_byte(uint8_t data) {
  *
  * @details Uses DMA
  */
-void ext_FLASH::spi_flash_Read(uint8_t* buf, uint16_t nbyte) { SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte); }
+void W25QXXFlash::spi_flash_Read(uint8_t* buf, uint16_t nbyte) { SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte); }
 
 /**
  * @brief  Send a single byte on SPI port
@@ -113,7 +110,7 @@ void ext_FLASH::spi_flash_Read(uint8_t* buf, uint16_t nbyte) { SPI.dmaTransfer(0
  *
  * @details
  */
-void ext_FLASH::spi_flash_Send(uint8_t b) { SPI.send(b); }
+void W25QXXFlash::spi_flash_Send(uint8_t b) { SPI.send(b); }
 
 /**
  * @brief  Write token and then write from 512 byte buffer to SPI (for SD card)
@@ -123,12 +120,12 @@ void ext_FLASH::spi_flash_Send(uint8_t b) { SPI.send(b); }
  *
  * @details Use DMA
  */
-void ext_FLASH::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
+void W25QXXFlash::spi_flash_SendBlock(uint8_t token, const uint8_t* buf) {
   SPI.send(token);
   SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
 }
 
-uint16_t ext_FLASH::W25QXX_ReadID(void) {
+uint16_t W25QXXFlash::W25QXX_ReadID(void) {
   uint16_t Temp = 0;
   W25QXX_CS_L;
   spi_flash_Send(0x90);
@@ -141,7 +138,7 @@ uint16_t ext_FLASH::W25QXX_ReadID(void) {
   return Temp;
 }
 
-void ext_FLASH::SPI_FLASH_WriteEnable(void) {
+void W25QXXFlash::SPI_FLASH_WriteEnable(void) {
   /* Select the FLASH: Chip Select low */
   W25QXX_CS_L;
   /* Send "Write Enable" instruction */
@@ -159,7 +156,7 @@ void ext_FLASH::SPI_FLASH_WriteEnable(void) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_WaitForWriteEnd(void) {
+void W25QXXFlash::SPI_FLASH_WaitForWriteEnd(void) {
   uint8_t FLASH_Status = 0;
 
   /* Select the FLASH: Chip Select low */
@@ -178,7 +175,7 @@ void ext_FLASH::SPI_FLASH_WaitForWriteEnd(void) {
   W25QXX_CS_H;
 }
 
-void ext_FLASH::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
+void W25QXXFlash::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
   /* Send write enable instruction */
   SPI_FLASH_WriteEnable();
 
@@ -200,7 +197,7 @@ void ext_FLASH::SPI_FLASH_SectorErase(uint32_t SectorAddr) {
   SPI_FLASH_WaitForWriteEnd();
 }
 
-void ext_FLASH::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
+void W25QXXFlash::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
   SPI_FLASH_WriteEnable();
   W25QXX_CS_L;
   /* Send Sector Erase instruction */
@@ -224,7 +221,7 @@ void ext_FLASH::SPI_FLASH_BlockErase(uint32_t BlockAddr) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BulkErase(void) {
+void W25QXXFlash::SPI_FLASH_BulkErase(void) {
   /* Send write enable instruction */
   SPI_FLASH_WriteEnable();
 
@@ -253,7 +250,7 @@ void ext_FLASH::SPI_FLASH_BulkErase(void) {
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+void W25QXXFlash::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
   /* Enable the write access to the FLASH */
   SPI_FLASH_WriteEnable();
 
@@ -296,7 +293,7 @@ void ext_FLASH::SPI_FLASH_PageWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
+void W25QXXFlash::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite) {
   uint8_t NumOfPage = 0, NumOfSingle = 0, Addr = 0, count = 0, temp = 0;
 
   Addr = WriteAddr % SPI_FLASH_PageSize;
@@ -361,7 +358,7 @@ void ext_FLASH::SPI_FLASH_BufferWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
+void W25QXXFlash::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead) {
   /* Select the FLASH: Chip Select low */
   W25QXX_CS_L;
 
@@ -389,7 +386,4 @@ void ext_FLASH::SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16
   W25QXX_CS_H;
 }
 
-void ext_FLASH::lv_pic_read(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);}
-
-#endif // HAS_TFT_LVGL_UI
-#endif // 1 ... SPI_FLASH
+#endif // HAS_SPI_FLASH

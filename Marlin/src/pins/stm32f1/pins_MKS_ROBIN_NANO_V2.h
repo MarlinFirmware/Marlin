@@ -398,8 +398,9 @@
 
 #endif // HAS_SPI_LCD
 
-#define SPI_FLASH
-#if ENABLED(SPI_FLASH)
+#define HAS_SPI_FLASH                       1
+#define SPI_FLASH_SIZE                      0x1000000 // 16MB
+#if HAS_SPI_FLASH
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
