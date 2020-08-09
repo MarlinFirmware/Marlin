@@ -20,10 +20,11 @@
  *
  */
 
+#include "../../inc/MarlinConfig.h"
+
+#if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+
 #include "../gcode.h"
-
-#if BOTH(HAS_SPI_FLASH, SDSUPPORT)
-
 #include "../../sd/cardreader.h"
 #include "../../libs/W25Qxx.h"
 
@@ -31,14 +32,12 @@
  * M993: Backup SPI Flash to SD
  */
 void GcodeSuite::M993() {
-  if (!card.isMounted()) {
-    card.mount();
-  }
+  if (!card.isMounted()) card.mount();
 
   char fname[] = "spiflash.bin";
   card.openFileWrite(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLN("Failed to open spiflash.bin to write.");
+    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to write.");
     return;
   }
 
@@ -47,32 +46,28 @@ void GcodeSuite::M993() {
   uint8_t buf[1024];
   uint32_t addr = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  SERIAL_ECHO("Backuping SPI Flash");
-  while(addr < SPI_FLASH_SIZE) {
+  SERIAL_ECHOPGM("Save SPI Flash");
+  while (addr < SPI_FLASH_SIZE) {
     W25QXX.SPI_FLASH_BufferRead(buf, addr, COUNT(buf));
     addr += COUNT(buf);
     card.write(buf, COUNT(buf));
-    if (addr % (COUNT(buf) * 10) == 0) {
-      SERIAL_ECHO(".");
-    }
+    if (addr % (COUNT(buf) * 10) == 0) SERIAL_CHAR('.');
   }
-  SERIAL_ECHOLN(" done");
+  SERIAL_ECHOLNPGM(" done");
 
   card.closefile();
 }
 
 /**
- * M994: Load a Backup from SD to SPI Flash
+ * M994: Load a backup from SD to SPI Flash
  */
 void GcodeSuite::M994() {
-  if (!card.isMounted()) {
-    card.mount();
-  }
+  if (!card.isMounted()) card.mount();
 
   char fname[] = "spiflash.bin";
   card.openFileRead(fname);
   if (!card.isFileOpen()) {
-    SERIAL_ECHOLN("Failed to open spiflash.bin to read.");
+    SERIAL_ECHOLNPAIR("Failed to open ", fname, " to read.");
     return;
   }
 
@@ -82,18 +77,16 @@ void GcodeSuite::M994() {
   uint32_t addr = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
   W25QXX.SPI_FLASH_BulkErase();
-  SERIAL_ECHO("Loading backup to SPI Flash");
+  SERIAL_ECHOPGM("Load SPI Flash");
   while(addr < SPI_FLASH_SIZE) {
     card.read(buf, COUNT(buf));
     W25QXX.SPI_FLASH_BufferWrite(buf, addr, COUNT(buf));
     addr += COUNT(buf);
-    if (addr % (COUNT(buf) * 10) == 0) {
-      SERIAL_ECHO(".");
-    }
+    if (addr % (COUNT(buf) * 10) == 0) SERIAL_CHAR('.');
   }
-  SERIAL_ECHOLN(" done");
+  SERIAL_ECHOLNPGM(" done");
 
   card.closefile();
 }
 
-#endif
+#endif // HAS_SPI_FLASH && SDSUPPORT && MARLIN_DEV_MODE
