@@ -840,11 +840,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 //
 // Axis steppers enable / disable macros
 //
-#if ENABLED(HOME_AFTER_DEACTIVATE)
-  #define FORGET_AXIS(A) set_axis_not_trusted(A)
-#else
-  #define FORGET_AXIS(A) CBI(axis_known_position, A)
-#endif
+#define FORGET_AXIS(A) TERN(HOME_AFTER_DEACTIVATE, set_axis_not_trusted(A), CBI(axis_known_position, A))
 
 #define  ENABLE_AXIS_X() do{ ENABLE_STEPPER_X(); ENABLE_STEPPER_X2(); }while(0)
 #define DISABLE_AXIS_X() do{ DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); FORGET_AXIS(X_AXIS); }while(0)
