@@ -1280,10 +1280,6 @@ void Planner::recalculate() {
  */
 void Planner::check_axes_activity() {
 
-  #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
-    xyze_bool_t axis_active = { true, true, true, true };
-  #endif
-
   #if HAS_FAN
     uint8_t tail_fan_speed[FAN_COUNT];
   #endif
@@ -1313,15 +1309,6 @@ void Planner::check_axes_activity() {
       TERN_(HAS_HEATER_2, tail_e_to_p_pressure = block->e_to_p_pressure);
     #endif
 
-    #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
-      for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
-        block_t *block = &block_buffer[b];
-        if (ENABLED(DISABLE_X) && block->steps[X_AXIS]) axis_active[X_AXIS] = true;
-        if (ENABLED(DISABLE_Y) && block->steps[Y_AXIS]) axis_active[Y_AXIS] = true;
-        if (ENABLED(DISABLE_Z) && block->steps[Z_AXIS]) axis_active[Z_AXIS] = true;
-        if (ENABLED(DISABLE_E) && block->steps[E_AXIS]) axis_active[E_AXIS] = true;
-      }
-    #endif
   }
   else {
 
@@ -1337,14 +1324,6 @@ void Planner::check_axes_activity() {
       TERN_(HAS_HEATER_2, tail_e_to_p_pressure = baricuda_e_to_p_pressure);
     #endif
   }
-
-  //
-  // Disable inactive axes
-  //
-  if (TERN0(DISABLE_X, !axis_active.x)) DISABLE_AXIS_X();
-  if (TERN0(DISABLE_Y, !axis_active.y)) DISABLE_AXIS_Y();
-  if (TERN0(DISABLE_Z, !axis_active.z)) DISABLE_AXIS_Z();
-  if (TERN0(DISABLE_E, !axis_active.e)) disable_e_steppers();
 
   //
   // Update Fan speeds
