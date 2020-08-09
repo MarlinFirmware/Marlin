@@ -60,8 +60,8 @@ void GcodeSuite::M510() {
       return;
      }
 
-    if (parser.seenval('N')) {
-      password.value_entry = parser.ulongval('N');
+    if (parser.seenval('S')) {
+      password.value_entry = parser.ulongval('S');
 
       if (password.value_entry < CAT(1e, PASSWORD_LENGTH)) {
         password.is_set = true;
