@@ -156,16 +156,16 @@ def search_compiler():
 	# Find the current platform compiler by searching the $PATH
 	if env['PLATFORM'] == 'win32':
 		path_separator = ';'
-		path_regex = r'platformio\\packages.*\\bin'
+		path_regex = re.escape(env['PROJECT_PACKAGES_DIR']) + r'.*\\bin'
 		gcc = "g++.exe"
 	else:
 		path_separator = ':'
-		path_regex = r'platformio/packages.*/bin'
+		path_regex = re.escape(env['PROJECT_PACKAGES_DIR']) + r'.*/bin'
 		gcc = "g++"
 
 	# Search for the compiler
 	for path in env['ENV']['PATH'].split(path_separator):
-		if not re.search(path_regex, path):
+		if not re.search(path_regex, path, re.IGNORECASE):
 			continue
 		for file in os.listdir(path):
 			if not file.endswith(gcc):
