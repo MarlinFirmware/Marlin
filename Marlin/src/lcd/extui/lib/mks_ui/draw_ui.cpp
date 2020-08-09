@@ -27,7 +27,6 @@
   #include "SPI_TFT.h"
 #endif
 
-#include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
 
 #include "pic_manager.h"
@@ -50,6 +49,7 @@
   #include "../../../../feature/pause.h"
 #endif
 
+W25QXXFlash W25QXX;
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;

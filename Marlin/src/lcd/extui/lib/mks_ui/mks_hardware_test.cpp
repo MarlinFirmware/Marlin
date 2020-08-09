@@ -29,7 +29,6 @@
 
 #include "tft_lvgl_configuration.h"
 #include "draw_ready_print.h"
-#include "W25Qxx.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
 #include "pic_manager.h"

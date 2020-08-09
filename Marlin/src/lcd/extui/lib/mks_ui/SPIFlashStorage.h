@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "W25Qxx.h"
+#include "../../../../libs/W25Qxx.h"
 
 #define HAS_SPI_FLASH_COMPRESSION 1
 
