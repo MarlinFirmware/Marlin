@@ -742,8 +742,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if defined(EVENT_GCODE_SD_STOP) && DISABLED(NOZZLE_PARK_FEATURE)
-  static_assert(nullptr == strstr(EVENT_GCODE_SD_STOP, "G27"), "NOZZLE_PARK_FEATURE is required to use G27 in EVENT_GCODE_SD_STOP.");
+#if defined(EVENT_GCODE_SD_ABORT) && DISABLED(NOZZLE_PARK_FEATURE)
+  static_assert(nullptr == strstr(EVENT_GCODE_SD_ABORT, "G27"), "NOZZLE_PARK_FEATURE is required to use G27 in EVENT_GCODE_SD_ABORT.");
 #endif
 
 /**
