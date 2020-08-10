@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, CUSTOM_USER_MENUS)
+#if HAS_LCD_MENU && ENABLED(CUSTOM_USER_MENUS)
 
 #include "menu.h"
 #include "../../gcode/queue.h"
@@ -39,8 +39,12 @@
 
 void _lcd_user_gcode(PGM_P const cmd) {
   queue.inject_P(cmd);
-  TERN_(USER_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-  TERN_(USER_SCRIPT_RETURN, ui.return_to_status());
+  #if ENABLED(USER_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
+    ui.completion_feedback();
+  #endif
+  #if ENABLED(USER_SCRIPT_RETURN)
+    ui.return_to_status();
+  #endif
 }
 
 void menu_user() {

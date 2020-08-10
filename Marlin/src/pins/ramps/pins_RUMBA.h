@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -153,10 +153,7 @@
 #define LED_PIN                               13
 #define PS_ON_PIN                             45
 #define KILL_PIN                              46
-
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      45
-#endif
+#define CASE_LIGHT_PIN                        45
 
 //
 // M3/M4/M5 - Spindle/Laser Control

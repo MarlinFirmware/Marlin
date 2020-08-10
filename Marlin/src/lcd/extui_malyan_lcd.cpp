@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -71,7 +71,7 @@
 #define MAX_CURLY_COMMAND (32 + LONG_FILENAME_LENGTH) * 2
 
 // Track incoming command bytes from the LCD
-uint16_t inbound_count;
+int inbound_count;
 
 // For sending print completion messages
 bool last_printing_status = false;
@@ -96,18 +96,6 @@ void write_to_lcd(const char * const message) {
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
 }
-
-// {E:<msg>} is for error states.
-void set_lcd_error_P(PGM_P const error, PGM_P const component=nullptr) {
-  write_to_lcd_P(PSTR("{E:"));
-  write_to_lcd_P(error);
-  if (component) {
-    write_to_lcd_P(PSTR(" "));
-    write_to_lcd_P(component);
-  }
-  write_to_lcd_P(PSTR("}"));
-}
-
 
 /**
  * Process an LCD 'C' command.
@@ -206,19 +194,18 @@ void process_lcd_eb_command(const char* command) {
  * {J:E}{J:X+200}{J:E}
  * X, Y, Z, A (extruder)
  */
-template<typename T>
-void j_move_axis(const char* command, const T axis) {
-  const float dist = atof(command + 1) / 10.0;
-  ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
-};
-
 void process_lcd_j_command(const char* command) {
+  auto move_axis = [command](const auto axis) {
+    const float dist = atof(command + 1) / 10.0;
+    ExtUI::setAxisPosition_mm(ExtUI::getAxisPosition_mm(axis) + dist, axis);
+  };
+
   switch (command[0]) {
     case 'E': break;
-    case 'A': j_move_axis<ExtUI::extruder_t>(command, ExtUI::extruder_t::E0); break;
-    case 'Y': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Y); break;
-    case 'Z': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::Z); break;
-    case 'X': j_move_axis<ExtUI::axis_t>(command, ExtUI::axis_t::X); break;
+    case 'A': move_axis(ExtUI::extruder_t::E0); break;
+    case 'Y': move_axis(ExtUI::axis_t::Y); break;
+    case 'Z': move_axis(ExtUI::axis_t::Z); break;
+    case 'X': move_axis(ExtUI::axis_t::X); break;
     default: DEBUG_ECHOLNPAIR("UNKNOWN J COMMAND ", command);
   }
 }
@@ -374,38 +361,29 @@ void process_lcd_command(const char* command) {
     DEBUG_ECHOLNPAIR("UNKNOWN COMMAND FORMAT ", command);
 }
 
-//
 // Parse LCD commands mixed with G-Code
-//
-void parse_lcd_byte(const byte b) {
+void parse_lcd_byte(byte b) {
+  static bool parsing_lcd_cmd = false;
   static char inbound_buffer[MAX_CURLY_COMMAND];
 
-  static uint8_t parsing = 0;                   // Parsing state
-  static bool prevcr = false;                   // Was the last c a CR?
-
-  const char c = b & 0x7F;
-
-  if (parsing) {
-    const bool is_lcd = parsing == 1;           // 1 for LCD
-    if ( ( is_lcd && c == '}')                  // Closing brace on LCD command
-      || (!is_lcd && c == '\n')                 // LF on a G-code command
-    ) {
-      inbound_buffer[inbound_count] = '\0';     // Reset before processing
-      inbound_count = 0;                        // Reset buffer index
-      if (parsing == 1)
-        process_lcd_command(inbound_buffer);    // Handle the LCD command
-      else
+  if (!parsing_lcd_cmd) {
+    if (b == '{' || b == '\n' || b == '\r') {   // A line-ending or opening brace
+      parsing_lcd_cmd = b == '{';               // Brace opens an LCD command
+      if (inbound_count) {                      // Looks like a G-code is in the buffer
+        inbound_buffer[inbound_count] = '\0';   // Reset before processing
+        inbound_count = 0;
         queue.enqueue_one_now(inbound_buffer);  // Handle the G-code command
-      parsing = 0;                              // Unflag and...
+      }
     }
-    else if (inbound_count < MAX_CURLY_COMMAND - 2)
-      inbound_buffer[inbound_count++] = is_lcd ? c : b; // Buffer while space remains
   }
-  else {
-         if (c == '{')            parsing = 1;  // Brace opens an LCD command
-    else if (prevcr && c == '\n') parsing = 2;  // CRLF indicates G-code
-    prevcr = (c == '\r');                       // Remember if it was a CR
+  else if (b == '}') {                          // Closing brace on an LCD command
+    parsing_lcd_cmd = false;                    // Unflag and...
+    inbound_buffer[inbound_count] = '\0';       // reset before processing
+    inbound_count = 0;
+    process_lcd_command(inbound_buffer);        // Handle the LCD command
   }
+  else if (inbound_count < MAX_CURLY_COMMAND - 2)
+    inbound_buffer[inbound_count++] = b;        // Buffer only if space remains
 }
 
 /**
@@ -455,8 +433,9 @@ namespace ExtUI {
     update_usb_status(false);
 
     // now drain commands...
-    while (LCD_SERIAL.available())
-      parse_lcd_byte((byte)LCD_SERIAL.read());
+    while (LCD_SERIAL.available()) {
+      parse_lcd_byte((byte)LCD_SERIAL.read() & 0x7F);
+    }
 
     #if ENABLED(SDSUPPORT)
       // The way last printing status works is simple:
@@ -478,32 +457,14 @@ namespace ExtUI {
     #endif
   }
 
-  void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    set_lcd_error_P(error, component);
+  // {E:<msg>} is for error states.
+  void onPrinterKilled(PGM_P error, PGM_P component) {
+    write_to_lcd_P(PSTR("{E:"));
+    write_to_lcd_P(error);
+    write_to_lcd_P(PSTR(" "));
+    write_to_lcd_P(component);
+    write_to_lcd_P("}");
   }
-
-  #if HAS_PID_HEATING
-
-    void onPidTuning(const result_t rst) {
-      // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
-      switch (rst) {
-        case PID_BAD_EXTRUDER_NUM:
-          set_lcd_error_P(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
-          break;
-        case PID_TEMP_TOO_HIGH:
-          set_lcd_error_P(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
-          break;
-        case PID_TUNING_TIMEOUT:
-          set_lcd_error_P(GET_TEXT(MSG_PID_TIMEOUT));
-          break;
-        case PID_DONE:
-          set_lcd_error_P(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
-          break;
-      }
-    }
-
-  #endif
 
   void onPrintTimerStarted() { write_to_lcd_P(PSTR("{SYS:BUILD}")); }
   void onPrintTimerPaused() {}
@@ -522,15 +483,7 @@ namespace ExtUI {
   void onLoadSettings(const char*) {}
   void onConfigurationStoreWritten(bool) {}
   void onConfigurationStoreRead(bool) {}
-
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {}
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {}
-  #endif
-
-  #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {}
-  #endif
+  void onPidTuning(const result_t) {}
 }
 
 #endif // MALYAN_LCD

@@ -132,7 +132,7 @@ extern "C" {
 // Timer Definitions
 // Do not use timer used by PWM pin. See PinMap_PWM.
 #define TIMER_TONE              TIM6
-#define TIMER_SERVO             TIM5
+#define TIMER_SERVO             TIM2
 #define TIMER_SERIAL            TIM7
 
 // UART Definitions

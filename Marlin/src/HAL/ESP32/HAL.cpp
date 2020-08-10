@@ -16,17 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #ifdef ARDUINO_ARCH_ESP32
 
-#include "../../inc/MarlinConfig.h"
-
+#include "HAL.h"
+#include "timers.h"
 #include <rom/rtc.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
+
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(WIFISUPPORT)
   #include <ESPAsyncWebServer.h>
@@ -94,7 +97,9 @@ void HAL_init_board() {
     esp3dlib.init();
   #elif ENABLED(WIFISUPPORT)
     wifi_init();
-    TERN_(OTASUPPORT, OTA_init());
+    #if ENABLED(OTASUPPORT)
+      OTA_init();
+    #endif
     #if ENABLED(WEBSUPPORT)
       spiffs_init();
       web_init();
@@ -128,7 +133,9 @@ void HAL_idletask() {
   #if BOTH(WIFISUPPORT, OTASUPPORT)
     OTA_handle();
   #endif
-  TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    esp3dlib.idletask();
+  #endif
 }
 
 void HAL_clear_reset_source() { }
@@ -169,17 +176,39 @@ void HAL_adc_init() {
   adc1_config_width(ADC_WIDTH_12Bit);
 
   // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
-  TERN_(HAS_TEMP_ADC_0, adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_1, adc1_set_attenuation(get_channel(TEMP_1_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_2, adc1_set_attenuation(get_channel(TEMP_2_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_3, adc1_set_attenuation(get_channel(TEMP_3_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_4, adc1_set_attenuation(get_channel(TEMP_4_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_5, adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_6, adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_ADC_7, adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_HEATED_BED, adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db));
-  TERN_(HAS_TEMP_CHAMBER, adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db));
-  TERN_(FILAMENT_WIDTH_SENSOR, adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db));
+  #if HAS_TEMP_ADC_0
+    adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_1
+    adc1_set_attenuation(get_channel(TEMP_1_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_2
+    adc1_set_attenuation(get_channel(TEMP_2_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_3
+    adc1_set_attenuation(get_channel(TEMP_3_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_4
+    adc1_set_attenuation(get_channel(TEMP_4_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_5
+    adc1_set_attenuation(get_channel(TEMP_5_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_6
+    adc2_set_attenuation(get_channel(TEMP_6_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_ADC_7
+    adc3_set_attenuation(get_channel(TEMP_7_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_HEATED_BED
+    adc1_set_attenuation(get_channel(TEMP_BED_PIN), ADC_ATTEN_11db);
+  #endif
+  #if HAS_TEMP_CHAMBER
+    adc1_set_attenuation(get_channel(TEMP_CHAMBER_PIN), ADC_ATTEN_11db);
+  #endif
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    adc1_set_attenuation(get_channel(FILWIDTH_PIN), ADC_ATTEN_11db);
+  #endif
 
   // Note that adc2 is shared with the WiFi module, which has higher priority, so the conversion may fail.
   // That's why we're not setting it up here.

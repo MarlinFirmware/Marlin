@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,11 +39,6 @@ bool FilamentMonitorBase::enabled = true,
   bool FilamentMonitorBase::host_handling; // = false
 #endif
 
-#if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-  //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
-  #include "../module/tool_change.h"
-#endif
-
 /**
  * Called by FilamentSensorSwitch::run when filament is detected.
  * Called by FilamentSensorEncoder::block_completed when motion is detected.
@@ -52,12 +47,13 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
   runout.filament_present(extruder); // calls response.filament_present(extruder)
 }
 
-#if HAS_FILAMENT_RUNOUT_DISTANCE
+#if ENABLED(FILAMENT_MOTION_SENSOR)
+  uint8_t FilamentSensorEncoder::motion_detected;
+#endif
+
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
   volatile float RunoutResponseDelayed::runout_mm_countdown[EXTRUDERS];
-  #if ENABLED(FILAMENT_MOTION_SENSOR)
-    uint8_t FilamentSensorEncoder::motion_detected;
-  #endif
 #else
   int8_t RunoutResponseDebounced::runout_count; // = 0
 #endif
@@ -78,24 +74,13 @@ void FilamentSensorBase::filament_present(const uint8_t extruder) {
 
 void event_filament_runout() {
 
-  if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
-
-  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    if (migration.in_progress) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration Already In Progress");
-      #endif
-      return;  // Action already in progress. Purge triggered repeated runout.
-    }
-    if (migration.automode) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration Starting");
-      #endif
-      if (extruder_migration()) return;
-    }
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getActiveTool()));
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onFilamentRunout(ExtUI::getActiveTool());
+  #endif
 
   #if EITHER(HOST_PROMPT_SUPPORT, HOST_ACTION_COMMANDS)
     const char tool = '0'

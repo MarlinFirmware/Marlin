@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,10 +42,6 @@
 
   #include "MarlinSerial.h"
   #include "../../MarlinCore.h"
-
-  #if ENABLED(DIRECT_STEPPING)
-    #include "../../feature/direct_stepping.h"
-  #endif
 
   template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_r MarlinSerial<Cfg>::rx_buffer = { 0, 0, { 0 } };
   template<typename Cfg> typename MarlinSerial<Cfg>::ring_buffer_t MarlinSerial<Cfg>::tx_buffer = { 0 };
@@ -135,18 +131,6 @@
 
     static EmergencyParser::State emergency_state; // = EP_RESET
 
-    // This must read the R_UCSRA register before reading the received byte to detect error causes
-    if (Cfg::DROPPED_RX && B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
-    if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
-    if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
-
-    // Read the character from the USART
-    uint8_t c = R_UDR;
-
-    #if ENABLED(DIRECT_STEPPING)
-      if (page_manager.maybe_store_rxd_char(c)) return;
-    #endif
-
     // Get the tail - Nothing can alter its value while this ISR is executing, but there's
     // a chance that this ISR interrupted the main process while it was updating the index.
     // The backup mechanism ensures the correct value is always returned.
@@ -157,6 +141,14 @@
 
     // Get the next element
     ring_buffer_pos_t i = (ring_buffer_pos_t)(h + 1) & (ring_buffer_pos_t)(Cfg::RX_SIZE - 1);
+
+    // This must read the R_UCSRA register before reading the received byte to detect error causes
+    if (Cfg::DROPPED_RX && B_DOR && !++rx_dropped_bytes) --rx_dropped_bytes;
+    if (Cfg::RX_OVERRUNS && B_DOR && !++rx_buffer_overruns) --rx_buffer_overruns;
+    if (Cfg::RX_FRAMING_ERRORS && B_FE && !++rx_framing_errors) --rx_framing_errors;
+
+    // Read the character from the USART
+    uint8_t c = R_UDR;
 
     if (Cfg::EMERGENCYPARSER) emergency_parser.update(emergency_state, c);
 

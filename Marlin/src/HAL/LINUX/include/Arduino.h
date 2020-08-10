@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -105,6 +105,12 @@ void digitalWrite(pin_t, uint8_t);
 bool digitalRead(pin_t);
 void analogWrite(pin_t, int);
 uint16_t analogRead(pin_t);
+
+// EEPROM
+void eeprom_write_byte(unsigned char *pos, unsigned char value);
+unsigned char eeprom_read_byte(unsigned char *pos);
+void eeprom_read_block(void *__dst, const void *__src, size_t __n);
+void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 int32_t random(int32_t);
 int32_t random(int32_t, int32_t);

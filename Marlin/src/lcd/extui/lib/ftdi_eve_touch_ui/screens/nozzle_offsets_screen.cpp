@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MULTI_HOTEND)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && HOTENDS > 1
 
 #include "screens.h"
 

@@ -13,7 +13,7 @@
 # GNU General Public License for more details.
 #
 # To view a copy of the GNU General Public License, go to the following
-# location: <https://www.gnu.org/licenses/>.
+# location: <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
 import argparse, re, sys
@@ -56,7 +56,7 @@ header = '''
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 /**

@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  https://www.circuitsathome.com
+Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -28,7 +28,7 @@ e-mail   :  support@circuitsathome.com
 #define UHS_SCSI_H
 
 /*
- * Reference documents from T10 (https://www.t10.org)
+ * Reference documents from T10 (http://www.t10.org)
  * SCSI Primary Commands - 3 (SPC-3)
  * SCSI Block Commands - 2 (SBC-2)
  * Multi-Media Commands - 5 (MMC-5)

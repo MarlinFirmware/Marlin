@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -58,7 +58,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(4) .button( BTN_POS(1,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_TMC_HOMING_THRS))
       .tag(5) .button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_LCD_ENDSTOPS))
       .enabled(
-        #if HAS_MULTI_HOTEND
+        #if HOTENDS > 1
           1
         #endif
       )
@@ -68,7 +68,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(7) .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_STEPS_PER_MM))
       .tag(8) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_VELOCITY))
       .tag(9) .button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_ACCELERATION))
-      #if HAS_JUNCTION_DEVIATION
+      #if DISABLED(CLASSIC_JERK)
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JUNCTION_DEVIATION))
       #else
         .tag(10) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_JERK))
@@ -105,7 +105,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 4: GOTO_SCREEN(StepperBumpSensitivityScreen);     break;
     #endif
     case 5: GOTO_SCREEN(EndstopStatesScreen);              break;
-    #if HAS_MULTI_HOTEND
+    #if HOTENDS > 1
     case 6: GOTO_SCREEN(NozzleOffsetScreen);               break;
     #endif
 
@@ -113,7 +113,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 8: GOTO_SCREEN(MaxVelocityScreen);                break;
     case 9: GOTO_SCREEN(DefaultAccelerationScreen);        break;
     case 10:
-      #if HAS_JUNCTION_DEVIATION
+      #if DISABLED(CLASSIC_JERK)
         GOTO_SCREEN(JunctionDeviationScreen);
       #else
         GOTO_SCREEN(JerkScreen);

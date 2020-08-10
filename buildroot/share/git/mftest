@@ -9,8 +9,7 @@
 MFINFO=$(mfinfo) || exit 1
 [[ -d Marlin/src ]] || { echo "Please 'cd' up to repo root." ; exit 1 ; }
 
-TESTPATH=buildroot/tests
-
+TESTPATH=buildroot/share/tests
 STATE_FILE=$( echo ./.pio/.mftestrc )
 SED=$(which gsed || which sed)
 

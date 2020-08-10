@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Danish
  *
  * LCD Menu Messages
- * See also https://marlinfw.org/docs/development/lcd_language.html
+ * See also http://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -49,23 +49,20 @@ namespace Language_da {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Sæt forsk. af home");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Forsk. er nu aktiv");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Sæt origin");
-  #if PREHEAT_COUNT
-    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Forvarm ") PREHEAT_1_LABEL;
-    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
-    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
-    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
-    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
-    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
-
-    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Forvarm $");
-    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Forvarm $ ~");
-    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Forvarm $ end")
-    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Forvarm $ end ~");
-    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Forvarm $ Alle");
-    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Forvarm $ Bed");
-    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Forvarm $ conf");
-  #endif
+  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Forvarm ") PREHEAT_1_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
+  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
+  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
+  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
+  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
+  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" conf");
+  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Forvarm ") PREHEAT_2_LABEL;
+  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Forvarm ") PREHEAT_2_LABEL " ~";
+  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end")
+  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" end ~");
+  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Alle");
+  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" Bed");
+  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Forvarm ") PREHEAT_2_LABEL _UxGT(" conf");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Afkøl");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Slå strøm til");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Slå strøm fra");
@@ -144,6 +141,7 @@ namespace Language_da {
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Fejl: Min temp");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Fejl: Maks Plade temp");
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Fejl: Min Plade temp");
+  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY først");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER STOPPET");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reset Venligst");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // Kun et bogstav
@@ -187,7 +185,7 @@ namespace Language_da {
 
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Forsæt print");
 
-  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Forkert printer");
+  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Forkert printer");
 
   #if LCD_HEIGHT >= 4
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_INIT          = _UxGT(MSG_3_LINE("Vent på start", "af filament", "skift"));

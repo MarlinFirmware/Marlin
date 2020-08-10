@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -97,6 +97,7 @@
 // Misc. Functions
 //
 #undef PS_ON_PIN
+#define PS_ON_PIN                             -1
 
 //
 // LCD / Controller
@@ -119,7 +120,9 @@
 
   // Disable encoder
   #undef BTN_EN1
+  #define BTN_EN1                             -1
   #undef BTN_EN2
+  #define BTN_EN2                             -1
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22

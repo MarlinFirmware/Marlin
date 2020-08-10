@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3960 K, 4.7 kOhm pull-up, GE Sensing AL03006-58.2K-97-G1
-const temp_entry_t temptable_9[] PROGMEM = {
+const short temptable_9[][2] PROGMEM = {
   { OV(   1), 936 },
   { OV(  36), 300 },
   { OV(  71), 246 },

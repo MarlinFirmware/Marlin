@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,10 +27,6 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 
-#ifdef SD_FINISHED_RELEASECOMMAND
-  #include "../queue.h"
-#endif
-
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
   #include "../../lcd/ultralcd.h"
 #endif
@@ -40,7 +36,6 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h" // for wait_for_user_response
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
@@ -50,6 +45,10 @@
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../feature/host_actions.h"
+#endif
+
+#if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+  #include "../../module/planner.h"
 #endif
 
 #ifndef PE_LEDS_COMPLETED_TIME
@@ -69,10 +68,14 @@ void GcodeSuite::M1001() {
   gcode.process_subcommands_now_P(PSTR("M77"));
 
   // Set the progress bar "done" state
-  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress_done());
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    ui.set_progress_done();
+  #endif
 
   // Purge the recovery file
-  TERN_(POWER_LOSS_RECOVERY, recovery.purge());
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    recovery.purge();
+  #endif
 
   // Announce SD file completion
   SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
@@ -81,20 +84,26 @@ void GcodeSuite::M1001() {
   #if HAS_LEDS_OFF_FLAG
     if (long_print) {
       printerEventLEDs.onPrintCompleted();
-      TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE)));
-      TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR));
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_PRINT_DONE));
+      #endif
+      #if ENABLED(HOST_PROMPT_SUPPORT)
+        host_prompt_do(PROMPT_USER_CONTINUE, GET_TEXT(MSG_PRINT_DONE), CONTINUE_STR);
+      #endif
       wait_for_user_response(1000UL * TERN(HAS_LCD_MENU, PE_LEDS_COMPLETED_TIME, 30));
       printerEventLEDs.onResumeAfterWait();
     }
   #endif
 
-  // Inject SD_FINISHED_RELEASECOMMAND, if any
-  #ifdef SD_FINISHED_RELEASECOMMAND
-    queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+  // Wait for the queue to empty (and "clean"), inject SD_FINISHED_RELEASECOMMAND
+  #if ENABLED(SD_FINISHED_STEPPERRELEASE) && defined(SD_FINISHED_RELEASECOMMAND)
+    planner.finish_and_disable();
   #endif
 
   // Re-select the last printed file in the UI
-  TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
+  #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
+    ui.reselect_last_file();
+  #endif
 }
 
 #endif // SDSUPPORT

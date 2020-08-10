@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  https://www.circuitsathome.com
+Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -206,7 +206,7 @@ uint8_t UHS_USB_HOST_BASE::doSoftReset(uint8_t parent, uint8_t port, uint8_t add
  *                      will not enumerate without it. For devices that do not
  *                      need it, the additional reset is harmless. Here is an
  *                      example of one of these documents, see page Five:
- *                      https://www.ftdichip.com/Support/Documents/TechnicalNotes/TN_113_Simplified%20Description%20of%20USB%20Device%20Enumeration.pdf
+ *                      http://www.ftdichip.com/Support/Documents/TechnicalNotes/TN_113_Simplified%20Description%20of%20USB%20Device%20Enumeration.pdf
  *
  *
  */
@@ -239,12 +239,12 @@ uint8_t UHS_USB_HOST_BASE::Configuring(uint8_t parent, uint8_t port, uint8_t spe
         // wrap in {} to throw away the 64 byte buffer when we are done with it
         {
                 uint8_t buf[biggest];
-                USB_FD_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_FD_DEVICE_DESCRIPTOR *>(buf);
+                USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
 #else
         const uint8_t biggest = 18;
         uint8_t buf[biggest];
-        USB_FD_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_FD_DEVICE_DESCRIPTOR *>(buf);
-        USB_FD_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_FD_CONFIGURATION_DESCRIPTOR *>(buf);
+        USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
+        USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(buf);
 #endif
 
                 //for(devConfigIndex = 0; devConfigIndex < UHS_HOST_MAX_INTERFACE_DRIVERS; devConfigIndex++) {
@@ -309,7 +309,7 @@ again:
                                 sof_delay(200);
                                 goto again;
                         }
-                        HOST_DEBUG("Configuring error: 0x%2.2x Can't get USB_FD_DEVICE_DESCRIPTOR\r\n", rcode);
+                        HOST_DEBUG("Configuring error: 0x%2.2x Can't get USB_DEVICE_DESCRIPTOR\r\n", rcode);
                         return rcode;
                 }
 
@@ -378,7 +378,7 @@ again:
         } // unwrapped, old large buf now invalid and discarded.
 
         uint8_t buf[18];
-        USB_FD_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_FD_CONFIGURATION_DESCRIPTOR *>(buf);
+        USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(buf);
 #endif
 
         ei.address = addrPool.AllocAddress(parent, IsHub(ei.klass), port);
@@ -415,9 +415,9 @@ again:
                 HOST_DEBUG("configs: %i\r\n", configs);
                 for(uint8_t conf = 0; (!rcode) && (conf < configs); conf++) {
                         // read the config descriptor into a buffer.
-                        rcode = getConfDescr(ei.address, sizeof (USB_FD_CONFIGURATION_DESCRIPTOR), conf, buf);
+                        rcode = getConfDescr(ei.address, sizeof (USB_CONFIGURATION_DESCRIPTOR), conf, buf);
                         if(rcode) {
-                                HOST_DEBUG("Configuring error: %2.2x Can't get USB_FD_INTERFACE_DESCRIPTOR\r\n", rcode);
+                                HOST_DEBUG("Configuring error: %2.2x Can't get USB_INTERFACE_DESCRIPTOR\r\n", rcode);
                                 rcode = UHS_HOST_ERROR_FailGetConfDescr;
                                 continue;
                         }
@@ -438,7 +438,7 @@ again:
                         uint8_t offset;
                         rcode = initDescrStream(&ei, ucd, pep, data, &left, &read, &offset);
                         if(rcode) {
-                                HOST_DEBUG("Configuring error: %2.2x Can't get USB_FD_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
+                                HOST_DEBUG("Configuring error: %2.2x Can't get USB_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
                                 break;
                         }
                         for(; (numinf) && (!rcode); inf++) {
@@ -451,7 +451,7 @@ again:
                                         break;
                                 }
                                 if(rcode) {
-                                        HOST_DEBUG("Configuring error: %2.2x Can't close USB_FD_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
+                                        HOST_DEBUG("Configuring error: %2.2x Can't close USB_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
                                         continue;
                                 }
                                 rcode = TestInterface(&ei);
@@ -471,9 +471,9 @@ again:
                 if(!bestsuccess) rcode = UHS_HOST_ERROR_DEVICE_NOT_SUPPORTED;
         }
         if(!rcode) {
-                rcode = getConfDescr(ei.address, sizeof (USB_FD_CONFIGURATION_DESCRIPTOR), bestconf, buf);
+                rcode = getConfDescr(ei.address, sizeof (USB_CONFIGURATION_DESCRIPTOR), bestconf, buf);
                 if(rcode) {
-                        HOST_DEBUG("Configuring error: %2.2x Can't get USB_FD_INTERFACE_DESCRIPTOR\r\n", rcode);
+                        HOST_DEBUG("Configuring error: %2.2x Can't get USB_INTERFACE_DESCRIPTOR\r\n", rcode);
                         rcode = UHS_HOST_ERROR_FailGetConfDescr;
                 }
         }
@@ -497,7 +497,7 @@ again:
                                 uint8_t offset;
                                 rcode = initDescrStream(&ei, ucd, pep, data, &left, &read, &offset);
                                 if(rcode) {
-                                        HOST_DEBUG("Configuring error: %2.2x Can't get USB_FD_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
+                                        HOST_DEBUG("Configuring error: %2.2x Can't get USB_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
                                 } else {
                                         for(; (numinf) && (!rcode); inf++) {
                                                 // iterate for each interface on this config
@@ -508,7 +508,7 @@ again:
                                                         break;
                                                 }
                                                 if(rcode) {
-                                                        HOST_DEBUG("Configuring error: %2.2x Can't close USB_FD_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
+                                                        HOST_DEBUG("Configuring error: %2.2x Can't close USB_INTERFACE_DESCRIPTOR stream.\r\n", rcode);
                                                         continue;
                                                 }
 
@@ -721,7 +721,7 @@ uint8_t UHS_USB_HOST_BASE::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytes
  * @param offset
  * @return zero for success or error code
  */
-uint8_t UHS_USB_HOST_BASE::initDescrStream(ENUMERATION_INFO *ei, USB_FD_CONFIGURATION_DESCRIPTOR *ucd, UHS_EpInfo *pep, uint8_t *data, uint16_t *left, uint16_t *read, uint8_t *offset) {
+uint8_t UHS_USB_HOST_BASE::initDescrStream(ENUMERATION_INFO *ei, USB_CONFIGURATION_DESCRIPTOR *ucd, UHS_EpInfo *pep, uint8_t *data, uint16_t *left, uint16_t *read, uint8_t *offset) {
         if(!ei || !ucd) return UHS_HOST_ERROR_BAD_ARGUMENT;
         if(!pep) return UHS_HOST_ERROR_NULL_EPINFO;
         *left = ucd->wTotalLength;
@@ -837,7 +837,7 @@ uint8_t UHS_USB_HOST_BASE::getNextInterface(ENUMERATION_INFO *ei, UHS_EpInfo *pe
         return rcode;
 }
 
-uint8_t UHS_USB_HOST_BASE::seekInterface(ENUMERATION_INFO *ei, uint16_t inf, USB_FD_CONFIGURATION_DESCRIPTOR *ucd) {
+uint8_t UHS_USB_HOST_BASE::seekInterface(ENUMERATION_INFO *ei, uint16_t inf, USB_CONFIGURATION_DESCRIPTOR *ucd) {
         if(!ei || !ucd) return UHS_HOST_ERROR_BAD_ARGUMENT;
         uint8_t data[ei->bMaxPacketSize0];
         UHS_EpInfo *pep;

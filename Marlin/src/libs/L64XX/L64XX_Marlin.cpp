@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -923,7 +923,9 @@ void L64XX_Marlin::say_axis(const L64XX_axis_t axis, const uint8_t label/*=true*
           monitor_update(E5);
         #endif
 
-        if (TERN0(L6470_DEBUG, report_L6470_status)) DEBUG_EOL();
+        #if ENABLED(L6470_DEBUG)
+          if (report_L6470_status) DEBUG_EOL();
+        #endif
 
         spi_active = false;   // done with all SPI transfers - clear handshake flags
         spi_abort = false;

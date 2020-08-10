@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include <Adafruit_SPIFlashBase.h>
+#include "Adafruit_SPIFlashBase.h"
 
 // This class extends Adafruit_SPIFlashBase by adding caching support.
 //

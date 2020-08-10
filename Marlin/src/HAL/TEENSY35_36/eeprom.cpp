@@ -17,29 +17,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
 
 #include "../../inc/MarlinConfig.h"
 
-#if USE_WIRED_EEPROM
-
-/**
- * PersistentStore for Arduino-style EEPROM interface
- * with implementations supplied by the framework.
- */
+#if ENABLED(EEPROM_SETTINGS)
 
 #include "../shared/eeprom_api.h"
 #include <avr/eeprom.h>
 
-#ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
-#endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
-
-bool PersistentStore::access_start()  { return true; }
+bool PersistentStore::access_start() { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -58,7 +49,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     crc16(crc, &v, 1);
     pos++;
     value++;
-  }
+  };
   return false;
 }
 
@@ -73,5 +64,7 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   return false;
 }
 
-#endif // USE_WIRED_EEPROM
+size_t PersistentStore::capacity() { return E2END + 1; }
+
+#endif // EEPROM_SETTINGS
 #endif // __MK64FX512__ || __MK66FX1M0__

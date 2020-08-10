@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,7 +38,9 @@ void GcodeSuite::M23() {
   for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
   card.openFileRead(parser.string_arg);
 
-  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    ui.set_progress(0);
+  #endif
 }
 
 #endif // SDSUPPORT

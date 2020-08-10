@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -102,11 +102,12 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
     case 1: GOTO_SCREEN(FeedratePercentScreen); break;
     case 2: GOTO_SCREEN(TuneMenu); break;
     case 3:
-      if (isPrinting())
-        GOTO_SCREEN(ConfirmAbortPrintDialogBox);
-      else
-        GOTO_SCREEN(StatusScreen);
-      break;
+     if (isPrinting()) {
+       GOTO_SCREEN(ConfirmAbortPrintDialogBox);
+     } else {
+       GOTO_SCREEN(StatusScreen);
+     }
+     break;
     default: return false;
   }
   return true;
@@ -135,8 +136,9 @@ void BioPrintingDialogBox::setStatusMessage(const char* message) {
     SERIAL_ECHOLNPAIR("New status message: ", message);
   #endif
 
-  if (AT_SCREEN(BioPrintingDialogBox))
+  if (AT_SCREEN(BioPrintingDialogBox)) {
     current_screen.onRefresh();
+  }
 }
 
 void BioPrintingDialogBox::onIdle() {

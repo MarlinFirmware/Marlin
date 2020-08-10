@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -73,7 +73,9 @@ void GcodeSuite::M420() {
       #endif
       GRID_LOOP(x, y) {
         Z_VALUES(x, y) = 0.001 * random(-200, 200);
-        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+        #endif
       }
       SERIAL_ECHOPGM("Simulated " STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh ");
       SERIAL_ECHOPAIR(" (", x_min);
@@ -84,11 +86,11 @@ void GcodeSuite::M420() {
     }
   #endif
 
-  xyz_pos_t oldpos = current_position;
-
   // If disabling leveling do it right away
   // (Don't disable for just M420 or M420 V)
   if (seen_S && !to_enable) set_bed_leveling_enabled(false);
+
+  xyz_pos_t oldpos = current_position;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
 
@@ -153,18 +155,21 @@ void GcodeSuite::M420() {
 
             // Get the sum and average of all mesh values
             float mesh_sum = 0;
-            GRID_LOOP(x, y) mesh_sum += Z_VALUES(x, y);
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;)
+                mesh_sum += Z_VALUES(x, y);
             const float zmean = mesh_sum / float(GRID_MAX_POINTS);
 
           #else
 
             // Find the low and high mesh values
             float lo_val = 100, hi_val = -100;
-            GRID_LOOP(x, y) {
-              const float z = Z_VALUES(x, y);
-              NOMORE(lo_val, z);
-              NOLESS(hi_val, z);
-            }
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
+                const float z = Z_VALUES(x, y);
+                NOMORE(lo_val, z);
+                NOLESS(hi_val, z);
+              }
             // Take the mean of the lowest and highest
             const float zmean = (lo_val + hi_val) / 2.0 + cval;
 
@@ -174,11 +179,16 @@ void GcodeSuite::M420() {
           if (!NEAR_ZERO(zmean)) {
             set_bed_leveling_enabled(false);
             // Subtract the mean from all values
-            GRID_LOOP(x, y) {
-              Z_VALUES(x, y) -= zmean;
-              TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y)));
-            }
-            TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+            for (uint8_t x = GRID_MAX_POINTS_X; x--;)
+              for (uint8_t y = GRID_MAX_POINTS_Y; y--;) {
+                Z_VALUES(x, y) -= zmean;
+                #if ENABLED(EXTENSIBLE_UI)
+                  ExtUI::onMeshUpdate(x, y, Z_VALUES(x, y));
+                #endif
+              }
+            #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+              bed_level_virt_interpolate();
+            #endif
           }
 
         #endif
@@ -200,7 +210,9 @@ void GcodeSuite::M420() {
       if (leveling_is_valid()) {
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           print_bilinear_leveling_grid();
-          TERN_(ABL_BILINEAR_SUBDIVISION, print_bilinear_leveling_grid_virt());
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            print_bilinear_leveling_grid_virt();
+          #endif
         #elif ENABLED(MESH_BED_LEVELING)
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
           mbl.report_mesh();

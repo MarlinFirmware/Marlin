@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,38 +38,15 @@
 #endif
 
 //
-// Limit Switches
+// Custom Limit Switches
 //
 //#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
-
-#define X_MIN_PIN                              3
-
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
-#else
-  #define X_MAX_PIN                           43
+  #define Y_MIN_PIN                           19
 #endif
 
-#if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
-  #define Y_STOP_PIN                          19
-#else
-  #define Y_STOP_PIN                          42
-#endif
-
-#define Z_STOP_PIN                            18
-
-//
-// Z Probe (when not Z_MIN_PIN)
-//
-#define Z_MIN_PROBE_PIN                        2
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                      19
-#endif
-
-//
-// Heaters / Fans
-//
+// Labeled pins
 #define TG_HEATER_BED_PIN                      8
 #define TG_HEATER_0_PIN                       10
 #define TG_HEATER_1_PIN                       45  // Anycubic Kossel: Unused
@@ -78,16 +55,11 @@
 #define TG_FAN1_PIN                            7  // Anycubic Kossel: Unused
 #define TG_FAN2_PIN                           44  // Anycubic Kossel: Hotend fan
 
-#define CONTROLLER_FAN_PIN           TG_FAN1_PIN
-
-#define BEEPER_PIN                            31
-#define SD_DETECT_PIN                         49
-
 // Remap MOSFET pins to common usages:
 
 #define RAMPS_D10_PIN            TG_HEATER_0_PIN  // HEATER_0_PIN is always RAMPS_D10_PIN in pins_RAMPS.h
 
-#if HAS_MULTI_HOTEND                              // EEF and EEB
+#if HOTENDS > 1                                   // EEF and EEB
   #define RAMPS_D9_PIN           TG_HEATER_1_PIN
   #if !TEMP_SENSOR_BED
     // EEF
@@ -107,14 +79,11 @@
   #define RAMPS_D8_PIN               TG_FAN0_PIN
 #endif
 
-#if HAS_MULTI_HOTEND || TEMP_SENSOR_BED           // EEF, EEB, EFB
+#if HOTENDS > 1 || TEMP_SENSOR_BED                // EEF, EEB, EFB
   #define FAN1_PIN                   TG_FAN1_PIN
 #endif
 #define FAN2_PIN                     TG_FAN2_PIN
-
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
-#endif
+#define ORIG_E0_AUTO_FAN_PIN         TG_FAN2_PIN  // Used in Anycubic Kossel example config
 
 #include "pins_RAMPS.h"
 

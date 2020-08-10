@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,6 +31,7 @@
 #include "../shared/HAL_SPI.h"
 
 #include "fastio.h"
+#include "timers.h"
 #include "watchdog.h"
 
 #include <stdint.h>
@@ -50,8 +51,6 @@
   #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial1
 #elif SERIAL_PORT == 1
   #define MYSERIAL0 SerialUART1
 #elif SERIAL_PORT == 2
@@ -75,8 +74,6 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial1
   #elif SERIAL_PORT_2 == 1
     #define MYSERIAL1 SerialUART1
   #elif SERIAL_PORT_2 == 2
@@ -106,8 +103,6 @@
     #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
-  #elif DGUS_SERIAL_PORT == 0
-    #define DGUS_SERIAL Serial1
   #elif DGUS_SERIAL_PORT == 1
     #define DGUS_SERIAL SerialUART1
   #elif DGUS_SERIAL_PORT == 2
@@ -212,6 +207,19 @@ static inline int freeMemory() {
 #pragma GCC diagnostic pop
 
 //
+// EEPROM
+//
+
+/**
+ * TODO: Write all this EEPROM stuff. Can emulate EEPROM in flash as last resort.
+ * Wire library should work for i2c EEPROMs.
+ */
+void eeprom_write_byte(uint8_t *pos, unsigned char value);
+uint8_t eeprom_read_byte(uint8_t *pos);
+void eeprom_read_block (void *__dst, const void *__src, size_t __n);
+void eeprom_update_block (const void *__src, void *__dst, size_t __n);
+
+//
 // ADC
 //
 
@@ -219,9 +227,8 @@ static inline int freeMemory() {
 
 inline void HAL_adc_init() {}
 
-#define HAL_ADC_VREF         3.3
-#define HAL_ADC_RESOLUTION  10
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_RESOLUTION  10
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 

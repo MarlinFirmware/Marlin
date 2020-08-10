@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -62,7 +62,11 @@ class ControllerFan {
     #endif
     static inline bool state() { return speed > 0; }
     static inline void init() { reset(); }
-    static inline void reset() { TERN_(CONTROLLER_FAN_EDITABLE, settings = controllerFan_defaults); }
+    static inline void reset() {
+      #if ENABLED(CONTROLLER_FAN_EDITABLE)
+        settings = controllerFan_defaults;
+      #endif
+    }
     static void setup();
     static void update();
 };

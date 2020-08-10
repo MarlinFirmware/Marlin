@@ -13,7 +13,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  https://www.circuitsathome.com
+Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 #if !defined(USB_HOST_SHIELD_H) || defined(_max3421e_h_)

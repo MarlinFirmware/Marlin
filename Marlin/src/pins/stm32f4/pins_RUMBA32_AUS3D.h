@@ -16,63 +16,27 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * Pin assignments for the RUMBA32
+ * Pin assignments for the MKS RUMBA32
  *
  * https://aus3d.com.au/rumba32
  * https://github.com/Aus3D/RUMBA32
+ *
+ * The MKS and Aus3D versions have the same pinout but the MKS version
+ * has some added resistors and LEDs.  The resistors needed for the
+ * TMC2208/9 UART interface are among the additions.  Also added were
+ * connectors and resistors dedicated to the TMC2130 sensorless homing
+ * interface.
  */
 
-#define BOARD_INFO_NAME "RUMBA32"
+#define BOARD_INFO_NAME "Aus3D RUMBA32"
 
-#if NO_EEPROM_SELECTED
-  #if MB(RUMBA32_V1_0)
-    #define FLASH_EEPROM_EMULATION
-    #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
-  #elif MB(RUMBA32_V1_1)
-    #define I2C_EEPROM
-    #define MARLIN_EEPROM_SIZE 0x2000             // 8KB (24LC64T-I/OT)
-  #endif
-#endif
-
-#if ENABLED(FLASH_EEPROM_EMULATION)
-  // Decrease delays and flash wear by spreading writes across the
-  // 128 kB sector allocated for EEPROM emulation.
-  #define FLASH_EEPROM_LEVELING
-#endif
+#define RUMBA32_V1_0
+//#define I2C_EEPROM
 
 #include "pins_RUMBA32_common.h"
-
-#if MB(RUMBA32_V1_1)
-
-  #define SERVO0_PIN                        PA15
-  #undef BTN_PIN
-
-  #if HAS_TMC_UART
-    //
-    // TMC2208/TMC2209 stepper drivers - Software Serial is used according to below pins
-    //
-    #define X_SERIAL_TX_PIN                 PA14
-    #define X_SERIAL_RX_PIN                 PC14
-
-    #define Y_SERIAL_TX_PIN                 PA13
-    #define Y_SERIAL_RX_PIN                 PE4
-
-    #define Z_SERIAL_TX_PIN                 PB10
-    #define Z_SERIAL_RX_PIN                 PE0
-
-    #define E0_SERIAL_TX_PIN                PD11
-    #define E0_SERIAL_RX_PIN                PC13
-
-    #define E1_SERIAL_TX_PIN                PB3
-    #define E1_SERIAL_RX_PIN                PD5
-
-    #define E2_SERIAL_TX_PIN                PB4
-    #define E2_SERIAL_RX_PIN                PD1
-  #endif
-#endif

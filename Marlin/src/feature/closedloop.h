@@ -16,17 +16,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-class ClosedLoop {
-public:
-  static void init();
-  static void set(const byte val);
-};
-
-extern ClosedLoop closedloop;
-
-#define CLOSED_LOOP_WAITING() (READ(CLOSED_LOOP_ENABLE_PIN) && !READ(CLOSED_LOOP_MOVE_COMPLETE_PIN))
+void init_closedloop();
+void set_closedloop(const byte val);

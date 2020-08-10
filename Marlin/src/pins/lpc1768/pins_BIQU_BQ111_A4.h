@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,6 +37,12 @@
 #define BOARD_INFO_NAME "BIQU BQ111-A4"
 
 //
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
+
+//
 // Limit Switches
 //
 #define X_MIN_PIN                          P1_24  // 10k pullup to 3.3V, 1K series
@@ -49,19 +55,19 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                         P2_00
-#define X_DIR_PIN                          P0_05
-#define X_ENABLE_PIN                       P0_04
+#define X_STEP_PIN                         P2_0
+#define X_DIR_PIN                          P0_5
+#define X_ENABLE_PIN                       P0_4
 
-#define Y_STEP_PIN                         P2_01
+#define Y_STEP_PIN                         P2_1
 #define Y_DIR_PIN                          P0_11
 #define Y_ENABLE_PIN                       P0_10
 
-#define Z_STEP_PIN                         P2_02
+#define Z_STEP_PIN                         P2_2
 #define Z_DIR_PIN                          P0_20
 #define Z_ENABLE_PIN                       P0_19
 
-#define E0_STEP_PIN                        P2_03
+#define E0_STEP_PIN                        P2_3
 #define E0_DIR_PIN                         P0_22
 #define E0_ENABLE_PIN                      P0_21
 
@@ -75,10 +81,10 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                       P2_07
-#define HEATER_BED_PIN                     P2_05
+#define HEATER_0_PIN                       P2_7
+#define HEATER_BED_PIN                     P2_5
 #ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+  #define FAN_PIN                          P2_4
 #endif
 
 //

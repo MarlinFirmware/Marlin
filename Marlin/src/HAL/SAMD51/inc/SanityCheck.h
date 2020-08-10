@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,10 +33,6 @@
 
 #if defined(MAX6675_SCK_PIN) && defined(MAX6675_DO_PIN) && (MAX6675_SCK_PIN == SCK1 || MAX6675_DO_PIN == MISO1)
   #error "OnBoard SPI BUS can't be shared with other devices."
-#endif
-
-#if SERVO_TC == RTC_TIMER_NUM
-  #error "Servos can't use RTC timer"
 #endif
 
 #if ENABLED(EMERGENCY_PARSER)

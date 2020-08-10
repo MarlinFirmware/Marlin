@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -38,16 +38,16 @@ void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
   w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AMAX_X),  getAxisMaxAcceleration_mm_s2(X) );
   w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AMAX_Y),  getAxisMaxAcceleration_mm_s2(Y) );
   w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AMAX_Z),  getAxisMaxAcceleration_mm_s2(Z) );
-  #if DISTINCT_E == 1
+  #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E), getAxisMaxAcceleration_mm_s2(E0) );
-  #elif DISTINCT_E > 1
+  #elif EXTRUDERS > 1
     w.heading(GET_TEXT_F(MSG_AMAX_E));
     w.color(e_axis).adjuster( 8, F(LCD_STR_E0), getAxisMaxAcceleration_mm_s2(E0) );
     w.color(e_axis).adjuster(10, F(LCD_STR_E1), getAxisMaxAcceleration_mm_s2(E1) );
-    #if DISTINCT_E > 2
+    #if EXTRUDERS > 2
     w.color(e_axis).adjuster(12, F(LCD_STR_E2), getAxisMaxAcceleration_mm_s2(E2) );
     #endif
-    #if DISTINCT_E > 3
+    #if EXTRUDERS > 3
     w.color(e_axis).adjuster(14, F(LCD_STR_E3), getAxisMaxAcceleration_mm_s2(E3) );
     #endif
   #endif
@@ -65,15 +65,15 @@ bool MaxAccelerationScreen::onTouchHeld(uint8_t tag) {
     case  7: UI_INCREMENT(AxisMaxAcceleration_mm_s2, Z ); break;
     case  8: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E0); break;
     case  9: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E0); break;
-    #if DISTINCT_E > 1
+    #if EXTRUDERS > 1 && ENABLED(DISTINCT_E_FACTORS)
     case 10: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E1); break;
     case 11: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E1); break;
     #endif
-    #if DISTINCT_E > 2
+    #if EXTRUDERS > 2 && ENABLED(DISTINCT_E_FACTORS)
     case 12: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E2); break;
     case 13: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E2); break;
     #endif
-    #if DISTINCT_E > 3
+    #if EXTRUDERS > 3 && ENABLED(DISTINCT_E_FACTORS)
     case 14: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E3); break;
     case 15: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E3); break;
     #endif

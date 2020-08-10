@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
  */
 void GcodeSuite::M118() {
   bool hasE = false, hasA = false;
-  #if HAS_MULTI_SERIAL
+  #if NUM_SERIAL > 1
     int8_t port = -1; // Assume no redirect
   #endif
   char *p = parser.string_arg;
@@ -44,7 +44,7 @@ void GcodeSuite::M118() {
     switch (p[0]) {
       case 'A': hasA = true; break;
       case 'E': hasE = true; break;
-      #if HAS_MULTI_SERIAL
+      #if NUM_SERIAL > 1
         case 'P': port = p[1] - '0'; break;
       #endif
     }
@@ -52,7 +52,7 @@ void GcodeSuite::M118() {
     while (*p == ' ') ++p;
   }
 
-  #if HAS_MULTI_SERIAL
+  #if NUM_SERIAL > 1
     const int8_t old_serial = serial_port_index;
     if (WITHIN(port, 0, NUM_SERIAL))
       serial_port_index = (
@@ -69,5 +69,7 @@ void GcodeSuite::M118() {
   if (hasA) SERIAL_ECHOPGM("// ");
   SERIAL_ECHOLN(p);
 
-  TERN_(HAS_MULTI_SERIAL, serial_port_index = old_serial);
+  #if NUM_SERIAL > 1
+    serial_port_index = old_serial;
+  #endif
 }

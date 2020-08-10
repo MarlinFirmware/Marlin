@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -180,7 +180,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
+  #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else
@@ -553,7 +553,7 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1                         40  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN1                         40  // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       #define BTN_EN2                         42
       #define BTN_ENC                         -1
 
@@ -603,7 +603,7 @@
         #define KILL_PIN                      41
       #endif
 
-      #if ENABLED(MKS_MINI_12864)
+      #if ENABLED(MKS_MINI_12864)                 // Added in Marlin 1.1.6
 
         #define DOGLCD_A0                     27
         #define DOGLCD_CS                     25
@@ -707,7 +707,7 @@
 
 #endif // HAS_SPI_LCD
 
-#if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD)
   #define SHIFT_OUT                           40
   #define SHIFT_CLK                           44
   #define SHIFT_LD                            42
@@ -721,46 +721,3 @@
     #define BTN_ENC                           63
   #endif
 #endif
-
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
-
-  #error "CAUTION! LCD_FYSETC_TFT81050 requires wiring modifications. See 'pins_RAMPS.h' for details. Comment out this line to continue."
-
-  /** FYSETC TFT TFT81050 display pinout
-   *
-   *               Board                                     Display
-   *               _____                                     _____
-   *  (SCK)   D52 | 1 2 | D50    (MISO)                MISO | 1 2 | SCK
-   *  (SD_CS) D53 | 3 4 | D33 (BNT_EN2) (BNT_EN2) MOD_RESET | 3 4 | SD_CS
-   *  (MOSI)  D51 | 5 6   D31 (BNT_EN1) (BNT_EN1)    LCD_CS | 5 6   MOSI
-   *        RESET | 7 8 | D49  (SD_DET)              SD_DET | 7 8 | RESET
-   *           NC | 9 10| GND                           GND | 9 10| 5V
-   *               -----                                     -----
-   *                EXP2                                      EXP1
-   *
-   * Needs custom cable:
-   *
-   *    Board   Adapter   Display
-   *           _________
-   *   EXP2-1 ----------- EXP1-10
-   *   EXP2-2 ----------- EXP1-9
-   *   EXP2-4 ----------- EXP1-8
-   *   EXP2-4 ----------- EXP1-7
-   *   EXP2-3 ----------- EXP1-6
-   *   EXP2-6 ----------- EXP1-5
-   *   EXP2-7 ----------- EXP1-4
-   *   EXP2-8 ----------- EXP1-3
-   *   EXP2-1 ----------- EXP1-2
-   *  EXP1-10 ----------- EXP1-1
-   *
-   *  NOTE: The MISO pin should not get a 5V signal.
-   *        To fix, insert a 1N4148 diode in the MISO line.
-   */
-
-  #define BEEPER_PIN                          37
-
-  #define SD_DETECT_PIN                       49
-
-  #define CLCD_MOD_RESET                      31
-  #define CLCD_SPI_CS                         33
-#endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050

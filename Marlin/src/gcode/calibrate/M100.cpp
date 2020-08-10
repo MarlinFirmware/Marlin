@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -116,17 +116,12 @@
 // Utility functions
 //
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-local-addr"
-
-// Location of a variable in its stack frame.
-// The returned address will be above the stack (after it returns).
-char *top_of_stack() {
+// Location of a variable on its stack frame. Returns a value above
+// the stack (once the function returns to the caller).
+char* top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
-
-#pragma GCC diagnostic pop
 
 // Count the number of test bytes at the specified location.
 inline int32_t count_test_bytes(const char * const start_free_memory) {

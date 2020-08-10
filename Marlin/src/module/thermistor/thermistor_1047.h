@@ -16,15 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_1047 1
-
 // Pt1000 with 4k7 pullup
-const temp_entry_t temptable_1047[] PROGMEM = {
+const short temptable_1047[][2] PROGMEM = {
   // only a few values are needed as the curve is very flat
   PtLine(  0, 1000, 4700),
   PtLine( 50, 1000, 4700),
@@ -32,9 +30,5 @@ const temp_entry_t temptable_1047[] PROGMEM = {
   PtLine(150, 1000, 4700),
   PtLine(200, 1000, 4700),
   PtLine(250, 1000, 4700),
-  PtLine(300, 1000, 4700),
-  PtLine(350, 1000, 4700),
-  PtLine(400, 1000, 4700),
-  PtLine(450, 1000, 4700),
-  PtLine(500, 1000, 4700)
+  PtLine(300, 1000, 4700)
 };

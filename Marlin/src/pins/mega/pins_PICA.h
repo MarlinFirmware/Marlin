@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,8 +29,8 @@
  * Applies to PICA, PICA_REVB
  */
 
-#ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "PICA"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "PICA"
 #endif
 
 /*
@@ -46,12 +46,6 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-//
-// Servos
-//
-#define SERVO0_PIN                             3
-#define SERVO1_PIN                             4
-#define SERVO2_PIN                             5
 //
 // Limit Switches
 //
@@ -80,10 +74,6 @@
 #define E0_STEP_PIN                           67
 #define E0_DIR_PIN                            24
 #define E0_ENABLE_PIN                         26
-
-#define E1_STEP_PIN                           68
-#define E1_DIR_PIN                            28
-#define E1_ENABLE_PIN                         27
 
 //
 // Temperature Sensors

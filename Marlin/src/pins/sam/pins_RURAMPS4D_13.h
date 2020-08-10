@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Ported sys0724 & Vynt
  */
@@ -172,7 +172,7 @@
 //
 // EEPROM
 //
-#define MARLIN_EEPROM_SIZE 0x8000                 // 32Kb (24lc256)
+#define E2END 0x7FFF                              // 32Kb (24lc256)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
@@ -239,6 +239,8 @@
     #endif
 
   #elif ENABLED(MKS_MINI_12864)
+
+    #define ORIG_BEEPER_PIN                   62
 
     #define DOGLCD_A0                         52
     #define DOGLCD_CS                         50

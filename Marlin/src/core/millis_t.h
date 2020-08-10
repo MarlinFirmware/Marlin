@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,10 +24,6 @@
 #include <stdint.h>
 
 typedef uint32_t millis_t;
-
-#define SEC_TO_MS(N) millis_t((N)*1000UL)
-#define MIN_TO_MS(N) SEC_TO_MS((N)*60UL)
-#define MS_TO_SEC(N) millis_t((N)/1000UL)
 
 #define PENDING(NOW,SOON) ((int32_t)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))

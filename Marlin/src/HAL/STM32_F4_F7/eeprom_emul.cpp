@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    eeprom_emul.cpp
+  * @file    EEPROM/EEPROM_Emulation/src/eeprom.c
   * @author  MCD Application Team
   * @version V1.2.6
   * @date    04-November-2016
@@ -49,10 +49,6 @@
   */
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(FLASH_EEPROM_EMULATION)
-
 /* Includes ------------------------------------------------------------------*/
 #include "eeprom_emul.h"
 
@@ -65,7 +61,7 @@ uint16_t DataVar = 0;
 uint16_t VirtAddVarTab[NB_OF_VAR];
 
 /* Private function prototypes -----------------------------------------------*/
-
+/* Private functions ---------------------------------------------------------*/
 static HAL_StatusTypeDef EE_Format();
 static uint16_t EE_FindValidPage(uint8_t Operation);
 static uint16_t EE_VerifyPageFullWriteVariable(uint16_t VirtAddress, uint16_t Data);
@@ -79,9 +75,6 @@ static uint16_t EE_VerifyPageFullyErased(uint32_t Address);
   * @retval - Flash error code: on write Flash error
   *         - FLASH_COMPLETE: on success
   */
-
-/* Private functions ---------------------------------------------------------*/
-
 uint16_t EE_Initialize() {
   /* Get Page0 and Page1 status */
   uint16_t PageStatus0 = (*(__IO uint16_t*)PAGE0_BASE_ADDRESS),
@@ -336,7 +329,7 @@ uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data) {
  * @brief  Erases PAGE and PAGE1 and writes VALID_PAGE header to PAGE
  * @param  None
  * @retval Status of the last operation (Flash write or erase) done during
- *         EEPROM formatting
+ *         EEPROM formating
  */
 static HAL_StatusTypeDef EE_Format() {
   FLASH_EraseInitTypeDef pEraseInit;
@@ -525,7 +518,6 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data) {
   return HAL_FLASH_Program(TYPEPROGRAM_HALFWORD, NewPageAddress, VALID_PAGE);
 }
 
-#endif // FLASH_EEPROM_EMULATION
 #endif // STM32GENERIC && (STM32F4 || STM32F7)
 
 /**

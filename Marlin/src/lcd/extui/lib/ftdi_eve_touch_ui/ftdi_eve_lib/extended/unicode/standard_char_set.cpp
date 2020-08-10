@@ -16,12 +16,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
 
-#if BOTH(FTDI_EXTENDED, TOUCH_UI_USE_UTF8)
+#if defined(FTDI_EXTENDED) && ENABLED(TOUCH_UI_USE_UTF8)
 
   constexpr static uint8_t std_font = 31;
 

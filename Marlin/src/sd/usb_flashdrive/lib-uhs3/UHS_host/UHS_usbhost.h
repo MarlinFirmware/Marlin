@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  https://www.circuitsathome.com
+Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 
@@ -207,7 +207,7 @@ public:
                 interrupts();
         }
 
-        uint8_t UHS_NI seekInterface(ENUMERATION_INFO *ei, uint16_t inf, USB_FD_CONFIGURATION_DESCRIPTOR *ucd);
+        uint8_t UHS_NI seekInterface(ENUMERATION_INFO *ei, uint16_t inf, USB_CONFIGURATION_DESCRIPTOR *ucd);
 
         uint8_t UHS_NI setEpInfoEntry(uint8_t addr, uint8_t iface, uint8_t epcount, volatile UHS_EpInfo* eprecord_ptr);
 
@@ -261,7 +261,7 @@ public:
         uint8_t TestInterface(ENUMERATION_INFO *ei);
         uint8_t enumerateInterface(ENUMERATION_INFO *ei);
         uint8_t getNextInterface(ENUMERATION_INFO *ei, UHS_EpInfo *pep, uint8_t data[], uint16_t *left, uint16_t *read, uint8_t *offset);
-        uint8_t initDescrStream(ENUMERATION_INFO *ei, USB_FD_CONFIGURATION_DESCRIPTOR *ucd, UHS_EpInfo *pep, uint8_t *data, uint16_t *left, uint16_t *read, uint8_t *offset);
+        uint8_t initDescrStream(ENUMERATION_INFO *ei, USB_CONFIGURATION_DESCRIPTOR *ucd, UHS_EpInfo *pep, uint8_t *data, uint16_t *left, uint16_t *read, uint8_t *offset);
         uint8_t outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data);
         uint8_t inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data);
         uint8_t doSoftReset(uint8_t parent, uint8_t port, uint8_t address);

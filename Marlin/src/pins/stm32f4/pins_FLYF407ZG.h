@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,8 @@
 #define BOARD_WEBSITE_URL    "github.com/FLYmaker/FLYF407ZG"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#undef E2END
+#define E2END 0xFFF                               // 4KB
 
 //
 // Servos
@@ -163,11 +164,7 @@
 #define SDIO_CK_PIN                         PC12
 #define SDIO_CMD_PIN                        PD2
 
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#if SD_CONNECTION_IS(ONBOARD)
+#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
   #define SDIO_SUPPORT                            // Use SDIO for onboard SD
 
   #ifndef SDIO_SUPPORT
@@ -257,12 +254,12 @@
 //
 // ST7920 Delays
 //
-#ifndef BOARD_ST7920_DELAY_1
-  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
+#ifndef ST7920_DELAY_1
+  #define ST7920_DELAY_1            DELAY_NS(96)
 #endif
-#ifndef BOARD_ST7920_DELAY_2
-  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
+#ifndef ST7920_DELAY_2
+  #define ST7920_DELAY_2            DELAY_NS(48)
 #endif
-#ifndef BOARD_ST7920_DELAY_3
-  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
+#ifndef ST7920_DELAY_3
+  #define ST7920_DELAY_3           DELAY_NS(715)
 #endif

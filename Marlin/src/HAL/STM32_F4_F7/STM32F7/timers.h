@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,15 +34,9 @@
 
 #define HAL_TIMER_RATE         (HAL_RCC_GetSysClockFreq() / 2)  // frequency of timer peripherals
 
-#ifndef STEP_TIMER_NUM
-  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
-#endif
-#ifndef PULSE_TIMER_NUM
-  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
-#endif
-#ifndef TEMP_TIMER_NUM
-  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
-#endif
+#define STEP_TIMER_NUM 0  // index of timer to use for stepper
+#define TEMP_TIMER_NUM 1  // index of timer to use for temperature
+#define PULSE_TIMER_NUM STEP_TIMER_NUM
 
 #define TEMP_TIMER_FREQUENCY    1000 // temperature interrupt frequency
 #define TEMP_TIMER_PRESCALE     1000 // prescaler for setting Temp timer, 72Khz
@@ -68,12 +62,8 @@
 
 extern void TC5_Handler();
 extern void TC7_Handler();
-#ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR()  void TC5_Handler()
-#endif
-#ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR()  void TC7_Handler()
-#endif
+#define HAL_STEP_TIMER_ISR()  void TC5_Handler()
+#define HAL_TEMP_TIMER_ISR()  void TC7_Handler()
 
 // ------------------------
 // Types

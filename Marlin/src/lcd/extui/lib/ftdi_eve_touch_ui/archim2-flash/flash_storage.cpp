@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../compat.h"
@@ -453,7 +453,9 @@ bool UIFlashStorage::is_present = false;
         if (nBytes != write_page_size)
           break;
 
-        TERN_(EXTENSIBLE_UI, ExtUI::yield());
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::yield();
+        #endif
       }
 
       SERIAL_ECHOLNPGM("DONE");
@@ -491,20 +493,21 @@ bool UIFlashStorage::is_present = false;
 
         addr += nBytes;
         if (nBytes != write_page_size) break;
-        TERN_(EXTENSIBLE_UI, ExtUI::yield());
+        #if ENABLED(EXTENSIBLE_UI)
+          ExtUI::yield();
+        #endif
       };
 
       if (verifyOk) {
         SERIAL_ECHOLNPGM("DONE");
         return SUCCESS;
-      }
-      else {
+      } else {
         SERIAL_ECHOLNPGM("FAIL");
         return VERIFY_ERROR;
       }
     #else
       return VERIFY_ERROR;
-    #endif // SDSUPPORT
+    #endif // ENABLED(SDSUPPORT)
   }
 
   bool UIFlashStorage::BootMediaReader::isAvailable(uint32_t slot) {

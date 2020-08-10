@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_JUNCTION_DEVIATION)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(CLASSIC_JERK)
 
 #include "screens.h"
 

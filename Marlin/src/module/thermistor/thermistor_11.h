@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3950 K, 4.7 kOhm pull-up, QU-BD silicone bed QWG-104F-3950 thermistor
-const temp_entry_t temptable_11[] PROGMEM = {
+const short temptable_11[][2] PROGMEM = {
   { OV(   1), 938 },
   { OV(  31), 314 },
   { OV(  41), 290 },

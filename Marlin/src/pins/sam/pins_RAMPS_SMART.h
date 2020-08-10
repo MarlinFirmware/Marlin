@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -65,12 +65,13 @@
 #endif
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
+
 #define IS_RAMPS_SMART
 #include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000
+#define E2END 0xFFF
 
 #define RESET_PIN                             42  // Resets the board if the jumper is attached
 

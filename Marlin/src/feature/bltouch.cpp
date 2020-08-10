@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -124,7 +124,9 @@ bool BLTouch::deploy_proc() {
   }
 
   // One of the recommended ANTClabs ways to probe, using SW MODE
-  TERN_(BLTOUCH_FORCE_SW_MODE, _set_SW_mode());
+  #if ENABLED(BLTOUCH_FORCE_SW_MODE)
+   _set_SW_mode();
+  #endif
 
   // Now the probe is ready to issue a 10ms pulse when the pin goes up.
   // The trigger STOW (see motion.cpp for example) will pull up the probes pin as soon as the pulse

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,6 +31,12 @@
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
 #define BOARD_WEBSITE_URL "th3dstudio.com"
+
+//
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
 
 //
 // Servos
@@ -125,15 +131,9 @@
 // Auto fans
 //
 #define AUTO_FAN_PIN                       P1_22  // FET 3
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
-#endif
+#define ORIG_E0_AUTO_FAN_PIN        AUTO_FAN_PIN
+#define ORIG_E1_AUTO_FAN_PIN        AUTO_FAN_PIN
+#define ORIG_E2_AUTO_FAN_PIN        AUTO_FAN_PIN
 
 //
 // SD Card

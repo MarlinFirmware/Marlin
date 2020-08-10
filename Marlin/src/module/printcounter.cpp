@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -70,14 +70,19 @@ millis_t PrintCounter::lastDuration;
 bool PrintCounter::loaded = false;
 
 millis_t PrintCounter::deltaDuration() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("deltaDuration")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("deltaDuration"));
+  #endif
+
   millis_t tmp = lastDuration;
   lastDuration = duration();
   return lastDuration - tmp;
 }
 
 void PrintCounter::incFilamentUsed(float const &amount) {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("incFilamentUsed")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("incFilamentUsed"));
+  #endif
 
   // Refuses to update data if object is not loaded
   if (!isLoaded()) return;
@@ -86,7 +91,9 @@ void PrintCounter::incFilamentUsed(float const &amount) {
 }
 
 void PrintCounter::initStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("initStats")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("initStats"));
+  #endif
 
   loaded = true;
   data = { 0, 0, 0, 0, 0.0
@@ -122,7 +129,9 @@ void PrintCounter::initStats() {
 #endif
 
 void PrintCounter::loadStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("loadStats")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("loadStats"));
+  #endif
 
   // Check if the EEPROM block is initialized
   uint8_t value = 0;
@@ -155,7 +164,9 @@ void PrintCounter::loadStats() {
 }
 
 void PrintCounter::saveStats() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("saveStats")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("saveStats"));
+  #endif
 
   // Refuses to save data if object is not loaded
   if (!isLoaded()) return;
@@ -165,7 +176,9 @@ void PrintCounter::saveStats() {
   persistentStore.write_data(address + sizeof(uint8_t), (uint8_t*)&data, sizeof(printStatistics));
   persistentStore.access_finish();
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(true));
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onConfigurationStoreWritten(true);
+  #endif
 }
 
 #if HAS_SERVICE_INTERVALS
@@ -226,7 +239,9 @@ void PrintCounter::tick() {
 
   static uint32_t update_next; // = 0
   if (ELAPSED(now, update_next)) {
-    TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
+    #if ENABLED(DEBUG_PRINTCOUNTER)
+      debug(PSTR("tick"));
+    #endif
     millis_t delta = deltaDuration();
     data.printTime += delta;
 
@@ -252,7 +267,9 @@ void PrintCounter::tick() {
 
 // @Override
 bool PrintCounter::start() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("start")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("start"));
+  #endif
 
   bool paused = isPaused();
 
@@ -269,7 +286,9 @@ bool PrintCounter::start() {
 
 // @Override
 bool PrintCounter::stop() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("stop"));
+  #endif
 
   if (super::stop()) {
     data.finishedPrints++;
@@ -286,7 +305,9 @@ bool PrintCounter::stop() {
 
 // @Override
 void PrintCounter::reset() {
-  TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("stop")));
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    debug(PSTR("stop"));
+  #endif
 
   super::reset();
   lastDuration = 0;

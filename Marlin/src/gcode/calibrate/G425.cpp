@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -50,6 +50,7 @@
 #if !AXIS_CAN_CALIBRATE(Z)
   #undef CALIBRATION_MEASURE_AT_TOP_EDGES
 #endif
+
 
 /**
  * G425 backs away from the calibration object by various distances
@@ -92,6 +93,8 @@ struct measurements_t {
   xy_float_t nozzle_outer_dimension = nod;
 };
 
+#define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
+
 #if ENABLED(BACKLASH_GCODE)
   #define TEMPORARY_BACKLASH_CORRECTION(value) REMEMBER(tbst, backlash.correction, value)
 #else
@@ -124,7 +127,7 @@ inline void park_above_object(measurements_t &m, const float uncertainty) {
   calibration_move();
 }
 
-#if HAS_MULTI_HOTEND
+#if HOTENDS > 1
   inline void set_nozzle(measurements_t &m, const uint8_t extruder) {
     if (extruder != active_extruder) {
       park_above_object(m, CALIBRATION_MEASUREMENT_UNKNOWN);
@@ -253,7 +256,7 @@ inline void probe_side(measurements_t &m, const float uncertainty, const side_t 
     #endif
   }
 
-  if ((AXIS_CAN_CALIBRATE(X) && axis == X_AXIS) || (AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS)) {
+  if (AXIS_CAN_CALIBRATE(X) && axis == X_AXIS || AXIS_CAN_CALIBRATE(Y) && axis == Y_AXIS) {
     // Move to safe distance to the side of the calibration object
     current_position[axis] = m.obj_center[axis] + (-dir) * (dimensions[axis] / 2 + m.nozzle_outer_dimension[axis] / 2 + uncertainty);
     calibration_move();
@@ -283,19 +286,37 @@ inline void probe_sides(measurements_t &m, const float uncertainty) {
     probe_side(m, uncertainty, TOP);
   #endif
 
-  TERN_(CALIBRATION_MEASURE_RIGHT, probe_side(m, uncertainty, RIGHT, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_FRONT, probe_side(m, uncertainty, FRONT, probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_LEFT,  probe_side(m, uncertainty, LEFT,  probe_top_at_edge));
-  TERN_(CALIBRATION_MEASURE_BACK,  probe_side(m, uncertainty, BACK,  probe_top_at_edge));
+  #if ENABLED(CALIBRATION_MEASURE_RIGHT)
+    probe_side(m, uncertainty, RIGHT, probe_top_at_edge);
+  #endif
+
+  #if ENABLED(CALIBRATION_MEASURE_FRONT)
+    probe_side(m, uncertainty, FRONT, probe_top_at_edge);
+  #endif
+
+  #if ENABLED(CALIBRATION_MEASURE_LEFT)
+    probe_side(m, uncertainty, LEFT,  probe_top_at_edge);
+  #endif
+  #if ENABLED(CALIBRATION_MEASURE_BACK)
+    probe_side(m, uncertainty, BACK,  probe_top_at_edge);
+  #endif
 
   // Compute the measured center of the calibration object.
-  TERN_(HAS_X_CENTER, m.obj_center.x = (m.obj_side[LEFT] + m.obj_side[RIGHT]) / 2);
-  TERN_(HAS_Y_CENTER, m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2);
+  #if HAS_X_CENTER
+    m.obj_center.x = (m.obj_side[LEFT] + m.obj_side[RIGHT]) / 2;
+  #endif
+  #if HAS_Y_CENTER
+    m.obj_center.y = (m.obj_side[FRONT] + m.obj_side[BACK]) / 2;
+  #endif
 
   // Compute the outside diameter of the nozzle at the height
   // at which it makes contact with the calibration object
-  TERN_(HAS_X_CENTER, m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x);
-  TERN_(HAS_Y_CENTER, m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y);
+  #if HAS_X_CENTER
+    m.nozzle_outer_dimension.x = m.obj_side[RIGHT] - m.obj_side[LEFT] - dimensions.x;
+  #endif
+  #if HAS_Y_CENTER
+    m.nozzle_outer_dimension.y = m.obj_side[BACK]  - m.obj_side[FRONT] - dimensions.y;
+  #endif
 
   park_above_object(m, uncertainty);
 
@@ -485,7 +506,7 @@ inline void calibrate_toolhead(measurements_t &m, const float uncertainty, const
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
 
-  #if HAS_MULTI_HOTEND
+  #if HOTENDS > 1
     set_nozzle(m, extruder);
   #else
     UNUSED(extruder);
@@ -524,9 +545,13 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 
   HOTEND_LOOP() calibrate_toolhead(m, uncertainty, e);
 
-  TERN_(HAS_HOTEND_OFFSET, normalize_hotend_offsets());
+  #if HAS_HOTEND_OFFSET
+    normalize_hotend_offsets();
+  #endif
 
-  TERN_(HAS_MULTI_HOTEND, set_nozzle(m, 0));
+  #if HOTENDS > 1
+    set_nozzle(m, 0);
+  #endif
 }
 
 /**
@@ -543,7 +568,9 @@ inline void calibrate_all_toolheads(measurements_t &m, const float uncertainty) 
 inline void calibrate_all() {
   measurements_t m;
 
-  TERN_(HAS_HOTEND_OFFSET, reset_hotend_offsets());
+  #if HAS_HOTEND_OFFSET
+    reset_hotend_offsets();
+  #endif
 
   TEMPORARY_BACKLASH_CORRECTION(all_on);
   TEMPORARY_BACKLASH_SMOOTHING(0.0f);
@@ -551,10 +578,12 @@ inline void calibrate_all() {
   // Do a fast and rough calibration of the toolheads
   calibrate_all_toolheads(m, CALIBRATION_MEASUREMENT_UNKNOWN);
 
-  TERN_(BACKLASH_GCODE, calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN));
+  #if ENABLED(BACKLASH_GCODE)
+    calibrate_backlash(m, CALIBRATION_MEASUREMENT_UNCERTAIN);
+  #endif
 
   // Cycle the toolheads so the servos settle into their "natural" positions
-  #if HAS_MULTI_HOTEND
+  #if HOTENDS > 1
     HOTEND_LOOP() set_nozzle(m, e);
   #endif
 
@@ -576,11 +605,6 @@ inline void calibrate_all() {
  *   no args     - Perform entire calibration sequence (backlash + position on all toolheads)
  */
 void GcodeSuite::G425() {
-
-  #ifdef CALIBRATION_SCRIPT_PRE
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
-  #endif
-
   TEMPORARY_SOFT_ENDSTOP_STATE(false);
   TEMPORARY_BED_LEVELING_STATE(false);
 
@@ -611,10 +635,6 @@ void GcodeSuite::G425() {
   #endif
   else
     calibrate_all();
-
-  #ifdef CALIBRATION_SCRIPT_POST
-    GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));
-  #endif
 }
 
 #endif // CALIBRATION_GCODE

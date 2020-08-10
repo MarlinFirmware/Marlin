@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -64,19 +64,17 @@ bool MaxVelocityScreen::onTouchHeld(uint8_t tag) {
     case  5: UI_INCREMENT(AxisMaxFeedrate_mm_s, Y); break;
     case  6: UI_DECREMENT(AxisMaxFeedrate_mm_s, Z); break;
     case  7: UI_INCREMENT(AxisMaxFeedrate_mm_s, Z); break;
-    #if DISTINCT_E > 0
     case  8: UI_DECREMENT(AxisMaxFeedrate_mm_s, E0); break;
     case  9: UI_INCREMENT(AxisMaxFeedrate_mm_s, E0); break;
-    #endif
-    #if DISTINCT_E > 1
+    #if EXTRUDERS > 1 && ENABLED(DISTINCT_E_FACTORS)
     case 10: UI_DECREMENT(AxisMaxFeedrate_mm_s, E1); break;
     case 11: UI_INCREMENT(AxisMaxFeedrate_mm_s, E1); break;
     #endif
-    #if DISTINCT_E > 2
+    #if EXTRUDERS > 2 && ENABLED(DISTINCT_E_FACTORS)
     case 12: UI_DECREMENT(AxisMaxFeedrate_mm_s, E2); break;
     case 13: UI_INCREMENT(AxisMaxFeedrate_mm_s, E2); break;
     #endif
-    #if DISTINCT_E > 3
+    #if EXTRUDERS > 3 && ENABLED(DISTINCT_E_FACTORS)
     case 14: UI_DECREMENT(AxisMaxFeedrate_mm_s, E3); break;
     case 15: UI_INCREMENT(AxisMaxFeedrate_mm_s, E3); break;
     #endif

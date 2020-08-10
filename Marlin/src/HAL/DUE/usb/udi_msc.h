@@ -41,7 +41,7 @@
  *
  */
 /*
- * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
 #ifndef _UDI_MSC_H_
@@ -290,7 +290,7 @@ bool udi_msc_trans_block(bool b_read, uint8_t * block, iram_size_t block_size,
  * another "Composite Device" module, like "USB HID Mouse (Composite Device)".
  *
  * Also, you can refer to application note
- * <A href="https://www.atmel.com/dyn/resources/prod_documents/doc8445.pdf">
+ * <A href="http://www.atmel.com/dyn/resources/prod_documents/doc8445.pdf">
  * AVR4902 ASF - USB Composite Device</A>.
  *
  * \section udi_msc_use_case_composite_setup Setup steps

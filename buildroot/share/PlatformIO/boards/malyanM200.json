@@ -11,6 +11,7 @@
     "ldscript": "jtagOffset.ld",
     "mcu": "stm32f103cb",
     "variant": "malyanM200",
+    "genericvariant" : "MALYAN_M200_V1",
     "vec_tab_addr": "0x8002000"
   },
   "debug": {
@@ -30,6 +31,6 @@
     "use_1200bps_touch": false,
     "wait_for_upload_port": false
   },
-  "url": "https://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103cb.html",
+  "url": "http://www.st.com/content/st_com/en/products/microcontrollers/stm32-32-bit-arm-cortex-mcus/stm32f1-series/stm32f103/stm32f103cb.html",
   "vendor": "Generic"
 }

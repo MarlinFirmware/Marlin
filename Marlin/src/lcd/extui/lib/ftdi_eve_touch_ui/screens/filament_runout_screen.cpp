@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -35,7 +35,7 @@ void FilamentRunoutScreen::onRedraw(draw_mode_t what) {
   w.heading(   GET_TEXT_F(MSG_FILAMENT));
   w.toggle( 2, GET_TEXT_F(MSG_RUNOUT_SENSOR), getFilamentRunoutEnabled());
 
-  #if HAS_FILAMENT_RUNOUT_DISTANCE
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     extern const char NUL_STR[];
     w.heading(GET_TEXT_F(MSG_RUNOUT_DISTANCE_MM));
     w.units(GET_TEXT_F(MSG_UNITS_MM));
@@ -51,7 +51,7 @@ bool FilamentRunoutScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
   switch (tag) {
     case 2: setFilamentRunoutEnabled(!getFilamentRunoutEnabled()); break;
-    #if HAS_FILAMENT_RUNOUT_DISTANCE
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
       case  10: UI_DECREMENT(FilamentRunoutDistance_mm); break;
       case  11: UI_INCREMENT(FilamentRunoutDistance_mm); break;
     #endif

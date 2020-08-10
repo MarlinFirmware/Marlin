@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,7 +39,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRA_LCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also https://marlinfw.org/docs/development/lcd_language.html
+// See also http://marlinfw.org/docs/development/lcd_language.html
 
 // Languages
 // an         Aragonese
@@ -57,7 +57,6 @@
 // fr         French
 // gl         Galician
 // hr         Croatian
-// hu         Hungarian
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)
@@ -65,7 +64,6 @@
 // pl         Polish
 // pt         Portuguese
 // pt_br      Portuguese (Brazilian)
-// ro         Romanian
 // ru         Russian
 // sk         Slovak
 // tr         Turkish
@@ -82,16 +80,18 @@
 #ifdef CUSTOM_MACHINE_NAME
   #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
-#elif defined(DEFAULT_MACHINE_NAME)
-  #undef  MACHINE_NAME
-  #define MACHINE_NAME DEFAULT_MACHINE_NAME
+#else
+  #ifdef DEFAULT_MACHINE_NAME
+    #undef  MACHINE_NAME
+    #define MACHINE_NAME DEFAULT_MACHINE_NAME
+  #endif
 #endif
 
 #ifndef MACHINE_UUID
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "https://marlinfw.org"
+#define MARLIN_WEBSITE_URL "http://marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
@@ -126,7 +126,7 @@
 #define STR_INVALID_E_STEPPER               "Invalid E stepper"
 #define STR_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define STR_INVALID_SOLENOID                "Invalid solenoid"
-#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
+#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define STR_COUNT_X                         " Count X:"
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
@@ -163,7 +163,7 @@
 #define STR_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define STR_ERR_M421_PARAMETERS             "M421 incorrect parameter usage"
 #define STR_ERR_BAD_PLANE_MODE              "G5 requires XY plane mode"
-#define STR_ERR_MESH_XY                     "Mesh point out of range"
+#define STR_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define STR_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define STR_ERR_PROTECTED_PIN               "Protected Pin"
 #define STR_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
@@ -185,7 +185,7 @@
 #define STR_INVALID_POS_SLOT                "Invalid slot. Total: "
 
 #define STR_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
-#define STR_SD_INIT_FAIL                    "No SD card"
+#define STR_SD_INIT_FAIL                    "SD init fail"
 #define STR_SD_VOL_INIT_FAIL                "volume.init failed"
 #define STR_SD_OPENROOT_FAIL                "openRoot failed"
 #define STR_SD_CARD_OK                      "SD card ok"
@@ -205,6 +205,7 @@
 #define STR_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define STR_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define STR_ERR_HOTEND_TOO_COLD             "Hotend too cold"
+#define STR_ERR_Z_HOMING_SER                "Home XY first"
 #define STR_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define STR_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
@@ -220,10 +221,12 @@
 #define STR_KILL_BUTTON                     "!! KILL caused by KILL button/pin"
 
 // temperature.cpp strings
-#define STR_PID_AUTOTUNE_START              "PID Autotune start"
-#define STR_PID_BAD_EXTRUDER_NUM            "PID Autotune failed! Bad extruder number"
-#define STR_PID_TEMP_TOO_HIGH               "PID Autotune failed! Temperature too high"
-#define STR_PID_TIMEOUT                     "PID Autotune failed! timeout"
+#define STR_PID_AUTOTUNE_PREFIX             "PID Autotune"
+#define STR_PID_AUTOTUNE_START              STR_PID_AUTOTUNE_PREFIX " start"
+#define STR_PID_AUTOTUNE_FAILED             STR_PID_AUTOTUNE_PREFIX " failed!"
+#define STR_PID_BAD_EXTRUDER_NUM            STR_PID_AUTOTUNE_FAILED " Bad extruder number"
+#define STR_PID_TEMP_TOO_HIGH               STR_PID_AUTOTUNE_FAILED " Temperature too high"
+#define STR_PID_TIMEOUT                     STR_PID_AUTOTUNE_FAILED " timeout"
 #define STR_BIAS                            " bias: "
 #define STR_D_COLON                         " d: "
 #define STR_T_MIN                           " min: "
@@ -234,7 +237,7 @@
 #define STR_KP                              " Kp: "
 #define STR_KI                              " Ki: "
 #define STR_KD                              " Kd: "
-#define STR_PID_AUTOTUNE_FINISHED           "PID Autotune finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
+#define STR_PID_AUTOTUNE_FINISHED           STR_PID_AUTOTUNE_PREFIX " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define STR_PID_DEBUG                       " PID_DEBUG "
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "

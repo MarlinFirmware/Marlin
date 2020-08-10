@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -72,7 +72,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
         w.text_field(0, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 
-      #if HAS_MULTI_HOTEND
+      #if HOTENDS > 1
         format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
         w.text_field(0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif

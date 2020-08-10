@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -56,10 +56,10 @@ void ZStepperAlign::reset_to_default() {
 
     constexpr xyz_pos_t dpo = NOZZLE_TO_PROBE_OFFSET;
 
-    #define LTEST(N) (xy_init[N].x >= _MAX(X_MIN_BED + PROBING_MARGIN_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
-    #define RTEST(N) (xy_init[N].x <= _MIN(X_MAX_BED - PROBING_MARGIN_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
-    #define FTEST(N) (xy_init[N].y >= _MAX(Y_MIN_BED + PROBING_MARGIN_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
-    #define BTEST(N) (xy_init[N].y <= _MIN(Y_MAX_BED - PROBING_MARGIN_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
+    #define LTEST(N) (xy_init[N].x >= _MAX(X_MIN_BED + MIN_PROBE_EDGE_LEFT,  X_MIN_POS + dpo.x) - 0.00001f)
+    #define RTEST(N) (xy_init[N].x <= _MIN(X_MAX_BED - MIN_PROBE_EDGE_RIGHT, X_MAX_POS + dpo.x) + 0.00001f)
+    #define FTEST(N) (xy_init[N].y >= _MAX(Y_MIN_BED + MIN_PROBE_EDGE_FRONT, Y_MIN_POS + dpo.y) - 0.00001f)
+    #define BTEST(N) (xy_init[N].y <= _MIN(Y_MAX_BED - MIN_PROBE_EDGE_BACK,  Y_MAX_POS + dpo.y) + 0.00001f)
 
     static_assert(LTEST(0) && RTEST(0), "The 1st Z_STEPPER_ALIGN_XY X is unreachable with the default probe X offset.");
     static_assert(FTEST(0) && BTEST(0), "The 1st Z_STEPPER_ALIGN_XY Y is unreachable with the default probe Y offset.");

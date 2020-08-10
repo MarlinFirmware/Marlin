@@ -16,13 +16,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 #pragma once
 
 typedef const char Language_Str[];
 
-#ifdef LCD_LANGUAGE_5
+#if defined(LCD_LANGUAGE_5)
   #define NUM_LANGUAGES 5
 #elif defined(LCD_LANGUAGE_4)
   #define NUM_LANGUAGES 4
@@ -76,8 +76,4 @@ typedef const char Language_Str[];
 #endif
 #define GET_TEXT_F(MSG) (const __FlashStringHelper*)GET_TEXT(MSG)
 
-#define GET_LANGUAGE_NAME(INDEX) GET_LANG(LCD_LANGUAGE_##INDEX)::LANGUAGE
-
-#define MSG_1_LINE(A)     A "\0"   "\0"
-#define MSG_2_LINE(A,B)   A "\0" B "\0"
-#define MSG_3_LINE(A,B,C) A "\0" B "\0" C
+#define MSG_CONCAT(A,B) pgm_p_pair_t(GET_TEXT(A),GET_TEXT(B))

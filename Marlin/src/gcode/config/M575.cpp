@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,7 +42,7 @@ void GcodeSuite::M575() {
       if (set0) {
         SERIAL_ECHO_START();
         SERIAL_ECHOLNPAIR(" Serial "
-          #if HAS_MULTI_SERIAL
+          #if NUM_SERIAL > 1
             , '0',
           #else
             "0"
@@ -50,7 +50,7 @@ void GcodeSuite::M575() {
           " baud rate set to ", baud
         );
       }
-      #if HAS_MULTI_SERIAL
+      #if NUM_SERIAL > 1
         const bool set1 = (port == -99 || port == 1);
         if (set1) {
           SERIAL_ECHO_START();
@@ -62,7 +62,7 @@ void GcodeSuite::M575() {
 
       if (set0) { MYSERIAL0.end(); MYSERIAL0.begin(baud); }
 
-      #if HAS_MULTI_SERIAL
+      #if NUM_SERIAL > 1
         if (set1) { MYSERIAL1.end(); MYSERIAL1.begin(baud); }
       #endif
 

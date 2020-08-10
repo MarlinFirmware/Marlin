@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#include "pins_BTT_SKR_MINI_E3_common.h"
+#include "pins_BTT_SKR_MINI_E3.h"
 
-#define BOARD_INFO_NAME "BTT SKR Mini E3 V1.0"
+#define BOARD_INFO_NAME "BIGTREE SKR Mini E3"
 
 /**
  * TMC220x stepper drivers

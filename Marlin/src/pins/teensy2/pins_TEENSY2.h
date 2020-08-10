@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -65,8 +65,8 @@
 /**
  * Teensy++ 2.0 Breadboard pin assignments (AT90USB1286)
  * Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
- * https://www.pjrc.com/teensy/teensyduino.html
- * See https://reprap.org/wiki/Printrboard for more info
+ * http://www.pjrc.com/teensy/teensyduino.html
+ * See http://reprap.org/wiki/Printrboard for more info
  *
  * CLI build: HARDWARE_MOTHERBOARD=84 make
  *
@@ -160,10 +160,7 @@
 #define SDSS                                  20  // B0
 #define LED_PIN                                6  // D6
 #define PS_ON_PIN                             27  // B7
-
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       1  // D1 PWM2B  MUST BE HARDWARE PWM
-#endif
+#define CASE_LIGHT_PIN                         1  // D1 PWM2B  MUST BE HARDWARE PWM
 
 //
 // LCD / Controller

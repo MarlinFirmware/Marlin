@@ -41,7 +41,7 @@
  *
  */
 /*
- * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
 #ifndef _STRINGZ_H_

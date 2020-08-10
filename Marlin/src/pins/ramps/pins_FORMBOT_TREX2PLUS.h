@@ -16,10 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+/**
+ * Override default LCD timing for Formbot T-Rex 2+ machines.
+ * The long LCD cables and the routing near electrically noisy stepper motors
+ * requires a slightly longer setup and hold time on the signals.
+ */
+#define BOARD_ST7920_DELAY_1 DELAY_NS(200)
+#define BOARD_ST7920_DELAY_2 DELAY_NS(200)
+#define BOARD_ST7920_DELAY_3 DELAY_NS(200)
 
 /**
  * Formbot pin assignments
@@ -121,7 +130,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
+  #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else
@@ -166,9 +175,7 @@
   #define PS_ON_PIN                           12
 #endif
 
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       8
-#endif
+#define CASE_LIGHT_PIN                         8
 
 //
 // LCD / Controller
@@ -195,16 +202,4 @@
   #define LCD_PINS_D5                         25
   #define LCD_PINS_D6                         27
   #define LCD_PINS_D7                         29
-#endif
-
-#if HAS_GRAPHICAL_LCD
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(200)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(200)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(200)
-  #endif
 #endif

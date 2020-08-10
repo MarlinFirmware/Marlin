@@ -16,15 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(DIGIPOT_MCP4451)
+#if ENABLED(DIGIPOT_I2C) && DISABLED(DIGIPOT_MCP4018)
 
-#include <Stream.h>
+#include "Stream.h"
 #include <Wire.h>
 
 #if MB(MKS_SBASE)
@@ -33,18 +33,18 @@
 
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
 #if MB(5DPRINT)
-  #define DIGIPOT_I2C_FACTOR      117.96f
-  #define DIGIPOT_I2C_MAX_CURRENT   1.736f
+  #define DIGIPOT_I2C_FACTOR 117.96
+  #define DIGIPOT_I2C_MAX_CURRENT 1.736
 #elif MB(AZTEEG_X5_MINI, AZTEEG_X5_MINI_WIFI)
-  #define DIGIPOT_I2C_FACTOR      113.5f
-  #define DIGIPOT_I2C_MAX_CURRENT   2.0f
+  #define DIGIPOT_I2C_FACTOR 113.5
+  #define DIGIPOT_I2C_MAX_CURRENT 2.0
 #else
-  #define DIGIPOT_I2C_FACTOR      106.7f
-  #define DIGIPOT_I2C_MAX_CURRENT   2.5f
+  #define DIGIPOT_I2C_FACTOR 106.7
+  #define DIGIPOT_I2C_MAX_CURRENT 2.5
 #endif
 
 static byte current_to_wiper(const float current) {
-  return byte(TERN(DIGIPOT_USE_RAW_VALUES, current, CEIL(DIGIPOT_I2C_FACTOR * current)));
+  return byte(CEIL(float((DIGIPOT_I2C_FACTOR * current))));
 }
 
 static void digipot_i2c_send(const byte addr, const byte a, const byte b) {
@@ -62,8 +62,8 @@ static void digipot_i2c_send(const byte addr, const byte a, const byte b) {
 
 // This is for the MCP4451 I2C based digipot
 void digipot_i2c_set_current(const uint8_t channel, const float current) {
-  // These addresses are specific to Azteeg X3 Pro, can be set to others.
-  // In this case first digipot is at address A0=0, A1=0, second one is at A0=0, A1=1
+  // these addresses are specific to Azteeg X3 Pro, can be set to others,
+  // In this case first digipot is at address A0=0, A1= 0, second one is at A0=0, A1= 1
   const byte addr = channel < 4 ? DIGIPOT_I2C_ADDRESS_A : DIGIPOT_I2C_ADDRESS_B; // channel 0-3 vs 4-7
 
   // Initial setup
@@ -77,20 +77,14 @@ void digipot_i2c_set_current(const uint8_t channel, const float current) {
 
 void digipot_i2c_init() {
   #if MB(MKS_SBASE)
-    configure_i2c(16); // Set clock_option to 16 ensure I2C is initialized at 400kHz
+    configure_i2c(16); // Setting clock_option to 16 ensure the I2C bus is initialized at 400kHz
   #else
     Wire.begin();
   #endif
-  // Set up initial currents as defined in Configuration_adv.h
-  static const float digipot_motor_current[] PROGMEM =
-    #if ENABLED(DIGIPOT_USE_RAW_VALUES)
-      DIGIPOT_MOTOR_CURRENT
-    #else
-      DIGIPOT_I2C_MOTOR_CURRENTS
-    #endif
-  ;
+  // setup initial currents as defined in Configuration_adv.h
+  static const float digipot_motor_current[] PROGMEM = DIGIPOT_I2C_MOTOR_CURRENTS;
   LOOP_L_N(i, COUNT(digipot_motor_current))
     digipot_i2c_set_current(i, pgm_read_float(&digipot_motor_current[i]));
 }
 
-#endif // DIGIPOT_MCP4451
+#endif // DIGIPOT_I2C

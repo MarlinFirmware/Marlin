@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "compat.h"
@@ -51,17 +51,12 @@ namespace ExtUI {
   }
 
   void onMediaRemoved() {
-    if (isPrintingFromMedia()) {
-      stopPrint();
-      InterfaceSoundsScreen::playEventSound(InterfaceSoundsScreen::PRINTING_FAILED);
-    }
-    else
-      sound.play(media_removed, PLAY_ASYNCHRONOUS);
-
-    if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
+    if (AT_SCREEN(StatusScreen))
       StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
-
-    if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen)
+    sound.play(media_removed, PLAY_ASYNCHRONOUS);
+    if (AT_SCREEN(FilesScreen)) {
+      GOTO_SCREEN(StatusScreen)
+    }
   }
 
   void onMediaError() {
@@ -132,12 +127,7 @@ namespace ExtUI {
   }
 
   #if HAS_LEVELING && HAS_MESH
-    void onMeshUpdate(const int8_t x, const int8_t y, const float val) {
-      BedMeshScreen::onMeshUpdate(x, y, val);
-    }
-
-    void onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
-      BedMeshScreen::onMeshUpdate(x, y, state);
+    void onMeshUpdate(const int8_t, const int8_t, const float) {
     }
   #endif
 
@@ -150,19 +140,19 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      //SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
+      SERIAL_ECHOLNPAIR("OnPidTuning:", rst);
       switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_BAD_EXTRUDER_NUM));
+          StatusScreen::setStatusMessage(STR_PID_BAD_EXTRUDER_NUM);
           break;
         case PID_TEMP_TOO_HIGH:
-          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_TEMP_TOO_HIGH));
+          StatusScreen::setStatusMessage(STR_PID_TEMP_TOO_HIGH);
           break;
         case PID_TUNING_TIMEOUT:
-          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_TIMEOUT));
+          StatusScreen::setStatusMessage(STR_PID_TIMEOUT);
           break;
         case PID_DONE:
-          StatusScreen::setStatusMessage(GET_TEXT_F(MSG_PID_AUTOTUNE_DONE));
+          StatusScreen::setStatusMessage(STR_PID_AUTOTUNE_FINISHED);
           break;
       }
       GOTO_SCREEN(StatusScreen);

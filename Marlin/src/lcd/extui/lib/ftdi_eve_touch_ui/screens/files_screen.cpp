@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -89,7 +89,11 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
       cmd.cmd(MACRO(0));
     }
   #endif
-  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY | TERN0(SCROLL_LONG_FILENAMES, OPT_NOFIT));
+  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      | OPT_NOFIT
+    #endif
+  );
   if (is_dir) {
     cmd.text(BTN_POS(1,header_h+line), BTN_SIZE(6,1), F("> "),  OPT_CENTERY | OPT_RIGHTX);
   }
@@ -114,8 +118,7 @@ void FilesScreen::drawFileList() {
   for(uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
     if (files.seek(fileIndex)) {
       drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
-    }
-    else {
+    } else {
       break;
     }
   }

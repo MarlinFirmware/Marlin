@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -51,18 +51,7 @@
  */
 void GcodeSuite::M141() {
   if (DEBUGGING(DRYRUN)) return;
-  if (parser.seenval('S')) {
-    thermalManager.setTargetChamber(parser.value_celsius());
-
-    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-      /**
-       * Stop the timer at the end of print. Hotend, bed target, and chamber
-       * temperatures need to be set below mintemp. Order of M140, M104, and M141
-       * at the end of the print does not matter.
-       */
-      thermalManager.check_timer_autostart(false, true);
-    #endif
-  }
+  if (parser.seenval('S')) thermalManager.setTargetChamber(parser.value_celsius());
 }
 
 /**
@@ -75,7 +64,9 @@ void GcodeSuite::M191() {
   const bool no_wait_for_cooling = parser.seenval('S');
   if (no_wait_for_cooling || parser.seenval('R')) {
     thermalManager.setTargetChamber(parser.value_celsius());
-    TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.check_timer_autostart(true, false));
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      thermalManager.check_timer_autostart(true, false);
+    #endif
   }
   else return;
 

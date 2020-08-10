@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_MULTI_SERIAL
+#if NUM_SERIAL > 1
   #include "queue.h"
 #endif
 
@@ -83,7 +83,9 @@ void GCodeParser::reset() {
   string_arg = nullptr;                 // No whole line argument
   command_letter = '?';                 // No command letter
   codenum = 0;                          // No command code
-  TERN_(USE_GCODE_SUBCODES, subcode = 0); // No command sub-code
+  #if ENABLED(USE_GCODE_SUBCODES)
+    subcode = 0;                        // No command sub-code
+  #endif
   #if ENABLED(FASTER_GCODE_PARSER)
     codebits = 0;                       // No codes yet
     //ZERO(param);                      // No parameters (should be safe to comment out this line)
@@ -117,8 +119,9 @@ void GCodeParser::parse(char *p) {
   reset(); // No codes to report
 
   auto uppercase = [](char c) {
-    if (TERN0(GCODE_CASE_INSENSITIVE, WITHIN(c, 'a', 'z')))
-      c += 'A' - 'a';
+    #if ENABLED(GCODE_CASE_INSENSITIVE)
+      if (WITHIN(c, 'a', 'z')) c += 'A' - 'a';
+    #endif
     return c;
   };
 
@@ -127,7 +130,9 @@ void GCodeParser::parse(char *p) {
 
   // Skip N[-0-9] if included in the command line
   if (uppercase(*p) == 'N' && NUMERIC_SIGNED(p[1])) {
-    //TERN_(FASTER_GCODE_PARSER, set('N', p + 1)); // (optional) Set the 'N' parameter value
+    #if ENABLED(FASTER_GCODE_PARSER)
+      //set('N', p + 1);     // (optional) Set the 'N' parameter value
+    #endif
     p += 2;                  // skip N[-0-9]
     while (NUMERIC(*p)) ++p; // skip [0-9]*
     while (*p == ' ')   ++p; // skip [ ]*
@@ -208,7 +213,9 @@ void GCodeParser::parse(char *p) {
                              )
         ) {
           motion_mode_codenum = codenum;
-          TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
+          #if ENABLED(USE_GCODE_SUBCODES)
+            motion_mode_subcode = subcode;
+          #endif
         }
       #endif
 
@@ -225,7 +232,9 @@ void GCodeParser::parse(char *p) {
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
-        TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
+        #if ENABLED(USE_GCODE_SUBCODES)
+          subcode = motion_mode_subcode;
+        #endif
         p--; // Back up one character to use the current parameter
       break;
     #endif // GCODE_MOTION_MODES
@@ -322,9 +331,13 @@ void GCodeParser::parse(char *p) {
         #endif
       }
 
-      if (TERN0(DEBUG_GCODE_PARSER, debug)) SERIAL_EOL();
+      #if ENABLED(DEBUG_GCODE_PARSER)
+        if (debug) SERIAL_EOL();
+      #endif
 
-      TERN_(FASTER_GCODE_PARSER, set(param, valptr)); // Set parameter exists and pointer (nullptr for no value)
+      #if ENABLED(FASTER_GCODE_PARSER)
+        set(param, valptr);                     // Set parameter exists and pointer (nullptr for no value)
+      #endif
     }
     else if (!string_arg) {                     // Not A-Z? First time, keep as the string_arg
       string_arg = p - 1;

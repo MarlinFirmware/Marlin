@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 4100 K, 4.7 kOhm pull-up, Hisens thermistor
-const temp_entry_t temptable_13[] PROGMEM = {
+const short temptable_13[][2] PROGMEM = {
   { OV( 20.04), 300 },
   { OV( 23.19), 290 },
   { OV( 26.71), 280 },

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,8 +28,12 @@
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
 
-// Round up I2C / SPI address to next page boundary (assuming 32 byte pages)
-#define STATS_EEPROM_ADDRESS TERN(USE_WIRED_EEPROM, 0x40, 0x32)
+#if USE_WIRED_EEPROM
+  // round up address to next page boundary (assuming 32 byte pages)
+  #define STATS_EEPROM_ADDRESS 0x40
+#else
+  #define STATS_EEPROM_ADDRESS 0x32
+#endif
 
 struct printStatistics {    // 16 bytes
   //const uint8_t magic;    // Magic header, it will always be 0x16
@@ -53,7 +57,7 @@ class PrintCounter: public Stopwatch {
   private:
     typedef Stopwatch super;
 
-    #if EITHER(USE_WIRED_EEPROM, CPU_32_BIT)
+    #if USE_WIRED_EEPROM || defined(CPU_32_BIT)
       typedef uint32_t eeprom_address_t;
     #else
       typedef uint16_t eeprom_address_t;

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,42 +30,21 @@
    * M200: Set filament diameter and set E axis units to cubic units
    *
    *    T<extruder> - Optional extruder number. Current extruder if omitted.
-   *    D<linear>   - Set filament diameter and enable. D0 disables volumetric.
-   *    S<bool>     - Turn volumetric ON or OFF.
-   *    L<float>    - Volumetric extruder limit (in mm^3/sec). L0 disables the limit.
+   *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
    */
   void GcodeSuite::M200() {
 
     const int8_t target_extruder = get_target_extruder_from_command();
     if (target_extruder < 0) return;
 
-    bool vol_enable = parser.volumetric_enabled,
-         can_enable = true;
-
-    if (parser.seenval('D')) {
+    if (parser.seen('D')) {
+      // setting any extruder filament size disables volumetric on the assumption that
+      // slicers either generate in extruder values as cubic mm or as as filament feeds
+      // for all extruders
       const float dval = parser.value_linear_units();
-      if (dval) { // Set filament size for volumetric calculation
+      if ( (parser.volumetric_enabled = (dval != 0)) )
         planner.set_filament_size(target_extruder, dval);
-        vol_enable = true;    // Dn = enable for compatibility
-      }
-      else
-        can_enable = false;   // D0 = disable for compatibility
     }
-
-    // Enable or disable with S1 / S0
-    parser.volumetric_enabled = can_enable && parser.boolval('S', vol_enable);
-
-    #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-      if (parser.seenval('L')) {
-        // Set volumetric limit (in mm^3/sec)
-        const float lval = parser.value_float();
-        if (WITHIN(lval, 0, 20))
-          planner.set_volumetric_extruder_limit(target_extruder, lval);
-        else
-          SERIAL_ECHOLNPGM("?L value out of range (0-20).");
-      }
-    #endif
-
     planner.calculate_volumetric_multipliers();
   }
 
@@ -80,11 +59,6 @@ void GcodeSuite::M201() {
 
   const int8_t target_extruder = get_target_extruder_from_command();
   if (target_extruder < 0) return;
-
-  #ifdef XY_FREQUENCY_LIMIT
-    if (parser.seenval('F')) planner.set_frequency_limit(parser.value_byte());
-    if (parser.seenval('G')) planner.xy_freq_min_speed_factor = constrain(parser.value_float(), 1, 100) / 100;
-  #endif
 
   LOOP_XYZE(i) {
     if (parser.seen(axis_codes[i])) {
@@ -147,7 +121,7 @@ void GcodeSuite::M204() {
  *    J = Junction Deviation (mm) (If not using CLASSIC_JERK)
  */
 void GcodeSuite::M205() {
-  #if HAS_JUNCTION_DEVIATION
+  #if DISABLED(CLASSIC_JERK)
     #define J_PARAM  "J"
   #else
     #define J_PARAM
@@ -163,12 +137,14 @@ void GcodeSuite::M205() {
   if (parser.seen('B')) planner.settings.min_segment_time_us = parser.value_ulong();
   if (parser.seen('S')) planner.settings.min_feedrate_mm_s = parser.value_linear_units();
   if (parser.seen('T')) planner.settings.min_travel_feedrate_mm_s = parser.value_linear_units();
-  #if HAS_JUNCTION_DEVIATION
+  #if DISABLED(CLASSIC_JERK)
     if (parser.seen('J')) {
       const float junc_dev = parser.value_linear_units();
       if (WITHIN(junc_dev, 0.01f, 0.3f)) {
         planner.junction_deviation_mm = junc_dev;
-        TERN_(LIN_ADVANCE, planner.recalculate_max_e_jerk());
+        #if ENABLED(LIN_ADVANCE)
+          planner.recalculate_max_e_jerk();
+        #endif
       }
       else
         SERIAL_ERROR_MSG("?J out of range (0.01 to 0.3)");

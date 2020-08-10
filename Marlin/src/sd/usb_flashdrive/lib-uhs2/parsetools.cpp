@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  https://www.circuitsathome.com
+ * Web      :  http://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 

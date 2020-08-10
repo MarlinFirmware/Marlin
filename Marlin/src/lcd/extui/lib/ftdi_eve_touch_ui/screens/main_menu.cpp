@@ -18,7 +18,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -137,7 +137,7 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     case 4:  GOTO_SCREEN(MoveAxisScreen);                             break;
     case 5:  injectCommands_P(PSTR("M84"));                           break;
     case 6:  GOTO_SCREEN(TemperatureScreen);                          break;
-    #if BOTH(TOUCH_UI_COCOA_PRESS, HAS_CASE_LIGHT)
+    #if ENABLED(TOUCH_UI_COCOA_PRESS) && HAS_CASE_LIGHT
     case 7:  GOTO_SCREEN(CaseLightScreen);                            break;
     #else
     case 7:  GOTO_SCREEN(ChangeFilamentScreen);                       break;
@@ -146,18 +146,14 @@ bool MainMenu::onTouchEnd(uint8_t tag) {
     #ifdef AXIS_LEVELING_COMMANDS
     case 9: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS)); break;
     #endif
-    #if HAS_LEVELING
-      case 10:
-        #ifndef BED_LEVELING_COMMANDS
-          #define BED_LEVELING_COMMANDS "G29"
-        #endif
-        #if HAS_MESH
-          GOTO_SCREEN(BedMeshScreen);
-          injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
-        #else
-          SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
-        #endif
-        break;
+    #ifdef HAS_LEVELING
+    case 10:  SpinnerDialogBox::enqueueAndWait_P(F(
+      #ifdef BED_LEVELING_COMMANDS
+        BED_LEVELING_COMMANDS
+      #else
+        "G29"
+      #endif
+    ));            break;
     #endif
     case 11: GOTO_SCREEN(AboutScreen);                                break;
     default:

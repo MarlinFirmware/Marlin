@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #include "../../inc/MarlinConfig.h"
@@ -26,13 +26,6 @@
 #include "../gcode.h"
 #include "../../module/servo.h"
 
-/**
- * M281 - Edit / Report Servo Angles
- *
- *  P<index> - Servo to update
- *  L<angle> - Deploy Angle
- *  U<angle> - Stowed Angle
- */
 void GcodeSuite::M281() {
   if (!parser.seenval('P')) return;
   const int servo_index = parser.value_int();

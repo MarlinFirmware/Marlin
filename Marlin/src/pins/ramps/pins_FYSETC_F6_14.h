@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
 // FYSETC F6 v1.4 pin assignments
 //
 
-#define BOARD_INFO_NAME "FYSETC F6 1.4"
+#define BOARD_NAME "FYSETC F6 1.4"
 
 #define Z_MAX_PIN                              2
 

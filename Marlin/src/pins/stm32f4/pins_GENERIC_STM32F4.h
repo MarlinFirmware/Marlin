@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -36,8 +36,8 @@
 
 //#define I2C_EEPROM
 
-#ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+#ifndef E2END
+  #define E2END 0xFFF                             // 4KB
 #endif
 
 // Ignore temp readings during development.
@@ -126,9 +126,7 @@
 #define FAN1_PIN                            PC7
 #define FAN2_PIN                            PC8
 
-#ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PC7
-#endif
+#define ORIG_E0_AUTO_FAN_PIN            FAN1_PIN  // Use this by NOT overriding E0_AUTO_FAN_PIN
 
 //
 // Misc. Functions
@@ -185,13 +183,7 @@
 // ST7920 Delays
 //
 #if HAS_GRAPHICAL_LCD
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-  #endif
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
 #endif

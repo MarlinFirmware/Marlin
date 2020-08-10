@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -280,13 +280,13 @@ class I2CPositionEncodersMgr {
     static void set_ec_threshold(const int8_t idx, const float newThreshold, const AxisEnum axis) {
       CHECK_IDX();
       encoders[idx].set_ec_threshold(newThreshold);
-      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis set to ", newThreshold, "mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis set to ", FIXFLOAT(newThreshold), "mm.");
     }
 
     static void get_ec_threshold(const int8_t idx, const AxisEnum axis) {
       CHECK_IDX();
       const float threshold = encoders[idx].get_ec_threshold();
-      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis is ", threshold, "mm.");
+      SERIAL_ECHOLNPAIR("Error correct threshold for ", axis_codes[axis], " axis is ", FIXFLOAT(threshold), "mm.");
     }
 
     static int8_t idx_from_axis(const AxisEnum axis) {

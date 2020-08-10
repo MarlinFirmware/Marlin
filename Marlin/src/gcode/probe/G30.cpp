@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,19 +46,22 @@ void GcodeSuite::G30() {
   if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+  #if HAS_LEVELING
+    set_bed_leveling_enabled(false);
+  #endif
 
   remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
   const float measured_z = probe.probe_at_point(pos, raise_after, 1);
   if (!isnan(measured_z))
-    SERIAL_ECHOLNPAIR("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
+    SERIAL_ECHOLNPAIR("Bed X: ", FIXFLOAT(pos.x), " Y: ", FIXFLOAT(pos.y), " Z: ", FIXFLOAT(measured_z));
 
   restore_feedrate_and_scaling();
 
-  if (raise_after == PROBE_PT_STOW)
-    probe.move_z_after_probing();
+  #ifdef Z_AFTER_PROBING
+    if (raise_after == PROBE_PT_STOW) probe.move_z_after_probing();
+  #endif
 
   report_current_position();
 }

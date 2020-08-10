@@ -3,14 +3,14 @@
  *
  * Multi-instance software serial library for Arduino/Wiring
  * -- Interrupt-driven receive and other improvements by ladyada
- *    (https://ladyada.net)
+ *    (http://ladyada.net)
  * -- Tuning, circular buffer, derivation from class Print/Stream,
  *    multi-instance support, porting to 8MHz processors,
  *    various optimizations, PROGMEM delay tables, inverse logic and
  *    direct port writing by Mikal Hart (http://www.arduiniana.org)
- * -- Pin change interrupt macros by Paul Stoffregen (https://www.pjrc.com)
+ * -- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
  * -- 20MHz processor support by Garrett Mace (http://www.macetech.com)
- * -- ATmega1280/2560 support by Brett Hagman (https://www.roguerobotics.com/)
+ * -- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  https://www.circuitsathome.com
+ * Web      :  http://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 /* USB functions */
@@ -428,7 +428,7 @@ void USB::Task() { //USB state machine
   uint8_t rcode;
   uint8_t tmpdata;
   static uint32_t delay = 0;
-  //USB_FD_DEVICE_DESCRIPTOR buf;
+  //USB_DEVICE_DESCRIPTOR buf;
   bool lowspeed = false;
 
   MAX3421E::Task();
@@ -647,8 +647,8 @@ uint8_t USB::Configuring(uint8_t parent, uint8_t port, bool lowspeed) {
   //printf("Configuring: parent = %i, port = %i\r\n", parent, port);
   uint8_t devConfigIndex;
   uint8_t rcode = 0;
-  uint8_t buf[sizeof (USB_FD_DEVICE_DESCRIPTOR)];
-  USB_FD_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_FD_DEVICE_DESCRIPTOR *>(buf);
+  uint8_t buf[sizeof (USB_DEVICE_DESCRIPTOR)];
+  USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
   UsbDevice *p = nullptr;
   EpInfo *oldep_ptr = nullptr;
   EpInfo epInfo;
@@ -678,13 +678,13 @@ uint8_t USB::Configuring(uint8_t parent, uint8_t port, bool lowspeed) {
 
   p->lowspeed = lowspeed;
   // Get device descriptor
-  rcode = getDevDescr(0, 0, sizeof (USB_FD_DEVICE_DESCRIPTOR), (uint8_t*)buf);
+  rcode = getDevDescr(0, 0, sizeof (USB_DEVICE_DESCRIPTOR), (uint8_t*)buf);
 
   // Restore p->epinfo
   p->epinfo = oldep_ptr;
 
   if (rcode) {
-    //printf("Configuring error: Can't get USB_FD_DEVICE_DESCRIPTOR\r\n");
+    //printf("Configuring error: Can't get USB_DEVICE_DESCRIPTOR\r\n");
     return rcode;
   }
 
@@ -762,7 +762,7 @@ uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t con
 uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint8_t conf, USBReadParser *p) {
   const uint8_t bufSize = 64;
   uint8_t buf[bufSize];
-  USB_FD_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_FD_CONFIGURATION_DESCRIPTOR *>(buf);
+  USB_CONFIGURATION_DESCRIPTOR *ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR *>(buf);
 
   uint8_t ret = getConfDescr(addr, ep, 9, conf, buf);
   if (ret) return ret;

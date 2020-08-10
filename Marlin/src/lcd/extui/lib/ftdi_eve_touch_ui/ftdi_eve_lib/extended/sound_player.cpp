@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
@@ -98,8 +98,7 @@ namespace FTDI {
       if (ms == 0 && fx == SILENCE && nt == END_SONG) {
         sequence = 0;
         play(SILENCE, REST);
-      }
-      else {
+      } else {
         wait = ms;
         timer.start();
         play(fx, nt);

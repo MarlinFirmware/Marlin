@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,7 +39,7 @@
 #endif
 
 #if ENABLED(PCA9533)
-  #include "pca9533.h"
+  #include <SailfishRGB_LED.h>
 #endif
 
 #if ENABLED(LED_COLOR_PRESETS)
@@ -68,9 +68,15 @@ void LEDLights::setup() {
       if (PWM_PIN(RGB_LED_W_PIN)) SET_PWM(RGB_LED_W_PIN); else SET_OUTPUT(RGB_LED_W_PIN);
     #endif
   #endif
-  TERN_(NEOPIXEL_LED, neo.init());
-  TERN_(PCA9533, PCA9533_init());
-  TERN_(LED_USER_PRESET_STARTUP, set_default());
+  #if ENABLED(NEOPIXEL_LED)
+    neo.init();
+  #endif
+  #if ENABLED(PCA9533)
+    RGBinit();
+  #endif
+  #if ENABLED(LED_USER_PRESET_STARTUP)
+    set_default();
+  #endif
 }
 
 void LEDLights::set_color(const LEDColor &incol
@@ -134,7 +140,9 @@ void LEDLights::set_color(const LEDColor &incol
     pca9632_set_led_color(incol);
   #endif
 
-  TERN_(PCA9533, PCA9533_setColor(incol.r, incol.g, incol.b));
+  #if ENABLED(PCA9533)
+    RGBsetColor(incol.r, incol.g, incol.b, true);
+  #endif
 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     // Don't update the color when OFF

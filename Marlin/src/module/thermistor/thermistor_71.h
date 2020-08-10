@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
 // Beta = 3974
 // R1 = 0 Ohm
 // R2 = 4700 Ohm
-const temp_entry_t temptable_71[] PROGMEM = {
+const short temptable_71[][2] PROGMEM = {
   { OV(  35), 300 },
   { OV(  51), 269 },
   { OV(  59), 258 },

@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,20 +39,18 @@
 #include <EEPROM.h>
 
 // Store settings in the last two pages
-#ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE ((EEPROM_PAGE_SIZE) * 2)
-#endif
-size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+#define EEPROM_SIZE (EEPROM_PAGE_SIZE * 2)
+#define ACCESS_FINISHED(TF) do{ FLASH_Lock(); eeprom_dirty = false; return TF; }while(0)
 
-static uint8_t ram_eeprom[MARLIN_EEPROM_SIZE] __attribute__((aligned(4))) = {0};
+static uint8_t ram_eeprom[EEPROM_SIZE] __attribute__((aligned(4))) = {0};
 static bool eeprom_dirty = false;
 
 bool PersistentStore::access_start() {
   const uint32_t* source = reinterpret_cast<const uint32_t*>(EEPROM_PAGE0_BASE);
   uint32_t* destination = reinterpret_cast<uint32_t*>(ram_eeprom);
 
-  static_assert(0 == (MARLIN_EEPROM_SIZE) % 4, "MARLIN_EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
-  constexpr size_t eeprom_size_u32 = (MARLIN_EEPROM_SIZE) / 4;
+  static_assert(0 == EEPROM_SIZE % 4, "EEPROM_SIZE is corrupted. (Must be a multiple of 4.)"); // Ensure copying as uint32_t is safe
+  constexpr size_t eeprom_size_u32 = EEPROM_SIZE / 4;
 
   for (size_t i = 0; i < eeprom_size_u32; ++i, ++destination, ++source)
     *destination = *source;
@@ -74,15 +72,13 @@ bool PersistentStore::access_finish() {
     // page changes...either way, something to look at later.
     FLASH_Unlock();
 
-    #define ACCESS_FINISHED(TF) { FLASH_Lock(); eeprom_dirty = false; return TF; }
-
     status = FLASH_ErasePage(EEPROM_PAGE0_BASE);
     if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
     status = FLASH_ErasePage(EEPROM_PAGE1_BASE);
     if (status != FLASH_COMPLETE) ACCESS_FINISHED(true);
 
     const uint16_t *source = reinterpret_cast<const uint16_t*>(ram_eeprom);
-    for (size_t i = 0; i < MARLIN_EEPROM_SIZE; i += 2, ++source) {
+    for (size_t i = 0; i < EEPROM_SIZE; i += 2, ++source) {
       if (FLASH_ProgramHalfWord(EEPROM_PAGE0_BASE + i, *source) != FLASH_COMPLETE)
         ACCESS_FINISHED(false);
     }
@@ -108,6 +104,8 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos += size;
   return false;  // return true for any error
 }
+
+size_t PersistentStore::capacity() { return EEPROM_SIZE; }
 
 #endif // FLASH_EEPROM_EMULATION
 #endif // __STM32F1__

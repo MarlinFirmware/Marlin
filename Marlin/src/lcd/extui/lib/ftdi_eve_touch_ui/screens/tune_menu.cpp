@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -39,25 +39,9 @@ void TuneMenu::onRedraw(draw_mode_t what) {
   #ifdef TOUCH_UI_PORTRAIT
     #define GRID_ROWS 8
     #define GRID_COLS 2
-    #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(2,1)
-    #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(2,1)
-    #define FILAMENT_POS    BTN_POS(1,3), BTN_SIZE(2,1)
-    #define NUDGE_NOZ_POS   BTN_POS(1,4), BTN_SIZE(2,1)
-    #define SPEED_POS       BTN_POS(1,5), BTN_SIZE(2,1)
-    #define PAUSE_POS       BTN_POS(1,6), BTN_SIZE(2,1)
-    #define STOP_POS        BTN_POS(1,7), BTN_SIZE(2,1)
-    #define BACK_POS        BTN_POS(1,8), BTN_SIZE(2,1)
   #else
     #define GRID_ROWS 4
     #define GRID_COLS 2
-    #define TEMPERATURE_POS BTN_POS(1,1), BTN_SIZE(1,1)
-    #define NUDGE_NOZ_POS   BTN_POS(2,1), BTN_SIZE(1,1)
-    #define FIL_CHANGE_POS  BTN_POS(1,2), BTN_SIZE(1,1)
-    #define SPEED_POS       BTN_POS(2,2), BTN_SIZE(1,1)
-    #define PAUSE_POS       BTN_POS(1,3), BTN_SIZE(1,1)
-    #define STOP_POS        BTN_POS(2,3), BTN_SIZE(1,1)
-    #define FILAMENT_POS    BTN_POS(1,4), BTN_SIZE(1,1)
-    #define BACK_POS        BTN_POS(2,4), BTN_SIZE(1,1)
   #endif
 
   if (what & FOREGROUND) {
@@ -66,21 +50,81 @@ void TuneMenu::onRedraw(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(font_medium)
-       .tag(2).button( TEMPERATURE_POS, GET_TEXT_F(MSG_TEMPERATURE))
-       .enabled(!isPrinting() || isPrintingFromMediaPaused())
-       .tag(3).button( FIL_CHANGE_POS,  GET_TEXT_F(MSG_FILAMENTCHANGE))
-       .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
-       .tag(9).button( FILAMENT_POS, GET_TEXT_F(MSG_FILAMENT))
-       .enabled(EITHER(HAS_BED_PROBE, BABYSTEPPING))
-       .tag(4).button( NUDGE_NOZ_POS, GET_TEXT_F(TERN(BABYSTEPPING, MSG_NUDGE_NOZZLE, MSG_ZPROBE_ZOFFSET)))
-       .tag(5).button( SPEED_POS, GET_TEXT_F(MSG_PRINT_SPEED))
+    #ifdef TOUCH_UI_PORTRAIT
+       .tag(2).enabled(1)      .button( BTN_POS(1,1), BTN_SIZE(2,1), GET_TEXT_F(MSG_TEMPERATURE))
+       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
+       .enabled(
+         #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+           1
+         #endif
+       )
+       .tag(9).button( BTN_POS(1,3), BTN_SIZE(2,1), GET_TEXT_F(MSG_FILAMENT))
+      #if ENABLED(BABYSTEPPING)
+       .tag(4).enabled(1)      .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
+      #else
+        .enabled(
+          #if HAS_BED_PROBE
+            1
+          #endif
+        )
+       .tag(4)                 .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+      #endif
+       .tag(5).enabled(1)      .button( BTN_POS(1,5), BTN_SIZE(2,1), GET_TEXT_F(MSG_PRINT_SPEED))
        .tag(isPrintingFromMediaPaused() ? 7 : 6)
-       .enabled(TERN0(SDSUPPORT, isPrintingFromMedia()))
-       .button( PAUSE_POS, isPrintingFromMediaPaused() ? GET_TEXT_F(MSG_RESUME_PRINT) : GET_TEXT_F(MSG_PAUSE_PRINT))
-       .enabled(TERN0(SDSUPPORT, isPrintingFromMedia()))
-       .tag(8).button( STOP_POS, GET_TEXT_F(MSG_STOP_PRINT))
-       .tag(1).colors(action_btn)
-             .button( BACK_POS, GET_TEXT_F(MSG_BACK));
+       .enabled(
+         #if ENABLED(SDSUPPORT)
+           isPrintingFromMedia()
+         #endif
+       )
+        .button( BTN_POS(1,6), BTN_SIZE(2,1), isPrintingFromMediaPaused() ? GET_TEXT_F(MSG_RESUME_PRINT) : GET_TEXT_F(MSG_PAUSE_PRINT))
+        .enabled(
+          #if ENABLED(SDSUPPORT)
+            isPrintingFromMedia()
+          #endif
+        )
+      .tag(8)             .button( BTN_POS(1,7), BTN_SIZE(2,1), GET_TEXT_F(MSG_STOP_PRINT))
+      .tag(1).colors(action_btn)
+                          .button( BTN_POS(1,8), BTN_SIZE(2,1), GET_TEXT_F(MSG_BACK));
+    #else // TOUCH_UI_PORTRAIT
+       .tag(2).enabled(1) .button( BTN_POS(1,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_TEMPERATURE))
+       .tag(3).enabled(!isPrinting()).button( BTN_POS(1,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENTCHANGE))
+       .enabled(
+         #if ENABLED(BABYSTEPPING)
+           isPrintingFromMedia()
+         #endif
+       )
+        #if ENABLED(BABYSTEPPING)
+          .tag(4)         .button( BTN_POS(2,1), BTN_SIZE(1,1), GET_TEXT_F(MSG_NUDGE_NOZZLE))
+        #else
+          .enabled(
+            #if HAS_BED_PROBE
+              isPrintingFromMedia()
+            #endif
+          )
+          .tag(4)         .button( BTN_POS(1,4), BTN_SIZE(2,1), GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
+        #endif
+       .tag(5).enabled(1) .button( BTN_POS(2,2), BTN_SIZE(1,1), GET_TEXT_F(MSG_PRINT_SPEED))
+       .tag(isPrintingFromMediaPaused() ? 7 : 6)
+       .enabled(
+         #if ENABLED(SDSUPPORT)
+           isPrintingFromMedia()
+         #endif
+       )
+                          .button( BTN_POS(1,3), BTN_SIZE(1,1), isPrintingFromMediaPaused() ? GET_TEXT_F(MSG_RESUME_PRINT) : GET_TEXT_F(MSG_PAUSE_PRINT))
+       .enabled(
+         #if ENABLED(SDSUPPORT)
+           isPrintingFromMedia()
+         #endif
+       )
+       .tag(8).           button( BTN_POS(2,3), BTN_SIZE(1,1), GET_TEXT_F(MSG_STOP_PRINT))
+       .enabled(
+         #if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+           1
+         #endif
+       )
+       .tag(9).button( BTN_POS(1,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_FILAMENT))
+       .tag(1).colors(action_btn) .button( BTN_POS(2,4), BTN_SIZE(1,1), GET_TEXT_F(MSG_BACK));
+    #endif
   }
   #undef GRID_COLS
   #undef GRID_ROWS

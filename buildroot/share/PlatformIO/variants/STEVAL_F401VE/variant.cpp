@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 
-#ifdef ARDUINO_STEVAL
+#if defined(ARDUINO_STEVAL)
 // Pin number
 // This array allows to wrap Arduino pin number(Dx or x)
 // to STM32 PinName (PX_n)

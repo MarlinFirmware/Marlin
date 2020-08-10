@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -151,7 +151,7 @@ constexpr uint16_t VP_SETTINGS = 0x2400;
 
 // PID autotune
 constexpr uint16_t VP_PID_AUTOTUNE_E0 = 0x2410;
-constexpr uint16_t VP_PID_AUTOTUNE_E1 = 0x2412;
+//constexpr uint16_t VP_PID_AUTOTUNE_E1 = 0x2412;
 //constexpr uint16_t VP_PID_AUTOTUNE_E2 = 0x2414;
 //constexpr uint16_t VP_PID_AUTOTUNE_E3 = 0x2416;
 //constexpr uint16_t VP_PID_AUTOTUNE_E4 = 0x2418;
@@ -246,7 +246,7 @@ constexpr uint16_t VP_FAN3_STATUS = 0x3306;
 
 // Heater status
 constexpr uint16_t VP_E0_STATUS = 0x3310;
-constexpr uint16_t VP_E1_STATUS = 0x3312;
+//constexpr uint16_t VP_E1_STATUS = 0x3312;
 //constexpr uint16_t VP_E2_STATUS = 0x3314;
 //constexpr uint16_t VP_E3_STATUS = 0x3316;
 //constexpr uint16_t VP_E4_STATUS = 0x3318;
@@ -273,9 +273,6 @@ constexpr uint16_t VP_E1_STEP_PER_MM = 0x3612;
 constexpr uint16_t VP_E0_PID_P = 0x3700; // at the moment , 2 byte unsigned int , 0~1638.4
 constexpr uint16_t VP_E0_PID_I = 0x3702;
 constexpr uint16_t VP_E0_PID_D = 0x3704;
-constexpr uint16_t VP_E1_PID_P = 0x3706; // at the moment , 2 byte unsigned int , 0~1638.4
-constexpr uint16_t VP_E1_PID_I = 0x3708;
-constexpr uint16_t VP_E1_PID_D = 0x370A;
 constexpr uint16_t VP_BED_PID_P = 0x3710;
 constexpr uint16_t VP_BED_PID_I = 0x3712;
 constexpr uint16_t VP_BED_PID_D = 0x3714;

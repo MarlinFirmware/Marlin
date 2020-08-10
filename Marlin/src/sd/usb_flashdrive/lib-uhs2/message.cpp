@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  https://www.circuitsathome.com
+ * Web      :  http://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 
@@ -37,7 +37,7 @@ int UsbDEBUGlvl = 0x80;
 void E_Notifyc(char c, int lvl) {
   if (UsbDEBUGlvl < lvl) return;
   USB_HOST_SERIAL.print(c
-    #if !defined(ARDUINO) && !defined(ARDUINO_ARCH_LPC176X)
+    #if !defined(ARDUINO) || ARDUINO < 100
       , BYTE
     #endif
   );

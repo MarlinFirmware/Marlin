@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -103,19 +103,13 @@ void GcodeSuite::G76() {
     return false;
   };
 
-  auto g76_probe = [](const TempSensorID sid, uint16_t &targ, const xy_pos_t &nozpos) {
-    do_z_clearance(5.0); // Raise nozzle before probing
-    const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
+  auto g76_probe = [](const xy_pos_t &xypos) {
+    do_blocking_move_to_z(5.0); // Raise nozzle before probing
+    const float measured_z = probe.probe_at_point(xypos, PROBE_PT_NONE, 0, false);  // verbose=0, probe_relative=false
     if (isnan(measured_z))
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");
-    else {
+    else
       SERIAL_ECHOLNPAIR_F("Measured: ", measured_z);
-      if (targ == cali_info_init[sid].start_temp)
-        temp_comp.prepare_new_calibration(measured_z);
-      else
-        temp_comp.push_back_new_measurement(sid, measured_z);
-      targ += cali_info_init[sid].temp_res;
-    }
     return measured_z;
   };
 
@@ -131,9 +125,8 @@ void GcodeSuite::G76() {
   // Synchronize with planner
   planner.synchronize();
 
-  const xyz_pos_t parkpos = temp_comp.park_point,
-            probe_pos_xyz = xyz_pos_t(temp_comp.measure_point) + xyz_pos_t({ 0.0f, 0.0f, PTC_PROBE_HEATING_OFFSET }),
-              noz_pos_xyz = probe_pos_xyz - xy_pos_t(probe.offset_xy); // Nozzle position based on probe position
+  const xyz_pos_t parkpos = { temp_comp.park_point_x, temp_comp.park_point_y, temp_comp.park_point_z };
+  const xy_pos_t ppos = { temp_comp.measure_point_x, temp_comp.measure_point_y };
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
@@ -142,7 +135,7 @@ void GcodeSuite::G76() {
       SERIAL_ECHOLNPGM("!Park");
     else {
       // Ensure probe position is reachable
-      reachable = probe.can_reach(probe_pos_xyz);
+      reachable = probe.can_reach(ppos);
       if (!reachable) SERIAL_ECHOLNPGM("!Probe");
     }
 
@@ -156,6 +149,8 @@ void GcodeSuite::G76() {
 
   remember_feedrate_scaling_off();
 
+  // Nozzle position based on probe position
+  const xy_pos_t noz_pos = ppos - probe.offset_xy;
 
   /******************************************
    * Calibrate bed temperature offsets
@@ -164,13 +159,9 @@ void GcodeSuite::G76() {
   // Report temperatures every second and handle heating timeouts
   millis_t next_temp_report = millis() + 1000;
 
-  auto report_targets = [&](const uint16_t tb, const uint16_t tp) {
-    SERIAL_ECHOLNPAIR("Target Bed:", tb, " Probe:", tp);
-  };
-
   if (do_bed_cal) {
 
-    uint16_t target_bed = cali_info_init[TSI_BED].start_temp,
+    uint16_t target_bed = temp_comp.cali_info_init[TSI_BED].start_temp,
              target_probe = temp_comp.bed_calib_probe_temp;
 
     SERIAL_ECHOLNPGM("Waiting for cooling.");
@@ -178,30 +169,40 @@ void GcodeSuite::G76() {
       report_temps(next_temp_report);
 
     // Disable leveling so it won't mess with us
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+    #if HAS_LEVELING
+      set_bed_leveling_enabled(false);
+    #endif
 
     for (;;) {
       thermalManager.setTargetBed(target_bed);
 
-      report_targets(target_bed, target_probe);
+      SERIAL_ECHOLNPAIR("Target Bed:", target_bed, " Probe:", target_probe);
 
       // Park nozzle
       do_blocking_move_to(parkpos);
 
       // Wait for heatbed to reach target temp and probe to cool below target temp
-      if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + MIN_TO_MS(15))) {
+      if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + 900UL * 1000UL)) {
         SERIAL_ECHOLNPGM("!Bed heating timeout.");
         break;
       }
 
       // Move the nozzle to the probing point and wait for the probe to reach target temp
-      do_blocking_move_to(noz_pos_xyz);
+      do_blocking_move_to_xy(noz_pos);
       SERIAL_ECHOLNPGM("Waiting for probe heating.");
       while (thermalManager.degProbe() < target_probe)
         report_temps(next_temp_report);
 
-      const float measured_z = g76_probe(TSI_BED, target_bed, noz_pos_xyz);
-      if (isnan(measured_z) || target_bed > BED_MAX_TARGET) break;
+      const float measured_z = g76_probe(noz_pos);
+      if (isnan(measured_z)) break;
+
+      if (target_bed == temp_comp.cali_info_init[TSI_BED].start_temp)
+        temp_comp.prepare_new_calibration(measured_z);
+      else
+        temp_comp.push_back_new_measurement(TSI_BED, measured_z);
+
+      target_bed += temp_comp.cali_info_init[TSI_BED].temp_res;
+      if (target_bed > temp_comp.max_bed_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
@@ -212,7 +213,9 @@ void GcodeSuite::G76() {
 
     // Cleanup
     thermalManager.setTargetBed(0);
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
+    #if HAS_LEVELING
+      set_bed_leveling_enabled(true);
+    #endif
   } // do_bed_cal
 
   /********************************************
@@ -228,20 +231,20 @@ void GcodeSuite::G76() {
     const uint16_t target_bed = temp_comp.probe_calib_bed_temp;
     thermalManager.setTargetBed(target_bed);
 
-    uint16_t target_probe = cali_info_init[TSI_PROBE].start_temp;
-
-    report_targets(target_bed, target_probe);
+    uint16_t target_probe = temp_comp.cali_info_init[TSI_PROBE].start_temp;
 
     // Wait for heatbed to reach target temp and probe to cool below target temp
     wait_for_temps(target_bed, target_probe, next_temp_report);
 
     // Disable leveling so it won't mess with us
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
+    #if HAS_LEVELING
+      set_bed_leveling_enabled(false);
+    #endif
 
     bool timeout = false;
     for (;;) {
       // Move probe to probing point and wait for it to reach target temperature
-      do_blocking_move_to(noz_pos_xyz);
+      do_blocking_move_to_xy(noz_pos);
 
       SERIAL_ECHOLNPAIR("Waiting for probe heating. Bed:", target_bed, " Probe:", target_probe);
       const millis_t probe_timeout_ms = millis() + 900UL * 1000UL;
@@ -254,8 +257,16 @@ void GcodeSuite::G76() {
       }
       if (timeout) break;
 
-      const float measured_z = g76_probe(TSI_PROBE, target_probe, noz_pos_xyz);
-      if (isnan(measured_z) || target_probe > cali_info_init[TSI_PROBE].end_temp) break;
+      const float measured_z = g76_probe(noz_pos);
+      if (isnan(measured_z)) break;
+
+      if (target_probe == temp_comp.cali_info_init[TSI_PROBE].start_temp)
+        temp_comp.prepare_new_calibration(measured_z);
+      else
+        temp_comp.push_back_new_measurement(TSI_PROBE, measured_z);
+
+      target_probe += temp_comp.cali_info_init[TSI_PROBE].temp_res;
+      if (target_probe > temp_comp.cali_info_init[TSI_PROBE].end_temp) break;
     }
 
     SERIAL_ECHOLNPAIR("Retrieved measurements: ", temp_comp.get_index());
@@ -267,7 +278,9 @@ void GcodeSuite::G76() {
 
     // Cleanup
     thermalManager.setTargetBed(0);
-    TERN_(HAS_LEVELING, set_bed_leveling_enabled(true));
+    #if HAS_LEVELING
+      set_bed_leveling_enabled(true);
+    #endif
 
     SERIAL_ECHOLNPGM("Final compensation values:");
     temp_comp.print_offsets();

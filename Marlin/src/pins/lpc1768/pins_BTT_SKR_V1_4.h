@@ -16,13 +16,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "BTT SKR V1.4"
+  #define BOARD_INFO_NAME "BIGTREE SKR 1.4"
+#endif
+
+//
+// EEPROM
+//
+#if NONE(FLASH_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  //#define SDCARD_EEPROM_EMULATION
 #endif
 
 //
@@ -49,7 +57,7 @@
 //
 // Limit Switches
 //
-#ifdef X_STALL_SENSITIVITY
+#if X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_DIR < 0
     #define X_MAX_PIN                      P1_26  // E0DET
@@ -60,7 +68,7 @@
   #define X_STOP_PIN                       P1_29  // X-STOP
 #endif
 
-#ifdef Y_STALL_SENSITIVITY
+#if Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_DIR < 0
     #define Y_MAX_PIN                      P1_25  // E1DET
@@ -71,7 +79,7 @@
   #define Y_STOP_PIN                       P1_28  // Y-STOP
 #endif
 
-#ifdef Z_STALL_SENSITIVITY
+#if Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
   #if Z_HOME_DIR < 0
     #define Z_MAX_PIN                      P1_00  // PWRDET
@@ -251,7 +259,6 @@
     #define LCD_PINS_D4                    P1_21
 
   #else
-
     #define BTN_ENC                        P0_28  // (58) open-drain
     #define LCD_PINS_RS                    P1_19
 
@@ -312,13 +319,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // HAS_GRAPHICAL_LCD
+  #endif
 
 #endif // HAS_SPI_LCD
-
-#if HAS_ADC_BUTTONS
-  #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
-#endif
 
 //
 // Neopixel LED

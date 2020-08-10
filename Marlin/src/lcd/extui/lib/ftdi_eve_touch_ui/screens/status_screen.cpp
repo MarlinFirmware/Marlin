@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -246,7 +246,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(progress_str, PSTR("%-3d %%"),      getProgress_percent() );
 
     cmd.font(font_medium)
-       .tag(7).text(TIME_POS, time_str)
+       .tag(0).text(TIME_POS, time_str)
               .text(PROGRESS_POS, progress_str);
   }
 }
@@ -272,8 +272,8 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
     CommandProcessor cmd;
     cmd.colors(normal_btn)
        .font(Theme::font_medium)
-       .colors(has_media ? action_btn : normal_btn)
        .enabled(has_media)
+       .colors(has_media ? action_btn : normal_btn)
        .tag(3).button(MEDIA_BTN_POS, isPrintingFromMedia() ? GET_TEXT_F(MSG_PRINTING) : GET_TEXT_F(MSG_BUTTON_MEDIA))
        .colors(!has_media ? action_btn : normal_btn)
        .tag(4).button( MENU_BTN_POS, GET_TEXT_F(MSG_BUTTON_MENU));
@@ -360,7 +360,6 @@ void StatusScreen::onRedraw(draw_mode_t what) {
 }
 
 void StatusScreen::onEntry() {
-  BaseScreen::onEntry();
   onRefresh();
 }
 
@@ -380,27 +379,16 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
     case 4:
       if (isPrinting()) {
         GOTO_SCREEN(TuneMenu);
-      }
-      else {
+      } else {
         GOTO_SCREEN(MainMenu);
       }
       break;
     case 5:  GOTO_SCREEN(TemperatureScreen); break;
     case 6:
-      if (isPrinting()) {
-        #if ENABLED(BABYSTEPPING)
-          GOTO_SCREEN(NudgeNozzleScreen);
-        #elif HAS_BED_PROBE
-          GOTO_SCREEN(ZOffsetScreen);
-        #else
-          return false;
-        #endif
-      }
-      else {
+      if (!isPrinting()) {
         GOTO_SCREEN(MoveAxisScreen);
       }
       break;
-    case 7:  GOTO_SCREEN(FeedratePercentScreen); break;
     default:
       return true;
   }

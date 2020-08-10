@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -157,27 +157,15 @@ void menu_tmc_current() {
     BACK_ITEM(MSG_TMC_DRIVERS);
     #if X_SENSORLESS
       TMC_EDIT_STORED_SGT(X);
-      #if X2_SENSORLESS
-        TMC_EDIT_STORED_SGT(X2);
-      #endif
+    #endif
+    #if X2_SENSORLESS
+      TMC_EDIT_STORED_SGT(X2);
     #endif
     #if Y_SENSORLESS
       TMC_EDIT_STORED_SGT(Y);
-      #if Y2_SENSORLESS
-        TMC_EDIT_STORED_SGT(Y2);
-      #endif
     #endif
     #if Z_SENSORLESS
       TMC_EDIT_STORED_SGT(Z);
-      #if Z2_SENSORLESS
-        TMC_EDIT_STORED_SGT(Z2);
-      #endif
-      #if Z3_SENSORLESS
-        TMC_EDIT_STORED_SGT(Z3);
-      #endif
-      #if Z4_SENSORLESS
-        TMC_EDIT_STORED_SGT(Z4);
-      #endif
     #endif
     END_MENU();
   }

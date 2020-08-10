@@ -16,12 +16,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
 
-#if ALL(FTDI_EXTENDED, TOUCH_UI_USE_UTF8, TOUCH_UI_UTF8_WESTERN_CHARSET)
+#if defined(FTDI_EXTENDED) && BOTH(TOUCH_UI_USE_UTF8, TOUCH_UI_UTF8_WESTERN_CHARSET)
 
   #include "western_char_set_bitmap_31.h"
 
@@ -45,81 +45,81 @@
     DOT_ABOVE,
     CEDILLA,
     NO_DOT_I,
-    #if ENABLED(TOUCH_UI_UTF8_GERMANIC)
-      SHARP_S,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      LRG_O_STROKE,
-      SML_O_STROKE,
-      LRG_AE,
-      SML_AE,
-      LRG_ETH,
-      SML_ETH,
-      LRG_THORN,
-      SML_THORN,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
-      LEFT_DBL_QUOTE,
-      RIGHT_DBL_QUOTE,
-      INV_EXCLAMATION,
-      INV_QUESTION,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_CURRENCY)
-      CENT_SIGN,
-      POUND_SIGN,
-      CURRENCY_SIGN,
-      YEN_SIGN,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      SUPERSCRIPT_ONE,
-      SUPERSCRIPT_TWO,
-      SUPERSCRIPT_THREE,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
-      MASCULINE_ORDINAL,
-      FEMININE_ORDINAL,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
-      COPYRIGHT_SIGN,
-      REGISTERED_SIGN,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
-      PLUS_MINUS_SIGN,
-      MULTIPLICATION_SIGN,
-      DIVISION_SIGN,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_FRACTIONS)
-      FRACTION_QUARTER,
-      FRACTION_HALF,
-      FRACTION_THREE_FOURTHS,
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
-      MICRON_SIGN,
-      PILCROW_SIGN,
-      BROKEN_BAR,
-      SECTION_SIGN,
-      NOT_SIGN
-    #endif
+#if ENABLED(TOUCH_UI_UTF8_GERMANIC)
+    SHARP_S,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    LRG_O_STROKE,
+    SML_O_STROKE,
+    LRG_AE,
+    SML_AE,
+    LRG_ETH,
+    SML_ETH,
+    LRG_THORN,
+    SML_THORN,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
+    LEFT_DBL_QUOTE,
+    RIGHT_DBL_QUOTE,
+    INV_EXCLAMATION,
+    INV_QUESTION,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_CURRENCY)
+    CENT_SIGN,
+    POUND_SIGN,
+    CURRENCY_SIGN,
+    YEN_SIGN,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
+    SUPERSCRIPT_ONE,
+    SUPERSCRIPT_TWO,
+    SUPERSCRIPT_THREE,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_ORDINALS)
+    MASCULINE_ORDINAL,
+    FEMININE_ORDINAL,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+    COPYRIGHT_SIGN,
+    REGISTERED_SIGN,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
+    PLUS_MINUS_SIGN,
+    MULTIPLICATION_SIGN,
+    DIVISION_SIGN,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_FRACTIONS)
+    FRACTION_QUARTER,
+    FRACTION_HALF,
+    FRACTION_THREE_FOURTHS,
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
+    MICRON_SIGN,
+    PILCROW_SIGN,
+    BROKEN_BAR,
+    SECTION_SIGN,
+    NOT_SIGN
+#endif
   };
 
   /* Centerline of characters that can take accents */
 
-  constexpr int8_t mid_a = 12,
-                   mid_e = 12,
-                   mid_i = 5,
-                   mid_o = 12,
-                   mid_u = 12,
-                   mid_y = 11,
-                   mid_n = 12,
-                   mid_c = 12,
-                   mid_A = 13,
-                   mid_E = 13,
-                   mid_I = 6,
-                   mid_O = 14,
-                   mid_U = 14,
-                   mid_Y = 13,
-                   mid_N = 15,
-                   mid_C = 13;
+  constexpr int8_t mid_a = 12;
+  constexpr int8_t mid_e = 12;
+  constexpr int8_t mid_i = 5;
+  constexpr int8_t mid_o = 12;
+  constexpr int8_t mid_u = 12;
+  constexpr int8_t mid_y = 11;
+  constexpr int8_t mid_n = 12;
+  constexpr int8_t mid_c = 12;
+  constexpr int8_t mid_A = 13;
+  constexpr int8_t mid_E = 13;
+  constexpr int8_t mid_I = 6;
+  constexpr int8_t mid_O = 14;
+  constexpr int8_t mid_U = 14;
+  constexpr int8_t mid_Y = 13;
+  constexpr int8_t mid_N = 15;
+  constexpr int8_t mid_C = 13;
 
   /* Centerline of accent glyphs */
 
@@ -144,148 +144,148 @@
     uint8_t  alt_data; // For accented characters, the centerline; else char width
   } char_recipe[] = {
     {0,          0,  NO_DOT_I,           10   },
-    #if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
-      {UTF8('¡'),  0 , INV_EXCLAMATION,    13   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_CURRENCY)
-      {UTF8('¢'),  0 , CENT_SIGN,          23   },
-      {UTF8('£'),  0 , POUND_SIGN,         24   },
-      {UTF8('¤'),  0 , CURRENCY_SIGN,      26   },
-      {UTF8('¥'),  0 , YEN_SIGN,           26   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
-      {UTF8('¦'),  0 , BROKEN_BAR,         11   },
-      {UTF8('§'),  0 , SECTION_SIGN,       21   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
-      {UTF8('©'),  0 , COPYRIGHT_SIGN,     38   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
-      {UTF8('ª'),  0 , FEMININE_ORDINAL,   19   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
-      {UTF8('«'),  0 , LEFT_DBL_QUOTE,     23   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
-      {UTF8('¬'),  0 , NOT_SIGN,           32   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
-      {UTF8('®'),  0 , REGISTERED_SIGN,    38   },
-    #endif
-      {UTF8('°'),  0 , DOT_ABOVE,          24   },
-    #if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
-      {UTF8('±'),  0 , NOT_SIGN,           32   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('²'),  0 , SUPERSCRIPT_TWO,    16   },
-      {UTF8('³'),  0 , SUPERSCRIPT_THREE,  16   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
-      {UTF8('µ'),  0 , MICRON_SIGN,        28   },
-      {UTF8('¶'),  0 , PILCROW_SIGN,       24   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('¹'),  0 , SUPERSCRIPT_ONE,    16   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
-      {UTF8('º'),  0 , MASCULINE_ORDINAL,  19   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
-      {UTF8('»'),  0 , RIGHT_DBL_QUOTE,    24   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_FRACTIONS)
-      {UTF8('¼'),  0 , FRACTION_QUARTER,   40   },
-      {UTF8('½'),  0 , FRACTION_HALF,      40   },
-      {UTF8('¾'),  0 , FRACTION_THREE_FOURTHS, 40 },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
-      {UTF8('¿'),  0 , INV_QUESTION,       21   },
-    #endif
-      {UTF8('À'), 'A', GRAVE,              mid_A},
-      {UTF8('Á'), 'A', ACUTE,              mid_A},
-      {UTF8('Â'), 'A', CIRCUMFLEX,         mid_A},
-      {UTF8('Ã'), 'A', TILDE,              mid_A},
-      {UTF8('Ä'), 'A', DIAERESIS,          mid_A},
-      {UTF8('Å'), 'A', DOT_ABOVE,          mid_A},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('Æ'),  0 , LRG_AE,             40},
-    #endif
-      {UTF8('Ç'), 'C', CEDILLA,            mid_C},
-      {UTF8('È'), 'E', GRAVE,              mid_E},
-      {UTF8('É'), 'E', ACUTE,              mid_E},
-      {UTF8('Ê'), 'E', CIRCUMFLEX,         mid_E},
-      {UTF8('Ë'), 'E', DIAERESIS,          mid_E},
-      {UTF8('Ì'), 'I', GRAVE,              mid_I},
-      {UTF8('Í'), 'I', ACUTE,              mid_I},
-      {UTF8('Î'), 'I', CIRCUMFLEX,         mid_I},
-      {UTF8('Ï'), 'I', DIAERESIS,          mid_I},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('Ð'),  0,  LRG_ETH,            31   },
-    #endif
-      {UTF8('Ñ'), 'N', TILDE,              mid_N},
-      {UTF8('Ò'), 'O', GRAVE,              mid_O},
-      {UTF8('Ó'), 'O', ACUTE,              mid_O},
-      {UTF8('Ô'), 'O', CIRCUMFLEX,         mid_O},
-      {UTF8('Õ'), 'O', TILDE,              mid_O},
-      {UTF8('Ö'), 'O', DIAERESIS,          mid_O},
-    #if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
-      {UTF8('×'),  0 , MULTIPLICATION_SIGN, 32 },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('Ø'),  0 , LRG_O_STROKE,       32   },
-    #endif
-      {UTF8('Ù'), 'U', GRAVE,              mid_U},
-      {UTF8('Ú'), 'U', ACUTE,              mid_U},
-      {UTF8('Û'), 'U', CIRCUMFLEX,         mid_U},
-      {UTF8('Ü'), 'U', DIAERESIS,          mid_U},
-      {UTF8('Ý'), 'Y', ACUTE,              mid_Y},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('Þ'),  0 , LRG_THORN,          25   },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_GERMANIC)
-      {UTF8('ß'),  0 , SHARP_S,            26   },
-    #endif
-      {UTF8('à'), 'a', GRAVE,              mid_a},
-      {UTF8('á'), 'a', ACUTE,              mid_a},
-      {UTF8('â'), 'a', CIRCUMFLEX,         mid_a},
-      {UTF8('ã'), 'a', TILDE,              mid_a},
-      {UTF8('ä'), 'a', DIAERESIS,          mid_a},
-      {UTF8('å'), 'a', DOT_ABOVE,          mid_a},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('æ'),  0 , SML_AE,             40   },
-    #endif
-      {UTF8('ç'), 'c', CEDILLA,            mid_c},
-      {UTF8('è'), 'e', GRAVE,              mid_e},
-      {UTF8('é'), 'e', ACUTE,              mid_e},
-      {UTF8('ê'), 'e', CIRCUMFLEX,         mid_e},
-      {UTF8('ë'), 'e', DIAERESIS,          mid_e},
-      {UTF8('ì'), 'i', GRAVE,              mid_i},
-      {UTF8('í'), 'i', ACUTE,              mid_i},
-      {UTF8('î'), 'i', CIRCUMFLEX,         mid_i},
-      {UTF8('ï'), 'i', DIAERESIS,          mid_i},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('ð'),  0,  SML_ETH,            24   },
-    #endif
-      {UTF8('ñ'), 'n', TILDE,              mid_n},
-      {UTF8('ò'), 'o', GRAVE,              mid_o},
-      {UTF8('ó'), 'o', ACUTE,              mid_o},
-      {UTF8('ô'), 'o', CIRCUMFLEX,         mid_o},
-      {UTF8('õ'), 'o', TILDE,              mid_o},
-      {UTF8('ö'), 'o', DIAERESIS,          mid_o},
-    #if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
-      {UTF8('÷'),  0 , DIVISION_SIGN,      32 },
-    #endif
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('ø'),  0 , SML_O_STROKE,       25   },
-    #endif
-      {UTF8('ù'), 'u', GRAVE,              mid_u},
-      {UTF8('ú'), 'u', ACUTE,              mid_u},
-      {UTF8('û'), 'u', CIRCUMFLEX,         mid_u},
-      {UTF8('ü'), 'u', DIAERESIS,          mid_u},
-      {UTF8('ý'), 'y', ACUTE,              mid_y},
-    #if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
-      {UTF8('þ'),  0 , SML_THORN,          25   },
-    #endif
+#if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
+    {UTF8('¡'),  0 , INV_EXCLAMATION,    13   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_CURRENCY)
+    {UTF8('¢'),  0 , CENT_SIGN,          23   },
+    {UTF8('£'),  0 , POUND_SIGN,         24   },
+    {UTF8('¤'),  0 , CURRENCY_SIGN,      26   },
+    {UTF8('¥'),  0 , YEN_SIGN,           26   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
+    {UTF8('¦'),  0 , BROKEN_BAR,         11   },
+    {UTF8('§'),  0 , SECTION_SIGN,       21   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+    {UTF8('©'),  0 , COPYRIGHT_SIGN,     38   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_ORDINALS)
+    {UTF8('ª'),  0 , FEMININE_ORDINAL,   19   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
+    {UTF8('«'),  0 , LEFT_DBL_QUOTE,     23   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
+    {UTF8('¬'),  0 , NOT_SIGN,           32   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_COPYRIGHT)
+    {UTF8('®'),  0 , REGISTERED_SIGN,    38   },
+#endif
+    {UTF8('°'),  0 , DOT_ABOVE,          24   },
+#if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
+    {UTF8('±'),  0 , NOT_SIGN,           32   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
+    {UTF8('²'),  0 , SUPERSCRIPT_TWO,    16   },
+    {UTF8('³'),  0 , SUPERSCRIPT_THREE,  16   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
+    {UTF8('µ'),  0 , MICRON_SIGN,        28   },
+    {UTF8('¶'),  0 , PILCROW_SIGN,       24   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
+    {UTF8('¹'),  0 , SUPERSCRIPT_ONE,    16   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_ORDINALS)
+    {UTF8('º'),  0 , MASCULINE_ORDINAL,  19   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
+    {UTF8('»'),  0 , RIGHT_DBL_QUOTE,    24   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_FRACTIONS)
+    {UTF8('¼'),  0 , FRACTION_QUARTER,   40   },
+    {UTF8('½'),  0 , FRACTION_HALF,      40   },
+    {UTF8('¾'),  0 , FRACTION_THREE_FOURTHS, 40 },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_PUNCTUATION)
+    {UTF8('¿'),  0 , INV_QUESTION,       21   },
+#endif
+    {UTF8('À'), 'A', GRAVE,              mid_A},
+    {UTF8('Á'), 'A', ACUTE,              mid_A},
+    {UTF8('Â'), 'A', CIRCUMFLEX,         mid_A},
+    {UTF8('Ã'), 'A', TILDE,              mid_A},
+    {UTF8('Ä'), 'A', DIAERESIS,          mid_A},
+    {UTF8('Å'), 'A', DOT_ABOVE,          mid_A},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('Æ'),  0 , LRG_AE,             40},
+#endif
+    {UTF8('Ç'), 'C', CEDILLA,            mid_C},
+    {UTF8('È'), 'E', GRAVE,              mid_E},
+    {UTF8('É'), 'E', ACUTE,              mid_E},
+    {UTF8('Ê'), 'E', CIRCUMFLEX,         mid_E},
+    {UTF8('Ë'), 'E', DIAERESIS,          mid_E},
+    {UTF8('Ì'), 'I', GRAVE,              mid_I},
+    {UTF8('Í'), 'I', ACUTE,              mid_I},
+    {UTF8('Î'), 'I', CIRCUMFLEX,         mid_I},
+    {UTF8('Ï'), 'I', DIAERESIS,          mid_I},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('Ð'),  0,  LRG_ETH,            31   },
+#endif
+    {UTF8('Ñ'), 'N', TILDE,              mid_N},
+    {UTF8('Ò'), 'O', GRAVE,              mid_O},
+    {UTF8('Ó'), 'O', ACUTE,              mid_O},
+    {UTF8('Ô'), 'O', CIRCUMFLEX,         mid_O},
+    {UTF8('Õ'), 'O', TILDE,              mid_O},
+    {UTF8('Ö'), 'O', DIAERESIS,          mid_O},
+#if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
+    {UTF8('×'),  0 , MULTIPLICATION_SIGN, 32 },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('Ø'),  0 , LRG_O_STROKE,       32   },
+#endif
+    {UTF8('Ù'), 'U', GRAVE,              mid_U},
+    {UTF8('Ú'), 'U', ACUTE,              mid_U},
+    {UTF8('Û'), 'U', CIRCUMFLEX,         mid_U},
+    {UTF8('Ü'), 'U', DIAERESIS,          mid_U},
+    {UTF8('Ý'), 'Y', ACUTE,              mid_Y},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('Þ'),  0 , LRG_THORN,          25   },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_GERMANIC)
+    {UTF8('ß'),  0 , SHARP_S,            26   },
+#endif
+    {UTF8('à'), 'a', GRAVE,              mid_a},
+    {UTF8('á'), 'a', ACUTE,              mid_a},
+    {UTF8('â'), 'a', CIRCUMFLEX,         mid_a},
+    {UTF8('ã'), 'a', TILDE,              mid_a},
+    {UTF8('ä'), 'a', DIAERESIS,          mid_a},
+    {UTF8('å'), 'a', DOT_ABOVE,          mid_a},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('æ'),  0 , SML_AE,             40   },
+#endif
+    {UTF8('ç'), 'c', CEDILLA,            mid_c},
+    {UTF8('è'), 'e', GRAVE,              mid_e},
+    {UTF8('é'), 'e', ACUTE,              mid_e},
+    {UTF8('ê'), 'e', CIRCUMFLEX,         mid_e},
+    {UTF8('ë'), 'e', DIAERESIS,          mid_e},
+    {UTF8('ì'), 'i', GRAVE,              mid_i},
+    {UTF8('í'), 'i', ACUTE,              mid_i},
+    {UTF8('î'), 'i', CIRCUMFLEX,         mid_i},
+    {UTF8('ï'), 'i', DIAERESIS,          mid_i},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('ð'),  0,  SML_ETH,            24   },
+#endif
+    {UTF8('ñ'), 'n', TILDE,              mid_n},
+    {UTF8('ò'), 'o', GRAVE,              mid_o},
+    {UTF8('ó'), 'o', ACUTE,              mid_o},
+    {UTF8('ô'), 'o', CIRCUMFLEX,         mid_o},
+    {UTF8('õ'), 'o', TILDE,              mid_o},
+    {UTF8('ö'), 'o', DIAERESIS,          mid_o},
+#if ENABLED(TOUCH_UI_UTF8_MATHEMATICS)
+    {UTF8('÷'),  0 , DIVISION_SIGN,      32 },
+#endif
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('ø'),  0 , SML_O_STROKE,       25   },
+#endif
+    {UTF8('ù'), 'u', GRAVE,              mid_u},
+    {UTF8('ú'), 'u', ACUTE,              mid_u},
+    {UTF8('û'), 'u', CIRCUMFLEX,         mid_u},
+    {UTF8('ü'), 'u', DIAERESIS,          mid_u},
+    {UTF8('ý'), 'y', ACUTE,              mid_y},
+#if ENABLED(TOUCH_UI_UTF8_SCANDINAVIAN)
+    {UTF8('þ'),  0 , SML_THORN,          25   },
+#endif
     {UTF8('ÿ'), 'y', DIAERESIS,          mid_y}
   };
 
@@ -424,8 +424,7 @@
       accent_char  = 0;
       if (c == UTF8('°'))
         x -= fs.scale(deg_sign_leading);
-    }
-    else {
+    } else {
       // Regular character with accent:
       accent_dx   = alt_data - mid_accent;
       accent_dy   = isupper(std_char) ? -7 : 0;

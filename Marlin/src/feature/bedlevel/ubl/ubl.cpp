@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -49,13 +49,14 @@
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
     SERIAL_ECHO_MSG("  G29 I99");
-    GRID_LOOP(x, y)
-      if (!isnan(z_values[x][y])) {
-        SERIAL_ECHO_START();
-        SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
-        SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
-        serial_delay(75); // Prevent Printrun from exploding
-      }
+    LOOP_L_N(x, GRID_MAX_POINTS_X)
+      for (uint8_t y = 0;  y < GRID_MAX_POINTS_Y; y++)
+        if (!isnan(z_values[x][y])) {
+          SERIAL_ECHO_START();
+          SERIAL_ECHOPAIR("  M421 I", int(x), " J", int(y));
+          SERIAL_ECHOLNPAIR_F_P(SP_Z_STR, z_values[x][y], 4);
+          serial_delay(75); // Prevent Printrun from exploding
+        }
   }
 
   void unified_bed_leveling::report_state() {
@@ -84,7 +85,11 @@
     _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
   );
 
-  volatile int16_t unified_bed_leveling::encoder_diff;
+  #if HAS_LCD_MENU
+    bool unified_bed_leveling::lcd_map_control = false;
+  #endif
+
+  volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
     reset();
@@ -109,7 +114,9 @@
   void unified_bed_leveling::set_all_mesh_points_to_value(const float value) {
     GRID_LOOP(x, y) {
       z_values[x][y] = value;
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, value));
+      #if ENABLED(EXTENSIBLE_UI)
+        ExtUI::onMeshUpdate(x, y, value);
+      #endif
     }
   }
 
@@ -202,7 +209,7 @@
         if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         SERIAL_FLUSHTX();
-        idle_no_sleep();
+        idle();
       }
       if (!lcd) SERIAL_EOL();
 

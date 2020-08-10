@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
  * Alligator Board R2
- * https://reprap.org/wiki/Alligator_Board
+ * http://www.3dartists.org/
  */
 
 #ifndef __SAM3X8E__

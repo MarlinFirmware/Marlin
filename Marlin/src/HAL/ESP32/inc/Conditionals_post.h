@@ -16,7 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+#if ENABLED(EEPROM_SETTINGS) && NONE(USE_WIRED_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION)
+  #define SDCARD_EEPROM_EMULATION
+#endif

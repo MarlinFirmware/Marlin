@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
   #define DUMMY_THERMISTOR_999_VALUE 25
 #endif
 
-const temp_entry_t temptable_999[] PROGMEM = {
+const short temptable_999[][2] PROGMEM = {
   { OV(   1), DUMMY_THERMISTOR_999_VALUE },
   { OV(1023), DUMMY_THERMISTOR_999_VALUE }
 };

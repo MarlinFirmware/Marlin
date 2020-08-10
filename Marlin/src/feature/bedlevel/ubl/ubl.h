@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -111,12 +111,9 @@ class unified_bed_leveling {
 
     #if HAS_LCD_MENU
       static bool lcd_map_control;
-      static void steppers_were_disabled();
-    #else
-      static inline void steppers_were_disabled() {}
     #endif
 
-    static volatile int16_t encoder_diff; // Volatile because buttons may changed it at interrupt time
+    static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
 
     unified_bed_leveling();
 

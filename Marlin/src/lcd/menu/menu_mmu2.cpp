@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
+#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
 
 #include "../../feature/mmu2/mmu2.h"
 #include "menu_mmu2.h"
@@ -54,7 +54,8 @@ void _mmu2_load_filament(uint8_t index) {
   ui.reset_status();
 }
 void action_mmu2_load_all() {
-  LOOP_L_N(i, EXTRUDERS) _mmu2_load_filament(i);
+  LOOP_L_N(i, EXTRUDERS)
+    _mmu2_load_filament(i);
   ui.return_to_status();
 }
 
@@ -170,4 +171,4 @@ uint8_t mmu2_choose_filament() {
   return currentTool;
 }
 
-#endif // HAS_LCD_MENU && MMU2_MENUS
+#endif //  HAS_LCD_MENU && ENABLED(PRUSA_MMU2_MENUS)

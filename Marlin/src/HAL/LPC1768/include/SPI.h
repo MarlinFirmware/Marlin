@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
 class SPISettings {
   public:
     SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
-    uint32_t spiRate() const { return spi_speed; }
+    uint32_t spiRate() { return spi_speed; }
   private:
     uint32_t spi_speed;
 };
@@ -39,7 +39,7 @@ class SPISettings {
 class SPIClass {
   public:
     void begin();
-    void beginTransaction(const SPISettings&);
+    void beginTransaction(SPISettings);
     void endTransaction() {};
     uint8_t transfer(uint8_t data);
     uint16_t transfer16(uint16_t data);

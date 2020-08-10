@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -104,8 +104,8 @@ bool TWIBus::request(const uint8_t bytes) {
   debug(PSTR("request"), bytes);
 
   // requestFrom() is a blocking function
-  if (Wire.requestFrom(I2C_ADDRESS(addr), bytes) == 0) {
-    debug("request fail", I2C_ADDRESS(addr));
+  if (Wire.requestFrom(addr, bytes) == 0) {
+    debug("request fail", addr);
     return false;
   }
 

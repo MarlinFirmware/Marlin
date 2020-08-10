@@ -14,9 +14,11 @@ FORK=${INFO[1]}
 REPO=${INFO[2]}
 BRANCH=${INFO[5]}
 
-git push --set-upstream origin HEAD:$BRANCH
+git push --set-upstream origin $BRANCH
 
-OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
+which xdg-open >/dev/null && TOOL=xdg-open
+which gnome-open >/dev/null && TOOL=gnome-open
+which open >/dev/null && TOOL=open
 URL="https://github.com/$FORK/$REPO/commits/$BRANCH"
 
 if [ -z "$OPEN" ]; then

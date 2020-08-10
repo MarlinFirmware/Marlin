@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -124,7 +124,7 @@
 // Augmentation for auto-assigning RAMPS plugs
 //
 #if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
-  #if HAS_MULTI_HOTEND
+  #if HOTENDS > 1
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
     #else
@@ -172,9 +172,7 @@
   #define PS_ON_PIN                           12
 #endif
 
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                       5
-#endif
+#define CASE_LIGHT_PIN                         5
 
 //
 // LCD / Controller

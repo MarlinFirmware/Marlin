@@ -16,15 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#define REVERSE_TEMP_SENSOR_RANGE_110 1
-
 // Pt100 with 1k0 pullup
-const temp_entry_t temptable_110[] PROGMEM = {
+const short temptable_110[][2] PROGMEM = {
   // only a few values are needed as the curve is very flat
   PtLine(  0, 100, 1000),
   PtLine( 50, 100, 1000),

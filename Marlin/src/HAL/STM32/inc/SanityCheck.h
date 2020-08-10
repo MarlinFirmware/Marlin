@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,29 +28,10 @@
 //  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 //#endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  #error "EMERGENCY_PARSER is not yet implemented for STM32. Disable EMERGENCY_PARSER to continue."
+#endif
+
 #if ENABLED(FAST_PWM_FAN)
   #error "FAST_PWM_FAN is not yet implemented for this platform."
-#endif
-
-#if ENABLED(SDCARD_EEPROM_EMULATION) && DISABLED(SDSUPPORT)
-  #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise
-  #if USE_FALLBACK_EEPROM
-    #warning "EEPROM type not specified. Fallback is SDCARD_EEPROM_EMULATION."
-  #endif
-  #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
-#endif
-
-#if defined(STM32F4xx) && BOTH(PRINTCOUNTER, FLASH_EEPROM_EMULATION)
-  #warning "FLASH_EEPROM_EMULATION may cause long delays when writing and should not be used while printing."
-  #error "Disable PRINTCOUNTER or choose another EEPROM emulation."
-#endif
-
-#if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
-  #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4 hardware."
-#endif
-
-#if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
-  #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
-#elif ENABLED(SERIAL_STATS_DROPPED_RX)
-  #error "SERIAL_STATS_DROPPED_RX is not supported on this platform."
 #endif

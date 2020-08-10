@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,6 +29,12 @@
 
 // Ignore temp readings during develpment.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+
+//
+// EEPROM
+//
+#define FLASH_EEPROM_EMULATION
+//#define SDCARD_EEPROM_EMULATION
 
 //
 // Enable 12MHz clock output on P1.27 pin to sync TMC2208 chip clocks

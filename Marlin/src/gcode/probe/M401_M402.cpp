@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,7 +41,9 @@ void GcodeSuite::M401() {
  */
 void GcodeSuite::M402() {
   probe.stow();
-  probe.move_z_after_probing();
+  #ifdef Z_AFTER_PROBING
+    probe.move_z_after_probing();
+  #endif
   report_current_position();
 }
 

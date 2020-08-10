@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -69,7 +69,7 @@ void GcodeSuite::G0_G1(
       #endif
     #endif
 
-    get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
+    get_destination_from_command();                 // Process X Y Z E F parameters
 
     #ifdef G0_FEEDRATE
       if (fast_move) {

@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -209,8 +209,7 @@ class CachedScreen {
 
       if (dlcache.has_data()) {
         dlcache.append();
-      }
-      else {
+      } else {
         #ifdef TOUCH_UI_USE_UTF8
           load_utf8_bitmaps(cmd);
         #endif

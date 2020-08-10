@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,6 +29,8 @@
 #if HAS_LCD_MENU
 
 #include "menu.h"
+
+#include "../../module/configuration_store.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
@@ -102,50 +104,21 @@ void menu_advanced_settings();
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
-      static constexpr float max_extrude = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 500);
-      #if ENABLED(TOOLCHANGE_PARK)
-        EDIT_ITEM(bool, MSG_FILAMENT_PARK_ENABLED, &toolchange_settings.enable_park);
-      #endif
+      static constexpr float max_extrude =
+        #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
+          EXTRUDE_MAXLENGTH
+        #else
+          500
+        #endif
+      ;
       EDIT_ITEM(float3, MSG_FILAMENT_SWAP_LENGTH, &toolchange_settings.swap_length, 0, max_extrude);
-      EDIT_ITEM(float41sign, MSG_FILAMENT_SWAP_EXTRA, &toolchange_settings.extra_resume, -10, 10);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_RETRACT_SPEED, &toolchange_settings.retract_speed, 10, 5400);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_UNRETRACT_SPEED, &toolchange_settings.unretract_speed, 10, 5400);
       EDIT_ITEM(float3, MSG_FILAMENT_PURGE_LENGTH, &toolchange_settings.extra_prime, 0, max_extrude);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPEED, &toolchange_settings.prime_speed, 10, 5400);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_FAN_SPEED, &toolchange_settings.fan_speed, 0, 255);
-      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_FAN_TIME, &toolchange_settings.fan_time, 1, 30);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_RETRACT_SPD, &toolchange_settings.retract_speed, 10, 5400);
+      EDIT_ITEM_FAST(int4, MSG_SINGLENOZZLE_PRIME_SPD, &toolchange_settings.prime_speed, 10, 5400);
     #endif
     EDIT_ITEM(float3, MSG_TOOL_CHANGE_ZLIFT, &toolchange_settings.z_raise, 0, 10);
     END_MENU();
   }
-
-  #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-
-    #include "../../module/motion.h" // for active_extruder
-
-    void menu_toolchange_migration() {
-      PGM_P const msg_migrate = GET_TEXT(MSG_TOOL_MIGRATION_SWAP);
-
-      START_MENU();
-      BACK_ITEM(MSG_CONFIGURATION);
-
-      // Auto mode ON/OFF
-      EDIT_ITEM(bool, MSG_TOOL_MIGRATION_AUTO, &migration.automode);
-      EDIT_ITEM(uint8, MSG_TOOL_MIGRATION_END, &migration.last, 0, EXTRUDERS - 1);
-
-      // Migrate to a chosen extruder
-      LOOP_L_N(s, EXTRUDERS) {
-        if (s != active_extruder) {
-          ACTION_ITEM_N_P(s, msg_migrate, []{
-            char cmd[12];
-            sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
-            queue.inject(cmd);
-          });
-        }
-      }
-      END_MENU();
-    }
-  #endif
 
 #endif
 
@@ -172,7 +145,7 @@ void menu_advanced_settings();
     EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Y, &hotend_offset[1].y, -99.0, 99.0, _recalc_offsets);
     EDIT_ITEM_FAST(float42_52, MSG_HOTEND_OFFSET_Z, &hotend_offset[1].z, Z_PROBE_LOW_POINT, 10.0, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
-      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     #endif
     END_MENU();
   }
@@ -181,12 +154,11 @@ void menu_advanced_settings();
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
-    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
-
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
 
     GCODES_ITEM(MSG_IDEX_MODE_AUTOPARK,  PSTR("M605 S1\nG28 X\nG1 X100"));
+    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
     GCODES_ITEM(MSG_IDEX_MODE_DUPLICATE, need_g28
       ? PSTR("M605 S1\nT0\nG28\nM605 S2 X200\nG28 X\nG1 X100")                // If Y or Z is not homed, do a full G28 first
       : PSTR("M605 S1\nT0\nM605 S2 X200\nG28 X\nG1 X100")
@@ -206,7 +178,13 @@ void menu_advanced_settings();
   #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
     void bltouch_report() {
       SERIAL_ECHOLNPAIR("EEPROM Last BLTouch Mode - ", (int)bltouch.last_written_mode);
-      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD"));
+      SERIAL_ECHOLNPGM("Configuration BLTouch Mode - "
+        #if ENABLED(BLTOUCH_SET_5V_MODE)
+          "5V"
+        #else
+          "OD"
+        #endif
+      );
       char mess[21];
       strcpy_P(mess, PSTR("BLTouch Mode - "));
       strcpy_P(&mess[15], bltouch.last_written_mode ? PSTR("5V") : PSTR("OD"));
@@ -237,10 +215,9 @@ void menu_advanced_settings();
 #endif
 
 #if ENABLED(TOUCH_MI_PROBE)
-
   void menu_touchmi() {
-    ui.defer_status_screen();
     START_MENU();
+    ui.defer_status_screen();
     BACK_ITEM(MSG_CONFIGURATION);
     GCODES_ITEM(MSG_TOUCHMI_INIT, PSTR("M851 Z0\nG28\nG1 F200 Z0"));
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
@@ -248,7 +225,6 @@ void menu_advanced_settings();
     GCODES_ITEM(MSG_TOUCHMI_ZTEST, PSTR("G28\nG1 F200 Z0"));
     END_MENU();
   }
-
 #endif
 
 #if ENABLED(CONTROLLER_FAN_MENU)
@@ -266,6 +242,24 @@ void menu_advanced_settings();
     }
     END_MENU();
   }
+
+#endif
+
+#if ENABLED(CASE_LIGHT_MENU)
+
+  #include "../../feature/caselight.h"
+
+  #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+
+    void menu_case_light() {
+      START_MENU();
+      BACK_ITEM(MSG_CONFIGURATION);
+      EDIT_ITEM(percent, MSG_CASE_LIGHT_BRIGHTNESS, &case_light_brightness, 0, 255, update_case_light, true);
+      EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
+      END_MENU();
+    }
+
+  #endif
 
 #endif
 
@@ -298,38 +292,34 @@ void menu_advanced_settings();
 
 #endif
 
-#if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
+#if DISABLED(SLIM_LCD_MENUS)
 
-  void _menu_configuration_preheat_settings() {
+  void _menu_configuration_preheat_settings(const uint8_t material) {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
     #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
     #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
-    const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
-    STATIC_ITEM_P(ui.get_preheat_label(m), SS_CENTER|SS_INVERT);
     BACK_ITEM(MSG_CONFIGURATION);
-    #if HAS_FAN
-      editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
-      EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
-    #endif
+    EDIT_ITEM(percent, MSG_FAN_SPEED, &ui.preheat_fan_speed[material], 0, 255);
     #if HAS_TEMP_HOTEND
-      EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
+      EDIT_ITEM(int3, MSG_NOZZLE, &ui.preheat_hotend_temp[material], MINTEMP_ALL, MAXTEMP_ALL - 15);
     #endif
     #if HAS_HEATED_BED
-      EDIT_ITEM(uint16_3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+      EDIT_ITEM(int3, MSG_BED, &ui.preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 10);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
+      ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
     #endif
     END_MENU();
   }
 
+  void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
+  void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
+
 #endif
 
 void menu_configuration() {
-  const bool busy = printer_busy();
-
   START_MENU();
   BACK_ITEM(MSG_MAIN);
 
@@ -355,6 +345,7 @@ void menu_configuration() {
     SUBMENU(MSG_CONTROLLER_FAN, menu_controller_fan);
   #endif
 
+  const bool busy = printer_busy();
   if (!busy) {
     #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
       SUBMENU(MSG_DELTA_CALIBRATE, menu_delta_calibrate);
@@ -382,9 +373,22 @@ void menu_configuration() {
   //
   #if EXTRUDERS > 1
     SUBMENU(MSG_TOOL_CHANGE, menu_tool_change);
-    #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SUBMENU(MSG_TOOL_MIGRATION, menu_toolchange_migration);
+  #endif
+
+  //
+  // Set Case light on/off/brightness
+  //
+  #if ENABLED(CASE_LIGHT_MENU)
+    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+      if (true
+        #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
+          && PWM_PIN(CASE_LIGHT_PIN)
+        #endif
+      )
+        SUBMENU(MSG_CASE_LIGHT, menu_case_light);
+      else
     #endif
+        EDIT_ITEM(bool, MSG_CASE_LIGHT, (bool*)&case_light_on, update_case_light);
   #endif
 
   #if HAS_LCD_CONTRAST
@@ -402,18 +406,25 @@ void menu_configuration() {
     EDIT_ITEM(bool, MSG_OUTAGE_RECOVERY, &recovery.enabled, recovery.changed);
   #endif
 
-  // Preheat configurations
-  #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
-    LOOP_L_N(m, PREHEAT_COUNT)
-      SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
+  #if DISABLED(SLIM_LCD_MENUS)
+    // Preheat configurations
+    SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
+    SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
-    if (!busy) ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
+    ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+    if (!busy)
+      ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
   #endif
 
-  if (!busy) ACTION_ITEM(MSG_RESTORE_DEFAULTS, ui.reset_settings);
+  if (!busy)
+    ACTION_ITEM(MSG_RESTORE_DEFAULTS, []{
+      settings.reset();
+      #if HAS_BUZZER
+        ui.completion_feedback();
+      #endif
+    });
 
   END_MENU();
 }

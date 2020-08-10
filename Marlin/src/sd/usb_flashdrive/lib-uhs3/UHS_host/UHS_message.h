@@ -20,7 +20,7 @@ Contact information
 -------------------
 
 Circuits At Home, LTD
-Web      :  https://www.circuitsathome.com
+Web      :  http://www.circuitsathome.com
 e-mail   :  support@circuitsathome.com
  */
 #if !defined(_UHS_host_h_) || defined(__MESSAGE_H__)

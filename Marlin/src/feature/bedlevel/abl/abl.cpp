@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -74,7 +74,9 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
 
   // Take the average instead of the median
   z_values[x][y] = (a + b + c) / 3.0;
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
+  #if ENABLED(EXTENSIBLE_UI)
+    ExtUI::onMeshUpdate(x, y, z_values[x][y]);
+  #endif
 
   // Median is robust (ignores outliers).
   // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
@@ -239,7 +241,9 @@ void print_bilinear_leveling_grid() {
 // Refresh after other values have been updated
 void refresh_bed_level() {
   bilinear_grid_factor = bilinear_grid_spacing.reciprocal();
-  TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    bed_level_virt_interpolate();
+  #endif
 }
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)

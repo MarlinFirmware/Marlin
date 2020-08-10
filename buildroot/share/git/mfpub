@@ -67,11 +67,11 @@ if [[ $BRANCH == $TARG ]]; then
     # Allow working directly with the main fork
     echo
     echo -n "Pushing to origin/$TARG... "
-    git push origin HEAD:$TARG
+    git push -f origin
 
     echo
     echo -n "Pushing to upstream/$TARG... "
-    git push upstream HEAD:$TARG
+    git push -f upstream
 
   else
 
@@ -126,7 +126,7 @@ git push -f origin
 git push -f upstream | {
   while IFS= read -r line
   do
-    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite "https://marlinfw.org/"
+    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite "http://marlinfw.org/"
     echo "$line"
   done
 }
@@ -135,4 +135,4 @@ git push -f upstream | {
 rm -rf ${TMPFOLDER}
 
 # Go back to the branch we started from
-git checkout $CURR && [[ $HAS_STASH == 1 ]] && git stash pop
+[[ $BRANCH != $CURR ]] && git checkout $BRANCH && [[ $HAS_STASH == 1 ]] && git stash pop

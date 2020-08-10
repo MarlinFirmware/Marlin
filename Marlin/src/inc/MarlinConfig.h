@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,6 @@
 #include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
-#include HAL_PATH(../HAL, timers.h)
 #include HAL_PATH(../HAL, spi_pins.h)
 
 #include "Conditionals_post.h"

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #ifdef __AVR__
@@ -25,18 +25,9 @@
 
 #if EITHER(EEPROM_SETTINGS, SD_FIRMWARE_UPDATE)
 
-/**
- * PersistentStore for Arduino-style EEPROM interface
- * with implementations supplied by the framework.
- */
-
 #include "../shared/eeprom_api.h"
 
-#ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
-#endif
-size_t PersistentStore::capacity()    { return MARLIN_EEPROM_SIZE; }
-bool PersistentStore::access_start()  { return true; }
+bool PersistentStore::access_start() { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -55,7 +46,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     crc16(crc, &v, 1);
     pos++;
     value++;
-  }
+  };
   return false;
 }
 
@@ -69,6 +60,8 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t 
   } while (--size);
   return false;  // always assume success for AVR's
 }
+
+size_t PersistentStore::capacity() { return E2END + 1; }
 
 #endif // EEPROM_SETTINGS || SD_FIRMWARE_UPDATE
 #endif // __AVR__

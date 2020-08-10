@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,9 +29,11 @@
 
 #if HAS_SERVOS
 
+#include "../shared/Marduino.h"
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 #include "SAMD51.h"
+#include "timers.h"
 
 #define __TC_GCLK_ID(t)         TC##t##_GCLK_ID
 #define _TC_GCLK_ID(t)          __TC_GCLK_ID(t)
@@ -53,7 +55,7 @@
 static volatile int8_t currentServoIndex[_Nbr_16timers];    // index for the servo being pulsed for each timer (or -1 if refresh interval)
 
 FORCE_INLINE static uint16_t getTimerCount() {
-  Tc * const tc = TimerConfig[SERVO_TC].pTc;
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
 
   tc->COUNT16.CTRLBSET.reg = TC_CTRLBCLR_CMD_READSYNC;
   SYNC(tc->COUNT16.SYNCBUSY.bit.CTRLB || tc->COUNT16.SYNCBUSY.bit.COUNT);
@@ -65,7 +67,7 @@ FORCE_INLINE static uint16_t getTimerCount() {
 // Interrupt handler for the TC
 // ----------------------------
 HAL_SERVO_TIMER_ISR() {
-  Tc * const tc = TimerConfig[SERVO_TC].pTc;
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const timer16_Sequence_t timer =
     #ifndef _useTimer1
       _timer2
@@ -125,7 +127,7 @@ HAL_SERVO_TIMER_ISR() {
 }
 
 void initISR(timer16_Sequence_t timer) {
-  Tc * const tc = TimerConfig[SERVO_TC].pTc;
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
   static bool initialized = false;  // Servo TC has been initialized
@@ -202,7 +204,7 @@ void initISR(timer16_Sequence_t timer) {
 }
 
 void finISR(timer16_Sequence_t timer) {
-  Tc * const tc = TimerConfig[SERVO_TC].pTc;
+  Tc * const tc = TimerConfig[SERVO_TC].pTimer;
   const uint8_t tcChannel = TIMER_TCCHANNEL(timer);
 
   // Disable the match channel interrupt request

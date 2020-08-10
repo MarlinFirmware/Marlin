@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -33,10 +33,10 @@
  *     DLCache dlcache(UNIQUE_ID);
  *
  *     if (dlcache.hasData()) {
- *       dlcache.append();
+ *        dlcache.append();
  *     } else {
- *       // Add stuff to the DL
- *       dlcache.store();
+ *        // Add stuff to the DL
+ *        dlcache.store();
  *     }
  */
 class DLCache {

@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -55,11 +55,9 @@ void AboutScreen::onRedraw(draw_mode_t) {
   #define _INSET_POS(x,y,w,h) x + w/10, y, w - w/5, h
   #define INSET_POS(pos) _INSET_POS(pos)
 
-  char about_str[1
-    + strlen_P(GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2))
-    #ifdef TOOLHEAD_NAME
-      + strlen_P(TOOLHEAD_NAME)
-    #endif
+  char about_str[
+    strlen_P(GET_TEXT(MSG_ABOUT_TOUCH_PANEL_2)) +
+    strlen_P(TOOLHEAD_NAME) + 1
   ];
   #ifdef TOOLHEAD_NAME
     // If MSG_ABOUT_TOUCH_PANEL_2 has %s, substitute in the toolhead name.
@@ -80,13 +78,7 @@ void AboutScreen::onRedraw(draw_mode_t) {
     #endif
     , OPT_CENTER, font_xlarge
   );
-  draw_text_box(cmd, FW_VERS_POS,
-  #ifdef TOUCH_UI_VERSION
-    F(TOUCH_UI_VERSION)
-  #else
-    progmem_str(getFirmwareName_str())
-  #endif
-  , OPT_CENTER, font_medium);
+  draw_text_box(cmd, FW_VERS_POS, progmem_str(getFirmwareName_str()), OPT_CENTER, font_medium);
   draw_text_box(cmd, FW_INFO_POS, about_str, OPT_CENTER, font_medium);
   draw_text_box(cmd, INSET_POS(LICENSE_POS), GET_TEXT_F(MSG_LICENSE), OPT_CENTER, font_tiny);
 

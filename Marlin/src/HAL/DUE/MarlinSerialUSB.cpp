@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -73,7 +73,9 @@ int MarlinSerialUSB::peek() {
 
   pending_char = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(emergency_state, (char)pending_char));
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser.update(emergency_state, (char)pending_char);
+  #endif
 
   return pending_char;
 }
@@ -95,7 +97,9 @@ int MarlinSerialUSB::read() {
 
   int c = udi_cdc_getc();
 
-  TERN_(EMERGENCY_PARSER, emergency_parser.update(emergency_state, (char)c));
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser.update(emergency_state, (char)c);
+  #endif
 
   return c;
 }

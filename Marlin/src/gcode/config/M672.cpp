@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -51,8 +51,8 @@
  *   Marlin: M672 R
  */
 
-#define M672_PROGBYTE    105                // magic byte to start programming custom sensitivity
-#define M672_ERASEBYTE   131                // magic byte to clear custom sensitivity
+#define M672_PROGBYTE    105								// magic byte to start programming custom sensitivity
+#define M672_ERASEBYTE   131								// magic byte to clear custom sensitivity
 
 //
 // Smart Effector byte send protocol:

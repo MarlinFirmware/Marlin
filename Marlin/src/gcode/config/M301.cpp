@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,8 +29,6 @@
 
 /**
  * M301: Set PID parameters P I D (and optionally C, L)
- *
- *   E[extruder] Default: 0
  *
  *   P[float] Kp term
  *   I[float] Ki term (unscaled)
@@ -67,7 +65,6 @@ void GcodeSuite::M301() {
     #endif
 
     thermalManager.updatePID();
-
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output

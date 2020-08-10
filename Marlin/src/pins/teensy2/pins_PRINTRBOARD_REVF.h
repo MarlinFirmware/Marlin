@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -246,7 +246,7 @@
     //#define MOSI                            22  //         12               B2                ICSP-03             EXP2-05
     //#define MISO                            23  //         13               B3                ICSP-06             EXP2-05
 
-    // Alter timing for graphical display
+    // increase delays
     #define BOARD_ST7920_DELAY_1 DELAY_NS(313)
     #define BOARD_ST7920_DELAY_2 DELAY_NS(313)
     #define BOARD_ST7920_DELAY_3 DELAY_NS(313)

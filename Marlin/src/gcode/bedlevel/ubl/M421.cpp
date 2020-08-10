@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -63,7 +63,9 @@ void GcodeSuite::M421() {
   else {
     float &zval = ubl.z_values[ij.x][ij.y];
     zval = hasN ? NAN : parser.value_linear_units() + (hasQ ? zval : 0);
-    TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ij.x, ij.y, zval));
+    #if ENABLED(EXTENSIBLE_UI)
+      ExtUI::onMeshUpdate(ij.x, ij.y, zval);
+    #endif
   }
 }
 

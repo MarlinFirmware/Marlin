@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -46,7 +46,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
     return false;
   }
 
-  #if LCD_TIMEOUT_TO_STATUS > 0
+  #if LCD_TIMEOUT_TO_STATUS
     if (EventLoop::get_pressed_tag() != 0) {
       reset_menu_timeout();
     }
@@ -66,7 +66,7 @@ bool BaseScreen::buttonStyleCallback(CommandProcessor &cmd, uint8_t tag, uint8_t
 }
 
 void BaseScreen::onIdle() {
-  #if LCD_TIMEOUT_TO_STATUS > 0
+  #if LCD_TIMEOUT_TO_STATUS
     if ((millis() - last_interaction) > LCD_TIMEOUT_TO_STATUS) {
       reset_menu_timeout();
       #if ENABLED(TOUCH_UI_DEBUG)
@@ -78,12 +78,12 @@ void BaseScreen::onIdle() {
 }
 
 void BaseScreen::reset_menu_timeout() {
-  #if LCD_TIMEOUT_TO_STATUS > 0
+  #if LCD_TIMEOUT_TO_STATUS
     last_interaction = millis();
   #endif
 }
 
-#if LCD_TIMEOUT_TO_STATUS > 0
+#if LCD_TIMEOUT_TO_STATUS
   uint32_t BaseScreen::last_interaction;
 #endif
 

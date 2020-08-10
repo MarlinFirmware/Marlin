@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,6 +29,8 @@
 
 #include "pins_GT2560_REV_A.h"
 
-#if DISABLED(BLTOUCH)
+#if ENABLED(BLTOUCH)
+  #define SERVO0_PIN  11
+#else
   #define SERVO0_PIN  32
 #endif

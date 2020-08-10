@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -55,8 +55,11 @@ public:
   #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
     static inline void reset_total(const AxisEnum axis) {
-      if (TERN1(BABYSTEP_XY, axis == Z_AXIS))
-        axis_total[BS_TOTAL_IND(axis)] = 0;
+      if (true
+        #if ENABLED(BABYSTEP_XY)
+          && axis == Z_AXIS
+        #endif
+      ) axis_total[BS_TOTAL_IND(axis)] = 0;
     }
   #endif
 

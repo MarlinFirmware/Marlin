@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,8 +46,6 @@
 
 // find a contiguous group of clusters
 bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   // start of group
   uint32_t bgnCluster;
   // end of group
@@ -119,20 +117,18 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
 }
 
 bool SdVolume::cacheFlush() {
-  #if DISABLED(SDCARD_READONLY)
-    if (cacheDirty_) {
-      if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data))
-        return false;
+  if (cacheDirty_) {
+    if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data))
+      return false;
 
-      // mirror FAT tables
-      if (cacheMirrorBlock_) {
-        if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data))
-          return false;
-        cacheMirrorBlock_ = 0;
-      }
-      cacheDirty_ = 0;
+    // mirror FAT tables
+    if (cacheMirrorBlock_) {
+      if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data))
+        return false;
+      cacheMirrorBlock_ = 0;
     }
-  #endif
+    cacheDirty_ = 0;
+  }
   return true;
 }
 
@@ -194,8 +190,6 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
 
 // Store a FAT entry
 bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
-  if (ENABLED(SDCARD_READONLY)) return false;
-
   uint32_t lba;
   // error if reserved cluster
   if (cluster < 2) return false;

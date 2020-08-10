@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,7 @@
 #include "../../module/motion.h"
 #include "../../module/probe.h"
 
-#if HAS_MULTI_HOTEND
+#if HOTENDS > 1
   #include "../../module/tool_change.h"
 #endif
 
@@ -47,6 +47,17 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
+inline void set_all_z_lock(const bool lock) {
+  stepper.set_z_lock(lock);
+  stepper.set_z2_lock(lock);
+  #if NUM_Z_STEPPER_DRIVERS >= 3
+    stepper.set_z3_lock(lock);
+    #if NUM_Z_STEPPER_DRIVERS >= 4
+      stepper.set_z4_lock(lock);
+    #endif
+  #endif
+}
+
 /**
  * G34: Z-Stepper automatic alignment
  *
@@ -56,8 +67,10 @@
  *   R<recalculate> points based on current probe offsets
  */
 void GcodeSuite::G34() {
-  DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
-  if (DEBUGGING(LEVELING)) log_machine_info();
+  if (DEBUGGING(LEVELING)) {
+    DEBUG_ECHOLNPGM(">>> G34");
+    log_machine_info();
+  }
 
   do { // break out on error
 
@@ -100,24 +113,34 @@ void GcodeSuite::G34() {
 
     // Disable the leveling matrix before auto-aligning
     #if HAS_LEVELING
-      TERN_(RESTORE_LEVELING_AFTER_G34, const bool leveling_was_active = planner.leveling_active);
+      #if ENABLED(RESTORE_LEVELING_AFTER_G34)
+        const bool leveling_was_active = planner.leveling_active;
+      #endif
       set_bed_leveling_enabled(false);
     #endif
 
-    TERN_(CNC_WORKSPACE_PLANES, workspace_plane = PLANE_XY);
+    #if ENABLED(CNC_WORKSPACE_PLANES)
+      workspace_plane = PLANE_XY;
+    #endif
 
     // Always home with tool 0 active
-    #if HAS_MULTI_HOTEND
+    #if HOTENDS > 1
       const uint8_t old_tool_index = active_extruder;
       tool_change(0, true);
     #endif
 
-    TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
+    #if HAS_DUPLICATION_MODE
+      extruder_duplication_enabled = false;
+    #endif
 
-    // In BLTOUCH HS mode, the probe travels in a deployed state.
-    // Users of G34 might have a badly misaligned bed, so raise Z by the
-    // length of the deployed pin (BLTOUCH stroke < 7mm)
-    #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES + 7.0f * BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+    #if BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+        // In BLTOUCH HS mode, the probe travels in a deployed state.
+        // Users of G34 might have a badly misaligned bed, so raise Z by the
+        // length of the deployed pin (BLTOUCH stroke < 7mm)
+      #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES + 7.0f
+    #else
+      #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES
+    #endif
 
     // Compute a worst-case clearance height to probe from. After the first
     // iteration this will be re-calculated based on the actual bed position
@@ -292,14 +315,11 @@ void GcodeSuite::G34() {
           // Check for less accuracy compared to last move
           if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
             SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " last_z_align_move = ", last_z_align_move[zstepper]);
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " z_align_abs = ", z_align_abs);
             adjustment_reverse = !adjustment_reverse;
           }
 
-          // Remember the alignment for the next iteration, but only if steppers move,
-          // otherwise it would be just zero (in case this stepper was at z_measured_min already)
-          if (z_align_abs > 0) last_z_align_move[zstepper] = z_align_abs;
+          // Remember the alignment for the next iteration
+          last_z_align_move[zstepper] = z_align_abs;
         #endif
 
         // Stop early if all measured points achieve accuracy target
@@ -308,15 +328,23 @@ void GcodeSuite::G34() {
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " corrected by ", z_align_move);
 
         // Lock all steppers except one
-        stepper.set_all_z_lock(true, zstepper);
+        set_all_z_lock(true);
+        switch (zstepper) {
+          case 0: stepper.set_z_lock(false); break;
+          case 1: stepper.set_z2_lock(false); break;
+          #if NUM_Z_STEPPER_DRIVERS >= 3
+            case 2: stepper.set_z3_lock(false); break;
+          #endif
+          #if NUM_Z_STEPPER_DRIVERS == 4
+            case 3: stepper.set_z4_lock(false); break;
+          #endif
+        }
 
         #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
           // Decreasing accuracy was detected so move was inverted.
           // Will match reversed Z steppers on dual steppers. Triple will need more work to map.
-          if (adjustment_reverse) {
+          if (adjustment_reverse)
             z_align_move = -z_align_move;
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " correction reversed to ", z_align_move);
-          }
         #endif
 
         // Do a move to correct part of the misalignment for the current stepper
@@ -324,7 +352,7 @@ void GcodeSuite::G34() {
       } // for (zstepper)
 
       // Back to normal stepper operations
-      stepper.set_all_z_lock(false);
+      set_all_z_lock(false);
       stepper.set_separate_multi_axis(false);
 
       if (err_break) break;
@@ -358,13 +386,17 @@ void GcodeSuite::G34() {
     #endif
 
     // Restore the active tool after homing
-    TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER))); // Fetch previous tool for parking extruder
+    #if HOTENDS > 1
+      tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous tool for parking extruder
+    #endif
 
-    #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
+    #if HAS_LEVELING && ENABLED(RESTORE_LEVELING_AFTER_G34)
       set_bed_leveling_enabled(leveling_was_active);
     #endif
 
   }while(0);
+
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G34");
 }
 
 /**

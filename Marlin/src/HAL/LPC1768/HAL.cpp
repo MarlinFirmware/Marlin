@@ -16,9 +16,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #ifdef TARGET_LPC1768
 
 #include "../../inc/MarlinConfig.h"
@@ -69,7 +70,9 @@ int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
 void flashFirmware(const int16_t) { NVIC_SystemReset(); }
 
 void HAL_clear_reset_source(void) {
-  TERN_(USE_WATCHDOG, watchdog_clear_timeout_flag());
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_clear_timeout_flag();
+  #endif
 }
 
 uint8_t HAL_get_reset_source(void) {
