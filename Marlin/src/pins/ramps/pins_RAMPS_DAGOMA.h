@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,7 +32,9 @@
 #define Z_STOP_PIN                           15
 #define FIL_RUNOUT_PIN                       39
 
-#define ORIG_E0_AUTO_FAN_PIN                  7
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                     7
+#endif
 
 //
 // Import RAMPS 1.4 pins

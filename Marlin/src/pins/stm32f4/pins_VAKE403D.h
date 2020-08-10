@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,11 +28,10 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
-#define BOARD_NAME           "STM32F4 VAkE"
+#define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
-
-#define E2END 0xFFF                               // EEPROM end address (4kB)
+#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
 
 //
 // Servos
@@ -135,7 +134,9 @@
 #define FAN1_PIN                            PB5   // PA0
 #define FAN2_PIN                            PB4   // PA1
 
-#define ORIG_E0_AUTO_FAN_PIN                PD13  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PD13
+#endif
 
 //
 // Misc. Functions
@@ -183,12 +184,12 @@
 //
 // ST7920 Delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
 #endif

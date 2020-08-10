@@ -10,7 +10,7 @@
  * (at your option) any later version.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef USE_USB_COMPOSITE
@@ -25,7 +25,7 @@ USBCompositeSerial MarlinCompositeSerial;
 
 #include "../../inc/MarlinConfig.h"
 
-#ifdef HAS_ONBOARD_SD
+#if SD_CONNECTION_IS(ONBOARD)
 
   #include "onboard_sd.h"
 
@@ -47,7 +47,7 @@ void MSC_SD_init() {
   USBComposite.end();
   USBComposite.clear();
   // Set api and register mass storage
-  #ifdef HAS_ONBOARD_SD
+  #if SD_CONNECTION_IS(ONBOARD)
     uint32_t cardSize;
     if (disk_initialize(0) == RES_OK) {
       if (disk_ioctl(0, GET_SECTOR_COUNT, (void *)(&cardSize)) == RES_OK) {

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@
 
 #define DISABLE_JTAG
 
-#define pins_v2_20190128   // geo-f:add for new pins define
+#define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
@@ -38,11 +38,13 @@
 //
 // Flash EEPROM Emulation
 //
-#define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     uint16(0x800) // 2KB
-#define EEPROM_START_ADDRESS uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
-#undef E2END
-#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
+#endif
+
 //
 // Limit Switches
 //
@@ -82,32 +84,37 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
+#if HAS_TMC_UART
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+
+  //
+  // Hardware serial with switch
+  //
+  #define X_HARDWARE_SERIAL  Serial1
+  #define Y_HARDWARE_SERIAL  Serial1
+  #define Z_HARDWARE_SERIAL  Serial1
+  #define E0_HARDWARE_SERIAL Serial1
+
+  // The 4xTMC2209 module doesn't have a serial multiplexer and
+  // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
+  #if HAS_DRIVER(TMC2208)
+    #define TMC_SERIAL_MULTIPLEXER
+    #define SERIAL_MUL_PIN1                 PB13
+    #define SERIAL_MUL_PIN2                 PB12
+  #endif
+
+#endif
+
 //
 // Stepper current PWM
 //
-
-// X:PA2 Y:PA3 Z:PB12 E:PB13 // changed for test
-//#define MOTOR_CURRENT_PWM_XY_PIN          PA3
-//#define MOTOR_CURRENT_PWM_Z_PIN           PA2   // PB12
-//#define MOTOR_CURRENT_PWM_XY_PIN          PB6
-//#define MOTOR_CURRENT_PWM_Z_PIN           PB7   // PB12
-//#define MOTOR_CURRENT_PWM_E_PIN           -1    // PB13
-// Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500            // geo-f:old 2000
+  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
 #endif
-#define DEFAULT_PWM_MOTOR_CURRENT  {500, 500, 400} // geo-f:old 1300 1300 1250
-
-// 采用 SDIO PCB从左到右数
-// 1:PC10 - SDIO_D2
-// 2:PC11 - SDIO_D3
-// 3:PD2 - SDIO_CMD
-// 4:VCC
-// 5:PC12 - SDIO_CK
-// 6:VDD
-// 7:PC8 - SDIO_D0
-// 8:PC9 - SDIO_D1
-// 9:PA15 - SD_DETECT_PIN
+#define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
 //
 // Heaters / Fans

@@ -5,7 +5,7 @@
 # Make a Version.h file to accompany CUSTOM_VERSION_FILE
 #
 
-DIR=${1:-"UFW2"}
+DIR=${1:-"Marlin"}
 
 # MRCC3=$( git merge-base HEAD upstream/bugfix-2.0.x 2>/dev/null )
 # MRCC2=$( git merge-base HEAD upstream/bugfix-1.1.x 2>/dev/null )
@@ -63,7 +63,7 @@ cat > "${DIR}/Version.h" <<EOF
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once

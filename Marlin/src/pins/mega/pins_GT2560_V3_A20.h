@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,6 +29,8 @@
 #define LCD_PINS_ENABLE                      36
 #define LCD_PINS_D4                          21
 #define LCD_PINS_D7                           6
+
+#define SPEAKER  // The speaker can produce tones
 
 #if ENABLED(NEWPANEL)
   #define BTN_EN1                            16

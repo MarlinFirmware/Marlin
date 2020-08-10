@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
  * (bypassing U8G), it will allow the LIGHTWEIGHT_UI to operate.
  */
 
-#if HAS_GRAPHICAL_LCD && ENABLED(LIGHTWEIGHT_UI)
+#if BOTH(HAS_GRAPHICAL_LCD, LIGHTWEIGHT_UI)
   void ST7920_cs();
   void ST7920_ncs();
   void ST7920_set_cmd();

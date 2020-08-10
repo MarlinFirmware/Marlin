@@ -17,10 +17,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
 
 #include "../../inc/MarlinConfig.h"
@@ -44,9 +43,7 @@ void libServo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

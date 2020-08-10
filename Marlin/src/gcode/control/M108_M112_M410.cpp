@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,9 +31,7 @@
  * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
  */
 void GcodeSuite::M108() {
-  #if HAS_RESUME_CONTINUE
-    wait_for_user = false;
-  #endif
+  TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
   wait_for_heatup = false;
 }
 

@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -92,7 +92,8 @@ class PolyReader {
           close_loop();
         else
           p = NULL;
-      } else {
+      }
+      else {
         x = pgm_read_word_far(p++);
         if (x == eol)
           close_loop();
@@ -225,7 +226,8 @@ class DeduplicatedPolyReader : public POLY_READER {
       } while (POLY_READER::x == last_x && POLY_READER::y == last_y && !POLY_READER::end_of_loop());
       if (POLY_READER::end_of_loop()) {
         last_x = last_y = eol;
-      } else {
+      }
+      else {
         last_x = POLY_READER::x;
         last_y = POLY_READER::y;
       }
