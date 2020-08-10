@@ -194,4 +194,87 @@ void SetTimerInterruptPriorities() {
   TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIO, 0));
 }
 
+// This is a terrible hack to replicate the behavior used in the framework's SoftwareSerial.cpp
+// to choose a serial timer. It will select TIM7 on most boards used by Marlin, but this is more
+// resiliant to new MCUs which may not have a TIM7. Best practice is to explicitly specify
+// TIMER_SERIAL to avoid relying on framework selections which may not be predictable.
+#if !defined(TIMER_SERIAL)
+  #if defined (TIM18_BASE)
+    #define TIMER_SERIAL TIM18
+  #elif defined (TIM7_BASE)
+    #define TIMER_SERIAL TIM7
+  #elif defined (TIM6_BASE)
+    #define TIMER_SERIAL TIM6
+  #elif defined (TIM22_BASE)
+    #define TIMER_SERIAL TIM22
+  #elif defined (TIM21_BASE)
+    #define TIMER_SERIAL TIM21
+  #elif defined (TIM17_BASE)
+    #define TIMER_SERIAL TIM17
+  #elif defined (TIM16_BASE)
+    #define TIMER_SERIAL TIM16
+  #elif defined (TIM15_BASE)
+    #define TIMER_SERIAL TIM15
+  #elif defined (TIM14_BASE)
+    #define TIMER_SERIAL TIM14
+  #elif defined (TIM13_BASE)
+    #define TIMER_SERIAL TIM13
+  #elif defined (TIM11_BASE)
+    #define TIMER_SERIAL TIM11
+  #elif defined (TIM10_BASE)
+    #define TIMER_SERIAL TIM10
+  #elif defined (TIM12_BASE)
+    #define TIMER_SERIAL TIM12
+  #elif defined (TIM19_BASE)
+    #define TIMER_SERIAL TIM19
+  #elif defined (TIM9_BASE)
+    #define TIMER_SERIAL TIM9
+  #elif defined (TIM5_BASE)
+    #define TIMER_SERIAL TIM5
+  #elif defined (TIM4_BASE)
+    #define TIMER_SERIAL TIM4
+  #elif defined (TIM3_BASE)
+    #define TIMER_SERIAL TIM3
+  #elif defined (TIM2_BASE)
+    #define TIMER_SERIAL TIM2
+  #elif defined (TIM20_BASE)
+    #define TIMER_SERIAL TIM20
+  #elif defined (TIM8_BASE)
+    #define TIMER_SERIAL TIM8
+  #elif defined (TIM1_BASE)
+    #define TIMER_SERIAL TIM1
+  #else
+    #error No suitable timer found for SoftwareSerial, define TIMER_SERIAL in variant.h
+  #endif
+#endif
+
+// Place all timers used into an array, then recursively check for duplicates during compilation.
+// This does not currently account for timers used for PWM, such as for fans.
+// Timers are actually pointers. Convert to integers to simplify constexpr logic.
+static constexpr uintptr_t timers_in_use[] = {
+  uintptr_t(TEMP_TIMER_DEV),  // Override in pins file
+  uintptr_t(STEP_TIMER_DEV),  // Override in pins file
+  #if HAS_TMC_SW_SERIAL
+    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if ENABLED(SPEAKER)
+    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  #if HAS_SERVOS
+    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
+  #endif
+  };
+
+static constexpr bool verify_no_duplicate_timers() {
+  LOOP_L_N(i, COUNT(timers_in_use))
+    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
+      if (timers_in_use[i] == timers_in_use[j]) return false;
+  return true;
+}
+
+// If this assertion fails at compile time, review the timers_in_use array. If default_envs is
+// defined properly in platformio.ini, VS Code can evaluate the array when hovering over it,
+// making it easy to identify the conflicting timers.
+static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
+
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
