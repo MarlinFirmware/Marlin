@@ -182,6 +182,12 @@
   #define XPT2046_X_OFFSET                   -45
   #define XPT2046_Y_OFFSET                   349
 
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
 
   #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
