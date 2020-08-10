@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,8 +28,8 @@
 
   #include "../../../MarlinCore.h"
   #include "../../../HAL/shared/eeprom_api.h"
-  #include "../../../libs/hex_print_routines.h"
-  #include "../../../module/configuration_store.h"
+  #include "../../../libs/hex_print.h"
+  #include "../../../module/settings.h"
   #include "../../../lcd/ultralcd.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,7 +39,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
@@ -164,8 +164,8 @@ namespace ExtUI {
   void setTargetTemp_celsius(const float, const heater_t);
   void setTargetTemp_celsius(const float, const extruder_t);
   void setTargetFan_percent(const float, const fan_t);
-  void setAxisPosition_mm(const float, const axis_t);
-  void setAxisPosition_mm(const float, const extruder_t);
+  void setAxisPosition_mm(const float, const axis_t, const feedRate_t=0);
+  void setAxisPosition_mm(const float, const extruder_t, const feedRate_t=0);
   void setAxisSteps_per_mm(const float, const axis_t);
   void setAxisSteps_per_mm(const float, const extruder_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);

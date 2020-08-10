@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -342,15 +342,22 @@
 #endif
 
 // Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
+#define INC_0   1
+#define INC_1   2
+#define INC_2   3
+#define INC_3   4
+#define INC_4   5
+#define INC_5   6
+#define INC_6   7
+#define INC_7   8
+#define INC_8   9
+#define INC_9  10
+#define INC_10 11
+#define INC_11 12
+#define INC_12 13
+#define INC_13 14
+#define INC_14 15
+#define INC_15 16
 #define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 
@@ -367,16 +374,22 @@
 #define ADD10(N) ADD5(ADD5(N))
 
 // Macros for subtracting
-#define DEC_0 0
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
+#define DEC_0   0
+#define DEC_1   0
+#define DEC_2   1
+#define DEC_3   2
+#define DEC_4   3
+#define DEC_5   4
+#define DEC_6   5
+#define DEC_7   6
+#define DEC_8   7
+#define DEC_9   8
+#define DEC_10  9
+#define DEC_11 10
+#define DEC_12 11
+#define DEC_13 12
+#define DEC_14 13
+#define DEC_15 14
 #define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
 

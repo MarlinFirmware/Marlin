@@ -16,11 +16,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfig.h"
 
 #ifdef LED_BACKLIGHT_TIMEOUT
   #include "../feature/leds/leds.h"
@@ -49,6 +49,8 @@ MarlinUI ui;
   bool MarlinUI::wait_for_move; // = false
 #endif
 
+constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
+
 #if HAS_SPI_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
@@ -72,7 +74,7 @@ MarlinUI ui;
   #endif
 #endif
 
-#if ENABLED(PCA9632_BUZZER) || USE_BEEPER
+#if EITHER(PCA9632_BUZZER, USE_BEEPER)
   #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
@@ -86,6 +88,32 @@ MarlinUI ui;
   }
 #endif
 
+#if PREHEAT_COUNT
+  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
+  PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
+    #ifdef PREHEAT_1_LABEL
+      static PGMSTR(preheat_0_label, PREHEAT_1_LABEL);
+    #endif
+    #ifdef PREHEAT_2_LABEL
+      static PGMSTR(preheat_1_label, PREHEAT_2_LABEL);
+    #endif
+    #ifdef PREHEAT_3_LABEL
+      static PGMSTR(preheat_2_label, PREHEAT_3_LABEL);
+    #endif
+    #ifdef PREHEAT_4_LABEL
+      static PGMSTR(preheat_3_label, PREHEAT_4_LABEL);
+    #endif
+    #ifdef PREHEAT_5_LABEL
+      static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
+    #endif
+
+    #define _PLBL(N) preheat_##N##_label,
+    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
+
+    return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
+  }
+#endif
+
 #if HAS_SPI_LCD
 
 #if HAS_GRAPHICAL_LCD
@@ -95,7 +123,7 @@ MarlinUI ui;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
-#include "../module/configuration_store.h"
+#include "../module/settings.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
@@ -121,8 +149,8 @@ MarlinUI ui;
   #if HAS_SLOW_BUTTONS
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
-  #if ENABLED(TOUCH_BUTTONS)
-    #include "../feature/touch/xpt2046.h"
+  #if HAS_TOUCH_XPT2046
+    #include "touch/xpt2046.h"
     bool MarlinUI::on_edit_screen = false;
   #endif
 #endif
@@ -147,33 +175,6 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 #if HAS_ENCODER_ACTION
   uint32_t MarlinUI::encoderPosition;
   volatile int8_t encoderDiff; // Updated in update_buttons, added to encoderPosition every LCD update
-#endif
-
-#if PREHEAT_COUNT
-  preheat_t MarlinUI::material_preset[PREHEAT_COUNT];  // Initialized by settings.load()
-
-  PGM_P MarlinUI::get_preheat_label(const uint8_t m) {
-    #ifdef PREHEAT_1_LABEL
-      static PGMSTR(preheat_0_label, PREHEAT_1_LABEL);
-    #endif
-    #ifdef PREHEAT_2_LABEL
-      static PGMSTR(preheat_1_label, PREHEAT_2_LABEL);
-    #endif
-    #ifdef PREHEAT_3_LABEL
-      static PGMSTR(preheat_2_label, PREHEAT_3_LABEL);
-    #endif
-    #ifdef PREHEAT_4_LABEL
-      static PGMSTR(preheat_3_label, PREHEAT_4_LABEL);
-    #endif
-    #ifdef PREHEAT_5_LABEL
-      static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
-    #endif
-
-    #define _PLBL(N) preheat_##N##_label,
-    static PGM_P const preheat_labels[PREHEAT_COUNT] PROGMEM = { REPEAT(PREHEAT_COUNT, _PLBL) };
-
-    return (PGM_P)pgm_read_ptr(&preheat_labels[m]);
-  }
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -228,7 +229,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     int8_t MarlinUI::encoderDirection = ENCODERBASE;
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if HAS_TOUCH_XPT2046
     uint8_t MarlinUI::touch_buttons;
     uint8_t MarlinUI::repeat_delay;
   #endif
@@ -441,13 +442,13 @@ bool MarlinUI::get_blink() {
           #endif
           {
             #if HAS_LCD_MENU
-                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= ENCODER_PULSES_PER_STEP;
-              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += ENCODER_PULSES_PER_STEP;
+                   if (RRK(EN_KEYPAD_UP))     encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN))   encoderPosition += epps;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
               else if (RRK(EN_KEYPAD_RIGHT))  encoderPosition = 0;
             #else
-                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= ENCODER_PULSES_PER_STEP;
-              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += ENCODER_PULSES_PER_STEP;
+                   if (RRK(EN_KEYPAD_UP)   || RRK(EN_KEYPAD_LEFT))  encoderPosition -= epps;
+              else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
             #endif
           }
         #endif
@@ -752,19 +753,19 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
     //SERIAL_ECHOLNPAIR("Post Move with Axis ", int(axis), " soon.");
   }
 
-#endif // HAS_LCD_MENU
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-
-  void MarlinUI::external_encoder() {
-    if (external_control && encoderDiff) {
-      ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
-      encoderDiff = 0;                  // Hide encoder events from the screen handler
-      refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
+    void MarlinUI::external_encoder() {
+      if (external_control && encoderDiff) {
+        ubl.encoder_diff += encoderDiff;  // Encoder for UBL G29 mesh editing
+        encoderDiff = 0;                  // Hide encoder events from the screen handler
+        refresh(LCDVIEW_REDRAW_NOW);      // ...but keep the refresh.
+      }
     }
-  }
 
-#endif
+  #endif
+
+#endif // HAS_LCD_MENU
 
 /**
  * Update the LCD, read encoder buttons, etc.
@@ -801,6 +802,9 @@ void MarlinUI::quick_feedback(const bool clear_buttons/*=true*/) {
 
 LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 millis_t next_lcd_update_ms;
+#if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS
+  millis_t MarlinUI::return_to_status_ms = 0;
+#endif
 
 void MarlinUI::update() {
 
@@ -808,7 +812,6 @@ void MarlinUI::update() {
   millis_t ms = millis();
 
   #if HAS_LCD_MENU && LCD_TIMEOUT_TO_STATUS > 0
-    static millis_t return_to_status_ms = 0;
     #define RESET_STATUS_TIMEOUT() (return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS)
   #else
     #define RESET_STATUS_TIMEOUT() NOOP
@@ -837,12 +840,12 @@ void MarlinUI::update() {
       quick_feedback();                               //  - Always make a click sound
     };
 
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_TOUCH_XPT2046
       if (touch_buttons) {
         RESET_STATUS_TIMEOUT();
         if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
           if (ELAPSED(ms, next_button_update_ms)) {
-            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * (ENCODER_PULSES_PER_STEP) * encoderDirection;
+            encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * epps * encoderDirection;
             if (touch_buttons & EN_A) encoderDiff *= -1;
             TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
             next_button_update_ms = ms + repeat_delay;    // Assume the repeat delay
@@ -858,7 +861,7 @@ void MarlinUI::update() {
       }
       else // keep wait_for_unclick value
 
-    #endif // TOUCH_BUTTONS
+    #endif // HAS_TOUCH_XPT2046
 
       {
         // Integrated LCD click handling via button_pressed
@@ -880,7 +883,7 @@ void MarlinUI::update() {
 
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_TOUCH_XPT2046
 
       if (on_status_screen()) next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
 
@@ -897,8 +900,26 @@ void MarlinUI::update() {
       if (TERN0(REPRAPWORLD_KEYPAD, handle_keypad()))
         RESET_STATUS_TIMEOUT();
 
-      const float abs_diff = ABS(encoderDiff);
-      const bool encoderPastThreshold = (abs_diff >= (ENCODER_PULSES_PER_STEP));
+      uint8_t abs_diff = ABS(encoderDiff);
+
+      #if ENCODER_PULSES_PER_STEP > 1
+        // When reversing the encoder direction, a movement step can be missed because
+        // encoderDiff has a non-zero residual value, making the controller unresponsive.
+        // The fix clears the residual value when the encoder is idle.
+        // Also check if past half the threshold to compensate for missed single steps.
+        static int8_t lastEncoderDiff;
+
+        // Timeout? No decoder change since last check. 10 or 20 times per second.
+        if (encoderDiff == lastEncoderDiff && abs_diff <= epps / 2)   // Same direction & size but not over a half-step?
+          encoderDiff = 0;                                            // Clear residual pulses.
+        else if (WITHIN(abs_diff, epps / 2 + 1, epps - 1)) {          // Past half of threshold?
+          abs_diff = epps;                                            // Treat as a full step size
+          encoderDiff = (encoderDiff < 0 ? -1 : 1) * abs_diff;        // ...in the spin direction.
+        }
+        lastEncoderDiff = encoderDiff;
+      #endif
+
+      const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
         if (encoderPastThreshold) {
 
@@ -907,7 +928,7 @@ void MarlinUI::update() {
             int32_t encoderMultiplier = 1;
 
             if (encoderRateMultiplierEnabled) {
-              const float encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+              const float encoderMovementSteps = float(abs_diff) / epps;
 
               if (lastEncoderMovementMillis) {
                 // Note that the rate is always calculated between two passes through the
@@ -936,7 +957,7 @@ void MarlinUI::update() {
 
           #endif // ENCODER_RATE_MULTIPLIER
 
-          encoderPosition += (encoderDiff * encoderMultiplier) / (ENCODER_PULSES_PER_STEP);
+          encoderPosition += (encoderDiff * encoderMultiplier) / epps;
           encoderDiff = 0;
         }
 
@@ -1059,6 +1080,8 @@ void MarlinUI::update() {
     } // switch
 
   } // ELAPSED(ms, next_lcd_update_ms)
+
+  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
 }
 
 #if HAS_ADC_BUTTONS
@@ -1169,7 +1192,7 @@ void MarlinUI::update() {
         //
         #if ANY_BUTTON(UP, DWN, LFT, RT)
 
-          const int8_t pulses = (ENCODER_PULSES_PER_STEP) * encoderDirection;
+          const int8_t pulses = epps * encoderDirection;
 
           if (false) {
             // for the else-ifs below
@@ -1205,7 +1228,7 @@ void MarlinUI::update() {
           #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
-          #if BOTH(TOUCH_BUTTONS, HAS_ENCODER_ACTION)
+          #if BOTH(HAS_TOUCH_XPT2046, HAS_ENCODER_ACTION)
             | (touch_buttons & TERN(HAS_ENCODER_WHEEL, ~(EN_A | EN_B), 0xFF))
           #endif
         );
@@ -1264,7 +1287,9 @@ void MarlinUI::update() {
           case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
           case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
         }
-        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
+        #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
+          external_encoder();
+        #endif
         lastEncoderBits = enc;
       }
 
@@ -1512,7 +1537,7 @@ void MarlinUI::update() {
 
   #endif
 
-  #if ENABLED(TOUCH_BUTTONS)
+  #if HAS_TOUCH_XPT2046
 
     //
     // Screen Click
@@ -1525,17 +1550,17 @@ void MarlinUI::update() {
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
-        encoderDiff = ENCODER_PULSES_PER_STEP * ydir;
+        encoderDiff = epps * ydir;
       else if (screen_items > 0) {
         // Last 3 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
-          encoderDiff = ENCODER_PULSES_PER_STEP * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
+          encoderDiff = epps * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
         else
-          encoderDiff = ENCODER_PULSES_PER_STEP * (row - encoderPosition + encoderTopLine);
+          encoderDiff = epps * (row - encoderPosition + encoderTopLine);
       }
       else if (!on_status_screen())
-        encoderDiff = ENCODER_PULSES_PER_STEP * xdir;
+        encoderDiff = epps * xdir;
     }
 
   #endif

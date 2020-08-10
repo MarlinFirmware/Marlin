@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,7 +30,7 @@
 //
 // TMC26X Driver objects and inits
 //
-#if HAS_DRIVER(TMC26X)
+#if HAS_TMC26X
 
 #include "TMC26X.h"
 
@@ -141,4 +141,4 @@ void tmc26x_init_to_defaults() {
   #endif
 }
 
-#endif // TMC26X
+#endif // HAS_TMC26X

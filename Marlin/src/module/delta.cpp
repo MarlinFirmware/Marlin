@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -242,11 +242,9 @@ void home_delta() {
 
   // Disable stealthChop if used. Enable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    sensorless_t stealth_states {
-      tmc_enable_stallguard(stepperX),
-      tmc_enable_stallguard(stepperY),
-      tmc_enable_stallguard(stepperZ)
-    };
+  TERN_(X_SENSORLESS, sensorless_t stealth_states_x = start_sensorless_homing_per_axis(X_AXIS));
+  TERN_(Y_SENSORLESS, sensorless_t stealth_states_y = start_sensorless_homing_per_axis(Y_AXIS));
+  TERN_(Z_SENSORLESS, sensorless_t stealth_states_z = start_sensorless_homing_per_axis(Z_AXIS));
   #endif
 
   // Move all carriages together linearly until an endstop is hit.
@@ -256,9 +254,9 @@ void home_delta() {
 
   // Re-enable stealthChop if used. Disable diag1 pin on driver.
   #if ENABLED(SENSORLESS_HOMING)
-    tmc_disable_stallguard(stepperX, stealth_states.x);
-    tmc_disable_stallguard(stepperY, stealth_states.y);
-    tmc_disable_stallguard(stepperZ, stealth_states.z);
+  TERN_(X_SENSORLESS, end_sensorless_homing_per_axis(X_AXIS, stealth_states_x));
+  TERN_(Y_SENSORLESS, end_sensorless_homing_per_axis(Y_AXIS, stealth_states_y));
+  TERN_(Z_SENSORLESS, end_sensorless_homing_per_axis(Z_AXIS, stealth_states_z));
   #endif
 
   endstops.validate_homing_move();

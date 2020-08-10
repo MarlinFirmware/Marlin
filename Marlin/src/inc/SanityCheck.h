@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -449,6 +449,8 @@
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
+#elif defined(TFT_LVGL_UI)
+  #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
@@ -511,6 +513,10 @@
   #error "[XYZ]_HOME_BUMP_MM is now HOMING_BUMP_MM. Please update Configuration_adv.h."
 #elif defined(DIGIPOT_I2C)
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
+#elif defined(TOUCH_BUTTONS)
+  #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
+#elif defined(ANYCUBIC_TFT_MODEL)
+  #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #endif
 
 #ifdef FIL_RUNOUT_INVERTING
@@ -685,8 +691,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif PROGRESS_MSG_EXPIRE < 0
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_GRAPHICAL_LCD, EXTENSIBLE_UI)
-  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, or EXTENSIBLE_UI."
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_GRAPHICAL_LCD, HAS_GRAPHICAL_TFT, EXTENSIBLE_UI)
+  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, TFT, or EXTENSIBLE_UI."
 #endif
 
 #if !HAS_LCD_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -771,6 +777,15 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "BABYSTEP_HOTEND_Z_OFFSET requires 2 or more HOTENDS."
   #elif BOTH(BABYSTEP_ALWAYS_AVAILABLE, MOVE_Z_WHEN_IDLE)
     #error "BABYSTEP_ALWAYS_AVAILABLE and MOVE_Z_WHEN_IDLE are incompatible."
+  #elif !defined(BABYSTEP_MULTIPLICATOR_Z)
+    #error "BABYSTEPPING requires BABYSTEP_MULTIPLICATOR_Z."
+  #elif ENABLED(BABYSTEP_XY) && !defined(BABYSTEP_MULTIPLICATOR_XY)
+    #error "BABYSTEP_XY requires BABYSTEP_MULTIPLICATOR_XY."
+  #elif ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    static_assert(BABYSTEP_MULTIPLICATOR_Z <= 0.1f, "BABYSTEP_MULTIPLICATOR_Z must be less or equal to 0.1mm.");
+    #if ENABLED(BABYSTEP_XY)
+      static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
+    #endif
   #endif
 #endif
 
@@ -806,7 +821,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #if !HAS_RESUME_CONTINUE
-    #error "ADVANCED_PAUSE_FEATURE currently requires an LCD controller or EMERGENCY_PARSER."
+    #error "ADVANCED_PAUSE_FEATURE requires a supported LCD controller (or EMERGENCY_PARSER)."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
     #error "ADVANCED_PAUSE_FEATURE requires NOZZLE_PARK_FEATURE."
   #elif !defined(FILAMENT_UNLOAD_PURGE_FEEDRATE)
@@ -1786,7 +1801,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Test Heater, Temp Sensor, and Extruder Pins
  */
-#if !HAS_HEATER_0
+#if !HAS_HEATER_0 && EXTRUDERS
   #error "HEATER_0_PIN not defined for this board."
 #elif !ANY_PIN(TEMP_0, MAX6675_SS)
   #error "TEMP_0_PIN not defined for this board."
@@ -2060,6 +2075,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * G35 Assisted Tramming
+ */
+#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
+  #error "ASSISTED_TRAMMING requires a bed probe."
+#endif
+
+/**
  * G38 Probe Target
  */
 #if ENABLED(G38_PROBE_TARGET)
@@ -2093,27 +2115,33 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 #undef _RGB_TEST
 
+#if DISABLED(NO_COMPILE_TIME_PWM)
+  #define _TEST_PWM(P) PWM_PIN(P)
+#else
+  #define _TEST_PWM(P) 1 // pass
+#endif
+
 /**
  * Auto Fan check for PWM pins
  */
-#if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255 && DISABLED(NO_COMPILE_TIME_PWM)
+#if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
   #define AF_ERR_SUFF "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."
   #if HAS_AUTO_FAN_0
-    static_assert(PWM_PIN(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_1
-    static_assert(PWM_PIN(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_2
-    static_assert(PWM_PIN(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_3
-    static_assert(PWM_PIN(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_4
-    static_assert(PWM_PIN(E4_AUTO_FAN_PIN), "E4" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E4_AUTO_FAN_PIN), "E4" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_5
-    static_assert(PWM_PIN(E5_AUTO_FAN_PIN), "E5" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E5_AUTO_FAN_PIN), "E5" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_6
-    static_assert(PWM_PIN(E6_AUTO_FAN_PIN), "E6" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E6_AUTO_FAN_PIN), "E6" AF_ERR_SUFF);
   #elif HAS_AUTO_FAN_7
-    static_assert(PWM_PIN(E7_AUTO_FAN_PIN), "E7" AF_ERR_SUFF);
+    static_assert(_TEST_PWM(E7_AUTO_FAN_PIN), "E7" AF_ERR_SUFF);
   #endif
 #endif
 
@@ -2122,8 +2150,13 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  */
 #if ENABLED(EEPROM_SETTINGS)
   #if 1 < 0 \
-    + ENABLED(I2C_EEPROM) + ENABLED(SPI_EEPROM) + ENABLED(QSPI_EEPROM) \
-    + ENABLED(SDCARD_EEPROM_EMULATION) + ENABLED(FLASH_EEPROM_EMULATION) + ENABLED(SRAM_EEPROM_EMULATION)
+    + ENABLED(I2C_EEPROM) \
+    + ENABLED(SPI_EEPROM) \
+    + ENABLED(QSPI_EEPROM) \
+    + ENABLED(SDCARD_EEPROM_EMULATION) \
+    + ENABLED(FLASH_EEPROM_EMULATION) \
+    + ENABLED(SRAM_EEPROM_EMULATION) \
+    + ENABLED(IIC_BL24CXX_EEPROM)
     #error "Please select only one method of EEPROM Persistent Storage."
   #endif
 #endif
@@ -2194,15 +2227,25 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(OLED_PANEL_TINYBOY2) \
   + ENABLED(MKS_12864OLED) \
   + ENABLED(MKS_12864OLED_SSD1306) \
+  + ENABLED(ZONESTAR_12864LCD) \
+  + ENABLED(ZONESTAR_12864OLED) \
+  + ENABLED(ZONESTAR_12864OLED_SSD1306) \
   + ENABLED(U8GLIB_SH1106_EINSTART) \
   + ENABLED(OVERLORD_OLED) \
+  + ENABLED(FYSETC_242_OLED_12864) \
   + ENABLED(DGUS_LCD_UI_ORIGIN) \
   + ENABLED(DGUS_LCD_UI_FYSETC) \
   + ENABLED(DGUS_LCD_UI_HIPRECY) \
   + ENABLED(MALYAN_LCD) \
   + ENABLED(TOUCH_UI_FTDI_EVE) \
-  + ENABLED(FSMC_GRAPHICAL_TFT)
-  #error "Please select no more than one LCD controller option."
+  + ENABLED(TFT_320x240) \
+  + ENABLED(TFT_320x240_SPI) \
+  + ENABLED(FSMC_GRAPHICAL_TFT) \
+  + ENABLED(TFT_LVGL_UI_FSMC) \
+  + ENABLED(TFT_LVGL_UI_SPI) \
+  + ENABLED(ANYCUBIC_LCD_I3MEGA) \
+  + ENABLED(ANYCUBIC_LCD_CHIRON)
+  #error "Please select only one LCD controller option."
 #endif
 
 #undef IS_RRD_SC
@@ -2924,7 +2967,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif ENABLED(SPINDLE_LASER_PWM)
     #if !defined(SPINDLE_LASER_PWM_PIN) || SPINDLE_LASER_PWM_PIN < 0
       #error "SPINDLE_LASER_PWM_PIN is required for SPINDLE_LASER_PWM."
-    #elif !PWM_PIN(SPINDLE_LASER_PWM_PIN)
+    #elif !_TEST_PWM(SPINDLE_LASER_PWM_PIN)
       #error "SPINDLE_LASER_PWM_PIN not assigned to a PWM pin."
     #elif !defined(SPINDLE_LASER_PWM_INVERT)
       #error "SPINDLE_LASER_PWM_INVERT is required for (SPINDLE|LASER)_FEATURE."
@@ -3009,10 +3052,47 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Sanity checks for stepper chunk support
+ * Stepper Chunk support
  */
-#if ENABLED(DIRECT_STEPPING)
-  #if ENABLED(LIN_ADVANCE)
-    #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+#if BOTH(DIRECT_STEPPING, LIN_ADVANCE)
+  #error "DIRECT_STEPPING is incompatible with LIN_ADVANCE. Enable in external planner if possible."
+#endif
+
+/**
+ * Touch Buttons
+ */
+#if ENABLED(TOUCH_SCREEN)
+  #ifndef XPT2046_X_CALIBRATION
+    #error "XPT2046_X_CALIBRATION must be defined with TOUCH_SCREEN."
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #error "XPT2046_Y_CALIBRATION must be defined with TOUCH_SCREEN."
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #error "XPT2046_X_OFFSET must be defined with TOUCH_SCREEN."
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #error "XPT2046_Y_OFFSET must be defined with TOUCH_SCREEN."
   #endif
 #endif
+
+/**
+ * Sanity check for WIFI
+ */
+#if EITHER(ESP3D_WIFISUPPORT, WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
+  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 controller."
+#endif
+
+/**
+ * Sanity Check for Password Feature
+ */
+#if ENABLED(PASSWORD_FEATURE)
+  #if NONE(HAS_LCD_MENU, PASSWORD_UNLOCK_GCODE, PASSWORD_CHANGE_GCODE)
+    #error "Without PASSWORD_UNLOCK_GCODE, PASSWORD_CHANGE_GCODE, or a supported LCD there's no way to unlock the printer or set a password."
+  #elif DISABLED(EEPROM_SETTINGS)
+    #warning "PASSWORD_FEATURE settings will be lost on power-off without EEPROM_SETTINGS."
+  #endif
+#endif
+
+// Misc. Cleanup
+#undef _TEST_PWM

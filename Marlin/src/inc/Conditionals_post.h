@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -50,6 +50,8 @@
     #define USE_EMULATED_EEPROM 1
   #elif ANY(I2C_EEPROM, SPI_EEPROM)
     #define USE_WIRED_EEPROM    1
+  #elif ENABLED(IIC_BL24CXX_EEPROM)
+    // nothing
   #else
     #define USE_FALLBACK_EEPROM 1
   #endif
@@ -60,6 +62,7 @@
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION
+  #undef IIC_BL24CXX_EEPROM
 #endif
 
 #ifdef TEENSYDUINO
@@ -309,6 +312,10 @@
   #define _LCD_CONTRAST_INIT  17
 #elif ENABLED(MINIPANEL)
   #define _LCD_CONTRAST_INIT  150
+#elif ENABLED(ZONESTAR_12864OLED)
+  #define _LCD_CONTRAST_MIN   64
+  #define _LCD_CONTRAST_INIT 128
+  #define _LCD_CONTRAST_MAX  255
 #endif
 
 #ifdef _LCD_CONTRAST_INIT
@@ -370,7 +377,7 @@
 
 #endif
 
-#if EITHER(LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
   #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
 #endif
 
@@ -1776,7 +1783,10 @@
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
-  #define BED_MAX_TARGET (BED_MAXTEMP - 10)
+  #ifndef BED_OVERSHOOT
+    #define BED_OVERSHOOT 10
+  #endif
+  #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
 #endif
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
@@ -1938,9 +1948,6 @@
 #if PIN_EXISTS(PHOTOGRAPH)
   #define HAS_PHOTOGRAPH 1
 #endif
-#if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
-  #define HAS_CASE_LIGHT 1
-#endif
 
 // Digital control
 #if PIN_EXISTS(STEPPER_RESET)
@@ -1949,7 +1956,7 @@
 #if PIN_EXISTS(DIGIPOTSS)
   #define HAS_DIGIPOTSS 1
 #endif
-#if  ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+#if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
@@ -2217,7 +2224,7 @@
 /**
  * MIN/MAX case light PWM scaling
  */
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   #ifndef CASE_LIGHT_MAX_PWM
     #define CASE_LIGHT_MAX_PWM 255
   #elif !WITHIN(CASE_LIGHT_MAX_PWM, 1, 255)
@@ -2430,7 +2437,7 @@
  */
 #if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
-  #if DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #if NONE(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
     #define USE_BEEPER 1
   #endif
 #endif

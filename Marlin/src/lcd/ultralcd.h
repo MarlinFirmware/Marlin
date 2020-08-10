@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -74,7 +74,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_XPT2046, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -149,7 +149,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC) || ENABLED(TOUCH_BUTTONS)
+  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_XPT2046
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
+#if BUTTON_EXISTS(BACK) || HAS_TOUCH_XPT2046
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -451,7 +451,7 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
-      #if ENABLED(TOUCH_BUTTONS)
+      #if HAS_TOUCH_XPT2046
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
@@ -501,8 +501,11 @@ public:
   #endif
 
   #if HAS_LCD_MENU
+    #if LCD_TIMEOUT_TO_STATUS
+      static millis_t return_to_status_ms;
+    #endif
 
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_TOUCH_XPT2046
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
     #endif
@@ -633,7 +636,7 @@ public:
     #endif
 
     static void update_buttons();
-    static inline bool button_pressed() { return BUTTON_CLICK(); }
+    static inline bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
@@ -668,6 +671,10 @@ public:
 
   #endif
 
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    static void touch_calibration();
+  #endif
+
 private:
 
   #if HAS_DISPLAY
@@ -681,6 +688,12 @@ private:
       static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
+    #if HAS_GRAPHICAL_TFT
+      static void tft_idle();
+      #if ENABLED(TOUCH_SCREEN)
+        static bool touch_pressed();
+      #endif
+    #endif
   #endif
 };
 

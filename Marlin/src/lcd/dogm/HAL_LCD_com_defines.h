@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -85,6 +85,11 @@
   #if PIN_EXISTS(FSMC_CS)
     uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
     #define U8G_COM_HAL_FSMC_FN       u8g_com_stm32duino_fsmc_fn
+  #endif
+
+  #if ENABLED(SPI_GRAPHICAL_TFT)
+    uint8_t u8g_com_stm32duino_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+    #define U8G_COM_HAL_FSMC_FN       u8g_com_stm32duino_spi_fn
   #endif
 
 #elif defined(TARGET_LPC1768)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -83,7 +83,7 @@ class MenuItemBase {
 
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const valstr=nullptr);
+    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
 // CONFIRM_ITEM(LABEL,Y,N,FY,FN,V...),
@@ -296,6 +296,7 @@ DEFINE_MENU_EDIT_ITEM_TYPE(float43     ,float    ,ftostr43sign    ,1000     );  
 DEFINE_MENU_EDIT_ITEM_TYPE(float5      ,float    ,ftostr5rj       ,   1     );   // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM_TYPE(float5_25   ,float    ,ftostr5rj       ,   0.04f );   // 12345      right-justified (25 increment)
 DEFINE_MENU_EDIT_ITEM_TYPE(float51     ,float    ,ftostr51rj      ,  10     );   // 1234.5     right-justified
+DEFINE_MENU_EDIT_ITEM_TYPE(float31sign ,float    ,ftostr31sign    ,  10     );   // +12.3
 DEFINE_MENU_EDIT_ITEM_TYPE(float41sign ,float    ,ftostr41sign    ,  10     );   // +123.4
 DEFINE_MENU_EDIT_ITEM_TYPE(float51sign ,float    ,ftostr51sign    ,  10     );   // +1234.5
 DEFINE_MENU_EDIT_ITEM_TYPE(float52sign ,float    ,ftostr52sign    , 100     );   // +123.45
@@ -417,16 +418,17 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define _MENU_ITEM_P(TYPE, V...) do { \
-  _skipStatic = false;                \
-  if (_menuLineNr == _thisItemNr)     \
+  if (_menuLineNr == _thisItemNr) {   \
+    _skipStatic = false;              \
     _MENU_INNER_P(TYPE, ##V);         \
+  }                                   \
   NEXT_ITEM();                        \
 }while(0)
 
 // Indexed items set a global index value and optional data
 #define _MENU_ITEM_N_S_P(TYPE, N, S, V...) do{ \
-  _skipStatic = false;                         \
   if (_menuLineNr == _thisItemNr) {            \
+    _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
     _MENU_INNER_P(TYPE, ##V);                  \
   }                                            \
@@ -435,8 +437,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Indexed items set a global index value
 #define _MENU_ITEM_N_P(TYPE, N, V...) do{ \
-  _skipStatic = false;                    \
   if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
     MenuItemBase::itemIndex = N;          \
     _MENU_INNER_P(TYPE, ##V);             \
   }                                       \
@@ -445,8 +447,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Items with a unique string
 #define _MENU_ITEM_S_P(TYPE, S, V...) do{ \
-  _skipStatic = false;                    \
   if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
     MenuItemBase::itemString = S;         \
     _MENU_INNER_P(TYPE, ##V);             \
   }                                       \
@@ -549,16 +551,17 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Indexed items set a global index value and optional data
 #define _CONFIRM_ITEM_P(PLABEL, V...) do { \
-  _skipStatic = false;                     \
-  if (_menuLineNr == _thisItemNr)          \
+  if (_menuLineNr == _thisItemNr) {        \
+    _skipStatic = false;                   \
     _CONFIRM_ITEM_INNER_P(PLABEL, ##V);    \
+  }                                        \
   NEXT_ITEM();                             \
 }while(0)
 
 // Indexed items set a global index value
 #define _CONFIRM_ITEM_N_S_P(N, S, V...) do{ \
-  _skipStatic = false;                      \
   if (_menuLineNr == _thisItemNr) {         \
+    _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
     _CONFIRM_ITEM_INNER_P(TYPE, ##V);       \
   }                                         \
@@ -650,4 +653,8 @@ void _lcd_draw_homing();
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   void menu_job_recovery();
+#endif
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  void touch_screen_calibration();
 #endif

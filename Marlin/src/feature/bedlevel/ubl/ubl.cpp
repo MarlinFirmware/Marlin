@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,7 +31,7 @@
   #include "../../../MarlinCore.h"
   #include "../../../gcode/gcode.h"
 
-  #include "../../../module/configuration_store.h"
+  #include "../../../module/settings.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
   #include "../../../module/probe.h"

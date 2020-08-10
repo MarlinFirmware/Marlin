@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -474,7 +474,10 @@ class Temperature {
       #define FANS_LOOP(I) LOOP_L_N(I, FAN_COUNT)
 
       static void set_fan_speed(const uint8_t target, const uint16_t speed);
-      static void report_fan_speed(const uint8_t target);
+
+      #if ENABLED(REPORT_FAN_CHANGE)
+        static void report_fan_speed(const uint8_t target);
+      #endif
 
       #if EITHER(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
         static bool fans_paused;
@@ -487,13 +490,7 @@ class Temperature {
 
       static inline uint8_t scaledFanSpeed(const uint8_t target, const uint8_t fs) {
         UNUSED(target); // Potentially unused!
-        return (fs * uint16_t(
-          #if ENABLED(ADAPTIVE_FAN_SLOWING)
-            fan_speed_scaler[target]
-          #else
-            128
-          #endif
-        )) >> 7;
+        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[target], 128))) >> 7;
       }
 
       static inline uint8_t scaledFanSpeed(const uint8_t target) {
@@ -579,7 +576,7 @@ class Temperature {
           else if (temp_hotend[ee].target == 0)
             start_preheat_time(ee);
         #endif
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_hotend[ee].target = _MIN(celsius, temp_range[ee].maxtemp - HOTEND_OVERSHOOT);
         start_watching_hotend(ee);
       }
@@ -627,9 +624,9 @@ class Temperature {
       #endif
 
       static void setTargetBed(const int16_t celsius) {
-        TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
+        TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target =
-          #ifdef BED_MAXTEMP
+          #ifdef BED_MAX_TARGET
             _MIN(celsius, BED_MAX_TARGET)
           #else
             celsius
@@ -790,11 +787,7 @@ class Temperature {
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
     #if HAS_MAX6675
-      #if BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
-        #define COUNT_6675 2
-      #else
-        #define COUNT_6675 1
-      #endif
+      #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
       #if COUNT_6675 > 1
         #define READ_MAX6675(N) read_max6675(N)
       #else

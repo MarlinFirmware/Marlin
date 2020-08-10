@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -91,7 +91,7 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "http://marlinfw.org"
+#define MARLIN_WEBSITE_URL "https://marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
@@ -265,6 +265,13 @@
 #define STR_DEBUG_DRYRUN                    "DRYRUN"
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_LEVELING                  "LEVELING"
+
+#define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
+#define STR_WRONG_PASSWORD                  "Incorrect Password"
+#define STR_PASSWORD_TOO_LONG               "Password too long"
+#define STR_PASSWORD_REMOVED                "Password removed"
+#define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
+#define STR_PASSWORD_SET                    "Password is "
 
 // LCD Menu Messages
 

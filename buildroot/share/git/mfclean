@@ -6,6 +6,9 @@
 # Great way to clean up your branches after messing around a lot
 #
 
+which awk  >/dev/null && AWK=awk
+which gawk >/dev/null && AWK=gawk
+
 KEEP="RC|RCBugFix|dev|master|bugfix-1|bugfix-2"
 
 echo "Fetching latest upstream and origin..."
@@ -18,7 +21,7 @@ git branch --merged | egrep -v "^\*|$KEEP" | xargs -n 1 git branch -d
 echo
 
 echo "Pruning Remotely-deleted Branches..."
-git branch -vv | egrep -v "^\*|$KEEP" | grep ': gone]' | gawk '{print $1}' | xargs -n 1 git branch -D
+git branch -vv | egrep -v "^\*|$KEEP" | grep ': gone]' | "$AWK" '{print $1}' | xargs -n 1 git branch -D
 echo
 
 # List fork branches that don't match local branches

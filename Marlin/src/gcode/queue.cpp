@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -40,7 +40,7 @@ GCodeQueue queue;
 #endif
 
 #if ENABLED(BINARY_FILE_TRANSFER)
-  #include "../feature/binary_protocol.h"
+  #include "../feature/binary_stream.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -628,11 +628,10 @@ void GCodeQueue::advance() {
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL0.dropped());
           #endif
-
           #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
             SERIAL_ECHOLNPAIR("Max RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
           #endif
-        #endif //  !defined(__AVR__) || !defined(USBCON)
+        #endif
 
         ok_to_send();
       }
