@@ -115,6 +115,13 @@ void menu_tune() {
   #endif
 
   //
+  // Mesh Bed Leveling Z-Offset
+  //
+  #if BOTH(HAS_LEVELING, ENABLE_UNIVERSAL_Z_OFFSET)
+    EDIT_ITEM(float43, MSG_BED_Z, &planner.universal_z_offset, -10, 10); //TODO: Add message for Universal Z
+  #endif
+  
+  //
   // Nozzle:
   // Nozzle [1-4]:
   //

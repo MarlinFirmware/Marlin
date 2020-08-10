@@ -1263,6 +1263,9 @@
   // The height can be set with M420 Z<height>
   #define ENABLE_LEVELING_FADE_HEIGHT
 
+  //Enable a universally applicable Z offset (Applies regardless of Bed Leveling system selected)
+  #define ENABLE_UNIVERSAL_Z_OFFSET
+
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
   // contours of the bed more closely than edge-to-edge straight moves.

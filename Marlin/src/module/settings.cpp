@@ -37,7 +37,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V81"
+#define EEPROM_VERSION "V82"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -196,6 +196,11 @@ typedef struct SettingsDataStruct {
   //
   bool runout_sensor_enabled;                           // M412 S
   float runout_distance_mm;                             // M412 D
+
+  //
+  // ENABLE_UNIVERSAL_Z_OFFSET
+  //
+  float planner_universal_z_offset;                          // planner.universal_z_offset
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -437,6 +442,9 @@ uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 /**
  * Post-process after Retrieve or Reset
  */
+#if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+  float new_universal_z_offset;
+#endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
   float new_z_fade_height;
@@ -466,7 +474,8 @@ void MarlinSettings::postprocess() {
     update_workspace_offset((AxisEnum)i);
     update_software_endstops((AxisEnum)i);
   }
-
+  TERN_(ENABLE_UNIVERSAL_Z_OFFSET, planner.set_universal_z_offset(new_universal_z_offset));
+  
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
@@ -657,6 +666,10 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
+      
+      const float uzo = TERN(ENABLE_UNIVERSAL_Z_OFFSET, planner.universal_z_offset, 0f);
+      EEPROM_WRITE(uzo);
+
       const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, 10.0f);
       EEPROM_WRITE(zfh);
     }
@@ -1531,6 +1544,7 @@ void MarlinSettings::postprocess() {
       //
       // Global Leveling
       //
+      EEPROM_READ(TERN(ENABLE_UNIVERSAL_Z_OFFSET, new_universal_z_offset, dummyf));
       EEPROM_READ(TERN(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height, dummyf));
 
       //
@@ -2537,6 +2551,7 @@ void MarlinSettings::reset() {
   //
   // Global Leveling
   //
+  TERN_(ENABLE_UNIVERSAL_Z_OFFSET, new_universal_z_offset = 0.0);
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, new_z_fade_height = 0.0);
   TERN_(HAS_LEVELING, reset_bed_level());
 
@@ -3088,6 +3103,9 @@ void MarlinSettings::reset() {
       #endif
 
       CONFIG_ECHO_START();
+       SERIAL_ECHOLNPAIR_P(
+        PSTR(" Universal Z Offset: "), planner.universal_z_offset);
+
       SERIAL_ECHOLNPAIR_P(
         PSTR("  M420 S"), planner.leveling_active ? 1 : 0
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
