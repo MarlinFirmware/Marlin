@@ -38,7 +38,9 @@
 #define ILI9488_ORIENTATION_LEFT  ILI9488_MADCTL_MY | ILI9488_MADCTL_MX | ILI9488_MADCTL_MV // 480x320 ; Cable on the left side
 #define ILI9488_ORIENTATION_DOWN  ILI9488_MADCTL_MX                                         // 320x480 ; Cable on the upper side
 
-#define ILI9488_COLOR_BGR
+#ifndef ILI9488_COLOR_RGB
+  #define ILI9488_COLOR_BGR
+#endif
 #ifndef ILI9488_ORIENTATION
   #define ILI9488_ORIENTATION     ILI9488_ORIENTATION_LEFT
 #endif
