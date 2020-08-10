@@ -759,7 +759,7 @@ char *creat_title_text() {
 
         LCD_WriteRAM_Prepare();
 
-        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
+        for (int _y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
           for (x_off = 0; x_off < 200; x_off++) {
             if (sel == 1) {
               temp_p  = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
