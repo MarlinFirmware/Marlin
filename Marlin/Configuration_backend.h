@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#define CONFIGURATION_BACKEND_H_VERSION 020005
+#define CONFIGURATION_BACKEND_H_VERSION 020006
 
 
 /**
@@ -83,7 +83,7 @@
  * ABL Probe Settings
  */
 
-#if ENABLED(EZABL_ENABLE)
+#if ENABLED(ABL_ENABLE)
 
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE

@@ -2,7 +2,7 @@
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 020005
+#define CONFIGURATION_H_VERSION 020006
 
 
 
