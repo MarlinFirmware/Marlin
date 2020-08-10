@@ -41,6 +41,8 @@
 #define VerChar1 "E2"
 #elif(ENABLED(MachineEnder3))
 #define VerChar1 "E3"
+#elif ENABLED(MachineEnder3V2)
+  #define VerChar1 "E3V2"
 #elif(ENABLED(MachineEnder4))
 #define VerChar1 "E4"
 #elif(ENABLED(MachineEnder5))
@@ -109,7 +111,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2020-08-01"
+#define STRING_DISTRIBUTION_DATE "2020-08-10"
 
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
@@ -120,6 +122,8 @@
 #define MACHINE_NAME "TM3D Ender2"
 #elif(ENABLED(MachineEnder3))
 #define MACHINE_NAME "TM3D Ender3"
+#elif(ENABLED(MachineEnder3V2))
+#define MACHINE_NAME "TM3D Ender3V2"
 #elif(ENABLED(MachineEnder4))
 #define MACHINE_NAME "TM3D Ender4"
 #elif(ENABLED(MachineEnder5))
