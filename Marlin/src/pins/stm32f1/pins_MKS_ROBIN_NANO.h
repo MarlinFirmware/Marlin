@@ -177,6 +177,11 @@
 
   #define LCD_BACKLIGHT_PIN                 PD13
 
+  #define XPT2046_X_CALIBRATION            17880
+  #define XPT2046_Y_CALIBRATION           -12234
+  #define XPT2046_X_OFFSET                   -45
+  #define XPT2046_Y_OFFSET                   349
+
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
 
   #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
