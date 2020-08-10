@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT
+#if HAS_SPI_TFT || ENABLED(TFT_LVGL_UI_SPI)
 
 #include "tft_spi.h"
 

@@ -261,6 +261,24 @@
   #define BTN_EN2                           PE11
   #define BTN_ENC                           PE13
 
+  #define TFT_CS_PIN                      PD11
+  #define TFT_SCK_PIN                     PA5
+  #define TFT_MISO_PIN                    PA6
+  #define TFT_MOSI_PIN                    PA7
+  #define TFT_DC_PIN                      PD10
+  #define TFT_RST_PIN                     PC6
+  #define TFT_A0_PIN                TFT_DC_PIN
+
+  #define TFT_RESET_PIN                   PC6
+  #define TFT_BACKLIGHT_PIN               PD13
+
+  #define XPT2046_X_CALIBRATION         -17253
+  #define XPT2046_Y_CALIBRATION          11579
+  #define XPT2046_X_OFFSET                 514
+  #define XPT2046_Y_OFFSET                 -24
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
 #elif ENABLED(TFT_LITTLE_VGL_UI)
 
   #define FSMC_CS_PIN                       PD7   // NE4
