@@ -267,28 +267,10 @@ void LCD_Clear(uint16_t Color) {
   }
 }
 
-extern uint16_t ILI9488_ReadRAM();
-
+#include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+extern TFT_IO tftio;
 void init_tft() {
   uint16_t i;
-  //************* Start Initial Sequence **********//
-
-  //start lcd pins and dma
-  #if PIN_EXISTS(LCD_BACKLIGHT)
-    OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
-  #endif
-
-  #if PIN_EXISTS(LCD_RESET)
-    // Perform a clean hardware reset with needed delays
-    OUT_WRITE(LCD_RESET_PIN, LOW);
-    _delay_ms(5);
-    WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5);
-  #endif
-
-  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    WRITE(LCD_BACKLIGHT_PIN, HIGH);
-  #endif
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
@@ -302,12 +284,11 @@ void init_tft() {
 
   _delay_ms(5);
 
-  LCD_IO_WriteReg(0x00D3);
-  DeviceCode = ILI9488_ReadRAM(); //dummy read
-  DeviceCode = ILI9488_ReadRAM();
-  DeviceCode = ILI9488_ReadRAM();
-  DeviceCode <<= 8;
-  DeviceCode |= ILI9488_ReadRAM();
+  DeviceCode = tftio.GetID() & 0xFFFF;
+  //chitu and others
+  if (DeviceCode == 0x8066) {
+    DeviceCode = 0x9488;
+  }
 
   if (DeviceCode == 0x9488) {
     LCD_IO_WriteReg(0x00E0);
