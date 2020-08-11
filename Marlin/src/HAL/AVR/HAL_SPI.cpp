@@ -33,6 +33,19 @@
 
 #include "../../inc/MarlinConfig.h"
 
+void spiBegin() {
+  #if !PIN_EXISTS(SS)
+    #error "SS_PIN not defined!"
+  #endif
+  OUT_WRITE(SS_PIN, HIGH);
+  SET_OUTPUT(SCK_PIN);
+  SET_INPUT(MISO_PIN);
+  SET_OUTPUT(MOSI_PIN);
+
+  // set a default rate
+  spiInit(1);
+}
+
 #if NONE(SOFTWARE_SPI, FORCE_SOFT_SPI)
 
   // ------------------------
@@ -231,15 +244,4 @@
   }
 
 #endif // SOFTWARE_SPI || FORCE_SOFT_SPI
-
-void spiBegin() {
-  OUT_WRITE(SS_PIN, HIGH);
-  SET_OUTPUT(SCK_PIN);
-  SET_INPUT(MISO_PIN);
-  SET_OUTPUT(MOSI_PIN);
-
-  // set a default rate
-  spiInit(1);
-}
-
 #endif // __AVR__
