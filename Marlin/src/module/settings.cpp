@@ -3102,6 +3102,7 @@ void MarlinSettings::reset() {
 
       #endif
 
+      CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         PSTR("  M420 S"), planner.leveling_active ? 1 : 0
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
