@@ -1480,6 +1480,7 @@ void Planner::check_axes_activity() {
    */
   void Planner::apply_leveling(xyz_pos_t &raw) {
     if (!leveling_active) return;
+
     raw.z += universal_z_offset;
 
     #if ABL_PLANAR
