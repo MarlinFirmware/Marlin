@@ -361,7 +361,12 @@ class Planner {
 
     #if HAS_LEVELING
       static bool leveling_active;          // Flag that bed leveling is enabled
-      static float universal_z_offset;
+  
+      #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+        static float universal_z_offset;
+      #else
+        static constexpr float universal_z_offset = 0.0f;
+      #endif
       
       #if ABL_PLANAR
         static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
@@ -597,13 +602,12 @@ class Planner {
         unapply_leveling(raw);
         leveling_active = false;
       }
-      FORCE_INLINE static void set_universal_z_offset(const float &uzo) {
-        universal_z_offset = uzo;
-      }
+      #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+        FORCE_INLINE static void set_universal_z_offset(const float &uzo) { universal_z_offset = uzo; }
+      #endif
     #else
       FORCE_INLINE static void apply_leveling(xyz_pos_t&) {}
       FORCE_INLINE static void unapply_leveling(xyz_pos_t&) {}
-      FORCE_INLINE static void set_universal_z_offset(const float &) {}
     #endif
 
     #if ENABLED(FWRETRACT)
