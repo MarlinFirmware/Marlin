@@ -517,6 +517,8 @@
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
 #elif defined(ANYCUBIC_TFT_MODEL)
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
+#elif defined(EVENT_GCODE_SD_STOP)
+  #error "EVENT_GCODE_SD_STOP is now EVENT_GCODE_SD_ABORT. Please update your Configuration.h."
 #endif
 
 #ifdef FIL_RUNOUT_INVERTING
