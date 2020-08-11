@@ -2072,9 +2072,9 @@ void HMI_PauseOrStop(void) {
           #ifdef ACTION_ON_CANCEL
             host_action_cancel();
           #endif
-          #ifdef EVENT_GCODE_SD_STOP
+          #ifdef EVENT_GCODE_SD_ABORT
             Popup_Window_Home();
-            queue.inject_P(PSTR(EVENT_GCODE_SD_STOP)); // For Ender 3 "G28 X Y"
+            queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
           #endif
           abort_flag = true;
         #endif
