@@ -139,8 +139,7 @@ BEGIN {
 }
 EOF
 
-which awk  >/dev/null && AWK=awk
-which gawk >/dev/null && AWK=gawk
+AWK=$(which gawk || which awk)
 
 grep -Hrn _UxGT . | grep '"' \
   | sed 's/_UxGT("/\n&/g;s/[^\n]*\n_UxGT("\([^"]*\)[^\n]*/\1 /g;s/.$//' \

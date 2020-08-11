@@ -20,8 +20,7 @@ case "$1" in
     ;;
 esac
 
-which awk  >/dev/null && AWK=awk
-which gawk >/dev/null && AWK=gawk
+AWK=$(which gawk || which awk)
 
 REMOTES=$(git remote -v | egrep "\t$MATCH" | "$AWK" '{print $1 " " $2}' | sort -u | sed  "s/$FORMULA/")
 

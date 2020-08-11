@@ -13,9 +13,9 @@ restore_configs
 cd Marlin
 
 $TOOL "$EXAMPLES/$RDIR/Configuration.h"     >/dev/null 2>&1 && mv wgot Configuration.h
-$TOOL "$EXAMPLES/$RDIR/Configuration_adv.h" >/dev/null 2>&1 && mv wgot Configuration.h
-$TOOL "$EXAMPLES/$RDIR/_Bootscreen.h"       >/dev/null 2>&1 && mv wgot Configuration.h
-$TOOL "$EXAMPLES/$RDIR/_Statusscreen.h"     >/dev/null 2>&1 && mv wgot Configuration.h
+$TOOL "$EXAMPLES/$RDIR/Configuration_adv.h" >/dev/null 2>&1 && mv wgot Configuration_adv.h
+$TOOL "$EXAMPLES/$RDIR/_Bootscreen.h"       >/dev/null 2>&1 && mv wgot _Bootscreen.h
+$TOOL "$EXAMPLES/$RDIR/_Statusscreen.h"     >/dev/null 2>&1 && mv wgot _Statusscreen.h
 
 rm -f wgot
 cd - >/dev/null

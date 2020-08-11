@@ -6,8 +6,7 @@
 # Great way to clean up your branches after messing around a lot
 #
 
-which awk  >/dev/null && AWK=awk
-which gawk >/dev/null && AWK=gawk
+AWK=$(which gawk || which awk)
 
 KEEP="RC|RCBugFix|dev|master|bugfix-1|bugfix-2"
 
