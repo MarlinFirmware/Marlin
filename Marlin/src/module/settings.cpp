@@ -3159,7 +3159,7 @@ void MarlinSettings::reset() {
       #endif
 
     #endif // HAS_LEVELING
-    
+
     #if ENABLED(EDITABLE_SERVO_ANGLES)
 
       CONFIG_ECHO_HEADING("Servo Angles:");
