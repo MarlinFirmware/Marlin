@@ -3109,6 +3109,12 @@ void MarlinSettings::reset() {
         #endif
       );
 
+      #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+        CONFIG_ECHO_HEADING("Universal Z Offset:");
+        CONFIG_ECHO_START();
+        SERIAL_ECHOLNPAIR_F("  M423 Z"), LINEAR_UNIT(planner.universal_z_offset), 3);
+      #endif
+
       #if ENABLED(MESH_BED_LEVELING)
 
         if (leveling_is_valid()) {
@@ -3154,12 +3160,6 @@ void MarlinSettings::reset() {
 
     #endif // HAS_LEVELING
     
-    #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
-      CONFIG_ECHO_HEADING("Universal Z Offset:");
-      CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_F("  M423 Z"), LINEAR_UNIT(planner.universal_z_offset), 3);
-    #endif
-
     #if ENABLED(EDITABLE_SERVO_ANGLES)
 
       CONFIG_ECHO_HEADING("Servo Angles:");
