@@ -32,7 +32,7 @@
 
 
 //STM32F103RE Machines
-#define MachineEnder3V2
+//#define MachineEnder3V2
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
