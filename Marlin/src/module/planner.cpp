@@ -182,7 +182,12 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 
 #if HAS_LEVELING
   bool Planner::leveling_active = false; // Flag that auto bed leveling is enabled
-  float Planner::universal_z_offset = 0.0f;
+
+  #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+    float Planner::universal_z_offset = 0.0f;
+  #else
+    constexpr float Planner::universal_z_offset;
+  #endif
 
   #if ABL_PLANAR
     matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
