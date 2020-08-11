@@ -807,7 +807,7 @@ UnwResult UnwStartThumb(UnwState * const state) {
         case 2: /* MOV */
           UnwPrintd5("MOV r%d, r%d\t; r%d %s", rhd, rhs, rhd, M_Origin2Str(state->regData[rhs].o));
           state->regData[rhd].v  = state->regData[rhs].v;
-          state->regData[rhd].o  = state->regData[rhd].o;
+          state->regData[rhd].o  = state->regData[rhs].o;
           break;
 
         case 3: /* BX */

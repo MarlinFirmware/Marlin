@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -69,7 +69,7 @@ void GcodeSuite::G0_G1(
       #endif
     #endif
 
-    get_destination_from_command();                 // Process X Y Z E F parameters
+    get_destination_from_command();                 // Get X Y Z E F (and set cutter power)
 
     #ifdef G0_FEEDRATE
       if (fast_move) {
@@ -100,9 +100,9 @@ void GcodeSuite::G0_G1(
     #endif // FWRETRACT
 
     #if IS_SCARA
-      fast_move ? prepare_fast_move_to_destination() : prepare_move_to_destination();
+      fast_move ? prepare_fast_move_to_destination() : prepare_line_to_destination();
     #else
-      prepare_move_to_destination();
+      prepare_line_to_destination();
     #endif
 
     #ifdef G0_FEEDRATE
@@ -118,7 +118,7 @@ void GcodeSuite::G0_G1(
       #endif
       if (_MOVE_SYNC) {
         planner.synchronize();
-        SERIAL_ECHOLNPGM(MSG_Z_MOVE_COMP);
+        SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
       }
     #endif
   }

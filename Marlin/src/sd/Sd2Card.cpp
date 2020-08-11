@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -74,7 +74,7 @@ static bool crcSupported = false;
   #else
     static uint8_t CRC7(const uint8_t* data, uint8_t n) {
       uint8_t crc = 0;
-      for (uint8_t i = 0; i < n; i++) {
+      LOOP_L_N(i, n) {
         uint8_t d = data[i];
         d ^= crc << 1;
         if (d & 0x80) d ^= 9;
@@ -213,6 +213,8 @@ uint32_t Sd2Card::cardSize() {
  * \return true for success, false for failure.
  */
 bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   csd_t csd;
   if (!readCSD(&csd)) return false;
 
@@ -268,16 +270,24 @@ bool Sd2Card::init(const uint8_t sckRateID) {
 
   watchdog_refresh(); // In case init takes too long
 
-  // Set SCK rate for initialization commands
-  spiBusInit(BUS_OF_DEV(dev_num), SPI_SD_INIT_RATE);
+  // Set pin modes
+  #if ENABLED(ZONESTAR_12864OLED)
+    if (chipSelectPin_ != DOGLCD_CS) {
+      SET_OUTPUT(DOGLCD_CS);
+      WRITE(DOGLCD_CS, HIGH);
+    }
+  #else
+    // Set SCK rate for initialization commands
+    spiBusInit(BUS_OF_DEV(dev_num), SPI_SD_INIT_RATE);
+    extDigitalWrite(CS_OF_DEV(dev_num), HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+    pinMode(CS_OF_DEV(dev_num), OUTPUT);        // Solution for #8746 by @benlye
+  #endif
 
   // Set pin modes
-  extDigitalWrite(CS_OF_DEV(dev_num), HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  pinMode(CS_OF_DEV(dev_num), OUTPUT);        // Solution for #8746 by @benlye
   //spiBegin(BUS_OF_DEV(dev_num));
 
   // Must supply min of 74 clock cycles with CS high.
-  for (uint8_t i = 0; i < 10; i++) spiBusSend(BUS_OF_DEV(dev_num), 0xFF); //Send to bus, not to device (to not alter CS)
+  LOOP_L_N(i, 10) spiBusSend(BUS_OF_DEV(dev_num), 0xFF); //Send to bus, not to device (to not alter CS)
 
   watchdog_refresh(); // In case init takes too long
 
@@ -304,7 +314,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
     }
 
     // Get the last byte of r7 response
-    for (uint8_t i = 0; i < 4; i++) status_ = spiDevRec(dev_num);
+    LOOP_L_N(i, 4) status_ = spiDevRec(dev_num);
     if (status_ == 0xAA) {
       type(SD_CARD_TYPE_SD2);
       break;
@@ -335,7 +345,7 @@ bool Sd2Card::init(const uint8_t sckRateID) {
     }
     if ((spiDevRec(dev_num) & 0xC0) == 0xC0) type(SD_CARD_TYPE_SDHC);
     // Discard rest of ocr - contains allowed voltage range
-    for (uint8_t i = 0; i < 3; i++) spiDevRec(dev_num);
+    LOOP_L_N(i, 3) spiDevRec(dev_num);
   }
 
   return setSckRate(sckRateID);
@@ -566,9 +576,10 @@ bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
-  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
+  if (ENABLED(SDCARD_READONLY)) return false;
 
   bool success = false;
+  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
   if (!cardCommand(CMD24, blockNumber)) {
     if (writeData(DATA_START_BLOCK, src)) {
       if (waitNotBusy(SD_WRITE_TIMEOUT)) {                           // Wait for flashing to complete
@@ -590,6 +601,8 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeData(const uint8_t* src) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = true;
   // Wait for previous write to finish
   if (!waitNotBusy(SD_WRITE_TIMEOUT) || !writeData(WRITE_MULTIPLE_TOKEN, src)) {
@@ -601,7 +614,9 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
-  spiDevSend(dev_num, token); //token isn't included in CRC
+  if (ENABLED(SDCARD_READONLY)) return false;
+
+ spiDevSend(dev_num, token); // Token isn't included in CRC
 
   uint16_t crc = (
     #if DISABLED(SD_CHECK_AND_RETRY)
@@ -622,7 +637,8 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
 
   // Wait for reply. consider only bit 4-0
   millis_t wait_timeout = millis() + SD_WRITE_TIMEOUT;
-  while ((status_ = (spiDevRec(dev_num) & DATA_RES_MASK)) == DATA_RES_MASK) if (ELAPSED(millis(), wait_timeout)) goto error;
+  while ((status_ = (spiDevRec(dev_num) & DATA_RES_MASK)) == DATA_RES_MASK)
+    if (ELAPSED(millis(), wait_timeout)) goto error;
 
   if (status_ == DATA_RES_ACCEPTED)
     return true;
@@ -644,6 +660,8 @@ error:
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   if (!cardAcmd(ACMD23, eraseCount)) {                    // Send pre-erase count
     if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
@@ -662,6 +680,8 @@ bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStop() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   if (waitNotBusy(SD_WRITE_TIMEOUT)) {
     spiDevSend(dev_num, STOP_TRAN_TOKEN);

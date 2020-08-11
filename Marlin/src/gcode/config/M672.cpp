@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -51,8 +51,8 @@
  *   Marlin: M672 R
  */
 
-#define M672_PROGBYTE    105								// magic byte to start programming custom sensitivity
-#define M672_ERASEBYTE   131								// magic byte to clear custom sensitivity
+#define M672_PROGBYTE    105                // magic byte to start programming custom sensitivity
+#define M672_ERASEBYTE   131                // magic byte to clear custom sensitivity
 
 //
 // Smart Effector byte send protocol:
@@ -62,7 +62,7 @@
 //  b3 b2 b1 b0 ~b0  ... lo bits, NOT last bit
 //
 void M672_send(uint8_t b) {    // bit rate requirement: 1KHz +/- 30%
-  for (uint8_t bits = 0; bits < 14; bits++) {
+  LOOP_L_N(bits, 14) {
     switch (bits) {
       default: { OUT_WRITE(SMART_EFFECTOR_MOD_PIN, !!(b & 0x80)); b <<= 1; break; } // send bit, shift next into place
       case  7:

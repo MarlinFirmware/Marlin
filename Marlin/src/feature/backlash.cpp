@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -113,7 +113,7 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
             error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
         }
       #endif
-      // Making a correction reduces the residual error and modifies delta_mm
+      // Making a correction reduces the residual error and adds block steps
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
         residual_error[axis] -= error_correction;

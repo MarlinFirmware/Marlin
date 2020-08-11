@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -53,11 +53,13 @@ void scara_set_axis_is_at_home(const AxisEnum axis) {
       current_position[axis] = cartes[axis];
     #else
       // MP_SCARA uses a Cartesian XY home position
-      // SERIAL_ECHOLNPAIR("homeposition X:", homeposition.x, " Y:", homeposition.y);
+      // SERIAL_ECHOPGM("homeposition");
+      // SERIAL_ECHOLNPAIR_P(SP_X_LBL, homeposition.x, SP_Y_LBL, homeposition.y);
       current_position[axis] = homeposition[axis];
     #endif
 
-    // SERIAL_ECHOLNPAIR("Cartesian X:", current_position.x, " Y:", current_position.y);
+    // SERIAL_ECHOPGM("Cartesian");
+    // SERIAL_ECHOLNPAIR_P(SP_X_LBL, current_position.x, SP_Y_LBL, current_position.y);
     update_software_endstops(axis);
   }
 }
@@ -98,7 +100,7 @@ void inverse_kinematics(const xyz_pos_t &raw) {
     /**
      * Morgan SCARA Inverse Kinematics. Results in 'delta'.
      *
-     * See http://forums.reprap.org/read.php?185,283327
+     * See https://reprap.org/forum/read.php?185,283327
      *
      * Maths and first version by QHARLEY.
      * Integrated into Marlin and slightly restructured by Joachim Cerny.

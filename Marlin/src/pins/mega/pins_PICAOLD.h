@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-#define HEATER_0_PIN        9   // E0
-#define HEATER_1_PIN       10   // E1
-#define FAN_PIN            11
-#define FAN2_PIN           12
+#define HEATER_0_PIN                          9   // E0
+#define HEATER_1_PIN                         10   // E1
+#define FAN_PIN                              11
+#define FAN2_PIN                             12
 
 #include "pins_PICA.h"
