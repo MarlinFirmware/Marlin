@@ -200,7 +200,7 @@ typedef struct SettingsDataStruct {
   //
   // ENABLE_UNIVERSAL_Z_OFFSET
   //
-  float planner_universal_z_offset;                          // planner.universal_z_offset
+  float planner_universal_z_offset;                     // M423 Zn  planner.universal_z_offset
 
   //
   // ENABLE_LEVELING_FADE_HEIGHT
@@ -474,6 +474,7 @@ void MarlinSettings::postprocess() {
     update_workspace_offset((AxisEnum)i);
     update_software_endstops((AxisEnum)i);
   }
+
   TERN_(ENABLE_UNIVERSAL_Z_OFFSET, planner.set_universal_z_offset(new_universal_z_offset));
 
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
@@ -3101,10 +3102,6 @@ void MarlinSettings::reset() {
 
       #endif
 
-      CONFIG_ECHO_START();
-       SERIAL_ECHOLNPAIR_P(
-        PSTR(" Universal Z Offset: "), planner.universal_z_offset);
-
       SERIAL_ECHOLNPAIR_P(
         PSTR("  M420 S"), planner.leveling_active ? 1 : 0
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -3156,6 +3153,12 @@ void MarlinSettings::reset() {
       #endif
 
     #endif // HAS_LEVELING
+    
+    #if ENABLED(ENABLE_UNIVERSAL_Z_OFFSET)
+      CONFIG_ECHO_HEADING("Universal Z Offset:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHOLNPAIR_F("  M423 Z"), LINEAR_UNIT(planner.universal_z_offset), 3);
+    #endif
 
     #if ENABLED(EDITABLE_SERVO_ANGLES)
 
