@@ -475,7 +475,7 @@ void MarlinSettings::postprocess() {
     update_software_endstops((AxisEnum)i);
   }
   TERN_(ENABLE_UNIVERSAL_Z_OFFSET, planner.set_universal_z_offset(new_universal_z_offset));
-  
+
   TERN_(ENABLE_LEVELING_FADE_HEIGHT, set_z_fade_height(new_z_fade_height, false)); // false = no report
 
   TERN_(AUTO_BED_LEVELING_BILINEAR, refresh_bed_level());
@@ -666,8 +666,7 @@ void MarlinSettings::postprocess() {
     // Global Leveling
     //
     {
-      
-      const float uzo = TERN(ENABLE_UNIVERSAL_Z_OFFSET, planner.universal_z_offset, 0f);
+      const float uzo = TERN(ENABLE_UNIVERSAL_Z_OFFSET, planner.universal_z_offset, 0.0f);
       EEPROM_WRITE(uzo);
 
       const float zfh = TERN(ENABLE_LEVELING_FADE_HEIGHT, planner.z_fade_height, 10.0f);
