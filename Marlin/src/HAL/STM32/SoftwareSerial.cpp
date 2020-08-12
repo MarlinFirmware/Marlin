@@ -3,14 +3,14 @@
  *
  * Multi-instance software serial library for Arduino/Wiring
  * -- Interrupt-driven receive and other improvements by ladyada
- *    (http://ladyada.net)
+ *    <https://ladyada.net>
  * -- Tuning, circular buffer, derivation from class Print/Stream,
  *    multi-instance support, porting to 8MHz processors,
  *    various optimizations, PROGMEM delay tables, inverse logic and
- *    direct port writing by Mikal Hart (http://www.arduiniana.org)
- * -- Pin change interrupt macros by Paul Stoffregen (http://www.pjrc.com)
- * -- 20MHz processor support by Garrett Mace (http://www.macetech.com)
- * -- ATmega1280/2560 support by Brett Hagman (http://www.roguerobotics.com/)
+ *    direct port writing by Mikal Hart <http://www.arduiniana.org>
+ * -- Pin change interrupt macros by Paul Stoffregen <https://www.pjrc.com>
+ * -- 20MHz processor support by Garrett Mace <http://www.macetech.com>
+ * -- ATmega1280/2560 support by Brett Hagman <https://www.roguerobotics.com>
  * -- STM32 support by Armin van der Togt
  *
  * This library is free software; you can redistribute it and/or
@@ -36,8 +36,9 @@
 //
 #if defined(PLATFORMIO) && defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
+#include "../../inc/MarlinConfig.h"
+
 #include "SoftwareSerial.h"
-#include "timers.h"
 
 #define OVERSAMPLE 3 // in RX, Timer will generate interruption OVERSAMPLE time during a bit. Thus OVERSAMPLE ticks in a bit. (interrupt not synchonized with edge).
 
@@ -47,49 +48,49 @@
 // The order is based on (lack of) features and compare channels, we choose the simplest available
 // because we only need an update interrupt
 #if !defined(TIMER_SERIAL)
-#if defined (TIM18_BASE)
+#if  defined(TIM18_BASE)
 #define TIMER_SERIAL TIM18
-#elif defined (TIM7_BASE)
+#elif defined(TIM7_BASE)
 #define TIMER_SERIAL TIM7
-#elif defined (TIM6_BASE)
+#elif defined(TIM6_BASE)
 #define TIMER_SERIAL TIM6
-#elif defined (TIM22_BASE)
+#elif defined(TIM22_BASE)
 #define TIMER_SERIAL TIM22
-#elif defined (TIM21_BASE)
+#elif defined(TIM21_BASE)
 #define TIMER_SERIAL TIM21
-#elif defined (TIM17_BASE)
+#elif defined(TIM17_BASE)
 #define TIMER_SERIAL TIM17
-#elif defined (TIM16_BASE)
+#elif defined(TIM16_BASE)
 #define TIMER_SERIAL TIM16
-#elif defined (TIM15_BASE)
+#elif defined(TIM15_BASE)
 #define TIMER_SERIAL TIM15
-#elif defined (TIM14_BASE)
+#elif defined(TIM14_BASE)
 #define TIMER_SERIAL TIM14
-#elif defined (TIM13_BASE)
+#elif defined(TIM13_BASE)
 #define TIMER_SERIAL TIM13
-#elif defined (TIM11_BASE)
+#elif defined(TIM11_BASE)
 #define TIMER_SERIAL TIM11
-#elif defined (TIM10_BASE)
+#elif defined(TIM10_BASE)
 #define TIMER_SERIAL TIM10
-#elif defined (TIM12_BASE)
+#elif defined(TIM12_BASE)
 #define TIMER_SERIAL TIM12
-#elif defined (TIM19_BASE)
+#elif defined(TIM19_BASE)
 #define TIMER_SERIAL TIM19
-#elif defined (TIM9_BASE)
+#elif defined(TIM9_BASE)
 #define TIMER_SERIAL TIM9
-#elif defined (TIM5_BASE)
+#elif defined(TIM5_BASE)
 #define TIMER_SERIAL TIM5
-#elif defined (TIM4_BASE)
+#elif defined(TIM4_BASE)
 #define TIMER_SERIAL TIM4
-#elif defined (TIM3_BASE)
+#elif defined(TIM3_BASE)
 #define TIMER_SERIAL TIM3
-#elif defined (TIM2_BASE)
+#elif defined(TIM2_BASE)
 #define TIMER_SERIAL TIM2
-#elif defined (TIM20_BASE)
+#elif defined(TIM20_BASE)
 #define TIMER_SERIAL TIM20
-#elif defined (TIM8_BASE)
+#elif defined(TIM8_BASE)
 #define TIMER_SERIAL TIM8
-#elif defined (TIM1_BASE)
+#elif defined(TIM1_BASE)
 #define TIMER_SERIAL TIM1
 #else
 #error No suitable timer found for SoftwareSerial, define TIMER_SERIAL in variant.h

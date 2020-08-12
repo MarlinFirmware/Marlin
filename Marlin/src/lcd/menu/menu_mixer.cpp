@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,14 +26,14 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(MIXING_EXTRUDER)
+#if BOTH(HAS_LCD_MENU, MIXING_EXTRUDER)
 
 #include "menu.h"
 #include "menu_addon.h"
 
 #include "../../feature/mixing.h"
 
-#define CHANNEL_MIX_EDITING !DUAL_MIXING_EXTRUDER
+#define CHANNEL_MIX_EDITING !HAS_DUAL_MIXING
 
 #if ENABLED(GRADIENT_MIX)
 
@@ -120,7 +120,7 @@
 
 static uint8_t v_index;
 
-#if DUAL_MIXING_EXTRUDER
+#if HAS_DUAL_MIXING
   void _lcd_draw_mix(const uint8_t y) {
     char tmp[20]; // "100%_100%"
     sprintf_P(tmp, PSTR("%3d%% %3d%%"), int(mixer.mix[0]), int(mixer.mix[1]));
@@ -131,9 +131,7 @@ static uint8_t v_index;
 
 void _lcd_mixer_select_vtool() {
   mixer.T(v_index);
-  #if DUAL_MIXING_EXTRUDER
-    _lcd_draw_mix(LCD_HEIGHT - 1);
-  #endif
+  TERN_(HAS_DUAL_MIXING, _lcd_draw_mix(LCD_HEIGHT - 1));
 }
 
 #if CHANNEL_MIX_EDITING
@@ -156,7 +154,7 @@ void _lcd_mixer_select_vtool() {
 
 void lcd_mixer_mix_edit() {
 
-  #if DUAL_MIXING_EXTRUDER && !CHANNEL_MIX_EDITING
+  #if HAS_DUAL_MIXING && !CHANNEL_MIX_EDITING
 
     // Adjust 2-channel mix from the encoder
     if (ui.encoderPosition != 0) {
@@ -194,7 +192,7 @@ void lcd_mixer_mix_edit() {
   #endif
 }
 
-#if DUAL_MIXING_EXTRUDER
+#if HAS_DUAL_MIXING
 
   //
   // Toggle Dual-Mix
@@ -239,13 +237,9 @@ void menu_mixer() {
   BACK_ITEM(MSG_MAIN);
 
   v_index = mixer.get_current_vtool();
-  EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool
-    #if DUAL_MIXING_EXTRUDER
-      , true
-    #endif
-  );
+  EDIT_ITEM(uint8, MSG_ACTIVE_VTOOL, &v_index, 0, MIXING_VIRTUAL_TOOLS - 1, _lcd_mixer_select_vtool, ENABLED(HAS_DUAL_MIXING));
 
-  #if DUAL_MIXING_EXTRUDER
+  #if HAS_DUAL_MIXING
   {
     char tmp[10];
     SUBMENU(MSG_MIX, lcd_mixer_mix_edit);
@@ -271,7 +265,7 @@ void menu_mixer() {
       ui.return_to_status();
     },
     ui.goto_previous_screen,
-    GET_TEXT(MSG_RESET_VTOOLS), (PGM_P)nullptr, PSTR("?")
+    GET_TEXT(MSG_RESET_VTOOLS), (const char *)nullptr, PSTR("?")
   );
 
   #if ENABLED(GRADIENT_MIX)

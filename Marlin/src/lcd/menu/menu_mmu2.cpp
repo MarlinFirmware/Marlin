@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU && ENABLED(MMU2_MENUS)
+#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
 #include "../../feature/mmu2/mmu2.h"
 #include "menu_mmu2.h"
@@ -54,8 +54,7 @@ void _mmu2_load_filament(uint8_t index) {
   ui.reset_status();
 }
 void action_mmu2_load_all() {
-  LOOP_L_N(i, EXTRUDERS)
-    _mmu2_load_filament(i);
+  LOOP_L_N(i, EXTRUDERS) _mmu2_load_filament(i);
   ui.return_to_status();
 }
 
@@ -132,7 +131,7 @@ inline void action_mmu2_choose(const uint8_t tool) {
 void menu_mmu2_choose_filament() {
   START_MENU();
   #if LCD_HEIGHT > 2
-    STATIC_ITEM(MSG_MMU2_CHOOSE_FILAMENT_HEADER, SS_CENTER|SS_INVERT);
+    STATIC_ITEM(MSG_MMU2_CHOOSE_FILAMENT_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   LOOP_L_N(i, 5) ACTION_ITEM_N(i, MSG_MMU2_FILAMENT_N, []{ action_mmu2_choose(MenuItemBase::itemIndex); });
   END_MENU();
@@ -146,7 +145,7 @@ void menu_mmu2_pause() {
   currentTool = mmu2.get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_CENTER|SS_INVERT);
+    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME, []{ mmuMenuWait = false; });
   ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
@@ -171,4 +170,4 @@ uint8_t mmu2_choose_filament() {
   return currentTool;
 }
 
-#endif //  HAS_LCD_MENU && ENABLED(PRUSA_MMU2_MENUS)
+#endif // HAS_LCD_MENU && MMU2_MENUS

@@ -18,20 +18,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
  * Description: Tone function for Arduino Due and compatible (SAM3X8E)
- * Derived from http://forum.arduino.cc/index.php?topic=136500.msg2903012#msg2903012
+ * Derived from https://forum.arduino.cc/index.php?topic=136500.msg2903012#msg2903012
  */
 
 #ifdef ARDUINO_ARCH_SAM
 
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
-#include "timers.h"
 
 static pin_t tone_pin;
 volatile static int32_t toggles;

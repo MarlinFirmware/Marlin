@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -46,11 +46,11 @@
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(0)
   #define CPU_ST7920_DELAY_3 DELAY_NS(50)
-#elif MB(3DRAG, K8200, K8400, SILVER_GATE)
+#elif MB(3DRAG, K8200, K8400)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(188)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)
-#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO)
+#elif MB(MINIRAMBO, EINSY_RAMBO, EINSY_RETRO, SILVER_GATE)
   #define CPU_ST7920_DELAY_1 DELAY_NS(0)
   #define CPU_ST7920_DELAY_2 DELAY_NS(250)
   #define CPU_ST7920_DELAY_3 DELAY_NS(0)

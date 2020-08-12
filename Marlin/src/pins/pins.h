@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -98,6 +98,8 @@
   #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(K8400)
   #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+#elif MB(K8600)
+  #include "ramps/pins_K8600.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8800)
   #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
 #elif MB(BAM_DICE)
@@ -190,6 +192,10 @@
   #include "ramps/pins_MKS_GEN_L_V2.h"          // ATmega2560                             env:mega2560
 #elif MB(COPYMASTER_3D)
   #include "ramps/pins_COPYMASTER_3D.h"         // ATmega2560                             env:mega2560
+#elif MB(ORTUR_4)
+  #include "ramps/pins_ORTUR_4.h"               // ATmega2560                             env:mega2560
+#elif MB(TENLOG_D3_HERO)
+  #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -280,10 +286,12 @@
   #include "sanguino/pins_SANGUINOLOLU_12.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI)
   #include "sanguino/pins_MELZI.h"              // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+#elif MB(MELZI_V2)
+  #include "sanguino/pins_MELZI_V2.h"           // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_MAKR3D)
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_CREALITY)
-  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optimized env:melzi_optiboot
 #elif MB(MELZI_MALYAN)
   #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_TRONXY)
@@ -292,6 +300,8 @@
   #include "sanguino/pins_STB_11.h"             // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(AZTEEG_X1)
   #include "sanguino/pins_AZTEEG_X1.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+#elif MB(ZMIB_V2)
+  #include "sanguino/pins_ZMIB_V2.h"            // ATmega644P, ATmega1284P                env:sanguino_atmega644p env:sanguino_atmega1284p
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -454,7 +464,7 @@
 #elif MB(ARCHIM1)
   #include "sam/pins_ARCHIM1.h"                 // SAM3X8E                                env:DUE env:DUE_debug
 #elif MB(ARCHIM2)
-  #include "sam/pins_ARCHIM2.h"                 // SAM3X8E                                env:DUE env:DUE_debug
+  #include "sam/pins_ARCHIM2.h"                 // SAM3X8E                                env:DUE_archim env:DUE_archim_debug
 #elif MB(ALLIGATOR)
   #include "sam/pins_ALLIGATOR_R2.h"            // SAM3X8E                                env:DUE env:DUE_debug
 #elif MB(ADSK)
@@ -463,6 +473,14 @@
   #include "sam/pins_PRINTRBOARD_G2.h"          // SAM3X8C                                env:DUE_USB
 #elif MB(CNCONTROLS_15D)
   #include "sam/pins_CNCONTROLS_15D.h"          // SAM3X8E                                env:DUE env:DUE_USB
+
+//
+// STM32 ARM Cortex-M0
+//
+#elif MB(MALYAN_M200_V2)
+  #include "stm32f0/pins_MALYAN_M200_V2.h"      // STM32F0                                env:STM32F070RB_malyan
+#elif MB(MALYAN_M300)
+  #include "stm32f0/pins_MALYAN_M300.h"         // STM32F070                              env:malyan_M300
 
 //
 // STM32 ARM Cortex-M3
@@ -487,11 +505,13 @@
 #elif MB(CHITU3D)
   #include "stm32f1/pins_CHITU3D.h"             // STM32F1                                env:STM32F103RE
 #elif MB(MKS_ROBIN)
-  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin
+  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_stm32
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
-  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35
+#elif MB(MKS_ROBIN_NANO_V2)
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite
 #elif MB(BTT_SKR_MINI_V1_1)
@@ -500,6 +520,8 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_2)
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_E3_V2_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(JGAURORA_A5S_A1)
@@ -516,6 +538,20 @@
   #include "stm32f1/pins_MKS_ROBIN_LITE3.h"     // STM32F1                                env:mks_robin_lite3
 #elif MB(MKS_ROBIN_PRO)
   #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
+#elif MB(MKS_ROBIN_E3D)
+  #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3)
+  #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(CCROBOT_MEEB_3DP)
+  #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
+#elif MB(CHITU3D_V5)
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103 env:chitu_v5_gpio_init
+#elif MB(CHITU3D_V6)
+  #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
+#elif MB(CREALITY_V4)
+  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
+#elif MB(TRIGORILLA_PRO)
+  #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 
 //
 // ARM Cortex-M4F
@@ -536,24 +572,30 @@
   #include "stm32f4/pins_GENERIC_STM32F4.h"     // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32f4/pins_ARMED.h"               // STM32F4                                env:ARMED
-#elif MB(RUMBA32_AUS3D)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32_f446ve
+#elif MB(RUMBA32_V1_0)
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
+#elif MB(RUMBA32_V1_1)
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
-  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32_mks
+  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"   // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32f4/pins_STEVAL_3DP001V1.h"     // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BTT_SKR_PRO_V1_2)
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BTT_GTR_V1_0)
   #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0
 #elif MB(BTT_BTT002_V1_0)
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
+#elif MB(LERDGE_S)
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
@@ -577,7 +619,6 @@
 //
 
 #elif MB(ESPRESSIF_ESP32)
-
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
 #elif MB(MRR_ESPA)
   #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
@@ -592,6 +633,12 @@
 
 #elif MB(AGCM4_RAMPS_144)
   #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
+// Custom board (with custom PIO env)
+//
+#elif MB(CUSTOM)
+  #include "pins_custom.h"                      //                                        env:custom
 
 //
 // Linux Native Debug board
@@ -625,6 +672,7 @@
   #define BOARD_BIGTREE_SKR_MINI_E3     -1016
   #define BOARD_BIGTREE_SKR_E3_DIP      -1017
   #define BOARD_RUMBA32                 -1018
+  #define BOARD_RUMBA32_AUS3D           -1019
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -665,7 +713,9 @@
   #elif MB(STEVAL)
     #error "BOARD_STEVAL has been renamed BOARD_STEVAL_3DP001V1. Please update your configuration."
   #elif MB(RUMBA32)
-    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_AUS3D. Please update your configuration."
+    #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_V1_0. Please update your configuration."
+  #elif MB(RUMBA32_AUS3D)
+    #error "BOARD_RUMBA32_AUS3D is now BOARD_RUMBA32_V1_0. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -689,6 +739,7 @@
   #undef BOARD_BIGTREE_SKR_MINI_V1_1
   #undef BOARD_BIGTREE_SKR_E3_DIP
   #undef BOARD_RUMBA32
+  #undef BOARD_RUMBA32_AUS3D
 
 #endif
 
@@ -1048,73 +1099,6 @@
 #endif
 
 //
-// Assign auto fan pins if needed
-//
-#ifndef E0_AUTO_FAN_PIN
-  #ifdef ORIG_E0_AUTO_FAN_PIN
-    #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
-  #else
-    #define E0_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E1_AUTO_FAN_PIN
-  #ifdef ORIG_E1_AUTO_FAN_PIN
-    #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
-  #else
-    #define E1_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E2_AUTO_FAN_PIN
-  #ifdef ORIG_E2_AUTO_FAN_PIN
-    #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
-  #else
-    #define E2_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E3_AUTO_FAN_PIN
-  #ifdef ORIG_E3_AUTO_FAN_PIN
-    #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
-  #else
-    #define E3_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E4_AUTO_FAN_PIN
-  #ifdef ORIG_E4_AUTO_FAN_PIN
-    #define E4_AUTO_FAN_PIN ORIG_E4_AUTO_FAN_PIN
-  #else
-    #define E4_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E5_AUTO_FAN_PIN
-  #ifdef ORIG_E5_AUTO_FAN_PIN
-    #define E5_AUTO_FAN_PIN ORIG_E5_AUTO_FAN_PIN
-  #else
-    #define E5_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E6_AUTO_FAN_PIN
-  #ifdef ORIG_E6_AUTO_FAN_PIN
-    #define E6_AUTO_FAN_PIN ORIG_E6_AUTO_FAN_PIN
-  #else
-    #define E6_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef E7_AUTO_FAN_PIN
-  #ifdef ORIG_E7_AUTO_FAN_PIN
-    #define E7_AUTO_FAN_PIN ORIG_E7_AUTO_FAN_PIN
-  #else
-    #define E7_AUTO_FAN_PIN -1
-  #endif
-#endif
-#ifndef CHAMBER_AUTO_FAN_PIN
-  #ifdef ORIG_CHAMBER_AUTO_FAN_PIN
-    #define CHAMBER_AUTO_FAN_PIN ORIG_CHAMBER_AUTO_FAN_PIN
-  #else
-    #define CHAMBER_AUTO_FAN_PIN -1
-  #endif
-#endif
-
-//
 // Assign endstop pins for boards with only 3 connectors
 //
 #ifdef X_STOP_PIN
@@ -1282,7 +1266,7 @@
   //
   // Auto-assign pins for stallGuard sensorless homing
   //
-  #if X2_STALL_SENSITIVITY && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
+  #if defined(X2_STALL_SENSITIVITY) && ENABLED(X_DUAL_ENDSTOPS) && _PEXI(X2_E_INDEX, DIAG)
     #define X2_DIAG_PIN _EPIN(X2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(X2, X_MIN)      // If already remapped in the pins file...
       #define X2_USE_ENDSTOP _XMIN_
@@ -1351,7 +1335,7 @@
       #define Y2_SERIAL_RX_PIN _EPIN(Y2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if Y2_STALL_SENSITIVITY && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
+  #if defined(Y2_STALL_SENSITIVITY) && ENABLED(Y_DUAL_ENDSTOPS) && _PEXI(Y2_E_INDEX, DIAG)
     #define Y2_DIAG_PIN _EPIN(Y2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Y2, X_MIN)
       #define Y2_USE_ENDSTOP _XMIN_
@@ -1419,7 +1403,7 @@
       #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if Z2_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+  #if defined(Z2_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
     #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z2, X_MIN)
       #define Z2_USE_ENDSTOP _XMIN_
@@ -1488,7 +1472,7 @@
       #define Z3_SERIAL_RX_PIN _EPIN(Z3_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if Z3_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
+  #if defined(Z3_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 3 && _PEXI(Z3_E_INDEX, DIAG)
     #define Z3_DIAG_PIN _EPIN(Z3_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z3, X_MIN)
       #define Z3_USE_ENDSTOP _XMIN_
@@ -1555,7 +1539,7 @@
       #define Z4_SERIAL_RX_PIN _EPIN(Z4_E_INDEX, SERIAL_RX)
     #endif
   #endif
-  #if Z4_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
+  #if defined(Z4_STALL_SENSITIVITY) && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 4 && _PEXI(Z4_E_INDEX, DIAG)
     #define Z4_DIAG_PIN _EPIN(Z4_E_INDEX, DIAG)
     #if   DIAG_REMAPPED(Z4, X_MIN)
       #define Z4_USE_ENDSTOP _XMIN_

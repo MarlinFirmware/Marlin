@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,6 +33,7 @@
 #include "extui/ui_api.h"
 #include "extui/lib/dgus/DGUSDisplay.h"
 #include "extui/lib/dgus/DGUSDisplayDef.h"
+#include "extui/lib/dgus/DGUSScreenHandler.h"
 
 extern const char NUL_STR[];
 
@@ -45,27 +46,15 @@ namespace ExtUI {
 
   void onIdle() { ScreenHandler.loop(); }
 
-  void onPrinterKilled(PGM_P error, PGM_P component) {
+  void onPrinterKilled(PGM_P const error, PGM_P const component) {
     ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
 
-  void onMediaInserted() {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardInserted();
-    #endif
-  }
-  void onMediaError()    {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardError();
-    #endif
-  }
-  void onMediaRemoved()  {
-    #if ENABLED(SDSUPPORT)
-      ScreenHandler.SDCardRemoved();
-    #endif
-  }
+  void onMediaInserted() { TERN_(SDSUPPORT, ScreenHandler.SDCardInserted()); }
+  void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
+  void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
 
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
@@ -118,9 +107,15 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    // Called when any mesh points are updated
-  }
+  #if HAS_MESH
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+      // Called when any mesh points are updated
+    }
+
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+      // Called to indicate a special condition
+    }
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
@@ -133,19 +128,18 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      SERIAL_ECHOLNPAIR("onPidTuning:",rst);
-      switch(rst) {
+      switch (rst) {
         case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_BAD_EXTRUDER_NUM));
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
           break;
         case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TEMP_TOO_HIGH));
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
           break;
         case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_TIMEOUT));
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
           break;
         case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(PSTR(STR_PID_AUTOTUNE_FINISHED));
+          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
           break;
       }
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -179,8 +179,11 @@ void Sd2Card::chipSelect() {
  * \return true for success, false for failure.
  */
 bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   csd_t csd;
   if (!readCSD(&csd)) goto FAIL;
+
   // check for single block erase
   if (!csd.v1.erase_blk_en) {
     // erase size mask
@@ -237,8 +240,15 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
   watchdog_refresh(); // In case init takes too long
 
   // Set pin modes
-  extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  #if ENABLED(ZONESTAR_12864OLED)
+    if (chipSelectPin_ != DOGLCD_CS) {
+      SET_OUTPUT(DOGLCD_CS);
+      WRITE(DOGLCD_CS, HIGH);
+    }
+  #else
+    extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+    pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  #endif
   spiBegin();
 
   // Set SCK rate for initialization commands
@@ -535,9 +545,10 @@ bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
-  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
+  if (ENABLED(SDCARD_READONLY)) return false;
 
   bool success = false;
+  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
   if (!cardCommand(CMD24, blockNumber)) {
     if (writeData(DATA_START_BLOCK, src)) {
       if (waitNotBusy(SD_WRITE_TIMEOUT)) {              // Wait for flashing to complete
@@ -561,6 +572,8 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeData(const uint8_t* src) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = true;
   chipSelect();
   // Wait for previous write to finish
@@ -574,14 +587,9 @@ bool Sd2Card::writeData(const uint8_t* src) {
 
 // Send one block of data for write block or write multiple blocks
 bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
+  if (ENABLED(SDCARD_READONLY)) return false;
 
-  uint16_t crc =
-    #if ENABLED(SD_CHECK_AND_RETRY)
-      CRC_CCITT(src, 512)
-    #else
-      0xFFFF
-    #endif
-  ;
+  const uint16_t crc = TERN(SD_CHECK_AND_RETRY, CRC_CCITT(src, 512), 0xFFFF);
   spiSendBlock(token, src);
   spiSend(crc >> 8);
   spiSend(crc & 0xFF);
@@ -607,6 +615,8 @@ bool Sd2Card::writeData(const uint8_t token, const uint8_t* src) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   if (!cardAcmd(ACMD23, eraseCount)) {                    // Send pre-erase count
     if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
@@ -626,6 +636,8 @@ bool Sd2Card::writeStart(uint32_t blockNumber, const uint32_t eraseCount) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::writeStop() {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   bool success = false;
   chipSelect();
   if (waitNotBusy(SD_WRITE_TIMEOUT)) {

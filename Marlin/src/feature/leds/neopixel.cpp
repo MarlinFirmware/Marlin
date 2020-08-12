@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -35,6 +35,7 @@
 #endif
 
 Marlin_NeoPixel neo;
+int8_t Marlin_NeoPixel::neoindex;
 
 Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800)
   #if MULTIPLE_NEOPIXEL_TYPES
@@ -52,14 +53,20 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
 #endif
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
-  for (uint16_t i = 0; i < pixels(); ++i) {
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {
-        set_color_background();
-        continue;
-      }
-    #endif
-    set_pixel_color(i, color);
+  if (get_neo_index() >= 0) {
+    set_pixel_color(get_neo_index(), color);
+    set_neo_index(-1);
+  }
+  else {
+    for (uint16_t i = 0; i < pixels(); ++i) {
+      #ifdef NEOPIXEL_BKGD_LED_INDEX
+        if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {
+          set_color_background();
+          continue;
+        }
+      #endif
+      set_pixel_color(i, color);
+    }
   }
   show();
 }
@@ -71,13 +78,12 @@ void Marlin_NeoPixel::set_color_startup(const uint32_t color) {
 }
 
 void Marlin_NeoPixel::init() {
-  SET_OUTPUT(NEOPIXEL_PIN);
-  set_brightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
+  set_neo_index(-1);                   // -1 .. NEOPIXEL_PIXELS-1 range
+  set_brightness(NEOPIXEL_BRIGHTNESS); //  0 .. 255 range
   begin();
   show();  // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-    safe_delay(1000);
     set_color_startup(adaneo1.Color(255, 0, 0, 0));  // red
     safe_delay(1000);
     set_color_startup(adaneo1.Color(0, 255, 0, 0));  // green

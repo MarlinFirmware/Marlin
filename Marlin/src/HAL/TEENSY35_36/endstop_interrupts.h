@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -46,43 +46,21 @@ void endstop_ISR() { endstops.update(); }
  */
 void setup_endstop_interrupts() {
   #define _ATTACH(P) attachInterrupt(digitalPinToInterrupt(P), endstop_ISR, CHANGE)
-  #if HAS_X_MAX
-    _ATTACH(X_MAX_PIN);
-  #endif
-  #if HAS_X_MIN
-    _ATTACH(X_MIN_PIN);
-  #endif
-  #if HAS_Y_MAX
-    _ATTACH(Y_MAX_PIN);
-  #endif
-  #if HAS_Y_MIN
-    _ATTACH(Y_MIN_PIN);
-  #endif
-  #if HAS_Z_MAX
-    _ATTACH(Z_MAX_PIN);
-  #endif
-  #if HAS_Z_MIN
-     _ATTACH(Z_MIN_PIN);
-  #endif
-  #if HAS_Z2_MAX
-    _ATTACH(Z2_MAX_PIN);
-  #endif
-  #if HAS_Z2_MIN
-    _ATTACH(Z2_MIN_PIN);
-  #endif
-  #if HAS_Z3_MAX
-    _ATTACH(Z3_MAX_PIN);
-  #endif
-  #if HAS_Z3_MIN
-    _ATTACH(Z3_MIN_PIN);
-  #endif
-  #if HAS_Z4_MAX
-    _ATTACH(Z4_MAX_PIN);
-  #endif
-  #if HAS_Z4_MIN
-    _ATTACH(Z4_MIN_PIN);
-  #endif
-  #if HAS_Z_MIN_PROBE_PIN
-    _ATTACH(Z_MIN_PROBE_PIN);
-  #endif
+  TERN_(HAS_X_MAX, _ATTACH(X_MAX_PIN));
+  TERN_(HAS_X_MIN, _ATTACH(X_MIN_PIN));
+  TERN_(HAS_Y_MAX, _ATTACH(Y_MAX_PIN));
+  TERN_(HAS_Y_MIN, _ATTACH(Y_MIN_PIN));
+  TERN_(HAS_Z_MAX, _ATTACH(Z_MAX_PIN));
+  TERN_(HAS_Z_MIN, _ATTACH(Z_MIN_PIN));
+  TERN_(HAS_X2_MAX, _ATTACH(X2_MAX_PIN));
+  TERN_(HAS_X2_MIN, _ATTACH(X2_MIN_PIN));
+  TERN_(HAS_Y2_MAX, _ATTACH(Y2_MAX_PIN));
+  TERN_(HAS_Y2_MIN, _ATTACH(Y2_MIN_PIN));
+  TERN_(HAS_Z2_MAX, _ATTACH(Z2_MAX_PIN));
+  TERN_(HAS_Z2_MIN, _ATTACH(Z2_MIN_PIN));
+  TERN_(HAS_Z3_MAX, _ATTACH(Z3_MAX_PIN));
+  TERN_(HAS_Z3_MIN, _ATTACH(Z3_MIN_PIN));
+  TERN_(HAS_Z4_MAX, _ATTACH(Z4_MAX_PIN));
+  TERN_(HAS_Z4_MIN, _ATTACH(Z4_MIN_PIN));
+  TERN_(HAS_Z_MIN_PROBE_PIN, _ATTACH(Z_MIN_PROBE_PIN));
 }
