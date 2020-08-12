@@ -54,13 +54,17 @@ void Babystep::add_mm(const AxisEnum axis, const float &mm) {
 }
 
 void Babystep::add_steps(const AxisEnum axis, const int16_t distance) {
-  if (DISABLED(BABYSTEP_WITHOUT_HOMING) && !TEST(axis_known_position, axis)) return;
+  if (!can_babystep(axis)) return;
 
   accum += distance; // Count up babysteps for the UI
   steps[BS_AXIS_IND(axis)] += distance;
   TERN_(BABYSTEP_DISPLAY_TOTAL, axis_total[BS_TOTAL_IND(axis)] += distance);
   TERN_(BABYSTEP_ALWAYS_AVAILABLE, gcode.reset_stepper_timeout());
   TERN_(INTEGRATED_BABYSTEPPING, if (has_steps()) stepper.initiateBabystepping());
+}
+
+bool Babystep::can_babystep(const AxisEnum axis) {
+  return ENABLED(BABYSTEP_WITHOUT_HOMING) || TEST(axis_known_position, axis);
 }
 
 #endif // BABYSTEPPING

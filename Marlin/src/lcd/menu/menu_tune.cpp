@@ -255,6 +255,10 @@ void menu_tune() {
     #else
       SUBMENU(MSG_BABYSTEP_Z, lcd_babystep_z);
     #endif
+    #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+      //TODO: Needs proper name
+      SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+    #endif
   #endif
 
   END_MENU();

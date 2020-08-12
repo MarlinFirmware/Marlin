@@ -229,7 +229,12 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
       else if (screen == status_screen && currentScreen == menu_main && PENDING(millis(), doubleclick_expire_ms)) {
         if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known())
           && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
-          screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+          //TODO: Add sanity check, Babystepping M209 replaces Babystepping M851
+          #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+           screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_global_zoffset, lcd_babystep_z);
+          #else
+           screen = TERN(BABYSTEP_ZPROBE_OFFSET, lcd_babystep_zoffset, lcd_babystep_z);
+          #endif
         else {
           #if ENABLED(MOVE_Z_WHEN_IDLE)
             ui.manual_move.menu_scale = MOVE_Z_IDLE_MULTIPLICATOR;
@@ -381,6 +386,48 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 
 #endif // BABYSTEP_ZPROBE_OFFSET
 
+#if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+
+  #include "../../feature/babystep.h"
+  #include "../../module/motion.h"
+  
+  void lcd_babystep_global_zoffset() {
+
+    if(!babystep.can_babystep(Z_AXIS)){
+        //TODO: Needs proper message
+        TERN_(HAS_DISPLAY, ui.set_status(GET_TEXT(MSG_HOME_FIRST)));
+        return ui.return_to_status();
+    }
+
+    if (ui.use_click()) return ui.goto_previous_screen_no_defer();
+    ui.defer_status_screen();
+    
+    if (ui.encoderPosition) {
+      int16_t babystep_increment = int16_t(ui.encoderPosition) * (BABYSTEP_SIZE_Z);
+
+      //For large probe offsets moving one step at a time is very slow
+      if(ui.encoderPosition > 2){
+        babystep_increment *= 10; 
+      }
+
+      const float difference_in_mm = planner.steps_to_mm[Z_AXIS] * babystep_increment,
+                  new_z_offset = home_offset[Z_AXIS] + difference_in_mm;
+                  
+      ui.encoderPosition = 0;
+      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+
+      //Use difference_in_mm instead of babystep_increment to cover cases where offset was changed by G-code since last UI update
+      babystep.add_mm(Z_AXIS, difference_in_mm);
+      set_home_offset(Z_AXIS, new_z_offset);
+    }
+
+    if (ui.should_draw()) {
+        MenuEditItemBase::draw_edit_screen(GET_TEXT(MSG_ZPROBE_ZOFFSET), BABYSTEP_TO_STR(home_offset[Z_AXIS]));
+        TERN_(BABYSTEP_GLOBAL_Z_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(home_offset[Z_AXIS]));
+    }
+  }
+
+#endif // BABYSTEP_GLOBAL_Z_OFFSET
 void _lcd_draw_homing() {
   constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
   if (ui.should_draw()) MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));

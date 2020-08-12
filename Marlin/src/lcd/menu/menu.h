@@ -39,7 +39,7 @@ typedef void (*selectFunc_t)();
 #define SS_INVERT  0x02
 #define SS_DEFAULT SS_CENTER
 
-#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+#if HAS_GRAPHICAL_LCD && ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
@@ -620,7 +620,7 @@ void _lcd_draw_homing();
   void line_to_z(const float &z);
 #endif
 
-#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+#if HAS_GRAPHICAL_LCD && ANY(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY, BABYSTEP_GLOBAL_Z_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
@@ -639,6 +639,10 @@ void _lcd_draw_homing();
     void lcd_babystep_z();
   #endif
 
+  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+    void lcd_babystep_global_zoffset();
+  #endif
+  
   #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
     #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
     #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])

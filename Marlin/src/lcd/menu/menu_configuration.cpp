@@ -348,6 +348,10 @@ void menu_configuration() {
     EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
+  #if ENABLED(BABYSTEP_GLOBAL_Z_OFFSET)
+    //TODO: Needs proper name
+    SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
+  #endif
   //
   // Set Fan Controller speed
   //
