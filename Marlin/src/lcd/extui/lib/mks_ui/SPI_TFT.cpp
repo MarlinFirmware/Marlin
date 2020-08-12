@@ -182,9 +182,7 @@ void TFT::LCD_init() {
 
 void TFT::LCD_clear(uint16_t color) {
   SetWindows(0, 0, 480 - 1, 320 - 1);
-  for (uint16_t i = 0; i < 320; i++) {
-    tftio.WriteMultiple(color, 480);
-  }
+  tftio.WriteMultiple(color, (uint32_t)480 * 320);
 }
 
 extern unsigned char bmp_public_buf[17 * 1024];

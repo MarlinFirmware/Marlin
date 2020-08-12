@@ -62,4 +62,11 @@ public:
 
   static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_MINC_ENABLE, Data, Count); }
   static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_MINC_DISABLE, &Data, Count); }
+  static void WriteMultiple(uint16_t Color, uint32_t Count) {
+    static uint16_t Data; Data = Color;
+    while(Count > 0) {
+      TransmitDMA(DMA_MINC_DISABLE, &Data, Count > 65535 ? 65535 : Count);
+      Count = Count > 65535 ? Count - 65535 : 0;
+    }
+  }
 };
