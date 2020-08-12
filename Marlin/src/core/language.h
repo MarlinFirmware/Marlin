@@ -353,7 +353,7 @@
  *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
-  #define LCD_FIRST_TOOL '0'
+  #define LCD_FIRST_TOOL 0
   #define LCD_STR_N0 "0"
   #define LCD_STR_N1 "1"
   #define LCD_STR_N2 "2"
@@ -363,7 +363,7 @@
   #define LCD_STR_N6 "6"
   #define LCD_STR_N7 "7"
 #else
-  #define LCD_FIRST_TOOL '1'
+  #define LCD_FIRST_TOOL 1
   #define LCD_STR_N0 "1"
   #define LCD_STR_N1 "2"
   #define LCD_STR_N2 "3"
