@@ -306,6 +306,17 @@
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE     1
 
+    #define TFT_CS_PIN                      PD11
+    #define TFT_SCK_PIN                     PA5
+    #define TFT_MISO_PIN                    PA6
+    #define TFT_MOSI_PIN                    PA7
+    #define TFT_DC_PIN                      PD10
+    #define TFT_RST_PIN                     PC6
+    #define TFT_A0_PIN                TFT_DC_PIN
+
+    #define TFT_RESET_PIN                   PC6
+    #define TFT_BACKLIGHT_PIN               PD13
+
     //#define TOUCH_SCREEN
     #if EITHER(TOUCH_SCREEN, NEED_TOUCH_PINS)
       #define TOUCH_CS_PIN                  PE14  // SPI1_NSS
