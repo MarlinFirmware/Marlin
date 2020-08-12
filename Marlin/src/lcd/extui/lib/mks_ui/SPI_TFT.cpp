@@ -69,7 +69,7 @@ void TFT::SetPoint(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
 
   SetWindows(x, y, 1, 1);
-  tftio.WriteMultiple(point, 1);
+  tftio.WriteMultiple(point, (uint16_t)1);
 }
 
 void TFT::SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
