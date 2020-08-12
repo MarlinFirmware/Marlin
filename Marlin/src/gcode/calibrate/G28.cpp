@@ -81,6 +81,7 @@
         sync_plan_position();
       }
       static void quick_home_xy() {
+        endstops.hit_on_purpose();
         mWork_Set_Pos_Frome_angles(0,0);
         mWork_Home_EndStop(360.0 * X_HOME_DIR,360.0* X_HOME_DIR,homing_feedrate(X_AXIS)); //Move X 360 angles and wait endstop
         mWork_Set_Pos_Frome_angles(0,0); 
