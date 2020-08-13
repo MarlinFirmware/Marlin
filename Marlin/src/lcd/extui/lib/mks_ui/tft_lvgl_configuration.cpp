@@ -120,14 +120,14 @@ void tft_set_cursor(uint16_t x, uint16_t y) {
 
 void LCD_WriteRAM_Prepare(void) {
   #if 0
-  if ((DeviceCode == 0x9325) || (DeviceCode == 0x9328) || (DeviceCode == 0x8989)) {
-    ClrCs
-    LCD->LCD_REG = R34;
-    SetCs
-  }
-  else {
-    LCD_WrtReg(0x002C);
-  }
+    switch (DeviceCode) {
+      case 0x9325: case 0x9328: case 0x8989: {
+        ClrCs
+        LCD->LCD_REG = R34;
+        SetCs
+      } break;
+      default: LCD_WrtReg(0x002C);
+    }
   #else
     LCD_IO_WriteReg(0x002C);
   #endif
@@ -285,10 +285,8 @@ void init_tft() {
   _delay_ms(5);
 
   DeviceCode = tftio.GetID() & 0xFFFF;
-  //chitu and others
-  if (DeviceCode == 0x8066) {
-    DeviceCode = 0x9488;
-  }
+  // Chitu and others
+  if (DeviceCode == 0x8066) DeviceCode = 0x9488;
 
   if (DeviceCode == 0x9488) {
     LCD_IO_WriteReg(0x00E0);
@@ -547,21 +545,20 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 
       data->state = LV_INDEV_STATE_PR;
 
-      /* Set the coordinates (if released use the last pressed coordinates) */
+      // Set the coordinates (if released use the last-pressed coordinates)
 
       data->point.x = last_x;
       data->point.y = last_y;
 
-      last_x = 0;
-      last_y = 0;
+      last_x = last_y = 0;
     }
-    else {
+    else
       data->state = LV_INDEV_STATE_REL;
-    }
+
     touch_time1 = tmpTime;
   }
 
-  return false; /*Return `false` because we are not buffering and no more data to read*/
+  return false; // Return `false` since no data is buffering or left to read
 }
 
 #endif // HAS_TFT_LVGL_UI
