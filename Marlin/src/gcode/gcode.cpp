@@ -57,6 +57,10 @@ GcodeSuite gcode;
   #include "../feature/spindle_laser.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password/password.h"
+#endif
+
 #include "../MarlinCore.h" // for idle()
 
 // Inactivity shutdown
@@ -240,6 +244,17 @@ void GcodeSuite::dwell(millis_t time) {
  */
 void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   KEEPALIVE_STATE(IN_HANDLER);
+
+ /**
+  * Block all Gcodes except M511 Unlock Printer, if printer is locked
+  * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
+  */
+  #if ENABLED(PASSWORD_FEATURE)
+    if (password.is_locked && !(parser.command_letter == 'M' && parser.codenum == 511)) {
+      SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
+      return;
+    }
+  #endif
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
@@ -736,6 +751,16 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 504: M504(); break;                                  // M504: Validate EEPROM contents
       #endif
 
+      #if ENABLED(PASSWORD_FEATURE)
+        case 510: M510(); break;                                  // M510: Lock Printer
+        #if ENABLED(PASSWORD_UNLOCK_GCODE)
+          case 511: M511(); break;                                // M511: Unlock Printer
+        #endif
+        #if ENABLED(PASSWORD_CHANGE_GCODE)
+          case 512: M512(); break;
+        #endif                                                    // M512: Set/Change/Remove Password
+      #endif
+
       #if ENABLED(SDSUPPORT)
         case 524: M524(); break;                                  // M524: Abort the current SD print job
       #endif
@@ -869,6 +894,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
+      #endif
+
+      #if ALL(HAS_SPI_FLASH, SDSUPPORT, MARLIN_DEV_MODE)
+        case 993: M993(); break;                                  // M993: Backup SPI Flash to SD
+        case 994: M994(); break;                                  // M994: Load a Backup from SD to SPI Flash
       #endif
 
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)

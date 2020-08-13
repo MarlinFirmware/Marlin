@@ -344,6 +344,37 @@
     #define MKS_LCD12864B
     #undef SHOW_BOOTSCREEN
 
+  #elif ENABLED(TFT_480x320_SPI)
+    #define TFT_CS_PIN                      PD11
+    #define TFT_SCK_PIN                     PA5
+    #define TFT_MISO_PIN                    PA6
+    #define TFT_MOSI_PIN                    PA7
+    #define TFT_DC_PIN                      PD10
+    #define TFT_RST_PIN                     PC6
+    #define TFT_A0_PIN                TFT_DC_PIN
+
+    #define TFT_RESET_PIN                   PC6
+    #define TFT_BACKLIGHT_PIN               PD13
+
+    #define XPT2046_X_CALIBRATION         -17253
+    #define XPT2046_Y_CALIBRATION          11579
+    #define XPT2046_X_OFFSET                 514
+    #define XPT2046_Y_OFFSET                 -24
+
+    #define TOUCH_CS_PIN                    PE14  // SPI1_NSS
+    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
+    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
+    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
+
+    #define TFT_DRIVER                    ST7796
+    #define TFT_BUFFER_SIZE                14400
+
+    #define LCD_READ_ID                     0xD3
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
@@ -367,8 +398,9 @@
 
 #endif // HAS_SPI_LCD
 
-#define SPI_FLASH
-#if ENABLED(SPI_FLASH)
+#define HAS_SPI_FLASH                       1
+#define SPI_FLASH_SIZE                      0x1000000 // 16MB
+#if HAS_SPI_FLASH
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14

@@ -88,7 +88,15 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
 
   const float scale_z = ((val_max == val_min) ? 1 : 1/(val_max - val_min)) * autoscale_max;
 
-  // These equations determine the appearance of the grid on the screen.
+  /**
+   * The 3D points go through a 3D graphics pipeline to determine the final 2D point on the screen.
+   * This is written out as a stack of macros that each apply an affine transformation to the point.
+   * At compile time, the compiler should be able to reduce these expressions.
+   *
+   * The last transformation in the chain (TRANSFORM_5) is initially set to a no-op so we can measure
+   * the dimensions of the grid, but is later replaced with a scaling transform that scales the grid
+   * to fit.
+   */
 
   #define TRANSFORM_5(X,Y,Z)  (X), (Y)                                                                   // No transform
   #define TRANSFORM_4(X,Y,Z)  TRANSFORM_5((X)/(Z),(Y)/-(Z), 0)                                           // Perspective
@@ -119,8 +127,12 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
   const float center_x         = x + w/2;
   const float center_y         = y + h/2;
 
+  // Now replace the last transformation in the chain with a scaling operation.
+
   #undef  TRANSFORM_5
-  #define TRANSFORM_5(X,Y,Z)  center_x + (X - grid_cx) * scale_x, center_y + (Y - grid_cy) * scale_y      // Fit to bounds
+  #define TRANSFORM_6(X,Y,Z)  (X)*16, (Y)*16                                                  // Scale to 1/16 pixel units
+  #define TRANSFORM_5(X,Y,Z)  TRANSFORM_6( center_x + ((X) - grid_cx) * scale_x, \
+                                           center_y + ((Y) - grid_cy) * scale_y, 0)           // Scale to bounds
 
   // Draw the grid
 
@@ -128,7 +140,6 @@ void BedMeshScreen::drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::
 
   CommandProcessor cmd;
   cmd.cmd(SAVE_CONTEXT())
-     .cmd(VERTEX_FORMAT(0))
      .cmd(TAG_MASK(false))
      .cmd(SAVE_CONTEXT());
 

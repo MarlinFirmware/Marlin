@@ -20,12 +20,12 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
-#include "../gcode/parser.h"
+#include "../inc/MarlinConfigPre.h"
 
 #if NEED_HEX_PRINT
 
 #include "hex_print.h"
+#include "../core/serial.h"
 
 #ifdef CPU_32_BIT
   constexpr int byte_start = 4;
@@ -54,7 +54,7 @@ char* hex_word(const uint16_t w) {
 }
 
 #ifdef CPU_32_BIT
-  char* hex_long(const uint32_t l) {
+  char* hex_long(const uintptr_t l) {
     _hex[2] = hex_nybble(l >> 28);
     _hex[3] = hex_nybble(l >> 24);
     _hex[4] = hex_nybble(l >> 20);
@@ -66,9 +66,9 @@ char* hex_word(const uint16_t w) {
 
 char* hex_address(const void * const w) {
   #ifdef CPU_32_BIT
-    (void)hex_long((ptr_int_t)w);
+    (void)hex_long((uintptr_t)w);
   #else
-    (void)hex_word((ptr_int_t)w);
+    (void)hex_word((uintptr_t)w);
   #endif
   return _hex;
 }
