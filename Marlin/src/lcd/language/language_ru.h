@@ -296,7 +296,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Движение 1мм");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Движение 10мм");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Скорость");
-  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Z стола");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Сопло, ") LCD_STR_DEGREE "C";
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Сопло ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Сопло запарковано");

@@ -179,10 +179,12 @@ void GcodeSuite::G29() {
       break;
 
     case MeshSetZOffset:
-      if (parser.seenval('Z'))
-        mbl.z_offset = parser.value_linear_units();
-      else
-        return echo_not_entered('Z');
+      #if ENABLED(ENABLE_MESH_Z_OFFSET)
+        if (parser.seenval('Z'))
+          planner.mesh_z_offset = parser.value_linear_units();
+        else
+          return echo_not_entered('Z');
+      #endif
       break;
 
     case MeshReset:

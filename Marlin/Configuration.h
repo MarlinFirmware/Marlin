@@ -1264,7 +1264,7 @@
   #define ENABLE_LEVELING_FADE_HEIGHT
 
   // Add a Z offset that applies to all moves at the planner level
-  //#define ENABLE_UNIVERSAL_Z_OFFSET
+  //#define ENABLE_MESH_Z_OFFSET
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the

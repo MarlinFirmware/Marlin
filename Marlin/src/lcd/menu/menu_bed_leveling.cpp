@@ -254,13 +254,6 @@ void menu_bed_leveling() {
     EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }
 
-  //
-  // Mesh Bed Leveling Z-Offset
-  //
-  #if BOTH(HAS_LEVELING, ENABLE_UNIVERSAL_Z_OFFSET)
-    EDIT_ITEM(float43, MSG_BED_Z, &planner.universal_z_offset, -10, 10); //TODO: Add message for Universal Z
-  #endif
-  
   // Z Fade Height
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
     // Shadow for editing the fade height
@@ -269,10 +262,10 @@ void menu_bed_leveling() {
   #endif
 
   //
-  // Mesh Bed Leveling Z-Offset
+  // Leveling Z-Offset
   //
-  #if ENABLED(MESH_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &planner.mesh_z_offset, -2, 2);
   #endif
 
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -285,7 +278,7 @@ void menu_bed_leveling() {
     //TODO: Needs proper name
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_global_zoffset);
   #endif
-  
+
   #if ENABLED(LEVEL_BED_CORNERS)
     SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif

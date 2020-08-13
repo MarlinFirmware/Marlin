@@ -747,6 +747,8 @@ private:
     static void M421();
   #endif
 
+  TERN_(ENABLE_MESH_Z_OFFSET, static void M423());
+
   TERN_(BACKLASH_GCODE, static void M425());
 
   TERN_(HAS_M206_COMMAND, static void M428());
@@ -758,9 +760,7 @@ private:
   static void M500();
   static void M501();
   static void M502();
-  #if DISABLED(DISABLE_M503)
-    static void M503();
-  #endif
+  TERN(DISABLE_M503,, static void M503());
   TERN_(EEPROM_SETTINGS, static void M504());
 
   #if ENABLED(PASSWORD_FEATURE)

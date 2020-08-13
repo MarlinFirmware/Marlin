@@ -240,7 +240,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunúť o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunúť o 10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Rýchlosť");
-  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Výška podl.");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Tryska");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Tryska ~");
   PROGMEM Language_Str MSG_NOZZLE_PARKED                   = _UxGT("Tryska zaparkovná");

@@ -91,7 +91,6 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocidat");
-  PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Base Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Boquilla");
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Boquilla ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Base");

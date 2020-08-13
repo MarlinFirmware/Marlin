@@ -114,7 +114,7 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPAIR("MBL Adjust Z", mbl.z_offset);
+      SERIAL_ECHOLNPAIR("MBL Adjust Z", planner.mesh_z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)

@@ -108,19 +108,12 @@ void menu_tune() {
   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
 
   //
-  // Manual bed leveling, Bed Z:
+  // Leveling Z-Offset
   //
-  #if BOTH(MESH_BED_LEVELING, LCD_BED_LEVELING)
-    EDIT_ITEM(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+  #if ENABLED(ENABLE_MESH_Z_OFFSET)
+    EDIT_ITEM(float43, MSG_MESH_Z_OFFSET, &planner.mesh_z_offset, -2, 2);
   #endif
 
-  //
-  // Mesh Bed Leveling Z-Offset
-  //
-  #if BOTH(HAS_LEVELING, ENABLE_UNIVERSAL_Z_OFFSET)
-    EDIT_ITEM(float43, MSG_BED_Z, &planner.universal_z_offset, -10, 10); //TODO: Add message for Universal Z
-  #endif
-  
   //
   // Nozzle:
   // Nozzle [1-4]:
