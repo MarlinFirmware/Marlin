@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT
+#if HAS_SPI_TFT || ENABLED(TFT_LVGL_UI_SPI)
 
 #include "tft_spi.h"
 
@@ -103,16 +103,21 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
   #if !PIN_EXISTS(TFT_MISO)
     return 0;
   #else
-    uint16_t d = 0;
+    uint8_t d = 0;
+    uint32_t data = 0;
+    SPIx.setClockDivider(SPI_CLOCK_DIV16);
     DataTransferBegin(DATASIZE_8BIT);
     WriteReg(Reg);
 
-    SPI.read((uint8_t*)&d, 1); //dummy read
-    SPI.read((uint8_t*)&d, 1);
+    LOOP_L_N(i, 4) {
+      SPIx.read((uint8_t*)&d, 1);
+      data = (data << 8) | d;
+    }
 
     DataTransferEnd();
+    SPIx.setClockDivider(SPI_CLOCK_MAX);
 
-    return d >> 7;
+    return data >> 7;
   #endif
 }
 

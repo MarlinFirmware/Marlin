@@ -261,17 +261,30 @@
   #define BTN_EN2                           PE11
   #define BTN_ENC                           PE13
 
-#elif ENABLED(TFT_LITTLE_VGL_UI)
+  #define TFT_CS_PIN                      PD11
+  #define TFT_SCK_PIN                     PA5
+  #define TFT_MISO_PIN                    PA6
+  #define TFT_MOSI_PIN                    PA7
+  #define TFT_DC_PIN                      PD10
+  #define TFT_RST_PIN                     PC6
+  #define TFT_A0_PIN                TFT_DC_PIN
 
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
+  #define TFT_RESET_PIN                   PC6
+  #define TFT_BACKLIGHT_PIN               PD13
 
-  #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define XPT2046_X_CALIBRATION         -17253
+  #define XPT2046_Y_CALIBRATION          11579
+  #define XPT2046_X_OFFSET                 514
+  #define XPT2046_Y_OFFSET                 -24
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
-  #define LCD_BACKLIGHT_PIN                 PD13
+  #ifndef LCD_FULL_PIXEL_WIDTH
+    #define LCD_FULL_PIXEL_WIDTH            480
+  #endif
+  #ifndef LCD_FULL_PIXEL_HEIGHT
+    #define LCD_FULL_PIXEL_HEIGHT           320
+  #endif
 
 #endif
 
