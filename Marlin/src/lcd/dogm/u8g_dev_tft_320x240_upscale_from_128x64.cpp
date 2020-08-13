@@ -366,7 +366,7 @@ static const uint16_t ili9328_init[] = {
 static const uint16_t ili9341_init[] = {
   ESC_REG(0x0010), ESC_DELAY(10),
   ESC_REG(0x0001), ESC_DELAY(200),
-  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x00E8, 0x0028),
+  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x0028, 0x00E8),
   ESC_REG(0x003A), 0x0055,
   ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
   ESC_REG(0x002B), 0x0000, 0x0000, 0x0000, 0x00EF,
@@ -658,6 +658,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
+          WRITE_ESC_SEQUENCE(ili9341_init);
+          setWindow = setWindow_st7789v;
+          break;
         case 0x8066:   // Anycubic / TronXY TFTs (480x320)
           WRITE_ESC_SEQUENCE(ili9488_init);
           setWindow = setWindow_st7789v;
