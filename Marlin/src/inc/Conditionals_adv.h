@@ -252,7 +252,7 @@
 #endif
 
 // Full Touch Screen needs 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN)
+#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
   #define HAS_TFT_XPT2046 1
 #endif
 
