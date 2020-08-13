@@ -423,10 +423,13 @@
   #define HAS_DGUS_LCD 1
 #endif
 
-// Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-  #define IS_EXTUI
+// Extensible UI serial touch screens. (See src/lcd/extensible_ui)             //IGHMC, added Tenlog serial connected controller
+#ifdef TL_TFT_DISPLAY
+    #ifndef IS_EXTUI
+      #define IS_EXTUI
+        //#define HAS_DISPLAY    //IGHMC added by EXTENSIBLE_UI below
   #define EXTENSIBLE_UI
+#endif
 #endif
 
 // Aliases for LCD features
@@ -434,12 +437,16 @@
   #define HAS_DISPLAY 1
 #endif
 
-#if ENABLED(ULTRA_LCD)
-  #define HAS_SPI_LCD 1
-  #if ENABLED(DOGLCD)
-    #define HAS_GRAPHICAL_LCD 1
-  #elif DISABLED(HAS_GRAPHICAL_TFT)
-    #define HAS_CHARACTER_LCD 1
+// Aliases for LCD features
+#if EITHER(ULTRA_LCD, EXTENSIBLE_UI) && !ENABLED(TL_TFT_DISPLAY)
+  #define HAS_DISPLAY 1
+  #if ENABLED(ULTRA_LCD)
+    #define HAS_SPI_LCD 1
+    #if ENABLED(DOGLCD)
+      #define HAS_GRAPHICAL_LCD 1
+    #elif DISABLED(HAS_GRAPHICAL_TFT)
+      #define HAS_CHARACTER_LCD 1
+    #endif
   #endif
 #endif
 
@@ -737,7 +744,7 @@
   #define INVERT_X_DIR false
 #endif
 #ifndef INVERT_Y_DIR
-  #define INVERT_Y_DIR false
+#define INVERT_Y_DIR false                                //ighmc also defined in configuration_h and configuration_adv todo: check consistency with ZYF_Dual_Z
 #endif
 #ifndef INVERT_Z_DIR
   #define INVERT_Z_DIR false

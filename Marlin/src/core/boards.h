@@ -1,4 +1,4 @@
-/**
+/**       //ighmc - added tenlog definition for RAMPS_14_EEB
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -48,6 +48,9 @@
 #define BOARD_RAMPS_PLUS_EFF          1032  // RAMPS Plus 3DYMY (Power outputs: Hotend, Fan0, Fan1)
 #define BOARD_RAMPS_PLUS_EEF          1033  // RAMPS Plus 3DYMY (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_PLUS_SF           1034  // RAMPS Plus 3DYMY (Power outputs: Spindle, Controller Fan)
+
+
+#define BOARD_RAMPS_14_EEB_TENLOG     7001  // RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Bed) with Tenlog extensions for idex, 7 steppers and tft screen
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560

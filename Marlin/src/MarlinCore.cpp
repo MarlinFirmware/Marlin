@@ -1,4 +1,4 @@
-/**
+/**  //IGHMC adjusted for tenlog screen
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -39,6 +39,7 @@
 #include <math.h>
 
 #include "core/utility.h"
+#include "lcd/extui_TL_TFT_Display.h" //IGHMC replacing ultralcd.h
 #include "module/motion.h"
 #include "module/planner.h"
 #include "module/endstops.h"
@@ -55,7 +56,7 @@
 
 #include "sd/cardreader.h"
 
-#include "lcd/ultralcd.h"
+// #include "lcd/ultralcd.h"
 #if HAS_TOUCH_XPT2046
   #include "lcd/touch/xpt2046.h"
 #endif
@@ -912,6 +913,11 @@ void setup() {
       MYSERIAL1.begin(BAUDRATE);
       serial_connect_timeout = millis() + 1000UL;
       while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  MYSERIAL2.begin(BAUDRATE2);
+  serial_connect_timeout = millis() + 1000UL;
+  while (!MYSERIAL2 && PENDING(millis(), serial_connect_timeout))
+  { /*nada*/
+  }
     #endif
     SERIAL_ECHO_MSG("start");
   #endif
@@ -994,7 +1000,7 @@ void setup() {
   #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
     SETUP_RUN(controllerFan.setup());
   #endif
-
+  SERIAL_ECHO_MSG("core 967 : UI (tl) init "); //IGHMC remmove
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
@@ -1170,6 +1176,12 @@ void setup() {
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
+#ifdef TL_TFT_DISPLAY
+  SERIAL_ECHOLN("core:1154        ighmc marlin tl_mainmenu"); //IGHMC - todo remove this up
+  SETUP_RUN(ExtUI::TL_mainmenu_load());
+  DELAY_US(20);
+#endif
+
   #if ENABLED(HOST_PROMPT_SUPPORT)
     SETUP_RUN(host_action_prompt_end());
   #endif
@@ -1220,6 +1232,7 @@ void setup() {
   marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");
+  SERIAL_ECHOLN("IGHMC - setup() complete"); //IGHMC remove this upon release
 }
 
 /**

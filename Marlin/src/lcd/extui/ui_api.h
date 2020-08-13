@@ -43,7 +43,9 @@
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
-
+#ifdef TL_TFT_DISPLAY
+  #include "src/lcd/extui_TL_TFT_Display.h"
+#endif
 namespace ExtUI {
 
   // The ExtUI implementation can store up to this many bytes
@@ -329,6 +331,7 @@ namespace ExtUI {
    * Should be declared by EXTENSIBLE_UI and will be called by Marlin
    */
   void onStartup();
+  void onStartup_post();
   void onIdle();
   void onMediaInserted();
   void onMediaError();

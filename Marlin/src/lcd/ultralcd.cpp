@@ -19,7 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
+#if TL_TFT_DISPLAY
+#include "extui_TL_TFT_Display.h"
+#elif ULTRA_LCD
+#include "../inc/MarlinConfigPre.h"
 #include "../inc/MarlinConfig.h"
 
 #ifdef LED_BACKLIGHT_TIMEOUT
@@ -74,7 +77,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
-#if EITHER(PCA9632_BUZZER, USE_BEEPER)
+#if ENABLED(PCA9632_BUZZER) || USE_BEEPER
   #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
@@ -1681,3 +1684,4 @@ void MarlinUI::update() {
   #endif // EEPROM_AUTO_INIT
 
 #endif // EEPROM_SETTINGS
+#endif

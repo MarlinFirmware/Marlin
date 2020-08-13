@@ -45,7 +45,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
 
-#include "../ultralcd.h"
+#include "src/lcd/extui_TL_TFT_Display.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -548,7 +548,7 @@ namespace ExtUI {
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
-    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
+    planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -557,7 +557,7 @@ namespace ExtUI {
 
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
     UNUSED_E(extruder);
-    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(extruder - E0)];
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
@@ -960,7 +960,17 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused() {
     return IFSD(isPrintingFromMedia() && !IS_SD_PRINTING(), false);
   }
-
+  uint8_t TL_sdprinting() {
+    if (IS_SD_PRINTING()) {
+      return 1;
+    } else if (isPrintingFromMediaPaused()) {
+      return 2;
+    } else if (!IS_SD_PRINTING()) {
+      return 0;
+    }
+    return 0;
+  }
+  // namespace ExtUI
   bool isPrintingFromMedia() {
     #if ENABLED(SDSUPPORT)
       // Account for when IS_SD_PRINTING() reports the end of the
@@ -1060,8 +1070,13 @@ void MarlinUI::init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
-
+        SERIAL_ECHO_MSG("UI:1138        IGHMC calling tl startup ");   //IGHM remmove
   ExtUI::onStartup();
+}
+
+void MarlinUI::init_post() {
+          SERIAL_ECHO_MSG("UI:1143        IGHMC calling tl startup post ");   //IGHM remmove
+  ExtUI::onStartup_post();
 }
 
 void MarlinUI::update() { ExtUI::onIdle(); }

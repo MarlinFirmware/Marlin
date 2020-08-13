@@ -1,4 +1,4 @@
-/**
+/**  IGHMC for tenlog screen
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -275,7 +275,11 @@
     extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_2>> customizedSerial2;
 
   #endif
+  #ifdef SERIAL_PORT_3
 
+    extern MarlinSerial<MarlinSerialCfg<SERIAL_PORT_3>> customizedSerial3;
+
+  #endif
 #endif // !USBCON
 
 #ifdef INTERNAL_SERIAL_PORT

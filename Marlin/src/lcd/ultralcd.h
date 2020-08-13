@@ -1,4 +1,6 @@
-/**
+/**     //IGHMC, unused because it focuses on
+		//maintaining the menu/UI which Tenlog handles outboard
+		//but provided an entry point for the tenlog screen
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -19,8 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+ 
+ 
 #pragma once
-
+//#define ULTRA_LCD  //IGHMC trick intellisense
+#if  TL_TFT_DISPLAY
+#include "extui_TL_TFT_Display.h"
+#elif ULTRA_LCD
 #include "../inc/MarlinConfig.h"
 
 #if HAS_BUZZER
@@ -704,3 +711,4 @@ extern MarlinUI ui;
 
 #define LCD_MESSAGEPGM(x)        LCD_MESSAGEPGM_P(GET_TEXT(x))
 #define LCD_ALERTMESSAGEPGM(x)   LCD_ALERTMESSAGEPGM_P(GET_TEXT(x))
+#endif

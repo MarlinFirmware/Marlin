@@ -1,4 +1,4 @@
-/**
+/**         ighmc, Marlin2 config_adv specifies a range of optional features, ZYF version just has  5 variables updated which are covered by the marlin configurator	check zyf variables and incorporate _xy, _zy and Z_DUAL_STEPPER_DRIVERS	refactor
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -138,7 +138,7 @@
   //#define HEATER_CHAMBER_INVERTING false
 #endif
 
-#if DISABLED(PIDTEMPBED)
+#if DISABLED(PIDTEMPBED)                        //IGHMC, no pid for bed in zyf
   #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
     #define BED_HYSTERESIS 2 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
@@ -183,7 +183,7 @@
    * below 2.
    */
   #define WATCH_TEMP_PERIOD 20                // Seconds
-  #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
+#define WATCH_TEMP_INCREASE 5              // Degrees Celsius
 #endif
 
 /**
@@ -371,6 +371,7 @@
  * The fan turns on automatically whenever any driver is enabled and turns
  * off (or reduces to idle speed) shortly after drivers are turned off.
  */
+//IGHMC ZYF disables controllerfan TODO: figure out how zyf controls internal fan - it may be FAN2_Contol on Pin 5??
 //#define USE_CONTROLLER_FAN
 #if ENABLED(USE_CONTROLLER_FAN)
   //#define CONTROLLER_FAN_PIN -1        // Set a custom pin for the controller fan
@@ -450,8 +451,13 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#define E0_AUTO_FAN_PIN -1
-#define E1_AUTO_FAN_PIN -1
+
+//IGHMC, ZYF uses Extruder_0_...  in both config_adv and temperature.cpp but default parameters are the same
+#define E0_AUTO_FAN_PIN FAN1_PIN
+#define E1_AUTO_FAN_PIN FAN1_PIN
+
+//#define E0_AUTO_FAN_PIN -1
+//#define E1_AUTO_FAN_PIN -1
 #define E2_AUTO_FAN_PIN -1
 #define E3_AUTO_FAN_PIN -1
 #define E4_AUTO_FAN_PIN -1
@@ -546,15 +552,31 @@
   #endif
 #endif
 
-//
+//IGHMC - Marlin assumes that second stepper driver uses an extruder driver (according to documentation) ZYF avoids the Marlin code for dual z by defining ZYF_DUAL_Z
 // For Z set the number of stepper drivers
 //
-#define NUM_Z_STEPPER_DRIVERS 1   // (1-4) Z options change based on how many
+//IGHMC, ZYF defines own dual z handling because Marlin assumes that loses an extruder driver, replicating where changes aren't obvious TODO: will this work with standard Marlin dual_z?
+
+// #ifdef TL_DUAL_Z
+// #define INVERT_Y_DIR false
+// const bool Z_ENDSTOPS_INVERTING = true;
+// #define NUM_Z_STEPPER_DRIVERS 2
+// #else
+// #define INVERT_Y_DIR true
+// const bool Z_ENDSTOPS_INVERTING = false;
+// #define NUM_Z_STEPPER_DRIVERS 1   // (1-4) Z options change based on how many
+// #endif
+
+#define NUM_Z_STEPPER_DRIVERS 2
 
 #if NUM_Z_STEPPER_DRIVERS > 1
-  //#define Z_MULTI_ENDSTOPS
+  #define Z_MULTI_ENDSTOPS
   #if ENABLED(Z_MULTI_ENDSTOPS)
-    #define Z2_USE_ENDSTOP          _XMAX_
+      //#ifdef TL_DUAL_Z
+       #define Z2_USE_ENDSTOP        _ZMAX_
+      //#else
+      //#define Z2_USE_ENDSTOP          _XMAX_
+      //#endif
     #define Z2_ENDSTOP_ADJUSTMENT   0
     #if NUM_Z_STEPPER_DRIVERS >= 3
       #define Z3_USE_ENDSTOP        _YMAX_
@@ -595,12 +617,12 @@
  *       Set the initial X offset and temperature differential with M605 S2 X[offs] R[deg] and
  *       follow with M605 S3 to initiate mirrored movement.
  */
-//#define DUAL_X_CARRIAGE
+#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
   #define X1_MIN_POS X_MIN_POS   // Set to X_MIN_POS
   #define X1_MAX_POS X_BED_SIZE  // Set a maximum so the first X-carriage can't hit the parked second X-carriage
-  #define X2_MIN_POS    80       // Set a minimum to ensure the  second X-carriage can't hit the parked first X-carriage
-  #define X2_MAX_POS   353       // Set this to the distance between toolheads when both heads are homed
+  #define X2_MIN_POS    0       // Set a minimum to ensure the  second X-carriage can't hit the parked first X-carriage
+  //#define X2_MAX_POS   354       // Set this to the distance between toolheads when both heads are homed
   #define X2_HOME_DIR    1       // Set to 1. The second X-carriage always homes to the maximum endstop position
   #define X2_HOME_POS X2_MAX_POS // Default X2 home position. Set to X2_MAX_POS.
                       // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
@@ -612,8 +634,10 @@
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
 
   // Default x offset in duplication mode (typically set to half print bed width)
-  #define DEFAULT_DUPLICATION_X_OFFSET 100
-#endif
+//#define DEFAULT_DUPLICATION_X_OFFSET 151
+
+#endif // DUAL_X_CARRIAGE
+//#endif
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.
 // Define SOL0_PIN, SOL1_PIN, etc., for each extruder that has a solenoid.
@@ -1034,7 +1058,7 @@
 #endif
 
 // Change values more rapidly when the encoder is rotated faster
-#define ENCODER_RATE_MULTIPLIER
+// #define ENCODER_RATE_MULTIPLIER
 #if ENABLED(ENCODER_RATE_MULTIPLIER)
   #define ENCODER_10X_STEPS_PER_SEC   30  // (steps/s) Encoder rate for 10x speed
   #define ENCODER_100X_STEPS_PER_SEC  80  // (steps/s) Encoder rate for 100x speed
@@ -1192,6 +1216,8 @@
    */
   //#define SDCARD_SORT_ALPHA
 
+//IGHMC, zyf has own function for this in configuration_zyf
+
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
@@ -1293,7 +1319,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  //#define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION ONBOARD
 
 #endif // SDSUPPORT
 
@@ -1367,10 +1393,10 @@
    */
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
-  #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
+//#define STATUS_HOTEND_INVERTED    // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
   #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
-  #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
+//#define STATUS_CHAMBER_ANIM       // Use a second bitmap to indicate chamber heating
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
