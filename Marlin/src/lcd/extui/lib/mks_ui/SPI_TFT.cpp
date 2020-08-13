@@ -181,17 +181,17 @@ void TFT::LCD_init() {
 }
 
 void TFT::LCD_clear(uint16_t color) {
-  SetWindows(0, 0, 480 - 1, 320 - 1);
-  tftio.WriteMultiple(color, (uint32_t)480 * 320);
+  SetWindows(0, 0, (LCD_FULL_PIXEL_WIDTH) - 1, (LCD_FULL_PIXEL_HEIGHT) - 1);
+  tftio.WriteMultiple(color, (uint32_t)(LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
 }
 
 extern unsigned char bmp_public_buf[17 * 1024];
 
 void TFT::LCD_Draw_Logo() {
-  SetWindows(0, 0, 480, 320);
-  for (uint16_t i = 0; i < 320; i ++) {
-    Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, 960);
-    tftio.WriteSequence((uint16_t *)bmp_public_buf, 480);
+  SetWindows(0, 0, (LCD_FULL_PIXEL_WIDTH), (LCD_FULL_PIXEL_HEIGHT));
+  for (uint16_t i = 0; i < (LCD_FULL_PIXEL_HEIGHT); i ++) {
+    Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (LCD_FULL_PIXEL_WIDTH) * 2);
+    tftio.WriteSequence((uint16_t *)bmp_public_buf, (LCD_FULL_PIXEL_WIDTH));
   }
 }
 

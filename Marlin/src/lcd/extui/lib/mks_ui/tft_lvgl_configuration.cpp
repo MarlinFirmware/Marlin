@@ -196,8 +196,8 @@ void ili9320_SetWindows(uint16_t StartX, uint16_t StartY, uint16_t width, uint16
      LCD_WriteReg(0x0053, yEnd);*/
     LCD_WriteReg(0x0050, StartY);   // Specify the start/end positions of the window address in the horizontal direction by an address unit
     LCD_WriteReg(0x0051, yEnd);     // Specify the start positions of the window address in the vertical direction by an address unit
-    LCD_WriteReg(0x0052, 320 - xEnd);
-    LCD_WriteReg(0x0053, 320 - StartX - 1); // Specify the end positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0052, (LCD_FULL_PIXEL_HEIGHT) - xEnd);
+    LCD_WriteReg(0x0053, (LCD_FULL_PIXEL_HEIGHT) - StartX - 1); // Specify the end positions of the window address in the vertical direction by an address unit
 
   }
   else {
@@ -522,8 +522,8 @@ static bool get_point(int16_t *x, int16_t *y) {
   }
 
   #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
-    x = 480 - x;
-    y = 320 - y;
+    x = (LCD_FULL_PIXEL_WIDTH) - x;
+    y = (LCD_FULL_PIXEL_HEIGHT) - y;
   #endif
 
   return is_touched;
