@@ -2858,7 +2858,7 @@
   #define SPINDLE_LASER_PWM_PIN         PB11
   #define SPINDLE_LASER_ENA_PIN         PH6
 
-  #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
+//  #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
   /**
    * Speed / Power can be set ('M3 S') and displayed in terms of:
