@@ -21,16 +21,13 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(TFT_LVGL_UI_SPI)
   #include HAL_PATH(../../HAL, tft/tft_spi.h)
 #elif ENABLED(TFT_LVGL_UI_FSMC)
   #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #endif
-
-
-#include <stdint.h>
 
 #define SPI_TFT_RST_H OUT_WRITE(SPI_TFT_RST_PIN, HIGH)
 #define SPI_TFT_RST_L OUT_WRITE(SPI_TFT_RST_PIN, LOW)
