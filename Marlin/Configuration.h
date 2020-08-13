@@ -122,6 +122,7 @@
 //Sets thermistor based calculated beta values instead of lookup tables
 //#define ConfigurableThermistors
 
+//#define CrealityViewerKit // Reduces baud to 115200 for Creality viewer kit
 
 /*
    Choose bed leveling type here
@@ -533,7 +534,11 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-#define BAUDRATE 250000
+if ANY(MachineEnder3V2, CrealityViewerKit)
+  #define BAUDRATE 115200
+#else
+  #define BAUDRATE 250000
+#endif
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -2855,8 +2860,8 @@
 // Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
-//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
-//#define LCD_FEEDBACK_FREQUENCY_HZ 5000
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
 //=============================================================================
 //======================== LCD / Controller Selection =========================
