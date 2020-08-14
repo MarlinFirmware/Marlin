@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_FSMC_TFT || EITHER(TFT_LVGL_UI_FSMC, FSMC_GRAPHICAL_TFT)
+#if HAS_FSMC_TFT
 
 #include "tft_fsmc.h"
 #include <libmaple/fsmc.h>
