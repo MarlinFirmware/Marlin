@@ -85,7 +85,7 @@ uint8_t TouchButtons::read_buttons() {
     if (!touchIO.getRawPoint(&x, &y)) return 0;
 
     x = uint16_t(((uint32_t(x)) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-	  y = uint16_t(((uint32_t(y)) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
+    y = uint16_t(((uint32_t(y)) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
 
     #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
       x = TOUCH_SENSOR_WIDTH - x;
