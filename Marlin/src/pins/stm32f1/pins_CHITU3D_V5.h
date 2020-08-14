@@ -104,52 +104,6 @@
 //#define POWER_LOSS_PIN                    -1
 #define FIL_RUNOUT_PIN                      PA15
 
-//
-// TronXY TFT Support
-//
-//#define FSMC_GRAPHICAL_TFT
-//#define HAS_TOUCH_XPT2046 1
-
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define FSMC_UPSCALE 3
-
-  #define LCD_RESET_PIN                     PF11
-  #define LCD_BACKLIGHT_PIN                 PD13
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-
-  #define TFT_RESET_PIN                     PF11
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PB7   // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
-
-    #define BUTTON_DELAY_EDIT 50                  // (ms) Button repeat delay for edit screens
-    #define BUTTON_DELAY_MENU 250                 // (ms) Button repeat delay for menus
-
-    #ifndef XPT2046_X_CALIBRATION
-      #define XPT2046_X_CALIBRATION       -12316
-    #endif
-    #ifndef XPT2046_Y_CALIBRATION
-      #define XPT2046_Y_CALIBRATION         8981
-    #endif
-    #ifndef XPT2046_X_OFFSET
-      #define XPT2046_X_OFFSET               340
-    #endif
-    #ifndef XPT2046_Y_OFFSET
-      #define XPT2046_Y_OFFSET               -20
-    #endif
-
-  #endif
-#endif
-
 // SPI Flash
 #define SPI_FLASH_SIZE                  0x200000  // 2MB
 #define HAS_SPI_FLASH                          1
@@ -160,19 +114,16 @@
 #define W25QXX_MISO_PIN                     PB14
 #define W25QXX_SCK_PIN                      PB13
 
-#if HAS_TFT_LVGL_UI
-  #define HAS_SPI_FLASH_FONT                1
-  #define HAS_GCODE_PREVIEW                 1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH   0
-  #define HAS_LANG_SELECT_SCREEN            1
-  #define HAS_BAK_VIEW_IN_FLASH             0
-  #define HAS_LOGO_IN_FLASH                 0
+//
+// TronXY TFT Support
+//
 
+// Shared FSMC Configs
+#if HAS_FSMC_TFT
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
-  //#define TOUCH_INT_PIN                   PB6
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -185,40 +136,56 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define LCD_PIXEL_WIDTH       480
-  #define LCD_PIXEL_HEIGHT      320
-  #define LCD_FULL_PIXEL_WIDTH  LCD_PIXEL_WIDTH
-  #define LCD_FULL_PIXEL_HEIGHT LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_OFFSET_X     48
-  #define LCD_PIXEL_OFFSET_Y     48
+  #define LCD_FULL_PIXEL_WIDTH              480
+  #define LCD_FULL_PIXEL_HEIGHT             320
+  #define LCD_PIXEL_OFFSET_X                48
+  #define LCD_PIXEL_OFFSET_Y                32
+
+#endif
+
+// LVGL Configs
+#if HAS_TFT_LVGL_UI
+
+  #define HAS_SPI_FLASH_FONT                1
+  #define HAS_GCODE_PREVIEW                 1
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH   0
+  #define HAS_LANG_SELECT_SCREEN            1
+  #define HAS_BAK_VIEW_IN_FLASH             0
+  #define HAS_LOGO_IN_FLASH                 0
 
   #define XPT2046_X_CALIBRATION           -17181
   #define XPT2046_Y_CALIBRATION            11434
   #define XPT2046_X_OFFSET                   501
   #define XPT2046_Y_OFFSET                    -9
 
+// Color UI Configs
 #elif ENABLED(TFT_480x320)
-  #define TFT_RESET_PIN                     PF11
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define XPT2046_X_CALIBRATION           -17181
-  #define XPT2046_Y_CALIBRATION            11434
-  #define XPT2046_X_OFFSET                   501
-  #define XPT2046_Y_OFFSET                    -9
-
-  #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
-  #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
-  #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
+
+  #define XPT2046_X_CALIBRATION           -17181
+  #define XPT2046_Y_CALIBRATION            11434
+  #define XPT2046_X_OFFSET                   501
+  #define XPT2046_Y_OFFSET                    -9
+
+// Emulated DOGM
+#elif ENABLED(FSMC_GRAPHICAL_TFT)
+  #define FSMC_UPSCALE 3
+
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION       -12316
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         8981
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET               340
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET               -20
+  #endif
+
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
