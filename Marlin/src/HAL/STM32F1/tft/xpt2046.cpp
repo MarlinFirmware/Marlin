@@ -24,22 +24,6 @@
 #include "xpt2046.h"
 #include <SPI.h>
 
-#ifndef TOUCH_INT_PIN
-  #define TOUCH_INT_PIN  -1
-#endif
-#ifndef TOUCH_MISO_PIN
-  #define TOUCH_MISO_PIN MISO_PIN
-#endif
-#ifndef TOUCH_MOSI_PIN
-  #define TOUCH_MOSI_PIN MOSI_PIN
-#endif
-#ifndef TOUCH_SCK_PIN
-  #define TOUCH_SCK_PIN  SCK_PIN
-#endif
-#ifndef TOUCH_CS_PIN
-  #define TOUCH_CS_PIN   CS_PIN
-#endif
-
 uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
 
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
