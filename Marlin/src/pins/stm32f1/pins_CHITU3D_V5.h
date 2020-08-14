@@ -164,7 +164,6 @@
   #define HAS_LANG_SELECT_SCREEN            1
   #define HAS_BAK_VIEW_IN_FLASH             0
   #define HAS_LOGO_IN_FLASH                 0
-  #define HAS_TOUCH_XPT2046                 1
 
   #define TOUCH_CS_PIN                      PB7   // SPI1_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI1_SCK
@@ -183,6 +182,8 @@
 
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
+  #define TFT_RESET_PIN                     PF11
+  #define TFT_BACKLIGHT_PIN                 PD13
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_CS_PIN                       PD7
@@ -197,24 +198,10 @@
   #define LCD_PIXEL_OFFSET_X     48
   #define LCD_PIXEL_OFFSET_Y     48
 
-  #define XPT2046_X_CALIBRATION           -12316
-  #define XPT2046_Y_CALIBRATION             8981
-  #define XPT2046_X_OFFSET                   340
-  #define XPT2046_Y_OFFSET                   -20
-
-  #define USE_XPT2046       1
-  #define XPT2046_XY_SWAP   0
-  #define XPT2046_X_INV     1
-  #define XPT2046_Y_INV     0
-
-  #define XPT2046_HOR_RES    480
-  #define XPT2046_VER_RES    320
-  #define XPT2046_X_MIN      140
-  #define XPT2046_Y_MIN      200
-  #define XPT2046_X_MAX     1900
-  #define XPT2046_Y_MAX     1900
-  #define XPT2046_AVG          4
-  #define XPT2046_INV          0
+  #define XPT2046_X_CALIBRATION           -17181
+  #define XPT2046_Y_CALIBRATION            11434
+  #define XPT2046_X_OFFSET                   501
+  #define XPT2046_Y_OFFSET                    -9
 
 #elif ENABLED(TFT_480x320)
   #define TFT_RESET_PIN                     PF11
