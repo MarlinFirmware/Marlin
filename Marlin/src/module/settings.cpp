@@ -626,7 +626,12 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_WRITE(home_offset);
       #endif
+    }
 
+    //
+    // Hotend Offsets, if any
+    //
+    {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         LOOP_S_L_N(e, 1, HOTENDS)
@@ -1520,6 +1525,8 @@ void MarlinSettings::postprocess() {
         #endif
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
+
+        TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
