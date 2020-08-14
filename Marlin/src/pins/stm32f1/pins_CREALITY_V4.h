@@ -134,6 +134,10 @@
 #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 #define SDIO_SUPPORT
 
+#if ENABLED(CR10_STOCKDISPLAY) && !EITHER(RET6_12864_LCD,VET6_12864_LCD)
+  #error "Please enable #define RET6_12864_LCD or #define VET6_12864_LCD to select the pins for a CR10_STOCKDISPLAY on this controller."
+#endif
+
 #if ENABLED(RET6_12864_LCD)
 
   /* RET6 12864 LCD */
