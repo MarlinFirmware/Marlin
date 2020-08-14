@@ -205,15 +205,6 @@
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
   //#define TOUCH_INT_PIN                   PB6
 
-  #if ENABLED(TFT_LVGL_UI_SPI)
-    #define SPI_TFT_CS_PIN          TOUCH_CS_PIN
-    #define SPI_TFT_SCK_PIN        TOUCH_SCK_PIN
-    #define SPI_TFT_MISO_PIN      TOUCH_MISO_PIN
-    #define SPI_TFT_MOSI_PIN      TOUCH_MOSI_PIN
-    #define SPI_TFT_DC_PIN                  PB6
-    #define SPI_TFT_RST_PIN                 PF11
-  #endif
-
   #define LCD_RESET_PIN                     PF11
   #define LCD_BACKLIGHT_PIN                 PD13
   #define TFT_RESET_PIN                     PF11

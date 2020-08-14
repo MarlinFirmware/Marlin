@@ -243,13 +243,6 @@
 
 #if ENABLED(TFT_LVGL_UI_SPI)
 
-  #define SPI_TFT_CS_PIN                    PD11
-  #define SPI_TFT_SCK_PIN                   PA5
-  #define SPI_TFT_MISO_PIN                  PA6
-  #define SPI_TFT_MOSI_PIN                  PA7
-  #define SPI_TFT_DC_PIN                    PD10
-  #define SPI_TFT_RST_PIN                   PC6
-
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
@@ -291,13 +284,6 @@
 #if HAS_SPI_LCD
 
   #if ENABLED(SPI_GRAPHICAL_TFT)                  // Emulated DOGM SPI
-    #define SPI_TFT_CS_PIN                  PD11
-    #define SPI_TFT_SCK_PIN                 PA5
-    #define SPI_TFT_MISO_PIN                PA6
-    #define SPI_TFT_MOSI_PIN                PA7
-    #define SPI_TFT_DC_PIN                  PD10
-    #define SPI_TFT_RST_PIN                 PC6
-
     #define LCD_BACKLIGHT_PIN               PD13
 
     #define LCD_READ_ID                     0xD3
