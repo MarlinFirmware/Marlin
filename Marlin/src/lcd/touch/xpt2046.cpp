@@ -133,12 +133,14 @@ uint8_t XPT2046::read_buttons() {
     // Touch within the button area simulates an encoder button
     if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
       return WITHIN(x,  14,  77) ? EN_D
-          : WITHIN(x,  90, 153) ? EN_A
-          : WITHIN(x, 166, 229) ? EN_B
-          : WITHIN(x, 242, 305) ? EN_C
-          : 0;
+           : WITHIN(x,  90, 153) ? EN_A
+           : WITHIN(x, 166, 229) ? EN_B
+           : WITHIN(x, 242, 305) ? EN_C
+           : 0;
 
-    if (x > TOUCH_SENSOR_WIDTH || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)) return 0;
+    if ( !WITHIN(x, SCREEN_START_LEFT, SCREEN_START_LEFT + SCREEN_WIDTH)
+      || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)
+    ) return 0;
 
     // Column and row above BUTTON_AREA_TOP
     int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
@@ -161,6 +163,7 @@ bool XPT2046::isTouched() {
 }
 
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
+
   #include <SPI.h>
 
   static void touch_spi_init(uint8_t spiRate) {
