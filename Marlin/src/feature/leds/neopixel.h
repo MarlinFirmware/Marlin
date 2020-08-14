@@ -111,7 +111,7 @@ public:
   static inline void show() {
     adaneo1.show();
     #if PIN_EXISTS(NEOPIXEL2)
-      #if EITHER(MULTIPLE_NEOPIXEL_TYPES,NEOPIXEL2_INSERIES)
+      #if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
         adaneo2.show();
       #else
         adaneo1.setPin(NEOPIXEL2_PIN);
