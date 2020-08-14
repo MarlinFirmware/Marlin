@@ -20,6 +20,8 @@
 
 #include "../../../inc/MarlinConfig.h"
 
+#if HAS_TFT_XPT2046 || HAS_TOUCH_XPT2046
+
 #if ENABLED(TOUCH_BUTTONS_HW_SPI)
   #include <SPI.h>
 #endif
@@ -76,3 +78,5 @@ public:
   static void Init();
   static bool getRawPoint(int16_t *x, int16_t *y);
 };
+
+#endif // HAS_TFT_XPT2046
