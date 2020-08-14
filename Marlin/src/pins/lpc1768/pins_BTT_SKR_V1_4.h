@@ -263,16 +263,16 @@
      *                    EXP1
      */
 
-    #define BTN_EN1                 P1_18
-    #define BTN_EN2                 P1_20
-    #define BTN_ENC                 P0_28
+    #define BTN_EN1                        P1_18
+    #define BTN_EN2                        P1_20
+    #define BTN_ENC                        P0_28
 
-    #define DOGLCD_CS               P1_22
-    #define DOGLCD_A0               P1_21
-    #define DOGLCD_SCK              P1_30
-    #define DOGLCD_MOSI             P1_23
+    #define DOGLCD_CS                      P1_22
+    #define DOGLCD_A0                      P1_21
+    #define DOGLCD_SCK                     P1_30
+    #define DOGLCD_MOSI                    P1_23
     #define FORCE_SOFT_SPI
-    #define LCD_BACKLIGHT_PIN       -1
+    #define LCD_BACKLIGHT_PIN              -1
 
   #else
 
