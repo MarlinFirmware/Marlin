@@ -35,7 +35,6 @@
 
 #include "tft_lvgl_configuration.h"
 #include "draw_ready_print.h"
-#include "W25Qxx.h"
 #include "pic_manager.h"
 #include "mks_hardware_test.h"
 #include "draw_ui.h"
@@ -43,9 +42,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if HAS_TOUCH_XPT2046
-  #include "../../../touch/xpt2046.h"
-#endif
+#include HAL_PATH(../../HAL, tft/xpt2046.h)
+XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -122,14 +120,14 @@ void tft_set_cursor(uint16_t x, uint16_t y) {
 
 void LCD_WriteRAM_Prepare(void) {
   #if 0
-  if ((DeviceCode == 0x9325) || (DeviceCode == 0x9328) || (DeviceCode == 0x8989)) {
-    ClrCs
-    LCD->LCD_REG = R34;
-    SetCs
-  }
-  else {
-    LCD_WrtReg(0x002C);
-  }
+    switch (DeviceCode) {
+      case 0x9325: case 0x9328: case 0x8989: {
+        ClrCs
+        LCD->LCD_REG = R34;
+        SetCs
+      } break;
+      default: LCD_WrtReg(0x002C);
+    }
   #else
     LCD_IO_WriteReg(0x002C);
   #endif
@@ -198,8 +196,8 @@ void ili9320_SetWindows(uint16_t StartX, uint16_t StartY, uint16_t width, uint16
      LCD_WriteReg(0x0053, yEnd);*/
     LCD_WriteReg(0x0050, StartY);   // Specify the start/end positions of the window address in the horizontal direction by an address unit
     LCD_WriteReg(0x0051, yEnd);     // Specify the start positions of the window address in the vertical direction by an address unit
-    LCD_WriteReg(0x0052, 320 - xEnd);
-    LCD_WriteReg(0x0053, 320 - StartX - 1); // Specify the end positions of the window address in the vertical direction by an address unit
+    LCD_WriteReg(0x0052, (LCD_FULL_PIXEL_HEIGHT) - xEnd);
+    LCD_WriteReg(0x0053, (LCD_FULL_PIXEL_HEIGHT) - StartX - 1); // Specify the end positions of the window address in the vertical direction by an address unit
 
   }
   else {
@@ -269,28 +267,10 @@ void LCD_Clear(uint16_t Color) {
   }
 }
 
-extern uint16_t ILI9488_ReadRAM();
-
+#include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+extern TFT_IO tftio;
 void init_tft() {
   uint16_t i;
-  //************* Start Initial Sequence **********//
-
-  //start lcd pins and dma
-  #if PIN_EXISTS(LCD_BACKLIGHT)
-    OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
-  #endif
-
-  #if PIN_EXISTS(LCD_RESET)
-    // Perform a clean hardware reset with needed delays
-    OUT_WRITE(LCD_RESET_PIN, LOW);
-    _delay_ms(5);
-    WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5);
-  #endif
-
-  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    WRITE(LCD_BACKLIGHT_PIN, HIGH);
-  #endif
 
   TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
@@ -304,12 +284,9 @@ void init_tft() {
 
   _delay_ms(5);
 
-  LCD_IO_WriteReg(0x00D3);
-  DeviceCode = ILI9488_ReadRAM(); //dummy read
-  DeviceCode = ILI9488_ReadRAM();
-  DeviceCode = ILI9488_ReadRAM();
-  DeviceCode <<= 8;
-  DeviceCode |= ILI9488_ReadRAM();
+  DeviceCode = tftio.GetID() & 0xFFFF;
+  // Chitu and others
+  if (DeviceCode == 0x8066) DeviceCode = 0x9488;
 
   if (DeviceCode == 0x9488) {
     LCD_IO_WriteReg(0x00E0);
@@ -437,7 +414,7 @@ void tft_lvgl_init() {
 
   //spi_flash_read_test();
 
-  TERN_(HAS_TOUCH_XPT2046, touch.init());
+  touch.Init();
 
   lv_init();
 
@@ -493,35 +470,14 @@ void tft_lvgl_init() {
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
   #if ENABLED(TFT_LVGL_UI_SPI)
     uint16_t i, width, height;
-    uint16_t clr_temp;
-    uint8_t tbuf[(LCD_FULL_PIXEL_WIDTH) * 2];
-
-    SPI_TFT.spi_init(SPI_FULL_SPEED);
 
     width = area->x2 - area->x1 + 1;
     height = area->y2 - area->y1 + 1;
 
-    for (int j = 0; j < height; j++) {
-      SPI_TFT.SetCursor(0, 0);
-      SPI_TFT.SetWindows((uint16_t)area->x1, (uint16_t)area->y1 + j, width, 1);
-      SPI_TFT.LCD_WriteRAM_Prepare();
-
-      for (i = 0; i < width * 2;) {
-        clr_temp = (uint16_t)(((uint16_t)color_p->ch.red << 11)
-                              | ((uint16_t)color_p->ch.green << 5)
-                              | ((uint16_t)color_p->ch.blue));
-
-        tbuf[i] = clr_temp >> 8;
-        tbuf[i + 1] = clr_temp;
-        i += 2;
-        color_p++;
-      }
-      SPI_TFT_CS_L;
-      SPI_TFT_DC_H;
-      SPI.dmaSend(tbuf, width * 2, true);
-      SPI_TFT_CS_H;
+    SPI_TFT.SetWindows((uint16_t)area->x1, (uint16_t)area->y1, width, height);
+    for (i = 0; i < height; i++) {
+      SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
     }
-
     lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -557,174 +513,23 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
   return TICK_CYCLE * (lastTick <= curTick ? (curTick - lastTick) : (0xFFFFFFFF - lastTick + curTick));
 }
 
-#if ENABLED(TFT_LVGL_UI_SPI)
+static bool get_point(int16_t *x, int16_t *y) {
+  bool is_touched = touch.getRawPoint(x, y);
 
-  #ifndef USE_XPT2046
-    #define USE_XPT2046       1
-    #define XPT2046_XY_SWAP   1
-    #define XPT2046_X_INV     1
-    #define XPT2046_Y_INV     0
-  #endif
-
-  #if USE_XPT2046
-    #define XPT2046_HOR_RES 480
-    #define XPT2046_VER_RES 320
-    #define XPT2046_X_MIN   201
-    #define XPT2046_Y_MIN   164
-    #define XPT2046_X_MAX  3919
-    #define XPT2046_Y_MAX  3776
-    #define XPT2046_AVG       4
-    #define XPT2046_INV       1
-  #endif
-
-#else
-
-  #ifndef USE_XPT2046
-    #define USE_XPT2046       1
-    #ifndef XPT2046_XY_SWAP
-      #define XPT2046_XY_SWAP 1
-    #endif
-    #ifndef XPT2046_X_INV
-      #define XPT2046_X_INV   0
-    #endif
-    #ifndef XPT2046_Y_INV
-      #define XPT2046_Y_INV   1
-    #endif
-  #endif
-
-  #if USE_XPT2046
-    #ifndef XPT2046_HOR_RES
-      #define XPT2046_HOR_RES 480
-    #endif
-    #ifndef XPT2046_VER_RES
-      #define XPT2046_VER_RES 320
-    #endif
-    #ifndef XPT2046_X_MIN
-      #define XPT2046_X_MIN   201
-    #endif
-    #ifndef XPT2046_Y_MIN
-      #define XPT2046_Y_MIN   164
-    #endif
-    #ifndef XPT2046_X_MAX
-      #define XPT2046_X_MAX  3919
-    #endif
-    #ifndef XPT2046_Y_MAX
-      #define XPT2046_Y_MAX  3776
-    #endif
-    #ifndef XPT2046_AVG
-      #define XPT2046_AVG       4
-    #endif
-    #ifndef XPT2046_INV
-      #define XPT2046_INV       0
-    #endif
-  #endif
-
-#endif
-
-static void xpt2046_corr(uint16_t *x, uint16_t *y) {
-  #if XPT2046_XY_SWAP
-    int16_t swap_tmp;
-    swap_tmp = *x;
-    *x = *y;
-    *y = swap_tmp;
-  #endif
-  if ((*x) > XPT2046_X_MIN) (*x) -= XPT2046_X_MIN; else (*x) = 0;
-  if ((*y) > XPT2046_Y_MIN) (*y) -= XPT2046_Y_MIN; else (*y) = 0;
-  (*x) = uint32_t(uint32_t(*x) * XPT2046_HOR_RES) / (XPT2046_X_MAX - XPT2046_X_MIN);
-  (*y) = uint32_t(uint32_t(*y) * XPT2046_VER_RES) / (XPT2046_Y_MAX - XPT2046_Y_MIN);
-  #if XPT2046_X_INV
-    (*x) = XPT2046_HOR_RES - (*x);
-  #endif
-  #if XPT2046_Y_INV
-    (*y) = XPT2046_VER_RES - (*y);
-  #endif
-}
-
-#define times 4
-#define CHX   0x90
-#define CHY   0xD0
-
-int SPI2_ReadWrite2Bytes(void) {
-  #define SPI_READ_WRITE_BYTE(B) TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_read_write_byte, W25QXX.spi_flash_read_write_byte)(B)
-  const uint16_t t1 = SPI_READ_WRITE_BYTE(0xFF),
-                 t2 = SPI_READ_WRITE_BYTE(0xFF);
-  return (((t1 << 8) | t2) >> 3) & 0x0FFF;
-}
-
-uint16_t x_addata[times], y_addata[times];
-void XPT2046_Rd_Addata(uint16_t *X_Addata, uint16_t *Y_Addata) {
-  uint16_t i, j, k;
-
-  TERN(TFT_LVGL_UI_SPI, SPI_TFT.spi_init, W25QXX.init)(SPI_SPEED_6);
-
-  for (i = 0; i < times; i++) {
-    #if ENABLED(TFT_LVGL_UI_SPI)
-      OUT_WRITE(TOUCH_CS_PIN, LOW);
-      SPI_TFT.spi_read_write_byte(CHX);
-      y_addata[i] = SPI2_ReadWrite2Bytes();
-      WRITE(TOUCH_CS_PIN, HIGH);
-
-      OUT_WRITE(TOUCH_CS_PIN, LOW);
-      SPI_TFT.spi_read_write_byte(CHY);
-      x_addata[i] = SPI2_ReadWrite2Bytes();
-      WRITE(TOUCH_CS_PIN, HIGH);
-    #else // #if HAS_TOUCH_XPT2046
-      OUT_WRITE(TOUCH_CS_PIN, LOW);
-      W25QXX.spi_flash_read_write_byte(CHX);
-      y_addata[i] = SPI2_ReadWrite2Bytes();
-      WRITE(TOUCH_CS_PIN, HIGH);
-
-      OUT_WRITE(TOUCH_CS_PIN, LOW);
-      W25QXX.spi_flash_read_write_byte(CHY);
-      x_addata[i] = SPI2_ReadWrite2Bytes();
-      WRITE(TOUCH_CS_PIN, HIGH);
-    #endif
-
-  }
-  TERN(TFT_LVGL_UI_SPI,,W25QXX.init(SPI_QUARTER_SPEED));
-
-  for (i = 0; i < times; i++)
-    for (j = i + 1; j < times; j++)
-      if (x_addata[j] > x_addata[i]) {
-        k = x_addata[j];
-        x_addata[j] = x_addata[i];
-        x_addata[i] = k;
-      }
-  if (x_addata[times / 2 - 1] - x_addata[times / 2] > 50) {
-    *X_Addata = *Y_Addata = 0;
-    return;
+  if (is_touched) {
+    *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
+    *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
   }
 
-  *X_Addata = (x_addata[times / 2 - 1] + x_addata[times / 2]) / 2;
+  #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
+    x = (LCD_FULL_PIXEL_WIDTH) - x;
+    y = (LCD_FULL_PIXEL_HEIGHT) - y;
+  #endif
 
-  for (i = 0; i < times; i++)
-    for (j = i + 1; j < times; j++)
-      if (y_addata[j] > y_addata[i]) {
-        k = y_addata[j];
-        y_addata[j] = y_addata[i];
-        y_addata[i] = k;
-      }
-
-  if (y_addata[times / 2 - 1] - y_addata[times / 2] > 50) {
-    *X_Addata = *Y_Addata = 0;
-    return;
-  }
-
-  *Y_Addata = (y_addata[times / 2 - 1] + y_addata[times / 2]) / 2;
+  return is_touched;
 }
 
-#define ADC_VALID_OFFSET  10
-
-uint8_t TOUCH_PressValid(uint16_t _usX, uint16_t _usY) {
-  if ( (_usX <= ADC_VALID_OFFSET)
-    || (_usY <= ADC_VALID_OFFSET)
-    || (_usX >= 4095 - ADC_VALID_OFFSET)
-    || (_usY >= 4095 - ADC_VALID_OFFSET)
-  ) return 0;
-  return 1;
-}
-
-static lv_coord_t last_x = 0, last_y = 0;
+static int16_t last_x = 0, last_y = 0;
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   uint32_t tmpTime, diffTime = 0;
 
@@ -736,34 +541,24 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
   //touchpad_get_xy(&last_x, &last_y);
   /*Save the pressed coordinates and the state*/
   if (diffTime > 10) {
-    //use marlin touch code if enabled
-    #if HAS_TOUCH_XPT2046
-      touch.getTouchPoint(reinterpret_cast<uint16_t&>(last_x), reinterpret_cast<uint16_t&>(last_y));
-    #else
-      XPT2046_Rd_Addata((uint16_t *)&last_x, (uint16_t *)&last_y);
-    #endif
-    if (TOUCH_PressValid(last_x, last_y)) {
+    if (get_point(&last_x, &last_y)) {
 
       data->state = LV_INDEV_STATE_PR;
 
-      /* Set the coordinates (if released use the last pressed coordinates) */
+      // Set the coordinates (if released use the last-pressed coordinates)
 
-      // SERIAL_ECHOLNPAIR("antes X: ", last_x, ", y: ", last_y);
-      xpt2046_corr((uint16_t *)&last_x, (uint16_t *)&last_y);
-      // SERIAL_ECHOLNPAIR("X: ", last_x, ", y: ", last_y);
       data->point.x = last_x;
       data->point.y = last_y;
 
-      last_x = 0;
-      last_y = 0;
+      last_x = last_y = 0;
     }
-    else {
+    else
       data->state = LV_INDEV_STATE_REL;
-    }
+
     touch_time1 = tmpTime;
   }
 
-  return false; /*Return `false` because we are not buffering and no more data to read*/
+  return false; // Return `false` since no data is buffering or left to read
 }
 
 #endif // HAS_TFT_LVGL_UI
