@@ -582,6 +582,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_RESUME));
 
+  // Check Temperature before moving hotend
+  ensure_safe_temperature();
+
   // Retract to prevent oozing
   unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
@@ -593,8 +596,6 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
 
   // Unretract
   unscaled_e_move(PAUSE_PARK_RETRACT_LENGTH, feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
-
-  ensure_safe_temperature();
 
   // Intelligent resuming
   #if ENABLED(FWRETRACT)
