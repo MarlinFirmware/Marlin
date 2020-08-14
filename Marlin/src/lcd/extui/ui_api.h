@@ -44,7 +44,7 @@
 
 #include "../../inc/MarlinConfig.h"
 #ifdef TL_TFT_DISPLAY
-  #include "src/lcd/extui_TL_TFT_Display.h"
+  #include "src/lcd/extui/lib/tenlog/extui_TL_TFT_Display.h"
 #endif
 namespace ExtUI {
 

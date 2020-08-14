@@ -22,9 +22,9 @@
 //#pragma message(__FILE__)
 //IGHMC, included these based on MALYAN example and because Tenlog has modifiers in most of them then realised they need to come from UI_api.h
 #include "src/inc/MarlinConfigPre.h"
-#include "src/lcd/extui_TL_TFT_Display.h"
+#include "src/lcd/extui/lib/tenlog/extui_TL_TFT_Display.h"
 #include "src/lcd/extui/ui_api.h"
-#include "../../libs/numtostr.h"
+#include "src/libs/numtostr.h"
 #include "src/module/printcounter.h"
 #include "src/MarlinCore.h"
 #include "src/gcode/queue.h"

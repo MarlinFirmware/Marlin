@@ -39,7 +39,7 @@
 #include <math.h>
 
 #include "core/utility.h"
-#include "lcd/extui_TL_TFT_Display.h" //IGHMC replacing ultralcd.h
+#include "src/lcd/extui/lib/tenlog/extui_TL_TFT_Display.h" //IGHMC replacing ultralcd.h
 #include "module/motion.h"
 #include "module/planner.h"
 #include "module/endstops.h"

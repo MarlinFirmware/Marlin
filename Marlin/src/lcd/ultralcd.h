@@ -21,12 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
- 
- 
+
+
 #pragma once
-//#define ULTRA_LCD  //IGHMC trick intellisense
 #if  TL_TFT_DISPLAY
-#include "extui_TL_TFT_Display.h"
+#include "src/lcd/extui/lib/Tenlog/extui_TL_TFT_Display.h"
 #elif ULTRA_LCD
 #include "../inc/MarlinConfig.h"
 

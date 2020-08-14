@@ -45,7 +45,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
 
-#include "src/lcd/extui_TL_TFT_Display.h"
+#include "src/lcd/extui/lib/tenlog/extui_TL_TFT_Display.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
