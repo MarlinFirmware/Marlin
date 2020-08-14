@@ -29,6 +29,8 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
+#elif HAS_FSMC_TFT
+  #error "MKS Robin nano v2 does not support HAS_FSMC_TFT"
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
@@ -241,8 +243,8 @@
  * to let the bootloader init the screen.
  */
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-
+// Shared SPI TFT Configs
+#if HAS_SPI_TFT
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
@@ -265,10 +267,6 @@
   #define TFT_RESET_PIN                   PC6
   #define TFT_BACKLIGHT_PIN               PD13
 
-  #define XPT2046_X_CALIBRATION         -17253
-  #define XPT2046_Y_CALIBRATION          11579
-  #define XPT2046_X_OFFSET                 514
-  #define XPT2046_Y_OFFSET                 -24
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
@@ -279,66 +277,63 @@
     #define LCD_FULL_PIXEL_HEIGHT           320
   #endif
 
+  #define LCD_READ_ID                     0xD3
+  #define LCD_USE_DMA_SPI
+
 #endif
 
-#if HAS_SPI_LCD
+// LVGL Configs
+#if ENABLED(TFT_LVGL_UI_SPI)
 
-  #if ENABLED(SPI_GRAPHICAL_TFT)                  // Emulated DOGM SPI
-    #define LCD_BACKLIGHT_PIN               PD13
+  #define XPT2046_X_CALIBRATION         -17253
+  #define XPT2046_Y_CALIBRATION          11579
+  #define XPT2046_X_OFFSET                 514
+  #define XPT2046_Y_OFFSET                 -24
 
-    #define LCD_READ_ID                     0xD3
-    #define LCD_USE_DMA_SPI
+// Emulated DOGM SPI
+#elif ENABLED(SPI_GRAPHICAL_TFT)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION      -5481
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION       4000
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET             343
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET               0
+  #endif
 
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE     1
+  #ifndef FSMC_UPSCALE
+    #define FSMC_UPSCALE                     3
+  #endif
+  #ifndef LCD_PIXEL_OFFSET_Y
+    #define LCD_PIXEL_OFFSET_Y              32
+  #endif
 
-    #define TFT_CS_PIN                      PD11
-    #define TFT_SCK_PIN                     PA5
-    #define TFT_MISO_PIN                    PA6
-    #define TFT_MOSI_PIN                    PA7
-    #define TFT_DC_PIN                      PD10
-    #define TFT_RST_PIN                     PC6
-    #define TFT_A0_PIN                TFT_DC_PIN
+  #define BTN_ENC                         PE13
+  #define BTN_EN1                         PE8
+  #define BTN_EN2                         PE11
 
-    #define TFT_RESET_PIN                   PC6
-    #define TFT_BACKLIGHT_PIN               PD13
+  #define LCD_PINS_ENABLE                 PD13
+  #define LCD_PINS_RS                     PC6
 
-    //#define TOUCH_SCREEN
-    #if EITHER(TOUCH_SCREEN, NEED_TOUCH_PINS)
-      #define TOUCH_CS_PIN                  PE14  // SPI1_NSS
-      #define TOUCH_SCK_PIN                 PA5   // SPI1_SCK
-      #define TOUCH_MISO_PIN                PA6   // SPI1_MISO
-      #define TOUCH_MOSI_PIN                PA7   // SPI1_MOSI
+#elif ENABLED(TFT_480x320_SPI)
+    #define XPT2046_X_CALIBRATION         -17253
+    #define XPT2046_Y_CALIBRATION          11579
+    #define XPT2046_X_OFFSET                 514
+    #define XPT2046_Y_OFFSET                 -24
 
-      #ifndef XPT2046_X_CALIBRATION
-        #define XPT2046_X_CALIBRATION      -5481
-      #endif
-      #ifndef XPT2046_Y_CALIBRATION
-        #define XPT2046_Y_CALIBRATION       4000
-      #endif
-      #ifndef XPT2046_X_OFFSET
-        #define XPT2046_X_OFFSET             343
-      #endif
-      #ifndef XPT2046_Y_OFFSET
-        #define XPT2046_Y_OFFSET               0
-      #endif
-    #endif
+    #define TFT_DRIVER                    ST7796
+    #define TFT_BUFFER_SIZE                14400
 
-    #ifndef FSMC_UPSCALE
-      #define FSMC_UPSCALE                     3
-    #endif
-    #ifndef LCD_PIXEL_OFFSET_Y
-      #define LCD_PIXEL_OFFSET_Y              32
-    #endif
+#endif
 
-    #define BTN_ENC                         PE13
-    #define BTN_EN1                         PE8
-    #define BTN_EN2                         PE11
+// NON TFT Displays
+#if HAS_SPI_LCD && !HAS_SPI_TFT
 
-    #define LCD_PINS_ENABLE                 PD13
-    #define LCD_PINS_RS                     PC6
-
-  #elif ENABLED(MKS_MINI_12864)
+  #if ENABLED(MKS_MINI_12864)
 
     // MKS MINI12864 and MKS LCD12864B
     // If using MKS LCD12864A (Need to remove RPK2 resistor)
@@ -353,37 +348,6 @@
     // Required for MKS_MINI_12864 with this board
     #define MKS_LCD12864B
     #undef SHOW_BOOTSCREEN
-
-  #elif ENABLED(TFT_480x320_SPI)
-    #define TFT_CS_PIN                      PD11
-    #define TFT_SCK_PIN                     PA5
-    #define TFT_MISO_PIN                    PA6
-    #define TFT_MOSI_PIN                    PA7
-    #define TFT_DC_PIN                      PD10
-    #define TFT_RST_PIN                     PC6
-    #define TFT_A0_PIN                TFT_DC_PIN
-
-    #define TFT_RESET_PIN                   PC6
-    #define TFT_BACKLIGHT_PIN               PD13
-
-    #define XPT2046_X_CALIBRATION         -17253
-    #define XPT2046_Y_CALIBRATION          11579
-    #define XPT2046_X_OFFSET                 514
-    #define XPT2046_Y_OFFSET                 -24
-
-    #define TOUCH_CS_PIN                    PE14  // SPI1_NSS
-    #define TOUCH_SCK_PIN                   PA5   // SPI1_SCK
-    #define TOUCH_MISO_PIN                  PA6   // SPI1_MISO
-    #define TOUCH_MOSI_PIN                  PA7   // SPI1_MOSI
-
-    #define TFT_DRIVER                    ST7796
-    #define TFT_BUFFER_SIZE                14400
-
-    #define LCD_READ_ID                     0xD3
-    #define LCD_USE_DMA_SPI
-
-    #define TOUCH_BUTTONS_HW_SPI
-    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
   #else                                           // !MKS_MINI_12864
 
