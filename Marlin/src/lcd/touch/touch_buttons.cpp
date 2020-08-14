@@ -21,7 +21,7 @@
 
 #if HAS_TOUCH_XPT2046
 
-#include "xpt2046.h"
+#include "touch_buttons.h"
 #include "../scaled_tft.h"
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
