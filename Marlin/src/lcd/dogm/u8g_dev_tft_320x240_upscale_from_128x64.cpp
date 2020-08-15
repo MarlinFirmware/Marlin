@@ -691,7 +691,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
         for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(FSMC_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, TFT_WIDTH / 2, (uint8_t *)buffer);
+          u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
       #endif
 
       // Bottom buttons
