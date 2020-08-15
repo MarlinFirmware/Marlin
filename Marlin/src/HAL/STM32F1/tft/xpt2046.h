@@ -24,9 +24,6 @@
   #include <SPI.h>
 #endif
 
-#ifndef TOUCH_INT_PIN
-  #define TOUCH_INT_PIN  -1
-#endif
 #ifndef TOUCH_MISO_PIN
   #define TOUCH_MISO_PIN MISO_PIN
 #endif
@@ -39,7 +36,6 @@
 #ifndef TOUCH_CS_PIN
   #define TOUCH_CS_PIN   CS_PIN
 #endif
-
 #ifndef TOUCH_INT_PIN
   #define TOUCH_INT_PIN  -1
 #endif
