@@ -590,8 +590,6 @@ void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint1
 }
 
 void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor, uint16_t bkColor) {
-  // Select TFT SPI so it can receive data
-  TERN_(TFT_LVGL_UI_SPI, SPI_TFT.spi_init(SPI_FULL_SPEED));
   while (*string != '\0') {
     disp_char_1624(x, y, *string, charColor, bkColor);
     string++;
