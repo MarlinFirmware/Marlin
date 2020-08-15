@@ -270,11 +270,11 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
-  #ifndef LCD_FULL_PIXEL_WIDTH
-    #define LCD_FULL_PIXEL_WIDTH            480
+  #ifndef TFT_WIDTH
+    #define TFT_WIDTH            480
   #endif
-  #ifndef LCD_FULL_PIXEL_HEIGHT
-    #define LCD_FULL_PIXEL_HEIGHT           320
+  #ifndef TFT_HEIGHT
+    #define TFT_HEIGHT           320
   #endif
 
   #define LCD_READ_ID                     0xD3

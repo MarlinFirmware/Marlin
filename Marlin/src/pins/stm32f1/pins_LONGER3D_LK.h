@@ -131,8 +131,8 @@
 #define DOGLCD_SCK                          -1
 
 #define FSMC_UPSCALE                           2
-#define LCD_FULL_PIXEL_WIDTH                 320
-#define LCD_FULL_PIXEL_HEIGHT                240
+#define TFT_WIDTH                 320
+#define TFT_HEIGHT                240
 #define LCD_PIXEL_OFFSET_X                    32
 #define LCD_PIXEL_OFFSET_Y                    32
 

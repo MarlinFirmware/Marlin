@@ -136,8 +136,8 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define LCD_FULL_PIXEL_WIDTH              480
-  #define LCD_FULL_PIXEL_HEIGHT             320
+  #define TFT_WIDTH              480
+  #define TFT_HEIGHT             320
   #define LCD_PIXEL_OFFSET_X                48
   #define LCD_PIXEL_OFFSET_Y                32
 

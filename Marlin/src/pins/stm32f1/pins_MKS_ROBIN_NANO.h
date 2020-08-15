@@ -205,14 +205,14 @@
   #ifndef FSMC_UPSCALE
     #define FSMC_UPSCALE                    3
   #endif
-  #ifndef LCD_FULL_PIXEL_WIDTH
-    #define LCD_FULL_PIXEL_WIDTH            480
+  #ifndef TFT_WIDTH
+    #define TFT_WIDTH            480
   #endif
   #ifndef LCD_PIXEL_OFFSET_X
     #define LCD_PIXEL_OFFSET_X              48
   #endif
-  #ifndef LCD_FULL_PIXEL_HEIGHT
-    #define LCD_FULL_PIXEL_HEIGHT           320
+  #ifndef TFT_HEIGHT
+    #define TFT_HEIGHT           320
   #endif
   #ifndef LCD_PIXEL_OFFSET_Y
     #define LCD_PIXEL_OFFSET_Y              32

@@ -685,13 +685,13 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       }
 
       // Clear Screen
-      setWindow(u8g, dev, 0, 0, (LCD_FULL_PIXEL_WIDTH) - 1, (LCD_FULL_PIXEL_HEIGHT) - 1);
+      setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
       #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (uint32_t) (LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
+        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (uint32_t) (TFT_WIDTH) * (TFT_HEIGHT));
       #else
-        memset2(buffer, TFT_MARLINBG_COLOR, (LCD_FULL_PIXEL_WIDTH) / 2);
-        for (uint16_t i = 0; i < (LCD_FULL_PIXEL_HEIGHT) * sq(FSMC_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, LCD_FULL_PIXEL_WIDTH / 2, (uint8_t *)buffer);
+        memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
+        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(FSMC_UPSCALE); i++)
+          u8g_WriteSequence(u8g, dev, TFT_WIDTH / 2, (uint8_t *)buffer);
       #endif
 
       // Bottom buttons

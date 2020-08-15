@@ -27,18 +27,18 @@
   #define FSMC_UPSCALE 2
 #endif
 
-#ifndef LCD_FULL_PIXEL_WIDTH
+#ifndef TFT_WIDTH
   #if FSMC_UPSCALE == 3
-    #define LCD_FULL_PIXEL_WIDTH 480
+    #define TFT_WIDTH 480
   #else
-    #define LCD_FULL_PIXEL_WIDTH 320
+    #define TFT_WIDTH 320
   #endif
 #endif
-#ifndef LCD_FULL_PIXEL_HEIGHT
+#ifndef TFT_HEIGHT
   #if FSMC_UPSCALE == 3
-    #define LCD_FULL_PIXEL_HEIGHT 320
+    #define TFT_HEIGHT 320
   #else
-    #define LCD_FULL_PIXEL_HEIGHT 240
+    #define TFT_HEIGHT 240
   #endif
 #endif
 

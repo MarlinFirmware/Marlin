@@ -32,7 +32,7 @@ XPT2046 touchIO;
  *
  *      LCD_PIXEL_WIDTH/HEIGHT (128x64) is the (emulated DOGM) Pixel Drawing resolution.
  *   TOUCH_SENSOR_WIDTH/HEIGHT (320x240) is the Touch Area resolution.
- * LCD_FULL_PIXEL_WIDTH/HEIGHT (320x240 or 480x320) is the Actual (FSMC) Display resolution.
+ * TFT_WIDTH/HEIGHT (320x240 or 480x320) is the Actual (FSMC) Display resolution.
  *
  *  - All native (u8g) drawing is done in LCD_PIXEL_* (128x64)
  *  - The DOGM pixels are is upscaled 2-3x (as needed) for display.
@@ -59,8 +59,8 @@ XPT2046 touchIO;
 #define TOUCH_SENSOR_WIDTH  320
 #define TOUCH_SENSOR_HEIGHT 240
 
-#define SCREEN_WIDTH_PCT(X) ((X) * (TOUCH_SENSOR_WIDTH) / (LCD_FULL_PIXEL_WIDTH))
-#define SCREEN_HEIGHT_PCT(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (LCD_FULL_PIXEL_HEIGHT))
+#define SCREEN_WIDTH_PCT(X) ((X) * (TOUCH_SENSOR_WIDTH) / (TFT_WIDTH))
+#define SCREEN_HEIGHT_PCT(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (TFT_HEIGHT))
 
 #define SCREEN_START_LEFT SCREEN_WIDTH_PCT(LCD_PIXEL_OFFSET_X)
 #define SCREEN_START_TOP  SCREEN_HEIGHT_PCT(LCD_PIXEL_OFFSET_Y)

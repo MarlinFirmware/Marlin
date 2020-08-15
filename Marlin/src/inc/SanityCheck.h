@@ -515,6 +515,10 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
+#elif defined(LCD_FULL_PIXEL_HEIGHT)
+  #error "LCD_FULL_PIXEL_HEIGHT is now TFT_HEIGHT. Please update your Configuration.h."
+#elif defined(LCD_FULL_PIXEL_WIDTH)
+  #error "LCD_FULL_PIXEL_WIDTH is now TFT_WIDTH. Please update your Configuration.h."
 #elif defined(ANYCUBIC_TFT_MODEL)
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
