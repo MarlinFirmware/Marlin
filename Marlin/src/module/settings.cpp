@@ -641,15 +641,16 @@ void MarlinSettings::postprocess() {
       #if HAS_FILAMENT_SENSOR
         const bool &runout_sensor_enabled = runout.enabled;
       #else
-        constexpr bool runout_sensor_enabled = false;
+        constexpr int8_t runout_sensor_enabled = -1;
       #endif
+      _FIELD_TEST(runout_sensor_enabled);
+      EEPROM_WRITE(runout_sensor_enabled);
+
       #if HAS_FILAMENT_RUNOUT_DISTANCE
         const float &runout_distance_mm = runout.runout_distance();
       #else
         constexpr float runout_distance_mm = 0;
       #endif
-      _FIELD_TEST(runout_sensor_enabled);
-      EEPROM_WRITE(runout_sensor_enabled);
       EEPROM_WRITE(runout_distance_mm);
     }
 
@@ -1513,13 +1514,12 @@ void MarlinSettings::postprocess() {
       // Filament Runout Sensor
       //
       {
-        #if HAS_FILAMENT_SENSOR
-          const bool &runout_sensor_enabled = runout.enabled;
-        #else
-          bool runout_sensor_enabled;
-        #endif
+        int8_t runout_sensor_enabled;
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
+        #if HAS_FILAMENT_SENSOR
+          runout.enabled = runout_sensor_enabled < 0 ? FIL_RUNOUT_ENABLED_DEFAULT : runout_sensor_enabled;
+        #endif
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
@@ -2469,7 +2469,7 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_FILAMENT_SENSOR
-    runout.enabled = false;
+    runout.enabled = FIL_RUNOUT_ENABLED_DEFAULT;
     runout.reset();
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, runout.set_runout_distance(FILAMENT_RUNOUT_DISTANCE_MM));
   #endif
