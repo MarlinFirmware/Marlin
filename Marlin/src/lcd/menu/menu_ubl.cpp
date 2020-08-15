@@ -33,7 +33,7 @@
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 static int16_t ubl_storage_slot = 0,
@@ -451,7 +451,7 @@ void ubl_map_screen() {
 
     #if IS_KINEMATIC
       // Index of the mesh point upon entry
-      const uint32_t old_pos_index = grid_index(x_plot, y_plot);
+      const int32_t old_pos_index = grid_index(x_plot, y_plot);
       // Direction from new (unconstrained) encoder value
       const int8_t step_dir = int32_t(ui.encoderPosition) < old_pos_index ? -1 : 1;
     #endif

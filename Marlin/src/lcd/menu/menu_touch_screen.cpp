@@ -22,13 +22,15 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+#if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
 
 #include "menu.h"
 #include "../ultralcd.h"
 
 void touch_screen_calibration() {
+
   ui.touch_calibration();
+
 }
 
 #endif // TOUCH_SCREEN_CALIBRATION

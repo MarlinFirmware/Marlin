@@ -178,12 +178,12 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
-      case X_AXIS: STATIC_ITEM(MSG_MOVE_X, SS_CENTER|SS_INVERT); break;
-      case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, SS_CENTER|SS_INVERT); break;
-      case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, SS_CENTER|SS_INVERT); break;
+      case X_AXIS: STATIC_ITEM(MSG_MOVE_X, SS_DEFAULT|SS_INVERT); break;
+      case Y_AXIS: STATIC_ITEM(MSG_MOVE_Y, SS_DEFAULT|SS_INVERT); break;
+      case Z_AXIS: STATIC_ITEM(MSG_MOVE_Z, SS_DEFAULT|SS_INVERT); break;
       default:
         TERN_(MANUAL_E_MOVES_RELATIVE, manual_move_e_origin = current_position.e);
-        STATIC_ITEM(MSG_MOVE_E, SS_CENTER|SS_INVERT);
+        STATIC_ITEM(MSG_MOVE_E, SS_DEFAULT|SS_INVERT);
         break;
     }
   }
@@ -350,7 +350,7 @@ void menu_motion() {
   #if ENABLED(ASSISTED_TRAMMING)
     GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
   #endif
-  
+
   //
   // Level Bed
   //
