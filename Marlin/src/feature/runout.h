@@ -48,9 +48,8 @@
 
 void event_filament_runout();
 
-class FilamentMonitorBase;
+template<class RESPONSE_T, class SENSOR_T>
 class TFilamentMonitor;
-class FilamentSensorBase;
 class FilamentSensorEncoder;
 class FilamentSensorSwitch;
 class RunoutResponseDelayed;
