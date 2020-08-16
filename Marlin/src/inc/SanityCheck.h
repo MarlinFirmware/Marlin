@@ -1109,10 +1109,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Limited user-controlled fans
  */
-#ifdef NUM_M106_FANS          // FAN_COUNT may be 0 but if 'user-controlled fans' is not defined let it compile
-  #if NUM_M106_FANS > FAN_COUNT
-    #error "The selected board doesn't support enough user-controlled fans. Reduce NUM_M106_FANS."
-  #endif
+#if NUM_M106_FANS > FAN_COUNT
+  #error "The selected board doesn't support enough user-controlled fans. Reduce NUM_M106_FANS."
 #endif
 
 /**
