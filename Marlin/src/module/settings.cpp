@@ -106,6 +106,9 @@
 
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
+  #ifndef FIL_RUNOUT_ENABLED_DEFAULT
+    #define FIL_RUNOUT_ENABLED_DEFAULT true
+  #endif
 #endif
 
 #if ENABLED(EXTRA_LIN_ADVANCE_K)
