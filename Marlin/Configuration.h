@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##############################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/28 20/07/06 20/07/09 20/07/17 20/07/28
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // preMSwiss // 20/08/16
  * ##############################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3DD SKR1.4 UBL 20/07/28" // ALTER TO SAVED DATE ########################### // 20/07/28
+#define CUSTOM_MACHINE_NAME "MSwiss DD SKR1.4 UBL 20/07/28" // ALTER TO SAVED DATE ########################### // 20/08/16
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -736,7 +736,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 97.98 } // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/28
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 130 } // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/08/16 MSwiss default
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -961,7 +961,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -24, -0.537 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/07/28 for smooth pei
+#define NOZZLE_TO_PROBE_OFFSET { -44, -20, -1.17 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/08/16 for smooth pei MSwiss
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
@@ -1101,8 +1101,8 @@
 #define Y_BED_SIZE 235
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
-#define X_MIN_POS 0
-#define Y_MIN_POS 0
+#define X_MIN_POS -5  // 20/08/16 MSwiss
+#define Y_MIN_POS -10 // 20/08/16 MSwiss
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
