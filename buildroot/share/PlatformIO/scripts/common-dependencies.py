@@ -9,11 +9,23 @@ try:
 	import configparser
 except ImportError:
 	import ConfigParser as configparser
-from platformio.managers.package import PackageManager
+try:
+	# PIO < 4.4
+	from platformio.managers.package import PackageManager
+except ImportError:
+	# PIO >= 4.4
+	from platformio.package.meta import PackageSpec as PackageManager
 
 Import("env")
 
 FEATURE_CONFIG = {}
+
+def parse_pkg_uri(spec):
+	if PackageManager.__name__ == 'PackageSpec':
+		return PackageManager(spec).name
+	else:
+		name, _, _ = PackageManager.parse_pkg_uri(spec)
+		return name
 
 def add_to_feat_cnf(feature, flines):
 	feat = FEATURE_CONFIG[feature]
@@ -56,7 +68,7 @@ def get_all_known_libs():
 		if not 'lib_deps' in feat:
 			continue
 		for dep in feat['lib_deps']:
-			name, _, _ = PackageManager.parse_pkg_uri(dep)
+			name = parse_pkg_uri(dep)
 			known_libs.append(name)
 	return known_libs
 
@@ -64,7 +76,7 @@ def get_all_env_libs():
 	env_libs = []
 	lib_deps = env.GetProjectOption('lib_deps')
 	for dep in lib_deps:
-		name, _, _ = PackageManager.parse_pkg_uri(dep)
+		name = parse_pkg_uri(dep)
 		env_libs.append(name)
 	return env_libs
 
@@ -96,20 +108,20 @@ def apply_features_config():
 			# feat to add
 			deps_to_add = {}
 			for dep in feat['lib_deps']:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				deps_to_add[name] = dep
 
 			# Does the env already have the dependency?
 			deps = env.GetProjectOption('lib_deps')
 			for dep in deps:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
 			# Are there any libraries that should be ignored?
 			lib_ignore = env.GetProjectOption('lib_ignore')
 			for dep in deps:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
