@@ -46,6 +46,10 @@
   #define FILAMENT_RUNOUT_THRESHOLD 5
 #endif
 
+#ifndef FIL_RUNOUT_ENABLED_DEFAULT
+  #define FIL_RUNOUT_ENABLED_DEFAULT true
+#endif
+
 void event_filament_runout();
 
 template<class RESPONSE_T, class SENSOR_T>
