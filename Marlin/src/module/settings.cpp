@@ -44,7 +44,7 @@
 // Can be disabled for production build.
 //#define DEBUG_EEPROM_READWRITE
 
-#include "configuration_store.h"
+#include "settings.h"
 
 #include "endstops.h"
 #include "planner.h"
@@ -140,6 +140,10 @@
   #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../feature/password/password.h"
+#endif
+
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   #include "../lcd/tft/touch.h"
 #endif
@@ -152,7 +156,7 @@ typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                          
 typedef struct {     bool X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stealth_enabled_t;
 
 // Limit an index to an array size
-#define ALIM(I,ARR) _MIN(I, signed(COUNT(ARR) - 1))
+#define ALIM(I,ARR) _MIN(I, (signed)COUNT(ARR) - 1)
 
 // Defaults for reset / fill in on load
 static const uint32_t   _DMA[] PROGMEM = DEFAULT_MAX_ACCELERATION;
@@ -404,7 +408,15 @@ typedef struct SettingsDataStruct {
   // HAS_CASE_LIGHT_BRIGHTNESS
   //
   #if HAS_CASE_LIGHT_BRIGHTNESS
-    uint8_t case_light_brightness;
+    uint8_t caselight_brightness;                        // M355 P
+  #endif
+
+  //
+  // PASSWORD_FEATURE
+  //
+  #if ENABLED(PASSWORD_FEATURE)
+    bool password_is_set;
+    uint32_t password_value;
   #endif
 
   //
@@ -465,7 +477,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, update_case_light());
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -614,7 +626,12 @@ void MarlinSettings::postprocess() {
         #endif
         EEPROM_WRITE(home_offset);
       #endif
+    }
 
+    //
+    // Hotend Offsets, if any
+    //
+    {
       #if HAS_HOTEND_OFFSET
         // Skip hotend 0 which must be 0
         LOOP_S_L_N(e, 1, HOTENDS)
@@ -1342,7 +1359,15 @@ void MarlinSettings::postprocess() {
     // Case Light Brightness
     //
     #if HAS_CASE_LIGHT_BRIGHTNESS
-      EEPROM_WRITE(case_light_brightness);
+      EEPROM_WRITE(caselight.brightness);
+    #endif
+
+    //
+    // Password feature
+    //
+    #if ENABLED(PASSWORD_FEATURE)
+      EEPROM_WRITE(password.is_set);
+      EEPROM_WRITE(password.value);
     #endif
 
     //
@@ -1500,6 +1525,8 @@ void MarlinSettings::postprocess() {
         #endif
         _FIELD_TEST(runout_sensor_enabled);
         EEPROM_READ(runout_sensor_enabled);
+
+        TERN_(HAS_FILAMENT_SENSOR, if (runout.enabled) runout.reset());
 
         float runout_distance_mm;
         EEPROM_READ(runout_distance_mm);
@@ -2181,8 +2208,17 @@ void MarlinSettings::postprocess() {
       // Case Light Brightness
       //
       #if HAS_CASE_LIGHT_BRIGHTNESS
-        _FIELD_TEST(case_light_brightness);
-        EEPROM_READ(case_light_brightness);
+        _FIELD_TEST(caselight_brightness);
+        EEPROM_READ(caselight.brightness);
+      #endif
+
+      //
+      // Password feature
+      //
+      #if ENABLED(PASSWORD_FEATURE)
+        _FIELD_TEST(password_is_set);
+        EEPROM_READ(password.is_set);
+        EEPROM_READ(password.value);
       #endif
 
       //
@@ -2493,7 +2529,7 @@ void MarlinSettings::reset() {
   //
   // Case Light Brightness
   //
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, case_light_brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // TOUCH_SCREEN_CALIBRATION
@@ -2517,8 +2553,7 @@ void MarlinSettings::reset() {
     #if HAS_PROBE_XY_OFFSET
       LOOP_XYZ(a) probe.offset[a] = dpo[a];
     #else
-      probe.offset.x = probe.offset.y = 0;
-      probe.offset.z = dpo[Z_AXIS];
+      probe.offset.set(0, 0, dpo[Z_AXIS]);
     #endif
   #endif
 
@@ -2666,7 +2701,7 @@ void MarlinSettings::reset() {
       #define PID_DEFAULT(N,E) DEFAULT_##N
     #endif
     HOTEND_LOOP() {
-      PID_PARAM(Kp, e) = float(PID_DEFAULT(Kp, ALIM(e, defKp)));
+      PID_PARAM(Kp, e) =      float(PID_DEFAULT(Kp, ALIM(e, defKp)));
       PID_PARAM(Ki, e) = scalePID_i(PID_DEFAULT(Ki, ALIM(e, defKi)));
       PID_PARAM(Kd, e) = scalePID_d(PID_DEFAULT(Kd, ALIM(e, defKd)));
       TERN_(PID_EXTRUSION_SCALING, PID_PARAM(Kc, e) = float(PID_DEFAULT(Kc, ALIM(e, defKc))));
@@ -2782,6 +2817,15 @@ void MarlinSettings::reset() {
       fc_settings[e].unload_length = FILAMENT_CHANGE_UNLOAD_LENGTH;
       fc_settings[e].load_length = FILAMENT_CHANGE_FAST_LOAD_LENGTH;
     }
+  #endif
+
+  #if ENABLED(PASSWORD_FEATURE)
+    #ifdef PASSWORD_DEFAULT_VALUE
+      password.is_set = true;
+      password.value = PASSWORD_DEFAULT_VALUE;
+    #else
+      password.is_set = false;
+    #endif
   #endif
 
   postprocess();

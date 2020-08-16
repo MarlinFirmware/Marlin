@@ -74,7 +74,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
-#if ENABLED(PCA9632_BUZZER) || USE_BEEPER
+#if EITHER(PCA9632_BUZZER, USE_BEEPER)
   #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
@@ -123,7 +123,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
-#include "../module/configuration_store.h"
+#include "../module/settings.h"
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
@@ -150,7 +150,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
   #if HAS_TOUCH_XPT2046
-    #include "../feature/touch/xpt2046.h"
+    #include "touch/xpt2046.h"
     bool MarlinUI::on_edit_screen = false;
   #endif
 #endif

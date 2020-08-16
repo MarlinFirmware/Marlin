@@ -591,16 +591,17 @@ void ST7920_Lite_Status_Screen::draw_fan_speed(const uint8_t value) {
   write_byte('%');
 }
 
-void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed) {
+void ST7920_Lite_Status_Screen::draw_print_time(const duration_t &elapsed, char suffix) {
   #if HOTENDS == 1
     set_ddram_address(DDRAM_LINE_3);
   #else
     set_ddram_address(DDRAM_LINE_3 + 5);
   #endif
   char str[7];
-  str[elapsed.toDigital(str)] = ' ';
+  int str_length = elapsed.toDigital(str);
+  str[str_length++] = suffix;
   begin_data();
-  write_str(str, 6);
+  write_str(str, str_length);
 }
 
 void ST7920_Lite_Status_Screen::draw_feedrate_percentage(const uint16_t percentage) {
@@ -714,6 +715,7 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
   if (forceUpdate || indicators_changed()) {
     const bool       blink             = ui.get_blink();
     const duration_t elapsed           = print_job_timer.duration();
+    duration_t       remaining         = TERN0(USE_M73_REMAINING_TIME, ui.get_remaining_time());
     const uint16_t   feedrate_perc     = feedrate_percentage;
     const int16_t    extruder_1_temp   = thermalManager.degHotend(0),
                      extruder_1_target = thermalManager.degTargetHotend(0);
@@ -738,7 +740,19 @@ void ST7920_Lite_Status_Screen::update_indicators(const bool forceUpdate) {
     #endif
 
     draw_fan_speed(thermalManager.fanPercent(spd));
-    draw_print_time(elapsed);
+
+    // Draw elapsed/remaining time
+    const bool show_remaining = ENABLED(SHOW_REMAINING_TIME) && (DISABLED(ROTATE_PROGRESS_DISPLAY) || blink);
+    if (show_remaining && !remaining.second()) {
+      const auto progress = ui.get_progress_percent();
+      if (progress)
+        remaining = elapsed.second() * (100 - progress) / progress;
+    }
+    if (show_remaining && remaining.second())
+      draw_print_time(remaining, 'R');
+    else
+      draw_print_time(elapsed);
+
     draw_feedrate_percentage(feedrate_perc);
 
     // Update the fan and bed animations
@@ -819,16 +833,8 @@ void ST7920_Lite_Status_Screen::update_status_or_position(bool forceUpdate) {
     }
 
     if (countdown == 0 && (forceUpdate || position_changed()
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        || blink_changed()
-      #endif
-    )) {
-      draw_position(current_position, true
-        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-          && all_axes_known()
-        #endif
-      );
-    }
+      || TERN(DISABLE_REDUCED_ACCURACY_WARNING, 0, blink_changed())
+    )) draw_position(current_position, TERN(DISABLE_REDUCED_ACCURACY_WARNING, 1, all_axes_known()));
   #endif
 }
 

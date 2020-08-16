@@ -21,15 +21,13 @@
  */
 
 #include "../gcode.h"
+
 #include "../../module/temperature.h"
-#include "../../module/stepper.h"
-#include "../../module/printcounter.h" // for print_job_timer
+#include "../../module/planner.h"       // for planner.finish_and_disable
+#include "../../module/printcounter.h"  // for print_job_timer.stop
+#include "../../lcd/ultralcd.h"         // for LCD_MESSAGEPGM_P
 
 #include "../../inc/MarlinConfig.h"
-
-#if HAS_LCD_MENU
-  #include "../../lcd/ultralcd.h"
-#endif
 
 #if HAS_SUICIDE
   #include "../../MarlinCore.h"
@@ -39,6 +37,8 @@
 
   #if ENABLED(AUTO_POWER_CONTROL)
     #include "../../feature/power.h"
+  #else
+    void restore_stepper_drivers();
   #endif
 
   // Could be moved to a feature, but this is all the data
@@ -108,7 +108,5 @@ void GcodeSuite::M81() {
     PSU_OFF();
   #endif
 
-  #if HAS_LCD_MENU
-    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
-  #endif
+  LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
 }

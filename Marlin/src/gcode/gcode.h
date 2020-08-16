@@ -225,6 +225,9 @@
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
+ * M510 - Lock Printer
+ * M511 - Unlock Printer
+ * M512 - Set/Change/Remove Password
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
@@ -276,6 +279,8 @@
  * ************ Custom codes - This can change to suit future G-code regulations
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M993 - Backup SPI Flash to SD
+ * M994 - Load a Backup from SD to SPI Flash
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
@@ -702,7 +707,7 @@ private:
     static void M351();
   #endif
 
-  TERN_(HAS_CASE_LIGHT, static void M355());
+  TERN_(CASE_LIGHT_ENABLE, static void M355());
 
   TERN_(REPETIER_GCODE_M360, static void M360());
 
@@ -757,6 +762,16 @@ private:
     static void M503();
   #endif
   TERN_(EEPROM_SETTINGS, static void M504());
+
+  #if ENABLED(PASSWORD_FEATURE)
+    static void M510();
+    #if ENABLED(PASSWORD_UNLOCK_GCODE)
+      static void M511();
+    #endif
+    #if ENABLED(PASSWORD_CHANGE_GCODE)
+      static void M512();
+    #endif
+  #endif
 
   TERN_(SDSUPPORT, static void M524());
 
@@ -845,7 +860,12 @@ private:
   TERN_(MAGNETIC_PARKING_EXTRUDER, static void M951());
 
   TERN_(TOUCH_SCREEN_CALIBRATION, static void M995());
-  
+
+  #if BOTH(HAS_SPI_FLASH, SDSUPPORT)
+    static void M993();
+    static void M994();
+  #endif
+
   TERN_(PLATFORM_M997_SUPPORT, static void M997());
 
   static void M999();

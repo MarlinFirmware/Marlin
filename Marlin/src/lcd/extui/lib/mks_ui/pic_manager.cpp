@@ -23,15 +23,16 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-
 #include "string.h"
-
 #include "pic_manager.h"
-#include "W25Qxx.h"
-#include "../../../../sd/cardreader.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
+
+#include "SPIFlashStorage.h"
+#include "../../../../libs/W25Qxx.h"
+
+#include "../../../../sd/cardreader.h"
+#include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
 extern unsigned char bmp_public_buf[17 * 1024];
@@ -205,10 +206,10 @@ static char assets[][LONG_FILENAME_LENGTH] = {
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][LONG_FILENAME_LENGTH] = {
-    "FontUNIGBK.bin",
-  };
+  static char fonts[][LONG_FILENAME_LENGTH] = { "FontUNIGBK.bin" };
 #endif
+
+static uint8_t currentFlashPage = 0;
 
 uint32_t lv_get_pic_addr(uint8_t *Pname) {
   uint8_t Pic_cnt;
@@ -216,6 +217,8 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   PIC_MSG PIC;
   uint32_t tmp_cnt = 0;
   uint32_t addr = 0;
+
+  currentFlashPage = 0;
 
   #if ENABLED(MARLIN_DEV_MODE)
     SERIAL_ECHOLNPAIR("Getting picture SPI Flash Address: ", (const char*)Pname);
@@ -371,6 +374,10 @@ uint8_t public_buf[512];
     return -1;
   }
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    static uint32_t totalSizes = 0, totalCompressed = 0;
+  #endif
+
   #define ASSET_TYPE_ICON       0
   #define ASSET_TYPE_LOGO       1
   #define ASSET_TYPE_TITLE_LOGO 2
@@ -398,43 +405,52 @@ uint8_t public_buf[512];
     pfileSize = file.fileSize();
     totalSizeLoaded += pfileSize;
     if (assetType == ASSET_TYPE_LOGO) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        default_view_Write(public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        default_view_Write(public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_ICON) {
       Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
-      while (1) {
-        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
-        Pic_Write_Addr += pbr;
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+      SPIFlash.beginWrite(Pic_Write_Addr);
+      #if HAS_SPI_FLASH_COMPRESSION
+        do {
+          pbr = file.read(public_buf, SPI_FLASH_PageSize);
+          TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
+          SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
+        } while (pbr >= SPI_FLASH_PageSize);
+      #else
+        do {
+          pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+          W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+          Pic_Write_Addr += pbr;
+        } while (pbr >= BMP_WRITE_BUF_LEN);
+      #endif
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
+        totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
+      #endif
+      SPIFlash.endWrite();
     }
     else if (assetType == ASSET_TYPE_FONT) {
       Pic_Write_Addr = UNIGBK_FLASH_ADDR;
-      while (1) {
+      do {
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
         Pic_Write_Addr += pbr;
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
 
     file.close();
@@ -459,14 +475,14 @@ uint8_t public_buf[512];
       disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
-        // if we dont get a long name, but gets a short one, try it
+        // If we dont get a long name, but gets a short one, try it
         if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
         if (card.longFilename[0] == 0) continue;
         if (card.longFilename[0] == '.') continue;
 
-        uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
-        if (a >= 0 && a < COUNT(assets)) {
+        int8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
+        if (a >= 0 && a < (int8_t)COUNT(assets)) {
           uint8_t assetType = ASSET_TYPE_ICON;
           if (strstr(assets[a], "_logo"))
             assetType = ASSET_TYPE_LOGO;
@@ -482,9 +498,8 @@ uint8_t public_buf[512];
 
         #if HAS_SPI_FLASH_FONT
           a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
-          if (a >= 0 && a < COUNT(fonts)) {
+          if (a >= 0 && a < (int8_t)COUNT(fonts))
             loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
-          }
         #endif
       }
       dir.rename(&root, bakPath);
@@ -495,12 +510,13 @@ uint8_t public_buf[512];
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
       SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
+      SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
     #endif
   }
 
   #if HAS_SPI_FLASH_FONT
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
-  #endif // HAS_SPI_FLASH_FONT
+  #endif
 
 #endif // SDSUPPORT
 
@@ -531,8 +547,15 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
 }
 
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
-  W25QXX.init(SPI_QUARTER_SPEED);
-  W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
+  #if HAS_SPI_FLASH_COMPRESSION
+    if (currentFlashPage == 0)
+      SPIFlash.beginRead(addr);
+    SPIFlash.readData(P_Rbuff, size);
+    currentFlashPage++;
+  #else
+    W25QXX.init(SPI_QUARTER_SPEED);
+    W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
+  #endif
 }
 
 #if HAS_SPI_FLASH_FONT

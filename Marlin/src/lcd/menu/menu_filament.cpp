@@ -87,7 +87,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
   _change_filament_extruder = extruder;
   START_MENU();
-  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
+  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if PREHEAT_COUNT
     LOOP_L_N(m, PREHEAT_COUNT)
@@ -266,7 +266,7 @@ void _lcd_pause_message(PGM_P const msg) {
              skip1 = !has2 && (LCD_HEIGHT) >= 5;
 
   START_SCREEN();
-  STATIC_ITEM_P(pause_header(), SS_CENTER|SS_INVERT);           // 1: Header
+  STATIC_ITEM_P(pause_header(), SS_DEFAULT|SS_INVERT);          // 1: Header
   if (skip1) SKIP_ITEM();                                       // Move a single-line message down
   STATIC_ITEM_P(msg1);                                          // 2: Message Line 1
   if (has2) STATIC_ITEM_P(msg2);                                // 3: Message Line 2
