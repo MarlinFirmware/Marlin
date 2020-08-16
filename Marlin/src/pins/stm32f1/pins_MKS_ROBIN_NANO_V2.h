@@ -243,8 +243,10 @@
  * to let the bootloader init the screen.
  */
 
-// Shared SPI TFT Configs
 #if HAS_SPI_TFT
+
+  // Shared SPI TFT
+
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #define TOUCH_CS_PIN                      PE14  // SPI1_NSS
@@ -282,16 +284,19 @@
 
 #endif
 
-// LVGL Configs
 #if ENABLED(TFT_LVGL_UI_SPI)
+
+  // LVGL
 
   #define XPT2046_X_CALIBRATION           -17253
   #define XPT2046_Y_CALIBRATION            11579
   #define XPT2046_X_OFFSET                   514
   #define XPT2046_Y_OFFSET                   -24
 
-// Emulated DOGM SPI
 #elif ENABLED(SPI_GRAPHICAL_TFT)
+
+  // Emulated DOGM SPI
+
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          -5481
   #endif
@@ -330,8 +335,9 @@
 
 #endif
 
-// NON TFT Displays
 #if HAS_SPI_LCD && !HAS_SPI_TFT
+
+  // NON TFT Displays
 
   #if ENABLED(MKS_MINI_12864)
 
@@ -370,7 +376,7 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD
+#endif // HAS_SPI_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
 #define SPI_FLASH_SIZE                 0x1000000  // 16MB
