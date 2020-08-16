@@ -27,6 +27,8 @@
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 XPT2046 touchIO;
 
+#include "../../lcd/ultralcd.h" // For EN_C bit mask
+
 /**
  * Draw and Touch processing
  *
@@ -47,36 +49,29 @@ XPT2046 touchIO;
  *  fixed location in TOUCH_SCREEN* coordinate space) is used for 4 general-purpose buttons to
  *  navigate and select menu items. Both regions are touchable.
  *
- * The Marlin screen touchable area starts at LCD_PIXEL_OFFSET_X/Y (translated to SCREEN_START_LEFT/TOP)
- * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_WIDTH/HEIGHT).
+ * The Marlin screen touchable area starts at LCD_PIXEL_OFFSET_X/Y (translated to SCREEN_PCT_LEFT/TOP)
+ * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_PCT_WIDTH/HEIGHT).
  */
-
-// Coordinates in terms of touch area
-#define BUTTON_AREA_TOP 175
-#define BUTTON_AREA_BOT 234
 
 // Touch sensor resolution independent of display resolution
 #define TOUCH_SENSOR_WIDTH  320
 #define TOUCH_SENSOR_HEIGHT 240
 
-#define SCREEN_WIDTH_PCT(X) ((X) * (TOUCH_SENSOR_WIDTH) / (TFT_WIDTH))
-#define SCREEN_HEIGHT_PCT(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (TFT_HEIGHT))
+#define SCREEN_PCT_WIDE(X) ((X) * (TOUCH_SENSOR_WIDTH)  / (TFT_WIDTH))
+#define SCREEN_PCT_HIGH(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (TFT_HEIGHT))
 
-#define SCREEN_START_LEFT SCREEN_WIDTH_PCT(LCD_PIXEL_OFFSET_X)
-#define SCREEN_START_TOP  SCREEN_HEIGHT_PCT(LCD_PIXEL_OFFSET_Y)
-#define SCREEN_WIDTH      SCREEN_WIDTH_PCT((LCD_PIXEL_WIDTH) * (FSMC_UPSCALE))
-#define SCREEN_HEIGHT     SCREEN_HEIGHT_PCT((LCD_PIXEL_HEIGHT) * (FSMC_UPSCALE))
+#define SCREEN_PCT_LEFT   SCREEN_PCT_WIDE(LCD_PIXEL_OFFSET_X)
+#define SCREEN_PCT_TOP    SCREEN_PCT_HIGH(LCD_PIXEL_OFFSET_Y)
+#define SCREEN_PCT_WIDTH  SCREEN_PCT_WIDE((FSMC_UPSCALE) * (LCD_PIXEL_WIDTH))
+#define SCREEN_PCT_HEIGHT SCREEN_PCT_HIGH((FSMC_UPSCALE) * (LCD_PIXEL_HEIGHT))
 
-#define TOUCHABLE_X_WIDTH  SCREEN_WIDTH
-#define TOUCHABLE_Y_HEIGHT SCREEN_HEIGHT
+// Coordinates in terms of 240-unit-tall touch area
+#define BUTTON_AREA_TOP 175
+#define BUTTON_AREA_BOT 234
 
 TouchButtons touch;
 
-void TouchButtons::init() {
-  touchIO.Init();
-}
-
-#include "../../lcd/ultralcd.h" // For EN_C bit mask
+void TouchButtons::init() { touchIO.Init(); }
 
 uint8_t TouchButtons::read_buttons() {
   #ifdef HAS_SPI_LCD
@@ -84,8 +79,8 @@ uint8_t TouchButtons::read_buttons() {
 
     if (!touchIO.getRawPoint(&x, &y)) return 0;
 
-    x = uint16_t(((uint32_t(x)) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-    y = uint16_t(((uint32_t(y)) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
+    x = uint16_t((uint32_t(x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
+    y = uint16_t((uint32_t(y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
 
     #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
       x = TOUCH_SENSOR_WIDTH - x;
@@ -100,13 +95,13 @@ uint8_t TouchButtons::read_buttons() {
            : WITHIN(x, 242, 305) ? EN_C
            : 0;
 
-    if ( !WITHIN(x, SCREEN_START_LEFT, SCREEN_START_LEFT + SCREEN_WIDTH)
-      || !WITHIN(y, SCREEN_START_TOP, SCREEN_START_TOP + SCREEN_HEIGHT)
+    if ( !WITHIN(x, SCREEN_PCT_LEFT, SCREEN_PCT_LEFT + SCREEN_PCT_WIDTH)
+      || !WITHIN(y, SCREEN_PCT_TOP,  SCREEN_PCT_TOP  + SCREEN_PCT_HEIGHT)
     ) return 0;
 
     // Column and row above BUTTON_AREA_TOP
-    int8_t col = (x - (SCREEN_START_LEFT)) * (LCD_WIDTH) / (TOUCHABLE_X_WIDTH),
-           row = (y - (SCREEN_START_TOP)) * (LCD_HEIGHT) / (TOUCHABLE_Y_HEIGHT);
+    int8_t col = (x - (SCREEN_PCT_LEFT)) * (LCD_WIDTH)  / (SCREEN_PCT_WIDTH),
+           row = (y - (SCREEN_PCT_TOP))  * (LCD_HEIGHT) / (SCREEN_PCT_HEIGHT);
 
     // Send the touch to the UI (which will simulate the encoder wheel)
     MarlinUI::screen_click(row, col, x, y);

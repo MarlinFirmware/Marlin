@@ -687,7 +687,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       // Clear Screen
       setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
       #if HAS_LCD_IO
-        tftio.WriteMultiple(TFT_MARLINBG_COLOR, (uint32_t) (TFT_WIDTH) * (TFT_HEIGHT));
+        tftio.WriteMultiple(TFT_MARLINBG_COLOR, uint32_t(TFT_WIDTH) * (TFT_HEIGHT));
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
         for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(FSMC_UPSCALE); i++)
