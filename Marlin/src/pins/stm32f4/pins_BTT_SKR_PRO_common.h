@@ -256,6 +256,7 @@
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
+  #define SD_DETECT_PIN                     PB11
 #endif
 
 /**
@@ -303,9 +304,10 @@
 
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
-    #define SD_DETECT_PIN                   PF12
-
-    #define LCD_SDSS                        PB12
+    #if SD_CONNECTION_IS(LCD)
+      #define SD_DETECT_PIN                 PF12
+      #define LCD_SDSS                      PB12
+    #endif
 
     #define LCD_PINS_ENABLE                 PD11
     #define LCD_PINS_D4                     PG2
