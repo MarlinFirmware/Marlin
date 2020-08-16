@@ -202,8 +202,8 @@
   #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
-  #ifndef FSMC_UPSCALE
-    #define FSMC_UPSCALE                       3
+  #ifndef GRAPHICAL_TFT_UPSCALE
+    #define GRAPHICAL_TFT_UPSCALE                       3
   #endif
   #ifndef TFT_WIDTH
     #define TFT_WIDTH                        480

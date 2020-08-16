@@ -81,7 +81,7 @@ TFT_IO tftio;
 
 #include "../scaled_tft.h"
 
-#define UPSCALE0(M) ((M) * (FSMC_UPSCALE))
+#define UPSCALE0(M) ((M) * (GRAPHICAL_TFT_UPSCALE))
 #define UPSCALE(A,M) (UPSCALE0(M) + (A))
 #define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
 #define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
@@ -591,7 +591,7 @@ static const uint16_t st7796_init[] = {
   #define BUTTON_Y_HI (UPSCALE(BUTTON_Y_LO, BUTTON_SIZE_Y) - 1)
 
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
-    uint16_t buffer[BUTTON_SIZE_X * sq(FSMC_UPSCALE)];
+    uint16_t buffer[BUTTON_SIZE_X * sq(GRAPHICAL_TFT_UPSCALE)];
 
     if (length > BUTTON_SIZE_X) return;
 
@@ -603,16 +603,16 @@ static const uint16_t st7796_init[] = {
           v = color;
         else
           v = TFT_MARLINBG_COLOR;
-        LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = v;
+        LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = v;
       }
       #if HAS_LCD_IO
-        LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+        LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
           for (uint16_t l = 0; l < UPSCALE0(length); l++)
             buffer[l + n * UPSCALE0(length)] = buffer[l];
 
-        tftio.WriteSequence(buffer, length * sq(FSMC_UPSCALE));
+        tftio.WriteSequence(buffer, length * sq(GRAPHICAL_TFT_UPSCALE));
       #else
-        for (uint8_t i = FSMC_UPSCALE; i--;)
+        for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;)
           u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
       #endif
     }
@@ -633,10 +633,10 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
   #if HAS_LCD_IO
-    static uint16_t bufferA[WIDTH * sq(FSMC_UPSCALE)], bufferB[WIDTH * sq(FSMC_UPSCALE)];
+    static uint16_t bufferA[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)], bufferB[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)];
     uint16_t* buffer = &bufferA[0];
   #else
-    uint16_t buffer[WIDTH * FSMC_UPSCALE]; // 16-bit RGB 565 pixel line buffer
+    uint16_t buffer[WIDTH * GRAPHICAL_TFT_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
 
   switch (msg) {
@@ -690,7 +690,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         tftio.WriteMultiple(TFT_MARLINBG_COLOR, uint32_t(TFT_WIDTH) * (TFT_HEIGHT));
       #else
         memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
-        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(FSMC_UPSCALE); i++)
+        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
           u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
       #endif
 
@@ -729,18 +729,18 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
-          LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = c;
+          LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = c;
         }
         #if HAS_LCD_IO
-          LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+          LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
             for (uint16_t l = 0; l < UPSCALE0(WIDTH); l++)
               buffer[l + n * UPSCALE0(WIDTH)] = buffer[l];
 
           tftio.WriteSequence(buffer, COUNT(bufferA));
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
-          for (uint8_t i = FSMC_UPSCALE; i--;) {
-            LOOP_S_L_N(n, 0, FSMC_UPSCALE * 2) {
+          for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
+            LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);
             }
           }

@@ -310,8 +310,8 @@
     #define XPT2046_Y_OFFSET                   0
   #endif
 
-  #ifndef FSMC_UPSCALE
-    #define FSMC_UPSCALE                       3
+  #ifndef GRAPHICAL_TFT_UPSCALE
+    #define GRAPHICAL_TFT_UPSCALE                       3
   #endif
   #ifndef TFT_PIXEL_OFFSET_Y
     #define TFT_PIXEL_OFFSET_Y                32

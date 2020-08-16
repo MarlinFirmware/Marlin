@@ -23,19 +23,19 @@
 
 #include "../inc/MarlinConfig.h"
 
-#ifndef FSMC_UPSCALE
-  #define FSMC_UPSCALE 2
+#ifndef GRAPHICAL_TFT_UPSCALE
+  #define GRAPHICAL_TFT_UPSCALE 2
 #endif
 
 #ifndef TFT_WIDTH
-  #if FSMC_UPSCALE == 3
+  #if GRAPHICAL_TFT_UPSCALE == 3
     #define TFT_WIDTH 480
   #else
     #define TFT_WIDTH 320
   #endif
 #endif
 #ifndef TFT_HEIGHT
-  #if FSMC_UPSCALE == 3
+  #if GRAPHICAL_TFT_UPSCALE == 3
     #define TFT_HEIGHT 320
   #else
     #define TFT_HEIGHT 240

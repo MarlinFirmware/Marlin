@@ -519,6 +519,8 @@
   #error "LCD_FULL_PIXEL_HEIGHT is deprecated and should be removed. Please update your Configuration.h."
 #elif defined(LCD_FULL_PIXEL_WIDTH)
   #error "LCD_FULL_PIXEL_WIDTH is deprecated and should be removed. Please update your Configuration.h."
+#elif defined(FSMC_UPSCALE)
+  #error "FSMC_UPSCALE is now GRAPHICAL_TFT_UPSCALE. Please update your Configuration.h."
 #elif defined(ANYCUBIC_TFT_MODEL)
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
