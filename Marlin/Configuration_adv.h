@@ -1629,17 +1629,18 @@
   //#define PROBE_PT_3_Y 20
 #endif
 
-
-/** 
- * Add a menu to adjust the z probe offset, after homing the offset will be set to
- * PROBE_OFFSE_START then the user can move the nozzle to required position and
+/**
+ * Add a menu item to calibrate the Probe Z Offset:
+ *   - Home
+ * PROBE_OFFSET_START then the user can move the nozzle to required position and
  * the offset will be calculated, which can then be stored.
- */ 
-#if ENABLED(HAS_BED_PROBE)
+ */
+#if HAS_BED_PROBE
   #define PROBE_OFFSET_MENU
-  // #define PROBE_OFFSET_START -4.0
-#endif 
-
+  #if ENABLED(PROBE_OFFSET_MENU)
+    //#define PROBE_OFFSET_START -4.0
+  #endif
+#endif
 
 /**
  * Probing Margins
