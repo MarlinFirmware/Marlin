@@ -208,14 +208,14 @@
   #ifndef TFT_WIDTH
     #define TFT_WIDTH                        480
   #endif
-  #ifndef LCD_PIXEL_OFFSET_X
-    #define LCD_PIXEL_OFFSET_X                48
+  #ifndef TFT_PIXEL_OFFSET_X
+    #define TFT_PIXEL_OFFSET_X                48
   #endif
   #ifndef TFT_HEIGHT
     #define TFT_HEIGHT                       320
   #endif
-  #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y                32
+  #ifndef TFT_PIXEL_OFFSET_Y
+    #define TFT_PIXEL_OFFSET_Y                32
   #endif
 
 #elif ENABLED(TFT_480x320)

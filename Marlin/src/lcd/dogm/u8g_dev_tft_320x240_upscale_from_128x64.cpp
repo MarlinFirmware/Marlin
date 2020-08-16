@@ -83,8 +83,8 @@ TFT_IO tftio;
 
 #define UPSCALE0(M) ((M) * (FSMC_UPSCALE))
 #define UPSCALE(A,M) (UPSCALE0(M) + (A))
-#define X_HI (UPSCALE(LCD_PIXEL_OFFSET_X, WIDTH) - 1)
-#define Y_HI (UPSCALE(LCD_PIXEL_OFFSET_Y, HEIGHT) - 1)
+#define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
+#define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
@@ -715,7 +715,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
-      setWindow(u8g, dev, LCD_PIXEL_OFFSET_X, LCD_PIXEL_OFFSET_Y, X_HI, Y_HI);
+      setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT:

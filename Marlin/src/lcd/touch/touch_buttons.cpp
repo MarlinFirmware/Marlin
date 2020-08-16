@@ -49,7 +49,7 @@ XPT2046 touchIO;
  *  fixed location in TOUCH_SCREEN* coordinate space) is used for 4 general-purpose buttons to
  *  navigate and select menu items. Both regions are touchable.
  *
- * The Marlin screen touchable area starts at LCD_PIXEL_OFFSET_X/Y (translated to SCREEN_PCT_LEFT/TOP)
+ * The Marlin screen touchable area starts at TFT_PIXEL_OFFSET_X/Y (translated to SCREEN_PCT_LEFT/TOP)
  * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_PCT_WIDTH/HEIGHT).
  */
 
@@ -60,8 +60,8 @@ XPT2046 touchIO;
 #define SCREEN_PCT_WIDE(X) ((X) * (TOUCH_SENSOR_WIDTH)  / (TFT_WIDTH))
 #define SCREEN_PCT_HIGH(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (TFT_HEIGHT))
 
-#define SCREEN_PCT_LEFT   SCREEN_PCT_WIDE(LCD_PIXEL_OFFSET_X)
-#define SCREEN_PCT_TOP    SCREEN_PCT_HIGH(LCD_PIXEL_OFFSET_Y)
+#define SCREEN_PCT_LEFT   SCREEN_PCT_WIDE(TFT_PIXEL_OFFSET_X)
+#define SCREEN_PCT_TOP    SCREEN_PCT_HIGH(TFT_PIXEL_OFFSET_Y)
 #define SCREEN_PCT_WIDTH  SCREEN_PCT_WIDE((FSMC_UPSCALE) * (LCD_PIXEL_WIDTH))
 #define SCREEN_PCT_HEIGHT SCREEN_PCT_HIGH((FSMC_UPSCALE) * (LCD_PIXEL_HEIGHT))
 

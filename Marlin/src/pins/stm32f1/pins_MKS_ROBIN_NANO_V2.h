@@ -313,8 +313,8 @@
   #ifndef FSMC_UPSCALE
     #define FSMC_UPSCALE                       3
   #endif
-  #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y                32
+  #ifndef TFT_PIXEL_OFFSET_Y
+    #define TFT_PIXEL_OFFSET_Y                32
   #endif
 
   #define BTN_ENC                           PE13

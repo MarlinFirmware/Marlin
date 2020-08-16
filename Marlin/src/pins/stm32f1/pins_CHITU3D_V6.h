@@ -153,8 +153,8 @@
 
   #define TFT_WIDTH                          480
   #define TFT_HEIGHT                         320
-  #define LCD_PIXEL_OFFSET_X                  48
-  #define LCD_PIXEL_OFFSET_Y                  32
+  #define TFT_PIXEL_OFFSET_X                  48
+  #define TFT_PIXEL_OFFSET_Y                  32
 
 #endif
 

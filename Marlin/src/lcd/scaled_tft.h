@@ -42,9 +42,9 @@
   #endif
 #endif
 
-#ifndef LCD_PIXEL_OFFSET_X
-  #define LCD_PIXEL_OFFSET_X 48
+#ifndef TFT_PIXEL_OFFSET_X
+  #define TFT_PIXEL_OFFSET_X 48
 #endif
-#ifndef LCD_PIXEL_OFFSET_Y
-  #define LCD_PIXEL_OFFSET_Y 48
+#ifndef TFT_PIXEL_OFFSET_Y
+  #define TFT_PIXEL_OFFSET_Y 48
 #endif
