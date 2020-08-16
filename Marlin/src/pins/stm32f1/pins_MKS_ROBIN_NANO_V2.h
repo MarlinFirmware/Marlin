@@ -49,13 +49,13 @@
 
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM                              // EEPROM on I2C-0
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE 2
+//#define SPI_MODULE                           2
 #define ENABLE_SPI2
 
 //
@@ -164,7 +164,7 @@
   #define E1_SERIAL_RX_PIN                  PD8
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif // TMC2208 || TMC2209
 
 //
@@ -196,10 +196,10 @@
 #define PS_ON_PIN                           PA3   // PW_OFF
 
 //#define SUICIDE_PIN                       PB2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define SUICIDE_PIN_INVERTING false
+//#define SUICIDE_PIN_INVERTING            false
 
 //#define KILL_PIN                          PA2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define KILL_PIN_INVERTING true                 // Enable MKSPWC support ROBIN NANO v1.2 ONLY
+//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
 
@@ -207,7 +207,7 @@
 
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
-#define MT_DET_PIN_INVERTING false
+#define MT_DET_PIN_INVERTING               false
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN            MT_DET_1_PIN
@@ -226,7 +226,7 @@
 #endif
 
 #define SDIO_SUPPORT
-#define SDIO_CLOCK 4500000                        // 4.5 MHz
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
 #define ONBOARD_SD_CS_PIN                   PC11
 
@@ -256,28 +256,28 @@
   #define BTN_EN2                           PE11
   #define BTN_ENC                           PE13
 
-  #define TFT_CS_PIN                      PD11
-  #define TFT_SCK_PIN                     PA5
-  #define TFT_MISO_PIN                    PA6
-  #define TFT_MOSI_PIN                    PA7
-  #define TFT_DC_PIN                      PD10
-  #define TFT_RST_PIN                     PC6
-  #define TFT_A0_PIN                TFT_DC_PIN
+  #define TFT_CS_PIN                        PD11
+  #define TFT_SCK_PIN                       PA5
+  #define TFT_MISO_PIN                      PA6
+  #define TFT_MOSI_PIN                      PA7
+  #define TFT_DC_PIN                        PD10
+  #define TFT_RST_PIN                       PC6
+  #define TFT_A0_PIN                  TFT_DC_PIN
 
-  #define TFT_RESET_PIN                   PC6
-  #define TFT_BACKLIGHT_PIN               PD13
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
 
   #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
 
   #ifndef TFT_WIDTH
-    #define TFT_WIDTH            480
+    #define TFT_WIDTH                        480
   #endif
   #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT           320
+    #define TFT_HEIGHT                       320
   #endif
 
-  #define LCD_READ_ID                     0xD3
+  #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
 #endif
@@ -285,39 +285,39 @@
 // LVGL Configs
 #if ENABLED(TFT_LVGL_UI_SPI)
 
-  #define XPT2046_X_CALIBRATION         -17253
-  #define XPT2046_Y_CALIBRATION          11579
-  #define XPT2046_X_OFFSET                 514
-  #define XPT2046_Y_OFFSET                 -24
+  #define XPT2046_X_CALIBRATION           -17253
+  #define XPT2046_Y_CALIBRATION            11579
+  #define XPT2046_X_OFFSET                   514
+  #define XPT2046_Y_OFFSET                   -24
 
 // Emulated DOGM SPI
 #elif ENABLED(SPI_GRAPHICAL_TFT)
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION      -5481
+    #define XPT2046_X_CALIBRATION          -5481
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION       4000
+    #define XPT2046_Y_CALIBRATION           4000
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET             343
+    #define XPT2046_X_OFFSET                 343
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET               0
+    #define XPT2046_Y_OFFSET                   0
   #endif
 
   #ifndef FSMC_UPSCALE
-    #define FSMC_UPSCALE                     3
+    #define FSMC_UPSCALE                       3
   #endif
   #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y              32
+    #define LCD_PIXEL_OFFSET_Y                32
   #endif
 
-  #define BTN_ENC                         PE13
-  #define BTN_EN1                         PE8
-  #define BTN_EN2                         PE11
+  #define BTN_ENC                           PE13
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
 
-  #define LCD_PINS_ENABLE                 PD13
-  #define LCD_PINS_RS                     PC6
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
 
 #elif ENABLED(TFT_480x320_SPI)
     #define XPT2046_X_CALIBRATION         -17253
@@ -372,8 +372,8 @@
 
 #endif // HAS_SPI_LCD
 
-#define HAS_SPI_FLASH                       1
-#define SPI_FLASH_SIZE                      0x1000000 // 16MB
+#define HAS_SPI_FLASH                          1
+#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15

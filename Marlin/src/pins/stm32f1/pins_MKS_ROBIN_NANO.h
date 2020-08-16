@@ -127,10 +127,10 @@
 #define PS_ON_PIN                           PA3   // PW_OFF
 
 //#define SUICIDE_PIN                       PB2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define SUICIDE_PIN_INVERTING false
+//#define SUICIDE_PIN_INVERTING            false
 
 //#define KILL_PIN                          PA2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define KILL_PIN_INVERTING true                 // Enable MKSPWC support ROBIN NANO v1.2 ONLY
+//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support ROBIN NANO v1.2 ONLY
 
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
 
@@ -138,7 +138,7 @@
 
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_2_PIN                        PE6
-#define MT_DET_PIN_INVERTING false
+#define MT_DET_PIN_INVERTING               false
 
 #define WIFI_IO0_PIN                        PC13
 
@@ -150,7 +150,7 @@
 #endif
 
 #define SDIO_SUPPORT
-#define SDIO_CLOCK 4500000                        // 4.5 MHz
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
 #define ONBOARD_SD_CS_PIN                   PC11
 
@@ -203,19 +203,19 @@
   #define DOGLCD_SCK                        -1
 
   #ifndef FSMC_UPSCALE
-    #define FSMC_UPSCALE                    3
+    #define FSMC_UPSCALE                       3
   #endif
   #ifndef TFT_WIDTH
-    #define TFT_WIDTH            480
+    #define TFT_WIDTH                        480
   #endif
   #ifndef LCD_PIXEL_OFFSET_X
-    #define LCD_PIXEL_OFFSET_X              48
+    #define LCD_PIXEL_OFFSET_X                48
   #endif
   #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT           320
+    #define TFT_HEIGHT                       320
   #endif
   #ifndef LCD_PIXEL_OFFSET_Y
-    #define LCD_PIXEL_OFFSET_Y              32
+    #define LCD_PIXEL_OFFSET_Y                32
   #endif
 
 #elif ENABLED(TFT_480x320)
@@ -224,13 +224,13 @@
   #define XPT2046_X_OFFSET                   -45
   #define XPT2046_Y_OFFSET                   349
 
-  #define TFT_DRIVER                        ILI9488
-  #define TFT_BUFFER_SIZE                   14400
+  #define TFT_DRIVER                     ILI9488
+  #define TFT_BUFFER_SIZE                  14400
   #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
 #endif
 
-#define HAS_SPI_FLASH                       1
-#define SPI_FLASH_SIZE                      0x1000000 // 16MB
+#define HAS_SPI_FLASH                          1
+#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15

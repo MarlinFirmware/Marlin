@@ -48,7 +48,7 @@
   #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB, but will use 2x more (4KB)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
 #else
-  #define MARLIN_EEPROM_SIZE 0x800U               // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif
 
 //
@@ -96,7 +96,7 @@
 //
 #define HEATER_0_PIN                        PG12  // HEATER1
 #define HEATER_BED_PIN                      PG11  // HOT BED
-//#define HEATER_BED_INVERTING true
+//#define HEATER_BED_INVERTING              true
 
 //
 // Fans
@@ -120,8 +120,8 @@
 #endif
 
 // SPI Flash
-#define SPI_FLASH_SIZE                      0x200000  // 2MB
-#define HAS_SPI_FLASH                       1
+#define SPI_FLASH_SIZE                  0x200000  // 2MB
+#define HAS_SPI_FLASH                          1
 
 // SPI 2
 #define W25QXX_CS_PIN                       PB12
@@ -151,22 +151,22 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_WIDTH              480
-  #define TFT_HEIGHT             320
-  #define LCD_PIXEL_OFFSET_X                48
-  #define LCD_PIXEL_OFFSET_Y                32
+  #define TFT_WIDTH                          480
+  #define TFT_HEIGHT                         320
+  #define LCD_PIXEL_OFFSET_X                  48
+  #define LCD_PIXEL_OFFSET_Y                  32
 
 #endif
 
 // LVGL Configs
 #if HAS_TFT_LVGL_UI
 
-  #define HAS_SPI_FLASH_FONT                1
-  #define HAS_GCODE_PREVIEW                 1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH   0
-  #define HAS_LANG_SELECT_SCREEN            1
-  #define HAS_BAK_VIEW_IN_FLASH             0
-  #define HAS_LOGO_IN_FLASH                 0
+  #define HAS_SPI_FLASH_FONT                   1
+  #define HAS_GCODE_PREVIEW                    1
+  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH      0
+  #define HAS_LANG_SELECT_SCREEN               1
+  #define HAS_BAK_VIEW_IN_FLASH                0
+  #define HAS_LOGO_IN_FLASH                    0
 
   #define XPT2046_X_CALIBRATION           -17181
   #define XPT2046_Y_CALIBRATION            11434
@@ -186,19 +186,19 @@
 
 // Emulated DOGM
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
-  #define FSMC_UPSCALE 3
+  #define FSMC_UPSCALE                         3
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION       -12316
+    #define XPT2046_X_CALIBRATION         -12316
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION         8981
+    #define XPT2046_Y_CALIBRATION           8981
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET               340
+    #define XPT2046_X_OFFSET                 340
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET               -20
+    #define XPT2046_Y_OFFSET                 -20
   #endif
 
 #endif
@@ -216,5 +216,5 @@
 //
 #define SDIO_SUPPORT
 #define SD_DETECT_PIN                       -1    // PF0, but it isn't connected
-#define SDIO_CLOCK 4500000
-#define SDIO_READ_RETRIES 16
+#define SDIO_CLOCK                       4500000
+#define SDIO_READ_RETRIES                     16
