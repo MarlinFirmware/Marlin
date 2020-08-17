@@ -78,6 +78,7 @@ jobs:
         - mks_robin_pro
         - STM32F103RET6_creality
         - LERDGEX
+        - mks_robin_nano35
 
         # Put lengthy tests last
 
@@ -94,7 +95,6 @@ jobs:
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
-        #- mks_robin_nano
 
     steps:
 
@@ -106,7 +106,7 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+        pip install -U https://github.com/platformio/platformio-core/archive/master.zip
         platformio update
 
     - name: Check out the PR

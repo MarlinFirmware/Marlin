@@ -27,7 +27,6 @@
   #include "SPI_TFT.h"
 #endif
 
-#include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
 
 #include "pic_manager.h"
@@ -50,6 +49,7 @@
   #include "../../../../feature/pause.h"
 #endif
 
+W25QXXFlash W25QXX;
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
@@ -500,14 +500,9 @@ char *creat_title_text() {
           }
         }
 
-        //SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
-
         card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
         #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          //SPI_TFT.SetCursor(0,0);
           SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-          SPI_TFT.LCD_WriteRAM_Prepare();
         #else
           ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
           LCD_WriteRAM_Prepare();
@@ -525,19 +520,11 @@ char *creat_title_text() {
           if (j >= 400) break;
         }
         #if ENABLED(TFT_LVGL_UI_SPI)
-          uint16_t Color, SpiColor;
-          SpiColor = (LV_COLOR_BACKGROUND.full >> 8) | ((LV_COLOR_BACKGROUND.full & 0xFF) << 8);
-          for (i = 0; i < 400;) {
+          for (i = 0; i < 400; i += 2) {
             p_index  = (uint16_t *)(&bmp_public_buf[i]);
-            Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xFF) << 8);
-            i       += 2;
-            if (*p_index == 0x0000) *p_index = SpiColor;
+            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
           }
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
-          SPI.dmaSend(bmp_public_buf, 400, true);
-          SPI_TFT_CS_H;
+          SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
         #else
           for (i = 0; i < 400;) {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
@@ -627,10 +614,7 @@ char *creat_title_text() {
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
         #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          //SPI_TFT.SetCursor(0,0);
           SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-          SPI_TFT.LCD_WriteRAM_Prepare();
         #else
           ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
           LCD_WriteRAM_Prepare();
@@ -750,9 +734,6 @@ char *creat_title_text() {
   void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
     int index;
     int y_off = 0;
-    int _y;
-    uint16_t *p_index;
-    int i;
 
     for (index = 0; index < 10; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
@@ -761,58 +742,24 @@ char *creat_title_text() {
         }
         else {
           default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-          #if ENABLED(TFT_LVGL_UI_SPI)
-            uint16_t Color;
-            for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
-              p_index = (uint16_t *)(&bmp_public_buf[i]);
-              Color = (*p_index >> 8);
-              *p_index = Color | ((*p_index & 0xff) << 8);
-              i += 2;
-            }
-          #endif
         }
       #else
         default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-            Color = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xff) << 8);
-            i += 2;
-          }
-        #endif
       #endif
 
-      i = 0;
       #if ENABLED(TFT_LVGL_UI_SPI)
-
-        //SPI_TFT.spi_init(SPI_FULL_SPEED);
-        //SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel, 200,20);     //200*200
-        //SPI_TFT.LCD_WriteRAM_Prepare();
-        int j = 0;
-        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel + j, 200, 1); // 200*200
-          SPI_TFT.LCD_WriteRAM_Prepare();
-
-          j++;
-          //memcpy(public_buf,&bmp_public_buf[i],400);
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
-          SPI.dmaSend(&bmp_public_buf[i], 400, true);
-          SPI_TFT_CS_H;
-
-          i += 400;
-          if (i >= 8000) break;
-        }
+        SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+        SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
       #else
         int x_off = 0;
         uint16_t temp_p;
+        int i = 0;
+        uint16_t *p_index;
         ili9320_SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
 
         LCD_WriteRAM_Prepare();
 
-        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
+        for (int _y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
           for (x_off = 0; x_off < 200; x_off++) {
             if (sel == 1) {
               temp_p  = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);

@@ -304,7 +304,7 @@ namespace ExtUI {
     return epos;
   }
 
-  void setAxisPosition_mm(const float position, const axis_t axis) {
+  void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
     // Start with no limits to movement
     float min = current_position[axis] - 1000,
           max = current_position[axis] + 1000;
@@ -337,14 +337,14 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(manual_feedrate_mm_s[axis]);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
-  void setAxisPosition_mm(const float position, const extruder_t extruder) {
+  void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(manual_feedrate_mm_s.e);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
@@ -548,7 +548,7 @@ namespace ExtUI {
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
-    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
+    planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -557,7 +557,7 @@ namespace ExtUI {
 
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
     UNUSED_E(extruder);
-    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(extruder - E0)];
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
@@ -599,18 +599,18 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if HAS_CASE_LIGHT
-    bool getCaseLightState()                 { return case_light_on; }
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool getCaseLightState()                 { return caselight.on; }
     void setCaseLightState(const bool value) {
-      case_light_on = value;
-      update_case_light();
+      caselight.on = value;
+      caselight.update_enabled();
     }
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
+      float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const float value) {
-         case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
-         update_case_light();
+         caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         caselight.update_brightness();
       }
     #endif
   #endif

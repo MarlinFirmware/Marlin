@@ -83,7 +83,7 @@ class MenuItemBase {
 
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const valstr=nullptr);
+    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
 // CONFIRM_ITEM(LABEL,Y,N,FY,FN,V...),
@@ -418,16 +418,17 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define _MENU_ITEM_P(TYPE, V...) do { \
-  _skipStatic = false;                \
-  if (_menuLineNr == _thisItemNr)     \
+  if (_menuLineNr == _thisItemNr) {   \
+    _skipStatic = false;              \
     _MENU_INNER_P(TYPE, ##V);         \
+  }                                   \
   NEXT_ITEM();                        \
 }while(0)
 
 // Indexed items set a global index value and optional data
 #define _MENU_ITEM_N_S_P(TYPE, N, S, V...) do{ \
-  _skipStatic = false;                         \
   if (_menuLineNr == _thisItemNr) {            \
+    _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
     _MENU_INNER_P(TYPE, ##V);                  \
   }                                            \
@@ -436,8 +437,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Indexed items set a global index value
 #define _MENU_ITEM_N_P(TYPE, N, V...) do{ \
-  _skipStatic = false;                    \
   if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
     MenuItemBase::itemIndex = N;          \
     _MENU_INNER_P(TYPE, ##V);             \
   }                                       \
@@ -446,8 +447,8 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Items with a unique string
 #define _MENU_ITEM_S_P(TYPE, S, V...) do{ \
-  _skipStatic = false;                    \
   if (_menuLineNr == _thisItemNr) {       \
+    _skipStatic = false;                  \
     MenuItemBase::itemString = S;         \
     _MENU_INNER_P(TYPE, ##V);             \
   }                                       \
@@ -550,16 +551,17 @@ class MenuItem_bool : public MenuEditItemBase {
 
 // Indexed items set a global index value and optional data
 #define _CONFIRM_ITEM_P(PLABEL, V...) do { \
-  _skipStatic = false;                     \
-  if (_menuLineNr == _thisItemNr)          \
+  if (_menuLineNr == _thisItemNr) {        \
+    _skipStatic = false;                   \
     _CONFIRM_ITEM_INNER_P(PLABEL, ##V);    \
+  }                                        \
   NEXT_ITEM();                             \
 }while(0)
 
 // Indexed items set a global index value
 #define _CONFIRM_ITEM_N_S_P(N, S, V...) do{ \
-  _skipStatic = false;                      \
   if (_menuLineNr == _thisItemNr) {         \
+    _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
     _CONFIRM_ITEM_INNER_P(TYPE, ##V);       \
   }                                         \

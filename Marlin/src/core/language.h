@@ -266,6 +266,13 @@
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_LEVELING                  "LEVELING"
 
+#define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
+#define STR_WRONG_PASSWORD                  "Incorrect Password"
+#define STR_PASSWORD_TOO_LONG               "Password too long"
+#define STR_PASSWORD_REMOVED                "Password removed"
+#define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
+#define STR_PASSWORD_SET                    "Password is "
+
 // LCD Menu Messages
 
 #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
@@ -346,7 +353,7 @@
  *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
-  #define LCD_FIRST_TOOL '0'
+  #define LCD_FIRST_TOOL 0
   #define LCD_STR_N0 "0"
   #define LCD_STR_N1 "1"
   #define LCD_STR_N2 "2"
@@ -356,7 +363,7 @@
   #define LCD_STR_N6 "6"
   #define LCD_STR_N7 "7"
 #else
-  #define LCD_FIRST_TOOL '1'
+  #define LCD_FIRST_TOOL 1
   #define LCD_STR_N0 "1"
   #define LCD_STR_N1 "2"
   #define LCD_STR_N2 "3"

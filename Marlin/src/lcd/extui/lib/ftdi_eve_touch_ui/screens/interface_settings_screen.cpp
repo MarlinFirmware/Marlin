@@ -29,7 +29,7 @@
 
 #include "../archim2-flash/flash_storage.h"
 
-#include "../../../../../module/configuration_store.h"
+#include "../../../../../module/settings.h"
 
 #if ENABLED(LULZBOT_PRINTCOUNTER)
   #include "../../../../../module/printcounter.h"
