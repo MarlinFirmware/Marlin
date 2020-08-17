@@ -221,6 +221,19 @@
     #define TFT_PIXEL_OFFSET_Y                32
   #endif
 
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          12149
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          -8746
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -35
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 256
+  #endif
+
 #elif ENABLED(TFT_480x320)
   #define XPT2046_X_CALIBRATION            17880
   #define XPT2046_Y_CALIBRATION           -12234
