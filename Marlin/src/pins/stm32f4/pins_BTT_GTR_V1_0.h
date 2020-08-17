@@ -281,23 +281,16 @@
 //#define FAN7_PIN                          PE14  // Fan7
 
 //
-// By default the onboard SD (SPI1) is enabled
+// Onboard SD card
+// Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#define CUSTOM_SPI_PINS
-#if DISABLED(CUSTOM_SPI_PINS)
-  #define SDSS                              PB12
-#endif
-
-// HAL SPI1 pins group
-#if ENABLED(CUSTOM_SPI_PINS)
+#if SD_CONNECTION_IS(ONBOARD)
+  #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
   #define SDSS                              PA4
-  #define SD_DETECT_PIN                     PC4
-  #define LCD_SDSS                          PA4
-
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PA7
-  #define SS_PIN                            PA4   // Chip select for SD card used by Marlin
+  #define SD_DETECT_PIN                     PC4
 #endif
 
 /**
@@ -317,6 +310,10 @@
 #if HAS_SPI_LCD
   #define BEEPER_PIN                        PC11
   #define BTN_ENC                           PA15
+
+  #if SD_CONNECTION_IS(LCD)
+    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
+  #endif
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -340,7 +337,7 @@
     #define BTN_EN1                         PD10
     #define BTN_EN2                         PH10
 
-    #if DISABLED(CUSTOM_SPI_PINS)
+    #if SD_CONNECTION_IS(LCD)
       #define SD_DETECT_PIN                 PB10
       #define LCD_SDSS                      PB12
     #endif
