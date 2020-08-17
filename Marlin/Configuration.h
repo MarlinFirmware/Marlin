@@ -62,6 +62,20 @@
 // For a Delta printer start with one of the configuration files in the
 // config/examples/delta directory and customize for your machine.
 //
+//-------Hardware--------
+//#define STOCK
+#define QQS
+//#define QQS_TMC
+//#define QQS_UART  //Remove module ESP12                 
+
+//-------OPTIONS--------
+//Many options for : 
+//#define AUTO_BED_LEVELING_BILINEAR
+#define AUTO_BED_LEVELING_UBL
+#define FILAMENT_RUNOUT_SENSOR
+#define LIN_ADVANCE
+//#define POWER_LOSS_RECOVERY
+//
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -70,20 +84,8 @@
 // config/examples/SCARA and customize for your machine.
 //
 
-//#define STOCK
-#define QQS
-//#define QQS_TMC
-//#define QQS_UART  //Remove module ESP12                 
-
-
-//Many options for : 
-//#define AUTO_BED_LEVELING_BILINEAR
-#define AUTO_BED_LEVELING_UBL
-#define FILAMENT_RUNOUT_SENSOR
-#define LIN_ADVANCE
-//#define POWER_LOSS_RECOVERY
-
 // @section info
+
 // Author info of this build printed to the host during boot and M115
 //#define STRING_CONFIG_H_AUTHOR "(AndersSahlman, QQ-S)" // Who made the changes.
 #define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
