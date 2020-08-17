@@ -298,16 +298,16 @@
   // Emulated DOGM SPI
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          -5481
+    #define XPT2046_X_CALIBRATION         -11386
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           4000
+    #define XPT2046_Y_CALIBRATION           8684
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 343
+    #define XPT2046_X_OFFSET                 339
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                   0
+    #define XPT2046_Y_OFFSET                 -18
   #endif
 
   #ifndef GRAPHICAL_TFT_UPSCALE
