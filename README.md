@@ -11,7 +11,7 @@ Additional documentation can be found at the [Marlin Home Page](https://marlinfw
 Please test this firmware and let us know if it misbehaves in any way. Volunteers are standing by!
 
 # Last release of Marlin 2.0 for Delta FLSun QQ-S Pro (motherboard HISPEED).
- Updated Marlin 2.0.5.4 for FLSun QQ-S.
+ Updated Marlin 2.0.6 for FLSun QQ-S.
 
 ## I am not responsible for any Damage done do your Printer by using this. Using anything else than stock firmware requieres quite some knowlege.
 
