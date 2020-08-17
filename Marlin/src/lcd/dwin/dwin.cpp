@@ -619,23 +619,26 @@ inline void Draw_Control_Menu() {
   }
   else {
     #ifdef USE_STRING_HEADINGS
-      Draw_Title(GET_TEXT_F(MSG_CONTROL));
+        Draw_Title(GET_TEXT_F(MSG_CONTROL));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)GET_TEXT_F(MSG_TEMPERATURE));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)GET_TEXT_F(MSG_MOTION));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_STORE_EEPROM));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_LOAD_EEPROM));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), (char*)GET_TEXT_F(MSG_RESTORE_DEFAULTS));
+        if (CVISI(6))
+            DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 5), (char*)"Info");
     #else
-      DWIN_Frame_AreaCopy(1, 128, 2, 271 - 95, 479 - 467, 14, 8);
+        DWIN_Frame_AreaCopy(1, 128, 2, 271 - 95, 479 - 467, 14, 8);
+        DWIN_Frame_AreaCopy(1,   1,    89, 271 - 188, 479 - 377 - 1, LBLX, CLINE(1));// Temperature >
+        DWIN_Frame_AreaCopy(1,  84,    89, 271 - 143, 479 - 380,   LBLX, CLINE(2));// Motion >
+        DWIN_Frame_AreaCopy(1, 131 + 17, 89, 271 -  3, 479 - 377 - 1, LBLX, CLINE(3));// "Store Configuration"
+        DWIN_Frame_AreaCopy(1, 26, 104, 271 - 214, 479 - 365, LBLX, CLINE(4));   // "Read"
+        DWIN_Frame_AreaCopy(1, 131 + 51, 89, 271 - 3, 479 - 377 - 1, LBLX + 31 + 3, CLINE(4)); // "Configuration"
+        DWIN_Frame_AreaCopy(1, 59, 104, 271 - 178, 479 - 365, LBLX, CLINE(5));   // "Reset"
+        DWIN_Frame_AreaCopy(1, 131 + 51, 89, 271 - 3, 479 - 377 - 1, LBLX + 34 + 3, CLINE(5)); // "Configuration"
+        if (CVISI(6))
+          DWIN_Frame_AreaCopy(1, 0, 104, 25, 115, LBLX, CLINE(6));               // Info >
     #endif
-
-    DWIN_Frame_AreaCopy(1,   1,    89, 271 - 188, 479 - 377 - 1, LBLX, CLINE(1));// Temperature >
-    DWIN_Frame_AreaCopy(1,  84,    89, 271 - 143, 479 - 380,   LBLX, CLINE(2));// Motion >
-    DWIN_Frame_AreaCopy(1, 131 + 17, 89, 271 -  3, 479 - 377 - 1, LBLX, CLINE(3));// "Store Configuration"
-
-    DWIN_Frame_AreaCopy(1, 26, 104, 271 - 214, 479 - 365, LBLX, CLINE(4));   // "Read"
-    DWIN_Frame_AreaCopy(1, 131 + 51, 89, 271 - 3, 479 - 377 - 1, LBLX + 31 + 3, CLINE(4)); // "Configuration"
-
-    DWIN_Frame_AreaCopy(1, 59, 104, 271 - 178, 479 - 365, LBLX, CLINE(5));   // "Reset"
-    DWIN_Frame_AreaCopy(1, 131 + 51, 89, 271 - 3, 479 - 377 - 1, LBLX + 34 + 3, CLINE(5)); // "Configuration"
-
-    if (CVISI(6))
-      DWIN_Frame_AreaCopy(1, 0, 104, 25, 115, LBLX, CLINE(6));               // Info >
   }
 
   if (select_control.now && CVISI(select_control.now))
