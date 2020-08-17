@@ -186,6 +186,9 @@
   #define FSMC_RS_PIN                       PD11
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE       2
 #endif
 
 // LVGL Configs
