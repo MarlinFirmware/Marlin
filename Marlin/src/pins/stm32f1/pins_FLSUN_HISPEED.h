@@ -49,16 +49,6 @@
 #endif
 
 //
-// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
-//
-//#define SPI_MODULE 2
-#define ENABLE_SPI2
-//#define SCK_PIN                             PB13
-//#define MISO_PIN                            PB14
-//#define MOSI_PIN                            PB15
-//#define SS_PIN                              PB12
-
-//
 // Limit Switches
 //
 #define X_DIAG_PIN                          PA15  //-X
@@ -161,33 +151,32 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC1   // TH1
-#define TEMP_BED_PIN                        PC0   // TB1
+#define TEMP_0_PIN                          PC1   // TEMP_E0
+#define TEMP_BED_PIN                        PC0   // TEMP_BED
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PC3   // HEATER1
-#define HEATER_BED_PIN                      PA0   // HOT BED
+#define HEATER_0_PIN                        PC3   // HEATER_E0
+#define HEATER_BED_PIN                      PA0   // HEATER_BED-WKUP
 
 #define FAN_PIN                             PB1   // FAN
 
 //
 // Misc. Functions
 //
-#define POWER_LOSS_PIN                      PA1   // PW_SO  /PW_DET
-#define PS_ON_PIN                           PA3   // PW_OFF
-
-
-//#define LED_PIN                           PB2
+//#define POWER_LOSS_PIN                      PA1   // PW_SO 
+#define POWER_LOSS_PIN                      PA2   // PW_DET (UPS)
+#define PS_ON_PIN                           PA3   // PW_CN /PW_OFF
 
 #define MT_DET_1_PIN                        PA4 //MT_DET
-#define MT_DET_2_PIN                        PE6 //FALA_CTRL /EXT_IRQ
+//#define MT_DET_2_PIN                        PE6 //FALA_CTRL /EXT_IRQ
 #define MT_DET_PIN_INVERTING false
 
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                    MT_DET_1_PIN
 #endif
+//#define LED_PIN                           PB2
 
 //#define WIFI_IO0_PIN                        PA8 //PA10   //USUART1_RX  /PC13 
 //#define WIFI_IO1_PIN       			            PC7 //PA9    //USUART1_TX  /PC7
@@ -201,78 +190,115 @@
 #endif
 
 #define SDIO_SUPPORT
-#define SDIO_CLOCK                       4500000     // 4.5 MHz
+#define SDIO_CLOCK                       4500000    // 4.5 MHz
 #define SD_DETECT_PIN                       PD12    //FSCM_A17/USUART3_RX /SD_CD
 #define ONBOARD_SD_CS_PIN                   PC11    //SD_CS
 //#define SD_MOSI                             PD2   //SD_MOSI
 //#define SD_MISO                             PC8   //SD_MISO
+//#define SD_CS                               PC10  //SD_CS
+//#define SD_SCK                              PC12  //SD_SCK
+//#define SD_CD                               PD13  //SD_CD
 
+// SPI1(PA7) & SPI3(PB5) not available
+//
+// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
+//
+
+#define ENABLE_SPI2
+
+#if ENABLED(SDIO_SUPPORT)
+  #define SCK_PIN                           PB13  // SPI2_SCK
+  #define MISO_PIN                          PB14  // SPI2_MISO
+  #define MOSI_PIN                          PB15  // SPI2_MOSI
+  #define SD_DETECT_PIN                     PD12  // SD_CD
+#endif
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                          PC5
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
+#endif
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
- */
-  #define XPT2046_X_CALIBRATION            12033
-  #define XPT2046_Y_CALIBRATION            -9047
-  #define XPT2046_X_OFFSET                   -30
-  #define XPT2046_Y_OFFSET                   254
-
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
-  #define LCD_USE_DMA_FSMC                  // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL                  DMA_CH5
-
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PC2   // SPI2_NSS
-    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
-  #endif
-
-#elif ENABLED(TFT_320x240) //TFT32/28
-
-  #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
+*/
+  #define LCD_USE_DMA_FSMC       // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+
+// Marlin UI
+#if HAS_GRAPHICAL_TFT // TFT robin V2.0 (320x240) 
+
+  #define TFT_RESET_PIN                     PC6   // FSMC_RST
+  #define TFT_BACKLIGHT_PIN                 PD13  // FSMC_LIGHT
+  #define TFT_CS_PIN                        PD7   // FSMC_NE4     /NE4
+  #define TFT_RS_PIN                        PD11  // FSMC_A0    /A0
+  //#define LCD_BACKLIGHT_PIN                 PD13  // FSMC_LIGHT
+  #define FSMC_CS_PIN                       PD7   // FSMC_NE4
+  #define FSMC_RS_PIN                       PD11  // FSMC_A0
+
+/**** test to activation LVGL **********
+#elif ENABLED(TFT_LVGL_UI) //MKS UI
+
+  #define FSMC_CS_PIN                       PD7   // FSMC_NE4 /NE1
+  #define FSMC_RS_PIN                       PD11  // A0
 
   #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
 
-  #define TFT_DRIVER                     ILI9341
-  #define TFT_BUFFER_SIZE                  14400
- 
-  // YV for normal screen mounting
-  #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
-  // XV for 180° rotated screen mounting
-  //#define ILI9341_ORIENTATION  ILI9341_MADCTL_MX | ILI9341_MADCTL_MV
+  #define LCD_BACKLIGHT_PIN                 PD13   // FSMC_NE4
 
-  #define ILI9341_COLOR_RGB
+  //#define XPT2046_X_CALIBRATION            17880
+  //#define XPT2046_Y_CALIBRATION           -12234
+  //#define XPT2046_X_OFFSET                   -45
+  //#define XPT2046_Y_OFFSET                   349
+
+  //#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  //#define FSMC_CS_PIN                       PD7
+  //#define FSMC_RS_PIN                       PD11
+  //#define FSMC_DMA_DEV                      DMA2
+  //#define FSMC_DMA_CHANNEL               DMA_CH5
+*/
+
+#else                 //  FSMC_GRAPHICAL_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
+  //#define LCD_RESET_PIN                   PC6   // FSMC_RST
+  #define LCD_BACKLIGHT_PIN                 PD13  // FSMC_LIGHT
+  #define FSMC_CS_PIN                       PD7   // FSMC_NE4
+  #define FSMC_RS_PIN                       PD11  // FSMC_A0
 #endif
 
-#define HAS_SPI_FLASH                  1
+#if NEED_TOUCH_PINS
+  #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
+  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define TOUCH_INT_PIN                     -1
+#endif
+
+// end defintion  MKS robin TFT
+
+#define HAS_SPI_FLASH 1
 #define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
-  #define W25QXX_CS_PIN                PB12  // Flash chip-select
-  #define W25QXX_MOSI_PIN              PB15
-  #define W25QXX_MISO_PIN              PB14
-  #define W25QXX_SCK_PIN               PB13
+  #define W25QXX_CS_PIN                     PB12  //SPI2_NSS / Flash chip-select
+  #define W25QXX_MOSI_PIN                   PB15
+  #define W25QXX_MISO_PIN                   PB14
+  #define W25QXX_SCK_PIN                    PB13
 #endif
+
