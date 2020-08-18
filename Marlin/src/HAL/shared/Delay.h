@@ -62,7 +62,7 @@
 
     #define nop() __asm__ __volatile__("nop;\n\t":::)
 
-    FORCE_INLINE static void __delay_Ncycles(uint32_t cy) { // +1 cycle
+    FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
       #if ARCH_PIPELINE_RELOAD_CYCLES < 2
         #define EXTRA_NOP_CYCLES A("nop")
       #else
@@ -96,11 +96,11 @@
           const uint32_t rem = (x - 1) % (DELAY_CYCLES_ITERATION_COST);
           switch (rem) { case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
           if ((x = (x - 1) / (DELAY_CYCLES_ITERATION_COST)))
-            __delay_Ncycles(x); // if need more then 4 nop loop is more optimal
+            __delay_4cycles(x); // if need more then 4 nop loop is more optimal
         }
       }
       else if ((x /= DELAY_CYCLES_ITERATION_COST))
-        __delay_Ncycles(x);
+        __delay_4cycles(x);
     }
     #undef nop
 
