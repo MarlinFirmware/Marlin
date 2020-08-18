@@ -58,10 +58,6 @@
 
   #else
 
-    #ifndef DELAY_CYCLES_ITERATION_COST
-      #define DELAY_CYCLES_ITERATION_COST 6
-    #endif
-
     #if defined(HAL_SYSTICK_VALUE) && defined(HAL_SYSTICK_RELOAD_VALUE)
       FORCE_INLINE static void DELAY_CYCLES(const uint32_t nbTicks) {
         uint32_t currentTicks = HAL_SYSTICK_VALUE;
@@ -75,6 +71,10 @@
         } while (nbTicks > elapsedTicks);
       }
     #else
+
+      #ifndef DELAY_CYCLES_ITERATION_COST
+        #define DELAY_CYCLES_ITERATION_COST 4
+      #endif
 
       // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
 
