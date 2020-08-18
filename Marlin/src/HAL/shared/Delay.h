@@ -58,6 +58,10 @@
 
   #else
 
+    #ifndef DELAY_CYCLES_ITERATION_COST
+      #define DELAY_CYCLES_ITERATION_COST 6
+    #endif
+
     // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
 
     #define nop() __asm__ __volatile__("nop;\n\t":::)
@@ -81,14 +85,26 @@
       );
     }
 
+    #if ENABLED(MARLIN_DEV_MODE)
+      FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
+        DISABLE_ISRS();
+        uint32 end = systick_get_count();
+        __delay_4cycles(100);
+        uint32 start = systick_get_count();
+        ENABLE_ISRS();
+        uint32 cycles = (end - start) / 100.0;
+        if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
+          SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
+        }
+        else {
+          SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
+        }
+      }
+    #endif
+
     // Delay in cycles
     FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
-
       if (__builtin_constant_p(x)) {
-        #ifndef DELAY_CYCLES_ITERATION_COST
-          #define DELAY_CYCLES_ITERATION_COST 6
-        #endif
-
         if (x <= (DELAY_CYCLES_ITERATION_COST)) {
           switch (x) { case 6: nop(); case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
         }
