@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "MSwiss DD SKR1.4 UBL 20/07/28" // ALTER TO SAVED DATE ########################### // 20/08/16
+#define CUSTOM_MACHINE_NAME "E3p MSDD SKR1.4 UBL 20/08/16" // ALTER TO SAVED DATE ########################### // 20/08/16
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -484,10 +484,16 @@
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+
+  // Ender 3 pro with Micro Swiss hot end and direct drive
+  #define DEFAULT_Kp 26.21 // 20/08/16
+  #define DEFAULT_Ki 2.46  // 20/08/16
+  #define DEFAULT_Kd 69.80 // 20/08/16
+
   // CONFIG FOR MY SETUP CHECK YOUR OWN // 20/06/28
-  #define DEFAULT_Kp 28.36 // 20/06/28
-  #define DEFAULT_Ki 2.92 // 20/06/28
-  #define DEFAULT_Kd 68.92 // 20/06/28
+ // #define DEFAULT_Kp 28.36 // 20/06/28
+ // #define DEFAULT_Ki 2.92 // 20/06/28
+ // #define DEFAULT_Kd 68.92 // 20/06/28
 
   // Ultimaker
   //#define DEFAULT_Kp 22.2
@@ -961,7 +967,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -44, -20, -1.17 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/08/16 for smooth pei MSwiss
+#define NOZZLE_TO_PROBE_OFFSET { -44, -20, -2.9 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/08/16 for smooth pei MSwiss
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
