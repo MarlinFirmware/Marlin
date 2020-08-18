@@ -62,62 +62,77 @@
       #define DELAY_CYCLES_ITERATION_COST 6
     #endif
 
-    // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
+    #if defined(HAL_SYSTICK_VALUE) && defined(HAL_SYSTICK_RELOAD_VALUE)
+      FORCE_INLINE static void DELAY_CYCLES(const uint32_t nbTicks) {
+        uint32_t currentTicks = HAL_SYSTICK_VALUE;
+        uint32_t elapsedTicks = 0;
+        uint32_t oldTicks = currentTicks;
+        do {
+          currentTicks = HAL_SYSTICK_VALUE;
+          elapsedTicks += (oldTicks < currentTicks) ? HAL_SYSTICK_RELOAD_VALUE + oldTicks - currentTicks :
+                              oldTicks - currentTicks;
+          oldTicks = currentTicks;
+        } while (nbTicks > elapsedTicks);
+      }
+    #else
 
-    #define nop() __asm__ __volatile__("nop;\n\t":::)
+      // https://blueprints.launchpad.net/gcc-arm-embedded/+spec/delay-cycles
 
-    FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
-      #if ARCH_PIPELINE_RELOAD_CYCLES < 2
-        #define EXTRA_NOP_CYCLES A("nop")
-      #else
-        #define EXTRA_NOP_CYCLES ""
+      #define nop() __asm__ __volatile__("nop;\n\t":::)
+
+      FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
+        #if ARCH_PIPELINE_RELOAD_CYCLES < 2
+          #define EXTRA_NOP_CYCLES A("nop")
+        #else
+          #define EXTRA_NOP_CYCLES ""
+        #endif
+
+        __asm__ __volatile__(
+          A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
+          L("1")
+          A("subs %[cnt],#1")
+          EXTRA_NOP_CYCLES
+          A("bne 1b")
+          : [cnt]"+r"(cy)   // output: +r means input+output
+          :                 // input:
+          : "cc"            // clobbers:
+        );
+      }
+
+      #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
+        FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
+          DISABLE_ISRS();
+          uint32 end = systick_get_count();
+          __delay_4cycles(100);
+          uint32 start = systick_get_count();
+          ENABLE_ISRS();
+          uint32 cycles = (end - start) / 100.0;
+          if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
+            SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
+          }
+          else {
+            SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
+          }
+        }
       #endif
 
-      __asm__ __volatile__(
-        A(".syntax unified") // is to prevent CM0,CM1 non-unified syntax
-        L("1")
-        A("subs %[cnt],#1")
-        EXTRA_NOP_CYCLES
-        A("bne 1b")
-        : [cnt]"+r"(cy)   // output: +r means input+output
-        :                 // input:
-        : "cc"            // clobbers:
-      );
-    }
-
-    #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
-      FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
-        DISABLE_ISRS();
-        uint32 end = systick_get_count();
-        __delay_4cycles(100);
-        uint32 start = systick_get_count();
-        ENABLE_ISRS();
-        uint32 cycles = (end - start) / 100.0;
-        if (DELAY_CYCLES_ITERATION_COST > cycles * 1.05 || DELAY_CYCLES_ITERATION_COST < cycles * 0.95) {
-          SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is: ", DELAY_CYCLES_ITERATION_COST, " but SHOULD be: ", (uint32)cycles);
+          // Delay in cycles
+      FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
+        if (__builtin_constant_p(x)) {
+          if (x <= (DELAY_CYCLES_ITERATION_COST)) {
+            switch (x) { case 6: nop(); case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+          }
+          else { // because of +1 cycle inside delay_4cycles
+            const uint32_t rem = (x - 1) % (DELAY_CYCLES_ITERATION_COST);
+            switch (rem) { case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+            if ((x = (x - 1) / (DELAY_CYCLES_ITERATION_COST)))
+              __delay_4cycles(x); // if need more then 4 nop loop is more optimal
+          }
         }
-        else {
-          SERIAL_ECHOLNPAIR("DELAY_CYCLES_ITERATION_COST is OK");
-        }
+        else if ((x /= DELAY_CYCLES_ITERATION_COST))
+          __delay_4cycles(x);
       }
     #endif
-
-    // Delay in cycles
-    FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
-      if (__builtin_constant_p(x)) {
-        if (x <= (DELAY_CYCLES_ITERATION_COST)) {
-          switch (x) { case 6: nop(); case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
-        }
-        else { // because of +1 cycle inside delay_4cycles
-          const uint32_t rem = (x - 1) % (DELAY_CYCLES_ITERATION_COST);
-          switch (rem) { case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
-          if ((x = (x - 1) / (DELAY_CYCLES_ITERATION_COST)))
-            __delay_4cycles(x); // if need more then 4 nop loop is more optimal
-        }
-      }
-      else if ((x /= DELAY_CYCLES_ITERATION_COST))
-        __delay_4cycles(x);
-    }
     #undef nop
 
   #endif

@@ -1299,11 +1299,6 @@ void setup() {
     SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
-  // Validate DELAY_CYCLES_ITERATION_COST
-  #if ENABLED(MARLIN_DEV_MODE) && __CORTEX_M != 7 && (defined(__arm__) || defined(__thumb__))
-    validate_DELAY_CYCLES_ITERATION_COST();
-  #endif
-
   marlin_state = MF_RUNNING;
 
   SETUP_LOG("setup() completed.");
