@@ -33,7 +33,7 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-  #if WITHIN(__CORTEX_M, 3, 7) && !defined(TARGET_LPC1768)
+  #if WITHIN(__CORTEX_M, 4, 7) && !defined(TARGET_LPC1768)
 
     // Cortex-M3 through M7 can use the cycle counter of the DWT unit
     // https://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
@@ -85,7 +85,7 @@
       );
     }
 
-    #if ENABLED(MARLIN_DEV_MODE)
+    #if ENABLED(MARLIN_DEV_MODE) && !defined(__CORTEX_M)
       FORCE_INLINE static void validate_DELAY_CYCLES_ITERATION_COST() {
         DISABLE_ISRS();
         uint32 end = systick_get_count();
