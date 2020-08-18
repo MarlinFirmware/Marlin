@@ -33,7 +33,7 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-  #if __CORTEX_M == 7
+  #if WITHIN(__CORTEX_M, 3, 7) && !defined(TARGET_LPC1768)
 
     // Cortex-M3 through M7 can use the cycle counter of the DWT unit
     // https://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/

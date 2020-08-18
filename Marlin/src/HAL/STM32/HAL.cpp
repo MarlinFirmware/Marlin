@@ -48,8 +48,8 @@ uint16_t HAL_adc_result;
 // Public functions
 // ------------------------
 
-// Needed for DELAY_NS() / DELAY_US() on CORTEX-M7
-#if (defined(__arm__) || defined(__thumb__)) && __CORTEX_M == 7
+// Needed for DELAY_NS() / DELAY_US() on CORTEX-M4 to M7
+#if (defined(__arm__) || defined(__thumb__)) && WITHIN(__CORTEX_M, 3, 7) && !defined(TARGET_LPC1768)
   // HAL pre-initialization task
   // Force the preinit function to run between the premain() and main() function
   // of the STM32 arduino core
