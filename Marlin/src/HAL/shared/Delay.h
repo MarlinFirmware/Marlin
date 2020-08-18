@@ -62,7 +62,7 @@
 
     #define nop() __asm__ __volatile__("nop;\n\t":::)
 
-    FORCE_INLINE static void __delay_4cycles(uint32_t cy) { // +1 cycle
+    FORCE_INLINE static void __delay_Ncycles(uint32_t cy) { // +1 cycle
       #if ARCH_PIPELINE_RELOAD_CYCLES < 2
         #define EXTRA_NOP_CYCLES A("nop")
       #else
@@ -85,21 +85,22 @@
     FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
       if (__builtin_constant_p(x)) {
-        #define MAXNOPS 4
+        #ifndef DELAY_CYCLES_ITERATION_COST
+          #define DELAY_CYCLES_ITERATION_COST 6
+        #endif
 
-        if (x <= (MAXNOPS)) {
-          switch (x) { case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+        if (x <= (DELAY_CYCLES_ITERATION_COST)) {
+          switch (x) { case 6: nop(); case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
         }
         else { // because of +1 cycle inside delay_4cycles
-          const uint32_t rem = (x - 1) % (MAXNOPS);
-          switch (rem) { case 3: nop(); case 2: nop(); case 1: nop(); }
-          if ((x = (x - 1) / (MAXNOPS)))
-            __delay_4cycles(x); // if need more then 4 nop loop is more optimal
+          const uint32_t rem = (x - 1) % (DELAY_CYCLES_ITERATION_COST);
+          switch (rem) { case 5: nop(); case 4: nop(); case 3: nop(); case 2: nop(); case 1: nop(); }
+          if ((x = (x - 1) / (DELAY_CYCLES_ITERATION_COST)))
+            __delay_Ncycles(x); // if need more then 4 nop loop is more optimal
         }
-        #undef MAXNOPS
       }
-      else if ((x >>= 2))
-        __delay_4cycles(x);
+      else if ((x /= DELAY_CYCLES_ITERATION_COST))
+        __delay_Ncycles(x);
     }
     #undef nop
 
