@@ -21,7 +21,7 @@
  */
 
 /**
- * e_parser.cpp - Intercept special commands directly in the serial stream
+ * emergency_parser.cpp - Intercept special commands directly in the serial stream
  */
 
 #include "../inc/MarlinConfigPre.h"

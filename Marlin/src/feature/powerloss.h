@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * feature/powerloss.h - Resume an SD print after power-loss
+ * power_loss_recovery.h - Resume an SD print after power-loss
  */
 
 #include "../sd/cardreader.h"

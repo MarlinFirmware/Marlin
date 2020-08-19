@@ -192,14 +192,13 @@
   #endif
 #endif
 
-#define X_HOME_BUMP_MM 5
-#define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 2
+#define HOMING_BUMP_MM      { 5, 5, 2 }
 #if ENABLED(SLOWER_HOMING)
   #define HOMING_BUMP_DIVISOR { 5, 5, 4 }
 #else
   #define HOMING_BUMP_DIVISOR { 2, 2, 4 }
 #endif
+
 #define QUICK_HOME
 
 #if ENABLED(BLTOUCH)
@@ -280,6 +279,7 @@
 #endif
 
 #define ENCODER_RATE_MULTIPLIER
+#define ENCODER_5X_STEPS_PER_SEC    30
 #define ENCODER_10X_STEPS_PER_SEC   75
 #define ENCODER_100X_STEPS_PER_SEC  160
 
@@ -316,9 +316,11 @@
 
 #endif // HAS_LCD_MENU
 
-#define STATUS_MESSAGE_SCROLLING
-#define LCD_TIMEOUT_TO_STATUS 15000
-#define LCD_SET_PROGRESS_MANUALLY
+#if DISABLED(DWIN_CREALITY_LCD)
+  #define LCD_SET_PROGRESS_MANUALLY
+  #define STATUS_MESSAGE_SCROLLING
+  #define LCD_TIMEOUT_TO_STATUS 15000
+#endif
 
 // On the Info Screen, display XY with one decimal place when possible //keep disabled? clutters lcd
 //#define LCD_DECIMAL_SMALL_XY
@@ -346,8 +348,12 @@
 #endif
 
 #if ENABLED(SDSUPPORT)
+  #define SD_PROCEDURE_DEPTH 1
   #define SD_FINISHED_STEPPERRELEASE true
-  #define SD_FINISHED_RELEASECOMMAND "M84 X Y E"
+  #define SD_FINISHED_RELEASECOMMAND "M84"
+
+  #define SDCARD_RATHERRECENTFIRST
+
   #if DISABLED(SPACE_SAVER)
     #define SD_MENU_CONFIRM_START
   #endif
@@ -386,17 +392,17 @@
    *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
    *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
    */
-  //#define SDCARD_SORT_ALPHA
+  #define SDCARD_SORT_ALPHA
 
   // SD Card Sorting options
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256). Costs 27 bytes each.
     #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
     #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
-    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_RAM    true  // Pre-allocate a static array for faster pre-sorting.
     #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
-    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
-    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+    #define SDSORT_CACHE_NAMES true  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM true  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
     #define SDSORT_CACHE_VFATS 2      // Maximum number of 13-byte VFAT entries to use for sorting.
                                       // Note: Only affects SCROLL_LONG_FILENAMES with SDSORT_CACHE_NAMES but not SDSORT_DYNAMIC_RAM.
   #endif
@@ -405,7 +411,7 @@
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
-  #if DISABLED(SPACE_SAVER)
+  #if DISABLED(SPACE_SAVER) && DISABLED(DWIN_CREALITY_LCD)
     #define SCROLL_LONG_FILENAMES //disable for 1284p
   #endif
 
@@ -424,6 +430,8 @@
   //#define SDCARD_CONNECTION LCD
 
 #endif // SDSUPPORT
+
+#define NO_SD_HOST_DRIVE
 
 #if HAS_GRAPHICAL_LCD
   // Show SD percentage next to the progress bar
@@ -880,7 +888,7 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 16
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1921,7 +1929,7 @@
 /**
  * Disable all Volumetric extrusion options
  */
-//#define NO_VOLUMETRICS
+#define NO_VOLUMETRICS
 
 #if DISABLED(NO_VOLUMETRICS)
   /**

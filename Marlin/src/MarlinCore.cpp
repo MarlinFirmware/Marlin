@@ -39,26 +39,25 @@
 #include <math.h>
 
 #include "core/utility.h"
+#include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
-#include "module/endstops.h"
-#include "module/temperature.h"
-#include "module/settings.h"
-#include "module/printcounter.h" // PrintCounter or Stopwatch
-
 #include "module/stepper.h"
+#include "module/endstops.h"
+#include "module/probe.h"
+#include "module/temperature.h"
+#include "sd/cardreader.h"
+#include "module/configuration_store.h"
+#include "module/printcounter.h" // PrintCounter or Stopwatch
+#include "feature/closedloop.h"
+
 #include "module/stepper/indirection.h"
+
+#include "libs/nozzle.h"
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
-
-#include "sd/cardreader.h"
-
-#include "lcd/ultralcd.h"
-#if HAS_TOUCH_XPT2046
-  #include "lcd/touch/xpt2046.h"
-#endif
 
 #if HAS_TFT_LVGL_UI
   #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
@@ -81,16 +80,16 @@
   #include "feature/direct_stepping.h"
 #endif
 
+#if ENABLED(TOUCH_BUTTONS)
+  #include "feature/touch/xpt2046.h"
+#endif
+
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "feature/host_actions.h"
 #endif
 
 #if USE_BEEPER
   #include "libs/buzzer.h"
-#endif
-
-#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-  #include "feature/closedloop.h"
 #endif
 
 #if HAS_I2C_DIGIPOT
@@ -177,10 +176,6 @@
   #include "feature/runout.h"
 #endif
 
-#if HAS_Z_SERVO_PROBE
-  #include "module/probe.h"
-#endif
-
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "feature/hotend_idle.h"
 #endif
@@ -189,7 +184,7 @@
   #include "feature/leds/tempstat.h"
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE)
+#if HAS_CASE_LIGHT
   #include "feature/caselight.h"
 #endif
 
@@ -211,10 +206,6 @@
 
 #if HAS_L64XX
   #include "libs/L64XX/L64XX_Marlin.h"
-#endif
-
-#if ENABLED(PASSWORD_FEATURE)
-  #include "feature/password/password.h"
 #endif
 
 PGMSTR(NUL_STR, "");
@@ -453,18 +444,14 @@ void startOrResumeJob() {
     #endif
     wait_for_heatup = false;
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
-    #ifdef EVENT_GCODE_SD_ABORT
-      queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
+    #ifdef EVENT_GCODE_SD_STOP
+      queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
     #endif
-
-    TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001"))) {
+    if (queue.enqueue_one_P(PSTR("M1001")))
       marlin_state = MF_RUNNING;
-      TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
-    }
   }
 
 #endif // SDSUPPORT
@@ -1019,7 +1006,7 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if HAS_TOUCH_XPT2046
+  #if ENABLED(TOUCH_BUTTONS)
     SETUP_RUN(touch.init());
   #endif
 
@@ -1090,11 +1077,11 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
-  #if ENABLED(CASE_LIGHT_ENABLE)
+  #if HAS_CASE_LIGHT
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-    SETUP_RUN(caselight.update_brightness());
+    SETUP_RUN(update_case_light());
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)
@@ -1207,14 +1194,8 @@ void setup() {
   #endif
 
   #if HAS_TFT_LVGL_UI
-    #if ENABLED(SDSUPPORT)
-      if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
-    #endif
+    if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     SETUP_RUN(tft_lvgl_init());
-  #endif
-
-  #if ENABLED(PASSWORD_ON_STARTUP)
-    SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
   marlin_state = MF_RUNNING;

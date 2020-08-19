@@ -21,7 +21,7 @@
  */
 
 /**
- * feature/leds/printer_event_leds.cpp - LED color changing based on printer status
+ * printer_event_leds.cpp - LED color changing based on printer status
  */
 
 #include "../../inc/MarlinConfigPre.h"

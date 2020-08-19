@@ -28,9 +28,7 @@
  * M997: Perform in-application firmware update
  */
 void GcodeSuite::M997() {
-
   flashFirmware(parser.intval('S'));
-
 }
 
 #endif

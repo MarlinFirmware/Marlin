@@ -126,7 +126,7 @@
 //
 // Touch support
 //
-#if NEED_TOUCH_PINS
+#if ENABLED(TOUCH_BUTTONS)
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
 #endif
