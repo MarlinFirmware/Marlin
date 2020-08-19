@@ -1,0 +1,1 @@
+These files are the original, untouched configuration files from the version of Marlin that we based this build on. They are not used at all for compiling and only provided for a reference in case there are features or commands you want to refer to when adding in your own options.
