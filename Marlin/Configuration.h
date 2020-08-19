@@ -47,10 +47,10 @@
 
 // If you have issues with your machine running the faster probe setting disable the #define EZABL_FASTPROBE below.
 // NOTE: Most machines will work with the fast probe enabled. Use M48 to verify accuracy.
-//#define EZABL_FASTPROBE
+#define EZABL_FASTPROBE
 
 // Superfast probing - Only works with the EZABL Pro Sensors
-#define EZABL_SUPERFASTPROBE
+//#define EZABL_SUPERFASTPROBE
 
 // Heaters will stay on during probing - only use if directed to by support. Do not use on AC beds.
 //#define HEATERS_ON_DURING_PROBING
@@ -148,50 +148,12 @@
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
 //#define SLOWER_HOMING
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//===========================================================================
+// **********************  END CONFIGURATION SETTINGS   *********************
+//===========================================================================
 
 /**
- * DO NOT TOUCH ANYTHING BELOW THIS LINE.
+ * ****************************DO NOT TOUCH ANYTHING BELOW THIS COMMENT**************************
  * Core machine settings are below. Do NOT modify these unless you understand what you are doing.
  */
 
@@ -352,7 +314,7 @@
     #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
   #endif
 #endif
-//End Ender 3 V2 Settings
+// End Ender 3 V2 Settings
 
 /**
  * Temp Settings
@@ -443,6 +405,10 @@
 /**
  * ABL Probe Settings
  */
+
+#if ENABLED(CUSTOM_PROBE)
+  #define ABL_ENABLE
+#endif
 
 #if ENABLED(ABL_ENABLE)
   //#define ENABLE_LEVELING_FADE_HEIGHT // Disable for release. Can cause issues.
