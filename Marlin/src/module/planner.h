@@ -877,7 +877,7 @@ class Planner {
     #endif
 
     #if ENABLED(AUTOTEMP)
-      static float autotemp_min, autotemp_max;
+      static float autotemp_min, autotemp_max, autotemp_oldtemp;
 
       #if ENABLED(AUTOTEMP_FACTORLESS)
         static float autotemp_min_e_speed, autotemp_max_e_speed;

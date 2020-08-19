@@ -197,11 +197,12 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
-  float Planner::autotemp_max = 250,
-        Planner::autotemp_min = 210;
+  float Planner::autotemp_max = 210,
+        Planner::autotemp_min = 190,
+        Planner::autotemp_oldtemp = 0.0f;
 
   #if ENABLED(AUTOTEMP_FACTORLESS)
-    float Planner::autotemp_min_e_speed = 1.25f,
+    float Planner::autotemp_min_e_speed = 1.33f,
           Planner::autotemp_max_e_speed = 3.33f;
   #else
     float Planner::autotemp_factor = 0.1f;
@@ -1263,10 +1264,12 @@ void Planner::recalculate() {
 #if ENABLED(AUTOTEMP)
 
   void Planner::getHighESpeed() {
-    static float oldt = 0;
-
     if (!autotemp_enabled) return;
     if (thermalManager.degTargetHotend(0) + 2 < autotemp_min) return; // probably temperature set to zero.
+
+    #if ENABLED(AUTOTEMP_FACTORLESS)
+      if (autotemp_max_e_speed == autotemp_min_e_speed) return; // would divide by 0 if min and max speeds were the same.
+    #endif
 
     #ifdef AUTOTEMP_MIN_Z_RAISE
       if (current_position.z < autotemp_last_z + float(AUTOTEMP_MIN_Z_RAISE)) return; // layer not yet changed
@@ -1282,7 +1285,7 @@ void Planner::recalculate() {
     }
 
     #ifdef AUTOTEMP_MIN_Z_RAISE
-      if (high > 0.0) autotemp_last_z = current_position.z; // start requiring z raise only after we're actually printing
+      if (high > 0.0) autotemp_last_z = current_position.z; // require z raise only when we're actually printing.
     #endif
 
     float t;
@@ -1293,8 +1296,8 @@ void Planner::recalculate() {
     #endif
     LIMIT(t, autotemp_min, autotemp_max);
 
-    if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
-    oldt = t;
+    if (t < autotemp_oldtemp) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + autotemp_oldtemp * float(AUTOTEMP_OLDWEIGHT);
+    autotemp_oldtemp = t;
 
     #ifdef AUTOTEMP_GRANULARITY
       t = autotemp_min + FLOOR((t - autotemp_min) / float(AUTOTEMP_GRANULARITY)) * float(AUTOTEMP_GRANULARITY);
@@ -3062,20 +3065,22 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 
 #if ENABLED(AUTOTEMP)
 
-void Planner::autotemp_update() {
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    const int16_t target = thermalManager.degTargetHotend(active_extruder);
-    autotemp_min = target + AUTOTEMP_MIN_P;
-    autotemp_max = target + AUTOTEMP_MAX_P;
-  #endif
+  void Planner::autotemp_update() {
+    #if ENABLED(AUTOTEMP_PROPORTIONAL)
+      const int16_t target = thermalManager.degTargetHotend(active_extruder);
+      autotemp_min = target + AUTOTEMP_MIN_P;
+      autotemp_max = target + AUTOTEMP_MAX_P;
+    #endif
 
-  #if ENABLED(AUTOTEMP_FACTORLESS)
-    autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed != autotemp_max_e_speed;
-  #else
-    autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-    autotemp_enabled = autotemp_factor != 0;
-  #endif
-}
+    #if ENABLED(AUTOTEMP_FACTORLESS)
+      autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed < autotemp_max_e_speed;
+    #else
+      autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+      autotemp_enabled = autotemp_factor != 0;
+    #endif
+
+    if (!autotemp_enabled) autotemp_oldtemp = 0.0f;
+  }
 
   void Planner::autotemp_M104_M109() {
 
@@ -3089,9 +3094,17 @@ void Planner::autotemp_update() {
     if (parser.seenval('B')) autotemp_max = parser.value_celsius();
 
     #if ENABLED(AUTOTEMP_FACTORLESS)
-      if (parser.seenval('N')) autotemp_min_e_speed = parser.value_axis_units(E_AXIS);
-      if (parser.seenval('M')) autotemp_max_e_speed = parser.value_axis_units(E_AXIS);
-      autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed != autotemp_max_e_speed;
+      const bool seen_N = parser.seenval('N');
+      if (seen_N) autotemp_min_e_speed = parser.value_axis_units(E_AXIS);
+
+      const bool seen_M = parser.seenval('M');
+      if (seen_M) autotemp_max_e_speed = parser.value_axis_units(E_AXIS);
+
+      if (seen_N && seen_M)
+        // enable autotemp only if both N and M are specified and different
+        autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed < autotemp_max_e_speed;
+      else
+        autotemp_enabled = false;
     #else
       // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
       // Normally, leaving off F also disables autotemp.
@@ -3102,5 +3115,7 @@ void Planner::autotemp_update() {
     #ifdef AUTOTEMP_MIN_Z_RAISE
       if (!autotemp_enabled) autotemp_last_z = 0.0f;
     #endif
+
+    if (!autotemp_enabled) autotemp_oldtemp = 0.0f;
   }
 #endif
