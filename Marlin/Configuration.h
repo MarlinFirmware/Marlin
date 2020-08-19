@@ -1272,7 +1272,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    #define EXTRAPOLATE_BEYOND_GRID // 20/06/28
+    // #define EXTRAPOLATE_BEYOND_GRID // 20/06/28 // 20/08/16
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1294,7 +1294,7 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 10              // Set Mesh bounds as an inset region of the bed WAS 1 // UBL
+  #define MESH_INSET 2              // Set Mesh bounds as an inset region of the bed WAS 1 // UBL was 10 // 20/08/16 set to 2
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 

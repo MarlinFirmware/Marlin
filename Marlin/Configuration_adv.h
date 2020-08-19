@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##################################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26 20/07/09
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26 20/07/09 20/08/16
  * ##################################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -2326,9 +2326,9 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  700 // 20/06/26
+    #define X_STALL_SENSITIVITY  70 // 20/06/26
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  65 // 20/06/26
+    #define Y_STALL_SENSITIVITY  70 // 20/08/16
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY //commented out to make more robust // 20/06/26
