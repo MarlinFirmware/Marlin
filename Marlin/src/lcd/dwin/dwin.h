@@ -68,11 +68,11 @@ enum processID {
   Move_X,
   Move_Y,
   Move_Z,
-  Extruder,
-  Homeoffset,
   #if HAS_HOTEND
+    Extruder,
     ETemp,
   #endif
+  Homeoffset,
   #if HAS_HEATED_BED
     BedTemp,
   #endif

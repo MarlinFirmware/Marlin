@@ -4,10 +4,82 @@
 #pragma once
 #define CONFIGURATION_H_VERSION 020006
 
+//===========================================================================
+//============================ TH3D Configuration ===========================
+//===========================================================================
 
+// ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
+
+//===========================================================================
+// *************************   CREALITY PRINTERS    *************************
+//===========================================================================
+
+//===========================================================================
+// Creality Ender 3 V2 Options
+//===========================================================================
 #define ENDER3_V2
 
+// If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
+// and then uncomment the #define EZOUT_ENABLE line below.
+// Do NOT ever connect our filament sensor without the supplied adapter board.
+//#define EZOUT_ENABLE
 
+// EZABL Probe Mounts
+#define ENDER3_V2_OEM
+//#define CUSTOM_PROBE
+
+//===========================================================================
+// *************************  END PRINTER SECTION   *************************
+//===========================================================================
+
+//===========================================================================
+// EZABL Advanced Settings
+//===========================================================================
+
+// If you want more or less EZABL probe points change the number below (only used if EZABL enabled)
+// Default is 3 which gives you 3x3 grid for a total of 9 points. STICK WITH ODD NUMBERS
+#define EZABL_POINTS 3
+
+// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below
+// Most Machines - 35
+// Binder Clips? - 50
+#define EZABL_PROBE_EDGE 35
+
+// If you have issues with your machine running the faster probe setting disable the #define EZABL_FASTPROBE below.
+// NOTE: Most machines will work with the fast probe enabled. Use M48 to verify accuracy.
+//#define EZABL_FASTPROBE
+
+// Superfast probing - Only works with the EZABL Pro Sensors
+#define EZABL_SUPERFASTPROBE
+
+//================================================================================
+// IF YOU HAVE A CUSTOM PROBE MOUNT OR ONE THAT IS NOT PRE-SUPPORTED UNCOMMENT THE
+// CUSTOM_PROBE OPTION IN YOUR PRINTER SECTION AND ENTER YOUR PROBE LOCATION BELOW
+//================================================================================
+#if ENABLED(CUSTOM_PROBE)
+  /**
+  * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+  *
+  * In the following example the X and Y offsets are both positive:
+  *
+  *   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+  *
+  *     +-- BACK ---+
+  *     |           |
+  *   L |    (+) P  | R <-- probe (20,20)
+  *   E |           | I
+  *   F | (-) N (+) | G <-- nozzle (10,10)
+  *   T |           | H
+  *     |    (-)    | T
+  *     |           |
+  *     O-- FRONT --+
+  *   (0,0)
+  *
+  * Specify a Probe position as { X, Y, Z }
+  * Do NOT enter an number for the Z position in here. Store your offset in EEPROM.
+  */
+  #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#endif
 
 
 
@@ -162,6 +234,11 @@
   #define Z_PROBE_OFFSET_RANGE_MAX 10
 
   #define POWER_LOSS_RECOVERY
+
+  #if ENABLED(ENDER3_V2_OEM)
+    #define ABL_ENABLE
+    #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #endif
 #endif
 //End Ender 3 V2 Settings
 
@@ -235,9 +312,9 @@
 #define STRING_CONFIG_H_AUTHOR "TH3D Studio"
 #define CUSTOM_VERSION_FILE Version.h
 
-#if ENABLED(EZABL_SUPERFASTPROBE)
+#if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (15*60)
-#elif ENABLED(EZABL_FASTPROBE)
+#elif ENABLED(EZABL_FASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (8*60)
 #else
   #define HOMING_FEEDRATE_Z  (4*60)
@@ -254,7 +331,7 @@
   #define Z_CLEARANCE_MULTI_PROBE    8
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
-#elif ENABLED(EZABL_SUPERFASTPROBE)
+#elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define Z_CLEARANCE_DEPLOY_PROBE   1
   #define Z_CLEARANCE_BETWEEN_PROBES 2
   #define Z_CLEARANCE_MULTI_PROBE    1
@@ -391,6 +468,8 @@
     #endif
   #endif
 
+  #define PROBING_MARGIN EZABL_PROBE_EDGE
+
   #if ENABLED(FIX_MOUNTED_PROBE) && DISABLED(HEATERS_ON_DURING_PROBING)
     #define PROBING_HEATERS_OFF   
   #endif
@@ -406,10 +485,15 @@
   #define Z_PROBE_LOW_POINT           -2
 
   #define AUTO_BED_LEVELING_BILINEAR
+  
+  #define EXTRAPOLATE_BEYOND_GRID
+
+  #define GRID_MAX_POINTS_X EZABL_POINTS
+  #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define Z_SAFE_HOMING
-  #define Z_SAFE_HOMING_X_POINT ((X_BED_SIZE) / 2)
-  #define Z_SAFE_HOMING_Y_POINT ((Y_BED_SIZE) / 2)
+  #define Z_SAFE_HOMING_X_POINT X_CENTER
+  #define Z_SAFE_HOMING_Y_POINT Y_CENTER
   
   #if ENABLED(BLTOUCH)
     #undef Z_MIN_PROBE_ENDSTOP_INVERTING

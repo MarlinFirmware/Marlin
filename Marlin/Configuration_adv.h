@@ -357,7 +357,7 @@
   #if DISABLED(SPACE_SAVER)
     #define SD_MENU_CONFIRM_START
   #endif
-  #define EVENT_GCODE_SD_STOP "G28XY"
+  #define EVENT_GCODE_SD_ABORT "G28XY"
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (60*60)
@@ -650,11 +650,8 @@
 
   #if ENABLED(ABL_ENABLE)
     #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      #define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
-      #if DISABLED(SPACE_SAVER)
-        #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
-      #endif
+    #if DISABLED(SPACE_SAVER) && DISABLED(DWIN_CREALITY_LCD)
+      #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
     #endif
   #endif
 

@@ -997,15 +997,17 @@ void MarlinUI::draw_status_screen() {
   #endif // ADVANCED_PAUSE_FEATURE
 
   // Draw a static item with no left-right margin required. Centered by default.
-  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
     int8_t n = LCD_WIDTH;
     lcd_moveto(0, row);
-    if ((style & SS_CENTER) && !valstr) {
-      int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2;
+    const int8_t plen = pstr ? utf8_strlen_P(pstr) : 0,
+                 vlen = vstr ? utf8_strlen(vstr) : 0;
+    if (style & SS_CENTER) {
+      int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
       while (--pad >= 0) { lcd_put_wchar(' '); n--; }
     }
-    n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n);
-    if (valstr) n -= lcd_put_u8str_max(valstr, n);
+    if (plen) n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n);
+    if (vlen) n -= lcd_put_u8str_max(vstr, n);
     for (; n > 0; --n) lcd_put_wchar(' ');
   }
 

@@ -48,7 +48,11 @@
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-  #include "../../module/configuration_store.h"
+  #include "../../module/settings.h"
+#endif
+
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password/password.h"
 #endif
 
 void menu_tmc();
@@ -601,6 +605,10 @@ void menu_advanced_settings() {
       ui.return_to_status();
       if (new_state) LCD_MESSAGEPGM(MSG_RESET_PRINTER); else ui.reset_status();
     });
+  #endif
+
+  #if ENABLED(PASSWORD_FEATURE)
+    SUBMENU(MSG_PASSWORD_SETTINGS, password.access_menu_password);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
