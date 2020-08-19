@@ -190,7 +190,11 @@ public:
     static inline void set_direction(const bool) {}
   #endif
 
-  static inline void disable() { isReady = false; set_enabled(false); }
+  static inline void disable() {
+    isReady = false;
+    set_enabled(false);
+    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);
+    }
 
   #if HAS_LCD_MENU
 
