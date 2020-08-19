@@ -377,7 +377,7 @@ void CardReader::mount() {
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
   }
 
-  if (flag.mounted == true)
+  if (flag.mounted)
     cdroot();
   else {
     spiInit(SPI_SPEED); // Return to base SPI speed
