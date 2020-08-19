@@ -170,7 +170,10 @@
   #define BTN_EN2                           PB12
 
   //#define LCD_LED_PIN                     PB2
-  #define BEEPER_PIN                        PB13
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN                      PB13
+    #undef SPEAKER
+  #endif
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)
 
