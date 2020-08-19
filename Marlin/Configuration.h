@@ -52,6 +52,12 @@
 // Superfast probing - Only works with the EZABL Pro Sensors
 #define EZABL_SUPERFASTPROBE
 
+// Heaters will stay on during probing - only use if directed to by support. Do not use on AC beds.
+//#define HEATERS_ON_DURING_PROBING
+
+// Does your machine make weird noises/vibrations when it is probing the mesh? Enable this to slow down the speed between probe points.
+//#define SLOWER_PROBE_MOVES
+
 //================================================================================
 // IF YOU HAVE A CUSTOM PROBE MOUNT OR ONE THAT IS NOT PRE-SUPPORTED UNCOMMENT THE
 // CUSTOM_PROBE OPTION IN YOUR PRINTER SECTION AND ENTER YOUR PROBE LOCATION BELOW
@@ -80,6 +86,72 @@
   */
   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 #endif
+
+
+//===========================================================================
+//******************** EXTRA FEATURES AND TWEAKS ****************************
+//===========================================================================
+
+// EXTRUDER SETTINGS -------------------------------
+// Use to set custom esteps and/or reverse your E Motor direction if you are installing an extruder that needs the direction reversed.
+// If you reversed the wiring on your E motor already (like the Bondtech Guide says to do) then you do not need to reverse it in the firmware here.
+
+// If you want to change the Esteps for your printer you can uncomment the below line and set CUSTOM_ESTEPS_VALUE to what you want - USE WHOLE NUMBERS ONLY
+// This option sets the esteps from the CUSTOM_ESTEPS_VALUE line below.
+// If you need to reverse the e motor direction also enabled the REVERSE_E_MOTOR_DIRECTION option.
+// Example EStep Values: TH3D Aluminum Extruder - 95 ESteps, TH3D Tough Extruder - 463 ESteps, BMG Extruder - 415 ESteps
+// When installing a Tough Extruder or E3D Titan or Bondtech that is Geared you likely need to enable the REVERSE_E_MOTOR_DIRECTION option
+//#define CUSTOM_ESTEPS
+#define CUSTOM_ESTEPS_VALUE 463
+//#define REVERSE_E_MOTOR_DIRECTION
+
+// THERMISTOR SETTINGS -----------------------------
+
+// If you are using an E3D V6 Hotend (or Hemera) with their cartridge thermistor (not glass version) uncomment the below line.
+//#define V6_HOTEND
+
+// If you are using a Tough Hotend from TH3D or any thermistors TH3D sells for your hotend uncomment the below line.
+//#define TH3D_HOTEND_THERMISTOR
+
+// If you are using a known hotend thermistor value uncomment the below 2 lines and enter the thermistor number replacing the X after the #define KNOWN_HOTEND_THERMISTOR_VALUE
+//#define KNOWN_HOTEND_THERMISTOR
+//#define KNOWN_HOTEND_THERMISTOR_VALUE X
+
+// If you have a hotend and thermistor capable of over 290C you can set the max temp value below.
+// Setting this higher than 290C on a stock or traditional thermistor will damage it. Refer to your thermistor documentation to see what max temp is.
+//#define HIGH_TEMP_THERMISTOR
+#define HIGH_TEMP_THERMISTOR_TEMP 350
+
+// BED THERMISTOR SETTINGS -------------------------
+
+// If you are using a thermistor TH3D sells for your bed uncomment the below line.
+//#define TH3D_BED_THERMISTOR
+
+// If you are using a Keenovo with SSR and the Keenovo temperature sensor uncomment the below line.
+//#define KEENOVO_TEMPSENSOR
+
+// If you are using a known bed thermistor value uncomment the below 2 lines and enter the thermistor number replacing the X after the #define KNOWN_BED_THERMISTOR_VALUE
+//#define KNOWN_BED_THERMISTOR
+//#define KNOWN_BED_THERMISTOR_VALUE X
+
+// If you are using an AC bed with a standalone controller (Keenovo) uncomment the below line to disable the heated bed in the firmware
+//#define AC_BED
+
+// MISC --------------------------------------------
+
+// If you have a 5015 fan that whines when under 100% speed uncomment the below line.
+//#define FAN_FIX
+
+// Use your own printer name
+//#define USER_PRINTER_NAME "CHANGE ME"
+
+// If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
+//#define SLOWER_HOMING
+
+
+
+
+
 
 
 
@@ -138,7 +210,11 @@
     #define MOTHERBOARD BOARD_CREALITY_V4
   #endif
 
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+  #if ENABLED(CUSTOM_ESTEPS)
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+  #else
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+  #endif
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
   #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
 
@@ -173,7 +249,20 @@
   #define Y_HOME_DIR -1
   #define Z_HOME_DIR -1
 
-  #define TEMP_SENSOR_0 1
+  #if DISABLED(V6_HOTEND) && DISABLED(TH3D_HOTEND_THERMISTOR) && DISABLED(KNOWN_HOTEND_THERMISTOR)
+    #define TEMP_SENSOR_0 1
+  #else
+    #if ENABLED(EZBOARD_PT100)
+      #define TEMP_SENSOR_0 20
+    #elif ENABLED(V6_HOTEND)
+      #define TEMP_SENSOR_0 5
+    #elif ENABLED(KNOWN_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 KNOWN_HOTEND_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 1
+    #endif
+  #endif
+  
   #define TEMP_SENSOR_1 0 
   #define TEMP_SENSOR_2 0
   #define TEMP_SENSOR_3 0
@@ -181,7 +270,21 @@
   #define TEMP_SENSOR_5 0
   #define TEMP_SENSOR_6 0
   #define TEMP_SENSOR_7 0
-  #define TEMP_SENSOR_BED 1
+  
+  #if DISABLED(TH3D_BED_THERMISTOR) && DISABLED(KEENOVO_TEMPSENSOR) && DISABLED(KNOWN_BED_THERMISTOR) && DISABLED(AC_BED)
+    #define TEMP_SENSOR_BED 1
+  #else
+    #if ENABLED(AC_BED)
+      #define TEMP_SENSOR_BED 0
+    #elif ENABLED(KNOWN_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED KNOWN_BED_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED 1
+    #elif ENABLED(KEENOVO_TEMPSENSOR)
+      #define TEMP_SENSOR_BED 11
+    #endif
+  #endif
+  
   #define TEMP_SENSOR_PROBE 0
   #define TEMP_SENSOR_CHAMBER 0
 
@@ -220,7 +323,12 @@
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR true
 
-  #define INVERT_E0_DIR false
+  #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+    #define INVERT_E0_DIR true
+  #else
+    #define INVERT_E0_DIR false
+  #endif
+  
   #define INVERT_E1_DIR false
   #define INVERT_E2_DIR false
   #define INVERT_E3_DIR false
@@ -255,23 +363,35 @@
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 #define HEATER_0_MINTEMP   0
-#define HEATER_1_MINTEMP   5
-#define HEATER_2_MINTEMP   5
-#define HEATER_3_MINTEMP   5
-#define HEATER_4_MINTEMP   5
-#define HEATER_5_MINTEMP   5
-#define HEATER_6_MINTEMP   5
-#define HEATER_7_MINTEMP   5
-#define BED_MINTEMP        0
+#define HEATER_1_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_2_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_3_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_4_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_5_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_6_MINTEMP   HEATER_0_MINTEMP
+#define HEATER_7_MINTEMP   HEATER_0_MINTEMP
+#define BED_MINTEMP        HEATER_0_MINTEMP
 
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define HEATER_3_MAXTEMP 275
-#define HEATER_4_MAXTEMP 275
-#define HEATER_5_MAXTEMP 275
-#define HEATER_6_MAXTEMP 275
-#define HEATER_7_MAXTEMP 275
+#if ENABLED(HIGH_TEMP_THERMISTOR)
+  #define HEATER_0_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_1_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_2_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_3_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_4_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_5_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_6_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+  #define HEATER_7_MAXTEMP HIGH_TEMP_THERMISTOR_TEMP
+#else
+  #define HEATER_0_MAXTEMP 275
+  #define HEATER_1_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_2_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_3_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_4_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_5_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_6_MAXTEMP HEATER_0_MAXTEMP
+  #define HEATER_7_MAXTEMP HEATER_0_MAXTEMP
+#endif
+
 #define BED_MAXTEMP      120
 
 #define TEMP_RESIDENCY_TIME     10
@@ -385,6 +505,11 @@
 
 #define STRING_CONFIG_H_AUTHOR "TH3D Studio"
 #define UNIFIED_VERSION "TH3D UF2.00"
+#if ENABLED(USER_PRINTER_NAME)
+  #define CUSTOM_MACHINE_NAME USER_PRINTER_NAME
+#else
+  #define CUSTOM_MACHINE_NAME "TH3D UFW2"
+#endif
 #define S_CURVE_ACCELERATION
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 #define HOMING_FEEDRATE_XY (50*60)
@@ -495,6 +620,7 @@
  * LCD General Settings
  */
 
+#define LCD_LANGUAGE en
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
