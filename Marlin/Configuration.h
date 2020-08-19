@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##############################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // preMSwiss // 20/08/16
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // preMSwiss // 20/08/16 20/08/19
  * ##############################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3p MSDD SKR1.4 UBL 20/08/16" // ALTER TO SAVED DATE ########################### // 20/08/16
+#define CUSTOM_MACHINE_NAME "E3pro MSDD SKR1.4 UBL 20/08/19" // ALTER TO SAVED DATE ########################### // 20/08/19
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -1272,7 +1272,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    // #define EXTRAPOLATE_BEYOND_GRID // 20/06/28 // 20/08/16
+    #define EXTRAPOLATE_BEYOND_GRID // 20/06/28
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1292,9 +1292,9 @@
   //========================= Unified Bed Leveling ============================
   //===========================================================================
 
-  #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh // 20/08/16
+ // #define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed WAS 1 // UBL was 10 // 20/08/16 set to 1
+  #define MESH_INSET 10              // Set Mesh bounds as an inset region of the bed WAS 1 // UBL
   #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -1327,7 +1327,7 @@
 #if ENABLED(LCD_BED_LEVELING)
   #define MESH_EDIT_Z_STEP  0.025 // (mm) Step size while manually probing Z axis.
   #define LCD_PROBE_Z_RANGE 4     // (mm) Z Range centered on Z_MIN_POS for LCD Z adjustment
-  //#define MESH_EDIT_MENU        // Add a menu to edit mesh points
+  #define MESH_EDIT_MENU        // Add a menu to edit mesh points // 20/08/19
 #endif
 
 // Add a menu item to move between bed corners for manual bed adjustment
