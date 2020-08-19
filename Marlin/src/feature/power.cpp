@@ -59,7 +59,6 @@ bool Power::is_power_needed() {
 
   // If any of the drivers or the bed are enabled...
   if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
-    || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
     #if HAS_X2_ENABLE
       || X2_ENABLE_READ() == X_ENABLE_ON
     #endif
@@ -75,8 +74,8 @@ bool Power::is_power_needed() {
     #endif
   ) return true;
 
-  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0) return true;
-  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) return true;
+  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
