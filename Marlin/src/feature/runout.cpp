@@ -44,14 +44,6 @@ bool FilamentMonitorBase::enabled = true,
   #include "../module/tool_change.h"
 #endif
 
-/**
- * Called by FilamentSensorSwitch::run when filament is detected.
- * Called by FilamentSensorEncoder::block_completed when motion is detected.
- */
-void FilamentSensorBase::filament_present(const uint8_t extruder) {
-  runout.filament_present(extruder); // calls response.filament_present(extruder)
-}
-
 #if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
   volatile float RunoutResponseDelayed::runout_mm_countdown[EXTRUDERS];
