@@ -69,10 +69,10 @@
   #define MACHINE_SIZE "220x220x250"
 #endif
 #ifndef CORP_WEBSITE_C
-  #define CORP_WEBSITE_C "TH3DStudio.com"
+  #define CORP_WEBSITE_C "www.cxsw3d.com"
 #endif
 #ifndef CORP_WEBSITE_E
-  #define CORP_WEBSITE_E "TH3DStudio.com"
+  #define CORP_WEBSITE_E "www.creality.com"
 #endif
 
 #define PAUSE_HEAT true
@@ -2220,7 +2220,7 @@ void HMI_Prepare(void) {
         #else
           // Apply workspace offset, making the current position 0,0,0
           queue.inject_P(PSTR("G92 X0 Y0 Z0"));
-          HMI_AudioFoeedback();
+          HMI_AudioFeedback();
         #endif
         break;
       case 5: // PLA preheat
@@ -3306,10 +3306,10 @@ void HMI_Init(void) {
 
   lcd_select_language();
 
-  #if ENABLED(FIX_MOUNTED_PROBE) // For "CREALITY_TOUCH" probe too?
-    SET_OUTPUT(COM_PIN);
-    WRITE(COM_PIN, 1);
-  #endif
+  //#if ENABLED(FIX_MOUNTED_PROBE) // For "CREALITY_TOUCH" probe too?
+    //SET_OUTPUT(COM_PIN);
+    //WRITE(COM_PIN, 1);
+  //#endif
 
   delay(200);
 }
