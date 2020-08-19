@@ -198,8 +198,19 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
-        Planner::autotemp_min = 210,
-        Planner::autotemp_factor = 0.1f;
+        Planner::autotemp_min = 210;
+
+  #if ENABLED(AUTOTEMP_FACTORLESS)
+    float Planner::autotemp_min_e_speed = 1.25f,
+          Planner::autotemp_max_e_speed = 3.33f;
+  #else
+    float Planner::autotemp_factor = 0.1f;
+  #endif
+
+  #ifdef AUTOTEMP_MIN_Z_RAISE
+    float Planner::autotemp_last_z = 0.0f;
+  #endif
+
   bool Planner::autotemp_enabled = false;
 #endif
 
@@ -1257,6 +1268,10 @@ void Planner::recalculate() {
     if (!autotemp_enabled) return;
     if (thermalManager.degTargetHotend(0) + 2 < autotemp_min) return; // probably temperature set to zero.
 
+    #ifdef AUTOTEMP_MIN_Z_RAISE
+      if (current_position.z < autotemp_last_z + float(AUTOTEMP_MIN_Z_RAISE)) return; // layer not yet changed
+    #endif
+
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t* block = &block_buffer[b];
@@ -1266,10 +1281,25 @@ void Planner::recalculate() {
       }
     }
 
-    float t = autotemp_min + high * autotemp_factor;
+    #ifdef AUTOTEMP_MIN_Z_RAISE
+      if (high > 0.0) autotemp_last_z = current_position.z; // start requiring z raise only after we're actually printing
+    #endif
+
+    float t;
+    #if ENABLED(AUTOTEMP_FACTORLESS)
+      t = autotemp_min + (autotemp_max - autotemp_min) * ((high - autotemp_min_e_speed) / (autotemp_max_e_speed - autotemp_min_e_speed));
+    #else
+      t = autotemp_min + high * autotemp_factor;
+    #endif
     LIMIT(t, autotemp_min, autotemp_max);
+
     if (t < oldt) t = t * (1 - float(AUTOTEMP_OLDWEIGHT)) + oldt * float(AUTOTEMP_OLDWEIGHT);
     oldt = t;
+
+    #ifdef AUTOTEMP_GRANULARITY
+      t = autotemp_min + FLOOR((t - autotemp_min) / float(AUTOTEMP_GRANULARITY)) * float(AUTOTEMP_GRANULARITY);
+    #endif
+
     thermalManager.setTargetHotend(t, 0);
   }
 
@@ -3038,8 +3068,13 @@ void Planner::autotemp_update() {
     autotemp_min = target + AUTOTEMP_MIN_P;
     autotemp_max = target + AUTOTEMP_MAX_P;
   #endif
-  autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-  autotemp_enabled = autotemp_factor != 0;
+
+  #if ENABLED(AUTOTEMP_FACTORLESS)
+    autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed != autotemp_max_e_speed;
+  #else
+    autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+    autotemp_enabled = autotemp_factor != 0;
+  #endif
 }
 
   void Planner::autotemp_M104_M109() {
@@ -3053,9 +3088,19 @@ void Planner::autotemp_update() {
     if (parser.seenval('S')) autotemp_min = parser.value_celsius();
     if (parser.seenval('B')) autotemp_max = parser.value_celsius();
 
-    // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
-    // Normally, leaving off F also disables autotemp.
-    autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-    autotemp_enabled = autotemp_factor != 0;
+    #if ENABLED(AUTOTEMP_FACTORLESS)
+      if (parser.seenval('N')) autotemp_min_e_speed = parser.value_axis_units(E_AXIS);
+      if (parser.seenval('M')) autotemp_max_e_speed = parser.value_axis_units(E_AXIS);
+      autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed != autotemp_max_e_speed;
+    #else
+      // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
+      // Normally, leaving off F also disables autotemp.
+      autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
+      autotemp_enabled = autotemp_factor != 0;
+    #endif
+
+    #ifdef AUTOTEMP_MIN_Z_RAISE
+      if (!autotemp_enabled) autotemp_last_z = 0.0f;
+    #endif
   }
 #endif

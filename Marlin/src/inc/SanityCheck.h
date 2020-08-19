@@ -3051,5 +3051,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 controller."
 #endif
 
+/**
+ * Sanity check for autotemp
+ */
+#if BOTH(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTORLESS)
+  #error "AUTOTEMP_FACTORLESS is incompatible with AUTOTEMP_PROPORTIONAL."
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM

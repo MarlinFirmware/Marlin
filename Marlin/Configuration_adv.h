@@ -286,10 +286,18 @@
  *
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
  * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
+ *
+ * With AUTOTEMP_FACTORLESS, target temperature will scale evenly across a range of
+ * extruder speeds set with M104/M109 S<mintemp> B<maxtemp> N<minespeed> M<maxespeed>.
+ * Extruder speeds can be calculated from a slicer's volumetric extrusion rate preview
+ * in mm^3/s. This option is incompatible with AUTOTEMP_PROPORTIONAL. Setting minimum
+ * or maximum temperature to 0 or both speeds to the same value disables autotemp.
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT    0.98
+  #define AUTOTEMP_OLDWEIGHT      0.98
+  //#define AUTOTEMP_GRANULARITY 10.0  // Target temperature will be calculated in increments of this many degrees
+  //#define AUTOTEMP_MIN_Z_RAISE  0.08 // To ensure temperature is only calculated at the beginning of a new layer
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
@@ -297,6 +305,7 @@
     #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
     #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
   #endif
+  //#define AUTOTEMP_FACTORLESS
 #endif
 
 // Show Temperature ADC value

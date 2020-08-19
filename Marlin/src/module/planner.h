@@ -877,7 +877,18 @@ class Planner {
     #endif
 
     #if ENABLED(AUTOTEMP)
-      static float autotemp_min, autotemp_max, autotemp_factor;
+      static float autotemp_min, autotemp_max;
+
+      #if ENABLED(AUTOTEMP_FACTORLESS)
+        static float autotemp_min_e_speed, autotemp_max_e_speed;
+      #else
+        static float autotemp_factor;
+      #endif
+
+      #ifdef AUTOTEMP_MIN_Z_RAISE
+        static float autotemp_last_z;
+      #endif
+
       static bool autotemp_enabled;
       static void getHighESpeed();
       static void autotemp_M104_M109();

@@ -252,7 +252,13 @@ void menu_backlash();
       EDIT_ITEM(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       EDIT_ITEM(float3, MSG_MIN, &planner.autotemp_min, 0, float(HEATER_0_MAXTEMP) - HOTEND_OVERSHOOT);
       EDIT_ITEM(float3, MSG_MAX, &planner.autotemp_max, 0, float(HEATER_0_MAXTEMP) - HOTEND_OVERSHOOT);
-      EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+
+      #if ENABLED(AUTOTEMP_FACTORLESS)
+        EDIT_ITEM(float42_52, MSG_MIN_E_SPEED, &planner.autotemp_min_e_speed, 0, planner.settings.max_feedrate_mm_s[E_AXIS]);
+        EDIT_ITEM(float42_52, MSG_MAX_E_SPEED, &planner.autotemp_max_e_speed, planner.autotemp_min_e_speed, planner.settings.max_feedrate_mm_s[E_AXIS]);
+      #else
+        EDIT_ITEM(float42_52, MSG_FACTOR, &planner.autotemp_factor, 0, 10);
+      #endif
     #endif
 
     //
