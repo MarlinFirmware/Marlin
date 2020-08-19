@@ -380,7 +380,7 @@ void CardReader::mount() {
   if (flag.mounted == true)
     cdroot();
   else {
-    spiInit(SPI_SPEED); //return base SPI speed
+    spiInit(SPI_SPEED); // Return to base SPI speed
     ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
   }
   ui.refresh();
