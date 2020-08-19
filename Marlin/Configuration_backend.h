@@ -7,6 +7,173 @@
 
 #define CONFIGURATION_BACKEND_H_VERSION 020006
 
+/**
+ * Machine Configuration Settings
+ */
+
+//Ender 3 V2 Settings
+#if ENABLED(ENDER3_V2)
+  #define SERIAL_PORT 1
+  #define SERIAL_PORT_2 3
+
+  #define BAUDRATE 115200
+
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_CREALITY_V4
+  #endif
+
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 25 }
+  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+
+  #define DEFAULT_ACCELERATION          500
+  #define DEFAULT_RETRACT_ACCELERATION  500
+  #define DEFAULT_TRAVEL_ACCELERATION   1000
+
+  #define CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
+    #define DEFAULT_XJERK 10.0
+    #define DEFAULT_YJERK 10.0
+    #define DEFAULT_ZJERK  0.3
+  #endif
+
+  #define DEFAULT_EJERK    5.0
+
+  #define S_CURVE_ACCELERATION
+
+  #define SHOW_BOOTSCREEN
+
+  #define EXTRUDERS 1
+
+  #define X_BED_SIZE 220
+  #define Y_BED_SIZE 220
+  #define Z_MAX_POS 250
+  #define X_MIN_POS 0
+  #define Y_MIN_POS 0
+
+  #define USE_XMIN_PLUG
+  #define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
+
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
+
+  #define TEMP_SENSOR_0 1
+  #define TEMP_SENSOR_1 0 
+  #define TEMP_SENSOR_2 0
+  #define TEMP_SENSOR_3 0
+  #define TEMP_SENSOR_4 0
+  #define TEMP_SENSOR_5 0
+  #define TEMP_SENSOR_6 0
+  #define TEMP_SENSOR_7 0
+  #define TEMP_SENSOR_BED 1
+  #define TEMP_SENSOR_PROBE 0
+  #define TEMP_SENSOR_CHAMBER 0
+
+  #define DEFAULT_Kp 28.72
+  #define DEFAULT_Ki 2.62
+  #define DEFAULT_Kd 78.81
+
+  #define ENDSTOPPULLUPS
+
+  #define X_MIN_ENDSTOP_INVERTING false
+  #define Y_MIN_ENDSTOP_INVERTING false
+  #define Z_MIN_ENDSTOP_INVERTING false
+  #define X_MAX_ENDSTOP_INVERTING false
+  #define Y_MAX_ENDSTOP_INVERTING false
+  #define Z_MAX_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+
+  #define X_DRIVER_TYPE TMC2208_STANDALONE
+  #define Y_DRIVER_TYPE TMC2208_STANDALONE
+  #define Z_DRIVER_TYPE TMC2208_STANDALONE
+  #define E0_DRIVER_TYPE TMC2208_STANDALONE
+
+  #define ENDSTOP_INTERRUPTS_FEATURE
+
+  #define X_ENABLE_ON 0
+  #define Y_ENABLE_ON 0
+  #define Z_ENABLE_ON 0
+  #define E_ENABLE_ON 0
+
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR true
+
+  #define INVERT_E0_DIR false
+  #define INVERT_E1_DIR false
+  #define INVERT_E2_DIR false
+  #define INVERT_E3_DIR false
+  #define INVERT_E4_DIR false
+  #define INVERT_E5_DIR false
+  #define INVERT_E6_DIR false
+  #define INVERT_E7_DIR false
+
+  #define DWIN_CREALITY_LCD
+
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+#endif
+//End Ender 3 V2 Settings
+
+/**
+ * Temp Settings
+ */
+
+#define HEATER_0_MINTEMP   0
+#define HEATER_1_MINTEMP   5
+#define HEATER_2_MINTEMP   5
+#define HEATER_3_MINTEMP   5
+#define HEATER_4_MINTEMP   5
+#define HEATER_5_MINTEMP   5
+#define HEATER_6_MINTEMP   5
+#define HEATER_7_MINTEMP   5
+#define BED_MINTEMP        0
+
+#define HEATER_0_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
+#define BED_MAXTEMP      120
+
+#define TEMP_RESIDENCY_TIME     10
+#define TEMP_WINDOW              1
+#define TEMP_HYSTERESIS          3
+
+#define TEMP_BED_RESIDENCY_TIME 10
+#define TEMP_BED_WINDOW          1
+#define TEMP_BED_HYSTERESIS      3
+
+#define PIDTEMP
+#define BANG_MAX 255
+#define PID_MAX BANG_MAX
+#define PID_K1 0.95
+
+#define PIDTEMPBED
+#define MAX_BED_POWER 255
+#if ENABLED(PIDTEMPBED)
+  #define DEFAULT_bedKp 462.10
+  #define DEFAULT_bedKi 85.47
+  #define DEFAULT_bedKd 624.59
+#endif
+
+#if EITHER(PIDTEMP, PIDTEMPBED)
+  #define PID_FUNCTIONAL_RANGE 10
+#endif
+
+//#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 180
+
+#define PREVENT_LENGTHY_EXTRUDE
+#define EXTRUDE_MAXLENGTH 1000
+
+#define THERMAL_PROTECTION_HOTENDS
+#define THERMAL_PROTECTION_BED
 
 /**
  * General Firmware Settings
@@ -16,11 +183,17 @@
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 
+#define HOMING_FEEDRATE_XY (50*60)
+
+#define VALIDATE_HOMING_ENDSTOPS
+
 #define HOST_KEEPALIVE_FEATURE
 #define DEFAULT_KEEPALIVE_INTERVAL 2
 #if DISABLED(SPACE_SAVER)
   #define BUSY_WHILE_HEATING
 #endif
+
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 
 #define EEPROM_SETTINGS
 #if ENABLED(SPACE_SAVER)
@@ -30,6 +203,22 @@
 #define EEPROM_BOOT_SILENT
 #if DISABLED(SPACE_SAVER)
   #define EEPROM_AUTO_INIT
+#endif
+
+#define MIN_SOFTWARE_ENDSTOPS
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS)
+  #define MIN_SOFTWARE_ENDSTOP_X
+  #define MIN_SOFTWARE_ENDSTOP_Y
+  #if DISABLED(ABL_ENABLE)
+    #define MIN_SOFTWARE_ENDSTOP_Z
+  #endif
+#endif
+
+#define MAX_SOFTWARE_ENDSTOPS
+#if ENABLED(MAX_SOFTWARE_ENDSTOPS)
+  #define MAX_SOFTWARE_ENDSTOP_X
+  #define MAX_SOFTWARE_ENDSTOP_Y
+  #define MAX_SOFTWARE_ENDSTOP_Z
 #endif
 
 #define PREHEAT_1_LABEL       "PLA"
@@ -44,10 +233,16 @@
 
 #define NOZZLE_PARK_FEATURE
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  #define NOZZLE_PARK_POINT { (X_MAX_POS - 15), 15, 10 }
+  #define NOZZLE_PARK_POINT { 15, 15, 10 }
   #define NOZZLE_PARK_XY_FEEDRATE 100  
-  #define NOZZLE_PARK_Z_FEEDRATE 5  
+  #define NOZZLE_PARK_Z_FEEDRATE 5
 #endif
+
+#define DISABLE_X false
+#define DISABLE_Y false
+#define DISABLE_Z false
+#define DISABLE_E false
+#define DISABLE_INACTIVE_EXTRUDER
 
 /**
  * LCD General Settings
@@ -57,6 +252,17 @@
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
 #define INDIVIDUAL_AXIS_HOMING_MENU
+
+#define LEVEL_BED_CORNERS
+#if ENABLED(LEVEL_BED_CORNERS)
+  #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 }
+  #define LEVEL_CORNERS_HEIGHT      0.0
+  #define LEVEL_CORNERS_Z_HOP       4.0
+  #define LEVEL_CENTER_TOO
+#endif
+
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 
 /**
  * Misc features and settings
@@ -84,6 +290,7 @@
  */
 
 #if ENABLED(ABL_ENABLE)
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE

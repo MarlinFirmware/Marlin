@@ -50,7 +50,12 @@
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password/password.h"
+#endif
+
 void menu_tune();
+void menu_cancelobject();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
@@ -110,7 +115,12 @@ void menu_main() {
         );
       });
     #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
+
+    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    #endif
   }
   else {
 
@@ -127,7 +137,7 @@ void menu_main() {
 
       if (card_detected) {
         if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, menu_media);
+          SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
           MENU_ITEM(gcode,
             #if PIN_EXISTS(SD_DETECT)
               MSG_CHANGE_MEDIA, M21_STR
@@ -234,7 +244,7 @@ void menu_main() {
               MSG_RELEASE_MEDIA, PSTR("M22")
             #endif
           );
-          SUBMENU(MSG_MEDIA_MENU, menu_media);
+          SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
         }
       }
       else {
