@@ -21,7 +21,7 @@
  */
 
 /**
- * configuration_store.cpp
+ * settings.cpp
  *
  * Settings and EEPROM storage
  *
