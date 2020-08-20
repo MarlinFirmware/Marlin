@@ -29,9 +29,7 @@
 #endif
 
 #define BOARD_INFO_NAME      "CREALITY V4.2.7"
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "Ender 3"
-#endif
+#define DEFAULT_MACHINE_NAME "CREALITY"
 
 //
 // Steppers
