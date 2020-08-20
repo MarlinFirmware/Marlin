@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##############################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // preMSwiss // 20/08/16 20/08/19
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // preMSwiss // 20/08/16 20/08/19 20/08/20
  * ##############################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -134,7 +134,7 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3pro MSDD SKR1.4 UBL 20/08/19" // ALTER TO SAVED DATE ########################### // 20/08/19
+#define CUSTOM_MACHINE_NAME "E3proMSDD SKR1.4UBL 20/08/20" // ALTER TO SAVED DATE ########################### // 20/08/20
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like http://www.uuidgenerator.net/version4
@@ -967,7 +967,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -44, -20, -2.9 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/08/16 for smooth pei MSwiss
+#define NOZZLE_TO_PROBE_OFFSET { -44, -20, -2.953 } // Z OFFSET SET IN USER MENU FOR EACH MESH SAVED // 20/08/20 for smooth pei MSwiss
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.

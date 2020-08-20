@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##################################################################################
- * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26 20/07/09 20/08/19
+ * ALTERATIONS MADE INDICATED THUS - MAIN UBL // UBL or DATE IMPLIMENTED // 20/06/26 20/07/09 20/08/20
  * ##################################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1561,10 +1561,10 @@
 
 #if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   // Override the mesh area if the automatic (max) area is too large
-  #define MESH_MIN_X 5 // was MESH_INSET // 20/08/19
-  #define MESH_MIN_Y 5 // was MESH_INSET // 20/08/19
-  #define MESH_MAX_X 255 // was X_BED_SIZE - (MESH_INSET) // 20/08/19
-  #define MESH_MAX_Y Y_BED_SIZE - 15 // was (MESH_INSET) // 20/08/19
+  // #define MESH_MIN_X 5 // was MESH_INSET // 20/08/20
+  // #define MESH_MIN_Y 5 // was MESH_INSET // 20/08/20
+  // #define MESH_MAX_X 255 // was X_BED_SIZE - (MESH_INSET) // 20/08/20
+  // #define MESH_MAX_Y Y_BED_SIZE - 15 // was (MESH_INSET) // 20/08/20
 #endif
 
 /**
@@ -2328,7 +2328,7 @@
     // TMC2209: 0...255. TMC2130: -64...63
     #define X_STALL_SENSITIVITY  70 // 20/06/26
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  75 // 20/08/19
+    #define Y_STALL_SENSITIVITY  75 // 20/08/20
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY //commented out to make more robust // 20/06/26
@@ -2850,8 +2850,8 @@
   #define USER_SCRIPT_AUDIBLE_FEEDBACK
   //#define USER_SCRIPT_RETURN  // Return to status screen after a script
 
-  #define USER_DESC_1 "Home & show UBL Info" // UBL
-  #define USER_GCODE_1 "G28\nG29 W" // UBL
+  #define USER_DESC_1 "GOTO bed edge" // 20/08/20
+  #define USER_GCODE_1 "G0X0Y0" // 20/08/20
 
   #define USER_DESC_2 "Probe UBL Slot 0 PEI powder coated" //Use probe to setup UBL. // 20/06/26
   #define USER_GCODE_2 "M190 S60\nG28\nG29 P1\nG29 P3\nG29 S0\nG29 A\nG29 F 10.0\nM500\nM140 S0\nM0 Mesh Saved Slot 0 PEI p coated" // heat bed, home, UBL, fade // 20/06/26
