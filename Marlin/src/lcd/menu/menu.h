@@ -482,7 +482,14 @@ class MenuItem_bool : public MenuEditItemBase {
 }while(0)
 
 #define STATIC_ITEM(LABEL,      V...)                  STATIC_ITEM_P(GET_TEXT(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), ##V)
+#define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), N, ##V)
+
+#define PSTRING_ITEM(LABEL, PVAL, STYL) do{ \
+  char msg[21], *ptr = msg;                 \
+  *ptr++ = ':'; *ptr++ = ' ';               \
+  strncpy_P(ptr, PSTR(PVAL), 18);           \
+  STATIC_ITEM(LABEL, STYL, msg);            \
+}while(0)
 
 #define MENU_ITEM_N_S_P(TYPE, N, S, PLABEL, V...)   _MENU_ITEM_N_S_P(TYPE, N, S, false, PLABEL, ##V)
 #define MENU_ITEM_N_S(TYPE, N, S, LABEL, V...)       MENU_ITEM_N_S_P(TYPE, N, S, GET_TEXT(LABEL), ##V)
@@ -539,9 +546,6 @@ class MenuItem_bool : public MenuEditItemBase {
 #define EDIT_ITEM_FAST_N(TYPE, N, LABEL, V...)        EDIT_ITEM_FAST_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
 #define EDIT_ITEM_FAST_P(TYPE, PLABEL, V...)                _MENU_ITEM_P(TYPE, true, PLABEL, ##V)
 #define EDIT_ITEM_FAST(TYPE, LABEL, V...)               EDIT_ITEM_FAST_P(TYPE, GET_TEXT(LABEL), ##V)
-
-#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
-#define VALUE_ITEM_P(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
 
 #define _CONFIRM_ITEM_INNER_P(PLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \

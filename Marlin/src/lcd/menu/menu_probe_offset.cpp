@@ -97,8 +97,8 @@ static void _lcd_probe_offset_move_z() {
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_Z, SS_CENTER|SS_INVERT);
 
-  VALUE_ITEM(MSG_MESH_EDIT_Z, ftostr42_52(current_position.z), SS_LEFT);
-  VALUE_ITEM(MSG_ZPROBE_ZOFFSET, ftostr42_52(calculated_z_offset), SS_LEFT);
+  STATIC_ITEM(MSG_MESH_EDIT_Z,    SS_LEFT, ftostr42_52(current_position.z));
+  STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
