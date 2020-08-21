@@ -742,7 +742,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 130 } // CONFIG FOR MY SETUP CHECK YOUR OWN // MS MSwiss default
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80.48, 80.36, 392.99, 138.3 } // CONFIG FOR MY SETUP CHECK YOUR OWN // MS after E steps calib
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1108,7 +1108,7 @@
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS -5  // MS
-#define Y_MIN_POS -10 // MS
+#define Y_MIN_POS -7 // MS defaul was -10 trial on 20/08/21
 #define Z_MIN_POS 0
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
