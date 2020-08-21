@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PROBE_OFFSET_MENU) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+#if BOTH(HAS_LCD_MENU, PROBE_OFFSET_WIZARD) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
 
 #include "menu.h"
 #include "menu_addon.h"
@@ -122,7 +122,7 @@ static void _lcd_probe_offset_move_z() {
   END_MENU();
 }
 
-void _lcd_probe_offset() {
+void _lcd_probe_wizard() {
   ui.defer_status_screen();
 
   set_all_unhomed();
@@ -151,4 +151,4 @@ void _lcd_probe_offset() {
   });
 }
 
-#endif // HAS_LCD_MENU && PROBE_OFFSET_MENU && !BABYSTEP_ZPROBE_OFFSET
+#endif // HAS_LCD_MENU && PROBE_OFFSET_WIZARD && !BABYSTEP_ZPROBE_OFFSET

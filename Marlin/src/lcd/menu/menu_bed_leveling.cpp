@@ -278,8 +278,8 @@ void menu_bed_leveling() {
     SUBMENU(MSG_LEVEL_CORNERS, _lcd_level_bed_corners);
   #endif
 
-  #if ENABLED(PROBE_OFFSET_MENU)
-    SUBMENU(MSG_PROBE_OFFSET, _lcd_probe_offset);
+  #if ENABLED(PROBE_OFFSET_WIZARD)
+    SUBMENU(MSG_PROBE_WIZARD, _lcd_probe_wizard);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

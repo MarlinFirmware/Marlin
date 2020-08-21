@@ -649,8 +649,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
-  PROGMEM Language_Str MSG_PROBE_OFFSET                   = _UxGT("Cal Z Probe Offset");
-
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
 }
 
 #if FAN_COUNT == 1

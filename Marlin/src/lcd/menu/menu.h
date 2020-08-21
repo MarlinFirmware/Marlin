@@ -631,8 +631,8 @@ void _lcd_draw_homing();
   void _lcd_level_bed_corners();
 #endif
 
-#if ENABLED(PROBE_OFFSET_MENU)
-  void _lcd_probe_offset();
+#if ENABLED(PROBE_OFFSET_WIZARD)
+  void _lcd_probe_wizard();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))

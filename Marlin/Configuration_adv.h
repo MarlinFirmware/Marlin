@@ -1636,8 +1636,8 @@
  * the offset will be calculated, which can then be stored.
  */
 #if HAS_BED_PROBE
-  #define PROBE_OFFSET_MENU
-  #if ENABLED(PROBE_OFFSET_MENU)
+  #define PROBE_OFFSET_WIZARD
+  #if ENABLED(PROBE_OFFSET_WIZARD)
     //#define PROBE_OFFSET_START -4.0
   #endif
 #endif
