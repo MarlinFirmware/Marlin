@@ -20,30 +20,10 @@
 
 #include <stdint.h>
 
-// Relies on XPT2046-compatible mode of ADS7843,
-// hence no Z1 / Z2 measurements are possible.
-
-#define XPT2046_DFR_MODE 0x00
-#define XPT2046_SER_MODE 0x04
-#define XPT2046_CONTROL  0x80
-
-enum XPTCoordinate : uint8_t {
-  XPT2046_X  = 0x10,
-  XPT2046_Y  = 0x50,
-  XPT2046_Z1 = 0x30,
-  XPT2046_Z2 = 0x40
-};
-
-class XPT2046 {
+class TouchButtons {
 public:
   static void init();
   static uint8_t read_buttons();
-  bool getTouchPoint(uint16_t &x, uint16_t &y);
-  static bool isTouched();
-  inline void waitForRelease() { while (isTouched()) { /* nada */ } }
-  inline void waitForTouch(uint16_t &x, uint16_t &y) { while (!getTouchPoint(x, y)) { /* nada */ } }
-private:
-  static uint16_t getInTouch(const XPTCoordinate coordinate);
 };
 
-extern XPT2046 touch;
+extern TouchButtons touch;

@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_SPI_TFT || ENABLED(TFT_LVGL_UI_SPI)
+#if HAS_SPI_TFT
 
 #include "tft_spi.h"
 
@@ -30,32 +30,32 @@
 
 SPIClass TFT_SPI::SPIx(1);
 
-#define SPI_TFT_CS_H  OUT_WRITE(TFT_CS_PIN, HIGH)
-#define SPI_TFT_CS_L  OUT_WRITE(TFT_CS_PIN, LOW)
+#define TFT_CS_H  OUT_WRITE(TFT_CS_PIN, HIGH)
+#define TFT_CS_L  OUT_WRITE(TFT_CS_PIN, LOW)
 
-#define SPI_TFT_DC_H  OUT_WRITE(TFT_DC_PIN, HIGH)
-#define SPI_TFT_DC_L  OUT_WRITE(TFT_DC_PIN, LOW)
+#define TFT_DC_H  OUT_WRITE(TFT_DC_PIN, HIGH)
+#define TFT_DC_L  OUT_WRITE(TFT_DC_PIN, LOW)
 
-#define SPI_TFT_RST_H OUT_WRITE(TFT_RST_PIN, HIGH)
-#define SPI_TFT_RST_L OUT_WRITE(TFT_RST_PIN, LOW)
+#define TFT_RST_H OUT_WRITE(TFT_RST_PIN, HIGH)
+#define TFT_RST_L OUT_WRITE(TFT_RST_PIN, LOW)
 
-#define SPI_TFT_BLK_H OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH)
-#define SPI_TFT_BLK_L OUT_WRITE(TFT_BACKLIGHT_PIN, LOW)
+#define TFT_BLK_H OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH)
+#define TFT_BLK_L OUT_WRITE(TFT_BACKLIGHT_PIN, LOW)
 
 void TFT_SPI::Init() {
   #if PIN_EXISTS(TFT_RESET)
     // OUT_WRITE(TFT_RESET_PIN, HIGH);
-    SPI_TFT_RST_H;
+    TFT_RST_H;
     delay(100);
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
     // OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
-    SPI_TFT_BLK_H;
+    TFT_BLK_H;
   #endif
 
-  SPI_TFT_DC_H;
-  SPI_TFT_CS_H;
+  TFT_DC_H;
+  TFT_CS_H;
 
   /**
    * STM32F1 APB2 = 72MHz, APB1 = 36MHz, max SPI speed of this MCU if 18Mhz
@@ -87,7 +87,7 @@ void TFT_SPI::Init() {
 void TFT_SPI::DataTransferBegin(uint16_t DataSize) {
   SPIx.setDataSize(DataSize);
   SPIx.begin();
-  SPI_TFT_CS_L;
+  TFT_CS_L;
 }
 
 uint32_t TFT_SPI::GetID() {
@@ -135,7 +135,7 @@ void TFT_SPI::Transmit(uint16_t Data) {
 
 void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DataTransferBegin();
-  SPI_TFT_DC_H;
+  TFT_DC_H;
   if (MemoryIncrease == DMA_MINC_ENABLE) {
     SPIx.dmaSend(Data, Count, true);
   }

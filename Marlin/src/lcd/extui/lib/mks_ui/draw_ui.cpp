@@ -653,10 +653,10 @@ char *creat_title_text() {
             i       += 2;
             if (*p_index == 0x0000) *p_index = 0xC318;
           }
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
+          TFT_CS_L;
+          TFT_DC_H;
           SPI.dmaSend(bmp_public_buf, 400, true);
-          SPI_TFT_CS_H;
+          TFT_CS_H;
 
         #else
           for (i = 0; i < 400;) {

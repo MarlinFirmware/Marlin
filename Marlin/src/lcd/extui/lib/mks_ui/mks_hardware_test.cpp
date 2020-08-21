@@ -34,8 +34,6 @@
 #include "pic_manager.h"
 #include <lvgl.h>
 
-#include "../../../touch/xpt2046.h"
-
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../sd/cardreader.h"
