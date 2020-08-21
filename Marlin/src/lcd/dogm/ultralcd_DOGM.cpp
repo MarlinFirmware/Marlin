@@ -439,6 +439,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(value);
       }
     }
+    TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, PGM_P const pstr, const bool inv) {
