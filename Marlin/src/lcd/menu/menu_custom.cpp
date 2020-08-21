@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, CUSTOM_USER_MENUS)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../gcode/queue.h"
 
 #ifdef USER_SCRIPT_DONE

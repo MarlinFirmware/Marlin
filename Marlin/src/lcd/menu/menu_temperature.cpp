@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && HAS_TEMPERATURE
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/temperature.h"
 
 #if FAN_COUNT > 1 || ENABLED(SINGLENOZZLE)

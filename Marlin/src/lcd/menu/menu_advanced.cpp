@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 
 #if DISABLED(NO_VOLUMETRICS)

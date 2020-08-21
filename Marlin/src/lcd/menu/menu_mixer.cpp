@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, MIXING_EXTRUDER)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "menu_addon.h"
 
 #include "../../feature/mixing.h"

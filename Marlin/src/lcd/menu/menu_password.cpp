@@ -30,7 +30,7 @@
 
 #include "../../feature/password/password.h"
 
-#include "menu.h"
+#include "menu_item.h"
 #include "menu_addon.h"
 
 void menu_advanced_settings();

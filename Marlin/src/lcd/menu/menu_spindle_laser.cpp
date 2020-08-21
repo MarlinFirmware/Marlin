@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && HAS_CUTTER
 
-  #include "menu.h"
+  #include "menu_item.h"
 
   #include "../../feature/spindle_laser.h"
 

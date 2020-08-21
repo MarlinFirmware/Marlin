@@ -28,7 +28,7 @@
 
 #if ENABLED(LCD_BED_LEVELING)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
