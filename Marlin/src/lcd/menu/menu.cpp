@@ -412,7 +412,10 @@ void MenuItem_confirm::select_screen(
   const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
-    if (got_click) { ui_selection ? yesFunc() : noFunc(); }
+    if (got_click) {
+      selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
+      if (callFunc) callFunc(); else ui.goto_previous_screen();
+    }
     ui.defer_status_screen();
   }
 }
