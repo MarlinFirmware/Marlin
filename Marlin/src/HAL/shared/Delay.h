@@ -65,8 +65,7 @@
         uint32_t oldTicks = currentTicks;
         do {
           currentTicks = HAL_SYSTICK_VALUE;
-          elapsedTicks += (oldTicks < currentTicks) ? HAL_SYSTICK_RELOAD_VALUE + oldTicks - currentTicks :
-                              oldTicks - currentTicks;
+          elapsedTicks += (oldTicks < currentTicks ? HAL_SYSTICK_RELOAD_VALUE : 0) + oldTicks - currentTicks;
           oldTicks = currentTicks;
         } while (nbTicks > elapsedTicks);
       }
