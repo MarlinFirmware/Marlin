@@ -27,12 +27,9 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
+#include "../../lcd/ultralcd.h"
 
 #include "../../feature/bedlevel/bedlevel.h"
-
-#if HAS_SPI_LCD
-  #include "../../lcd/ultralcd.h"
-#endif
 
 #if HAS_LEVELING
   #include "../../module/planner.h"
