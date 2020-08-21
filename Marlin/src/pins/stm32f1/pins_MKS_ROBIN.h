@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
-#ifndef __STM32F1__
+#if !defined(STM32F1) && !defined(STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -43,7 +43,14 @@
 //
 // Enable SD EEPROM to prevent infinite boot loop
 //
-#define SDCARD_EEPROM_EMULATION
+#ifdef ARDUINO_ARCH_STM32
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+#else
+  #define SDCARD_EEPROM_EMULATION
+#endif
 
 //
 // Servos
@@ -112,35 +119,47 @@
 #define PS_ON_PIN                           PA3   // PW_OFF
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
-#define BEEPER_PIN                          PC13
+#ifdef ARDUINO_ARCH_STM32F1
+  #define BEEPER_PIN                        PC13
+#else
+  #define BEEPER_PIN                        -1
+#endif
 #define LED_PIN                             PB2
 
-/**
- * Note: MKS Robin TFT screens use various TFT controllers
- * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
- * ILI9488 is not supported
- * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN'
- * to let the bootloader init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
-//#define LCD_RESET_PIN                     PF6
-#define LCD_BACKLIGHT_PIN                   PG11
-#define FSMC_CS_PIN                         PG12  // NE4
-#define FSMC_RS_PIN                         PF0   // A0
+#ifdef HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
+#else
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
+  //#define LCD_RESET_PIN                   PF6
+  #define LCD_BACKLIGHT_PIN                 PG11
+  #define FSMC_CS_PIN                       PG12  // NE4
+  #define FSMC_RS_PIN                       PF0   // A0
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-#define FSMC_DMA_DEV                        DMA2
-#define FSMC_DMA_CHANNEL                 DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+#endif
 
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define TOUCH_INT_PIN                     -1
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
@@ -150,7 +169,6 @@
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
-  #define SS_PIN                            -1    // PB12 is X-
   #define SD_DETECT_PIN                     PF12  // SD_CD
 #else
   // SD as custom software SPI (SDIO pins)

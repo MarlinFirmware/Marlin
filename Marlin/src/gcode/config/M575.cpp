@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,7 +33,21 @@
  *   B<baudrate> - Baud rate (bits per second)
  */
 void GcodeSuite::M575() {
-  const int32_t baud = parser.ulongval('B');
+  int32_t baud = parser.ulongval('B');
+  switch (baud) {
+    case   24:
+    case   96:
+    case  192:
+    case  384:
+    case  576:
+    case 1152: baud *= 100; break;
+    case  250:
+    case  500: baud *= 1000; break;
+    case   19: baud = 19200; break;
+    case   38: baud = 38400; break;
+    case   57: baud = 57600; break;
+    case  115: baud = 115200; break;
+  }
   switch (baud) {
     case 2400: case 9600: case 19200: case 38400: case 57600:
     case 115200: case 250000: case 500000: case 1000000: {

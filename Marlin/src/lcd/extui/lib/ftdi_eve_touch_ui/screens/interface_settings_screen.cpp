@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -29,7 +29,7 @@
 
 #include "../archim2-flash/flash_storage.h"
 
-#include "../../../../../module/configuration_store.h"
+#include "../../../../../module/settings.h"
 
 #if ENABLED(LULZBOT_PRINTCOUNTER)
   #include "../../../../../module/printcounter.h"

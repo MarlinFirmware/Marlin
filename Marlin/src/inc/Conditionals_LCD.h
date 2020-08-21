@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,15 @@
   #define IS_CARTESIAN 1
 #endif
 
-#if ENABLED(CARTESIO_UI)
+#if ENABLED(MKS_LCD12864)
+  #define MKS_MINI_12864
+#endif
+
+#if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+
+  #define MINIPANEL
+
+#elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
   #define IS_ULTIPANEL
@@ -53,6 +61,19 @@
   #define ENCODER_PULSES_PER_STEP 1
   #define ENCODER_STEPS_PER_MENU_ITEM 1
   #define ENCODER_FEEDRATE_DEADZONE 2
+
+#elif ENABLED(ZONESTAR_12864LCD)
+  #define DOGLCD
+  #define IS_RRD_SC
+  #define U8GLIB_ST7920
+
+#elif ENABLED(ZONESTAR_12864OLED)
+  #define IS_RRD_SC
+  #define U8GLIB_SH1106
+
+#elif ENABLED(ZONESTAR_12864OLED_SSD1306)
+  #define IS_RRD_SC
+  #define IS_U8GLIB_SSD1306
 
 #elif ENABLED(RADDS_DISPLAY)
   #define IS_ULTIPANEL
@@ -98,15 +119,9 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   #define IS_RRD_FG_SC
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_NS(125)
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_NS(125)
-  #endif
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
 #elif ENABLED(MKS_12864OLED)
 
@@ -118,9 +133,26 @@
   #define IS_RRD_SC
   #define IS_U8GLIB_SSD1306
 
-#elif EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+#elif ENABLED(FYSETC_242_OLED_12864)
 
-  #define MINIPANEL
+  #define IS_RRD_SC
+  #define U8GLIB_SH1106
+
+  #define LED_CONTROL_MENU
+  #define NEOPIXEL_LED
+  #undef NEOPIXEL_TYPE
+  #define NEOPIXEL_TYPE       NEO_RGB
+  #if NEOPIXEL_PIXELS < 3
+    #undef NEOPIXELS_PIXELS
+    #define NEOPIXEL_PIXELS     3
+  #endif
+  #ifndef NEOPIXEL_BRIGHTNESS
+    #define NEOPIXEL_BRIGHTNESS 127
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    #define LED_BACKLIGHT_TIMEOUT 10000
+  #endif
 
 #elif ANY(FYSETC_MINI_12864_X_X, FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1, FYSETC_GENERIC_12864_1_1)
 
@@ -236,11 +268,43 @@
   #define IS_ULTIPANEL
 #endif
 
+// FSMC/SPI TFT Panels (LVGL)
+#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
+  #define HAS_TFT_LVGL_UI 1
+#endif
+
 // FSMC/SPI TFT Panels
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
+  #define TFT_SCALED_DOGLCD 1
+#endif
+
+#if TFT_SCALED_DOGLCD
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
+#elif ENABLED(TFT_LVGL_UI_SPI)
+  #define DELAYED_BACKLIGHT_INIT
+#endif
+
+// FSMC/SPI TFT Panels (HAL STM32)
+#if EITHER(TFT_320x240, TFT_480x320)
+  #define HAS_FSMC_TFT 1
+#elif EITHER(TFT_320x240_SPI, TFT_480x320_SPI)
+  #define HAS_SPI_TFT 1
+#endif
+
+#if HAS_FSMC_TFT || HAS_SPI_TFT
+  #define HAS_GRAPHICAL_TFT 1
+  #define IS_ULTIPANEL
+#endif
+
+// Fewer lines with touch buttons on-screen
+#if EITHER(TFT_320x240, TFT_320x240_SPI)
+  #define HAS_UI_320x240 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x320, TFT_480x320_SPI)
+  #define HAS_UI_480x320 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
 /**
@@ -299,7 +363,7 @@
 #endif
 
 #ifndef STD_ENCODER_PULSES_PER_STEP
-  #if ENABLED(TOUCH_BUTTONS)
+  #if ENABLED(TOUCH_SCREEN)
     #define STD_ENCODER_PULSES_PER_STEP 2
   #else
     #define STD_ENCODER_PULSES_PER_STEP 5
@@ -360,7 +424,7 @@
 #endif
 
 // Extensible UI serial touch screens. (See src/lcd/extui)
-#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_DGUS_LCD, MALYAN_LCD, TOUCH_UI_FTDI_EVE, ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
   #define IS_EXTUI
   #define EXTENSIBLE_UI
 #endif
@@ -368,13 +432,14 @@
 // Aliases for LCD features
 #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
   #define HAS_DISPLAY 1
-  #if ENABLED(ULTRA_LCD)
-    #define HAS_SPI_LCD 1
-    #if ENABLED(DOGLCD)
-      #define HAS_GRAPHICAL_LCD 1
-    #else
-      #define HAS_CHARACTER_LCD 1
-    #endif
+#endif
+
+#if ENABLED(ULTRA_LCD)
+  #define HAS_SPI_LCD 1
+  #if ENABLED(DOGLCD)
+    #define HAS_GRAPHICAL_LCD 1
+  #elif DISABLED(HAS_GRAPHICAL_TFT)
+    #define HAS_CHARACTER_LCD 1
   #endif
 #endif
 
@@ -477,6 +542,8 @@
     #define HAS_MULTI_HOTEND 1
     #define HAS_HOTEND_OFFSET 1
   #endif
+#else
+  #undef PID_PARAMS_PER_HOTEND
 #endif
 
 // Helper macros for extruder and hotend arrays
@@ -527,6 +594,15 @@
   #define UNUSED_E(E) UNUSED(E)
 #endif
 
+#if ENABLED(DWIN_CREALITY_LCD)
+  #define SERIAL_CATCHALL 0
+#endif
+
+// Pressure sensor with a BLTouch-like interface
+#if ENABLED(CREALITY_TOUCH)
+  #define BLTOUCH
+#endif
+
 /**
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
@@ -555,14 +631,6 @@
 
 #ifndef NUM_SERVOS
   #define NUM_SERVOS 0
-#endif
-
-#ifndef PREHEAT_1_LABEL
-  #define PREHEAT_1_LABEL "PLA"
-#endif
-
-#ifndef PREHEAT_2_LABEL
-  #define PREHEAT_2_LABEL "ABS"
 #endif
 
 /**

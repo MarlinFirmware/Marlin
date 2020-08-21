@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,13 +29,10 @@
 
 #define I2C_EEPROM
 
-// Ignore temp readings during develpment.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
-
 //
 // Servos
 //
-//#define SERVO0_PIN                        PD12
+//#define SERVO0_PIN                        PB11
 
 //
 // Limit Switches
@@ -48,14 +45,14 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 //#ifndef Z_MIN_PROBE_PIN
-//  #define Z_MIN_PROBE_PIN  PB15
+//  #define Z_MIN_PROBE_PIN                 PG6
 //#endif
 
 //
 // Filament runout
 //
-#define FIL_RUNOUT_PIN                      PE6
-#define FIL_RUNOUT2_PIN                     PE7
+#define FIL_RUNOUT_PIN                      PE5
+#define FIL_RUNOUT2_PIN                     PE6
 
 //
 // Steppers
@@ -64,35 +61,35 @@
 #define X_DIR_PIN                           PB10
 #define X_ENABLE_PIN                        PG0
 //#ifndef X_CS_PIN
-//  #define X_CS_PIN       PE0
+//  #define X_CS_PIN                        PE0
 //#endif
 
 #define Y_STEP_PIN                          PF14
 #define Y_DIR_PIN                           PF15
 #define Y_ENABLE_PIN                        PF13
 //#ifndef Y_CS_PIN
-//  #define Y_CS_PIN       PE1
+//  #define Y_CS_PIN                        PE1
 //#endif
 
 #define Z_STEP_PIN                          PF11
 #define Z_DIR_PIN                           PF12
 #define Z_ENABLE_PIN                        PC5
 //#ifndef Z_CS_PIN
-//  #define Z_CS_PIN       PE2
+//  #define Z_CS_PIN                        PE2
 //#endif
 
 #define E0_STEP_PIN                         PC14
 #define E0_DIR_PIN                          PC13
 #define E0_ENABLE_PIN                       PC15
 //#ifndef E0_CS_PIN
-//  #define E0_CS_PIN      PE3
+//  #define E0_CS_PIN                       PE3
 //#endif
 
 #define E1_STEP_PIN                         PF1
 #define E1_DIR_PIN                          PF0
 #define E1_ENABLE_PIN                       PF2
 //#ifndef E1_CS_PIN
-//  #define E1_CS_PIN      PE4
+//  #define E1_CS_PIN                       PE4
 //#endif
 
 //
@@ -102,6 +99,12 @@
 #define TEMP_1_PIN                          PC2   // Analog Input
 #define TEMP_BED_PIN                        PC0   // Analog Input
 
+// Lergde-K can choose thermocouple/thermistor mode in software.
+// For use with thermistors, these pins must be OUT/LOW.
+// This is done automatically.
+#define TEMP_0_TR_ENABLE_PIN                PF10
+#define TEMP_1_TR_ENABLE_PIN                PF9
+
 //
 // Heaters / Fans
 //
@@ -110,10 +113,10 @@
 #define HEATER_BED_PIN                      PA2
 
 #ifndef FAN_PIN
-  #define FAN_PIN                           PC15
+  #define FAN_PIN                           PF7
 #endif
 #define FAN1_PIN                            PF6
-#define FAN2_PIN                            PF7
+#define FAN2_PIN                            PF8
 
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN                   PF6
@@ -125,12 +128,15 @@
 //#define CASE_LIGHT_PIN_CI                 -1
 //#define CASE_LIGHT_PIN_DO                 -1
 //#define NEOPIXEL_PIN                      -1
-
-//
-// Prusa i3 MK2 Multi-Material Multiplexer Support
-//
-//#define E_MUX0_PIN                        -1
-//#define E_MUX1_PIN                        -1
+#ifndef RGB_LED_R_PIN
+  #define RGB_LED_R_PIN                     PB7
+#endif
+#ifndef RGB_LED_G_PIN
+  #define RGB_LED_G_PIN                     PB8
+#endif
+#ifndef RGB_LED_B_PIN
+  #define RGB_LED_B_PIN                     PB9
+#endif
 
 //
 // SD support
@@ -141,39 +147,34 @@
 // Misc. Functions
 //
 #define SDSS                                PC11
-#define LED_PIN                             PC7   // Alive
+#define LED_PIN                             PA15   // Alive
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      -1    // Power-loss / nAC_FAULT
+#define POWER_LOSS_PIN                      PA4    // Power-loss / nAC_FAULT
 
 #define SCK_PIN                             PC12
 #define MISO_PIN                            PC8
 #define MOSI_PIN                            PD2
 #define SS_PIN                              PC11
 
+#define SD_DETECT_PIN                       PA8
+#define BEEPER_PIN                          PC7
+
 //
 // LCD / Controller
 //
 
-// TODO: Replace these with the correct FSMC pins, once known
-#define SD_DETECT_PIN                       -1
-#define BEEPER_PIN                          PD12
-#define LCD_PINS_RS                         -1
-#define LCD_PINS_ENABLE                     -1
-#define LCD_PINS_D4                         -1
-#define LCD_PINS_D5                         -1
-#define LCD_PINS_D6                         -1
-#define LCD_PINS_D7                         -1
+#define TFT_RESET_PIN                       PD6
+#define TFT_BACKLIGHT_PIN                   PD3
 
-#define BTN_EN1                             PE3
-#define BTN_EN2                             PE4
-#define BTN_ENC                             PE2
+#define TFT_CS_PIN                          PD7
+#define TFT_RS_PIN                          PD11
 
-//
-// ST7920 Delays
-//
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
-#endif
+#define TOUCH_CS_PIN                        PG15
+#define TOUCH_SCK_PIN                       PB3
+#define TOUCH_MOSI_PIN                      PB5
+#define TOUCH_MISO_PIN                      PB4
+
+#define BTN_EN1                             PG10
+#define BTN_EN2                             PG11
+#define BTN_ENC                             PG9

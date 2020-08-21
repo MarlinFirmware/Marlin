@@ -1,5 +1,5 @@
 /*
- * libmaple linker script 
+ * libmaple linker script
  *
  * This build puts .text (and .rodata) in Flash, and
  * .data/.bss/heap (of course) in SRAM, but links starting at the

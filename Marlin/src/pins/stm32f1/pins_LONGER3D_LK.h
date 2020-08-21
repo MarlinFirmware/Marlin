@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -130,12 +130,18 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
+#define FSMC_UPSCALE                           2
+#define LCD_FULL_PIXEL_WIDTH                 320
+#define LCD_FULL_PIXEL_HEIGHT                240
+#define LCD_PIXEL_OFFSET_X                    32
+#define LCD_PIXEL_OFFSET_Y                    32
+
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
  * mixed up MOSI and MISO pins. SPI is managed in SW, and needs pins
  * declared below.
  */
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB12  // pin 51 SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // pin 52
   #define TOUCH_MOSI_PIN                    PB14  // pin 53
@@ -163,7 +169,7 @@
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #else

@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * emergency_parser.cpp - Intercept special commands directly in the serial stream
+ * e_parser.cpp - Intercept special commands directly in the serial stream
  */
 
 #include "../inc/MarlinConfigPre.h"

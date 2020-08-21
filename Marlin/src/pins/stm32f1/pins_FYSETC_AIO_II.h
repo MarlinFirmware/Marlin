@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@
 
 #define DISABLE_JTAG
 
-#define pins_v2_20190128   // new pins define
+#define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
@@ -40,7 +40,7 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
@@ -84,7 +84,7 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
 
   /**
    * TMC2208/TMC2209 stepper drivers
@@ -97,9 +97,14 @@
   #define Y_HARDWARE_SERIAL  Serial1
   #define Z_HARDWARE_SERIAL  Serial1
   #define E0_HARDWARE_SERIAL Serial1
-  #define TMC_SERIAL_MULTIPLEXER
-  #define SERIAL_MUL_PIN1                   PB13
-  #define SERIAL_MUL_PIN2                   PB12
+
+  // The 4xTMC2209 module doesn't have a serial multiplexer and
+  // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
+  #if HAS_DRIVER(TMC2208)
+    #define TMC_SERIAL_MULTIPLEXER
+    #define SERIAL_MUL_PIN1                 PB13
+    #define SERIAL_MUL_PIN2                 PB12
+  #endif
 
 #endif
 

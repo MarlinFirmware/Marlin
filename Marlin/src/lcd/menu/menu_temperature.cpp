@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,9 +24,9 @@
 // Temperature Menu
 //
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
-#if HAS_LCD_MENU
+#if HAS_LCD_MENU && HAS_TEMPERATURE
 
 #include "menu.h"
 #include "../../module/temperature.h"
@@ -39,23 +39,19 @@
   #include "../../module/tool_change.h"
 #endif
 
-// Initialized by settings.load()
-int16_t MarlinUI::preheat_hotend_temp[2], MarlinUI::preheat_bed_temp[2];
-uint8_t MarlinUI::preheat_fan_speed[2];
-
 //
 // "Temperature" submenu items
 //
 
 void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
   #if HAS_HOTEND
-    if (indh >= 0 && ui.preheat_hotend_temp[indh] > 0)
-      setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.preheat_hotend_temp[indh]), e);
+    if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
+      setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.material_preset[indh].hotend_temp), e);
   #else
     UNUSED(e); UNUSED(indh);
   #endif
   #if HAS_HEATED_BED
-    if (indb >= 0 && ui.preheat_bed_temp[indb] > 0) setTargetBed(ui.preheat_bed_temp[indb]);
+    if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
   #else
     UNUSED(indb);
   #endif
@@ -64,86 +60,82 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
       #if FAN_COUNT > 1
         active_extruder < FAN_COUNT ? active_extruder :
       #endif
-      0), ui.preheat_fan_speed[indh]
+      0), ui.material_preset[indh].fan_speed
     );
   #endif
   ui.return_to_status();
 }
 
-#if HAS_TEMP_HOTEND
-  inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
-  #if HAS_HEATED_BED
-    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
+#if PREHEAT_COUNT
+
+  #if HAS_TEMP_HOTEND
+    inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
+    #if HAS_HEATED_BED
+      inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
+    #endif
   #endif
-#endif
-#if HAS_HEATED_BED
-  inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
-#endif
+  #if HAS_HEATED_BED
+    inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
+  #endif
+
+  #if HAS_TEMP_HOTEND && HAS_HEATED_BED
+
+    // Indexed "Preheat ABC" and "Heat Bed" items
+    #define PREHEAT_ITEMS(M,E) do{ \
+      ACTION_ITEM_N_S(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_both(M, MenuItemBase::itemIndex); }); \
+      ACTION_ITEM_N_S(E, ui.get_preheat_label(M), MSG_PREHEAT_M_END_E, []{ _preheat_end(M, MenuItemBase::itemIndex); }); \
+    }while(0)
+
+  #elif HAS_MULTI_HOTEND
+
+    // No heated bed, so just indexed "Preheat ABC" items
+    #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_S(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_end(M, MenuItemBase::itemIndex); })
+
+  #endif
+
+  void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
+
+  #if HAS_MULTI_HOTEND || HAS_HEATED_BED
+
+    // Set editable.int8 to the Material index before entering this menu
+    // because MenuItemBase::itemIndex will be re-used by PREHEAT_ITEMS
+    void menu_preheat_m() {
+      const uint8_t m = editable.int8; // Don't re-use 'editable' in this menu
+
+      START_MENU();
+      BACK_ITEM(MSG_TEMPERATURE);
+
+      #if HOTENDS == 1
+
+        #if HAS_HEATED_BED
+          ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, []{ _preheat_both(editable.int8, 0); });
+          ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_END, do_preheat_end_m);
+        #else
+          ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
+        #endif
+
+      #elif HAS_MULTI_HOTEND
+
+        HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
+          TERN_(HAS_HEATED_BED, []{ _preheat_bed(editable.int8); });
+          HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+        });
+
+      #endif
+
+      #if HAS_HEATED_BED
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_BEDONLY, []{ _preheat_bed(editable.int8); });
+      #endif
+
+      END_MENU();
+    }
+
+  #endif // HAS_MULTI_HOTEND || HAS_HEATED_BED
+
+#endif // PREHEAT_COUNT
 
 #if HAS_TEMP_HOTEND || HAS_HEATED_BED
-
-  #define _PREHEAT_ITEMS(M,N) do{ \
-    ACTION_ITEM_N(N, MSG_PREHEAT_##M##_H, []{ _preheat_both(M-1, MenuItemBase::itemIndex); }); \
-    ACTION_ITEM_N(N, MSG_PREHEAT_##M##_END_E, []{ _preheat_end(M-1, MenuItemBase::itemIndex); }); \
-  }while(0)
-  #if HAS_HEATED_BED
-    #define PREHEAT_ITEMS(M,N) _PREHEAT_ITEMS(M,N)
-  #else
-    #define PREHEAT_ITEMS(M,N) \
-      ACTION_ITEM_N(N, MSG_PREHEAT_##M##_H, []{ _preheat_end(M-1, MenuItemBase::itemIndex); })
-  #endif
-
-  void menu_preheat_m1() {
-    START_MENU();
-    BACK_ITEM(MSG_TEMPERATURE);
-    #if HOTENDS == 1
-      #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_both(0, 0); });
-        ACTION_ITEM(MSG_PREHEAT_1_END, []{ _preheat_end(0, 0); });
-      #else
-        ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
-      #endif
-    #elif HAS_MULTI_HOTEND
-      #if HAS_HEATED_BED
-        _PREHEAT_ITEMS(1,0);
-      #endif
-      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(1,n);
-      ACTION_ITEM(MSG_PREHEAT_1_ALL, []() {
-        TERN_(HAS_HEATED_BED, _preheat_bed(0));
-        HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[0], e);
-      });
-    #endif // HAS_MULTI_HOTEND
-    #if HAS_HEATED_BED
-      ACTION_ITEM(MSG_PREHEAT_1_BEDONLY, []{ _preheat_bed(0); });
-    #endif
-    END_MENU();
-  }
-
-  void menu_preheat_m2() {
-    START_MENU();
-    BACK_ITEM(MSG_TEMPERATURE);
-    #if HOTENDS == 1
-      #if HAS_HEATED_BED
-        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_both(1, 0); });
-        ACTION_ITEM(MSG_PREHEAT_2_END, []{ _preheat_end(1, 0); });
-      #else
-        ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
-      #endif
-    #elif HAS_MULTI_HOTEND
-      #if HAS_HEATED_BED
-        _PREHEAT_ITEMS(2,0);
-      #endif
-      LOOP_S_L_N(n, 1, HOTENDS) PREHEAT_ITEMS(2,n);
-      ACTION_ITEM(MSG_PREHEAT_2_ALL, []() {
-        TERN_(HAS_HEATED_BED, _preheat_bed(1));
-        HOTEND_LOOP() thermalManager.setTargetHotend(ui.preheat_hotend_temp[1], e);
-      });
-    #endif // HAS_MULTI_HOTEND
-    #if HAS_HEATED_BED
-      ACTION_ITEM(MSG_PREHEAT_2_BEDONLY, []{ _preheat_bed(1); });
-    #endif
-    END_MENU();
-  }
 
   void lcd_cooldown() {
     thermalManager.zero_fan_speeds();
@@ -154,9 +146,11 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
 void menu_temperature() {
-  #if HAS_TEMP_HOTEND
+  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
     bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+    #if HAS_TEMP_HOTEND
+      HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
+    #endif
   #endif
 
   START_MENU();
@@ -167,15 +161,15 @@ void menu_temperature() {
   // Nozzle [1-5]:
   //
   #if HOTENDS == 1
-    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(0); });
+    EDIT_ITEM_FAST(int3, MSG_NOZZLE, &thermalManager.temp_hotend[0].target, 0, HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT), []{ thermalManager.start_watching_hotend(0); });
   #elif HAS_MULTI_HOTEND
     HOTEND_LOOP()
-      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
+      EDIT_ITEM_FAST_N(int3, e, MSG_NOZZLE_N, &thermalManager.temp_hotend[e].target, 0, thermalManager.heater_maxtemp[e] - (HOTEND_OVERSHOOT), []{ thermalManager.start_watching_hotend(MenuItemBase::itemIndex); });
   #endif
 
   #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
     LOOP_S_L_N(e, 1, EXTRUDERS)
-      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - HOTEND_OVERSHOOT);
+      EDIT_ITEM_FAST_N(uint16_3, e, MSG_NOZZLE_STANDBY, &singlenozzle_temp[e], 0, thermalManager.heater_maxtemp[0] - (HOTEND_OVERSHOOT));
   #endif
 
   //
@@ -201,14 +195,18 @@ void menu_temperature() {
       thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
     };
 
-    #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
-      auto fan_edit_items = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
-        #if ENABLED(EXTRA_FAN_SPEED)
-          EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
-        #endif
-      };
+    #if ENABLED(EXTRA_FAN_SPEED)
+      #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
+    #else
+      #define EDIT_EXTRA_FAN_SPEED(...)
+    #endif
+
+    #if FAN_COUNT > 1
+      #define FAN_EDIT_ITEMS(F) do{ \
+        editable.uint8 = thermalManager.fan_speed[F]; \
+        EDIT_ITEM_FAST_N(percent, F, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update); \
+        EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[F], 3, 255); \
+      }while(0)
     #endif
 
     #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
@@ -227,65 +225,66 @@ void menu_temperature() {
       #endif
     #endif
     #if HAS_FAN1
-      fan_edit_items(1);
+      FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN2
-      fan_edit_items(2);
+      FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN3
-      fan_edit_items(3);
+      FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN4
-      fan_edit_items(4);
+      FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN5
-      fan_edit_items(5);
+      FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN6
-      fan_edit_items(6);
+      FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN7
-      fan_edit_items(7);
+      FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
       singlenozzle_item(1);
     #endif
 
   #endif // HAS_FAN
 
-  #if HAS_TEMP_HOTEND
-
+  #if PREHEAT_COUNT
     //
-    // Preheat for Material 1 and 2
+    // Preheat for Materials 1 to 5
     //
-    #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_4 != 0 || TEMP_SENSOR_5 != 0 || TEMP_SENSOR_6 != 0 || TEMP_SENSOR_7 != 0 || HAS_HEATED_BED
-      SUBMENU(MSG_PREHEAT_1, menu_preheat_m1);
-      SUBMENU(MSG_PREHEAT_2, menu_preheat_m2);
-    #else
-      ACTION_ITEM(MSG_PREHEAT_1, []{ _preheat_end(0, 0); });
-      ACTION_ITEM(MSG_PREHEAT_2, []{ _preheat_end(1, 0); });
-    #endif
+    LOOP_L_N(m, PREHEAT_COUNT) {
+      editable.int8 = m;
+      #if HOTENDS > 1 || HAS_HEATED_BED
+        SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
+      #else
+        ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M, do_preheat_end_m);
+      #endif
+    }
+  #endif
 
+  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
     //
     // Cooldown
     //
     if (TERN0(HAS_HEATED_BED, thermalManager.temp_bed.target)) has_heat = true;
     if (has_heat) ACTION_ITEM(MSG_COOLDOWN, lcd_cooldown);
-
-  #endif // HAS_TEMP_HOTEND
+  #endif
 
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU
+#endif // HAS_LCD_MENU && HAS_TEMPERATURE

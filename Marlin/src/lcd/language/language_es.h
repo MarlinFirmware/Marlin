@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -69,20 +69,23 @@ namespace Language_es {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ajustar desfases");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfase aplicada");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Establecer origen");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Precal. ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Precal. ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Precal. ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Fusor");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Fusor ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Todo");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Cama");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Ajuste");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Precal. ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Precal. ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Fusor ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Todo");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Cama");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Ajuste");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                    = _UxGT("Precal. $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                  = _UxGT("Precal. $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                = _UxGT("Precal. $ Fusor");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E              = _UxGT("Precal. $ Fusor ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                = _UxGT("Precal. $ Todo");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY            = _UxGT("Precal. $ Cama");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS           = _UxGT("Precal. $ Ajuste");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Precal. manual");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Enfriar");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecuencia");
@@ -145,14 +148,14 @@ namespace Language_es {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Term. edici. Mallado");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crear Mallado Pers.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crear Mallado");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crear Mallado (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crear Mallado (") PREHEAT_2_LABEL _UxGT(")");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Crear Mallado ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Valid. Mall. ($)");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crear Mallado Frío");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Ajustar alt. Mallado");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Cantidad de altura");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Valid. Mallado");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Valid. Mall. (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Valid. Mall. (") PREHEAT_2_LABEL _UxGT(")");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Valid. Mall. perso.");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Calentando Cama");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Calent. Boquilla");
@@ -382,14 +385,14 @@ namespace Language_es {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sonda Z fuera cama");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Factor de desviación");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Auto-Prueba");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reiniciar");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Subir pistón");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Bajar pistón");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: Modo Software");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: Modo 5V");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: Modo OD");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Modo almacenar");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Auto-Prueba");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reiniciar");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Subir pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Bajar pistón");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Modo Software");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Modo 5V");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Modo OD");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Modo almacenar");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Poner BLTouch a 5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Poner BLTouch a OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Informe de drenaje");
@@ -424,7 +427,6 @@ namespace Language_es {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err:TEMP. MIN CAMA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err:TEMP. MÁX CÁMARA");
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err:TEMP. MIN CÁMARA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Origen XY Primero");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESORA DETENIDA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Por favor, reinicie");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only

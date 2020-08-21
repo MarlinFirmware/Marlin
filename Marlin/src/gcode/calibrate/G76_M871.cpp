@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -104,7 +104,7 @@ void GcodeSuite::G76() {
   };
 
   auto g76_probe = [](const TempSensorID sid, uint16_t &targ, const xy_pos_t &nozpos) {
-    do_blocking_move_to_z(5.0); // Raise nozzle before probing
+    do_z_clearance(5.0); // Raise nozzle before probing
     const float measured_z = probe.probe_at_point(nozpos, PROBE_PT_STOW, 0, false);  // verbose=0, probe_relative=false
     if (isnan(measured_z))
       SERIAL_ECHOLNPGM("!Received NAN. Aborting.");

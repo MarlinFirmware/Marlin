@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -848,7 +848,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define DISABLE_AXIS_Y() do{ DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); CBI(axis_known_position, Y_AXIS); }while(0)
 
 #define  ENABLE_AXIS_Z() do{ ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
-#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); }while(0)
+
+#ifdef Z_AFTER_DEACTIVATE
+  #define Z_RESET() do{ current_position.z = Z_AFTER_DEACTIVATE; sync_plan_position(); }while(0)
+#else
+  #define Z_RESET()
+#endif
+#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); Z_RESET(); }while(0)
 
 //
 // Extruder steppers enable / disable macros
@@ -865,14 +871,14 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #endif
 
 #ifndef ENABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define  ENABLE_AXIS_E0() ENABLE_STEPPER_E0()
   #else
     #define  ENABLE_AXIS_E0() NOOP
   #endif
 #endif
 #ifndef DISABLE_AXIS_E0
-  #if E_STEPPERS > 0 && HAS_E0_ENABLE
+  #if E_STEPPERS && HAS_E0_ENABLE
     #define DISABLE_AXIS_E0() DISABLE_STEPPER_E0()
   #else
     #define DISABLE_AXIS_E0() NOOP

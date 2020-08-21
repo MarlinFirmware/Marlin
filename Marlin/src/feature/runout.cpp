@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -40,16 +40,9 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
+  //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
   #include "../module/tool_change.h"
 #endif
-
-/**
- * Called by FilamentSensorSwitch::run when filament is detected.
- * Called by FilamentSensorEncoder::block_completed when motion is detected.
- */
-void FilamentSensorBase::filament_present(const uint8_t extruder) {
-  runout.filament_present(extruder); // calls response.filament_present(extruder)
-}
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;
@@ -80,8 +73,18 @@ void event_filament_runout() {
   if (TERN0(ADVANCED_PAUSE_FEATURE, did_pause_print)) return;  // Action already in progress. Purge triggered repeated runout.
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-    if (migration.in_progress) return;  // Action already in progress. Purge triggered repeated runout.
-    if (migration.automode) { extruder_migration(); return; }
+    if (migration.in_progress) {
+      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+        SERIAL_ECHOLN("Migration Already In Progress");
+      #endif
+      return;  // Action already in progress. Purge triggered repeated runout.
+    }
+    if (migration.automode) {
+      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+        SERIAL_ECHOLN("Migration Starting");
+      #endif
+      if (extruder_migration()) return;
+    }
   #endif
 
   TERN_(EXTENSIBLE_UI, ExtUI::onFilamentRunout(ExtUI::getActiveTool()));

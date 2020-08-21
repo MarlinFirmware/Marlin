@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,7 +33,7 @@
  * Helpful G-code references:
  *  - https://marlinfw.org/meta/gcode
  *  - https://reprap.org/wiki/G-code
- *  - http://linuxcnc.org/docs/html/gcode.html
+ *  - https://linuxcnc.org/docs/html/gcode.html
  *
  * Help to document Marlin's G-codes online:
  *  - https://github.com/MarlinFirmware/MarlinDocumentation
@@ -65,6 +65,7 @@
  * G32  - Undock sled (Z_PROBE_SLED only)
  * G33  - Delta Auto-Calibration (Requires DELTA_AUTO_CALIBRATION)
  * G34  - Z Stepper automatic alignment using probe: I<iterations> T<accuracy> A<amplification> (Requires Z_STEPPER_AUTO_ALIGN)
+ * G35  - Read bed corners to help adjust bed screws: T<screw_thread> (Requires ASSISTED_TRAMMING)
  * G38  - Probe in any direction using the Z_MIN_PROBE (Requires G38_PROBE_TARGET)
  * G42  - Coordinated move to a mesh point (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BLINEAR, or AUTO_BED_LEVELING_UBL)
  * G60  - Save current position. (Requires SAVED_POSITIONS)
@@ -217,12 +218,16 @@
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M504 - Validate EEPROM contents. (Requires EEPROM_SETTINGS)
+ * M510 - Lock Printer
+ * M511 - Unlock Printer
+ * M512 - Set/Change/Remove Password
  * M524 - Abort the current SD print job started with M24. (Requires SDSUPPORT)
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires SD_ABORT_ON_ENDSTOP_HIT)
  * M569 - Enable stealthChop on an axis. (Requires at least one _DRIVER_TYPE to be TMC2130/2160/2208/2209/5130/5160)
@@ -274,6 +279,9 @@
  * ************ Custom codes - This can change to suit future G-code regulations
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
  * M928 - Start SD logging: "M928 filename.gco". Stop with M29. (Requires SDSUPPORT)
+ * M993 - Backup SPI Flash to SD
+ * M994 - Load a Backup from SD to SPI Flash
+ * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
  *
@@ -332,8 +340,14 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_move_ms;
-  FORCE_INLINE static void reset_stepper_timeout() { previous_move_ms = millis(); }
+  static millis_t previous_move_ms, max_inactive_time, stepper_inactive_time;
+  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+  FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
+    return max_inactive_time && ELAPSED(ms, previous_move_ms + max_inactive_time);
+  }
+  FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
+    return ELAPSED(ms, previous_move_ms + stepper_inactive_time);
+  }
 
   static int8_t get_target_extruder_from_command();
   static int8_t get_target_e_stepper_from_command();
@@ -452,6 +466,8 @@ private:
     static void G34();
     static void M422();
   #endif
+
+  TERN_(ASSISTED_TRAMMING, static void G35());
 
   TERN_(G38_PROBE_TARGET, static void G38(const int8_t subcode));
 
@@ -604,7 +620,7 @@ private:
     static void M191();
   #endif
 
-  #if HAS_HOTEND && HAS_LCD_MENU
+  #if PREHEAT_COUNT
     static void M145();
   #endif
 
@@ -691,7 +707,7 @@ private:
     static void M351();
   #endif
 
-  TERN_(HAS_CASE_LIGHT, static void M355());
+  TERN_(CASE_LIGHT_ENABLE, static void M355());
 
   TERN_(REPETIER_GCODE_M360, static void M360());
 
@@ -735,6 +751,8 @@ private:
 
   TERN_(HAS_M206_COMMAND, static void M428());
 
+  TERN_(HAS_POWER_MONITOR, static void M430());
+
   TERN_(CANCEL_OBJECTS, static void M486());
 
   static void M500();
@@ -744,6 +762,16 @@ private:
     static void M503();
   #endif
   TERN_(EEPROM_SETTINGS, static void M504());
+
+  #if ENABLED(PASSWORD_FEATURE)
+    static void M510();
+    #if ENABLED(PASSWORD_UNLOCK_GCODE)
+      static void M511();
+    #endif
+    #if ENABLED(PASSWORD_CHANGE_GCODE)
+      static void M512();
+    #endif
+  #endif
 
   TERN_(SDSUPPORT, static void M524());
 
@@ -830,6 +858,13 @@ private:
   TERN_(SDSUPPORT, static void M928());
 
   TERN_(MAGNETIC_PARKING_EXTRUDER, static void M951());
+
+  TERN_(TOUCH_SCREEN_CALIBRATION, static void M995());
+
+  #if BOTH(HAS_SPI_FLASH, SDSUPPORT)
+    static void M993();
+    static void M994();
+  #endif
 
   TERN_(PLATFORM_M997_SUPPORT, static void M997());
 

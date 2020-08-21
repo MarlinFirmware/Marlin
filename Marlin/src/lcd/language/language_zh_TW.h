@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -68,20 +68,23 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("設置原點偏移");     //"Set home offsets"
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("偏移已啟用");     //"Offsets applied"
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("設置原點");     //"Set origin"
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("預熱 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_1_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("預熱 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_1_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴 ~");     //MSG_PREHEAT_1 " "
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 熱床");     //MSG_PREHEAT_1 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 設置");     //MSG_PREHEAT_1 " conf"
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("預熱 ") PREHEAT_2_LABEL;     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("預熱 ") PREHEAT_2_LABEL " ~";     //"Preheat PREHEAT_2_LABEL"
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("預熱 ") PREHEAT_2_LABEL _UxGT(" 噴嘴");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("預熱 ") PREHEAT_2_LABEL _UxGT(" 噴嘴 ~");     //MSG_PREHEAT_2 " "
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("預熱 ") PREHEAT_2_LABEL _UxGT(" 全部");     //MSG_PREHEAT_2 " All"
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("預熱 ") PREHEAT_2_LABEL _UxGT(" 熱床");     //MSG_PREHEAT_2 " Bed"
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("預熱 ") PREHEAT_2_LABEL _UxGT(" 設置");     //MSG_PREHEAT_2 " conf"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("預熱 ") PREHEAT_1_LABEL;     //"Preheat PREHEAT_1_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("預熱 ") PREHEAT_1_LABEL " ~";     //"Preheat PREHEAT_1_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴 ~");   //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 熱床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 設置");     //MSG_PREHEAT_1 " conf"
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("預熱 $");     //"Preheat PREHEAT_1_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("預熱 $ ~");     //"Preheat PREHEAT_1_LABEL"
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("預熱 $ 噴嘴");     //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("預熱 $ 噴嘴 ~");   //MSG_PREHEAT_1 " "
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("預熱 $ 全部");     //MSG_PREHEAT_1 " All"
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("預熱 $ 熱床");     //MSG_PREHEAT_1 " Bed"
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("預熱 $ 設置");     //MSG_PREHEAT_1 " conf"
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("自定預熱");   //"Preheat Custom"
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("降溫");     //"Cooldown"
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("激光控制");    //"Laser Control"
@@ -143,14 +146,14 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("完成編輯網格");     // "Done Editing Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("創設客戶網格");     // "Build Custom Mesh"
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("創設網格");     // "Build Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("創設 ") PREHEAT_1_LABEL _UxGT(" 網格");     // "Build PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("創設 ") PREHEAT_2_LABEL _UxGT(" 網格");     // "Build PREHEAT_2_LABEL Mesh"
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("創設 $ 網格");     // "Build PREHEAT_1_LABEL Mesh"
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("批准 $ 網格");     // "Validate PREHEAT_1_LABEL Mesh"
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("創設冷網格");     // "Build Cold Mesh"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("調整網格高度");     // "Adjust Mesh Height"
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("高度合計");     // "Height Amount"
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("批准網格");     // "Validate Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("批准 ") PREHEAT_1_LABEL _UxGT(" 網格");     // "Validate PREHEAT_1_LABEL Mesh"
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("批准 ") PREHEAT_2_LABEL _UxGT(" 網格");     // "Validate PREHEAT_2_LABEL Mesh"
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("批准客戶網格");     // "Validate Custom Mesh"
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 加熱熱床");    //"G26 Heating Bed"
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 加熱噴嘴"); //"G26 Heating Nozzle"
@@ -391,7 +394,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("錯誤：最低熱床溫度");     //"Err: MINTEMP BED"
   PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("錯誤：最高機箱溫度");   //"Err: MAXTEMP CHAMBER"
   PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("錯誤：最低機箱溫度");   //"Err: MINTEMP CHAMBER"
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("歸位 XY 先");     //"Home XY First"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("印表機停機");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("請重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only

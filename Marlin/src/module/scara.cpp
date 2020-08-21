@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -100,7 +100,7 @@ void inverse_kinematics(const xyz_pos_t &raw) {
     /**
      * Morgan SCARA Inverse Kinematics. Results in 'delta'.
      *
-     * See http://forums.reprap.org/read.php?185,283327
+     * See https://reprap.org/forum/read.php?185,283327
      *
      * Maths and first version by QHARLEY.
      * Integrated into Marlin and slightly restructured by Joachim Cerny.

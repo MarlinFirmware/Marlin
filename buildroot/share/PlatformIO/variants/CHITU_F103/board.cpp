@@ -71,19 +71,19 @@ void boardInit(void) {
 
 extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
   /*
-    gpio_dev *gpio_device;      GPIO device 
+    gpio_dev *gpio_device;      GPIO device
     timer_dev *timer_device;    Pin's timer device, if any.
-    const adc_dev *adc_device;  ADC device, if any. 
-    uint8 gpio_bit;             Pin's GPIO port bit. 
-    uint8 timer_channel;        Timer channel, or 0 if none. 
-    uint8 adc_channel;          Pin ADC channel, or ADCx if none. 
+    const adc_dev *adc_device;  ADC device, if any.
+    uint8 gpio_bit;             Pin's GPIO port bit.
+    uint8 timer_channel;        Timer channel, or 0 if none.
+    uint8 adc_channel;          Pin ADC channel, or ADCx if none.
   */
 
   {&gpioa, &timer2, &adc1,  0, 1,    0}, /* PA0 */
   {&gpioa, &timer2, &adc1,  1, 2,    1}, /* PA1 */
   {&gpioa, &timer2, &adc1,  2, 3,    2}, /* PA2 */
   {&gpioa, &timer2, &adc1,  3, 4,    3}, /* PA3 */
-  {&gpioa,   NULL, &adc1,  4, 0,    4}, /* PA4 */	
+  {&gpioa,   NULL, &adc1,  4, 0,    4}, /* PA4 */
   {&gpioa,   NULL, &adc1,  5, 0,    5}, /* PA5 */
   {&gpioa, &timer3, &adc1,  6, 1,    6}, /* PA6 */
   {&gpioa, &timer3, &adc1,  7, 2,    7}, /* PA7 */
@@ -91,7 +91,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
   {&gpioa, &timer1, NULL,  9, 2, ADCx}, /* PA9 */
   {&gpioa, &timer1, NULL, 10, 3, ADCx}, /* PA10 */
   {&gpioa,   NULL, NULL, 11, 0, ADCx}, /* PA11 */
-  {&gpioa,   NULL, NULL, 12, 0, ADCx}, /* PA12 */	
+  {&gpioa,   NULL, NULL, 12, 0, ADCx}, /* PA12 */
   {&gpioa,   NULL, NULL, 13, 0, ADCx}, /* PA13 */
   {&gpioa,   NULL, NULL, 14, 0, ADCx}, /* PA14 */
   {&gpioa,   NULL, NULL, 15, 0, ADCx}, /* PA15 */
@@ -120,13 +120,13 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
   {&gpioc,   NULL, &adc1,  3, 0,   13}, /* PC3 */
   {&gpioc,   NULL, &adc1,  4, 0,   14}, /* PC4 */
   {&gpioc,   NULL, &adc1,  5, 0,   15}, /* PC5 */
-  {&gpioc, &timer8, NULL,  6, 1, ADCx}, /* PC6 */	
+  {&gpioc, &timer8, NULL,  6, 1, ADCx}, /* PC6 */
   {&gpioc, &timer8, NULL,  7, 2, ADCx}, /* PC7 */
   {&gpioc, &timer8, NULL,  8, 3, ADCx}, /* PC8 */
   {&gpioc, &timer8, NULL,  9, 4, ADCx}, /* PC9 */
   {&gpioc,   NULL, NULL, 10, 0, ADCx}, /* PC10 UART4_TX/SDIO_D2 */
   {&gpioc,   NULL, NULL, 11, 0, ADCx}, /* PC11 UART4_RX/SDIO_D3 */
-  {&gpioc,   NULL, NULL, 12, 0, ADCx}, /* PC12 UART5_TX/SDIO_CK */	
+  {&gpioc,   NULL, NULL, 12, 0, ADCx}, /* PC12 UART5_TX/SDIO_CK */
   {&gpioc,   NULL, NULL, 13, 0, ADCx}, /* PC13 TAMPER-RTC */
   {&gpioc,   NULL, NULL, 14, 0, ADCx}, /* PC14 OSC32_IN */
   {&gpioc,   NULL, NULL, 15, 0, ADCx}, /* PC15 OSC32_OUT */
@@ -134,7 +134,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{&gpiod,   NULL, NULL,   0, 0, ADCx} , /* PD0 OSC_IN */
 	{&gpiod,   NULL, NULL,   1, 0, ADCx} , /* PD1  OSC_OUT */
 	{&gpiod,   NULL, NULL,   2, 0, ADCx} , /* PD2  TIM3_ETR/UART5_RX SDIO_CMD */
-	
+
 	{&gpiod,   NULL, NULL,   3, 0, ADCx} , /* PD3  FSMC_CLK */
 	{&gpiod,   NULL, NULL,   4, 0, ADCx} , /* PD4  FSMC_NOE */
 	{&gpiod,   NULL, NULL,   5, 0, ADCx} , /* PD5  FSMC_NWE */
@@ -145,10 +145,10 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{&gpiod,   NULL, NULL,  10, 0, ADCx} , /* PD10  FSMC_D15 */
 	{&gpiod,   NULL, NULL,  11, 0, ADCx} , /* PD11  FSMC_A16 */
 	{&gpiod,   NULL, NULL,  12, 0, ADCx} , /* PD12  FSMC_A17 */
-	{&gpiod,   NULL, NULL,  13, 0, ADCx} , /* PD13  FSMC_A18 */	
+	{&gpiod,   NULL, NULL,  13, 0, ADCx} , /* PD13  FSMC_A18 */
 	{&gpiod,   NULL, NULL,  14, 0, ADCx} , /* PD14  FSMC_D0 */
 	{&gpiod,   NULL, NULL,  15, 0, ADCx} , /* PD15  FSMC_D1 */
-	
+
 	{&gpioe,   NULL, NULL,   0, 0, ADCx} , /* PE0   */
 	{&gpioe,   NULL, NULL,   1, 0, ADCx} , /* PE1   */
 	{&gpioe,   NULL, NULL,   2, 0, ADCx} , /* PE2   */
@@ -162,9 +162,9 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{&gpioe,   NULL, NULL,  10, 0, ADCx} , /* PE10  */
 	{&gpioe,   NULL, NULL,  11, 0, ADCx} , /* PE11  */
 	{&gpioe,   NULL, NULL,  12, 0, ADCx} , /* PE12  */
-	{&gpioe,   NULL, NULL,  13, 0, ADCx} , /* PE13  */	
+	{&gpioe,   NULL, NULL,  13, 0, ADCx} , /* PE13  */
 	{&gpioe,   NULL, NULL,  14, 0, ADCx} , /* PE14  */
-	{&gpioe,   NULL, NULL,  15, 0, ADCx} , /* PE15  */	
+	{&gpioe,   NULL, NULL,  15, 0, ADCx} , /* PE15  */
 
 	{&gpiof,   NULL, NULL,   0, 0, ADCx} , /* PF0   */
 	{&gpiof,   NULL, NULL,   1, 0, ADCx} , /* PF1   */
@@ -179,10 +179,10 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{&gpiof,   NULL, NULL,  10, 0, ADCx} , /* PF10  */
 	{&gpiof,   NULL, NULL,  11, 0, ADCx} , /* PF11  */
 	{&gpiof,   NULL, NULL,  12, 0, ADCx} , /* PF12  */
-	{&gpiof,   NULL, NULL,  13, 0, ADCx} , /* PF13  */	
+	{&gpiof,   NULL, NULL,  13, 0, ADCx} , /* PF13  */
 	{&gpiof,   NULL, NULL,  14, 0, ADCx} , /* PF14  */
-	{&gpiof,   NULL, NULL,  15, 0, ADCx} , /* PF15  */		
-	
+	{&gpiof,   NULL, NULL,  15, 0, ADCx} , /* PF15  */
+
 	{&gpiog,   NULL, NULL,   0, 0, ADCx} , /* PG0   */
 	{&gpiog,   NULL, NULL,   1, 0, ADCx} , /* PG1   */
 	{&gpiog,   NULL, NULL,   2, 0, ADCx} , /* PG2   */
@@ -196,9 +196,9 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{&gpiog,   NULL, NULL,  10, 0, ADCx} , /* PG10  */
 	{&gpiog,   NULL, NULL,  11, 0, ADCx} , /* PG11  */
 	{&gpiog,   NULL, NULL,  12, 0, ADCx} , /* PG12  */
-	{&gpiog,   NULL, NULL,  13, 0, ADCx} , /* PG13  */	
+	{&gpiog,   NULL, NULL,  13, 0, ADCx} , /* PG13  */
 	{&gpiog,   NULL, NULL,  14, 0, ADCx} , /* PG14  */
-	{&gpiog,   NULL, NULL,  15, 0, ADCx}   /* PG15  */		
+	{&gpiog,   NULL, NULL,  15, 0, ADCx}   /* PG15  */
 };
 
 /*  Basically everything that is defined as having a timer us PWM */

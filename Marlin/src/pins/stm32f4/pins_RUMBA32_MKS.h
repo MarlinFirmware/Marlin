@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,7 +37,7 @@
 
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE 0x1000             // 4KB
+  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
