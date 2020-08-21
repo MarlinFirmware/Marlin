@@ -80,8 +80,8 @@ void GcodeSuite::M48() {
   xy_float_t next_pos = current_position;
 
   const xy_pos_t probe_pos = {
-    parser.linearval('X', next_pos.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', next_pos.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.seen('C') ? X_CENTER : parser.linearval('X', next_pos.x + probe.offset_xy.x),  // If no X & no C use the probe's current X position
+    parser.seen('C') ? Y_CENTER : parser.linearval('Y', next_pos.y + probe.offset_xy.y)   // If no Y & no C, ditto
   };
 
   if (!probe.can_reach(probe_pos)) {
