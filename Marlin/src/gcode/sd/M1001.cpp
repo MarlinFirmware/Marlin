@@ -75,6 +75,7 @@ void GcodeSuite::M1001() {
   TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
   // Announce SD file completion
+  PORT_REDIRECT(SERIAL_BOTH);
   SERIAL_ECHOLNPGM(STR_FILE_PRINTED);
 
   // Update the status LED color
