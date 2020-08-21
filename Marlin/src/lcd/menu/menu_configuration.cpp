@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"

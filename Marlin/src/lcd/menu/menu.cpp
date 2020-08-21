@@ -100,12 +100,6 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 }
 
 ////////////////////////////////////////////
-/////////// Common Menu Actions ////////////
-////////////////////////////////////////////
-
-void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-
-////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
@@ -192,11 +186,6 @@ DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
 DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
 DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
 DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
-
-void MenuItem_bool::action(PGM_P const, bool * const ptr, screenFunc_t callback) {
-  *ptr ^= true; ui.refresh();
-  if (callback) (*callback)();
-}
 
 ////////////////////////////////////////////
 ///////////////// Menu Tree ////////////////
