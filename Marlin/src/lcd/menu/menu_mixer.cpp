@@ -264,7 +264,7 @@ void menu_mixer() {
       LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
       ui.return_to_status();
     },
-    ui.goto_previous_screen,
+    nullptr,
     GET_TEXT(MSG_RESET_VTOOLS), (const char *)nullptr, PSTR("?")
   );
 

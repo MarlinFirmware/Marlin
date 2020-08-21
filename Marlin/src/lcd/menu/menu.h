@@ -542,6 +542,7 @@ class MenuItem_bool : public MenuEditItemBase {
 
 #define _CONFIRM_ITEM_INNER_P(PLABEL, V...) do {             \
   if (encoderLine == _thisItemNr && ui.use_click()) {        \
+    ui.save_previous_screen();                               \
     ui.goto_screen([]{MenuItem_confirm::select_screen(V);}); \
     return;                                                  \
   }                                                          \
