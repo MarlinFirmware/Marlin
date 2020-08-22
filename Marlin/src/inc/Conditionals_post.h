@@ -2557,7 +2557,7 @@
 #endif
 
 // Number of VFAT entries used. Each entry has 13 UTF-16 characters
-#if EITHER(SCROLL_LONG_FILENAMES, DWIN_CREALITY_LCD)
+#if ANY(SCROLL_LONG_FILENAMES, DWIN_CREALITY_LCD, LONG_FILENAME_MEDIA_LIST)
   #define MAX_VFAT_ENTRIES (5)
 #else
   #define MAX_VFAT_ENTRIES (2)
