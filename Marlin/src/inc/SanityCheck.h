@@ -419,8 +419,10 @@
   #error "SPINDLE_DIR_CHANGE is now SPINDLE_CHANGE_DIR. Please update your Configuration_adv.h."
 #elif defined(SPINDLE_STOP_ON_DIR_CHANGE)
   #error "SPINDLE_STOP_ON_DIR_CHANGE is now SPINDLE_CHANGE_DIR_STOP. Please update your Configuration_adv.h."
+#elif defined(SPINDLE_LASER_ACTIVE_HIGH)
+  #error "SPINDLE_LASER_ACTIVE_HIGH is now SPINDLE_LASER_ACTIVE_STATE. Please update your Configuration_adv.h."
 #elif defined(SPINDLE_LASER_ENABLE_INVERT)
-  #error "SPINDLE_LASER_ENABLE_INVERT is now SPINDLE_LASER_ACTIVE_HIGH. Please update your Configuration_adv.h."
+  #error "SPINDLE_LASER_ENABLE_INVERT is now SPINDLE_LASER_ACTIVE_STATE. Please update your Configuration_adv.h."
 #elif defined(CUTTER_POWER_DISPLAY)
   #error "CUTTER_POWER_DISPLAY is now CUTTER_POWER_UNIT. Please update your Configuration_adv.h."
 #elif defined(CHAMBER_HEATER_PIN)
@@ -441,10 +443,12 @@
   #error "USB_SD_DISABLED is now NO_SD_HOST_DRIVE. Please update your Configuration_adv.h."
 #elif defined(USB_SD_ONBOARD)
   #error "USB_SD_ONBOARD is obsolete. Disable NO_SD_HOST_DRIVE instead."
+#elif defined(PSU_ACTIVE_HIGH)
+  #error "PSU_ACTIVE_HIGH is now PSU_ACTIVE_STATE. Please update your configuration."
 #elif POWER_SUPPLY == 1
-  #error "Replace POWER_SUPPLY 1 by enabling PSU_CONTROL and setting PSU_ACTIVE_HIGH to 'false'."
+  #error "Replace POWER_SUPPLY 1 by enabling PSU_CONTROL and setting PSU_ACTIVE_STATE to 'LOW'."
 #elif POWER_SUPPLY == 2
-  #error "Replace POWER_SUPPLY 2 by enabling PSU_CONTROL and setting PSU_ACTIVE_HIGH to 'true'."
+  #error "Replace POWER_SUPPLY 2 by enabling PSU_CONTROL and setting PSU_ACTIVE_STATE to 'HIGH'."
 #elif defined(POWER_SUPPLY)
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
@@ -2923,8 +2927,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Ensure this option is set intentionally
  */
 #if ENABLED(PSU_CONTROL)
-  #ifndef PSU_ACTIVE_HIGH
-    #error "PSU_CONTROL requires PSU_ACTIVE_HIGH to be defined as 'true' or 'false'."
+  #ifndef PSU_ACTIVE_STATE
+    #error "PSU_CONTROL requires PSU_ACTIVE_STATE to be defined as 'HIGH' or 'LOW'."
   #elif !PIN_EXISTS(PS_ON)
     #error "PSU_CONTROL requires PS_ON_PIN."
   #endif
