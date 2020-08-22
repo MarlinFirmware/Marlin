@@ -230,3 +230,7 @@ void _lcd_draw_homing();
   #endif
 
 #endif
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  void touch_screen_calibration();
+#endif
