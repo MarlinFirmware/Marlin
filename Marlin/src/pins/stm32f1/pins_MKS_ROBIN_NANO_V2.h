@@ -325,13 +325,11 @@
   #define LCD_PINS_RS                       PC6
 
 #elif ENABLED(TFT_480x320_SPI)
-    #define XPT2046_X_CALIBRATION         -17253
-    #define XPT2046_Y_CALIBRATION          11579
-    #define XPT2046_X_OFFSET                 514
-    #define XPT2046_Y_OFFSET                 -24
 
-    #define TFT_DRIVER                    ST7796
-    #define TFT_BUFFER_SIZE                14400
+  #define XPT2046_X_CALIBRATION           -17253
+  #define XPT2046_Y_CALIBRATION            11579
+  #define XPT2046_X_OFFSET                   514
+  #define XPT2046_Y_OFFSET                   -24
 
 #endif
 

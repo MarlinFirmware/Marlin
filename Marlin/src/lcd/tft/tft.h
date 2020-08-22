@@ -51,16 +51,26 @@
 #define AUTO            0xFFFF
 
 #ifndef TFT_DRIVER
-  #define TFT_DRIVER    AUTO
+  #if ENABLED(TFT_480x320)
+    #define TFT_DRIVER  ILI9488   // Color UI
+  #elif ENABLED(TFT_320x240)
+    #define TFT_DRIVER  ILI9341   // TFT32/28
+  #elif ENABLED(TFT_480x320_SPI)
+    #define TFT_DRIVER  ST7796
+  #else
+    #define TFT_DRIVER  AUTO
+  #endif
 #endif
 
 #ifndef TFT_BUFFER_SIZE
-  #ifdef STM32F103xB
-    #define TFT_BUFFER_SIZE       1024
+  #if ANY(TFT_480x320, TFT_320x240, TFT_480x320_SPI)
+    #define TFT_BUFFER_SIZE       14400
+  #elif defined(STM32F103xB)
+    #define TFT_BUFFER_SIZE        1024
   #elif defined(STM32F103xE)
     #define TFT_BUFFER_SIZE       19200 // 320 * 60
   #elif defined(STM32F1)
-    #define TFT_BUFFER_SIZE       8192
+    #define TFT_BUFFER_SIZE        8192
   #else
     #define TFT_BUFFER_SIZE       19200 // 320 * 60
   #endif
