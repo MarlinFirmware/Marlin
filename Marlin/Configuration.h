@@ -132,8 +132,6 @@
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_14_EEB_TENLOG
   #define TL_DUAL_Z                               //IGHMC - might not be needed
-//#define IS_RAMPS_EEB_TL                        //IGHMC copied to extensible Screen section below
-//#define TL_TFT_DISPLAY
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -2347,14 +2345,15 @@
 #endif
 
 //
+// TENLOG TFT display
+//
+//#define TL_TFT_DISPLAY
+
+//
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-//#define EXTENSIBLE_UI 1    //IGHMC, handled in conditionals_lcd.h
-//IGHMC - definitions for Tenlog display because this seems the correct place
-//#define IS_RAMPS_EEB_TL  //IGHMC defined in pins.h
-
-#define TL_TFT_DISPLAY 1 //defined by Mobo above
+//#define EXTENSIBLE_UI
 
 //=============================================================================
 //=============================== Graphical TFTs ==============================
