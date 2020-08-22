@@ -54,6 +54,10 @@ typedef struct {
        #if ENABLED(BINARY_FILE_TRANSFER)
          , binary_mode:1
        #endif
+       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
+         , longlist_mode:1
+       #endif
+
     ;
 } card_flags_t;
 

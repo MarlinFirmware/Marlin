@@ -32,6 +32,9 @@
  */
 void GcodeSuite::M20() {
   SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
+  #if ENABLED(LONG_FILENAME_MEDIA_LIST)
+    if (parser.seen('L')) card.flag.longlist_mode = true;
+  #endif
   card.ls();
   SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
 }

@@ -255,9 +255,11 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
       strcat(path, "/");                              // 1 character
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-        strcpy(lpath, lprepend_is_empty ? "/" : lprepend); // root slash if prepend is empty
-        strcat(lpath, longFilename);                      // FILENAME_LENGTH characters maximum
-        strcat(lpath, "/");                              // 1 character
+        if (flag.longlist_mode) {     
+          strcpy(lpath, lprepend_is_empty ? "/" : lprepend); // root slash if prepend is empty
+          strcat(lpath, longFilename);                      // FILENAME_LENGTH characters maximum
+          strcat(lpath, "/");                              // 1 character
+        }
       #endif
 
       // SERIAL_ECHOLN(path);
@@ -284,10 +286,12 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       SERIAL_CHAR(' ');
 
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-        SERIAL_ECHO(p.fileSize);
-        SERIAL_CHAR(' ');
-        if (lprepend) SERIAL_ECHO(lprepend);
-        SERIAL_ECHOLN(longFilename);
+        if (flag.longlist_mode) {     
+          SERIAL_ECHO(p.fileSize);
+          SERIAL_CHAR(' ');
+          if (lprepend) SERIAL_ECHO(lprepend);
+          SERIAL_ECHOLN(longFilename);
+        } else SERIAL_ECHOLN(p.fileSize); 
       #else
         SERIAL_ECHOLN(p.fileSize);
       #endif
@@ -301,6 +305,9 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 void CardReader::ls() {
   root.rewind();
   printListing(root);
+  #if ENABLED(LONG_FILENAME_MEDIA_LIST)
+    if (card.flag.longlist_mode) card.flag.longlist_mode = false;
+  #endif
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
