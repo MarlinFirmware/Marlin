@@ -116,6 +116,9 @@
 #if ANY(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
   #define HAS_COLOR_LEDS 1
 #endif
+#if ENABLED(NEOPIXEL2)
+  #define NEOPIXELX2 1
+#endif
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
 #endif
@@ -242,6 +245,29 @@
       #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
     #else
       #define LED_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
+//Set defaults for unspecified LED2 user colors
+#if ENABLED(LED_CONTROL_MENU , NEOPIXELX2)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
     #endif
   #endif
 #endif
