@@ -32,8 +32,12 @@
   #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME      "CREALITY V4"
-#define DEFAULT_MACHINE_NAME "Ender 3 V2"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME      "Creality V4"
+#endif
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "Ender 3 V2"
+#endif
 
 //
 // EEPROM
@@ -90,20 +94,36 @@
 // Steppers
 //
 #define X_ENABLE_PIN                        PC3
-#define X_STEP_PIN                          PC2
-#define X_DIR_PIN                           PB9
+#ifndef X_STEP_PIN
+  #define X_STEP_PIN                        PC2
+#endif
+#ifndef X_DIR_PIN
+  #define X_DIR_PIN                         PB9
+#endif
 
 #define Y_ENABLE_PIN                        PC3
-#define Y_STEP_PIN                          PB8
-#define Y_DIR_PIN                           PB7
+#ifndef Y_STEP_PIN
+  #define Y_STEP_PIN                        PB8
+#endif
+#ifndef Y_DIR_PIN
+  #define Y_DIR_PIN                         PB7
+#endif
 
 #define Z_ENABLE_PIN                        PC3
-#define Z_STEP_PIN                          PB6
-#define Z_DIR_PIN                           PB5
+#ifndef Z_STEP_PIN
+  #define Z_STEP_PIN                        PB6
+#endif
+#ifndef Z_DIR_PIN
+  #define Z_DIR_PIN                         PB5
+#endif
 
 #define E0_ENABLE_PIN                       PC3
-#define E0_STEP_PIN                         PB4
-#define E0_DIR_PIN                          PB3
+#ifndef E0_STEP_PIN
+  #define E0_STEP_PIN                       PB4
+#endif
+#ifndef E0_DIR_PIN
+  #define E0_DIR_PIN                        PB3
+#endif
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
