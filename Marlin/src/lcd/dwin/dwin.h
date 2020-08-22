@@ -244,7 +244,7 @@ typedef struct {
 } HMI_value_t;
 
 typedef struct {
-  bool language_chinese:1;  // 0: EN, 1: CN
+  bool language_chinese;  // 0: EN, 1: CN
   bool pause_flag:1;
   bool print_finish:1;
   bool confirm_flag:1;
