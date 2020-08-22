@@ -250,12 +250,18 @@
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SD_CONNECTION_IS(ONBOARD)
+#if SD_CONNECTION_IS(LCD)
+  #define SD_DETECT_PIN                     PF12
+  #define SDSS                              PB12
+#elif SD_CONNECTION_IS(ONBOARD)
   #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
   #define SDSS                              PA4
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
+  #define SD_DETECT_PIN                     PB11
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #define "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
 /**
@@ -275,9 +281,6 @@
 #if HAS_SPI_LCD
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
-  #if SD_CONNECTION_IS(LCD)
-    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
-  #endif
 
   #if ENABLED(CR10_STOCKDISPLAY)
     #define LCD_PINS_RS                     PG6
@@ -296,16 +299,14 @@
   #elif ENABLED(MKS_MINI_12864)
     #define DOGLCD_A0                       PG6
     #define DOGLCD_CS                       PG3
-
+    #define BTN_EN1                         PG10
+    #define BTN_EN2                         PF11
   #else
 
     #define LCD_PINS_RS                     PD10
 
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
-    #define SD_DETECT_PIN                   PF12
-
-    #define LCD_SDSS                        PB12
 
     #define LCD_PINS_ENABLE                 PD11
     #define LCD_PINS_D4                     PG2
