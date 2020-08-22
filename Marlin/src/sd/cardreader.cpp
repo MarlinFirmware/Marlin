@@ -284,7 +284,6 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       if (prepend) SERIAL_ECHO(prepend);
       SERIAL_ECHO(filename);
       SERIAL_CHAR(' ');
-
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
         if (flag.longlist_mode) {     
           SERIAL_ECHO(p.fileSize);

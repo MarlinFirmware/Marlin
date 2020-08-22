@@ -57,7 +57,6 @@ typedef struct {
        #if ENABLED(LONG_FILENAME_MEDIA_LIST)
          , longlist_mode:1
        #endif
-
     ;
 } card_flags_t;
 
