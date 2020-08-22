@@ -38,7 +38,7 @@
 
 // String helper
 #ifndef PGMSTR
-  #define PGMSTR(NAM,STR) constexpr char NAM[] = STR
+  #define PGMSTR(NAM,STR) const char NAM[] = STR
 #endif
 
 inline void watchdog_refresh() {
