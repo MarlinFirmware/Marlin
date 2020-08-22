@@ -2326,9 +2326,9 @@
 
   #if EITHER(SENSORLESS_HOMING, SENSORLESS_PROBING)
     // TMC2209: 0...255. TMC2130: -64...63
-    #define X_STALL_SENSITIVITY  70 // 20/06/26
+    #define X_STALL_SENSITIVITY  85 // 20/06/26
     #define X2_STALL_SENSITIVITY X_STALL_SENSITIVITY
-    #define Y_STALL_SENSITIVITY  75 // 20/08/20
+    #define Y_STALL_SENSITIVITY  78 // 20/08/20
     //#define Z_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY //commented out to make more robust // 20/06/26 not enabled - problems found
