@@ -122,6 +122,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punto inclinaz.");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Test sonda M48");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("Punto M48");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonda oltre i limiti");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviazione");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Strumenti Offsets");

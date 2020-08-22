@@ -124,6 +124,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Custom Commands");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Probe out of bounds");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX Mode");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Tool Offsets");
