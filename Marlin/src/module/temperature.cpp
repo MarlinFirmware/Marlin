@@ -361,7 +361,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  int16_t Temperature::lpq_len; // Initialized in configuration_store
+  int16_t Temperature::lpq_len; // Initialized in settings.cpp
 #endif
 
 #if HAS_PID_HEATING
