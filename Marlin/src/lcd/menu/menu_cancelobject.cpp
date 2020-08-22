@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, CANCEL_OBJECTS)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "menu_addon.h"
 
 #include "../../feature/cancel_object.h"

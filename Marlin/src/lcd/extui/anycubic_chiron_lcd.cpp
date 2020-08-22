@@ -21,16 +21,16 @@
  */
 
 /**
- * extui_anycubic_chiron_lcd.cpp
+ * anycubic_chiron_lcd.cpp
  *
  * Anycubic Chiron TFT support for Marlin
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
 
-#include "extui/ui_api.h"
+#include "ui_api.h"
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   #if GRID_MAX_POINTS_X != 5 || GRID_MAX_POINTS_Y != 5

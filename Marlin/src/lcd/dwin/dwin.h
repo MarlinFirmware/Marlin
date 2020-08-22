@@ -68,11 +68,11 @@ enum processID {
   Move_X,
   Move_Y,
   Move_Z,
-  Extruder,
-  Homeoffset,
   #if HAS_HOTEND
+    Extruder,
     ETemp,
   #endif
+  Homeoffset,
   #if HAS_HEATED_BED
     BedTemp,
   #endif
@@ -244,7 +244,7 @@ typedef struct {
 } HMI_value_t;
 
 typedef struct {
-  bool language_flag;  // 0: EN, 1: CN
+  bool language_chinese;  // 0: EN, 1: CN
   bool pause_flag:1;
   bool print_finish:1;
   bool confirm_flag:1;
@@ -269,9 +269,9 @@ extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag    HMI_flag;
 
 // Language
-void lcd_select_language(void);
-void set_english_to_eeprom(void);
-void set_chinese_to_eeprom(void);
+void HMI_SetLanguage(void);
+void HMI_SetAndSaveLanguageWestern(void);
+void HMI_SetAndSaveLanguageChinese(void);
 
 // Show ICO
 void ICON_Print(bool show);
