@@ -9,9 +9,32 @@ try:
 	import configparser
 except ImportError:
 	import ConfigParser as configparser
-from platformio.managers.package import PackageManager
+try:
+	# PIO < 4.4
+	from platformio.managers.package import PackageManager
+except ImportError:
+	# PIO >= 4.4
+	from platformio.package.meta import PackageSpec as PackageManager
 
 Import("env")
+
+#print(env.Dump())
+
+try:
+	verbose = int(env.GetProjectOption('custom_verbose'))
+except:
+	verbose = 0
+
+def blab(str):
+	if verbose:
+		print(str)
+
+def parse_pkg_uri(spec):
+	if PackageManager.__name__ == 'PackageSpec':
+		return PackageManager(spec).name
+	else:
+		name, _, _ = PackageManager.parse_pkg_uri(spec)
+		return name
 
 FEATURE_CONFIG = {}
 
@@ -56,7 +79,7 @@ def get_all_known_libs():
 		if not 'lib_deps' in feat:
 			continue
 		for dep in feat['lib_deps']:
-			name, _, _ = PackageManager.parse_pkg_uri(dep)
+			name = parse_pkg_uri(dep)
 			known_libs.append(name)
 	return known_libs
 
@@ -64,7 +87,7 @@ def get_all_env_libs():
 	env_libs = []
 	lib_deps = env.GetProjectOption('lib_deps')
 	for dep in lib_deps:
-		name, _, _ = PackageManager.parse_pkg_uri(dep)
+		name = parse_pkg_uri(dep)
 		env_libs.append(name)
 	return env_libs
 
@@ -79,7 +102,8 @@ def force_ignore_unused_libs():
 	known_libs = get_all_known_libs()
 	diff = (list(set(known_libs) - set(env_libs)))
 	lib_ignore = env.GetProjectOption('lib_ignore') + diff
-	print("Ignore libraries:", lib_ignore)
+	if verbose:
+		print("Ignore libraries:", lib_ignore)
 	set_env_field('lib_ignore', lib_ignore)
 
 def apply_features_config():
@@ -91,25 +115,25 @@ def apply_features_config():
 		feat = FEATURE_CONFIG[feature]
 
 		if 'lib_deps' in feat and len(feat['lib_deps']):
-			print("Adding lib_deps for %s... " % feature)
+			blab("Adding lib_deps for %s... " % feature)
 
 			# feat to add
 			deps_to_add = {}
 			for dep in feat['lib_deps']:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				deps_to_add[name] = dep
 
 			# Does the env already have the dependency?
 			deps = env.GetProjectOption('lib_deps')
 			for dep in deps:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
 			# Are there any libraries that should be ignored?
 			lib_ignore = env.GetProjectOption('lib_ignore')
 			for dep in deps:
-				name, _, _ = PackageManager.parse_pkg_uri(dep)
+				name = parse_pkg_uri(dep)
 				if name in deps_to_add:
 					del deps_to_add[name]
 
@@ -119,11 +143,11 @@ def apply_features_config():
 				set_env_field('lib_deps', deps + list(deps_to_add.values()))
 
 		if 'extra_scripts' in feat:
-			print("Running extra_scripts for %s... " % feature)
+			blab("Running extra_scripts for %s... " % feature)
 			env.SConscript(feat['extra_scripts'], exports="env")
 
 		if 'src_filter' in feat:
-			print("Adding src_filter for %s... " % feature)
+			blab("Adding src_filter for %s... " % feature)
 			src_filter = ' '.join(env.GetProjectOption('src_filter'))
 			# first we need to remove the references to the same folder
 			my_srcs = re.findall( r'[+-](<.*?>)', feat['src_filter'])
@@ -137,7 +161,7 @@ def apply_features_config():
 			env.Replace(SRC_FILTER=src_filter)
 
 		if 'lib_ignore' in feat:
-			print("Adding lib_ignore for %s... " % feature)
+			blab("Adding lib_ignore for %s... " % feature)
 			lib_ignore = env.GetProjectOption('lib_ignore') + [feat['lib_ignore']]
 			set_env_field('lib_ignore', lib_ignore)
 
@@ -147,41 +171,49 @@ def apply_features_config():
 ENV_BUILD_PATH = os.path.join(env.Dictionary('PROJECT_BUILD_DIR'), env['PIOENV'])
 GCC_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".gcc_path")
 def search_compiler():
+	try:
+		filepath = env.GetProjectOption('custom_gcc')
+		blab('Getting compiler from env')
+		return filepath
+	except:
+		pass
+
 	if os.path.exists(GCC_PATH_CACHE):
-		print('Getting g++ path from cache')
+		blab('Getting g++ path from cache')
 		with open(GCC_PATH_CACHE, 'r') as f:
 			return f.read()
 
-	# PlatformIO inserts the toolchain bin folder on the front of the $PATH
 	# Find the current platform compiler by searching the $PATH
+	# which will be in a platformio toolchain bin folder
+	path_regex = re.escape(env['PROJECT_PACKAGES_DIR'])
+	gcc = "g++"
 	if env['PLATFORM'] == 'win32':
 		path_separator = ';'
-		path_regex = re.escape(env['PROJECT_PACKAGES_DIR']) + r'.*\\bin'
-		gcc = "g++.exe"
+		path_regex += r'.*\\bin'
+		gcc += ".exe"
 	else:
 		path_separator = ':'
-		path_regex = re.escape(env['PROJECT_PACKAGES_DIR']) + r'.*/bin'
-		gcc = "g++"
+		path_regex += r'/.+/bin'
 
 	# Search for the compiler
-	for path in env['ENV']['PATH'].split(path_separator):
-		if not re.search(path_regex, path, re.IGNORECASE):
+	for pathdir in env['ENV']['PATH'].split(path_separator):
+		if not re.search(path_regex, pathdir, re.IGNORECASE):
 			continue
-		for file in os.listdir(path):
-			if not file.endswith(gcc):
+		for filepath in os.listdir(pathdir):
+			if not filepath.endswith(gcc):
 				continue
 
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
-				print('Caching g++ for current env')
+				blab('Caching g++ for current env')
 				with open(GCC_PATH_CACHE, 'w+') as f:
-					f.write(file)
+					f.write(filepath)
 
-			return file
+			return filepath
 
-	file = env.get('CXX')
-	print("Couldn't find a compiler! Fallback to", file)
-	return file
+	filepath = env.get('CXX')
+	blab("Couldn't find a compiler! Fallback to %s" % filepath)
+	return filepath
 
 #
 # Use the compiler to get a list of all enabled features
@@ -191,7 +223,6 @@ def load_marlin_features():
 		return
 
 	# Process defines
-	#print(env.Dump())
 	build_flags = env.get('BUILD_FLAGS')
 	build_flags = env.ParseFlagsExtended(build_flags)
 
@@ -209,7 +240,7 @@ def load_marlin_features():
 
 	cmd += ['-w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
 	cmd = ' '.join(cmd)
-	print(cmd)
+	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
 	marlin_features = {}
 	for define in define_list:

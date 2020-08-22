@@ -552,20 +552,23 @@
   #endif
 #endif
 
-//IGHMC - Marlin assumes that second stepper driver uses an extruder driver (according to documentation) ZYF avoids the Marlin code for dual z by defining ZYF_DUAL_Z
-// For Z set the number of stepper drivers
+//IGHMC - Marlin assumes that second stepper driver uses an extruder driver (according to documentation)
+//        ZYF avoids the Marlin code for dual z by defining ZYF_DUAL_Z
+//        For Z set the number of stepper drivers
 //
 //IGHMC, ZYF defines own dual z handling because Marlin assumes that loses an extruder driver, replicating where changes aren't obvious TODO: will this work with standard Marlin dual_z?
 
-// #ifdef TL_DUAL_Z
-// #define INVERT_Y_DIR false
-// const bool Z_ENDSTOPS_INVERTING = true;
-// #define NUM_Z_STEPPER_DRIVERS 2
-// #else
-// #define INVERT_Y_DIR true
-// const bool Z_ENDSTOPS_INVERTING = false;
-// #define NUM_Z_STEPPER_DRIVERS 1   // (1-4) Z options change based on how many
-// #endif
+//#ifdef TL_DUAL_Z
+//  #define INVERT_Y_DIR false
+//  #define Z_MIN_ENDSTOP_INVERTING true
+//  #define Z_MAX_ENDSTOP_INVERTING true
+//  #define NUM_Z_STEPPER_DRIVERS 2
+//#else
+//  #define INVERT_Y_DIR true
+//  #define Z_MIN_ENDSTOP_INVERTING false
+//  #define Z_MAX_ENDSTOP_INVERTING false
+//  #define NUM_Z_STEPPER_DRIVERS 1   // (1-4) Z options change based on how many
+//#endif
 
 #define NUM_Z_STEPPER_DRIVERS 2
 
@@ -849,12 +852,12 @@
 
 //#define HOME_AFTER_DEACTIVATE  // Require rehoming after steppers are deactivated
 
-// Minimum time that a segment needs to take as the buffer gets emptied
-#define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
-
 // Default Minimum Feedrates for printing and travel moves
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // (mm/s) Minimum feedrate. Set with M205 S.
 #define DEFAULT_MINTRAVELFEEDRATE     0.0     // (mm/s) Minimum travel feedrate. Set with M205 T.
+
+// Minimum time that a segment needs to take as the buffer gets emptied
+#define DEFAULT_MINSEGMENTTIME        20000   // (µs) Set with M205 B.
 
 // Slow down the machine if the lookahead buffer is (by default) half full.
 // Increase the slowdown divisor for larger buffer sizes.
@@ -2877,7 +2880,7 @@
 //#define SPINDLE_FEATURE
 //#define LASER_FEATURE
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
-  #define SPINDLE_LASER_ACTIVE_HIGH     false  // Set to "true" if the on/off function is active HIGH
+  #define SPINDLE_LASER_ACTIVE_STATE    LOW    // Set to "HIGH" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
   #define SPINDLE_LASER_PWM_INVERT      false  // Set to "true" if the speed/power goes up when you want it to go slower
 

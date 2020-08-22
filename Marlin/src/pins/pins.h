@@ -39,7 +39,7 @@
 
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
-#elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB)
+#elif MB(RAMPS_13_EEB, RAMPS_14_EEB, RAMPS_PLUS_EEB, RAMPS_14_RE_ARM_EEB, RAMPS_SMART_EEB, RAMPS_DUO_EEB, RAMPS4DUE_EEB, RAMPS_14_EEB_TENLOG)
   #define IS_RAMPS_EEB
 #elif MB(RAMPS_13_EFF, RAMPS_14_EFF, RAMPS_PLUS_EFF, RAMPS_14_RE_ARM_EFF, RAMPS_SMART_EFF, RAMPS_DUO_EFF, RAMPS4DUE_EFF)
   #define IS_RAMPS_EFF
@@ -47,10 +47,6 @@
   #define IS_RAMPS_EEF
 #elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF)
   #define IS_RAMPS_SF
-#endif
-//ighmc for tenlog
-#if MB(RAMPS_14_EEB_TENLOG)
-#define IS_RAMPS_EEB_TL
 #endif
 
 #define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
@@ -91,12 +87,9 @@
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RAMPS_PLUS_SF)
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-
-//ighmc - new board include
 #elif MB(RAMPS_14_EEB_TENLOG)
-//#pragma __file__
-#include "ramps/pins_RAMPS_TL.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-// #warning "RAMPS_14_EEB_TENLOG chosen"
+  #include "ramps/pins_RAMPS_TENLOG.h"          // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
 //
@@ -559,6 +552,8 @@
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 #elif MB(CREALITY_V4)
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
+#elif MB(CREALITY_V427)
+  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 
@@ -1245,7 +1240,8 @@
 // The X2 axis, if any, should be the next open extruder port
 #define X2_E_INDEX E_STEPPERS
 
-/*
+#if 0 // TENLOG DEVELOPMENT
+
 #if EITHER(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
   #ifndef X2_STEP_PIN
     #define X2_STEP_PIN   _EPIN(X2_E_INDEX, STEP)
@@ -1300,11 +1296,13 @@
     #undef X2_DIAG_PIN
   #endif
 
-    #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
-  #else
-    #define Y2_E_INDEX X2_E_INDEX
-  #endif
-*/
+  #define Y2_E_INDEX INCREMENT(X2_E_INDEX)
+#else
+  #define Y2_E_INDEX X2_E_INDEX
+#endif
+
+#endif // TENLOG DEVELOPMENT
+
 #ifndef X2_CS_PIN
   #define X2_CS_PIN  -1
 #endif
@@ -1386,73 +1384,77 @@
   #define Y2_MS3_PIN -1
 #endif
 
+#if 0  // TENLOG DEVELOPMENT
+
 // The Z2 axis, if any, should be the next open extruder port
-//#if NUM_Z_STEPPER_DRIVERS >= 2
-//	#ifndef Z2_STEP_PIN
-//		#define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
-//		#define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
-//		#define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
-//		#if Z2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z2_STEP)
-//			#error "No E stepper plug left for Z2!"
-//		#endif
-//	#endif
-//	#ifndef Z2_MS1_PIN
-//		#define Z2_MS1_PIN    _EPIN(Z2_E_INDEX, MS1)
-//	#endif
-//	#ifndef Z2_MS2_PIN
-//		#define Z2_MS2_PIN    _EPIN(Z2_E_INDEX, MS2)
-//	#endif
-//	#ifndef Z2_MS3_PIN
-//		#define Z2_MS3_PIN    _EPIN(Z2_E_INDEX, MS3)
-//	#endif
-//	#if AXIS_HAS_SPI(Z2) && !defined(Z2_CS_PIN)
-//		#define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
-//	#endif
-//	#if AXIS_HAS_UART(Z2)
-//		#ifndef Z2_SERIAL_TX_PIN
-//			#define Z2_SERIAL_TX_PIN _EPIN(Z2_E_INDEX, SERIAL_TX)
-//		#endif
-//		#ifndef Z2_SERIAL_RX_PIN
-//			#define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
-//		#endif
-//	#endif
-//	#if Z2_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
-//		#define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
-//		#if   DIAG_REMAPPED(Z2, X_MIN)
-//			#define Z2_USE_ENDSTOP _XMIN_
-//		#elif DIAG_REMAPPED(Z2, Y_MIN)
-//			#define Z2_USE_ENDSTOP _YMIN_
-//		#elif DIAG_REMAPPED(Z2, Z_MIN)
-//			#define Z2_USE_ENDSTOP _ZMIN_
-//		#elif DIAG_REMAPPED(Z2, X_MAX)
-//			#define Z2_USE_ENDSTOP _XMAX_
-//		#elif DIAG_REMAPPED(Z2, Y_MAX)
-//			#define Z2_USE_ENDSTOP _YMAX_
-//		#elif DIAG_REMAPPED(Z2, Z_MAX)
-//			#define Z2_USE_ENDSTOP _ZMAX_
-//		#else
-//			#define _Z2_USE_ENDSTOP(P) _E##P##_DIAG_
-//			#define Z2_USE_ENDSTOP _Z2_USE_ENDSTOP(Z2_E_INDEX)
-//		#endif
-//		#undef Z2_DIAG_PIN
-//	#endif
-//	#define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
-//#else
-//	#define Z3_E_INDEX Z2_E_INDEX
-//#endif
-//
-//#ifndef Z2_CS_PIN
-//	#define Z2_CS_PIN  -1
-//#endif
-//#ifndef Z2_MS1_PIN
-//	#define Z2_MS1_PIN -1
-//#endif
-//#ifndef Z2_MS2_PIN
-//	#define Z2_MS2_PIN -1
-//#endif
-//#ifndef Z2_MS3_PIN
-//	#define Z2_MS3_PIN -1
-//#endif
+#if NUM_Z_STEPPER_DRIVERS >= 2
+  #ifndef Z2_STEP_PIN
+    #define Z2_STEP_PIN   _EPIN(Z2_E_INDEX, STEP)
+    #define Z2_DIR_PIN    _EPIN(Z2_E_INDEX, DIR)
+    #define Z2_ENABLE_PIN _EPIN(Z2_E_INDEX, ENABLE)
+    #if Z2_E_INDEX >= MAX_EXTRUDERS || !PIN_EXISTS(Z2_STEP)
+      #error "No E stepper plug left for Z2!"
+    #endif
+  #endif
+  #ifndef Z2_MS1_PIN
+    #define Z2_MS1_PIN    _EPIN(Z2_E_INDEX, MS1)
+  #endif
+  #ifndef Z2_MS2_PIN
+    #define Z2_MS2_PIN    _EPIN(Z2_E_INDEX, MS2)
+  #endif
+  #ifndef Z2_MS3_PIN
+    #define Z2_MS3_PIN    _EPIN(Z2_E_INDEX, MS3)
+  #endif
+  #if AXIS_HAS_SPI(Z2) && !defined(Z2_CS_PIN)
+    #define Z2_CS_PIN     _EPIN(Z2_E_INDEX, CS)
+  #endif
+  #if AXIS_HAS_UART(Z2)
+    #ifndef Z2_SERIAL_TX_PIN
+      #define Z2_SERIAL_TX_PIN _EPIN(Z2_E_INDEX, SERIAL_TX)
+    #endif
+    #ifndef Z2_SERIAL_RX_PIN
+      #define Z2_SERIAL_RX_PIN _EPIN(Z2_E_INDEX, SERIAL_RX)
+    #endif
+  #endif
+  #if Z2_STALL_SENSITIVITY && ENABLED(Z_MULTI_ENDSTOPS) && NUM_Z_STEPPER_DRIVERS >= 2 && _PEXI(Z2_E_INDEX, DIAG)
+    #define Z2_DIAG_PIN _EPIN(Z2_E_INDEX, DIAG)
+    #if   DIAG_REMAPPED(Z2, X_MIN)
+      #define Z2_USE_ENDSTOP _XMIN_
+    #elif DIAG_REMAPPED(Z2, Y_MIN)
+      #define Z2_USE_ENDSTOP _YMIN_
+    #elif DIAG_REMAPPED(Z2, Z_MIN)
+      #define Z2_USE_ENDSTOP _ZMIN_
+    #elif DIAG_REMAPPED(Z2, X_MAX)
+      #define Z2_USE_ENDSTOP _XMAX_
+    #elif DIAG_REMAPPED(Z2, Y_MAX)
+      #define Z2_USE_ENDSTOP _YMAX_
+    #elif DIAG_REMAPPED(Z2, Z_MAX)
+      #define Z2_USE_ENDSTOP _ZMAX_
+    #else
+      #define _Z2_USE_ENDSTOP(P) _E##P##_DIAG_
+      #define Z2_USE_ENDSTOP _Z2_USE_ENDSTOP(Z2_E_INDEX)
+    #endif
+    #undef Z2_DIAG_PIN
+  #endif
+  #define Z3_E_INDEX INCREMENT(Z2_E_INDEX)
+#else
+  #define Z3_E_INDEX Z2_E_INDEX
+#endif
+
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN  -1
+#endif
+#ifndef Z2_MS1_PIN
+  #define Z2_MS1_PIN -1
+#endif
+#ifndef Z2_MS2_PIN
+  #define Z2_MS2_PIN -1
+#endif
+#ifndef Z2_MS3_PIN
+  #define Z2_MS3_PIN -1
+#endif
+
+#endif
 
 #if NUM_Z_STEPPER_DRIVERS >= 3
   #ifndef Z3_STEP_PIN

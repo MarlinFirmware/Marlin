@@ -1,6 +1,3 @@
-//
-//
-//
 /****************************************************************************
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
  *                                                                          *
@@ -17,7 +14,6 @@
  *   To view a copy of the GNU General Public License, go to the following  *
  *   location: <http://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
-
 
 //#pragma message(__FILE__)
 //IGHMC, included these based on MALYAN example and because Tenlog has modifiers in most of them then realised they need to come from UI_api.h
@@ -190,7 +186,6 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
       return customizedSerial3.read();
     }
 
-
     // To implement a new UI, complete the functions below and
     // read or update Marlin's state using the methods in the
     // ExtUI methods in "../ui_api.h"
@@ -198,7 +193,6 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
     // Although it may be possible to access other state
     // variables from Marlin, using the API here possibly
     // helps ensure future compatibility.
-
 
     void Init_TenlogScreen() {
 
@@ -698,7 +692,7 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
         TenlogScreen_println("msgbox.vtCancelValue.txt=\"M1004\"");
         String strMessage = "";
         if (languageID == 0)
-          strMessage = "Power  loss  detected,  Resume  print  " + sFileName + "?";
+          strMessage = "Power loss detected, Resume print " + sFileName + "?";
         else
           strMessage = "????????????" + sFileName + "??";
         strMessage = "msgbox.tMessage.txt=\"" + strMessage + "\"";
