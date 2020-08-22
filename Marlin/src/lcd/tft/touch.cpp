@@ -24,7 +24,7 @@
 #include "touch.h"
 
 #include "../ultralcd.h"  // for ui methods
-#include "../menu/menu.h" // for touch_screen_calibration
+#include "../menu/menu_item.h" // for touch_screen_calibration
 
 #include "../../module/temperature.h"
 #include "../../module/planner.h"
