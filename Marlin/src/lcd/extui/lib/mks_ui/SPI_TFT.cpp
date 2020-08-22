@@ -33,25 +33,6 @@
 
 TFT SPI_TFT;
 
-#ifndef SPI_TFT_MISO_PIN
-  #define SPI_TFT_MISO_PIN PA6
-#endif
-#ifndef SPI_TFT_MOSI_PIN
-  #define SPI_TFT_MOSI_PIN PA7
-#endif
-#ifndef SPI_TFT_SCK_PIN
-  #define SPI_TFT_SCK_PIN  PA5
-#endif
-#ifndef SPI_TFT_CS_PIN
-  #define SPI_TFT_CS_PIN   PD11
-#endif
-#ifndef SPI_TFT_DC_PIN
-  #define SPI_TFT_DC_PIN   PD10
-#endif
-#ifndef SPI_TFT_RST_PIN
-  #define SPI_TFT_RST_PIN  PC6
-#endif
-
 // use SPI1 for the spi tft.
 void TFT::spi_init(uint8_t spiRate) {
   tftio.Init();
@@ -93,11 +74,11 @@ void TFT::SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
 }
 
 void TFT::LCD_init() {
-  SPI_TFT_RST_H;
+  TFT_RST_H;
   delay(150);
-  SPI_TFT_RST_L;
+  TFT_RST_L;
   delay(150);
-  SPI_TFT_RST_H;
+  TFT_RST_H;
 
   tftio.DataTransferBegin(DATASIZE_8BIT);
 
@@ -176,22 +157,22 @@ void TFT::LCD_init() {
 
   LCD_clear(0x0000);    //
   LCD_Draw_Logo();
-  SPI_TFT_BLK_H;
+  TFT_BLK_H;
   delay(2000);
 }
 
 void TFT::LCD_clear(uint16_t color) {
-  SetWindows(0, 0, (LCD_FULL_PIXEL_WIDTH) - 1, (LCD_FULL_PIXEL_HEIGHT) - 1);
-  tftio.WriteMultiple(color, (uint32_t)(LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
+  SetWindows(0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
+  tftio.WriteMultiple(color, (uint32_t)(TFT_WIDTH) * (TFT_HEIGHT));
 }
 
 extern unsigned char bmp_public_buf[17 * 1024];
 
 void TFT::LCD_Draw_Logo() {
-  SetWindows(0, 0, LCD_FULL_PIXEL_WIDTH, LCD_FULL_PIXEL_HEIGHT);
-  for (uint16_t i = 0; i < (LCD_FULL_PIXEL_HEIGHT); i ++) {
-    Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (LCD_FULL_PIXEL_WIDTH) * 2);
-    tftio.WriteSequence((uint16_t *)bmp_public_buf, LCD_FULL_PIXEL_WIDTH);
+  SetWindows(0, 0, TFT_WIDTH, TFT_HEIGHT);
+  for (uint16_t i = 0; i < (TFT_HEIGHT); i ++) {
+    Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
+    tftio.WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
   }
 }
 

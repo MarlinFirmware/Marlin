@@ -515,6 +515,12 @@
   #error "DIGIPOT_I2C is now DIGIPOT_MCP4451 (or DIGIPOT_MCP4018). Please update Configuration_adv.h."
 #elif defined(TOUCH_BUTTONS)
   #error "TOUCH_BUTTONS is now TOUCH_SCREEN. Please update your Configuration.h."
+#elif defined(LCD_FULL_PIXEL_HEIGHT)
+  #error "LCD_FULL_PIXEL_HEIGHT is deprecated and should be removed. Please update your Configuration.h."
+#elif defined(LCD_FULL_PIXEL_WIDTH)
+  #error "LCD_FULL_PIXEL_WIDTH is deprecated and should be removed. Please update your Configuration.h."
+#elif defined(FSMC_UPSCALE)
+  #error "FSMC_UPSCALE is now GRAPHICAL_TFT_UPSCALE. Please update your Configuration.h."
 #elif defined(ANYCUBIC_TFT_MODEL)
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
@@ -1104,6 +1110,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #elif PIN_EXISTS(FANMUX2)
   #error "FANMUX0_PIN and FANMUX1_PIN must be set before FANMUX2_PIN can be set."
+#endif
+
+/**
+ * Limited user-controlled fans
+ */
+#if NUM_M106_FANS > FAN_COUNT
+  #error "The selected board doesn't support enough user-controlled fans. Reduce NUM_M106_FANS."
 #endif
 
 /**
