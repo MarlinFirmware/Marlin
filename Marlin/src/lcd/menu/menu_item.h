@@ -33,16 +33,6 @@ void lcd_move_z();
 ///////////// Base Menu Items //////////////
 ////////////////////////////////////////////
 
-// BACK_ITEM(LABEL)
-class MenuItem_back : public MenuItemBase {
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
-      _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
-    }
-    // Back Item action goes back one step in history
-    FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
-};
-
 // SUBMENU(LABEL, screen_handler)
 class MenuItem_submenu : public MenuItemBase {
   public:
