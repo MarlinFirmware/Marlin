@@ -81,7 +81,6 @@
 #define E0_STEP_PIN                         PD6
 #define E0_DIR_PIN                          PD3
 
-
 // Motor current PWM pins
 #define MOTOR_CURRENT_PWM_XY_PIN            PA6
 #define MOTOR_CURRENT_PWM_Z_PIN             PA7
@@ -113,7 +112,7 @@
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
 
 #define MT_DET_1_PIN                        PA4
-#define MT_DET_PIN_INVERTING false
+#define MT_DET_PIN_INVERTING               false
 
 #define WIFI_IO0_PIN                        PC13
 
@@ -149,9 +148,9 @@
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
-  #define LCD_USE_DMA_FSMC                  // Use DMA transfers to send data to the TFT
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL                  DMA_CH5
+  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define LCD_RESET_PIN                     PC6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PD13
@@ -163,7 +162,7 @@
     #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
   #endif
 
-#elif ENABLED(TFT_320x240) //TFT32/28
+#elif ENABLED(TFT_320x240)                        //TFT32/28
 
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
@@ -190,7 +189,7 @@
   #define ILI9341_COLOR_RGB
 #endif
 
-#define HAS_SPI_FLASH 1
+#define HAS_SPI_FLASH                          1
 #define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
   #define W25QXX_CS_PIN                     PB12  // Flash chip-select

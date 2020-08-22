@@ -28,7 +28,7 @@
 #define BOARD_INFO_NAME "GMARSH X6 REV1"
 
 // Ignore temp readings during develpment.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Enable 12MHz clock output on P1.27 pin to sync TMC2208 chip clocks
@@ -97,7 +97,7 @@
   #define E2_SERIAL_RX_PIN                 P2_06
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #else
   #error "TMC2208 UART configuration is required for GMarsh X6."
 #endif

@@ -44,8 +44,8 @@
 // TIM7 is used for SERVO
 // TIMER_SERIAL defaults to TIM7 so we'll override it here
 //
-#define STEP_TIMER 10
-#define TEMP_TIMER 14
+#define STEP_TIMER                            10
+#define TEMP_TIMER                            14
 #define TIMER_SERIAL                        TIM9
 #define HAL_TIMER_RATE                     F_CPU
 

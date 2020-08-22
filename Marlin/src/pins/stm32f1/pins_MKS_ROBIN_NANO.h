@@ -188,7 +188,7 @@
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE       2
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 #endif
 
 // LVGL Configs
@@ -206,7 +206,7 @@
   #define DOGLCD_SCK                        -1
 
   #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE                       3
+    #define GRAPHICAL_TFT_UPSCALE              3
   #endif
   #ifndef TFT_WIDTH
     #define TFT_WIDTH                        480

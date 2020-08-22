@@ -212,6 +212,6 @@
 
   // Reduce baud rate for software serial reliability
   #if HAS_TMC_SW_SERIAL
-    #define TMC_BAUD_RATE 19200
+    #define TMC_BAUD_RATE                  19200
   #endif
 #endif
