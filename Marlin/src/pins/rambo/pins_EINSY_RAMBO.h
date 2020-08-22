@@ -79,6 +79,7 @@
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN                     10
 #endif
+#define TEMP_PROBE_PIN                         3
 
 //
 // Steppers
@@ -109,7 +110,6 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
-#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans
@@ -118,11 +118,11 @@
 #define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              8
+  #define FAN_PIN                              6
 #endif
 
 #ifndef FAN1_PIN
-  #define FAN1_PIN                             6
+  #define FAN1_PIN                            -1
 #endif
 
 //
@@ -134,6 +134,8 @@
 #ifndef CASE_LIGHT_PIN
   #define CASE_LIGHT_PIN                       9
 #endif
+
+#define FIL_RUNOUT_PIN                        62
 
 //
 // M3/M4/M5 - Spindle/Laser Control
