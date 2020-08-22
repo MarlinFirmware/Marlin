@@ -234,7 +234,7 @@
     #define XPT2046_Y_OFFSET                 256
   #endif
 
-#elif ENABLED(TFT_320x240) //TFT32/28
+#elif ENABLED(TFT_320x240)                        // TFT32/28
   #define TFT_RESET_PIN                     PC6
   #define TFT_BACKLIGHT_PIN                 PD13
 
