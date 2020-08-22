@@ -197,13 +197,13 @@ float Planner::steps_to_mm[XYZE_N];             // (mm) Millimeters per step
 skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 
 #if ENABLED(AUTOTEMP)
-  float Planner::autotemp_max = 210,
-        Planner::autotemp_min = 190,
+  float Planner::autotemp_max = PREHEAT_1_TEMP_HOTEND + 10,
+        Planner::autotemp_min = PREHEAT_1_TEMP_HOTEND - 10,
         Planner::autotemp_oldtemp = 0.0f;
 
   #if ENABLED(AUTOTEMP_FACTORLESS)
     float Planner::autotemp_min_e_speed = 1.33f,
-          Planner::autotemp_max_e_speed = 3.33f;
+          Planner::autotemp_max_e_speed = 4.0f;
   #else
     float Planner::autotemp_factor = 0.1f;
   #endif
@@ -3079,7 +3079,13 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       autotemp_enabled = autotemp_factor != 0;
     #endif
 
-    if (!autotemp_enabled) autotemp_oldtemp = 0.0f;
+    if (!autotemp_enabled) {
+      autotemp_oldtemp = 0.0f;
+
+      #ifdef AUTOTEMP_MIN_Z_RAISE
+        autotemp_last_z = 0.0f;
+      #endif
+    }
   }
 
   void Planner::autotemp_M104_M109() {
@@ -3112,10 +3118,11 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       autotemp_enabled = autotemp_factor != 0;
     #endif
 
-    #ifdef AUTOTEMP_MIN_Z_RAISE
-      if (!autotemp_enabled) autotemp_last_z = 0.0f;
-    #endif
-
-    if (!autotemp_enabled) autotemp_oldtemp = 0.0f;
+    if (!autotemp_enabled) {
+      autotemp_oldtemp = 0.0f;
+      #ifdef AUTOTEMP_MIN_Z_RAISE
+        autotemp_last_z = 0.0f;
+      #endif
+    }
   }
 #endif
