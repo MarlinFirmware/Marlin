@@ -128,7 +128,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_BTT_SKR_V1_4_TURBO
+  #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -2356,7 +2356,7 @@
 #define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB     // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     P1_24      // LED driving pin
+  #define NEOPIXEL_PIN     4      // LED driving pin
   #define NEOPIXEL_PIXELS 12          // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_BRIGHTNESS 127     // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST     // Cycle through colors at startup
@@ -2370,7 +2370,7 @@
   #define NEOPIXEL2
   #if ENABLED(NEOPIXEL2)
     #define NEOPIXEL2_TYPE NEO_GRB    // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-    #define NEOPIXEL2_PIN    P1_26    // LED2 driving pin
+    #define NEOPIXEL2_PIN    5    // LED2 driving pin
     #define NEOPIXEL2_PIXELS 12       // Number of LEDs in the second strip, larger of 2 strips if 2 neopixel strips are used
     #define NEOPIXEL2_BRIGHTNESS 127  // Initial brightness (0-255)
     //#define NEOPIXEL2_STARTUP_TEST  // Cycle through colors at startup on the seperate channel
