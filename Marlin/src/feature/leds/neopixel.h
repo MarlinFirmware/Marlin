@@ -38,11 +38,7 @@
 // Defines
 // ------------------------
 
-#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE
-  #define MULTIPLE_NEOPIXEL_TYPES 1
-#endif
-
-#if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
+#if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR || NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
   #define NEOPIXEL_IS_RGB 1
 #else
   #define NEOPIXEL_IS_RGBW 1
@@ -134,3 +130,55 @@ public:
 };
 
 extern Marlin_NeoPixel neo;
+
+// Neo pixel channel 2 
+#if NEOPIXELX2
+class Marlin_NeoPixel2 {
+private:
+  static Adafruit_NeoPixel adaneo2;
+    
+  static int8_t neoindex2;
+
+public:
+  static void init();
+  static void set_color_startup(const uint32_t c);
+
+  static void set_color(const uint32_t c);
+
+  FORCE_INLINE static void set_neo_index(const int8_t neoIndex2) { neoindex2 = neoIndex2; }
+  FORCE_INLINE static int8_t get_neo_index() { return neoindex2; }
+
+
+  static inline void begin() {
+    adaneo2.begin();
+    
+  }
+
+  static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
+    adaneo2.setPixelColor(n, c);
+    
+  }
+
+  static inline void set_brightness(const uint8_t b) {
+    adaneo2.setBrightness(b);
+    
+  }
+
+static inline void show() {
+      adaneo2.show();
+      adaneo2.setPin(NEOPIXEL2_PIN);  
+  }
+  #if 0
+    bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
+  #endif
+
+  // Accessors for NeoPixel2
+  static inline uint16_t pixels() { return adaneo2.numPixels();}
+  static inline uint8_t brightness() { return adaneo2.getBrightness(); }
+  static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+    return adaneo2.Color(r, g, b, w);
+  }
+};
+
+extern Marlin_NeoPixel2 neo2;
+#endif
