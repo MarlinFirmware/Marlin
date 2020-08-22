@@ -2,7 +2,7 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  * ##################################################################################
- * ALTERATIONS MADE INDICATED THUS - // BASE // UBL or DATE IMPLIMENTED = // 20/06/26 20/07/09 20/08/20
+ * ALTERATIONS MADE INDICATED THUS - // BASE // UBL or DATE IMPLIMENTED = // 20/06/26 20/07/09 20/08/20 20/08/23
  * ##################################################################################
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -1477,18 +1477,18 @@
 
   #define DOUBLECLICK_FOR_Z_BABYSTEPPING    // Double-click on the Status Screen for Z Babystepping.
   #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING)
-    #define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+    #define DOUBLECLICK_MAX_INTERVAL 500   // Maximum interval between clicks, in milliseconds. // 20/08/23 was 1250
                                             // Note: Extra time may be added to mitigate controller latency.
     //#define BABYSTEP_ALWAYS_AVAILABLE     // Allow babystepping at all times (not just during movement).
-    #define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle. // 20/06/26
+    #define MOVE_Z_WHEN_IDLE              // Jump to the move Z menu on doubleclick when printer is idle. // BASE
     #if ENABLED(MOVE_Z_WHEN_IDLE)
-      #define MOVE_Z_IDLE_MULTIPLICATOR 1   // Multiply 1mm by this factor for the move step size. // 20/06/26 was 10 NOW 1 AGAIN
+      #define MOVE_Z_IDLE_MULTIPLICATOR 10   // Multiply 1mm by this factor for the move step size. // 20/08/23 was 1
     #endif
   #endif
 
   //#define BABYSTEP_DISPLAY_TOTAL          // Display total babysteps since last G28
 
-  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping // 20/06/26
+  #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping // BASE
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
     //#define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
