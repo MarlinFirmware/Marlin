@@ -74,17 +74,19 @@ void GcodeSuite::M48() {
 
   const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
 
-  const xy_pos_t probe_pos = {
+  // Test at the current position by default, overridden by X and Y
+  const xy_pos_t test_position = {
     parser.linearval('X', current_position.x + probe.offset_xy.x),  // If no X use the probe's current X position
     parser.linearval('Y', current_position.y + probe.offset_xy.y)   // If no Y, ditto
   };
 
-  if (!probe.can_reach(probe_pos)) {
+  if (!probe.can_reach(test_position)) {
     ui.set_status_P(GET_TEXT(MSG_M48_OUT_OF_BOUNDS), 99);
     SERIAL_ECHOLNPGM("? (X,Y) out of bounds.");
     return;
   }
 
+  // Get the number of leg moves per test-point
   bool seen_L = parser.seen('L');
   uint8_t n_legs = seen_L ? parser.value_byte() : 0;
   if (n_legs > 15) {
@@ -93,10 +95,9 @@ void GcodeSuite::M48() {
   }
   if (n_legs == 1) n_legs = 2;
 
+  // Schizoid motion as an optional stress-test
   const bool schizoid_flag = parser.boolval('S');
   if (schizoid_flag && !seen_L) n_legs = 7;
-
-  // Bring the probe closer to the bed for a start.
 
   if (verbose_level > 2)
     SERIAL_ECHOLNPGM("Positioning the probe...");
@@ -134,7 +135,7 @@ void GcodeSuite::M48() {
   };
 
   // Move to the first point, deploy, and probe
-  const float t = probe.probe_at_point(probe_pos, raise_after, verbose_level);
+  const float t = probe.probe_at_point(test_position, raise_after, verbose_level);
   bool probing_good = !isnan(t);
 
   if (probing_good) {
@@ -188,9 +189,9 @@ void GcodeSuite::M48() {
           while (angle > 360.0) angle -= 360.0;
           while (angle < 0.0) angle += 360.0;
 
-          //
-          const xy_pos_t noz_pos = probe_pos - probe.offset_xy;
-          xy_float_t next_pos = {
+          // Choose the next position as an offset to chosen test position
+          const xy_pos_t noz_pos = test_position - probe.offset_xy;
+          xy_pos_t next_pos = {
             noz_pos.x + cos(RADIANS(angle)) * radius,
             noz_pos.y + sin(RADIANS(angle)) * radius
           };
@@ -217,7 +218,7 @@ void GcodeSuite::M48() {
       } // n_legs
 
       // Probe a single point
-      const float pz = probe.probe_at_point(probe_pos, raise_after, 0);
+      const float pz = probe.probe_at_point(test_position, raise_after, 0);
 
       // Break the loop if the probe fails
       probing_good = !isnan(pz);
