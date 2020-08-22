@@ -311,7 +311,7 @@
   #endif
 
   #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE                       3
+    #define GRAPHICAL_TFT_UPSCALE              3
   #endif
   #ifndef TFT_PIXEL_OFFSET_Y
     #define TFT_PIXEL_OFFSET_Y                32

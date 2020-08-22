@@ -177,7 +177,7 @@
 
   // Emulated DOGM
 
-  #define GRAPHICAL_TFT_UPSCALE                         3
+  #define GRAPHICAL_TFT_UPSCALE                3
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -12316
   #endif

@@ -130,7 +130,7 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-#define GRAPHICAL_TFT_UPSCALE                           2
+#define GRAPHICAL_TFT_UPSCALE                  2
 #define TFT_WIDTH                            320
 #define TFT_HEIGHT                           240
 #define TFT_PIXEL_OFFSET_X                    32

@@ -51,10 +51,10 @@
   #if ENABLED(IIC_BL24CXX_EEPROM)
     #define IIC_EEPROM_SDA                  PA11
     #define IIC_EEPROM_SCL                  PA12
-    #define MARLIN_EEPROM_SIZE 0x800              // 2Kb (24C16)
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
   #else
     #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE 0x800              // 2Kb
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
   #endif
 
   // SPI
@@ -150,7 +150,7 @@
 //
 #define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION                ONBOARD
-#define ON_BOARD_SPI_DEVICE 1
+#define ON_BOARD_SPI_DEVICE                    1
 #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 #define SDIO_SUPPORT
 
