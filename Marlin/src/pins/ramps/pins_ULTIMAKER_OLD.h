@@ -174,7 +174,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif ENABLED(BOARD_REV_1_5, ULTRA_LCD)
+#elif BOTH(BOARD_REV_1_5, ULTRA_LCD)
 
   #define BEEPER_PIN                          18
 
