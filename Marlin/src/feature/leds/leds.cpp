@@ -178,14 +178,6 @@ void LEDLights::set_color(const LEDColor &incol
   LEDLights2 leds2;
 
   void LEDLights2::setup() {
-    #if EITHER(RGB_LED, RGBW_LED)
-      if (PWM_PIN(RGB_LED_R_PIN)) SET_PWM(RGB_LED_R_PIN); else SET_OUTPUT(RGB_LED_R_PIN);
-      if (PWM_PIN(RGB_LED_G_PIN)) SET_PWM(RGB_LED_G_PIN); else SET_OUTPUT(RGB_LED_G_PIN);
-      if (PWM_PIN(RGB_LED_B_PIN)) SET_PWM(RGB_LED_B_PIN); else SET_OUTPUT(RGB_LED_B_PIN);
-      #if ENABLED(RGBW_LED)
-        if (PWM_PIN(RGB_LED_W_PIN)) SET_PWM(RGB_LED_W_PIN); else SET_OUTPUT(RGB_LED_W_PIN);
-      #endif
-    #endif
     neo2.init();
     TERN_(NEO2_USER_PRESET_STARTUP, set_default());
   }
