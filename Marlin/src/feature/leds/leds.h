@@ -152,7 +152,7 @@ public:
     #endif
   );
 
-  inline void set_color(uint8_t r, uint8_t g, uint8_t b
+  static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)
