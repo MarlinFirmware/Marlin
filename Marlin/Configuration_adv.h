@@ -488,7 +488,7 @@
   //#define CASE_LIGHT_MAX_PWM 128            // Limit pwm
   //#define CASE_LIGHT_MENU                   // Add Case Light options to the LCD menu
   //#define CASE_LIGHT_NO_BRIGHTNESS          // Disable brightness control. Enable for non-PWM lighting.
-  //#define CASE_LIGHT_USE_NEOPIXEL           // Use Neopixel LED as case light, requires NEOPIXEL_LED.
+  //#define CASE_LIGHT_USE_NEOPIXEL           // Use NeoPixel LED as case light, requires NEOPIXEL_LED.
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
@@ -1064,8 +1064,8 @@
    */
   //#define LED_CONTROL_MENU
   #if ENABLED(LED_CONTROL_MENU)
-   // #define LED_COLOR_PRESETS               // Enable the Preset Color menu option
-    //#define NEO2_COLOR_PRESETS              //Enables the Second NeoPixel Preset Color menu option
+    #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
+    //#define NEO2_COLOR_PRESETS              // Enable a second NeoPixel Preset Color menu option
     #if ENABLED(LED_COLOR_PRESETS)
       #define LED_USER_PRESET_RED        255  // User defined RED value
       #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
@@ -1074,7 +1074,7 @@
       #define LED_USER_PRESET_BRIGHTNESS 255  // User defined intensity
       //#define LED_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup
     #endif
-       #if ENABLED(NEO2_COLOR_PRESETS)          
+    #if ENABLED(NEO2_COLOR_PRESETS)
       #define NEO2_USER_PRESET_RED        255  // User defined RED value
       #define NEO2_USER_PRESET_GREEN      128  // User defined GREEN value
       #define NEO2_USER_PRESET_BLUE         0  // User defined BLUE value
@@ -1083,7 +1083,7 @@
       //#define NEO2_USER_PRESET_STARTUP       // Have the printer display the user preset color on startup for the second strip
     #endif
   #endif
-                    
+
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view

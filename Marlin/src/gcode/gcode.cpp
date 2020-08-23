@@ -571,10 +571,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 150: M150(); break;                                  // M150: Set Status LED Color
       #endif
 
-      #if NEOPIXELX2                                              
-        case 151: M151(); break;                                  // M151: Set Seperate LED Color to Neopixel2 pin  
-      #endif
-      
       #if ENABLED(MIXING_EXTRUDER)
         case 163: M163(); break;                                  // M163: Set a component weight for mixing extruder
         case 164: M164(); break;                                  // M164: Save current mix as a virtual extruder
@@ -794,7 +790,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 666: M666(); break;                                  // M666: Set delta or multiple endstop adjustment
       #endif
 
-      #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+      #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
         case 672: M672(); break;                                  // M672: Set/clear Duet Smart Effector sensitivity
       #endif
 
