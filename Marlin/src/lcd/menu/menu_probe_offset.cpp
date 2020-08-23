@@ -26,88 +26,76 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_LCD_MENU, PROBE_OFFSET_WIZARD) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
+#if ENABLED(PROBE_OFFSET_WIZARD)
 
-#include "menu.h"
+#ifndef PROBE_OFFSET_START
+  #error "PROBE_OFFSET_WIZARD requires a PROBE_OFFSET_START with a negative value."
+#else
+  static_assert(PROBE_OFFSET_START < 0, "PROBE_OFFSET_START must be < 0. Please update your configuration.");
+#endif
+
+#include "menu_item.h"
 #include "menu_addon.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
+#include "../../module/probe.h"
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if HAS_BED_PROBE
-  #include "../../module/probe.h"
-#endif
+// Global storage
+float z_offset_backup, calculated_z_offset;
 
-#ifndef PROBE_OFFSET_START
-  #define PROBE_OFFSET_START -4.0
-#endif
+TERN_(HAS_LEVELING, bool leveling_was_active);
+TERN_(HAS_SOFTWARE_ENDSTOPS, bool store_soft_endstops_enabled);
 
-static_assert(PROBE_OFFSET_START < 0, "PROBE_OFFSET_START must be < 0. Please update your configuration.");
+void prepare_for_calibration() {
+  z_offset_backup = probe.offset.z;
 
-#if HAS_LEVELING
-  static bool leveling_was_active = false;
-#endif
-
-#if HAS_SOFTWARE_ENDSTOPS
-  bool store_soft_endstops_enabled;
-#endif
-float store_z_offset;
-float calculated_z_offset;
-
-static void _lcd_probe_offset_move_undo(){
+  // Disable soft endstops for free Z movement
   #if HAS_SOFTWARE_ENDSTOPS
-    soft_endstops_enabled = store_soft_endstops_enabled;
+    store_soft_endstops_enabled = soft_endstops_enabled;
+    soft_endstops_enabled = false;
   #endif
-  probe.offset.z = store_z_offset;
-  ui.goto_previous_screen_no_defer();
 
+  // Disable leveling for raw planner motion
+  #if HAS_LEVELING
+    leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
 }
 
-static void _lcd_probe_offset_move_done(){
-  probe.offset.z = calculated_z_offset;
-  #if HAS_SOFTWARE_ENDSTOPS
-    soft_endstops_enabled = store_soft_endstops_enabled;
-  #endif
-
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(leveling_was_active);
-  #endif
-  #if Z_AFTER_HOMING
-    do_z_clearance(Z_AFTER_HOMING);
-  #else
-    do_z_clearance(20.0);
-  #endif
-
+void set_offset_and_go_back(const float &z) {
+  probe.offset.z = z;
+  TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = store_soft_endstops_enabled);
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
-};
+}
 
 void _goto_manual_move_z(const float scale) {
-  ui.defer_status_screen();
   ui.manual_move.menu_scale = scale;
   ui.goto_screen(lcd_move_z);
 }
 
-static void _lcd_probe_offset_move_z() {
+void probe_offset_wizard_menu() {
   START_MENU();
   calculated_z_offset = probe.offset.z + current_position.z;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_Z, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM(MSG_MESH_EDIT_Z,    SS_LEFT, ftostr42_52(current_position.z));
+  STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(current_position.z));
   STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move_z( 1);    });
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
-  char tmp[20], numstr[10];
 
   if ((SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
     extern const char NUL_STR[];
     SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
     MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
+      char tmp[20], numstr[10];
       // Determine digits needed right of decimal
       const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
                            !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
@@ -116,39 +104,39 @@ static void _lcd_probe_offset_move_z() {
     MENU_ITEM_ADDON_END();
   }
 
-  ACTION_ITEM(MSG_BUTTON_DONE,   _lcd_probe_offset_move_done);
-  ACTION_ITEM(MSG_BUTTON_CANCEL, _lcd_probe_offset_move_undo);
+  ACTION_ITEM(MSG_BUTTON_DONE,   []{
+    set_offset_and_go_back(calculated_z_offset);
+    do_z_clearance(20.0
+      #ifdef Z_AFTER_HOMING
+        - 20.0 + Z_AFTER_HOMING
+      #endif
+    );
+  });
+
+  ACTION_ITEM(MSG_BUTTON_CANCEL, []{
+    set_offset_and_go_back(z_offset_backup);
+  });
 
   END_MENU();
 }
 
-void _lcd_probe_wizard() {
+void goto_probe_offset_wizard() {
   ui.defer_status_screen();
+
+  prepare_for_calibration();
+
+  probe.offset.z = PROBE_OFFSET_START;
 
   set_all_unhomed();
   queue.inject_P(G28_STR);
 
-  store_z_offset = probe.offset.z;
-  probe.offset.z = PROBE_OFFSET_START;
-
-  // Disable leveling so the planner won't mess with us
-  #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(false);
-  #endif
-
-  #if HAS_SOFTWARE_ENDSTOPS
-    store_soft_endstops_enabled = soft_endstops_enabled;
-    soft_endstops_enabled = false;
-  #endif
-
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
-      ui.goto_screen(_lcd_probe_offset_move_z);
+      ui.goto_screen(probe_offset_wizard_menu);
       ui.defer_status_screen();
     }
   });
 }
 
-#endif // HAS_LCD_MENU && PROBE_OFFSET_WIZARD && !BABYSTEP_ZPROBE_OFFSET
+#endif // PROBE_OFFSET_WIZARD
