@@ -161,7 +161,7 @@ void LEDLights::set_color(const LEDColor &incol
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
   #if ENABLED(NEO2_COLOR_PRESETS)
-    const LEDColor2 LEDLights2::defaultLEDColor2 = MakeLEDColor2(
+    const LEDColor LEDLights2::defaultLEDColor = MakeLEDColor(
       NEO2_USER_PRESET_RED,
       NEO2_USER_PRESET_GREEN,
       NEO2_USER_PRESET_BLUE,
@@ -171,7 +171,7 @@ void LEDLights::set_color(const LEDColor &incol
   #endif
 
   #if ENABLED(LED_CONTROL_MENU)
-    LEDColor2 LEDLights2::color;
+    LEDColor LEDLights2::color;
     bool LEDLights2::lights_on;
   #endif
 
