@@ -103,10 +103,7 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec() {
-  SPI.beginTransaction(spiConfig);
-  uint8_t returnByte = SPI.transfer(0xFF);
-  SPI.endTransaction();
-  return returnByte;
+  return SPI.transfer(0xFF);
 }
 
 /**
@@ -119,13 +116,11 @@ uint8_t spiRec() {
  * @details Uses DMA
  */
 void spiRead(uint8_t* buf, uint16_t nbyte) {
-  SPI.beginTransaction(spiConfig);
   #ifndef STM32GENERIC
     SPI.dmaTransfer(0, const_cast<uint8_t*>(buf), nbyte);
   #else
     SPI.transfer((uint8_t*)buf, nbyte);
   #endif
-  SPI.endTransaction();
 }
 
 /**
@@ -136,9 +131,7 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
  * @details
  */
 void spiSend(uint8_t b) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(b);
-  SPI.endTransaction();
 }
 
 /**
@@ -150,14 +143,12 @@ void spiSend(uint8_t b) {
  * @details Use DMA
  */
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
   #ifndef STM32GENERIC
     SPI.dmaSend(const_cast<uint8_t*>(buf), 512);
   #else
     SPI.transfer((uint8_t*)buf, nullptr, 512);
   #endif
-  SPI.endTransaction();
 }
 
 #endif // SOFTWARE_SPI

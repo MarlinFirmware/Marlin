@@ -79,29 +79,20 @@ void spiInit(uint8_t spiRate) {
 }
 
 uint8_t spiRec() {
-  SPI.beginTransaction(spiConfig);
-  uint8_t returnByte = SPI.transfer(0xFF);
-  SPI.endTransaction();
-  return returnByte;
+  return SPI.transfer(0xFF);
 }
 
 void spiRead(uint8_t* buf, uint16_t nbyte) {
-  SPI.beginTransaction(spiConfig);
   SPI.transferBytes(0, buf, nbyte);
-  SPI.endTransaction();
 }
 
 void spiSend(uint8_t b) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(b);
-  SPI.endTransaction();
 }
 
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(token);
   SPI.writeBytes(const_cast<uint8_t*>(buf), 512);
-  SPI.endTransaction();
 }
 
 void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {

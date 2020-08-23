@@ -72,10 +72,7 @@ void spiInit(uint8_t spiRate) {
 
 // SPI receive a byte
 uint8_t spiRec() {
-  SPI.beginTransaction(spiConfig);
-  const uint8_t returnByte = SPI.transfer(0xFF);
-  SPI.endTransaction();
-  return returnByte;
+  return SPI.transfer(0xFF);
   //SPDR = 0xFF;
   //while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   //return SPDR;
@@ -83,9 +80,7 @@ uint8_t spiRec() {
 
 // SPI read data
 void spiRead(uint8_t* buf, uint16_t nbyte) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(buf, nbyte);
-  SPI.endTransaction();
   //if (nbyte-- == 0) return;
   //  SPDR = 0xFF;
   //for (uint16_t i = 0; i < nbyte; i++) {
@@ -99,16 +94,13 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
 
 // SPI send a byte
 void spiSend(uint8_t b) {
-  SPI.beginTransaction(spiConfig);
   SPI.transfer(b);
-  SPI.endTransaction();
   //SPDR = b;
   //while (!TEST(SPSR, SPIF)) { /* nada */ }
 }
 
 // SPI send block
 void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  SPI.beginTransaction(spiConfig);
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {
     while (!TEST(SPSR, SPIF)) { /* nada */ };
@@ -117,7 +109,6 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
     SPDR = buf[i + 1];
   }
   while (!TEST(SPSR, SPIF)) { /* nada */ };
-  SPI.endTransaction();
 }
 
 
