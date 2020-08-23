@@ -38,7 +38,7 @@
 // Defines
 // ------------------------
 
-#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE || !NEOPIXELX2 
+#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE 
   #define MULTIPLE_NEOPIXEL_TYPES 1
 #endif
 
