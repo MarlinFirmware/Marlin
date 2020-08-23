@@ -328,6 +328,13 @@ class MenuItem_bool : public MenuEditItemBase {
   NEXT_ITEM();                               \
 }while(0)
 
+#define PSTRING_ITEM(LABEL, PVAL, STYL) do{ \
+  char msg[21], *ptr = msg;                 \
+  *ptr++ = ':'; *ptr++ = ' ';               \
+  strncpy_P(ptr, PSTR(PVAL), 18);           \
+  STATIC_ITEM(LABEL, STYL, msg);            \
+}while(0)
+
 #define STATIC_ITEM(LABEL,      V...)                  STATIC_ITEM_P(GET_TEXT(LABEL), ##V)
 #define STATIC_ITEM_N(LABEL, N, V...)                STATIC_ITEM_N_P(GET_TEXT(LABEL), ##V)
 
