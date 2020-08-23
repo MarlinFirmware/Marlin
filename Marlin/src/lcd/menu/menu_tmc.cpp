@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && HAS_TRINAMIC_CONFIG
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/stepper/indirection.h"
 #include "../../feature/tmc_util.h"
 
