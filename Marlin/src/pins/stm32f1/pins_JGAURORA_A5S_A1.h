@@ -43,10 +43,10 @@
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
 //#define I2C_EEPROM                              // AT24C64
-//#define MARLIN_EEPROM_SIZE 0x8000UL             // 64KB
+//#define MARLIN_EEPROM_SIZE            0x8000UL  // 64KB
 
 //#define FLASH_EEPROM_EMULATION
-//#define MARLIN_EEPROM_SIZE 0x1000UL             // 4KB
+//#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
 //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
 
 //#define EEPROM_CHITCHAT

@@ -35,7 +35,7 @@
  *                                    If brightness is left out, no value changed
  *
  * With NEOPIXEL_LED:
- *  I<index>  Set the Neopixel index to affect. Default: All
+ *  I<index>  Set the NeoPixel index to affect. Default: All
  *
  * Examples:
  *

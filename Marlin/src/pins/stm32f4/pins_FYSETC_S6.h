@@ -35,7 +35,7 @@
 #endif
 
 // Change the priority to 3. Priority 2 is for software serial.
-//#define TEMP_TIMER_IRQ_PRIO 3
+//#define TEMP_TIMER_IRQ_PRIO                  3
 
 //
 // EEPROM Emulation
@@ -51,7 +51,7 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //

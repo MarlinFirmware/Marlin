@@ -1,5 +1,5 @@
 /*********************
- * extui_example.cpp *
+ * example.cpp *
  *********************/
 
 /****************************************************************************
@@ -19,11 +19,11 @@
  *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if BOTH(EXTUI_EXAMPLE, EXTENSIBLE_UI)
 
-#include "extui/ui_api.h"
+#include "ui_api.h"
 
 // To implement a new UI, complete the functions below and
 // read or update Marlin's state using the methods in the

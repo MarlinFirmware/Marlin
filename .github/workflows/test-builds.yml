@@ -106,7 +106,7 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/master.zip
+        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
         platformio update
 
     - name: Check out the PR
