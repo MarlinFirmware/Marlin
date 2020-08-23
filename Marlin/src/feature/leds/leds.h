@@ -104,11 +104,7 @@ typedef struct LEDColor {
   bool operator!=(const LEDColor &right) { return !operator==(right); }
 
   bool is_off() const {
-    return 3 > r + g + b
-      #if HAS_WHITE_LED
-        + w
-      #endif
-    ;
+    return 3 > r + g + b + TERN0(HAS_WHITE_LED, w);
   }
 } LEDColor;
 
@@ -217,94 +213,75 @@ public:
 
 extern LEDLights leds;
 
-// NEOPIXEL2_SEPARATE setup
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
-/**
- * LEDcolor2 type for use with leds2.set_color
- */
-typedef struct LEDColor2 {
-  uint8_t r, g, b
-    #if HAS_WHITE_LED
+  /**
+   * LEDcolor2 type for use with leds2.set_color
+   */
+  typedef struct LEDColor2 {
+    uint8_t r, g, b
       , w
       #if ENABLED(NEOPIXEL2_SEPARATE)
         , i
       #endif
-    #endif
-  ;
+    ;
 
-  LEDColor2() : r(255), g(255), b(255)
-    #if HAS_WHITE_LED
+    LEDColor2() : r(255), g(255), b(255)
       , w(255)
       #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
-    #endif
-  {}
+    {}
 
-  LEDColor2(uint8_t r, uint8_t g, uint8_t b
-    #if HAS_WHITE_LED
+    LEDColor2(uint8_t r, uint8_t g, uint8_t b
       , uint8_t w=0
       #if ENABLED(NEOPIXEL2_SEPARATE)
         , uint8_t i=NEOPIXEL2_BRIGHTNESS
       #endif
-    #endif
-    ) : r(r), g(g), b(b)
-    #if HAS_WHITE_LED
+      ) : r(r), g(g), b(b)
       , w(w)
       #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(i)
       #endif
-    #endif
-  {}
+    {}
 
-  LEDColor2(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
-    #if HAS_WHITE_LED
+    LEDColor2(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
       , w(rgbw[3])
       #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
-    #endif
-  {}
+    {}
 
-  LEDColor2& operator=(const uint8_t (&rgbw)[4]) {
-    r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
-    TERN_(HAS_WHITE_LED, w = rgbw[3]);
-    return *this;
-  }
+    LEDColor2& operator=(const uint8_t (&rgbw)[4]) {
+      r = rgbw[0]; g = rgbw[1]; b = rgbw[2]; w = rgbw[3];
+      return *this;
+    }
 
-  LEDColor2& operator=(const LEDColor2 &right) {
-    if (this != &right) memcpy(this, &right, sizeof(LEDColor2));
-    return *this;
-  }
+    LEDColor2& operator=(const LEDColor2 &right) {
+      if (this != &right) memcpy(this, &right, sizeof(LEDColor2));
+      return *this;
+    }
 
-  bool operator==(const LEDColor2 &right) {
-    if (this == &right) return true;
-    return 0 == memcmp(this, &right, sizeof(LEDColor2));
-  }
+    bool operator==(const LEDColor2 &right) {
+      if (this == &right) return true;
+      return 0 == memcmp(this, &right, sizeof(LEDColor2));
+    }
 
-  bool operator!=(const LEDColor2 &right) { return !operator==(right); }
+    bool operator!=(const LEDColor2 &right) { return !operator==(right); }
 
-  bool is_off() const {
-    return 3 > r + g + b
-      #if HAS_WHITE_LED
-        + w
-      #endif
-    ;
-  }
-} LEDColor2;
+    bool is_off() const {
+      return 3 > r + g + b + w;
+    }
+  } LEDColor2;
 
-/**
- * Color helpers and presets for second neopixel channel
- */
-#if HAS_WHITE_LED
+  /**
+   * Color helpers and presets for second neopixel channel
+   */
   #if ENABLED(NEOPIXEL2_SEPARATE)
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W, I)
   #else
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W)
   #endif
-#else
-  #define MakeLEDColor2(R,G,B,W,I)   LEDColor2(R, G, B)
 #endif
 
 #define LEDColorOff2()             LEDColor2(  0,   0,   0)
@@ -320,7 +297,7 @@ typedef struct LEDColor2 {
 #define LEDColorBlue2()            LEDColor2(  0,   0, 255)
 #define LEDColorIndigo2()          LEDColor2(  0, 255, 255)
 #define LEDColorViolet2()          LEDColor2(255,   0, 255)
-#if HAS_WHITE_LED && DISABLED(RGB_LED)
+#if DISABLED(RGB_LED)
   #define LEDColorWhite2()         LEDColor2(  0,   0,   0, 255)
 #else
   #define LEDColorWhite2()         LEDColor2(255, 255, 255)
@@ -335,13 +312,10 @@ public:
   static void set_color(const LEDColor2 &color);
 
   inline void set_color(uint8_t r, uint8_t g, uint8_t b
-    #if HAS_WHITE_LED
-      , uint8_t w=0
-      #if ENABLED(NEOPIXEL2_SEPARATE)
-        , uint8_t i=NEOPIXEL2_BRIGHTNESS
-      #endif
+    , uint8_t w=0
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      , uint8_t i=NEOPIXEL2_BRIGHTNESS
     #endif
-
   ) {
     set_color(MakeLEDColor2(r, g, b, w, i));
   }

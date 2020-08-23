@@ -35,7 +35,10 @@
  *                                    If brightness is left out, no value changed
  *
  * With NEOPIXEL_LED:
- *  I<index>  Set the Neopixel index to affect. Default: All
+ *  I<index>  Set the NeoPixel index to affect. Default: All
+ *
+ * With NEOPIXEL2_SEPARATE:
+ *  S<index>  The neopixel strip to set. Default is index 0.
  *
  * Examples:
  *
@@ -49,15 +52,23 @@
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  */
 void GcodeSuite::M150() {
+  LEDLights &the_leds = leds;
   #if ENABLED(NEOPIXEL_LED)
-    neo.set_neo_index(parser.intval('I', -1));
+    Marlin_NeoPixel &the_neo = neo;
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      if (parser.intval('S') == 1) {
+        the_neo = neo2;
+        the_leds = leds2;
+      }
+    #endif
+    the_neo.set_neo_index(parser.intval('I', -1));
   #endif
-  leds.set_color(MakeLEDColor(
+  the_leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : neo.brightness()
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : the_neo.brightness()
   ));
 }
 
