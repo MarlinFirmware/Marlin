@@ -38,13 +38,6 @@ def parse_pkg_uri(spec):
 
 FEATURE_CONFIG = {}
 
-def parse_pkg_uri(spec):
-	if PackageManager.__name__ == 'PackageSpec':
-		return PackageManager(spec).name
-	else:
-		name, _, _ = PackageManager.parse_pkg_uri(spec)
-		return name
-
 def add_to_feat_cnf(feature, flines):
 	feat = FEATURE_CONFIG[feature]
 	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
