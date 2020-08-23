@@ -254,7 +254,11 @@
   #define SD_DETECT_PIN                     PF12
   #define SDSS                              PB12
 #elif SD_CONNECTION_IS(ONBOARD)
-  #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
+  // The SKR Pro's ONBOARD SD interface is on SPI1.
+  // Due to a pull resistor on the clock line, it needs to use SPI Data Mode 3 to
+  // function with Hardware SPI. This is not currently configurable in the HAL,
+  // so force Software SPI to work around this issue.
+  #define SOFTWARE_SPI
   #define SDSS                              PA4
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
