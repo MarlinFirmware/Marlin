@@ -2062,7 +2062,7 @@
 //#define FYSETC_MINI_12864_X_X    // Type C/D/E/F. No tunable RGB Backlight by default
 //#define FYSETC_MINI_12864_1_2    // Type C/D/E/F. Simple RGB Backlight (always on)
 //#define FYSETC_MINI_12864_2_0    // Type A/B. Discreet RGB Backlight
-//#define FYSETC_MINI_12864_2_1    // Type A/B. Neopixel RGB Backlight
+//#define FYSETC_MINI_12864_2_1    // Type A/B. NeoPixel RGB Backlight
 //#define FYSETC_GENERIC_12864_1_1 // Larger display with basic ON/OFF backlight.
 
 //
@@ -2332,13 +2332,13 @@
  * Adds the M150 command to set the LED (or LED strip) color.
  * If pins are PWM capable (e.g., 4, 5, 6, 11) then a range of
  * luminance values can be set from 0 to 255.
- * For Neopixel LED an overall brightness parameter is also available.
+ * For NeoPixel LED an overall brightness parameter is also available.
  *
  * *** CAUTION ***
  *  LED Strips require a MOSFET Chip between PWM lines and LEDs,
  *  as the Arduino cannot handle the current the LEDs will require.
  *  Failure to follow this precaution can destroy your Arduino!
- *  NOTE: A separate 5V power supply is required! The Neopixel LED needs
+ *  NOTE: A separate 5V power supply is required! The NeoPixel LED needs
  *  more current than the Arduino 5V linear regulator can produce.
  * *** CAUTION ***
  *
@@ -2355,7 +2355,7 @@
   //#define RGB_LED_W_PIN -1
 #endif
 
-// Support for Adafruit Neopixel LED driver
+// Support for Adafruit NeoPixel LED driver
 //#define NEOPIXEL_LED
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
@@ -2368,7 +2368,7 @@
   #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
 
-  // Use a single Neopixel LED for static (background) lighting
+  // Use a single NeoPixel LED for static (background) lighting
   //#define NEOPIXEL_BKGD_LED_INDEX  0               // Index of the LED to use
   //#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
 #endif
