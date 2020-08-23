@@ -2361,9 +2361,9 @@
   #define NEOPIXEL_BRIGHTNESS 127     // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST     // Cycle through colors at startup
   #define NEOPIXEL_IS_SEQUENTIAL      // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
-  #define NEOPIXEL2_INSERIES        // Default behavior is NeoPixel 2 in parallel
   #define NEOPIXEL2_TYPE NEO_GRB      // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
   #define NEOPIXEL2_PIN    5          // Neopixel2 driving pin
+  //#define NEOPIXEL2_INSERIES        // Default behavior is NeoPixel 2 in parallel
   
  // Support for second Adafruit Neopixel LED driver that is controlled with M151
 #define NEOPIXEL2_SEPERATE
