@@ -909,9 +909,9 @@
 
   #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
 
-  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/m
-  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/m
-  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/m
+  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/min
+  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/min
+  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/min
 
   // The following parameters refer to the conical section of the nozzle tip.
   #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // mm
