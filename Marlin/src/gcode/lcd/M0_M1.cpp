@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,21 +24,17 @@
 
 #if HAS_RESUME_CONTINUE
 
-#include "../gcode.h"
-#include "../../module/planner.h"
-
 #include "../../inc/MarlinConfig.h"
+
+#include "../gcode.h"
+
+#include "../../module/planner.h" // for synchronize()
+#include "../../MarlinCore.h"     // for wait_for_user_response()
 
 #if HAS_LCD_MENU
   #include "../../lcd/ultralcd.h"
-#endif
-
-#if ENABLED(EXTENSIBLE_UI)
-  #include "../../lcd/extensible_ui/ui_api.h"
-#endif
-
-#if HAS_LEDS_OFF_FLAG
-  #include "../../feature/leds/printer_event_leds.h"
+#elif ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -56,10 +52,6 @@ void GcodeSuite::M0_M1() {
 
   planner.synchronize();
 
-  #if HAS_LEDS_OFF_FLAG
-    if (parser.seen('Q')) printerEventLEDs.onPrintCompleted();      // Change LED color for Print Completed
-  #endif
-
   #if HAS_LCD_MENU
 
     if (parser.string_arg)
@@ -72,12 +64,10 @@ void GcodeSuite::M0_M1() {
     }
 
   #elif ENABLED(EXTENSIBLE_UI)
-
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
     else
       ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
-
   #else
 
     if (parser.string_arg) {
@@ -87,25 +77,11 @@ void GcodeSuite::M0_M1() {
 
   #endif
 
-  KEEPALIVE_STATE(PAUSED_FOR_USER);
-  wait_for_user = true;
+  TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
-  #endif
+  wait_for_user_response(ms);
 
-  if (ms > 0) ms += millis();  // wait until this time for a click
-  while (wait_for_user && (ms == 0 || PENDING(millis(), ms))) idle();
-
-  #if HAS_LEDS_OFF_FLAG
-    printerEventLEDs.onResumeAfterWait();
-  #endif
-
-  #if HAS_LCD_MENU
-    ui.reset_status();
-  #endif
-
-  wait_for_user = false;
+  TERN_(HAS_LCD_MENU, ui.reset_status());
 }
 
 #endif // HAS_RESUME_CONTINUE

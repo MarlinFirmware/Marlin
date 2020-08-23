@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -82,9 +82,9 @@
 
   #define U8G_COM_SSD_I2C_HAL         u8g_com_arduino_ssd_i2c_fn
 
-  #if PIN_EXISTS(FSMC_CS)
-    uint8_t u8g_com_stm32duino_fsmc_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
-    #define U8G_COM_HAL_FSMC_FN       u8g_com_stm32duino_fsmc_fn
+  #if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
+    uint8_t u8g_com_stm32duino_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr);
+    #define U8G_COM_HAL_TFT_FN       u8g_com_stm32duino_tft_fn
   #endif
 
 #elif defined(TARGET_LPC1768)
@@ -117,6 +117,6 @@
 #ifndef U8G_COM_SSD_I2C_HAL
   #define U8G_COM_SSD_I2C_HAL       u8g_com_null_fn
 #endif
-#ifndef U8G_COM_HAL_FSMC_FN
-  #define U8G_COM_HAL_FSMC_FN       u8g_com_null_fn
+#ifndef U8G_COM_HAL_TFT_FN
+  #define U8G_COM_HAL_TFT_FN       u8g_com_null_fn
 #endif

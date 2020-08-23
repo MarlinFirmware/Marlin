@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Korean
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 namespace Language_ko_KR {
@@ -55,14 +55,17 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("누르면 시작합니다");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("다음 Point");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("레벨링 완료!");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("예열하기 - ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("예열하기 - ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐 ~");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("예열하기 - $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("예열하기 - $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("예열하기 - $ 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("예열하기 - $ 노즐 ~");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Custom 예열");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("식히기");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("스위치 전원 켜기");
@@ -100,5 +103,5 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("취소됨");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("죽음. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("멈춤. ");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("잘못된 프린터");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("잘못된 프린터");
 }

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,8 @@ public:
    * commands to Marlin, and lines will be checked for sequentiality.
    * M110 N<int> sets the current line number.
    */
-  static long last_N;
+
+  static long last_N[NUM_SERIAL];
 
   /**
    * GCode Command Queue
@@ -51,12 +52,16 @@ public:
 
   static char command_buffer[BUFSIZE][MAX_CMD_SIZE];
 
-  /*
+  /**
    * The port that the command was received on
    */
-  #if NUM_SERIAL > 1
+  #if HAS_MULTI_SERIAL
     static int16_t port[BUFSIZE];
   #endif
+
+  static int16_t command_port() {
+    return TERN0(HAS_MULTI_SERIAL, port[index_r]);
+  }
 
   GCodeQueue();
 
@@ -66,16 +71,41 @@ public:
   static void clear();
 
   /**
-   * Enqueue one or many commands to run from program memory.
-   * Aborts the current queue, if any.
-   * Note: process_injected_command() will process them.
+   * Next Injected Command (PROGMEM) pointer. (nullptr == empty)
+   * Internal commands are enqueued ahead of serial / SD commands.
    */
-  static void inject_P(PGM_P const pgcode);
+  static PGM_P injected_commands_P;
+
+  /**
+   * Injected Commands (SRAM)
+   */
+  static char injected_commands[64];
+
+  /**
+   * Enqueue command(s) to run from PROGMEM. Drained by process_injected_command_P().
+   * Don't inject comments or use leading spaces!
+   * Aborts the current PROGMEM queue so only use for one or two commands.
+   */
+  static inline void inject_P(PGM_P const pgcode) { injected_commands_P = pgcode; }
+
+  /**
+   * Enqueue command(s) to run from SRAM. Drained by process_injected_command().
+   * Aborts the current SRAM queue so only use for one or two commands.
+   */
+  static inline void inject(char * const gcode) {
+    strncpy(injected_commands, gcode, sizeof(injected_commands) - 1);
+  }
 
   /**
    * Enqueue and return only when commands are actually enqueued
    */
   static void enqueue_one_now(const char* cmd);
+
+  /**
+   * Attempt to enqueue a single G-code command
+   * and return 'true' if successful.
+   */
+  static bool enqueue_one_P(PGM_P const pgcode);
 
   /**
    * Enqueue from program memory and return only when commands are actually enqueued
@@ -117,12 +147,6 @@ public:
    */
   static void flush_and_request_resend();
 
-  /**
-   * Attempt to enqueue a single G-code command
-   * and return 'true' if successful.
-   */
-  FORCE_INLINE static bool enqueue_P(const char* cmd) { return _enqueue(cmd); }
-
 private:
 
   static uint8_t index_w;  // Ring buffer write position
@@ -134,18 +158,21 @@ private:
   #endif
 
   static void _commit_command(bool say_ok
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       , int16_t p=-1
     #endif
   );
 
   static bool _enqueue(const char* cmd, bool say_ok=false
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       , int16_t p=-1
     #endif
   );
 
-  // Process the next "immediate" command
+  // Process the next "immediate" command (PROGMEM)
+  static bool process_injected_command_P();
+
+  // Process the next "immediate" command (SRAM)
   static bool process_injected_command();
 
   /**

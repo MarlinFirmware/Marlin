@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Greek (Greece)
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  *
  */
 
@@ -55,20 +55,23 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ορισμός βασικών μετατοπίσεων");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Εφαρμόστηκαν οι μετατοπίσεις");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ορισμός προέλευσης");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" κλίνη");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" όλα");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" κλίνη");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" επιβεβαίωση");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" κλίνη");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Προθέρμανση $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Προθέρμανση $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Προθέρμανση $ End");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Προθέρμανση $ End ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Προθέρμανση $ όλα");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Προθέρμανση $ κλίνη");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Προθέρμανση $ επιβεβαίωση");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Μειωση θερμοκρασιας");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ενεργοποίηση");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Απενεργοποίηση");
@@ -189,5 +192,5 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_Z               = _UxGT("Βαθμονόμηση Z");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_CENTER          = _UxGT("Βαθμονόμηση κέντρου");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Εσφαλμένος εκτυπωτής");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Εσφαλμένος εκτυπωτής");
 }

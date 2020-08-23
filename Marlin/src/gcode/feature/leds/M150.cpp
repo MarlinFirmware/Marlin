@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,6 +34,9 @@
  * Always sets all 3 or 4 components. If a component is left out, set to 0.
  *                                    If brightness is left out, no value changed
  *
+ * With NEOPIXEL_LED:
+ *  I<index>  Set the Neopixel index to affect. Default: All
+ *
  * Examples:
  *
  *   M150 R255       ; Turn LED red
@@ -43,8 +46,12 @@
  *   M150 W          ; Turn LED white using a white LED
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
+ *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  */
 void GcodeSuite::M150() {
+  #if ENABLED(NEOPIXEL_LED)
+    neo.set_neo_index(parser.intval('I', -1));
+  #endif
   leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -41,7 +41,7 @@
 #undef INVERTED_FAN_PINS
 
 #define I2C_EEPROM
-#define E2END 0xFFFF // 64K in a 24C512
+#define MARLIN_EEPROM_SIZE 0x10000 // 64K in a 24C512
 
 #ifndef PS_ON_PIN
   #define PS_ON_PIN        12

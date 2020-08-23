@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,16 +30,18 @@
 #include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
+#include HAL_PATH(../HAL, timers.h)
 #include HAL_PATH(../HAL, spi_pins.h)
 
 #include "Conditionals_post.h"
 #include HAL_PATH(../HAL, inc/Conditionals_post.h)
 
+#include "../core/types.h"  // Ahead of sanity-checks
+
 #include "SanityCheck.h"
 #include HAL_PATH(../HAL, inc/SanityCheck.h)
 
 // Include all core headers
-#include "../core/types.h"
 #include "../core/language.h"
 #include "../core/utility.h"
 #include "../core/serial.h"

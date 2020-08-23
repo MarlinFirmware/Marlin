@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,12 +37,8 @@
 #include "../../Configuration.h"
 
 #ifdef CUSTOM_VERSION_FILE
-  #if defined(__has_include)
-    #if __has_include(XSTR(../../CUSTOM_VERSION_FILE))
-      #include XSTR(../../CUSTOM_VERSION_FILE)
-    #endif
-  #else
-    #include XSTR(../../CUSTOM_VERSION_FILE)
+  #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
+    #include STRINGIFY(../../CUSTOM_VERSION_FILE)
   #endif
 #endif
 

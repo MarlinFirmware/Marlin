@@ -1,12 +1,12 @@
-import os
-import struct
 Import("env")
+import os
+import random
+import struct
+import uuid
 
 # Relocate firmware from 0x08000000 to 0x08008800
-for define in env['CPPDEFINES']:
-    if define[0] == "VECT_TAB_ADDR":
-        env['CPPDEFINES'].remove(define)
-env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x8008800"))
+env['CPPDEFINES'].remove(("VECT_TAB_ADDR", "0x8000000"))
+env['CPPDEFINES'].append(("VECT_TAB_ADDR", "0x08008800"))
 
 custom_ld_script = os.path.abspath("buildroot/share/PlatformIO/ldscripts/chitu_f103.ld")
 for i, flag in enumerate(env["LINKFLAGS"]):
@@ -73,7 +73,9 @@ def encrypt_file(input, output_file, file_length):
     input_file = bytearray(input.read())
     block_size = 0x800
     key_length = 0x18
-    file_key = 0xDAB27F94
+
+    uid_value = uuid.uuid4()
+    file_key = int(uid_value.hex[0:8], 16)
 
     xor_crc = 0xef3d4323;
 
@@ -87,11 +89,11 @@ def encrypt_file(input, output_file, file_length):
     # encrypt the contents using a known file header key
 
     # write the file_key
-    output_file.write(struct.pack(">I", 0x947FB2DA))
+    output_file.write(struct.pack("<I", file_key))
 
     #TODO - how to enforce that the firmware aligns to block boundaries?
     block_count = int(len(input_file) / block_size)
-    print "Block Count is ", block_count
+    print ("Block Count is ", block_count)
     for block_number in range(0, block_count):
         block_offset = (block_number * block_size)
         block_end = block_offset + block_size
