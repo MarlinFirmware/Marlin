@@ -534,7 +534,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
-if ANY(MachineEnder3V2, CrealityViewerKit)
+#if ANY(MachineEnder3V2, CrealityViewerKit)
   #define BAUDRATE 115200
 #else
   #define BAUDRATE 250000

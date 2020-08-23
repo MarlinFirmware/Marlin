@@ -1203,7 +1203,7 @@
 
     //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
-    #define EVENT_GCODE_SD_STOP "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
+    #define EVENT_GCODE_SD_ABORT "G28XY"       // G-code to run on Stop Print (e.g., "G28XY" or "G27")
   #endif
 
   #if ENABLED(PRINTER_EVENT_LEDS)
