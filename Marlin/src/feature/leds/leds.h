@@ -216,15 +216,9 @@ public:
 };
 
 extern LEDLights leds;
-
+//NEOPIXEL2_SEPERATE_SEPERATE setup
 #if NEOPIXELX2
-  #include "neopixel.h"
-#endif
 
-// A white component can be passed
-#if EITHER(RGBW_LED, NEOPIXEL2)
-  #define HAS_WHITE_LED 1
-#endif
 
 /**
  * LEDcolor2 type for use with leds2.set_color
@@ -233,7 +227,7 @@ typedef struct LEDColor2 {
   uint8_t r, g, b
     #if HAS_WHITE_LED
       , w
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE_SEPERATE)
         , i
       #endif
     #endif
@@ -242,7 +236,7 @@ typedef struct LEDColor2 {
   LEDColor2() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
     #endif
@@ -251,14 +245,14 @@ typedef struct LEDColor2 {
   LEDColor2(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE)
         , uint8_t i=NEOPIXEL2_BRIGHTNESS
       #endif
     #endif
     ) : r(r), g(g), b(b)
     #if HAS_WHITE_LED
       , w(w)
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE)
         , i(i)
       #endif
     #endif
@@ -267,7 +261,7 @@ typedef struct LEDColor2 {
   LEDColor2(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
     #if HAS_WHITE_LED
       , w(rgbw[3])
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
     #endif
@@ -304,7 +298,7 @@ typedef struct LEDColor2 {
  * Color helpers and presets for second neopixel channel
  */
 #if HAS_WHITE_LED
-  #if ENABLED(NEOPIXEL2)
+  #if ENABLED(NEOPIXEL2_SEPERATE)
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W, I)
   #else
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W)
@@ -345,7 +339,7 @@ public:
   inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL2)
+      #if ENABLED(NEOPIXEL2_SEPERATE)
         , uint8_t i=NEOPIXEL2_BRIGHTNESS
       #endif
     #endif
@@ -360,7 +354,7 @@ public:
   static inline void set_green() { set_color(LEDColorGreen2()); }
   static inline void set_white() { set_color(LEDColorWhite2()); }
 
-  #if ENABLED(LED2_COLOR_PRESETS)
+  #if ENABLED(NEO2_COLOR_PRESETS)
     static const LEDColor2 defaultLEDColor2;
     static inline void set_default()  { set_color(defaultLEDColor2); }
     static inline void set_red()      { set_color(LEDColorRed2()); }
@@ -386,3 +380,4 @@ public:
 };
 
 extern LEDLights2 leds2;
+#endif // NEOPIXELX2

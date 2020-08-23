@@ -2130,11 +2130,11 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #elif ENABLED(NEOPIXEL_LED)
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
-  #elif ENABLED(NEOPIXEL2)  
-    #if !(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
+  #endif
+  #elif ENABLED(NEOPIXEL2_SEPERATE)
+   #if !(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
     #error "NEOPIXEL2 requires NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
   #endif
-#endif
 #endif
 
 #undef _RGB_TEST

@@ -37,11 +37,10 @@
 Marlin_NeoPixel neo;
 int8_t Marlin_NeoPixel::neoindex;
 
-Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800)
-  #if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
-    , Marlin_NeoPixel::adaneo2(NEOPIXEL_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE + NEO_KHZ800)
-  #endif
-;
+Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800);
+
+  
+
 
 #ifdef NEOPIXEL_BKGD_LED_INDEX
 
@@ -120,15 +119,13 @@ bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint
 }
 #endif
 
-#endif // NEOPIXEL_LED
-
 #if NEOPIXELX2
-  Marlin_NeoPixel2 neo2;
-  int8_t Marlin_NeoPixel2::neoindex2;
+  Marlin_NEOPIXEL2 neo2;
+  int8_t Marlin_NEOPIXEL2_SEPERATE::neoindex2;
 
-Adafruit_NeoPixel Marlin_NeoPixel2::adaneo2(NEOPIXEL2_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE);
+Adafruit_NeoPixel Marlin_NEOPIXEL2::adaneo2(NEOPIXEL2_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE);
 
-void Marlin_NeoPixel2::set_color(const uint32_t color) {
+void Marlin_NEOPIXEL2::set_color(const uint32_t color) {
   if (get_neo_index() >= 0) {
     set_pixel_color(get_neo_index(), color);
     set_neo_index(-1);
@@ -141,15 +138,15 @@ void Marlin_NeoPixel2::set_color(const uint32_t color) {
   show();
 }
 
-void Marlin_NeoPixel2::set_color_startup(const uint32_t color) {
+void Marlin_NEOPIXEL2::set_color_startup(const uint32_t color) {
   for (uint16_t i = 0; i < pixels(); ++i)
     set_pixel_color(i, color);
   show();
 }
 
-void Marlin_NeoPixel2::init() {
+void Marlin_NEOPIXEL2::init() {
   set_neo_index(-1);                   // -1 .. NEOPIXEL2_PIXELS-1 range
-  set_brightness(NEOPIXEL2_BRIGHTNESS); //  0 .. 255 range
+  set_brightness(NEOPIXEL2_SEPERATE_BRIGHTNESS); //  0 .. 255 range
   begin();
   show();  // initialize to all off
 
@@ -163,10 +160,12 @@ void Marlin_NeoPixel2::init() {
   #endif
 
   
-  #if ENABLED(LED2_USER_PRESET_STARTUP)
-    set_color(adaneo2.Color(LED2_USER_PRESET_RED, LED2_USER_PRESET_GREEN, LED2_USER_PRESET_BLUE, LED2_USER_PRESET_WHITE));
+  #if ENABLED(NEO2_USER_PRESET_STARTUP)
+    set_color(adaneo2.Color(NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE, NEO2_USER_PRESET_WHITE));
   #else
     set_color(adaneo2.Color(0, 0, 0, 0));
   #endif
 }
 #endif  // NEOPIXELX2
+
+#endif // NEOPIXEL_LED
