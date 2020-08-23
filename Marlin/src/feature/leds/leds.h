@@ -216,9 +216,9 @@ public:
 };
 
 extern LEDLights leds;
-//NEOPIXEL2_SEPERATE_SEPERATE setup
-#if NEOPIXELX2
 
+// NEOPIXEL2_SEPARATE setup
+#if ENABLED(NEOPIXEL2_SEPARATE)
 
 /**
  * LEDcolor2 type for use with leds2.set_color
@@ -227,7 +227,7 @@ typedef struct LEDColor2 {
   uint8_t r, g, b
     #if HAS_WHITE_LED
       , w
-      #if ENABLED(NEOPIXEL2_SEPERATE_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , i
       #endif
     #endif
@@ -236,7 +236,7 @@ typedef struct LEDColor2 {
   LEDColor2() : r(255), g(255), b(255)
     #if HAS_WHITE_LED
       , w(255)
-      #if ENABLED(NEOPIXEL2_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
     #endif
@@ -245,14 +245,14 @@ typedef struct LEDColor2 {
   LEDColor2(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL2_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , uint8_t i=NEOPIXEL2_BRIGHTNESS
       #endif
     #endif
     ) : r(r), g(g), b(b)
     #if HAS_WHITE_LED
       , w(w)
-      #if ENABLED(NEOPIXEL2_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(i)
       #endif
     #endif
@@ -261,7 +261,7 @@ typedef struct LEDColor2 {
   LEDColor2(const uint8_t (&rgbw)[4]) : r(rgbw[0]), g(rgbw[1]), b(rgbw[2])
     #if HAS_WHITE_LED
       , w(rgbw[3])
-      #if ENABLED(NEOPIXEL2_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , i(NEOPIXEL2_BRIGHTNESS)
       #endif
     #endif
@@ -298,7 +298,7 @@ typedef struct LEDColor2 {
  * Color helpers and presets for second neopixel channel
  */
 #if HAS_WHITE_LED
-  #if ENABLED(NEOPIXEL2_SEPERATE)
+  #if ENABLED(NEOPIXEL2_SEPARATE)
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W, I)
   #else
     #define MakeLEDColor2(R,G,B,W,I) LEDColor2(R, G, B, W)
@@ -332,22 +332,18 @@ public:
 
   static void setup(); // init()
 
-  static void set_color(const LEDColor2 &color
-
-  );
+  static void set_color(const LEDColor2 &color);
 
   inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL2_SEPERATE)
+      #if ENABLED(NEOPIXEL2_SEPARATE)
         , uint8_t i=NEOPIXEL2_BRIGHTNESS
       #endif
     #endif
 
   ) {
-    set_color(MakeLEDColor2(r, g, b, w, i)
-
-    );
+    set_color(MakeLEDColor2(r, g, b, w, i));
   }
 
   static inline void set_off()   { set_color(LEDColorOff2()); }
@@ -365,7 +361,6 @@ public:
     static inline void set_violet()   { set_color(LEDColorViolet2()); }
   #endif
 
- 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     static LEDColor2 color; // last non-off color
     static bool lights_on; // the last set color was "on"
@@ -375,9 +370,8 @@ public:
     static void toggle();  // swap "off" with color
     static inline void update() { set_color(color); }
   #endif
-
-  
 };
 
 extern LEDLights2 leds2;
-#endif // NEOPIXELX2
+
+#endif // NEOPIXEL2_SEPARATE

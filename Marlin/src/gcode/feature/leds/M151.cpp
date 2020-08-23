@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if NEOPIXELX2 
+#if ENABLED(NEOPIXEL2_SEPARATE)
 
 #include "../../gcode.h"
 #include "../../../feature/leds/leds.h"
@@ -34,8 +34,8 @@
  * Always sets all 3 or 4 components. If a component is left out, set to 0.
  *                                    If brightness is left out, no value changed
  *
- * With NEOPIXEL2_SEPERATE:
- *  I<index>  Set the NEOPIXEL2_SEPERATE index to affect. Default: All
+ * With NEOPIXEL2_SEPARATE:
+ *  I<index>  Set the NEOPIXEL2_SEPARATE index to affect. Default: All
  *
  * Examples:
  *
@@ -46,10 +46,10 @@
  *   M151 W          ; Turn LED white using a white LED
  *   M151 P127       ; Set LED 50% brightness
  *   M151 P          ; Set LED full brightness
- *   M151 I1 R       ; Set NEOPIXEL2_SEPERATE index 1 to red
+ *   M151 I1 R       ; Set NEOPIXEL2_SEPARATE index 1 to red
  */
 void GcodeSuite::M151() {
-  #if ENABLED(NEOPIXEL2_SEPERATE)
+  #if ENABLED(NEOPIXEL2_SEPARATE)
     neo2.set_neo_index(parser.intval('I', -1));
   #endif
   leds2.set_color(MakeLEDColor2(
@@ -61,4 +61,4 @@ void GcodeSuite::M151() {
   ));
 }
 
-#endif // NEOPIXELX2
+#endif // NEOPIXEL2_SEPARATE
