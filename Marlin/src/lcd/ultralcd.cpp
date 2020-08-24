@@ -81,7 +81,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
     #if ENABLED(PCA9632_BUZZER)
-      pca9632_buzz(duration, freq);
+      PCA9632_buzz(duration, freq);
     #elif USE_BEEPER
       buzzer.tone(duration, freq);
     #endif
