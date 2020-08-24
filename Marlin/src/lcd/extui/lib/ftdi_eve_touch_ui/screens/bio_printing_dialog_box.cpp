@@ -103,7 +103,7 @@ bool BioPrintingDialogBox::onTouchEnd(uint8_t tag) {
     case 2: GOTO_SCREEN(TuneMenu); break;
     case 3:
       if (isPrinting())
-        GOTO_SCREEN(ConfirmAbortPrintDialogBox);
+        GOTO_SCREEN(ConfirmAbortPrintDialogBox)
       else
         GOTO_SCREEN(StatusScreen);
       break;
