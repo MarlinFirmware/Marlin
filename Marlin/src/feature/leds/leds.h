@@ -215,49 +215,49 @@ extern LEDLights leds;
 
 #if ENABLED(NEOPIXEL2_SEPARATE)
 
-class LEDLights2 {
-public:
-  LEDLights2() {} // ctor
+  class LEDLights2 {
+  public:
+    LEDLights2() {} // ctor
 
-  static void setup(); // init()
+    static void setup(); // init()
 
-  static void set_color(const LEDColor &color);
+    static void set_color(const LEDColor &color);
 
-  inline void set_color(uint8_t r, uint8_t g, uint8_t b
-    , uint8_t w=0
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      , uint8_t i=NEOPIXEL2_BRIGHTNESS
+    inline void set_color(uint8_t r, uint8_t g, uint8_t b
+      , uint8_t w=0
+      #if ENABLED(NEOPIXEL2_SEPARATE)
+        , uint8_t i=NEOPIXEL2_BRIGHTNESS
+      #endif
+    ) {
+      set_color(MakeLEDColor(r, g, b, w, i));
+    }
+
+    static inline void set_off()   { set_color(LEDColorOff()); }
+    static inline void set_green() { set_color(LEDColorGreen()); }
+    static inline void set_white() { set_color(LEDColorWhite()); }
+
+    #if ENABLED(NEO2_COLOR_PRESETS)
+      static const LEDColor2 defaultLEDColor2;
+      static inline void set_default()  { set_color(defaultLEDColor); }
+      static inline void set_red()      { set_color(LEDColorRed()); }
+      static inline void set_orange()   { set_color(LEDColorOrange()); }
+      static inline void set_yellow()   { set_color(LEDColorYellow()); }
+      static inline void set_blue()     { set_color(LEDColorBlue()); }
+      static inline void set_indigo()   { set_color(LEDColorIndigo()); }
+      static inline void set_violet()   { set_color(LEDColorViolet()); }
     #endif
-  ) {
-    set_color(MakeLEDColor(r, g, b, w, i));
-  }
 
-  static inline void set_off()   { set_color(LEDColorOff()); }
-  static inline void set_green() { set_color(LEDColorGreen()); }
-  static inline void set_white() { set_color(LEDColorWhite()); }
+    #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
+      static LEDColor color; // last non-off color
+      static bool lights_on; // the last set color was "on"
+    #endif
 
-  #if ENABLED(NEO2_COLOR_PRESETS)
-    static const LEDColor2 defaultLEDColor2;
-    static inline void set_default()  { set_color(defaultLEDColor); }
-    static inline void set_red()      { set_color(LEDColorRed()); }
-    static inline void set_orange()   { set_color(LEDColorOrange()); }
-    static inline void set_yellow()   { set_color(LEDColorYellow()); }
-    static inline void set_blue()     { set_color(LEDColorBlue()); }
-    static inline void set_indigo()   { set_color(LEDColorIndigo()); }
-    static inline void set_violet()   { set_color(LEDColorViolet()); }
-  #endif
+    #if ENABLED(LED_CONTROL_MENU)
+      static void toggle();  // swap "off" with color
+      static inline void update() { set_color(color); }
+    #endif
+  };
 
-  #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
-    static LEDColor color; // last non-off color
-    static bool lights_on; // the last set color was "on"
-  #endif
-
-  #if ENABLED(LED_CONTROL_MENU)
-    static void toggle();  // swap "off" with color
-    static inline void update() { set_color(color); }
-  #endif
-};
-
-extern LEDLights2 leds2;
+  extern LEDLights2 leds2;
 
 #endif // NEOPIXEL2_SEPARATE

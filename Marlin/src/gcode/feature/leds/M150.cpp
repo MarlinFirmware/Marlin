@@ -52,24 +52,32 @@
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  */
 void GcodeSuite::M150() {
-  LEDLights &the_leds = leds;
+  const bool unit = ENABLED(NEOPIXEL2_SEPARATE) ? parser.intval('S') : 0;
+
   #if ENABLED(NEOPIXEL_LED)
-    Marlin_NeoPixel &the_neo = neo;
+    const uint8_t index = parser.intval('I', -1);
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      if (parser.intval('S') == 1) {
-        the_neo = neo2;
-        the_leds = leds2;
-      }
+      const uint8_t brightness = unit ? neo2.brightness() : neo.brightness();
+      *(unit ? &neo2.neoindex : &neo.neoindex) = index;
+    #else
+      const uint8_t brightness = neo.brightness();
+      neo.neoindex = index;
     #endif
-    the_neo.neoindex = parser.intval('I', -1);
   #endif
-  the_leds.set_color(MakeLEDColor(
+
+  const LEDColor color = MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : the_neo.brightness()
-  ));
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness
+  );
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    if (unit == 1) { leds2.set_color(color); return; }
+  #endif
+
+  leds.set_color(color);
 }
 
 #endif // HAS_COLOR_LEDS
