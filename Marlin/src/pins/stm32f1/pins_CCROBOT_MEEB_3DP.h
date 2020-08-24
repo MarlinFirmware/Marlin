@@ -43,9 +43,9 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE 0x800U                 // 2KB
+  #define EEPROM_PAGE_SIZE                0x800U  // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -95,7 +95,7 @@
 #define E0_SERIAL_RX_PIN                    PC4
 
 // Reduce baud rate to improve software serial reliability
-#define TMC_BAUD_RATE 19200
+#define TMC_BAUD_RATE                      19200
 
 //
 // Temperature Sensors
@@ -113,7 +113,7 @@
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 
-// One neopixel onboard and a connector for other neopixels
+// One NeoPixel onboard and a connector for other NeoPixels
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**
@@ -173,7 +173,7 @@
   #define SS_PIN                            PA4
 #endif
 
-#define ON_BOARD_SPI_DEVICE 1                     // SPI1
+#define ON_BOARD_SPI_DEVICE                    1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for SD-NAND
 
 #endif

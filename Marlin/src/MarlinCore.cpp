@@ -57,7 +57,7 @@
 
 #include "lcd/ultralcd.h"
 #if HAS_TOUCH_XPT2046
-  #include "lcd/touch/xpt2046.h"
+  #include "lcd/touch/touch_buttons.h"
 #endif
 
 #if HAS_TFT_LVGL_UI
@@ -922,7 +922,7 @@ void setup() {
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
 
-  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+  #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
     OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
