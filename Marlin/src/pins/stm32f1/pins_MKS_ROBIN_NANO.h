@@ -234,6 +234,36 @@
     #define XPT2046_Y_OFFSET                 256
   #endif
 
+#elif ENABLED(TFT_320x240)                        // TFT32/28
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
+
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_CS_PIN                       PD7
+  #define FSMC_RS_PIN                       PD11
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
+
+  #define XPT2046_X_CALIBRATION           -12246
+  #define XPT2046_Y_CALIBRATION             9453
+  #define XPT2046_X_OFFSET                   360
+  #define XPT2046_Y_OFFSET                   -22
+
+  #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
+  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+
+  #define TFT_DRIVER                     ILI9341
+  #define TFT_BUFFER_SIZE                  14400
+
+  // YV for normal screen mounting
+  //#define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
+  // XV for 180° rotated screen mounting
+  #define ILI9341_ORIENTATION  ILI9341_MADCTL_MX | ILI9341_MADCTL_MV
+
+  #define ILI9341_COLOR_RGB
+
 #elif ENABLED(TFT_480x320)
   #define XPT2046_X_CALIBRATION            17880
   #define XPT2046_Y_CALIBRATION           -12234
