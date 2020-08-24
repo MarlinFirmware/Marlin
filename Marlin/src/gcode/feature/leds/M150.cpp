@@ -52,12 +52,11 @@
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
  */
 void GcodeSuite::M150() {
-  const bool unit = ENABLED(NEOPIXEL2_SEPARATE) ? parser.intval('S') : 0;
-
   #if ENABLED(NEOPIXEL_LED)
     const uint8_t index = parser.intval('I', -1);
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      const uint8_t brightness = unit ? neo2.brightness() : neo.brightness();
+      const uint8_t unit = parser.intval('S'),
+                    brightness = unit ? neo2.brightness() : neo.brightness();
       *(unit ? &neo2.neoindex : &neo.neoindex) = index;
     #else
       const uint8_t brightness = neo.brightness();

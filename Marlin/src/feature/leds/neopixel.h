@@ -65,9 +65,10 @@ private:
       , adaneo2
     #endif
   ;
-  static int8_t neoindex;
 
 public:
+  static int8_t neoindex;
+
   static void init();
   static void set_color_startup(const uint32_t c);
 
@@ -130,35 +131,21 @@ extern Marlin_NeoPixel neo;
   class Marlin_NeoPixel2 {
   private:
     static Adafruit_NeoPixel adaneo;
-    static int8_t neoindex;
 
   public:
+    static int8_t neoindex;
+
     static void init();
     static void set_color_startup(const uint32_t c);
 
     static void set_color(const uint32_t c);
 
-    static inline void begin() {
-      adaneo.begin();
-    }
+    static inline void begin() { adaneo.begin(); }
+    static inline void set_pixel_color(const uint16_t n, const uint32_t c) { adaneo.setPixelColor(n, c); }
+    static inline void set_brightness(const uint8_t b) { adaneo.setBrightness(b); }
+    static inline void show() { adaneo.show(); }
 
-    static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
-      adaneo.setPixelColor(n, c);
-    }
-
-    static inline void set_brightness(const uint8_t b) {
-      adaneo.setBrightness(b);
-    }
-
-    static inline void show() {
-      adaneo.show();
-    }
-
-    #if 0
-      bool set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w, const uint8_t p);
-    #endif
-
-    // Accessors for NEOPIXEL2_SEPARATE
+    // Accessors
     static inline uint16_t pixels() { return adaneo.numPixels();}
     static inline uint8_t brightness() { return adaneo.getBrightness(); }
     static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
