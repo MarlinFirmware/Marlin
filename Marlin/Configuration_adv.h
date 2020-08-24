@@ -481,7 +481,7 @@
  */
 //#define CASE_LIGHT_ENABLE
 #if ENABLED(CASE_LIGHT_ENABLE)
-  //#define CASE_LIGHT_PIN P1_25                // Override the default pin if needed
+  //#define CASE_LIGHT_PIN 4                  // Override the default pin if needed
   #define INVERT_CASE_LIGHT false             // Set true if Case Light is ON when pin is LOW
   #define CASE_LIGHT_DEFAULT_ON true          // Set default power-up state on
   #define CASE_LIGHT_DEFAULT_BRIGHTNESS 105   // Set default power-up brightness (0-255, requires PWM pin)
@@ -629,10 +629,10 @@
 
 //#define SENSORLESS_BACKOFF_MM  { 2, 2 }     // (mm) Backoff from endstops before sensorless homing
 
-#define HOMING_BUMP_MM      { 5, 5, 5 }       // (mm) Backoff from endstops after first bump
-#define HOMING_BUMP_DIVISOR { 5, 5, 5 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
+#define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
+#define HOMING_BUMP_DIVISOR { 2, 2, 4 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
-#define HOMING_BACKOFF_POST_MM { 5, 5, 5 }  // (mm) Backoff from endstops after homing
+//#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
 
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
@@ -834,7 +834,7 @@
 
 // Slow down the machine if the lookahead buffer is (by default) half full.
 // Increase the slowdown divisor for larger buffer sizes.
-//#define SLOWDOWN
+#define SLOWDOWN
 #if ENABLED(SLOWDOWN)
   #define SLOWDOWN_DIVISOR 2
 #endif
@@ -909,9 +909,9 @@
 
   #define CALIBRATION_MEASUREMENT_RESOLUTION     0.01 // mm
 
-  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/m
-  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/m
-  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/m
+  #define CALIBRATION_FEEDRATE_SLOW             60    // mm/min
+  #define CALIBRATION_FEEDRATE_FAST           1200    // mm/min
+  #define CALIBRATION_FEEDRATE_TRAVEL         3000    // mm/min
 
   // The following parameters refer to the conical section of the nozzle tip.
   #define CALIBRATION_NOZZLE_TIP_HEIGHT          1.0  // mm
@@ -1025,8 +1025,7 @@
 // @section lcd
 
 #if EITHER(ULTIPANEL, EXTENSIBLE_UI)
-  #define MANUAL_FEEDRATE_XYZ 50*60
-  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
   #if ENABLED(ULTIPANEL)
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
@@ -1066,7 +1065,7 @@
   //#define LED_CONTROL_MENU
   #if ENABLED(LED_CONTROL_MENU)
     #define LED_COLOR_PRESETS                 // Enable the Preset Color menu option
-    #define NEO2_COLOR_PRESETS              // Enable a second NeoPixel Preset Color menu option
+    //#define NEO2_COLOR_PRESETS              // Enable a second NeoPixel Preset Color menu option
     #if ENABLED(LED_COLOR_PRESETS)
       #define LED_USER_PRESET_RED        255  // User defined RED value
       #define LED_USER_PRESET_GREEN      128  // User defined GREEN value
@@ -1088,7 +1087,7 @@
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
-#define STATUS_MESSAGE_SCROLLING
+//#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -1147,7 +1146,7 @@
 
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
 
-  #define EVENT_GCODE_SD_ABORT "G28"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
+  #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
   #if ENABLED(PRINTER_EVENT_LEDS)
     #define PE_LEDS_COMPLETED_TIME  (30*60) // (seconds) Time to keep the LED "done" color before restoring normal illumination
@@ -1216,10 +1215,10 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  #define LONG_FILENAME_HOST_SUPPORT
+  //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
-  #define SCROLL_LONG_FILENAMES
+  //#define SCROLL_LONG_FILENAMES
 
   // Leave the heaters on after Stop Print (not recommended!)
   //#define SD_ABORT_NO_COOLDOWN
@@ -1303,7 +1302,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  #define SDCARD_CONNECTION LCD, ONBOARD
+  //#define SDCARD_CONNECTION LCD
 
 #endif // SDSUPPORT
 
@@ -1380,14 +1379,14 @@
   #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
   #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
   #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
-  //#define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
+  #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
   //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
   //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
+  //#define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
 
   // Frivolous Game Options
   //#define MARLIN_BRICKOUT
@@ -1616,12 +1615,12 @@
  *
  * See https://marlinfw.org/docs/features/lin_advance.html for full instructions.
  */
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 #if ENABLED(LIN_ADVANCE)
   //#define EXTRA_LIN_ADVANCE_K // Enable for second linear advance constants
-  #define LIN_ADVANCE_K 0.53    // Unit: mm compression per 1mm/s extruder speed
+  #define LIN_ADVANCE_K 0.22    // Unit: mm compression per 1mm/s extruder speed
   //#define LA_DEBUG            // If enabled, this will generate debug information output over USB.
-  #define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
+  //#define EXPERIMENTAL_SCURVE // Enable this option to permit S-Curve Acceleration
 #endif
 
 // @section leveling
@@ -1752,7 +1751,7 @@
 //
 // G60/G61 Position Save and Return
 //
-#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
+//#define SAVED_POSITIONS 1         // Each saved position slot costs 12 bytes
 
 //
 // G2/G3 Arc Support
@@ -1795,7 +1794,7 @@
 #endif
 
 // Moves (or segments) with fewer steps than this will be joined with the next move
-#define MIN_STEPS_PER_SEGMENT 1
+#define MIN_STEPS_PER_SEGMENT 6
 
 /**
  * Minimum delay before and after setting the stepper DIR (in ns)
@@ -1909,7 +1908,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#define EMERGENCY_PARSER
+//#define EMERGENCY_PARSER
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -1953,9 +1952,9 @@
  * Note that M207 / M208 / M209 settings are saved to EEPROM.
  *
  */
-#define FWRETRACT
+//#define FWRETRACT
 #if ENABLED(FWRETRACT)
-  //#define FWRETRACT_AUTORETRACT           // Override slicer retractions
+  #define FWRETRACT_AUTORETRACT           // Override slicer retractions
   #if ENABLED(FWRETRACT_AUTORETRACT)
     #define MIN_AUTORETRACT 0.1           // (mm) Don't convert E moves under this length
     #define MAX_AUTORETRACT 10.0          // (mm) Don't convert E moves over this length
@@ -2453,7 +2452,7 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #define MONITOR_DRIVER_STATUS
+  //#define MONITOR_DRIVER_STATUS
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -2542,13 +2541,13 @@
    * Beta feature!
    * Create a 50/50 square wave step pulse optimal for stepper drivers.
    */
-  #define SQUARE_WAVE_STEPPING
+  //#define SQUARE_WAVE_STEPPING
 
   /**
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #define TMC_DEBUG
+  //#define TMC_DEBUG
 
   /**
    * You can set your own advanced settings by filling in predefined functions.
@@ -3147,7 +3146,7 @@
   //#define GCODE_QUOTED_STRINGS  // Support for quoted string parameters
 #endif
 
-#define GCODE_CASE_INSENSITIVE  // Accept G-code sent to the firmware in lowercase
+//#define GCODE_CASE_INSENSITIVE  // Accept G-code sent to the firmware in lowercase
 
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
@@ -3225,9 +3224,9 @@
  * Host Prompt Support enables Marlin to use the host for user prompts so
  * filament runout and other processes can be managed from the host side.
  */
-#define HOST_ACTION_COMMANDS
+//#define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
-  #define HOST_PROMPT_SUPPORT
+  //#define HOST_PROMPT_SUPPORT
 #endif
 
 /**
@@ -3521,7 +3520,7 @@
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
 //
-#define PINS_DEBUGGING
+//#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
