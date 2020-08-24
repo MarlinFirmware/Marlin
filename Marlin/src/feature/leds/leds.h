@@ -221,7 +221,7 @@ public:
 
   static void setup(); // init()
 
-  static void set_color(const LEDColor2 &color);
+  static void set_color(const LEDColor &color);
 
   inline void set_color(uint8_t r, uint8_t g, uint8_t b
     , uint8_t w=0
@@ -229,26 +229,26 @@ public:
       , uint8_t i=NEOPIXEL2_BRIGHTNESS
     #endif
   ) {
-    set_color(MakeLEDColor2(r, g, b, w, i));
+    set_color(MakeLEDColor(r, g, b, w, i));
   }
 
-  static inline void set_off()   { set_color(LEDColorOff2()); }
-  static inline void set_green() { set_color(LEDColorGreen2()); }
-  static inline void set_white() { set_color(LEDColorWhite2()); }
+  static inline void set_off()   { set_color(LEDColorOff()); }
+  static inline void set_green() { set_color(LEDColorGreen()); }
+  static inline void set_white() { set_color(LEDColorWhite()); }
 
   #if ENABLED(NEO2_COLOR_PRESETS)
     static const LEDColor2 defaultLEDColor2;
-    static inline void set_default()  { set_color(defaultLEDColor2); }
-    static inline void set_red()      { set_color(LEDColorRed2()); }
-    static inline void set_orange()   { set_color(LEDColorOrange2()); }
-    static inline void set_yellow()   { set_color(LEDColorYellow2()); }
-    static inline void set_blue()     { set_color(LEDColorBlue2()); }
-    static inline void set_indigo()   { set_color(LEDColorIndigo2()); }
-    static inline void set_violet()   { set_color(LEDColorViolet2()); }
+    static inline void set_default()  { set_color(defaultLEDColor); }
+    static inline void set_red()      { set_color(LEDColorRed()); }
+    static inline void set_orange()   { set_color(LEDColorOrange()); }
+    static inline void set_yellow()   { set_color(LEDColorYellow()); }
+    static inline void set_blue()     { set_color(LEDColorBlue()); }
+    static inline void set_indigo()   { set_color(LEDColorIndigo()); }
+    static inline void set_violet()   { set_color(LEDColorViolet()); }
   #endif
 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
-    static LEDColor2 color; // last non-off color
+    static LEDColor color; // last non-off color
     static bool lights_on; // the last set color was "on"
   #endif
 
