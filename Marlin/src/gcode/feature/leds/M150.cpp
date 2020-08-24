@@ -57,13 +57,11 @@ void GcodeSuite::M150() {
     Marlin_NeoPixel &the_neo = neo;
     #if ENABLED(NEOPIXEL2_SEPARATE)
       if (parser.intval('S') == 1) {
-        Marlin_NeoPixel2 &the_neo = neo2;
-        LEDLights2 &the_leds = leds2;
         the_neo = neo2;
         the_leds = leds2;
       }
     #endif
-    the_neo.set_neo_index(parser.intval('I', -1));
+    the_neo.neoindex = parser.intval('I', -1);
   #endif
   the_leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
