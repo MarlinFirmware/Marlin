@@ -51,6 +51,10 @@
 #include "../../inc/MarlinConfig.h"
 #include <SPI.h>
 
+// Hardware SPI and SPIClass
+#include <lpc17xx_pinsel.h>
+#include <lpc17xx_clkpwr.h>
+
 // ------------------------
 // Public functions
 // ------------------------
@@ -95,11 +99,6 @@
   }
 
 #else
-
-  // Hardware SPI
-
-  #include <lpc17xx_pinsel.h>
-  #include <lpc17xx_clkpwr.h>
 
   // decide which HW SPI device to use
   #ifndef LPC_HW_SPI_DEV
