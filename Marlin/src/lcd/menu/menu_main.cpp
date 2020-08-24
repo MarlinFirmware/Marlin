@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -51,12 +51,21 @@
 #endif
 
 void menu_tune();
+void menu_cancelobject();
 void menu_motion();
 void menu_temperature();
 void menu_configuration();
 
 #if ENABLED(CUSTOM_USER_MENUS)
   void menu_user();
+#endif
+
+#if HAS_POWER_MONITOR
+  void menu_power_monitor();
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  void menu_mixer();
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -68,16 +77,12 @@ void menu_configuration();
   void menu_info();
 #endif
 
-#if ENABLED(LED_CONTROL_MENU)
+#if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
   void menu_led();
 #endif
 
 #if HAS_CUTTER
   void menu_spindle_laser();
-#endif
-
-#if ENABLED(MIXING_EXTRUDER)
-  void menu_mixer();
 #endif
 
 extern const char M21_STR[];
@@ -106,7 +111,12 @@ void menu_main() {
         );
       });
     #endif
+
     SUBMENU(MSG_TUNE, menu_tune);
+
+    #if ENABLED(CANCEL_OBJECTS) && DISABLED(SLIM_LCD_MENUS)
+      SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
+    #endif
   }
   else {
 
@@ -153,7 +163,13 @@ void menu_main() {
     SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
   #endif
 
-  SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #if HAS_TEMPERATURE
+    SUBMENU(MSG_TEMPERATURE, menu_temperature);
+  #endif
+
+  #if HAS_POWER_MONITOR
+    MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
+  #endif
 
   #if ENABLED(MIXING_EXTRUDER)
     SUBMENU(MSG_MIXER, menu_mixer);
@@ -188,8 +204,8 @@ void menu_main() {
     SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
-  #if ENABLED(LED_CONTROL_MENU)
-    SUBMENU(MSG_LED_CONTROL, menu_led);
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    SUBMENU(MSG_LEDS, menu_led);
   #endif
 
   //

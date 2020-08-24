@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -44,9 +44,10 @@
 // TIM7 is used for SERVO
 // TIMER_SERIAL defaults to TIM7 so we'll override it here
 //
-#define STEP_TIMER                          10
-#define TEMP_TIMER                          14
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
 #define TIMER_SERIAL                        TIM9
+#define HAL_TIMER_RATE                     F_CPU
 
 //
 // Limit Switches

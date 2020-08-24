@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,11 @@
   #define SD_RESORT 1
 #endif
 
-#define SD_ORDER(N,C) (TERN(SDCARD_RATHERRECENTFIRST, C - 1 - (N), N))
+#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+  #define SD_ORDER(N,C) ((C) - 1 - (N))
+#else
+  #define SD_ORDER(N,C) N
+#endif
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
@@ -152,6 +156,7 @@ public:
 
   static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline uint32_t getIndex() { return sdpos; }
+  static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
   static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }

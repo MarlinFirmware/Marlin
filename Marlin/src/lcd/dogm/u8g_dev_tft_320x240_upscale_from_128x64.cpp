@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -64,17 +64,13 @@
 
 #include <string.h>
 
-#if ENABLED(LCD_USE_DMA_FSMC)
+#ifdef LCD_USE_DMA_FSMC
   extern void LCD_IO_WriteReg(uint16_t Reg);
   extern void LCD_IO_WriteData(uint16_t RegValue);
   extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
   extern void LCD_IO_WriteSequence_Async(uint16_t *data, uint16_t length);
   extern void LCD_IO_WaitSequence_Async();
   extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
-#endif
-
-#ifndef FSMC_UPSCALE
-  #define FSMC_UPSCALE 2
 #endif
 
 #define WIDTH LCD_PIXEL_WIDTH
@@ -552,7 +548,6 @@ static const uint16_t ili9341_init[] = {
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
     uint16_t buffer[BUTTON_SIZE_X * sq(FSMC_UPSCALE)];
 
-    //NOTE: the buffer are sized for max 32 lenght! If you need draw bigger things with this function, we need increase the buffer
     if (length > BUTTON_SIZE_X) return;
 
     for (uint16_t i = 0; i < height; i++) {
@@ -602,7 +597,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
     case U8G_DEV_MSG_INIT:
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, &lcd_id);
 
-      switch(lcd_id & 0xFFFF) {
+      switch (lcd_id & 0xFFFF) {
         case 0x8552:   // ST7789V
           #ifdef LCD_USE_DMA_FSMC
             writeEscSequence(st7789v_init);
@@ -620,7 +615,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = setWindow_ili9328;
           break;
         case 0x9341:   // ILI9341
-        case 0x8066:   // ILI9341 Anycubic / TronXY TFTs      
+        case 0x8066:   // Anycubic / TronXY TFTs (480x320)
           #ifdef LCD_USE_DMA_FSMC
             writeEscSequence(ili9341_init);
           #else
@@ -657,18 +652,8 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           u8g_WriteSequence(u8g, dev, 160, (uint8_t *)buffer);
       #endif
 
-      // bottom line and buttons
+      // Bottom buttons
       #if ENABLED(TOUCH_BUTTONS)
-
-        setWindow(u8g, dev, BUTTOND_X_LO - 4, BUTTON_Y_LO - 5, BUTTONC_X_HI + BUFSIZE + 4, BUTTON_Y_LO - 4);
-        #ifdef LCD_USE_DMA_FSMC
-          LCD_IO_WriteMultiple(TFT_DISABLED_COLOR, 600 / 2 * FSMC_UPSCALE);
-        #else
-          memset2(buffer, TFT_DISABLED_COLOR, 150);
-          for (uint8_t i = 8; i--;)
-            u8g_WriteSequence(u8g, dev, 150, (uint8_t *)buffer);
-        #endif
-
         setWindow(u8g, dev, BUTTOND_X_LO, BUTTON_Y_LO,  BUTTOND_X_HI, BUTTON_Y_HI);
         drawImage(buttonD, u8g, dev, 32, 20, TFT_BTCANCEL_COLOR);
 

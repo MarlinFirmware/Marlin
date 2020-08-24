@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -58,6 +58,23 @@
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
+
+#if HAS_TFT_LVGL_UI
+  #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
+  #include "lcd/extui/lib/mks_ui/draw_ui.h"
+  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
+  #include <lvgl.h>
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/dwin_lcd.h"
+  #include "lcd/dwin/rotary_encoder.h"
+#endif
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #include "libs/BL24CXX.h"
+#endif
 
 #if ENABLED(DIRECT_STEPPING)
   #include "feature/direct_stepping.h"
@@ -200,6 +217,7 @@ PGMSTR(M24_STR, "M24");
 PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
 PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
 PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
@@ -223,10 +241,6 @@ bool wait_for_heatup = true;
   }
 
 #endif
-
-// Inactivity shutdown
-millis_t max_inactive_time, // = 0
-         stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_DEACTIVE_TIME);
 
 #if PIN_EXISTS(CHDK)
   extern millis_t chdk_timeout;
@@ -382,6 +396,13 @@ void disable_all_steppers() {
 #endif
 
 /**
+ * A Print Job exists when the timer is running or SD printing
+ */
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
+
+/**
  * Printing is active when the print job timer is running
  */
 bool printingIsActive() {
@@ -453,32 +474,40 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   const millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
+  // Prevent steppers timing-out in the middle of M600
+  // unless PAUSE_PARK_NO_STEPPER_TIMEOUT is disabled
+  const bool parked_or_ignoring = ignore_stepper_queue ||
+     (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print);
+
+  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
+  if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
+
+  if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
-  // Prevent steppers timing-out in the middle of M600
-  #define STAY_TEST (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print)
+  // M18 / M94 : Handle steppers inactive time timeout
+  if (gcode.stepper_inactive_time) {
 
-  if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
+
+    // Any moves in the planner? Resets both the M18/M84
+    // activity timeout and the M85 max 'kill' timeout
     if (planner.has_blocks_queued())
-      gcode.reset_stepper_timeout();
-    else if (!STAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
+      gcode.reset_stepper_timeout(ms);
+    else if (!parked_or_ignoring && gcode.stepper_inactive_timeout()) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
+
+        // Individual axes will be disabled if configured
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
-        #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
-          if (ubl.lcd_map_control) {
-            ubl.lcd_map_control = false;
-            ui.defer_status_screen(false);
-          }
-        #endif
+
+        TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
       }
     }
     else
@@ -585,7 +614,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      gcode.reset_stepper_timeout();
+      gcode.reset_stepper_timeout(ms);
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -669,7 +698,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -695,8 +724,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Update the Beeper queue
   TERN_(USE_BEEPER, buzzer.tick());
 
-  // Read Buttons and Update the LCD
-  ui.update();
+  // Handle UI input / draw events
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -726,6 +755,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+  #if HAS_TFT_LVGL_UI
+    LV_TASK_HANDLER();
+  #endif
 }
 
 /**
@@ -837,7 +870,7 @@ void setup() {
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
+      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
       serialprintPGM(msg);
       SERIAL_EOL();
     };
@@ -916,11 +949,11 @@ void setup() {
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   const byte mcu = HAL_get_reset_source();
-  if (mcu &  1) SERIAL_ECHOLNPGM(STR_POWERUP);
-  if (mcu &  2) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
-  if (mcu &  4) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
-  if (mcu &  8) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
-  if (mcu & 32) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
+  if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
+  if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
+  if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
+  if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
+  if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
   serialprintPGM(GET_TEXT(MSG_MARLIN));
@@ -952,11 +985,18 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  SETUP_RUN(ui.init());
-  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
-
-  #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
-    SETUP_RUN(ui.show_bootscreen());
+  #if ENABLED(DWIN_CREALITY_LCD)
+    delay(800);   // Required delay (since boot?)
+    SERIAL_ECHOPGM("\nDWIN handshake ");
+    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+    DWIN_Frame_SetDir(1); // Orientation 90°
+    DWIN_UpdateLCD();     // Show bootscreen (first image)
+  #else
+    SETUP_RUN(ui.init());
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+      SETUP_RUN(ui.show_bootscreen());
+    #endif
+    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
@@ -965,10 +1005,6 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
-
-  #if HAS_SERVICE_INTERVALS
-    SETUP_RUN(ui.reset_status(true)); // Show service messages or keep current status
-  #endif
 
   #if ENABLED(TOUCH_BUTTONS)
     SETUP_RUN(touch.init());
@@ -1113,7 +1149,7 @@ void setup() {
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    SETUP_RUN(init_closedloop());
+    SETUP_RUN(closedloop.init());
   #endif
 
   #ifdef STARTUP_COMMANDS
@@ -1133,12 +1169,33 @@ void setup() {
     SETUP_RUN(mmu2.init());
   #endif
 
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    BL24CXX::init();
+    const uint8_t err = BL24CXX::check();
+    SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+    Encoder_Configuration();
+    HMI_Init();
+    HMI_StartFrame(true);
+  #endif
+
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+    ui.reset_status(true);  // Show service messages or keep current status
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
   #endif
 
   #if ENABLED(DIRECT_STEPPING)
     SETUP_RUN(page_manager.init());
+  #endif
+
+  #if HAS_TFT_LVGL_UI
+    if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
+    SETUP_RUN(tft_lvgl_init());
   #endif
 
   marlin_state = MF_RUNNING;
@@ -1172,6 +1229,8 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
+
+    TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

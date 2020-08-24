@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
 
@@ -162,6 +162,7 @@ inline void HAL_adc_init() {
   #define HAL_START_ADC(ch) ADCSRB = 0; SET_ADMUX_ADCSRA(ch)
 #endif
 
+#define HAL_ADC_VREF        5.0
 #define HAL_ADC_RESOLUTION 10
 #define HAL_READ_ADC()  ADC
 #define HAL_ADC_READY() !TEST(ADCSRA, ADSC)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -54,20 +54,23 @@ namespace Language_el {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ορισμός βασικών μετατοπίσεων"); //SHORTEN
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Εφαρμόστηκαν οι μετατοπίσεις"); //SHORTEN
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Ορισμός προέλευσης");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" bed"); //SHORTEN
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση"); //SHORTEN
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H0                    = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" όλα");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" bed"); //SHORTEN
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Προθέρμανση ") PREHEAT_2_LABEL _UxGT(" επιβεβαίωση"); //SHORTEN
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" End ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" όλα");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" bed"); //SHORTEN
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Προθέρμανση ") PREHEAT_1_LABEL _UxGT(" επιβεβαίωση"); //SHORTEN
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Προθέρμανση $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Προθέρμανση $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Προθέρμανση $ End");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Προθέρμανση $ End ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Προθέρμανση $ όλα");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Προθέρμανση $ bed"); //SHORTEN
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Προθέρμανση $ επιβεβαίωση"); //SHORTEN
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Μειωση θερμοκρασιας");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ενεργοποίηση");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Απενεργοποίηση");

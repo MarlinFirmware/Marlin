@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,7 +30,7 @@
 // Analog Pin Assignments
 //
 
-#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_PINS)
+#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)

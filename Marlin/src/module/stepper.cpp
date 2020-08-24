@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,7 +38,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+ * along with Grbl.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
@@ -168,22 +168,19 @@ bool Stepper::abort_current_block;
 
 #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
   bool Stepper::locked_Z_motor = false, Stepper::locked_Z2_motor = false
-       #if NUM_Z_STEPPER_DRIVERS >= 3
-         , Stepper::locked_Z3_motor = false
-         #if NUM_Z_STEPPER_DRIVERS >= 4
-           , Stepper::locked_Z4_motor = false
-         #endif
-       #endif
-       ;
+    #if NUM_Z_STEPPER_DRIVERS >= 3
+      , Stepper::locked_Z3_motor = false
+      #if NUM_Z_STEPPER_DRIVERS >= 4
+        , Stepper::locked_Z4_motor = false
+      #endif
+    #endif
+  ;
 #endif
 
 uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
 uint8_t Stepper::steps_per_isr;
 
-#if DISABLED(ADAPTIVE_STEP_SMOOTHING)
-  constexpr
-#endif
-    uint8_t Stepper::oversampling_factor;
+TERN(ADAPTIVE_STEP_SMOOTHING,,constexpr) uint8_t Stepper::oversampling_factor;
 
 xyze_long_t Stepper::delta_error{0};
 
@@ -2099,17 +2096,18 @@ uint32_t Stepper::block_phase_isr() {
       // No acceleration / deceleration time elapsed so far
       acceleration_time = deceleration_time = 0;
 
-      uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
-
       #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
+        uint8_t oversampling = 0;                           // Assume no axis smoothing (via oversampling)
         // Decide if axis smoothing is possible
-        uint32_t max_rate = current_block->nominal_rate;  // Get the maximum rate (maximum event speed)
+        uint32_t max_rate = current_block->nominal_rate;    // Get the step event rate
         while (max_rate < MIN_STEP_ISR_FREQUENCY) {         // As long as more ISRs are possible...
           max_rate <<= 1;                                   // Try to double the rate
-          if (max_rate >= MAX_STEP_ISR_FREQUENCY_1X) break; // Don't exceed the estimated ISR limit
-          ++oversampling;                                   // Increase the oversampling (used for left-shift)
+          if (max_rate < MIN_STEP_ISR_FREQUENCY)            // Don't exceed the estimated ISR limit
+            ++oversampling;                                 // Increase the oversampling (used for left-shift)
         }
         oversampling_factor = oversampling;                 // For all timer interval calculations
+      #else
+        constexpr uint8_t oversampling = 0;
       #endif
 
       // Based on the oversampling factor, do the calculations
@@ -2279,14 +2277,14 @@ uint32_t Stepper::block_phase_isr() {
     #if ENABLED(MIXING_EXTRUDER)
       // We don't know which steppers will be stepped because LA loop follows,
       // with potentially multiple steps. Set all.
-      if (LA_steps >= 0)
+      if (LA_steps > 0)
         MIXER_STEPPER_LOOP(j) NORM_E_DIR(j);
-      else
+      else if (LA_steps < 0)
         MIXER_STEPPER_LOOP(j) REV_E_DIR(j);
     #else
-      if (LA_steps >= 0)
+      if (LA_steps > 0)
         NORM_E_DIR(stepper_extruder);
-      else
+      else if (LA_steps < 0)
         REV_E_DIR(stepper_extruder);
     #endif
 
@@ -2553,7 +2551,7 @@ void Stepper::init() {
     AXIS_INIT(Z, Z);
   #endif
 
-  #if E_STEPPERS > 0 && HAS_E0_STEP
+  #if E_STEPPERS && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
   #if E_STEPPERS > 1 && HAS_E1_STEP
@@ -2610,7 +2608,7 @@ void Stepper::init() {
 void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
   #if CORE_IS_XY
     // corexy positioning
-    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
     count_position.set(a + b, CORESIGN(a - b), c);
   #elif CORE_IS_XZ
     // corexz planning
@@ -2802,7 +2800,9 @@ void Stepper::report_positions() {
       EXTRA_DIR_WAIT_AFTER();                           \
     }while(0)
 
-  #elif IS_CORE
+  #endif
+
+  #if IS_CORE
 
     #define BABYSTEP_CORE(A, B, INV, DIR, ALT) do{              \
       const xy_byte_t old_dir = { _READ_DIR(A), _READ_DIR(B) }; \
@@ -2848,7 +2848,7 @@ void Stepper::report_positions() {
 
         case Y_AXIS:
           #if CORE_IS_XY
-            BABYSTEP_CORE(X, Y, 0, direction, (CORESIGN(1)<0));
+            BABYSTEP_CORE(X, Y, 1, !direction, (CORESIGN(1)>0));
           #elif CORE_IS_YZ
             BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
           #else

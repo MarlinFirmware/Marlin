@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,6 +33,7 @@
 #include "extui/ui_api.h"
 #include "extui/lib/dgus/DGUSDisplay.h"
 #include "extui/lib/dgus/DGUSDisplayDef.h"
+#include "extui/lib/dgus/DGUSScreenHandler.h"
 
 extern const char NUL_STR[];
 

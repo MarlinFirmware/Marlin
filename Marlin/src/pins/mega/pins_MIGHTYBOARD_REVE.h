@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -195,6 +195,10 @@
   #else
     #define FAN_PIN                EXTRA_FET_PIN
   #endif
+#endif
+
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN         EX2_FAN_PIN
 #endif
 
 //

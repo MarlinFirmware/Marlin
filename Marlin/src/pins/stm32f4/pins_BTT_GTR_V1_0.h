@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -328,9 +328,10 @@
     #define LCD_PINS_ENABLE                 PG5
     #define LCD_PINS_D4                     PG7
 
-    //#undef ST7920_DELAY_1
-    //#undef ST7920_DELAY_2
-    //#undef ST7920_DELAY_3
+    // CR10_STOCKDISPLAY default timing is too fast
+    #undef BOARD_ST7920_DELAY_1
+    #undef BOARD_ST7920_DELAY_2
+    #undef BOARD_ST7920_DELAY_3
 
   #else
 
@@ -377,9 +378,15 @@
 
   // Alter timing for graphical display
   #if HAS_GRAPHICAL_LCD
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
   //#define DOGLCD_CS                       PB12

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,7 @@
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
@@ -163,14 +163,26 @@
 
     #else                                         // !FYSETC_MINI_12864
 
-    #define LCD_PINS_D4                     PC13
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5                   PB7
-      #define LCD_PINS_D6                   PC15
-      #define LCD_PINS_D7                   PC14
-    #endif
+      #define LCD_PINS_D4                   PC13
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5                 PB7
+        #define LCD_PINS_D6                 PC15
+        #define LCD_PINS_D7                 PC14
+      #endif
 
     #endif // !FYSETC_MINI_12864
+
+    #if HAS_GRAPHICAL_LCD
+      #ifndef BOARD_ST7920_DELAY_1
+        #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_2
+        #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_3
+        #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+      #endif
+    #endif
 
   #endif
 
@@ -201,11 +213,5 @@
   #define MOSI_PIN                          PA7
   #define SS_PIN                            PA4
 #endif
-#define ON_BOARD_SPI_DEVICE 1                     //SPI1
+#define ON_BOARD_SPI_DEVICE 1                     // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
-
-#if HAS_GRAPHICAL_LCD
-  #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
-  #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-#endif

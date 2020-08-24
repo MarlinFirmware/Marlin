@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -50,8 +50,14 @@
 // Standard thermistors
 #elif THERMISTOR_ID == 1
   #define THERMISTOR_NAME "EPCOS 100K"
+#elif THERMISTOR_ID == 331
+  #define THERMISTOR_NAME "3.3V EPCOS 100K (MEGA)"
+#elif THERMISTOR_ID == 332
+  #define THERMISTOR_NAME "3.3V EPCOS 100K (DUE)"
 #elif THERMISTOR_ID == 2
   #define THERMISTOR_NAME "ATC 204GT-2"
+#elif THERMISTOR_ID == 202
+  #define THERMISTOR_NAME "200k Copymaster 3D"
 #elif THERMISTOR_ID == 3
   #define THERMISTOR_NAME "Mendel-parts"
 #elif THERMISTOR_ID == 4
@@ -60,6 +66,8 @@
   #define THERMISTOR_NAME "ATC 104GT-2"
 #elif THERMISTOR_ID == 501
   #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
+#elif THERMISTOR_ID == 502
+  #define THERMISTOR_NAME "Zonestar (P802M Hot Bed)"
 #elif THERMISTOR_ID == 512
   #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6
@@ -96,6 +104,8 @@
   #define THERMISTOR_NAME "Hephestos 2"
 #elif THERMISTOR_ID == 75
   #define THERMISTOR_NAME "MGB18"
+#elif THERMISTOR_ID == 99
+  #define THERMISTOR_NAME "100k with 10k pull-up"
 
 // Modified thermistors
 #elif THERMISTOR_ID == 51
