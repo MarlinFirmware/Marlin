@@ -176,6 +176,9 @@
 // Color UI Configs
 #elif ENABLED(TFT_480x320)
 
+  #define TFT_DRIVER                     ILI9488
+  #define TFT_BUFFER_SIZE                  14400
+
   #define XPT2046_X_CALIBRATION           -17181
   #define XPT2046_Y_CALIBRATION            11434
   #define XPT2046_X_OFFSET                   501

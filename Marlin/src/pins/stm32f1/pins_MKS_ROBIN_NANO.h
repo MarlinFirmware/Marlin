@@ -254,6 +254,9 @@
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
 
+  #define TFT_DRIVER                     ILI9341
+  #define TFT_BUFFER_SIZE                  14400
+
   // YV for normal screen mounting
   //#define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
   // XV for 180° rotated screen mounting
@@ -267,6 +270,8 @@
   #define XPT2046_X_OFFSET                   -45
   #define XPT2046_Y_OFFSET                   349
 
+  #define TFT_DRIVER                     ILI9488
+  #define TFT_BUFFER_SIZE                  14400
   #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
 #endif
 
