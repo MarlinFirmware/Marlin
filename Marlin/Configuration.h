@@ -468,7 +468,7 @@
 //===========================================================================
 // Miguel V1
 
-#if (temp_hotend[e].celsius > temp_hotend[e].target)
+#if (temp_hotend[1].celsius > temp_hotend[1].target)
 	// Check for thermal difference between current temperature and target temperature
 	M42 P4 S1
 	// Activates PIN 4.
@@ -476,7 +476,7 @@
 		// P4 to call pin number 4 on the expansion port 3. 
 		// S1 to turn the pin on. 
 		// M42 instructions from: https://marlinfw.org/docs/gcode/M042.html
-#if (temp_hotend[e].celsius < temp_hotend[e].target)
+#if (temp_hotend[1].celsius < temp_hotend[1].target)
 	M42 P4 S0
 
 //===========================================================================
