@@ -144,8 +144,8 @@ class UIScreen {
     static bool onTouchEnd(uint8_t)    {return true;}
 };
 
-#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw);
-#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw);
+#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw)
+#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw)
 #define GOTO_PREVIOUS()       current_screen.goBack();
 #define AT_SCREEN(screen)     (current_screen.getType() == current_screen.lookupScreen(screen::onRedraw))
 #define IS_PARENT_SCREEN(screen) (current_screen.peek() == current_screen.lookupScreen(screen::onRedraw))
