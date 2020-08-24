@@ -120,7 +120,7 @@ bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint
 
   Marlin_NeoPixel2 neo2;
 
-  int8_t Marlin_NeoPixel2::neoindex;
+  int8_t Marlin_NeoPixel2::neoindex2;
   Adafruit_NeoPixel Marlin_NeoPixel2::adaneo(NEOPIXEL2_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE);
 
   void Marlin_NeoPixel2::set_color(const uint32_t color) {

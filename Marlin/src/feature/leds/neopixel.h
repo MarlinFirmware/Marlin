@@ -141,7 +141,7 @@ extern Marlin_NeoPixel neo;
   class Marlin_NeoPixel2 {
   private:
     static Adafruit_NeoPixel adaneo;
-    static int8_t neoindex;
+    static int8_t neoindex2;
 
   public:
     static void init();
@@ -149,8 +149,8 @@ extern Marlin_NeoPixel neo;
 
     static void set_color(const uint32_t c);
 
-    FORCE_INLINE static void set_neo_index(const int8_t neoIndex) { neoindex = neoIndex; }
-    FORCE_INLINE static int8_t get_neo_index() { return neoindex; }
+    FORCE_INLINE static void set_neo_index(const int8_t neoIndex2) { neoindex2 = neoIndex2; }
+    FORCE_INLINE static int8_t get_neo_index() { return neoindex2; }
 
     static inline void begin() {
       adaneo.begin();
