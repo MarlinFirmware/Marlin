@@ -416,6 +416,11 @@ void SPIClass::updateSettings() {
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
-SPIClass SPI(LPC_HW_SPI_DEV);
+#if MISO_PIN == BOARD_SPI1_MISO_PIN
+  SPIClass SPI(1);
+#elif MISO_PIN == BOARD_SPI2_MISO_PIN
+  SPIClass SPI(2);
+#endif
+
 
 #endif // TARGET_LPC1768
