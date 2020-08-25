@@ -247,15 +247,13 @@ extern LEDLights leds;
       static inline void set_violet()   { set_color(LEDColorViolet()); }
     #endif
 
-    #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
+    #if ENABLED(LED_CONTROL_MENU)
       static LEDColor color; // last non-off color
       static bool lights_on; // the last set color was "on"
-    #endif
-
-    #if ENABLED(LED_CONTROL_MENU)
       static void toggle();  // swap "off" with color
       static inline void update() { set_color(color); }
     #endif
+
   };
 
   extern LEDLights2 leds2;
