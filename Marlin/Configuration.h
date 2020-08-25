@@ -464,22 +464,6 @@
 #define BED_MAXTEMP      55
 
 //===========================================================================
-//================ Cool or heat Peltier Settings ============================
-//===========================================================================
-// Miguel V1
-
-#if (temp_hotend[E0].celsius > temp_hotend[E0].target)
-	// Check for thermal difference between current temperature and target temperature
-	P4 S1
-	// Activates PIN 4.
-		// M42 to control an unused pin. 
-		// P4 to call pin number 4 on the expansion port 3. 
-		// S1 to turn the pin on. 
-		// M42 instructions from: https://marlinfw.org/docs/gcode/M042.html
-#if (temp_hotend[E0].celsius < temp_hotend[E0].target)
-	 P4 S0
-
-//===========================================================================
 //============================= PID Settings ================================
 //===========================================================================
 // PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
