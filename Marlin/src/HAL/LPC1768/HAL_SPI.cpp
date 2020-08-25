@@ -411,7 +411,36 @@ void SPIClass::updateSettings() {
   SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
   HW_SPI_init.ClockRate = _currentSetting->clock;
   HW_SPI_init.Databit = _currentSetting->dataSize;
-  //TODO: handle data mode
+
+  /**
+   * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
+   * 0       0     0     Falling     Rising
+   * 1       0     1     Rising      Falling
+   * 2       1     0     Rising      Falling
+   * 3       1     1     Falling     Rising
+   */
+  switch (_currentSetting->dataMode)
+  {
+    case SPI_MODE0:
+      HW_SPI_init.CPHA = SSP_CPHA_FIRST;
+	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      break;
+    case SPI_MODE1:
+      HW_SPI_init.CPHA = SSP_CPHA_SECOND;
+	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      break;
+    case SPI_MODE2:
+      HW_SPI_init.CPHA = SSP_CPHA_FIRST;
+	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      break;
+    case SPI_MODE3:
+      HW_SPI_init.CPHA = SSP_CPHA_SECOND;
+	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      break;
+    default:
+      break;
+  }
+
   //TODO: handle bitOrder
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
