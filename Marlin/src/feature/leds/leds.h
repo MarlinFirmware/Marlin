@@ -237,7 +237,7 @@ extern LEDLights leds;
     static inline void set_white() { set_color(LEDColorWhite()); }
 
     #if ENABLED(NEO2_COLOR_PRESETS)
-      static const LEDColor2 defaultLEDColor2;
+      static const LEDColor defaultLEDColor;
       static inline void set_default()  { set_color(defaultLEDColor); }
       static inline void set_red()      { set_color(LEDColorRed()); }
       static inline void set_orange()   { set_color(LEDColorOrange()); }
