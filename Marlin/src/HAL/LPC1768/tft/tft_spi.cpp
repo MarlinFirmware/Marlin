@@ -81,7 +81,11 @@ void TFT_SPI::Init() {
   //   case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
   //   default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
   // }
-  SPIx.setModule(1);
+  #if TFT_MISO_PIN == BOARD_SPI1_MISO_PIN
+    SPIx.setModule(1);
+  #elif TFT_MISO_PIN == BOARD_SPI2_MISO_PIN
+    SPIx.setModule(2);
+  #endif
   SPIx.setClock(SPI_CLOCK_MAX);
   SPIx.setBitOrder(MSBFIRST);
   SPIx.setDataMode(SPI_MODE0);
