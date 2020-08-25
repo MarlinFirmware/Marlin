@@ -416,6 +416,6 @@ void SPIClass::updateSettings() {
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
-// SPIClass SPI(1);
+SPIClass SPI(LPC_HW_SPI_DEV);
 
 #endif // TARGET_LPC1768
