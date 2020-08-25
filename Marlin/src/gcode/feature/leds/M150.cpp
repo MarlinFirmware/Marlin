@@ -50,7 +50,9 @@
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
+ *   M150 S1 I1 R    ; Set SEPARATE index 1 to red
  */
+
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
     const uint8_t index = parser.intval('I', -1);
