@@ -37,24 +37,24 @@
 #define DATA_SIZE_8BIT SSP_DATABIT_8
 #define DATA_SIZE_16BIT SSP_DATABIT_16
 
-#define SPI_CLOCK_DIV2 8333333 //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
-#define SPI_CLOCK_DIV4 4166667 //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
-#define SPI_CLOCK_DIV8 2083333 //(SCR: 11)  desired: 2,000,000  actual: 2,083,333  +4.2%  SPI_QUARTER_SPEED
-#define SPI_CLOCK_DIV16 1000000 //(SCR: 24)  desired: 1,000,000  actual: 1,000,000         SPI_EIGHTH_SPEED
-#define SPI_CLOCK_DIV32  500000 //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
-#define SPI_CLOCK_DIV64  250000 //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
+#define SPI_CLOCK_DIV2   8333333 //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
+#define SPI_CLOCK_DIV4   4166667 //(SCR:  5)  desired: 4,000,000  actual: 4,166,667  +4.2%  SPI_HALF_SPEED
+#define SPI_CLOCK_DIV8   2083333 //(SCR: 11)  desired: 2,000,000  actual: 2,083,333  +4.2%  SPI_QUARTER_SPEED
+#define SPI_CLOCK_DIV16  1000000 //(SCR: 24)  desired: 1,000,000  actual: 1,000,000         SPI_EIGHTH_SPEED
+#define SPI_CLOCK_DIV32   500000 //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
+#define SPI_CLOCK_DIV64   250000 //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
 #define SPI_CLOCK_DIV128  125000 //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
 
 #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
 
 #define BOARD_NR_SPI 2
 
-// #define BOARD_SPI1_NSS_PIN      PA4 ?!
+//#define BOARD_SPI1_NSS_PIN      PA4 ?!
 #define BOARD_SPI1_SCK_PIN      P0_15
 #define BOARD_SPI1_MISO_PIN     P0_17
 #define BOARD_SPI1_MOSI_PIN     P0_18
 
-// #define BOARD_SPI2_NSS_PIN      PB12 ?!
+//#define BOARD_SPI2_NSS_PIN      PB12 ?!
 #define BOARD_SPI2_SCK_PIN      P0_07
 #define BOARD_SPI2_MISO_PIN     P0_08
 #define BOARD_SPI2_MOSI_PIN     P0_09
@@ -88,7 +88,7 @@ private:
   uint32_t spi_speed;
   uint32_t clock;
   uint32_t dataSize;
-  // uint32_t clockDivider;
+  //uint32_t clockDivider;
   uint8_t bitOrder;
   uint8_t dataMode;
   LPC_SSP_TypeDef *spi_d;

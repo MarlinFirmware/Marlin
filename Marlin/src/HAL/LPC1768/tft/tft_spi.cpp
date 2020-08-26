@@ -26,7 +26,7 @@
 
 #include "tft_spi.h"
 
-// TFT_SPI tft;
+//TFT_SPI tft;
 
 SPIClass TFT_SPI::SPIx(1);
 
@@ -65,22 +65,25 @@ void TFT_SPI::Init() {
    * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
-  // #if SPI_DEVICE == 1
-  //   #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
-  // #else
-  //   #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
-  // #endif
-  // uint8_t  clock;
-  // uint8_t spiRate = SPI_FULL_SPEED;
-  // switch (spiRate) {
-  //   case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX ;  break;
-  //   case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
-  //   case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
-  //   case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
-  //   case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
-  //   case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
-  //   default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
-  // }
+  #if 0
+    #if SPI_DEVICE == 1
+     #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
+    #else
+     #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
+    #endif
+    uint8_t  clock;
+    uint8_t spiRate = SPI_FULL_SPEED;
+    switch (spiRate) {
+     case SPI_FULL_SPEED:    clock = SPI_CLOCK_MAX ;  break;
+     case SPI_HALF_SPEED:    clock = SPI_CLOCK_DIV4 ; break;
+     case SPI_QUARTER_SPEED: clock = SPI_CLOCK_DIV8 ; break;
+     case SPI_EIGHTH_SPEED:  clock = SPI_CLOCK_DIV16; break;
+     case SPI_SPEED_5:       clock = SPI_CLOCK_DIV32; break;
+     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
+     default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
+    }
+  #endif
+
   #if TFT_MISO_PIN == BOARD_SPI1_MISO_PIN
     SPIx.setModule(1);
   #elif TFT_MISO_PIN == BOARD_SPI2_MISO_PIN
@@ -106,11 +109,10 @@ uint32_t TFT_SPI::GetID() {
 }
 
 uint32_t TFT_SPI::ReadID(uint16_t Reg) {
-  #if !PIN_EXISTS(TFT_MISO)
-    return 0;
-  #else
+  uint32_t data = 0;
+
+  #if PIN_EXISTS(TFT_MISO)
     uint8_t d = 0;
-    uint32_t data = 0;
     SPIx.setDataSize(DATASIZE_8BIT);
     SPIx.setClock(SPI_CLOCK_DIV64);
     SPIx.begin();
@@ -124,9 +126,9 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
 
     DataTransferEnd();
     SPIx.setClock(SPI_CLOCK_MAX);
-
-    return data >> 7;
   #endif
+
+  return data >> 7;
 }
 
 bool TFT_SPI::isBusy() {

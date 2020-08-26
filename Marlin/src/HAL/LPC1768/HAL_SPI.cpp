@@ -30,7 +30,7 @@
  */
 
 /**
- * Hardware SPI and a software SPI implementations are included in this file.
+ * Hardware SPI and Software SPI implementations are included in this file.
  * The hardware SPI runs faster and has higher throughput but is not compatible
  * with some LCD interfaces/adapters.
  *
@@ -112,7 +112,7 @@
       #endif
     #endif
   #endif
-  #if (LPC_HW_SPI_DEV == 0)
+  #if LPC_HW_SPI_DEV == 0
     #define LPC_SSPn LPC_SSP0
   #else
     #define LPC_SSPn LPC_SSP1
@@ -243,6 +243,7 @@ SPIClass::SPIClass(uint8_t device) {
     PINSEL_ConfigPin(&PinCfg);
     SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
   #endif
+
   #if BOARD_NR_SPI >= 2
     _settings[1].spi_d = LPC_SSP1;
     // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
@@ -281,7 +282,7 @@ void SPIClass::beginTransaction(const SPISettings &cfg) {
   setBitOrder(cfg.bitOrder);
   setDataMode(cfg.dataMode);
   setDataSize(cfg.dataSize);
-  // setClockDivider(determine_baud_rate(_currentSetting->spi_d, settings.clock));
+  //setClockDivider(determine_baud_rate(_currentSetting->spi_d, settings.clock));
   begin();
 }
 
@@ -321,30 +322,20 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Transfer size
   GPDMACfg.TransferSize = (minc ? length : 1);
   // Transfer width
-  if (_currentSetting->dataSize == DATA_SIZE_16BIT) {
-    GPDMACfg.TransferWidth = GPDMA_WIDTH_HALFWORD;
-  }
-  else {
-    GPDMACfg.TransferWidth = GPDMA_WIDTH_BYTE;
-  }
+  GPDMACfg.TransferWidth = (_currentSetting->dataSize == DATA_SIZE_16BIT) ? GPDMA_WIDTH_HALFWORD : GPDMA_WIDTH_BYTE;
   // Transfer type
   GPDMACfg.TransferType = GPDMA_TRANSFERTYPE_M2P;
   // Source connection - unused
   GPDMACfg.SrcConn = 0;
   // Destination connection
-  if (_currentSetting->spi_d == LPC_SSP0) {
-    GPDMACfg.DstConn = GPDMA_CONN_SSP0_Tx;
-  }
-  else {
-    GPDMACfg.DstConn = GPDMA_CONN_SSP1_Tx;
-  }
+  GPDMACfg.DstConn = (_currentSetting->spi_d == LPC_SSP0) ? GPDMA_CONN_SSP0_Tx : GPDMA_CONN_SSP1_Tx;
 
   GPDMACfg.DMALLI = 0;
 
-  //enable dma on spi
+  // Enable dma on SPI
   SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
 
-  // if minc=false, I'm repeating the same byte length times, as I could not find yet how do GPDMA without memory increment
+  // if minc=false, I'm repeating the same byte 'length' times, as I could not find yet how do GPDMA without memory increment
   do {
     // Setup channel with given parameter
     GPDMA_Setup(&GPDMACfg);
@@ -353,7 +344,7 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
     GPDMA_ChannelCmd(0, ENABLE);
 
     // wait data transfer
-    while(!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) { }
+    while (!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) { }
 
     // clear err and int
     GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
@@ -363,7 +354,7 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
     GPDMA_ChannelCmd(0, DISABLE);
 
     --length;
-  } while(!minc && length > 0);
+  } while (!minc && length > 0);
 
   waitSpiTxEnd(_currentSetting->spi_d);
 
@@ -419,8 +410,7 @@ void SPIClass::updateSettings() {
    * 2       1     0     Rising      Falling
    * 3       1     1     Falling     Rising
    */
-  switch (_currentSetting->dataMode)
-  {
+  switch (_currentSetting->dataMode) {
     case SPI_MODE0:
       HW_SPI_init.CPHA = SSP_CPHA_FIRST;
 	    HW_SPI_init.CPOL = SSP_CPOL_HI;
@@ -441,7 +431,7 @@ void SPIClass::updateSettings() {
       break;
   }
 
-  //TODO: handle bitOrder
+  // TODO: handle bitOrder
   SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
 }
 
@@ -450,6 +440,5 @@ void SPIClass::updateSettings() {
 #elif MISO_PIN == BOARD_SPI2_MISO_PIN
   SPIClass SPI(2);
 #endif
-
 
 #endif // TARGET_LPC1768

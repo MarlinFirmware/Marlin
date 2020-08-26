@@ -38,7 +38,7 @@ uint16_t delta(uint16_t a, uint16_t b) { return a > b ? a - b : b - a; }
     XPT2046::SPIx.setDataMode(SPI_MODE0);
     XPT2046::SPIx.setDataSize(DATA_SIZE_8BIT);
   }
-#endif // TOUCH_BUTTONS_HW_SPI
+#endif
 
 void XPT2046::Init() {
   SET_INPUT(TOUCH_MISO_PIN);
