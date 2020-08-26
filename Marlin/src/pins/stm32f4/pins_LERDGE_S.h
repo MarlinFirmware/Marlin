@@ -127,7 +127,7 @@
 #endif
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 //#define E_MUX0_PIN                        -1
 //#define E_MUX1_PIN                        -1
