@@ -19,58 +19,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#include "pins_FYSETC_S6.h"
+#pragma once
+
+#define BOARD_INFO_NAME "FYSETC S6 2.0"
 
 //
 // EEPROM Emulation
 //
 #if NO_EEPROM_SELECTED
+  #undef NO_EEPROM_SELECTED
   //#define FLASH_EEPROM_EMULATION
   //#define SRAM_EEPROM_EMULATION
   #define I2C_EEPROM
 #endif
 
-#if ENABLED(FLASH_EEPROM_EMULATION)
-  // Decrease delays and flash wear by spreading writes across the
-  // 128 kB sector allocated for EEPROM emulation.
-  #define FLASH_EEPROM_LEVELING
-#elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
-#endif
-
 //
 // Steppers
 //
-#undef X_ENABLE_PIN
-#define X_ENABLE_PIN       PE9
+#define X_ENABLE_PIN                        PE9
 
-#if HAS_TMC220x
-  //
-  // TMC2208/TMC2209 stepper drivers
-  //
-
-  //
-  // Software serial
-  //
-  #undef X_SERIAL_TX_PIN
-  #define X_SERIAL_TX_PIN  PE8
-
-  #undef Y_SERIAL_TX_PIN
-  #undef Y_SERIAL_RX_PIN
-  #define Y_SERIAL_TX_PIN  PC4
-  #define Y_SERIAL_RX_PIN  PC4
-
-  #undef Z_SERIAL_TX_PIN
-  #define Z_SERIAL_TX_PIN  PD12
-
-  #undef E0_SERIAL_TX_PIN
-  #define E0_SERIAL_TX_PIN PA15
-
-  #undef E1_SERIAL_TX_PIN
-  #define E1_SERIAL_TX_PIN PC5
-
-  #undef E2_SERIAL_TX_PIN
-  #define E2_SERIAL_TX_PIN PE0
+#if HAS_TMC_UART
+  #define X_SERIAL_TX_PIN                   PE8
+  #define Y_SERIAL_TX_PIN                   PC4
+  #define Y_SERIAL_RX_PIN                   PC4
+  #define Z_SERIAL_TX_PIN                   PD12
+  #define E0_SERIAL_TX_PIN                  PA15
+  #define E1_SERIAL_TX_PIN                  PC5
+  #define E2_SERIAL_TX_PIN                  PE0
 #endif
 
 //
@@ -88,3 +63,5 @@
     #define TMC_SW_SCK     PE12
   #endif
 #endif
+
+#include "pins_FYSETC_S6.h"
