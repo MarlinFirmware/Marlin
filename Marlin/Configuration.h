@@ -65,17 +65,38 @@
 //-------Hardware--------
 //#define STOCK
 #define QQS
-//#define QQS_TMC
-//#define QQS_UART  //Remove module ESP12                 
+//#define QQS_TMC   //For 2208 or 2209
+//#define QQS_UART  //Remove module ESP12    
+
+#define ESP_WIFI  //Module ESP8266/ESP12
 
 //-------OPTIONS--------
-//Many options for : 
+//CHOICE UI:
+//UI STANDARD
+//#define FSMC_GRAPHICAL_TFT
+
+//UI MARLIN
+#define TFT_320x240
+
+//UI MKS (Bug)
+//#define TFT_LVGL_UI_FSMC  //=> Bug LGVL
+//#define TFT_LVGL_UI_SPI  //=> Bug LGVL
+
+//Many options for :
+#define DELTA_CALIBRATION_MENU    //NC LVGL
+
+#define PAUSE_BEFORE_DEPLOY_STOW  //Message Stow/remove Probe (bug UI Marlin)
 //#define AUTO_BED_LEVELING_BILINEAR
 #define AUTO_BED_LEVELING_UBL
-#define FILAMENT_RUNOUT_SENSOR
-#define LIN_ADVANCE
-//#define POWER_LOSS_RECOVERY
+
+#define POWER_LOSS_RECOVERY       //NC LVGL 
+#define FILAMENT_RUNOUT_SENSOR    //NC LVGL
+#define ADVANCED_PAUSE_FEATURE    //NC LVGL
+//#define USE_CONTROLLER_FAN      //BOARD FAN
+//#define FAN_SOFT_PWM
+#define LIN_ADVANCE           
 //
+//#define NEOPIXEL_LED
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -120,19 +141,25 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#ifdef QQS_UART
-#define SERIAL_PORT 3
+#if ANY(STOCK, QQS, QQS_TMC)
+    #define SERIAL_PORT 3 
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 -1  //Remove module ESP12 
-#else
-  #define SERIAL_PORT 3
-  #define SERIAL_PORT_2 1
-  #define NUM_SERIAL 2  //MKS WIFI
-#endif      
+    #define SERIAL_PORT_2 1
+    #if ENABLED(ESP_WIFI)
+      #define NUM_SERIAL 2  //MKS WIFI
+    #endif
+#endif
+
+#ifdef QQS_UART
+   #define SERIAL_PORT 3
+   #define SERIAL_PORT_2 -1  //Remove module ESP12 
+#endif
+  
+
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -148,22 +175,34 @@
 //#define BLUETOOTH
 
 // Choose the name from boards.h that matches your setup
-//#ifndef MOTHERBOARD
-#if ANY(QQS, QQS_TMC, QQS_UART)
-    #define MOTHERBOARD BOARD_FLSUN_HISPEED
-#else
+#ifndef MOTHERBOARD
+  #ifdef STOCK
     #define MOTHERBOARD BOARD_MKS_ROBIN_MINI
+  #endif
+  #ifdef QQS
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+    //#define MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
+  #endif
+  #ifdef QQS_TMC
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif
+  #ifdef QQS_UART
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
+#ifdef STOCK
+  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S"
+#endif
 #ifdef QQS
-#define CUSTOM_MACHINE_NAME "FLSUN QQ-S"
+  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S PRO"
 #endif
 #ifdef QQS_TMC
-#define CUSTOM_MACHINE_NAME "FLSUN QQ-S TMC"
+  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S TMC"
 #endif                   
 #ifdef QQS_UART
-#define CUSTOM_MACHINE_NAME "FLSUN QQ-S UART"
+  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S UART"
 #endif        
 
 // Printer's unique ID, used by some programs to differentiate between machines.
@@ -514,8 +553,8 @@
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
-  //#define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  //#define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+  //#define PID_EDIT_MENU         //OPT Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
+  //#define PID_AUTOTUNE_MENU     //OPT Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
@@ -536,19 +575,17 @@
   //#define DEFAULT_Ki 2.25
   //#define DEFAULT_Kd 440
 
-// (measured after M106 S180 with M303 E0 S230 C8) Memo: M301 P23.24 I1.87 D72.35 (sonde11)
-  #ifdef QQS
-  // FLSUN QQ-S, 200 C with 100% part cooling
-  #define DEFAULT_Kp 13.52690
-  #define DEFAULT_Ki 0.87428
-  #define DEFAULT_Kd 52.32204
-  #endif
-  #if EITHER(QQS_TMC, QQS_UART)
   // FLSUN QQ-S, From Martin Carlsson
-    #define DEFAULT_Kp 26.07
-    #define DEFAULT_Ki 2.15
-    #define DEFAULT_Kd 78.90
-  #endif
+  //#define DEFAULT_Kp 11.78
+  //#define DEFAULT_Ki 0.64
+  //#define DEFAULT_Kd 54.52
+
+  // (measured after M106 S180 with M303 E0 S230 C8) Memo: M301 P23.24 I1.87 D72.35 (sonde11)
+  // FLSUN QQ-S, PET 235 C with 70% part cooling
+   #define DEFAULT_Kp 18.08039
+   #define DEFAULT_Ki 0.92054
+   #define DEFAULT_Kd 88.77926
+
 #endif // PIDTEMP
 
 //===========================================================================
@@ -597,11 +634,15 @@
   //#define DEFAULT_bedKd 1675.16
 
   // FLSUN QQ-S stock 1.6mm aluminium heater with 4mm lattice glass
-  #define DEFAULT_bedKp 325.10
-  #define DEFAULT_bedKi 63.35
-  #define DEFAULT_bedKd 417.10
+  //#define DEFAULT_bedKp 325.10
+  //#define DEFAULT_bedKi 63.35
+  //#define DEFAULT_bedKd 417.10
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+  //M303 E-1 C8 S80 =>MEMO M304 
+  #define DEFAULT_bedKp 84.95586
+  #define DEFAULT_bedKi 15.58394
+  #define DEFAULT_bedKd 308.75797
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
@@ -681,12 +722,12 @@
   #define DELTA_SEGMENTS_PER_SECOND 200
 
   // After homing move down to a height where XY movement is unconstrained
-  #define DELTA_HOME_TO_SAFE_ZONE
+  #define DELTA_HOME_TO_SAFE_ZONE //Sahlman
 
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
-  //#define DELTA_CALIBRATION_MENU
+  //#define DELTA_CALIBRATION_MENU  //COMP desactivation => warning compil
 
   // uncomment to add G33 Delta Auto-Calibration (Enable EEPROM_SETTINGS to store results)
   #define DELTA_AUTO_CALIBRATION
@@ -694,8 +735,8 @@
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
-    // set the default number of probe points : n*n (1 -> 7)
-    #define DELTA_CALIBRATION_DEFAULT_POINTS  7//9//5 //7 //8 //6  //OPT4
+    // set the default number of probe points : n*n (1 -> 7) ITERATION
+    #define DELTA_CALIBRATION_DEFAULT_POINTS  4 //OPT 9 Sahlman  
   #endif
 
   #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
@@ -723,8 +764,8 @@
   #define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
   // Delta radius and diagonal rod adjustments (mm)
-  //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 }
-  //#define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 }
+  //#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 } //OPT
+  //#define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } //OPT
 
 #endif
 
@@ -795,11 +836,11 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-  #ifdef QQS
+  #if ANY (QQS, STOCK)
     #define DRIVER_USED A4988
   #endif
   #ifdef QQS_TMC
-    #define DRIVER_USED TMC2208_STANDALONE
+    #define DRIVER_USED TMC2209_STANDALONE
   #endif
   #ifdef QQS_UART
     #define DRIVER_USED TMC2208
@@ -877,7 +918,7 @@
 
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 393 }  // default steps per unit
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 367 }  // default steps per unit
 //The next line below calculates the staps value and the 800 value is my E-Steps calculation (400 doubled for 32 steps, if 16 steps then its 400 for me, meaure this with Extrusion test)
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 800 }  // default steps per unit
 
@@ -886,7 +927,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 1000, 1000, 1000, 300 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -899,7 +940,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 9000, 9000, 9000, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 4000, 4000, 4000, 5000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -914,9 +955,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -926,9 +967,9 @@
  * When changing speed and direction, if the difference is less than the
  * value set here, it may happen instantaneously.
  */
-#define CLASSIC_JERK
+#define CLASSIC_JERK  //DELTA
 #if ENABLED(CLASSIC_JERK)
-  #define DEFAULT_XJERK 10.0  //8 //10.0
+  #define DEFAULT_XJERK 10.0  //8
   #define DEFAULT_YJERK DEFAULT_XJERK
   #define DEFAULT_ZJERK DEFAULT_XJERK // Must be same as XY for delta
 
@@ -963,7 +1004,7 @@
  *
  * See https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
  */
-#define S_CURVE_ACCELERATION
+#define S_CURVE_ACCELERATION   //OPT
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -1095,7 +1136,7 @@
  * Allen key retractable z-probe as seen on many Kossel delta printers - https://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
  * Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
  */
-//#define Z_PROBE_ALLEN_KEY
+//#define Z_PROBE_ALLEN_KEY   //OPT
 
 #if ENABLED(Z_PROBE_ALLEN_KEY)
   // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
@@ -1111,12 +1152,12 @@
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3 { 0.0, (DELTA_PRINTABLE_RADIUS) * 0.75, 100.0 }
   #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_SPEED
 
-  #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 20
+  #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 30
   #define Z_PROBE_ALLEN_KEY_STOW_1 { -64.0, 56.0, 23.0 } // Move the probe into position
   #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
   // Move the nozzle down further to push the probe into retracted position.
-  #define Z_PROBE_ALLEN_KEY_STOW_2 { -64.0, 56.0, 3.0 } // Push it down
-  //#define Z_PROBE_ALLEN_KEY_STOW_2 { -64.0, 56.0, 23.0-(Z_PROBE_ALLEN_KEY_STOW_DEPTH) }
+  //#define Z_PROBE_ALLEN_KEY_STOW_2 { -64.0, 56.0, 3.0 } // Push it down
+  #define Z_PROBE_ALLEN_KEY_STOW_2 { -64.0, 56.0, 23.0-(Z_PROBE_ALLEN_KEY_STOW_DEPTH) }
   #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_PROBE_SPEED)/10
   // Raise things back up slightly so we don't bump into anything
   #define Z_PROBE_ALLEN_KEY_STOW_3 { -64.0, 56.0, 23.0+(Z_PROBE_ALLEN_KEY_STOW_DEPTH) }
@@ -1160,11 +1201,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, -16.2 }
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 10 //20
+#define PROBING_MARGIN 15 //20
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 5000
@@ -1173,7 +1214,7 @@
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Feedrate (mm/m) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST) / 6 //OPT
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 6) //OPT
 //#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 10)
 
 /**
@@ -1210,14 +1251,14 @@
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
-#define Z_PROBE_OFFSET_RANGE_MIN -20
+#define Z_PROBE_OFFSET_RANGE_MIN -30  //-30 Sahlman
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // Enable the M48 repeatability test to test probe accuracy
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 // Before deploy/stow pause for user confirmation
-//#define PAUSE_BEFORE_DEPLOY_STOW  //OPT
+//#define PAUSE_BEFORE_DEPLOY_STOW  //define at the TOP
 #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
   //#define PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED // For Manual Deploy Allenkey Probe
 #endif
@@ -1233,7 +1274,7 @@
 #if ENABLED(PROBING_HEATERS_OFF)
   //#define WAIT_FOR_BED_HEATER     // Wait for bed to heat back up between probes (to improve accuracy)
 #endif
-//#define PROBING_FANS_OFF          // Turn fans off when probing
+#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
@@ -1261,11 +1302,13 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#ifdef QQS
+  
+#if ANY(QQS, STOCK)
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
-#else 
+#endif
+#if EITHER(QQS_TMC, QQS_UART)
 #define INVERT_X_DIR true 
 #define INVERT_Y_DIR true 
 #define INVERT_Z_DIR true 
@@ -1284,7 +1327,7 @@
 
 // @section homing
 
-#define NO_MOTION_BEFORE_HOMING //deact Inhibit movement until all axes have been homed
+#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
@@ -1323,7 +1366,7 @@
  */
 
 // Min software endstops constrain movement within minimum coordinate bounds
-#define MIN_SOFTWARE_ENDSTOPS //desac
+#define MIN_SOFTWARE_ENDSTOPS
 #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
   #define MIN_SOFTWARE_ENDSTOP_X
   #define MIN_SOFTWARE_ENDSTOP_Y
@@ -1339,7 +1382,7 @@
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-  //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+    #define SOFT_ENDSTOPS_MENU_ITEM  //OPT Enable/Disable software endstops from the LCD
 #endif
 
 /**
@@ -1349,7 +1392,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-//#define FILAMENT_RUNOUT_SENSOR
+//#define FILAMENT_RUNOUT_SENSOR  //define at the TOP
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define NUM_RUNOUT_SENSORS   1     // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
   #define FIL_RUNOUT_STATE     LOW   // Pin state indicating that filament is NOT present.
@@ -1363,7 +1406,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  #define FILAMENT_RUNOUT_DISTANCE_MM 10  //25
+  #define FILAMENT_RUNOUT_DISTANCE_MM 25
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -1414,7 +1457,7 @@
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL //TMC define at the TOP
+//#define AUTO_BED_LEVELING_UBL //define at the TOP
 //#define MESH_BED_LEVELING
 
 /**
@@ -1461,7 +1504,7 @@
 
   // Set the number of grid points per dimension.
   // Works best with 5 or more points in each dimension.
-  #define GRID_MAX_POINTS_X 9 //7
+  #define GRID_MAX_POINTS_X 9  //9 OPT 7
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1494,7 +1537,7 @@
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 10      //OPT Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1565,7 +1608,7 @@
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing.
 // - Prevent Z homing when the Z probe is outside bed area.
 //
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT X_CENTER  // X point for Z homing
@@ -1664,8 +1707,8 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
-#define DEFAULT_KEEPALIVE_INTERVAL 5  // Number of seconds between "busy" messages. Set with M113.
+//#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //
@@ -1706,7 +1749,8 @@
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z_raise }
-  #define NOZZLE_PARK_POINT { (X_MIN_POS + 20), 0, 40 }
+  //#define NOZZLE_PARK_POINT { (X_MIN_POS + 20), 0, 20 }
+  #define NOZZLE_PARK_POINT { 0, (Y_MAX_POS - 10), 20 } //OPT
   //#define NOZZLE_PARK_X_ONLY          // X move only is required to park
   //#define NOZZLE_PARK_Y_ONLY          // Y move only is required to park
   #define NOZZLE_PARK_Z_RAISE_MIN   2   // (mm) Always raise Z by at least this distance
@@ -1799,7 +1843,7 @@
  *   M76 - Pause the print job timer
  *   M77 - Stop the print job timer
  */
-#define PRINTJOB_TIMER_AUTOSTART
+//#define PRINTJOB_TIMER_AUTOSTART
 
 /**
  * Print Counter
@@ -1813,7 +1857,7 @@
  *
  * View the current statistics with M78.
  */
-#define PRINTCOUNTER
+//#define PRINTCOUNTER
 
 /**
  * Password
@@ -1862,7 +1906,7 @@
  *
  * :{ 'en':'English', 'an':'Aragonese', 'bg':'Bulgarian', 'ca':'Catalan', 'cz':'Czech', 'da':'Danish', 'de':'German', 'el':'Greek', 'el_gr':'Greek (Greece)', 'es':'Spanish', 'eu':'Basque-Euskera', 'fi':'Finnish', 'fr':'French', 'gl':'Galician', 'hr':'Croatian', 'hu':'Hungarian', 'it':'Italian', 'jp_kana':'Japanese', 'ko_KR':'Korean (South Korea)', 'nl':'Dutch', 'pl':'Polish', 'pt':'Portuguese', 'pt_br':'Portuguese (Brazilian)', 'ro':'Romanian', 'ru':'Russian', 'sk':'Slovak', 'tr':'Turkish', 'uk':'Ukrainian', 'vi':'Vietnamese', 'zh_CN':'Chinese (Simplified)', 'zh_TW':'Chinese (Traditional)', 'test':'TEST' }
  */
-#define LCD_LANGUAGE fr
+#define LCD_LANGUAGE en
 
 /**
  * LCD Character Set
@@ -1886,7 +1930,7 @@
  *
  * :['JAPANESE', 'WESTERN', 'CYRILLIC']
  */
-#define DISPLAY_CHARSET_HD44780 WESTERN
+#define DISPLAY_CHARSET_HD44780 JAPANESE
 
 /**
  * Info Screen Style (0:Classic, 1:Prusa)
@@ -1919,7 +1963,7 @@
  *
  * Use CRC checks and retries on the SD communication.
  */
-#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY  //OPT
 
 /**
  * LCD Menu Items
@@ -1990,7 +2034,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-//#define SPEAKER
+//#define SPEAKER //BUG TFT
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -2375,7 +2419,7 @@
 // TFT display with optional touch screen
 // Color Marlin UI with standard menu system
 //
-#define TFT_320x240
+//#define TFT_320x240 //define at the TOP
 //#define TFT_320x240_SPI
 //#define TFT_480x320
 //#define TFT_480x320_SPI
@@ -2397,7 +2441,7 @@
 // FSMC display (MKS Robin, Alfawise U20, JGAurora A5S, REXYZ A1, etc.)
 // Upscaled 128x64 Marlin UI
 //
-//#define FSMC_GRAPHICAL_TFT
+//#define FSMC_GRAPHICAL_TFT  //define at the TOP
 
 //
 // TFT LVGL UI
@@ -2405,10 +2449,10 @@
 // Using default MKS icons and fonts from: https://git.io/JJvzK
 // Just copy the 'assets' folder from the build directory to the
 // root of your SD card, together with the compiled firmware.
-//
+//define at the TOP
 //#define TFT_LVGL_UI_FSMC  // Robin nano v1.2 uses FSMC
 //#define TFT_LVGL_UI_SPI   // Robin nano v2.0 uses SPI_GRAPHICAL_TFT
-//#define TFT_LVGL_UI 
+//
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
@@ -2421,12 +2465,15 @@
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
-#define TOUCH_SCREEN
-#if ENABLED(TOUCH_SCREEN)
+#if EITHER(TFT_320x240, FSMC_GRAPHICAL_TFT)
+  #define TOUCH_SCREEN
+#endif
+  #if ENABLED(TOUCH_SCREEN)
+  #define TOUCH_SCREEN
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-  #define TOUCH_SCREEN_CALIBRATION
+  //#define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   //#define XPT2046_X_CALIBRATION 12316
   //#define XPT2046_Y_CALIBRATION -8981
@@ -2434,28 +2481,11 @@
   //#define XPT2046_Y_OFFSET        257
 
   // Define in pins QQS-Pro (M995)
-  #define XPT2046_X_CALIBRATION 12218
-  #define XPT2046_Y_CALIBRATION -8814
-  #define XPT2046_X_OFFSET        -34
-  #define XPT2046_Y_OFFSET        256
+  //#define XPT2046_X_CALIBRATION 12218
+  //#define XPT2046_Y_CALIBRATION -8814
+  //#define XPT2046_X_OFFSET        -34
+  //#define XPT2046_Y_OFFSET        256
 
-  /* MKS Robin TFT v2.0 */
-  //#define XPT2046_X_CALIBRATION  12013
-  //#define XPT2046_Y_CALIBRATION  -8711
-  //#define XPT2046_X_OFFSET         -32
-  //#define XPT2046_Y_OFFSET         256
-  
-  /* MKS Robin TFT v1.1 with ILI9328 */
-  //#define XPT2046_X_CALIBRATION -11792
-  //#define XPT2046_Y_CALIBRATION   8947
-  //#define XPT2046_X_OFFSET         342
-  //#define XPT2046_Y_OFFSET         -19
-
-  /* MKS Robin TFT v1.1 with R61505 */
-  //#define XPT2046_X_CALIBRATION  12489
-  //#define XPT2046_Y_CALIBRATION   9210
-  //#define XPT2046_X_OFFSET         -52
-  //#define XPT2046_Y_OFFSET         -17
 #endif
 
 //
@@ -2472,7 +2502,7 @@
 // @section extras
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
-//#define FAST_PWM_FAN
+//#define FAST_PWM_FAN //define at the TOP
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
@@ -2545,13 +2575,13 @@
 #endif
 
 // Support for Adafruit Neopixel LED driver
-//#define NEOPIXEL_LED
+//#define NEOPIXEL_LED  //Define at the Top
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRBW // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN     4       // LED driving pin
+  #define NEOPIXEL_PIN     PA2  //4       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
   //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 30       // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
+  #define NEOPIXEL_PIXELS 6       // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 127  // Initial brightness (0-255)
   //#define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
