@@ -1578,12 +1578,11 @@ void Stepper::pulse_phase_isr() {
 
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{ \
-                 if ((VALUE) == 7) {}                     \
-            else if ((VALUE) <  7) SBI(dm, _AXIS(AXIS));  \
-            else                   CBI(dm, _AXIS(AXIS));  \
-            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
-            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{   \
+                 if ((VALUE) <  7) SBI(dm, _AXIS(AXIS)); \
+            else if ((VALUE) >  7) CBI(dm, _AXIS(AXIS)); \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;     \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;    \
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \
