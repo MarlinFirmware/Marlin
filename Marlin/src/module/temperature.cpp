@@ -463,7 +463,7 @@ volatile bool Temperature::raw_temps_ready = false;
             t1 = ms;
             t_high = t1 - t2;
             maxT = target;
-           P4 S1;
+           P4 S255;
           }
         }
 
