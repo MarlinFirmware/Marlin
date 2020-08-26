@@ -40,6 +40,7 @@
 
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
+  #define CONJOINED_NEOPIXEL 1
 #endif
 
 #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
@@ -80,7 +81,9 @@ public:
 
   static inline void begin() {
     adaneo1.begin();
+    #if CONJOINED_NEOPIXEL
     TERN_(CONJOINED_NEOPIXEL, adaneo2.begin());
+    #endif  
   }
 
   static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
@@ -89,13 +92,17 @@ public:
       else adaneo1.setPixelColor(n, c);
     #else
       adaneo1.setPixelColor(n, c);
+      #if CONJOINED_NEOPIXEL
       TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
+       #endif
     #endif
   }
 
   static inline void set_brightness(const uint8_t b) {
     adaneo1.setBrightness(b);
+    #if CONJOINED_NEOPIXEL
     TERN_(CONJOINED_NEOPIXEL, adaneo2.setBrightness(b));
+    #endif
   }
 
   static inline void show() {
@@ -127,7 +134,7 @@ extern Marlin_NeoPixel neo;
 
 // Neo pixel channel 2
 #if ENABLED(NEOPIXEL2_SEPARATE)
-
+  
   class Marlin_NeoPixel2 {
   private:
     static Adafruit_NeoPixel adaneo;

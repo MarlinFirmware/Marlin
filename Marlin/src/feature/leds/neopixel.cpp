@@ -30,7 +30,7 @@
 
 #include "neopixel.h"
 
-#if ENABLED(NEOPIXEL_STARTUP_TEST)
+#if EITHER(NEOPIXEL_STARTUP_TEST, NEOPIXEL2_STARTUP_TEST)
   #include "../../core/utility.h"
 #endif
 
