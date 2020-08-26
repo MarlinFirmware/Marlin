@@ -463,7 +463,7 @@ volatile bool Temperature::raw_temps_ready = false;
             t1 = ms;
             t_high = t1 - t2;
             maxT = target;
-            P4 S1;
+           // P4 S1;
           }
         }
 
@@ -477,7 +477,7 @@ volatile bool Temperature::raw_temps_ready = false;
               bias += (d * (t_high - t_low)) / (t_low + t_high);
               LIMIT(bias, 20, max_pow - 20);
               d = (bias > max_pow >> 1) ? max_pow - 1 - bias : bias;
-              P4 S0;
+             // P4 S0;
 
               SERIAL_ECHOPAIR(STR_BIAS, bias, STR_D_COLON, d, STR_T_MIN, minT, STR_T_MAX, maxT);
               if (cycles > 2) {
