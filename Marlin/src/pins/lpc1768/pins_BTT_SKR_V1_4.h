@@ -208,7 +208,7 @@
   #define Z2_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -345,7 +345,7 @@
 #endif
 
 //
-// Neopixel LED
+// NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                     P1_24

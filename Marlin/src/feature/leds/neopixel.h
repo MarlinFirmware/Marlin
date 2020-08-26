@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Neopixel support
+ * NeoPixel support
  */
 
 // ------------------------
@@ -65,16 +65,14 @@ private:
       , adaneo2
     #endif
   ;
-  static int8_t neoindex;
 
 public:
+  static int8_t neoindex;
+
   static void init();
   static void set_color_startup(const uint32_t c);
 
   static void set_color(const uint32_t c);
-
-  FORCE_INLINE static void set_neo_index(const int8_t neoIndex) { neoindex = neoIndex; }
-  FORCE_INLINE static int8_t get_neo_index() { return neoindex; }
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     static void set_color_background();

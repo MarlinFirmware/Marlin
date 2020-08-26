@@ -100,12 +100,6 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
 }
 
 ////////////////////////////////////////////
-/////////// Common Menu Actions ////////////
-////////////////////////////////////////////
-
-void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
-
-////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
 ////////////////////////////////////////////
 
@@ -167,35 +161,6 @@ void MenuEditItemBase::goto_edit_screen(
   ui.currentScreen = cs;
   callbackFunc = cb;
   liveEdit = le;
-}
-
-// TODO: Remove these but test build size with and without
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuEditItem<MenuEditItemInfo_##NAME>
-
-DEFINE_MENU_EDIT_ITEM(percent);     // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float42_52);  // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
-DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM(float31sign); // +12.3
-DEFINE_MENU_EDIT_ITEM(float41sign); // +123.4
-DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
-DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
-DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
-
-void MenuItem_bool::action(PGM_P const, bool * const ptr, screenFunc_t callback) {
-  *ptr ^= true; ui.refresh();
-  if (callback) (*callback)();
 }
 
 ////////////////////////////////////////////
@@ -412,7 +377,10 @@ void MenuItem_confirm::select_screen(
   const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
-    if (got_click) { ui_selection ? yesFunc() : noFunc(); }
+    if (got_click) {
+      selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
+      if (callFunc) callFunc(); else ui.goto_previous_screen();
+    }
     ui.defer_status_screen();
   }
 }
