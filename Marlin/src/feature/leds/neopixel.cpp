@@ -89,6 +89,7 @@ void Marlin_NeoPixel::init() {
     set_color_startup(adaneo1.Color(0, 255, 0, 0));  // green
     safe_delay(500);
     set_color_startup(adaneo1.Color(0, 0, 255, 0));  // blue
+    safe_delay(500);
   #endif
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
