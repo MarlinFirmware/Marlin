@@ -45,7 +45,7 @@
  *  - When calibrating bed, probe temperature is held constant.
  *    Compensation values are deltas to first probe measurement at bed temp. = 60°C.
  *  - The hotend will not be heated at any time.
- *  - On my Prusa MK3S clone I put a piece of paper between the probe and the hotend
+ *  - On my Průša MK3S clone I put a piece of paper between the probe and the hotend
  *    so the hotend fan would not cool my probe constantly. Alternativly you could just
  *    make sure the fan is not running while running the calibration process.
  *

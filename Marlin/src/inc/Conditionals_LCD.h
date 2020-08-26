@@ -512,7 +512,7 @@
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Prusa MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
+// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
 #if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
   #define SINGLENOZZLE
 #endif

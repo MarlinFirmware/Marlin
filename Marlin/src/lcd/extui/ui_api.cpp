@@ -1057,10 +1057,6 @@ namespace ExtUI {
 // At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
 
 void MarlinUI::init() {
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    SET_INPUT_PULLUP(SD_DETECT_PIN);
-  #endif
-
   ExtUI::onStartup();
 }
 
