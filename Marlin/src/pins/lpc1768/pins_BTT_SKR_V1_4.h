@@ -274,6 +274,38 @@
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN              -1
 
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+    #define SS_PIN                         -1
+    //#define ONBOARD_SD_CS_PIN            -1
+
+    #define TFT_CS_PIN                     P1_22
+    #define TFT_A0_PIN                     P1_23
+    #define TFT_DC_PIN                     P1_23
+    #define TFT_MISO_PIN                   P0_17
+    #define TFT_BACKLIGHT_PIN              P1_18
+    #define TFT_RESET_PIN                  P1_19
+
+    #define LPC_HW_SPI_DEV                     0
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_INT_PIN                  P1_21
+    #define TOUCH_CS_PIN                   P1_20
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
+    #ifndef GRAPHICAL_TFT_UPSCALE
+      #define GRAPHICAL_TFT_UPSCALE            3
+    #endif
+
+    // SPI 1
+    #define SCK_PIN                        P0_15
+    #define MISO_PIN                       P0_17
+    #define MOSI_PIN                       P0_18
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_RS                    -1
+
   #else
 
     #define BTN_ENC                        P0_28  // (58) open-drain

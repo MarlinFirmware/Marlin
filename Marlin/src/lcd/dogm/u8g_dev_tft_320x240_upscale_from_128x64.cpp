@@ -760,7 +760,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
 static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
 
-uint8_t u8g_com_stm32duino_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
   if (msgInitCount) {
     if (msg == U8G_COM_MSG_INIT) msgInitCount--;
     if (msgInitCount) return -1;
@@ -801,7 +801,7 @@ uint8_t u8g_com_stm32duino_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
       break;
 
     case U8G_COM_MSG_WRITE_SEQ:
-      tftio.DataTransferBegin(DATASIZE_8BIT);
+      tftio.DataTransferBegin(DATASIZE_16BIT);
       for (uint8_t i = 0; i < arg_val; i += 2)
         tftio.WriteData(*(uint16_t *)(((uint32_t)arg_ptr) + i));
       tftio.DataTransferEnd();
