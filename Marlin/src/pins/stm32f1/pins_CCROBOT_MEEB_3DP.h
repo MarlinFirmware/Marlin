@@ -113,7 +113,7 @@
 #define FAN1_PIN                            PA8   // FAN  (fan0 on board) e0 cool fan
 #define FAN2_PIN                            PB9   // FAN  (fan1 on board) controller cool fan
 
-// One neopixel onboard and a connector for other neopixels
+// One NeoPixel onboard and a connector for other NeoPixels
 #define NEOPIXEL_PIN                        PC7   // The NEOPIXEL LED driving pin
 
 /**

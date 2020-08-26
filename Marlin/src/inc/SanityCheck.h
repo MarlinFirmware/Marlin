@@ -39,26 +39,20 @@
 #define TEST2 1
 #define TEST3 0
 #define TEST4 true
-#if ENABLED(TEST0)
+#if ENABLED(TEST0) || !ENABLED(TEST2) || ENABLED(TEST3)
   #error "ENABLED is borked!"
 #endif
-#if DISABLED(TEST1)
-  #error "DISABLED is borked!"
+#if BOTH(TEST0, TEST1)
+  #error "BOTH is borked!"
 #endif
-#if !ENABLED(TEST2)
-  #error "ENABLED is borked!"
-#endif
-#if ENABLED(TEST3)
-  #error "ENABLED is borked!"
-#endif
-#if DISABLED(TEST4)
+#if DISABLED(TEST1) || !DISABLED(TEST3) || DISABLED(TEST4) || DISABLED(TEST0, TEST1, TEST2, TEST4) || !DISABLED(TEST0, TEST3)
   #error "DISABLED is borked!"
 #endif
 #if !ANY(TEST1, TEST2, TEST3, TEST4) || ANY(TEST0, TEST3)
   #error "ANY is borked!"
 #endif
-#if DISABLED(TEST0, TEST1, TEST2, TEST4)
-  #error "DISABLED is borked!"
+#if NONE(TEST0, TEST1, TEST2, TEST4) || !NONE(TEST0, TEST3)
+  #error "NONE is borked!"
 #endif
 #undef TEST1
 #undef TEST2
@@ -80,6 +74,10 @@
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 #undef HEXIFY
+
+#if ENABLED(MARLIN_DEV_MODE)
+  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+#endif
 
 /**
  * Warnings for old configurations
@@ -529,16 +527,11 @@
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
   #error "EVENT_GCODE_SD_STOP is now EVENT_GCODE_SD_ABORT. Please update your Configuration.h."
-#endif
-
-#ifdef FIL_RUNOUT_INVERTING
+#elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
-    #warning "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update Configuration.h."
+    #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update your Configuration.h."
   #else
-    #warning "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update Configuration.h."
-  #endif
-  #ifndef FIL_RUNOUT_STATE
-    #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+    #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update your Configuration.h."
   #endif
 #endif
 
@@ -2202,7 +2195,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + (ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(IS_RRD_FG_SC)) \
   + (ENABLED(ULTRA_LCD) && DISABLED(IS_ULTRA_LCD)) \
   + (ENABLED(U8GLIB_SSD1306) && DISABLED(IS_U8GLIB_SSD1306)) \
-  + (ENABLED(MINIPANEL) && DISABLED(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
+  + (ENABLED(MINIPANEL) && NONE(MKS_MINI_12864, ENDER2_STOCKDISPLAY)) \
   + (ENABLED(MKS_MINI_12864) && DISABLED(MKS_LCD12864)) \
   + (ENABLED(EXTENSIBLE_UI) && DISABLED(IS_EXTUI)) \
   + (ENABLED(ULTIPANEL) && DISABLED(IS_ULTIPANEL)) \
