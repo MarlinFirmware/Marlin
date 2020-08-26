@@ -75,6 +75,10 @@
 #endif
 #undef HEXIFY
 
+#if ENABLED(MARLIN_DEV_MODE)
+  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+#endif
+
 /**
  * Warnings for old configurations
  */
@@ -523,16 +527,11 @@
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
   #error "EVENT_GCODE_SD_STOP is now EVENT_GCODE_SD_ABORT. Please update your Configuration.h."
-#endif
-
-#ifdef FIL_RUNOUT_INVERTING
+#elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
-    #warning "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update Configuration.h."
+    #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update your Configuration.h."
   #else
-    #warning "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update Configuration.h."
-  #endif
-  #ifndef FIL_RUNOUT_STATE
-    #define FIL_RUNOUT_STATE ((FIL_RUNOUT_INVERTING) ? HIGH : LOW)
+    #error "FIL_RUNOUT_INVERTING false is now FIL_RUNOUT_STATE LOW. Please update your Configuration.h."
   #endif
 #endif
 

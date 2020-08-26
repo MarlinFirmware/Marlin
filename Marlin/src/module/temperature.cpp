@@ -435,6 +435,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
 
     disable_all_heaters();
+    TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
     SHV(bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
@@ -444,7 +445,6 @@ volatile bool Temperature::raw_temps_ready = false;
       LEDColor color = ONHEATINGSTART();
     #endif
 
-    TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
     TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
     // PID Tuning loop
