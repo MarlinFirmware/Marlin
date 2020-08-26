@@ -211,9 +211,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
         return;
       }
     #endif
-    #if ENABLED(SINGLENOZZLE)
-      target = 0; // Always use fan index 0 with SINGLENOZZLE
-    #endif
+
+    TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
 
     if (target >= FAN_COUNT) return;
 
