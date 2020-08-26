@@ -210,6 +210,8 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
         if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
         return;
       }
+    #endif
+    #if ENABLED(SINGLENOZZLE)
       target = 0; // Always use fan index 0 with SINGLENOZZLE
     #endif
 
