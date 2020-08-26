@@ -3341,13 +3341,6 @@ void HMI_Init(void) {
   }
 
   HMI_SetLanguage();
-
-  #if ENABLED(FIX_MOUNTED_PROBE) // For "CREALITY_TOUCH" probe too?
-    SET_OUTPUT(COM_PIN);
-    WRITE(COM_PIN, 1);
-  #endif
-
-  delay(200);
 }
 
 void DWIN_Update(void) {
