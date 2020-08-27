@@ -28,7 +28,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "FYSETC_S6"
+  #define BOARD_INFO_NAME "FYSETC S6"
 #endif
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
@@ -82,7 +82,9 @@
 //
 #define X_STEP_PIN                          PE11
 #define X_DIR_PIN                           PE10
-#define X_ENABLE_PIN                        PE12
+#ifndef X_ENABLE_PIN
+  #define X_ENABLE_PIN                      PE12
+#endif
 #define X_CS_PIN                            PE7
 
 #define Y_STEP_PIN                          PD8
@@ -118,23 +120,42 @@
   //
   // Software serial
   //
-  #define X_SERIAL_TX_PIN                   PE9
-  #define X_SERIAL_RX_PIN                   PE8
-
-  #define Y_SERIAL_TX_PIN                   PE14
-  #define Y_SERIAL_RX_PIN                   PE13
-
-  #define Z_SERIAL_TX_PIN                   PD11
-  #define Z_SERIAL_RX_PIN                   PD12
-
-  #define E0_SERIAL_TX_PIN                  PD3
-  #define E0_SERIAL_RX_PIN                  PA15
-
-  #define E1_SERIAL_TX_PIN                  PC4
-  #define E1_SERIAL_RX_PIN                  PC5
-
-  #define E2_SERIAL_TX_PIN                  PE1
-  #define E2_SERIAL_RX_PIN                  PE0
+  #ifndef X_SERIAL_TX_PIN
+    #define X_SERIAL_TX_PIN                 PE9
+  #endif
+  #ifndef X_SERIAL_RX_PIN
+    #define X_SERIAL_RX_PIN                 PE8
+  #endif
+  #ifndef Y_SERIAL_TX_PIN
+    #define Y_SERIAL_TX_PIN                 PE14
+  #endif
+  #ifndef Y_SERIAL_RX_PIN
+    #define Y_SERIAL_RX_PIN                 PE13
+  #endif
+  #ifndef Z_SERIAL_TX_PIN
+    #define Z_SERIAL_TX_PIN                 PD11
+  #endif
+  #ifndef Z_SERIAL_RX_PIN
+    #define Z_SERIAL_RX_PIN                 PD12
+  #endif
+  #ifndef E0_SERIAL_TX_PIN
+    #define E0_SERIAL_TX_PIN                PD3
+  #endif
+  #ifndef E0_SERIAL_RX_PIN
+    #define E0_SERIAL_RX_PIN                PA15
+  #endif
+  #ifndef E1_SERIAL_TX_PIN
+    #define E1_SERIAL_TX_PIN                PC4
+  #endif
+  #ifndef E1_SERIAL_RX_PIN
+    #define E1_SERIAL_RX_PIN                PC5
+  #endif
+  #ifndef E2_SERIAL_TX_PIN
+    #define E2_SERIAL_TX_PIN                PE1
+  #endif
+  #ifndef E2_SERIAL_RX_PIN
+    #define E2_SERIAL_RX_PIN                PE0
+  #endif
 #endif
 
 //
