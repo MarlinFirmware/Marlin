@@ -35,7 +35,7 @@
  *                                    If brightness is left out, no value changed
  *
  * With NEOPIXEL_LED:
- *  I<index>  Set the Neopixel index to affect. Default: All
+ *  I<index>  Set the NeoPixel index to affect. Default: All
  *
  * Examples:
  *
@@ -50,7 +50,7 @@
  */
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
-    neo.set_neo_index(parser.intval('I', -1));
+    neo.neoindex = parser.intval('I', -1);
   #endif
   leds.set_color(MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
