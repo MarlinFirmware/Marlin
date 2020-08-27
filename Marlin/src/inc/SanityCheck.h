@@ -75,10 +75,6 @@
 #endif
 #undef HEXIFY
 
-#if ENABLED(MARLIN_DEV_MODE)
-  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-#endif
-
 /**
  * Warnings for old configurations
  */
