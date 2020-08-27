@@ -16,10 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef TARGET_LPC1768
 
 #include "../../core/macros.h"
@@ -211,11 +210,7 @@ void HardFault_HandlerC(unsigned long *sp, unsigned long lr, unsigned long cause
 
   // Nothing below here is compiled because NVIC_SystemReset loops forever
 
-  for (;;) {
-    #if ENABLED(USE_WATCHDOG)
-      watchdog_init();
-    #endif
-  }
+  for (;;) { TERN_(USE_WATCHDOG, watchdog_init()); }
 }
 
 extern "C" {

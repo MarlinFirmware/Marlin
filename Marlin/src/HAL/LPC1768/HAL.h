@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -41,12 +41,14 @@ extern "C" volatile uint32_t _millis;
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
-#include "timers.h"
 #include "MarlinSerial.h"
 
 #include <adc.h>
 #include <pinmapping.h>
 #include <CDCSerial.h>
+
+// i2c uses 8-bit shifted address
+#define I2C_ADDRESS(A) uint8_t((A) << 1)
 
 //
 // Default graphical display delays
@@ -148,6 +150,8 @@ int freeMemory();
                                     // K = 6, 565 samples, 500Hz sample rate, 1.13s convergence on full range step
                                     // Memory usage per ADC channel (bytes): 4 (32 Bytes for 8 channels)
 
+#define HAL_ADC_VREF            3.3 // ADC voltage reference
+
 #define HAL_ADC_RESOLUTION     12   // 15 bit maximum, raw temperature is stored as int16_t
 #define HAL_ADC_FILTERED            // Disable oversampling done in Marlin as ADC values already filtered in HAL
 
@@ -197,6 +201,8 @@ void HAL_idletask();
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
 
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
 /**
  * set_pwm_frequency
  *  Set the frequency of the timer corresponding to the provided pin
@@ -216,3 +222,8 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, 
 // Reset source
 void HAL_clear_reset_source(void);
 uint8_t HAL_get_reset_source(void);
+
+// Add strcmp_P if missing
+#ifndef strcmp_P
+  #define strcmp_P(a, b) strcmp((a), (b))
+#endif

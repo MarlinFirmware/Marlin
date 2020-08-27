@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,7 +34,9 @@
 #endif
 
 // A white component can be passed
-#define HAS_WHITE_LED EITHER(RGBW_LED, NEOPIXEL_LED)
+#if EITHER(RGBW_LED, NEOPIXEL_LED)
+  #define HAS_WHITE_LED 1
+#endif
 
 /**
  * LEDcolor type for use with leds.set_color
@@ -85,9 +87,7 @@ typedef struct LEDColor {
 
   LEDColor& operator=(const uint8_t (&rgbw)[4]) {
     r = rgbw[0]; g = rgbw[1]; b = rgbw[2];
-    #if HAS_WHITE_LED
-      w = rgbw[3];
-    #endif
+    TERN_(HAS_WHITE_LED, w = rgbw[3]);
     return *this;
   }
 
@@ -104,11 +104,7 @@ typedef struct LEDColor {
   bool operator!=(const LEDColor &right) { return !operator==(right); }
 
   bool is_off() const {
-    return 3 > r + g + b
-      #if HAS_WHITE_LED
-        + w
-      #endif
-    ;
+    return 3 > r + g + b + TERN0(HAS_WHITE_LED, w);
   }
 } LEDColor;
 
@@ -156,7 +152,7 @@ public:
     #endif
   );
 
-  inline void set_color(uint8_t r, uint8_t g, uint8_t b
+  static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
       #if ENABLED(NEOPIXEL_LED)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -113,7 +113,7 @@
  * # Pin | ATMEGA2560 Pin | Arduino #
  * ##################################
  * #  1  | 52 / PG1 (!RD) |    40   #
- * #  2  | 95 / PF2 (A2)  |     2   #
+ * #  2  | 95 / PF2 (A2)  |    56   #
  * #  3  | 54 / PC1 (A9)  |    36   #
  * #  4  | 53 / PC0 (A8)  |    37   #
  * #  5  | 56 / PC3 (A11) |    34   #

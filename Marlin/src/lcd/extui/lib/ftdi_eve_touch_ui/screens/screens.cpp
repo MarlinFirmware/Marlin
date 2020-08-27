@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -56,6 +56,9 @@ SCREEN_TABLE {
 #if ENABLED(BABYSTEPPING)
   DECL_SCREEN(NudgeNozzleScreen),
 #endif
+#if HAS_MESH
+  DECL_SCREEN(BedMeshScreen),
+#endif
   DECL_SCREEN(MoveAxisScreen),
   DECL_SCREEN(StepsScreen),
 #if HAS_TRINAMIC_CONFIG
@@ -65,7 +68,7 @@ SCREEN_TABLE {
 #if HAS_BED_PROBE
   DECL_SCREEN(ZOffsetScreen),
 #endif
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   DECL_SCREEN(NozzleOffsetScreen),
 #endif
 #if ENABLED(BACKLASH_GCODE)
@@ -75,12 +78,12 @@ SCREEN_TABLE {
   DECL_SCREEN(MaxVelocityScreen),
   DECL_SCREEN(MaxAccelerationScreen),
   DECL_SCREEN(DefaultAccelerationScreen),
-#if DISABLED(CLASSIC_JERK)
+#if HAS_JUNCTION_DEVIATION
   DECL_SCREEN(JunctionDeviationScreen),
 #else
   DECL_SCREEN(JerkScreen),
 #endif
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   DECL_SCREEN(CaseLightScreen),
 #endif
 #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)

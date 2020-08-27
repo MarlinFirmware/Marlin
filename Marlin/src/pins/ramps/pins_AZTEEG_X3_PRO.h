@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -67,10 +67,10 @@
 
 // DIGIPOT slave addresses
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A 0x2C              // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
+  #define DIGIPOT_I2C_ADDRESS_A             0x2C  // unshifted slave address for first DIGIPOT 0x2C (0x58 <- 0x2C << 1)
 #endif
 #ifndef DIGIPOT_I2C_ADDRESS_B
-  #define DIGIPOT_I2C_ADDRESS_B 0x2E              // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
+  #define DIGIPOT_I2C_ADDRESS_B             0x2E  // unshifted slave address for second DIGIPOT 0x2E (0x5C <- 0x2E << 1)
 #endif
 
 //
@@ -118,11 +118,22 @@
   #define CONTROLLER_FAN_PIN                   4  // Pin used for the fan to cool motherboard (-1 to disable)
 #endif
 
-// Fans/Water Pump to cool the hotend cool side.
-#define ORIG_E0_AUTO_FAN_PIN                   5
-#define ORIG_E1_AUTO_FAN_PIN                   5
-#define ORIG_E2_AUTO_FAN_PIN                   5
-#define ORIG_E3_AUTO_FAN_PIN                   5
+//
+// Auto fans
+//
+#define AUTO_FAN_PIN                           5
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E1_AUTO_FAN_PIN
+  #define E1_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E2_AUTO_FAN_PIN
+  #define E2_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
+#ifndef E3_AUTO_FAN_PIN
+  #define E3_AUTO_FAN_PIN           AUTO_FAN_PIN
+#endif
 
 //
 // LCD / Controller

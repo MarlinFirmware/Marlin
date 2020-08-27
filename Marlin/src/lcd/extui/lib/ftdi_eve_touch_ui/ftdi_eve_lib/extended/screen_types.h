@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -144,8 +144,8 @@ class UIScreen {
     static bool onTouchEnd(uint8_t)    {return true;}
 };
 
-#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw);
-#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw);
+#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw)
+#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw)
 #define GOTO_PREVIOUS()       current_screen.goBack();
 #define AT_SCREEN(screen)     (current_screen.getType() == current_screen.lookupScreen(screen::onRedraw))
 #define IS_PARENT_SCREEN(screen) (current_screen.peek() == current_screen.lookupScreen(screen::onRedraw))
@@ -209,7 +209,8 @@ class CachedScreen {
 
       if (dlcache.has_data()) {
         dlcache.append();
-      } else {
+      }
+      else {
         #ifdef TOUCH_UI_USE_UTF8
           load_utf8_bitmaps(cmd);
         #endif

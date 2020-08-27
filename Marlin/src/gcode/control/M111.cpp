@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,21 +28,18 @@
 void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  static const char str_debug_1[] PROGMEM = STR_DEBUG_ECHO,
-                    str_debug_2[] PROGMEM = STR_DEBUG_INFO,
-                    str_debug_4[] PROGMEM = STR_DEBUG_ERRORS,
-                    str_debug_8[] PROGMEM = STR_DEBUG_DRYRUN,
-                    str_debug_16[] PROGMEM = STR_DEBUG_COMMUNICATION
-                    #if ENABLED(DEBUG_LEVELING_FEATURE)
-                      , str_debug_lvl[] PROGMEM = STR_DEBUG_LEVELING
-                    #endif
-                    ;
+  static PGMSTR(str_debug_1, STR_DEBUG_ECHO);
+  static PGMSTR(str_debug_2, STR_DEBUG_INFO);
+  static PGMSTR(str_debug_4, STR_DEBUG_ERRORS);
+  static PGMSTR(str_debug_8, STR_DEBUG_DRYRUN);
+  static PGMSTR(str_debug_16, STR_DEBUG_COMMUNICATION);
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    static PGMSTR(str_debug_lvl, STR_DEBUG_LEVELING);
+  #endif
 
   static PGM_P const debug_strings[] PROGMEM = {
-    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      , str_debug_lvl
-    #endif
+    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
+    TERN_(DEBUG_LEVELING_FEATURE, str_debug_lvl)
   };
 
   SERIAL_ECHO_START();

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,7 +34,7 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_CODE_URL
-  #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+  #define DEFAULT_SOURCE_CODE_URL "https://3dprint.elettronicain.it/"
 #endif
 
 //
@@ -44,7 +44,9 @@
 #define RAMPS_D9_PIN                           8
 #define MOSFET_D_PIN                          12
 
-#define CASE_LIGHT_PIN                        -1  // Hardware PWM but one is not available on expansion header
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      -1  // Hardware PWM but one is not available on expansion header
+#endif
 
 #include "pins_RAMPS.h"
 

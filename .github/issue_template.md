@@ -1,16 +1,35 @@
-# NO SUPPORT REQUESTS PLEASE
+<!--
 
-Support Requests posted here will be automatically closed!
+Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.0.x/.github/code_of_conduct.md
 
-This Issue Queue is for Marlin bug reports and development-related issues, and we prefer not to handle user-support questions here. See https://github.com/MarlinFirmware/Marlin/blob/1.1.x/.github/contributing.md#i-dont-want-to-read-this-whole-thing-i-just-have-a-question.
+Do you want to ask a question? Are you looking for support? Please don't post here. Instead use one of the following options:
 
-For best results getting help with configuration and troubleshooting, please use the following resources:
+- The Marlin Firmware forum at https://reprap.org/forum/list.php?415
+- The MarlinFirmware Facebook Group at https://www.facebook.com/groups/1049718498464482/
+- The MarlinFirmware Discord Server at https://discord.gg/n5NJ59y.
 
-- RepRap.org Marlin Forum http://forums.reprap.org/list.php?415
-- Tom's 3D Forums https://discuss.toms3d.org/
-- Facebook Group "Marlin Firmware" https://www.facebook.com/groups/1049718498464482/
-- Facebook Group "Marlin Firmware for 3D Printers" https://www.facebook.com/groups/3Dtechtalk/
-- Marlin Configuration https://www.youtube.com/results?search_query=marlin+configuration on YouTube
-- Marlin Discord server. Join link: https://discord.gg/n5NJ59y
+Before filing an issue be sure to test the latest "bugfix" branch to see whether the issue is already addressed.
 
-After seeking help from the community, if the consensus points to to a bug in Marlin, then you should post a Bug Report at https://github.com/MarlinFirmware/Marlin/issues/new/choose).
+-->
+
+### Description
+
+<!-- Description of the bug or requested feature -->
+
+### Steps to Reproduce
+
+<!-- If this is a Bug Report, please describe the steps needed to reproduce the issue -->
+
+1. [First Step]
+2. [Second Step]
+3. [and so on...]
+
+**Expected behavior:** [What you expect to happen]
+
+**Actual behavior:** [What actually happens]
+
+#### Additional Information
+
+* Include a ZIP file containing your `Configuration.h` and `Configuration_adv.h` files.
+* Provide pictures or links to videos that clearly demonstrate the issue.
+* See [How Can I Contribute](#how-can-i-contribute) for additional guidelines.
