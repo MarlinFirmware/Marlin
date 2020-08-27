@@ -84,9 +84,7 @@ public:
 
   static inline void begin() {
     adaneo1.begin();
-    #if CONJOINED_NEOPIXEL
     TERN_(CONJOINED_NEOPIXEL, adaneo2.begin());
-    #endif  
   }
 
   static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
@@ -95,17 +93,15 @@ public:
       else adaneo1.setPixelColor(n, c);
     #else
       adaneo1.setPixelColor(n, c);
-      #if CONJOINED_NEOPIXEL
-      TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
-       #endif
+      #if BOTH(CONJOINED_NEOPIXEL, MULTIPLE_NEOPIXEL_TYPES)
+        adaneo2.setPixelColor(n, c);
+      #endif
     #endif
   }
 
   static inline void set_brightness(const uint8_t b) {
     adaneo1.setBrightness(b);
-    #if CONJOINED_NEOPIXEL
     TERN_(CONJOINED_NEOPIXEL, adaneo2.setBrightness(b));
-    #endif
   }
 
   static inline void show() {
@@ -141,7 +137,7 @@ extern Marlin_NeoPixel neo;
   #if NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
     #define NEOPIXEL2_IS_RGB 1
   #else
-   #define NEOPIXEL2_IS_RGBW 1
+    #define NEOPIXEL2_IS_RGBW 1
   #endif
 
   #if NEOPIXEL2_IS_RGB
