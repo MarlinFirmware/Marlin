@@ -155,11 +155,9 @@ public:
   static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL_LED)
-        , uint8_t i=NEOPIXEL_BRIGHTNESS
-      #endif
     #endif
     #if ENABLED(NEOPIXEL_LED)
+      , uint8_t i=NEOPIXEL_BRIGHTNESS
       , bool isSequence=false
     #endif
   ) {
