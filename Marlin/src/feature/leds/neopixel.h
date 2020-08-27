@@ -93,7 +93,7 @@ public:
       else adaneo1.setPixelColor(n, c);
     #else
       adaneo1.setPixelColor(n, c);
-      #if BOTH(CONJOINED_NEOPIXEL, MULTIPLE_NEOPIXEL_TYPES)
+      #if MULTIPLE_NEOPIXEL_TYPES
         adaneo2.setPixelColor(n, c);
       #endif
     #endif
