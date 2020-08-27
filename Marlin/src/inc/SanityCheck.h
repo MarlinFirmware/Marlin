@@ -75,13 +75,6 @@
 #endif
 #undef HEXIFY
 
-#if ENABLED(MARLIN_DEV_MODE)
-  #undef CUSTOM_MACHINE_NAME
-  #define CUSTOM_MACHINE_NAME "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-  #undef STRING_CONFIG_H_AUTHOR
-  #define STRING_CONFIG_H_AUTHOR "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-#endif
-
 /**
  * Warnings for old configurations
  */
