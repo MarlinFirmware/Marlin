@@ -217,18 +217,13 @@ extern LEDLights leds;
 
   class LEDLights2 {
   public:
-    LEDLights2() {} // ctor
+    LEDLights2() {}
 
     static void setup(); // init()
 
     static void set_color(const LEDColor &color);
 
-    inline void set_color(uint8_t r, uint8_t g, uint8_t b
-      , uint8_t w=0
-      #if ENABLED(NEOPIXEL2_SEPARATE)
-        , uint8_t i=NEOPIXEL2_BRIGHTNESS
-      #endif
-    ) {
+    inline void set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL2_BRIGHTNESS) {
       set_color(MakeLEDColor(r, g, b, w, i));
     }
 
@@ -253,7 +248,6 @@ extern LEDLights leds;
       static void toggle();  // swap "off" with color
       static inline void update() { set_color(color); }
     #endif
-
   };
 
   extern LEDLights2 leds2;
