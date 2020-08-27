@@ -181,7 +181,7 @@ void menu_advanced_settings();
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
-    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+    const bool need_g28 = axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);

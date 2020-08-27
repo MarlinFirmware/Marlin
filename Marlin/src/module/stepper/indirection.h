@@ -840,12 +840,13 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 //
 // Axis steppers enable / disable macros
 //
+#define FORGET_AXIS(A) TERN(HOME_AFTER_DEACTIVATE, set_axis_never_homed(A), CBI(axis_known_position, A))
 
 #define  ENABLE_AXIS_X() do{ ENABLE_STEPPER_X(); ENABLE_STEPPER_X2(); }while(0)
-#define DISABLE_AXIS_X() do{ DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); CBI(axis_known_position, X_AXIS); }while(0)
+#define DISABLE_AXIS_X() do{ DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); FORGET_AXIS(X_AXIS); }while(0)
 
 #define  ENABLE_AXIS_Y() do{ ENABLE_STEPPER_Y(); ENABLE_STEPPER_Y2(); }while(0)
-#define DISABLE_AXIS_Y() do{ DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); CBI(axis_known_position, Y_AXIS); }while(0)
+#define DISABLE_AXIS_Y() do{ DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); FORGET_AXIS(Y_AXIS); }while(0)
 
 #define  ENABLE_AXIS_Z() do{ ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
 
@@ -854,7 +855,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #else
   #define Z_RESET()
 #endif
-#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); CBI(axis_known_position, Z_AXIS); Z_RESET(); }while(0)
+#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); FORGET_AXIS(Z_AXIS); Z_RESET(); }while(0)
 
 //
 // Extruder steppers enable / disable macros
