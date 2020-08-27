@@ -365,7 +365,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Pretend that all axes are homed
-  axis_homed = axis_known_position = xyz_bits;
+  set_all_homed();
 
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
