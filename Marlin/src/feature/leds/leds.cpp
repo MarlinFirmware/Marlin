@@ -44,11 +44,8 @@
 
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
-    LED_USER_PRESET_RED,
-    LED_USER_PRESET_GREEN,
-    LED_USER_PRESET_BLUE,
-    LED_USER_PRESET_WHITE,
-    LED_USER_PRESET_BRIGHTNESS
+    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
+    LED_USER_PRESET_WHITE, LED_USER_PRESET_BRIGHTNESS
   );
 #endif
 
@@ -117,12 +114,13 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define UPDATE_RGBW(C,c) do { if (PWM_PIN(RGB_LED_##C##_PIN)) \
+    #define UPDATE_RGBW(C,c) do {                       \
+      if (PWM_PIN(RGB_LED_##C##_PIN))                   \
         analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
-      else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); }while(0)
-    UPDATE_RGBW(R,r);
-    UPDATE_RGBW(G,g);
-    UPDATE_RGBW(B,b);
+      else                                              \
+        WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); \
+    }while(0)
+    UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
     #if ENABLED(RGBW_LED)
       UPDATE_RGBW(W,w);
     #endif
@@ -162,11 +160,8 @@ void LEDLights::set_color(const LEDColor &incol
 
   #if ENABLED(NEO2_COLOR_PRESETS)
     const LEDColor LEDLights2::defaultLEDColor = MakeLEDColor(
-      NEO2_USER_PRESET_RED,
-      NEO2_USER_PRESET_GREEN,
-      NEO2_USER_PRESET_BLUE,
-      NEO2_USER_PRESET_WHITE,
-      NEO2_USER_PRESET_BRIGHTNESS
+      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE,
+      NEO2_USER_PRESET_WHITE, NEO2_USER_PRESET_BRIGHTNESS
     );
   #endif
 
