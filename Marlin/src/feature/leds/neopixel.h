@@ -40,6 +40,9 @@
 
 #if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
+#endif
+
+#if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
   #define CONJOINED_NEOPIXEL 1
 #endif
 
@@ -135,6 +138,18 @@ extern Marlin_NeoPixel neo;
 // Neo pixel channel 2
 #if ENABLED(NEOPIXEL2_SEPARATE)
   
+  #if NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
+    #define NEOPIXEL2_IS_RGB 1
+  #else
+   #define NEOPIXEL2_IS_RGBW 1
+  #endif
+
+  #if NEOPIXEL2_IS_RGB
+    #define NEO2_WHITE 255, 255, 255, 0
+  #else
+    #define NEO2_WHITE 0, 0, 0, 255
+  #endif
+
   class Marlin_NeoPixel2 {
   private:
     static Adafruit_NeoPixel adaneo;

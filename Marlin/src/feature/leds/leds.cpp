@@ -184,7 +184,7 @@ void LEDLights::set_color(const LEDColor &incol
 
   void LEDLights2::set_color(const LEDColor &incol) {
     const uint32_t neocolor = LEDColorWhite() == incol
-                            ? neo2.Color(NEO_WHITE)
+                            ? neo2.Color(NEO2_WHITE)
                             : neo2.Color(incol.r, incol.g, incol.b, incol.w);
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
