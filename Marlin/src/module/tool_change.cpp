@@ -174,7 +174,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
                 offsetcompensation = TERN0(HAS_HOTEND_OFFSET, hotend_offset[active_extruder].x * mpe_settings.compensation_factor);
 
-    if (axis_unhomed_error(_BV(X_AXIS))) return;
+    if (homing_needed_error(_BV(X_AXIS))) return;
 
     /**
      * Z Lift and Nozzle Offset shift ar defined in caller method to work equal with any Multi Hotend realization
