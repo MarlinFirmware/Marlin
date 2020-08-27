@@ -346,7 +346,7 @@ void GcodeSuite::G34() {
 
     #if ENABLED(HOME_AFTER_G34)
       // After this operation the z position needs correction
-      set_axis_not_trusted(Z_AXIS);
+      set_axis_never_homed(Z_AXIS);
       // Home Z after the alignment procedure
       process_subcommands_now_P(PSTR("G28Z"));
     #else
