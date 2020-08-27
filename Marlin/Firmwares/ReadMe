@@ -1,1 +1,9 @@
-Firmware for QQS-Pro with A4988
+Validate:
+Firmware for QQS-Pro with A4988.
+FSMC-Robin_mini.bin
+320x240-Robin_mini.bin
+
+No validate:
+Firmware for test TMC_Standalone
+2208-Robin_mini.bin
+2209-Robin_mini.bin
