@@ -199,17 +199,17 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = PREHEAT_1_TEMP_HOTEND + 10,
         Planner::autotemp_min = PREHEAT_1_TEMP_HOTEND - 10,
-        Planner::autotemp_oldtemp = 0.0f;
+        Planner::autotemp_oldtemp = 0.0;
 
   #if ENABLED(AUTOTEMP_FACTORLESS)
-    float Planner::autotemp_min_e_speed = 1.33f,
-          Planner::autotemp_max_e_speed = 4.0f;
+    float Planner::autotemp_min_e_speed = 1.25,
+          Planner::autotemp_max_e_speed = 4.0;
   #else
-    float Planner::autotemp_factor = 0.1f;
+    float Planner::autotemp_factor = 0.1;
   #endif
 
   #ifdef AUTOTEMP_MIN_Z_RAISE
-    float Planner::autotemp_last_z = 0.0f;
+    float Planner::autotemp_last_z = 0.0;
   #endif
 
   bool Planner::autotemp_enabled = false;
@@ -1275,10 +1275,19 @@ void Planner::recalculate() {
       if (current_position.z < autotemp_last_z + float(AUTOTEMP_MIN_Z_RAISE)) return; // layer not yet changed
     #endif
 
+    #if ENABLED(AUTOTEMP_DEBUG)
+      unsigned blocks = 0;
+	#endif
+
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
       block_t* block = &block_buffer[b];
+
       if (block->steps.x || block->steps.y || block->steps.z) {
+        #if ENABLED(AUTOTEMP_DEBUG)
+          blocks++;
+        #endif
+
         const float se = (float)block->steps.e / block->step_event_count * SQRT(block->nominal_speed_sqr); // mm/sec;
         NOLESS(high, se);
       }
@@ -1300,7 +1309,37 @@ void Planner::recalculate() {
     autotemp_oldtemp = t;
 
     #ifdef AUTOTEMP_GRANULARITY
-      t = autotemp_min + FLOOR((t - autotemp_min) / float(AUTOTEMP_GRANULARITY)) * float(AUTOTEMP_GRANULARITY);
+      t = autotemp_min + LROUND((t - autotemp_min) / float(AUTOTEMP_GRANULARITY)) * float(AUTOTEMP_GRANULARITY);
+
+      #if ENABLED(AUTOTEMP_FACTORLESS)
+        // compensate to avoid minimum and maximum temperatures when close to the edges of the speed range.
+        float comp = 0.0;
+        // needs at least one intermediate 'notch' to compensate towards.
+        if ((autotemp_max - autotemp_min) / float(AUTOTEMP_GRANULARITY) >= 2.0) {
+          if (t == autotemp_min && high > autotemp_min_e_speed)
+            comp = float(AUTOTEMP_GRANULARITY);
+          else if (t >= autotemp_max && high < autotemp_max_e_speed)
+            comp = float(AUTOTEMP_GRANULARITY) * -1.0;
+          t += comp;
+        }
+      #endif
+    #endif
+
+    #if ENABLED(AUTOTEMP_DEBUG)
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPGM("--Autotemp debug--\n");
+      #ifdef AUTOTEMP_MIN_Z_RAISE
+        SERIAL_ECHOPAIR("\tZ raised to ", current_position.z, "\n");
+      #endif
+      SERIAL_ECHOPAIR("\tblocks checked: ", blocks, "\n");
+      SERIAL_ECHOPAIR("\textruder highest speed: ", high, "\n");
+      SERIAL_ECHOPAIR("\tnew temp: ", t, "\n");
+      #ifdef AUTOTEMP_GRANULARITY
+        SERIAL_ECHOPAIR("\twithout granularity: ", autotemp_oldtemp, "\n");
+        #if ENABLED(AUTOTEMP_FACTORLESS)
+          SERIAL_ECHOPAIR("\tcompensation: ", comp, "\n");
+        #endif
+      #endif
     #endif
 
     thermalManager.setTargetHotend(t, 0);
@@ -3070,20 +3109,26 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const int16_t target = thermalManager.degTargetHotend(active_extruder);
       autotemp_min = target + AUTOTEMP_MIN_P;
       autotemp_max = target + AUTOTEMP_MAX_P;
+
+      #if ENABLED(AUTOTEMP_DEBUG)
+        SERIAL_ECHO_START();
+	    SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL min: ", autotemp_min, "\n");
+	    SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL max: ", autotemp_max, "\n");
+      #endif
     #endif
 
     #if ENABLED(AUTOTEMP_FACTORLESS)
       autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed < autotemp_max_e_speed;
     #else
       autotemp_factor = TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-      autotemp_enabled = autotemp_factor != 0;
+      autotemp_enabled = autotemp_factor != 0.0;
     #endif
 
     if (!autotemp_enabled) {
-      autotemp_oldtemp = 0.0f;
+      autotemp_oldtemp = 0.0;
 
       #ifdef AUTOTEMP_MIN_Z_RAISE
-        autotemp_last_z = 0.0f;
+        autotemp_last_z = 0.0;
       #endif
     }
   }
@@ -3106,8 +3151,8 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       const bool seen_M = parser.seenval('M');
       if (seen_M) autotemp_max_e_speed = parser.value_axis_units(E_AXIS);
 
+      // enable autotemp only if both N and M are specified and different
       if (seen_N && seen_M)
-        // enable autotemp only if both N and M are specified and different
         autotemp_enabled = autotemp_min != 0 && autotemp_max != 0 && autotemp_min_e_speed < autotemp_max_e_speed;
       else
         autotemp_enabled = false;
@@ -3115,13 +3160,14 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
       // When AUTOTEMP_PROPORTIONAL is enabled, F0 disables autotemp.
       // Normally, leaving off F also disables autotemp.
       autotemp_factor = parser.seen('F') ? parser.value_float() : TERN(AUTOTEMP_PROPORTIONAL, AUTOTEMP_FACTOR_P, 0);
-      autotemp_enabled = autotemp_factor != 0;
+      autotemp_enabled = autotemp_factor != 0.0;
     #endif
 
     if (!autotemp_enabled) {
-      autotemp_oldtemp = 0.0f;
+      autotemp_oldtemp = 0.0;
+
       #ifdef AUTOTEMP_MIN_Z_RAISE
-        autotemp_last_z = 0.0f;
+        autotemp_last_z = 0.0;
       #endif
     }
   }

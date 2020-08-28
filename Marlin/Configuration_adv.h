@@ -287,17 +287,29 @@
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
  * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  *
+ * AUTOTEMP_GRANULARITY makes autotemp calculate the target temperature in increments
+ * of this many degrees. The calculated target may exceed the maximum temperature, if
+ * the temperature range doesn't fit in whole increments.
+ *
+ * AUTOTEMP_MIN_Z_RAISE ensures that the target temperature will only be recalculated
+ * when Z is raised, ie, on layer changes. Ensure BLOCK_BUFFER_SIZE is large enough,
+ * because that's how many moves autotemp will be able to look at to calculate the
+ * target temperature for the entire layer(s) ahead. You may also want to configure
+ * your slicer to output features with high volumetric rate first, like infill.
+ *
  * With AUTOTEMP_FACTORLESS, target temperature will scale evenly across a range of
  * extruder speeds set with M104/M109 S<mintemp> B<maxtemp> N<minespeed> M<maxespeed>.
  * Extruder speeds can be calculated from a slicer's volumetric extrusion rate preview
  * in mm^3/s. This option is incompatible with AUTOTEMP_PROPORTIONAL. Setting minimum
  * or maximum temperature to 0 or both speeds to the same value disables autotemp.
+ *
  */
 #define AUTOTEMP
 #if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT      0.98
-  //#define AUTOTEMP_GRANULARITY 10.0  // Target temperature will be calculated in increments of this many degrees
-  //#define AUTOTEMP_MIN_Z_RAISE  0.08 // To ensure temperature is only calculated at the beginning of a new layer
+  //#define AUTOTEMP_GRANULARITY  10.0
+  //#define AUTOTEMP_MIN_Z_RAISE  0.08
+  //#define AUTOTEMP_FACTORLESS
   // Turn on AUTOTEMP on M104/M109 by default using proportions set here
   //#define AUTOTEMP_PROPORTIONAL
   #if ENABLED(AUTOTEMP_PROPORTIONAL)
@@ -305,7 +317,7 @@
     #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
     #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
   #endif
-  //#define AUTOTEMP_FACTORLESS
+  //#define AUTOTEMP_DEBUG // outputs info to serial when calculating target temperature
 #endif
 
 // Show Temperature ADC value
