@@ -31,11 +31,11 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE 0x1000
+  #define MARLIN_EEPROM_SIZE              0x1000
 #endif
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches

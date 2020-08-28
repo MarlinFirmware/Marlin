@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/temperature.h"
 #include "../../gcode/queue.h"
 #include "../../module/printcounter.h"
@@ -138,13 +138,11 @@ void menu_main() {
       if (card_detected) {
         if (!card_open) {
           SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
-          MENU_ITEM(gcode,
-            #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, M21_STR
-            #else
-              MSG_RELEASE_MEDIA, PSTR("M22")
-            #endif
-          );
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
         }
       }
       else {
@@ -172,7 +170,7 @@ void menu_main() {
   #endif
 
   #if HAS_POWER_MONITOR
-    MENU_ITEM(submenu, MSG_POWER_MONITOR, menu_power_monitor);
+    SUBMENU(MSG_POWER_MONITOR, menu_power_monitor);
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -237,13 +235,11 @@ void menu_main() {
 
       if (card_detected) {
         if (!card_open) {
-          MENU_ITEM(gcode,
-            #if PIN_EXISTS(SD_DETECT)
-              MSG_CHANGE_MEDIA, M21_STR
-            #else
-              MSG_RELEASE_MEDIA, PSTR("M22")
-            #endif
-          );
+          #if PIN_EXISTS(SD_DETECT)
+            GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
+          #else
+            GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
+          #endif
           SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
         }
       }

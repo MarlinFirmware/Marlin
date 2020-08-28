@@ -1264,7 +1264,7 @@ void Stepper::set_directions() {
     }
 
     FORCE_INLINE int32_t Stepper::_eval_bezier_curve(const uint32_t curr_step) {
-      #if defined(__ARM__) || defined(__thumb__)
+      #if defined(__arm__) || defined(__thumb__)
 
         // For ARM Cortex M3/M4 CPUs, we have the optimized assembler version, that takes 43 cycles to execute
         uint32_t flo = 0;
@@ -1578,12 +1578,11 @@ void Stepper::pulse_phase_isr() {
 
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
 
-          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{ \
-                 if ((VALUE) == 7) {}                     \
-            else if ((VALUE) <  7) SBI(dm, _AXIS(AXIS));  \
-            else                   CBI(dm, _AXIS(AXIS));  \
-            page_step_state.sd[_AXIS(AXIS)] = VALUE;        \
-            page_step_state.bd[_AXIS(AXIS)] += VALUE;       \
+          #define PAGE_SEGMENT_UPDATE(AXIS, VALUE) do{   \
+                 if ((VALUE) <  7) SBI(dm, _AXIS(AXIS)); \
+            else if ((VALUE) >  7) CBI(dm, _AXIS(AXIS)); \
+            page_step_state.sd[_AXIS(AXIS)] = VALUE;     \
+            page_step_state.bd[_AXIS(AXIS)] += VALUE;    \
           }while(0)
 
           #define PAGE_PULSE_PREP(AXIS) do{ \

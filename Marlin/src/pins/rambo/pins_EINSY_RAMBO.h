@@ -82,6 +82,13 @@
 #define TEMP_PROBE_PIN                         3
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      62
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                            37
