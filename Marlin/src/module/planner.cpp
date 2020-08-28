@@ -1277,7 +1277,7 @@ void Planner::recalculate() {
 
     #if ENABLED(AUTOTEMP_DEBUG)
       unsigned blocks = 0;
-	#endif
+    #endif
 
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
@@ -3112,8 +3112,8 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
 
       #if ENABLED(AUTOTEMP_DEBUG)
         SERIAL_ECHO_START();
-	    SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL min: ", autotemp_min, "\n");
-	    SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL max: ", autotemp_max, "\n");
+        SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL min: ", autotemp_min, "\n");
+        SERIAL_ECHOPAIR("AUTOTEMP_PROPORTIONAL max: ", autotemp_max, "\n");
       #endif
     #endif
 
