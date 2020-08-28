@@ -33,7 +33,7 @@
 #define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Flash EEPROM Emulation
@@ -112,7 +112,7 @@
 // Stepper current PWM
 //
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // origin:2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
@@ -152,7 +152,7 @@
       #define DOGLCD_CS                     PB7
     #endif
 
-    //#define LCD_CONTRAST_INIT 190
+    //#define LCD_CONTRAST_INIT              190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270

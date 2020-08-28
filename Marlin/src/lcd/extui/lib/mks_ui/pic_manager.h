@@ -21,11 +21,9 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
-#endif
+#include "../../../../inc/MarlinConfig.h"
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../libs/W25Qxx.h"
 
 #include <lvgl.h>
 
@@ -63,7 +61,7 @@ extern "C" { /* C-declarations for C++ */
 #define DEFAULT_VIEW_MAX_SIZE           (200*200*2)
 #define FLASH_VIEW_MAX_SIZE             (200*200*2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (32*1024)
+#define PER_PIC_MAX_SPACE_TFT35         (9*1024)
 #define PER_PIC_MAX_SPACE_TFT32         (16*1024)
 #define PER_FONT_MAX_SPACE              (16*1024)
 
@@ -88,7 +86,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
   // font
-  #define FONTINFOADDR                  0x183000 // 6M -- font addr
+  #define FONTINFOADDR                  0x150000 // 6M -- font addr
   #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
 
 #else
@@ -125,6 +123,10 @@ extern "C" { /* C-declarations for C++ */
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
 
+#ifdef __cplusplus
+extern "C" { /* C-declarations for C++ */
+#endif
+
 union union32 {
   uint8_t bytes[4];
   uint32_t dwords;
@@ -153,6 +155,8 @@ extern void get_spi_flash_data(const char *rec_buf, int offset, int size);
 extern void spi_flash_read_test();
 extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
 extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
+
+extern W25QXXFlash W25QXX;
 
 #ifdef __cplusplus
 } /* C-declarations for C++ */
