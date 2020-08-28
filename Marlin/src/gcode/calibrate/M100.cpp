@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 #include "../queue.h"
-#include "../../libs/hex_print_routines.h"
+#include "../../libs/hex_print.h"
 
 #include "../../MarlinCore.h" // for idle()
 
@@ -156,8 +156,8 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
     //
-    start_free_memory = (char*)(ptr_int_t(uint32_t(start_free_memory) & ~0xFUL)); // Align to 16-byte boundary
-    end_free_memory   = (char*)(ptr_int_t(uint32_t(end_free_memory)   |  0xFUL)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
+    start_free_memory = (char*)(uintptr_t(uint32_t(start_free_memory) & ~0xFUL)); // Align to 16-byte boundary
+    end_free_memory   = (char*)(uintptr_t(uint32_t(end_free_memory)   |  0xFUL)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
 
     // Dump command main loop
     while (start_free_memory < end_free_memory) {
@@ -189,8 +189,8 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     // Round the start and end locations to produce full lines of output
     //
     dump_free_memory(
-      (char*)(ptr_int_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
-      (char*)(ptr_int_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
+      (char*)(uintptr_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
+      (char*)(uintptr_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
     );
   }
 

@@ -65,3 +65,94 @@
 #ifdef HAL_PATH
   #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
 #endif
+
+//
+// Conditionals only used for [features]
+//
+#if ENABLED(SR_LCD_3W_NL)
+  // Feature checks for SR_LCD_3W_NL
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+  #define USES_LIQUIDTWI2
+#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+  #define USES_LIQUIDCRYSTAL
+#endif
+
+#if BOTH(ANYCUBIC_LCD_I3MEGA, EXTENSIBLE_UI)
+  #define HAS_ANYCUBIC_TFT_EXTUI
+#endif
+
+#if SAVED_POSITIONS
+  #define HAS_SAVED_POSITIONS
+#endif
+
+#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+  #define HAS_GCODE_M876
+#endif
+
+#if PREHEAT_COUNT
+  #define HAS_PREHEAT_COUNT
+#endif
+
+#if EXTRUDERS
+  #define HAS_EXTRUDERS
+  #if EXTRUDERS > 1
+    #define HAS_MULTI_EXTRUDER
+  #endif
+#endif
+
+#if HAS_LCD_MENU
+  #if ENABLED(BACKLASH_GCODE)
+    #define HAS_MENU_BACKLASH
+  #endif
+  #if ENABLED(LEVEL_BED_CORNERS)
+    #define HAS_MENU_BED_CORNERS
+  #endif
+  #if ENABLED(CANCEL_OBJECTS)
+    #define HAS_MENU_CANCELOBJECT
+  #endif
+  #if ENABLED(CUSTOM_USER_MENUS)
+    #define HAS_MENU_CUSTOM
+  #endif
+  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #define HAS_MENU_DELTA_CALIBRATE
+  #endif
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    #define HAS_MENU_LED
+  #endif
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #define HAS_MENU_FILAMENT
+  #endif
+  #if ENABLED(SDSUPPORT)
+    #define HAS_MENU_MEDIA
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define HAS_MENU_MIXER
+  #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #define HAS_MENU_JOB_RECOVERY
+  #endif
+  #if HAS_POWER_MONITOR
+    #define HAS_MENU_POWER_MONITOR
+  #endif
+  #if HAS_CUTTER
+    #define HAS_MENU_CUTTER
+  #endif
+  #if HAS_TEMPERATURE
+    #define HAS_MENU_TEMPERATURE
+  #endif
+  #if ENABLED(MMU2_MENUS)
+    #define HAS_MENU_MMU2
+  #endif
+  #if ENABLED(PASSWORD_FEATURE)
+    #define HAS_MENU_PASSWORD
+  #endif
+  #if HAS_TRINAMIC_CONFIG
+    #define HAS_MENU_TMC
+  #endif
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    #define HAS_MENU_TOUCH_SCREEN
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define HAS_MENU_UBL
+  #endif
+#endif
