@@ -28,8 +28,8 @@
 
   #include "../../../MarlinCore.h"
   #include "../../../HAL/shared/eeprom_api.h"
-  #include "../../../libs/hex_print_routines.h"
-  #include "../../../module/configuration_store.h"
+  #include "../../../libs/hex_print.h"
+  #include "../../../module/settings.h"
   #include "../../../lcd/ultralcd.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"
@@ -321,7 +321,7 @@
     // Check for commands that require the printer to be homed
     if (may_move) {
       planner.synchronize();
-      if (axes_need_homing()) gcode.home_all_axes();
+      if (axes_should_home()) gcode.home_all_axes();
       TERN_(HAS_MULTI_HOTEND, if (active_extruder) tool_change(0));
     }
 

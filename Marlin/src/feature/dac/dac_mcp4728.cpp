@@ -27,7 +27,7 @@
  * https://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
  *
  * For discussion and feedback, please go to:
- * https://arduino.cc/forum/index.php/topic,51842.0.html
+ * https://forum.arduino.cc/index.php/topic,51842.0.html
  */
 
 #include "../../inc/MarlinConfig.h"

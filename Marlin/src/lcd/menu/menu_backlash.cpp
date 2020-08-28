@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
 
-#include "menu.h"
+#include "menu_item.h"
 
 #include "../../feature/backlash.h"
 
