@@ -33,17 +33,15 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 typedef uint32_t hal_timer_t;
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF
+#define HAL_TIMER_TYPE_MAX 0xFFFFFFFE
 
-#define TMR1_TIMER_PRESCALE 16
-#define TMR2_TIMER_PRESCALE 8
-#define TMR1_TIMER_PRESCALE_BITS 0b1100
-#define TMR2_TIMER_PRESCALE_BITS 0b1011
+#define GPT_TIMER_RATE F_BUS_ACTUAL   // 150MHz
 
-#define TMR1_TIMER_RATE (F_BUS_ACTUAL / TMR1_TIMER_PRESCALE) // 132MHz / 16 = 8250kHz
-#define TMR2_TIMER_RATE (F_BUS_ACTUAL / TMR2_TIMER_PRESCALE) // 132MHz / 8 = 16.5MHz
+#define GPT1_TIMER_PRESCALE 8
+#define GPT2_TIMER_PRESCALE 10
 
-#define HAL_TIMER_RATE         (TMR1_TIMER_RATE)
+#define GPT1_TIMER_RATE (GPT_TIMER_RATE / GPT1_TIMER_PRESCALE) // 18MHz
+#define GPT2_TIMER_RATE (GPT_TIMER_RATE / GPT2_TIMER_PRESCALE) // 15MHz
 
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
@@ -55,11 +53,12 @@ typedef uint32_t hal_timer_t;
   #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
 #endif
 
+#define TEMP_TIMER_RATE        1000000
 #define TEMP_TIMER_FREQUENCY    1000
 
-#define STEPPER_TIMER_RATE     HAL_TIMER_RATE
+#define STEPPER_TIMER_RATE     GPT1_TIMER_RATE
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000)
-#define STEPPER_TIMER_PRESCALE (CYCLES_PER_MICROSECOND / STEPPER_TIMER_TICKS_PER_US)
+#define STEPPER_TIMER_PRESCALE ((GPT_TIMER_RATE / 1000000) / STEPPER_TIMER_TICKS_PER_US)
 
 #define PULSE_TIMER_RATE       STEPPER_TIMER_RATE   // frequency of pulse timer
 #define PULSE_TIMER_PRESCALE   STEPPER_TIMER_PRESCALE
@@ -73,33 +72,33 @@ typedef uint32_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR()  extern "C" void TMR1_isr() //void TC3_Handler()
+  #define HAL_STEP_TIMER_ISR()  extern "C" void gpt1_isr() //void GPT1_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR()  extern "C" void TMR2_isr() //void TC4_Handler()
+  #define HAL_TEMP_TIMER_ISR()  extern "C" void gpt2_isr() //void GPT2_Handler()
 #endif
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0: TMR1_COMP12 = compare; break;
-    case 1: TMR2_COMP12 = compare; break;
+    case 0: GPT1_OCR1 = compare; break;
+    case 1: GPT2_OCR1 = compare; break;
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return TMR1_COMP12;
-    case 1: return TMR2_COMP12;
+    case 0: return GPT1_OCR1;
+    case 1: return GPT2_OCR1;
   }
   return 0;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return TMR1_CNTR2;
-    case 1: return TMR2_CNTR2;
+    case 0: return GPT1_CNT;
+    case 1: return GPT2_CNT;
   }
   return 0;
 }

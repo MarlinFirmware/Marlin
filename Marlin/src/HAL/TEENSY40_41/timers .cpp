@@ -45,52 +45,73 @@ FORCE_INLINE static void __DSB() {
   __asm__ __volatile__("dsb 0xF":::"memory");
 }
 
+
+
+// placeholders for now
+extern "C" void unused_interrupt_vector(void);
+
+static void __attribute((naked, noinline)) gpt1_isr() {
+  GPT1_SR |= GPT_SR_OF1;  // clear set bit
+  __asm volatile ("dsb"); // see github bug #20 by manitou48
+}
+
+static void __attribute((naked, noinline)) gpt2_isr() {
+  GPT2_SR |= GPT_SR_OF1;  // clear set bit
+  __asm volatile ("dsb"); // see github bug #20 by manitou48
+}
+
+
+
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
     case 0:
-      TMR1_CTRL2 = 0; // stop
-      TMR1_CSCTRL2 = 0;
-      TMR1_LOAD2 = 0;  // start val after compare
-      TMR1_COMP12 = (TMR1_TIMER_RATE) / frequency;  // count up to this val, interrupt,  and start again
-      TMR1_CMPLD12 = (TMR1_TIMER_RATE) / frequency; // reload to the same value
-      TMR1_SCTRL2 = TMR_SCTRL_CAPTURE_MODE(1);  //rising
-      TMR1_CTRL2 = TMR_CTRL_CM(1); // Count rising edges of bus clock
-      TMR1_CTRL2 |= TMR_CTRL_PCS(TMR1_TIMER_PRESCALE_BITS);
-      TMR1_CTRL2 |= TMR_CTRL_SCS(1);
-      TMR1_CTRL2 |= TMR_CTRL_LENGTH; // Count until compare, then re-initialize
+      if (! NVIC_IS_ENABLED(IRQ_GPT1)) { 
+        attachInterruptVector(IRQ_GPT1, &gpt1_isr);
+        NVIC_SET_PRIORITY(IRQ_GPT1, 16);
+      }
+      CCM_CCGR1 |= CCM_CCGR1_GPT1_BUS(CCM_CCGR_ON);
+      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
+      GPT1_CR = 0;                   // disable timer
+      GPT1_PR = GPT1_TIMER_PRESCALE-1;
+      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
+      GPT1_OCR1 = (GPT1_TIMER_RATE) / frequency - 1; // Initial compare value
+      GPT1_SR = 0x3F;                // clear all prior status
+      GPT1_IR = GPT_IR_OF1IE;        // use first timer
+      GPT1_CR = GPT_CR_EN | GPT_CR_CLKSRC(1) ; // set to peripheral clock (24MHz)
+      break;
     case 1:
-      TMR2_CTRL2 = 0; // stop
-      TMR2_CSCTRL2 = 0;
-      TMR2_LOAD2 = 0;  // start val after compare
-      TMR2_COMP12 = (TMR1_TIMER_RATE) / frequency;  // count up to this val, interrupt,  and start again
-      TMR2_CMPLD12 = (TMR1_TIMER_RATE) / frequency; // reload to the same value
-      TMR2_CTRL2 = TMR_CTRL_CM(1); // Count rising edges of bus clock
-      TMR2_CTRL2 |= TMR_CTRL_PCS(TMR1_TIMER_PRESCALE_BITS);
-      TMR2_CTRL2 |= TMR_CTRL_SCS(2);
-      TMR2_CTRL2 |= TMR_CTRL_LENGTH; // Count until compare, then re-initialize
+      if (! NVIC_IS_ENABLED(IRQ_GPT2)) { 
+        attachInterruptVector(IRQ_GPT2, &gpt2_isr);
+        NVIC_SET_PRIORITY(IRQ_GPT2, 32);
+      }
+      CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
+      CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
+      GPT2_CR = 0;                   // disable timer
+      GPT2_PR = GPT2_TIMER_PRESCALE-1;
+      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
+      GPT2_OCR1 = (GPT1_TIMER_RATE) / frequency; // Initial compare value
+      GPT2_SR = 0x3F;                // clear all prior status
+      GPT2_IR = GPT_IR_OF1IE;        // use first timer
+      GPT2_CR = GPT_CR_EN | GPT_CR_CLKSRC(1) ; // set to peripheral clock (24MHz)
       break;
   }
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0:
-      TMR1_CSCTRL2 = TMR_CSCTRL_TCF1EN;  // enable compare interrupt
+    case 0: 
+      NVIC_ENABLE_IRQ(IRQ_GPT1); 
       break;
-    case 1:
-      TMR2_CSCTRL2 = TMR_CSCTRL_TCF1EN;  // enable compare interrupt
+    case 1: 
+      NVIC_ENABLE_IRQ(IRQ_GPT2); 
       break;
   }
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0:
-      TMR1_CSCTRL2 &= ~TMR_CSCTRL_TCF1EN;  // enable compare interrupt
-      break;
-    case 1:
-      TMR2_CSCTRL2 &= ~TMR_CSCTRL_TCF1EN;  // enable compare interrupt
-      break;
+    case 0: NVIC_DISABLE_IRQ(IRQ_GPT1); break;
+    case 1: NVIC_DISABLE_IRQ(IRQ_GPT2); break;
   }
 
   // We NEED memory barriers to ensure Interrupts are actually disabled!
@@ -101,8 +122,8 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num) {
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return NVIC_IS_ENABLED(IRQ_QTIMER1);
-    case 1: return NVIC_IS_ENABLED(IRQ_QTIMER1);
+    case 0: return (NVIC_IS_ENABLED(IRQ_GPT1));
+    case 1: return (NVIC_IS_ENABLED(IRQ_GPT2));
   }
   return false;
 }
@@ -110,14 +131,10 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
     case 0:
-      TMR1_LOAD2 = 0x0000;
-      TMR1_SCTRL2 &= ~TMR_SCTRL_TOF; // Clear FTM Overflow flag
-      TMR1_SCTRL2 &= ~TMR_SCTRL_TCF; // Clear FTM Channel Compare flag
+      GPT1_SR |= GPT_SR_OF1;  // clear set bit
       break;
     case 1:
-      TMR2_LOAD2 = 0x0000;
-      TMR2_SCTRL2 &= ~TMR_SCTRL_TOF; // Clear FTM Overflow flag
-      TMR2_SCTRL2 &= ~TMR_SCTRL_TCF; // Clear FTM Channel Compare flag
+      GPT2_SR |= GPT_SR_OF1;  // clear set bit
       break;
   }
 }

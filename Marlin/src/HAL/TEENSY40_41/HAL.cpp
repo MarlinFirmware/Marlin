@@ -28,6 +28,7 @@
 
 #include "HAL.h"
 #include "../shared/Delay.h"
+#include "timers.h"
 
 #include <Wire.h>
 
@@ -93,7 +94,6 @@ void HAL_adc_init() {
   analog_init();
 	while (ADC1_GC & ADC_GC_CAL) ;
 	while (ADC2_GC & ADC_GC_CAL) ;
-  NVIC_ENABLE_IRQ(IRQ_QTIMER1);
 }
 
 void HAL_clear_reset_source() {
@@ -121,12 +121,13 @@ extern "C" {
   extern char __heap_start;
   extern void* __brkval;
 
-  int freeMemory() {
-    int free_memory;
-    if ((int)__brkval == 0)
-      free_memory = ((int)&free_memory) - ((int)&__bss_end);
+// doesn't wowrk on Teensy 4.x
+  uint32_t freeMemory() {
+    uint32_t free_memory;
+    if ((uint32_t)__brkval == 0)
+      free_memory = ((uint32_t)&free_memory) - ((uint32_t)&__bss_end);
     else
-      free_memory = ((int)&free_memory) - ((int)__brkval);
+      free_memory = ((uint32_t)&free_memory) - ((uint32_t)__brkval);
     return free_memory;
   }
 }

@@ -60,6 +60,16 @@
   #define MYSERIAL0 Serial2
 #elif SERIAL_PORT == 3
   #define MYSERIAL0 Serial3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 Serial4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 Serial5
+#elif SERIAL_PORT == 6
+  #define MYSERIAL0 Serial6
+#elif SERIAL_PORT == 7
+  #define MYSERIAL0 Serial7
+#elif SERIAL_PORT == 8
+  #define MYSERIAL0 Serial8
 #endif
 
 #define HAL_SERVO_LIB libServo
@@ -83,6 +93,10 @@ typedef int8_t pin_t;
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
 #endif
 
+// Don't place string constants in PROGMEM
+#undef PSTR
+#define PSTR(str) ({static const char *data = (str); &data[0];})
+
 // Fix bug in pgm_read_ptr
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*((void**)(addr)))
@@ -103,7 +117,7 @@ FORCE_INLINE void _delay_ms(const int delay_ms) { delay(delay_ms); }
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 extern "C" {
-  int freeMemory();
+  uint32_t freeMemory();
 }
 #pragma GCC diagnostic pop
 
