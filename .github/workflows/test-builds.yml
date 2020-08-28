@@ -67,6 +67,7 @@ jobs:
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
         - mks_robin
+        - mks_robin_stm32
         - ARMED
         - FYSETC_S6
         - STM32F070RB_malyan
@@ -77,6 +78,7 @@ jobs:
         - mks_robin_pro
         - STM32F103RET6_creality
         - LERDGEX
+        - mks_robin_nano35
 
         # Put lengthy tests last
 
@@ -93,7 +95,6 @@ jobs:
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
-        #- mks_robin_nano
 
     steps:
 

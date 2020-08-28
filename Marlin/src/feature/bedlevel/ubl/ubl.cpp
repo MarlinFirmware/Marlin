@@ -31,7 +31,7 @@
   #include "../../../MarlinCore.h"
   #include "../../../gcode/gcode.h"
 
-  #include "../../../module/configuration_store.h"
+  #include "../../../module/settings.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
   #include "../../../module/probe.h"

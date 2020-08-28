@@ -36,7 +36,7 @@
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
-#include "../module/configuration_store.h"
+#include "../module/settings.h"
 #include "../module/stepper/indirection.h"
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -137,6 +137,10 @@ CardReader::CardReader() {
   // Disable autostart until card is initialized
   autostart_index = -1;
 
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
+  #endif
+  
   #if PIN_EXISTS(SDPOWER)
     OUT_WRITE(SDPOWER_PIN, HIGH); // Power the SD reader
   #endif
@@ -376,8 +380,13 @@ void CardReader::mount() {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
   }
-  cdroot();
 
+  if (flag.mounted)
+    cdroot();
+  else {
+    spiInit(SPI_SPEED); // Return to base SPI speed
+    ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
+  }
   ui.refresh();
 }
 
