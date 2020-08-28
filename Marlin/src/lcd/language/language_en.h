@@ -48,6 +48,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media Inserted");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media Removed");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Waiting for media");
+  PROGMEM Language_Str MSG_SD_INIT_FAIL                    = _UxGT("SD Init Fail");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Media read error");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("USB device removed");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("USB start failed");
@@ -123,6 +124,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Custom Commands");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Probe Test");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Point");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Probe out of bounds");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviation");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX Mode");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Tool Offsets");
@@ -504,7 +506,7 @@ namespace Language_en {
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Print Count");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Completed");
-    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total Print time");
+    PROGMEM Language_Str MSG_INFO_PRINT_TIME               = _UxGT("Total Print Time");
     PROGMEM Language_Str MSG_INFO_PRINT_LONGEST            = _UxGT("Longest Job Time");
     PROGMEM Language_Str MSG_INFO_PRINT_FILAMENT           = _UxGT("Extruded Total");
   #else
@@ -588,6 +590,17 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Bad page index");
   PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Bad page speed");
 
+  PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Edit Password");
+  PROGMEM Language_Str MSG_LOGIN_REQUIRED                  = _UxGT("Login Required");
+  PROGMEM Language_Str MSG_PASSWORD_SETTINGS               = _UxGT("Password Settings");
+  PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Enter Digit");
+  PROGMEM Language_Str MSG_CHANGE_PASSWORD                 = _UxGT("Set/Edit Password");
+  PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Remove Password");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Password is ");
+  PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Start Over");
+  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Remember to Save!");
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Password Removed");
+
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display
@@ -634,7 +647,11 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Level X Axis");
   PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Auto Calibrate");
-  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Heater Timeout");
+  #if ENABLED(TOUCH_UI_FTDI_EVE)
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Idle timeout, temperature decreased. Press Okay to reheat and again to resume.");
+  #else
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Heater Timeout");
+  #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 }

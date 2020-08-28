@@ -55,5 +55,5 @@
 
 void PCA9533_init();
 void PCA9533_reset();
-void PCA9533_setColor(uint8_t red, uint8_t green, uint8_t blue);
+void PCA9533_set_rgb(uint8_t red, uint8_t green, uint8_t blue);
 void PCA9533_setOff();

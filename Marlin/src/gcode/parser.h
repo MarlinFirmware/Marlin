@@ -31,7 +31,7 @@
 
 //#define DEBUG_GCODE_PARSER
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #include "../libs/hex_print_routines.h"
+  #include "../libs/hex_print.h"
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

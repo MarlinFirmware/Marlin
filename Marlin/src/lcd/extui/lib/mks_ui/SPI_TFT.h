@@ -21,36 +21,30 @@
  */
 #pragma once
 
-#include <stdint.h>
+#include "../../inc/MarlinConfigPre.h"
 
-#define SPI_TFT_CS_H  OUT_WRITE(SPI_TFT_CS_PIN, HIGH)
-#define SPI_TFT_CS_L  OUT_WRITE(SPI_TFT_CS_PIN, LOW)
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+#elif ENABLED(TFT_LVGL_UI_FSMC)
+  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+#endif
 
-#define SPI_TFT_DC_H  OUT_WRITE(SPI_TFT_DC_PIN, HIGH)
-#define SPI_TFT_DC_L  OUT_WRITE(SPI_TFT_DC_PIN, LOW)
+#define TFT_RST_H OUT_WRITE(TFT_RESET_PIN, HIGH)
+#define TFT_RST_L OUT_WRITE(TFT_RESET_PIN, LOW)
 
-#define SPI_TFT_RST_H OUT_WRITE(SPI_TFT_RST_PIN, HIGH)
-#define SPI_TFT_RST_L OUT_WRITE(SPI_TFT_RST_PIN, LOW)
-
-#define SPI_TFT_BLK_H OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH)
-#define SPI_TFT_BLK_L OUT_WRITE(LCD_BACKLIGHT_PIN, LOW)
+#define TFT_BLK_H OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH)
+#define TFT_BLK_L OUT_WRITE(LCD_BACKLIGHT_PIN, LOW)
 
 class TFT {
 public:
+  TFT_IO tftio;
   void spi_init(uint8_t spiRate);
-  uint8_t spi_Rec();
-  uint8_t spi_read_write_byte(uint8_t data);
-  void spi_Read(uint8_t* buf, uint16_t nbyte);
-  void spi_Send(uint8_t b);
-  void spi_SendBlock(uint8_t token, const uint8_t* buf);
   void LCD_WR_REG(uint8_t cmd);
   void LCD_WR_DATA(uint8_t data);
-  void SetCursor(uint16_t x, uint16_t y);
   void SetPoint(uint16_t x, uint16_t y, uint16_t point);
   void SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height);
   void LCD_init();
   void LCD_clear(uint16_t color);
-  void LCD_WriteRAM_Prepare();
   void LCD_Draw_Logo();
 };
 

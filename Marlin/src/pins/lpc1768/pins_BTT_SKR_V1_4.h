@@ -208,7 +208,7 @@
   #define Z2_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -249,6 +249,62 @@
 
     #define LCD_PINS_ENABLE                P1_23
     #define LCD_PINS_D4                    P1_21
+
+  #elif ENABLED(ENDER2_STOCKDISPLAY)
+
+    /** Creality Ender-2 display pinout
+     *                   _____
+     *               5V | 1 2 | GND
+     *      (MOSI) 1.23 | 3 4 | 1.22 (LCD_RS)
+     *    (LCD_A0) 1.21 | 5 6 | 1.20 (BTN_EN2)
+     *       RESET 1.19 | 7 8 | 1.18 (BTN_EN1)
+     *   (BTN_ENC) 0.28 | 9 10| 1.30  (SCK)
+     *                   -----
+     *                    EXP1
+     */
+
+    #define BTN_EN1                        P1_18
+    #define BTN_EN2                        P1_20
+    #define BTN_ENC                        P0_28
+
+    #define DOGLCD_CS                      P1_22
+    #define DOGLCD_A0                      P1_21
+    #define DOGLCD_SCK                     P1_30
+    #define DOGLCD_MOSI                    P1_23
+    #define FORCE_SOFT_SPI
+    #define LCD_BACKLIGHT_PIN              -1
+
+  #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
+    #define SS_PIN                         -1
+    //#define ONBOARD_SD_CS_PIN            -1
+
+    #define TFT_CS_PIN                     P1_22
+    #define TFT_A0_PIN                     P1_23
+    #define TFT_DC_PIN                     P1_23
+    #define TFT_MISO_PIN                   P0_17
+    #define TFT_BACKLIGHT_PIN              P1_18
+    #define TFT_RESET_PIN                  P1_19
+
+    #define LPC_HW_SPI_DEV                     0
+    #define LCD_USE_DMA_SPI
+
+    #define TOUCH_INT_PIN                  P1_21
+    #define TOUCH_CS_PIN                   P1_20
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
+
+    #ifndef GRAPHICAL_TFT_UPSCALE
+      #define GRAPHICAL_TFT_UPSCALE            3
+    #endif
+
+    // SPI 1
+    #define SCK_PIN                        P0_15
+    #define MISO_PIN                       P0_17
+    #define MOSI_PIN                       P0_18
+
+    // Disable any LCD related PINs config
+    #define LCD_PINS_ENABLE                -1
+    #define LCD_PINS_RS                    -1
 
   #else
 
@@ -321,7 +377,7 @@
 #endif
 
 //
-// Neopixel LED
+// NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
   #define NEOPIXEL_PIN                     P1_24

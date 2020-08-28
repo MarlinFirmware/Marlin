@@ -44,11 +44,8 @@
 
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
-    LED_USER_PRESET_RED,
-    LED_USER_PRESET_GREEN,
-    LED_USER_PRESET_BLUE,
-    LED_USER_PRESET_WHITE,
-    LED_USER_PRESET_BRIGHTNESS
+    LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
+    LED_USER_PRESET_WHITE, LED_USER_PRESET_BRIGHTNESS
   );
 #endif
 
@@ -117,24 +114,22 @@ void LEDLights::set_color(const LEDColor &incol
 
     // This variant uses 3-4 separate pins for the RGB(W) components.
     // If the pins can do PWM then their intensity will be set.
-    #define UPDATE_RGBW(C,c) do { if (PWM_PIN(RGB_LED_##C##_PIN)) \
+    #define UPDATE_RGBW(C,c) do {                       \
+      if (PWM_PIN(RGB_LED_##C##_PIN))                   \
         analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
-      else WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); }while(0)
-    UPDATE_RGBW(R,r);
-    UPDATE_RGBW(G,g);
-    UPDATE_RGBW(B,b);
+      else                                              \
+        WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); \
+    }while(0)
+    UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
     #if ENABLED(RGBW_LED)
       UPDATE_RGBW(W,w);
     #endif
 
   #endif
 
-  #if ENABLED(PCA9632)
-    // Update I2C LED driver
-    pca9632_set_led_color(incol);
-  #endif
-
-  TERN_(PCA9533, PCA9533_setColor(incol.r, incol.g, incol.b));
+  // Update I2C LED driver
+  TERN_(PCA9632, PCA9632_set_led_color(incol));
+  TERN_(PCA9533, PCA9533_set_rgb(incol.r, incol.g, incol.b));
 
   #if EITHER(LED_CONTROL_MENU, PRINTER_EVENT_LEDS)
     // Don't update the color when OFF
@@ -161,4 +156,35 @@ void LEDLights::set_color(const LEDColor &incol
 
 #endif
 
-#endif // HAS_COLOR_LEDS
+#if ENABLED(NEOPIXEL2_SEPARATE)
+
+  #if ENABLED(NEO2_COLOR_PRESETS)
+    const LEDColor LEDLights2::defaultLEDColor = MakeLEDColor(
+      NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE,
+      NEO2_USER_PRESET_WHITE, NEO2_USER_PRESET_BRIGHTNESS
+    );
+  #endif
+
+  #if ENABLED(LED_CONTROL_MENU)
+    LEDColor LEDLights2::color;
+    bool LEDLights2::lights_on;
+  #endif
+
+  LEDLights2 leds2;
+
+  void LEDLights2::setup() {
+    neo2.init();
+    TERN_(NEO2_USER_PRESET_STARTUP, set_default());
+  }
+
+  void LEDLights2::set_color(const LEDColor &incol) {
+    const uint32_t neocolor = LEDColorWhite() == incol
+                            ? neo2.Color(NEO2_WHITE)
+                            : neo2.Color(incol.r, incol.g, incol.b, incol.w);
+    neo2.set_brightness(incol.i);
+    neo2.set_color(neocolor);
+  }
+
+#endif  // NEOPIXEL2_SEPARATE
+
+#endif  // HAS_COLOR_LEDS
