@@ -259,8 +259,8 @@ namespace Language_es {
   PROGMEM Language_Str MSG_MIN                             = " " LCD_STR_THERMOMETER _UxGT(" Min");
   PROGMEM Language_Str MSG_MAX                             = " " LCD_STR_THERMOMETER _UxGT(" Max");
   PROGMEM Language_Str MSG_FACTOR                          = " " LCD_STR_THERMOMETER _UxGT(" Factor");
-  PROGMEM Language_Str MSG_MIN_E_SPEED                     = " " LCD_STR_THERMOMETER _UxGT(" Velocidad min e");
-  PROGMEM Language_Str MSG_MAX_E_SPEED                     = " " LCD_STR_THERMOMETER _UxGT(" Velocidad Max e");
+  PROGMEM Language_Str MSG_MIN_E_SPEED                     = " " LCD_STR_THERMOMETER _UxGT(" Velocidad min E");
+  PROGMEM Language_Str MSG_MAX_E_SPEED                     = " " LCD_STR_THERMOMETER _UxGT(" Velocidad max E");
   PROGMEM Language_Str MSG_AUTOTEMP                        = _UxGT("Temp. Autom.");
   PROGMEM Language_Str MSG_LCD_ON                          = _UxGT("Enc");
   PROGMEM Language_Str MSG_LCD_OFF                         = _UxGT("Apg");
