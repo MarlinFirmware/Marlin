@@ -61,7 +61,7 @@
 
 class SPISettings {
 public:
-  SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
+  // SPISettings(uint32_t speed, int, int) : spi_speed(speed) {};
   SPISettings(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
     if (__builtin_constant_p(inClock))
       init_AlwaysInline(inClock, inBitOrder, inDataMode, inDataSize);
@@ -72,7 +72,7 @@ public:
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
   }
 
-  uint32_t spiRate() const { return spi_speed; }
+  // uint32_t spiRate() const { return spi_speed; }
 
 private:
   void init_MightInline(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
@@ -85,7 +85,7 @@ private:
     dataSize = inDataSize;
   }
 
-  uint32_t spi_speed;
+  // uint32_t spi_speed;
   uint32_t clock;
   uint32_t dataSize;
   //uint32_t clockDivider;

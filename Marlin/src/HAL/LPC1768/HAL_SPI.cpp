@@ -100,35 +100,19 @@
 
 #else
 
-  // decide which HW SPI device to use
-  #ifndef LPC_HW_SPI_DEV
-    #if (SCK_PIN == P0_07 && MISO_PIN == P0_08 && MOSI_PIN == P0_09)
-      #define LPC_HW_SPI_DEV 1
-    #else
-      #if (SCK_PIN == P0_15 && MISO_PIN == P0_17 && MOSI_PIN == P0_18)
-        #define LPC_HW_SPI_DEV 0
-      #else
-        #error "Invalid pins selected for hardware SPI"
-      #endif
-    #endif
-  #endif
-  #if LPC_HW_SPI_DEV == 0
-    #define LPC_SSPn LPC_SSP0
-  #else
-    #define LPC_SSPn LPC_SSP1
-  #endif
-
   void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
+    spiInit(SPI_SPEED);
+  }
+
+  void spiInit(uint8_t spiRate) {
     #if MISO_PIN == BOARD_SPI1_MISO_PIN
       SPI.setModule(1);
     #elif MISO_PIN == BOARD_SPI2_MISO_PIN
       SPI.setModule(2);
     #endif
+    SPI.setDataSize(DATA_SIZE_8BIT);
     SPI.setDataMode(SPI_MODE0);
-    SPI.begin();
-  }
 
-  void spiInit(uint8_t spiRate) {
     // table to convert Marlin spiRates (0-5 plus default) into bit rates
     uint32_t Marlin_speed[7]; // CPSR is always 2
     Marlin_speed[0] = 8333333; //(SCR:  2)  desired: 8,000,000  actual: 8,333,333  +4.2%  SPI_FULL_SPEED
@@ -202,6 +186,9 @@ SPIClass::SPIClass(uint8_t device) {
   PINSEL_CFG_Type PinCfg;  // data structure to hold init values
   #if BOARD_NR_SPI >= 1
     _settings[0].spi_d = LPC_SSP0;
+    _settings[0].dataMode = SPI_MODE0;
+    _settings[0].dataSize = DATA_SIZE_8BIT;
+    _settings[0].clock = SPI_CLOCK_MAX;
     // _settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
@@ -224,6 +211,9 @@ SPIClass::SPIClass(uint8_t device) {
 
   #if BOARD_NR_SPI >= 2
     _settings[1].spi_d = LPC_SSP1;
+    _settings[1].dataMode = SPI_MODE0;
+    _settings[1].dataSize = DATA_SIZE_8BIT;
+    _settings[1].clock = SPI_CLOCK_MAX;
     // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
     PinCfg.Funcnum = 2;
     PinCfg.OpenDrain = 0;
@@ -360,7 +350,7 @@ void SPIClass::setBitOrder(uint8_t bitOrder) {
 }
 
 void SPIClass::setDataMode(uint8_t dataMode) {
-  _currentSetting->dataSize = dataMode;
+  _currentSetting->dataMode = dataMode;
 }
 
 void SPIClass::setDataSize(uint32_t ds) {
