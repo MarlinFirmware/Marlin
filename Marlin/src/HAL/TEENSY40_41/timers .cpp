@@ -46,18 +46,18 @@ FORCE_INLINE static void __DSB() {
 }
 
 
-
-// placeholders for now
-extern "C" void unused_interrupt_vector(void);
-
 static void __attribute((naked, noinline)) gpt1_isr() {
-  GPT1_SR |= GPT_SR_OF1;  // clear set bit
-  __asm volatile ("dsb"); // see github bug #20 by manitou48
+  GPT1_SR = GPT_SR_OF1;  // clear OF1 bit
+
+  __DSB();
+  __ISB();
 }
 
 static void __attribute((naked, noinline)) gpt2_isr() {
-  GPT2_SR |= GPT_SR_OF1;  // clear set bit
-  __asm volatile ("dsb"); // see github bug #20 by manitou48
+  GPT2_SR = GPT_SR_OF1;  // clear OF1 bit
+
+  __DSB();
+  __ISB();
 }
 
 
@@ -72,12 +72,21 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       CCM_CCGR1 |= CCM_CCGR1_GPT1_BUS(CCM_CCGR_ON);
       CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
       GPT1_CR = 0;                   // disable timer
-      GPT1_PR = GPT1_TIMER_PRESCALE-1;
-      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
+      GPT1_PR = GPT1_TIMER_PRESCALE - 1;
+      GPT1_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
+      GPT1_CR |= GPT_CR_ENMOD;       //reset count to zero before enabling
+      GPT1_CR |= GPT_CR_OM3(1);      // toggle mode 3
       GPT1_OCR1 = (GPT1_TIMER_RATE) / frequency - 1; // Initial compare value
       GPT1_SR = 0x3F;                // clear all prior status
       GPT1_IR = GPT_IR_OF1IE;        // use first timer
-      GPT1_CR = GPT_CR_EN | GPT_CR_CLKSRC(1) ; // set to peripheral clock (24MHz)
+      GPT1_CR = GPT_CR_EN;           // set to peripheral clock (24MHz)
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR_F("GPT1CR: ", GPT1_CR);
+        SERIAL_ECHOLNPAIR_F("GPT1PR: ", GPT1_PR);
+        SERIAL_ECHOLNPAIR_F("GPT1OCR1: ", GPT1_OCR1);
+        SERIAL_ECHOLNPAIR_F("GPT1SR: ", GPT1_SR);
+        SERIAL_ECHOLNPAIR_F("GPT1IR: ", GPT1_IR);
+      #endif
       break;
     case 1:
       if (! NVIC_IS_ENABLED(IRQ_GPT2)) { 
@@ -87,12 +96,21 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
       CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
       GPT2_CR = 0;                   // disable timer
-      GPT2_PR = GPT2_TIMER_PRESCALE-1;
-      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
-      GPT2_OCR1 = (GPT1_TIMER_RATE) / frequency; // Initial compare value
       GPT2_SR = 0x3F;                // clear all prior status
+      GPT2_PR = GPT2_TIMER_PRESCALE; //- 1;
+      GPT2_CR |= GPT_CR_CLKSRC(1);   //clock selection #1 (peripheral clock = 150 MHz)
+      GPT2_CR |= GPT_CR_ENMOD;       //reset count to zero before enabling
+      GPT2_CR |= GPT_CR_OM3(1);      // toggle mode 3
+      GPT2_OCR1 = (GPT2_TIMER_RATE) / frequency; // Initial compare value
       GPT2_IR = GPT_IR_OF1IE;        // use first timer
-      GPT2_CR = GPT_CR_EN | GPT_CR_CLKSRC(1) ; // set to peripheral clock (24MHz)
+      GPT2_CR = GPT_CR_EN;           // set to peripheral clock (24MHz)
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR_F("GPT2CR: ", GPT2_CR);
+        SERIAL_ECHOLNPAIR_F("GPT2PR: ", GPT2_PR);
+        SERIAL_ECHOLNPAIR_F("GPT2OCR1: ", GPT2_OCR1);
+        SERIAL_ECHOLNPAIR_F("GPT2SR: ", GPT2_SR);
+        SERIAL_ECHOLNPAIR_F("GPT2IR: ", GPT2_IR);
+      #endif
       break;
   }
 }
