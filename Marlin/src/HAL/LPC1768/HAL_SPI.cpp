@@ -119,28 +119,13 @@
   #endif
 
   void spiBegin() {  // setup SCK, MOSI & MISO pins for SSP0
-    PINSEL_CFG_Type PinCfg;  // data structure to hold init values
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(SCK_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_INPUT(MISO_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(MOSI_PIN);
-    // divide PCLK by 2 for SSP0
-    CLKPWR_SetPCLKDiv(LPC_HW_SPI_DEV == 0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
-    spiInit(0);
-    SSP_Cmd(LPC_SSPn, ENABLE);  // start SSP running
+    #if MISO_PIN == BOARD_SPI1_MISO_PIN
+      SPI.setModule(1);
+    #elif MISO_PIN == BOARD_SPI2_MISO_PIN
+      SPI.setModule(2);
+    #endif
+    SPI.setDataMode(SPI_MODE0);
+    SPI.begin();
   }
 
   void spiInit(uint8_t spiRate) {
@@ -153,19 +138,12 @@
     Marlin_speed[4] =  500000; //(SCR: 49)  desired:   500,000  actual:   500,000         SPI_SPEED_5
     Marlin_speed[5] =  250000; //(SCR: 99)  desired:   250,000  actual:   250,000         SPI_SPEED_6
     Marlin_speed[6] =  125000; //(SCR:199)  desired:   125,000  actual:   125,000         Default from HAL.h
-    // setup for SPI mode
-    SSP_CFG_Type HW_SPI_init; // data structure to hold init values
-    SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
-    HW_SPI_init.ClockRate = Marlin_speed[_MIN(spiRate, 6)]; // put in the specified bit rate
-    HW_SPI_init.Mode |= SSP_CR1_SSP_EN;
-    SSP_Init(LPC_SSPn, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
+    SPI.setClock(Marlin_speed[_MIN(spiRate, 6)]);
+    SPI.begin();
   }
 
   static uint8_t doio(uint8_t b) {
-    /* send and receive a single byte */
-    SSP_SendData(LPC_SSPn, b & 0x00FF);
-    while (SSP_GetStatus(LPC_SSPn, SSP_STAT_BUSY));  // wait for it to finish
-    return SSP_ReceiveData(LPC_SSPn) & 0x00FF;
+    return SPI.transfer(b & 0x00FF) & 0x00FF;
   }
 
   void spiSend(uint8_t b) { doio(b); }
