@@ -632,7 +632,7 @@
 #define HOMING_BUMP_MM      { 5, 5, 2 }       // (mm) Backoff from endstops after first bump
 #define HOMING_BUMP_DIVISOR { 1, 1, 1 }       // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 
-#define HOMING_BACKOFF_POST_MM { 5, 5, 0 }  // (mm) Backoff from endstops after homing
+#define HOMING_BACKOFF_POST_MM { 12, 10, 0 }  // (mm) Backoff from endstops after homing
 
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
@@ -2229,8 +2229,10 @@
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT       282        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT_HOME  149        // (mA) RMS current for sensorless homing
+    //#define X_CURRENT       282        // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT       450 // custom
+    //#define X_CURRENT_HOME  149        // (mA) RMS current for sensorless homing
+    #define X_CURRENT_HOME  230 // custom
     #define X_MICROSTEPS     16    // 0..256
     #define X_RSENSE       0.22
     #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
@@ -2245,8 +2247,10 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT       348
-    #define Y_CURRENT_HOME  182
+    //#define Y_CURRENT       348
+    #define Y_CURRENT       450 // custom
+    //#define Y_CURRENT_HOME  182
+    #define Y_CURRENT_HOME   230  // custom
     #define Y_MICROSTEPS     16
     #define Y_RSENSE       0.22
     #define Y_CHAIN_POS      -1
@@ -2420,9 +2424,9 @@
    * Use Trinamic's ultra quiet stepping mode.
    * When disabled, Marlin will use spreadCycle stepping mode.
    */
-  //#define STEALTHCHOP_XY
+  #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
-  //#define STEALTHCHOP_E
+  #define STEALTHCHOP_E
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
@@ -2467,17 +2471,17 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  //#define HYBRID_THRESHOLD
+  #define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
   #define Y_HYBRID_THRESHOLD     100
   #define Y2_HYBRID_THRESHOLD    100
-  #define Z_HYBRID_THRESHOLD       3
-  #define Z2_HYBRID_THRESHOLD      3
-  #define Z3_HYBRID_THRESHOLD      3
-  #define Z4_HYBRID_THRESHOLD      3
-  #define E0_HYBRID_THRESHOLD     30
+  #define Z_HYBRID_THRESHOLD      80
+  #define Z2_HYBRID_THRESHOLD     80
+  #define Z3_HYBRID_THRESHOLD     80
+  #define Z4_HYBRID_THRESHOLD     80
+  #define E0_HYBRID_THRESHOLD     15
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
   #define E3_HYBRID_THRESHOLD     30
@@ -2522,7 +2526,7 @@
     //#define Z3_STALL_SENSITIVITY Z_STALL_SENSITIVITY
     //#define Z4_STALL_SENSITIVITY Z_STALL_SENSITIVITY
     //#define SPI_ENDSTOPS              // TMC2130 only
-    //#define IMPROVE_HOMING_RELIABILITY
+    #define IMPROVE_HOMING_RELIABILITY
   #endif
 
   /**
