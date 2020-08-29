@@ -288,7 +288,7 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Destination memory - Not used
   GPDMACfg.DstMemAddr = 0;
   // Transfer size
-  GPDMACfg.TransferSize = (minc ? length : 1);
+  GPDMACfg.TransferSize = length;
   // Transfer width
   GPDMACfg.TransferWidth = (_currentSetting->dataSize == DATA_SIZE_16BIT) ? GPDMA_WIDTH_HALFWORD : GPDMA_WIDTH_BYTE;
   // Transfer type
@@ -303,26 +303,24 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Enable dma on SPI
   SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
 
-  // if minc=false, I'm repeating the same byte 'length' times, as I could not find yet how do GPDMA without memory increment
-  do {
-    // Setup channel with given parameter
-    GPDMA_Setup(&GPDMACfg);
+  // only increase memory if minc is true
+  GPDMACfg.MemoryIncrease = (minc ? GPDMA_DMACCxControl_SI : 0);
 
-    // enabled dma
-    GPDMA_ChannelCmd(0, ENABLE);
+  // Setup channel with given parameter
+  GPDMA_Setup(&GPDMACfg);
 
-    // wait data transfer
-    while (!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) { }
+  // enabled dma
+  GPDMA_ChannelCmd(0, ENABLE);
 
-    // clear err and int
-    GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
-    GPDMA_ClearIntPending (GPDMA_STATCLR_INTERR, 0);
+  // wait data transfer
+  while (!GPDMA_IntGetStatus(GPDMA_STAT_RAWINTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_RAWINTERR, 0)) { }
 
-    // dma disable
-    GPDMA_ChannelCmd(0, DISABLE);
+  // clear err and int
+  GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
+  GPDMA_ClearIntPending (GPDMA_STATCLR_INTERR, 0);
 
-    --length;
-  } while (!minc && length > 0);
+  // dma disable
+  GPDMA_ChannelCmd(0, DISABLE);
 
   waitSpiTxEnd(_currentSetting->spi_d);
 
