@@ -1,4 +1,5 @@
-# Marlin 3D Printer Firmware
+# Marlin 3D Printer Firmware | Prussia3D Edition
+## Adds Configs for the Prusa MK3S and is always kept up to date with colinrgodsey's direct stepping project.
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
