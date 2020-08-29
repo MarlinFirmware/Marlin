@@ -75,10 +75,6 @@
 #endif
 #undef HEXIFY
 
-#if ENABLED(MARLIN_DEV_MODE)
-  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-#endif
-
 /**
  * Warnings for old configurations
  */
@@ -2124,7 +2120,12 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
   #endif
+  #elif ENABLED(NEOPIXEL2_SEPARATE)
+   #if !(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
+    #error "NEOPIXEL2 requires NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+  #endif
 #endif
+
 #undef _RGB_TEST
 
 #if DISABLED(NO_COMPILE_TIME_PWM)
@@ -2876,7 +2877,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Prusa MMU2 requirements
+ * Průša MMU2 requirements
  */
 #if ENABLED(PRUSA_MMU2)
   #if EXTRUDERS != 5
