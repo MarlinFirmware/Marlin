@@ -8,7 +8,7 @@
 // this is initial configuration elements for the Tenlog screen interface which is a Serial port connected
 // 'intelligent' controller, it has its own menu display/processing which is not open source
 //
-//#define TL_TFT_DISPLAY            // IGHMC todo: included for intellisense
+//#define TL_TFT_DISPLAY
 #ifdef TL_TFT_DISPLAY
 //#pragma message(__FILE__)
 
@@ -18,6 +18,7 @@
 #if ENABLED(SDSUPPORT)
   #include "src/sd/cardreader.h"
 #endif
+
 
 // ******************* Externals **********************  // IGHMC: unclear where to define these
 //int  dual_x_carriage_mode;
@@ -109,10 +110,20 @@ public:
   #if ENABLED(SDSUPPORT)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
-
-  // IGHMC, todo: these are definitely not needed but left in case of comaptibility
-  // static constexpr bool wait_for_move = false;
-  // static constexpr bool external_control = false;
+#if ENABLED(EEPROM_SETTINGS)
+    static void init_eeprom();
+    static void load_settings();
+    static void store_settings();
+#if DISABLED(EEPROM_AUTO_INIT)
+    static void eeprom_alert(const uint8_t msgid);
+    static inline void eeprom_alert_crc() { eeprom_alert(0); }
+    static inline void eeprom_alert_index() { eeprom_alert(1); }
+    static inline void eeprom_alert_version() { eeprom_alert(2); }
+#endif
+#endif
+    // IGHMC, todo: these are definitely not needed but left in case of comaptibility
+    // static constexpr bool wait_for_move = false;
+    // static constexpr bool external_control = false;
 
 private:
 

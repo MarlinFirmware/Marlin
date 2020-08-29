@@ -46,6 +46,7 @@
 #endif
 
 #include "../../lcd/ultralcd.h"
+
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/dwin/dwin.h"
 #endif

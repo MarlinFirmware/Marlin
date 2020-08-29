@@ -87,8 +87,8 @@
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RAMPS_PLUS_SF)
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_EEB_TENLOG)
-  #include "ramps/pins_RAMPS_TENLOG.h"          // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+#elif MB(TENLOG_D3_HERO)
+  #include "ramps/pins_RAMPS_TL.h"          // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
@@ -197,7 +197,7 @@
 #elif MB(ORTUR_4)
   #include "ramps/pins_ORTUR_4.h"               // ATmega2560                             env:mega2560
 #elif MB(TENLOG_D3_HERO)
-  #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
+  #include "ramps/pins_RAMPS_TL.h"        // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives

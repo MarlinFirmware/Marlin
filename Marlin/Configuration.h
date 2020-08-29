@@ -21,6 +21,9 @@
  */
 #pragma once
 
+//IGHMC REMOVE DEBUG
+#define DEBUG_DXC_MODE
+#define DEBUG_TOOL_CHANGE
 /**
  * Configuration.h
  *
@@ -130,8 +133,8 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EEB_TENLOG
-  #define TL_DUAL_Z                               //IGHMC - might not be needed
+  #define MOTHERBOARD BOARD_TENLOG_D3_HERO
+  #define TL_DUAL_Z //IGHMC - might not be needed
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -319,8 +322,8 @@
 // For the other hotends it is their distance from the extruder 0 hotend.
 
 //IGHMC values from zyf
-#define HOTEND_OFFSET_X { 0.0, 0.0 } // (mm) relative X-offset for each nozzle
-#define HOTEND_OFFSET_Y { 0.0, 0.7 }  // (mm) relative Y-offset for each nozzle
+#define HOTEND_OFFSET_X { 0.0, 354.0 } // (mm) relative X-offset for each nozzle
+#define HOTEND_OFFSET_Y { 0.0, 0.0 }  // (mm) relative Y-offset for each nozzle
 
 //IGHMC, zyf doesn't use extruder offset z but left this in for marlin at 0 as they are on the same gantry
 #define HOTEND_OFFSET_Z { 0.0, 0.00 }  // (mm) relative Z-offset for each nozzle
@@ -492,7 +495,7 @@
 #if ENABLED(PIDTEMP)     //ighmc, adds a menu for marlin, not possible for zyf, so default pid values used below
   //#define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
   //#define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
-  //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+  #define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
@@ -511,11 +514,15 @@
   //#define DEFAULT_Kp 63.0
   //#define DEFAULT_Ki 2.25
   //#define DEFAULT_Kd 440
-//ighmc, from pidtune for E0, need bugfix for E1
 
-#define  DEFAULT_Kp 26.6
-#define  DEFAULT_Ki 2.23
-#define  DEFAULT_Kd 79.4
+
+#define  DEFAULT_Kp 19.95, 21.4
+#define  DEFAULT_Ki 1.65,  1.79
+#define  DEFAULT_Kd 60.46, 62.34
+//ighmc, from pidtune for E0, check bugfix for E1:
+// #define DEFAULT_Kp 21.14
+// #define DEFAULT_Ki 1.79
+// #define DEFAULT_Kd 62.34
 
 #endif // PIDTEMP
 
@@ -775,15 +782,15 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 792, 92.6 }         //IGHMC matches zyf
-#define DEFAULT_AXIS_STEPS_PER_UNIT     { 80, 80, 792, 402.4}    //IGHMC  ", 391.1" - new extruder type?
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 792, 414.8, 449.6 }
 
-/**
+/**449.6414.8
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 //#define DEFAULT_MAX_FEEDRATE          {120, 80, 4, 37 }        //IGHMC matches zyf
-#define DEFAULT_MAX_FEEDRATE            { 120, 80, 4, 50 }       //IGHMC - new extruder type?
+#define DEFAULT_MAX_FEEDRATE            { 120, 80, 4, 75,75 }       //IGHMC - new extruder type?
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -799,7 +806,7 @@
 
 //IGHMC, copied from configuration_zyf, the setting for e looks odd  todo: check it works
 //#define DEFAULT_MAX_ACCELERATION      {500, 500, 100, 1000 }
-#define DEFAULT_MAX_ACCELERATION        {800, 800, 160, 1600}   //IGHMC  - new extruder type?
+#define DEFAULT_MAX_ACCELERATION        {800, 800, 160, 500,500}   //IGHMC  - new extruder type?
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -1144,8 +1151,8 @@
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 
 //IGHMC, direct extruders on zyf, need to test
-#define INVERT_E0_DIR true       //IGHMC   why is it different from E1?
-#define INVERT_E1_DIR false
+#define INVERT_E0_DIR false       //IGHMC   why is it different from E1?
+#define INVERT_E1_DIR true
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 #define INVERT_E4_DIR false
@@ -1214,7 +1221,7 @@
 #endif
 #ifdef ZYF_SIZE_300
   #define DEFAULT_DUPLICATION_X_OFFSET 151
-  #define X_MAX_POS 390.0
+  #define X_MAX_POS 300.0
   #define Y_MAX_POS 310.0
   #ifdef P2P1
     #define Z_MAX_POS 355.0
@@ -1631,9 +1638,9 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-//#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
-#define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
+// #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
   //#define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
@@ -2348,13 +2355,13 @@
 //
 // TENLOG TFT display
 //
-//#define TL_TFT_DISPLAY
+#define TL_TFT_DISPLAY
 
 //
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-//#define EXTENSIBLE_UI
+#define EXTENSIBLE_UI
 
 //=============================================================================
 //=============================== Graphical TFTs ==============================
@@ -2438,7 +2445,7 @@
 
 // Set number of user-controlled fans. Disable to use all board-defined fans.
 // :[1,2,3,4,5,6,7,8]
-//#define NUM_M106_FANS 1
+// #define NUM_M106_FANS 2
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN

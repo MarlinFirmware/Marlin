@@ -19,9 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if TL_TFT_DISPLAY
-#include "extui_TL_TFT_Display.h"
-#elif ULTRA_LCD
+#ifdef ULTRA_LCD
 #include "../inc/MarlinConfigPre.h"
 #include "../inc/MarlinConfig.h"
 

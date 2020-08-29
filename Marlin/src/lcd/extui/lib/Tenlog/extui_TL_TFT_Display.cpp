@@ -121,7 +121,59 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
 
   finish_status(level > 0);
 }
-  void status_printf_P(const uint8_t, PGM_P const message, ...) {
+#if ENABLED(EEPROM_SETTINGS)
+
+#if HAS_LCD_MENU
+void MarlinUI::init_eeprom() {
+    const bool good = settings.init_eeprom();
+    completion_feedback(good);
+    return_to_status();
+}
+void MarlinUI::load_settings() {
+    const bool good = settings.load();
+    completion_feedback(good);
+}
+void MarlinUI::store_settings() {
+    const bool good = settings.save();
+    completion_feedback(good);
+}
+#endif
+
+#if DISABLED(EEPROM_AUTO_INIT)
+
+static inline PGM_P eeprom_err(const uint8_t msgid) {
+    switch (msgid) {
+        default:
+        case 0:
+            return GET_TEXT(MSG_ERR_EEPROM_CRC);
+        case 1:
+            return GET_TEXT(MSG_ERR_EEPROM_INDEX);
+        case 2:
+            return GET_TEXT(MSG_ERR_EEPROM_VERSION);
+    }
+}
+
+void MarlinUI::eeprom_alert(const uint8_t msgid) {
+#if HAS_LCD_MENU
+    editable.uint8 = msgid;
+    goto_screen([] {
+        PGM_P const restore_msg = GET_TEXT(MSG_INIT_EEPROM);
+        char msg[utf8_strlen_P(restore_msg) + 1];
+        strcpy_P(msg, restore_msg);
+        MenuItem_confirm::select_screen(
+            GET_TEXT(MSG_BUTTON_RESET), GET_TEXT(MSG_BUTTON_IGNORE),
+            init_eeprom, return_to_status,
+            eeprom_err(editable.uint8), msg, PSTR("?"));
+    });
+#else
+    set_status_P(eeprom_err(msgid));
+#endif
+}
+
+#endif // EEPROM_AUTO_INIT
+
+#endif // EEPROM_SETTINGS
+void status_printf_P(const uint8_t, PGM_P const message, ...) {
 #if ENABLED(HOST_PROMPT_SUPPORT)
   host_action_notify(message);
 #else
@@ -198,7 +250,7 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
 
       //IGHMC separating the TL variables that will be stored in EEPROM and used for TL Menu from Marlin 'normal' variables, todo: investigate just using the Marlin standard
       float tmp[XYZ][HOTENDS] = {HOTEND_OFFSET_X, HOTEND_OFFSET_Y, HOTEND_OFFSET_Z};
-      float TL_axis_steps_per_unit[XYZE] = DEFAULT_AXIS_STEPS_PER_UNIT;
+      float TL_axis_steps_per_unit[XYZE_N] = DEFAULT_AXIS_STEPS_PER_UNIT;
       float TL_X2_MAX_POS = X2_MAX_POS;
       float TL_Y2_OFFSET = tmp[1][1];
       float TL_Z2_OFFSET = tmp[2][1];
@@ -625,7 +677,7 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
       TenlogScreen_println(strAll0);
       delay(50);
       TenlogScreen_println("click btReflush,0");
-      SERIAL_ECHO("\\");
+      // SERIAL_ECHO("\\");
       return 1;
     }
 
@@ -635,7 +687,7 @@ void MarlinUI::set_status_P(PGM_P const message, int8_t level) {
         TL_screenready = false;
         TL_screenready=TL_parameter_update();
         TL_statusstart = tl_temp;
-        SERIAL_ECHO("/");
+        // SERIAL_ECHO("/");
       }
       return;
     }

@@ -24,7 +24,7 @@
 
 #if HAS_DUPLICATION_MODE
 
-//#define DEBUG_DXC_MODE
+#define DEBUG_DXC_MODE
 
 #include "../gcode.h"
 #include "../../module/motion.h"
@@ -122,7 +122,7 @@
           case DXC_MIRRORED_MODE:     DEBUG_ECHOPGM("MIRRORED");     break;
         }
         DEBUG_ECHOPAIR("\nActive Ext: ", int(active_extruder));
-        if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
+        if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT");
         DEBUG_ECHOPGM(" parked.");
         DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position.x);
         DEBUG_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
@@ -134,7 +134,7 @@
         DEBUG_ECHOPAIR("\nX2 Home X: ", x_home_pos(1), "\nX2_MIN_POS=", int(X2_MIN_POS), "\nX2_MAX_POS=", int(X2_MAX_POS));
         DEBUG_ECHOPAIR("\nX2_HOME_DIR=", int(X2_HOME_DIR), "\nX2_HOME_POS=", int(X2_HOME_POS));
         DEBUG_ECHOPAIR("\nDEFAULT_DUAL_X_CARRIAGE_MODE=", STRINGIFY(DEFAULT_DUAL_X_CARRIAGE_MODE));
-        DEBUG_ECHOPAIR("\toolchange_settings.z_raise=", toolchange_settings.z_raise);
+        DEBUG_ECHOPAIR("\ntoolchange_settings.z_raise=", toolchange_settings.z_raise);
         DEBUG_ECHOPAIR("\nDEFAULT_DUPLICATION_X_OFFSET=", int(DEFAULT_DUPLICATION_X_OFFSET));
         DEBUG_EOL();
 

@@ -39,7 +39,7 @@
 #include <math.h>
 
 #include "core/utility.h"
-#include "src/lcd/extui/lib/tenlog/extui_TL_TFT_Display.h" //IGHMC replacing ultralcd.h
+#include "src/lcd/ultralcd.h" //IGHMC - need to load Tenlog?...
 #include "module/motion.h"
 #include "module/planner.h"
 #include "module/endstops.h"
@@ -72,6 +72,10 @@
   #include "lcd/dwin/dwin.h"
   #include "lcd/dwin/dwin_lcd.h"
   #include "lcd/dwin/rotary_encoder.h"
+#endif
+
+#if ENABLED(TL_TFT_DISPLAY)
+  #include "lcd/extui/lib/Tenlog/extui_TL_TFT_Display.h"
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -1176,12 +1180,6 @@ void setup() {
     queue.inject_P(PSTR(STARTUP_COMMANDS));
   #endif
 
-#ifdef TL_TFT_DISPLAY
-  SERIAL_ECHOLN("core:1154        ighmc marlin tl_mainmenu"); //IGHMC - todo remove this up
-  SETUP_RUN(ExtUI::TL_mainmenu_load());
-  DELAY_US(20);
-#endif
-
   #if ENABLED(HOST_PROMPT_SUPPORT)
     SETUP_RUN(host_action_prompt_end());
   #endif
@@ -1206,8 +1204,15 @@ void setup() {
     HMI_StartFrame(true);
   #endif
 
+  #ifdef TL_TFT_DISPLAY
+      SERIAL_ECHOLN("core:1154        ighmc marlin tl_mainmenu"); //IGHMC - todo remove this up
+      ui.init_post();
+      SETUP_RUN(ExtUI::TL_mainmenu_load());
+      DELAY_US(20);
+  #endif
+
   #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
-    ui.reset_status(true);  // Show service messages or keep current status
+      ui.reset_status(true); // Show service messages or keep current status
   #endif
 
   #if ENABLED(MAX7219_DEBUG)

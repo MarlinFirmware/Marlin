@@ -24,8 +24,9 @@
 
 
 #pragma once
-#if  TL_TFT_DISPLAY
-#include "src/lcd/extui/lib/Tenlog/extui_TL_TFT_Display.h"
+#ifdef TL_TFT_DISPLAY
+  #include "src/lcd/extui/lib/Tenlog/extui_TL_TFT_Display.h"
+
 #elif ULTRA_LCD
 #include "../inc/MarlinConfig.h"
 

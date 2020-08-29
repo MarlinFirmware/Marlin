@@ -29,6 +29,7 @@
 #include "../../lcd/ultralcd.h"
 #include "../../libs/buzzer.h"
 
+
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
  *

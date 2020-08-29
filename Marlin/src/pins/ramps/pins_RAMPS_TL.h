@@ -43,7 +43,7 @@
 #define Y_MIN_PIN                             14  // Ori 14 by zyf  - IGHMC, 14 in Marlin2 pins_RAMPS.h if X_STOP_PIN not defined
 //#define Y_MAX_PIN                           -1  //15              - IGHMC, 15 in Marlin2 pins_RAMPS.h if X_STOP_PIN not defined (nb: not used by ZYF)
 #define Z_MIN_PIN                             18  // IGHMC, same in Marlin2 pins_RAMPS.h if Z_STOP_PIN not defined
-#define Z_MAX_PIN                             19  // IGHMC, same in Marlin2 pins_RAMPS.h  not used in zyf
+#define Z_MAX_PIN                             -1  // IGHMC, set in Marlin2 pins_RAMPS.h  not used in zyf which switch Z2 with Y when needed
 
 //
 // Steppers, IGHMC zyf doesn't define any *_CS_PIN but equally
@@ -106,9 +106,9 @@
 #define SDSS                                  53  // IGHMC, same as Marlin2 pins_RAMPS.h
 #define LED_PIN                               13  // IGHMC, same as Marlin2 pins_RAMPS.h
 
-#define FAN_PIN                                9  // (Sprinter config)           // IGHMC Ramps_d9_pin in pins_RAMPS.h, may be equivalent in this case but marlin2 has logic to choose multiple fan pins
-#define FAN2_Control
-#define FAN2_PIN                               5  // IGHMC copied from configuration_zyh, TODO: check this fits with Marlin handling of fans which uses logic rather than explicit naming
+#define FAN_PIN                                5  // (Sprinter config)           // IGHMC Ramps_d9_pin in pins_RAMPS.h, may be equivalent in this case but marlin2 has logic to choose multiple fan pins
+// #define FAN1_Control
+#define FAN1_PIN                               9  // IGHMC copied from configuration_zyh, TODO: check this fits with Marlin handling of fans which uses logic rather than explicit naming
 
 #if ENABLED(PSU_CONTROL)
   #define PS_ON_PIN                           40  // zyf 40    //PF1                           // IGHMC, it's 12 Marlin2 pins_RAMPS.h  (?PF1)
