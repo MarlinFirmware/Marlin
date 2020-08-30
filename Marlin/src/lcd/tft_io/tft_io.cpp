@@ -92,6 +92,7 @@ if (lcd_id != 0xFFFFFFFF) return;
         write_esc_sequence(ili9341_init);
         break;
       case ILI9488:   // ILI9488    480x320
+      case 0x8066:
         DEBUG_ECHO_MSG(" ILI9488");
         write_esc_sequence(ili9488_init);
         break;
