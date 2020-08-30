@@ -45,15 +45,13 @@ Caption:
 (T) Extruder Titan
 (B) Extruder BMG
 
-  ### /*-------OPTIONS--------*/
-UI TFT
+  ### /*-------Options UI TFT--------*/
 (F) UI STANDARD 
 (C) UI MARLIN 
 (I) UI MKS
 
+  ### /*-------Others options in firmware----*/ 
 (B) BED_LEVELING_BILINEAR
 (U) BED_LEVELING_UBL
-
-  ### /*-------Others options in firmware----*/ 
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
