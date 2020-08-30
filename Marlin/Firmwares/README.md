@@ -57,9 +57,13 @@ Caption:
 
 ## For the Wifi Module (MKS_Wifi):
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
+1) Flash original firmware + original mkswifi 
+2) Flash original firmware + Custum mkswifi 
+3) Inspect the Wifi Access Point: AP-FLSUN => Flash ok 
+4) Flash Marlin 
 to run the update of Mks_Wifi or You also can do by web page of the AP (192.168.4.1).
 
-###Initial Configuration after the flash.
+### Initial Configuration after the flash.
 1. Open device web page on the AP connected device
 Accept Captive portal redirect or
 2 Open a web browser and navigate to http://192.168.4.1
@@ -68,7 +72,7 @@ Accept Captive portal redirect or
 5 You may want to change the Baud rate
 6. You can change to DHCP, or at the very least setup a Static IP you are familiar with.
 
-More information:https://github.com/luc-github/ESP3D/wiki/Install-Instructions
+More information: [ESP3Dv2.1] (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
 Once reconnected to the module's web page, you must load the two files "index.html.gz"
 and "preferences.json" to have the user interface.
