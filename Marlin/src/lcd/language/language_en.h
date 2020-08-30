@@ -563,7 +563,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Remove, click");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Component =");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Component ~");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Full Gradient");
