@@ -113,8 +113,6 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
     Ymin += OFFSET_Y; Ymax += OFFSET_Y;
   #endif
 
-  SERIAL_ECHOLNPAIR("lcd id: ", io.ReadID(LCD_READ_ID), ", id4: ", io.ReadID(LCD_READ_ID4));
-
   switch (lcd_id) {
     case ST7735:    // ST7735     160x128
     case ST7789:    // ST7789V    320x240
