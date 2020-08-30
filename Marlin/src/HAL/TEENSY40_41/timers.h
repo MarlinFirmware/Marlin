@@ -38,7 +38,7 @@ typedef uint32_t hal_timer_t;
 #define GPT_TIMER_RATE F_BUS_ACTUAL   // 150MHz
 
 #define GPT1_TIMER_PRESCALE 8
-#define GPT2_TIMER_PRESCALE 128
+#define GPT2_TIMER_PRESCALE 10
 
 #define GPT1_TIMER_RATE (GPT_TIMER_RATE / GPT1_TIMER_PRESCALE) // 18MHz
 #define GPT2_TIMER_RATE (GPT_TIMER_RATE / GPT2_TIMER_PRESCALE) // 15MHz
@@ -85,8 +85,12 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0: GPT1_OCR1 = compare; break;
-    case 1: GPT2_OCR1 = compare; break;
+    case 0:
+      GPT1_OCR1 = compare - 1;
+      break;
+    case 1:
+      GPT2_OCR1 = compare - 1;
+      break;
   }
 }
 
@@ -111,4 +115,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-void HAL_timer_isr_epilogue(const uint8_t timer_num);
+void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
