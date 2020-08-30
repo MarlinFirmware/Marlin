@@ -37,6 +37,9 @@
  * With NEOPIXEL_LED:
  *  I<index>  Set the NeoPixel index to affect. Default: All
  *
+ * With NEOPIXEL2_SEPARATE:
+ *  S<index>  The NeoPixel strip to set. Default is index 0.
+ *
  * Examples:
  *
  *   M150 R255       ; Turn LED red
@@ -47,18 +50,35 @@
  *   M150 P127       ; Set LED 50% brightness
  *   M150 P          ; Set LED full brightness
  *   M150 I1 R       ; Set NEOPIXEL index 1 to red
+ *   M150 S1 I1 R    ; Set SEPARATE index 1 to red
  */
+
 void GcodeSuite::M150() {
   #if ENABLED(NEOPIXEL_LED)
-    neo.neoindex = parser.intval('I', -1);
+    const uint8_t index = parser.intval('I', -1);
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      const uint8_t unit = parser.intval('S'),
+                    brightness = unit ? neo2.brightness() : neo.brightness();
+      *(unit ? &neo2.neoindex : &neo.neoindex) = index;
+    #else
+      const uint8_t brightness = neo.brightness();
+      neo.neoindex = index;
+    #endif
   #endif
-  leds.set_color(MakeLEDColor(
+
+  const LEDColor color = MakeLEDColor(
     parser.seen('R') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('U') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('B') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
     parser.seen('W') ? (parser.has_value() ? parser.value_byte() : 255) : 0,
-    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : neo.brightness()
-  ));
+    parser.seen('P') ? (parser.has_value() ? parser.value_byte() : 255) : brightness
+  );
+
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    if (unit == 1) { leds2.set_color(color); return; }
+  #endif
+
+  leds.set_color(color);
 }
 
 #endif // HAS_COLOR_LEDS

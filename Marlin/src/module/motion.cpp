@@ -1097,17 +1097,16 @@ void prepare_line_to_destination() {
   current_position = destination;
 }
 
-uint8_t axes_need_homing(uint8_t axis_bits/*=0x07*/) {
-  #define HOMED_FLAGS TERN(HOME_AFTER_DEACTIVATE, axis_known_position, axis_homed)
-  // Clear test bits that are homed
-  if (TEST(axis_bits, X_AXIS) && TEST(HOMED_FLAGS, X_AXIS)) CBI(axis_bits, X_AXIS);
-  if (TEST(axis_bits, Y_AXIS) && TEST(HOMED_FLAGS, Y_AXIS)) CBI(axis_bits, Y_AXIS);
-  if (TEST(axis_bits, Z_AXIS) && TEST(HOMED_FLAGS, Z_AXIS)) CBI(axis_bits, Z_AXIS);
+uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
+  // Clear test bits that are trusted
+  if (TEST(axis_bits, X_AXIS) && TEST(axis_homed, X_AXIS)) CBI(axis_bits, X_AXIS);
+  if (TEST(axis_bits, Y_AXIS) && TEST(axis_homed, Y_AXIS)) CBI(axis_bits, Y_AXIS);
+  if (TEST(axis_bits, Z_AXIS) && TEST(axis_homed, Z_AXIS)) CBI(axis_bits, Z_AXIS);
   return axis_bits;
 }
 
-bool axis_unhomed_error(uint8_t axis_bits/*=0x07*/) {
-  if ((axis_bits = axes_need_homing(axis_bits))) {
+bool homing_needed_error(uint8_t axis_bits/*=0x07*/) {
+  if ((axis_bits = axes_should_home(axis_bits))) {
     PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
     char msg[strlen_P(home_first)+1];
     sprintf_P(msg, home_first,
@@ -1431,15 +1430,15 @@ void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
- * Set an axis' to be unhomed.
+ * Set an axis to be unhomed.
  */
-void set_axis_not_trusted(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_not_trusted(", axis_codes[axis], ")");
+void set_axis_never_homed(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", axis_codes[axis], ")");
 
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
 }

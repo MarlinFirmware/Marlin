@@ -55,7 +55,7 @@ extern const char SP_Y_STR[];
 
 void GcodeSuite::M48() {
 
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
 
   const int8_t verbose_level = parser.byteval('V', 1);
   if (!WITHIN(verbose_level, 0, 4)) {

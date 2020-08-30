@@ -490,7 +490,7 @@ void GcodeSuite::G26() {
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
 
   // Change the tool first, if specified
   if (parser.seenval('T')) tool_change(parser.value_int());
