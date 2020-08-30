@@ -72,7 +72,7 @@ Accept Captive portal redirect or
 5 You may want to change the Baud rate
 6. You can change to DHCP, or at the very least setup a Static IP you are familiar with.
 
-More information: [ESP3Dv2.1] (https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+More information: [ESP3Dv2.1](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
 Once reconnected to the module's web page, you must load the two files "index.html.gz"
 and "preferences.json" to have the user interface.
