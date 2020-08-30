@@ -39,6 +39,7 @@ void TFT_IO::InitTFT() {
 if (lcd_id != 0xFFFFFFFF) return;
 
   // io.Init();
+  delay(100);
 
   #if TFT_DRIVER != AUTO
     lcd_id = TFT_DRIVER;

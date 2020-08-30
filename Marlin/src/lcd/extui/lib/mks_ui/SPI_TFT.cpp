@@ -55,23 +55,7 @@ void TFT::SetPoint(uint16_t x, uint16_t y, uint16_t point) {
 }
 
 void TFT::SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
-  tftio.DataTransferBegin(DATASIZE_8BIT);
-
-  LCD_WR_REG(0x2A);
-  LCD_WR_DATA(x >> 8);
-  LCD_WR_DATA(x);
-  LCD_WR_DATA((x + with - 1) >> 8);
-  LCD_WR_DATA((x + with - 1));
-
-  LCD_WR_REG(0x2B);
-  LCD_WR_DATA(y >> 8);
-  LCD_WR_DATA(y);
-  LCD_WR_DATA((y + height - 1) >> 8);
-  LCD_WR_DATA(y + height - 1);
-
-  LCD_WR_REG(0X2C);
-
-  tftio.DataTransferEnd();
+  tftio.set_window(x, y, (x + with - 1), (y + height - 1));
 }
 
 void TFT::LCD_init() {
@@ -82,79 +66,7 @@ void TFT::LCD_init() {
   delay(150);
   TFT_RST_H;
 
-  tftio.DataTransferBegin(DATASIZE_8BIT);
-
-  delay(120);
-  LCD_WR_REG(0x11);
-  delay(120);
-
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0xC3);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x96);
-
-  LCD_WR_REG(0x36);
-  LCD_WR_DATA(0x28 + TERN0(GRAPHICAL_TFT_ROTATE_180, 0x80));
-  LCD_WR_REG(0x3A);
-  LCD_WR_DATA(0x55);
-
-  LCD_WR_REG(0xB4);
-  LCD_WR_DATA(0x01);
-  LCD_WR_REG(0xB7);
-  LCD_WR_DATA(0xC6);
-  LCD_WR_REG(0xE8);
-  LCD_WR_DATA(0x40);
-  LCD_WR_DATA(0x8A);
-  LCD_WR_DATA(0x00);
-  LCD_WR_DATA(0x00);
-  LCD_WR_DATA(0x29);
-  LCD_WR_DATA(0x19);
-  LCD_WR_DATA(0xA5);
-  LCD_WR_DATA(0x33);
-  LCD_WR_REG(0xC1);
-  LCD_WR_DATA(0x06);
-  LCD_WR_REG(0xC2);
-  LCD_WR_DATA(0xA7);
-  LCD_WR_REG(0xC5);
-  LCD_WR_DATA(0x18);
-  LCD_WR_REG(0xE0);     // Positive Voltage Gamma Control
-  LCD_WR_DATA(0xF0);
-  LCD_WR_DATA(0x09);
-  LCD_WR_DATA(0x0B);
-  LCD_WR_DATA(0x06);
-  LCD_WR_DATA(0x04);
-  LCD_WR_DATA(0x15);
-  LCD_WR_DATA(0x2F);
-  LCD_WR_DATA(0x54);
-  LCD_WR_DATA(0x42);
-  LCD_WR_DATA(0x3C);
-  LCD_WR_DATA(0x17);
-  LCD_WR_DATA(0x14);
-  LCD_WR_DATA(0x18);
-  LCD_WR_DATA(0x1B);
-  LCD_WR_REG(0xE1);     // Negative Voltage Gamma Control
-  LCD_WR_DATA(0xF0);
-  LCD_WR_DATA(0x09);
-  LCD_WR_DATA(0x0B);
-  LCD_WR_DATA(0x06);
-  LCD_WR_DATA(0x04);
-  LCD_WR_DATA(0x03);
-  LCD_WR_DATA(0x2D);
-  LCD_WR_DATA(0x43);
-  LCD_WR_DATA(0x42);
-  LCD_WR_DATA(0x3B);
-  LCD_WR_DATA(0x16);
-  LCD_WR_DATA(0x14);
-  LCD_WR_DATA(0x17);
-  LCD_WR_DATA(0x1B);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x3C);
-  LCD_WR_REG(0xF0);
-  LCD_WR_DATA(0x69);
-  delay(120);     // Delay 120ms
-  LCD_WR_REG(0x29);     // Display ON
-
-  tftio.DataTransferEnd();
+  tftio.InitTFT();
 
   LCD_clear(0x0000);    //
   LCD_Draw_Logo();
