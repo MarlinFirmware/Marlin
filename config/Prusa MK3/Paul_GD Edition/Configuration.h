@@ -764,7 +764,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 150, 150, 12, 120 }
+#define DEFAULT_MAX_FEEDRATE          { 100, 100, 12, 120 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1379,7 +1379,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G1 X12 Y6 Z0 F8000"
+#define Z_PROBE_END_SCRIPT "G1 X12 Y6 F7200\nG1 Z0 F8000"
 
 // @section homing
 

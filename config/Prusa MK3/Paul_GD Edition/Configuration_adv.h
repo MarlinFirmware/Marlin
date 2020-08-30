@@ -2250,7 +2250,7 @@
     //#define Y_CURRENT       348
     #define Y_CURRENT       450 // custom
     //#define Y_CURRENT_HOME  182
-    #define Y_CURRENT_HOME   230  // custom
+    #define Y_CURRENT_HOME  260  // custom
     #define Y_MICROSTEPS     16
     #define Y_RSENSE       0.22
     #define Y_CHAIN_POS      -1
@@ -2426,7 +2426,7 @@
    */
   #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
-  #define STEALTHCHOP_E
+  //#define STEALTHCHOP_E
 
   /**
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
@@ -2471,7 +2471,7 @@
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
    */
-  #define HYBRID_THRESHOLD
+  //#define HYBRID_THRESHOLD
 
   #define X_HYBRID_THRESHOLD     100  // [mm/s]
   #define X2_HYBRID_THRESHOLD    100
@@ -2481,7 +2481,7 @@
   #define Z2_HYBRID_THRESHOLD     80
   #define Z3_HYBRID_THRESHOLD     80
   #define Z4_HYBRID_THRESHOLD     80
-  #define E0_HYBRID_THRESHOLD     15
+  #define E0_HYBRID_THRESHOLD      0
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
   #define E3_HYBRID_THRESHOLD     30
@@ -2539,7 +2539,7 @@
    *
    * Values from 0..1023, -1 to disable homing phase for that axis.
    */
-   //#define TMC_HOME_PHASE { 896, 896, 896 }
+   #define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
    * Beta feature!
