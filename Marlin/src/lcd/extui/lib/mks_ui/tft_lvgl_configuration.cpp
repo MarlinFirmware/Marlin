@@ -298,7 +298,7 @@ void SysTick_Callback() {
     }
   }
 
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+  #include "../../../tft_io/tft_io.h"
   extern TFT_IO tftio;
   void fsmc_tft_init() {
     uint16_t i;

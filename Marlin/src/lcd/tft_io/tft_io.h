@@ -64,7 +64,7 @@ public:
 
   inline static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) { io.DataTransferBegin(DataWidth); }
   inline static void DataTransferEnd() { io.DataTransferEnd(); };
-  inline static void DataTransferAbort() { io.DataTransferAbort(); };
+  // inline static void DataTransferAbort() { io.DataTransferAbort(); };
 
   inline static void WriteData(uint16_t Data) { io.WriteData(Data); };
   inline static void WriteReg(uint16_t Reg) { io.WriteReg(Reg); };
