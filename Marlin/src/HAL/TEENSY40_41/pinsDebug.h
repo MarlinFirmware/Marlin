@@ -19,52 +19,111 @@
 #pragma once
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
+
+#define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
+#define PRINT_PORT(p)
+#define PRINT_ARRAY_NAME(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
+#define PRINT_PIN(p) do{ sprintf_P(buffer, PSTR("%02d"), p); SERIAL_ECHO(buffer); }while(0)
+#define GET_ARRAY_PIN(p) pin_array[p].pin
+#define GET_ARRAY_IS_DIGITAL(p) pin_array[p].is_digital
+#define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL ? 1 : 0)
+#define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
+#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(13)) || ((P) >= analogInputToDigitalPin(14) && (P) <= analogInputToDigitalPin(17))
+//#define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
+#define pwm_status(pin) HAL_pwm_status(pin)
+#define GET_PINMODE(PIN) (VALID_PIN(pin) && !IS_INPUT(pin))
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
-#define FTM0_CH0_PIN 22
-#define FTM0_CH1_PIN 23
-#define FTM0_CH2_PIN  9
-#define FTM0_CH3_PIN 10
-#define FTM0_CH4_PIN  6
-#define FTM0_CH5_PIN 20
-#define FTM0_CH6_PIN 21
-#define FTM0_CH7_PIN  5
-#define FTM1_CH0_PIN  3
-#define FTM1_CH1_PIN  4
-#define FTM2_CH0_PIN 29
-#define FTM2_CH1_PIN 30
-#define FTM3_CH0_PIN  2
-#define FTM3_CH1_PIN 14
-#define FTM3_CH2_PIN  7
-#define FTM3_CH3_PIN  8
-#define FTM3_CH4_PIN 35
-#define FTM3_CH5_PIN 36
-#define FTM3_CH6_PIN 37
-#define FTM3_CH7_PIN 38
-#ifdef __MK66FX1M0__ // Teensy3.6
-  #define TPM1_CH0_PIN 16
-  #define TPM1_CH1_PIN 17
-#endif
 
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
+struct pwm_pin_info_struct {
+	uint8_t type;    // 0=no pwm, 1=flexpwm, 2=quad
+	uint8_t module;  // 0-3, 0-3
+	uint8_t channel; // 0=X, 1=A, 2=B
+	uint8_t muxval;  //
+};
+
+#define M(a, b) ((((a) - 1) << 4) | (b))
+
+const struct pwm_pin_info_struct pwm_pin_info[] = {
+	{1, M(1, 1), 0, 4},  // FlexPWM1_1_X   0  // AD_B0_03
+	{1, M(1, 0), 0, 4},  // FlexPWM1_0_X   1  // AD_B0_02
+	{1, M(4, 2), 1, 1},  // FlexPWM4_2_A   2  // EMC_04
+	{1, M(4, 2), 2, 1},  // FlexPWM4_2_B   3  // EMC_05
+	{1, M(2, 0), 1, 1},  // FlexPWM2_0_A   4  // EMC_06
+	{1, M(2, 1), 1, 1},  // FlexPWM2_1_A   5  // EMC_08
+	{1, M(2, 2), 1, 2},  // FlexPWM2_2_A   6  // B0_10
+	{1, M(1, 3), 2, 6},  // FlexPWM1_3_B   7  // B1_01
+	{1, M(1, 3), 1, 6},  // FlexPWM1_3_A   8  // B1_00
+	{1, M(2, 2), 2, 2},  // FlexPWM2_2_B   9  // B0_11
+	{2, M(1, 0), 0, 1},  // QuadTimer1_0  10  // B0_00
+	{2, M(1, 2), 0, 1},  // QuadTimer1_2  11  // B0_02
+	{2, M(1, 1), 0, 1},  // QuadTimer1_1  12  // B0_01
+	{2, M(2, 0), 0, 1},  // QuadTimer2_0  13  // B0_03
+	{2, M(3, 2), 0, 1},  // QuadTimer3_2  14  // AD_B1_02
+	{2, M(3, 3), 0, 1},  // QuadTimer3_3  15  // AD_B1_03
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{2, M(3, 1), 0, 1},  // QuadTimer3_1  18  // AD_B1_01
+	{2, M(3, 0), 0, 1},  // QuadTimer3_0  19  // AD_B1_00
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(4, 0), 1, 1},  // FlexPWM4_0_A  22  // AD_B1_08
+	{1, M(4, 1), 1, 1},  // FlexPWM4_1_A  23  // AD_B1_09
+	{1, M(1, 2), 0, 4},  // FlexPWM1_2_X  24  // AD_B0_12
+	{1, M(1, 3), 0, 4},  // FlexPWM1_3_X  25  // AD_B0_13
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(3, 1), 2, 1},  // FlexPWM3_1_B  28  // EMC_32
+	{1, M(3, 1), 1, 1},  // FlexPWM3_1_A  29  // EMC_31
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(2, 0), 2, 1},  // FlexPWM2_0_B  33  // EMC_07
+#ifdef ARDUINO_TEENSY40
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  34  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  35  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  36  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  37  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  38  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  39  // SD_B0_04
+#endif
+#ifdef ARDUINO_TEENSY41
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(2, 3), 1, 6},  // FlexPWM2_3_A  36  // B1_00
+	{1, M(2, 3), 2, 6},  // FlexPWM2_3_B  37  // B1_01
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{0, M(1, 0), 0, 0},
+	{1, M(1, 1), 2, 1},  // FlexPWM1_1_B  42  // SD_B0_03
+	{1, M(1, 1), 1, 1},  // FlexPWM1_1_A  43  // SD_B0_02
+	{1, M(1, 0), 2, 1},  // FlexPWM1_0_B  44  // SD_B0_01
+	{1, M(1, 0), 1, 1},  // FlexPWM1_0_A  45  // SD_B0_00
+	{1, M(1, 2), 2, 1},  // FlexPWM1_2_B  46  // SD_B0_05
+	{1, M(1, 2), 1, 1},  // FlexPWM1_2_A  47  // SD_B0_04
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_0_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_A
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_2_B
+	{1, M(3, 3), 2, 1},  // FlexPWM3_3_B  51  // EMC_22
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_B
+	{0, M(1, 0), 0, 0},  // duplicate FlexPWM1_1_A
+	{1, M(3, 0), 1, 1},  // FlexPWM3_0_A  53  // EMC_29
+#endif
+};
+
 
 void HAL_print_analog_pin(char buffer[], int8_t pin) {
-  if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
+  if (pin <= 27)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
   else if (pin <= 39) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 19));
 }
 
 void HAL_analog_pin_state(char buffer[], int8_t pin) {
   if (pin <= 23)      sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 14));
-  else if (pin <= 39) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 19));
+  else if (pin <= 41) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 24));
 }
 
 #define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), 22); SERIAL_ECHO(buffer); }while(0)
-#define FTM_CASE(N,Z) \
-  case FTM##N##_CH##Z##_PIN: \
-    if (FTM##N##_C##Z##V) { \
-      PWM_PRINT(FTM##N##_C##Z##V); \
-      return true; \
-    } else return false
 
 /**
  * Print a pin's PWM status.
@@ -72,33 +131,20 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
  */
 bool HAL_pwm_status(int8_t pin) {
   char buffer[20];   // for the sprintf statements
-  switch (pin) {
-    FTM_CASE(0,0);
-    FTM_CASE(0,1);
-    FTM_CASE(0,2);
-    FTM_CASE(0,3);
-    FTM_CASE(0,4);
-    FTM_CASE(0,5);
-    FTM_CASE(0,6);
-    FTM_CASE(0,7);
-    FTM_CASE(1,0);
-    FTM_CASE(1,1);
-    FTM_CASE(2,0);
-    FTM_CASE(2,1);
-    FTM_CASE(3,0);
-    FTM_CASE(3,1);
-    FTM_CASE(3,2);
-    FTM_CASE(3,3);
-    FTM_CASE(3,4);
-    FTM_CASE(3,5);
-    FTM_CASE(3,6);
-    FTM_CASE(3,7);
+	const struct pwm_pin_info_struct *info;
 
-    case NOT_ON_TIMER:
-    default:
-      return false;
-  }
-  SERIAL_ECHOPGM("  ");
+	if (pin >= CORE_NUM_DIGITAL) return 0;
+	info = pwm_pin_info + pin;
+
+  if (info->type == 0) return 0;
+
+  /* TODO decode pwm value from timers */
+  // for now just indicate if output is set as pwm
+  PWM_PRINT(*(portConfigRegister(pin)) == info->muxval);
+  return (*(portConfigRegister(pin)) == info->muxval);
 }
 
+
+
 static void HAL_pwm_details(uint8_t pin) { /* TODO */ }
+

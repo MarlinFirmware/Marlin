@@ -72,11 +72,14 @@ typedef uint32_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR()  extern "C" void gpt1_isr() //void GPT1_Handler()
+  #define HAL_STEP_TIMER_ISR()  extern "C" void stepTC_Handler() // GPT1_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR()  extern "C" void gpt2_isr() //void GPT2_Handler()
+  #define HAL_TEMP_TIMER_ISR()  extern "C" void tempTC_Handler() // GPT2_Handler()
 #endif
+
+extern "C" void stepTC_Handler();
+extern "C" void tempTC_Handler();
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
@@ -108,4 +111,4 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-#define HAL_timer_isr_epilogue(TIMER_NUM)
+void HAL_timer_isr_epilogue(const uint8_t timer_num);

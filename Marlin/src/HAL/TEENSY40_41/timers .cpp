@@ -45,28 +45,28 @@ FORCE_INLINE static void __DSB() {
   __asm__ __volatile__("dsb 0xF":::"memory");
 }
 
-
-static void __attribute((naked, noinline)) gpt1_isr() {
+/*
+static void __attribute((naked, noinline)) stepTC_Handler() {
   GPT1_SR = GPT_SR_OF1;  // clear OF1 bit
 
   __DSB();
   __ISB();
 }
 
-static void __attribute((naked, noinline)) gpt2_isr() {
+static void __attribute((naked, noinline)) tempTC_Handler() {
   GPT2_SR = GPT_SR_OF1;  // clear OF1 bit
 
   __DSB();
   __ISB();
 }
-
+*/
 
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   switch (timer_num) {
     case 0:
       if (! NVIC_IS_ENABLED(IRQ_GPT1)) { 
-        attachInterruptVector(IRQ_GPT1, &gpt1_isr);
+        attachInterruptVector(IRQ_GPT1, &stepTC_Handler);
         NVIC_SET_PRIORITY(IRQ_GPT1, 16);
       }
       CCM_CCGR1 |= CCM_CCGR1_GPT1_BUS(CCM_CCGR_ON);
@@ -90,7 +90,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
       break;
     case 1:
       if (! NVIC_IS_ENABLED(IRQ_GPT2)) { 
-        attachInterruptVector(IRQ_GPT2, &gpt2_isr);
+        attachInterruptVector(IRQ_GPT2, &tempTC_Handler);
         NVIC_SET_PRIORITY(IRQ_GPT2, 32);
       }
       CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
@@ -153,6 +153,33 @@ void HAL_timer_isr_prologue(const uint8_t timer_num) {
       break;
     case 1:
       GPT2_SR |= GPT_SR_OF1;  // clear set bit
+      break;
+  }
+}
+
+volatile uint32_t GPT1Ticks = 0;
+volatile uint32_t GPT2Ticks = 0;
+
+void HAL_timer_isr_epilogue(const uint8_t timer_num) {
+  switch (timer_num) {
+    case 0:
+      GPT1Ticks++;
+      if (GPT1Ticks >= 1000) {
+        GPT1Ticks = 0;
+        OUT_WRITE(14, HIGH);
+      }
+      if (GPT1Ticks == 100) {
+        OUT_WRITE(14, LOW);
+      }
+      break;
+    case 1:
+      if (GPT2Ticks >= 1000) {
+        GPT2Ticks = 0;
+        OUT_WRITE(15, HIGH);
+      }
+      if (GPT2Ticks == 100) {
+        OUT_WRITE(15, LOW);
+      }
       break;
   }
 }
