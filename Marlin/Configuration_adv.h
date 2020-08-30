@@ -2250,7 +2250,7 @@
     //#define Y_CURRENT       348
     #define Y_CURRENT       450 // custom
     //#define Y_CURRENT_HOME  182
-    #define Y_CURRENT_HOME   230  // custom
+    #define Y_CURRENT_HOME  260  // custom
     #define Y_MICROSTEPS     16
     #define Y_RSENSE       0.22
     #define Y_CHAIN_POS      -1
@@ -2539,7 +2539,7 @@
    *
    * Values from 0..1023, -1 to disable homing phase for that axis.
    */
-   //#define TMC_HOME_PHASE { 896, 896, 896 }
+   #define TMC_HOME_PHASE { 896, 896, 896 }
 
   /**
    * Beta feature!
