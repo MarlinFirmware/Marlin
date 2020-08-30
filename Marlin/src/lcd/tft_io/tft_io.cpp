@@ -93,7 +93,7 @@ if (lcd_id != 0xFFFFFFFF) return;
         write_esc_sequence(ili9341_init);
         break;
       case ILI9488:   // ILI9488    480x320
-      case 0x8066:
+      case ILI9488_ID1: // 0x8066 ILI9488    480x320
         DEBUG_ECHO_MSG(" ILI9488");
         write_esc_sequence(ili9488_init);
         break;
@@ -113,12 +113,15 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
     Ymin += OFFSET_Y; Ymax += OFFSET_Y;
   #endif
 
+  SERIAL_ECHOLNPAIR("lcd id: ", io.ReadID(LCD_READ_ID), ", id4: ", io.ReadID(LCD_READ_ID4));
+
   switch (lcd_id) {
     case ST7735:    // ST7735     160x128
     case ST7789:    // ST7789V    320x240
     case ST7796:    // ST7796     480x320
     case ILI9341:   // ILI9341    320x240
     case ILI9488:   // ILI9488    480x320
+    case ILI9488_ID1: // 0x8066 ILI9488    480x320
       io.DataTransferBegin(DATASIZE_8BIT);
 
       // CASET: Column Address Set

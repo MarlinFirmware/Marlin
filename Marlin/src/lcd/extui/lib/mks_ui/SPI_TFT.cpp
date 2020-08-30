@@ -22,8 +22,6 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-
 #include "SPI_TFT.h"
 #include "pic_manager.h"
 #include "tft_lvgl_configuration.h"
@@ -31,6 +29,8 @@
 #include "../../../../inc/MarlinConfig.h"
 
 #include <SPI.h>
+
+#include "draw_ui.h"
 
 TFT SPI_TFT;
 
@@ -71,7 +71,9 @@ void TFT::LCD_init() {
   LCD_clear(0x0000);    //
   LCD_Draw_Logo();
   TFT_BLK_H;
-  delay(2000);
+  #if HAS_LOGO_IN_FLASH
+    delay(2000);
+  #endif
 }
 
 void TFT::LCD_clear(uint16_t color) {
@@ -82,11 +84,12 @@ void TFT::LCD_clear(uint16_t color) {
 extern unsigned char bmp_public_buf[17 * 1024];
 
 void TFT::LCD_Draw_Logo() {
-  SetWindows(0, 0, TFT_WIDTH, TFT_HEIGHT);
-  for (uint16_t i = 0; i < (TFT_HEIGHT); i ++) {
-    Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
-    tftio.WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
-  }
+  #if HAS_LOGO_IN_FLASH
+    SetWindows(0, 0, TFT_WIDTH, TFT_HEIGHT);
+    for (uint16_t i = 0; i < (TFT_HEIGHT); i ++) {
+      Pic_Logo_Read((uint8_t *)"", (uint8_t *)bmp_public_buf, (TFT_WIDTH) * 2);
+      tftio.WriteSequence((uint16_t *)bmp_public_buf, TFT_WIDTH);
+    }
+  #endif
 }
 
-#endif // HAS_TFT_LVGL_UI_SPI
