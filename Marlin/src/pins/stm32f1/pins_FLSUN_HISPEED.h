@@ -37,22 +37,22 @@
 
 //
 #define DISABLE_DEBUG
+
 //
 // EEPROM
 //
-/*
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #define I2C_EEPROM                              // EEPROM on I2C-0
-  #define MARLIN_EEPROM_SIZE 0x800U               // 4KB
-#endif
-*/
-
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)          // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE  // 2KB
 #endif
+
+// SPI1(PA7) & SPI3(PB5) not available
+//
+// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
+//
+#define ENABLE_SPI2
 
 //
 // Limit Switches
@@ -149,16 +149,16 @@
 
 /**
  * src: MKS Robin_Mini V2
- *          ____   ___
- *     GND | 15 | | 08 | +3v3   USART1_RX PA10 
- *         | 16 | | nc |        USART1_TX PA9   // active low, probably OK to leave floating
- *     IO2 | nc | | nc |        GPIO0     PA8    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *     IO0 | 18 | | nc |        GPIO1     PC7    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *     IO1 | 19 | | 03 |  EN    ENABLED         // Must be high for module to run
- *     RXD | 21 | | nc |                    
- *     TXD | 22 | | 01 |  RST   WIFI RST  PA5   //
- *          ￣￣ AE￣￣          GPIO2      -1   // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *             
+ *            ____ESP ___
+ *       GND | 15 | | 08 | +3v3   USART1_RX PA10
+ *           | 16 | | nc |        USART1_TX PA9   // active low, probably OK to leave floating
+ *       IO2 | nc | | nc |        GPIO0     PA8    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *  (PA8)IO0 | 18 | | nc |        GPIO1     PC7    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *  (PC7)IO1 | 19 | | 03 |  EN    ENABLED         // Must be high for module to run
+ *           | nc | | nc |          
+ * (PA10)RXD | 21 | | nc |       
+ *  (PA9)TXD | 22 | | 01 |  RST   WIFI RST  PA5   //
+ *            ￣￣ AE￣￣          GPIO2      -1   // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
  */
 
   #define ESP_WIFI_MODULE_COM                 2   // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
@@ -172,6 +172,7 @@
   #else
   #define WIFI_IO0_PIN                     PC13
 #endif
+
 //
 // Temperature Sensors
 //
@@ -184,8 +185,8 @@
 #define HEATER_0_PIN                        PC3   // HEATER_E0
 #define HEATER_BED_PIN                      PA0   // HEATER_BED-WKUP
 
-#define FAN_PIN                             PB1   // FAN
-#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
+#define FAN_PIN                             PB1   // E_FAN
+//#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 
 //
 // Misc. Functions
@@ -201,8 +202,12 @@
   #define PS_ON_PIN                         PA3  // PW_CN /PW_OFF
 #endif
 
+#define MT_DET_1_PIN                        PA4   //  MT_DET
+#define MT_DET_2_PIN                        PE6   //  FALA_CRTL
+#define MT_DET_PIN_INVERTING               false
+
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4
+  #define FIL_RUNOUT_PIN            MT_DET_1_PIN
 #endif
 
 //#define LED_PIN                           PB2
@@ -210,37 +215,16 @@
 //#define SERVO0_PIN                        PA8   // use IO0 to enable BLTOUCH support/remove Mks_Wifi
 
 //
-//#if ENABLED(NEOPIXEL_LED)
-  //#define NEOPIXEL_PIN                    PC7   // IO1 The NEOPIXEL LED driving pin
-//#else
-//  #if DISABLED(POWER_LOSS_RECOVERY)
-//#endif
-
-//
 // SD Card
 //
-#ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION             ONBOARD
-#endif
-
 #define SDIO_SUPPORT
-#define SDIO_CLOCK                      4500000    // 4.5 MHz
-#define SD_DETECT_PIN                      PD12    //FSCM_A17/USUART3_RX /SD_CD
-#define ONBOARD_SD_CS_PIN                  PC11    //SD_CS
-
-// SPI1(PA7) & SPI3(PB5) not available
-//
-// Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
-//
-
-#define ENABLE_SPI2
-
 #if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN                          PB13  // SPI2_SCK
-  #define MISO_PIN                         PB14  // SPI2_MISO
-  #define MOSI_PIN                         PB15  // SPI2_MOSI
-  #define SD_DETECT_PIN                    PD12  // SD_CD
+  #define SCK_PIN                           PB13  // SPI2
+  #define MISO_PIN                          PB14  // SPI2
+  #define MOSI_PIN                          PB15  // SPI2
+  #define SD_DETECT_PIN                     PD12  // SD_CD
 #endif
+
 //
 // LCD / Controller
 //
@@ -260,6 +244,7 @@
  * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
 */
+
  /* MKS Robin TFT v2.0 with ILI9341 */
   //#define XPT2046_X_CALIBRATION  12013
   //#define XPT2046_Y_CALIBRATION  -8711
@@ -279,6 +264,9 @@
   //#define XPT2046_Y_OFFSET         -17
   
   /* QQS-Pro use MKS Robin TFT v2.0 */
+  //+++++++++++++++++++++++//
+
+#if HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -296,6 +284,7 @@
   #define LCD_USE_DMA_FSMC      // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                     DMA2
   #define FSMC_DMA_CHANNEL              DMA_CH5
+#endif
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
 
@@ -333,41 +322,4 @@
   #define W25QXX_MOSI_PIN                  PB15
   #define W25QXX_MISO_PIN                  PB14
   #define W25QXX_SCK_PIN                   PB13
-#endif
-
-/* Beta_Test with TFT Robin */
-#if HAS_TFT_LVGL_UI
-  #define HAS_SPI_FLASH_FONT                      0
-  #define HAS_GCODE_PREVIEW                       1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH         0
-  #define HAS_LANG_SELECT_SCREEN                  0
-  #define HAS_BAK_VIEW_IN_FLASH                   0
-  #define HAS_LOGO_IN_FLASH                       0
-  #define HAS_TOUCH_XPT2046                       1
-
-  #define TOUCH_CS_PIN                          PC2   // SPI1_NSS
-  #define TOUCH_SCK_PIN                        PB13   // SPI1_SCK
-  #define TOUCH_MISO_PIN                       PB14   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                       PB15   // SPI1_MOSI
-  //#define TOUCH_INT_PIN                          -1   //PB6
-
-  #if ENABLED(TFT_LVGL_UI_SPI)
-    #define SPI_TFT_CS_PIN             TOUCH_CS_PIN
-    #define SPI_TFT_SCK_PIN           TOUCH_SCK_PIN
-    #define SPI_TFT_MISO_PIN         TOUCH_MISO_PIN
-    #define SPI_TFT_MOSI_PIN         TOUCH_MOSI_PIN
-    #define SPI_TFT_DC_PIN                     PD11
-    #define SPI_TFT_RST_PIN                     PC6
-  #endif
-
-  #define LCD_RESET_PIN                         PC6
-  #define LCD_BACKLIGHT_PIN                    PD13
-
-  #define LCD_PIXEL_WIDTH                       320
-  #define LCD_PIXEL_HEIGHT                      240
-  #define LCD_FULL_PIXEL_WIDTH      LCD_PIXEL_WIDTH
-  #define LCD_FULL_PIXEL_HEIGHT    LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_OFFSET_X                    32
-  #define LCD_PIXEL_OFFSET_Y                    32
-
 #endif
