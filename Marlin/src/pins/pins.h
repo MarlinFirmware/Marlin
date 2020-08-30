@@ -565,7 +565,7 @@
 #elif MB(TEENSY40_41)
   #include "teensy4/pins_TEENSY40_41.h"         // TEENSY40_41                            env:teensy41
 
-#elif MB(T441U5XBB)
+#elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"            // TEENSY40_41                            env:teensy41
 
 //

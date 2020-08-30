@@ -355,7 +355,7 @@
 #define BOARD_REMRAM_V1               5001  // RemRam v1
 
 #define BOARD_TEENSY40_41             5002  // Teensy4.0 and Teensy4.1
-#define BOARD_T441U5XBB               5003  // T441U5XBB Teensy4.1 breakout board
+#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy4.1 breakout board
 
 
 //
