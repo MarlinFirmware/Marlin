@@ -38,7 +38,7 @@ Caption:
 (S) A4988
 (8) TMC2208
 (9) TMC2209
-(U8) Remove module ESP12    
+(U8) TMC2208_UART with no module ESP12.    
 
   ### /*------Modules--------*/
 (W) Module ESP8266/ESP12
