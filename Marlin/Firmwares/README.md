@@ -8,7 +8,7 @@
 __Not for production use. Use with caution!__
 * Update Marlin-BugFix 20200829
 
-# # Validate:
+  # # Validate:
 
 Firmware for QQS-Pro with A4988.
 
@@ -26,24 +26,24 @@ No validate:
 -TMC2209
 -TMC220x UART
 
-# # Exemple: 
+  # # Exemple: 
 
 8CWBL-Robin_mini.bin =>  TMC2208 standalone/UI Marlin/Module Wifi/Extruder BMG/LinearAdvance  
 
 Caption:
 
-###/*------Drivers--------*/
+  ### /*------Drivers--------*/
 (S) A4988
 (8) TMC2208
 (9) TMC2209
 (U8) Remove module ESP12    
 
-###/*------Modules--------*/
+  ### /*------Modules--------*/
 (W) Module ESP8266/ESP12
 (T) Extruder Titan
 (B) Extruder BMG
 
-###/*-------OPTIONS--------*/
+  ### /*-------OPTIONS--------*/
 UI TFT
 (F) UI STANDARD 
 (C) UI MARLIN 
@@ -52,6 +52,6 @@ UI TFT
 (B) BED_LEVELING_BILINEAR
 (U) BED_LEVELING_UBL
 
-###/*-------Others options in firmware----*/ 
+  ### /*-------Others options in firmware----*/ 
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
