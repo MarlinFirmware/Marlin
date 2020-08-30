@@ -24,7 +24,7 @@
 
 #if ENABLED(TFT_LVGL_UI_FSMC)
 
-#include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+#include "../../../tft_io/tft_io.h"
 TFT_IO tftio;
 
 void LCD_IO_Init(uint8_t cs, uint8_t rs);

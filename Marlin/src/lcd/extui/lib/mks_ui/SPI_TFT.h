@@ -23,11 +23,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
-#elif ENABLED(TFT_LVGL_UI_FSMC)
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
-#endif
+#include "../../../tft_io/tft_io.h"
 
 #define TFT_RST_H OUT_WRITE(TFT_RESET_PIN, HIGH)
 #define TFT_RST_L OUT_WRITE(TFT_RESET_PIN, LOW)

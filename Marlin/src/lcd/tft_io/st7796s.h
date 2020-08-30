@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 

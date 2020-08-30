@@ -66,12 +66,7 @@
   #define HAS_LCD_IO 1
 #endif
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
-#endif
-
+#include "../tft_io/tft_io.h"
 TFT_IO tftio;
 
 #define WIDTH  LCD_PIXEL_WIDTH
