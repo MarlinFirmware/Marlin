@@ -413,6 +413,7 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     uint16_t selectedNumber = 0;
     SelectedDirectory[0] = 0;
     SelectedFile[0] = 0;
+    ExtUI::FileList currentFileList;                                 
 
     SENDLINE_PGM("FN "); // Filelist start
 
@@ -428,7 +429,7 @@ void AnycubicTFTClass::RenderCurrentFileList() {
 
       if (SpecialMenu)
         RenderSpecialMenu(selectedNumber);
-      else
+      else if (selectedNumber <= currentFileList.count())
         RenderCurrentFolder(selectedNumber);
     }
     SENDLINE_PGM("END"); // Filelist stop
