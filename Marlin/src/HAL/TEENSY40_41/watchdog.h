@@ -29,9 +29,6 @@
 void watchdog_init();
 
 inline void HAL_watchdog_refresh() {
-  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heartbeat indicator
-  #endif
   // Watchdog refresh sequence
   WDOG1_WSR = 0x5555;
   WDOG1_WSR = 0xAAAA;
