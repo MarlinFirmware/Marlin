@@ -195,16 +195,16 @@
 #if ENABLED(TFT_LVGL_UI_FSMC)
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION            17880
+    #define XPT2046_X_CALIBRATION          17880
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           -12234
+    #define XPT2046_Y_CALIBRATION         -12234
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                   -45
+    #define XPT2046_X_OFFSET                 -45
   #endif
   #ifndef XPT2046_Y_OFFSET
-   #define XPT2046_Y_OFFSET                   349
+   #define XPT2046_Y_OFFSET                  349
   #endif
 
 // Emulated DOGM Configs
@@ -253,16 +253,16 @@
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION           -12246
+    #define XPT2046_X_CALIBRATION         -12246
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION             9453
+    #define XPT2046_Y_CALIBRATION           9453
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                   360
+    #define XPT2046_X_OFFSET                 360
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                   -22
+    #define XPT2046_Y_OFFSET                 -22
   #endif
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
@@ -282,16 +282,16 @@
 
 #elif ENABLED(TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION            17880
+    #define XPT2046_X_CALIBRATION          17880
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           -12234
+    #define XPT2046_Y_CALIBRATION         -12234
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                   -45
+    #define XPT2046_X_OFFSET                 -45
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                   349
+    #define XPT2046_Y_OFFSET                 349
   #endif
   
   #define TFT_DRIVER                     ILI9488
