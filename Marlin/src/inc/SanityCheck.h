@@ -75,10 +75,6 @@
 #endif
 #undef HEXIFY
 
-#if ENABLED(MARLIN_DEV_MODE)
-  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
-#endif
-
 /**
  * Warnings for old configurations
  */
@@ -2881,7 +2877,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 
 /**
- * Prusa MMU2 requirements
+ * Průša MMU2 requirements
  */
 #if ENABLED(PRUSA_MMU2)
   #if EXTRUDERS != 5

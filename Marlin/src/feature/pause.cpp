@@ -413,7 +413,7 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
     unscaled_e_move(retract, PAUSE_PARK_RETRACT_FEEDRATE);
 
   // Park the nozzle by moving up by z_lift and then moving to (x_pos, y_pos)
-  if (!axes_need_homing())
+  if (!axes_should_home())
     nozzle.park(0, park_point);
 
   #if ENABLED(DUAL_X_CARRIAGE)
