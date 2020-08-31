@@ -28,6 +28,7 @@
 #include "../../../../inc/MarlinConfig.h"
 #include "../../ui_api.h"
 #include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"	// for A20 read printing speed feedrate_percentage
 
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
@@ -804,7 +805,6 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 20: { // A20 read printing speed
-            int16_t feedrate_percentage = 100;
 
             if (CodeSeen('S'))
               feedrate_percentage = constrain(CodeValue(), 40, 999);
