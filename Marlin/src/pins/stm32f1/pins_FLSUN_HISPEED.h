@@ -218,6 +218,7 @@
 // SD Card
 //
 #define SDIO_SUPPORT
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
