@@ -115,4 +115,5 @@ void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
 void HAL_timer_isr_prologue(const uint8_t timer_num);
-void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
+//void HAL_timer_isr_epilogue(const uint8_t timer_num) {}
+#define HAL_timer_isr_epilogue(TIMER_NUM)

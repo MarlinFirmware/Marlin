@@ -18,6 +18,8 @@
  */
 #pragma once
 
+#error "PINS_DEBUGGING is not yet supported for Teensy 4.0 / 4/1!"
+
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
 #define digitalRead_mod(p) extDigitalRead(p)  // AVR digitalRead disabled PWM before it read the pin
