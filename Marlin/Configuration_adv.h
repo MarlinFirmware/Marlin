@@ -3524,3 +3524,6 @@
 
 // Enable Marlin dev mode which adds some special commands
 //#define MARLIN_DEV_MODE
+
+// Enable Marlin Custom Dev GCode M9999. It's to help developers test their code and new features.
+//#define DEV_CUSTOM_GCODE

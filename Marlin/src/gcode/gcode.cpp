@@ -924,6 +924,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 7219: M7219(); break;                                // M7219: Set LEDs, columns, and rows
       #endif
 
+      #if BOTH(MARLIN_DEV_MODE, DEV_CUSTOM_GCODE)
+        case 9999: M9999(); break;                                // M9999: Custom Development GCode
+      #endif
+
       default: parser.unknown_command_warning(); break;
     }
     break;
@@ -1032,3 +1036,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
   }
 
 #endif // HOST_KEEPALIVE_FEATURE
+
+#if BOTH(MARLIN_DEV_MODE, DEV_CUSTOM_GCODE)
+  #include "dev_custom_gcode.h"
+#endif
