@@ -52,7 +52,7 @@ Caption:
 (I) UI MKS
 
   ### /*-------Others options in firmware----*/ 
-(B) BED_LEVELING_BILINEAR
+(A) BED_LEVELING_BILINEAR
 (U) BED_LEVELING_UBL
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
