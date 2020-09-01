@@ -1,5 +1,7 @@
 /**
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
+ * THIS VERSION IS NOT FOR PRODUCTION USE AT THIS TIME AND ONLY AVAILABLE FOR TESTING PURPOSES
+ * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE RELEASE
  */
 #pragma once
 #define CONFIGURATION_H_VERSION 020006
@@ -15,14 +17,20 @@
 //===========================================================================
 
 //===========================================================================
+// Creality Ender 3 Options
+// NOTE: If you have the MicroUSB port use the ENDER3_V42X_BOARD option below
+//===========================================================================
+//#define ENDER3
+//#define ENDER3_V42X_BOARD
+
+// EZABL Probe Mounts
+//#define ENDER3_OEM
+//#define CUSTOM_PROBE
+
+//===========================================================================
 // Creality Ender 3 V2 Options
 //===========================================================================
 //#define ENDER3_V2
-
-// If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
-// and then uncomment the #define EZOUT_ENABLE line below.
-// Do NOT ever connect our filament sensor without the supplied adapter board.
-//#define EZOUT_ENABLE
 
 // EZABL Probe Mounts
 //#define ENDER3_V2_OEM
