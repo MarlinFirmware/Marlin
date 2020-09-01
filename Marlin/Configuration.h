@@ -482,10 +482,11 @@
 
   #define POWER_LOSS_RECOVERY
 
-  #if ENABLED(ENDER3_V2_OEM)
+  #if ENABLED(ENDER3_OEM)
+    #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
     #define ABL_ENABLE
-    #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
   #endif
+  
 #endif
 // End Ender 3 V2 Settings
 
