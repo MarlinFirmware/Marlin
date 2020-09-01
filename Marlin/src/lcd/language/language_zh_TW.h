@@ -382,8 +382,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("總計");    //"Total"
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("擋塊終止");     //"Endstop abort"
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("加熱失敗");     //"Heating failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("熱床加熱失敗");   //"Bed Heating Failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("機箱加熱失敗");   //"Chamber Heating Fail"
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("錯誤：冗餘溫度");     //"Err: REDUNDANT TEMP"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("溫度失控");    //"THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("熱床溫度失控");    //"BED THERMAL RUNAWAY"

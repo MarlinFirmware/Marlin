@@ -414,8 +414,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Toplam");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop iptal");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Isınma başarısız");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Yatak Isınma Başrsız");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Oda Isıtma Hatası");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Hata: Sıcaklık Aşımı");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TERMAL PROBLEM");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("TABLA TERMAL PROBLEM");

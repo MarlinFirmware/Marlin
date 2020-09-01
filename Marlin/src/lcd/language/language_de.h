@@ -446,8 +446,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Abbr. mit Endstopp");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("HEIZEN ERFOLGLOS");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Bett heizen fehlge.");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Geh. heizen fehlge.");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("REDUND. TEMP-ABWEI.");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = " " LCD_STR_THERMOMETER _UxGT(" NICHT ERREICHT");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("BETT") " " LCD_STR_THERMOMETER _UxGT(" NICHT ERREICHT");

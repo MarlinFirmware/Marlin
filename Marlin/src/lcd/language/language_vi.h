@@ -330,7 +330,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Nhít Z");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Hủy bỏ công tắc");                      // Endstop abort
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Sưởi đầu phun không thành công");       // Heating failed
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Sưởi bàn không thành công");            // Bed heating failed
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Điều sai: nhiệt độ dư");                // Err: REDUNDANT TEMP
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("Vấn đề nhiệt");                         // THERMAL RUNAWAY | problem
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("Vấn đề nhiệt bàn");                     // BED THERMAL RUNAWAY
