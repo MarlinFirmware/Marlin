@@ -66,22 +66,23 @@
 //#define STOCK
 
 /*------Drivers--------*/
-#define QQS   // (S)A4988
+#define QQS   //(S) A4988
 //#define QQS_TMC   //(8) TMC220x For 2208 or 2209
-//#define QQS_UART  // (U8) Remove module ESP12    
+//#define QQS_UART  //(U8) Remove module ESP12    
 /*    Modules       */
-#define ESP_WIFI    //Module ESP8266/ESP12
+#define ESP_WIFI    //(W)Module ESP8266/ESP12
 //#define BMG         // Extruder
 
 /*-------OPTIONS--------*/
 //Choice UI TFT 
-//#define FSMC_GRAPHICAL_TFT  //(F) UI STANDARD 
-#define TFT_320x240 //(C) UI MARLIN 
+#define FSMC_GRAPHICAL_TFT  //(F) UI STANDARD 
+//#define TFT_320x240 //(C) UI MARLIN (too big with mode UART) 
 //#define TFT_LVGL_UI_FSMC  //(I) UI MKS  => (Bug)
 
 //Choice menu: (OPT) or (CAL)
 #define DELTA_CALIBRATION_MENU  //NC LVGL
 #define PID_EDIT_MENU //
+#define PID_AUTOTUNE_MENU                           
 #define PAUSE_BEFORE_DEPLOY_STOW  //Message Stow/remove Probe (bug Octoprint & UI Marlin)
 
 //  Type Calibration
@@ -92,7 +93,7 @@
 #define POWER_LOSS_RECOVERY       //NC LVGL pb SD
 #define FILAMENT_RUNOUT_SENSOR    //NC LVGL
 #define ADVANCED_PAUSE_FEATURE    //NC LVGL
-#define LIN_ADVANCE     //(L) Possible Bug with BabyStep and TMC         
+#define LIN_ADVANCE     //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle          
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -151,8 +152,8 @@
 #endif
 
 #ifdef QQS_UART
-   #define SERIAL_PORT 3
-   #define SERIAL_PORT_2 -1  //Remove module ESP12 
+   #define SERIAL_PORT -1
+   #define SERIAL_PORT_2 3
 #endif
   
 
@@ -549,7 +550,7 @@
 
 #if ENABLED(PIDTEMP)
   //#define PID_EDIT_MENU         //At the top Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  #define PID_AUTOTUNE_MENU     //OPT Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+  //#define PID_AUTOTUNE_MENU     //OPT Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
@@ -925,7 +926,7 @@
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 200, 200, 200, 200 }
+#define DEFAULT_MAX_FEEDRATE          { 250, 250, 250, 250 }
 
 //#define LIMITED_MAX_FR_EDITING        // Limit edit via M203 or LCD to DEFAULT_MAX_FEEDRATE * 2
 #if ENABLED(LIMITED_MAX_FR_EDITING)
@@ -1213,8 +1214,7 @@
 
 // Feedrate (mm/min) for the "accurate" probe of each point
 //#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 10)  //600
-//#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 6) //OPT 1000
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2) //3000
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 3) //OPT 2000
 
 /**
  * Multiple Probing

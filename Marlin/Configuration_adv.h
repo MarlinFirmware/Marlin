@@ -951,7 +951,7 @@
  * vibration and surface artifacts. The algorithm adapts to provide the best possible step smoothing at the
  * lowest stepping frequencies.
  */
-#define ADAPTIVE_STEP_SMOOTHING //OPT
+//#define ADAPTIVE_STEP_SMOOTHING //OPT
 
 /**
  * Custom Microstepping
@@ -1244,7 +1244,7 @@
   /**
    * Auto-report SdCard status with M27 S<seconds>
    */
-  #define AUTO_REPORT_SD_STATUS
+  //#define AUTO_REPORT_SD_STATUS
 
   /**
    * Support for USB thumb drives using an Arduino USB Host Shield or
@@ -1634,12 +1634,16 @@
  * Override if the automatically selected points are inadequate.
  */
 #if EITHER(AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
-  //#define PROBE_PT_1_X 15
-  //#define PROBE_PT_1_Y 180
-  //#define PROBE_PT_2_X 15
-  //#define PROBE_PT_2_Y 20
-  //#define PROBE_PT_3_X 170
-  //#define PROBE_PT_3_Y 20
+  //#define PROBE_PT_1_X 50
+  //#define PROBE_PT_1_Y 50
+  //#define PROBE_PT_2_X 180
+  //#define PROBE_PT_2_Y 50
+  //#define PROBE_PT_3_X 180
+  //#define PROBE_PT_3_Y 180
+  //#define PROBE_PT_4_X 50
+  //#define PROBE_PT_4_Y 180
+  //#define PROBE_PT_5_X 150
+  //#define PROBE_PT_5_Y 150
 #endif
 
 /**
@@ -1859,16 +1863,16 @@
 #if BOTH(SDSUPPORT, DIRECT_STEPPING)
   #define BLOCK_BUFFER_SIZE  8
 #elif ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16  //OPT 32
+  #define BLOCK_BUFFER_SIZE 32  //16 OPT 
 #else
-  #define BLOCK_BUFFER_SIZE 16  //OPT 32
+  #define BLOCK_BUFFER_SIZE 32  //16 OPT 
 #endif
 
 // @section serial
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4  //32
+#define BUFSIZE 32  //4
 
 // Transmission to Host Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -1877,7 +1881,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0 //32
+#define TX_BUFFER_SIZE 32 //0 
 
 // Host Receive Buffer Size
 // Without XON/XOFF flow control (see SERIAL_XON_XOFF below) 32 bytes should be enough.
