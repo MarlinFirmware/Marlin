@@ -648,7 +648,7 @@ namespace Language_de {
   #if ENABLED(TOUCH_UI_FTDI_EVE)
     PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Idle Timeout, Temperatur fällt. Drücke Okay, um erneut aufzuheizen und fortzufahren.");
   #else
-    PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Heizungs Timeout");
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Heizungs Timeout");
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Erneut aufheizen");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Erneut aufhei. ...");
