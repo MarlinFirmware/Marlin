@@ -33,15 +33,15 @@
 // Flash EEPROM Emulation
 //
 #define FLASH_EEPROM_EMULATION
-#define EEPROM_PAGE_SIZE     uint16(0x800) // 2KB
-#define EEPROM_START_ADDRESS uint32(0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE)
-#undef E2END
-#define E2END                (EEPROM_PAGE_SIZE - 1) // 2KB
+#define EEPROM_PAGE_SIZE     0x800 // 2KB
+#define EEPROM_START_ADDRESS (0x8000000 + 256 * 1024 - 2 * EEPROM_PAGE_SIZE) // 256K firmware space
+#define MARLIN_EEPROM_SIZE   EEPROM_PAGE_SIZE
 
+//
+// Servos
+//
+#define SERVO0_PIN                          PA8
 
-
-
-#define SERVO0_PIN                         PA8
 //
 // Limit Switches
 //
@@ -51,9 +51,6 @@
 #define Y_MAX_PIN                           PA15
 #define Z_MIN_PIN                           PA14
 #define Z_MAX_PIN                           PA13
-
-
-
 
 //
 // Steppers
@@ -65,9 +62,6 @@
   #define X_CS_PIN                          PB0
 #endif
 
-
-
-
 #define Y_STEP_PIN                          PA2
 #define Y_DIR_PIN                           PC4
 #define Y_ENABLE_PIN                        PC5
@@ -75,16 +69,12 @@
   #define Y_CS_PIN                          PA7
 #endif
 
-
 #define Z_STEP_PIN                          PA3
 #define Z_DIR_PIN                           PA5
 #define Z_ENABLE_PIN                        PA6
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                          PA4
 #endif
-
-
-
 
 #define E0_STEP_PIN                         PA1
 #define E0_DIR_PIN                          PC3
@@ -106,24 +96,18 @@
 #endif
 
 #if HAS_TMC_UART
-  
   //
   // Software serial
   //
   #define X_SERIAL_TX_PIN                   PB0
   #define X_SERIAL_RX_PIN                   PB0
-
   #define Y_SERIAL_TX_PIN                   PA7
   #define Y_SERIAL_RX_PIN                   PA7
-
   #define Z_SERIAL_TX_PIN                   PA4
   #define Z_SERIAL_RX_PIN                   PA4
-
   #define E0_SERIAL_TX_PIN                  PC2
   #define E0_SERIAL_RX_PIN                  PC2
-
 #endif
-
 
 //
 // Heaters / Fans
@@ -134,14 +118,12 @@
   #define FAN_PIN                           PC8
 #endif
 #define FAN1_PIN                            PC9
+
 //
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PC0   // Analog Input
 #define TEMP_0_PIN                          PC1   // Analog Input
-
-
-
 
 //
 // LCD Pins
@@ -151,12 +133,14 @@
 // LCD / Controller
 //
 #define ENABLE_SPI2
-#define SS_PIN                             PB12
+#define SS_PIN                              PB12
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14
 #define MOSI_PIN                            PB15
-#define SDSS                                SS_PIN 
+
+#define SDSS                              SS_PIN 
 #define SD_DETECT_PIN                       PB11
+
 #define BEEPER_PIN                          PC14
 
 #define LCD_PINS_RS                         PB8
@@ -173,8 +157,6 @@
 //
 // Filament runout
 //
-
-
 
 //
 // ST7920 Delays
