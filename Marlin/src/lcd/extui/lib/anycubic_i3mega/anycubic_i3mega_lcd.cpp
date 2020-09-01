@@ -28,6 +28,7 @@
 #include "../../../../inc/MarlinConfig.h"
 #include "../../ui_api.h"
 #include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"	// for A20 read printing speed feedrate_percentage
 
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
@@ -412,6 +413,7 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     uint16_t selectedNumber = 0;
     SelectedDirectory[0] = 0;
     SelectedFile[0] = 0;
+    ExtUI::FileList currentFileList;                                 
 
     SENDLINE_PGM("FN "); // Filelist start
 
@@ -427,7 +429,7 @@ void AnycubicTFTClass::RenderCurrentFileList() {
 
       if (SpecialMenu)
         RenderSpecialMenu(selectedNumber);
-      else
+      else if (selectedNumber <= currentFileList.count())
         RenderCurrentFolder(selectedNumber);
     }
     SENDLINE_PGM("END"); // Filelist stop
@@ -804,7 +806,6 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             break;
 
           case 20: { // A20 read printing speed
-            int16_t feedrate_percentage = 100;
 
             if (CodeSeen('S'))
               feedrate_percentage = constrain(CodeValue(), 40, 999);
