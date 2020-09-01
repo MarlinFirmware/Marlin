@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 
 #if DISABLED(NO_VOLUMETRICS)
@@ -48,12 +48,15 @@
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-  #include "../../module/configuration_store.h"
+  #include "../../module/settings.h"
+#endif
+
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password/password.h"
 #endif
 
 void menu_tmc();
 void menu_backlash();
-void menu_cancelobject();
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -560,10 +563,6 @@ void menu_advanced_settings() {
     SUBMENU(MSG_BACKLASH, menu_backlash);
   #endif
 
-  #if ENABLED(CANCEL_OBJECTS)
-    SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
-  #endif
-
   #if ENABLED(DAC_STEPPER_CURRENT)
     SUBMENU(MSG_DRIVE_STRENGTH, menu_dac);
   #endif
@@ -608,10 +607,14 @@ void menu_advanced_settings() {
     });
   #endif
 
+  #if ENABLED(PASSWORD_FEATURE)
+    SUBMENU(MSG_PASSWORD_SETTINGS, password.access_menu_password);
+  #endif
+
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
     CONFIRM_ITEM(MSG_INIT_EEPROM,
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
-      ui.init_eeprom, ui.goto_previous_screen,
+      ui.init_eeprom, nullptr,
       GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
     );
   #endif

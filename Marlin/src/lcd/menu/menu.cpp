@@ -86,7 +86,7 @@ void MarlinUI::save_previous_screen() {
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
   TERN(TURBO_BACK_MENU_ITEM,,constexpr bool is_back = false);
-  TERN_(TOUCH_BUTTONS, on_edit_screen = false);
+  TERN_(HAS_TOUCH_XPT2046, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -98,12 +98,6 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
   else
     return_to_status();
 }
-
-////////////////////////////////////////////
-/////////// Common Menu Actions ////////////
-////////////////////////////////////////////
-
-void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pgcode); }
 
 ////////////////////////////////////////////
 /////////// Menu Editing Actions ///////////
@@ -133,7 +127,7 @@ void MenuItem_gcode::action(PGM_P const, PGM_P const pgcode) { queue.inject_P(pg
  *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
-  TERN_(TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  TERN_(HAS_TOUCH_XPT2046, ui.repeat_delay = BUTTON_DELAY_EDIT);
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
@@ -155,7 +149,7 @@ void MenuEditItemBase::goto_edit_screen(
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
 ) {
-  TERN_(TOUCH_BUTTONS, ui.on_edit_screen = true);
+  TERN_(HAS_TOUCH_XPT2046, ui.on_edit_screen = true);
   ui.screen_changed = true;
   ui.save_previous_screen();
   ui.refresh();
@@ -167,35 +161,6 @@ void MenuEditItemBase::goto_edit_screen(
   ui.currentScreen = cs;
   callbackFunc = cb;
   liveEdit = le;
-}
-
-// TODO: Remove these but test build size with and without
-#define DEFINE_MENU_EDIT_ITEM(NAME) template class TMenuEditItem<MenuEditItemInfo_##NAME>
-
-DEFINE_MENU_EDIT_ITEM(percent);     // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM(int3);        // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(int4);        // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM(int8);        // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM(uint8);       // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_3);    // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_4);    // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM(uint16_5);    // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(float3);      // 123        right-justified
-DEFINE_MENU_EDIT_ITEM(float42_52);  // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM(float43);     // 1.234
-DEFINE_MENU_EDIT_ITEM(float5);      // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(float5_25);   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM(float51);     // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM(float31sign); // +12.3
-DEFINE_MENU_EDIT_ITEM(float41sign); // +123.4
-DEFINE_MENU_EDIT_ITEM(float51sign); // +1234.5
-DEFINE_MENU_EDIT_ITEM(float52sign); // +123.45
-DEFINE_MENU_EDIT_ITEM(long5);       // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM(long5_25);    // 12345      right-justified (25 increment)
-
-void MenuItem_bool::action(PGM_P const, bool * const ptr, screenFunc_t callback) {
-  *ptr ^= true; ui.refresh();
-  if (callback) (*callback)();
 }
 
 ////////////////////////////////////////////
@@ -214,7 +179,7 @@ bool printer_busy() {
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
-    TERN_(TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
+    TERN_(HAS_TOUCH_XPT2046, repeat_delay = BUTTON_DELAY_MENU);
 
     TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
 
@@ -412,7 +377,10 @@ void MenuItem_confirm::select_screen(
   const bool ui_selection = ui.update_selection(), got_click = ui.use_click();
   if (got_click || ui.should_draw()) {
     draw_select_screen(yes, no, ui_selection, pref, string, suff);
-    if (got_click) { ui_selection ? yesFunc() : noFunc(); }
+    if (got_click) {
+      selectFunc_t callFunc = ui_selection ? yesFunc : noFunc;
+      if (callFunc) callFunc(); else ui.goto_previous_screen();
+    }
     ui.defer_status_screen();
   }
 }

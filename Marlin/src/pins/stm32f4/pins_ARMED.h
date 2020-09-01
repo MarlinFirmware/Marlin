@@ -39,7 +39,7 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000                 // 4KB
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Limit Switches
@@ -225,5 +225,5 @@
   #define Z2_SERIAL_RX_PIN              EXT4_PIN
   #define Z2_SERIAL_TX_PIN              EXT4_PIN
 
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif

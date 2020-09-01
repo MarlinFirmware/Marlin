@@ -27,3 +27,8 @@
 #elif EITHER(I2C_EEPROM, SPI_EEPROM)
   #define USE_SHARED_EEPROM 1
 #endif
+
+// Allow SDSUPPORT to be disabled
+#if DISABLED(SDSUPPORT)
+  #undef SDIO_SUPPORT
+#endif

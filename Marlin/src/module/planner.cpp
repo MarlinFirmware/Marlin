@@ -1316,7 +1316,10 @@ void Planner::check_axes_activity() {
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
         block_t *block = &block_buffer[b];
-        LOOP_XYZE(i) if (block->steps[i]) axis_active[i] = true;
+        if (ENABLED(DISABLE_X) && block->steps.x) axis_active.x = true;
+        if (ENABLED(DISABLE_Y) && block->steps.y) axis_active.y = true;
+        if (ENABLED(DISABLE_Z) && block->steps.z) axis_active.z = true;
+        if (ENABLED(DISABLE_E) && block->steps.e) axis_active.e = true;
       }
     #endif
   }

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && HAS_POWER_MONITOR
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../feature/power_monitor.h"
 
 void menu_power_monitor() {

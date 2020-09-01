@@ -118,7 +118,7 @@
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
-    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     sync_plan_position();
 
@@ -299,8 +299,8 @@ void GcodeSuite::G28() {
   #else // NOT DELTA
 
     const bool homeZ = parser.seen('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
@@ -312,14 +312,14 @@ void GcodeSuite::G28() {
     #endif
 
     const float z_homing_height =
-      ENABLED(UNKNOWN_Z_NO_RAISE) && TEST(axis_known_position, Z_AXIS)
+      ENABLED(UNKNOWN_Z_NO_RAISE) && !TEST(axis_known_position, Z_AXIS)
         ? 0
         : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
     if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height, TEST(axis_known_position, Z_AXIS), DISABLED(UNKNOWN_Z_NO_RAISE));
+      do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
     #if ENABLED(QUICK_HOME)

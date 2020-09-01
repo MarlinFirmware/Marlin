@@ -63,7 +63,7 @@ uint16_t HAL_adc_result;
 void HAL_init() {
   FastIO_init();
 
-  #if ENABLED(SDSUPPORT)
+  #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT)
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
   #endif
 

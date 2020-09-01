@@ -500,7 +500,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Usuń, kliknij");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Miks");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mikser");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Pełny gradient");
