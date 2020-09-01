@@ -487,9 +487,6 @@ void startOrResumeJob() {
  */
 inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
-  // check tool status. todo replace with TERN_
-  check_tool_sensor_stats(active_extruder, true);
-
   if (queue.length < BUFSIZE) queue.get_available_commands();
 
   const millis_t ms = millis();
@@ -707,6 +704,11 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) return;
+       
+  // check tool status
+  // todo: still causing errors
+  // check_tool_sensor_stats(active_extruder, true);
+  TERN_(HAS_TOOL_SENSOR, check_tool_sensor_stats(active_extruder, true));
 
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());

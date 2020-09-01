@@ -65,7 +65,7 @@
   #include "servo.h"
 #endif
 
-#if ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)
+#if (ENABLED(EXT_SOLENOID) && DISABLED(PARKING_EXTRUDER)) || true
   #include "../feature/solenoid.h"
 #endif
 
@@ -156,8 +156,8 @@
 inline void _line_to_current(const AxisEnum fr_axis, const float fscale=1) {
   line_to_current_position(planner.settings.max_feedrate_mm_s[fr_axis] * fscale);
 }
-inline void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.5f); }
-inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis); }
+inline void slow_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.1f); }
+inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.4f); }
 
 #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
 
@@ -376,22 +376,46 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   }
 
   bool disable_sensor = false;
+  uint8_t sensor_try_Again=0;
 
-  uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error)
+  uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error, bool disable)
   {
-    if ((poll_tool_sensor_pins()) == (0b1 << active_tool))
-      return active_tool ;
-    else if(kill_on_error == true && disable_sensor == false)
+    do
     {
-      std::string status = "Tool sensor error " + std::to_string(active_tool);
-      kill(status.c_str());
-    }
-    else return -1;
+      if ((poll_tool_sensor_pins()) == (0b1 << active_tool))
+      {
+        sensor_try_Again = 0;
+        return active_tool;
+      }
+      else if (kill_on_error == true && (disable_sensor == false || disable == true))
+      {
+#ifdef HAS_TOOL_SENSOR
+        sensor_try_Again++;
+        if (sensor_try_Again > 10)
+        {
+          std::string status = "Tool sensor error " + std::to_string(active_tool);
+          kill(status.c_str());
+        }
+        safe_delay(5);
+    #endif
+      }
+      else
+      {
+        sensor_try_Again++;
+        if (sensor_try_Again > 10)
+        {
+          return -1;
+        }
+        safe_delay(5);
+      }
+    } while (true);
   }
 
   inline void swt_lock(const bool locked=true) {
-    const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
-    MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+    // const uint16_t swt_angles[2] = SWITCHING_TOOLHEAD_SERVO_ANGLES;
+    // MOVE_SERVO(SWITCHING_TOOLHEAD_SERVO_NR, swt_angles[locked ? 0 : 1]);
+    OUT_WRITE(SOL0_PIN, locked);
+    gcode.dwell(10);
   }
 #include <bitset>
 
@@ -399,6 +423,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
   {
     swt_lock();
 
+#ifdef HAS_TOOL_SENSOR
     // init tool sensors.
     SET_INPUT_PULLUP(tool_sensor1);
     SET_INPUT_PULLUP(tool_sensor2);
@@ -415,6 +440,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     }
 
     ui.set_status_P("TC SUCCES");
+    #endif
   }
 
   inline void switching_toolhead_tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
@@ -433,7 +459,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     // 1. Move to switch position of current toolhead
     // check tool status
-    check_tool_sensor_stats(active_extruder, true);
+    #ifdef HAS_TOOL_SENSOR
+        check_tool_sensor_stats(active_extruder, true);
+    #endif
 
     DEBUG_POS("Start ST Tool-Change", current_position);
 
@@ -449,7 +477,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
-    fast_line_to_current(Y_AXIS);
+    slow_line_to_current(Y_AXIS);
 
     // 2. Unlock tool and drop it in the dock
     disable_sensor = true;
@@ -469,11 +497,13 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
     DEBUG_POS("Move back Y clear", current_position);
-    fast_line_to_current(Y_AXIS); // move away from docked toolhead
+    slow_line_to_current(Y_AXIS); // move away from docked toolhead
 
     // 3. Move to the new toolhead
     // check tool status
-    check_tool_sensor_stats(0) == -1;;
+    #ifdef HAS_TOOL_SENSOR
+        check_tool_sensor_stats(active_extruder) == -1;
+    #endif
 
     current_position.x = grabxpos;
 
@@ -488,7 +518,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", current_position);
 
-    fast_line_to_current(Y_AXIS);
+    slow_line_to_current(Y_AXIS);
 
     // 4. Grab and lock the new toolhead
 
@@ -505,19 +535,20 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     safe_delay(200);
 
     // check tool status
-    disable_sensor = false;
-    check_tool_sensor_stats(new_tool, true);
+    #ifdef HAS_TOOL_SENSOR
+        check_tool_sensor_stats(new_tool, true, true);
+    #endif
 
     swt_lock();
     safe_delay(500);
 
     current_position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
     DEBUG_POS("Move back Y clear", current_position);
-    fast_line_to_current(Y_AXIS); // Move away from docked toolhead
+    slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
 
     // check tool status
-    check_tool_sensor_stats(new_tool, true);
+    check_tool_sensor_stats(new_tool, true, true);
 
     DEBUG_POS("ST Tool-Change done.", current_position);
   }
@@ -958,8 +989,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     #endif
 
     // First tool priming. To prime again, reboot the machine.
+    static bool first_tool_is_primed = false;
     #if BOTH(TOOLCHANGE_FILAMENT_SWAP, TOOLCHANGE_FS_PRIME_FIRST_USED)
-      static bool first_tool_is_primed = false;
       if (new_tool == old_tool && !first_tool_is_primed && enable_first_prime) {
         tool_change_prime();
         first_tool_is_primed = true;
@@ -1087,11 +1118,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         move_nozzle_servo(new_tool);
       #endif
 
-      // Set the new active extruder
-      if (DISABLED(DUAL_X_CARRIAGE)) active_extruder = new_tool;
+      #if DISABLED(DUAL_X_CARRIAGE)
+        active_extruder = new_tool; // Set the new active extruder
+        disable_sensor = false;
+      #endif
       
       // check tool status
-      check_tool_sensor_stats(active_extruder, true);
+    #ifdef HAS_TOOL_SENSOR
+          check_tool_sensor_stats(active_extruder, true);
+      #endif
 
       // The newly-selected extruder XYZ is actually at...
       DEBUG_ECHOLNPAIR("Offset Tool XYZ by { ", diff.x, ", ", diff.y, ", ", diff.z, " }");

@@ -120,7 +120,7 @@ TERN_(ELECTROMAGNETIC_SWITCHING_TOOLHEAD, void est_init());
 
 TERN_(SWITCHING_TOOLHEAD, void swt_init());
 
-uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error = false);
+uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error = false, bool disable = false);
 
 /**
  * Perform a tool-change, which may result in moving the
