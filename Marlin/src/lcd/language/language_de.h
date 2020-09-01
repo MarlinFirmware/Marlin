@@ -563,7 +563,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Entfernen, klicken");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponente ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponente =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixer");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient"); // equal Farbverlauf
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Volle Gradient");
