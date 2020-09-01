@@ -194,10 +194,18 @@
 // LVGL Configs
 #if ENABLED(TFT_LVGL_UI_FSMC)
 
-  #define XPT2046_X_CALIBRATION            17880
-  #define XPT2046_Y_CALIBRATION           -12234
-  #define XPT2046_X_OFFSET                   -45
-  #define XPT2046_Y_OFFSET                   349
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          17880
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         -12234
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -45
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+   #define XPT2046_Y_OFFSET                  349
+  #endif
 
 // Emulated DOGM Configs
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
@@ -244,10 +252,18 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define XPT2046_X_CALIBRATION           -12246
-  #define XPT2046_Y_CALIBRATION             9453
-  #define XPT2046_X_OFFSET                   360
-  #define XPT2046_Y_OFFSET                   -22
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -12246
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION           9453
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 360
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -22
+  #endif
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
@@ -265,11 +281,19 @@
   #define ILI9341_COLOR_RGB
 
 #elif ENABLED(TFT_480x320)
-  #define XPT2046_X_CALIBRATION            17880
-  #define XPT2046_Y_CALIBRATION           -12234
-  #define XPT2046_X_OFFSET                   -45
-  #define XPT2046_Y_OFFSET                   349
-
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          17880
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         -12234
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -45
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 349
+  #endif
+  
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
   #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
