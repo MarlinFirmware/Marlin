@@ -63,7 +63,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Z-Achsen ausgleichen");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Schlitten vorbereiten");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Bett ausrichten"); // Bettausrichtung
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("XYZ homen");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klick zum Starten");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klicken zum Starten");
