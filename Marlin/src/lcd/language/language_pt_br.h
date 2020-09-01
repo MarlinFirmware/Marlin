@@ -351,8 +351,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Abortar Fim de Curso");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Aquecer mesa falhou");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Aquecer câmara falhou");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Erro:Temp Redundante");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ESCAPE TÉRMICO");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ESCAPE TÉRMICO MESA");
