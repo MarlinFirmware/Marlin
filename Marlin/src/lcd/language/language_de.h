@@ -121,7 +121,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Benutzer-Menü");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("M48 Sondentest");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("M48 Punkt");
-  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonde außerhalb der Grenzen");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Zu weit draußen");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Abweichung");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("IDEX-Modus");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Werkzeugversätze");
