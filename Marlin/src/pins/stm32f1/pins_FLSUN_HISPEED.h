@@ -36,6 +36,8 @@
 #define BOARD_INFO_NAME "FLSUN HISPEED"
 
 //
+// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+//
 #define DISABLE_DEBUG
 
 //
@@ -106,8 +108,8 @@
 #if HAS_TMC_UART
   #define X_CS_PIN                         PA10   //RXD1 /PD5
   #define Y_CS_PIN                          PA9   //TXD1  /PD7
-  #define Z_CS_PIN                          PA8   //IO0 /PD4
-  #define E0_CS_PIN                         PC7   //IO1 /PD9
+  #define Z_CS_PIN                          PC7   //IO0 /PD4
+  #define E0_CS_PIN                         PA8   //IO1 /PD9
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -134,13 +136,13 @@
   #define X_SERIAL_RX_PIN                  PA10  //RXD1  /PD5
 
   #define Y_SERIAL_TX_PIN                   PA9  //TXD1  /PD7
-  #define Y_SERIAL_RX_PIN                   PA9   //TXD1  /PD7
+  #define Y_SERIAL_RX_PIN                   PA9  //TXD1  /PD7
 
-  #define Z_SERIAL_TX_PIN                   PA8   //IO0  /PD4
-  #define Z_SERIAL_RX_PIN                   PA8   //IO0  /PD4
+  #define Z_SERIAL_TX_PIN                   PC7  //IO1  /PD4
+  #define Z_SERIAL_RX_PIN                   PC7  //IO1  /PD4
 
-  #define E0_SERIAL_TX_PIN                  PC7   //IO1 /PD9 
-  #define E0_SERIAL_RX_PIN                  PC7   //IO1 /PD9 
+  #define E0_SERIAL_TX_PIN                  PA8  //IO0 /PD9 
+  #define E0_SERIAL_RX_PIN                  PA8  //IO0 /PD9 
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
@@ -149,18 +151,18 @@
 
 /**
  * src: MKS Robin_Mini V2
- *            ____ESP ___
- *       GND | 15 | | 08 | +3v3   USART1_RX PA10
- *           | 16 | | nc |        USART1_TX PA9   // active low, probably OK to leave floating
- *       IO2 | nc | | nc |        GPIO0     PA8    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *  (PA8)IO0 | 18 | | nc |        GPIO1     PC7    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *  (PC7)IO1 | 19 | | 03 |  EN    ENABLED         // Must be high for module to run
- *           | nc | | nc |          
- * (PA10)RXD | 21 | | nc |       
- *  (PA9)TXD | 22 | | 01 |  RST   WIFI RST  PA5   //
- *            ￣￣ AE￣￣          GPIO2      -1   // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *           __ESP(M1)__           (J1)
+ *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
+ *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
+ *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()     // Must be high for module to run
+ *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
+ *        RX| 21 | | nc |       
+ *        TX| 22 | | 01 |RST  
+ *            ￣￣ AE￣￣              
+ *
  */
-
   #define ESP_WIFI_MODULE_COM                 2   // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE     BAUDRATE   // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
   #define ESP_WIFI_MODULE_RESET_PIN         PA5   //WIFI CTRL/RST
@@ -168,9 +170,11 @@
   #define ESP_WIFI_MODULE_GPIO0_PIN         PA8   //IO0
   #define ESP_WIFI_MODULE_GPIO1_PIN         PC7   //IO1
   #define ESP_WIFI_MODULE_TXD_PIN           PA9   //TXD1
-  #define ESP_WIFI_MODULE_RXD_PIN          PA10  //RXD1
+  #define ESP_WIFI_MODULE_RXD_PIN          PA10   //RXD1
   #else
-  #define WIFI_IO0_PIN                     PC13
+  #define WIFI_IO0_PIN                        PA8  // PC13 MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
 #endif
 
 //
@@ -199,7 +203,7 @@
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN 			                    PA2   // PW_DET
   #define KILL_PIN_INVERTING 		           true  //
-  #define PS_ON_PIN                         PA3  // PW_CN /PW_OFF
+  //#define PS_ON_PIN                         PA3  // PW_CN /PW_OFF
 #endif
 
 #define MT_DET_1_PIN                        PA4   //  MT_DET
@@ -267,7 +271,7 @@
   /* QQS-Pro use MKS Robin TFT v2.0 */
   //+++++++++++++++++++++++//
 
-#if HAS_FSMC_TFT
+//#if HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -285,7 +289,7 @@
   #define LCD_USE_DMA_FSMC      // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                     DMA2
   #define FSMC_DMA_CHANNEL              DMA_CH5
-#endif
+//#endif
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
 
