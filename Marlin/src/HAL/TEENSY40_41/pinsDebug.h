@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#error "PINS_DEBUGGING is not yet supported for Teensy 4.0 / 4/1!"
+#pragma message "PINS_DEBUGGING is not fully supported for Teensy 4.0 / 4/1.  M43 may cause hangs."
 
 #define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
@@ -31,9 +31,8 @@
 #define VALID_PIN(pin) (pin >= 0 && pin < (int8_t)NUMBER_PINS_TOTAL ? 1 : 0)
 #define DIGITAL_PIN_TO_ANALOG_PIN(p) int(p - analogInputToDigitalPin(0))
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(13)) || ((P) >= analogInputToDigitalPin(14) && (P) <= analogInputToDigitalPin(17))
-//#define IS_ANALOG(P) WITHIN(P, char(analogInputToDigitalPin(0)), char(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
 #define pwm_status(pin) HAL_pwm_status(pin)
-#define GET_PINMODE(PIN) (VALID_PIN(pin) && !IS_INPUT(pin))
+#define GET_PINMODE(PIN) (VALID_PIN(pin) && IS_OUTPUT(pin))
 #define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
 
 
@@ -116,8 +115,8 @@ const struct pwm_pin_info_struct pwm_pin_info[] = {
 
 
 void HAL_print_analog_pin(char buffer[], int8_t pin) {
-  if (pin <= 27)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
-  else if (pin <= 39) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 19));
+  if (pin <= 23)      sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 14));
+  else if (pin <= 41) sprintf_P(buffer, PSTR("(A%2d)  "), int(pin - 24));
 }
 
 void HAL_analog_pin_state(char buffer[], int8_t pin) {
@@ -125,7 +124,7 @@ void HAL_analog_pin_state(char buffer[], int8_t pin) {
   else if (pin <= 41) sprintf_P(buffer, PSTR("Analog in =% 5d"), analogRead(pin - 24));
 }
 
-#define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), 22); SERIAL_ECHO(buffer); }while(0)
+#define PWM_PRINT(V) do{ sprintf_P(buffer, PSTR("PWM:  %4d"), V); SERIAL_ECHO(buffer); }while(0)
 
 /**
  * Print a pin's PWM status.
@@ -148,5 +147,5 @@ bool HAL_pwm_status(int8_t pin) {
 
 
 
-static void HAL_pwm_details(uint8_t pin) { /* TODO */ }
+static void pwm_details(uint8_t pin) { /* TODO */ }
 

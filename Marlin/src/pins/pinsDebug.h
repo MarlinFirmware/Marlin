@@ -250,7 +250,7 @@ inline void report_pin_state_extended(pin_t pin, const bool ignore, const bool e
         if (pin_is_protected(pin) && !ignore)
           SERIAL_ECHOPGM("protected ");
         else {
-          if (alt_pin_echo(pin)) {
+         if (alt_pin_echo(pin)) {
             if (!GET_ARRAY_IS_DIGITAL(x)) {
               sprintf_P(buffer, PSTR("Analog in = %5ld"), (long)analogRead(DIGITAL_PIN_TO_ANALOG_PIN(pin)));
               SERIAL_ECHO(buffer);

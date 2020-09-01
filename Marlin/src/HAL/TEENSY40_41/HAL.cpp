@@ -160,4 +160,10 @@ uint16_t HAL_adc_get_result() {
   return 0;
 }
 
+bool is_output(uint8_t pin) {
+	const struct digital_pin_bitband_and_config_table_struct *p;
+	p = digital_pin_to_info_PGM + pin;
+	return (*(p->reg + 1) & p->mask);
+}
+
 #endif // __IMXRT1062__

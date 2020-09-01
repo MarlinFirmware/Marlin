@@ -3335,9 +3335,9 @@
  */
 #define MAX7219_DEBUG
 #if ENABLED(MAX7219_DEBUG)
-  #define MAX7219_CLK_PIN   28
-  #define MAX7219_DIN_PIN   29
-  #define MAX7219_LOAD_PIN  30
+  #define MAX7219_CLK_PIN   27
+  #define MAX7219_DIN_PIN   28
+  #define MAX7219_LOAD_PIN  31
 
   #define MAX7219_GCODE          // Add the M7219 G-code to control the LED matrix
   #define MAX7219_INIT_TEST    2   // Test pattern at startup: 0=none, 1=sweep, 2=spiral
@@ -3514,4 +3514,4 @@
 //#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
-//#define MARLIN_DEV_MODE
+#define MARLIN_DEV_MODE

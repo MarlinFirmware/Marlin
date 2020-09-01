@@ -27,17 +27,15 @@
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
+
 #ifndef PWM
   #define PWM OUTPUT
 #endif
 
-#define _IS_INPUT(P)    ((CORE_PIN ## P ## _PORTREG & CORE_PIN ## P ## _BITMASK) == 0)
-#define _IS_OUTPUT(P)   ((CORE_PIN ## P ## _PORTREG & CORE_PIN ## P ## _BITMASK) == 0)
-
 #define READ(IO)                digitalRead(IO)
 #define WRITE(IO,V)             digitalWrite(IO,V)
 
-#define _GET_MODE(IO)           _IS_INPUT(IO)
+#define _GET_MODE(IO)           !is_output(IO)
 #define _SET_MODE(IO,M)         pinMode(IO, M)
 #define _SET_OUTPUT(IO)         pinMode(IO, OUTPUT)                               /*!< Output Push Pull Mode & GPIO_NOPULL   */
 
@@ -51,10 +49,10 @@
 
 #define TOGGLE(IO)              OUT_WRITE(IO, !READ(IO))
 
-#define IS_INPUT(IO)            _IS_INPUT(IO)
-#define IS_OUTPUT(IO)           _IS_OUTPUT(IO)
+#define IS_INPUT(IO)            !is_output(IO)
+#define IS_OUTPUT(IO)           is_output(IO)
 
-#define PWM_PIN(P)              true
+#define PWM_PIN(P)            digitalPinHasPWM(P)
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
