@@ -557,9 +557,6 @@
 #elif MB(FLY_MINI)
   #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
 
-
-
-
 //
 // ARM Cortex-M4F
 //
