@@ -383,9 +383,9 @@ void CardReader::mount() {
 
   if (flag.mounted)
     cdroot();
-  else if (marlin_state != MF_INITIALIZING) {
+  else if (marlin_state != MF_INITIALIZING)
     ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
-  }
+
   ui.refresh();
 }
 
