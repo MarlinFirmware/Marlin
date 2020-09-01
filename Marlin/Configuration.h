@@ -18,10 +18,10 @@
 
 //===========================================================================
 // Creality Ender 3 Options
-// NOTE: If you have the MicroUSB port use the ENDER3_V42X_BOARD option below
+// NOTE: If you have the MicroUSB port use the ENDER3_V4_BOARD option below
 //===========================================================================
 //#define ENDER3
-//#define ENDER3_V42X_BOARD
+//#define ENDER3_V4_BOARD
 
 // EZABL Probe Mounts
 //#define ENDER3_OEM
