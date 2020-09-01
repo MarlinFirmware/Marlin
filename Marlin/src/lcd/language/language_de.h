@@ -66,7 +66,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Bett ausrichten"); // Bettausrichtung
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("XYZ homen");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klick zum Starten");
-  PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Klicken zum Starten");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Nächste Koordinate");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("Nivellieren fertig!");
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Ausblendhöhe");
