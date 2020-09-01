@@ -596,7 +596,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Passwort löschen");
   PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("Passwort ist ");
   PROGMEM Language_Str MSG_START_OVER                      = _UxGT("von vorn beginnen");
-  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Speichern nicht vergessen!");
+  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Bald speichern!");
   PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Passwort gelöscht");
 
   //
