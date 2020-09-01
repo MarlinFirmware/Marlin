@@ -508,7 +508,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Réinit. MMU...");
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Retrait, click");
 
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Composante ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Composante =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixeur");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Dégradé");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Dégradé complet");
