@@ -527,7 +527,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Vytáhněte, klikněte");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponenta ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponenta =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixér");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Přechod");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Celý přechod");
