@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -61,7 +61,7 @@ void GcodeSuite::M701() {
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
     // Don't raise Z if the machine isn't homed
-    if (axes_need_homing()) park_point.z = 0;
+    if (axes_should_home()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -149,7 +149,7 @@ void GcodeSuite::M702() {
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
     // Don't raise Z if the machine isn't homed
-    if (axes_need_homing()) park_point.z = 0;
+    if (axes_should_home()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)

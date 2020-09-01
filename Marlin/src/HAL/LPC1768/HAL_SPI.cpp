@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,7 +30,7 @@
  */
 
 /**
- * Hardware SPI and a software SPI implementations are included in this file.
+ * Hardware SPI and Software SPI implementations are included in this file.
  * The hardware SPI runs faster and has higher throughput but is not compatible
  * with some LCD interfaces/adapters.
  *
@@ -50,6 +50,10 @@
 
 #include "../../inc/MarlinConfig.h"
 #include <SPI.h>
+
+// Hardware SPI and SPIClass
+#include <lpc17xx_pinsel.h>
+#include <lpc17xx_clkpwr.h>
 
 // ------------------------
 // Public functions
@@ -96,12 +100,6 @@
 
 #else
 
-  // Hardware SPI
-
-  #include <lpc17xx_pinsel.h>
-  #include <lpc17xx_ssp.h>
-  #include <lpc17xx_clkpwr.h>
-
   // decide which HW SPI device to use
   #ifndef LPC_HW_SPI_DEV
     #if (SCK_PIN == P0_07 && MISO_PIN == P0_08 && MOSI_PIN == P0_09)
@@ -114,7 +112,7 @@
       #endif
     #endif
   #endif
-  #if (LPC_HW_SPI_DEV == 0)
+  #if LPC_HW_SPI_DEV == 0
     #define LPC_SSPn LPC_SSP0
   #else
     #define LPC_SSPn LPC_SSP1
@@ -192,7 +190,7 @@
     for (uint16_t i = 0; i < nbyte; i++) buf[i] = doio(0xFF);
   }
 
-  static uint8_t spiTransfer(uint8_t b) {
+  uint8_t spiTransfer(uint8_t b) {
     return doio(b);
   }
 
@@ -211,30 +209,236 @@
 
 #endif // LPC_SOFTWARE_SPI
 
-void SPIClass::begin() { spiBegin(); }
-
-void SPIClass::beginTransaction(const SPISettings &cfg) {
-  uint8_t spiRate;
-  switch (cfg.spiRate()) {
-    case 8000000: spiRate = 0; break;
-    case 4000000: spiRate = 1; break;
-    case 2000000: spiRate = 2; break;
-    case 1000000: spiRate = 3; break;
-    case  500000: spiRate = 4; break;
-    case  250000: spiRate = 5; break;
-    case  125000: spiRate = 6; break;
-    default: spiRate = 2; break;
-  }
-  spiInit(spiRate);
+/**
+ * @brief Wait until TXE (tx empty) flag is set and BSY (busy) flag unset.
+ */
+static inline void waitSpiTxEnd(LPC_SSP_TypeDef *spi_d) {
+  while (SSP_GetStatus(spi_d, SSP_STAT_TXFIFO_EMPTY) == RESET) { /* nada */ } // wait until TXE=1
+  while (SSP_GetStatus(spi_d, SSP_STAT_BUSY) == SET) { /* nada */ }     // wait until BSY=0
 }
 
-uint8_t SPIClass::transfer(const uint8_t B) { return spiTransfer(B); }
+SPIClass::SPIClass(uint8_t device) {
+  // Init things specific to each SPI device
+  // clock divider setup is a bit of hack, and needs to be improved at a later date.
+
+  PINSEL_CFG_Type PinCfg;  // data structure to hold init values
+  #if BOARD_NR_SPI >= 1
+    _settings[0].spi_d = LPC_SSP0;
+    // _settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
+    PinCfg.Funcnum = 2;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_SCK_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_SCK_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(BOARD_SPI1_SCK_PIN);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MISO_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MISO_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_INPUT(BOARD_SPI1_MISO_PIN);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MOSI_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MOSI_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
+  #endif
+
+  #if BOARD_NR_SPI >= 2
+    _settings[1].spi_d = LPC_SSP1;
+    // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
+    PinCfg.Funcnum = 2;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_SCK_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_SCK_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(BOARD_SPI2_SCK_PIN);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MISO_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MISO_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_INPUT(BOARD_SPI2_MISO_PIN);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MOSI_PIN);
+    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MOSI_PIN);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(BOARD_SPI2_MOSI_PIN);
+  #endif
+
+  setModule(device);
+
+  /* Initialize GPDMA controller */
+  //TODO: call once in the constructor? or each time?
+  GPDMA_Init();
+}
+
+void SPIClass::begin() {
+  updateSettings();
+  SSP_Cmd(_currentSetting->spi_d, ENABLE);  // start SSP running
+}
+
+void SPIClass::beginTransaction(const SPISettings &cfg) {
+  setBitOrder(cfg.bitOrder);
+  setDataMode(cfg.dataMode);
+  setDataSize(cfg.dataSize);
+  //setClockDivider(determine_baud_rate(_currentSetting->spi_d, settings.clock));
+  begin();
+}
+
+uint8_t SPIClass::transfer(const uint16_t b) {
+  /* send and receive a single byte */
+  SSP_ReceiveData(_currentSetting->spi_d); // read any previous data
+  SSP_SendData(_currentSetting->spi_d, b);
+  waitSpiTxEnd(_currentSetting->spi_d);  // wait for it to finish
+  return SSP_ReceiveData(_currentSetting->spi_d);
+}
 
 uint16_t SPIClass::transfer16(const uint16_t data) {
   return (transfer((data >> 8) & 0xFF) << 8)
        | (transfer(data & 0xFF) & 0xFF);
 }
 
-SPIClass SPI;
+void SPIClass::end() {
+  // SSP_Cmd(_currentSetting->spi_d, DISABLE);  // stop device or SSP_DeInit?
+  SSP_DeInit(_currentSetting->spi_d);
+}
+
+void SPIClass::send(uint8_t data) {
+  SSP_SendData(_currentSetting->spi_d, data);
+}
+
+void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
+  //TODO: LPC dma can only write 0xFFF bytes at once.
+  GPDMA_Channel_CFG_Type GPDMACfg;
+
+  /* Configure GPDMA channel 0 -------------------------------------------------------------*/
+  /* DMA Channel 0 */
+  GPDMACfg.ChannelNum = 0;
+  // Source memory
+  GPDMACfg.SrcMemAddr = (uint32_t)buf;
+  // Destination memory - Not used
+  GPDMACfg.DstMemAddr = 0;
+  // Transfer size
+  GPDMACfg.TransferSize = (minc ? length : 1);
+  // Transfer width
+  GPDMACfg.TransferWidth = (_currentSetting->dataSize == DATA_SIZE_16BIT) ? GPDMA_WIDTH_HALFWORD : GPDMA_WIDTH_BYTE;
+  // Transfer type
+  GPDMACfg.TransferType = GPDMA_TRANSFERTYPE_M2P;
+  // Source connection - unused
+  GPDMACfg.SrcConn = 0;
+  // Destination connection
+  GPDMACfg.DstConn = (_currentSetting->spi_d == LPC_SSP0) ? GPDMA_CONN_SSP0_Tx : GPDMA_CONN_SSP1_Tx;
+
+  GPDMACfg.DMALLI = 0;
+
+  // Enable dma on SPI
+  SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
+
+  // if minc=false, I'm repeating the same byte 'length' times, as I could not find yet how do GPDMA without memory increment
+  do {
+    // Setup channel with given parameter
+    GPDMA_Setup(&GPDMACfg);
+
+    // enabled dma
+    GPDMA_ChannelCmd(0, ENABLE);
+
+    // wait data transfer
+    while (!GPDMA_IntGetStatus(GPDMA_STAT_INTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_INTERR, 0)) { }
+
+    // clear err and int
+    GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
+    GPDMA_ClearIntPending (GPDMA_STATCLR_INTERR, 0);
+
+    // dma disable
+    GPDMA_ChannelCmd(0, DISABLE);
+
+    --length;
+  } while (!minc && length > 0);
+
+  waitSpiTxEnd(_currentSetting->spi_d);
+
+  SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, DISABLE);
+}
+
+uint16_t SPIClass::read() {
+  return SSP_ReceiveData(_currentSetting->spi_d);
+}
+
+void SPIClass::read(uint8_t *buf, uint32_t len) {
+  for (uint16_t i = 0; i < len; i++) buf[i] = transfer(0xFF);
+}
+
+void SPIClass::setClock(uint32_t clock) {
+  _currentSetting->clock = clock;
+}
+
+void SPIClass::setModule(uint8_t device) {
+  _currentSetting = &_settings[device - 1];// SPI channels are called 1 2 and 3 but the array is zero indexed
+}
+
+void SPIClass::setBitOrder(uint8_t bitOrder) {
+  _currentSetting->bitOrder = bitOrder;
+}
+
+void SPIClass::setDataMode(uint8_t dataMode) {
+  _currentSetting->dataSize = dataMode;
+}
+
+void SPIClass::setDataSize(uint32_t ds) {
+  _currentSetting->dataSize = ds;
+}
+
+/**
+ * Set up/tear down
+ */
+void SPIClass::updateSettings() {
+  //SSP_DeInit(_currentSetting->spi_d); //todo: need force de init?!
+
+  // divide PCLK by 2 for SSP0
+  CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+
+  SSP_CFG_Type HW_SPI_init; // data structure to hold init values
+  SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
+  HW_SPI_init.ClockRate = _currentSetting->clock;
+  HW_SPI_init.Databit = _currentSetting->dataSize;
+
+  /**
+   * SPI Mode  CPOL  CPHA  Shift SCK-edge  Capture SCK-edge
+   * 0       0     0     Falling     Rising
+   * 1       0     1     Rising      Falling
+   * 2       1     0     Rising      Falling
+   * 3       1     1     Falling     Rising
+   */
+  switch (_currentSetting->dataMode) {
+    case SPI_MODE0:
+      HW_SPI_init.CPHA = SSP_CPHA_FIRST;
+	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      break;
+    case SPI_MODE1:
+      HW_SPI_init.CPHA = SSP_CPHA_SECOND;
+	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      break;
+    case SPI_MODE2:
+      HW_SPI_init.CPHA = SSP_CPHA_FIRST;
+	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      break;
+    case SPI_MODE3:
+      HW_SPI_init.CPHA = SSP_CPHA_SECOND;
+	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      break;
+    default:
+      break;
+  }
+
+  // TODO: handle bitOrder
+  SSP_Init(_currentSetting->spi_d, &HW_SPI_init);  // puts the values into the proper bits in the SSP0 registers
+}
+
+#if MISO_PIN == BOARD_SPI1_MISO_PIN
+  SPIClass SPI(1);
+#elif MISO_PIN == BOARD_SPI2_MISO_PIN
+  SPIClass SPI(2);
+#endif
 
 #endif // TARGET_LPC1768

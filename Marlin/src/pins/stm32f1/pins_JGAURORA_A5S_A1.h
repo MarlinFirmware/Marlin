@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -43,10 +43,10 @@
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
 //#define I2C_EEPROM                              // AT24C64
-//#define MARLIN_EEPROM_SIZE 0x8000UL             // 64KB
+//#define MARLIN_EEPROM_SIZE            0x8000UL  // 64KB
 
 //#define FLASH_EEPROM_EMULATION
-//#define MARLIN_EEPROM_SIZE 0x1000UL             // 4KB
+//#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
 //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
 
 //#define EEPROM_CHITCHAT
@@ -126,7 +126,7 @@
 //
 // Touch support
 //
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
 #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -107,7 +107,7 @@ void I2CPositionEncoder::update() {
           SERIAL_ECHOLNPAIR("New zero-offset of ", zeroOffset);
           SERIAL_ECHOPAIR("New position reads as ", get_position());
           SERIAL_CHAR('(');
-          SERIAL_ECHO(mm_from_count(get_position()));
+          SERIAL_DECIMAL(mm_from_count(get_position()));
           SERIAL_ECHOLNPGM(")");
         #endif
       }

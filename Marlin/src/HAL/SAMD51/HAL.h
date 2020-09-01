@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -122,13 +122,13 @@ extern uint16_t HAL_adc_result;     // Most recent ADC conversion
 void HAL_adc_init();
 
 //#define HAL_ADC_FILTERED          // Disable Marlin's oversampling. The HAL filters ADC values.
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10      // ... 12
 #define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
 void HAL_adc_start_conversion(const uint8_t adc_pin);
-inline uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 //
 // Pin Map

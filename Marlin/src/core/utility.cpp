@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -123,10 +123,10 @@ void safe_delay(millis_t ms) {
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
-            float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
+            const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
             SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
-            SERIAL_ECHO(v);
+            SERIAL_DECIMAL(v);
           }
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)

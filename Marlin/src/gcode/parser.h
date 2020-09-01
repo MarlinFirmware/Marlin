@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
 
 //#define DEBUG_GCODE_PARSER
 #if ENABLED(DEBUG_GCODE_PARSER)
-  #include "../libs/hex_print_routines.h"
+  #include "../libs/hex_print.h"
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -56,10 +56,8 @@
  *   R<recalculate> points based on current probe offsets
  */
 void GcodeSuite::G34() {
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPGM(">>> G34");
-    log_machine_info();
-  }
+  DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) log_machine_info();
 
   do { // break out on error
 
@@ -348,7 +346,7 @@ void GcodeSuite::G34() {
 
     #if ENABLED(HOME_AFTER_G34)
       // After this operation the z position needs correction
-      set_axis_not_trusted(Z_AXIS);
+      set_axis_never_homed(Z_AXIS);
       // Home Z after the alignment procedure
       process_subcommands_now_P(PSTR("G28Z"));
     #else
@@ -367,8 +365,6 @@ void GcodeSuite::G34() {
     #endif
 
   }while(0);
-
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< G34");
 }
 
 /**

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -310,6 +310,23 @@
   };
 
   extern MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
+#endif
+
+#ifdef ANYCUBIC_LCD_SERIAL_PORT
+  template <uint8_t serial>
+  struct AnycubicLcdSerialCfg {
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 64;
+    static constexpr unsigned int TX_SIZE   = 128;
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = false;
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
+  };
+
+  extern MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>> anycubicLcdSerial;
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations

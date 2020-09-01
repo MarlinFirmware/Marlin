@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -315,7 +315,7 @@ class CommandProcessor : public CLCD::CommandFifo {
       #ifdef TOUCH_UI_USE_UTF8
         const bool is_utf8 = has_utf8_chars(text);
       #endif
-      for (;font >= 26;) {
+      for (;font > 26;) {
         int16_t width, height;
         #ifdef TOUCH_UI_USE_UTF8
           if (is_utf8) {

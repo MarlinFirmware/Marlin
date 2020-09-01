@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -83,7 +83,7 @@ SCREEN_TABLE {
 #else
   DECL_SCREEN(JerkScreen),
 #endif
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   DECL_SCREEN(CaseLightScreen),
 #endif
 #if EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)

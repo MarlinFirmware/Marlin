@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,6 +30,10 @@
 
 #include "MarlinCore.h"
 
+#if ENABLED(MARLIN_DEV_MODE)
+  #warning "WARNING! Disable MARLIN_DEV_MODE for the final build!"
+#endif
+
 #include "HAL/shared/Delay.h"
 #include "HAL/shared/esp_wifi.h"
 
@@ -39,32 +43,46 @@
 #include <math.h>
 
 #include "core/utility.h"
-#include "lcd/ultralcd.h"
 #include "module/motion.h"
 #include "module/planner.h"
-#include "module/stepper.h"
 #include "module/endstops.h"
-#include "module/probe.h"
 #include "module/temperature.h"
-#include "sd/cardreader.h"
-#include "module/configuration_store.h"
+#include "module/settings.h"
 #include "module/printcounter.h" // PrintCounter or Stopwatch
-#include "feature/closedloop.h"
 
+#include "module/stepper.h"
 #include "module/stepper/indirection.h"
-
-#include "libs/nozzle.h"
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
 
-#if ENABLED(DIRECT_STEPPING)
-  #include "feature/direct_stepping.h"
+#include "sd/cardreader.h"
+
+#include "lcd/ultralcd.h"
+#if HAS_TOUCH_XPT2046
+  #include "lcd/touch/touch_buttons.h"
 #endif
 
-#if ENABLED(TOUCH_BUTTONS)
-  #include "feature/touch/xpt2046.h"
+#if HAS_TFT_LVGL_UI
+  #include "lcd/extui/lib/mks_ui/tft_lvgl_configuration.h"
+  #include "lcd/extui/lib/mks_ui/draw_ui.h"
+  #include "lcd/extui/lib/mks_ui/mks_hardware_test.h"
+  #include <lvgl.h>
+#endif
+
+#if ENABLED(DWIN_CREALITY_LCD)
+  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/dwin_lcd.h"
+  #include "lcd/dwin/rotary_encoder.h"
+#endif
+
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #include "libs/BL24CXX.h"
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  #include "feature/direct_stepping.h"
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
@@ -73,6 +91,10 @@
 
 #if USE_BEEPER
   #include "libs/buzzer.h"
+#endif
+
+#if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
+  #include "feature/closedloop.h"
 #endif
 
 #if HAS_I2C_DIGIPOT
@@ -159,6 +181,10 @@
   #include "feature/runout.h"
 #endif
 
+#if HAS_Z_SERVO_PROBE
+  #include "module/probe.h"
+#endif
+
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "feature/hotend_idle.h"
 #endif
@@ -167,7 +193,7 @@
   #include "feature/leds/tempstat.h"
 #endif
 
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   #include "feature/caselight.h"
 #endif
 
@@ -191,6 +217,10 @@
   #include "libs/L64XX/L64XX_Marlin.h"
 #endif
 
+#if ENABLED(PASSWORD_FEATURE)
+  #include "feature/password/password.h"
+#endif
+
 PGMSTR(NUL_STR, "");
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 PGMSTR(G28_STR, "G28");
@@ -200,6 +230,7 @@ PGMSTR(M24_STR, "M24");
 PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
 PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
 PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
 
@@ -223,10 +254,6 @@ bool wait_for_heatup = true;
   }
 
 #endif
-
-// Inactivity shutdown
-millis_t max_inactive_time, // = 0
-         stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_DEACTIVE_TIME);
 
 #if PIN_EXISTS(CHDK)
   extern millis_t chdk_timeout;
@@ -382,6 +409,13 @@ void disable_all_steppers() {
 #endif
 
 /**
+ * A Print Job exists when the timer is running or SD printing
+ */
+bool printJobOngoing() {
+  return print_job_timer.isRunning() || IS_SD_PRINTING();
+}
+
+/**
  * Printing is active when the print job timer is running
  */
 bool printingIsActive() {
@@ -423,14 +457,18 @@ void startOrResumeJob() {
     #endif
     wait_for_heatup = false;
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
-    #ifdef EVENT_GCODE_SD_STOP
-      queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+    #ifdef EVENT_GCODE_SD_ABORT
+      queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
+
+    TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
 
   inline void finishSDPrinting() {
-    if (queue.enqueue_one_P(PSTR("M1001")))
+    if (queue.enqueue_one_P(PSTR("M1001"))) {
       marlin_state = MF_RUNNING;
+      TERN_(PASSWORD_AFTER_SD_PRINT_END, password.lock_machine());
+    }
   }
 
 #endif // SDSUPPORT
@@ -453,32 +491,40 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   const millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, gcode.previous_move_ms + max_inactive_time)) {
+  // Prevent steppers timing-out in the middle of M600
+  // unless PAUSE_PARK_NO_STEPPER_TIMEOUT is disabled
+  const bool parked_or_ignoring = ignore_stepper_queue ||
+     (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print);
+
+  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
+  if (parked_or_ignoring) gcode.reset_stepper_timeout(ms);
+
+  if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
     kill();
   }
 
-  // Prevent steppers timing-out in the middle of M600
-  #define STAY_TEST (BOTH(ADVANCED_PAUSE_FEATURE, PAUSE_PARK_NO_STEPPER_TIMEOUT) && did_pause_print)
+  // M18 / M94 : Handle steppers inactive time timeout
+  if (gcode.stepper_inactive_time) {
 
-  if (stepper_inactive_time) {
     static bool already_shutdown_steppers; // = false
+
+    // Any moves in the planner? Resets both the M18/M84
+    // activity timeout and the M85 max 'kill' timeout
     if (planner.has_blocks_queued())
-      gcode.reset_stepper_timeout();
-    else if (!STAY_TEST && !ignore_stepper_queue && ELAPSED(ms, gcode.previous_move_ms + stepper_inactive_time)) {
+      gcode.reset_stepper_timeout(ms);
+    else if (!parked_or_ignoring && gcode.stepper_inactive_timeout()) {
       if (!already_shutdown_steppers) {
         already_shutdown_steppers = true;  // L6470 SPI will consume 99% of free time without this
+
+        // Individual axes will be disabled if configured
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
-        #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
-          if (ubl.lcd_map_control) {
-            ubl.lcd_map_control = false;
-            ui.defer_status_screen(false);
-          }
-        #endif
+
+        TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
       }
     }
     else
@@ -585,7 +631,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      gcode.reset_stepper_timeout();
+      gcode.reset_stepper_timeout(ms);
     }
   #endif // EXTRUDER_RUNOUT_PREVENT
 
@@ -642,7 +688,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
  *  - Read Buttons and Update the LCD
  *  - Run i2c Position Encoders
  *  - Auto-report Temperatures / SD Status
- *  - Update the Prusa MMU2
+ *  - Update the Průša MMU2
  *  - Handle Joystick jogging
  */
 void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
@@ -669,7 +715,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
-    recovery.outage();
+    if (printJobOngoing()) recovery.outage();
   #endif
 
   // Run StallGuard endstop checks
@@ -695,8 +741,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Update the Beeper queue
   TERN_(USE_BEEPER, buzzer.tick());
 
-  // Read Buttons and Update the LCD
-  ui.update();
+  // Handle UI input / draw events
+  TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -718,7 +764,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     }
   #endif
 
-  // Update the Prusa MMU2
+  // Update the Průša MMU2
   TERN_(PRUSA_MMU2, mmu2.mmu_loop());
 
   // Handle Joystick jogging
@@ -726,6 +772,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
+  #if HAS_TFT_LVGL_UI
+    LV_TASK_HANDLER();
+  #endif
 }
 
 /**
@@ -837,7 +887,7 @@ void setup() {
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
       SERIAL_ECHO_START();
-      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHO("] ");
+      SERIAL_CHAR('['); SERIAL_ECHO(millis()); SERIAL_ECHOPGM("] ");
       serialprintPGM(msg);
       SERIAL_EOL();
     };
@@ -876,7 +926,7 @@ void setup() {
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
 
-  #if ENABLED(SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+  #if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
     OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
@@ -916,11 +966,11 @@ void setup() {
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   const byte mcu = HAL_get_reset_source();
-  if (mcu &  1) SERIAL_ECHOLNPGM(STR_POWERUP);
-  if (mcu &  2) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
-  if (mcu &  4) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
-  if (mcu &  8) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
-  if (mcu & 32) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
+  if (mcu & RST_POWER_ON) SERIAL_ECHOLNPGM(STR_POWERUP);
+  if (mcu & RST_EXTERNAL) SERIAL_ECHOLNPGM(STR_EXTERNAL_RESET);
+  if (mcu & RST_BROWN_OUT) SERIAL_ECHOLNPGM(STR_BROWNOUT_RESET);
+  if (mcu & RST_WATCHDOG) SERIAL_ECHOLNPGM(STR_WATCHDOG_RESET);
+  if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
   serialprintPGM(GET_TEXT(MSG_MARLIN));
@@ -945,6 +995,10 @@ void setup() {
     SETUP_RUN(leds.setup());
   #endif
 
+  #if ENABLED(NEOPIXEL2_SEPARATE)
+    SETUP_RUN(leds2.setup());
+  #endif
+
   #if ENABLED(USE_CONTROLLER_FAN)     // Set up fan controller to initialize also the default configurations.
     SETUP_RUN(controllerFan.setup());
   #endif
@@ -952,11 +1006,18 @@ void setup() {
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
-  SETUP_RUN(ui.init());
-  SETUP_RUN(ui.reset_status());       // Load welcome message early. (Retained if no errors exist.)
-
-  #if BOTH(HAS_SPI_LCD, SHOW_BOOTSCREEN)
-    SETUP_RUN(ui.show_bootscreen());
+  #if ENABLED(DWIN_CREALITY_LCD)
+    delay(800);   // Required delay (since boot?)
+    SERIAL_ECHOPGM("\nDWIN handshake ");
+    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
+    DWIN_Frame_SetDir(1); // Orientation 90°
+    DWIN_UpdateLCD();     // Show bootscreen (first image)
+  #else
+    SETUP_RUN(ui.init());
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
+      SETUP_RUN(ui.show_bootscreen());
+    #endif
+    SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
@@ -966,11 +1027,7 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if HAS_SERVICE_INTERVALS
-    SETUP_RUN(ui.reset_status(true)); // Show service messages or keep current status
-  #endif
-
-  #if ENABLED(TOUCH_BUTTONS)
+  #if HAS_TOUCH_XPT2046
     SETUP_RUN(touch.init());
   #endif
 
@@ -1041,11 +1098,11 @@ void setup() {
     OUT_WRITE(STAT_LED_BLUE_PIN, LOW); // OFF
   #endif
 
-  #if HAS_CASE_LIGHT
+  #if ENABLED(CASE_LIGHT_ENABLE)
     #if DISABLED(CASE_LIGHT_USE_NEOPIXEL)
       if (PWM_PIN(CASE_LIGHT_PIN)) SET_PWM(CASE_LIGHT_PIN); else SET_OUTPUT(CASE_LIGHT_PIN);
     #endif
-    SETUP_RUN(update_case_light());
+    SETUP_RUN(caselight.update_brightness());
   #endif
 
   #if ENABLED(MK2_MULTIPLEXER)
@@ -1113,7 +1170,7 @@ void setup() {
   #endif
 
   #if ENABLED(EXTERNAL_CLOSED_LOOP_CONTROLLER)
-    SETUP_RUN(init_closedloop());
+    SETUP_RUN(closedloop.init());
   #endif
 
   #ifdef STARTUP_COMMANDS
@@ -1133,12 +1190,39 @@ void setup() {
     SETUP_RUN(mmu2.init());
   #endif
 
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    BL24CXX::init();
+    const uint8_t err = BL24CXX::check();
+    SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(DWIN_CREALITY_LCD)
+    Encoder_Configuration();
+    HMI_Init();
+    HMI_StartFrame(true);
+  #endif
+
+  #if HAS_SERVICE_INTERVALS && DISABLED(DWIN_CREALITY_LCD)
+    ui.reset_status(true);  // Show service messages or keep current status
+  #endif
+
   #if ENABLED(MAX7219_DEBUG)
     SETUP_RUN(max7219.init());
   #endif
 
   #if ENABLED(DIRECT_STEPPING)
     SETUP_RUN(page_manager.init());
+  #endif
+
+  #if HAS_TFT_LVGL_UI
+    #if ENABLED(SDSUPPORT)
+      if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
+    #endif
+    SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  #if ENABLED(PASSWORD_ON_STARTUP)
+    SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
   #endif
 
   marlin_state = MF_RUNNING;
@@ -1172,6 +1256,8 @@ void loop() {
     queue.advance();
 
     endstops.event_handler();
+
+    TERN_(HAS_TFT_LVGL_UI, printer_state_polling());
 
   } while (ENABLED(__AVR__)); // Loop forever on slower (AVR) boards
 }

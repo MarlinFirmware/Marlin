@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -65,6 +65,7 @@
 // pl         Polish
 // pt         Portuguese
 // pt_br      Portuguese (Brazilian)
+// ro         Romanian
 // ru         Russian
 // sk         Slovak
 // tr         Turkish
@@ -90,7 +91,7 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "http://marlinfw.org"
+#define MARLIN_WEBSITE_URL "https://marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
@@ -204,7 +205,6 @@
 #define STR_ERR_COLD_EXTRUDE_STOP           " cold extrusion prevented"
 #define STR_ERR_LONG_EXTRUDE_STOP           " too long extrusion prevented"
 #define STR_ERR_HOTEND_TOO_COLD             "Hotend too cold"
-#define STR_ERR_Z_HOMING_SER                "Home XY first"
 #define STR_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define STR_FILAMENT_CHANGE_HEAT_LCD        "Press button to heat nozzle"
@@ -265,6 +265,13 @@
 #define STR_DEBUG_DRYRUN                    "DRYRUN"
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_LEVELING                  "LEVELING"
+
+#define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
+#define STR_WRONG_PASSWORD                  "Incorrect Password"
+#define STR_PASSWORD_TOO_LONG               "Password too long"
+#define STR_PASSWORD_REMOVED                "Password removed"
+#define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
+#define STR_PASSWORD_SET                    "Password is "
 
 // LCD Menu Messages
 
@@ -346,7 +353,7 @@
  *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
-  #define LCD_FIRST_TOOL '0'
+  #define LCD_FIRST_TOOL 0
   #define LCD_STR_N0 "0"
   #define LCD_STR_N1 "1"
   #define LCD_STR_N2 "2"
@@ -356,7 +363,7 @@
   #define LCD_STR_N6 "6"
   #define LCD_STR_N7 "7"
 #else
-  #define LCD_FIRST_TOOL '1'
+  #define LCD_FIRST_TOOL 1
   #define LCD_STR_N0 "1"
   #define LCD_STR_N1 "2"
   #define LCD_STR_N2 "3"

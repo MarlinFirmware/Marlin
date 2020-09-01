@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // R25 = 100 kOhm, beta25 = 3974 K, 4.7 kOhm pull-up, Honeywell 135-104LAG-J01
-const short temptable_7[][2] PROGMEM = {
+const temp_entry_t temptable_7[] PROGMEM = {
   { OV(   1), 941 },
   { OV(  19), 362 },
   { OV(  37), 299 }, // top rating 300C

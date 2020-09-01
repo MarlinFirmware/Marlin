@@ -135,4 +135,4 @@ git push -f upstream | {
 rm -rf ${TMPFOLDER}
 
 # Go back to the branch we started from
-[[ $BRANCH != $CURR ]] && git checkout $BRANCH && [[ $HAS_STASH == 1 ]] && git stash pop
+git checkout $CURR && [[ $HAS_STASH == 1 ]] && git stash pop

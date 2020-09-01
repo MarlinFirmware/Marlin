@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -50,6 +50,9 @@ void GcodeSuite::M413() {
     if (parser.seen("RL")) recovery.load();
     if (parser.seen('W')) recovery.save(true);
     if (parser.seen('P')) recovery.purge();
+    #if PIN_EXISTS(POWER_LOSS)
+      if (parser.seen('O')) recovery._outage();
+    #endif
     if (parser.seen('E')) serialprintPGM(recovery.exists() ? PSTR("PLR Exists\n") : PSTR("No PLR\n"));
     if (parser.seen('V')) serialprintPGM(recovery.valid() ? PSTR("Valid\n") : PSTR("Invalid\n"));
   #endif

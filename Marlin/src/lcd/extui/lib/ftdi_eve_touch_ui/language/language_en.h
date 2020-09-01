@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -74,7 +74,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LICENSE                  = u8"This program is free software: you can redistribute it and/or modify it under the terms of "
                                                         "the GNU General Public License as published by the Free Software Foundation, either version 3 "
                                                         "of the License, or (at your option) any later version.\n\nTo view a copy of the GNU General "
-                                                        "Public License, go to the following location: http://www.gnu.org/licenses.";
+                                                        "Public License, go to the following location: https://www.gnu.org/licenses.";
   PROGMEM Language_Str MSG_RUNOUT_1                 = u8"Runout 1";
   PROGMEM Language_Str MSG_RUNOUT_2                 = u8"Runout 2";
   PROGMEM Language_Str MSG_DISPLAY_MENU             = u8"Display";
@@ -91,9 +91,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str MSG_UNITS_PERCENT            = u8"%";
   PROGMEM Language_Str MSG_UNITS_C                  = DEGREE_SIGN u8"C";
-  PROGMEM Language_Str MSG_MATERIAL_PLA             = u8"PLA";
-  PROGMEM Language_Str MSG_MATERIAL_ABS             = u8"ABS";
-  PROGMEM Language_Str MSG_MATERIAL_HIGH_TEMP       = u8"High";
   PROGMEM Language_Str MSG_IDLE                     = u8"idle";
   PROGMEM Language_Str MSG_SET_MAXIMUM              = u8"Set Maximum";
   PROGMEM Language_Str MSG_PRINT_SPEED              = u8"Print Speed";

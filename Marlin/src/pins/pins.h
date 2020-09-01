@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -291,7 +291,7 @@
 #elif MB(MELZI_MAKR3D)
   #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_CREALITY)
-  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optiboot
+  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optimized env:melzi_optiboot
 #elif MB(MELZI_MALYAN)
   #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(MELZI_TRONXY)
@@ -300,6 +300,8 @@
   #include "sanguino/pins_STB_11.h"             // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
 #elif MB(AZTEEG_X1)
   #include "sanguino/pins_AZTEEG_X1.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+#elif MB(ZMIB_V2)
+  #include "sanguino/pins_ZMIB_V2.h"            // ATmega644P, ATmega1284P                env:sanguino_atmega644p env:sanguino_atmega1284p
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -503,11 +505,13 @@
 #elif MB(CHITU3D)
   #include "stm32f1/pins_CHITU3D.h"             // STM32F1                                env:STM32F103RE
 #elif MB(MKS_ROBIN)
-  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin
+  #include "stm32f1/pins_MKS_ROBIN.h"           // STM32F1                                env:mks_robin env:mks_robin_stm32
 #elif MB(MKS_ROBIN_MINI)
   #include "stm32f1/pins_MKS_ROBIN_MINI.h"      // STM32F1                                env:mks_robin_mini
 #elif MB(MKS_ROBIN_NANO)
-  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano
+  #include "stm32f1/pins_MKS_ROBIN_NANO.h"      // STM32F1                                env:mks_robin_nano35
+#elif MB(MKS_ROBIN_NANO_V2)
+  #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite
 #elif MB(BTT_SKR_MINI_V1_1)
@@ -541,9 +545,15 @@
 #elif MB(CCROBOT_MEEB_3DP)
   #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
 #elif MB(CHITU3D_V5)
-  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103
+  #include "stm32f1/pins_CHITU3D_V5.h"          // STM32F1                                env:chitu_f103 env:chitu_v5_gpio_init
 #elif MB(CHITU3D_V6)
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
+#elif MB(CREALITY_V4)
+  #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality
+#elif MB(CREALITY_V427)
+  #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
+#elif MB(TRIGORILLA_PRO)
+  #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 
 //
 // ARM Cortex-M4F
@@ -565,25 +575,29 @@
 #elif MB(ARMED)
   #include "stm32f4/pins_ARMED.h"               // STM32F4                                env:ARMED
 #elif MB(RUMBA32_V1_0)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32_f446ve
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_V1_1)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32_f446ve
+  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
-  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32_mks
+  #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
 #elif MB(BLACK_STM32F407VE)
   #include "stm32f4/pins_BLACK_STM32F407VE.h"   // STM32F4                                env:STM32F407VE_black
 #elif MB(STEVAL_3DP001V1)
   #include "stm32f4/pins_STEVAL_3DP001V1.h"     // STM32F4                                env:STM32F401VE_STEVAL
 #elif MB(BTT_SKR_PRO_V1_1)
   #include "stm32f4/pins_BTT_SKR_PRO_V1_1.h"    // STM32F4                                env:BIGTREE_SKR_PRO
+#elif MB(BTT_SKR_PRO_V1_2)
+  #include "stm32f4/pins_BTT_SKR_PRO_V1_2.h"    // STM32F4                                env:BIGTREE_SKR_PRO
 #elif MB(BTT_GTR_V1_0)
   #include "stm32f4/pins_BTT_GTR_V1_0.h"        // STM32F4                                env:BIGTREE_GTR_V1_0
 #elif MB(BTT_BTT002_V1_0)
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
   #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
+#elif MB(LERDGE_S)
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
 #elif MB(VAKE403D)
   #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
 #elif MB(FYSETC_S6)
@@ -592,6 +606,8 @@
   #include "stm32f4/pins_FLYF407ZG.h"           // STM32F4                                env:FLYF407ZG
 #elif MB(MKS_ROBIN2)
   #include "stm32f4/pins_MKS_ROBIN2.h"          // STM32F4                                env:MKS_ROBIN2
+#elif MB(FYSETC_S6_V2_0)
+  #include "stm32f4/pins_FYSETC_S6_V2_0.h"      // STM32F4                                env:FYSETC_S6
 
 //
 // ARM Cortex M7
@@ -607,7 +623,6 @@
 //
 
 #elif MB(ESPRESSIF_ESP32)
-
   #include "esp32/pins_ESP32.h"                 // ESP32                                  env:esp32
 #elif MB(MRR_ESPA)
   #include "esp32/pins_MRR_ESPA.h"              // ESP32                                  env:esp32
@@ -622,6 +637,12 @@
 
 #elif MB(AGCM4_RAMPS_144)
   #include "samd/pins_RAMPS_144.h"              // SAMD51                                 env:SAMD51_grandcentral_m4
+
+//
+// Custom board (with custom PIO env)
+//
+#elif MB(CUSTOM)
+  #include "pins_custom.h"                      //                                        env:custom
 
 //
 // Linux Native Debug board

@@ -336,7 +336,7 @@ uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data) {
  * @brief  Erases PAGE and PAGE1 and writes VALID_PAGE header to PAGE
  * @param  None
  * @retval Status of the last operation (Flash write or erase) done during
- *         EEPROM formating
+ *         EEPROM formatting
  */
 static HAL_StatusTypeDef EE_Format() {
   FLASH_EraseInitTypeDef pEraseInit;

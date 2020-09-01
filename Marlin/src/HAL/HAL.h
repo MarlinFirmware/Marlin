@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -38,7 +38,7 @@
 
 // String helper
 #ifndef PGMSTR
-  #define PGMSTR(NAM,STR) constexpr char NAM[] = STR
+  #define PGMSTR(NAM,STR) const char NAM[] = STR
 #endif
 
 inline void watchdog_refresh() {

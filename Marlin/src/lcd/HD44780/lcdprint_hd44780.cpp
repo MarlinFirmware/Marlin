@@ -23,10 +23,6 @@
 
 #include <string.h>
 
-#ifndef LCD_CLASS
-  #include <LiquidCrystal.h>
-  #define LCD_CLASS LiquidCrystal
-#endif
 extern LCD_CLASS lcd;
 
 int lcd_glyph_height() { return 1; }
@@ -927,6 +923,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('ю'), '|', 'o'},
     {IV('я'), 'g', 0}, // 044F
     {IV('ё'), 'e', 0}, // 0451
+
   #endif
 
   {IV('•'), '.', 0}, // 2022 ·

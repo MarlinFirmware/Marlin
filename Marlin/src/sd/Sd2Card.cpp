@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -240,8 +240,15 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
   watchdog_refresh(); // In case init takes too long
 
   // Set pin modes
-  extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
-  pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  #if ENABLED(ZONESTAR_12864OLED)
+    if (chipSelectPin_ != DOGLCD_CS) {
+      SET_OUTPUT(DOGLCD_CS);
+      WRITE(DOGLCD_CS, HIGH);
+    }
+  #else
+    extDigitalWrite(chipSelectPin_, HIGH);  // For some CPUs pinMode can write the wrong data so init desired data value first
+    pinMode(chipSelectPin_, OUTPUT);        // Solution for #8746 by @benlye
+  #endif
   spiBegin();
 
   // Set SCK rate for initialization commands

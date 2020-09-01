@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -74,7 +74,7 @@
 #undef E0_CS_PIN
 #undef E1_CS_PIN
 
-#if ENABLED(ULTRA_LCD, REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(NEWPANEL, PANEL_ONE)
+#if ENABLED(ULTRA_LCD) && NONE(REPRAPWORLD_GRAPHICAL_LCD, CR10_STOCKDISPLAY) && !BOTH(NEWPANEL, PANEL_ONE)
   #if DISABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306)
     #undef LCD_PINS_RS
     #define LCD_PINS_RS                       42  // 3DYMY boards pin 16 -> 42

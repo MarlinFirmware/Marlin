@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,6 +37,10 @@ enum EndstopEnum : char {
   Z3_MIN, Z3_MAX,
   Z4_MIN, Z4_MAX
 };
+
+#define X_ENDSTOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)
+#define Y_ENDSTOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
+#define Z_ENDSTOP (Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX)
 
 class Endstops {
   public:
