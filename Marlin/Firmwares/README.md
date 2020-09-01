@@ -16,6 +16,8 @@ Firmware for QQS-Pro with A4988.
 
 Firmware for QQS-Pro with TMC2208_Standalone
 
+Firmware for QQS-Pro with TMC2208_UART (only screen FSMC with UBL or Color UI with ABL)
+
 With activate parts:
 
 [PID_EDIT_MENU]
@@ -26,7 +28,6 @@ With activate parts:
 
 No validate:
 -TMC2209
--TMC220x UART
 
   ## Exemple: 
 
