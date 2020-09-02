@@ -24,6 +24,10 @@
 #if ENABLED(MARLIN_DEV_MODE)
 
   #include "gcode.h"
+  #include "../module/settings.h"
+  #include "../libs/hex_print.h"
+  #include "../HAL/shared/eeprom_if.h"
+
   /**
    * Dn: G-code for development and testing
    *
@@ -33,8 +37,94 @@
    */
   void GcodeSuite::D(const int8_t dcode) {
     switch (dcode) {
-      case -1: for (;;) { /*spin*/ }
+
+      case -1:
+        for (;;); // forever
+
       case 0:
+        HAL_reboot();
+        break;
+
+      case 1:
+        // TODO: Zero or pattern-fill the EEPROM data
+        //settings.reset();
+        //settings.save();
+        HAL_reboot();
+        break;
+
+      case 2: { // D2 Read / Write SRAM
+        #define SRAM_SIZE 8192
+        uint8_t *adr = parser.uhexval('A');
+        uint16_t len = parser.ushortval('C', 1);
+        NOMORE(adr, SRAM_SIZE - 1);
+        NOMORE(len, SRAM_SIZE - adr);
+        if (parser.seenval('X')) {
+          // TODO: Write the hex bytes after the X
+          //while (len--) {
+          //}
+        }
+        else {
+          while (len--) print_hex_byte(adr++);
+          SERIAL_EOL();
+        }
+      } break;
+
+      case 3: { // D3 Read / Write EEPROM
+        uint8_t *adr = parser.uhexval('A');
+        uint16_t len = parser.ushortval('C', 1);
+        NOMORE(adr, MARLIN_EEPROM_SIZE - 1);
+        NOMORE(len, MARLIN_EEPROM_SIZE - adr);
+        if (parser.seenval('X')) {
+          // TODO: Write the hex bytes after the X
+          //while (len--) {
+          //}
+        }
+        else {
+          while (len--) {
+            // TODO: Read bytes from EEPROM
+            print_hex_byte(eeprom_read_byte(adr++));
+          }
+          SERIAL_EOL();
+        }
+      } break;
+
+      case 4: { // D4 Read / Write PIN
+        const uint8_t pin = parser.byteval('P');
+        const bool is_out = parser.boolval('F'),
+                   val = parser.byteval('V', LOW);
+        if (parser.seenval('X')) {
+          // TODO: Write the hex bytes after the X
+          //while (len--) {
+          //}
+        }
+        else {
+          while (len--) {
+            // TODO: Read bytes from EEPROM
+            print_hex_byte(eeprom_read_byte(adr++));
+          }
+          SERIAL_EOL();
+        }
+      } break;
+
+      case 5: { // D4 Read / Write onboard Flash
+        #define FLASH_SIZE 1024
+        uint16_t adr = parser.uhexval('A');
+        uint16_t len = parser.ushortval('C', 1);
+        NOMORE(adr, FLASH_SIZE - 1);
+        NOMORE(len, FLASH_SIZE - adr);
+        if (parser.seenval('X')) {
+          // TODO: Write the hex bytes after the X
+          //while (len--) {
+          //}
+        }
+        else {
+          while (len--) {
+            // TODO: Read bytes from EEPROM
+            print_hex_byte(eeprom_read_byte(adr++));
+          }
+          SERIAL_EOL();
+        }
+      } break;
     }
   }
 

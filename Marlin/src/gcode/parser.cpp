@@ -147,14 +147,6 @@ void GCodeParser::parse(char *p) {
     starpos[1] = '\0';
   }
 
-  #if ENABLED(GCODE_MOTION_MODES)
-    #if ENABLED(ARC_SUPPORT)
-      #define GTOP 3
-    #else
-      #define GTOP 1
-    #endif
-  #endif
-
   #if ENABLED(MARLIN_DEV_MODE) || ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     #define SIGNED_CODENUM 1
   #endif
@@ -210,11 +202,8 @@ void GCodeParser::parse(char *p) {
       while (*p == ' ') p++;
 
       #if ENABLED(GCODE_MOTION_MODES)
-        if (letter == 'G' && (codenum <= GTOP || codenum == 5
-                                #if ENABLED(G38_PROBE_TARGET)
-                                  || codenum == 38
-                                #endif
-                             )
+        if (letter == 'G'
+          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || codenum == 5 || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
           motion_mode_codenum = codenum;
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
@@ -225,12 +214,12 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I': case 'J': case 'R':
+        case 'I' ... 'J': case 'R':
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P': case 'Q':
+      case 'P' ... 'Q':
         if (motion_mode_codenum != 5) return;
-      case 'X': case 'Y': case 'Z': case 'E': case 'F':
+      case 'X' ... 'Z': case 'E' ... 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
@@ -256,7 +245,7 @@ void GCodeParser::parse(char *p) {
     #if ENABLED(EXPECTED_PRINTER_CHECK)
       case 16:
     #endif
-    case 23: case 28: case 30: case 117: case 118: case 928:
+    case 23: case 28: case 30: case 117 ... 118: case 928:
       string_arg = unescape_string(p);
       return;
     default: break;
