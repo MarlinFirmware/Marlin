@@ -405,7 +405,7 @@ public:
 
 private:
 
-  TERN_(MARLIN_DEV_MODE, static void D());
+  TERN_(MARLIN_DEV_MODE, static void D(const int16_t dcode));
 
   static void G0_G1(
     #if IS_SCARA || defined(G0_FEEDRATE)

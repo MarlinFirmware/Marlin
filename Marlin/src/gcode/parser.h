@@ -412,7 +412,7 @@ public:
 
   #if ENABLED(MARLIN_DEV_MODE)
 
-    static inline const uint8_t* hex_adr_val(const char c, const uint8_t * const dval=nullptr) {
+    static inline uint8_t* hex_adr_val(const char c, uint8_t * const dval=nullptr) {
       if (!seen(c) || *value_ptr != 'x') return dval;
       uint8_t *out = nullptr;
       for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
