@@ -284,7 +284,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
- * M9999 - Custom Development GCode. Allow developers to talk to marlin when testing new features and bugs.
+ * D... - Custom Development G-code. Add hooks to 'gcode_D.cpp' for developers to test features. (Requires MARLIN_DEV_MODE)
  *
  * "T" Codes
  *
@@ -404,6 +404,8 @@ public:
   static void dwell(millis_t time);
 
 private:
+
+  TERN_(MARLIN_DEV_MODE, static void D());
 
   static void G0_G1(
     #if IS_SCARA || defined(G0_FEEDRATE)
@@ -874,10 +876,6 @@ private:
   #if ENABLED(POWER_LOSS_RECOVERY)
     static void M413();
     static void M1000();
-  #endif
-
-  #if BOTH(MARLIN_DEV_MODE, DEV_CUSTOM_GCODE)
-    static void M9999();
   #endif
 
   TERN_(SDSUPPORT, static void M1001());

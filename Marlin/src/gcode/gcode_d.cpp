@@ -19,21 +19,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#include "../inc/MarlinConfigPre.h"
 
-#include "../inc/MarlinConfig.h"
+#if ENABLED(MARLIN_DEV_MODE)
 
-#if BOTH(MARLIN_DEV_MODE, DEV_CUSTOM_GCODE)
   #include "gcode.h"
   /**
-   * M9999: Custom Development GCode. Allow developers to talk to marlin when testing new features and bugs.
+   * Dn: G-code for development and testing
    *
-   * You can edit and do whenever you want here, to test you development
+   * See https://reprap.org/wiki/G-code#D:_Debug_codes
+   *
+   * Put whatever else you need here to test ongoing development.
    */
-  void GcodeSuite::M9999() {
-    parser.seen('V');
-    int value = parser.value_int();
-    //call my test code
-    (value);
+  void GcodeSuite::D(const int8_t dcode) {
+    switch (dcode) {
+      case -1: for (;;) { /*spin*/ }
+      case 0:
+    }
   }
+
 #endif
