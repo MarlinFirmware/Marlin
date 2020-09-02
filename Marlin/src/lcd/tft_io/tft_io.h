@@ -29,6 +29,48 @@
   #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #endif
 
+#define TFT_EXCHANGE_XY (1UL << 1)
+#define TFT_INVERT_X    (1UL << 2)
+#define TFT_INVERT_Y    (1UL << 3)
+
+#define TFT_NO_ROTATION         0xFF
+#define TFT_TURN_90             (TFT_EXCHANGE_XY | TFT_INVERT_X)
+#define TFT_TURN_180            (TFT_INVERT_X    | TFT_INVERT_Y)
+#define TFT_TURN_270            (TFT_EXCHANGE_XY | TFT_INVERT_Y)
+
+#define TFT_TURN_90_MIRROR_X    (TFT_TURN_90 ^ TFT_INVERT_Y)
+#define TFT_TURN_90_MIRROR_Y    (TFT_TURN_90 ^ TFT_INVERT_X)
+
+#define TFT_TURN_180_MIRROR_X   (TFT_TURN_180 ^ TFT_INVERT_Y)
+#define TFT_TURN_180_MIRROR_Y   (TFT_TURN_180 ^ TFT_INVERT_X)
+
+#define TFT_TURN_270_MIRROR_X   (TFT_TURN_270 ^ TFT_INVERT_Y)
+#define TFT_TURN_270_MIRROR_Y   (TFT_TURN_270 ^ TFT_INVERT_X)
+
+// TFT_ROTATION is user configurable
+#ifndef TFT_ROTATION
+  #define TFT_ROTATION TFT_NO_ROTATION
+#endif
+
+// TFT_DEFAULT_ORIENTATION is configurable by each TFT type
+#if defined(TFT_MKS_TS32_V2_0)
+  #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY | TFT_INVERT_X
+#elif defined(TFT_TRONXY_X5SA)
+  #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y
+#else // generic TFT?!
+  #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y
+#endif
+
+// TFT_ORIENTATION is the "sum" of TFT_DEFAULT_ORIENTATION plus user TFT_ROTATION
+#define TFT_ORIENTATION (TFT_DEFAULT_ORIENTATION ^ TFT_ROTATION)
+
+#define TFT_COLOR_RGB   (1UL << 3)
+#define TFT_COLOR_BGR   (1UL << 4)
+
+#ifndef TFT_COLOR
+  #define TFT_COLOR   TFT_COLOR_RGB
+#endif
+
 #define ST7735          0x89F0
 #define ST7789          0x8552
 #define ST7796          0x7796

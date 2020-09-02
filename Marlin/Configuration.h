@@ -2236,6 +2236,27 @@
 //#define TFT_LVGL_UI_FSMC  // Robin nano v1.2 uses FSMC
 //#define TFT_LVGL_UI_SPI   // Robin nano v2.0 uses SPI
 
+//
+// TFT Type
+//
+// Select your TFT. It will do some presets for you.
+//
+// Available optoions are: TFT_MKS_TS32_V2_0, TFT_TRONXY_X5SA, TFT_GENERIC
+//
+//#define TFT_GENERIC
+
+//
+// TFT Rotation
+//
+// Available options are: TFT_TURN_90, TFT_TURN_180, TFT_TURN_270,
+//                        TFT_TURN_90_MIRROR_X, TFT_TURN_90_MIRROR_Y,
+//                        TFT_TURN_180_MIRROR_X, TFT_TURN_180_MIRROR_Y,
+//                        TFT_TURN_270_MIRROR_X, TFT_TURN_270_MIRROR_Y,
+//                        TFT_NO_ROTATION
+//
+//#define TFT_ROTATION TFT_NO_ROTATION
+
+
 //=============================================================================
 //============================  Other Controllers  ============================
 //=============================================================================
