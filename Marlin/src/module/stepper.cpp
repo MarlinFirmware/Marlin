@@ -2843,7 +2843,7 @@ void Stepper::report_positions() {
       #if ENABLED(BABYSTEP_XY)
 
         case X_AXIS:
-          #if EITHER(CORE_IS_XY)
+          #if CORE_IS_XY
             BABYSTEP_CORE(X, Y, 0, direction, 0);
           #elif CORE_IS_XZ
             BABYSTEP_CORE(X, Z, 0, direction, 0);
@@ -2853,7 +2853,7 @@ void Stepper::report_positions() {
           break;
 
         case Y_AXIS:
-          #if EITHER(CORE_IS_XY)
+          #if CORE_IS_XY
             BABYSTEP_CORE(X, Y, 1, !direction, (CORESIGN(1)>0));
           #elif CORE_IS_YZ
             BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));
