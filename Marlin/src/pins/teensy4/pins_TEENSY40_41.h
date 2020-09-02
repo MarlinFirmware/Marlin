@@ -84,8 +84,8 @@
 //
 // Steppers
 //
-#define X_STEP_PIN                             0
-#define X_DIR_PIN                              1
+#define X_STEP_PIN                             2
+#define X_DIR_PIN                              3
 #define X_ENABLE_PIN                           5
 #define X_CS_PIN                               0
 

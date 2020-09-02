@@ -23,10 +23,8 @@
 
 // Linear output 0 to 500 (0 to 5.00 volts)
 
-//#define REVERSE_TEMP_SENSOR_RANGE_997
-
 const temp_entry_t temptable_997[] PROGMEM = {
   { OV(   1), 500 },
-  { OV(1022), 0 },
+  { OV( 511), 250 },
   { OV(1023), 0 }
 };

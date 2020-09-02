@@ -418,8 +418,8 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#define TEMP_SENSOR_0 998
-#define TEMP_SENSOR_1 998
+#define TEMP_SENSOR_0 997
+#define TEMP_SENSOR_1 997
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_4 0
@@ -462,8 +462,8 @@
 // Above this temperature the heater will be switched off.
 // This can protect components from overheating, but NOT from shorts and failures.
 // (Use MINTEMP for thermistor short/failure protection.)
-#define HEATER_0_MAXTEMP 1000
-#define HEATER_1_MAXTEMP 1000
+#define HEATER_0_MAXTEMP 400
+#define HEATER_1_MAXTEMP 400
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define HEATER_4_MAXTEMP 275

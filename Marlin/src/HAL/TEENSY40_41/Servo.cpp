@@ -27,17 +27,14 @@
 
 #include "Servo.h"
 
-uint8_t servoPin[MAX_SERVOS] = { 0 };
-
 int8_t libServo::attach(const int inPin) {
-  if (servoIndex >= MAX_SERVOS) return -1;
-  if (inPin > 0) servoPin[servoIndex] = inPin;
-  return super::attach(servoPin[servoIndex]);
+  if (inPin > 0) servoPin = inPin;
+  return super::attach(servoPin);
 }
 
 int8_t libServo::attach(const int inPin, const int inMin, const int inMax) {
-  if (inPin > 0) servoPin[servoIndex] = inPin;
-  return super::attach(servoPin[servoIndex], inMin, inMax);
+  if (inPin > 0) servoPin = inPin;
+  return super::attach(servoPin, inMin, inMax);
 }
 
 void libServo::move(const int value) {
@@ -48,6 +45,11 @@ void libServo::move(const int value) {
     safe_delay(servo_delay[servoIndex]);
     TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
+}
+
+void libServo::detach() {
+  // PWMServo library does not have detach() function
+  //super::detach();
 }
 
 #endif // HAS_SERVOS
