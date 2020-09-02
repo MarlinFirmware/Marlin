@@ -2241,7 +2241,14 @@
 //
 // Select your TFT. It will do some presets for you.
 //
-// Available optoions are: TFT_MKS_TS32_V2_0, TFT_TRONXY_X5SA, TFT_GENERIC
+// Available optoions are:
+//      MKS_TS32_V2_0,
+//      MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35,
+//      MKS_ROBIN_TFT43,
+//      TFT_TRONXY_X5SA,
+//      TFT_GENERIC
+//
+// For TFT_GENERIC, you need configure the TFT options: resolution, interface and driver
 //
 //#define TFT_GENERIC
 
