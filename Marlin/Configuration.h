@@ -2263,6 +2263,15 @@
 //
 //#define TFT_ROTATION TFT_NO_ROTATION
 
+//
+// TFT UI - User Interface Selection
+//
+// Available options are:
+//     CLASSIC_UI - Emulated DOGM - 128x64 Upscaled
+//     COLOR_UI   - Marlin Default Menus Touch Friendly, using full TFT capabilities
+//     LVGL_UI    - A Modern UI using LVGL
+//
+//#define TFT_UI COLOR_UI
 
 //=============================================================================
 //============================  Other Controllers  ============================
