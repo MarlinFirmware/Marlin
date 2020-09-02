@@ -178,16 +178,18 @@ void GCodeParser::parse(char *p) {
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      int sign = 1; // Allow for a negative code like D-1 or T-1
-      if (ENABLED(SIGNED_CODENUM) && *p == '-') { sign = -1; ++p; }
+      {
+        int sign = 1; // Allow for a negative code like D-1 or T-1
+        if (ENABLED(SIGNED_CODENUM) && *p == '-') { sign = -1; ++p; }
 
-      // Get the code number - integer digits only
-      codenum = 0;
+        // Get the code number - integer digits only
+        codenum = 0;
 
-      do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
 
-      // Apply the sign, if any
-      codenum *= sign;
+        // Apply the sign, if any
+        codenum *= sign;
+      }
 
       // Allow for decimal point in command
       #if ENABLED(USE_GCODE_SUBCODES)
