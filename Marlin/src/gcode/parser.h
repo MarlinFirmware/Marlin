@@ -414,9 +414,8 @@ public:
 
     static inline const uint8_t* hex_adr_val(const char c, const uint8_t * const dval=nullptr) {
       if (!seen(c) || *value_ptr != 'x') return dval;
-      char *vp = value_ptr + 1;
       uint8_t *out = nullptr;
-      for (; HEXCHR(*vp) >= 0, vp++)
+      for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
         out = (out << 8) | HEXCHR(*vp);
       return out;
     }
