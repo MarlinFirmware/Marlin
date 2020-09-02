@@ -60,6 +60,7 @@ void safe_delay(millis_t ms) {
       TERN_(DELTA, "Delta")
       TERN_(IS_SCARA, "SCARA")
       TERN_(IS_CORE, "Core")
+      TERN_(IS_MARKFORGED, "Markforged")
       TERN_(IS_CARTESIAN, "Cartesian")
     );
 

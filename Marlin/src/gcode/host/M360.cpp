@@ -145,10 +145,11 @@ void GcodeSuite::M360() {
 
   config_prefix(PSTR("PrinterType"));
   SERIAL_ECHOLNPGM(
-    TERN_(DELTA,        "Delta")
-    TERN_(IS_SCARA,     "SCARA")
-    TERN_(IS_CORE,      "Core")
-    TERN_(IS_CARTESIAN, "Cartesian")
+    TERN_(DELTA,         "Delta")
+    TERN_(IS_SCARA,      "SCARA")
+    TERN_(IS_CORE,       "Core")
+    TERN_(IS_MARKFORGED, "Markforged")
+    TERN_(IS_CARTESIAN,  "Cartesian")
   );
 
   //

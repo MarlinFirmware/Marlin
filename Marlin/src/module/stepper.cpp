@@ -2041,6 +2041,8 @@ uint32_t Stepper::block_phase_isr() {
           #define X_CMP(A,B) ((A)!=(B))
         #endif
         #define X_MOVE_TEST ( S_(1) != S_(2) || (S_(1) > 0 && X_CMP(D_(1),D_(2))) )
+      #elif IS_MARKFORGED
+        #define X_MOVE_TEST !(current_block->steps.b == current_block->steps.a)
       #else
         #define X_MOVE_TEST !!current_block->steps.a
       #endif
@@ -2614,7 +2616,9 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
   #elif CORE_IS_YZ
     // coreyz planning
     count_position.set(a, b + c, CORESIGN(b - c));
-  #else
+  #elif IS_MARKFORGED
+    count_position.set(a - b, b, c);
+#else
     // default non-h-bot planning
     count_position.set(a, b, c);
   #endif
@@ -2680,6 +2684,10 @@ void Stepper::endstop_triggered(const AxisEnum axis) {
         ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
         : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
       ) * double(0.5)
+    #elif IS_MARKFORGED
+      axis == MARKFORGED_AXIS_X
+        ? count_position[MARKFORGED_AXIS_X] - count_position[MARKFORGED_AXIS_Y]
+        : count_position[MARKFORGED_AXIS_Y]
     #else // !IS_CORE
       count_position[axis]
     #endif
@@ -2709,7 +2717,7 @@ int32_t Stepper::triggered_position(const AxisEnum axis) {
 }
 
 void Stepper::report_a_position(const xyz_long_t &pos) {
-  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || ENABLED(DELTA) || IS_SCARA || IS_MARKFORGED
     SERIAL_ECHOPAIR(STR_COUNT_A, pos.x, " B:", pos.y);
   #else
     SERIAL_ECHOPAIR_P(PSTR(STR_COUNT_X), pos.x, SP_Y_LBL, pos.y);
@@ -2835,7 +2843,7 @@ void Stepper::report_positions() {
       #if ENABLED(BABYSTEP_XY)
 
         case X_AXIS:
-          #if CORE_IS_XY
+          #if EITHER(CORE_IS_XY)
             BABYSTEP_CORE(X, Y, 0, direction, 0);
           #elif CORE_IS_XZ
             BABYSTEP_CORE(X, Z, 0, direction, 0);
@@ -2845,7 +2853,7 @@ void Stepper::report_positions() {
           break;
 
         case Y_AXIS:
-          #if CORE_IS_XY
+          #if EITHER(CORE_IS_XY)
             BABYSTEP_CORE(X, Y, 1, !direction, (CORESIGN(1)>0));
           #elif CORE_IS_YZ
             BABYSTEP_CORE(Y, Z, 0, direction, (CORESIGN(1)<0));

@@ -151,9 +151,17 @@
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
 #endif
 
+// Markforged kinematics
+#if ENABLED(MARKFORGED)
+  #define IS_MARKFORGED 1
+  #define MARKFORGED_AXIS_X A_AXIS
+  #define MARKFORGED_AXIS_Y B_AXIS
+  #define NORMAL_AXIS       Z_AXIS
+#endif
+
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
-  #if IS_CORE
+  #if EITHER(IS_CORE, IS_MARKFORGED)
     #define X_AXIS_INDEX 0
     #define Y_AXIS_INDEX 1
     #define Z_AXIS_INDEX 2
