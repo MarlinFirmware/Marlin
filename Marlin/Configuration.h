@@ -2245,7 +2245,7 @@
 //      MKS_TS35_V2_0,
 //      MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35,
 //      MKS_ROBIN_TFT43,
-//      TFT_TRONXY_X5SA,
+//      TFT_TRONXY_X5SA, ANYCUBIC_TFT35
 //      TFT_GENERIC
 //
 // For TFT_GENERIC, you need configure the TFT options: resolution, interface and driver
