@@ -416,7 +416,7 @@ public:
       if (!seen(c) || *value_ptr != 'x') return dval;
       uint8_t *out = nullptr;
       for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
-        out = (out << 8) | HEXCHR(*vp);
+        out = (uint8_t*)((uintptr_t(out) << 8) | HEXCHR(*vp));
       return out;
     }
 
