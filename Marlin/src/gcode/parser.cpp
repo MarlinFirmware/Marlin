@@ -155,14 +155,15 @@ void GCodeParser::parse(char *p) {
     #endif
   #endif
 
+  #if ENABLED(MARLIN_DEV_MODE) || ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+    #define SIGNED_CODENUM 1
+  #endif
+
   // Bail if the letter is not G, M, or T
   // (or a valid parameter for the current motion mode)
   switch (letter) {
 
     case 'G': case 'M': case 'T':
-    #if ENABLED(CANCEL_OBJECTS)
-      case 'O':
-    #endif
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -178,22 +179,29 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!NUMERIC(*p)) return;
+      if (!TERN(SIGNED_CODENUM,NUMERIC_SIGNED,NUMERIC)(*p)) return;
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
       command_letter = letter;
 
+      int sign = 1; // Allow for a negative code like D-1 or T-1
+      if (ENABLED(SIGNED_CODENUM) && *p == '-') { sign = -1; ++p; }
+
       // Get the code number - integer digits only
       codenum = 0;
-      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
+
+      do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+
+      // Apply the sign, if any
+      codenum *= sign;
 
       // Allow for decimal point in command
       #if ENABLED(USE_GCODE_SUBCODES)
         if (*p == '.') {
           p++;
           while (NUMERIC(*p))
-          subcode *= 10, subcode += *p++ - '0';
+            subcode = subcode * 10 + *p++ - '0';
         }
       #endif
 
