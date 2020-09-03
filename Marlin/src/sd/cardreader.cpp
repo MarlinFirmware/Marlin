@@ -383,8 +383,10 @@ void CardReader::mount() {
 
   if (flag.mounted)
     cdroot();
-  else if (marlin_state != MF_INITIALIZING)
-    ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
+    else if (marlin_state != MF_INITIALIZING)
+      ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
+  #endif
 
   ui.refresh();
 }
