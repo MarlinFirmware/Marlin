@@ -28,6 +28,10 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
+#if ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT) && DISABLED(PROBE_MANUALLY)
+  #define HAS_ONESTEP_LEVELING 1
+#endif
+
 #include "dwin.h"
 
 #include <WString.h>
@@ -57,7 +61,7 @@
   #include "../../feature/host_actions.h"
 #endif
 
-#if HAS_LEVELING
+#if HAS_ONESTEP_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
@@ -596,7 +600,7 @@ inline void Draw_Prepare_Menu() {
 inline void Draw_Control_Menu() {
   Clear_Main_Window();
 
-  const int16_t scroll = TERN(HAS_LEVELING, MROWS - index_control, 0); // Scrolled-up lines
+  const int16_t scroll = TERN(HAS_ONESTEP_LEVELING, MROWS - index_control, 0); // Scrolled-up lines
 
   #define CSCROL(L) (scroll + (L))
   #define CLINE(L)  MBASE(CSCROL(L))
@@ -976,7 +980,7 @@ void Goto_MainMenu(void) {
   ICON_Print();
   ICON_Prepare();
   ICON_Control();
-  TERN(HAS_LEVELING, ICON_Leveling, ICON_StartInfo)(select_page.now == 3);
+  TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(select_page.now == 3);
 }
 
 inline ENCODER_DiffState get_encoder_state() {
@@ -1782,7 +1786,7 @@ void HMI_MainMenu(void) {
         case 0: ICON_Print(); break;
         case 1: ICON_Print(); ICON_Prepare(); break;
         case 2: ICON_Prepare(); ICON_Control(); break;
-        case 3: ICON_Control(); TERN(HAS_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 3: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
       }
     }
   }
@@ -1791,8 +1795,8 @@ void HMI_MainMenu(void) {
       switch (select_page.now) {
         case 0: ICON_Print(); ICON_Prepare(); break;
         case 1: ICON_Prepare(); ICON_Control(); break;
-        case 2: ICON_Control(); TERN(HAS_LEVELING, ICON_Leveling, ICON_StartInfo)(0); break;
-        case 3: TERN(HAS_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
+        case 2: ICON_Control(); TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(0); break;
+        case 3: TERN(HAS_ONESTEP_LEVELING, ICON_Leveling, ICON_StartInfo)(1); break;
       }
     }
   }
@@ -1822,7 +1826,7 @@ void HMI_MainMenu(void) {
 
       /* Leveling */
       case 3:
-        #if HAS_LEVELING
+        #if HAS_ONESTEP_LEVELING
           checkkey = Leveling;
           HMI_Leveling();
         #else
@@ -2324,7 +2328,7 @@ void HMI_Control(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    #define CONTROL_ITEMS (5 + ENABLED(HAS_LEVELING))
+    #define CONTROL_ITEMS (5 + ENABLED(HAS_ONESTEP_LEVELING))
     if (select_control.inc(CONTROL_ITEMS)) {
       if (select_control.now > MROWS && select_control.now > index_control) {
         index_control = select_control.now;
@@ -2402,12 +2406,17 @@ void HMI_Control(void) {
   DWIN_UpdateLCD();
 }
 
-/* Leveling */
-void HMI_Leveling(void) {
-  Popup_Window_Leveling();
-  DWIN_UpdateLCD();
-  queue.inject_P(PSTR("G28O\nG29"));
-}
+
+#if HAS_ONESTEP_LEVELING
+
+  /* Leveling */
+  void HMI_Leveling(void) {
+    Popup_Window_Leveling();
+    DWIN_UpdateLCD();
+    queue.inject_P(PSTR("G28O\nG29"));
+  }
+
+#endif
 
 /* Axis Move */
 void HMI_AxisMove(void) {
@@ -2896,7 +2905,7 @@ void HMI_Info(void) {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
   if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    #if HAS_LEVELING
+    #if HAS_ONESTEP_LEVELING
       checkkey = Control;
       select_control.set(CONTROL_ITEMS);
       Draw_Control_Menu();
