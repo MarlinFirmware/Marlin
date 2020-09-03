@@ -23,10 +23,9 @@
 
 #define REVERSE_TEMP_SENSOR_RANGE_21 1
 
-#undef OV_SCALE
-#define OV_SCALE(N) (float((N) * 5) / 3.3f)
-
 // Pt100 with INA826 amp with 3.3v excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
+// Reference voltage of the ADC is expected to be 3.3v as well in this setup. 
+// Therefore, no change of the ADC lookup table compared to 5V supply and 5V ADC reference voltage systems (AVR) as ADC is providing ratios of the reference.
 const temp_entry_t temptable_21[] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
@@ -73,5 +72,3 @@ const temp_entry_t temptable_21[] PROGMEM = {
   { OV(614),  500 }
 };
 
-#undef OV_SCALE
-#define OV_SCALE(N) (N)
