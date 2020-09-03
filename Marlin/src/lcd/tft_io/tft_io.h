@@ -27,6 +27,8 @@
   #include HAL_PATH(../../HAL, tft/tft_spi.h)
 #elif HAS_FSMC_TFT
   #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
+#else
+  #error "TFT IO only supports SPI or FSMC interface"
 #endif
 
 #define TFT_EXCHANGE_XY (1UL << 1)
@@ -114,6 +116,7 @@
   #define TFT_COLOR   TFT_COLOR_RGB
 #endif
 
+#define SSD1963         0x5761
 #define ST7735          0x89F0
 #define ST7789          0x8552
 #define ST7796          0x7796

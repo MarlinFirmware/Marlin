@@ -28,6 +28,7 @@
 #include "ili9328.h"
 #include "ili9341.h"
 #include "ili9488.h"
+#include "ssd1963.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
@@ -47,6 +48,8 @@ if (lcd_id != 0xFFFFFFFF) return;
 
   #if TFT_DRIVER == ST7735
     write_esc_sequence(st7735_init);
+  #elif TFT_DRIVER == SSD1963
+    write_esc_sequence(ssd1963_init);
   #elif TFT_DRIVER == ST7789
     write_esc_sequence(st7789v_init);
   #elif TFT_DRIVER == ST7796
@@ -75,6 +78,10 @@ if (lcd_id != 0xFFFFFFFF) return;
       case ST7789:    // ST7789V    320x240
         DEBUG_ECHO_MSG(" ST7789V");
         write_esc_sequence(st7789v_init);
+        break;
+      case SSD1963:    // SSD1963
+        DEBUG_ECHO_MSG(" SSD1963");
+        write_esc_sequence(ssd1963_init);
         break;
       case ST7735:    // ST7735     160x128
         DEBUG_ECHO_MSG(" ST7735");
@@ -119,6 +126,7 @@ void TFT_IO::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ym
     case ST7796:    // ST7796     480x320
     case ILI9341:   // ILI9341    320x240
     case ILI9488:   // ILI9488    480x320
+    case SSD1963:   // SSD1963
     case ILI9488_ID1: // 0x8066 ILI9488    480x320
       io.DataTransferBegin(DATASIZE_8BIT);
 
