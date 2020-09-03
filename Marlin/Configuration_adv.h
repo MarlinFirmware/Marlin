@@ -2004,7 +2004,7 @@
  * Currently handles M108, M112, M410, M876
  * NOTE: Not yet implemented for all platforms.
  */
-#if NONE(SKRPRO11, SKRMiniE3V2, MachineEnder3V2)
+#if NONE(SKRPRO11, SKRMiniE3V2, MachineEnder3V2, MachineEnder3V2, MachineEnder3Pro420, MachineEnder3Pro427)
   #define EMERGENCY_PARSER
 #endif
 

@@ -34,7 +34,7 @@
 //STM32F103RE Machines
 //#define MachineEnder3V2
 //#define MachineEnder3Pro420
-//#define MachineEnder3Pro427
+#define MachineEnder3Pro427
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
@@ -2952,9 +2952,7 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
-#elif ANY(MachineEnder3Pro420, MachineEnder3Pro427)
-  #define  RET6_12864_LCD
-#elif ANY(OrigLCD, MachineCR10Orig) && DISABLED(GraphicLCD)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro420, MachineEnder3Pro427) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
