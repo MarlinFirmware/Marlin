@@ -144,7 +144,7 @@
     
     #define MISO_PIN                       P0_08  // EXP2 Pin 1 (PB3, SD_MISO)
     #define SCK_PIN                        P0_07  // EXP2 Pin 2 (SD_SCK)    
-    #define SS_PIN                         P0_28  // EXP2 Pin 4 (SD_CSEL, SD_CS) (Sometimes called SDSS) - CS used by Marlin
+    #define SS_PIN                         P0_28  // EXP2 Pin 4 (SD_CSEL, SD_CS)
     #define MOSI_PIN                       P0_09  // EXP2 Pin 6 (PB2, SD_MOSI)
     #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
     
