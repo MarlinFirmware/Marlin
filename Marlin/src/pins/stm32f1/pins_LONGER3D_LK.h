@@ -119,11 +119,12 @@
  */
 
 #define LCD_RESET_PIN                       PC4   // pin 33
-#define LCD_BACKLIGHT_PIN                   PD12  // pin 59
+#define TFT_RESET_PIN                       PC4   // pin 33
+#define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
 #define FSMC_RS_PIN                         PD11  // pin 58 A16 Register. Only one address needed
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
+//#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT (broken)
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
@@ -135,6 +136,8 @@
 #define TFT_HEIGHT                           240
 #define TFT_PIXEL_OFFSET_X                    32
 #define TFT_PIXEL_OFFSET_Y                    32
+
+//#define TFT_DRIVER                     ILI9341
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
