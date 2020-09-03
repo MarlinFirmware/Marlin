@@ -129,6 +129,24 @@
     //  EXP2 Pins 
     #define BTN_EN1                        P3_25  // EXP2 Pin 5
     #define BTN_EN2                        P3_26  // EXP2 Pin 3
+
+    /*  
+       SD Support
+    
+      For the RRD GLCD it CANNOT share the same SPI as the LCD so it must be 
+      hooked up to the onboard sdcard SPI and use a spare pin for the sdcs.
+      Also note that an external SDcard sharing the SPI port with the 
+      onboard/internal sdcard must be ejected before rebooting as the bootloader 
+      does not like the external card. NOTE Smoothie will not boot if the external 
+      sdcard is inserted in the RRD LCD sdcard slot at boot time, it must be 
+      inserted after it has booted.
+    */
+    #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
+    #define SCK_PIN                        P0_07  // EXP2 Pin 2 (SD_SCK)
+    #define MISO_PIN                       P0_08  // EXP2 Pin 1 (PB3, SD_MISO)
+    #define MOSI_PIN                       P0_09  // EXP2 Pin 6 (PB2, SD_MOSI)
+    #define SS_PIN                         P0_28  // EXP2 Pin 4 (SD_CSEL, SD_CS) (Sometimes called SDSS) - CS used by Marlin
+
   #else
     #error "Marlin's Smoothieboard support cannot drive your LCD."
   #endif
