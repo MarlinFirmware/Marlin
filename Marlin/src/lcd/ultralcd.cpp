@@ -1358,12 +1358,14 @@ void MarlinUI::update() {
 
     TERN_(HOST_PROMPT_SUPPORT, host_action_notify(message));
 
-#if defined(BTT_TOUCHSCREEN)
-    // Always send status message as 'echo:' to BTT touchscreen
-    PORT_REDIRECT(SERIAL_BOTH);
-    SERIAL_ECHOPGM("echo:");
-    SERIAL_ECHOLN(message);
-#endif
+    #if ENABLED(LCD_ANNOUNCE_STATUS)
+    {
+      // Send status message as 'echo:' (to the controller)
+      PORT_REDIRECT(SERIAL_BOTH);
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLN(message);
+    }
+    #endif
 
     // Here we have a problem. The message is encoded in UTF8, so
     // arbitrarily cutting it will be a problem. We MUST be sure

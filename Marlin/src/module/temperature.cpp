@@ -203,11 +203,6 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
    */
   void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
 
-#if defined(BTT_TOUCHSCREEN)
-    // buffer for notifying touchscreen
-    char message[40];
-#endif
-
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
@@ -221,12 +216,16 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 
     if (target >= FAN_COUNT) return;
 
-#if defined(BTT_TOUCHSCREEN)
-    sprintf_P(message, PSTR("M106 P%i S%i"), target, speed);
-    PORT_REDIRECT(SERIAL_BOTH);
-    SERIAL_ECHOPGM("echo:  ");
-    SERIAL_ECHOLN(message);
-#endif
+    #if ENABLED(LCD_ANNOUNCE_FAN)
+    {
+      // Send fan state as 'echo:' (to the controller)
+      char msg[20];
+      PORT_REDIRECT(SERIAL_BOTH);
+      SERIAL_ECHO_START();
+      sprintf_P(msg, PSTR("M106 P%i S%i"), target, speed);
+      SERIAL_ECHOLN(msg);
+    }
+    #endif
 
     fan_speed[target] = speed;
 

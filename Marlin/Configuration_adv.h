@@ -1101,8 +1101,9 @@
 // Show the E position (filament used) during printing
 //#define LCD_SHOW_E_TOTAL
 
-// Using BigTreeTech touchscreen so send additonal echo messages to display M117 messages and update fan indicator
-//#define BTT_TOUCHSCREEN
+// Announce status and/or fan speed for certain serial touch screens (BTT)
+//#define LCD_ANNOUNCE_STATUS
+//#define LCD_ANNOUNCE_FAN
 
 #if ENABLED(SHOW_BOOTSCREEN)
   #define BOOTSCREEN_TIMEOUT 4000        // (ms) Total Duration to display the boot screen(s)
