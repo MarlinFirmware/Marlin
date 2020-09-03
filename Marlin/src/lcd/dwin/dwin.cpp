@@ -222,8 +222,8 @@ void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNu
 
 void ICON_Print() {
   if (select_page.now == 0) {
-    DWIN_Draw_Rectangle(0, Line_Color, 1, 451, 271 - 240, 479 - 16);
     DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
+    DWIN_Draw_Rectangle(0, White, 17 - 1, 130 - 1, 17 + 111, 130 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 1, 447, 271 - 243, 479 - 19, 58, 201);
     else
@@ -231,6 +231,7 @@ void ICON_Print() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Print_0, 17, 130);
+    DWIN_Draw_Rectangle(0, Background_black, 17 - 1, 130 - 1, 17 + 111, 130 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 1, 405, 271 - 243, 420, 58, 201);
     else
@@ -241,6 +242,7 @@ void ICON_Print() {
 void ICON_Prepare() {
   if (select_page.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
+    DWIN_Draw_Rectangle(0, White, 145 - 1, 130 - 1, 145 + 111, 130 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 31, 447, 271 - 213, 479 - 19, 186, 201);
     else
@@ -248,6 +250,7 @@ void ICON_Prepare() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 130);
+    DWIN_Draw_Rectangle(0, Background_black, 145 - 1, 130 - 1, 145 + 111, 130 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 31, 405, 271 - 213, 420, 186, 201);
     else
@@ -258,6 +261,7 @@ void ICON_Prepare() {
 void ICON_Control() {
   if (select_page.now == 2) {
     DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
+    DWIN_Draw_Rectangle(0, White, 17 - 1, 246 - 1, 17 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 61, 447, 271 - 183, 479 - 19, 58, 318);
     else
@@ -265,6 +269,7 @@ void ICON_Control() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Control_0, 17, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 17 - 1, 246 - 1, 17 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 61, 405, 271 - 183, 420, 58, 318);
     else
@@ -275,6 +280,7 @@ void ICON_Control() {
 void ICON_StartInfo(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
+    DWIN_Draw_Rectangle(0, White, 145 - 1, 246 - 1, 145 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 91, 447, 271 - 153, 479 - 19, 186, 318);
     else
@@ -282,6 +288,7 @@ void ICON_StartInfo(bool show) {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Info_0, 145, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 145 - 1, 246 - 1, 145 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 91, 405, 271 - 153, 420, 186, 318);
     else
@@ -292,6 +299,7 @@ void ICON_StartInfo(bool show) {
 void ICON_Leveling(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
+    DWIN_Draw_Rectangle(0, White, 145 - 1, 246 - 1, 145 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 211, 447, 238, 479 - 19, 186, 318);
     else
@@ -299,6 +307,7 @@ void ICON_Leveling(bool show) {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 145 - 1, 246 - 1, 145 + 111, 246 + 100);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 211, 405, 238, 420, 186, 318);
     else
@@ -411,6 +420,7 @@ inline void Draw_More_Icon(const uint8_t line) {
 inline void Draw_Menu_Cursor(const uint8_t line) {
   // DWIN_ICON_Show(ICON,ICON_Rectangle, 0, 31 + line * MLINE);
   DWIN_Draw_Rectangle(1, Rectangle_Color, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
+  DWIN_Draw_Rectangle(0, White, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
 }
 
 inline void Erase_Menu_Cursor(const uint8_t line) {
