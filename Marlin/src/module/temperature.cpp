@@ -210,8 +210,9 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
         if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
         return;
       }
-      target = 0; // Always use fan index 0 with SINGLENOZZLE
     #endif
+
+    TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
 
     if (target >= FAN_COUNT) return;
 
@@ -361,7 +362,7 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
-  int16_t Temperature::lpq_len; // Initialized in configuration_store
+  int16_t Temperature::lpq_len; // Initialized in settings.cpp
 #endif
 
 #if HAS_PID_HEATING
@@ -435,6 +436,7 @@ volatile bool Temperature::raw_temps_ready = false;
     SERIAL_ECHOLNPGM(STR_PID_AUTOTUNE_START);
 
     disable_all_heaters();
+    TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
 
     SHV(bias = d = (MAX_BED_POWER) >> 1, bias = d = (PID_MAX) >> 1);
 
@@ -444,7 +446,6 @@ volatile bool Temperature::raw_temps_ready = false;
       LEDColor color = ONHEATINGSTART();
     #endif
 
-    TERN_(AUTO_POWER_CONTROL, powerManager.power_on());
     TERN_(NO_FAN_SLOWING_IN_PID_TUNING, adaptive_fan_slowing = false);
 
     // PID Tuning loop

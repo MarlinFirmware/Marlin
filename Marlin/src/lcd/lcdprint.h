@@ -76,8 +76,8 @@
   #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
   #define INFO_FONT_WIDTH   6
 
-  #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-  #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
+  #define SETCURSOR(col, row)    lcd_moveto((col) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
+  #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
 
 #else
 
@@ -94,12 +94,13 @@
   #define LCD_PIXEL_WIDTH   LCD_WIDTH
   #define LCD_PIXEL_HEIGHT  LCD_HEIGHT
 
-  #define SETCURSOR(col, row) lcd_moveto(col, row)
-  #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
+  #define SETCURSOR(col, row)    lcd_moveto(col, row)
+  #define SETCURSOR_RJ(len, row) SETCURSOR(LCD_WIDTH - (len), row)
 
 #endif
 
-#define SETCURSOR_X(col) SETCURSOR(col, _lcdLineNr)
+#define SETCURSOR_X(col)    SETCURSOR(col, _lcdLineNr)
+#define SETCURSOR_X_RJ(len) SETCURSOR_RJ(len, _lcdLineNr)
 #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
 
 int lcd_glyph_height();

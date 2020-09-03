@@ -91,9 +91,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str MSG_UNITS_PERCENT            = u8"%";
   PROGMEM Language_Str MSG_UNITS_C                  = DEGREE_SIGN u8"C";
-  PROGMEM Language_Str MSG_MATERIAL_PLA             = u8"PLA";
-  PROGMEM Language_Str MSG_MATERIAL_ABS             = u8"ABS";
-  PROGMEM Language_Str MSG_MATERIAL_HIGH_TEMP       = u8"High";
   PROGMEM Language_Str MSG_IDLE                     = u8"idle";
   PROGMEM Language_Str MSG_SET_MAXIMUM              = u8"Set Maximum";
   PROGMEM Language_Str MSG_PRINT_SPEED              = u8"Print Speed";

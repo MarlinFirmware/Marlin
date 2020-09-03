@@ -176,7 +176,7 @@ void GcodeSuite::G35() {
   probe.stow();
 
   // After this operation the Z position needs correction
-  set_axis_not_trusted(Z_AXIS);
+  set_axis_never_homed(Z_AXIS);
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));
