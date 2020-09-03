@@ -420,6 +420,14 @@ public:
       return out;
     }
 
+    static inline uint16_t hex_val(const char c, uint16_t const dval=0) {
+      if (!seen(c) || *value_ptr != 'x') return dval;
+      uint16_t out = 0;
+      for (char *vp = value_ptr + 1; HEXCHR(*vp) >= 0; vp++)
+        out = ((out) << 8) | HEXCHR(*vp);
+      return out;
+    }
+
   #endif
 };
 

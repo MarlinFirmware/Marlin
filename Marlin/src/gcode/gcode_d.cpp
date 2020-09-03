@@ -45,47 +45,85 @@
         HAL_reboot();
         break;
 
-      case 1:
-        // TODO: Zero or pattern-fill the EEPROM data
-        //settings.reset();
-        //settings.save();
+      case 1: {
+        // Zero or pattern-fill the EEPROM data
+        #if ENABLED(EEPROM_SETTINGS)
+          persistentStore.access_start();
+          size_t total = persistentStore.capacity();
+          int pos = 0;
+          const uint8_t value = 0x0;
+          while(total--) {
+            persistentStore.write_data(pos, &value, 1);
+          }
+          persistentStore.access_finish();
+        #else
+          settings.reset();
+          settings.save();
+        #endif
         HAL_reboot();
-        break;
+      } break;
 
       case 2: { // D2 Read / Write SRAM
         #define SRAM_SIZE 8192
-        uint8_t *adr = parser.hex_adr_val('A');
+        uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
-        NOMORE(*adr, SRAM_SIZE - 1);
-        NOMORE(len, SRAM_SIZE - (uint16_t)adr);
+        uintptr_t addr = (uintptr_t)pointer;
+        NOMORE(addr, (size_t)(SRAM_SIZE - 1));
+        NOMORE(len, SRAM_SIZE - addr);
         if (parser.seenval('X')) {
-          // TODO: Write the hex bytes after the X
-          //while (len--) {
-          //}
+          // Write the hex bytes after the X
+          uint16_t val = parser.hex_val('X');
+          while (len--) {
+            *pointer = val;
+            pointer++;
+          }
         }
         else {
-          while (len--) print_hex_byte(*(adr++));
+          while (len--) print_hex_byte(*(pointer++));
           SERIAL_EOL();
         }
       } break;
 
       case 3: { // D3 Read / Write EEPROM
-        uint8_t *adr = parser.hex_adr_val('A');
+        uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
+        uintptr_t addr = (uintptr_t)pointer;
         #ifndef MARLIN_EEPROM_SIZE
           #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
         #endif
-        NOMORE(*adr, MARLIN_EEPROM_SIZE - 1);
-        NOMORE(len, MARLIN_EEPROM_SIZE - (uint16_t)adr);
+        NOMORE(addr, (size_t)(MARLIN_EEPROM_SIZE - 1));
+        NOMORE(len, MARLIN_EEPROM_SIZE - addr);
         if (parser.seenval('X')) {
-          // TODO: Write the hex bytes after the X
-          //while (len--) {
-          //}
+          uint16_t val = parser.hex_val('X');
+          #if ENABLED(EEPROM_SETTINGS)
+            persistentStore.access_start();
+            while(len--) {
+              int pos = 0;
+              persistentStore.write_data(pos, (uint8_t *)&val, sizeof(val));
+            }
+            SERIAL_EOL();
+            persistentStore.access_finish();
+          #else
+            SERIAL_ECHOLN("NO EEPROM");
+          #endif
         }
         else {
           while (len--) {
-            // TODO: Read bytes from EEPROM
-            // print_hex_byte(eeprom_read_byte(adr++));
+            // Read bytes from EEPROM
+            #if ENABLED(EEPROM_SETTINGS)
+              persistentStore.access_start();
+              uint8_t val;
+              while(len--) {
+                int pos = 0;
+                if (!persistentStore.read_data(pos, (uint8_t *)&val, sizeof(val))) {
+                  print_hex_byte(val);
+                }
+              }
+              SERIAL_EOL();
+              persistentStore.access_finish();
+            #else
+              SERIAL_ECHOLN("NO EEPROM");
+            #endif
           }
           SERIAL_EOL();
         }
@@ -111,10 +149,11 @@
 
       case 5: { // D4 Read / Write onboard Flash
         #define FLASH_SIZE 1024
-        uint8_t *adr = parser.hex_adr_val('A');
+        uint8_t *pointer = parser.hex_adr_val('A');
         uint16_t len = parser.ushortval('C', 1);
-        NOMORE(*adr, FLASH_SIZE - 1);
-        NOMORE(len, FLASH_SIZE - (uint16_t)adr);
+        uintptr_t addr = (uintptr_t)pointer;
+        NOMORE(addr, (size_t)(FLASH_SIZE - 1));
+        NOMORE(len, FLASH_SIZE - addr);
         if (parser.seenval('X')) {
           // TODO: Write the hex bytes after the X
           //while (len--) {
