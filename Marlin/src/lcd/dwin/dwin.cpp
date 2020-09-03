@@ -66,7 +66,7 @@
 #endif
 
 #ifndef MACHINE_SIZE
-  #define MACHINE_SIZE "220x220x250"
+  #define MACHINE_SIZE "200x220x250"
 #endif
 #ifndef CORP_WEBSITE_C
   #define CORP_WEBSITE_C "www.cxsw3d.com"
@@ -222,6 +222,7 @@ void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNu
 
 void ICON_Print() {
   if (select_page.now == 0) {
+    DWIN_Draw_Rectangle(0, Line_Color, 1, 451, 271 - 240, 479 - 16);
     DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 1, 447, 271 - 243, 479 - 19, 58, 201);
