@@ -203,6 +203,11 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
    */
   void Temperature::set_fan_speed(uint8_t target, uint16_t speed) {
 
+#if defined(BTT_TOUCHSCREEN)
+    // buffer for notifying touchscreen
+    char message[40];
+#endif
+
     NOMORE(speed, 255U);
 
     #if ENABLED(SINGLENOZZLE_STANDBY_FAN)
@@ -215,6 +220,13 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
 
     if (target >= FAN_COUNT) return;
+
+#if defined(BTT_TOUCHSCREEN)
+    sprintf_P(message, PSTR("M106 P%i S%i"), target, speed);
+    PORT_REDIRECT(SERIAL_BOTH);
+    SERIAL_ECHOPGM("echo:  ");
+    SERIAL_ECHOLN(message);
+#endif
 
     fan_speed[target] = speed;
 
