@@ -110,7 +110,9 @@ public:
       #if CONJOINED_NEOPIXEL
         adaneo2.show();
       #else
-        TERN_(NEOPIXEL2_SEPARATE,adaneo1.setPin(NEOPIXEL2_PIN));
+        #if DISABLED(NEOPIXEL2_SEPARATE)
+        adaneo1.setPin(NEOPIXEL2_PIN);
+        #endif
         adaneo1.show();
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
