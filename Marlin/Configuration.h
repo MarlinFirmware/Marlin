@@ -33,6 +33,8 @@
 
 //STM32F103RE Machines
 //#define MachineEnder3V2
+//#define MachineEnder3Pro420
+//#define MachineEnder3Pro427
 
 //#define PLUS // Adds bltouch, allmetal, bilinear (standard), lerdge, 93 e steps/mm
 
@@ -429,11 +431,16 @@
   #endif
 #endif
 
-#if ENABLED(MachineEnder3V2)
+#if ANY(MachineEnder3V2, MachineEnder3Pro420, MachineEnder3Pro427)
   #define POWER_LOSS_RECOVERY //Screen will not compile without PLR
   #if NONE(BedAC, BedDC)
     #define BedDC
   #endif
+#endif
+
+#if ANY(MachineEnder3Pro420, MachineEnder3Pro427)
+  #define MachineEnder3
+  #define RET6_12864_LCD
 #endif
 
 #if NONE(HotendStock, HotendE3D)
@@ -504,7 +511,7 @@
  */
 #if ANY(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
   #define SERIAL_PORT -1
- #elif ENABLED(MachineEnder3V2)
+ #elif ANY(MachineEnder3V2, MachineEnder3Pro420, MachineEnder3Pro427)
   #define SERIAL_PORT 1
 #else
   #define SERIAL_PORT 0
@@ -521,7 +528,7 @@
   #define SERIAL_PORT_2 2
 #elif ANY(SKR13, SKR14, SKR14Turbo)
   #define DGUS_SERIAL_PORT 0
-#elif ENABLED(MachineEnder3V2)
+#elif ANY(MachineEnder3V2, MachineEnder3Pro420, MachineEnder3Pro427)
   #define SERIAL_PORT_2 3
 #endif
 
@@ -555,8 +562,10 @@
     #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_1
   #elif ENABLED(SKRMiniE3V2)
     #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
-  #elif ENABLED(MachineEnder3V2)
+  #elif ANY(MachineEnder3V2, MachineEnder3Pro420)
     #define MOTHERBOARD BOARD_CREALITY_V4
+  #elif ENABLED(MachineEnder3Pro427)
+    #define MOTHERBOARD BOARD_CREALITY_V427
   #elif (ENABLED(MachineCR10Orig) && DISABLED(Melzi_To_SBoardUpgrade))
     #define MOTHERBOARD BOARD_MELZI_CREALITY
   #else
@@ -2943,6 +2952,8 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
+#elif ANY(MachineEnder3Pro420, MachineEnder3Pro427)
+  #define  RET6_12864_LCD
 #elif ANY(OrigLCD, MachineCR10Orig) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
 #elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig) || ENABLED(GraphicLCD)
