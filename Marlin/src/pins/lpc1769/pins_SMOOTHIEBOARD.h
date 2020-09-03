@@ -111,6 +111,14 @@
 
 #elif HAS_SPI_LCD
 
+  /*  The Smoothieboard supports the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER either
+    with a custom cable with breakouts to the pins indicated below or with RRD GLCD Adpater board
+    found at:    http://smoothieware.org/rrdglcdadapter
+    
+    Other links to information about setting up a display panel with Smoothieboard
+    http://chibidibidiwah.wdfiles.com/local--files/panel/smoothieboard2sd.jpg
+    http://smoothieware.org/panel
+  */
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     //  EXP1 Pins
     #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
