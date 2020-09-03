@@ -530,8 +530,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Сумарно");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Сработал концевик");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Разогрев не удался");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Сбой нагрева стола");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Сбой нагрева камеры");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Ошибка:Избыточная Т");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("УТЕЧКА ТЕПЛА");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("УТЕЧКА ТЕПЛА СТОЛА");
