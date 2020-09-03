@@ -129,6 +129,8 @@
     //  EXP2 Pins 
     #define BTN_EN1                        P3_25  // EXP2 Pin 5
     #define BTN_EN2                        P3_26  // EXP2 Pin 3
+  #else
+    #error "Marlin's Smoothieboard support cannot drive your LCD."
   #endif
 
 #endif
