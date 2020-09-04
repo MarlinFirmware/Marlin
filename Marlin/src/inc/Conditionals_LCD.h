@@ -311,6 +311,33 @@
   #define IS_ULTIPANEL
 #endif
 
+// Compatibility
+#if ENABLED(FSMC_GRAPHICAL_TFT)
+  #define TFT_CLASSIC_UI
+  #define TFT_INTERFACE_FSMC
+  #define TFT_GENERIC
+#elif ENABLED(SPI_GRAPHICAL_TFT)
+  #define TFT_CLASSIC_UI
+  #define TFT_INTERFACE_SPI
+  #define TFT_GENERIC
+#elif EITHER(TFT_320x240, TFT_480x320)
+  #define TFT_COLOR_UI
+  #define TFT_INTERFACE_FSMC
+  #define TFT_GENERIC
+#elif EITHER(TFT_320x240_SPI, TFT_480x320_SPI)
+  #define TFT_COLOR_UI
+  #define TFT_INTERFACE_SPI
+  #define TFT_GENERIC
+#elif ENABLED(TFT_LVGL_UI_FSMC)
+  #define TFT_LVGL_UI
+  #define TFT_INTERFACE_FSMC
+  #define TFT_GENERIC
+#elif ENABLED(TFT_LVGL_UI_SPI)
+  #define TFT_LVGL_UI
+  #define TFT_INTERFACE_SPI
+  #define TFT_GENERIC
+#endif
+
 // FSMC/SPI TFT Panels (LVGL)
 #if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
