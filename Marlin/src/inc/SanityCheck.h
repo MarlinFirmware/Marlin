@@ -447,8 +447,6 @@
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
-#elif defined(TFT_LVGL_UI)
-  #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)

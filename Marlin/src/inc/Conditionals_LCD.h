@@ -312,12 +312,12 @@
 #endif
 
 // FSMC/SPI TFT Panels (LVGL)
-#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
+#if ENABLED(TFT_LVGL_UI)
   #define HAS_TFT_LVGL_UI 1
 #endif
 
 // FSMC/SPI TFT Panels
-#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
+#if ENABLED(TFT_CLASSIC_UI)
   #define TFT_SCALED_DOGLCD 1
 #endif
 
@@ -325,30 +325,14 @@
   #define DOGLCD
   #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(TFT_LVGL_UI_SPI)
+#elif ENABLED(TFT_LVGL_UI)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
-// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
-#if ANY(TFT_320x240, TFT_480x320, TFT_LVGL_UI_FSMC, FSMC_GRAPHICAL_TFT)
-  #define HAS_FSMC_TFT 1
-#elif ANY(TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_SPI, SPI_GRAPHICAL_TFT)
-  #define HAS_SPI_TFT 1
-#endif
-
 // Color UI
-#if ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI)
+#if ENABLED(TFT_COLOR_UI)
   #define HAS_GRAPHICAL_TFT 1
   #define IS_ULTIPANEL
-#endif
-
-// Fewer lines with touch buttons on-screen
-#if EITHER(TFT_320x240, TFT_320x240_SPI)
-  #define HAS_UI_320x240 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
-#elif EITHER(TFT_480x320, TFT_480x320_SPI)
-  #define HAS_UI_480x320 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
 /**
@@ -839,6 +823,7 @@
 #if ENABLED(MKS_TS35_V2_0)
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY
   #define TFT_DRIVER ST7796
+  #define TFT_COLOR TFT_COLOR_BGR
   #define TFT_WIDTH 480
   #define TFT_HEIGHT 320
   #define TFT_INTERFACE_SPI
@@ -884,6 +869,46 @@
   #define TFT_WIDTH 320
   #define TFT_HEIGHT 240
   #define TFT_INTERFACE_FSMC
-#else ENABLED(TFT_GENERIC)
+#elif ENABLED(TFT_GENERIC)
   #define TFT_DEFAULT_ORIENTATION TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y
+#endif
+
+// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
+#if ENABLED(TFT_INTERFACE_FSMC)
+  #define HAS_FSMC_TFT 1
+  #if ENABLED(TFT_CLASSIC_UI)
+    #define FSMC_GRAPHICAL_TFT
+  #elif ENABLED(TFT_LVGL_UI)
+    #define TFT_LVGL_UI_FSMC
+  #endif
+#elif ENABLED(TFT_INTERFACE_SPI)
+  #define HAS_SPI_TFT 1
+  #if ENABLED(TFT_CLASSIC_UI)
+    #define SPI_GRAPHICAL_TFT
+  #elif ENABLED(TFT_LVGL_UI)
+    #define TFT_LVGL_UI_SPI
+  #endif
+#endif
+
+#if ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 240
+  #if ENABLED(TFT_INTERFACE_SPI)
+    #define TFT_320x240_SPI
+  #elif ENABLED(TFT_INTERFACE_FSMC)
+    #define TFT_320x240
+  #endif
+#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 320
+  #if ENABLED(TFT_INTERFACE_SPI)
+    #define TFT_480x320_SPI
+  #elif ENABLED(TFT_INTERFACE_FSMC)
+    #define TFT_480x320
+  #endif
+#endif
+
+// Fewer lines with touch buttons on-screen
+#if EITHER(TFT_320x240, TFT_320x240_SPI)
+  #define HAS_UI_320x240 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x320, TFT_480x320_SPI)
+  #define HAS_UI_480x320 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif

@@ -35,7 +35,7 @@
 #define TFT_INVERT_X    (1UL << 2)
 #define TFT_INVERT_Y    (1UL << 3)
 
-#define TFT_NO_ROTATION         0xFF
+#define TFT_NO_ROTATION         0x00
 #define TFT_TURN_90             (TFT_EXCHANGE_XY | TFT_INVERT_X)
 #define TFT_TURN_180            (TFT_INVERT_X    | TFT_INVERT_Y)
 #define TFT_TURN_270            (TFT_EXCHANGE_XY | TFT_INVERT_Y)
