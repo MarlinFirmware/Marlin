@@ -127,8 +127,8 @@
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
-  #define LCD_RESET_PIN                     PF11
-  #define LCD_BACKLIGHT_PIN                 PD13
+  // #define LCD_RESET_PIN                     PF11
+  // #define LCD_BACKLIGHT_PIN                 PD13
   #define TFT_RESET_PIN                     PF11
   #define TFT_BACKLIGHT_PIN                 PD13
 
@@ -138,10 +138,10 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_WIDTH                          480
-  #define TFT_HEIGHT                         320
   #define TFT_PIXEL_OFFSET_X                  48
   #define TFT_PIXEL_OFFSET_Y                  32
+
+  #define TFT_BUFFER_SIZE                  14400
 
 #endif
 
@@ -161,19 +161,16 @@
   #define XPT2046_X_OFFSET                   501
   #define XPT2046_Y_OFFSET                    -9
 
-#elif ENABLED(TFT_480x320)
+#elif ENABLED(TFT_COLOR_UI)
 
   // Color UI
-
-  #define TFT_DRIVER                     ILI9488
-  #define TFT_BUFFER_SIZE                  14400
 
   #define XPT2046_X_CALIBRATION           -17181
   #define XPT2046_Y_CALIBRATION            11434
   #define XPT2046_X_OFFSET                   501
   #define XPT2046_Y_OFFSET                    -9
 
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#elif ENABLED(TFT_CLASSIC_UI)
 
   // Emulated DOGM
 

@@ -99,15 +99,6 @@ void TFT_FSMC::Init() {
     dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
   #endif
 
-  #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RESET_PIN, HIGH);
-    delay(100);
-  #endif
-
-  #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
-  #endif
-
   struct fsmc_nor_psram_reg_map* fsmcPsramRegion;
 
   if (fsmcInit) return;

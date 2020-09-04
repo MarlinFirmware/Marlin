@@ -39,6 +39,19 @@ uint32_t TFT_IO::lcd_id = 0xFFFFFFFF;
 void TFT_IO::InitTFT() {
 if (lcd_id != 0xFFFFFFFF) return;
 
+  #if PIN_EXISTS(TFT_RESET)
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
+    delay(10);
+    OUT_WRITE(TFT_RESET_PIN, LOW);
+    delay(10);
+    OUT_WRITE(TFT_RESET_PIN, HIGH);
+  #endif
+
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    delay(100);
+    OUT_WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
+  #endif
+
   // io.Init();
   delay(100);
 
@@ -109,6 +122,10 @@ if (lcd_id != 0xFFFFFFFF) return;
     }
   #else
     #error Unsupported TFT driver
+  #endif
+
+   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
   #endif
 }
 
