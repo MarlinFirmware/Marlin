@@ -153,6 +153,7 @@
 #define ON_BOARD_SPI_DEVICE                    1
 #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 #define SDIO_SUPPORT
+#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
