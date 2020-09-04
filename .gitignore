@@ -184,3 +184,6 @@ cmake-build-*
 
 #Python
 __pycache__
+
+config/default
+config/examples
