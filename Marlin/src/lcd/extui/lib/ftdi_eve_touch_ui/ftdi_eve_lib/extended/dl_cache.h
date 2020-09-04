@@ -66,7 +66,7 @@ class DLCache {
     }
 
     bool has_data();
-    bool store(uint32_t num_bytes = 0);
+    bool store(uint32_t min_bytes = 0);
     void append();
 };
 
