@@ -242,7 +242,7 @@ static bool get_point(int16_t *x, int16_t *y) {
     *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
   }
 
-  #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
+  #if (TFT_ROTATION & TFT_ROTATE_180)
     *x = int16_t((TFT_WIDTH) - (int)(*x));
     *y = int16_t((TFT_HEIGHT) - (int)(*y));
   #endif
