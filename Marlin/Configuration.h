@@ -2232,10 +2232,10 @@
 //
 // TFT Rotation
 //
-// Available options are: TFT_TURN_90, TFT_TURN_180, TFT_TURN_270,
-//                        TFT_TURN_90_MIRROR_X, TFT_TURN_90_MIRROR_Y,
-//                        TFT_TURN_180_MIRROR_X, TFT_TURN_180_MIRROR_Y,
-//                        TFT_TURN_270_MIRROR_X, TFT_TURN_270_MIRROR_Y,
+// Available options are: TFT_ROTATE_90, TFT_ROTATE_180, TFT_ROTATE_270,
+//                        TFT_ROTATE_90_MIRROR_X, TFT_ROTATE_90_MIRROR_Y,
+//                        TFT_ROTATE_180_MIRROR_X, TFT_ROTATE_180_MIRROR_Y,
+//                        TFT_ROTATE_270_MIRROR_X, TFT_ROTATE_270_MIRROR_Y,
 //                        TFT_NO_ROTATION
 //
 //#define TFT_ROTATION TFT_NO_ROTATION
