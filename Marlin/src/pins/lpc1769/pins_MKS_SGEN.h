@@ -56,5 +56,5 @@
   #define E1_SERIAL_RX_PIN                 P4_28  // J8-6
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
