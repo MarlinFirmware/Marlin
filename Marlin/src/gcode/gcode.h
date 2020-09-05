@@ -392,6 +392,7 @@ public:
 
     static MarlinBusyState busy_state;
     static uint8_t host_keepalive_interval;
+    static int host_keepalive_interval_divider;
 
     static void host_keepalive();
 

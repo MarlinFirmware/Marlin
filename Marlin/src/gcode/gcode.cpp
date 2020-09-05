@@ -84,6 +84,7 @@ uint8_t GcodeSuite::axis_relative = (
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
   uint8_t GcodeSuite::host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
+  int GcodeSuite::host_keepalive_interval_divider= KEEPALIVE_INTERVAL_DIVIDER;
 #endif
 
 #if ENABLED(CNC_WORKSPACE_PLANES)
@@ -1017,18 +1018,33 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
+          #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+            report_current_position_moving();
+          #endif
           break;
         case PAUSED_FOR_USER:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          M_State_grbl = M_HOLD;
+          report_current_grblstate_moving();
           break;
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
+          M_State_grbl = M_HOLD;
+          report_current_grblstate_moving();
           break;
         default:
           break;
       }
     }
-    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
+    if (host_keepalive_interval_divider>0)
+      next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval)/host_keepalive_interval_divider;
+    else
+    {
+      /* code */
+      next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
+    }
+      
+         
   }
 
 #endif // HOST_KEEPALIVE_FEATURE
