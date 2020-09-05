@@ -1019,9 +1019,15 @@ void setup() {
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
-
-  #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
-    SETUP_RUN(card.mount());          // Mount media with settings before first_load
+  
+  #if ENABLED(MKS_LCD12864) || ENABLED(MKS_MINI_12864)
+    #if ENABLED(SDSUPPORT)
+      SETUP_RUN(card.mount());          // Mount media with settings before first_load
+    #endif
+  #else
+    #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
+      SETUP_RUN(card.mount());          // Mount media with settings before first_load
+    #endif
   #endif
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)

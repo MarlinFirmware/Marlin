@@ -2054,6 +2054,7 @@
 // MKS LCD12864A/B with graphic controller and SD support. Follows MKS_MINI_12864 pinout.
 // https://www.aliexpress.com/item/33018110072.html
 //
+
 //#define MKS_LCD12864
 
 //
