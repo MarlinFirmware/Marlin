@@ -2241,7 +2241,7 @@
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #if AXIS_IS_TMC(X)
-    #define X_CURRENT       1000        // (mA) RMS current. Multiply by 1.414 for peak current.
+    #define X_CURRENT       850        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
     #define X_MICROSTEPS     16 //32   // 0..256
     #define X_RSENSE          0.11
@@ -2249,7 +2249,7 @@
   #endif
 
   #if AXIS_IS_TMC(X2)
-    #define X2_CURRENT      1000
+    #define X2_CURRENT      800
     #define X2_CURRENT_HOME X2_CURRENT
     #define X2_MICROSTEPS    16
     #define X2_RSENSE         0.11
@@ -2257,7 +2257,7 @@
   #endif
 
   #if AXIS_IS_TMC(Y)
-    #define Y_CURRENT       1000
+    #define Y_CURRENT       850
     #define Y_CURRENT_HOME  Y_CURRENT
     #define Y_MICROSTEPS     16 //32
     #define Y_RSENSE          0.11
@@ -2273,7 +2273,7 @@
   #endif
 
   #if AXIS_IS_TMC(Z)
-    #define Z_CURRENT       1000
+    #define Z_CURRENT       850
     #define Z_CURRENT_HOME  Z_CURRENT
     #define Z_MICROSTEPS     16 //32
     #define Z_RSENSE          0.11
@@ -2305,7 +2305,7 @@
   #endif
 
   #if AXIS_IS_TMC(E0)
-    #define E0_CURRENT      1000
+    #define E0_CURRENT      850
     #define E0_MICROSTEPS    16 //32
     #define E0_RSENSE         0.11
     #define E0_CHAIN_POS     -1
@@ -2485,7 +2485,7 @@
   #define X2_HYBRID_THRESHOLD    100
   #define Y_HYBRID_THRESHOLD     100
   #define Y2_HYBRID_THRESHOLD    100
-  #define Z_HYBRID_THRESHOLD     100
+  #define Z_HYBRID_THRESHOLD       3
   #define Z2_HYBRID_THRESHOLD      3
   #define Z3_HYBRID_THRESHOLD      3
   #define Z4_HYBRID_THRESHOLD      3
