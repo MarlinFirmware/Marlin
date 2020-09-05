@@ -40,6 +40,9 @@
 #include <boards.h>
 #include <wirish.h>
 
+#include "../../inc/MarlinConfig.h"
+#include "spi_pins.h"
+
 /** Time in ms for DMA receive timeout */
 #define DMA_TIMEOUT 100
 
@@ -710,10 +713,6 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   return baud_rates[i];
 }
 
-#if SPI_DEVICE == 1
-  SPIClass SPI(1);
-#else
-  SPIClass SPI(2);
-#endif
+SPIClass SPI(SPI_DEVICE);
 
 #endif // __STM32F1__
