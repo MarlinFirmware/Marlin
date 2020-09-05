@@ -30,6 +30,32 @@ class __FlashStringHelper;
 typedef const __FlashStringHelper *progmem_str;
 
 //
+// Enumerated Status indices
+//
+//  Coding as GRBL or TinyG for Machine states
+//      0	machine is initializing	
+//      1	machine is ready for use	
+//      2	machine is in alarm state (soft shut down)	
+//      3	program stop or no more blocks (M0, M1, M60)	
+//      4	program end via M2, M30	
+//      5	motion is running	
+//      6	motion is holding	
+//      7	probe cycle active	
+//      8	machine is running (cycling)	
+//      9	machine is homing	
+//      10	machine is jogging	
+//      11	machine is in hard alarm state (shut down)
+//
+//        #1=reset, 2=alarm, 3=idle, 4=end, 5=run, 6=hold, 7=probe, 8=cycling,  9=homing, 10 =jogging 11=error
+//
+enum M_StateEnum : uint8_t {
+  M_INIT   = 0,   M_RESET = 1,  M_ALARM   = 2,   M_IDLE   = 3, 
+  M_END   = 4,  M_RUNNING = 5,   M_HOLD = 6,  M_PROBE  = 7,
+  M_CYCLING  = 8,  M_HOMING  = 9,  M_JOGGING  = 10,  M_ERROR  = 11
+};
+
+
+//
 // Enumerated axis indices
 //
 //  - X_AXIS, Y_AXIS, and Z_AXIS should be used for axes in Cartesian space
