@@ -89,6 +89,7 @@
 #define SSD1963_RDCABCMB          0x5F // Read CABC Minimum Brightness
 #define SSD1963_RDABCSDR          0x68 // Read Automatic Brightness Control Self-Diagnostic Result
 #define SSD1963_RDDDB             0xA1 // Read Device Descriptor Block
+#define SSD1963_SLCDMODE          0xB0 // Set the LCD panel mode and resolution
 #define SSD1963_SHSYNC            0xB4 // Set HSYNC
 #define SSD1963_GHSYNC            0xB5 // Get HSYNC
 #define SSD1963_SVSYNC            0xB6 // Set VSYNC
@@ -101,6 +102,7 @@
 #define SSD1963_GDBCCFG           0xD1 // Get Dynamic Back Light Config
 #define SSD1963_PLLON             0xE0 // PLL Enable
 #define SSD1963_PLLMN             0xE2 // Set PLL Multiplier
+#define SSD1963_SLSHIFT           0xE6 // Set the LSHIFT (pixel clock) frequency
 #define SSD1963_COLMOD            0xF0 // Interface Pixel Format
 
 static const uint16_t ssd1963_init[] = {
@@ -109,8 +111,9 @@ static const uint16_t ssd1963_init[] = {
   ESC_REG(SSD1963_PLLON), 0x0001, ESC_DELAY(10),
   ESC_REG(SSD1963_PLLON), 0x0003, ESC_DELAY(10),
   ESC_REG(SSD1963_SWRESET), ESC_DELAY(100),
-  ESC_REG(SSD1963_SLPOUT), ESC_DELAY(20),
 
+  ESC_REG(SSD1963_SLSHIFT), 0x0001, 0x001F, 0x00FF,
+  ESC_REG(SSD1963_SLCDMODE), 0x0020, 0x0000, 0x0001, 0x00DF, 0x0001, 0x000F, 0x0000,
   ESC_REG(SSD1963_SHSYNC), 0x0002, 0x0013, 0x0000, 0x0008, 0x002B, 0x0000, 0x0002, 0x0000,
   ESC_REG(SSD1963_SVSYNC), 0x0001, 0x0020, 0x0000, 0x0004, 0x000C, 0x0000, 0x0002,
   ESC_REG(SSD1963_SGPIOV), 0x000F,
