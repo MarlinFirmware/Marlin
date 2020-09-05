@@ -44,7 +44,6 @@ void GcodeSuite::G30() {
                          parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
   if (!probe.can_reach(pos)) return;
-
   // Disable leveling so the planner won't mess with us
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 

@@ -163,7 +163,8 @@
  *
  */
 G29_TYPE GcodeSuite::G29() {
-
+  M_State_grbl=M_PROBE;
+  report_current_grblstate_moving();
   reset_stepper_timeout();
 
   const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
@@ -899,6 +900,8 @@ G29_TYPE GcodeSuite::G29() {
   report_current_position();
 
   G29_RETURN(isnan(measured_z));
+  M_State_grbl=M_IDLE;
+  report_current_grblstate_moving();
 }
 
 #endif // HAS_ABL_NOT_UBL

@@ -41,6 +41,10 @@ applet/
 *.i
 *.ii
 *.swp
+*.md
+*.inf
+*.txt
+*.zip
 tags
 
 #
