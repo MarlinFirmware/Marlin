@@ -36,8 +36,8 @@
 #define SSD1963_MADCTL_FV         0x01 // Flip Vertical
 
 #define SSD1963_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, SSD1963_MADCTL_MV) | \
-                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    SSD1963_MADCTL_MX) | \
-                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    SSD1963_MADCTL_MY)
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    SSD1963_MADCTL_FH) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    SSD1963_MADCTL_FV)
 
 #if TFT_COLOR == TFT_COLOR_BGR
   #define SSD1963_COLOR SSD1963_MADCTL_BGR
