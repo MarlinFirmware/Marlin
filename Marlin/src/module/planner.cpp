@@ -1592,6 +1592,28 @@ void Planner::quick_stop() {
   // And stop the stepper ISR
   stepper.quick_stop();
 }
+void Planner::quick_pause() {
+
+  // Suspend until quick resume is called
+  // do not empty buffers or queues
+    
+  const bool was_enabled = stepper.suspend();
+  if (was_enabled) {
+    M_State_grbl=M_HOLD;
+    report_current_grblstate_moving();
+
+  }
+  
+}
+void Planner::quick_resume() {
+
+  // if Suspended resume 
+  set_M_state_from_marlin_state();
+  report_current_grblstate_moving();
+  stepper.wake_up();
+ 
+}
+
 
 void Planner::endstop_triggered(const AxisEnum axis) {
   // Record stepper position and discard the current block
