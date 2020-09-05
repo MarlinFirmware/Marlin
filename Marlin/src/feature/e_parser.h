@@ -27,6 +27,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
+
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"
 #endif
@@ -34,12 +35,16 @@
 // External references
 extern bool wait_for_user, wait_for_heatup;
 void quickstop_stepper();
+void quickpause_stepper();
+void quickresume_stepper();
+void report_current_position_moving();
 
 class EmergencyParser {
 
 public:
 
   // Currently looking for: M108, M112, M410, M876
+  // S000 STATE , P000 for Pause, R000 for resume
   enum State : char {
     EP_RESET,
     EP_N,
@@ -52,6 +57,18 @@ public:
     EP_M4,
     EP_M41,
     EP_M410,
+    EP_S,
+    EP_S0,
+    EP_S00,
+    EP_R,
+    EP_R0,
+    EP_R00,
+    EP_P,
+    EP_P0,
+    EP_P00,
+    EP_grblSTATUS,
+    EP_grblPAUSE,
+    EP_grblRESUME,
     #if ENABLED(HOST_PROMPT_SUPPORT)
       EP_M8,
       EP_M87,
@@ -82,6 +99,9 @@ public:
           case ' ': case '\n': case '\r': break;
           case 'N': state = EP_N;      break;
           case 'M': state = EP_M;      break;
+          case 'S': state = EP_S;      break;
+          case 'P': state = EP_P;      break;
+          case 'R': state = EP_R;      break;
           default: state  = EP_IGNORE;
         }
         break;
@@ -96,7 +116,60 @@ public:
           default:  state = EP_IGNORE;
         }
         break;
-
+      case EP_S:
+        switch (c) {
+          case '0': state = EP_S0;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;
+      case EP_S0:
+        switch (c) {
+          case '0': state = EP_S00;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;  
+      case EP_S00:
+        switch (c) {
+          case '0': state = EP_grblSTATUS;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;   
+      case EP_R:
+        switch (c) {
+          case '0': state = EP_R0;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;
+      case EP_R0:
+        switch (c) {
+          case '0': state = EP_R00;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;  
+      case EP_R00:
+        switch (c) {
+          case '0': state = EP_grblRESUME;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;     
+      case EP_P:
+        switch (c) {
+          case '0': state = EP_P0;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;
+      case EP_P0:
+        switch (c) {
+          case '0': state = EP_P00;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;  
+      case EP_P00:
+        switch (c) {
+          case '0': state = EP_grblPAUSE;   break;
+          default:  state = EP_IGNORE;
+        }
+        break;  
       case EP_M:
         switch (c) {
           case ' ': break;
@@ -177,6 +250,9 @@ public:
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: host_response_handler(M876_reason); break;
             #endif
+            case EP_grblSTATUS: report_current_position_moving(); break;
+            case EP_grblPAUSE: quickpause_stepper(); break;
+            case EP_grblRESUME: quickresume_stepper(); break;
             default: break;
           }
           state = EP_RESET;
