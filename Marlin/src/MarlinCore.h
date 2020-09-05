@@ -60,6 +60,8 @@ void kill(PGM_P const lcd_error=nullptr, PGM_P const lcd_component=nullptr, cons
 void minkill(const bool steppers_off=false);
 
 void quickstop_stepper();
+void quickpause_stepper();
+void quickresume_stepper();
 
 // Global State of the firmware
 enum MarlinState : uint8_t {
@@ -75,6 +77,8 @@ enum MarlinState : uint8_t {
 extern MarlinState marlin_state;
 inline bool IsRunning() { return marlin_state == MF_RUNNING; }
 inline bool IsStopped() { return marlin_state != MF_RUNNING; }
+
+extern M_StateEnum M_State_grbl;
 
 bool printingIsActive();
 bool printingIsPaused();
