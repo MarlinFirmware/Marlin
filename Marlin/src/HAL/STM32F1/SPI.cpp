@@ -710,6 +710,10 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   return baud_rates[i];
 }
 
-SPIClass SPI(1);
+#if SPI_DEVICE == 1
+  SPIClass SPI(1);
+#else
+  SPIClass SPI(2);
+#endif
 
 #endif // __STM32F1__
