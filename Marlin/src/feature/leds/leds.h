@@ -104,11 +104,7 @@ typedef struct LEDColor {
   bool operator!=(const LEDColor &right) { return !operator==(right); }
 
   bool is_off() const {
-    return 3 > r + g + b
-      #if HAS_WHITE_LED
-        + w
-      #endif
-    ;
+    return 3 > r + g + b + TERN0(HAS_WHITE_LED, w);
   }
 } LEDColor;
 
@@ -156,14 +152,12 @@ public:
     #endif
   );
 
-  inline void set_color(uint8_t r, uint8_t g, uint8_t b
+  static inline void set_color(uint8_t r, uint8_t g, uint8_t b
     #if HAS_WHITE_LED
       , uint8_t w=0
-      #if ENABLED(NEOPIXEL_LED)
-        , uint8_t i=NEOPIXEL_BRIGHTNESS
-      #endif
     #endif
     #if ENABLED(NEOPIXEL_LED)
+      , uint8_t i=NEOPIXEL_BRIGHTNESS
       , bool isSequence=false
     #endif
   ) {
@@ -216,3 +210,44 @@ public:
 };
 
 extern LEDLights leds;
+
+#if ENABLED(NEOPIXEL2_SEPARATE)
+
+  class LEDLights2 {
+  public:
+    LEDLights2() {}
+
+    static void setup(); // init()
+
+    static void set_color(const LEDColor &color);
+
+    inline void set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t w=0, uint8_t i=NEOPIXEL2_BRIGHTNESS) {
+      set_color(MakeLEDColor(r, g, b, w, i));
+    }
+
+    static inline void set_off()   { set_color(LEDColorOff()); }
+    static inline void set_green() { set_color(LEDColorGreen()); }
+    static inline void set_white() { set_color(LEDColorWhite()); }
+
+    #if ENABLED(NEO2_COLOR_PRESETS)
+      static const LEDColor defaultLEDColor;
+      static inline void set_default()  { set_color(defaultLEDColor); }
+      static inline void set_red()      { set_color(LEDColorRed()); }
+      static inline void set_orange()   { set_color(LEDColorOrange()); }
+      static inline void set_yellow()   { set_color(LEDColorYellow()); }
+      static inline void set_blue()     { set_color(LEDColorBlue()); }
+      static inline void set_indigo()   { set_color(LEDColorIndigo()); }
+      static inline void set_violet()   { set_color(LEDColorViolet()); }
+    #endif
+
+    #if ENABLED(LED_CONTROL_MENU)
+      static LEDColor color; // last non-off color
+      static bool lights_on; // the last set color was "on"
+      static void toggle();  // swap "off" with color
+      static inline void update() { set_color(color); }
+    #endif
+  };
+
+  extern LEDLights2 leds2;
+
+#endif // NEOPIXEL2_SEPARATE

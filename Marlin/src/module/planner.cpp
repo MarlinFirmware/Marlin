@@ -1316,7 +1316,10 @@ void Planner::check_axes_activity() {
     #if ANY(DISABLE_X, DISABLE_Y, DISABLE_Z, DISABLE_E)
       for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
         block_t *block = &block_buffer[b];
-        LOOP_XYZE(i) if (block->steps[i]) axis_active[i] = true;
+        if (ENABLED(DISABLE_X) && block->steps.x) axis_active.x = true;
+        if (ENABLED(DISABLE_Y) && block->steps.y) axis_active.y = true;
+        if (ENABLED(DISABLE_Z) && block->steps.z) axis_active.z = true;
+        if (ENABLED(DISABLE_E) && block->steps.e) axis_active.e = true;
       }
     #endif
   }
@@ -1611,6 +1614,7 @@ void Planner::finish_and_disable() {
 float Planner::get_axis_position_mm(const AxisEnum axis) {
   float axis_steps;
   #if IS_CORE
+
     // Requesting one of the "core" axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
 
@@ -1628,9 +1632,30 @@ float Planner::get_axis_position_mm(const AxisEnum axis) {
     }
     else
       axis_steps = stepper.position(axis);
+
+  #elif ENABLED(MARKFORGED_XY)
+
+    // Requesting one of the joined axes?
+    if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
+      // Protect the access to the position.
+      const bool was_enabled = stepper.suspend();
+
+      const int32_t p1 = stepper.position(CORE_AXIS_1),
+                    p2 = stepper.position(CORE_AXIS_2);
+
+      if (was_enabled) stepper.wake_up();
+
+      axis_steps = ((axis == CORE_AXIS_1) ? p1 - p2 : p2);
+    }
+    else
+      axis_steps = stepper.position(axis);
+
   #else
+
     axis_steps = stepper.position(axis);
+
   #endif
+
   return axis_steps * steps_to_mm[axis];
 }
 
@@ -1805,6 +1830,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     if (dc < 0) SBI(dm, Z_HEAD);                // ...and Z
     if (db + dc < 0) SBI(dm, B_AXIS);           // Motor B direction
     if (CORESIGN(db - dc) < 0) SBI(dm, C_AXIS); // Motor C direction
+  #elif ENABLED(MARKFORGED_XY)
+    if (da < 0) SBI(dm, X_HEAD);                // Save the real Extruder (head) direction in X Axis
+    if (db < 0) SBI(dm, Y_HEAD);                // ...and Y
+    if (dc < 0) SBI(dm, Z_AXIS);
+    if (da + db < 0) SBI(dm, A_AXIS);           // Motor A direction
+    if (db < 0) SBI(dm, B_AXIS);                // Motor B direction
   #else
     if (da < 0) SBI(dm, X_AXIS);
     if (db < 0) SBI(dm, Y_AXIS);
@@ -1840,6 +1871,8 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
     block->steps.set(ABS(da + dc), ABS(db), ABS(da - dc));
   #elif CORE_IS_YZ
     block->steps.set(ABS(da), ABS(db + dc), ABS(db - dc));
+  #elif ENABLED(MARKFORGED_XY)
+    block->steps.set(ABS(da + db), ABS(db), ABS(dc));
   #elif IS_SCARA
     block->steps.set(ABS(da), ABS(db), ABS(dc));
   #else
@@ -1856,7 +1889,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
    * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
    */
   struct DistanceMM : abce_float_t {
-    TERN_(IS_CORE, xyz_pos_t head);
+    #if EITHER(IS_CORE, MARKFORGED_XY)
+      xyz_pos_t head;
+    #endif
   } steps_dist_mm;
   #if IS_CORE
     #if CORE_IS_XY
@@ -1878,6 +1913,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       steps_dist_mm.b      = (db + dc) * steps_to_mm[B_AXIS];
       steps_dist_mm.c      = CORESIGN(db - dc) * steps_to_mm[C_AXIS];
     #endif
+  #elif ENABLED(MARKFORGED_XY)
+    steps_dist_mm.head.x = da * steps_to_mm[A_AXIS];
+    steps_dist_mm.head.y = db * steps_to_mm[B_AXIS];
+    steps_dist_mm.z      = dc * steps_to_mm[Z_AXIS];
+    steps_dist_mm.a      = (da - db) * steps_to_mm[A_AXIS];
+    steps_dist_mm.b      = db * steps_to_mm[B_AXIS];
   #else
     steps_dist_mm.a = da * steps_to_mm[A_AXIS];
     steps_dist_mm.b = db * steps_to_mm[B_AXIS];
@@ -1904,7 +1945,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       block->millimeters = millimeters;
     else
       block->millimeters = SQRT(
-        #if CORE_IS_XY
+        #if EITHER(CORE_IS_XY, MARKFORGED_XY)
           sq(steps_dist_mm.head.x) + sq(steps_dist_mm.head.y) + sq(steps_dist_mm.z)
         #elif CORE_IS_XZ
           sq(steps_dist_mm.head.x) + sq(steps_dist_mm.y) + sq(steps_dist_mm.head.z)
@@ -1961,7 +2002,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   #endif
 
   // Enable active axes
-  #if CORE_IS_XY
+  #if EITHER(CORE_IS_XY, MARKFORGED_XY)
     if (block->steps.a || block->steps.b) {
       ENABLE_AXIS_X();
       ENABLE_AXIS_Y();
@@ -2322,9 +2363,9 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
      * On CoreXY the length of the vector [A,B] is SQRT(2) times the length of the head movement vector [X,Y].
      * So taking Z and E into account, we cannot scale to a unit vector with "inverse_millimeters".
      * => normalize the complete junction vector.
-     * Elsewise, when needed JD factors in the E component
+     * Elsewise, when needed JD will factor-in the E component
      */
-    if (ENABLED(IS_CORE) || esteps > 0)
+    if (EITHER(IS_CORE, MARKFORGED_XY) || esteps > 0)
       normalize_junction_vector(unit_vec);  // Normalize with XYZE components
     else
       unit_vec *= inverse_millimeters;      // Use pre-calculated (1 / SQRT(x^2 + y^2 + z^2))

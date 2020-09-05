@@ -1097,17 +1097,16 @@ void prepare_line_to_destination() {
   current_position = destination;
 }
 
-uint8_t axes_need_homing(uint8_t axis_bits/*=0x07*/) {
-  #define HOMED_FLAGS TERN(HOME_AFTER_DEACTIVATE, axis_known_position, axis_homed)
-  // Clear test bits that are homed
-  if (TEST(axis_bits, X_AXIS) && TEST(HOMED_FLAGS, X_AXIS)) CBI(axis_bits, X_AXIS);
-  if (TEST(axis_bits, Y_AXIS) && TEST(HOMED_FLAGS, Y_AXIS)) CBI(axis_bits, Y_AXIS);
-  if (TEST(axis_bits, Z_AXIS) && TEST(HOMED_FLAGS, Z_AXIS)) CBI(axis_bits, Z_AXIS);
+uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
+  // Clear test bits that are trusted
+  if (TEST(axis_bits, X_AXIS) && TEST(axis_homed, X_AXIS)) CBI(axis_bits, X_AXIS);
+  if (TEST(axis_bits, Y_AXIS) && TEST(axis_homed, Y_AXIS)) CBI(axis_bits, Y_AXIS);
+  if (TEST(axis_bits, Z_AXIS) && TEST(axis_homed, Z_AXIS)) CBI(axis_bits, Z_AXIS);
   return axis_bits;
 }
 
-bool axis_unhomed_error(uint8_t axis_bits/*=0x07*/) {
-  if ((axis_bits = axes_need_homing(axis_bits))) {
+bool homing_needed_error(uint8_t axis_bits/*=0x07*/) {
+  if ((axis_bits = axes_should_home(axis_bits))) {
     PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
     char msg[strlen_P(home_first)+1];
     sprintf_P(msg, home_first,
@@ -1153,7 +1152,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             stealth_states.x2 = tmc_enable_stallguard(stepperX2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
           #elif CORE_IS_XZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1166,7 +1165,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             stealth_states.y2 = tmc_enable_stallguard(stepperY2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1217,7 +1216,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             tmc_disable_stallguard(stepperX2, enable_stealth.x2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
           #elif CORE_IS_XZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1230,7 +1229,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             tmc_disable_stallguard(stepperY2, enable_stealth.y2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1431,15 +1430,15 @@ void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
- * Set an axis' to be unhomed.
+ * Set an axis to be unhomed.
  */
-void set_axis_not_trusted(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_not_trusted(", axis_codes[axis], ")");
+void set_axis_never_homed(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", axis_codes[axis], ")");
 
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
 }
@@ -1790,7 +1789,7 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
-  #else // CARTESIAN / CORE
+  #else // CARTESIAN / CORE / MARKFORGED_XY
 
     set_axis_is_at_home(axis);
     sync_plan_position();
@@ -1819,8 +1818,11 @@ void homeaxis(const AxisEnum axis) {
 
       #if ENABLED(SENSORLESS_HOMING)
         planner.synchronize();
-        if (TERN0(IS_CORE, axis != NORMAL_AXIS))
-          safe_delay(200);  // Short delay to allow belts to spring back
+        if (false
+          #if EITHER(IS_CORE, MARKFORGED_XY)
+            || axis != NORMAL_AXIS
+          #endif
+        ) safe_delay(200);  // Short delay to allow belts to spring back
       #endif
     }
   #endif

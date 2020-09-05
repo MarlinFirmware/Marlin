@@ -70,7 +70,7 @@
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define MARLIN_EEPROM_SIZE 0x1000
+#define MARLIN_EEPROM_SIZE                0x1000
 
 #define RESET_PIN                             42  // Resets the board if the jumper is attached
 

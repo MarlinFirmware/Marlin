@@ -120,6 +120,17 @@ typedef int8_t pin_t;
   #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.get_tx_buffer_free
 #endif
 
+#ifdef ANYCUBIC_LCD_SERIAL_PORT
+  #if !WITHIN(ANYCUBIC_LCD_SERIAL_PORT, -1, 3)
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+  #elif ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT_2
+    #error "ANYCUBIC_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #endif
+  #define ANYCUBIC_LCD_SERIAL anycubicLcdSerial
+#endif
+
 // ------------------------
 // Public functions
 // ------------------------

@@ -246,7 +246,7 @@ void MarlinUI::init_lcd() {
       OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
     #endif
 
-    #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864)
+    #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED)
       SET_OUTPUT(LCD_PINS_DC);
       #ifndef LCD_RESET_PIN
         #define LCD_RESET_PIN LCD_PINS_RS
@@ -347,20 +347,21 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
 
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      if ((style & SS_CENTER) && !valstr)
-        for (int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2; pad > 0; --pad) {
-          lcd_put_wchar(' ');
-          n -= MENU_FONT_WIDTH;
-        }
+      const int8_t plen = pstr ? utf8_strlen_P(pstr) : 0,
+                   vlen = vstr ? utf8_strlen(vstr) : 0;
+      if (style & SS_CENTER) {
+        int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
+        while (--pad >= 0) n -= lcd_put_wchar(' ');
+      }
 
-      n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-      if (valstr) n -= lcd_put_u8str_max(valstr, n);
+      if (plen) n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      if (vlen) n -= lcd_put_u8str_max(vstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
   }
@@ -438,6 +439,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(value);
       }
     }
+    TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, PGM_P const pstr, const bool inv) {
