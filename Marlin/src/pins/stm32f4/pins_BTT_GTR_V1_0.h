@@ -49,7 +49,7 @@
 #if ENABLED(TP)
   #define SERVO0_PIN       PB11
   #define SOL0_PIN       PC7 
-  #define MANUAL_SOLENOID_CONTROL
+  // #define MANUAL_SOLENOID_CONTROL
 #endif
 
 //#define HAS_TOOL_SENSOR 1
