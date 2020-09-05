@@ -276,8 +276,10 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 // List all files on the SD card
 //
 void CardReader::ls() {
-  root.rewind();
-  printListing(root);
+  if (flag.mounted) {
+    root.rewind();
+    printListing(root);
+  }
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
