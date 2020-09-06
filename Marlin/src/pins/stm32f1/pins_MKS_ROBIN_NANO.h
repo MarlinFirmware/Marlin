@@ -218,9 +218,6 @@
 
 // Emulated DOGM Configs
 #elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              3
-  #endif
   #ifndef TFT_PIXEL_OFFSET_X
     #define TFT_PIXEL_OFFSET_X                48
   #endif

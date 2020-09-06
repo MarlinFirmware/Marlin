@@ -296,6 +296,10 @@
     #ifndef GRAPHICAL_TFT_UPSCALE
       #define GRAPHICAL_TFT_UPSCALE            3
     #endif
+    // SPI 1
+    #define SCK_PIN                        P0_15
+    #define MISO_PIN                       P0_17
+    #define MOSI_PIN                       P0_18
 
     // Disable any LCD related PINs config
     #define LCD_PINS_ENABLE                -1

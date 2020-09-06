@@ -130,17 +130,11 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-#define GRAPHICAL_TFT_UPSCALE                  2
-#ifndef TFT_WIDTH
-  #define TFT_WIDTH                          320
-#endif
-#ifndef TFT_HEIGHT
-  #define TFT_HEIGHT                         240
-#endif
-#define TFT_PIXEL_OFFSET_X                    32
-#define TFT_PIXEL_OFFSET_Y                    32
+// Longer/Alfawise TFT
+#define LONGER_LK_TFT28
 
-#define TFT_BUFFER_SIZE                     3200
+// Buffer for Color UI
+#define TFT_BUFFER_SIZE                   3200
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
