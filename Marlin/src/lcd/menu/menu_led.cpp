@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ANY(LED_CONTROL_MENU ,NEO2_CONTROL_MENU, CASE_LIGHT_MENU)
+#if HAS_LCD_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
 
 #include "menu_item.h"
 
