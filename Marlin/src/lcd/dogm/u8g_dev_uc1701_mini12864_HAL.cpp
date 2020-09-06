@@ -53,7 +53,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_GRAPHICAL_LCD
 
@@ -143,6 +143,7 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
+      delay(150);
       break;
 
     case U8G_DEV_MSG_STOP: break;
@@ -172,6 +173,7 @@ uint8_t u8g_dev_uc1701_mini12864_HAL_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
     case U8G_DEV_MSG_INIT:
       u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_uc1701_mini12864_HAL_init_seq);
+      delay(150);
       break;
 
     case U8G_DEV_MSG_STOP: break;
