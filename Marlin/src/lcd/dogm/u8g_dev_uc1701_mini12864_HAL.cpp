@@ -112,6 +112,7 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
   U8G_ESC_CS(1),              // enable chip
   UC1701_ALL_PIX(0),          // normal display
   U8G_ESC_CS(0),              // disable chip
+  U8G_ESC_DLY(150),           // delay 150 ms before sending any data
   U8G_ESC_END                 // end of sequence
 };
 
