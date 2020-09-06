@@ -65,35 +65,39 @@
 //-------Hardware--------
 //#define STOCK
 
-/*------Drivers--------*/
-#define QQS   //(S) A4988
+/*------Drivers---(TMC)-----*/
+#define QQS       //(S) A4988
 //#define QQS_TMC   //(8) TMC220x For 2208 or 2209
 //#define QQS_UART  //(U8) Remove module ESP12    
 /*    Modules       */
-#define ESP_WIFI    //(W)Module ESP8266/ESP12
-//#define BMG         // Extruder
+#define ESP_WIFI  //(W) Module ESP8266/ESP12
+//#define BMG       //(B) Extruder
 
-/*-------OPTIONS--------*/
+/*-------OPTIONS---(FSMC)-----*/
 //Choice UI TFT 
-#define FSMC_GRAPHICAL_TFT  //(F) UI STANDARD 
-//#define TFT_320x240 //(C) UI MARLIN (too big with mode UART) 
+//#define FSMC_GRAPHICAL_TFT    //(F) UI STANDARD 
+#define TFT_320x240       //(C) UI MARLIN (too big with mode UART+UBL)
 //#define TFT_LVGL_UI_FSMC  //(I) UI MKS  => (Bug)
 
-//Choice menu: (OPT) or (CAL)
-#define DELTA_CALIBRATION_MENU  //NC LVGL
-#define PID_EDIT_MENU //
-#define PID_AUTOTUNE_MENU                           
-#define PAUSE_BEFORE_DEPLOY_STOW  //Message Stow/remove Probe (bug Octoprint & UI Marlin)
+//Choice menu: (OPT)
+#define DELTA_CALIBRATION_MENU     //NC LVGL
+#define PID_EDIT_MENU              //
+#define PID_AUTOTUNE_MENU          //
+//#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe (bug UI Marlin)
 
-//  Type Calibration
-//#define AUTO_BED_LEVELING_BILINEAR  //(B)
-#define AUTO_BED_LEVELING_UBL //(U)
+//  Type Calibration (CAL)
+#define AUTO_BED_LEVELING_BILINEAR  //(A)
+//#define AUTO_BED_LEVELING_UBL         //(U) with UART mode FSMC
 
 //Many options for Modules: 
 #define POWER_LOSS_RECOVERY       //NC LVGL pb SD
 #define FILAMENT_RUNOUT_SENSOR    //NC LVGL
 #define ADVANCED_PAUSE_FEATURE    //NC LVGL
-#define LIN_ADVANCE     //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle          
+#define LIN_ADVANCE               //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle          
+
+// Option for Octoprint: //OCTO
+//#define HOST_ACTION_COMMANDS  //Action Command Prompt support Message on Octoprint
+//Bin transfert
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -123,10 +127,14 @@
 #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-//#define SHOW_CUSTOM_BOOTSCREEN
+#ifdef FSMC_GRAPHICAL_TFT 
+  #define SHOW_CUSTOM_BOOTSCREEN  //TIPS
+#endif
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#ifdef FSMC_GRAPHICAL_TFT 
+  #define CUSTOM_STATUS_SCREEN_IMAGE  //TIPS
+#endif
 
 // @section machine
 
@@ -664,7 +672,7 @@
  * Note: For Bowden Extruders make this large enough to allow load/unload.
  */
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH 900 
+#define EXTRUDE_MAXLENGTH 900
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -716,7 +724,7 @@
   #define DELTA_SEGMENTS_PER_SECOND 200
 
   // After homing move down to a height where XY movement is unconstrained
-  #define DELTA_HOME_TO_SAFE_ZONE //Sahlman
+  #define DELTA_HOME_TO_SAFE_ZONE //OPT CAL
 
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
@@ -730,7 +738,7 @@
 
   #if ENABLED(DELTA_AUTO_CALIBRATION)
     // set the default number of probe points : n*n (1 -> 7) ITERATION
-    #define DELTA_CALIBRATION_DEFAULT_POINTS  7 //OPT 9 Sahlman  
+    #define DELTA_CALIBRATION_DEFAULT_POINTS  5 //CAL 9 Sahlman  
   #endif
 
   #if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
@@ -848,7 +856,8 @@
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE DRIVER_USED
+//#define E0_DRIVER_TYPE DRIVER_USED
+//#define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -955,7 +964,7 @@
  *   M204 T    Travel Acceleration
  */
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
+#define DEFAULT_RETRACT_ACCELERATION  250    // E acceleration for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
@@ -1204,7 +1213,7 @@
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
-#define PROBING_MARGIN 20
+#define PROBING_MARGIN 30
 
 // X and Y axis travel speed (mm/min) between probes
 #define XY_PROBE_SPEED  5000//(66*60) //3960
@@ -1225,8 +1234,8 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-#define MULTIPLE_PROBING 3  //OPT
-//#define EXTRA_PROBING    1
+#define MULTIPLE_PROBING 2
+#define EXTRA_PROBING    1  //OPT ralenti la prise mesure
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -1245,13 +1254,13 @@
 #define Z_CLEARANCE_DEPLOY_PROBE   30 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 #define Z_CLEARANCE_MULTI_PROBE     5 // Z Clearance between multiple probes
-#define Z_AFTER_PROBING            30 //dec 5 //2 Z position after probing is done
+#define Z_AFTER_PROBING           200 // Z position after probing is done
 
 #define Z_PROBE_LOW_POINT          -2 // Farthest distance below the trigger-point to go before stopping
 
 // For M851 give a range for adjusting the Z probe offset
 #define Z_PROBE_OFFSET_RANGE_MIN -30  //-30 Sahlman
-#define Z_PROBE_OFFSET_RANGE_MAX 20
+#define Z_PROBE_OFFSET_RANGE_MAX  30
 
 // Enable the M48 repeatability test to test probe accuracy
 #define Z_MIN_PROBE_REPEATABILITY_TEST
@@ -1275,7 +1284,7 @@
 #endif
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
-#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+#define DELAY_BEFORE_PROBING 200  //CAL (ms) To prevent vibrations from triggering piezo sensors
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1317,7 +1326,7 @@
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-//#define INVERT_E0_DIR true   //(T) 
+//#define INVERT_E0_DIR true   //(T)
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1328,7 +1337,7 @@
 
 // @section homing
 
-#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
+//#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
 //#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
 
@@ -1458,8 +1467,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR     //define at the TOP
-//#define AUTO_BED_LEVELING_UBL          //define at the TOP
+//#define AUTO_BED_LEVELING_BILINEAR  //define at the TOP
+//#define AUTO_BED_LEVELING_UBL       //define at the TOP
 //#define MESH_BED_LEVELING
 
 /**
@@ -1479,7 +1488,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  //#define ENABLE_LEVELING_FADE_HEIGHT
+  #define ENABLE_LEVELING_FADE_HEIGHT //CAL
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
   // split up moves into short segments like a Delta. This follows the
@@ -1506,7 +1515,7 @@
 
   // Set the number of grid points per dimension.
   // Works best with 5 or more points in each dimension.
-  #define GRID_MAX_POINTS_X 9  //9 OPT 7
+  #define GRID_MAX_POINTS_X 7  //9 OPT 7
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   // Probe along the Y axis, advancing X after each column
@@ -1539,7 +1548,7 @@
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
   #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      //OPT Don't use more than 15 points per axis, implementation limited.
+  #define GRID_MAX_POINTS_X 10      //CAL Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1588,7 +1597,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G0 Z30 F12000\n G0 X0 Y0 Z30"
+#define Z_PROBE_END_SCRIPT "G28\n"
 
 // @section homing
 
