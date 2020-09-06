@@ -8,7 +8,7 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20200829
+ Update Marlin-BugFix 20200905
 
   ## Validate:
 
@@ -60,7 +60,7 @@ Caption:
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
 2) Flash original firmware + Custum mkswifi 
-3) Inspect the Wifi Access Point: AP-FLSUN => Flash ok 
+3) Inspect the Wifi Access Point and if you see: AP-FLSUN => Flash ok 
 4) Flash Marlin 
 to run the update of Mks_Wifi or You also can do by web page of the AP (192.168.4.1).
 
