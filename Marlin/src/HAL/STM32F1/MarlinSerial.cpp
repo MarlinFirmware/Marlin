@@ -55,19 +55,19 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
   }
 }
 
-#define DEFINE_HWSERIAL_MARLIN(name, n)       \
-  MarlinSerial name(USART##n,               \
-            BOARD_USART##n##_TX_PIN,        \
-            BOARD_USART##n##_RX_PIN);       \
-  extern "C" void __irq_usart##n(void) {      \
+#define DEFINE_HWSERIAL_MARLIN(name, n)  \
+  MarlinSerial name(USART##n,            \
+            BOARD_USART##n##_TX_PIN,     \
+            BOARD_USART##n##_RX_PIN);    \
+  extern "C" void __irq_usart##n(void) { \
     my_usart_irq(USART##n->rb, USART##n->wb, USART##n##_BASE, MSerial##n); \
   }
 
 #define DEFINE_HWSERIAL_UART_MARLIN(name, n) \
-  MarlinSerial name(UART##n,               \
-            BOARD_USART##n##_TX_PIN,        \
-            BOARD_USART##n##_RX_PIN);       \
-  extern "C" void __irq_usart##n(void) {      \
+  MarlinSerial name(UART##n,                 \
+            BOARD_USART##n##_TX_PIN,         \
+            BOARD_USART##n##_RX_PIN);        \
+  extern "C" void __irq_usart##n(void) {     \
     my_usart_irq(USART##n->rb, USART##n->wb, USART##n##_BASE, MSerial##n); \
   }
 
