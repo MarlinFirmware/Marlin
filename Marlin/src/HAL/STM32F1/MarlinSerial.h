@@ -31,9 +31,7 @@
 
 class MarlinSerial : public HardwareSerial {
 public:
-  MarlinSerial(struct usart_dev *usart_device,
-                   uint8 tx_pin,
-                   uint8 rx_pin) :
+  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) :
     HardwareSerial(usart_device, tx_pin, rx_pin)
     #if ENABLED(EMERGENCY_PARSER)
       , emergency_state(EmergencyParser::State::EP_RESET)
