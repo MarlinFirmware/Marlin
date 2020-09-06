@@ -163,15 +163,6 @@
  *            ￣￣ AE￣￣              
  *
  */
-  #define ESP_WIFI_MODULE_COM                 2   // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-  #define ESP_WIFI_MODULE_BAUDRATE     BAUDRATE   // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-  #define ESP_WIFI_MODULE_RESET_PIN         PA5   //WIFI CTRL/RST
-  #define ESP_WIFI_MODULE_ENABLE_PIN         -1
-  #define ESP_WIFI_MODULE_GPIO0_PIN         PA8   //IO0
-  #define ESP_WIFI_MODULE_GPIO1_PIN         PC7   //IO1
-  #define ESP_WIFI_MODULE_TXD_PIN           PA9   //TXD1
-  #define ESP_WIFI_MODULE_RXD_PIN          PA10   //RXD1
-  #else
   #define WIFI_IO0_PIN                        PA8  // PC13 MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
@@ -271,7 +262,6 @@
   /* QQS-Pro use MKS Robin TFT v2.0 */
   //+++++++++++++++++++++++//
 
-//#if HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -289,7 +279,6 @@
   #define LCD_USE_DMA_FSMC      // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                     DMA2
   #define FSMC_DMA_CHANNEL              DMA_CH5
-//#endif
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
 
