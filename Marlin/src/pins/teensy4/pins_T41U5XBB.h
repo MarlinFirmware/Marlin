@@ -117,3 +117,7 @@
 #define SOL0_PIN                              17
 #define SERVO0_PIN                            24
 #define SERVO1_PIN                            25
+
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif

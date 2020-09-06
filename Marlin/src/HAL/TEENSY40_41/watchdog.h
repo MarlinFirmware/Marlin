@@ -28,8 +28,4 @@
 
 void watchdog_init();
 
-inline void HAL_watchdog_refresh() {
-  // Watchdog refresh sequence
-  WDOG1_WSR = 0x5555;
-  WDOG1_WSR = 0xAAAA;
-}
+void HAL_watchdog_refresh();

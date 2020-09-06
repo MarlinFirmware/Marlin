@@ -127,3 +127,7 @@
 //#define SCK_PIN                               13
 //#define MISO_PIN                              12
 //#define MOSI_PIN                              11
+
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif

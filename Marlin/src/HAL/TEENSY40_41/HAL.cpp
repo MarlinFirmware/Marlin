@@ -32,7 +32,6 @@
 
 #include <Wire.h>
 
-
 uint16_t HAL_adc_result, HAL_adc_select;
 
 static const uint8_t pin2sc1a[] = {
@@ -167,3 +166,4 @@ bool is_output(uint8_t pin) {
 }
 
 #endif // __IMXRT1062__
+

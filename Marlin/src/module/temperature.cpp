@@ -2289,7 +2289,7 @@ void Temperature::readings_ready() {
   TERN_(HAS_JOY_ADC_Y, joystick.y.reset());
   TERN_(HAS_JOY_ADC_Z, joystick.z.reset());
 
-  #if HAS_HOTEND & 0  // Disable hotend control for PnP
+  #if HAS_HOTEND & !defined(NO_HEATERS)
 
     static constexpr int8_t temp_dir[] = {
       TERN(HEATER_0_USES_MAX6675, 0, TEMPDIR(0))

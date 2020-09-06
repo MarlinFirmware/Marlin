@@ -21,10 +21,11 @@
  */
 #pragma once
 
-// Linear output 0 to 500 (0 to 5.00 volts)
+// MPXV6115V vacuum sensor.
+// 0 to -115 kPa reports as 0 to 115 degrees
 
 const temp_entry_t temptable_997[] PROGMEM = {
-  { OV(   1), 500 },
-  { OV( 511), 250 },
+  { OV(   1), 115 },
+  { OV(973), 0 },
   { OV(1023), 0 }
 };

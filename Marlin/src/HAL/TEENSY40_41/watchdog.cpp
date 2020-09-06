@@ -41,6 +41,12 @@ void watchdog_init() {
 
 }
 
+void HAL_watchdog_refresh() {
+  // Watchdog refresh sequence
+  WDOG1_WSR = 0x5555;
+  WDOG1_WSR = 0xAAAA;
+}
+
 #endif // USE_WATCHDOG
 
 #endif //__IMXRT1062__
