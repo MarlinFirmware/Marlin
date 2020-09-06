@@ -62,7 +62,7 @@
 #define X_DIAG_PIN                         PA15   //-X
 #define Y_DIAG_PIN                         PA12   //-Y
 #define Z_DIAG_PIN                         PA11   //-Z
-#define E0_DIAG_PIN                         PC4   //+Z
+//#define E0_DIAG_PIN                         PC4   //+Z
 
 #define X_STOP_PIN                         PA15   //-X
 #define Y_STOP_PIN                         PA12   //-Y
@@ -103,7 +103,7 @@
 
 #define VREF_XY_PIN                         PA6   //Vref Control XY
 #define VREF_Z_PIN                          PA7   //Vref Control Z
-#define VREF_E1_PIN                         PB0   //Vref Control E
+#define VREF_E0_PIN                         PB0   //Vref Control E
 
 #if HAS_TMC_UART
   #define X_CS_PIN                         PA10   //RXD1 /PD5
