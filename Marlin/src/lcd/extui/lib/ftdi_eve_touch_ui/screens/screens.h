@@ -96,7 +96,7 @@ enum {
 #define STATUS_SCREEN_DL_SIZE        2048
 #define ALERT_BOX_DL_SIZE            3072
 #define SPINNER_DL_SIZE              3072
-#define FILE_SCREEN_DL_SIZE          3072
+#define FILE_SCREEN_DL_SIZE          4160
 #define PRINTING_SCREEN_DL_SIZE      2048
 
 /************************* MENU SCREEN DECLARATIONS *************************/

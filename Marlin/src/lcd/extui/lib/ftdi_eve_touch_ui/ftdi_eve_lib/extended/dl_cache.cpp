@@ -32,7 +32,8 @@
  *
  * The cache memory begins with a table at
  * DL_CACHE_START: each table entry contains
- * an address and size for a cached DL slot.
+ * an address, size and used bytes for a cached
+ * DL slot.
  *
  * Immediately following the table is the
  * DL_FREE_ADDR, which points to free cache
@@ -44,11 +45,14 @@
  *
  *  DL_CACHE_START  slot0_addr     4
  *                  slot0_size     4
+ *                  slot0_used     4
  *                  slot1_addr     4
  *                  slot1_size     4
+ *                  slot1_used     4
  *                      ...
  *                  slotN_addr     4
  *                  slotN_size     4
+ *                  slotN_used     4
  *  DL_FREE_ADDR    dl_free_ptr    4
  *                  cached data
  *                      ...
@@ -57,7 +61,7 @@
  */
 
 #define DL_CACHE_START   MAP::RAM_G_SIZE - 0xFFFF
-#define DL_FREE_ADDR     DL_CACHE_START + DL_CACHE_SLOTS * 8
+#define DL_FREE_ADDR     DL_CACHE_START + DL_CACHE_SLOTS * 12
 
 using namespace FTDI;
 
@@ -66,12 +70,12 @@ using namespace FTDI;
 void DLCache::init() {
   CLCD::mem_write_32(DL_FREE_ADDR, DL_FREE_ADDR + 4);
   for(uint8_t slot = 0; slot < DL_CACHE_SLOTS; slot++) {
-    save_slot(slot, 0, 0);
+    save_slot(slot, 0, 0, 0);
   }
 }
 
 bool DLCache::has_data() {
-  return dl_size != 0;
+  return dl_slot_size != 0;
 }
 
 bool DLCache::wait_until_idle() {
@@ -93,12 +97,12 @@ bool DLCache::wait_until_idle() {
  * that it can be appended later. The memory is
  * dynamically allocated following DL_FREE_ADDR.
  *
- * If num_bytes is provided, then that many bytes
+ * If min_bytes is provided, then that many bytes
  * will be reserved so that the cache may be re-written
  * later with potentially a bigger DL.
  */
 
-bool DLCache::store(uint32_t num_bytes /* = 0*/) {
+bool DLCache::store(uint32_t min_bytes /* = 0*/) {
   CLCD::CommandFifo cmd;
 
   // Execute any commands already in the FIFO
@@ -107,67 +111,67 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
     return false;
 
   // Figure out how long the display list is
-  uint32_t new_dl_size = CLCD::mem_read_32(REG::CMD_DL) & 0x1FFF;
-  uint32_t free_space  = 0;
-  uint32_t dl_alloc    = 0;
+  const uint32_t dl_size = CLCD::dl_size();
 
-  if (dl_addr == 0) {
+  if (dl_slot_addr == 0) {
     // If we are allocating new space...
-    dl_addr     = CLCD::mem_read_32(DL_FREE_ADDR);
-    free_space  = MAP::RAM_G_SIZE - dl_addr;
-    dl_alloc    = num_bytes ?: new_dl_size;
-    dl_size     = new_dl_size;
-  } else {
-    // Otherwise, we can only store as much space
-    // as was previously allocated.
-    free_space  = num_bytes ?: dl_size;
-    dl_alloc    = 0;
-    dl_size     = new_dl_size;
+    dl_slot_addr = CLCD::mem_read_32(DL_FREE_ADDR);
+    dl_slot_size = max(dl_size, min_bytes);
+    
+    const uint32_t free_space = MAP::RAM_G_SIZE - dl_slot_addr;
+    if(dl_slot_size <= free_space) {
+      CLCD::mem_write_32(DL_FREE_ADDR, dl_slot_addr + dl_slot_size);
+    } else {
+      dl_slot_addr = 0;
+      dl_slot_size = 0;
+      dl_slot_used = 0;
+    }
   }
 
-  if (dl_size > free_space) {
+  if (dl_size > dl_slot_size) {
     // Not enough memory to cache the display list.
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR  ("Not enough space in GRAM to cache display list, free space: ", free_space);
+      SERIAL_ECHOPAIR  ("Not enough space in GRAM to cache display list, free space: ", dl_slot_size);
       SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
+    dl_slot_used = 0;
+    save_slot();
     return false;
   } else {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
-      SERIAL_ECHOPAIR  ("Saving DL to RAMG cache, bytes: ", dl_size);
-      SERIAL_ECHOLNPAIR(" Free space: ", free_space);
+      SERIAL_ECHOPAIR  ("Saving DL to RAMG cache, bytes: ", dl_slot_used);
+      SERIAL_ECHOLNPAIR(" Free space: ", dl_slot_size);
     #endif
-    cmd.memcpy(dl_addr, MAP::RAM_DL, dl_size);
+    dl_slot_used = dl_size;
+    save_slot();
+    cmd.memcpy(dl_slot_addr, MAP::RAM_DL, dl_slot_used);
     cmd.execute();
-    save_slot(dl_slot, dl_addr, dl_size);
-    if (dl_alloc > 0) {
-      // If we allocated space dynamically, then adjust dl_free_addr.
-      CLCD::mem_write_32(DL_FREE_ADDR, dl_addr + dl_alloc);
-    }
     return true;
   }
 }
 
-void DLCache::save_slot(uint8_t dl_slot, uint32_t dl_addr, uint32_t dl_size) {
-  CLCD::mem_write_32(DL_CACHE_START + dl_slot * 8 + 0, dl_addr);
-  CLCD::mem_write_32(DL_CACHE_START + dl_slot * 8 + 4, dl_size);
+void DLCache::save_slot(uint8_t indx, uint32_t addr, uint16_t size, uint16_t used) {
+  CLCD::mem_write_32(DL_CACHE_START + indx * 12 + 0, addr);
+  CLCD::mem_write_32(DL_CACHE_START + indx * 12 + 4, size);
+  CLCD::mem_write_32(DL_CACHE_START + indx * 12 + 8, used);
 }
 
-void DLCache::load_slot() {
-  dl_addr  = CLCD::mem_read_32(DL_CACHE_START + dl_slot * 8 + 0);
-  dl_size  = CLCD::mem_read_32(DL_CACHE_START + dl_slot * 8 + 4);
+void DLCache::load_slot(uint8_t indx, uint32_t &addr, uint16_t &size, uint16_t &used) {
+  addr  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 0);
+  size  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 4);
+  used  = CLCD::mem_read_32(DL_CACHE_START + indx * 12 + 8);
 }
 
 void DLCache::append() {
   CLCD::CommandFifo cmd;
-  cmd.append(dl_addr, dl_size);
+  cmd.append(dl_slot_addr, dl_slot_used);
   #if ENABLED(TOUCH_UI_DEBUG)
     cmd.execute();
     wait_until_idle();
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR  ("Appending to DL from RAMG cache, bytes: ", dl_size);
+    SERIAL_ECHOPAIR  ("Appending to DL from RAMG cache, bytes: ", dl_slot_used);
     SERIAL_ECHOLNPAIR(" REG_CMD_DL: ", CLCD::mem_read_32(REG::CMD_DL));
   #endif
 }
