@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+#if HAS_LCD_MENU && ANY(LED_CONTROL_MENU ,NEO2_CONTROL_MENU, CASE_LIGHT_MENU)
 
 #include "menu_item.h"
 
@@ -54,6 +54,27 @@
 
   #endif
 
+  #if ENABLED(NEO2_COLOR_PRESETS)
+
+    void menu_leds2_presets() {
+      START_MENU();
+      #if LCD_HEIGHT > 2
+        STATIC_ITEM(MSG_NEO2_PRESETS, SS_DEFAULT|SS_INVERT);
+      #endif
+      BACK_ITEM(MSG_LED_CONTROL);
+      ACTION_ITEM(MSG_SET_NEO2_WHITE,  leds2.set_white);
+      ACTION_ITEM(MSG_SET_NEO2_RED,    leds2.set_red);
+      ACTION_ITEM(MSG_SET_NEO2_ORANGE, leds2.set_orange);
+      ACTION_ITEM(MSG_SET_NEO2_YELLOW, leds2.set_yellow);
+      ACTION_ITEM(MSG_SET_NEO2_GREEN,  leds2.set_green);
+      ACTION_ITEM(MSG_SET_NEO2_BLUE,   leds2.set_blue);
+      ACTION_ITEM(MSG_SET_NEO2_INDIGO, leds2.set_indigo);
+      ACTION_ITEM(MSG_SET_NEO2_VIOLET, leds2.set_violet);
+      END_MENU();
+    }
+
+  #endif
+
   void menu_led_custom() {
     START_MENU();
     BACK_ITEM(MSG_LED_CONTROL);
@@ -64,6 +85,14 @@
       EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds.color.w, 0, 255, leds.update, true);
       #if ENABLED(NEOPIXEL_LED)
         EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
+      #endif
+      #if ENABLED(NEOPIXEL2_SEPARATE)
+        STATIC_ITEM(MSG_LED_CHANNEL2, SS_DEFAULT|SS_INVERT);
+        EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
+        EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
+        EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
+        EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
+        EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
       #endif
     #endif
     END_MENU();
@@ -92,8 +121,16 @@ void menu_led() {
     bool led_on = leds.lights_on;
     EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
     ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
+    #if ENABLED(NEOPIXEL2_SEPARATE)
+      bool led2_on = leds2.lights_on;
+      EDIT_ITEM(bool, MSG_LEDS2, &led2_on, leds2.toggle);
+      ACTION_ITEM(MSG_SET_NEO2_DEFAULT, leds2.set_default);
+    #endif
     #if ENABLED(LED_COLOR_PRESETS)
       SUBMENU(MSG_LED_PRESETS, menu_led_presets);
+    #endif
+    #if ENABLED(NEO2_COLOR_PRESETS)
+      SUBMENU(MSG_NEO2_PRESETS, menu_leds2_presets);
     #endif
     SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
   #endif

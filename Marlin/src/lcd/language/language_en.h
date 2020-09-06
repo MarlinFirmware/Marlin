@@ -222,13 +222,26 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Violet");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("White");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Default");
+  PROGMEM Language_Str MSG_LED_CHANNEL2                    = _UxGT("Channel 2");
+  PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Lights #2");
+  PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Light #2 Presets");
+  PROGMEM Language_Str MSG_SET_NEO2_RED                    = _UxGT("Red");
+  PROGMEM Language_Str MSG_SET_NEO2_ORANGE                 = _UxGT("Orange");
+  PROGMEM Language_Str MSG_SET_NEO2_YELLOW                 = _UxGT("Yellow");
+  PROGMEM Language_Str MSG_SET_NEO2_GREEN                  = _UxGT("Green");
+  PROGMEM Language_Str MSG_SET_NEO2_BLUE                   = _UxGT("Blue");
+  PROGMEM Language_Str MSG_SET_NEO2_INDIGO                 = _UxGT("Indigo");
+  PROGMEM Language_Str MSG_SET_NEO2_VIOLET                 = _UxGT("Violet");
+  PROGMEM Language_Str MSG_SET_NEO2_WHITE                  = _UxGT("White");
+  PROGMEM Language_Str MSG_SET_NEO2_DEFAULT                = _UxGT("Default");
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Brightness");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Custom Lights");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Red Intensity");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Green Intensity");
   PROGMEM Language_Str MSG_INTENSITY_B                     = _UxGT("Blue Intensity");
   PROGMEM Language_Str MSG_INTENSITY_W                     = _UxGT("White Intensity");
   PROGMEM Language_Str MSG_LED_BRIGHTNESS                  = _UxGT("Brightness");
-
+  
   PROGMEM Language_Str MSG_MOVING                          = _UxGT("Moving...");
   PROGMEM Language_Str MSG_FREE_XY                         = _UxGT("Free XY");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Move X");
