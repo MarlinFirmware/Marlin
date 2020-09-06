@@ -27,26 +27,27 @@
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
 static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MarlinSerial &serial) {
-  /* Handling RXNEIE and TXEIE interrupts.
+   /* Handle RXNEIE and TXEIE interrupts.
     * RXNE signifies availability of a byte in DR.
     *
     * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
-    * We enable RXNEIE. */
+    * We enable RXNEIE.
+    */
   if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
     uint8_t c = (uint8)regs->DR;
     #ifdef USART_SAFE_INSERT
-      /* If the buffer is full and the user defines USART_SAFE_INSERT,
-        * ignore new bytes. */
+      // If the buffer is full and the user defines USART_SAFE_INSERT,
+      // ignore new bytes.
       rb_safe_insert(rb, c);
     #else
-      /* By default, push bytes around in the ring buffer. */
+      // By default, push bytes around in the ring buffer.
       rb_push_insert(rb, c);
     #endif
     #if ENABLED(EMERGENCY_PARSER)
       emergency_parser.update(serial.emergency_state, c);
     #endif
   }
-  /* TXE signifies readiness to send a byte to DR. */
+  // TXE signifies readiness to send a byte to DR.
   if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
     if (!rb_is_empty(wb))
       regs->DR=rb_remove(wb);
