@@ -222,6 +222,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Violet");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("White");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Default");
+  PROGMEM Language_Str MSG_LED_CHANNEL1                    = _UxGT("Channel 1");
   PROGMEM Language_Str MSG_LED_CHANNEL2                    = _UxGT("Channel 2");
   PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Lights #2");
   PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Light #2 Presets");
