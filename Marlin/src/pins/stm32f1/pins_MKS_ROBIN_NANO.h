@@ -218,13 +218,6 @@
 
 // Emulated DOGM Configs
 #elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef TFT_PIXEL_OFFSET_X
-    #define TFT_PIXEL_OFFSET_X                48
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          12149
   #endif

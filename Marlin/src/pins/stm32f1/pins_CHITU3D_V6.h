@@ -153,9 +153,6 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_PIXEL_OFFSET_X                  48
-  #define TFT_PIXEL_OFFSET_Y                  32
-
   #define TFT_BUFFER_SIZE                  14400
 
 #endif
