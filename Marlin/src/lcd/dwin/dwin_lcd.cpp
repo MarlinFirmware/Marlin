@@ -37,8 +37,8 @@
 #include "dwin_lcd.h"
 #include <string.h> // for memset
 
-// Make sure DWIN_SendBuf is large enough to hold the largest
-// printed string plus the draw command and tail.
+// Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
+// Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
 uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
