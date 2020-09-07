@@ -2,7 +2,7 @@
 name: Feature request
 about: Request a Feature
 title: "[FR] (feature request title)"
-labels: 'T: Feature Request'
+labels: ''
 assignees: ''
 
 ---
