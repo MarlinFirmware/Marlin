@@ -86,7 +86,11 @@ void GcodeSuite::M166() {
     echo_zt(mixer.gradient.end_vtool, mixer.gradient.end_z);
 
     mixer.update_mix_from_gradient();
-    SERIAL_ECHOPAIR(" ; Current Z", planner.get_axis_position_mm(Z_AXIS));
+    #if ENABLED(DELTA)
+      SERIAL_ECHOPAIR(" ; Current Z", cartes.z);
+    #else
+      SERIAL_ECHOPAIR(" ; Current Z", planner.get_axis_position_mm(Z_AXIS));
+    #endif
     echo_mix();
   }
 
