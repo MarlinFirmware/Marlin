@@ -59,10 +59,6 @@
 //
 // Limit Switches
 //
-#define X_DIAG_PIN                         PA15   //-X
-#define Y_DIAG_PIN                         PA12   //-Y
-#define Z_DIAG_PIN                         PA11   //-Z
-//#define E0_DIAG_PIN                         PC4   //+Z
 
 #define X_STOP_PIN                         PA15   //-X
 #define Y_STOP_PIN                         PA12   //-Y
@@ -88,50 +84,22 @@
 #define E0_STEP_PIN                         PD6   //E0_STEP
 #define E0_DIR_PIN                          PD3   //E0_DIR
 
-// Motor current PWM pins in orig //
-//#define MOTOR_CURRENT_PWM_XY_PIN            PA6 //Vref Control XY
-//#define MOTOR_CURRENT_PWM_Z_PIN             PA7 //Vref Control Z
-//#define MOTOR_CURRENT_PWM_E_PIN             PB0 //Vref Control E1
-//#define MOTOR_CURRENT_PWM_RANGE 1500            // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
-//#define DEFAULT_PWM_MOTOR_CURRENT  { 1030, 1030, 1030 } // 1.05Amp per driver, here is XY, Z and E. This values determined empirically.
-
-// This is a kind of workaround in case native marlin "digipot" interface won't work.
-// Required to enable related code in STM32F1/HAL.cpp
-//#ifndef MKS_ROBIN_MINI_VREF_PWM
-//  #define MKS_ROBIN_MINI_VREF_PWM
-//#endif
-
-#define VREF_XY_PIN                         PA6   //Vref Control XY
-#define VREF_Z_PIN                          PA7   //Vref Control Z
-#define VREF_E0_PIN                         PB0   //Vref Control E
+//#define VREF_XY_PIN                         PA6   //Vref Control XY
+//#define VREF_Z_PIN                          PA7   //Vref Control Z
+//#define VREF_E0_PIN                         PB0   //Vref Control E
 
 #if HAS_TMC_UART
   #define X_CS_PIN                         PA10   //RXD1 /PD5
   #define Y_CS_PIN                          PA9   //TXD1  /PD7
   #define Z_CS_PIN                          PC7   //IO0 /PD4
   #define E0_CS_PIN                         PA8   //IO1 /PD9
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  //#define X_HARDWARE_SERIAL  Serial
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-
-  //
-  // Software serial
-  //
-  //TMC2208 || TMC2209
+/**
+ * TMC2208/TMC2209 stepper drivers
+ *
+ * Software serial.
+ * TMC2208 || TMC2209
+ *
+*/
   #define X_SERIAL_TX_PIN                  PA10  //RXD1  /PD5
   #define X_SERIAL_RX_PIN                  PA10  //RXD1  /PD5
 
@@ -147,11 +115,21 @@
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE 19200
 
-#elif ENABLED(ESP_WIFI) 
+#else
+// Motor current PWM pins
 
+  #define MOTOR_CURRENT_PWM_XY_PIN            PA6
+  #define MOTOR_CURRENT_PWM_Z_PIN             PA7
+  #define MOTOR_CURRENT_PWM_E_PIN             PB0
+  #define MOTOR_CURRENT_PWM_RANGE             1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #ifndef DEFAULT_PWM_MOTOR_CURRENT
+   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 } 
+  #endif
+
+  #if ENABLED(ESP_WIFI) 
 /**
  * src: MKS Robin_Mini V2
- *           __ESP(M1)__           (J1)
+ *           __ESP(M1)__           -J1-
  *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
  *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
  *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
@@ -162,14 +140,15 @@
  *        TX| 22 | | 01 |RST  
  *            ￣￣ AE￣￣              
  *
- */
+*/
   #define WIFI_IO0_PIN                        PA8  // PC13 MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
+  #endif
 #endif
 
 //
-// Temperature Sensors
+// Temperature Sensors(THM)
 //
 #define TEMP_0_PIN                          PC1   // TEMP_E0
 #define TEMP_BED_PIN                        PC0   // TEMP_BED
@@ -190,6 +169,7 @@
 #if ENABLED(BACKUP_POWER_SUPPLY)
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
 #endif
+
 // Enable Power Supply Control
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN 			                    PA2   // PW_DET
@@ -293,6 +273,10 @@
   
     #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
     #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
+  
+    #define TFT_MARLINUI_COLOR           0xFFFF   // White
+    #define TFT_BTARROWS_COLOR           0xDEE6   // 11011 110111 00110 Yellow
+    #define TFT_BTOKMENU_COLOR           0x145F   // 00010 100010 11111 Cyan
   #endif
 
 #elif ENABLED(TFT_320x240)
