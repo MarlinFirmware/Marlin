@@ -413,7 +413,7 @@ void AnycubicTFTClass::RenderCurrentFileList() {
     uint16_t selectedNumber = 0;
     SelectedDirectory[0] = 0;
     SelectedFile[0] = 0;
-    ExtUI::FileList currentFileList;                                 
+    ExtUI::FileList currentFileList;
 
     SENDLINE_PGM("FN "); // Filelist start
 

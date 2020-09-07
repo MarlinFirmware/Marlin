@@ -183,7 +183,7 @@ void LEDLights::set_color(const LEDColor &incol
                             : neo2.Color(incol.r, incol.g, incol.b, incol.w);
     neo2.set_brightness(incol.i);
     neo2.set_color(neocolor);
-  
+
     #if ENABLED(LED_CONTROL_MENU)
       // Don't update the color when OFF
       lights_on = !incol.is_off();
@@ -191,6 +191,10 @@ void LEDLights::set_color(const LEDColor &incol
     #endif
   }
     
+  #if ENABLED(LED_CONTROL_MENU)
+    void LEDLights2::toggle() { if (lights_on) set_off(); else update(); }
+  #endif
+
   #if ENABLED(LED_CONTROL_MENU)
     void LEDLights2::toggle() { if (lights_on) set_off(); else update(); }
   #endif

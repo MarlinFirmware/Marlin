@@ -144,17 +144,16 @@
 // LCD / Controller
 //
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-
   #define LCD_PINS_RS                         18
   #define LCD_PINS_ENABLE                     15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
+  #undef UI_VOLTAGE_LEVEL
+  #define UI_VOLTAGE_LEVEL                     1
+#endif
 
+#if ENABLED(NEWPANEL)
   #define BTN_EN1                             14
   #define BTN_EN2                             16
   #define BTN_ENC                             17
-
-  #undef UI_VOLTAGE_LEVEL
-  #define UI_VOLTAGE_LEVEL                     1
-
-#endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#endif
