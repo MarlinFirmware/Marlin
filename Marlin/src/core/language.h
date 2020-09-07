@@ -120,6 +120,7 @@
 #define STR_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define STR_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
 #define STR_FILE_PRINTED                    "Done printing file"
+#define STR_NO_MEDIA                        "No media"
 #define STR_BEGIN_FILE_LIST                 "Begin file list"
 #define STR_END_FILE_LIST                   "End file list"
 #define STR_INVALID_EXTRUDER                "Invalid extruder"
