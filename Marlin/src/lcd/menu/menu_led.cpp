@@ -121,12 +121,12 @@ void menu_led() {
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(LED_CONTROL_MENU)
-    bool led_on = leds.lights_on;
-    EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
+    editable.state = leds.lights_on;
+    EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
     ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
     #if ENABLED(NEOPIXEL2_SEPARATE)
-      bool led2_on = leds2.lights_on;
-      EDIT_ITEM(bool, MSG_LEDS2, &led2_on, leds2.toggle);
+      editable.state = leds2.lights_on;
+      EDIT_ITEM(bool, MSG_LEDS2, &editable.state, leds2.toggle);
       ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
     #endif
     #if ENABLED(LED_COLOR_PRESETS)
