@@ -25,10 +25,6 @@
  * Test STM32F1-specific configuration values for errors at compile-time.
  */
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for STM32F1. Disable EMERGENCY_PARSER to continue."
-#endif
-
 #if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
   #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on STM32F1."
 #endif

@@ -435,8 +435,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Celkom");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Zastavenie Endstop");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Chyba ohrevu");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Chyba ohrevu podl.");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Chyba ohrevu komory");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Chyba: REDUND. TEP.");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TEPLOTNÝ SKOK");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("TEPLOTNÝ SKOK PODL.");
@@ -551,7 +549,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Odstráňte, kliknite");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Zložka ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Zložka =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixér");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Plný gradient");

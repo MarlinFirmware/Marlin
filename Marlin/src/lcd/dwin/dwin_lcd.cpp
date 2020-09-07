@@ -37,9 +37,12 @@
 #include "dwin_lcd.h"
 #include <string.h> // for memset
 
-// Make sure DWIN_SendBuf is large enough to hold the largest
-// printed string plus the draw command and tail.
-uint8_t DWIN_SendBuf[11 + 24] = { 0xAA };
+//#define DEBUG_OUT 1
+#include "../../core/debug_out.h"
+
+// Make sure DWIN_SendBuf is large enough to hold the largest string plus draw command and tail.
+// Assume the narrowest (6 pixel) font and 2-byte gb2312-encoded characters.
+uint8_t DWIN_SendBuf[11 + DWIN_WIDTH / 6 * 2] = { 0xAA };
 uint8_t DWIN_BufTail[4] = { 0xCC, 0x33, 0xC3, 0x3C };
 uint8_t databuf[26] = { 0 };
 uint8_t receivedType;
@@ -63,7 +66,7 @@ inline void DWIN_Long(size_t &i, const uint32_t lval) {
 }
 
 inline void DWIN_String(size_t &i, char * const string) {
-  const size_t len = strlen(string);
+  const size_t len = _MIN(sizeof(DWIN_SendBuf) - i, strlen(string));
   memcpy(&DWIN_SendBuf[i+1], string, len);
   i += len;
 }
@@ -79,10 +82,8 @@ inline void DWIN_String(size_t &i, const __FlashStringHelper * string) {
 // Send the data in the buffer and the packet end
 inline void DWIN_Send(size_t &i) {
   ++i;
-  LOOP_L_N(n, i) {  MYSERIAL1.write(DWIN_SendBuf[n]);
-                    delayMicroseconds(1); }
-  LOOP_L_N(n, 4) {  MYSERIAL1.write(DWIN_BufTail[n]);
-                    delayMicroseconds(1); }
+  LOOP_L_N(n, i) { MYSERIAL1.write(DWIN_SendBuf[n]); delayMicroseconds(1); }
+  LOOP_L_N(n, 4) { MYSERIAL1.write(DWIN_BufTail[n]); delayMicroseconds(1); }
 }
 
 /*-------------------------------------- System variable function --------------------------------------*/
@@ -185,7 +186,6 @@ void DWIN_Draw_Rectangle(uint8_t mode, uint16_t color,
   DWIN_Send(i);
 }
 
-//
 // Move a screen area
 //  mode: 0, circle shift; 1, translation
 //  dir: 0=left, 1=right, 2=up, 3=down
@@ -219,19 +219,6 @@ void DWIN_Frame_AreaMove(uint8_t mode, uint8_t dir, uint16_t dis,
 //  *string: The string
 void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
-  size_t i = 0;
-  DWIN_Byte(i, 0x11);
-  DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
-  DWIN_Word(i, color);
-  DWIN_Word(i, bColor);
-  DWIN_Word(i, x);
-  DWIN_Word(i, y);
-  DWIN_String(i, string);
-  DWIN_Send(i);
-}
-
-void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
-                      uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, const __FlashStringHelper *string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
   DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
@@ -343,8 +330,9 @@ void DWIN_ICON_Show(uint8_t libID, uint8_t picID, uint16_t x, uint16_t y) {
   DWIN_Send(i);
 }
 
-// Unzip the JPG picture to virtual display area #1
-//  id: picture ID
+// Unzip the JPG picture to a virtual display area
+//  n: Cache index
+//  id: Picture ID
 void DWIN_JPG_CacheToN(uint8_t n, uint8_t id) {
   size_t i = 0;
   DWIN_Byte(i, 0x25);
