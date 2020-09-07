@@ -115,8 +115,6 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-    #undef SHOW_BOOTSCREEN
-
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6
