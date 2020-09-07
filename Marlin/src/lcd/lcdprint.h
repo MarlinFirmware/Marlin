@@ -79,7 +79,7 @@
   #define SETCURSOR(col, row)    lcd_moveto((col) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
   #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
 
-#else
+#elif HAS_CHARACTER_LCD
 
   #define _UxGT(a) a
   typedef uint8_t lcd_uint_t;

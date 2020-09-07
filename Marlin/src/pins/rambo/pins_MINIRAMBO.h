@@ -189,4 +189,4 @@
 
   #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
