@@ -1846,9 +1846,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if ENABLED(LED_CONTROL_MENU) && !HAS_COLOR_LEDS
   #error "LED_CONTROL_MENU requires BLINKM, RGB_LED, RGBW_LED, PCA9533, PCA9632, or NEOPIXEL_LED."
 #endif
-#if ENABLED(LED_CONTROL_MENU) && !NOEPIXEL2_SEPARATE
-  #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
-#endif
 
 /**
  * LED Backlight Timeout
@@ -2131,6 +2128,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #endif
 #endif
 
+#if ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
+  #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
+#endif
 
 #undef _RGB_TEST
 
