@@ -94,7 +94,7 @@
 #define HEATER_BED_PIN                      PC9   // "HB"
 
 #ifdef SKR_MINI_E3_V2
-  #define FAN_PIN                           PC6
+  #define FAN_PIN                           PC7
 #else
   #define FAN_PIN                           PA8   // "FAN0"
 #endif
