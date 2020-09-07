@@ -69,25 +69,26 @@
 #define QQS       //(S) A4988
 //#define QQS_TMC   //(8) TMC220x For 2208 or 2209
 //#define QQS_UART  //(U8) Remove module ESP12    
+
 /*    Modules       */
 #define ESP_WIFI  //(W) Module ESP8266/ESP12
 //#define BMG       //(B) Extruder
 
 /*-------OPTIONS---(FSMC)-----*/
 //Choice UI TFT 
-//#define FSMC_GRAPHICAL_TFT    //(F) UI STANDARD 
-#define TFT_320x240       //(C) UI MARLIN (too big with mode UART+UBL)
+#define FSMC_GRAPHICAL_TFT    //(F) UI STANDARD 
+//#define TFT_320x240       //(C) UI MARLIN (too big with mode UART+UBL)
 //#define TFT_LVGL_UI_FSMC  //(I) UI MKS  => (Bug)
 
 //Choice menu: (OPT)
 #define DELTA_CALIBRATION_MENU     //NC LVGL
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
-//#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe (bug UI Marlin)
+#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe (bug UI Marlin)
 
 //  Type Calibration (CAL)
-#define AUTO_BED_LEVELING_BILINEAR  //(A)
-//#define AUTO_BED_LEVELING_UBL         //(U) with UART mode FSMC
+//#define AUTO_BED_LEVELING_BILINEAR  //(A)
+#define AUTO_BED_LEVELING_UBL         //(U) with UART mode FSMC
 
 //Many options for Modules: 
 #define POWER_LOSS_RECOVERY       //NC LVGL pb SD
@@ -856,7 +857,7 @@
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-//#define E0_DRIVER_TYPE DRIVER_USED
+#define E0_DRIVER_TYPE DRIVER_USED
 //#define E0_DRIVER_TYPE A4988
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
@@ -1315,18 +1316,18 @@
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
-#define INVERT_E0_DIR true   //(T) 
+#define INVERT_E0_DIR true   //true(T) 
 #endif
 #if EITHER(QQS_TMC, QQS_UART)
 #define INVERT_X_DIR true 
 #define INVERT_Y_DIR true 
 #define INVERT_Z_DIR true
-#define INVERT_E0_DIR false   //(T) 
+#define INVERT_E0_DIR false  //false(T) true(B)
 #endif 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-//#define INVERT_E0_DIR true   //(T)
+//#define INVERT_E0_DIR true   //false(B) true(T)
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
