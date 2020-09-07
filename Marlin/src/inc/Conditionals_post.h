@@ -2612,14 +2612,14 @@
   #ifndef LCD_WIDTH
     #if HAS_GRAPHICAL_LCD
       #define LCD_WIDTH 21
-    #else
+    #elif HAS_CHARACTER_LCD
       #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_GRAPHICAL_LCD
       #define LCD_HEIGHT 5
-    #else
+    #elif HAS_CHARACTER_LCD
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
   #endif

@@ -72,9 +72,9 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/dwin.h"
+  #include "lcd/dwin/e3v2/dwin.h"
   #include "lcd/dwin/dwin_lcd.h"
-  #include "lcd/dwin/rotary_encoder.h"
+  #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)

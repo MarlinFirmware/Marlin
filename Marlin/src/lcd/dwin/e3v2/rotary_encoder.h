@@ -31,8 +31,8 @@
   ******************************************************************************
 **/
 
-#include "../../inc/MarlinConfig.h"
-#include "../../MarlinCore.h"
+#include "../../../inc/MarlinConfig.h"
+#include "../../../MarlinCore.h"
 
 /*********************** Encoder Set ***********************/
 

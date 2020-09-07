@@ -124,7 +124,7 @@
 
   #define SD_DETECT_PIN                       -1  // RAMPS doesn't use this
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // ULTRA_LCD && NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control
