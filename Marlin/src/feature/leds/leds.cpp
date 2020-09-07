@@ -190,10 +190,6 @@ void LEDLights::set_color(const LEDColor &incol
       if (lights_on) color = incol;
     #endif
   }
-    
-  #if ENABLED(LED_CONTROL_MENU)
-    void LEDLights2::toggle() { if (lights_on) set_off(); else update(); }
-  #endif
 
   #if ENABLED(LED_CONTROL_MENU)
     void LEDLights2::toggle() { if (lights_on) set_off(); else update(); }
