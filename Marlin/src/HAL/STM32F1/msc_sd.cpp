@@ -44,10 +44,8 @@ MarlinUSBCompositeSerial MarlinCompositeSerial;
   void my_rx_callback(void) {
     real_rx_callback();
     int len = MarlinCompositeSerial.available();
-    // > 0 because available() return int... and we may get a -1 here...
-    while(len-- > 0){
+    while (len-- > 0) // >0 because available() may return a negative value
       emergency_parser.update(MarlinCompositeSerial.emergency_state, MarlinCompositeSerial.peek());
-    }
   }
 #endif
 
