@@ -45,6 +45,10 @@
   #include "../../../feature/mixing.h"
 #endif
 
+#if HAS_FILAMENT_SENSOR
+  #include "../../../feature/runout.h"
+#endif
+
 /**
  * M600: Pause for filament change
  *
@@ -158,6 +162,9 @@ void GcodeSuite::M600() {
                    beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
     #endif
   }
+  #if HAS_FILAMENT_SENSOR
+    else runout.reset();
+  #endif
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed
