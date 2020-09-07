@@ -2201,18 +2201,18 @@
 //
 // TFT Type - Select your Display type
 //
-// Available optoions are:
-//      MKS_TS35_V2_0,
-//      MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35,
-//      MKS_ROBIN_TFT43,
-//      TFT_TRONXY_X5SA, ANYCUBIC_TFT35, LONGER_LK_TFT28
-//      TFT_GENERIC
+// Available options are:
+//   MKS_TS35_V2_0,
+//   MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35,
+//   MKS_ROBIN_TFT43,
+//   TFT_TRONXY_X5SA, ANYCUBIC_TFT35, LONGER_LK_TFT28
+//   TFT_GENERIC
 //
-// For TFT_GENERIC, you need configure these 3 options:
-//      Driver:     TFT_DRIVER
-//                  Current Drivers are: AUTO, ST7735, ST7789, ST7796, R61505, ILI9328, ILI9341, ILI9488
-//      Resolution: TFT_WIDTH and TFT_HEIGHT
-//      Interface:  TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI
+// For TFT_GENERIC, you need to configure these 3 options:
+//   Driver:     TFT_DRIVER
+//               Current Drivers are: AUTO, ST7735, ST7789, ST7796, R61505, ILI9328, ILI9341, ILI9488
+//   Resolution: TFT_WIDTH and TFT_HEIGHT
+//   Interface:  TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI
 //
 //#define TFT_GENERIC
 
@@ -2221,10 +2221,10 @@
 //
 // Available options are:
 //     TFT_CLASSIC_UI - Emulated DOGM - 128x64 Upscaled
-//     TFT_COLOR_UI   - Marlin Default Menus Touch Friendly, using full TFT capabilities
+//     TFT_COLOR_UI   - Marlin Default Menus, Touch Friendly, using full TFT capabilities
 //     TFT_LVGL_UI    - A Modern UI using LVGL
 //
-//     For LVGL_UI, you need the copy the 'assets' folder from the build directory to the
+//     For LVGL_UI, you need to copy the 'assets' folder from the build directory to the
 //     root of your SD card, together with the compiled firmware.
 //
 //#define TFT_COLOR_UI
