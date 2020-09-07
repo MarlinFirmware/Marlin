@@ -87,7 +87,7 @@
 #define MOTOR_CURRENT_PWM_E_PIN             PB0
 #define MOTOR_CURRENT_PWM_RANGE             1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
 #ifndef DEFAULT_PWM_MOTOR_CURRENT
-  #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 } 
+  #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
 #endif
 //
 // Temperature Sensors
@@ -180,7 +180,7 @@
 
   #define TFT_DRIVER                     ILI9341
   #define TFT_BUFFER_SIZE                  14400
- 
+
   // YV for normal screen mounting
   #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
   // XV for 180° rotated screen mounting
