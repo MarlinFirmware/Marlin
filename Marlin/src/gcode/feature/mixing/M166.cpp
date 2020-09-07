@@ -85,12 +85,8 @@ void GcodeSuite::M166() {
     SERIAL_ECHOPGM(" ; End");
     echo_zt(mixer.gradient.end_vtool, mixer.gradient.end_z);
 
-    mixer.update_mix_from_gradient();
-    #if ENABLED(DELTA)
-      SERIAL_ECHOPAIR(" ; Current Z", cartes.z);
-    #else
-      SERIAL_ECHOPAIR(" ; Current Z", planner.get_axis_position_mm(Z_AXIS));
-    #endif
+    mixer.update_mix_from_gradient(); // For DELTA this has the side-effect of setting cartes.z
+    SERIAL_ECHOPAIR(" ; Current Z", TERN(DELTA, cartes.z, planner.get_axis_position_mm(Z_AXIS)));
     echo_mix();
   }
 
