@@ -34,19 +34,32 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
     * We enable RXNEIE.
     */
   if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
-    uint8_t c = (uint8)regs->DR;
-    #ifdef USART_SAFE_INSERT
-      // If the buffer is full and the user defines USART_SAFE_INSERT,
-      // ignore new bytes.
-      rb_safe_insert(rb, c);
-    #else
-      // By default, push bytes around in the ring buffer.
-      rb_push_insert(rb, c);
-    #endif
-    #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(serial.emergency_state, c);
-    #endif
+    if( regs->SR & USART_SR_FE || regs->SR & USART_SR_PE ) {
+      // framing error or parity error
+      regs->DR; //read and throw away the data, this clears FE and PE as well
+    }
+    else {
+      uint8_t c = (uint8)regs->DR;
+      #ifdef USART_SAFE_INSERT
+        // If the buffer is full and the user defines USART_SAFE_INSERT,
+        // ignore new bytes.
+        rb_safe_insert(rb, c);
+      #else
+        // By default, push bytes around in the ring buffer.
+        rb_push_insert(rb, c);
+      #endif
+      #if ENABLED(EMERGENCY_PARSER)
+        emergency_parser.update(serial.emergency_state, c);
+      #endif
+    }
   }
+  else if (regs->SR & USART_SR_ORE) {
+    // overrun and empty data, just do a dummy read to clear ORE
+    // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
+    // (see chapter "Overrun error" ) in STM32 reference manual
+    regs->DR;
+  }
+
   // TXE signifies readiness to send a byte to DR.
   if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
     if (!rb_is_empty(wb))
