@@ -2945,7 +2945,7 @@ void HMI_Info(void) {
     #if HAS_LEVELING
       checkkey = Control;
       Clear_Main_Window();
-      Goto_MainMenu();
+      //Goto_MainMenu();
       select_control.set(CONTROL_ITEMS);
       Draw_Control_Menu();
     #else
