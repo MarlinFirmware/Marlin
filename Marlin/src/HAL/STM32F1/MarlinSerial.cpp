@@ -33,8 +33,11 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
     * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
     * We enable RXNEIE.
     */
-  if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
-    if( regs->SR & USART_SR_FE || regs->SR & USART_SR_PE ) {
+  uint32_t srflags = (regs->SR);
+  uint32_t cr1its = (regs->CR1);
+
+  if ((cr1its & USART_CR1_RXNEIE) && (srflags & USART_SR_RXNE)) {
+    if( srflags & USART_SR_FE || srflags & USART_SR_PE ) {
       // framing error or parity error
       regs->DR; //read and throw away the data, this clears FE and PE as well
     }
@@ -53,7 +56,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
       #endif
     }
   }
-  else if (regs->SR & USART_SR_ORE) {
+  else if (srflags & USART_SR_ORE) {
     // overrun and empty data, just do a dummy read to clear ORE
     // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
     // (see chapter "Overrun error" ) in STM32 reference manual
@@ -61,7 +64,7 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
   }
 
   // TXE signifies readiness to send a byte to DR.
-  if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
+  if ((cr1its & USART_CR1_TXEIE) && (srflags & USART_SR_TXE)) {
     if (!rb_is_empty(wb))
       regs->DR=rb_remove(wb);
     else
