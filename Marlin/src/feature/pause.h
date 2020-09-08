@@ -77,10 +77,12 @@ extern uint8_t did_pause_print;
   #define DXC_PARAMS , const int8_t DXC_ext=-1
   #define DXC_ARGS   , const int8_t DXC_ext
   #define DXC_PASS   , DXC_ext
+  #define DXC_SAY    , " dxc:", int(DXC_ext)
 #else
   #define DXC_PARAMS
   #define DXC_ARGS
   #define DXC_PASS
+  #define DXC_SAY
 #endif
 
 bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
