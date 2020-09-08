@@ -222,6 +222,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Violet");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("White");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Default");
+  PROGMEM Language_Str MSG_LED_CHANNEL_N                   = _UxGT("Channel =");
+  PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Lights #2");
+  PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Light #2 Presets");
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Brightness");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Custom Lights");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Red Intensity");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Green Intensity");
@@ -447,8 +451,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop Abort");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Heating Failed");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Bed Heating Failed");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Chamber Heating Fail");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Err: REDUNDANT TEMP");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("BED THERMAL RUNAWAY");
@@ -647,7 +649,11 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Level X Axis");
   PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Auto Calibrate");
-  PROGMEM Language_Str MSG_HEATER_TIMEOUT                  = _UxGT("Heater Timeout");
+  #if ENABLED(TOUCH_UI_FTDI_EVE)
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Idle timeout, temperature decreased. Press Okay to reheat and again to resume.");
+  #else
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("Heater Timeout");
+  #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 }

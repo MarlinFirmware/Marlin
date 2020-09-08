@@ -97,7 +97,7 @@ void StatusScreen::draw_axis_position(draw_mode_t what) {
       strcpy_P(y_str, PSTR("?"));
 
     if (isAxisPositionKnown(Z))
-      format_position(z_str, getAxisPosition_mm(Z));
+      format_position(z_str, getAxisPosition_mm(Z), 2);
     else
       strcpy_P(z_str, PSTR("?"));
 

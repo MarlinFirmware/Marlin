@@ -410,6 +410,8 @@
   #include "lpc1769/pins_TH3D_EZBOARD.h"        // LPC1769                                env:LPC1769
 #elif MB(BTT_SKR_V1_4_TURBO)
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
+#elif MB(MKS_SGEN_L_V2)
+  #include "lpc1769/pins_MKS_SGEN_L_V2.h"       // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
@@ -478,7 +480,7 @@
 // STM32 ARM Cortex-M0
 //
 #elif MB(MALYAN_M200_V2)
-  #include "stm32f0/pins_MALYAN_M200_V2.h"      // STM32F0                                env:STM32F070RB_malyan
+  #include "stm32f0/pins_MALYAN_M200_V2.h"      // STM32F0                                env:STM32F070RB_malyan env:STM32F070CB_malyan
 #elif MB(MALYAN_M300)
   #include "stm32f0/pins_MALYAN_M300.h"         // STM32F070                              env:malyan_M300
 
@@ -606,6 +608,8 @@
   #include "stm32f4/pins_FLYF407ZG.h"           // STM32F4                                env:FLYF407ZG
 #elif MB(MKS_ROBIN2)
   #include "stm32f4/pins_MKS_ROBIN2.h"          // STM32F4                                env:MKS_ROBIN2
+#elif MB(FYSETC_S6_V2_0)
+  #include "stm32f4/pins_FYSETC_S6_V2_0.h"      // STM32F4                                env:FYSETC_S6
 
 //
 // ARM Cortex M7

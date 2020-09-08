@@ -404,8 +404,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Celkem");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop abort");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Chyba zahřívání");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Chyba zahř.podl.");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Chyba zahř.komory");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("REDUND. TEPLOTA");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TEPLOTNÍ ÚNIK");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("TEPL. ÚNIK PODL.");
@@ -527,7 +525,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Vytáhněte, klikněte");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Mix");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponenta ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponenta =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixér");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Přechod");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Celý přechod");
