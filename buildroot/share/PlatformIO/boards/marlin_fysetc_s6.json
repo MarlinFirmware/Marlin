@@ -4,7 +4,7 @@
     "extra_flags": "-DSTM32F446xx",
     "f_cpu": "180000000L",
     "mcu": "stm32f446ret6",
-    "variant": "FYSETC_S6"
+    "variant": "MARLIN_FYSETC_S6"
   },
   "connectivity": [
     "can"
