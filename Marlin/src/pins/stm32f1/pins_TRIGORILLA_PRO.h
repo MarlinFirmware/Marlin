@@ -129,6 +129,8 @@
   #define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                        DMA2
   #define FSMC_DMA_CHANNEL                 DMA_CH5
+
+  #define ANYCUBIC_TFT35
 #else
   #define LCD_RESET_PIN                       PF11
   #define LCD_BACKLIGHT_PIN                   PD13
