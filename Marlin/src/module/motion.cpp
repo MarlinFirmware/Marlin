@@ -1567,6 +1567,30 @@ void homeaxis(const AxisEnum axis) {
     }
   #endif
 
+  #define IN_ENDSTOP(S) (READ(S##_PIN) != S##_ENDSTOP_INVERTING)
+  #if ENABLED(MOVE_AWAY_FIRST) // Fast move out of endstop if required
+    switch (axis) {
+      case X_AXIS:
+        while (IN_ENDSTOP(X_HOME_DIR < 0 ? X_MIN : X_MAX)) {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move out of home sensor.");
+          do_homing_move(axis, 5 * -axis_home_dir);
+        }
+        break;
+      case Y_AXIS:
+        while (IN_ENDSTOP(Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)) {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move out of home sensor.");
+          do_homing_move(axis, 5 * -axis_home_dir);
+        }
+        break;
+      case Z_AXIS:
+        while (IN_ENDSTOP(Z_HOME_DIR < 0 ? TERN(HOMING_Z_WITH_PROBE, Z_MIN, Z_MIN_PROBE) : Z_MAX)) {
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Move out of home sensor.");
+          do_homing_move(axis, 5 * -axis_home_dir);
+        }
+        break;
+    }
+  #endif
+
   // Fast move towards endstop until triggered
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home 1 Fast:");
 
