@@ -48,8 +48,6 @@
 #define IS_32BIT_TEENSY defined(__IMXRT1062__)
 #define IS_TEENSY41 defined(__IMXRT1062__)
 
-#define NUM_SERIAL 2
-
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 0
@@ -100,6 +98,9 @@
   #else
       #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
+#else
+  #define NUM_SERIAL 1
 #endif
 
 #define HAL_SERVO_LIB libServo
