@@ -125,16 +125,16 @@
     //  EXP1 Pins
     #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
     #define BTN_ENC                        P1_30  // EXP1 Pin 2
-    #define LCD_PINS_ENABLE                P0_18  // EXP1 Pin 3 (MOSI) 
-    #define LCD_PINS_RS                    P0_16  // EXP1 Pin 4 (CS)  
+    #define LCD_PINS_ENABLE                P0_18  // EXP1 Pin 3 (MOSI)
+    #define LCD_PINS_RS                    P0_16  // EXP1 Pin 4 (CS)
     #define LCD_PINS_D4                    P0_15  // EXP1 Pin 5 (SCK)
-    //  EXP2 Pins 
+    //  EXP2 Pins
     #define BTN_EN2                        P3_26  // EXP2 Pin 3
     #define BTN_EN1                        P3_25  // EXP2 Pin 5
-    
+
     /*
       SD Support
-    
+
       For the RRD GLCD it CANNOT share the same SPI as the LCD so it must be
       hooked up to the onboard SDCard SPI and use a spare pin for the SDCS.
       Also note that an external SDCard sharing the SPI port with the
@@ -145,11 +145,11 @@
     */
 
     #define MISO_PIN                       P0_08  // EXP2 Pin 1 (PB3, SD_MISO)
-    #define SCK_PIN                        P0_07  // EXP2 Pin 2 (SD_SCK)    
+    #define SCK_PIN                        P0_07  // EXP2 Pin 2 (SD_SCK)
     #define SS_PIN                         P0_28  // EXP2 Pin 4 (SD_CSEL, SD_CS)
     #define MOSI_PIN                       P0_09  // EXP2 Pin 6 (PB2, SD_MOSI)
     #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
-    
+
   #else
     #error "Marlin's Smoothieboard support cannot drive your LCD."
   #endif
