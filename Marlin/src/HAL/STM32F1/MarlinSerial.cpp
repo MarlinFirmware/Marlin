@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef __STM32F1__
+
 #include "../../inc/MarlinConfigPre.h"
 #include "MarlinSerial.h"
 #include <libmaple/usart.h>
@@ -91,3 +93,5 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
 #if SERIAL_PORT == 5 || SERIAL_PORT_2 == 5 || DGUS_SERIAL_PORT == 5
   DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);
 #endif
+
+#endif // __STM32F1__
