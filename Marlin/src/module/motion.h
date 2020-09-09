@@ -108,39 +108,34 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
+#ifdef __IMXRT1062__
+  #define DEFS_PROGMEM
+  #define PGM_READ_ANY(A) (*(A))
+#else
+  #define DEFS_PROGMEM PROGMEM
+  #define PGM_READ_ANY(A) pgm_read_any(A)
+#endif
+
+#define __progmem__
+
 inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
 inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
-#ifdef __IMXRT1062__
-  #define XYZ_DEFS(T, NAME, OPT) \
-    inline T NAME(const AxisEnum axis) { \
-      static const XYZval<T> NAME##_P = { X_##OPT, Y_##OPT, Z_##OPT }; \
-      return pgm_read_any(&NAME##_P[axis]); \
-    }
-#else
-  #define XYZ_DEFS(T, NAME, OPT) \
-    inline T NAME(const AxisEnum axis) { \
-      static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
-      return pgm_read_any(&NAME##_P[axis]); \
-    }
-#endif
+#define XYZ_DEFS(T, NAME, OPT) \
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P DEFS_PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    return PGM_READ_ANY(&NAME##_P[axis]); \
+  }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
-#ifdef __IMXRT1062__
 inline float home_bump_mm(const AxisEnum axis) {
-  static const xyz_pos_t home_bump_mm_P = HOMING_BUMP_MM;
-  return pgm_read_any(&home_bump_mm_P[axis]);
+  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+  return PGM_READ_ANY(&home_bump_mm_P[axis]);
 }
-#else
-inline float home_bump_mm(const AxisEnum axis) {
-  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
-  return pgm_read_any(&home_bump_mm_P[axis]);
-}
-#endif
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);

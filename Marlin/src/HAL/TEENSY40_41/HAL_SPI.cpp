@@ -45,9 +45,9 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #ifndef SS
-    #error "SS is not defined!"
-  #endif
+  //#ifndef SS
+  //  #error "SS is not defined!"
+  //#endif
 
   OUT_WRITE(SS, HIGH);
 
