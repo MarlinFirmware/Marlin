@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "https://TH3DStudio.com"
+  #define WEBSITE_URL "TH3DStudio.com"
 #endif
 
 /**

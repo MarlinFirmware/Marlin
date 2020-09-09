@@ -10,7 +10,29 @@
 //============================ TH3D Configuration ===========================
 //===========================================================================
 
-// USE BRANCH FOR YOUR SPECIFIC PRINTER. DO NOT USE THIS BRANCH.
+// ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
+
+//===========================================================================
+// *************************   CREALITY PRINTERS    *************************
+//===========================================================================
+
+//===========================================================================
+// Creality Ender 3 Options - with V4.2.2 Board
+//===========================================================================
+//#define ENDER3_V4_BOARD
+
+// EZABL Probe Mounts
+//#define ENDER3_OEM
+//#define CUSTOM_PROBE
+
+//===========================================================================
+// Creality Ender 5 Options - with V4.2.2 Board - PLACEHOLDER - NOT DONE
+//===========================================================================
+//#define ENDER5_V4_BOARD
+
+// EZABL Probe Mounts
+//#define ENDER5_OEM
+//#define CUSTOM_PROBE
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -145,7 +167,166 @@
  * Machine Configuration Settings
  */
  
-//MACHINE CONFIG GOES HERE.
+//Ender 3 V4 Board Settings
+#if ENABLED(ENDER3_V4_BOARD)
+  #define SERIAL_PORT 1
+  //#define SERIAL_PORT_2 3
+
+  #define BAUDRATE 115200
+  
+  #define CR10_STOCKDISPLAY
+  #define RET6_12864_LCD
+
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_CREALITY_V4
+  #endif
+
+  #if ENABLED(CUSTOM_ESTEPS)
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+  #else
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+  #endif
+  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
+  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+
+  #define DEFAULT_ACCELERATION          500
+  #define DEFAULT_RETRACT_ACCELERATION  500
+  #define DEFAULT_TRAVEL_ACCELERATION   1000
+
+  #define CLASSIC_JERK
+  #if ENABLED(CLASSIC_JERK)
+    #define DEFAULT_XJERK 10.0
+    #define DEFAULT_YJERK 10.0
+    #define DEFAULT_ZJERK  0.3
+  #endif
+
+  #define DEFAULT_EJERK    5.0
+
+  #define SHOW_BOOTSCREEN
+
+  #define EXTRUDERS 1
+
+  #define X_BED_SIZE 220
+  #define Y_BED_SIZE 220
+  #define Z_MAX_POS 250
+  #define X_MIN_POS 0
+  #define Y_MIN_POS 0
+
+  #define USE_XMIN_PLUG
+  #define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
+
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
+
+  #if DISABLED(V6_HOTEND) && DISABLED(TH3D_HOTEND_THERMISTOR) && DISABLED(KNOWN_HOTEND_THERMISTOR)
+    #define TEMP_SENSOR_0 1
+  #else
+    #if ENABLED(EZBOARD_PT100)
+      #define TEMP_SENSOR_0 20
+    #elif ENABLED(V6_HOTEND)
+      #define TEMP_SENSOR_0 5
+    #elif ENABLED(KNOWN_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 KNOWN_HOTEND_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_HOTEND_THERMISTOR)
+      #define TEMP_SENSOR_0 1
+    #endif
+  #endif
+  
+  #define TEMP_SENSOR_1 0 
+  #define TEMP_SENSOR_2 0
+  #define TEMP_SENSOR_3 0
+  #define TEMP_SENSOR_4 0
+  #define TEMP_SENSOR_5 0
+  #define TEMP_SENSOR_6 0
+  #define TEMP_SENSOR_7 0
+  
+  #if DISABLED(TH3D_BED_THERMISTOR) && DISABLED(KEENOVO_TEMPSENSOR) && DISABLED(KNOWN_BED_THERMISTOR) && DISABLED(AC_BED)
+    #define TEMP_SENSOR_BED 1
+  #else
+    #if ENABLED(AC_BED)
+      #define TEMP_SENSOR_BED 0
+    #elif ENABLED(KNOWN_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED KNOWN_BED_THERMISTOR_VALUE
+    #elif ENABLED(TH3D_BED_THERMISTOR)
+      #define TEMP_SENSOR_BED 1
+    #elif ENABLED(KEENOVO_TEMPSENSOR)
+      #define TEMP_SENSOR_BED 11
+    #endif
+  #endif
+  
+  #define TEMP_SENSOR_PROBE 0
+  #define TEMP_SENSOR_CHAMBER 0
+
+  #define DEFAULT_Kp 28.72
+  #define DEFAULT_Ki 2.62
+  #define DEFAULT_Kd 78.81
+  
+  #define DEFAULT_bedKp 462.10
+  #define DEFAULT_bedKi 85.47
+  #define DEFAULT_bedKd 624.59
+
+  #define ENDSTOPPULLUPS
+
+  #define X_MIN_ENDSTOP_INVERTING false
+  #define Y_MIN_ENDSTOP_INVERTING false
+  #define Z_MIN_ENDSTOP_INVERTING false
+  #define X_MAX_ENDSTOP_INVERTING false
+  #define Y_MAX_ENDSTOP_INVERTING false
+  #define Z_MAX_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+  #if ENABLED(ENDER3_V4_BOARD)
+    #define X_DRIVER_TYPE TMC2208_STANDALONE
+    #define Y_DRIVER_TYPE TMC2208_STANDALONE
+    #define Z_DRIVER_TYPE TMC2208_STANDALONE
+    #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #else
+    #define X_DRIVER_TYPE A4988
+    #define Y_DRIVER_TYPE A4988
+    #define Z_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE A4988
+  #endif
+  
+  #define ENDSTOP_INTERRUPTS_FEATURE
+
+  #define X_ENABLE_ON 0
+  #define Y_ENABLE_ON 0
+  #define Z_ENABLE_ON 0
+  #define E_ENABLE_ON 0
+
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR true
+
+  #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+    #define INVERT_E0_DIR true
+  #else
+    #define INVERT_E0_DIR false
+  #endif
+  
+  #define INVERT_E1_DIR false
+  #define INVERT_E2_DIR false
+  #define INVERT_E3_DIR false
+  #define INVERT_E4_DIR false
+  #define INVERT_E5_DIR false
+  #define INVERT_E6_DIR false
+  #define INVERT_E7_DIR false
+
+  #define ENCODER_PULSES_PER_STEP 4
+  #define ENCODER_STEPS_PER_MENU_ITEM 1
+
+  #define Z_PROBE_OFFSET_RANGE_MIN -10
+  #define Z_PROBE_OFFSET_RANGE_MAX 10
+
+  #if ENABLED(ENDER3_V2_OEM)
+    #define ABL_ENABLE
+    #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #endif
+#endif
+// End Ender 3 V4 Board Settings
 
 /**
  * Temp Settings
@@ -302,6 +483,7 @@
 
 #define STRING_CONFIG_H_AUTHOR "TH3D Studio"
 #define UNIFIED_VERSION "TH3D UF2.00"
+#define CUSTOM_VERSION_FILE Version.h
 #if ENABLED(USER_PRINTER_NAME)
   #define CUSTOM_MACHINE_NAME USER_PRINTER_NAME
 #else
@@ -423,6 +605,7 @@
 #define DISABLE_REDUCED_ACCURACY_WARNING
 #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
 #define LCD_FEEDBACK_FREQUENCY_HZ 5000
+#define SHOW_CUSTOM_BOOTSCREEN
 
 #if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
   #define INDIVIDUAL_AXIS_HOMING_MENU
