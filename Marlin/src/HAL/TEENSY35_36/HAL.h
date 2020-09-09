@@ -45,9 +45,14 @@
 // Defines
 // ------------------------
 
-#define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
-#define IS_TEENSY35 defined(__MK64FX512__)
-#define IS_TEENSY36 defined(__MK66FX1M0__)
+#ifdef __MK64FX512__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY35 1
+#endif
+#ifdef __MK66FX1M0__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY36 1
+#endif
 
 #define NUM_SERIAL 1
 
