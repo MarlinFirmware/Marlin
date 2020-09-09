@@ -620,9 +620,9 @@
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
 #elif MB(TEENSY40_41)
-  #include "teensy4/pins_TEENSY40_41.h"         // TEENSY40_41                            env:teensy41
+  #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
-  #include "teensy4/pins_T41U5XBB.h"            // TEENSY40_41                            env:teensy41
+  #include "teensy4/pins_T41U5XBB.h"            // Teensy-4.x                             env:teensy41
 
 //
 // Espressif ESP32
