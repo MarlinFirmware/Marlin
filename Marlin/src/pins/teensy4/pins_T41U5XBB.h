@@ -22,18 +22,14 @@
 #pragma once
 
 /****************************************************************************************
-* Teensy 4.0 and Teensy 4.1 (IMXRT1062) Breadboard pin assignments
-* Requires the Teensyduino software with Teensy 4.0 or Teensy 4.1 selected in Arduino IDE!
+* Teensy 4.1 (IMXRT1062) Breadboard pin assignments
+* Requires the Teensyduino software with Teensy 4.1 selected in Arduino IDE!
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if !IS_32BIT_TEENSY
-  #error "Oops! Select 'Teensy 4.0' or 'Teensy 4.1' in 'Tools > Board.'"
-#endif
-
-#if IS_TEENSY40
-  #define BOARD_INFO_NAME "Teensy4.0"
-#elif IS_TEENSY41
+#if !IS_32BIT_TEENSY || !IS_TEENSY41
+  #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
+#else
   #define BOARD_INFO_NAME "Teensy4.1"
 #endif
 
