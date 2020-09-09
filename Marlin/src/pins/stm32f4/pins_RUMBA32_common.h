@@ -42,11 +42,12 @@
 // Configure Timers
 // TIM6 is used for TONE
 // TIM7 is used for SERVO
-// TIMER_SERIAL defaults to TIM7 so we'll override it here
-//
-#define STEP_TIMER                            10
-#define TEMP_TIMER                            14
-#define TIMER_SERIAL                        TIM9
+// TIMER_SERIAL defaults to TIM7 and must be overridden in the platformio.h file if SERVO will also be used.
+//              This will be difficult to solve from the Arduino IDE, without modifying the RUMBA32 variant
+//              included with the STM32 framework.
+
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
 #define HAL_TIMER_RATE                     F_CPU
 
 //

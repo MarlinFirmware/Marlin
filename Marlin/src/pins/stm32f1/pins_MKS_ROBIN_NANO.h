@@ -293,7 +293,7 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 349
   #endif
-  
+
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
   #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV

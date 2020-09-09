@@ -351,10 +351,6 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
-    // Required for MKS_MINI_12864 with this board
-    #define MKS_LCD12864B
-    #undef SHOW_BOOTSCREEN
-
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14

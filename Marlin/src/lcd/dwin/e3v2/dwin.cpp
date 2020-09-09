@@ -24,7 +24,7 @@
  * DWIN by Creality3D
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
@@ -38,35 +38,35 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../fontutils.h"
-#include "../ultralcd.h"
+#include "../../fontutils.h"
+#include "../../ultralcd.h"
 
-#include "../../sd/cardreader.h"
+#include "../../../sd/cardreader.h"
 
-#include "../../MarlinCore.h"
-#include "../../core/serial.h"
-#include "../../core/macros.h"
-#include "../../gcode/queue.h"
+#include "../../../MarlinCore.h"
+#include "../../../core/serial.h"
+#include "../../../core/macros.h"
+#include "../../../gcode/queue.h"
 
-#include "../../feature/powerloss.h"
-#include "../../feature/babystep.h"
+#include "../../../feature/powerloss.h"
+#include "../../../feature/babystep.h"
 
-#include "../../module/settings.h"
-#include "../../module/temperature.h"
-#include "../../module/printcounter.h"
-#include "../../module/motion.h"
-#include "../../module/planner.h"
+#include "../../../module/settings.h"
+#include "../../../module/temperature.h"
+#include "../../../module/printcounter.h"
+#include "../../../module/motion.h"
+#include "../../../module/planner.h"
 
 #if ENABLED(HOST_ACTION_COMMANDS)
-  #include "../../feature/host_actions.h"
+  #include "../../../feature/host_actions.h"
 #endif
 
 #if HAS_ONESTEP_LEVELING
-  #include "../../feature/bedlevel/bedlevel.h"
+  #include "../../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if HAS_BED_PROBE
-  #include "../../module/probe.h"
+  #include "../../../module/probe.h"
 #endif
 
 #ifndef MACHINE_SIZE
@@ -1532,7 +1532,7 @@ void update_variable(void) {
   #define strcasecmp_P(a, b) strcasecmp((a), (b))
 #endif
 
-inline void make_name_without_ext(char *dst, char *src, int maxlen=MENU_CHAR_LIMIT) {
+inline void make_name_without_ext(char *dst, char *src, size_t maxlen=MENU_CHAR_LIMIT) {
   char * const name = card.longest_filename();
   size_t pos        = strlen(name); // index of ending nul
 
@@ -2137,7 +2137,7 @@ inline void Draw_Move_Menu() {
   LOOP_L_N(i, MROWS) Draw_Menu_Line(i + 1, ICON_MoveX + i);
 }
 
-#include "../../libs/buzzer.h"
+#include "../../../libs/buzzer.h"
 
 void HMI_AudioFeedback(const bool success=true) {
   if (success) {

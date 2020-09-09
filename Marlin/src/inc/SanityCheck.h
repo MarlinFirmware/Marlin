@@ -789,6 +789,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
+  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL) && ANY(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)
+    #error "New Color UI (TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI) does not support BABYSTEP_DISPLAY_TOTAL yet."
   #endif
 #endif
 
@@ -2119,17 +2121,19 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #endif
-#elif ENABLED(NEOPIXEL_LED)
-  #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
+#endif
+#undef _RGB_TEST
+
+// NeoPixel requirements
+#if ENABLED(NEOPIXEL_LED)
+  #if !PIN_EXISTS(NEOPIXEL) || NEOPIXEL_PIXELS == 0
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
-  #endif
-  #elif ENABLED(NEOPIXEL2_SEPARATE)
-   #if !(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
-    #error "NEOPIXEL2 requires NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+  #elif ENABLED(NEOPIXEL2_SEPARATE) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
+    #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
+  #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
+    #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
   #endif
 #endif
-
-#undef _RGB_TEST
 
 #if DISABLED(NO_COMPILE_TIME_PWM)
   #define _TEST_PWM(P) PWM_PIN(P)
