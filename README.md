@@ -1,12 +1,14 @@
-# Unified Firmware 2.0
+# Unified 2.0 Firmware
 
 Unified Firmware 2.0 is the latest easy to use firmware for select 3D printers and boards from TH3D Studio. Both 8 bit and 32 bit based machines/boards are supported thanks to being built on Marlin 2.0.
 
-## Building Unified Firmware 2.0
+This firmware focuses on printers with their **stock** control boards and select aftermarket boards that we carry. If you have a 3rd party or other board installed in your machine it is recommended to use ["Vanilla" Marlin](https://marlinfw.org) on your machine.
 
-To build Unified Firmware 2.0 will need to use [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
+## Building Unified 2.0 Firmware
 
-  - [Setting up VSCode (Marlin Site)](http://marlinfw.org/docs/basics/install_platformio_vscode.html)
+To build Unified 2.0 Firmware will need to use [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
+
+  - [Setting up VSCode](http://vscode.th3dstudio.com/)
 
 ## Supported Printers & Boards
 TO BE DETERMINED
@@ -24,7 +26,7 @@ For best results getting help with configuration and troubleshooting, please use
 
 ## Credits
 
-TH3D Unified Firmware 2.0 is build on top of Marlin Firmware. Please donate to their dev team if you wish to make a donation. This project is done by TH3D Studio LLC to provide the 3D printing community with easy to use firmware and also enable ease of use with our products and other products on the market. Profits from our store allow our technical team to make projects like this available for free to the community.
+TH3D Unified 2.0 Firmware is built on top of Marlin Firmware. Please donate to their dev team if you wish to make a donation. This project is done by TH3D Studio LLC to provide the 3D printing community with easy to use firmware and also enable ease of use with our products and other products on the market. Profits from our store allow our technical team to make projects like this available for free to the community.
 
 The current Marlin dev team consists of:
 
@@ -37,6 +39,6 @@ The current Marlin dev team consists of:
 
 ## License
 
-Marlin and Unified Firmware 2.0 is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin and Unified 2.0 Firmware is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
