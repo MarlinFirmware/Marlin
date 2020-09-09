@@ -356,10 +356,13 @@
 
 #define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_REMRAM_V1               5001  // RemRam v1
+#define BOARD_TEENSY41                5002  // Teensy4.0 and Teensy4.1
+#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy4.1 breakout board
 
 //
 // Espressif ESP32 WiFi
 //
+
 #define BOARD_ESPRESSIF_ESP32         6000  // Generic ESP32
 #define BOARD_MRR_ESPA                6001  // MRR ESPA board based on ESP32 (native pins only)
 #define BOARD_MRR_ESPE                6002  // MRR ESPE board based on ESP32 (with I2S stepper stream)
@@ -368,11 +371,13 @@
 //
 // SAMD51 ARM Cortex M4
 //
+
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
 
 //
 // Custom board
 //
+
 #define BOARD_CUSTOM                  9998  // Custom pins definition for development and/or rare boards
 
 //
