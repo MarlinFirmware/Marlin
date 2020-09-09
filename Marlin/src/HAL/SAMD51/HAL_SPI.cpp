@@ -90,7 +90,10 @@
    * @details
    */
   uint8_t spiRec() {
-    return sdSPI.transfer(0xFF);
+    sdSPI.beginTransaction(spiConfig);
+    uint8_t returnByte = sdSPI.transfer(0xFF);
+    sdSPI.endTransaction();
+    return returnByte;
   }
 
   /**
@@ -103,7 +106,9 @@
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
+    sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(buf, nbyte);
+    sdSPI.endTransaction();
   }
 
   /**
@@ -114,7 +119,9 @@
    * @details
    */
   void spiSend(uint8_t b) {
+    sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(b);
+    sdSPI.endTransaction();
   }
 
   /**
@@ -126,8 +133,10 @@
    * @details Uses DMA
    */
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
+    sdSPI.beginTransaction(spiConfig);
     sdSPI.transfer(token);
     sdSPI.transfer((uint8_t*)buf, nullptr, 512);
+    sdSPI.endTransaction();
   }
 
   void spiBeginTransaction(uint32_t spiClock, uint8_t bitOrder, uint8_t dataMode) {
