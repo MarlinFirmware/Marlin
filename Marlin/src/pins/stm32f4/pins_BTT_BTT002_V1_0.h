@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F4
+#ifndef STM32F4
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
@@ -42,7 +42,7 @@
 #endif
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches
@@ -153,7 +153,7 @@
   #define E0_SERIAL_RX_PIN                  PD7
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //

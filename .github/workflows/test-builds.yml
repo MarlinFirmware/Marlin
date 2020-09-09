@@ -70,6 +70,7 @@ jobs:
         - mks_robin_stm32
         - ARMED
         - FYSETC_S6
+        - STM32F070CB_malyan
         - STM32F070RB_malyan
         - malyan_M300
         - mks_robin_lite
@@ -106,7 +107,7 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/master.zip
+        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
         platformio update
 
     - name: Check out the PR

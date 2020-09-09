@@ -186,7 +186,7 @@
 //
 // EEPROM
 //
-#define MARLIN_EEPROM_SIZE 0x8000                 // 32Kb (24lc256)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32Kb (24lc256)
 #define I2C_EEPROM                                // EEPROM on I2C-0
 //#define EEPROM_SD                               // EEPROM on SDCARD
 //#define SPI_EEPROM                              // EEPROM on SPI-0
@@ -221,7 +221,7 @@
     #define LCD_PINS_RS                       52
     #define LCD_PINS_ENABLE                   53
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BEEPER_PIN                        62
     #define LCD_SDSS                          10

@@ -36,7 +36,7 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
 #endif
 
 //
@@ -266,7 +266,7 @@
     #define SDSS                              10
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52

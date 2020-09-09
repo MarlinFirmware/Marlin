@@ -289,20 +289,21 @@
   #define E0_CS_PIN                        P2_11
   #define E1_CS_PIN                        P4_28
 
-// Hardware SPI is on EXP2. See if you can make it work:
-// https://github.com/makerbase-mks/MKS-SBASE/issues/25
-#define TMC_USE_SW_SPI
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P0_03  // AUX1
+  // Hardware SPI is on EXP2. See if you can make it work:
+  // https://github.com/makerbase-mks/MKS-SBASE/issues/25
+  #define TMC_USE_SW_SPI
+  #if ENABLED(TMC_USE_SW_SPI)
+    #ifndef TMC_SW_MOSI
+      #define TMC_SW_MOSI                  P0_03  // AUX1
+    #endif
+    #ifndef TMC_SW_MISO
+      #define TMC_SW_MISO                  P0_02  // AUX1
+    #endif
+    #ifndef TMC_SW_SCK
+      #define TMC_SW_SCK                   P0_26  // TH4
+    #endif
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_02  // AUX1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_26  // TH4
-  #endif
- #endif
+
 #endif
 
 #if MB(MKS_SBASE) && HAS_TMC_UART
@@ -324,7 +325,7 @@
   #define E0_SERIAL_RX_PIN                 P0_26  // TH4
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 // UNUSED

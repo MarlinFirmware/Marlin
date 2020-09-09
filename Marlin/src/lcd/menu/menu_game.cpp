@@ -24,7 +24,7 @@
 
 #if HAS_GAME_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "game/game.h"
 
 void menu_game() {

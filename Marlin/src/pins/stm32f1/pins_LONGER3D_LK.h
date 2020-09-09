@@ -86,8 +86,8 @@
 
 #define FAN_PIN                             PA15  // pin 77 (4cm Fan)
 #define FAN_SOFT_PWM                              // Required to avoid issues with heating or STLink
-#define FAN_MIN_PWM 35                            // Fan will not start in 1-30 range
-#define FAN_MAX_PWM 255
+#define FAN_MIN_PWM                           35  // Fan will not start in 1-30 range
+#define FAN_MAX_PWM                          255
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
@@ -119,22 +119,25 @@
  */
 
 #define LCD_RESET_PIN                       PC4   // pin 33
-#define LCD_BACKLIGHT_PIN                   PD12  // pin 59
+#define TFT_RESET_PIN                       PC4   // pin 33
+#define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
 #define FSMC_RS_PIN                         PD11  // pin 58 A16 Register. Only one address needed
 
-#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
+//#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT (broken)
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-#define FSMC_UPSCALE                           2
-#define LCD_FULL_PIXEL_WIDTH                 320
-#define LCD_FULL_PIXEL_HEIGHT                240
-#define LCD_PIXEL_OFFSET_X                    32
-#define LCD_PIXEL_OFFSET_Y                    32
+#define GRAPHICAL_TFT_UPSCALE                  2
+#define TFT_WIDTH                            320
+#define TFT_HEIGHT                           240
+#define TFT_PIXEL_OFFSET_X                    32
+#define TFT_PIXEL_OFFSET_Y                    32
+
+//#define TFT_DRIVER                     ILI9341
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
@@ -160,12 +163,12 @@
 
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
-  #define SPI_CHAN_EEPROM1 1
+  #define SPI_CHAN_EEPROM1                     1
   #define SPI_EEPROM1_CS                    PC5   // pin 34
   #define EEPROM_SCK          BOARD_SPI1_SCK_PIN  // PA5 pin 30
   #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
   #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
-  #define EEPROM_PAGE_SIZE 0x1000U                // 4KB (from datasheet)
+  #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
@@ -173,5 +176,5 @@
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #else
-  #define MARLIN_EEPROM_SIZE 0x800U               // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif

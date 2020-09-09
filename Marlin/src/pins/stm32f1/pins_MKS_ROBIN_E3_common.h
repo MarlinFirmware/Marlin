@@ -33,7 +33,6 @@
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
-#define ENABLE_SPI2
 
 //
 // EEPROM
@@ -105,7 +104,7 @@
   #define E0_SERIAL_RX_PIN                  PC11
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -151,8 +150,6 @@
     #define DOGLCD_CS                       PA7
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
-
-    #undef SHOW_BOOTSCREEN
 
   #else
 
