@@ -45,11 +45,11 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #ifndef SS
-    #error "SS is not defined!"
+  #ifndef SS_PIN
+    #error "SS_PIN is not defined!"
   #endif
 
-  OUT_WRITE(SS, HIGH);
+  OUT_WRITE(SS_PIN, HIGH);
 
   //OUT_WRITE(SS_PIN, HIGH);
   //SET_OUTPUT(SCK_PIN);

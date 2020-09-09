@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Test TEENSY40_41 specific configuration values for errors at compile-time.
+ * Test TEENSY41 specific configuration values for errors at compile-time.
  */
 
 #if ENABLED(EMERGENCY_PARSER)
