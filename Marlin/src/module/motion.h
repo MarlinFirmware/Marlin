@@ -114,8 +114,8 @@ extern int16_t feedrate_percentage;
   #define DEFS_PROGMEM PROGMEM
 #endif
 
-inline float pgm_read_any(const float *p)   { return TERN_(__IMXRT1062__, *p, pgm_read_float(p)); }
-inline int8_t pgm_read_any(const int8_t *p) { return TERN_(__IMXRT1062__, *p, pgm_read_byte(p)); }
+inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
