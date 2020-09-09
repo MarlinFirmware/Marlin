@@ -114,20 +114,8 @@ extern int16_t feedrate_percentage;
   #define DEFS_PROGMEM PROGMEM
 #endif
 
-inline float pgm_read_any(const float *p) {
-  #ifdef __IMXRT1062__
-    return *p;
-  #else
-    return pgm_read_float(p);
-  #endif
-}
-inline signed char pgm_read_any(const signed char *p) {
-  #ifdef __IMXRT1062__
-    return *p;
-  #else
-    return pgm_read_byte(p);
-  #endif
-}
+inline float pgm_read_any(const float *p)   { return TERN_(__IMXRT1062__, *p, pgm_read_float(p)); }
+inline int8_t pgm_read_any(const int8_t *p) { return TERN_(__IMXRT1062__, *p, pgm_read_byte(p)); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
@@ -138,7 +126,7 @@ XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(signed char, home_dir, HOME_DIR);
+XYZ_DEFS(int8_t, home_dir, HOME_DIR);
 
 inline float home_bump_mm(const AxisEnum axis) {
   static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
