@@ -70,7 +70,7 @@
 #define E1_DIAG_PIN                           15
 
 #ifndef SERVO1_PIN
-  #define SERVO1_PIN                          12
+  #define SERVO1_PIN                          21
 #endif
 #ifndef SERVO2_PIN
   #define SERVO2_PIN                          39
