@@ -55,9 +55,9 @@ extern ENCODER_Rate EncoderRate;
 
 typedef enum {
   ENCODER_DIFF_NO    = 0,
-	ENCODER_DIFF_CW    = 1,
+  ENCODER_DIFF_CW    = 1,
   ENCODER_DIFF_CCW   = 2,
-	ENCODER_DIFF_ENTER = 3
+  ENCODER_DIFF_ENTER = 3
 } ENCODER_DiffState;
 
 /*编码器初始化 PB12:Encoder_A PB13:Encoder_B PB14:Encoder_C*/
@@ -87,7 +87,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void);
   /*状态LED初始化*/
   void STATE_LED_Configuration(void);
 
-	/*LED灯操作*/
+  /*LED灯操作*/
   void LED_Action(void);
 
   /*LED初始化*/

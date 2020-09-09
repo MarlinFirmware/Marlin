@@ -127,15 +127,15 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
 
       // if must encoder rati multiplier
       if (EncoderRate.encoderRateEnabled) {
-        const float abs_diff = ABS(temp_diff);
-        const float encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+        const float abs_diff = ABS(temp_diff),
+                    encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
         if (EncoderRate.lastEncoderTime) {
           // Note that the rate is always calculated between two passes through the
           // loop and that the abs of the temp_diff value is tracked.
           const float encoderStepRate = encoderMovementSteps / float(ms - EncoderRate.lastEncoderTime) * 1000;
-          if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)  encoderMultiplier = 100;
-          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
+               if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
+          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
+          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)   encoderMultiplier = 5;
         }
         EncoderRate.lastEncoderTime = ms;
       }
