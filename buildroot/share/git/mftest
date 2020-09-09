@@ -48,6 +48,8 @@ case $TESTENV in
      t32) TESTENV='teensy31' ;;
      t35) TESTENV='teensy35' ;;
      t36) TESTENV='teensy35' ;;
+     t40) TESTENV='teensy41' ;;
+     t41) TESTENV='teensy41' ;;
 
 -h|--help)  echo -e "$(basename $0) : Marlin Firmware test, build, and upload\n"
             echo "Usage: $(basename $0) ................. Select env and test to apply / run"
@@ -56,7 +58,7 @@ case $TESTENV in
             echo "       $(basename $0) -b [variant] .... Auto-build the specified variant"
             echo "       $(basename $0) -u [variant] .... Auto-build and upload the specified variant"
             echo
-            echo "env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36"
+            echo "env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41"
             exit
             ;;
 

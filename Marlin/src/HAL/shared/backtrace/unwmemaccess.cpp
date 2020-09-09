@@ -129,6 +129,19 @@
   #define START_FLASH_ADDR  0x00000000
   #define END_FLASH_ADDR    0x00140000
 
+#elif defined(__IMXRT1062__)
+
+  // For IMXRT1062 in TEENSY 4.0/4/1
+  //  ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
+  //  DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
+  //  RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
+  //  FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1984K
+  //
+  #define START_SRAM_ADDR   0x00000000
+  #define END_SRAM_ADDR     0x20280000
+  #define START_FLASH_ADDR  0x60000000
+  #define END_FLASH_ADDR    0x601F0000
+
 #elif defined(__SAMD51P20A__)
 
   // For SAMD51x20, valid address ranges are
