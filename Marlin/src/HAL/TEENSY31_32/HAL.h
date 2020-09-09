@@ -44,8 +44,10 @@
 //#undef MOTHERBOARD
 //#define MOTHERBOARD BOARD_TEENSY31_32
 
-#define IS_32BIT_TEENSY defined(__MK20DX256__)
-#define IS_TEENSY32 defined(__MK20DX256__)
+#ifdef __MK20DX256__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY32 1
+#endif
 
 #define NUM_SERIAL 1
 

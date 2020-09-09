@@ -40,8 +40,8 @@ constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
 FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
-FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
-FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
+FORCE_INLINE void set_all_homed() { axis_homed = axis_known_position = xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
   return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
@@ -239,21 +239,17 @@ void do_z_clearance(const float &zclear, const bool z_known=true, const bool rai
 //
 // Homing
 //
-
-uint8_t axes_need_homing(uint8_t axis_bits=0x07);
-bool axis_unhomed_error(uint8_t axis_bits=0x07);
+void homeaxis(const AxisEnum axis);
+void set_axis_is_at_home(const AxisEnum axis);
+void set_axis_never_homed(const AxisEnum axis);
+uint8_t axes_should_home(uint8_t axis_bits=0x07);
+bool homing_needed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
 #else
   #define MOTION_CONDITIONS IsRunning()
 #endif
-
-void set_axis_is_at_home(const AxisEnum axis);
-
-void set_axis_not_trusted(const AxisEnum axis);
-
-void homeaxis(const AxisEnum axis);
 
 /**
  * Workspace offsets

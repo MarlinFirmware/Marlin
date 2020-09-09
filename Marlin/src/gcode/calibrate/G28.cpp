@@ -47,7 +47,7 @@
 
 #include "../../lcd/ultralcd.h"
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/dwin.h"
+  #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -118,7 +118,7 @@
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
-    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     sync_plan_position();
 
@@ -299,8 +299,8 @@ void GcodeSuite::G28() {
   #else // NOT DELTA
 
     const bool homeZ = parser.seen('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;

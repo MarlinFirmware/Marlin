@@ -235,6 +235,7 @@
 #define BOARD_SMOOTHIEBOARD           2506  // Smoothieboard
 #define BOARD_TH3D_EZBOARD            2507  // TH3D EZBoard v1.0
 #define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2 (Power outputs: Hotend0, Hotend1, Bed, Fan)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -281,7 +282,7 @@
 
 #define BOARD_STM32F103RE             4000  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
-#define BOARD_MALYAN_M200_V2          4002  // STM32F070RB  Libmaple-based STM32F0 controller
+#define BOARD_MALYAN_M200_V2          4002  // STM32F070CB  STM32F0 controller
 #define BOARD_STM3R_MINI              4003  // STM32F103RE  Libmaple-based STM32F1 controller
 #define BOARD_GTM32_PRO_VB            4004  // STM32F103VET6 controller
 #define BOARD_MORPHEUS                4005  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
@@ -345,8 +346,9 @@
 #define BOARD_LERDGE_X                4215  // Lerdge X (STM32F407VE)
 #define BOARD_VAKE403D                4216  // VAkE 403D (STM32F446VET6)
 #define BOARD_FYSETC_S6               4217  // FYSETC S6 board
-#define BOARD_FLYF407ZG               4218  // FLYF407ZG board (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4219  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_FYSETC_S6_V2_0          4218  // FYSETC S6 v2.0 board
+#define BOARD_FLYF407ZG               4219  // FLYF407ZG board (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4220  // MKS_ROBIN2 (STM32F407ZE)
 
 //
 // ARM Cortex M7

@@ -37,7 +37,7 @@
 #include "../lcd/ultralcd.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/dwin.h"
+  #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #if ENABLED(EXTENSIBLE_UI)
@@ -210,8 +210,9 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
         if (target < EXTRUDERS) singlenozzle_fan_speed[target] = speed;
         return;
       }
-      target = 0; // Always use fan index 0 with SINGLENOZZLE
     #endif
+
+    TERN_(SINGLENOZZLE, target = 0); // Always use fan index 0 with SINGLENOZZLE
 
     if (target >= FAN_COUNT) return;
 
