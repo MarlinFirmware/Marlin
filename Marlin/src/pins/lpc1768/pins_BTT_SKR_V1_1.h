@@ -52,6 +52,14 @@
 #define E0_DIR_PIN                         P2_13
 #define E0_ENABLE_PIN                      P2_12
 
+#define E1_STEP_PIN                        P0_01
+#define E1_DIR_PIN                         P0_00
+#define E1_ENABLE_PIN                      P0_10
+
+#define Z2_STEP_PIN                        P0_01 // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
+#define Z2_DIR_PIN                         P0_00 // E1 as Z2
+#define Z2_ENABLE_PIN                      P0_10 // E1 as Z2
+
 /**
  * LCD / Controller
  *
@@ -166,6 +174,12 @@
       #undef E1_ENABLE_PIN
     #endif
 
+    #if AXIS_DRIVER_TYPE_Z2(TMC2130)              // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
+      #define Z2_CS_PIN                    P0_10  // E1 as Z2
+      #undef Z2_ENABLE_PIN                        // E1 as Z2
+    #endif
+
+
   #else                                           // !SOFTWARE_DRIVER_ENABLE
 
     // A chip-select pin is needed for each driver.
@@ -184,6 +198,7 @@
       #define Z_CS_PIN                     P2_11
       #define E0_CS_PIN                    P3_25
       #define E1_CS_PIN                    P1_31
+      #define Z2_CS_PIN                    P1_31  // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
     #endif
 
     // Example 2: A REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
@@ -204,6 +219,7 @@
       #undef LCD_SDSS
       #define LCD_SDSS                     -1
       #define E1_CS_PIN                    P1_23
+      #define Z2_CS_PIN                    P1_23  // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
     #endif
 
     // Example 3: Use the driver enable pins for chip-select.
@@ -216,6 +232,7 @@
       #define Z_CS_PIN              Z_ENABLE_PIN
       #define E0_CS_PIN            E0_ENABLE_PIN
       #define E1_CS_PIN            E1_ENABLE_PIN
+      #define Z2_CS_PIN            Z2_ENABLE_PIN
     #endif
 
   #endif // SOFTWARE_DRIVER_ENABLE

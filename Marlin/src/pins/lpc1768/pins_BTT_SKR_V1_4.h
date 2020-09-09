@@ -45,6 +45,7 @@
 #define Z_DIAG_PIN                         P1_27  // Z-STOP
 #define E0_DIAG_PIN                        P1_26  // E0DET
 #define E1_DIAG_PIN                        P1_25  // E1DET
+#define Z2_DIAG_PIN                        P1_25  // E1DET - Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
 
 //
 // Limit Switches
@@ -149,6 +150,13 @@
   #define E1_CS_PIN                        P1_01
 #endif
 
+#define Z2_STEP_PIN                        P1_15  // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
+#define Z2_DIR_PIN                         P1_14  // E1 as Z2
+#define Z2_ENABLE_PIN                      P1_16  // E1 as Z2
+#ifndef Z2_CS_PIN
+  #define Z2_CS_PIN                        P1_01  // E1 as Z2
+#endif
+
 #define TEMP_1_PIN                      P0_23_A0  // A2 (T2) - (69) - TEMP_1_PIN
 #define TEMP_BED_PIN                    P0_25_A2  // A0 (T0) - (67) - TEMP_BED_PIN
 
@@ -204,8 +212,8 @@
   #define E1_SERIAL_TX_PIN                 P1_01
   #define E1_SERIAL_RX_PIN                 P1_01
 
-  #define Z2_SERIAL_TX_PIN                 P1_01
-  #define Z2_SERIAL_RX_PIN                 P1_01
+  #define Z2_SERIAL_TX_PIN                 P1_01 // Reusing E1 Stepper Port as Z2 for Dual Z-Stepper
+  #define Z2_SERIAL_RX_PIN                 P1_01 // E1 as Z2
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
