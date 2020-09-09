@@ -24,7 +24,7 @@
  * Description: HAL for Teensy40 (IMXRT1062)
  */
 
-#if defined(__IMXRT1062__)
+#ifdef __IMXRT1062__
 
 #include "HAL.h"
 #include "../shared/Delay.h"
@@ -45,7 +45,7 @@ static const uint8_t pin2sc1a[] = {
 	0,	// 7/A7  AD_B1_11
 	13,	// 8/A8  AD_B1_08
 	14,	// 9/A9  AD_B1_09
-	1,	// 24/A10 AD_B0_12 
+	1,	// 24/A10 AD_B0_12
 	2,	// 25/A11 AD_B0_13
 	128+3,	// 26/A12 AD_B1_14 - only on ADC2, 3
 	128+4,	// 27/A13 AD_B1_15 - only on ADC2, 4
@@ -149,10 +149,10 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
 
 uint16_t HAL_adc_get_result() {
   switch (HAL_adc_select) {
-    case 0: 
+    case 0:
 		  while (!(ADC1_HS & ADC_HS_COCO0)) ; // wait
       return ADC1_R0;
-    case 1: 
+    case 1:
 		  while (!(ADC2_HS & ADC_HS_COCO0)) ; // wait
       return ADC2_R0;
   }
@@ -166,4 +166,3 @@ bool is_output(uint8_t pin) {
 }
 
 #endif // __IMXRT1062__
-

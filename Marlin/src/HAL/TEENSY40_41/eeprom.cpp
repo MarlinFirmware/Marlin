@@ -20,7 +20,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined (__IMXRT1062__)
+#ifdef __IMXRT1062__
 
 #include "../../inc/MarlinConfig.h"
 

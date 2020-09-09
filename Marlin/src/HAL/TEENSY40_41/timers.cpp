@@ -24,7 +24,7 @@
  * Teensy4.0/4.1 (__IMXRT1062__)
  */
 
-#if defined(__IMXRT1062__)
+#ifdef __IMXRT1062__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -33,7 +33,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     case 0:
       CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
       CCM_CCGR1 |= CCM_CCGR1_GPT1_BUS(CCM_CCGR_ON);
-      
+
       GPT1_CR = 0;                   // disable timer
       GPT1_SR = 0x3F;                // clear all prior status
       GPT1_PR = GPT1_TIMER_PRESCALE - 1;
@@ -51,7 +51,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     case 1:
       CCM_CSCMR1 &= ~CCM_CSCMR1_PERCLK_CLK_SEL; // turn off 24mhz mode
       CCM_CCGR0 |= CCM_CCGR0_GPT2_BUS(CCM_CCGR_ON);
-      
+
       GPT2_CR = 0;                   // disable timer
       GPT2_SR = 0x3F;                // clear all prior status
       GPT2_PR = GPT2_TIMER_PRESCALE - 1;
@@ -71,11 +71,11 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: 
-      NVIC_ENABLE_IRQ(IRQ_GPT1); 
+    case 0:
+      NVIC_ENABLE_IRQ(IRQ_GPT1);
       break;
-    case 1: 
-      NVIC_ENABLE_IRQ(IRQ_GPT2); 
+    case 1:
+      NVIC_ENABLE_IRQ(IRQ_GPT2);
       break;
   }
 }
@@ -111,4 +111,4 @@ void HAL_timer_isr_prologue(const uint8_t timer_num) {
   asm volatile("dsb");
 }
 
-#endif // Teensy4.0/4.1
+#endif // __IMXRT1062__

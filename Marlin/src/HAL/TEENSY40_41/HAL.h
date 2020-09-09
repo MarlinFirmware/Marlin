@@ -45,8 +45,10 @@
 // Defines
 // ------------------------
 
-#define IS_32BIT_TEENSY defined(__IMXRT1062__)
-#define IS_TEENSY41 defined(__IMXRT1062__)
+#ifdef __IMXRT1062__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY41 1
+#endif
 
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB

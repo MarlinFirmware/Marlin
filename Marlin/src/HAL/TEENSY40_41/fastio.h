@@ -27,7 +27,6 @@
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 
-
 #ifndef PWM
   #define PWM OUTPUT
 #endif
@@ -57,4 +56,3 @@
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
-

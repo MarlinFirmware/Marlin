@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(__IMXRT1062__)
+#ifdef __IMXRT1062__
 
 #include "HAL.h"
 #include <SPI.h>
@@ -45,11 +45,12 @@ static SPISettings spiConfig;
 // ------------------------
 
 void spiBegin() {
-  #if !PIN_EXISTS(SS)
-    #error SS_PIN not defined!
+  #ifndef SS
+    #error "SS is not defined!"
   #endif
-  pinMode (SS, OUTPUT);
-  digitalWrite (SS, HIGH);
+
+  OUT_WRITE(SS, HIGH);
+
   //OUT_WRITE(SS_PIN, HIGH);
   //SET_OUTPUT(SCK_PIN);
   //SET_INPUT(MISO_PIN);

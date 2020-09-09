@@ -22,8 +22,7 @@
 #pragma once
 
 /**
- * Description: wwatchdog for
- * Teensy4.0/4.1 (__IMXRT1062__)
+ * Watchdog for Teensy4.0/4.1 (__IMXRT1062__)
  */
 
 void watchdog_init();
