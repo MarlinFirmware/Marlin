@@ -6,9 +6,9 @@ This firmware focuses on printers with their **stock** control boards and select
 
 ## Building Unified 2.0 Firmware
 
-To build Unified 2.0 Firmware will need to use [PlatformIO](http://docs.platformio.org/en/latest/ide.html#platformio-ide). Detailed build and install instructions are posted at:
+To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed build and install instructions are posted at:
 
-  - [Setting up VSCode](http://vscode.th3dstudio.com/)
+  - [Setting up VSCode with PlatformIO](http://vscode.th3dstudio.com/)
 
 ## Supported Printers & Boards
 TO BE DETERMINED
