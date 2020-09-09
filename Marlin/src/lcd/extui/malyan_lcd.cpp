@@ -21,7 +21,7 @@
  */
 
 /**
- * extui_malyan_lcd.cpp
+ * malyan_lcd.cpp
  *
  * LCD implementation for Malyan's LCD, a separate ESP8266 MCU running
  * on Serial1 for the M200 board. This module outputs a pseudo-gcode
@@ -41,25 +41,25 @@
  * Copyright (c) 2017 Jason Nelson (xC0000005)
  */
 
-#include "../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MALYAN_LCD)
 
 #define DEBUG_MALYAN_LCD
 
-#include "extui/ui_api.h"
+#include "ui_api.h"
 
-#include "ultralcd.h"
-#include "../sd/cardreader.h"
-#include "../module/temperature.h"
-#include "../module/stepper.h"
-#include "../module/motion.h"
-#include "../libs/duration_t.h"
-#include "../module/printcounter.h"
-#include "../gcode/queue.h"
+#include "../ultralcd.h"
+#include "../../sd/cardreader.h"
+#include "../../module/temperature.h"
+#include "../../module/stepper.h"
+#include "../../module/motion.h"
+#include "../../libs/duration_t.h"
+#include "../../module/printcounter.h"
+#include "../../gcode/queue.h"
 
 #define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
-#include "../core/debug_out.h"
+#include "../../core/debug_out.h"
 
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.

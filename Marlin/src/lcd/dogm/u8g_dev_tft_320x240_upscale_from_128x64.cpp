@@ -67,17 +67,13 @@
   #define HAS_LCD_IO 1
 #endif
 
-#if HAS_LCD_IO
-  extern void LCD_IO_Init(uint8_t cs, uint8_t rs);
-  extern uint16_t LCD_IO_ReadData(uint16_t Reg);
-  extern uint32_t LCD_IO_ReadData(uint16_t RegValue, uint8_t ReadSize);
-  extern void LCD_IO_WriteReg(uint16_t Reg);
-  extern void LCD_IO_WriteData(uint16_t RegValue);
-  extern void LCD_IO_WriteSequence(uint16_t *data, uint16_t length);
-  extern void LCD_IO_WriteSequence_Async(uint16_t *data, uint16_t length);
-  extern void LCD_IO_WaitSequence_Async();
-  extern void LCD_IO_WriteMultiple(uint16_t color, uint32_t count);
+#if ENABLED(SPI_GRAPHICAL_TFT)
+  #include HAL_PATH(../../HAL, tft/tft_spi.h)
+#elif ENABLED(FSMC_GRAPHICAL_TFT)
+  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #endif
+
+TFT_IO tftio;
 
 #define WIDTH  LCD_PIXEL_WIDTH
 #define HEIGHT LCD_PIXEL_HEIGHT
@@ -85,10 +81,10 @@
 
 #include "../scaled_tft.h"
 
-#define UPSCALE0(M) ((M) * (FSMC_UPSCALE))
+#define UPSCALE0(M) ((M) * (GRAPHICAL_TFT_UPSCALE))
 #define UPSCALE(A,M) (UPSCALE0(M) + (A))
-#define X_HI (UPSCALE(LCD_PIXEL_OFFSET_X, WIDTH) - 1)
-#define Y_HI (UPSCALE(LCD_PIXEL_OFFSET_Y, HEIGHT) - 1)
+#define X_HI (UPSCALE(TFT_PIXEL_OFFSET_X, WIDTH) - 1)
+#define Y_HI (UPSCALE(TFT_PIXEL_OFFSET_Y, HEIGHT) - 1)
 
 // see https://ee-programming-notepad.blogspot.com/2016/10/16-bit-color-generator-picker.html
 
@@ -156,7 +152,8 @@ static uint32_t lcd_id = 0;
 
 static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
   #if HAS_LCD_IO
-    #define IO_REG_DATA(R,D) do { LCD_IO_WriteReg(R); LCD_IO_WriteData(D); }while(0)
+    tftio.DataTransferBegin(DATASIZE_8BIT);
+    #define IO_REG_DATA(R,D) do { tftio.WriteReg(R); tftio.WriteData(D); }while(0)
   #else
     #define IO_REG_DATA(R,D) do { u8g_WriteByte(u8g, dev, R); u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&D); }while(0)
   #endif
@@ -174,7 +171,8 @@ static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_
   IO_REG_DATA(ILI9328_VASET,   Xmin);
 
   #if HAS_LCD_IO
-    LCD_IO_WriteReg(ILI9328_WRITE_RAM);
+    tftio.WriteReg(ILI9328_WRITE_RAM);
+    tftio.DataTransferEnd();
   #else
     u8g_WriteByte(u8g, dev, ILI9328_WRITE_RAM);
     u8g_SetAddress(u8g, dev, 1);
@@ -183,19 +181,21 @@ static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_
 
 static void setWindow_st7789v(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
   #if HAS_LCD_IO
-    LCD_IO_WriteReg(ST7789V_CASET);
-    LCD_IO_WriteData((Xmin >> 8) & 0xFF);
-    LCD_IO_WriteData(Xmin & 0xFF);
-    LCD_IO_WriteData((Xmax >> 8) & 0xFF);
-    LCD_IO_WriteData(Xmax & 0xFF);
+    tftio.DataTransferBegin(DATASIZE_8BIT);
+    tftio.WriteReg(ST7789V_CASET);
+    tftio.WriteData((Xmin >> 8) & 0xFF);
+    tftio.WriteData(Xmin & 0xFF);
+    tftio.WriteData((Xmax >> 8) & 0xFF);
+    tftio.WriteData(Xmax & 0xFF);
 
-    LCD_IO_WriteReg(ST7789V_RASET);
-    LCD_IO_WriteData((Ymin >> 8) & 0xFF);
-    LCD_IO_WriteData(Ymin & 0xFF);
-    LCD_IO_WriteData((Ymax >> 8) & 0xFF);
-    LCD_IO_WriteData(Ymax & 0xFF);
+    tftio.WriteReg(ST7789V_RASET);
+    tftio.WriteData((Ymin >> 8) & 0xFF);
+    tftio.WriteData(Ymin & 0xFF);
+    tftio.WriteData((Ymax >> 8) & 0xFF);
+    tftio.WriteData(Ymax & 0xFF);
 
-    LCD_IO_WriteReg(ST7789V_WRITE_RAM);
+    tftio.WriteReg(ST7789V_WRITE_RAM);
+    tftio.DataTransferEnd();
   #else
     u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_CASET); u8g_SetAddress(u8g, dev, 1);
     u8g_WriteByte(u8g, dev, (Xmin >> 8) & 0xFF);
@@ -227,17 +227,17 @@ void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint
     for (;;) {
       data = *sequence++;
       if (data != 0xFFFF) {
-        LCD_IO_WriteData(data);
+        tftio.WriteData(data);
         continue;
       }
       data = *sequence++;
       if (data == 0x7FFF) return;
       if (data == 0xFFFF) {
-        LCD_IO_WriteData(data);
+        tftio.WriteData(data);
       } else if (data & 0x8000) {
         delay(data & 0x7FFF);
       } else if ((data & 0xFF00) == 0) {
-        LCD_IO_WriteReg(data);
+        tftio.WriteReg(data);
       }
     }
   }
@@ -298,7 +298,7 @@ static const uint16_t st7789v_init[] = {
   ESC_REG(0x0010), ESC_DELAY(10),
   ESC_REG(0x0001), ESC_DELAY(200),
   ESC_REG(0x0011), ESC_DELAY(120),
-  ESC_REG(0x0036), 0x00A0,
+  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x0060, 0x00A0),
   ESC_REG(0x003A), 0x0055,
   ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
   ESC_REG(0x002B), 0x0000, 0x0000, 0x0000, 0x00EF,
@@ -591,7 +591,7 @@ static const uint16_t st7796_init[] = {
   #define BUTTON_Y_HI (UPSCALE(BUTTON_Y_LO, BUTTON_SIZE_Y) - 1)
 
   void drawImage(const uint8_t *data, u8g_t *u8g, u8g_dev_t *dev, uint16_t length, uint16_t height, uint16_t color) {
-    uint16_t buffer[BUTTON_SIZE_X * sq(FSMC_UPSCALE)];
+    uint16_t buffer[BUTTON_SIZE_X * sq(GRAPHICAL_TFT_UPSCALE)];
 
     if (length > BUTTON_SIZE_X) return;
 
@@ -603,16 +603,16 @@ static const uint16_t st7796_init[] = {
           v = color;
         else
           v = TFT_MARLINBG_COLOR;
-        LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = v;
+        LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = v;
       }
       #if HAS_LCD_IO
-        LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+        LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
           for (uint16_t l = 0; l < UPSCALE0(length); l++)
             buffer[l + n * UPSCALE0(length)] = buffer[l];
 
-        LCD_IO_WriteSequence(buffer, length * sq(FSMC_UPSCALE));
+        tftio.WriteSequence(buffer, length * sq(GRAPHICAL_TFT_UPSCALE));
       #else
-        for (uint8_t i = FSMC_UPSCALE; i--;)
+        for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;)
           u8g_WriteSequence(u8g, dev, k << 1, (uint8_t*)buffer);
       #endif
     }
@@ -632,22 +632,17 @@ static uint8_t page;
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
 
-  #if ENABLED(SPI_GRAPHICAL_TFT)
-    LCD_IO_Init(-1, -1);
-  #endif
-
   #if HAS_LCD_IO
-    static uint16_t bufferA[WIDTH * sq(FSMC_UPSCALE)], bufferB[WIDTH * sq(FSMC_UPSCALE)];
+    static uint16_t bufferA[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)], bufferB[WIDTH * sq(GRAPHICAL_TFT_UPSCALE)];
     uint16_t* buffer = &bufferA[0];
-    bool allow_async = DISABLED(SPI_GRAPHICAL_TFT);
   #else
-    uint16_t buffer[WIDTH * FSMC_UPSCALE]; // 16-bit RGB 565 pixel line buffer
+    uint16_t buffer[WIDTH * GRAPHICAL_TFT_UPSCALE]; // 16-bit RGB 565 pixel line buffer
   #endif
 
   switch (msg) {
     case U8G_DEV_MSG_INIT:
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, &lcd_id);
-
+      tftio.DataTransferBegin(DATASIZE_8BIT);
       switch (lcd_id & 0xFFFF) {
         case 0x8552:   // ST7789V
           WRITE_ESC_SEQUENCE(st7789v_init);
@@ -682,6 +677,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
           setWindow = (lcd_id & 0xFF000000) ? setWindow_st7789v : setWindow_ili9328;
           break;
       }
+      tftio.DataTransferEnd();
 
       if (preinit) {
         preinit = false;
@@ -689,13 +685,13 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       }
 
       // Clear Screen
-      setWindow(u8g, dev, 0, 0, (LCD_FULL_PIXEL_WIDTH) - 1, (LCD_FULL_PIXEL_HEIGHT) - 1);
+      setWindow(u8g, dev, 0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
       #if HAS_LCD_IO
-        LCD_IO_WriteMultiple(TFT_MARLINBG_COLOR, (LCD_FULL_PIXEL_WIDTH) * (LCD_FULL_PIXEL_HEIGHT));
+        tftio.WriteMultiple(TFT_MARLINBG_COLOR, uint32_t(TFT_WIDTH) * (TFT_HEIGHT));
       #else
-        memset2(buffer, TFT_MARLINBG_COLOR, (LCD_FULL_PIXEL_WIDTH) / 2);
-        for (uint16_t i = 0; i < (LCD_FULL_PIXEL_HEIGHT) * sq(FSMC_UPSCALE); i++)
-          u8g_WriteSequence(u8g, dev, LCD_FULL_PIXEL_WIDTH / 2, (uint8_t *)buffer);
+        memset2(buffer, TFT_MARLINBG_COLOR, (TFT_WIDTH) / 2);
+        for (uint16_t i = 0; i < (TFT_HEIGHT) * sq(GRAPHICAL_TFT_UPSCALE); i++)
+          u8g_WriteSequence(u8g, dev, (TFT_WIDTH) / 2, (uint8_t *)buffer);
       #endif
 
       // Bottom buttons
@@ -719,7 +715,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
-      setWindow(u8g, dev, LCD_PIXEL_OFFSET_X, LCD_PIXEL_OFFSET_Y, X_HI, Y_HI);
+      setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
       break;
 
     case U8G_DEV_MSG_PAGE_NEXT:
@@ -733,26 +729,18 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
         for (uint16_t i = 0; i < (uint32_t)pb->width; i++) {
           const uint8_t b = *(((uint8_t *)pb->buf) + i);
           const uint16_t c = TEST(b, y) ? TFT_MARLINUI_COLOR : TFT_MARLINBG_COLOR;
-          LOOP_L_N(n, FSMC_UPSCALE) buffer[k++] = c;
+          LOOP_L_N(n, GRAPHICAL_TFT_UPSCALE) buffer[k++] = c;
         }
         #if HAS_LCD_IO
-          LOOP_S_L_N(n, 1, FSMC_UPSCALE)
+          LOOP_S_L_N(n, 1, GRAPHICAL_TFT_UPSCALE)
             for (uint16_t l = 0; l < UPSCALE0(WIDTH); l++)
               buffer[l + n * UPSCALE0(WIDTH)] = buffer[l];
 
-          if (allow_async) {
-            if (y > 0 || page > 1) LCD_IO_WaitSequence_Async();
-            if (y == 7 && page == 8)
-              LCD_IO_WriteSequence(buffer, COUNT(bufferA)); // last line of last page
-            else
-              LCD_IO_WriteSequence_Async(buffer, COUNT(bufferA));
-          }
-          else
-            LCD_IO_WriteSequence(buffer, COUNT(bufferA));
+          tftio.WriteSequence(buffer, COUNT(bufferA));
         #else
           uint8_t* bufptr = (uint8_t*) buffer;
-          for (uint8_t i = FSMC_UPSCALE; i--;) {
-            LOOP_S_L_N(n, 0, FSMC_UPSCALE * 2) {
+          for (uint8_t i = GRAPHICAL_TFT_UPSCALE; i--;) {
+            LOOP_S_L_N(n, 0, GRAPHICAL_TFT_UPSCALE * 2) {
               u8g_WriteSequence(u8g, dev, WIDTH, &bufptr[WIDTH * n]);
             }
           }
@@ -770,6 +758,59 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
-U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_tft_320x240_upscale_from_128x64_fn, U8G_COM_HAL_FSMC_FN);
+static uint8_t msgInitCount = 2; // Ignore all messages until 2nd U8G_COM_MSG_INIT
+
+uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr) {
+  if (msgInitCount) {
+    if (msg == U8G_COM_MSG_INIT) msgInitCount--;
+    if (msgInitCount) return -1;
+  }
+
+  static uint8_t isCommand;
+
+  switch (msg) {
+    case U8G_COM_MSG_STOP: break;
+    case U8G_COM_MSG_INIT:
+      u8g_SetPIOutput(u8g, U8G_PI_RESET);
+
+      u8g_Delay(50);
+
+      tftio.Init();
+
+      if (arg_ptr) {
+        *((uint32_t *)arg_ptr) = tftio.GetID();
+      }
+      isCommand = 0;
+      break;
+
+    case U8G_COM_MSG_ADDRESS: // define cmd (arg_val = 0) or data mode (arg_val = 1)
+      isCommand = arg_val == 0 ? 1 : 0;
+      break;
+
+    case U8G_COM_MSG_RESET:
+      u8g_SetPILevel(u8g, U8G_PI_RESET, arg_val);
+      break;
+
+    case U8G_COM_MSG_WRITE_BYTE:
+      tftio.DataTransferBegin(DATASIZE_8BIT);
+      if (isCommand)
+        tftio.WriteReg(arg_val);
+      else
+        tftio.WriteData((uint16_t)arg_val);
+      tftio.DataTransferEnd();
+      break;
+
+    case U8G_COM_MSG_WRITE_SEQ:
+      tftio.DataTransferBegin(DATASIZE_16BIT);
+      for (uint8_t i = 0; i < arg_val; i += 2)
+        tftio.WriteData(*(uint16_t *)(((uint32_t)arg_ptr) + i));
+      tftio.DataTransferEnd();
+      break;
+
+  }
+  return 1;
+}
+
+U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_tft_320x240_upscale_from_128x64_fn, U8G_COM_HAL_TFT_FN);
 
 #endif // HAS_GRAPHICAL_LCD && FSMC_CS
