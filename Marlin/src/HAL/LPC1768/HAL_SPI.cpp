@@ -370,19 +370,19 @@ void SPIClass::updateSettings() {
   switch (_currentSetting->dataMode) {
     case SPI_MODE0:
       HW_SPI_init.CPHA = SSP_CPHA_FIRST;
-	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      HW_SPI_init.CPOL = SSP_CPOL_HI;
       break;
     case SPI_MODE1:
       HW_SPI_init.CPHA = SSP_CPHA_SECOND;
-	    HW_SPI_init.CPOL = SSP_CPOL_HI;
+      HW_SPI_init.CPOL = SSP_CPOL_HI;
       break;
     case SPI_MODE2:
       HW_SPI_init.CPHA = SSP_CPHA_FIRST;
-	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      HW_SPI_init.CPOL = SSP_CPOL_LO;
       break;
     case SPI_MODE3:
       HW_SPI_init.CPHA = SSP_CPHA_SECOND;
-	    HW_SPI_init.CPOL = SSP_CPOL_LO;
+      HW_SPI_init.CPOL = SSP_CPOL_LO;
       break;
     default:
       break;
