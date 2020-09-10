@@ -11,7 +11,12 @@ To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed b
   - [Setting up VSCode with PlatformIO](http://vscode.th3dstudio.com/)
 
 ## Supported Printers & Boards
-TO BE DETERMINED
+
+**Creality Printers**
+
+- Ender 3 V2 with V4.2.2 Board
+- Ender 3 with V4.2.2 Board
+- Ender 3 Pro with V4.2.2 Board
 
 
 ## Technical Support
