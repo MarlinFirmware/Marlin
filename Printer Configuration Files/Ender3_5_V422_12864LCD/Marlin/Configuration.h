@@ -120,6 +120,13 @@
 #define CUSTOM_ESTEPS_VALUE 463
 //#define REVERSE_E_MOTOR_DIRECTION
 
+// FILAMENT SENSOR UNLOAD SETTINGS -----------------
+// If you have a filament sensor that is physically mounted to the machine you can enable MOUNTED_FILAMENT_SENSOR to set the unload length to 0 to prevent filament from backing up in the sensor by uncommenting MOUNTED_FILAMENT_SENSOR 
+//#define MOUNTED_FILAMENT_SENSOR
+
+// If you have a direct drive machine with a filament sensor uncomment DIRECT_DRIVE_PRINTER to decrease the unload length from 100mm to 20mm
+//#define DIRECT_DRIVE_PRINTER
+
 // THERMISTOR SETTINGS -----------------------------
 
 // If you are using an E3D V6 Hotend (or Hemera) with their cartridge thermistor (not glass version) uncomment the below line.
@@ -162,6 +169,25 @@
 
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
 //#define SLOWER_HOMING
+
+//===========================================================================
+//****************** COMMUNITY REQUESTED FEATURES ***************************
+//===========================================================================
+
+// HOME OFFSET ADJUSTMENT --------------------------
+// If you need to adjust your XY home offsets from defaults then you can uncomment the HOME_ADJUST line below and enter your
+// custom XY offsets. This is provided for convenience and is unsupported with included product support.
+// How to use - measure (home XY then jog using the LCD 1mm at a time) the X and Y distance the nozzle is off
+// the build plate and then put those as NEGATIVE values below, positive values will NOT work (move your endstops to fix a positve offset).
+//#define HOME_ADJUST
+#define X_HOME_LOCATION -10
+#define Y_HOME_LOCATION -10
+
+// LINEAR ADVANCE ----------------------------------
+// See here on how to use Linear Advance: http://marlinfw.org/docs/features/lin_advance.html
+//#define LINEAR_ADVANCE
+// Change the K Value here or use M900 KX.XX in your starting code (recommended).
+#define LINEAR_ADVANCE_K 0
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
