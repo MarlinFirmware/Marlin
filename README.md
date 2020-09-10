@@ -19,12 +19,16 @@ To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed b
 	- V4.2.2 Board
 - Ender 3
 	- V4.2.2 Board
+	- [EZBoard Lite](https://ezboard.th3dstudio.com)
 - Ender 3 Pro
 	- V4.2.2 Board
+	- [EZBoard Lite](https://ezboard.th3dstudio.com)
 - Ender 5
 	- V4.2.2 Board
+	- [EZBoard Lite](https://ezboard.th3dstudio.com)
 - Ender 5 Pro
 	- V4.2.2 Board
+	- [EZBoard Lite](https://ezboard.th3dstudio.com)
 
 ## Supported TH3D Upgrades
 
