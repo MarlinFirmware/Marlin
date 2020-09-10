@@ -397,19 +397,6 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
 
   TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("Pause"), DISMISS_STR));
 
-  if (!DEBUGGING(DRYRUN) && unload_length && thermalManager.targetTooColdToExtrude(active_extruder)) {
-    SERIAL_ECHO_MSG(STR_ERR_HOTEND_TOO_COLD);
-
-    #if HAS_LCD_MENU
-      if (show_lcd) { // Show status screen
-        lcd_pause_show_message(PAUSE_MESSAGE_STATUS);
-        LCD_MESSAGEPGM(MSG_M600_TOO_COLD);
-      }
-    #endif
-
-    return false; // unable to reach safe temperature
-  }
-
   // Indicate that the printer is paused
   ++did_pause_print;
 
