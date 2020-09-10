@@ -48,7 +48,7 @@
 #if NO_EEPROM_SELECTED
   #define IIC_EEPROM_SDA                    PB7
   #define IIC_EEPROM_SCL                    PB6
-  #define MARLIN_EEPROM_SIZE                0x800  // 2KB
+  #define MARLIN_EEPROM_SIZE               0x800  // 2KB
   #undef NO_EEPROM_SELECTED
 #endif
 
@@ -153,11 +153,11 @@
 //
 #ifndef SDCARD_CONNECTION
   // Set ONBOARD connection even if you use MKS SLOT.
-  #define SDCARD_CONNECTION                 ONBOARD
+  #define SDCARD_CONNECTION              ONBOARD
 #endif
 
 #define SDIO_SUPPORT
-#define SDIO_CLOCK                          4500000  // 4.5 MHz
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       -1
 #define ONBOARD_SD_CS_PIN                   PC11
 
@@ -166,20 +166,20 @@
 //
 #if HAS_FSMC_TFT
   #define FSMC_CS_PIN                       PG12  // NE4
-  #define FSMC_RS_PIN                       PF0  // A0
+  #define FSMC_RS_PIN                       PF0   // A0
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL                  DMA_CH5
+  #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TOUCH_CS_PIN                      PB1  // SPI2_NSS
+  #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
   #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE       2
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
   // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
-  #define LCD_RESET_PIN                     PF6  // FSMC_RST
+  #define LCD_RESET_PIN                     PF6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PG11
 #endif
 
@@ -193,8 +193,8 @@
   // MKS Robin TFT with ILI9328
   #define TFT_ILI9328
   #if ENABLED(TFT_ILI9328)
-    #define TFT_DRIVER                      ILI9328
-    #define TFT_BUFFER_SIZE                 14400
+    #define TFT_DRIVER                   ILI9328
+    #define TFT_BUFFER_SIZE                14400
     #define ILI9328_COLOR_RGB
   
     // YV for normal screen mounting
@@ -206,8 +206,8 @@
   // MKS Robin TFT with R61505
   //#define TFT_R61505
   #if ENABLED(TFT_R61505)
-    #define TFT_DRIVER                      R61505
-    #define TFT_BUFFER_SIZE                 14400
+    #define TFT_DRIVER                    R61505
+    #define TFT_BUFFER_SIZE                14400
     #define R61505_COLOR_RGB
 
     // YV for normal screen mounting
@@ -219,8 +219,8 @@
   // MKS Robin TFT with ST7789V
   //#define ST7789V
   #if ENABLED(ST7789V)
-    #define TFT_DRIVER                      ST7789V
-    #define TFT_BUFFER_SIZE                 14400
+    #define TFT_DRIVER                   ST7789V
+    #define TFT_BUFFER_SIZE                14400
     #define ST7789V_COLOR_RGB
 
     // YV for normal screen mounting
@@ -240,7 +240,6 @@
 // SPI2 is already shared by LCD touch driver and flash
 // SPI2 MOSI (PB15) can be retrieved by soldering job on R17
 // SPI1(PA7) & SPI3(PB5) are not available
-
 
 //
 // Trinamic TMC2208/2209 UART
@@ -269,20 +268,20 @@
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
     #define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
-    #define X_SERIAL_RX_PIN                 X_SERIAL_TX_PIN
-    #define Y_SERIAL_RX_PIN                 Y_SERIAL_TX_PIN
-    #define Z_SERIAL_RX_PIN                 Z_SERIAL_TX_PIN
-    #define E0_SERIAL_RX_PIN                E0_SERIAL_TX_PIN
-    #define TMC_BAUD_RATE                   19200
+    #define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
+    #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
+    #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
+    #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
+    #define TMC_BAUD_RATE                  19200
   #endif
 #endif
 
 //
 // W25Q64 64Mb (8MB) SPI flash
 //
-#define HAS_SPI_FLASH                       1
+#define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
-  #define SPI_FLASH_SIZE                    0x800000  // 8MB
+  #define SPI_FLASH_SIZE                0x800000  // 8MB
   #define W25QXX_CS_PIN                     PG9
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
