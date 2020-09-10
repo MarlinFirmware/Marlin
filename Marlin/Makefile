@@ -268,12 +268,14 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1148)
 else ifeq ($(HARDWARE_MOTHERBOARD),1149)
 # MKS GEN L V2
 else ifeq ($(HARDWARE_MOTHERBOARD),1150)
-# Copymaster 3D
+# MKS GEN L V2.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1151)
-# Ortur 4
+# Copymaster 3D
 else ifeq ($(HARDWARE_MOTHERBOARD),1152)
-# Tenlog D3 Hero
+# Ortur 4
 else ifeq ($(HARDWARE_MOTHERBOARD),1153)
+# Tenlog D3 Hero
+else ifeq ($(HARDWARE_MOTHERBOARD),1154)
 
 #
 # RAMBo and derivatives
@@ -694,7 +696,7 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
   LIB_CXXSRC += usb_api.cpp
 
 else ifeq ($(HARDWARE_VARIANT), archim)
-  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__ -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT="Archim"'
+  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__ -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
   LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp PluggableUSB.cpp USBCore.cpp
   LIB_SRC    += cortex_handlers.c iar_calls_sam3.c syscalls_sam3.c dtostrf.c itoa.c
 

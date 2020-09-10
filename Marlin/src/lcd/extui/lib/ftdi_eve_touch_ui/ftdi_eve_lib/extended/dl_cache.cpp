@@ -117,11 +117,12 @@ bool DLCache::store(uint32_t min_bytes /* = 0*/) {
     // If we are allocating new space...
     dl_slot_addr = CLCD::mem_read_32(DL_FREE_ADDR);
     dl_slot_size = max(dl_size, min_bytes);
-    
+
     const uint32_t free_space = MAP::RAM_G_SIZE - dl_slot_addr;
-    if(dl_slot_size <= free_space) {
+    if (dl_slot_size <= free_space) {
       CLCD::mem_write_32(DL_FREE_ADDR, dl_slot_addr + dl_slot_size);
-    } else {
+    }
+    else {
       dl_slot_addr = 0;
       dl_slot_size = 0;
       dl_slot_used = 0;
@@ -138,7 +139,8 @@ bool DLCache::store(uint32_t min_bytes /* = 0*/) {
     dl_slot_used = 0;
     save_slot();
     return false;
-  } else {
+  }
+  else {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR  ("Saving DL to RAMG cache, bytes: ", dl_slot_used);
