@@ -315,6 +315,10 @@
 #endif
 // End Ender 3 V2 Settings
 
+/*
+ * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
+ */
+ 
 #include "Configuration_backend.h"
 
 #define UNIFIED_VERSION "TH3D UFW 2.00"

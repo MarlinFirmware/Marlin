@@ -17,18 +17,27 @@
 //===========================================================================
 
 //===========================================================================
-// Creality Ender 3 Options - with V4.2.2 Board
+// Creality Ender 3/3 Pro Options - with V4.2.2 Board
 //===========================================================================
-//#define ENDER3_V4_BOARD
+//#define ENDER3_V422_BOARD
+
+// If your V4.2.2 board has TMC2208 (silent) drivers on it uncomment the below line
+//#define V422_TMC2208_BOARD
 
 // EZABL Probe Mounts
 //#define ENDER3_OEM
 //#define CUSTOM_PROBE
 
 //===========================================================================
-// Creality Ender 5 Options - with V4.2.2 Board - PLACEHOLDER - NOT DONE
+// Creality Ender 5/5 Pro Options - with V4.2.2 Board - PLACEHOLDER - NOT DONE
 //===========================================================================
-//#define ENDER5_V4_BOARD
+//#define ENDER5_V422_BOARD
+
+// If your V4.2.2 board has TMC2208 (silent) drivers on it uncomment the below line
+//#define V422_TMC2208_BOARD
+
+// If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
+//#define ENDER5_NEW_LEADSCREW
 
 // EZABL Probe Mounts
 //#define ENDER5_OEM
@@ -168,7 +177,7 @@
  */
  
 //Ender 3/5 V422 Board Settings
-#if EITHER(ENDER3_V4_BOARD,ENDER5_V4_BOARD)
+#if EITHER(ENDER3_V422_BOARD,ENDER5_V422_BOARD)
   #define SERIAL_PORT 1
 
   #define BAUDRATE 115200
@@ -179,11 +188,17 @@
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_CREALITY_V4
   #endif
+  
+  #if ENABLED(ENDER5_NEW_LEADSCREW)
+    #define CREALITY_Z_STEPS 800
+  #else
+    #define CREALITY_Z_STEPS 400
+  #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, CUSTOM_ESTEPS_VALUE }
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 95 }
   #endif
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
   #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
@@ -207,17 +222,40 @@
 
   #define X_BED_SIZE 220
   #define Y_BED_SIZE 220
-  #define Z_MAX_POS 250
-  #define X_MIN_POS 0
-  #define Y_MIN_POS 0
+  
+  #if ENABLED(ENDER5_V422_BOARD)
+    #define Z_MAX_POS 300
+  #else
+    #define Z_MAX_POS 250
+  #endif
+  
+  #if ENABLED(HOME_ADJUST)
+    #define X_MIN_POS X_HOME_ADJUST_LOCATION
+    #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+  #else
+    #define X_MIN_POS 0
+    #define Y_MIN_POS 0
+  #endif
 
-  #define USE_XMIN_PLUG
-  #define USE_YMIN_PLUG
-  #define USE_ZMIN_PLUG
+  #if ENABLED(ENDER5_V422_BOARD)
+    #define USE_XMAX_PLUG
+    #define USE_YMAX_PLUG
+    #define USE_ZMIN_PLUG
+  #else
+    #define USE_XMIN_PLUG
+    #define USE_YMIN_PLUG
+    #define USE_ZMIN_PLUG
+  #endif
 
-  #define X_HOME_DIR -1
-  #define Y_HOME_DIR -1
-  #define Z_HOME_DIR -1
+  #if ENABLED(ENDER5_V422_BOARD)
+    #define X_HOME_DIR 1
+    #define Y_HOME_DIR 1
+    #define Z_HOME_DIR -1
+  #else
+    #define X_HOME_DIR -1
+    #define Y_HOME_DIR -1
+    #define Z_HOME_DIR -1
+  #endif
 
   #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
     #define TEMP_SENSOR_0 1
@@ -277,10 +315,17 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE A4988
-  #define Y_DRIVER_TYPE A4988
-  #define Z_DRIVER_TYPE A4988
-  #define E0_DRIVER_TYPE A4988
+  #if ENABLED(V422_TMC2208_BOARD)
+    #define X_DRIVER_TYPE TMC2208_STANDALONE
+    #define Y_DRIVER_TYPE TMC2208_STANDALONE
+    #define Z_DRIVER_TYPE TMC2208_STANDALONE
+    #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #else
+    #define X_DRIVER_TYPE A4988
+    #define Y_DRIVER_TYPE A4988
+    #define Z_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE A4988
+  #endif
 
   #define ENDSTOP_INTERRUPTS_FEATURE
 
@@ -291,7 +336,12 @@
 
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR false
-  #define INVERT_Z_DIR true
+  
+  #if ENABLED(ENDER5_V422_BOARD)
+    #define INVERT_Z_DIR false
+  #else  
+    #define INVERT_Z_DIR true
+  #endif
 
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
     #define INVERT_E0_DIR true
@@ -320,6 +370,10 @@
 #endif
 // End Ender 3/5 V422 Board Settings
 
+/*
+ * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
+ */
+ 
 #include "Configuration_backend.h"
 
 #define UNIFIED_VERSION "TH3D UFW 2.00"
