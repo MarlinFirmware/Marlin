@@ -280,7 +280,7 @@
   #endif
 
   // Software serial on unused servo pins
-  #define TMC_SOFTWARE_SERIAL
+  //#define TMC_SOFTWARE_SERIAL
   #if ENABLED(TMC_SOFTWARE_SERIAL)
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
