@@ -501,7 +501,6 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Délka mm senz.fil.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Parkování selhalo");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Kalibrace selhala");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Moc studený");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("VYBERTE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

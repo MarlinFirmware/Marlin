@@ -162,9 +162,6 @@ void GcodeSuite::M600() {
                    beep_count, (parser.seenval('R') ? parser.value_celsius() : 0) DXC_PASS);
     #endif
   }
-  else {
-    TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-  }
 
   #if EXTRUDERS > 1
     // Restore toolhead if it was changed

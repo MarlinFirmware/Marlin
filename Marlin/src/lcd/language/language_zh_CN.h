@@ -532,7 +532,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("断料距离mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("归原位失败");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探针探测失败");     // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("选择料");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

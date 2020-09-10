@@ -640,7 +640,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("До конца, мм");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Ошибка парковки");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Ошибка зондирования");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ВЫБИРЕТЕ ФИЛАМЕНТ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Настройки MMU");

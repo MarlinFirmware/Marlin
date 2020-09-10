@@ -650,7 +650,6 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Помилка паркування");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Помилка зондування");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: низька Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ОБЕРІТЬ ПРУТОК");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Налаштування MMU");
