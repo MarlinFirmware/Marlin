@@ -29,7 +29,7 @@
 //#define CUSTOM_PROBE
 
 //===========================================================================
-// Creality Ender 5/5 Pro Options - with V4.2.2 Board - PLACEHOLDER - NOT DONE
+// Creality Ender 5/5 Pro Options - with V4.2.2 Board
 //===========================================================================
 //#define ENDER5_V422_BOARD
 
