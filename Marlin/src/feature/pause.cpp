@@ -592,8 +592,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
     thermalManager.reset_hotend_idle_timer(e);
   }
 
-  if (targetTemp > thermalManager.degTargetHotend(active_extruder))
+  if (targetTemp > thermalManager.degTargetHotend(active_extruder)) {
     thermalManager.setTargetHotend(targetTemp, active_extruder);
+  }
 
   // Load the new filament
   load_filament(slow_load_length, fast_load_length, purge_length, max_beep_count, true, nozzle_timed_out, PAUSE_MODE_SAME DXC_PASS);
