@@ -27,19 +27,18 @@
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
 static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MarlinSerial &serial) {
-   /* Handle RXNEIE and TXEIE interrupts.
-    * RXNE signifies availability of a byte in DR.
-    *
-    * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
-    * We enable RXNEIE.
-    */
-  uint32_t srflags = (regs->SR);
-  uint32_t cr1its = (regs->CR1);
+ /* Handle RXNEIE and TXEIE interrupts.
+  * RXNE signifies availability of a byte in DR.
+  *
+  * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
+  * We enable RXNEIE.
+  */
+  uint32_t srflags = regs->SR, cr1its = regs->CR1;
 
   if ((cr1its & USART_CR1_RXNEIE) && (srflags & USART_SR_RXNE)) {
-    if( srflags & USART_SR_FE || srflags & USART_SR_PE ) {
+    if (srflags & USART_SR_FE || srflags & USART_SR_PE ) {
       // framing error or parity error
-      regs->DR; //read and throw away the data, this clears FE and PE as well
+      regs->DR; // Read and throw away the data, which also clears FE and PE
     }
     else {
       uint8_t c = (uint8)regs->DR;
