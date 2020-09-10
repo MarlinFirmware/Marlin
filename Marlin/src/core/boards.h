@@ -104,9 +104,10 @@
 #define BOARD_HJC2560C_REV2           1148  // ADIMLab Gantry v2
 #define BOARD_TANGO                   1149  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1150  // MKS GEN L V2
-#define BOARD_COPYMASTER_3D           1151  // Copymaster 3D
-#define BOARD_ORTUR_4                 1152  // Ortur 4
-#define BOARD_TENLOG_D3_HERO          1153  // Tenlog D3 Hero IDEX printer
+#define BOARD_MKS_GEN_L_V21           1151  // MKS GEN L V2.1
+#define BOARD_COPYMASTER_3D           1152  // Copymaster 3D
+#define BOARD_ORTUR_4                 1153  // Ortur 4
+#define BOARD_TENLOG_D3_HERO          1154  // Tenlog D3 Hero IDEX printer
 
 //
 // RAMBo and derivatives
@@ -282,7 +283,7 @@
 
 #define BOARD_STM32F103RE             4000  // STM32F103RE Libmaple-based STM32F1 controller
 #define BOARD_MALYAN_M200             4001  // STM32C8T6  Libmaple-based STM32F1 controller
-#define BOARD_MALYAN_M200_V2          4002  // STM32F070RB  Libmaple-based STM32F0 controller
+#define BOARD_MALYAN_M200_V2          4002  // STM32F070CB  STM32F0 controller
 #define BOARD_STM3R_MINI              4003  // STM32F103RE  Libmaple-based STM32F1 controller
 #define BOARD_GTM32_PRO_VB            4004  // STM32F103VET6 controller
 #define BOARD_MORPHEUS                4005  // STM32F103C8 / STM32F103CB  Libmaple-based STM32F1 controller
@@ -356,10 +357,13 @@
 
 #define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_REMRAM_V1               5001  // RemRam v1
+#define BOARD_TEENSY41                5002  // Teensy4.0 and Teensy4.1
+#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy4.1 breakout board
 
 //
 // Espressif ESP32 WiFi
 //
+
 #define BOARD_ESPRESSIF_ESP32         6000  // Generic ESP32
 #define BOARD_MRR_ESPA                6001  // MRR ESPA board based on ESP32 (native pins only)
 #define BOARD_MRR_ESPE                6002  // MRR ESPE board based on ESP32 (with I2S stepper stream)
@@ -368,11 +372,13 @@
 //
 // SAMD51 ARM Cortex M4
 //
+
 #define BOARD_AGCM4_RAMPS_144         6100  // RAMPS 1.4.4
 
 //
 // Custom board
 //
+
 #define BOARD_CUSTOM                  9998  // Custom pins definition for development and/or rare boards
 
 //
