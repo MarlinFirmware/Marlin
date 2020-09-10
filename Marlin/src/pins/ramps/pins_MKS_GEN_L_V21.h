@@ -45,19 +45,15 @@
 #ifndef X_CS_PIN
   #define X_CS_PIN                            63
 #endif
-
 #ifndef Y_CS_PIN
   #define Y_CS_PIN                            64
 #endif
-
 #ifndef Z_CS_PIN
   #define Z_CS_PIN                            65
 #endif
-
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                           66
 #endif
-
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                           12
 #endif
