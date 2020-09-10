@@ -1144,7 +1144,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
    */
   sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis) {
     sensorless_t stealth_states { false };
-
+SERIAL_ECHOLN("sensorless home"); //IGHMC - remove
     switch (axis) {
       default: break;
       #if X_SENSORLESS
@@ -1274,7 +1274,13 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
  * Home an individual linear axis
  */
 void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t fr_mm_s=0.0) {
+
   DEBUG_SECTION(log_move, "do_homing_move", DEBUGGING(LEVELING));
+SERIAL_ECHOLN("homing move");
+SERIAL_ECHOLNPAIR("0,axis: ",axis);
+SERIAL_ECHOLNPAIR("0,distance: ",distance);
+SERIAL_ECHOLNPAIR("0,feedrate: ",fr_mm_s);
+
 
   const feedRate_t real_fr_mm_s = fr_mm_s ?: homing_feedrate(axis);
 
@@ -1297,8 +1303,9 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   const int8_t axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? x_home_dir(active_extruder) : home_dir(axis);
   const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
-
-  #if ENABLED(SENSORLESS_HOMING)
+  SERIAL_ECHOLNPAIR("1 axishomedir: ", axis_home_dir);
+  SERIAL_ECHOLNPAIR("1 is home dir: ", is_home_dir);
+#if ENABLED(SENSORLESS_HOMING)
     sensorless_t stealth_states;
   #endif
 
@@ -1307,9 +1314,8 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(true);
     #endif
-
-    // Disable stealthChop if used. Enable diag1 pin on driver.
-    TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
+          // Disable stealthChop if used. Enable diag1 pin on driver.
+      TERN_(SENSORLESS_HOMING, stealth_states = start_sensorless_homing_per_axis(axis));
   }
 
   #if IS_SCARA
@@ -1321,16 +1327,17 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
   #else
     // Get the ABC or XYZ positions in mm
     abce_pos_t target = planner.get_axis_positions_mm();
-
+    SERIAL_ECHOLN("got target");         //IGHMC - remove
     target[axis] = 0;                         // Set the single homing axis to 0
     planner.set_machine_position_mm(target);  // Update the machine position
-
+    SERIAL_ECHOLN("machine position updated");         //IGHMC - remove
     #if HAS_DIST_MM_ARG
       const xyze_float_t cart_dist_mm{0};
     #endif
 
     // Set delta/cartesian axes directly
     target[axis] = distance;                  // The move will be towards the endstop
+    SERIAL_ECHOLN("settting buffer segment");         //IGHMC - remove
     planner.buffer_segment(target
       #if HAS_DIST_MM_ARG
         , cart_dist_mm
@@ -1346,11 +1353,11 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     #if HOMING_Z_WITH_PROBE && QUIET_PROBING
       if (axis == Z_AXIS) probe.set_probing_paused(false);
     #endif
+      SERIAL_ECHOLN("verifying endstops........."); //IGHMC - remove
+      endstops.validate_homing_move();
 
-    endstops.validate_homing_move();
-
-    // Re-enable stealthChop if used. Disable diag1 pin on driver.
-    TERN_(SENSORLESS_HOMING, end_sensorless_homing_per_axis(axis, stealth_states));
+      // Re-enable stealthChop if used. Disable diag1 pin on driver.
+      TERN_(SENSORLESS_HOMING, end_sensorless_homing_per_axis(axis, stealth_states));
   }
 }
 
@@ -1390,7 +1397,7 @@ void set_axis_is_at_home(const AxisEnum axis) {
   #elif ENABLED(DELTA)
     current_position[axis] = (axis == Z_AXIS) ? delta_height - TERN0(HAS_BED_PROBE, probe.offset.z) : base_home_pos(axis);
   #else
-    current_position[axis] = base_home_pos(axis);
+    current_position[axis] = base_home_pos(axis);  //ighmc should this be taking offsets into account?
   #endif
 
   /**
@@ -1533,8 +1540,9 @@ void set_axis_not_trusted(const AxisEnum axis) {
  */
 
 void homeaxis(const AxisEnum axis) {
-
-  #if IS_SCARA
+    SERIAL_ECHOLNPAIR("AXIS TO HOME: ", axis);
+    SERIAL_ECHOLNPAIR("WITH EXTRUDER: ", active_extruder);
+#if IS_SCARA
     // Only Z homing (with probe) is permitted
     if (axis != Z_AXIS) { BUZZ(100, 880); return; }
   #else
@@ -1544,14 +1552,17 @@ void homeaxis(const AxisEnum axis) {
       || (A##_MIN_PIN > -1 && A##_HOME_DIR < 0) \
       || (A##_MAX_PIN > -1 && A##_HOME_DIR > 0) \
     ))
-    if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)) return;
+    SERIAL_ECHOLNPAIR("_Can_home_x: ", _CAN_HOME(X)); //IGHMC
+    if (!_CAN_HOME(X) && !_CAN_HOME(Y) && !_CAN_HOME(Z)){
+      return;
+    }
   #endif
 
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> homeaxis(", axis_codes[axis], ")");
 
   const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
               ? x_home_dir(active_extruder) : home_dir(axis);
-
+  SERIAL_ECHOLNPAIR("IN DIRECTION: ", axis_home_dir);
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && probe.deploy()))
     return;
@@ -1579,6 +1590,7 @@ void homeaxis(const AxisEnum axis) {
     if (((ENABLED(X_SENSORLESS) && axis == X_AXIS) || (ENABLED(Y_SENSORLESS) && axis == Y_AXIS)) && backoff[axis])
       do_homing_move(axis, -ABS(backoff[axis]) * axis_home_dir, homing_feedrate(axis));
   #endif
+
 
   do_homing_move(axis, 1.5f * max_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir);
 
@@ -1613,7 +1625,7 @@ void homeaxis(const AxisEnum axis) {
       }
       if (TEST(endstops.state(), es)) {
         SERIAL_ECHO_MSG("Bad ", axis_codes[axis], " Endstop?");
-        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
+        //kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
       }
     #endif
 

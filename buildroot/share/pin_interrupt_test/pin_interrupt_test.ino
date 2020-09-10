@@ -9,7 +9,7 @@
 #endif
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("PINs causing interrupts are:");
   for (int i = 2; i < NUM_DIGITAL_PINS; i++) {
     if (digitalPinToPCICR(i) || (int)digitalPinToInterrupt(i) != -1) {

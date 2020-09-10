@@ -44,7 +44,7 @@
 //#define Y_MAX_PIN                           -1  //15              - IGHMC, 15 in Marlin2 pins_RAMPS.h if X_STOP_PIN not defined (nb: not used by ZYF)
 #define Z_MIN_PIN                             18  // IGHMC, same in Marlin2 pins_RAMPS.h if Z_STOP_PIN not defined
 #define Z_MAX_PIN                             -1  // IGHMC, set in Marlin2 pins_RAMPS.h  not used in zyf which switch Z2 with Y when needed
-
+// #define X2_MIN_PIN                             2
 //
 // Steppers, IGHMC zyf doesn't define any *_CS_PIN but equally
 // they don't seem to be used elsewhere in Marlin.

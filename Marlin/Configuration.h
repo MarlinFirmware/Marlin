@@ -322,7 +322,7 @@
 // For the other hotends it is their distance from the extruder 0 hotend.
 
 //IGHMC values from zyf
-#define HOTEND_OFFSET_X { 0.0, 354.0 } // (mm) relative X-offset for each nozzle
+#define HOTEND_OFFSET_X { 0.0, 360.0 } // (mm) relative X-offset for each nozzle
 #define HOTEND_OFFSET_Y { 0.0, 0.0 }  // (mm) relative Y-offset for each nozzle
 
 //IGHMC, zyf doesn't use extruder offset z but left this in for marlin at 0 as they are on the same gantry
@@ -698,7 +698,7 @@
 
 #define Z_MIN_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING true // Set to true to invert the logic of the endstop.
-#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
+// #define Z_MIN_PROBE_ENDSTOP_INVERTING false // Set to true to invert the logic of the probe.
 
 /**
  * Stepper Drivers
@@ -737,7 +737,7 @@
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//#define ENDSTOP_INTERRUPTS_FEATURE
+// #define ENDSTOP_INTERRUPTS_FEATURE
 
 /**
  * Endstop Noise Threshold
@@ -751,10 +751,10 @@
  *
  * :[2,3,4,5,6,7]
  */
-//#define ENDSTOP_NOISE_THRESHOLD 2
+#define ENDSTOP_NOISE_THRESHOLD 2
 
 // Check for stuck or disconnected endstops during homing moves.
-//#define DETECT_BROKEN_ENDSTOP
+#define DETECT_BROKEN_ENDSTOP
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -1221,14 +1221,14 @@
 #endif
 #ifdef ZYF_SIZE_300
   #define DEFAULT_DUPLICATION_X_OFFSET 151
-  #define X_MAX_POS 300.0
+  #define X_MAX_POS 305.0
   #define Y_MAX_POS 310.0
   #ifdef P2P1
     #define Z_MAX_POS 355.0
   #else
     #define Z_MAX_POS 405.0
   #endif
-  #define X2_MAX_POS 354.0    // set maximum to the distance between toolheads when both heads are homed
+  #define X2_MAX_POS 360.0    // set maximum to the distance between toolheads when both heads are homed
 #endif
 
 #ifdef ZYF_SIZE_400
@@ -1270,10 +1270,11 @@
 //IGMHC, size, min/max positions defined in config_zyf and copied here but needs testing
 // The size of the print bed
 #define X_BED_SIZE 300
-#define Y_BED_SIZE 300
+#define Y_BED_SIZE 292
+
 
 // Travel limits (mm) after homing, corresponding to endstop positions. IGHMC TL values set in the P1P2 sequence above
-#define X_MIN_POS -48
+#define X_MIN_POS -46
 #define Y_MIN_POS -8
 #define Z_MIN_POS 0
 // #define X_MAX_POS X_BED_SIZE
@@ -1408,7 +1409,7 @@
  * NOTE: Requires a lot of PROGMEM!
  */
  //ighmc remember to turn this off
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 
 #if ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
   // Gradually reduce leveling correction until a set height is reached,

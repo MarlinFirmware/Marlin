@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.windows": {
+			"PATH": "C:\\Users\\GregMartin\\.platformio\\penv\\Scripts;C:\\Users\\GregMartin\\.platformio\\penv;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files (x86)\\Intel\\Intel(R) Memory And Storage Tool\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\dotnet\\;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Python\\Python38-32\\Scripts\\;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Python\\Python38-32\\;C:\\Users\\GregMartin\\.platformio\\penv\\Scripts;C:\\Users\\GregMartin\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\GregMartin\\AppData\\Local\\GitHubDesktop\\bin;;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\GregMartin\\AppData\\Local\\Microsoft\\WindowsApps;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\Microsoft SQL Server\\130\\Tools\\Binn\\;C:\\Program Files (x86)\\Intel\\Intel(R) Memory And Storage Tool\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\dotnet\\;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Python\\Python38-32\\Scripts\\;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Python\\Python38-32\\;C:\\Users\\GregMartin\\.platformio\\penv\\Scripts;C:\\Users\\GregMartin\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\GregMartin\\AppData\\Local\\GitHubDesktop\\bin;;C:\\Users\\GregMartin\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\GregMartin\\AppData\\Local\\Microsoft\\WindowsApps",
+			"PLATFORMIO_CALLER": "vscode"
+		}
+	}
+}

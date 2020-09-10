@@ -504,7 +504,7 @@
 
 // If you want endstops to stay on (by default) even when not homing
 // enable this option. Override at any time with M120, M121.
-//#define ENDSTOPS_ALWAYS_ON_DEFAULT
+// #define ENDSTOPS_ALWAYS_ON_DEFAULT
 
 // @section extras
 
@@ -560,7 +560,8 @@
 
 //#ifdef TL_DUAL_Z
 //  #define INVERT_Y_DIR false
-//  #define Z_MIN_ENDSTOP_INVERTING true
+#define Z_MIN_ENDSTOP_INVERTING true
+// #define X2_MIN_ENDSTOP_INVERTING true
 //  #define Z_MAX_ENDSTOP_INVERTING true
 //  #define NUM_Z_STEPPER_DRIVERS 2
 //#else
@@ -624,7 +625,7 @@
 #if ENABLED(DUAL_X_CARRIAGE)
   #define X1_MIN_POS X_MIN_POS   // Set to X_MIN_POS
   #define X1_MAX_POS X_BED_SIZE  // Set a maximum so the first X-carriage can't hit the parked second X-carriage
-  #define X2_MIN_POS    0       // Set a minimum to ensure the  second X-carriage can't hit the parked first X-carriage
+  #define X2_MIN_POS    20       // Set a minimum to ensure the  second X-carriage can't hit the parked first X-carriage
   //#define X2_MAX_POS   354       // Set this to the distance between toolheads when both heads are homed
   #define X2_HOME_DIR    1       // Set to 1. The second X-carriage always homes to the maximum endstop position
   #define X2_HOME_POS X2_MAX_POS // Default X2 home position. Set to X2_MAX_POS.
@@ -637,7 +638,7 @@
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_AUTO_PARK_MODE
 
   // Default x offset in duplication mode (typically set to half print bed width)
-//#define DEFAULT_DUPLICATION_X_OFFSET 151  //IGHMC set in config_h by tenlog printer model
+//#define DEFAULT_DUPLICATION_X_OFFSET   //IGHMC set in config_h per tenlog printer model
 
 #endif // DUAL_X_CARRIAGE
 //#endif
@@ -3539,8 +3540,8 @@
 
 //
 // M43 - display pin status, toggle pins, watch pins, watch endstops & toggle LED, test servo probe
-//
-//#define PINS_DEBUGGING
+//ighmc REMEMBER TO REMOVE
+#define PINS_DEBUGGING
 
 // Enable Marlin dev mode which adds some special commands
-//#define MARLIN_DEV_MODE
+#define MARLIN_DEV_MODE

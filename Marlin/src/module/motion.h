@@ -42,7 +42,7 @@ FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits;
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
 FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
 FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
-
+bool dual_x_carriage_unpark();
 FORCE_INLINE bool homing_needed() {
   return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }

@@ -54,7 +54,7 @@
 #undef DEBUG_DELAY
 #undef DEBUG_SYNCHRONIZE
 
-#if DEBUG_OUT
+#ifdef DEBUG_OUT
 
   #include "debug_section.h"
   #define DEBUG_SECTION(N,S,D)    SectionLog N(PSTR(S),D)

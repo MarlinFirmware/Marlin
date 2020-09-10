@@ -128,26 +128,54 @@ void GcodeSuite::M115() {
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
-      const xyz_pos_t dmin = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-                      dmax = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
-      xyz_pos_t cmin = dmin, cmax = dmax;
-      apply_motion_limits(cmin);
-      apply_motion_limits(cmax);
-      const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
-                      wmin = cmin.asLogical(), wmax = cmax.asLogical();
-      SERIAL_ECHOLNPAIR(
+    const xyz_pos_t dmin = {X_MIN_POS, Y_MIN_POS, Z_MIN_POS},
+                    dmax = {X_MAX_POS, Y_MAX_POS, Z_MAX_POS},
+                    dminI2 = {X2_MIN_POS, Y_MAX_POS, Z_MAX_POS},
+                    dmaxI2 = {X2_MAX_POS, Y_MAX_POS, Z_MAX_POS};
+    xyz_pos_t cmin = dmin, cmax = dmax, cminI2 = dminI2, cmaxI2=dmaxI2;
+    apply_motion_limits(cmin);
+    apply_motion_limits(cmax);
+    apply_motion_limits(cminI2);
+    apply_motion_limits(cmaxI2);
+
+    const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
+                    lminI2 = dminI2.asLogical(), lmaxI2 = dmaxI2.asLogical(),
+                    wmin = cmin.asLogical(), wmax = cmax.asLogical(),
+                    wminI2 = cminI2.asLogical(), wmaxI2 = cmaxI2.asLogical();
+    SERIAL_ECHOLNPAIR(
         "area:{"
-          "full:{"
-            "min:{x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
-            "max:{x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
-          "},"
-          "work:{"
-            "min:{x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
-            "max:{x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
-          "}"
+        "full:{"
+        "min:{x:",
+        lmin.x, ",y:", lmin.y, ",z:", lmin.z, "},"
+                                              "max:{x:",
+        lmax.x, ",y:", lmax.y, ",z:", lmax.z, "}"
+                                              "},"
+                                              "work:{"
+                                              "min:{x:",
+        wmin.x, ",y:", wmin.y, ",z:", wmin.z, "},"
+                                              "max:{x:",
+        wmax.x, ",y:", wmax.y, ",z:", wmax.z, "}",
         "}"
-      );
+        "}");
+  #if ENABLED(DUAL_X_CARRIAGE)
+    SERIAL_ECHOLNPAIR(
+        "area:{"
+        "full:{"
+        "min:{x2:",
+        lminI2.x, ",y:", lmin.y, ",z:", lmin.z, "},"
+                                              "max:{x2:",
+        lmaxI2.x, ",y:", lmax.y, ",z:", lmax.z, "}"
+                                              "},"
+                                              "work:{"
+                                              "min:{x2:",
+        wminI2.x, ",y:", wmin.y, ",z:", wmin.z, "},"
+                                              "max:{x2:",
+        wmaxI2.x, ",y:", wmax.y, ",z:", wmax.z, "}",
+        "}"
+        "}");
     #endif
+
+#endif
 
   #endif // EXTENDED_CAPABILITIES_REPORT
 }

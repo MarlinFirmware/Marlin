@@ -219,13 +219,20 @@ void GcodeSuite::G28() {
   #endif
 
   // Home (O)nly if position is unknown
-  if (!homing_needed() && parser.boolval('O')) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
-    return;
+    SERIAL_ECHOLNPAIR("home needed ", homing_needed());
+    SERIAL_ECHOLNPAIR("parser boolval", parser.boolval('O'));
+    if (!homing_needed() && parser.boolval('O')) {
+        SERIAL_ECHOLNPAIR("home NOT needed ", homing_needed());
+
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> homing not needed, skip");
+        return;
   }
 
   // Wait for planner moves to finish!
   planner.synchronize();
+  SERIAL_ECHOLN(">");
+  SERIAL_ECHOLN("PLANNER SYNCH------------");
+  SERIAL_ECHOLN(">");
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
@@ -241,8 +248,11 @@ void GcodeSuite::G28() {
 
   // Count this command as movement / activity
   reset_stepper_timeout();
+  SERIAL_ECHOLN(">");
+  SERIAL_ECHOLN("stepper timeout------------");
+  SERIAL_ECHOLN(">");
 
-  #define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
+#define HAS_CURRENT_HOME(N) (defined(N##_CURRENT_HOME) && N##_CURRENT_HOME != N##_CURRENT)
   #if HAS_CURRENT_HOME(X) || HAS_CURRENT_HOME(X2) || HAS_CURRENT_HOME(Y) || HAS_CURRENT_HOME(Y2)
     #define HAS_HOMING_CURRENT 1
   #endif
@@ -281,15 +291,24 @@ void GcodeSuite::G28() {
       const uint8_t old_tool_index = active_extruder;
     #endif
     tool_change(0, true);
-  #endif
+    SERIAL_ECHOLN(">");
+    SERIAL_ECHOLN("tool 0------------");
+    SERIAL_ECHOLN(">");
+#endif
 
-  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
+    TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
 
-  remember_feedrate_scaling_off();
+    remember_feedrate_scaling_off();
+    SERIAL_ECHOLN(">");
+    M119();
+    endstops.enable(true); // Enable endstops for next homing move
 
-  endstops.enable(true); // Enable endstops for next homing move
+    SERIAL_ECHOLN(">");
+    SERIAL_ECHOLN("endstops enabled-----------");
+    SERIAL_ECHOLN(">");
+    M119();
 
-  #if ENABLED(DELTA)
+#if ENABLED(DELTA)
 
     constexpr bool doZ = true; // for NANODLP_Z_SYNC if your DLP is on a DELTA
 
@@ -305,17 +324,24 @@ void GcodeSuite::G28() {
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
+    SERIAL_ECHOLNPAIR("dox ", doX);
+    SERIAL_ECHOLNPAIR("doy ", doY);
+    SERIAL_ECHOLNPAIR("doz ", doZ);
+    SERIAL_ECHOLNPAIR("homex ", homeX);
+    SERIAL_ECHOLNPAIR("homey ", homeY);
+    SERIAL_ECHOLNPAIR("homez ", homeZ); //ighmc
+    SERIAL_ECHOLNPAIR("homeall ", home_all);
+    SERIAL_ECHOLN(">");
 
-    #if Z_HOME_DIR > 0  // If homing away from BED do Z first
+#if Z_HOME_DIR > 0 // If homing away from BED do Z first
 
-      if (doZ) homeaxis(Z_AXIS);
+        if (doZ) homeaxis(Z_AXIS);
 
     #endif
 
     const float z_homing_height =
       ENABLED(UNKNOWN_Z_NO_RAISE) && !TEST(axis_known_position, Z_AXIS)
-        ? 0
-        : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
+        ? 0 : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
     if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
@@ -324,9 +350,7 @@ void GcodeSuite::G28() {
     }
 
     #if ENABLED(QUICK_HOME)
-
-      if (doX && doY) quick_home_xy();
-
+          if (doX && doY) quick_home_xy();
     #endif
 
     // Home Y (before X)
@@ -335,30 +359,34 @@ void GcodeSuite::G28() {
 
     // Home X
     if (doX || (doY && ENABLED(CODEPENDENT_XY_HOMING) && DISABLED(HOME_Y_BEFORE_X))) {
-
-      #if ENABLED(DUAL_X_CARRIAGE)
-
+    #if ENABLED(DUAL_X_CARRIAGE)
+        SERIAL_ECHOLNPAIR("dox || doy with extruder 1 ", active_extruder); //ighmc
+        SERIAL_ECHOLN(">");
         // Always home the 2nd (right) extruder first
         active_extruder = 1;
+        M119();
+        SERIAL_ECHOLN(">");
         homeaxis(X_AXIS);
-
+        M119();
         // Remember this extruder's position for later tool change
         inactive_extruder_x_pos = current_position.x;
 
         // Home the 1st (left) extruder
+        SERIAL_ECHOLNPAIR("dox || doy with extruder 0 ", active_extruder); //ighmc
+        SERIAL_ECHOLN(">");
         active_extruder = 0;
+        M119();
+        SERIAL_ECHOLN(">");
         homeaxis(X_AXIS);
+        M119();
 
         // Consider the active extruder to be parked
         raised_parked_position = current_position;
         delayed_move_time = 0;
         active_extruder_parked = true;
-
-      #else
-
+    #else
         homeaxis(X_AXIS);
-
-      #endif
+    #endif
     }
 
     // Home Y (after X)
@@ -368,7 +396,7 @@ void GcodeSuite::G28() {
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
-    #if Z_HOME_DIR < 0
+#if Z_HOME_DIR < 0
 
       if (doZ) {
         TERN_(BLTOUCH, bltouch.init());
@@ -379,44 +407,56 @@ void GcodeSuite::G28() {
 
       } // doZ
 
-    #endif // Z_HOME_DIR < 0
+#endif // Z_HOME_DIR < 0
 
     sync_plan_position();
 
-  #endif // !DELTA (G28)
+#endif // !DELTA (G28)
 
-  /**
+/**
    * Preserve DXC mode across a G28 for IDEX printers in DXC_DUPLICATION_MODE.
    * This is important because it lets a user use the LCD Panel to set an IDEX Duplication mode, and
    * then print a standard GCode file that contains a single print that does a G28 and has no other
    * IDEX specific commands in it.
    */
-  #if ENABLED(DUAL_X_CARRIAGE)
+#if ENABLED(DUAL_X_CARRIAGE)
 
     if (dxc_is_duplicating()) {
+        SERIAL_ECHOLN("dxc duplicating:");
+        SERIAL_ECHOLNPAIR(">");
+        TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
+        // Always home the 2nd (right) extruder first
+        SERIAL_ECHOLN("homing extruder 1: ");
+        SERIAL_ECHOLNPAIR(">");
+        active_extruder = 1;
+        M119();
+        SERIAL_ECHOLN(">");
+        homeaxis(X_AXIS);
+        M119();
 
-      // Always home the 2nd (right) extruder first
-      active_extruder = 1;
-      homeaxis(X_AXIS);
+        // Remember this extruder's position for later tool change
+        inactive_extruder_x_pos = current_position.x;
 
-      // Remember this extruder's position for later tool change
-      inactive_extruder_x_pos = current_position.x;
+        // Home the 1st (left) extruder
+        SERIAL_ECHOLN("homing extruder 0: ");
+        SERIAL_ECHOLNPAIR(">");
+        active_extruder = 0;
+        M119();
+        SERIAL_ECHOLN(">");
+        homeaxis(X_AXIS);
+        M119();
+        // Consider the active extruder to be parked
+        raised_parked_position = current_position;
+        delayed_move_time = 0;
+        active_extruder_parked = true;
+        extruder_duplication_enabled = IDEX_saved_duplication_state;
+        dual_x_carriage_mode = IDEX_saved_mode;
+        stepper.set_directions();
 
-      // Home the 1st (left) extruder
-      active_extruder = 0;
-      homeaxis(X_AXIS);
-
-      // Consider the active extruder to be parked
-      raised_parked_position = current_position;
-      delayed_move_time = 0;
-      active_extruder_parked = true;
-      extruder_duplication_enabled = IDEX_saved_duplication_state;
-      dual_x_carriage_mode         = IDEX_saved_mode;
-      stepper.set_directions();
-
-      TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+        TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
+        SERIAL_ECHOLN("end duplication treatment:");
+        SERIAL_ECHOLNPAIR(">");
     }
 
   #endif // DUAL_X_CARRIAGE
