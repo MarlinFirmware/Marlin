@@ -268,12 +268,14 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1148)
 else ifeq ($(HARDWARE_MOTHERBOARD),1149)
 # MKS GEN L V2
 else ifeq ($(HARDWARE_MOTHERBOARD),1150)
-# Copymaster 3D
+# MKS GEN L V2.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1151)
-# Ortur 4
+# Copymaster 3D
 else ifeq ($(HARDWARE_MOTHERBOARD),1152)
-# Tenlog D3 Hero
+# Ortur 4
 else ifeq ($(HARDWARE_MOTHERBOARD),1153)
+# Tenlog D3 Hero
+else ifeq ($(HARDWARE_MOTHERBOARD),1154)
 
 #
 # RAMBo and derivatives
