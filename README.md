@@ -33,6 +33,9 @@ To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed b
 ## Supported TH3D Upgrades
 
 - [EZABL Pro Auto Bed Leveling Kit](https://ezabl.th3dstudio.com)
+- [EZBoard Lite on Select models (see above)](https://ezboard.th3dstudio.com)
+
+**EZOut Filament sensor support for V4.2.2 boards coming soon**
 
 ## Folder Structure
 
