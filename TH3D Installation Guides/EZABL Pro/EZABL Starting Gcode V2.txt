@@ -1,0 +1,29 @@
+M117 Print Starting...
+M75 ; Start Print Timer and Engage Fil Sensor if USB Printing
+M84 E ; Disable E Motor for probe accuracy on direct drive systems
+M117 Antiblob retract...
+G92 E0 ; Reset Extruder distance to 0
+G1 E-2 ; Retracts filament to prevent blobs during probing
+G92 E0 ; Reset Extruder distance to 0
+M117 Homing All...
+G28 ; home all axes
+M117 Homing Z Probe...
+G28 Z ; home z again
+M117 Generating mesh...
+G29; auto bed leveling
+M117 Heaters Recovering...
+G4 S10; wait for heaters to recover
+M420 Z0; Z fade
+M900 K0; LA
+
+M117 Purging extruder...
+G92 E0     ; reset extruder
+G1 Z1.0 F3000    ; move z up little to prevent scratching of surface
+G1 X0.1 Y20 Z0.3 F5000.0  ; move to start-line position
+G1 X0.1 Y100.0 Z0.3 F500.0 E15  ; draw 1st line
+G1 X0.4 Y100.0 Z0.3 F5000.0  ; move to side a little
+G1 X0.4 Y20 Z0.3 F500.0 E30  ; draw 2nd line
+G92 E0     ; reset extruder
+G1 Z1.0 F3000    ; move z up little to prevent scratching of surface
+
+M117 Printing.....

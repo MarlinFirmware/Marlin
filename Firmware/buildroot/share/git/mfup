@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+# mfup
+#
+# - Fetch latest upstream and replace the PR Target branch with
+# - Rebase the (current or specified) branch on the PR Target
+# - Force-push the branch to 'origin'
+#
+
+[[ $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1; }
+
+MFINFO=$(mfinfo "$@") || exit 1
+IFS=' ' read -a INFO <<< "$MFINFO"
+ORG=${INFO[0]}
+FORK=${INFO[1]}
+REPO=${INFO[2]}
+TARG=${INFO[3]}
+BRANCH=${INFO[4]}
+CURR=${INFO[5]}
+
+set -e
+
+# Prevent accidental loss of current changes
+[[ $(git stash) != "No local "* ]] && HAS_STASH=1
+
+echo "Fetching upstream ($ORG/$REPO)..."
+git fetch upstream
+
+if [[ $BRANCH != $TARG ]]; then
+  echo ; echo "Rebasing $BRANCH on $TARG..."
+  if [[ $BRANCH == $CURR ]] || git checkout $BRANCH; then
+    if git rebase upstream/$TARG; then
+      git push -f
+    else
+      echo "Looks like merge conflicts. Stopping here."
+      exit
+    fi
+  else
+    echo "No such branch!"
+  fi
+else
+  git reset --hard upstream/$TARG
+fi
+
+echo
+[[ $BRANCH != $CURR ]] && git checkout $CURR
+
+[[ $HAS_STASH == 1 ]] && git stash pop

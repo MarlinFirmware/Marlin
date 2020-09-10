@@ -9,15 +9,38 @@ This firmware focuses on printers with their **stock** control boards and select
 To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed build and install instructions are posted at:
 
   - [Setting up VSCode with PlatformIO](http://vscode.th3dstudio.com/)
+  - Video Guide (Coming Soon)
 
 ## Supported Printers & Boards
 
 **Creality Printers**
 
-- Ender 3 V2 with V4.2.2 Board
-- Ender 3 with V4.2.2 Board
-- Ender 3 Pro with V4.2.2 Board
+- Ender 3 V2
+	- V4.2.2 Board
+- Ender 3
+	- V4.2.2 Board
+- Ender 3 Pro
+	- V4.2.2 Board
+- Ender 5
+	- V4.2.2 Board
+- Ender 5 Pro
+	- V4.2.2 Board
 
+## Supported TH3D Upgrades
+
+- [EZABL Pro Auto Bed Leveling Kit](https://ezabl.th3dstudio.com)
+
+## Folder Structure
+
+- **Firmware**
+	- Main source code for the Unified 2 firmware. Copy your printer config files from the `Printer Configuration Files` folder
+	- This is the folder you will open with VSCode after copying in your printer config files
+- **Printer Configuration Files**
+	- Files for each printer configuration that is supported by this firmware
+- **STL Files**
+	- Contains files for EZABL mounts, solid bed mounts, and bed level test files
+- **TH3D Installation Guides**
+	- Installation guides and accompanying files for TH3D products like the EZABL and EZOut filament sensor kits
 
 ## Technical Support
 
@@ -42,8 +65,12 @@ The current Marlin dev team consists of:
  - João Brazio [[@jbrazio](https://github.com/jbrazio)] - Portugal
  - Erik van der Zalm [[@ErikZalm](https://github.com/ErikZalm)] - Netherlands &nbsp; [![Flattr Erik](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
 
-## License
+## Firmware License
 
 Marlin and Unified 2.0 Firmware is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
+
+## STL File License
+
+Some STL files are licensed to only TH3D customers and not permitted for re-distrubution by other individuals or companies. License files are accompanied in the ZIP file/folder for STL files that have a separate license.
