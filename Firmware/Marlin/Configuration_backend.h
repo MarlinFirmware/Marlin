@@ -316,3 +316,13 @@
     #define LEVEL_CENTER_TOO
   #endif
 #endif
+
+#if ENABLED(MANUAL_MESH_LEVELING) && DISABLED(ABL_ENABLE)
+  #define LCD_BED_LEVELING
+  #define MESH_EDIT_Z_STEP  0.025
+  #define LCD_PROBE_Z_RANGE 4
+  
+  #if DISABLED(SPACE_SAVER)
+    #define MESH_EDIT_MENU
+  #endif
+#endif

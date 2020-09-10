@@ -381,7 +381,7 @@
     #define Y_BED_SIZE 400
     #define Z_MAX_POS 400
     #define PRINTER_VOLTAGE_12
-	#define SLOWER_PROBE_MOVES
+    #define SLOWER_PROBE_MOVES
   #endif
 
   #if ENABLED(CR10_S5)
@@ -389,7 +389,7 @@
     #define Y_BED_SIZE 500
     #define Z_MAX_POS 500
     #define PRINTER_VOLTAGE_12
-	#define SLOWER_PROBE_MOVES
+    #define SLOWER_PROBE_MOVES
   #endif
 
   #if ENABLED(ENDER2)
