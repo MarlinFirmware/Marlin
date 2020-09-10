@@ -52,7 +52,7 @@ namespace Language_da {
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Forvarm ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Forvarm ") PREHEAT_1_LABEL " ~";
-    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end")
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end");
     PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" end ~");
     PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Alle");
     PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Forvarm ") PREHEAT_1_LABEL _UxGT(" Bed");
@@ -60,7 +60,7 @@ namespace Language_da {
 
     PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Forvarm $");
     PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Forvarm $ ~");
-    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Forvarm $ end")
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Forvarm $ end");
     PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Forvarm $ end ~");
     PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Forvarm $ Alle");
     PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Forvarm $ Bed");
