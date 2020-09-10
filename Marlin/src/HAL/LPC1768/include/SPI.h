@@ -63,7 +63,7 @@ class SPISettings {
 public:
   SPISettings(uint32_t spiRate, int inBitOrder, int inDataMode) {
     init_AlwaysInline(spiRate2Clock(spiRate), inBitOrder, inDataMode, DATA_SIZE_8BIT);
-  };
+  }
   SPISettings(uint32_t inClock, uint8_t inBitOrder, uint8_t inDataMode, uint32_t inDataSize) {
     if (__builtin_constant_p(inClock))
       init_AlwaysInline(inClock, inBitOrder, inDataMode, inDataSize);
@@ -74,7 +74,7 @@ public:
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0, DATA_SIZE_8BIT);
   }
 
-  // uint32_t spiRate() const { return spi_speed; }
+  //uint32_t spiRate() const { return spi_speed; }
 
   static inline uint32_t spiRate2Clock(uint32_t spiRate) {
     uint32_t Marlin_speed[7]; // CPSR is always 2
@@ -99,7 +99,7 @@ private:
     dataSize = inDataSize;
   }
 
-  // uint32_t spi_speed;
+  //uint32_t spi_speed;
   uint32_t clock;
   uint32_t dataSize;
   //uint32_t clockDivider;
@@ -136,7 +136,7 @@ public:
   void end();
 
   void beginTransaction(const SPISettings&);
-  void endTransaction() {};
+  void endTransaction() {}
 
   // Transfer using 1 "Data Size"
   uint8_t transfer(uint16_t data);
