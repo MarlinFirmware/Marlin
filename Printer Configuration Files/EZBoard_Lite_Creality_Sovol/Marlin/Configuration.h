@@ -45,7 +45,7 @@
 // If your machine came stock with a filament sensor it will be enabled automatically. If you replaced your stock sensor with our EZOut or you added an EZOut enabling the EZOUTV2_ENABLE will override the Creality sensor if your machine had one
 
 // If you are using our EZOut Sensor connect to the FIL SENSOR header with the RED wire lined up with the "5V" marking by the header and uncomment the below line.
-#define EZOUTV2_ENABLE
+//#define EZOUTV2_ENABLE
 
 // If you are using the Creality CR-10S Sensor connect to the FIL SENSOR header with the RED wire lined up with the "5V" marking by the header and uncomment the below line.
 //#define CR10S_STOCKFILAMENTSENSOR
