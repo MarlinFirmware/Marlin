@@ -41,8 +41,6 @@ void GcodeSuite::M993() {
     return;
   }
 
-  W25QXXFlash W25QXX;
-
   uint8_t buf[1024];
   uint32_t addr = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -70,8 +68,6 @@ void GcodeSuite::M994() {
     SERIAL_ECHOLNPAIR("Failed to open ", fname, " to read.");
     return;
   }
-
-  W25QXXFlash W25QXX;
 
   uint8_t buf[1024];
   uint32_t addr = 0;

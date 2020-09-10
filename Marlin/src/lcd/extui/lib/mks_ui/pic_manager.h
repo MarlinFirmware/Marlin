@@ -156,8 +156,6 @@ extern void spi_flash_read_test();
 extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view_Readsize);
 extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
-extern W25QXXFlash W25QXX;
-
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

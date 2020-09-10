@@ -49,7 +49,6 @@
   #include "../../../../feature/pause.h"
 #endif
 
-W25QXXFlash W25QXX;
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
