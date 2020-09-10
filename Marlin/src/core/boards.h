@@ -104,9 +104,10 @@
 #define BOARD_HJC2560C_REV2           1148  // ADIMLab Gantry v2
 #define BOARD_TANGO                   1149  // BIQU Tango V1
 #define BOARD_MKS_GEN_L_V2            1150  // MKS GEN L V2
-#define BOARD_COPYMASTER_3D           1151  // Copymaster 3D
-#define BOARD_ORTUR_4                 1152  // Ortur 4
-#define BOARD_TENLOG_D3_HERO          1153  // Tenlog D3 Hero IDEX printer
+#define BOARD_MKS_GEN_L_V21           1151  // MKS GEN L V2.1
+#define BOARD_COPYMASTER_3D           1152  // Copymaster 3D
+#define BOARD_ORTUR_4                 1153  // Ortur 4
+#define BOARD_TENLOG_D3_HERO          1154  // Tenlog D3 Hero IDEX printer
 
 //
 // RAMBo and derivatives
