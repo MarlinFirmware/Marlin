@@ -108,8 +108,6 @@
 #define STR_BROWNOUT_RESET                  " Brown out Reset"
 #define STR_WATCHDOG_RESET                  " Watchdog Reset"
 #define STR_SOFTWARE_RESET                  " Software Reset"
-#define STR_AUTHOR                          " | Author: "
-#define STR_CONFIGURATION_VER               " Last Updated: "
 #define STR_FREE_MEMORY                     " Free Memory: "
 #define STR_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define STR_OK                              "ok"
