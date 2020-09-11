@@ -29,7 +29,9 @@
 
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  #include "cocoa_press_ui.h"
+#elif ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
 #else
   #include "bio_printer_ui_landscape.h"
@@ -100,7 +102,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       // heating zones, but has no bed temperature
 
       cmd.cmd(COLOR_RGB(bg_text_enabled));
-      cmd.font(font_medium);
+      cmd.font(font_xsmall);
 
       ui.bounds(POLY(h0_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_1));
@@ -221,7 +223,7 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
     ui.color(syringe_rgb);
     ui.fill(POLY(syringe_outline));
 
-    ui.color(fill_rgb);
+    ui.color(fluid_rgb);
     ui.bounds(POLY(syringe_fluid), x, y, h, v);
     cmd.cmd(SAVE_CONTEXT());
     cmd.cmd(SCISSOR_XY(x,y + v * (1.0 - fill_level)));
@@ -245,23 +247,29 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   ui.button_stroke(stroke_rgb, 28);
   ui.button_shadow(shadow_rgb, shadow_depth);
 
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    constexpr uint8_t style = PolyUI::FILL | PolyUI::SHADOW;
+  #else
+    constexpr uint8_t style = PolyUI::REGULAR;
+  #endif
+
   if ((what & BACKGROUND) || jog_xy) {
-    ui.button(1, POLY(x_neg));
-    ui.button(2, POLY(x_pos));
-    ui.button(3, POLY(y_neg));
-    ui.button(4, POLY(y_pos));
+    ui.button(1, POLY(x_neg), style);
+    ui.button(2, POLY(x_pos), style);
+    ui.button(3, POLY(y_neg), style);
+    ui.button(4, POLY(y_pos), style);
   }
 
   if ((what & BACKGROUND) || z_homed) {
-    ui.button(5, POLY(z_neg));
-    ui.button(6, POLY(z_pos));
+    ui.button(5, POLY(z_neg), style);
+    ui.button(6, POLY(z_pos), style);
   }
 
   if ((what & BACKGROUND) || e_homed) {
     #if DISABLED(TOUCH_UI_COCOA_PRESS)
-      ui.button(7, POLY(e_neg));
+      ui.button(7, POLY(e_neg), style);
     #endif
-    ui.button(8, POLY(e_pos));
+    ui.button(8, POLY(e_pos), style);
   }
 }
 
@@ -300,13 +308,23 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   if (what & FOREGROUND) {
-    ui.button_fill  (fill_rgb);
+    #if ENABLED(TOUCH_UI_COCOA_PRESS)
+      ui.button_fill  (stroke_rgb);
+    #else
+      ui.button_fill  (fill_rgb);
+    #endif
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    if (!jog_xy)  ui.button(12, POLY(padlock));
-    if (!e_homed) ui.button(13, POLY(home_e));
-    if (!z_homed) ui.button(14, POLY(home_z));
+    #if ENABLED(TOUCH_UI_COCOA_PRESS)
+      constexpr uint8_t style = PolyUI::FILL | PolyUI::SHADOW;
+    #else
+      constexpr uint8_t style = PolyUI::REGULAR;
+    #endif
+
+    if (!jog_xy)  ui.button(12, POLY(padlock), style);
+    if (!e_homed) ui.button(13, POLY(home_e), style);
+    if (!z_homed) ui.button(14, POLY(home_z), style);
   }
 }
 

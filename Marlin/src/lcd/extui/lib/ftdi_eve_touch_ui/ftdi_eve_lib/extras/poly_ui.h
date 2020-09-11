@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -254,6 +254,13 @@ class GenericPolyUI {
     draw_mode_t mode;
 
   public:
+    enum ButtonStyle : uint8_t {
+        FILL    = 1,
+        STROKE  = 2,
+        SHADOW  = 4,
+        REGULAR = 7
+    };
+
     typedef POLY_READER poly_reader_t;
 
     GenericPolyUI(CommandProcessor &c, draw_mode_t what = BOTH) : cmd(c), mode(what) {}
@@ -355,11 +362,11 @@ class GenericPolyUI {
       btn_shadow_depth = depth;
     }
 
-    void button(const uint8_t tag, poly_reader_t r) {
+    void button(const uint8_t tag, poly_reader_t r, uint8_t style = REGULAR) {
       using namespace FTDI;
       // Draw the shadow
       #if FTDI_API_LEVEL >= 810
-      if (mode & BACKGROUND) {
+      if (mode & BACKGROUND && style & SHADOW) {
         cmd.cmd(SAVE_CONTEXT());
         cmd.cmd(TAG(tag));
         cmd.cmd(VERTEX_TRANSLATE_X(btn_shadow_depth * 16));
@@ -381,11 +388,15 @@ class GenericPolyUI {
         #endif
         // Draw the fill and stroke
         cmd.cmd(TAG(tag));
-        cmd.cmd(COLOR_RGB(btn_fill_color));
-        fill(r, false);
-        cmd.cmd(COLOR_RGB(btn_stroke_color));
-        cmd.cmd(LINE_WIDTH(btn_stroke_width));
-        stroke(r);
+        if(style & FILL) {
+          cmd.cmd(COLOR_RGB(btn_fill_color));
+          fill(r, false);
+        }
+        if(style & STROKE) {
+          cmd.cmd(COLOR_RGB(btn_stroke_color));
+          cmd.cmd(LINE_WIDTH(btn_stroke_width));
+          stroke(r);
+        }
         cmd.cmd(RESTORE_CONTEXT());
       }
     }
