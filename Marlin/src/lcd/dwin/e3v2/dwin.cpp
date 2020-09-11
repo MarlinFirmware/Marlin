@@ -215,11 +215,11 @@ void HMI_SetAndSaveLanguageChinese(void) {
 
 void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   if (value < 0) {
-    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, (char*)"-");
+    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, F("-"));
     DWIN_Draw_FloatValue(true, true, 0, size, White, bColor, iNum, fNum, x, y, -value);
   }
   else {
-    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, (char*)" ");
+    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, F(" "));
     DWIN_Draw_FloatValue(true, true, 0, size, White, bColor, iNum, fNum, x, y, value);
   }
 }
@@ -557,11 +557,11 @@ inline void Prepare_Item_Cool(const uint8_t row) {
 inline void Prepare_Item_Lang(const uint8_t row) {
   if (HMI_flag.language_chinese) {
     DWIN_Frame_AreaCopy(1, 239, 134, 271 - 5, 479 - 333, LBLX, MBASE(row));
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), (char*)"CN");
+    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), F("CN"));
   }
   else {
     DWIN_Frame_AreaCopy(1, 0, 194, 271 - 150, 479 - 272, LBLX, MBASE(row)); // "Language selection"
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), (char*)"EN");
+    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), F("EN"));
   }
   Draw_Menu_Icon(row, ICON_Language);
 }
@@ -622,13 +622,13 @@ inline void Draw_Control_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_CONTROL));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)GET_TEXT_F(MSG_TEMPERATURE));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)GET_TEXT_F(MSG_MOTION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_STORE_EEPROM));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_LOAD_EEPROM));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), (char*)GET_TEXT_F(MSG_RESTORE_DEFAULTS));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), GET_TEXT_F(MSG_TEMPERATURE));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), GET_TEXT_F(MSG_MOTION));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_STORE_EEPROM));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), GET_TEXT_F(MSG_LOAD_EEPROM));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
       if (CVISI(6))
-          DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 5), (char*)"Info");
+          DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 5), F("Info"));
     #else
       DWIN_Frame_AreaCopy(1, 128, 2, 271 - 95, 479 - 467, 14, 8);
       DWIN_Frame_AreaCopy(1,   1,    89, 271 - 188, 479 - 377 - 1, LBLX, CLINE(1));// Temperature >
@@ -669,11 +669,11 @@ inline void Draw_Tune_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_TUNE));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)GET_TEXT_F(MSG_SPEED));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_FAN_SPEED));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), (char*)GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), GET_TEXT_F(MSG_SPEED));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), GET_TEXT_F(MSG_FAN_SPEED));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
     #else
       DWIN_Frame_AreaCopy(1, 94, 2, 271 - 145, 479 - 467, 14, 9);
       DWIN_Frame_AreaCopy(1, 1, 179, 271 - 179, 479 - 287 - 2, LBLX, MBASE(1)); // print speed
@@ -748,10 +748,10 @@ inline void Draw_Motion_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_MOTION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Feedrate");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)GET_TEXT_F(MSG_ACCELERATION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_JERK));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_STEPS_PER_MM));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Feedrate"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), GET_TEXT_F(MSG_ACCELERATION));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_JERK));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), GET_TEXT_F(MSG_STEPS_PER_MM));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271 - 82, 479 - 453, 14, 8);
       draw_max_en(MBASE(1)); draw_speed_en(24 + 3, MBASE(1));               // "Max Speed"
@@ -787,8 +787,8 @@ void Popup_Window_Temperature(const bool toohigh) {
       DWIN_Frame_AreaCopy(1, 189, 389, 271 - 0, 402, 95, 310);
     }
     else {
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, (char*)"Nozzle or Bed temperature");
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, (char*)"is too high");
+      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, F("Nozzle or Bed temperature"));
+      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, F("is too high"));
     }
   }
   else {
@@ -798,8 +798,8 @@ void Popup_Window_Temperature(const bool toohigh) {
       DWIN_Frame_AreaCopy(1, 189, 389, 271 - 0, 402, 95, 310);
     }
     else {
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, (char*)"Nozzle or Bed temperature");
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, (char*)"is too low");
+      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, F("Nozzle or Bed temperature"));
+      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, F("is too low"));
     }
   }
 }
@@ -820,7 +820,7 @@ inline void Draw_Popup_Bkgd_60() {
       DWIN_ICON_Show(ICON, ICON_Confirm_C, 86, 280);
     }
     else {
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 20, 235, (char*)"Nozzle is too cold");
+      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 20, 235, F("Nozzle is too cold"));
       DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 280);
     }
   }
@@ -837,9 +837,9 @@ void Popup_Window_Resume(void) {
     DWIN_ICON_Show(ICON, ICON_Cancel_C, 146, 307);
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 120, 115, (char*)"Tips");
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 192, (char*)"I see the file stopped");
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 68, 212, (char*)"unexpectedly last time");
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 120, 115, F("Tips"));
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 192, F("I see the file stopped"));
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 68, 212, F("unexpectedly last time"));
     DWIN_ICON_Show(ICON, ICON_Continue_E, 26, 307);
     DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 307);
   }
@@ -855,8 +855,8 @@ void Popup_Window_Home(void) {
     DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 80, 230, (char*)GET_TEXT_F(MSG_LEVEL_BED_HOMING));
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 260, (char*)"Please wait until completed");
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 80, 230, GET_TEXT_F(MSG_LEVEL_BED_HOMING));
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 260, F("Please wait until completed"));
   }
 }
 
@@ -869,8 +869,8 @@ void Popup_Window_Leveling(void) {
     DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 76, 230, (char*)GET_TEXT_F(MSG_BED_LEVELING));
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 260, (char*)"Please wait until completed");
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 76, 230, GET_TEXT_F(MSG_BED_LEVELING));
+    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 260, F("Please wait until completed"));
   }
 }
 
@@ -895,8 +895,8 @@ void Popup_window_PauseOrStop(void) {
     DWIN_ICON_Show(ICON, ICON_Cancel_C, 146, 280);
   }
   else {
-    if (select_print.now == 1) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 88, 150, (char*)GET_TEXT_F(MSG_PAUSE_PRINT));
-    else if (select_print.now == 2) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 150, (char*)GET_TEXT_F(MSG_STOP_PRINT));
+    if (select_print.now == 1) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 88, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
+    else if (select_print.now == 2) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 150, GET_TEXT_F(MSG_STOP_PRINT));
     DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
     DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
   }
@@ -920,19 +920,19 @@ void Draw_Print_ProgressBar() {
   DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, BarFill_Color, 16 + Percentrecord * 240 / 100, 93, 256, 113);
   DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Background_black, 2, 117, 133, Percentrecord);
-  DWIN_Draw_String(false, false, font8x16, Percent_Color, Background_black, 117 + 16, 133, (char*)"%");
+  DWIN_Draw_String(false, false, font8x16, Percent_Color, Background_black, 117 + 16, 133, F("%"));
 }
 
 void Draw_Print_ProgressElapsed() {
   duration_t elapsed = print_job_timer.duration(); // print timer
   DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 42, 212, elapsed.value / 3600);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, 42 + 16, 212, (char*)":");
+  DWIN_Draw_String(false, false, font8x16, White, Background_black, 42 + 16, 212, F(":"));
   DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 42 + 24, 212, (elapsed.value % 3600) / 60);
 }
 
 void Draw_Print_ProgressRemain() {
   DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 176, 212, remain_time / 3600);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, 176 + 16, 212, (char*)":");
+  DWIN_Draw_String(false, false, font8x16, White, Background_black, 176 + 16, 212, F(":"));
   DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 176 + 24, 212, (remain_time % 3600) / 60);
 }
 
@@ -1595,7 +1595,7 @@ inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   if (row < 0) row = item + 1 + MROWS - index_file;
   const bool is_subdir = !card.flag.workDirIsRoot;
   if (is_subdir && item == 0) {
-    Draw_Menu_Line(row, ICON_Folder, (char*)"..");
+    Draw_Menu_Line(row, ICON_Folder, "..");
     return;
   }
 
@@ -1712,11 +1712,11 @@ void HMI_StartFrame(const bool with_update) {
   DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
 
   DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
-  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + (2 + 3) * STAT_CHR_W + 2, 429, (char*)"%");
+  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + (2 + 3) * STAT_CHR_W + 2, 429, F("%"));
 
   show_plus_or_minus(STAT_FONT, Background_black, 2, 2, 178, 429, BABY_Z_VAR * 100);
-  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + 3 * STAT_CHR_W + 5, 383, (char*)"/");
-  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 178 + 3 * STAT_CHR_W + 5, 383, (char*)"/");
+  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + 3 * STAT_CHR_W + 5, 383, F("/"));
+  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 178 + 3 * STAT_CHR_W + 5, 383, F("/"));
 
   if (with_update) {
     DWIN_UpdateLCD();
@@ -2287,11 +2287,11 @@ void Draw_Temperature_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_TEMPERATURE));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_FAN_SPEED));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)"PLA Preheat Settings");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), (char*)"ABS Preheat Settings");
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_FAN_SPEED));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), F("PLA Preheat Settings"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 4), F("ABS Preheat Settings"));
     #else
       DWIN_Frame_AreaCopy(1, 56, 16, 271 - 130, 479 - 450 - 1, 14, 8);
       DWIN_Frame_AreaCopy(1, 197, 104, 271 - 33, 479 - 365, LBLX, MBASE(1));                    // Nozzle...
@@ -2561,10 +2561,10 @@ void HMI_Temperature(void) {
             else {
               #ifdef USE_STRING_HEADINGS
                 Draw_Title("PLA Settings"); // TODO: GET_TEXT_F
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Nozzle Temp");
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Bed Temp");
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_FAN_SPEED));
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_STORE_EEPROM));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Nozzle Temp"));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Bed Temp"));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_FAN_SPEED));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), GET_TEXT_F(MSG_STORE_EEPROM));
               #else
                 DWIN_Frame_AreaCopy(1, 56, 16, 271 - 130, 479 - 450 - 1, 14, 8);
                 DWIN_Frame_AreaCopy(1, 157, 76, 181, 479 - 393, LBLX, MBASE(1));
@@ -2614,10 +2614,10 @@ void HMI_Temperature(void) {
             else {
               #ifdef USE_STRING_HEADINGS
                 Draw_Title("ABS Settings"); // TODO: GET_TEXT_F
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Nozzle Temp");
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Bed Temp");
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)GET_TEXT_F(MSG_FAN_SPEED));
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)GET_TEXT_F(MSG_STORE_EEPROM));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Nozzle Temp"));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Bed Temp"));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), GET_TEXT_F(MSG_FAN_SPEED));
+                DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), GET_TEXT_F(MSG_STORE_EEPROM));
               #else
                 DWIN_Frame_AreaCopy(1, 56, 16, 271 - 130, 479 - 450 - 1, 14, 8);
                 DWIN_Frame_AreaCopy(1, 172, 76, 198, 479 - 393, LBLX, MBASE(1));
@@ -2673,10 +2673,10 @@ inline void Draw_Max_Speed_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title("Max Speed (mm/s)"); // TODO: GET_TEXT_F
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Max Feedrate X");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Max Feedrate Y");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)"Max Feedrate Z");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)"Max Feedrate E");
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Max Feedrate X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Max Feedrate Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), F("Max Feedrate Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), F("Max Feedrate E"));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271 - 82, 479 - 453, 14, 8);
 
@@ -2728,10 +2728,10 @@ inline void Draw_Max_Accel_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_ACCELERATION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Max Accel X");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Max Accel Y");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)"Max Accel Z");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)"Max Accel E");
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Max Accel X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Max Accel Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), F("Max Accel Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), F("Max Accel E"));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271 - 82, 479 - 453, 14, 8);
       draw_max_accel_en(MBASE(1)); say_x(24 + 78 + 6, MBASE(1)); // "Max Acceleration X"
@@ -2776,10 +2776,10 @@ inline void Draw_Max_Jerk_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_JERK));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Max Jerk X");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Max Jerk Y");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)"Max Jerk Z");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)"Max Jerk E");
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Max Jerk X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Max Jerk Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), F("Max Jerk Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), F("Max Jerk E"));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271 - 82, 479 - 453, 14, 8);
       draw_max_en(MBASE(1));            // "Max"
@@ -2831,10 +2831,10 @@ inline void Draw_Steps_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_STEPS_PER_MM));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), (char*)"Steps/mm X");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), (char*)"Steps/mm Y");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), (char*)"Steps/mm Z");
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), (char*)"Steps/mm E");
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 0), F("Steps/mm X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 1), F("Steps/mm Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 2), F("Steps/mm Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, 60, 102 + (MLINE * 3), F("Steps/mm E"));
     #else
       DWIN_Frame_AreaCopy(1, 144, 16, 271 - 82, 479 - 453, 14, 8);
       draw_steps_per_mm(MBASE(1)); say_x(100 + 3, MBASE(1)); // "Steps-per-mm X"
