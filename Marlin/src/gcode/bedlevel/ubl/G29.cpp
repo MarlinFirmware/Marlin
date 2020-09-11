@@ -31,6 +31,18 @@
 #include "../../gcode.h"
 #include "../../../feature/bedlevel/bedlevel.h"
 
-void GcodeSuite::G29() { ubl.G29(); }
+#include "../../../MarlinCore.h" // for M_State_grbl
+
+void GcodeSuite::G29() {
+
+  M_State_grbl = M_PROBE;
+  report_current_grblstate_moving();
+
+  ubl.G29();
+
+  M_State_grbl = M_IDLE;
+  report_current_grblstate_moving();
+
+}
 
 #endif // AUTO_BED_LEVELING_UBL

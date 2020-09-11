@@ -1593,6 +1593,23 @@ void Planner::quick_stop() {
   stepper.quick_stop();
 }
 
+void Planner::quick_pause() {
+  // Suspend until quick_resume is called
+  // Don't empty buffers or queues
+  if (stepper.suspend()) {
+    M_State_grbl = M_HOLD;
+    report_current_grblstate_moving();
+  }
+}
+
+void Planner::quick_resume() {
+  // Resume if suspended
+  set_M_state_from_marlin_state();
+  report_current_grblstate_moving();
+  stepper.wake_up();
+}
+
+
 void Planner::endstop_triggered(const AxisEnum axis) {
   // Record stepper position and discard the current block
   stepper.endstop_triggered(axis);

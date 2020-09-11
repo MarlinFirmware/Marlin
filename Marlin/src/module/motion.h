@@ -172,6 +172,9 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
 void report_real_position();
 void report_current_position();
 void report_current_position_projected();
+void report_current_position_moving();
+void report_current_grblstate_moving(); 
+void set_M_state_from_marlin_state();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);

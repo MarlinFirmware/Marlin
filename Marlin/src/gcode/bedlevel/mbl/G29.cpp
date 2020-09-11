@@ -61,6 +61,9 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  */
 void GcodeSuite::G29() {
 
+  M_State_grbl = M_PROBE;
+  report_current_grblstate_moving();
+
   static int mbl_probe_index = -1;
   TERN_(HAS_SOFTWARE_ENDSTOPS, static bool saved_soft_endstops_state);
 
@@ -197,6 +200,9 @@ void GcodeSuite::G29() {
   }
 
   report_current_position();
+
+  M_State_grbl = M_IDLE;
+  report_current_grblstate_moving();
 }
 
 #endif // MESH_BED_LEVELING

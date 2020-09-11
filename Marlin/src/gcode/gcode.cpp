@@ -61,7 +61,7 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
-#include "../MarlinCore.h" // for idle()
+#include "../MarlinCore.h" // for idle(), M_State_grbl
 
 // Inactivity shutdown
 millis_t GcodeSuite::previous_move_ms = 0,
@@ -82,6 +82,10 @@ uint8_t GcodeSuite::axis_relative = (
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
+  #if !KEEPALIVE_INTERVAL_DIVIDER
+    #undef KEEPALIVE_INTERVAL_DIVIDER
+    #define KEEPALIVE_INTERVAL_DIVIDER 1
+  #endif
   GcodeSuite::MarlinBusyState GcodeSuite::busy_state = NOT_BUSY;
   uint8_t GcodeSuite::host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
 #endif
@@ -1017,18 +1021,23 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_MSG(STR_BUSY_PROCESSING);
+          TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
           break;
         case PAUSED_FOR_USER:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          M_State_grbl = M_HOLD;
+          report_current_grblstate_moving();
           break;
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_INPUT);
+          M_State_grbl = M_HOLD;
+          report_current_grblstate_moving();
           break;
         default:
           break;
       }
     }
-    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
+    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval) / (KEEPALIVE_INTERVAL_DIVIDER);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE

@@ -246,6 +246,48 @@ void report_current_position_projected() {
 }
 
 /**
+ * Output the current position (processed) to serial while moving
+ */
+void report_current_position_moving() {
+
+  get_cartesian_from_steppers();
+  const xyz_pos_t lpos = cartes.asLogical();
+  SERIAL_ECHOPAIR("X:", lpos.x, " Y:", lpos.y, " Z:", lpos.z, " E:", current_position.e);
+
+  stepper.report_positions();
+  #if IS_SCARA
+    scara_report_positions();
+  #endif
+  report_current_grblstate_moving();
+}
+
+/**
+ * Output the current grbl compatible state to serial while moving
+ */
+void report_current_grblstate_moving() {
+  #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+    SERIAL_ECHOPAIR("S_XYZ:", M_State_grbl);
+    SERIAL_EOL();
+  #endif
+}
+
+/**
+ *  grbl compatible state to marlin_state
+ */
+void set_M_state_from_marlin_state() {
+  switch (marlin_state) {
+      case MF_INITIALIZING: M_State_grbl = M_INIT; break;
+      case MF_SD_COMPLETE: M_State_grbl = M_ALARM; break;
+      case MF_WAITING: M_State_grbl = M_IDLE; break;
+      case MF_STOPPED: M_State_grbl = M_END; break;
+      case MF_RUNNING: M_State_grbl = M_RUNNING; break;
+      case MF_PAUSED: M_State_grbl = M_HOLD; break;
+      case MF_KILLED: M_State_grbl = M_ERROR; break;
+      default: M_State_grbl = M_IDLE;
+  }
+}
+
+/**
  * sync_plan_position
  *
  * Set the planner/stepper positions directly from current_position with

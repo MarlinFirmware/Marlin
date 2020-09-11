@@ -236,6 +236,8 @@ PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMST
 
 MarlinState marlin_state = MF_INITIALIZING;
 
+M_StateEnum M_State_grbl = M_INIT;
+
 // For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 bool wait_for_heatup = true;
 
@@ -339,6 +341,16 @@ void quickstop_stepper() {
   planner.synchronize();
   set_current_from_steppers_for_axis(ALL_AXES);
   sync_plan_position();
+}
+
+void quickpause_stepper() {
+  planner.quick_pause();
+  //planner.synchronize();
+}
+
+void quickresume_stepper() {
+  planner.quick_resume();
+  //planner.synchronize();
 }
 
 void enable_e_steppers() {

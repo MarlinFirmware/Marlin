@@ -829,6 +829,11 @@ class Planner {
     // a Full Shutdown is required, or when endstops are hit)
     static void quick_stop();
 
+    // Force a quick pause of the machine (for example, when a pause
+    // is required in the middle of move)
+    static void quick_pause();
+    static void quick_resume();
+
     // Called when an endstop is triggered. Causes the machine to stop inmediately
     static void endstop_triggered(const AxisEnum axis);
 

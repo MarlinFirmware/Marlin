@@ -202,6 +202,9 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
 
+  M_State_grbl = M_HOMING;
+  report_current_grblstate_moving();
+
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
@@ -463,6 +466,9 @@ void GcodeSuite::G28() {
 
   if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))
     SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
+
+  M_State_grbl = M_IDLE;
+  report_current_grblstate_moving();
 
   #if HAS_L64XX
     // Set L6470 absolute position registers to counts

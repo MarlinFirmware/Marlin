@@ -274,6 +274,8 @@ void plan_arc(
  */
 void GcodeSuite::G2_G3(const bool clockwise) {
   if (MOTION_CONDITIONS) {
+    M_State_grbl = M_RUNNING;
+    report_current_grblstate_moving();
 
     #if ENABLED(SF_ARC_FIX)
       const bool relative_mode_backup = relative_mode;
@@ -334,6 +336,9 @@ void GcodeSuite::G2_G3(const bool clockwise) {
     }
     else
       SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+
+    M_State_grbl = M_IDLE;
+    TERN_(FULL_REPORT_TO_HOST_FEATURE, report_current_position_moving());
   }
 }
 

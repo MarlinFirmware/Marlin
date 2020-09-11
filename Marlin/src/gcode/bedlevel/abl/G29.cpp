@@ -164,6 +164,9 @@
  */
 G29_TYPE GcodeSuite::G29() {
 
+  M_State_grbl = M_PROBE;
+  report_current_grblstate_moving();
+
   reset_stepper_timeout();
 
   const bool seenQ = EITHER(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen('Q');
@@ -897,6 +900,9 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
+
+  M_State_grbl = M_IDLE;
+  report_current_grblstate_moving();
 
   G29_RETURN(isnan(measured_z));
 }

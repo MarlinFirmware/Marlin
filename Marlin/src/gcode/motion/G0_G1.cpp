@@ -58,6 +58,8 @@ void GcodeSuite::G0_G1(
         | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )
     #endif
   ) {
+    M_State_grbl = M_RUNNING;
+    report_current_grblstate_moving();
 
     #ifdef G0_FEEDRATE
       feedRate_t old_feedrate;
@@ -120,6 +122,11 @@ void GcodeSuite::G0_G1(
         planner.synchronize();
         SERIAL_ECHOLNPGM(STR_Z_MOVE_COMP);
       }
+    #endif
+
+    #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+      TERN_(NANODLP_Z_SYNC, M_State_grbl = M_IDLE);
+      report_current_position_moving();
     #endif
   }
 }
