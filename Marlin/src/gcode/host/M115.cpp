@@ -51,6 +51,9 @@ void GcodeSuite::M115() {
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
     #endif
+    #ifdef STRING_CONFIG_H_AUTHOR
+      "CONFIG_BY:" STRING_CONFIG_H_AUTHOR
+    #endif
   );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
