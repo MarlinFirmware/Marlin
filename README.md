@@ -40,10 +40,10 @@ To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed b
 ## Folder Structure
 
 - **Firmware**
-	- Main source code for the Unified 2 firmware. Copy your printer config files from the `Printer Configuration Files` folder
+	- Main source code for the Unified 2 firmware. Copy your printer config files from the `Board Configuration Files` folder
 	- This is the folder you will open with VSCode after copying in your printer config files
-- **Printer Configuration Files**
-	- Files for each printer configuration that is supported by this firmware
+- **Board Configuration Files**
+	- Files for each printer configuration that is supported by this firmware, organized by the board being used
 - **STL Files**
 	- Contains files for EZABL mounts, solid bed mounts, and bed level test files
 - **TH3D Installation Guides**
