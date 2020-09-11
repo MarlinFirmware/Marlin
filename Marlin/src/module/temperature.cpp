@@ -126,7 +126,8 @@
 Temperature thermalManager;
 
 const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
-           str_t_heating_failed[] PROGMEM = STR_T_HEATING_FAILED;
+           str_t_heating_failed[] PROGMEM = STR_T_HEATING_FAILED,
+           str_t_maxtemp[] PROGMEM = STR_T_MAXTEMP;
 
 /**
  * Macros to include the heater id in temp errors. The compiler's dead-code
@@ -1040,7 +1041,7 @@ void Temperature::manage_heater() {
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         if (degHotend(e) > temp_range[e].maxtemp)
-          _temp_error((heater_ind_t)e, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+          _temp_error((heater_ind_t)e, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP));
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, hotend_idle[e].update(ms));
@@ -1093,7 +1094,7 @@ void Temperature::manage_heater() {
 
     #if ENABLED(THERMAL_PROTECTION_BED)
       if (degBed() > BED_MAXTEMP)
-        _temp_error(H_BED, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+        _temp_error(H_BED, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP_BED));
     #endif
 
     #if WATCH_BED
@@ -1173,7 +1174,7 @@ void Temperature::manage_heater() {
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
       if (degChamber() > CHAMBER_MAXTEMP)
-        _temp_error(H_CHAMBER, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+        _temp_error(H_CHAMBER, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP_CHAMBER));
     #endif
 
     #if WATCH_CHAMBER
