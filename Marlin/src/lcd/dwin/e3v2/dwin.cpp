@@ -1737,7 +1737,7 @@ inline void Draw_Info_Menu() {
   Clear_Main_Window();
 
   DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, (char*)MACHINE_SIZE);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, (char*)SHORT_BUILD_VERSION);
+  DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen_P(short_build_version) * MENU_CHR_W) / 2, 195, (const __FlashStringHelper *)short_build_version);
 
   if (HMI_flag.language_chinese) {
     DWIN_Frame_AreaCopy(1, 30, 17, 271 - 214, 479 - 450, 14, 8);

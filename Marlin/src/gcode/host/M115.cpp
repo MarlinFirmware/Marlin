@@ -36,13 +36,15 @@
   }
 #endif
 
+extern const char string_config_h_author[];
+
 /**
  * M115: Capabilities string and extended capabilities report
  *       If a capability is not reported, hosts should assume
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-  SERIAL_ECHOLNPGM(
+  SERIAL_ECHOPGM(
     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
     "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
     "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
@@ -51,10 +53,12 @@ void GcodeSuite::M115() {
     #ifdef MACHINE_UUID
       "UUID:" MACHINE_UUID
     #endif
-    #ifdef STRING_CONFIG_H_AUTHOR
-      "CONFIG_BY:" STRING_CONFIG_H_AUTHOR
-    #endif
   );
+  #ifdef STRING_CONFIG_H_AUTHOR
+    SERIAL_ECHOPGM("CONFIG_BY:");
+    serialprintPGM(string_config_h_author);
+  #endif
+  SERIAL_EOL();
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 

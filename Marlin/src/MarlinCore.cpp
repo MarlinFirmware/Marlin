@@ -233,6 +233,14 @@ PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMST
 PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
+#ifdef STRING_DISTRIBUTION_DATE
+  PGMSTR(string_distribution_date, STRING_DISTRIBUTION_DATE);
+#endif
+#ifdef STRING_CONFIG_H_AUTHOR
+  PGMSTR(string_config_h_author, STRING_CONFIG_H_AUTHOR);
+#endif
+PGMSTR(marlin_website_url, MARLIN_WEBSITE_URL);
+PGMSTR(short_build_version, SHORT_BUILD_VERSION);
 
 MarlinState marlin_state = MF_INITIALIZING;
 
@@ -975,13 +983,15 @@ void setup() {
 
   serialprintPGM(GET_TEXT(MSG_MARLIN));
   SERIAL_CHAR(' ');
-  SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
+  serialprintPGM(short_build_version);
+  SERIAL_EOL();
   SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
-    SERIAL_ECHO_MSG(
-      " Last Updated: " STRING_DISTRIBUTION_DATE
-      " | Author: " STRING_CONFIG_H_AUTHOR
-    );
+    SERIAL_ECHOPGM(" Last Updated: ");
+    serialprintPGM(string_distribution_date);
+    SERIAL_ECHOPGM(" | Author: ");
+    serialprintPGM(string_config_h_author);
+    SERIAL_EOL();
   #endif
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));

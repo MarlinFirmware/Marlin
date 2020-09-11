@@ -44,9 +44,7 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-#ifndef MACHINE_NAME
-  #define MACHINE_NAME "STEVAL-3DP001V1"
-#endif
+#define DEFAULT_MACHINE_NAME "STEVAL-3DP001V1"
 
 //
 // Limit Switches

@@ -432,12 +432,7 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
     }
   }
 
-  static void logo_lines(PGM_P const extra) {
-    int16_t indent = (LCD_WIDTH - 8 - utf8_strlen_P(extra)) / 2;
-    lcd_put_wchar(indent, 0, '\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
-    lcd_put_u8str_P(indent, 1, PSTR("|Marlin|"));  lcd_put_u8str_P(extra);
-    lcd_put_wchar(indent, 2, '\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
-  }
+  extern const char short_build_version[];
 
   void MarlinUI::show_bootscreen() {
     set_custom_characters(CHARSET_BOOT);
@@ -445,25 +440,34 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
 
-    #define CENTER_OR_SCROLL(STRING,DELAY) \
-      lcd_erase_line(3); \
-      if (utf8_strlen(STRING) <= LCD_WIDTH) { \
-        lcd_put_u8str_P((LCD_WIDTH - utf8_strlen_P(PSTR(STRING))) / 2, 3, PSTR(STRING)); \
-        safe_delay(DELAY); \
-      } \
-      else { \
-        lcd_scroll(0, 3, PSTR(STRING), LCD_WIDTH, DELAY); \
+    auto logo_lines = [](PGM_P const extra) {
+      int16_t indent = (LCD_WIDTH - 8 - (utf8_strlen_P(extra) + 1)) / 2;
+      lcd_put_wchar(indent, 0, '\x00'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x01');
+      lcd_put_u8str_P(indent, 1, PSTR("|Marlin|")); lcd_put_wchar(' '); lcd_put_u8str_P(extra);
+      lcd_put_wchar(indent, 2, '\x02'); lcd_put_u8str_P(PSTR( "------" ));  lcd_put_wchar('\x03');
+    };
+
+    auto center_or_scroll = [](PGM_P const pstr, const uint16_t delay) {
+      lcd_erase_line(3);
+      const size_t len = utf8_strlen_P(pstr);
+      if (len <= LCD_WIDTH) {
+        lcd_put_u8str_P((LCD_WIDTH - len) / 2, 3, pstr);
+        safe_delay(delay);
       }
+      else {
+        lcd_scroll(0, 3, pstr, LCD_WIDTH, delay);
+      }
+    };
 
     //
     // Show the Marlin logo with splash line 1
     //
-    if (LCD_EXTRA_SPACE >= utf8_strlen(SHORT_BUILD_VERSION) + 1) {
+    if (LCD_EXTRA_SPACE > utf8_strlen_P(short_build_version)) {
       //
       // Show the Marlin logo, splash line1, and splash line 2
       //
-      logo_lines(PSTR(" " SHORT_BUILD_VERSION));
-      CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 2000);
+      logo_lines(short_build_version);
+      center_or_scroll(marlin_website_url, 2000);
     }
     else {
       //
@@ -472,10 +476,10 @@ void MarlinUI::clear_lcd() { lcd.clear(); }
       //
       extern const char NUL_STR[];
       logo_lines(NUL_STR);
-      CENTER_OR_SCROLL(SHORT_BUILD_VERSION, 1500);
-      CENTER_OR_SCROLL(MARLIN_WEBSITE_URL, 1500);
+      center_or_scroll(short_build_version, 1500);
+      center_or_scroll(marlin_website_url, 1500);
       #ifdef STRING_SPLASH_LINE3
-        CENTER_OR_SCROLL(STRING_SPLASH_LINE3, 1500);
+        center_or_scroll(PSTR(STRING_SPLASH_LINE3), 1500);
       #endif
     }
 

@@ -48,6 +48,8 @@
   #error ANYCUBIC CHIRON LCD does not currently support POWER_LOSS_RECOVERY
 #endif
 
+extern const char short_build_version[];
+
 static bool is_auto_leveling = false;
 static bool is_printing_from_sd = false;
 static bool is_out_of_filament = false;
@@ -143,9 +145,7 @@ namespace ExtUI {
     static char selectedFileShortName[8+1+3+1];
 
     if (rx[0] != 'A') {
-      SERIAL_ECHOPGM("Unexpected RX: ");
-      SERIAL_ECHOLN(rx);
-
+      SERIAL_ECHOLNPAIR("Unexpected RX: ", rx);
       return;
     }
 
@@ -397,7 +397,8 @@ namespace ExtUI {
       //case 32: // ?
       //  break;
       case 33: // Get Version Info
-        SENDLINE_PGM("J33 " SHORT_BUILD_VERSION);
+        SEND_PGM("J33 ");
+        sendLine_P(short_build_version);
         break;
       case 34: // Set Bed Autolevel Grid
         {

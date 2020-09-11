@@ -163,6 +163,8 @@ bool MarlinUI::detected() { return true; }
   // Two-part needed to display all info
   constexpr bool two_part = ((LCD_PIXEL_HEIGHT) - (START_BMPHEIGHT)) < ((MENU_FONT_ASCENT) * 2);
 
+  extern const char short_build_version[], marlin_website_url[];
+
   // Draw the static Marlin bootscreen from a u8g loop
   // or the animated boot screen within its own u8g loop
   void MarlinUI::draw_marlin_bootscreen(const bool line2/*=false*/) {
@@ -199,8 +201,8 @@ bool MarlinUI::detected() { return true; }
     auto _draw_bootscreen_bmp = [&](const uint8_t *bitmap) {
       u8g.drawBitmapP(offx, offy, START_BMP_BYTEWIDTH, START_BMPHEIGHT, bitmap);
       set_font(FONT_MENU);
-      if (!two_part || !line2) lcd_put_u8str_P(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), PSTR(SHORT_BUILD_VERSION));
-      if (!two_part || line2) lcd_put_u8str_P(txt_offx_2, txt_base, PSTR(MARLIN_WEBSITE_URL));
+      if (!two_part || !line2) lcd_put_u8str_P(txt_offx_1, txt_base - (MENU_FONT_HEIGHT), short_build_version);
+      if (!two_part || line2) lcd_put_u8str_P(txt_offx_2, txt_base, marlin_website_url);
     };
 
     auto draw_bootscreen_bmp = [&](const uint8_t *bitmap) {

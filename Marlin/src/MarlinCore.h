@@ -122,4 +122,11 @@ void protected_pin_err();
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
                   SP_A_STR[], SP_B_STR[], SP_C_STR[],
                   SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
-                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
+                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[],
+                  #ifdef STRING_DISTRIBUTION_DATE
+                    string_distribution_date[],
+                  #endif
+                  #ifdef STRING_CONFIG_H_AUTHOR
+                    string_config_h_author[],
+                  #endif
+                  marlin_website_url[], short_build_version[];

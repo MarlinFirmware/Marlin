@@ -314,7 +314,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 
-const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
+extern const char short_build_version[];
 
 // Helper to define a DGUS_VP_Variable for common use cases.
 #define VPHELPER(VPADR, VPADRVAR, RXFPTR, TXFPTR ) { .VP=VPADR, .memadr=VPADRVAR, .size=sizeof(VPADRVAR), \
@@ -361,7 +361,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_Z_FIRST_LAYER_CAL, nullptr, &ScreenHandler.HandleFirstLayerCal, nullptr),
   #endif
 
-  { .VP = VP_MARLIN_VERSION, .memadr = (void*)MarlinVersion, .size = VP_MARLIN_VERSION_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
+  { .VP = VP_MARLIN_VERSION, .memadr = (void*)short_build_version, .size = VP_MARLIN_VERSION_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
   // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr
   { .VP = VP_M117, .memadr = nullptr, .size = VP_M117_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
 
