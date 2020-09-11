@@ -170,14 +170,27 @@
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  #define BEEPER_PIN                       P1_31
-  #define BTN_EN1                          P3_26
-  #define BTN_EN2                          P3_25
-  #define BTN_ENC                          P1_30
-  #define LCD_PINS_RS                      P0_16
-  #define LCD_PINS_ENABLE                  P0_18
-  #define LCD_PINS_D4                      P0_15
-  #define KILL_PIN                         P2_11
+  #define BEEPER_PIN       P1_31
+  #define BTN_EN1          P3_26
+  #define BTN_EN2          P3_25
+  #define BTN_ENC          P1_30
+  #define LCD_PINS_RS      P0_16
+  #define LCD_PINS_ENABLE  P0_18
+  #define LCD_PINS_D4      P0_15
+  #define KILL_PIN         P2_11
+#elif ENABLED(MKS_MINI_12864)
+  #define DOGLCD_CS    P0_16
+  #define DOGLCD_A0    P0_15
+  #define DOGLCD_SCK   P1_31
+  #define DOGLCD_MOSI  P0_18
+  #define BTN_ENC          P1_30
+  #define BTN_EN1          P3_26
+  #define BTN_EN2          P3_25
+  #define LCD_CONTRAST_INIT 160
+  #define LCD_CONTRAST_MIN  120
+  #define LCD_CONTRAST_MAX  180 
+  #define FORCE_SOFT_SPI
+  #define LCD_BACKLIGHT_PIN -1
 #elif HAS_SPI_LCD
   #error "Only the CR10_STOCKDISPLAY is supported with TH3D EZBoard."
 #endif
