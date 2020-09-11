@@ -155,10 +155,28 @@ void GCodeParser::parse(char *p) {
     #endif
   #endif
 
+  // Bail if the letter is not S, P, or R
+  #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+  switch (letter) {    
+      case 'S': case 'P': case 'R':
+      // Bail if there's no command code number
+      if (!NUMERIC(*p)) break;
+      // Save the command letter at this point
+      // A '?' signifies an unknown command
+      command_letter = letter;
+      // Get the code number - integer digits only
+      codenum = 0;
+      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
+      return;
+      
+      default: break;
+  }
+  #endif
+
+
   // Bail if the letter is not G, M, or T
   // (or a valid parameter for the current motion mode)
-  switch (letter) {
-
+  switch (letter) {    
     case 'G': case 'M': case 'T':
     #if ENABLED(CANCEL_OBJECTS)
       case 'O':
@@ -216,7 +234,7 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I': case 'J': case 'R':
+        case 'I': case 'J' : case 'R':
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
       case 'P': case 'Q':

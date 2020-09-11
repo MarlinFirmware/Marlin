@@ -262,6 +262,13 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
   // Handle a known G, M, or T
   switch (parser.command_letter) {
+    #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
+      case 'S': case 'P': case 'R': switch (parser.codenum) {
+        case 0: break; 
+      default: parser.unknown_command_warning(); break;
+    }
+    break;
+    #endif
     case 'G': switch (parser.codenum) {
 
       case 0: case 1: G0_G1(                                      // G0: Fast Move, G1: Linear Move
