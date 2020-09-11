@@ -49,8 +49,8 @@
     char buffer[21];
 
     START_SCREEN();                                                                         // 12345678901234567890
-    STATIC_ITEM(MSG_INFO_PRINT_COUNT,      SS_LEFT, i16tostr3left(stats.totalPrints));      // Print Count: 999
-    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS, SS_LEFT, i16tostr3left(stats.finishedPrints));   // Completed  : 666
+    PSTRING_ITEM(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), SS_LEFT);      // Print Count: 999
+    PSTRING_ITEM(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), SS_LEFT);   // Completed  : 666
 
     STATIC_ITEM(MSG_INFO_PRINT_TIME, SS_LEFT);                                              // Total print Time:
     STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.printTime).toString(buffer));       // > 99y 364d 23h 59m 59s
