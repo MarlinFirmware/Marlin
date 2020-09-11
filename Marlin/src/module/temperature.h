@@ -654,6 +654,13 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+      FORCE_INLINE static bool isHeatingProbe(const float target_temp) {
+        return target_temp > temp_probe.celsius;
+      }
+      FORCE_INLINE static bool isCoolingProbe(const float target_temp) {
+        return target_temp < temp_probe.celsius;
+      }
+      static bool wait_for_probe(const float target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE

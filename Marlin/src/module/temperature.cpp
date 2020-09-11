@@ -3280,6 +3280,81 @@ void Temperature::tick() {
 
   #endif // HAS_HEATED_BED
 
+  #if HAS_TEMP_PROBE
+
+    #ifndef MIN_DELTA_SLOPE_DEG_PROBE
+      #define MIN_DELTA_SLOPE_DEG_PROBE 1.0
+    #endif
+    #ifndef MIN_DELTA_SLOPE_TIME_PROBE
+      #define MIN_DELTA_SLOPE_TIME_PROBE 600
+    #endif
+
+    bool Temperature::wait_for_probe(const float target_temp, bool no_wait_for_cooling/*=true*/) {
+      // Loop until the temperature is very close target
+      #define TEMP_PROBE_CONDITIONS(target) (wants_to_cool ? isCoolingProbe(target) : isHeatingProbe(target))
+
+      const bool wants_to_cool = isCoolingProbe(target_temp);
+      wait_for_heatup = true;
+      millis_t now, next_temp_ms = 0, next_delta_check_ms = 0;
+      float old_temp = 9999;
+      bool retval = true;
+
+      #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
+        KEEPALIVE_STATE(NOT_BUSY);
+      #endif
+
+      SERIAL_ECHOLNPAIR("Waiting for probe to ", (wants_to_cool ? PSTR("cool down") : PSTR("heat up")), " to ", target_temp, " degrees.");
+
+      while(true) {
+        if (no_wait_for_cooling && wants_to_cool) {
+            SERIAL_ECHOLNPGM("Already at target probe temperature."); 
+            break;
+        }
+
+        now = millis();
+
+        //Print Temp Reading every 10 seconds while heating up.
+        if (!next_temp_ms || ELAPSED(now, next_temp_ms)) {
+          next_temp_ms = now + 10000UL;
+          print_heater_states(active_extruder);
+          SERIAL_EOL();
+        }
+
+        idle();
+        gcode.reset_stepper_timeout(); // Keep steppers powered
+
+        // Break after MIN_DELTA_SLOPE_TIME_PROBE seconds if the temperature
+        // did not drop at least MIN_DELTA_SLOPE_DEG_PROBE. This avoids waiting
+        // forever as the probe is not actively heated.
+        if (!next_delta_check_ms || ELAPSED(now, next_delta_check_ms)) {
+          const float temp = degProbe();
+          const float delta_temp = old_temp > temp ? old_temp - temp : temp - old_temp;
+          if (delta_temp < float(MIN_DELTA_SLOPE_DEG_PROBE)) {
+            SERIAL_ECHOLNPGM("Timed out waiting for probe temperature.");
+            break;
+          }
+          next_delta_check_ms = now + 1000UL * MIN_DELTA_SLOPE_TIME_PROBE;
+          old_temp = temp;
+        }
+        if (!TEMP_PROBE_CONDITIONS(target_temp)) {
+            SERIAL_ECHOLN(wants_to_cool ? PSTR("Cooldown") : PSTR("Heatup"));
+            SERIAL_ECHOLNPGM(" complete, target probe temperature reached."); 
+            break;
+        }
+        if (!wait_for_heatup) {
+          SERIAL_ECHOLNPGM("Cancelled wait for probe temperature."); 
+          retval = false;
+        }
+      }
+
+      if (wait_for_heatup) ui.reset_status();
+
+      return retval;
+    }
+
+
+  #endif // HAS_TEMP_PROBE
+
   #if HAS_HEATED_CHAMBER
 
     #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER
