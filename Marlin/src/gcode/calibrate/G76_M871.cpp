@@ -333,8 +333,6 @@ void GcodeSuite::M871() {
     temp_comp.print_offsets();
 }
 
-#endif // PROBE_TEMP_COMPENSATION
-
 void GcodeSuite::M872() {
 if (DEBUGGING(DRYRUN)) return;
   const bool no_wait_for_cooling = parser.seenval('S');
@@ -351,3 +349,5 @@ if (DEBUGGING(DRYRUN)) return;
   ui.set_status_P(thermalManager.isHeatingProbe(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
+
+#endif // PROBE_TEMP_COMPENSATION
