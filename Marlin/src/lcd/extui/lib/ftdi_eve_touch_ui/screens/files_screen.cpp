@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE)
+#if BOTH(TOUCH_UI_FTDI_EVE, SDSUPPORT)
 
 #include "screens.h"
 #include "screen_data.h"

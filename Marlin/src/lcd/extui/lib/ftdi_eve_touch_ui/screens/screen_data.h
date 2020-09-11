@@ -62,6 +62,7 @@ union screen_data_t {
   } MoveAxisScreen;
 #if HAS_MESH
   struct {
+    bool    showMappingDone;
     uint8_t count;
     uint8_t highlightedTag;
   } BedMeshScreen;
