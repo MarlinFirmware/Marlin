@@ -83,7 +83,7 @@ void W25QXXFlash::init(uint8_t spiRate) {
  * @details
  */
 uint8_t W25QXXFlash::spi_flash_Rec() {
-  uint8_t returnByte = SPI.transfer(ff);
+  uint8_t returnByte = SPI.transfer(0xFF);
   return returnByte;
 }
 
