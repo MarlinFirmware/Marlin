@@ -260,11 +260,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     }
   #endif
 
-  // Handle a known G, M, or T
+  // Handle a known G, M, or T (S,P & R from emergency parser)
   switch (parser.command_letter) {
     #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
       case 'S': case 'P': case 'R': switch (parser.codenum) {
-        case 0: break; 
+        case 0: if(parser.numchars==3) break; 
       default: parser.unknown_command_warning(); break;
     }
     break;

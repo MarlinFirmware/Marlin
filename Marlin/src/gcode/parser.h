@@ -85,6 +85,7 @@ public:
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
   static int codenum;                     // 123
+  static int numchars;                     // 123
   #if ENABLED(USE_GCODE_SUBCODES)
     static uint8_t subcode;               // .1
   #endif

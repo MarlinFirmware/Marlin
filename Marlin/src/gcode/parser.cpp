@@ -50,6 +50,7 @@ char *GCodeParser::command_ptr,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
 int GCodeParser::codenum;
+int GCodeParser::numchars;
 
 #if ENABLED(USE_GCODE_SUBCODES)
   uint8_t GCodeParser::subcode;
@@ -166,9 +167,14 @@ void GCodeParser::parse(char *p) {
       command_letter = letter;
       // Get the code number - integer digits only
       codenum = 0;
-      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
+      numchars=0;
+      while (NUMERIC(*p)) {
+        codenum += *p++ - '0';
+        codenum *= 10;
+        numchars++;
+      }
       return;
-      
+
       default: break;
   }
   #endif
