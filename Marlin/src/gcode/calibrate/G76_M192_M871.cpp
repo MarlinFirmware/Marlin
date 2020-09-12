@@ -334,13 +334,13 @@ void GcodeSuite::M871() {
 }
 
 /**
- * M872: Wait for probe temperature sensor to reach a target
+ * M192: Wait for probe temperature sensor to reach a target
  *
  * Select only one of these flags:
  *    R - Wait for heating or cooling
  *    S - Wait only for heating
  */
-void GcodeSuite::M872() {
+void GcodeSuite::M192() {
   if (DEBUGGING(DRYRUN)) return;
 
   const bool no_wait_for_cooling = parser.seenval('S');
