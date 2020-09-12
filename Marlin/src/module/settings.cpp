@@ -3595,17 +3595,17 @@ void MarlinSettings::reset() {
       #if HAS_STEALTHCHOP
         CONFIG_ECHO_HEADING("Driver stepping mode:");
         #if AXIS_HAS_STEALTHCHOP(X)
-          const bool chop_x = stepperX.get_stealthChop_status();
+          const bool chop_x = stepperX.get_stored_stealthChop_status();
         #else
           constexpr bool chop_x = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          const bool chop_y = stepperY.get_stealthChop_status();
+          const bool chop_y = stepperY.get_stored_stealthChop_status();
         #else
           constexpr bool chop_y = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          const bool chop_z = stepperZ.get_stealthChop_status();
+          const bool chop_z = stepperZ.get_stored_stealthChop_status();
         #else
           constexpr bool chop_z = false;
         #endif
@@ -3619,17 +3619,17 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(X2)
-          const bool chop_x2 = stepperX2.get_stealthChop_status();
+          const bool chop_x2 = stepperX2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_x2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          const bool chop_y2 = stepperY2.get_stealthChop_status();
+          const bool chop_y2 = stepperY2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_y2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          const bool chop_z2 = stepperZ2.get_stealthChop_status();
+          const bool chop_z2 = stepperZ2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_z2 = false;
         #endif
@@ -3643,36 +3643,36 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          if (stepperZ3.get_stealthChop_status()) { say_M569(forReplay, PSTR("I2 Z"), true); }
+          if (stepperZ3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I2 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          if (stepperZ4.get_stealthChop_status()) { say_M569(forReplay, PSTR("I3 Z"), true); }
+          if (stepperZ4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I3 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(E0)
-          if (stepperE0.get_stealthChop_status()) { say_M569(forReplay, PSTR("T0 E"), true); }
+          if (stepperE0.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T0 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E1)
-          if (stepperE1.get_stealthChop_status()) { say_M569(forReplay, PSTR("T1 E"), true); }
+          if (stepperE1.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T1 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E2)
-          if (stepperE2.get_stealthChop_status()) { say_M569(forReplay, PSTR("T2 E"), true); }
+          if (stepperE2.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T2 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E3)
-          if (stepperE3.get_stealthChop_status()) { say_M569(forReplay, PSTR("T3 E"), true); }
+          if (stepperE3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T3 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E4)
-          if (stepperE4.get_stealthChop_status()) { say_M569(forReplay, PSTR("T4 E"), true); }
+          if (stepperE4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T4 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
-          if (stepperE5.get_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
+          if (stepperE5.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E6)
-          if (stepperE6.get_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
+          if (stepperE6.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E7)
-          if (stepperE7.get_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
+          if (stepperE7.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
         #endif
 
       #endif // HAS_STEALTHCHOP
