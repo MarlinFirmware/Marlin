@@ -4,38 +4,9 @@ Unified Firmware 2.0 is the latest easy to use firmware for select 3D printers a
 
 This firmware focuses on printers with their **stock** control boards and select aftermarket boards that we carry. If you have a 3rd party or other board installed in your machine it is recommended to use ["Vanilla" Marlin](https://marlinfw.org) on your machine.
 
-## Building Unified 2.0 Firmware
+## Where to download and how to use it
 
-To build Unified 2.0 Firmware will need to use PlatformIO and VSCode. Detailed build and install instructions are posted at:
-
-  - [Setting up VSCode with PlatformIO](http://vscode.th3dstudio.com/)
-  - Video Guide (Coming Soon)
-
-## Supported Printers & Boards
-
-**Creality Printers**
-
-- Ender 3 V2
-	- V4.2.2 Board
-- Ender 3
-	- V4.2.2 Board
-	- [EZBoard Lite](https://ezboard.th3dstudio.com)
-- Ender 3 Pro
-	- V4.2.2 Board
-	- [EZBoard Lite](https://ezboard.th3dstudio.com)
-- Ender 5
-	- V4.2.2 Board
-	- [EZBoard Lite](https://ezboard.th3dstudio.com)
-- Ender 5 Pro
-	- V4.2.2 Board
-	- [EZBoard Lite](https://ezboard.th3dstudio.com)
-
-## Supported TH3D Upgrades
-
-- [EZABL Pro Auto Bed Leveling Kit](https://ezabl.th3dstudio.com)
-- [EZBoard Lite on Select models (see above)](https://ezboard.th3dstudio.com)
-
-**EZOut Filament sensor support for V4.2.2 boards coming soon**
+Always download the latest firmware releases from our Unified 2 Firmware website here: [UF2.TH3DStudio.com](http://uf2.th3dstudio.com)
 
 ## Folder Structure
 
