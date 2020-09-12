@@ -31,7 +31,7 @@ static SPISettings spiConfig;
 
 void spiBegin() {
   #if !PIN_EXISTS(SS)
-    #error SS_PIN not defined!
+    #error "SS_PIN not defined!"
   #endif
   OUT_WRITE(SS_PIN, HIGH);
   SET_OUTPUT(SCK_PIN);

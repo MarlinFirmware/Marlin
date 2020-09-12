@@ -153,6 +153,7 @@
 #define ON_BOARD_SPI_DEVICE                    1
 #define ONBOARD_SD_CS_PIN                   PA4   // SDSS
 #define SDIO_SUPPORT
+#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #if ENABLED(CR10_STOCKDISPLAY) && NONE(RET6_12864_LCD, VET6_12864_LCD)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
@@ -160,7 +161,7 @@
 
 #if ENABLED(RET6_12864_LCD)
 
-  /* RET6 12864 LCD */
+  // RET6 12864 LCD
   #define LCD_PINS_RS                       PB12
   #define LCD_PINS_ENABLE                   PB15
   #define LCD_PINS_D4                       PB13
@@ -173,7 +174,7 @@
 
 #elif ENABLED(VET6_12864_LCD)
 
-  /* VET6 12864 LCD */
+  // VET6 12864 LCD
   #define LCD_PINS_RS                       PA4
   #define LCD_PINS_ENABLE                   PA7
   #define LCD_PINS_D4                       PA5
@@ -184,7 +185,7 @@
 
 #elif ENABLED(DWIN_CREALITY_LCD)
 
-  /* RET6 DWIN ENCODER LCD */
+  // RET6 DWIN ENCODER LCD
   #define BTN_ENC                           PB14
   #define BTN_EN1                           PB15
   #define BTN_EN2                           PB12
@@ -197,7 +198,7 @@
 
 #elif ENABLED(DWIN_VET6_CREALITY_LCD)
 
-  /* VET6 DWIN ENCODER LCD */
+  // VET6 DWIN ENCODER LCD
   #define BTN_ENC                           PA6
   #define BTN_EN1                           PA7
   #define BTN_EN2                           PA4

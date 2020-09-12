@@ -530,8 +530,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Сумарно");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Сработал концевик");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Разогрев не удался");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Сбой нагрева стола");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Сбой нагрева камеры");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Ошибка:Избыточная Т");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("УТЕЧКА ТЕПЛА");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("УТЕЧКА ТЕПЛА СТОЛА");
@@ -642,7 +640,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("До конца, мм");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Ошибка парковки");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Ошибка зондирования");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ВЫБИРЕТЕ ФИЛАМЕНТ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Настройки MMU");

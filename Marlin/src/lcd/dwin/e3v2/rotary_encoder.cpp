@@ -20,41 +20,39 @@
  *
  */
 
-/**
-  ******************************************************************************
-  * @file     rotary_encoder.cpp
-  * @author   LEO / Creality3D
-  * @date     2019/07/06
-  * @version  2.0.1
-  * @brief    旋转编码器操作函数
-  ******************************************************************************
-**/
+/*****************************************************************************
+ * @file     rotary_encoder.cpp
+ * @author   LEO / Creality3D
+ * @date     2019/07/06
+ * @version  2.0.1
+ * @brief    Rotary encoder functions
+ *****************************************************************************/
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
 #include "rotary_encoder.h"
 
-#include "../../MarlinCore.h"
-#include "../../HAL/shared/Delay.h"
+#include "../../../MarlinCore.h"
+#include "../../../HAL/shared/Delay.h"
 
 #if HAS_BUZZER
-  #include "../../libs/buzzer.h"
+  #include "../../../libs/buzzer.h"
 #endif
 
 #include <stdlib.h>
 
 ENCODER_Rate EncoderRate;
 
-/*蜂鸣器响*/
+// Buzzer
 void Encoder_tick(void) {
   WRITE(BEEPER_PIN, 1);
   delay(10);
   WRITE(BEEPER_PIN, 0);
 }
 
-/*编码器初始化 PB12:Encoder_A PB13:Encoder_B PB14:Encoder_C*/
+// Encoder initialization
 void Encoder_Configuration(void) {
   #if BUTTON_EXISTS(EN1)
     SET_INPUT_PULLUP(BTN_EN1);
@@ -70,8 +68,7 @@ void Encoder_Configuration(void) {
   #endif
 }
 
-millis_t next_click_update_ms;
-/*接收数据解析 返回值:ENCODER_DIFF_NO,无状态; ENCODER_DIFF_CW,顺时针旋转; ENCODER_DIFF_CCW,逆时针旋转; ENCODER_DIFF_ENTER,按下*/
+// Analyze encoder value and return state
 ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   const millis_t now = millis();
   static unsigned char lastEncoderBits;
@@ -82,6 +79,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
   if (BUTTON_PRESSED(EN1)) newbutton |= 0x01;
   if (BUTTON_PRESSED(EN2)) newbutton |= 0x02;
   if (BUTTON_PRESSED(ENC)) {
+    static millis_t next_click_update_ms;
     if (ELAPSED(now, next_click_update_ms)) {
       next_click_update_ms = millis() + 300;
       Encoder_tick();
@@ -127,15 +125,15 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
 
       // if must encoder rati multiplier
       if (EncoderRate.encoderRateEnabled) {
-        const float abs_diff = ABS(temp_diff);
-        const float encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
+        const float abs_diff = ABS(temp_diff),
+                    encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
         if (EncoderRate.lastEncoderTime) {
           // Note that the rate is always calculated between two passes through the
           // loop and that the abs of the temp_diff value is tracked.
           const float encoderStepRate = encoderMovementSteps / float(ms - EncoderRate.lastEncoderTime) * 1000;
-          if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)  encoderMultiplier = 100;
-          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC) encoderMultiplier = 5;
+               if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC) encoderMultiplier = 100;
+          else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC)  encoderMultiplier = 10;
+          else if (encoderStepRate >= ENCODER_5X_STEPS_PER_SEC)   encoderMultiplier = 5;
         }
         EncoderRate.lastEncoderTime = ms;
       }
@@ -154,22 +152,22 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
 
 #if PIN_EXISTS(LCD_LED)
 
-  /*取低24位有效  24Bit: G7 G6 G5 G4 G3 G2 G1 G0 R7 R6 R5 R4 R3 R2 R1 R0 B7 B6 B5 B4 B3 B2 B1 B0*/
+  // Take the low 24 valid bits  24Bit: G7 G6 G5 G4 G3 G2 G1 G0 R7 R6 R5 R4 R3 R2 R1 R0 B7 B6 B5 B4 B3 B2 B1 B0
   unsigned int LED_DataArray[LED_NUM];
 
-  /*LED灯操作*/
+  // LED light operation
   void LED_Action(void) {
     LED_Control(RGB_SCALE_WARM_WHITE,0x0F);
     delay(30);
     LED_Control(RGB_SCALE_WARM_WHITE,0x00);
   }
 
-  /*LED初始化*/
+  // LED initialization
   void LED_Configuration(void) {
     SET_OUTPUT(LCD_LED_PIN);
   }
 
-  /*LED写数据*/
+  // LED write data
   void LED_WriteData(void) {
     unsigned char tempCounter_LED, tempCounter_Bit;
     for (tempCounter_LED = 0; tempCounter_LED < LED_NUM; tempCounter_LED++) {
@@ -189,7 +187,9 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     }
   }
 
-  /*LED控制 RGB_Scale:RGB色彩配比 luminance:亮度(0~0xFF)*/
+  // LED control
+  //  RGB_Scale: RGB color ratio
+  //  luminance: brightness (0~0xFF)
   void LED_Control(unsigned char RGB_Scale, unsigned char luminance) {
     unsigned char temp_Counter;
     for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
@@ -203,7 +203,10 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     LED_WriteData();
   }
 
-  /*LED渐变控制 RGB_Scale:RGB色彩配比 luminance:亮度(0~0xFF) change_Time:渐变时间(ms)*/
+  // LED gradient control
+  //  RGB_Scale: RGB color ratio
+  //  luminance: brightness (0~0xFF)
+  //  change_Time: gradient time (ms)
   void LED_GraduallyControl(unsigned char RGB_Scale, unsigned char luminance, unsigned int change_Interval) {
     unsigned char temp_Counter;
     unsigned char LED_R_Data[LED_NUM], LED_G_Data[LED_NUM], LED_B_Data[LED_NUM];
@@ -246,6 +249,6 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     }
   }
 
-#endif
+#endif // LCD_LED
 
 #endif // DWIN_CREALITY_LCD

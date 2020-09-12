@@ -37,6 +37,17 @@
 #include "../../module/probe.h"
 #include "../../feature/probe_temp_comp.h"
 
+#include "../../lcd/ultralcd.h"
+#include "../../MarlinCore.h" // for wait_for_heatup and idle()
+
+#if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+  #include "../../module/printcounter.h"
+#endif
+
+#if ENABLED(PRINTER_EVENTS_LEDS)
+  #include "../../feature/leds/leds.h"
+#endif
+
 /**
  * G76: calibrate probe and/or bed temperature offsets
  *  Notes:
@@ -303,23 +314,44 @@ void GcodeSuite::M871() {
   }
   else if (parser.seen("BPE")) {
     if (!parser.seenval('V')) return;
-    const int16_t val = parser.value_int();
+    const int16_t offset_val = parser.value_int();
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
     const TempSensorID mod = (parser.seen('B') ? TSI_BED :
-                              #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-                                parser.seen('E') ? TSI_EXT :
-                              #endif
-                              TSI_PROBE
+                                #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+                                  parser.seen('E') ? TSI_EXT :
+                                #endif
+                                TSI_PROBE
                               );
-    if (idx > 0 && temp_comp.set_offset(mod, idx - 1, val))
-      SERIAL_ECHOLNPAIR("Set value: ", val);
+    if (idx > 0 && temp_comp.set_offset(mod, idx - 1, offset_val))
+      SERIAL_ECHOLNPAIR("Set value: ", offset_val);
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
 
   }
   else // Print current Z-probe adjustments. Note: Values in EEPROM might differ.
     temp_comp.print_offsets();
+}
+
+/**
+ * M872: Wait for probe temperature sensor to reach a target
+ *
+ * Select only one of these flags:
+ *    R - Wait for heating or cooling
+ *    S - Wait only for heating
+ */
+void GcodeSuite::M872() {
+  if (DEBUGGING(DRYRUN)) return;
+
+  const bool no_wait_for_cooling = parser.seenval('S');
+  if (!no_wait_for_cooling && ! parser.seenval('R')) {
+    SERIAL_ERROR_MSG("No target temperature set.");
+    return;
+  }
+
+  const float target_temp = parser.value_celsius();
+  ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
+  thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
 
 #endif // PROBE_TEMP_COMPENSATION

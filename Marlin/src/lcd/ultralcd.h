@@ -312,16 +312,18 @@ public:
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
 
+  #if ENABLED(DWIN_CREALITY_LCD)
+    static void refresh();
+  #else
+    FORCE_INLINE static void refresh() {
+      TERN_(HAS_SPI_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+    }
+  #endif
+
   #if HAS_SPI_LCD
     static bool detected();
     static void init_lcd();
-    FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
   #else
-    #if ENABLED(DWIN_CREALITY_LCD)
-      static void refresh();
-    #else
-      static inline void refresh()  {}
-    #endif
     static inline bool detected() { return true; }
     static inline void init_lcd() {}
   #endif
@@ -403,13 +405,9 @@ public:
 
       #if HAS_GRAPHICAL_LCD
 
-        static bool drawing_screen, first_page;
-
         static void set_font(const MarlinFont font_nr);
 
       #else
-
-        static constexpr bool drawing_screen = false, first_page = true;
 
         static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
 
@@ -458,6 +456,12 @@ public:
 
       static void status_screen();
 
+    #endif
+
+    #if HAS_GRAPHICAL_LCD
+      static bool drawing_screen, first_page;
+    #else
+      static constexpr bool drawing_screen = false, first_page = true;
     #endif
 
     static bool get_blink();
