@@ -12,6 +12,7 @@
 
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
 // THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS.
+// REPORT ANY ISSUES TO THE FORUM POST HERE: https://support.th3dstudio.com/hc/en-us/community/posts/360073161631-Unified-2-SKR-E3-Mini-Board-Testing-Thread-Ender-3-Ender5
 
 //===========================================================================
 // *************************   CREALITY PRINTERS    *************************
