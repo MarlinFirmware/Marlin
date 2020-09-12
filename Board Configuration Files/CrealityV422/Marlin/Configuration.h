@@ -568,5 +568,3 @@
  */
  
 #include "Configuration_backend.h"
-
-#define UNIFIED_VERSION "TH3D UFW 2.00"
