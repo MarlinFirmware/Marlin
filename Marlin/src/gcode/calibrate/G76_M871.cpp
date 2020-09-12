@@ -314,7 +314,7 @@ void GcodeSuite::M871() {
   }
   else if (parser.seen("BPE")) {
     if (!parser.seenval('V')) return;
-    const int16_t val = parser.value_int();
+    const int16_t offset_val = parser.value_int();
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
     const TempSensorID mod = (parser.seen('B') ? TSI_BED :
@@ -323,8 +323,8 @@ void GcodeSuite::M871() {
                                 #endif
                                 TSI_PROBE
                               );
-    if (idx > 0 && temp_comp.set_offset(mod, idx - 1, val))
-      SERIAL_ECHOLNPAIR("Set value: ", val);
+    if (idx > 0 && temp_comp.set_offset(mod, idx - 1, offset_val))
+      SERIAL_ECHOLNPAIR("Set value: ", offset_val);
     else
       SERIAL_ECHOLNPGM("!Invalid index. Failed to set value (note: value at index 0 is constant).");
 
@@ -333,6 +333,13 @@ void GcodeSuite::M871() {
     temp_comp.print_offsets();
 }
 
+/**
+ * M872: Wait for probe temperature sensor to reach a target
+ *
+ * Select only one of these flags:
+ *    R - Wait for heating or cooling
+ *    S - Wait only for heating
+ */
 void GcodeSuite::M872() {
   if (DEBUGGING(DRYRUN)) return;
 
@@ -341,14 +348,9 @@ void GcodeSuite::M872() {
     SERIAL_ERROR_MSG("No target temperature set.");
     return;
   }
-  #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-    else if (parser.value_celsius() > BED_MINTEMP) {
-      print_job_timer.start();
-    }
-  #endif
 
   const float target_temp = parser.value_celsius();
-  ui.set_status_P(thermalManager.isHeatingProbe(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
+  ui.set_status_P(thermalManager.isProbeBelowTemp(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
 }
 
