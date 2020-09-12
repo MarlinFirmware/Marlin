@@ -23,10 +23,11 @@
 
 #define REVERSE_TEMP_SENSOR_RANGE_21 1
 
-// Pt100 with INA826 amp with 3.3V excitation based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics"
-// As the uC ADC reference voltage is 3.3V as well as the INA826 supply/reference, the same table as for 5V excitation is valid.
-// The ADC is referring his counts to the reference voltage as the IN826 opamp does scale the output voltage to the supply voltage in the analog domain.
-// Note, that the quantization error of this table in conjunction with rounding of the temperature reading can result in a few degrees error most noticeable between datapoints, e.g. 25°C, 35°C, etc.
+#undef OV_SCALE
+#define OV_SCALE(N) (float((N) * 5) / 3.3f)
+
+// Pt100 with INA826 amplifier board with 5v supply based on "Pt100 with INA826 amp on Ultimaker v2.0 electronics" with 3v3 ADC reference on the mainboard
+// If the ADC reference and INA826 board supply voltage are identical, use senosr no. 20 instead.
 const temp_entry_t temptable_21[] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
@@ -73,3 +74,5 @@ const temp_entry_t temptable_21[] PROGMEM = {
   { OV(614),  500 }
 };
 
+#undef OV_SCALE
+#define OV_SCALE(N) (N)
