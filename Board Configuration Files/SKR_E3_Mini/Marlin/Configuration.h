@@ -224,10 +224,12 @@
     #ifndef MOTHERBOARD
       #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_2
     #endif
-  #else ENABLED(SKR_E3_MINI_V2_0)  
+  #elif ENABLED(SKR_E3_MINI_V2_0)  
     #ifndef MOTHERBOARD
       #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
     #endif
+  #else
+    #error "UNCOMMENT YOUR BOARD VERSION AND TRY AGAIN."
   #endif
   
   #if ENABLED(ENDER5_NEW_LEADSCREW)
