@@ -271,15 +271,17 @@
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
  * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  */
-#define AUTOTEMP
-#if ENABLED(AUTOTEMP)
-  #define AUTOTEMP_OLDWEIGHT    0.98
-  // Turn on AUTOTEMP on M104/M109 by default using proportions set here
-  //#define AUTOTEMP_PROPORTIONAL
-  #if ENABLED(AUTOTEMP_PROPORTIONAL)
-    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
-    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
-    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+#if DISABLED(SPACE_SAVER)
+  #define AUTOTEMP
+  #if ENABLED(AUTOTEMP)
+    #define AUTOTEMP_OLDWEIGHT    0.98
+    // Turn on AUTOTEMP on M104/M109 by default using proportions set here
+    //#define AUTOTEMP_PROPORTIONAL
+    #if ENABLED(AUTOTEMP_PROPORTIONAL)
+      #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
+      #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
+      #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
+    #endif
   #endif
 #endif
 
@@ -2548,7 +2550,9 @@
    * M912 - Clear stepper driver overtemperature pre-warn condition flag.
    * M122 - Report driver parameters (Requires TMC_DEBUG)
    */
-  #define MONITOR_DRIVER_STATUS
+  #if DISABLED(SPACE_SAVER)
+    #define MONITOR_DRIVER_STATUS
+  #endif
 
   #if ENABLED(MONITOR_DRIVER_STATUS)
     #define CURRENT_STEP_DOWN     50  // [mA]
@@ -2643,7 +2647,9 @@
    * Enable M122 debugging command for TMC stepper drivers.
    * M122 S0/1 will enable continous reporting.
    */
-  #define TMC_DEBUG
+  #if DISABLED(SPACE_SAVER)
+    #define TMC_DEBUG
+  #endif
 
   /**
    * You can set your own advanced settings by filling in predefined functions.

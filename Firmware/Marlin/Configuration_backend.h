@@ -70,13 +70,15 @@
   #define DEFAULT_Kd 114
 #endif
 
-#define PIDTEMPBED
-#define MAX_BED_POWER 255
-#if ENABLED(PIDTEMPBED)
-  #ifndef DEFAULT_bedKp
-    #define DEFAULT_bedKp 10.00 // Define Marlin default bed PID if no machine specific PID is defined.
-    #define DEFAULT_bedKi .023
-    #define DEFAULT_bedKd 305.4
+#if DISABLED(SPACE_SAVER)
+  #define PIDTEMPBED
+  #define MAX_BED_POWER 255
+  #if ENABLED(PIDTEMPBED)
+    #ifndef DEFAULT_bedKp
+      #define DEFAULT_bedKp 10.00 // Define Marlin default bed PID if no machine specific PID is defined.
+      #define DEFAULT_bedKi .023
+      #define DEFAULT_bedKd 305.4
+    #endif
   #endif
 #endif
 
@@ -173,7 +175,10 @@
   #endif
 #endif
 
-#define S_CURVE_ACCELERATION
+#if DISABLED(SPACE_SAVER)
+  #define S_CURVE_ACCELERATION
+#endif
+
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
 #if ENABLED(SLOWER_HOMING)
   #define HOMING_FEEDRATE_XY (20*60)
