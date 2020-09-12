@@ -3305,15 +3305,16 @@ void Temperature::tick() {
 
       SERIAL_ECHOLNPAIR("Waiting for probe to ", (wants_to_cool ? PSTR("cool down") : PSTR("heat up")), " to ", target_temp, " degrees.");
 
-      while(true) {
+      while (true) {
+
         if (no_wait_for_cooling && wants_to_cool) {
-            SERIAL_ECHOLNPGM("Already at target probe temperature."); 
-            break;
+          SERIAL_ECHOLNPGM("Already at target probe temperature.");
+          break;
         }
 
         now = millis();
 
-        //Print Temp Reading every 10 seconds while heating up.
+        // Print Temp Reading every 10 seconds while heating up.
         if (!next_temp_ms || ELAPSED(now, next_temp_ms)) {
           next_temp_ms = now + 10000UL;
           print_heater_states(active_extruder);
@@ -3338,11 +3339,11 @@ void Temperature::tick() {
         }
         if (!TEMP_PROBE_CONDITIONS(target_temp)) {
             SERIAL_ECHOLN(wants_to_cool ? PSTR("Cooldown") : PSTR("Heatup"));
-            SERIAL_ECHOLNPGM(" complete, target probe temperature reached."); 
+            SERIAL_ECHOLNPGM(" complete, target probe temperature reached.");
             break;
         }
         if (!wait_for_heatup) {
-          SERIAL_ECHOLNPGM("Cancelled wait for probe temperature."); 
+          SERIAL_ECHOLNPGM("Canceled wait for probe temperature.");
           retval = false;
         }
       }

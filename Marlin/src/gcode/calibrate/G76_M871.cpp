@@ -318,10 +318,10 @@ void GcodeSuite::M871() {
     if (!parser.seenval('I')) return;
     const int16_t idx = parser.value_int();
     const TempSensorID mod = (parser.seen('B') ? TSI_BED :
-                              #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-                                parser.seen('E') ? TSI_EXT :
-                              #endif
-                              TSI_PROBE
+                                #if ENABLED(USE_TEMP_EXT_COMPENSATION)
+                                  parser.seen('E') ? TSI_EXT :
+                                #endif
+                                TSI_PROBE
                               );
     if (idx > 0 && temp_comp.set_offset(mod, idx - 1, val))
       SERIAL_ECHOLNPAIR("Set value: ", val);
@@ -334,17 +334,19 @@ void GcodeSuite::M871() {
 }
 
 void GcodeSuite::M872() {
-if (DEBUGGING(DRYRUN)) return;
+  if (DEBUGGING(DRYRUN)) return;
+
   const bool no_wait_for_cooling = parser.seenval('S');
   if (!no_wait_for_cooling && ! parser.seenval('R')) {
     SERIAL_ERROR_MSG("No target temperature set.");
     return;
   }
   #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-  else if (parser.value_celsius() > BED_MINTEMP) {
-    print_job_timer.start();
-  }
+    else if (parser.value_celsius() > BED_MINTEMP) {
+      print_job_timer.start();
+    }
   #endif
+
   const float target_temp = parser.value_celsius();
   ui.set_status_P(thermalManager.isHeatingProbe(target_temp) ? GET_TEXT(MSG_PROBE_HEATING) : GET_TEXT(MSG_PROBE_COOLING));
   thermalManager.wait_for_probe(target_temp, no_wait_for_cooling);
