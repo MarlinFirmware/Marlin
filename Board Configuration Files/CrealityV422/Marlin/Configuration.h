@@ -173,7 +173,8 @@
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
-// Use your own printer name
+// Use your own printer name - Uncomment both lines
+//#define CUSTOM_PRINTER_NAME
 //#define USER_PRINTER_NAME "CHANGE ME"
 
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.

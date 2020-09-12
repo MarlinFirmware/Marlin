@@ -2269,7 +2269,7 @@
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE       true  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-  #if ENABLED(EZBOARD)
+  #if ENABLED(EZBOARD) || ENABLED(SKR_E3_MINI_BOARD)
     #if AXIS_IS_TMC(X)
       #define X_CURRENT       600        // (mA) RMS current. Multiply by 1.414 for peak current.
       #define X_CURRENT_HOME  X_CURRENT  // (mA) RMS current for sensorless homing
@@ -2295,7 +2295,7 @@
     #define X2_CHAIN_POS     -1
   #endif
 
-  #if ENABLED(EZBOARD)
+  #if ENABLED(EZBOARD) || ENABLED(SKR_E3_MINI_BOARD)
     #if AXIS_IS_TMC(Y)
       #if ENABLED(CR10_S5) || ENABLED(CR10S_S5)
         #define Y_CURRENT   800
@@ -2328,7 +2328,7 @@
     #define Y2_CHAIN_POS     -1
   #endif
 
-  #if ENABLED(EZBOARD)
+  #if ENABLED(EZBOARD) || ENABLED(SKR_E3_MINI_BOARD)
     #if AXIS_IS_TMC(Z)
       #if ENABLED(DUAL_Z_MOTORS)
         #define Z_CURRENT     1000
@@ -2381,7 +2381,7 @@
     #define Z4_CHAIN_POS     -1
   #endif
 
-  #if AXIS_IS_TMC(E0)
+  #if AXIS_IS_TMC(E0) || ENABLED(SKR_E3_MINI_BOARD)
     #if ENABLED(PANCAKE_STEPPER)
       #define E0_CURRENT    600
     #else

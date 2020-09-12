@@ -13,6 +13,7 @@
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
 // THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS.
 // REPORT ANY ISSUES TO THE FORUM POST HERE: https://support.th3dstudio.com/hc/en-us/community/posts/360073161631-Unified-2-SKR-E3-Mini-Board-Testing-Thread-Ender-3-Ender5
+// Config Version BETA3 9/12/2020 - This is still in testing
 
 //===========================================================================
 // *************************   CREALITY PRINTERS    *************************
@@ -170,7 +171,8 @@
 // If you have a 5015 fan that whines when under 100% speed uncomment the below line.
 //#define FAN_FIX
 
-// Use your own printer name
+// Use your own printer name - Uncomment both lines
+//#define CUSTOM_PRINTER_NAME
 //#define USER_PRINTER_NAME "CHANGE ME"
 
 // If your printer is homing to the endstops hard uncomment this to change the homing speed/divisor to make it less aggressive.
@@ -212,6 +214,7 @@
 #if EITHER(ENDER3_SKR_E3_MINI,ENDER5_SKR_E3_MINI)
   #define SERIAL_PORT -1
   #define SERIAL_PORT_2 2
+  #define SKR_E3_MINI_BOARD
 
   #define BAUDRATE 115200
   
@@ -371,19 +374,19 @@
   #define Z_ENABLE_ON 0
   #define E_ENABLE_ON 0
 
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
+  #define INVERT_X_DIR true
+  #define INVERT_Y_DIR true
   
   #if ENABLED(ENDER5_SKR_E3_MINI)
-    #define INVERT_Z_DIR false
-  #else  
     #define INVERT_Z_DIR true
+  #else  
+    #define INVERT_Z_DIR false
   #endif
 
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
-    #define INVERT_E0_DIR true
-  #else
     #define INVERT_E0_DIR false
+  #else
+    #define INVERT_E0_DIR true
   #endif
   
   #define INVERT_E1_DIR false
