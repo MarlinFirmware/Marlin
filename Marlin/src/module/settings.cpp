@@ -1191,60 +1191,60 @@ void MarlinSettings::postprocess() {
 
       #if HAS_STEALTHCHOP
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_stealth_enabled.X = stepperX.get_stealthChop_status();
+          tmc_stealth_enabled.X = stepperX.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_stealth_enabled.Y = stepperY.get_stealthChop_status();
+          tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_stealth_enabled.Z = stepperZ.get_stealthChop_status();
+          tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_stealth_enabled.X2 = stepperX2.get_stealthChop_status();
+          tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_stealth_enabled.Y2 = stepperY2.get_stealthChop_status();
+          tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_stealth_enabled.Z2 = stepperZ2.get_stealthChop_status();
+          tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_stealth_enabled.Z3 = stepperZ3.get_stealthChop_status();
+          tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          tmc_stealth_enabled.Z4 = stepperZ4.get_stealthChop_status();
+          tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop_status();
         #endif
         #if MAX_EXTRUDERS
           #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_stealth_enabled.E0 = stepperE0.get_stealthChop_status();
+            tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop_status();
           #endif
           #if MAX_EXTRUDERS > 1
             #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_stealth_enabled.E1 = stepperE1.get_stealthChop_status();
+              tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop_status();
             #endif
             #if MAX_EXTRUDERS > 2
               #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_stealth_enabled.E2 = stepperE2.get_stealthChop_status();
+                tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop_status();
               #endif
               #if MAX_EXTRUDERS > 3
                 #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_stealth_enabled.E3 = stepperE3.get_stealthChop_status();
+                  tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop_status();
                 #endif
                 #if MAX_EXTRUDERS > 4
                   #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_stealth_enabled.E4 = stepperE4.get_stealthChop_status();
+                    tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop_status();
                   #endif
                   #if MAX_EXTRUDERS > 5
                     #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_stealth_enabled.E5 = stepperE5.get_stealthChop_status();
+                      tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop_status();
                     #endif
                     #if MAX_EXTRUDERS > 6
                       #if AXIS_HAS_STEALTHCHOP(E6)
-                        tmc_stealth_enabled.E6 = stepperE6.get_stealthChop_status();
+                        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop_status();
                       #endif
                       #if MAX_EXTRUDERS > 7
                         #if AXIS_HAS_STEALTHCHOP(E7)
-                          tmc_stealth_enabled.E7 = stepperE7.get_stealthChop_status();
+                          tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop_status();
                         #endif
                       #endif // MAX_EXTRUDERS > 7
                     #endif // MAX_EXTRUDERS > 6
