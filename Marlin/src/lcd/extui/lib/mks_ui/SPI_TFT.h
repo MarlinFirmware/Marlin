@@ -23,6 +23,8 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#if HAS_TFT_LVGL_UI
+
 #include "../../../tft_io/tft_io.h"
 
 #define TFT_RST_H OUT_WRITE(TFT_RESET_PIN, HIGH)
@@ -45,3 +47,5 @@ public:
 };
 
 extern TFT SPI_TFT;
+
+#endif // HAS_TFT_LVGL_UI

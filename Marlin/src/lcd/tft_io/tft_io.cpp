@@ -21,6 +21,9 @@
  */
 
 #include "tft_io.h"
+
+#if HAS_SPI_TFT || HAS_FSMC_TFT
+
 #include "st7735.h"
 #include "st7789v.h"
 #include "st7796s.h"
@@ -219,3 +222,5 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
 
   io.DataTransferEnd();
 }
+
+#endif // HAS_SPI_TFT || HAS_FSMC_TFT
