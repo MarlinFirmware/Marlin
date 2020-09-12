@@ -57,7 +57,7 @@ EpInfo* USB::getEpInfoEntry(uint8_t addr, uint8_t ep) {
   UsbDevice *p = addrPool.GetUsbDevicePtr(addr);
 
   if (!p || !p->epinfo)
-    return NULL;
+    return nullptr;
 
   EpInfo *pep = p->epinfo;
 
@@ -67,7 +67,7 @@ EpInfo* USB::getEpInfoEntry(uint8_t addr, uint8_t ep) {
 
     pep++;
   }
-  return NULL;
+  return nullptr;
 }
 
 /* set device table entry */
@@ -141,7 +141,7 @@ uint8_t USB::ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bReque
   uint8_t rcode;
   SETUP_PKT setup_pkt;
 
-  EpInfo *pep = NULL;
+  EpInfo *pep = nullptr;
   uint16_t nak_limit = 0;
 
   rcode = SetAddress(addr, ep, &pep, &nak_limit);
@@ -162,7 +162,7 @@ uint8_t USB::ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bReque
   rcode = dispatchPkt(tokSETUP, ep, nak_limit); //dispatch packet
   if (rcode) return rcode; // Return HRSLT if not zero
 
-  if (dataptr != NULL) { //data stage, if present
+  if (dataptr != nullptr) { //data stage, if present
     if (direction) { //IN transfer
       uint16_t left = total;
       pep->bmRcvToggle = 1; //bmRCVTOG1;
@@ -205,7 +205,7 @@ uint8_t USB::ctrlReq(uint8_t addr, uint8_t ep, uint8_t bmReqType, uint8_t bReque
 /* rcode 0 if no errors. rcode 01-0f is relayed from dispatchPkt(). Rcode f0 means RCVDAVIRQ error,
       fe USB xfer timeout */
 uint8_t USB::inTransfer(uint8_t addr, uint8_t ep, uint16_t *nbytesptr, uint8_t* data, uint8_t bInterval /*= 0*/) {
-  EpInfo *pep = NULL;
+  EpInfo *pep = nullptr;
   uint16_t nak_limit = 0;
 
   uint8_t rcode = SetAddress(addr, ep, &pep, &nak_limit);
@@ -289,7 +289,7 @@ uint8_t USB::InTransfer(EpInfo *pep, uint16_t nak_limit, uint16_t *nbytesptr, ui
 
 /* rcode 0 if no errors. rcode 01-0f is relayed from HRSL                       */
 uint8_t USB::outTransfer(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* data) {
-  EpInfo *pep = NULL;
+  EpInfo *pep = nullptr;
   uint16_t nak_limit = 0;
 
   uint8_t rcode = SetAddress(addr, ep, &pep, &nak_limit);
@@ -529,7 +529,7 @@ void USB::Task(void) { //USB state machine
 uint8_t USB::DefaultAddressing(uint8_t parent, uint8_t port, bool lowspeed) {
   //uint8_t                buf[12];
   uint8_t rcode;
-  UsbDevice *p0 = NULL, *p = NULL;
+  UsbDevice *p0 = nullptr, *p = nullptr;
 
   // Get pointer to pseudo device with address 0 assigned
   p0 = addrPool.GetUsbDevicePtr(0);
@@ -649,8 +649,8 @@ uint8_t USB::Configuring(uint8_t parent, uint8_t port, bool lowspeed) {
   uint8_t rcode = 0;
   uint8_t buf[sizeof (USB_DEVICE_DESCRIPTOR)];
   USB_DEVICE_DESCRIPTOR *udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR *>(buf);
-  UsbDevice *p = NULL;
-  EpInfo *oldep_ptr = NULL;
+  UsbDevice *p = nullptr;
+  EpInfo *oldep_ptr = nullptr;
   EpInfo epInfo;
 
   epInfo.epAddr = 0;
@@ -749,12 +749,12 @@ uint8_t USB::ReleaseDevice(uint8_t addr) {
 //get device descriptor
 
 uint8_t USB::getDevDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t* dataptr) {
-  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, 0x00, USB_DESCRIPTOR_DEVICE, 0x0000, nbytes, nbytes, dataptr, NULL);
+  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, 0x00, USB_DESCRIPTOR_DEVICE, 0x0000, nbytes, nbytes, dataptr, nullptr);
 }
 //get configuration descriptor
 
 uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint16_t nbytes, uint8_t conf, uint8_t* dataptr) {
-  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, conf, USB_DESCRIPTOR_CONFIGURATION, 0x0000, nbytes, nbytes, dataptr, NULL);
+  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, conf, USB_DESCRIPTOR_CONFIGURATION, 0x0000, nbytes, nbytes, dataptr, nullptr);
 }
 
 /* Requests Configuration Descriptor. Sends two Get Conf Descr requests. The first one gets the total length of all descriptors, then the second one requests this
@@ -777,21 +777,21 @@ uint8_t USB::getConfDescr(uint8_t addr, uint8_t ep, uint8_t conf, USBReadParser 
 //get string descriptor
 
 uint8_t USB::getStrDescr(uint8_t addr, uint8_t ep, uint16_t ns, uint8_t index, uint16_t langid, uint8_t* dataptr) {
-  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, index, USB_DESCRIPTOR_STRING, langid, ns, ns, dataptr, NULL);
+  return ctrlReq(addr, ep, bmREQ_GET_DESCR, USB_REQUEST_GET_DESCRIPTOR, index, USB_DESCRIPTOR_STRING, langid, ns, ns, dataptr, nullptr);
 }
 //set address
 
 uint8_t USB::setAddr(uint8_t oldaddr, uint8_t ep, uint8_t newaddr) {
-  uint8_t rcode = ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, 0x0000, NULL, NULL);
+  uint8_t rcode = ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, 0x0000, nullptr, nullptr);
   //delay(2); //per USB 2.0 sect.9.2.6.3
   delay(300); // Older spec says you should wait at least 200ms
   return rcode;
-  //return ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, 0x0000, NULL, NULL);
+  //return ctrlReq(oldaddr, ep, bmREQ_SET, USB_REQUEST_SET_ADDRESS, newaddr, 0x00, 0x0000, 0x0000, 0x0000, nullptr, nullptr);
 }
 //set configuration
 
 uint8_t USB::setConf(uint8_t addr, uint8_t ep, uint8_t conf_value) {
-  return ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, 0x0000, NULL, NULL);
+  return ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, 0x0000, nullptr, nullptr);
 }
 
 #endif // defined(USB_METHODS_INLINE)

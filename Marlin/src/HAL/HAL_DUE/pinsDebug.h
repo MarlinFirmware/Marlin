@@ -28,7 +28,7 @@
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#include <Arduino.h>
+#include "../shared/Marduino.h"
 
 /**
  * Due/Marlin quirks

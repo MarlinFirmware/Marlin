@@ -92,6 +92,10 @@
   #include "../feature/power.h"
 #endif
 
+#if ENABLED(BACKLASH_COMPENSATION)
+  #include "../feature/backlash.h"
+#endif
+
 // Delay for delivery of first block to the stepper ISR, if the queue contains 2 or
 // fewer movements. The delay is measured in milliseconds, and must be less than 250ms
 #define BLOCK_DELAY_FOR_1ST_MOVE 100
@@ -896,7 +900,7 @@ void Planner::reverse_pass() {
   // Reverse Pass: Coarsely maximize all possible deceleration curves back-planning from the last
   // block in buffer. Cease planning when the last optimal planned or tail pointer is reached.
   // NOTE: Forward pass will later refine and correct the reverse pass to create an optimal plan.
-  const block_t *next = NULL;
+  const block_t *next = nullptr;
   while (block_index != planned_block_index) {
 
     // Perform the reverse pass
@@ -991,7 +995,7 @@ void Planner::forward_pass() {
   uint8_t block_index = block_buffer_planned;
 
   block_t *current;
-  const block_t * previous = NULL;
+  const block_t * previous = nullptr;
   while (block_index != block_buffer_head) {
 
     // Perform the forward pass
@@ -1041,7 +1045,7 @@ void Planner::recalculate_trapezoids() {
   }
 
   // Go from the tail (currently executed block) to the first block, without including it)
-  block_t *current = NULL, *next = NULL;
+  block_t *current = nullptr, *next = nullptr;
   float current_entry_speed = 0.0, next_entry_speed = 0.0;
   while (block_index != head_block_index) {
 
@@ -1561,94 +1565,6 @@ void Planner::synchronize() {
 }
 
 /**
- * The following implements axis backlash correction. To minimize seams
- * on the printed part, the backlash correction only adds steps to the
- * current segment (instead of creating a new segment, which causes
- * discontinuities and print artifacts).
- *
- * When BACKLASH_SMOOTHING_MM is enabled and non-zero, the backlash
- * correction is spread over multiple segments, smoothing out print
- * artifacts even more.
- */
-#if ENABLED(BACKLASH_COMPENSATION)
-  #if ENABLED(BACKLASH_GCODE)
-    extern float backlash_distance_mm[];
-    extern uint8_t backlash_correction;
-    #ifdef BACKLASH_SMOOTHING_MM
-      extern float backlash_smoothing_mm;
-    #endif
-  #else
-    constexpr float backlash_distance_mm[XYZ] = BACKLASH_DISTANCE_MM,
-    constexpr uint8_t backlash_correction = BACKLASH_CORRECTION * 255;
-    #ifdef BACKLASH_SMOOTHING_MM
-      constexpr float backlash_smoothing_mm = BACKLASH_SMOOTHING_MM;
-    #endif
-  #endif
-
-  void Planner::add_backlash_correction_steps(const int32_t da, const int32_t db, const int32_t dc, const uint8_t dm, block_t * const block) {
-    static uint8_t last_direction_bits;
-    uint8_t changed_dir = last_direction_bits ^ dm;
-    // Ignore direction change if no steps are taken in that direction
-    if (da == 0) CBI(changed_dir, X_AXIS);
-    if (db == 0) CBI(changed_dir, Y_AXIS);
-    if (dc == 0) CBI(changed_dir, Z_AXIS);
-    last_direction_bits ^= changed_dir;
-
-    if (backlash_correction == 0) return;
-
-    #ifdef BACKLASH_SMOOTHING_MM
-      // The segment proportion is a value greater than 0.0 indicating how much residual_error
-      // is corrected for in this segment. The contribution is based on segment length and the
-      // smoothing distance. Since the computation of this proportion involves a floating point
-      // division, defer computation until needed.
-      float segment_proportion = 0;
-
-      // Residual error carried forward across multiple segments, so correction can be applied
-      // to segments where there is no direction change.
-      static int32_t residual_error[XYZ] = { 0 };
-    #else
-      // No leftover residual error from segment to segment
-      int32_t residual_error[XYZ] = { 0 };
-      // No direction change, no correction.
-      if (!changed_dir) return;
-    #endif
-
-    const float f_corr = float(backlash_correction) / 255.0f;
-
-    LOOP_XYZ(axis) {
-      if (backlash_distance_mm[axis]) {
-        const bool reversing = TEST(dm,axis);
-
-        // When an axis changes direction, add axis backlash to the residual error
-        if (TEST(changed_dir, axis))
-          residual_error[axis] += (reversing ? -f_corr : f_corr) * backlash_distance_mm[axis] * planner.settings.axis_steps_per_mm[axis];
-
-        // Decide how much of the residual error to correct in this segment
-        int32_t error_correction = residual_error[axis];
-        #ifdef BACKLASH_SMOOTHING_MM
-          if (error_correction && backlash_smoothing_mm != 0) {
-            // Take up a portion of the residual_error in this segment, but only when
-            // the current segment travels in the same direction as the correction
-            if (reversing == (error_correction < 0)) {
-              if (segment_proportion == 0)
-                segment_proportion = MIN(1.0f, block->millimeters / backlash_smoothing_mm);
-              error_correction = ceil(segment_proportion * error_correction);
-            }
-            else
-              error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
-          }
-        #endif
-        // Making a correction reduces the residual error and modifies delta_mm
-        if (error_correction) {
-          block->steps[axis] += ABS(error_correction);
-          residual_error[axis] -= error_correction;
-        }
-      }
-    }
-  }
-#endif // BACKLASH_COMPENSATION
-
-/**
  * Planner::_buffer_steps
  *
  * Add a new linear movement to the planner queue (in terms of steps).
@@ -1767,13 +1683,26 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         }
       #endif // PREVENT_COLD_EXTRUSION
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (ABS(de * e_factor[extruder]) > (int32_t)settings.axis_steps_per_mm[E_AXIS_N(extruder)] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
-          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          #if HAS_POSITION_FLOAT
-            position_float[E_AXIS] = target_float[E_AXIS];
+        const float e_steps = ABS(de * e_factor[extruder]);
+        const float max_e_steps = settings.axis_steps_per_mm[E_AXIS_N(extruder)] * (EXTRUDE_MAXLENGTH);
+        if (e_steps > max_e_steps) {
+          #if ENABLED(MIXING_EXTRUDER)
+            bool ignore_e = false;
+            float collector[MIXING_STEPPERS];
+            mixer.refresh_collector(1.0, mixer.get_current_vtool(), collector);
+            MIXER_STEPPER_LOOP(e)
+              if (e_steps * collector[e] > max_e_steps) { ignore_e = true; break; }
+          #else
+            constexpr bool ignore_e = true;
           #endif
-          de = 0; // no difference
-          SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          if (ignore_e) {
+            position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+            #if HAS_POSITION_FLOAT
+              position_float[E_AXIS] = target_float[E_AXIS];
+            #endif
+            de = 0; // no difference
+            SERIAL_ECHO_MSG(MSG_ERR_LONG_EXTRUDE_STOP);
+          }
         }
       #endif // PREVENT_LENGTHY_EXTRUDE
     }
@@ -1906,7 +1835,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
      * should *never* remove steps!
      */
     #if ENABLED(BACKLASH_COMPENSATION)
-      add_backlash_correction_steps(da, db, dc, dm, block);
+      backlash.add_correction_steps(da, db, dc, dm, block);
     #endif
   }
 

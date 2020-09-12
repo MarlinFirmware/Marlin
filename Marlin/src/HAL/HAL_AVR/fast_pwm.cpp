@@ -38,9 +38,9 @@
         #ifdef TCCR2
           case TIMER2: {
             Timer timer = {
-              /*TCCRnQ*/  { &TCCR2, NULL, NULL},
-              /*OCRnQ*/   { (uint16_t*)&OCR2, NULL, NULL},
-              /*ICRn*/      NULL,
+              /*TCCRnQ*/  { &TCCR2, nullptr, nullptr},
+              /*OCRnQ*/   { (uint16_t*)&OCR2, nullptr, nullptr},
+              /*ICRn*/      nullptr,
               /*n, q*/      2, 0
             };
           }
@@ -49,9 +49,9 @@
             case TIMER2A:   break; // protect TIMER2A
             case TIMER2B: {
               Timer timer = {
-                /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                /*ICRn*/      NULL,
+                /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr},
+                /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr},
+                /*ICRn*/      nullptr,
                 /*n, q*/      2, 1
               };
               return timer;
@@ -60,9 +60,9 @@
             case TIMER2B:   ++q;
             case TIMER2A: {
               Timer timer = {
-                /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  NULL},
-                /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, NULL},
-                /*ICRn*/      NULL,
+                /*TCCRnQ*/  { &TCCR2A,  &TCCR2B,  nullptr},
+                /*OCRnQ*/   { (uint16_t*)&OCR2A, (uint16_t*)&OCR2B, nullptr},
+                /*ICRn*/      nullptr,
                               2, q
               };
               return timer;
@@ -111,9 +111,9 @@
       #endif
     }
     Timer timer = {
-        /*TCCRnQ*/  { NULL, NULL, NULL},
-        /*OCRnQ*/   { NULL, NULL, NULL},
-        /*ICRn*/      NULL,
+        /*TCCRnQ*/  { nullptr, nullptr, nullptr},
+        /*OCRnQ*/   { nullptr, nullptr, nullptr},
+        /*ICRn*/      nullptr,
                       0, 0
     };
     return timer;

@@ -32,6 +32,10 @@
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../../core/debug_out.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extensible_ui/ui_api.h"
+#endif
+
 int bilinear_grid_spacing[2], bilinear_start[2];
 float bilinear_grid_factor[2],
       z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];

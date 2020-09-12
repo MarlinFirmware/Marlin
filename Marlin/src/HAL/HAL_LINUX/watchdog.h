@@ -21,11 +21,6 @@
  */
 #pragma once
 
-#define RST_POWER_ON   1
-#define RST_EXTERNAL   2
-#define RST_BROWN_OUT  4
-#define RST_WATCHDOG   8
-
 #define WDT_TIMEOUT   4000000 // 4 second timeout
 
 void watchdog_init(void);

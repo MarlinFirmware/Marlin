@@ -47,16 +47,15 @@ uint8_t _getc();
 //arduino: Print.h
 #define DEC 10
 #define HEX 16
-#define OCT 8
-#define BIN 2
+#define OCT  8
+#define BIN  2
 //arduino: binary.h (weird defines)
 #define B01 1
 #define B10 2
 
 #include "hardware/Clock.h"
 
-#include <Arduino.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"

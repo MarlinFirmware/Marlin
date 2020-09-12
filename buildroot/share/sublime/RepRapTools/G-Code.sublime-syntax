@@ -97,6 +97,12 @@ contexts:
         2: punctuation.quote.double.open.gcode
       push: gcode_string_arg_quoted_double
 
+    # parameter and list of values
+    - match: ([Ee])\s*(({{decimal}}\s*:\s*)+{{decimal}})
+      captures:
+        1: keyword.param.gcode
+        2: constant.numeric.param.gcode
+
     # parameter and numeric value
     - match: ([A-Za-z])\s*({{decimal}})
       captures:
@@ -189,10 +195,25 @@ contexts:
     - match: \s*;
       scope: punctuation.comment.eol.start
       set: gcode_comment
+    - match: \s*\(
+      scope: punctuation.paren.comment.open
+      push: gcode_comment_paren
 
   # Comment to end of line.
   gcode_comment:
     - meta_content_scope: comment.gcode
+    - match: \s*$
+      pop: true
+
+  gcode_comment_paren:
+    - meta_content_scope: paren.comment.gcode
+
+    - match: '[^)]+'
+
+    - match: '[)]'
+      scope: punctuation.paren.comment.close
+      pop: true
+
     - match: \s*$
       pop: true
 

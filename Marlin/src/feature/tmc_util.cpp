@@ -85,12 +85,15 @@
     #endif
 
     static TMC_driver_data get_driver_data(TMC2130Stepper &st) {
-      constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
-      constexpr uint8_t STEALTH_bp = 14, CS_ACTUAL_sb = 16;
-      constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
-      constexpr uint8_t STALL_GUARD_bp = 24, OT_bp = 25, OTPW_bp = 26;
+      constexpr uint8_t OT_bp = 25, OTPW_bp = 26;
       constexpr uint32_t S2G_bm = 0x18000000;
-      constexpr uint8_t STST_bp = 31;
+      #if ENABLED(TMC_DEBUG)
+        constexpr uint16_t SG_RESULT_bm = 0x3FF; // 0:9
+        constexpr uint8_t STEALTH_bp = 14;
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STALL_GUARD_bp = 24;
+        constexpr uint8_t STST_bp = 31;
+      #endif
       TMC_driver_data data;
       data.drv_status = st.DRV_STATUS();
       #ifdef __AVR__
@@ -112,13 +115,13 @@
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
           data.sg_result_reasonable = !data.is_standstill; // sg_result has no reasonable meaning while standstill
         #endif
-        UNUSED(CS_ACTUAL_sb);
       #else // !__AVR__
 
         data.is_ot = !!(data.drv_status & _BV(OT_bp));
         data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
         data.is_s2g = !!(data.drv_status & S2G_bm);
         #if ENABLED(TMC_DEBUG)
+          constexpr uint8_t CS_ACTUAL_sb = 16;
           data.sg_result = data.drv_status & SG_RESULT_bm;
           data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
           data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
@@ -143,15 +146,14 @@
     static TMC_driver_data get_driver_data(TMC2208Stepper &st) {
       constexpr uint8_t OTPW_bp = 0, OT_bp = 1;
       constexpr uint8_t S2G_bm = 0b11110; // 2..5
-      constexpr uint8_t CS_ACTUAL_sb = 16;
-      constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
-      constexpr uint8_t STEALTH_bp = 30, STST_bp = 31;
       TMC_driver_data data;
       data.drv_status = st.DRV_STATUS();
       data.is_otpw = !!(data.drv_status & _BV(OTPW_bp));
       data.is_ot = !!(data.drv_status & _BV(OT_bp));
       data.is_s2g = !!(data.drv_status & S2G_bm);
       #if ENABLED(TMC_DEBUG)
+        constexpr uint32_t CS_ACTUAL_bm = 0x1F0000; // 16:20
+        constexpr uint8_t STEALTH_bp = 30, STST_bp = 31;
         #ifdef __AVR__
           // 8-bit optimization saves up to 12 bytes of PROGMEM per axis
           uint8_t spart = data.drv_status >> 16;
@@ -159,8 +161,8 @@
           spart = data.drv_status >> 24;
           data.is_stealth = !!(spart & _BV(STEALTH_bp - 24));
           data.is_standstill = !!(spart & _BV(STST_bp - 24));
-          UNUSED(CS_ACTUAL_sb);
         #else
+          constexpr uint8_t CS_ACTUAL_sb = 16;
           data.cs_actual = (data.drv_status & CS_ACTUAL_bm) >> CS_ACTUAL_sb;
           data.is_stealth = !!(data.drv_status & _BV(STEALTH_bp));
           data.is_standstill = !!(data.drv_status & _BV(STST_bp));
@@ -181,11 +183,8 @@
     #endif
 
     static TMC_driver_data get_driver_data(TMC2660Stepper &st) {
-      constexpr uint8_t STALL_GUARD_bp = 0;
       constexpr uint8_t OT_bp = 1, OTPW_bp = 2;
       constexpr uint8_t S2G_bm = 0b11000;
-      constexpr uint8_t STST_bp = 7, SG_RESULT_sp = 10;
-      constexpr uint32_t SG_RESULT_bm = 0xFFC00; // 10:19
       TMC_driver_data data;
       data.drv_status = st.DRVSTATUS();
       uint8_t spart = data.drv_status & 0xFF;
@@ -193,6 +192,9 @@
       data.is_ot = !!(spart & _BV(OT_bp));
       data.is_s2g = !!(data.drv_status & S2G_bm);
       #if ENABLED(TMC_DEBUG)
+        constexpr uint8_t STALL_GUARD_bp = 0;
+        constexpr uint8_t STST_bp = 7, SG_RESULT_sp = 10;
+        constexpr uint32_t SG_RESULT_bm = 0xFFC00; // 10:19
         data.is_stall = !!(spart & _BV(STALL_GUARD_bp));
         data.is_standstill = !!(spart & _BV(STST_bp));
         data.sg_result = (data.drv_status & SG_RESULT_bm) >> SG_RESULT_sp;
@@ -793,7 +795,9 @@
     #endif
     TMC_REPORT("CS actual\t",        TMC_CS_ACTUAL);
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
-    TMC_REPORT("vsense\t",           TMC_VSENSE);
+    #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_DRIVER(TMC2208)
+      TMC_REPORT("vsense\t",         TMC_VSENSE);
+    #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);
     TMC_REPORT("tstep\t",            TMC_TSTEP);

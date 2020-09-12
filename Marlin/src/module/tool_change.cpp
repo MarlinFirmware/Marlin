@@ -702,7 +702,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     if (tmp_extruder >= EXTRUDERS)
       return invalid_extruder_error(tmp_extruder);
 
-    if (!no_move && !all_axes_homed()) {
+    if (!no_move && (!all_axes_homed()
+      #if ENABLED(DUAL_X_CARRIAGE)
+        || dual_x_carriage_mode == DXC_FULL_CONTROL_MODE
+      #endif
+    )) {
       no_move = true;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("No move on toolchange");
     }

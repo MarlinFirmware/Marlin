@@ -65,7 +65,7 @@ class MarlinSettings {
         static uint16_t calc_num_meshes();
         static int mesh_slot_offset(const int8_t slot);
         static void store_mesh(const int8_t slot);
-        static void load_mesh(const int8_t slot, void * const into=NULL);
+        static void load_mesh(const int8_t slot, void * const into=nullptr);
 
         //static void delete_mesh();    // necessary if we have a MAT
         //static void defrag_meshes();  // "

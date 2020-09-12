@@ -65,20 +65,21 @@
 #define HEIGHT 64
 #define PAGE_HEIGHT 8
 
-#define ST7565_ADC_REVERSE(N)    (0xA0 | ((N) & 0x1))
-#define ST7565_BIAS_MODE(N)      (0xA2 | ((N) & 0x1))
-#define ST7565_ALL_PIX(N)        (0xA4 | ((N) & 0x1))
-#define ST7565_INVERTED(N)       (0xA6 | ((N) & 0x1))
-#define ST7565_ON(N)             (0xAE | ((N) & 0x1))
-#define ST7565_OUT_MODE(N)       (0xC0 | ((N) & 0x1) << 3)
+#define ST7565_ADC_REVERSE(N)    ((N) ? 0xA1 : 0xA0)
+#define ST7565_BIAS_MODE(N)      ((N) ? 0xA3 : 0xA2)
+#define ST7565_ALL_PIX(N)        ((N) ? 0xA5 : 0xA4)
+#define ST7565_INVERTED(N)       ((N) ? 0xA7 : 0xA6)
+#define ST7565_ON(N)             ((N) ? 0xAF : 0xAE)
+#define ST7565_OUT_MODE(N)       ((N) ? 0xC8 : 0xC0)
 #define ST7565_POWER_CONTROL(N)  (0x28 | (N))
-#define ST7565_V0_RATIO(N)       (0x10 | ((N) & 0x7)) // Specific to Displaytech 64128N? (ST7565 is 0x20 | N)
+#define ST7565_V0_RATIO(N)       (0x10 | ((N) & 0x7))
+#define ST7565_V5_RATIO(N)       (0x20 | ((N) & 0x7))
 #define ST7565_CONTRAST(N)       (0x81), (N)
 
 #define ST7565_COLUMN_ADR(N)     (0x10 | (((N) >> 4) & 0xF)), ((N) & 0xF)
 #define ST7565_PAGE_ADR(N)       (0xB0 | (N))
 #define ST7565_START_LINE(N)     (0x40 | (N))
-#define ST7565_SLEEP_MODE()      (0xAC)
+#define ST7565_SLEEP_MODE()      (0xAC) // ,(N) needed?
 #define ST7565_NOOP()            (0xE3)
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
@@ -91,7 +92,7 @@ static const uint8_t u8g_dev_st7565_64128n_HAL_init_seq[] PROGMEM = {
   ST7565_BIAS_MODE(0),        // 0xA2: LCD bias 1/9 (according to Displaytech 64128N datasheet)
   ST7565_ADC_REVERSE(0),      // Normal ADC Select (according to Displaytech 64128N datasheet)
 
-  ST7565_OUT_MODE(1),         // common output mode: set scan direction normal operation/SHL Select, 0xC0 --> SHL = 0, normal, 0xC8 --> SHL = 1
+  ST7565_OUT_MODE(1),         // common output mode: set scan direction
   ST7565_START_LINE(0),       // Display start line for Displaytech 64128N
 
   ST7565_POWER_CONTROL(0x4),  // power control: turn on voltage converter

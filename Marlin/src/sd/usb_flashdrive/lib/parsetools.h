@@ -40,7 +40,7 @@ class MultiByteValueParser {
 
 public:
 
-  MultiByteValueParser() : pBuf(NULL), countDown(0), valueSize(0) {
+  MultiByteValueParser() : pBuf(nullptr), countDown(0), valueSize(0) {
   };
 
   const uint8_t* GetBuffer() { return pBuf; }
@@ -60,7 +60,7 @@ class ByteSkipper {
 
 public:
 
-  ByteSkipper() : pBuf(NULL), nStage(0), countDown(0) {
+  ByteSkipper() : pBuf(nullptr), nStage(0), countDown(0) {
   }
 
   void Initialize(MultiValueBuffer *pbuf) {
@@ -119,7 +119,7 @@ public:
     arLenCntdn(0),
     lenSize(0),
     valSize(0),
-    pBuf(NULL),
+    pBuf(nullptr),
     prsMode(modeArray) { }
   ;
 
@@ -141,5 +141,5 @@ public:
     theParser.Initialize(p);
   }
 
-  bool Parse(uint8_t **pp, uint16_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me = NULL);
+  bool Parse(uint8_t **pp, uint16_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me = nullptr);
 };

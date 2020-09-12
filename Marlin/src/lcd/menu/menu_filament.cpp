@@ -367,7 +367,7 @@ void menu_pause_option() {
 // ADVANCED_PAUSE_FEATURE message screens
 //
 
-void _lcd_pause_message(PGM_P const msg1, PGM_P const msg2=NULL, PGM_P const msg3=NULL) {
+void _lcd_pause_message(PGM_P const msg1, PGM_P const msg2=nullptr, PGM_P const msg3=nullptr) {
   START_SCREEN();
   STATIC_ITEM_P(pause_header(), true, true);
   STATIC_ITEM_P(msg1);
@@ -516,7 +516,7 @@ FORCE_INLINE screenFunc_t ap_message_screen(const PauseMessage message) {
     case PAUSE_MESSAGE_STATUS:
     default: break;
   }
-  return NULL;
+  return nullptr;
 }
 
 void lcd_pause_show_message(

@@ -101,7 +101,7 @@
       MENU_ITEM_EDIT_CALLBACK(int8, MSG_GRADIENT_ALIAS, &mixer.gradient.vtool_index, 0, MIXING_VIRTUAL_TOOLS - 1, mixer.refresh_gradient);
     #endif
 
-    char tmp[10];
+    char tmp[18];
 
     MENU_ITEM(submenu, MSG_START_Z ":", lcd_mixer_gradient_z_start_edit);
     MENU_ITEM_ADDON_START(9);
@@ -250,17 +250,17 @@ void lcd_mixer_mix_edit() {
 //
 // Reset All V-Tools
 //
-inline void _lcd_reset_vtools() {
-  LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
-  ui.return_to_status();
-  mixer.reset_vtools();
-}
-
 void menu_mixer_vtools_reset_confirm() {
-  START_MENU();
-  MENU_BACK(MSG_BACK);
-  MENU_ITEM(function, MSG_RESET_VTOOLS, _lcd_reset_vtools);
-  END_MENU();
+  do_select_screen(
+    PSTR(MSG_BUTTON_RESET), PSTR(MSG_BUTTON_CANCEL),
+    []{
+      mixer.reset_vtools();
+      LCD_MESSAGEPGM(MSG_VTOOLS_RESET);
+      ui.return_to_status();
+    },
+    ui.goto_previous_screen,
+    PSTR(MSG_RESET_VTOOLS), nullptr, PSTR("?")
+  );
 }
 
 void menu_mixer() {
@@ -298,7 +298,7 @@ void menu_mixer() {
 
   #if ENABLED(GRADIENT_MIX)
   {
-    char tmp[10];
+    char tmp[13];
     MENU_ITEM(submenu, MSG_GRADIENT, lcd_mixer_edit_gradient_menu);
     MENU_ITEM_ADDON_START(10);
       sprintf_P(tmp, PSTR("T%i->T%i"), mixer.gradient.start_vtool, mixer.gradient.end_vtool);

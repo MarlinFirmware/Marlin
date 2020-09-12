@@ -30,19 +30,7 @@
 
 #include <stdint.h>
 
-// these are going to be re-defined in Arduino.h
-#undef DISABLED
-#undef M_PI
-#undef _BV
-
-#include <Arduino.h>
-
-// revert back to the correct (old) definition
-#undef DISABLED
-#define DISABLED(V...) DO(DIS,&&,V)
-// re-define in case Arduino.h has been skipped due to earlier inclusion (i.e. in Marlin\src\HAL\HAL_ESP32\i2s.cpp)
-#define _BV(b) (1UL << (b))
-
+#include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 

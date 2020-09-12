@@ -64,8 +64,8 @@ static timg_dev_t *TG[2] = {&TIMERG0, &TIMERG1};
 const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] = {
   { TIMER_GROUP_0, TIMER_0, STEPPER_TIMER_PRESCALE, stepTC_Handler }, // 0 - Stepper
   { TIMER_GROUP_0, TIMER_1,    TEMP_TIMER_PRESCALE, tempTC_Handler }, // 1 - Temperature
-  { TIMER_GROUP_1, TIMER_0,                      1, NULL }, // 2
-  { TIMER_GROUP_1, TIMER_1,                      1, NULL }, // 3
+  { TIMER_GROUP_1, TIMER_0,                      1, nullptr }, // 2
+  { TIMER_GROUP_1, TIMER_1,                      1, nullptr }, // 3
 };
 
 // --------------------------------------------------------------------------
@@ -132,7 +132,7 @@ void HAL_timer_start(const uint8_t timer_num, uint32_t frequency) {
   timer_enable_intr(timer.group, timer.idx);
 
   // TODO need to deal with timer_group1_isr
-  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, NULL, NULL);
+  timer_isr_register(timer.group, timer.idx, timer_group0_isr, (void*)timer.idx, ESP_INTR_FLAG_INTRDISABLED, nullptr);
 
   timer_start(timer.group, timer.idx);
 }

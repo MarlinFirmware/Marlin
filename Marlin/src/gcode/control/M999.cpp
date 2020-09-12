@@ -29,7 +29,7 @@
 /**
  * M999: Restart after being stopped
  *
- * Default behaviour is to flush the serial buffer and request
+ * Default behavior is to flush the serial buffer and request
  * a resend to the host starting on the last N line received.
  *
  * Sending "M999 S1" will resume printing without flushing the

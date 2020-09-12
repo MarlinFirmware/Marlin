@@ -110,7 +110,7 @@ int main(void) {
 
   #if NUM_SERIAL > 0
     MYSERIAL0.begin(BAUDRATE);
-    SERIAL_PRINTF("x86_64 Initialised\n");
+    SERIAL_ECHOLNPGM("x86_64 Initialized");
     SERIAL_FLUSHTX();
   #endif
 

@@ -90,7 +90,6 @@
 #define extDigitalWrite(IO,V) digitalWrite(IO,V)
 
 #define PWM_PIN(P)            digitalPinHasPWM(P)
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
 
 /**
  * Ports, functions, and pins

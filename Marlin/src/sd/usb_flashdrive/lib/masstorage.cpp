@@ -118,7 +118,7 @@ uint8_t BulkOnly::LockMedia(uint8_t lun, uint8_t lock) {
   Notify(PSTR("---------\r\n"), 0x80);
 
   CDB6_t cdb = CDB6_t(SCSI_CMD_PREVENT_REMOVAL, lun, (uint8_t)0, lock);
-  return SCSITransaction6(&cdb, (uint16_t)0, NULL, (uint8_t)MASS_CMD_DIR_IN);
+  return SCSITransaction6(&cdb, (uint16_t)0, nullptr, (uint8_t)MASS_CMD_DIR_IN);
 }
 
 /**
@@ -136,7 +136,7 @@ uint8_t BulkOnly::MediaCTL(uint8_t lun, uint8_t ctl) {
   uint8_t rcode = MASS_ERR_UNIT_NOT_READY;
   if (bAddress) {
     CDB6_t cdb = CDB6_t(SCSI_CMD_START_STOP_UNIT, lun, ctl & 0x03, 0);
-    rcode = SCSITransaction6(&cdb, (uint16_t)0, NULL, (uint8_t)MASS_CMD_DIR_OUT);
+    rcode = SCSITransaction6(&cdb, (uint16_t)0, nullptr, (uint8_t)MASS_CMD_DIR_OUT);
   }
   else
     SetCurLUN(lun);
@@ -255,8 +255,8 @@ uint8_t BulkOnly::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed) {
   uint8_t buf[constBufSize];
   USB_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR*>(buf);
   uint8_t rcode;
-  UsbDevice *p = NULL;
-  EpInfo *oldep_ptr = NULL;
+  UsbDevice *p = nullptr;
+  EpInfo *oldep_ptr = nullptr;
   USBTRACE("MS ConfigureDevice\r\n");
   ClearAllEP();
   AddressPool &addrPool = pUsb->GetAddressPool();
@@ -668,7 +668,7 @@ uint8_t BulkOnly::Poll() {
  * @return
  */
 uint8_t BulkOnly::GetMaxLUN(uint8_t *plun) {
-        uint8_t ret = pUsb->ctrlReq(bAddress, 0, bmREQ_MASSIN, MASS_REQ_GET_MAX_LUN, 0, 0, bIface, 1, 1, plun, NULL);
+        uint8_t ret = pUsb->ctrlReq(bAddress, 0, bmREQ_MASSIN, MASS_REQ_GET_MAX_LUN, 0, 0, bIface, 1, 1, plun, nullptr);
 
         if (ret == hrSTALL)
                 *plun = 0;
@@ -709,7 +709,7 @@ uint8_t BulkOnly::TestUnitReady(uint8_t lun) {
         Notify(PSTR("-----------------\r\n"), 0x80);
 
         CDB6_t cdb = CDB6_t(SCSI_CMD_TEST_UNIT_READY, lun, (uint8_t)0, 0);
-        return SCSITransaction6(&cdb, 0, NULL, (uint8_t)MASS_CMD_DIR_IN);
+        return SCSITransaction6(&cdb, 0, nullptr, (uint8_t)MASS_CMD_DIR_IN);
 
 }
 
@@ -813,7 +813,7 @@ uint8_t BulkOnly::ClearEpHalt(uint8_t index) {
 
         uint8_t ret = 0;
 
-        while ((ret = (pUsb->ctrlReq(bAddress, 0, USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_STANDARD | USB_SETUP_RECIPIENT_ENDPOINT, USB_REQUEST_CLEAR_FEATURE, USB_FEATURE_ENDPOINT_HALT, 0, ((index == epDataInIndex) ? (0x80 | epInfo[index].epAddr) : epInfo[index].epAddr), 0, 0, NULL, NULL)) == 0x01))
+        while ((ret = (pUsb->ctrlReq(bAddress, 0, USB_SETUP_HOST_TO_DEVICE | USB_SETUP_TYPE_STANDARD | USB_SETUP_RECIPIENT_ENDPOINT, USB_REQUEST_CLEAR_FEATURE, USB_FEATURE_ENDPOINT_HALT, 0, ((index == epDataInIndex) ? (0x80 | epInfo[index].epAddr) : epInfo[index].epAddr), 0, 0, nullptr, nullptr)) == 0x01))
                 delay(6);
 
         if (ret) {
@@ -831,7 +831,7 @@ uint8_t BulkOnly::ClearEpHalt(uint8_t index) {
  *
  */
 void BulkOnly::Reset() {
-        while (pUsb->ctrlReq(bAddress, 0, bmREQ_MASSOUT, MASS_REQ_BOMSR, 0, 0, bIface, 0, 0, NULL, NULL) == 0x01) delay(6);
+        while (pUsb->ctrlReq(bAddress, 0, bmREQ_MASSOUT, MASS_REQ_BOMSR, 0, 0, bIface, 0, 0, nullptr, nullptr) == 0x01) delay(6);
 }
 
 /**

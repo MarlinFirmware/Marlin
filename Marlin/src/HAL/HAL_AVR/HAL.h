@@ -24,14 +24,7 @@
 
 #include <stdint.h>
 
-#include <Arduino.h>
-
-#include <util/delay.h>
-#include <avr/eeprom.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/io.h>
-
+#include "../shared/Marduino.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
@@ -42,6 +35,12 @@
 #else
   #include "MarlinSerial.h"
 #endif
+
+#include <util/delay.h>
+#include <avr/eeprom.h>
+#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
+#include <avr/io.h>
 
 // --------------------------------------------------------------------------
 // Defines

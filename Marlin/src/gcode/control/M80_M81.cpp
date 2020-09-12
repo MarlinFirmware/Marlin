@@ -97,7 +97,7 @@ void GcodeSuite::M81() {
     thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       thermalManager.fans_paused = false;
-      ZERO(thermalManager.paused_fan_speed);
+      ZERO(thermalManager.saved_fan_speed);
     #endif
   #endif
 

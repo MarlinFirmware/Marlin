@@ -55,13 +55,13 @@ void GcodeSuite::M900() {
 
   #if ENABLED(EXTRA_LIN_ADVANCE_K)
 
-    bool ext_slot = bitRead(lin_adv_slot, tmp_extruder);
+    bool ext_slot = TEST(lin_adv_slot, tmp_extruder);
 
     if (parser.seenval('S')) {
       const bool slot = parser.value_bool();
       if (ext_slot != slot) {
         ext_slot = slot;
-        bitWrite(lin_adv_slot, tmp_extruder, slot);
+        SET_BIT_TO(lin_adv_slot, tmp_extruder, slot);
         planner.synchronize();
         const float temp = planner.extruder_advance_K[tmp_extruder];
         planner.extruder_advance_K[tmp_extruder] = saved_extruder_advance_K[tmp_extruder];
@@ -103,7 +103,7 @@ void GcodeSuite::M900() {
         SERIAL_ECHOLNPAIR("(Slot ", 1 - ext_slot, " K", saved_extruder_advance_K[0], ")");
       #else
         LOOP_L_N(i, EXTRUDERS) {
-          const int slot = (int)bitRead(lin_adv_slot, i);
+          const int slot = (int)TEST(lin_adv_slot, i);
           SERIAL_ECHOLNPAIR("Advance T", int(i), " S", slot, " K", planner.extruder_advance_K[i]);
           SERIAL_ECHOLNPAIR("(Slot ", 1 - slot, " K", saved_extruder_advance_K[i], ")");
           SERIAL_EOL();

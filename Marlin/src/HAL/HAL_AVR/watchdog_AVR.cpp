@@ -38,7 +38,7 @@ void watchdog_init() {
     #define WDTO_NS WDTO_4S
   #endif
   #if ENABLED(WATCHDOG_RESET_MANUAL)
-    // We enable the watchdog timer, but only for the interrupt.
+    // Enable the watchdog timer, but only for the interrupt.
     // Take care, as this requires the correct order of operation, with interrupts disabled.
     // See the datasheet of any AVR chip for details.
     wdt_reset();
@@ -65,7 +65,7 @@ void watchdog_init() {
     SERIAL_ERROR_MSG(MSG_WATCHDOG_FIRED);
     minkill();  // interrupt-safe final kill and infinite loop
   }
-#endif // WATCHDOG_RESET_MANUAL
+#endif
 
 #endif // USE_WATCHDOG
 #endif // __AVR__

@@ -89,6 +89,9 @@ void LEDLights::set_color(const LEDColor &incol
                             : pixels.Color(incol.r, incol.g, incol.b, incol.w);
     static uint16_t nextLed = 0;
 
+    #ifdef NEOPIXEL_BKGD_LED_INDEX
+      if (NEOPIXEL_BKGD_LED_INDEX == nextLed) { nextLed++; return; }
+    #endif
     pixels.setBrightness(incol.i);
     if (!isSequence)
       set_neopixel_color(neocolor);

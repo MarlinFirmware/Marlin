@@ -81,7 +81,7 @@ bool SdBaseFile::addDirCluster() {
 // cache a file's directory entry
 // return pointer to cached entry or null for failure
 dir_t* SdBaseFile::cacheDirEntry(uint8_t action) {
-  if (!vol_->cacheRawBlock(dirBlock_, action)) return NULL;
+  if (!vol_->cacheRawBlock(dirBlock_, action)) return nullptr;
   return vol_->cache()->dir + dirIndex_;
 }
 
@@ -841,7 +841,7 @@ bool SdBaseFile::openParent(SdBaseFile* dir) {
 
   // search for parent in '../..'
   do {
-    if (file.readDir(&entry, NULL) != 32) return false;
+    if (file.readDir(&entry, nullptr) != 32) return false;
     c = entry.firstClusterLow;
     c |= (uint32_t)entry.firstClusterHigh << 16;
   } while (c != cluster);

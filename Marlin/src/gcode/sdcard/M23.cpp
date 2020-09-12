@@ -29,6 +29,8 @@
 
 /**
  * M23: Open a file
+ *
+ * The path is relative to the root directory
  */
 void GcodeSuite::M23() {
   // Simplify3D includes the size, so zero out all spaces (#7227)

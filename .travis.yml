@@ -20,7 +20,7 @@ env:
   - TEST_PLATFORM="DUE"
   - TEST_PLATFORM="LPC1768"
   - TEST_PLATFORM="LPC1769"
-  #- TEST_PLATFORM="STM32F1"
+  - TEST_PLATFORM="STM32F1"
   - TEST_PLATFORM="teensy35"
   - TEST_PLATFORM="linux_native"
   - TEST_PLATFORM="esp32"
@@ -45,7 +45,7 @@ before_install:
 
 install:
   #- pip install -U platformio
-  - pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
+  - pip install -U https://github.com/platformio/platformio-core/archive/master.zip
 
 before_script:
   # Update PlatformIO packages

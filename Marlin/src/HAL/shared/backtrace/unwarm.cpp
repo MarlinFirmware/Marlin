@@ -93,7 +93,7 @@ bool UnwReportRetAddr(UnwState * const state, uint32_t addr) {
   UnwReport entry;
 
   // We found two acceptable values.
-  entry.name = NULL;
+  entry.name = nullptr;
   entry.address = addr & 0xFFFFFFFE; // Remove Thumb bit
   entry.function = 0;
 

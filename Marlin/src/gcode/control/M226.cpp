@@ -45,7 +45,7 @@ void GcodeSuite::M226() {
           case 0: target = LOW; break;
           case -1: target = !extDigitalRead(pin); break;
         }
-        while (extDigitalRead(pin) != target) idle();
+        while (int(extDigitalRead(pin)) != target) idle();
       }
     } // pin_state -1 0 1 && pin > -1
   } // parser.seen('P')

@@ -49,10 +49,8 @@
 
 #define IS_INPUT(IO)
 #define IS_OUTPUT(IO)
-#define HAS_TIMER(IO)           true
 
-#define PWM_PIN(P)              HAS_TIMER(P)
-#define USEABLE_HARDWARE_PWM(P) PWM_PIN(P)
+#define PWM_PIN(P)              true
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)    digitalRead(IO)

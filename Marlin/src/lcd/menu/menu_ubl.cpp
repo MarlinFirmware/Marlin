@@ -228,7 +228,7 @@ void _lcd_ubl_validate_mesh() {
  * UBL Grid Leveling Command
  */
 void _lcd_ubl_grid_level_cmd() {
-  char UBL_LCD_GCODE[10];
+  char UBL_LCD_GCODE[12];
   sprintf_P(UBL_LCD_GCODE, PSTR("G29 J%i"), side_points);
   lcd_enqueue_command(UBL_LCD_GCODE);
 }
@@ -269,7 +269,7 @@ void _lcd_ubl_mesh_leveling() {
  * UBL Fill-in Amount Mesh Command
  */
 void _lcd_ubl_fillin_amount_cmd() {
-  char UBL_LCD_GCODE[16];
+  char UBL_LCD_GCODE[18];
   sprintf_P(UBL_LCD_GCODE, PSTR("G29 P3 R C.%i"), ubl_fillin_amount);
   lcd_enqueue_command(UBL_LCD_GCODE);
 }

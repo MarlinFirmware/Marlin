@@ -202,12 +202,11 @@ void MMU2::mmu_loop() {
       }
       break;
 
+    #if ENABLED(MMU2_MODE_12V)
     case -5:
       // response to M1
       if (rx_ok()) {
         DEBUG_ECHOLNPGM("MMU => ok");
-
-        check_version();
 
         DEBUG_ECHOLNPGM("MMU <= 'P0'");
 
@@ -215,6 +214,7 @@ void MMU2::mmu_loop() {
         state = -4;
       }
       break;
+    #endif
 
     case -4:
       if (rx_ok()) {
@@ -302,7 +302,7 @@ void MMU2::mmu_loop() {
 
         if (!finda && finda_runout_valid) filament_runout();
       }
-      else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (30s)
+      else if (ELAPSED(millis(), last_request + MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
         state = 1;
 
       break;
