@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.01"
+#define UNIFIED_VERSION "TH3D UFW 2.02"
 
 /**
  * Temp Settings
