@@ -87,6 +87,8 @@
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RAMPS_PLUS_SF)
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+#elif MB(RAMPS_14_EFB_HARIBO)
+  #include "ramps/pins_RAMPS_HARIBO.h"          // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 
 //
 // RAMPS Derivatives - ATmega1280, ATmega2560
