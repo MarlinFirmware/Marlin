@@ -1939,11 +1939,13 @@ void Temperature::init() {
 
   /**
    * @brief Thermal Runaway state machine for a single heater
-   * @param current  the current measured temperature
-   * @param target   the current target temperature
-   * @param
+   * @param current          current measured temperature
+   * @param target           current target temperature
+   * @param heater_id        extruder index
+   * @param period_seconds   missed temperature allowed time
+   * @param hysteresis_degc  allowed distance from target
    *
-   *
+   * TODO: Embed the last 3 parameters during init, if not less optimal
    */
   void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
 
