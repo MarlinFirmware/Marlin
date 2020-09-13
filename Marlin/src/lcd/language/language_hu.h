@@ -528,7 +528,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Túlfutás Táv. mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Tájolási hiba");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Szondázás hiba");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Túl hideg");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SZÁLVÁLASZTÁS");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
