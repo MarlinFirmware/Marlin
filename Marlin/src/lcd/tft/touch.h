@@ -79,6 +79,8 @@ enum TouchControlType : uint16_t {
   FEEDRATE,
   FLOWRATE,
   UBL,
+  MOVE_AXIS,
+  BUTTON,
 };
 
 typedef void (*screenFunc_t)();

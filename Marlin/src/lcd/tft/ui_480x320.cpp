@@ -291,6 +291,7 @@ void MarlinUI::draw_status_screen() {
     offset += 32 - tft_string.width();
   }
   tft.add_text(455 - tft_string.width() - offset, 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, 132, TFT_WIDTH - 8, 34));
 
   // feed rate
   tft.canvas(96, 180, 100, 32);
@@ -653,5 +654,377 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row));
 }
+
+#include "../../module/probe.h"
+struct MotionAxisState {
+  xy_int_t xValuePos, yValuePos, zValuePos, eValuePos, stepValuePos, zTypePos, eNamePos;
+  float currentStepSize = 10.0;
+  int z_selection = 1;
+  uint8_t e_selection = 0;
+  bool homming = false;
+  bool blocked = false;
+  char message[32];
+};
+
+MotionAxisState motionAxisState;
+
+#define E_BTN_COLOR COLOR_LIGHT_BLUE //COLOR_DODGER_BLUE //COLOR_AQUA
+#define X_BTN_COLOR COLOR_YELLOW
+#define Y_BTN_COLOR COLOR_VIVID_GREEN //COLOR_LIME
+#define Z_BTN_COLOR COLOR_CORAL_RED
+
+#define BTN_WIDTH 64
+#define BTN_HEIGHT 52
+#define X_MARGIN 20
+#define Y_MARGIN 15
+
+static void quick_feedback() {
+  #if HAS_CHIRP
+    ui.chirp(); // Buzz and wait. Is the delay needed for buttons to settle?
+    #if BOTH(HAS_LCD_MENU, USE_BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #elif HAS_LCD_MENU
+      delay(10);
+    #endif
+  #endif
+}
+
+static void drawCurYValue() {
+  tft.canvas(motionAxisState.yValuePos.x, motionAxisState.yValuePos.y, 100, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set(ftostr52sp(LOGICAL_Y_POSITION(current_position.y)));
+  tft.add_text(0, 0, Y_BTN_COLOR, tft_string);
+}
+
+static void drawCurEValue() {
+  tft.canvas(motionAxisState.eValuePos.x, motionAxisState.eValuePos.y, 100, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set(ftostr52sp(LOGICAL_X_POSITION(current_position.e)));
+  tft.add_text(0, 0, E_BTN_COLOR, tft_string);
+}
+
+static void drawCurXValue() {
+  tft.canvas(motionAxisState.xValuePos.x, motionAxisState.xValuePos.y, 100, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set(ftostr52sp(LOGICAL_X_POSITION(current_position.x)));
+  tft.add_text(0, 0, X_BTN_COLOR, tft_string);
+}
+
+static void drawCurZValue() {
+  if (motionAxisState.z_selection < 0) {
+    tft_string.set(ftostr52sp(probe.offset.z));
+  }
+  else {
+    tft_string.set(ftostr52sp(LOGICAL_Z_POSITION(current_position.z)));
+  }
+  tft.canvas(motionAxisState.zValuePos.x, motionAxisState.zValuePos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+}
+
+static void drawCurStepValue() {
+  tft_string.set((uint8_t *)ftostr52sp(motionAxisState.currentStepSize));
+  tft_string.add("mm");
+  tft.canvas(motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, tft_string.width(), BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_text(0, 0, COLOR_AXIS_HOMED, tft_string);
+}
+
+static void drawCurZSelection() {
+  tft_string.set("Z");
+  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y, tft_string.width(), 34);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+  tft.queue.sync();
+  tft_string.set("Offset");
+  tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 34);
+  tft.set_background(COLOR_BACKGROUND);
+  if (motionAxisState.z_selection < 0) {
+    tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
+  }
+}
+
+static void drawCurESelection() {
+  tft.canvas(motionAxisState.eNamePos.x, motionAxisState.eNamePos.y, BTN_WIDTH, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set("E");
+  tft.add_text(0, 0, E_BTN_COLOR , tft_string);
+  tft.add_text(tft_string.width(), 0, E_BTN_COLOR, ui8tostr3rj(motionAxisState.e_selection));
+}
+
+static void drawMessage(const char *msg) {
+  tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, (TFT_HEIGHT - X_MARGIN * 2) / 2, 34);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_text(0, 0, COLOR_YELLOW, msg);
+}
+
+static void e_plus() {
+  // maybe Touch class must have a "enable/disable" option
+  if (motionAxisState.blocked) {
+    return;
+  }
+  if (thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
+    drawMessage("Too cold");
+    return;
+  }
+  quick_feedback();
+  current_position.e += motionAxisState.currentStepSize;
+  ui.manual_move.soon(E_AXIS);
+  drawCurEValue();
+}
+
+static void e_minus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+  if (thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
+    drawMessage("Too cold");
+    return;
+  }
+  quick_feedback();
+  current_position.e -= motionAxisState.currentStepSize;
+  ui.manual_move.soon(E_AXIS);
+  drawCurEValue();
+}
+
+static void y_plus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  current_position.y += motionAxisState.currentStepSize;
+  ui.manual_move.soon(Y_AXIS);
+  drawCurYValue();
+}
+
+static void y_minus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  current_position.y -= motionAxisState.currentStepSize;
+  ui.manual_move.soon(Y_AXIS);
+  drawCurYValue();
+}
+
+static void z_plus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  if (motionAxisState.z_selection < 0) {
+    probe.offset.z += motionAxisState.currentStepSize;
+    //TODO: probe
+  }
+  else {
+    current_position.z += motionAxisState.currentStepSize;
+    ui.manual_move.soon(Z_AXIS);
+  }
+  drawCurZValue();
+}
+
+static void z_minus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  if (motionAxisState.z_selection < 0) {
+    probe.offset.z -= motionAxisState.currentStepSize;
+  }
+  else {
+    current_position.z -= motionAxisState.currentStepSize;
+    ui.manual_move.soon(Z_AXIS);
+  }
+  drawCurZValue();
+}
+
+static void e_select() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  motionAxisState.e_selection++;
+  if (motionAxisState.e_selection >= EXTRUDERS) {
+    motionAxisState.e_selection = 0;
+  }
+
+  quick_feedback();
+  drawCurESelection();
+  drawCurEValue();
+}
+
+static void do_home() {
+  quick_feedback();
+  drawMessage("Homming...");
+  queue.inject_P(G28_STR);
+  motionAxisState.blocked = true;
+  drawCurXValue();
+  drawCurYValue();
+  drawCurZValue();
+}
+
+static void x_minus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  current_position.x -= motionAxisState.currentStepSize;
+  ui.manual_move.soon(X_AXIS);
+  drawCurXValue();
+}
+
+static void x_plus() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  quick_feedback();
+  current_position.x += motionAxisState.currentStepSize;
+  ui.manual_move.soon(X_AXIS);
+  drawCurXValue();
+}
+
+static void step_size() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  motionAxisState.currentStepSize = motionAxisState.currentStepSize / 10.0;
+  if (motionAxisState.currentStepSize < 0.0015) motionAxisState.currentStepSize = 10.0;
+  quick_feedback();
+  drawCurStepValue();
+}
+
+static void z_select() {
+  if (motionAxisState.blocked) {
+    return;
+  }
+
+  motionAxisState.z_selection *= -1;
+  quick_feedback();
+  drawCurZSelection();
+  drawCurZValue();
+}
+
+static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage img, uint16_t bgColor, uint16_t fgColor = COLOR_BLACK) {
+  uint16_t width = Images[imgBtn52Rounded].width;
+  uint16_t height = Images[imgBtn52Rounded].height;
+
+  tft.queue.sync(); //need sync to change font
+
+  tft.canvas(x, y, width, height);
+  tft.set_background(COLOR_BACKGROUND);
+  tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+
+  tft.set_font(Helvetica12Bold);
+  tft_string.set_font(Helvetica12Bold);
+  tft_string.set(label);
+  tft_string.trim();
+  tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
+
+  tft.queue.sync();
+  tft_string.set_font(Helvetica18);
+  tft.set_font(Helvetica18);
+
+  touch.add_control(BUTTON, x, y, width, height, data);
+}
+
+void MarlinUI::move_axis() {
+  // Reset
+  motionAxisState.blocked = false;
+
+  ui.clear_lcd();
+
+  TERN_(TOUCH_SCREEN, touch.clear());
+
+  // ROW 1 -> E- Y- CurY Z+
+  int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
+
+  drawBtn(x, y, "E+", (int32_t)e_plus, imgUp, E_BTN_COLOR);
+
+  spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
+  x += BTN_WIDTH + spacing;
+  drawBtn(x, y, "Y+", (int32_t)y_plus, imgUp, Y_BTN_COLOR);
+
+  // Cur Y
+  x += BTN_WIDTH;
+  motionAxisState.yValuePos.x = x + 2;
+  motionAxisState.yValuePos.y = y;
+  drawCurYValue();
+
+  x += spacing;
+  drawBtn(x, y, "Z+", (int32_t)z_plus, imgUp, Z_BTN_COLOR);
+
+  // ROW 2 -> "Ex"  X-  HOME X+  "Z"
+  y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
+  x = X_MARGIN;
+  spacing = (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4;
+
+  motionAxisState.eNamePos.x = x;
+  motionAxisState.eNamePos.y = y;
+  drawCurESelection();
+  touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (int32_t)e_select);
+
+  x += BTN_WIDTH + spacing;
+  drawBtn(x, y, "X-", (int32_t)x_minus, imgLeft, X_BTN_COLOR);
+
+  x += BTN_WIDTH + spacing; //imgHome is 64x64
+  add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome);
+
+  x += BTN_WIDTH + spacing;
+  drawBtn(x, y, "X+", (int32_t)x_plus, imgRight, X_BTN_COLOR);
+
+  x += BTN_WIDTH + spacing;
+  motionAxisState.zTypePos.x = x;
+  motionAxisState.zTypePos.y = y;
+  drawCurZSelection();
+  touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (int32_t)z_select);
+
+  // ROW 3 -> E- CurX Y-  Z-
+  y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
+  x = X_MARGIN;
+  spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
+
+  drawBtn(x, y, "E-", (int32_t)e_minus, imgDown, E_BTN_COLOR);
+
+  // Cur E
+  motionAxisState.eValuePos.x = x;
+  motionAxisState.eValuePos.y = y + BTN_HEIGHT + 2;
+  drawCurEValue();
+
+  // Cur X
+  motionAxisState.xValuePos.x = BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4; //X- pos
+  motionAxisState.xValuePos.y = y - 10;
+  drawCurXValue();
+
+  x += BTN_WIDTH + spacing;
+  drawBtn(x, y, "Y-", (int32_t)y_minus, imgDown, Y_BTN_COLOR);
+
+  x += BTN_WIDTH + spacing;
+  drawBtn(x, y, "Z-", (int32_t)z_minus, imgDown, Z_BTN_COLOR);
+
+  // Cur Z
+  motionAxisState.zValuePos.x = x;
+  motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
+  drawCurZValue();
+
+  // ROW 4 -> step_size    Back
+  y = TFT_HEIGHT - Y_MARGIN - 32; //
+  x = (TFT_WIDTH - X_MARGIN * 2) / 2;
+  motionAxisState.stepValuePos.x = x;
+  motionAxisState.stepValuePos.y = y;
+  drawCurStepValue();
+  touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, tft_string.width(), BTN_HEIGHT, (int32_t)step_size);
+
+  add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack);
+}
+
+#undef BTN_WIDTH
+#undef BTN_HEIGHT
 
 #endif // HAS_UI_480x320

@@ -253,6 +253,13 @@ void Touch::touch(touch_control_t *control) {
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
 
+    case MOVE_AXIS:
+      ui.goto_screen((screenFunc_t)ui.move_axis);
+      break;
+
+    // TODO: TOUCH could receive data to pass to the callback
+    case BUTTON: ((screenFunc_t)control->data)(); break;
+
     default: break;
   }
 }
