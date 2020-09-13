@@ -170,34 +170,20 @@ static inline void waitSpiTxEnd(LPC_SSP_TypeDef *spi_d) {
   while (SSP_GetStatus(spi_d, SSP_STAT_BUSY) == SET) { /* nada */ }     // wait until BSY=0
 }
 
+// Hold the pin init state of the SPI, to avoid init more than once,
+//even if more instances of SPIClass exist
+static bool spiInitialised[BOARD_NR_SPI] = { false };
+
 SPIClass::SPIClass(uint8_t device) {
   // Init things specific to each SPI device
   // clock divider setup is a bit of hack, and needs to be improved at a later date.
 
-  PINSEL_CFG_Type PinCfg;  // data structure to hold init values
   #if BOARD_NR_SPI >= 1
     _settings[0].spi_d = LPC_SSP0;
     _settings[0].dataMode = SPI_MODE0;
     _settings[0].dataSize = DATA_SIZE_8BIT;
     _settings[0].clock = SPI_CLOCK_MAX;
     // _settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI1_SCK_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_INPUT(BOARD_SPI1_MISO_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
   #endif
 
   #if BOARD_NR_SPI >= 2
@@ -206,23 +192,6 @@ SPIClass::SPIClass(uint8_t device) {
     _settings[1].dataSize = DATA_SIZE_8BIT;
     _settings[1].clock = SPI_CLOCK_MAX;
     // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI2_SCK_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_INPUT(BOARD_SPI2_MISO_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI2_MOSI_PIN);
   #endif
 
   setModule(device);
@@ -233,6 +202,42 @@ SPIClass::SPIClass(uint8_t device) {
 }
 
 void SPIClass::begin() {
+  // Init the SPI pins in the firt begin call
+  if ((_currentSetting->spi_d == LPC_SSP0 && spiInitialised[0] == false) ||
+      (_currentSetting->spi_d == LPC_SSP1 && spiInitialised[1] == false)) {
+    pin_t sck, miso, mosi;
+    if (_currentSetting->spi_d == LPC_SSP0) {
+      sck = BOARD_SPI1_SCK_PIN;
+      miso = BOARD_SPI1_MISO_PIN;
+      mosi = BOARD_SPI1_MOSI_PIN;
+      spiInitialised[0] = true;
+    }
+    else if (_currentSetting->spi_d == LPC_SSP0) {
+      sck = BOARD_SPI2_SCK_PIN;
+      miso = BOARD_SPI2_MISO_PIN;
+      mosi = BOARD_SPI2_MOSI_PIN;
+      spiInitialised[1] = true;
+    }
+    PINSEL_CFG_Type PinCfg;  // data structure to hold init values
+    PinCfg.Funcnum = 2;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = LPC176x::pin_bit(sck);
+    PinCfg.Portnum = LPC176x::pin_port(sck);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(sck);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(miso);
+    PinCfg.Portnum = LPC176x::pin_port(miso);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_INPUT(miso);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(mosi);
+    PinCfg.Portnum = LPC176x::pin_port(mosi);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(mosi);
+  }
+
   updateSettings();
   SSP_Cmd(_currentSetting->spi_d, ENABLE);  // start SSP running
 }
