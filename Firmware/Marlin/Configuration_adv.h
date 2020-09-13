@@ -2484,7 +2484,7 @@
    * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
    * on the same serial port, either here or in your board's pins file.
    */
-  #if ENABLED(SKR_E3_MINI_V2_0)
+  #if ENABLED(SKR_E3_MINI_V1) || ENABLED(SKR_E3_MINI_V2_0)
     #define  X_SLAVE_ADDRESS 0
     #define  Y_SLAVE_ADDRESS 1
     #define  Z_SLAVE_ADDRESS 2
