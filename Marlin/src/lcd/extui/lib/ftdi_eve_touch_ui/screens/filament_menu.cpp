@@ -59,17 +59,9 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
     cmd.font(font_large)
        .text(TITLE_POS, GET_TEXT_F(MSG_FILAMENT))
        .font(font_medium).colors(normal_btn)
-       .enabled(
-         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-           1
-         #endif
-       )
+       .enabled(ENABLED(FILAMENT_RUNOUT_SENSOR))
        .tag(2).button(RUNOUT_SENSOR_POS, GET_TEXT_F(MSG_RUNOUT_SENSOR))
-       .enabled(
-         #if ENABLED(LIN_ADVANCE)
-           1
-         #endif
-       )
+       .enabled(ENABLED(LIN_ADVANCE))
        .tag(3).button(LIN_ADVANCE_POS, GET_TEXT_F(MSG_LINEAR_ADVANCE))
        .colors(action_btn)
        .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));

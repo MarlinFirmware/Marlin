@@ -36,7 +36,7 @@
  *
  *   PolyReader r(data, N_ELEMENTS(data));
  *
- *   for(r.start();r.has_more(); r.next()) {
+ *   for (r.start();r.has_more(); r.next()) {
  *     uint16_t x = r.x;
  *     uint16_t y = r.y;
  *
@@ -107,8 +107,8 @@ class PolyReader {
       }
     }
 
-    bool has_more()       {return p != NULL;}
-    bool end_of_loop()    {return start_x == eol;}
+    bool has_more()       { return p != NULL; }
+    bool end_of_loop()    { return start_x == eol; }
 };
 
 /**
@@ -129,7 +129,7 @@ class TransformedPolyReader : public PolyReader {
      */
     static constexpr uint8_t fract_bits = 5;
     typedef int16_t fix_t;
-    fix_t makefix(float f) {return f * (1 << fract_bits);}
+    fix_t makefix(float f) { return f * (1 << fract_bits); }
 
     // First two rows of 3x3 transformation matrix
     fix_t a, b, c;
@@ -255,10 +255,10 @@ class GenericPolyUI {
 
   public:
     enum ButtonStyle : uint8_t {
-        FILL    = 1,
-        STROKE  = 2,
-        SHADOW  = 4,
-        REGULAR = 7
+      FILL    = 1,
+      STROKE  = 2,
+      SHADOW  = 4,
+      REGULAR = 7
     };
 
     typedef POLY_READER poly_reader_t;
@@ -283,7 +283,7 @@ class GenericPolyUI {
       Polygon p(cmd);
       p.begin_fill();
       p.begin_loop();
-      for(r.start();r.has_more();r.next()) {
+      for (r.start();r.has_more();r.next()) {
         p(r.x * 16, r.y * 16);
         if (r.end_of_loop()) {
           p.end_loop();
@@ -313,7 +313,7 @@ class GenericPolyUI {
       Polygon p(cmd);
       p.begin_stroke();
       p.begin_loop();
-      for(r.start();r.has_more(); r.next()) {
+      for (r.start();r.has_more(); r.next()) {
         p(r.x * 16, r.y * 16);
         if (r.end_of_loop()) {
           p.end_loop();
@@ -330,7 +330,7 @@ class GenericPolyUI {
       int16_t y_min = INT16_MAX;
       int16_t x_max = INT16_MIN;
       int16_t y_max = INT16_MIN;
-      for(r.start(); r.has_more(); r.next()) {
+      for (r.start(); r.has_more(); r.next()) {
         x_min = min(x_min, int16_t(r.x));
         x_max = max(x_max, int16_t(r.x));
         y_min = min(y_min, int16_t(r.y));
@@ -388,11 +388,11 @@ class GenericPolyUI {
         #endif
         // Draw the fill and stroke
         cmd.cmd(TAG(tag));
-        if(style & FILL) {
+        if (style & FILL) {
           cmd.cmd(COLOR_RGB(btn_fill_color));
           fill(r, false);
         }
-        if(style & STROKE) {
+        if (style & STROKE) {
           cmd.cmd(COLOR_RGB(btn_stroke_color));
           cmd.cmd(LINE_WIDTH(btn_stroke_width));
           stroke(r);

@@ -328,10 +328,9 @@ void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::pr
 }
 
 void BedMeshScreen::startMeshProbe() {
-    GOTO_SCREEN(BedMeshScreen);
-    screen_data.BedMeshScreen.count = 0;
-    injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
+  GOTO_SCREEN(BedMeshScreen);
+  screen_data.BedMeshScreen.count = 0;
+  injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
 }
 
 #endif // TOUCH_UI_FTDI_EVE && HAS_MESH
- HAS_MESH
