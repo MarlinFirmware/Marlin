@@ -1139,8 +1139,9 @@ void HMI_Zoffset(void) {
         if (WITHIN(zprobe_zoffset - last_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
           probe.offset.z = zprobe_zoffset;
         settings.save();
-      #if ENABLED(BABYSTEPPING)
-        babystep.add_mm(Z_AXIS, (zprobe_zoffset - last_zoffset));
+        #if ENABLED(BABYSTEPPING)
+          babystep.add_mm(Z_AXIS, (zprobe_zoffset - last_zoffset));
+	    #endif
       #else
         UNUSED(zprobe_zoffset - last_zoffset);
       #endif
