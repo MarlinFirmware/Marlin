@@ -363,17 +363,13 @@ class Temperature {
 
       // Convert the given heater_id_t to idle array index
       inline uint8_t idle_index_for_id(const int8_t heater_id) {
-        return (
-          #if EITHER(HAS_HEATED_BED, HAS_HEATED_CHAMBER)
-            heater_id >= 0 ? heater_id :
-              #if BOTH(HAS_HEATED_BED, HAS_HEATED_CHAMBER)
-                heater_id == H_CHAMBER ? IDLE_INDEX_CHAMBER :
-              #endif
-              IDLE_INDEX_BED
-          #else
-            heater_id
-          #endif
-        );
+        #if HAS_HEATED_CHAMBER
+          if (heater_id == H_CHAMBER) return IDLE_INDEX_CHAMBER;
+        #endif
+        #if HAS_HEATED_BED
+          if (heater_id == H_BED) return IDLE_INDEX_BED;
+        #endif
+        return _MAX(heater_id, 0);
       }
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
@@ -863,17 +859,13 @@ class Temperature {
 
       // Convert the given heater_id_t to runaway state array index
       inline uint8_t runaway_index_for_id(const int8_t heater_id) {
-        return (
-          #if EITHER(HAS_THERMALLY_PROTECTED_BED, HAS_THERMALLY_PROTECTED_CHAMBER)
-            heater_id >= 0 ? heater_id :
-              #if BOTH(HAS_THERMALLY_PROTECTED_BED, HAS_THERMALLY_PROTECTED_CHAMBER)
-                heater_id == H_CHAMBER ? IDLE_INDEX_CHAMBER :
-              #endif
-              IDLE_INDEX_BED
-          #else
-            heater_id
-          #endif
-        );
+        #if HAS_THERMALLY_PROTECTED_CHAMBER
+          if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
+        #endif
+        #if HAS_THERMALLY_PROTECTED_BED
+          if (heater_id == H_BED) return RUNAWAY_IND_BED;
+        #endif
+        return _MAX(heater_id, 0);
       }
 
       enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };
