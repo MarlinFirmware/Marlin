@@ -24,7 +24,7 @@ If you find bugs, want to help test new releases, or need help you can post in t
 
 ## Credits
 
-TH3D Unified 2.0 Firmware is built on top of Marlin Firmware. Please donate to their dev team if you wish to make a donation. This project is done by TH3D Studio LLC to provide the 3D printing community with easy to use firmware and also enable ease of use with our products and other products on the market. Profits from our store allow our technical team to make projects like this available for free to the community.
+TH3D Unified 2 Firmware is built on top of Marlin 2 Firmware. Please donate to their dev team if you wish to make a donation. This project is done by TH3D Studio LLC to provide the 3D printing community with easy to use firmware and also enable ease of use with our products and other products on the market. Profits from our store allow our technical team to make projects like this available for free to the community.
 
 The current Marlin dev team consists of:
 
@@ -37,7 +37,7 @@ The current Marlin dev team consists of:
 
 ## Firmware License
 
-Marlin and Unified 2.0 Firmware is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin and Unified 2 Firmware is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
 
