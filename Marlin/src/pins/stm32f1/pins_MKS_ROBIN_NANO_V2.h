@@ -351,6 +351,17 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #if ENABLED(SPI_PANEL)
+      #define PIN_SPI_SCK                   PA5
+      #define PIN_TFT_MISO                  PA6
+      #define PIN_TFT_MOSI                  PA7
+      #define DOGLCD_CS                     PE8
+    #endif
+
+    #undef BEEPER_PIN
+  
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14

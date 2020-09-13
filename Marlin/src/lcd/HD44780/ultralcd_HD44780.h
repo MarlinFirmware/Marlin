@@ -27,6 +27,8 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if DISABLED(TFTGLCD_PANEL)
+
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
 
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
@@ -100,3 +102,5 @@
 
 #include "../fontutils.h"
 #include "../lcdprint.h"
+
+#endif //TFTGLCD_PANEL

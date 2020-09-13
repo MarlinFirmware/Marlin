@@ -2264,7 +2264,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_LVGL_UI_FSMC) \
   + ENABLED(TFT_LVGL_UI_SPI) \
   + ENABLED(ANYCUBIC_LCD_I3MEGA) \
-  + ENABLED(ANYCUBIC_LCD_CHIRON)
+  + ENABLED(ANYCUBIC_LCD_CHIRON) \
+  + ENABLED(TFTGLCD_PANEL)
   #error "Please select only one LCD controller option."
 #endif
 

@@ -146,7 +146,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
-  #if HAS_SLOW_BUTTONS
+  #if ENABLED(HAS_SLOW_BUTTONS)
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
   #if HAS_TOUCH_XPT2046
@@ -372,7 +372,7 @@ void MarlinUI::init() {
 
   #endif // HAS_SHIFT_ENCODER
 
-  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
+  #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
   #endif
 
@@ -506,7 +506,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR)
+#if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -517,7 +517,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR)
+  #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
 
     //
     // HD44780 implements the following message blinking and
@@ -917,7 +917,11 @@ void MarlinUI::update() {
 
       const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
-        if (encoderPastThreshold) {
+        if (encoderPastThreshold
+          #if ENABLED(TFTGLCD_PANEL)
+            && !external_control
+          #endif
+            ) {
 
           #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
@@ -1223,7 +1227,7 @@ void MarlinUI::update() {
         #endif // UP || DWN || LFT || RT
 
         buttons = (newbutton
-          #if HAS_SLOW_BUTTONS
+          #if ENABLED(HAS_SLOW_BUTTONS)
             | slow_buttons
           #endif
           #if BOTH(HAS_TOUCH_XPT2046, HAS_ENCODER_ACTION)
@@ -1260,6 +1264,16 @@ void MarlinUI::update() {
           WRITE(SHIFT_CLK, LOW);
         }
         TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
+      #endif
+
+      #if ENABLED(TFTGLCD_PANEL)
+
+        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
+        buttons = slow_buttons;
+        #if ENABLED(AUTO_BED_LEVELING_UBL)
+          external_encoder();
+        #endif
+
       #endif
 
     } // next_button_update_ms
@@ -1333,7 +1347,7 @@ void MarlinUI::update() {
       const millis_t ms = millis();
     #endif
 
-    #if ENABLED(LCD_PROGRESS_BAR)
+    #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
       progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
         expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;

@@ -283,10 +283,12 @@
 // LCDs and Controllers
 //
 #if HAS_SPI_LCD
+
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS                     PG6
 
     #define BTN_EN1                         PD11
@@ -301,10 +303,20 @@
     #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
+
     #define DOGLCD_A0                       PG6
     #define DOGLCD_CS                       PG3
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
+
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+    #if ENABLED(SPI_PANEL)
+      #define DOGLCD_CS                     PG10
+    #endif
+
   #else
 
     #define LCD_PINS_RS                     PD10

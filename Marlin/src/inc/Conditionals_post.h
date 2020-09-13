@@ -321,6 +321,10 @@
   #define _LCD_CONTRAST_MIN   64
   #define _LCD_CONTRAST_INIT 128
   #define _LCD_CONTRAST_MAX  255
+#elif ENABLED(TFTGLCD_PANEL)
+  #define _LCD_CONTRAST_MIN   0
+  #define _LCD_CONTRAST_INIT  250
+  #define _LCD_CONTRAST_MAX   255
 #endif
 
 #ifdef _LCD_CONTRAST_INIT

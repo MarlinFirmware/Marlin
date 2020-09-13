@@ -217,7 +217,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     clear_lcd();
 
     // Re-initialize custom characters that may be re-used
-    #if HAS_CHARACTER_LCD
+    #if HAS_CHARACTER_LCD && DISABLED(TFTGLCD_PANEL)
       if (TERN1(AUTO_BED_LEVELING_UBL, !ubl.lcd_map_control))
         set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
     #endif
@@ -347,8 +347,17 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
 #endif // BABYSTEP_ZPROBE_OFFSET
 
 void _lcd_draw_homing() {
-  constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
-  if (ui.should_draw()) MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
+  if (ui.should_draw()) {
+    #if ENABLED(TFTGLCD_PANEL)
+      lcd.clear_buffer();
+      MenuItem_static::draw(4, GET_TEXT(MSG_LEVEL_BED_HOMING));
+      lcd.print_screen();
+    #else
+      constexpr uint8_t line = (LCD_HEIGHT - 1) / 2;
+      MenuItem_static::draw(line, GET_TEXT(MSG_LEVEL_BED_HOMING));
+    #endif
+  }
+}
 }
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))

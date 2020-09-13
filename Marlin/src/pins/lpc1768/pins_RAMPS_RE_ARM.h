@@ -333,94 +333,107 @@
   //#define MOSI_PIN                       P0_18  // (51)  system defined J3-10 & AUX-3
   //#define SS_PIN                         P1_23  // (53)  system defined J3-5 & AUX-3 (Sometimes called SDSS)
 
-  #if ENABLED(FYSETC_MINI_12864)
-    #define BEEPER_PIN                     P1_01
-    #define BTN_ENC                        P1_04
-  #else
-    #define BEEPER_PIN                     P1_30  // (37) not 5V tolerant
-    #define BTN_ENC                        P2_11  // (35) J3-3 & AUX-4
-  #endif
+  #if ENABLED(TFTGLCD_PANEL)
 
-  #define BTN_EN1                          P3_26  // (31) J3-2 & AUX-4
-  #define BTN_EN2                          P3_25  // (33) J3-4 & AUX-4
-
-  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
-  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
-  #define LCD_PINS_RS                      P0_16  // (16) J3-7 & AUX-4
-  #define LCD_SDSS                         P1_23  // (53) J3-5 & AUX-3
-
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
-      #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-      #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
+    #if ENABLED(SPI_PANEL)
+      #define DOGLCD_CS                    P3_26  // (31) J3-2 & AUX-4
     #endif
-  #else
-    //#define SHIFT_CLK                    P3_26  // (31)  J3-2 & AUX-4
-    //#define SHIFT_LD                     P3_25  // (33)  J3-4 & AUX-4
-    //#define SHIFT_OUT                    P2_11  // (35)  J3-3 & AUX-4
-    //#define SHIFT_EN                     P1_22  // (41)  J5-4 & AUX-4
-  #endif
-
-  #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
-
-    #define DOGLCD_CS                      P0_16  // (16)
-    #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
-    #define DOGLCD_SCK                   SCK_PIN
-    #define DOGLCD_MOSI                 MOSI_PIN
-
-    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
-    #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
+  
+    #define SD_DETECT_PIN                  P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+    #define KILL_PIN                       P1_22  // (41) J5-4 & AUX-4
+  
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_SCK                   P0_15
-      #define DOGLCD_MOSI                  P0_18
+      #define BEEPER_PIN                   P1_01
+      #define BTN_ENC                      P1_04
+    #else
+      #define BEEPER_PIN                   P1_30  // (37) not 5V tolerant
+      #define BTN_ENC                      P2_11  // (35) J3-3 & AUX-4
+    #endif
 
-      // EXP1 on LCD adapter is not usable - using Ethernet connector instead
-      #define DOGLCD_CS                    P1_09
-      #define DOGLCD_A0                    P1_14
-      //#define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+    #define BTN_EN1                        P3_26  // (31) J3-2 & AUX-4
+    #define BTN_EN2                        P3_25  // (33) J3-4 & AUX-4
 
-      #define LCD_RESET_PIN                P0_16  // Must be high or open for LCD to operate normally.
+    #define SD_DETECT_PIN                  P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+    #define KILL_PIN                       P1_22  // (41) J5-4 & AUX-4
+    #define LCD_PINS_RS                    P0_16  // (16) J3-7 & AUX-4
+    #define LCD_SDSS                       P1_23  // (53) J3-5 & AUX-3
 
-      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-        #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN            P1_00
-        #endif
-        #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN            P1_01
-        #endif
-        #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN            P1_08
-        #endif
-      #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN               P1_00
+    #if ENABLED(NEWPANEL)
+      #if ENABLED(REPRAPWORLD_KEYPAD)
+        #define SHIFT_OUT                  P0_18  // (51) (MOSI) J3-10 & AUX-3
+        #define SHIFT_CLK                  P0_15  // (52) (SCK)  J3-9 & AUX-3
+        #define SHIFT_LD                   P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
       #endif
     #else
-      #define DOGLCD_CS                    P0_26  // (63) J5-3 & AUX-2
+      //#define SHIFT_CLK                  P3_26  // (31)  J3-2 & AUX-4
+      //#define SHIFT_LD                   P3_25  // (33)  J3-4 & AUX-4
+      //#define SHIFT_OUT                  P2_11  // (35)  J3-3 & AUX-4
+      //#define SHIFT_EN                   P1_22  // (41)  J5-4 & AUX-4
+    #endif
+
+    #if ANY(VIKI2, miniVIKI)
+      // #define LCD_SCREEN_ROT_180
+
+      #define DOGLCD_CS                    P0_16  // (16)
       #define DOGLCD_A0                    P2_06  // (59) J3-8 & AUX-2
+      #define DOGLCD_SCK                 SCK_PIN
+      #define DOGLCD_MOSI               MOSI_PIN
+
+      #define STAT_LED_BLUE_PIN            P0_26  // (63)  may change if cable changes
+      #define STAT_LED_RED_PIN             P1_21  // ( 6)  may change if cable changes
+    #else
+
+      #if ENABLED(FYSETC_MINI_12864)
+        #define DOGLCD_SCK                 P0_15
+        #define DOGLCD_MOSI                P0_18
+
+        // EXP1 on LCD adapter is not usable - using Ethernet connector instead
+        #define DOGLCD_CS                  P1_09
+        #define DOGLCD_A0                  P1_14
+        //#define FORCE_SOFT_SPI                  // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+        #define LCD_RESET_PIN              P0_16  // Must be high or open for LCD to operate normally.
+
+        #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+          #ifndef RGB_LED_R_PIN
+            #define RGB_LED_R_PIN          P1_00
+          #endif
+          #ifndef RGB_LED_G_PIN
+            #define RGB_LED_G_PIN          P1_01
+          #endif
+          #ifndef RGB_LED_B_PIN
+            #define RGB_LED_B_PIN          P1_08
+          #endif
+        #elif ENABLED(FYSETC_MINI_12864_2_1)
+          #define NEOPIXEL_PIN             P1_00
+        #endif
+      #else
+        #define DOGLCD_CS                  P0_26  // (63) J5-3 & AUX-2
+        #define DOGLCD_A0                  P2_06  // (59) J3-8 & AUX-2
+      #endif
+
+      #define LCD_BACKLIGHT_PIN            P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
+      #define LCD_PINS_ENABLE              P0_18  // (51) (MOSI) J3-10 & AUX-3
+      #define LCD_PINS_D4                  P0_15  // (52) (SCK)  J3-9 & AUX-3
+      #if ENABLED(ULTIPANEL)
+        #define LCD_PINS_D5                P1_17  // (71) ENET_MDIO
+        #define LCD_PINS_D6                P1_14  // (73) ENET_RX_ER
+        #define LCD_PINS_D7                P1_10  // (75) ENET_RXD1
+      #endif
     #endif
 
-    #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
-    #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
-    #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
-      #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
-      #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
-    #endif
-  #endif
+    #if ENABLED(MINIPANEL)
+      // GLCD features
+      // Uncomment screen orientation
+      //#define LCD_SCREEN_ROT_90
+      //#define LCD_SCREEN_ROT_180
+      //#define LCD_SCREEN_ROT_270
+   #endif
 
-  #if ENABLED(MINIPANEL)
-    // GLCD features
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
-  #endif
+  #endif // TFTGLCD_PANEL
 
 #endif // HAS_SPI_LCD
 

@@ -449,6 +449,10 @@
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
 
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #define DOGLCD_CS                         33
+
   #else
 
     #if ENABLED(CR10_STOCKDISPLAY)
@@ -680,6 +684,10 @@
     #elif ENABLED(AZSMZ_12864)
 
       // Pins only defined for RAMPS_SMART currently
+
+    #elif ENABLED(TFTGLCD_PANEL)
+    
+      #define SD_DETECT_PIN                 49
 
     #else
 

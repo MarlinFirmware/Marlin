@@ -1969,6 +1969,17 @@
 //
 //#define FF_INTERFACEBOARD
 
+//
+// TFT GLCD Panel
+// Panel may be built on different controller with different LCD.
+// Panel connected to main board by SPI or I2C interface.
+// For Marlin this panel looks as a text LCD.
+// For example:
+// panel based on low cost STM32F103C8T6 "Blue Pill" board and 320x240 or 400x240 color TFT LCD
+// https://github.com/Serhiy-K/TFTGLCDAdapter
+//
+//#define TFTGLCD_PANEL
+
 //=============================================================================
 //=======================   LCD / Controller Selection  =======================
 //=========================      (Graphical LCDs)      ========================
