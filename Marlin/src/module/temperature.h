@@ -679,6 +679,9 @@ class Temperature {
         FORCE_INLINE static int16_t rawProbeTemp()    { return temp_probe.raw; }
       #endif
       FORCE_INLINE static float degProbe()            { return temp_probe.celsius; }
+      FORCE_INLINE static bool isProbeBelowTemp(const float target_temp) { return temp_probe.celsius < target_temp; }
+      FORCE_INLINE static bool isProbeAboveTemp(const float target_temp) { return temp_probe.celsius > target_temp; }
+      static bool wait_for_probe(const float target_temp, bool no_wait_for_cooling=true);
     #endif
 
     #if WATCH_PROBE
@@ -723,7 +726,7 @@ class Temperature {
     /**
      * The software PWM power for a heater
      */
-    static int16_t getHeaterPower(const heater_id_t heater);
+    static int16_t getHeaterPower(const heater_id_t heater_id);
 
     /**
      * Switch off all heaters, set all target temperatures to 0
@@ -742,7 +745,7 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(const float &target, const heater_id_t hotend, const int8_t ncycles, const bool set_result=false);
+      static void PID_autotune(const float &target, const heater_id_t heater_id, const int8_t ncycles, const bool set_result=false);
 
       #if ENABLED(NO_FAN_SLOWING_IN_PID_TUNING)
         static bool adaptive_fan_slowing;
