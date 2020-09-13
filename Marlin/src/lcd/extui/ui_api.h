@@ -143,7 +143,12 @@ namespace ExtUI {
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
 
-      typedef enum : unsigned char { PROBE_START, PROBE_FINISH } probe_state_t;
+      typedef enum : unsigned char {
+        MESH_START,    // Prior to start of probe
+        MESH_FINISH,   // Following probe of all points
+        PROBE_START,   // Beginning probe of grid location
+        PROBE_FINISH   // Finished probe of grid location
+      } probe_state_t;
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state);
       inline void onMeshUpdate(const xy_int8_t &pos, probe_state_t state) { onMeshUpdate(pos.x, pos.y, state); }
     #endif
