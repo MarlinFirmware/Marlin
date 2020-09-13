@@ -2,33 +2,25 @@
 
 Unified Firmware 2.0 is the latest easy to use firmware for select 3D printers and boards from TH3D Studio. Both 8 bit and 32 bit based machines/boards are supported thanks to being built on Marlin 2.0.
 
-This firmware focuses on printers with their **stock** control boards and select aftermarket boards that we carry. If you have a 3rd party or other board installed in your machine it is recommended to use ["Vanilla" Marlin](https://marlinfw.org) on your machine.
+This firmware focuses on printers with their stock control boards and select aftermarket boards. If you have a 3rd party or other board installed in your machine that is not supported by this firmware it is recommended to use ["Vanilla" Marlin](https://marlinfw.org) on your machine.
 
 ## Where to download and how to use it
 
 Always download the latest firmware releases from our Unified 2 Firmware website here: [UF2.TH3DStudio.com](http://uf2.th3dstudio.com)
 
-## Folder Structure
-
-- **Firmware**
-	- Main source code for the Unified 2 firmware. Copy your printer config files from the `Board Configuration Files` folder
-	- This is the folder you will open with VSCode after copying in your printer config files
-- **Board Configuration Files**
-	- Files for each printer configuration that is supported by this firmware, organized by the board being used
-- **STL Files**
-	- Contains files for EZABL mounts, solid bed mounts, and bed level test files
-- **TH3D Installation Guides**
-	- Installation guides and accompanying files for TH3D products like the EZABL and EZOut filament sensor kits
-
-## Technical Support
+## Technical Support & Bug Reporting
 
 For best results getting help with configuration and troubleshooting, please use the following resources:
 
-- [TH3D Forum](https://forum.th3dstudio.com)
+- [TH3D Forum](https://support.th3dstudio.com/hc/en-us/community/topics/360001750572-Unified-2-Firmware)
 - [TH3D Discord](http://Discord.TH3DStudio.com)
 - [TH3D Help Center](https://support.th3dstudio.com)
 - [3D Printer Support Facebook Group](https://www.facebook.com/groups/c3dforum/)
 - [TH3D Customer Facebook Group](http://fbgroup.th3dstudio.com/)
+
+**Bug Reporting**
+
+If you find bugs, want to help test new releases, or need help you can post in the [Unified 2 Firmware forum](https://support.th3dstudio.com/hc/en-us/community/topics/360001750572-Unified-2-Firmware).
 
 ## Credits
 
