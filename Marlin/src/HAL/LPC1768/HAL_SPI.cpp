@@ -212,7 +212,7 @@ void SPIClass::begin() {
       mosi = BOARD_SPI1_MOSI_PIN;
       spiInitialised[0] = true;
     }
-    else if (_currentSetting->spi_d == LPC_SSP0) {
+    else if (_currentSetting->spi_d == LPC_SSP1) {
       sck = BOARD_SPI2_SCK_PIN;
       miso = BOARD_SPI2_MISO_PIN;
       mosi = BOARD_SPI2_MOSI_PIN;
