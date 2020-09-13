@@ -247,11 +247,7 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   ui.button_stroke(stroke_rgb, 28);
   ui.button_shadow(shadow_rgb, shadow_depth);
 
-  #if ENABLED(TOUCH_UI_COCOA_PRESS)
-    constexpr uint8_t style = PolyUI::FILL | PolyUI::SHADOW;
-  #else
-    constexpr uint8_t style = PolyUI::REGULAR;
-  #endif
+  constexpr uint8_t style = TERN(TOUCH_UI_COCOA_PRESS, PolyUI::FILL | PolyUI::SHADOW, PolyUI::REGULAR);
 
   if ((what & BACKGROUND) || jog_xy) {
     ui.button(1, POLY(x_neg), style);
@@ -308,20 +304,11 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   if (what & FOREGROUND) {
-    #if ENABLED(TOUCH_UI_COCOA_PRESS)
-      ui.button_fill  (stroke_rgb);
-    #else
-      ui.button_fill  (fill_rgb);
-    #endif
+    ui.button_fill  (TERN(TOUCH_UI_COCOA_PRESS, stroke_rgb, fill_rgb);
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    #if ENABLED(TOUCH_UI_COCOA_PRESS)
-      constexpr uint8_t style = PolyUI::FILL | PolyUI::SHADOW;
-    #else
-      constexpr uint8_t style = PolyUI::REGULAR;
-    #endif
-
+    constexpr uint8_t style = TERN(TOUCH_UI_COCOA_PRESS, PolyUI::FILL | PolyUI::SHADOW, PolyUI::REGULAR);
     if (!jog_xy)  ui.button(12, POLY(padlock), style);
     if (!e_homed) ui.button(13, POLY(home_e), style);
     if (!z_homed) ui.button(14, POLY(home_z), style);
