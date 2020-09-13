@@ -472,7 +472,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("絲距離mm");   //"Runout Dist mm"
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("歸原位失敗");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探針探測失敗");     // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷");     // "M600: Too cold"
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

@@ -536,7 +536,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout-Weg mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing gescheitert");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing gescheitert");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: zu kalt");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMENT WÄHLEN");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef __STM32F1__
+
 #include "../../inc/MarlinConfigPre.h"
 #include "MarlinSerial.h"
 #include <libmaple/usart.h>
@@ -27,28 +29,43 @@
 // Copied from ~/.platformio/packages/framework-arduinoststm32-maple/STM32F1/system/libmaple/usart_private.h
 // Changed to handle Emergency Parser
 static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb, usart_reg_map *regs, MarlinSerial &serial) {
-   /* Handle RXNEIE and TXEIE interrupts.
-    * RXNE signifies availability of a byte in DR.
-    *
-    * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
-    * We enable RXNEIE.
-    */
-  if ((regs->CR1 & USART_CR1_RXNEIE) && (regs->SR & USART_SR_RXNE)) {
-    uint8_t c = (uint8)regs->DR;
-    #ifdef USART_SAFE_INSERT
-      // If the buffer is full and the user defines USART_SAFE_INSERT,
-      // ignore new bytes.
-      rb_safe_insert(rb, c);
-    #else
-      // By default, push bytes around in the ring buffer.
-      rb_push_insert(rb, c);
-    #endif
-    #if ENABLED(EMERGENCY_PARSER)
-      emergency_parser.update(serial.emergency_state, c);
-    #endif
+ /* Handle RXNEIE and TXEIE interrupts.
+  * RXNE signifies availability of a byte in DR.
+  *
+  * See table 198 (sec 27.4, p809) in STM document RM0008 rev 15.
+  * We enable RXNEIE.
+  */
+  uint32_t srflags = regs->SR, cr1its = regs->CR1;
+
+  if ((cr1its & USART_CR1_RXNEIE) && (srflags & USART_SR_RXNE)) {
+    if (srflags & USART_SR_FE || srflags & USART_SR_PE ) {
+      // framing error or parity error
+      regs->DR; // Read and throw away the data, which also clears FE and PE
+    }
+    else {
+      uint8_t c = (uint8)regs->DR;
+      #ifdef USART_SAFE_INSERT
+        // If the buffer is full and the user defines USART_SAFE_INSERT,
+        // ignore new bytes.
+        rb_safe_insert(rb, c);
+      #else
+        // By default, push bytes around in the ring buffer.
+        rb_push_insert(rb, c);
+      #endif
+      #if ENABLED(EMERGENCY_PARSER)
+        emergency_parser.update(serial.emergency_state, c);
+      #endif
+    }
   }
+  else if (srflags & USART_SR_ORE) {
+    // overrun and empty data, just do a dummy read to clear ORE
+    // and prevent a raise condition where a continous interrupt stream (due to ORE set) occurs
+    // (see chapter "Overrun error" ) in STM32 reference manual
+    regs->DR;
+  }
+
   // TXE signifies readiness to send a byte to DR.
-  if ((regs->CR1 & USART_CR1_TXEIE) && (regs->SR & USART_SR_TXE)) {
+  if ((cr1its & USART_CR1_TXEIE) && (srflags & USART_SR_TXE)) {
     if (!rb_is_empty(wb))
       regs->DR=rb_remove(wb);
     else
@@ -91,3 +108,5 @@ static inline __always_inline void my_usart_irq(ring_buffer *rb, ring_buffer *wb
 #if SERIAL_PORT == 5 || SERIAL_PORT_2 == 5 || DGUS_SERIAL_PORT == 5
   DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);
 #endif
+
+#endif // __STM32F1__

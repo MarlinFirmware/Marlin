@@ -500,7 +500,6 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Aşınma Farkı mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Sıfırlama Başarısız");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Başarısız");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Çok Soğuk");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMAN SEÇ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

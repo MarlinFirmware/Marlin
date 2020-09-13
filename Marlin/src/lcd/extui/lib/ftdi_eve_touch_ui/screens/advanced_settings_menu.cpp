@@ -55,11 +55,11 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define ACCELERATION_POS        BTN_POS(2,5), BTN_SIZE(1,1)
       #define ENDSTOPS_POS            BTN_POS(1,6), BTN_SIZE(1,1)
       #define JERK_POS                BTN_POS(2,6), BTN_SIZE(1,1)
-      #define OFFSETS_POS             BTN_POS(1,7), BTN_SIZE(1,1)
+      #define CASE_LIGHT_POS          BTN_POS(1,7), BTN_SIZE(1,1)
       #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
-      #define CASE_LIGHT_POS          BTN_POS(1,8), BTN_SIZE(1,1)
+      #define OFFSETS_POS             BTN_POS(1,8), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
-      #if EITHER(CASE_LIGHT_ENABLE, SENSORLESS_HOMING)
+      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
@@ -98,8 +98,8 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       .tag(13).button( TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
       .enabled(ENABLED(SENSORLESS_HOMING))
       .tag(14).button( TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
-      .enabled(EITHER(HAS_MULTI_HOTEND, BLTOUCH))
-      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_OFFSETS_MENU, MSG_RESET_BLTOUCH)))
+      .enabled(ENABLED(HAS_MULTI_HOTEND))
+      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
       .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
       .tag(11).button( FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
       .tag(12).button( ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
@@ -123,13 +123,9 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case  2: GOTO_SCREEN(ZOffsetScreen);              break;
     #endif
     case  3: GOTO_SCREEN(StepsScreen);                break;
-    case  4:
-      #if HAS_MULTI_HOTEND
-        GOTO_SCREEN(NozzleOffsetScreen);
-      #elif ENABLED(BLTOUCH)
-        injectCommands_P(PSTR("M280 P0 S60"));
-      #endif
-      break;
+    #if ENABLED(HAS_MULTI_HOTEND)
+    case  4: GOTO_SCREEN(NozzleOffsetScreen);         break;
+    #endif
     case  5: GOTO_SCREEN(MaxVelocityScreen);          break;
     case  6: GOTO_SCREEN(DefaultAccelerationScreen);  break;
     case  7: GOTO_SCREEN(TERN(HAS_JUNCTION_DEVIATION, JunctionDeviationScreen, JerkScreen)); break;
