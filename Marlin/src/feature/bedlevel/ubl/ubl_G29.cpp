@@ -736,6 +736,7 @@
       uint8_t count = GRID_MAX_POINTS;
 
       mesh_index_pair best;
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_START));
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
@@ -774,6 +775,8 @@
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
       } while (best.pos.x >= 0 && --count);
+
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_FINISH));
 
       // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
       TERN_(HAS_LCD_MENU, ui.release());

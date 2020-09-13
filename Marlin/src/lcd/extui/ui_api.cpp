@@ -544,11 +544,13 @@ namespace ExtUI {
 
   void setAxisSteps_per_mm(const float value, const axis_t axis) {
     planner.settings.axis_steps_per_mm[axis] = value;
+    planner.refresh_positioning();
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
+    planner.refresh_positioning();
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -580,11 +582,13 @@ namespace ExtUI {
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
+    planner.reset_acceleration_rates();
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
+    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
