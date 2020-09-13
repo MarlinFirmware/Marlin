@@ -1950,9 +1950,11 @@ void Temperature::init() {
     /**
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("Thermal Runaway Running. Heater ID: ");
-      if (heater_id == H_CHAMBER) SERIAL_ECHOPGM("chamber");
-      else if (heater_id == H_BED) SERIAL_ECHOPGM("bed");
-      else SERIAL_ECHO(heater_id);
+      switch (heater_id) {
+        case H_BED:     SERIAL_ECHOPGM("bed"); break;
+        case H_CHAMBER: SERIAL_ECHOPGM("chamber"); break;
+        default:        SERIAL_ECHO(heater_id);
+      }
       SERIAL_ECHOPAIR(" ; sizeof(tr_target_temperature):", sizeof(tr_target_temperature));
       SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
       if (heater_id >= 0)
@@ -1962,11 +1964,12 @@ void Temperature::init() {
       SERIAL_EOL();
     //*/
 
-    #if BOTH(HAS_HEATED_BED,HAS_HEATED_CHAMBER)
-      const int heater_index = heater_id >= 0 ? heater_id : heater_id == H_CHAMBER ? HOTENDS+1 : HOTENDS;
-    #else
-      const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
-    #endif
+    const uint8_t heater_index = (heater_id >= 0 ? heater_id :
+      #if BOTH(HAS_HEATED_BED, HAS_HEATED_CHAMBER)
+        heater_id == H_CHAMBER ? HOTENDS + 1 :
+      #endif
+      HOTENDS
+    );
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
