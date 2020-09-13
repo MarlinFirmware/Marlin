@@ -1040,8 +1040,7 @@ void Temperature::manage_heater() {
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-        if (degHotend(e) > temp_range[e].maxtemp)
-          _temp_error((heater_ind_t)e, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP));
+        if (degHotend(e) > temp_range[e].maxtemp) max_temp_error((heater_ind_t)e);
       #endif
 
       TERN_(HEATER_IDLE_HANDLER, hotend_idle[e].update(ms));
@@ -1093,8 +1092,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (degBed() > BED_MAXTEMP)
-        _temp_error(H_BED, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP_BED));
+      if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
     #endif
 
     #if WATCH_BED
@@ -1173,8 +1171,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (degChamber() > CHAMBER_MAXTEMP)
-        _temp_error(H_CHAMBER, str_t_maxtemp, GET_TEXT(MSG_ERR_MAXTEMP_CHAMBER));
+      if (degChamber() > CHAMBER_MAXTEMP) max_temp_error(H_CHAMBER);
     #endif
 
     #if WATCH_CHAMBER
@@ -1953,9 +1950,9 @@ void Temperature::init() {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("Thermal Runaway Running. Heater ID: ");
       if (heater_id == H_CHAMBER) SERIAL_ECHOPGM("chamber");
-      else if (heater_id == H_BED) SERIAL_ECHOPGM("bed"); 
+      else if (heater_id == H_BED) SERIAL_ECHOPGM("bed");
       else SERIAL_ECHO(heater_id);
-      SERIAL_ECHOPAIR(" ; sizeof(tr_target_temperature):", sizeof(tr_target_temperature)); 
+      SERIAL_ECHOPAIR(" ; sizeof(tr_target_temperature):", sizeof(tr_target_temperature));
       SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
       if (heater_id >= 0)
         SERIAL_ECHOPAIR(" ;  Idle Timeout:", hotend_idle[heater_id].timed_out);
@@ -1966,9 +1963,9 @@ void Temperature::init() {
 
     #if BOTH(HAS_HEATED_BED,HAS_HEATED_CHAMBER)
       const int heater_index = heater_id >= 0 ? heater_id : heater_id == H_CHAMBER ? HOTENDS+1 : HOTENDS;
-    #else 
+    #else
       const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
-    #endif 
+    #endif
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
