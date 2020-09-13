@@ -519,13 +519,13 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char prefix, const bool blink) {
+FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
-    const bool isBed = heater < 0;
-    const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater)),
-                t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
+    const bool isBed = heater_id < 0;
+    const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
+                t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const float t1 = thermalManager.degHotend(heater), t2 = thermalManager.degTargetHotend(heater);
+    const float t1 = thermalManager.degHotend(heater_id), t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   if (prefix >= 0) lcd_put_wchar(prefix);
@@ -540,7 +540,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char pref
       #if HAS_HEATED_BED
         isBed ? thermalManager.bed_idle.timed_out :
       #endif
-      thermalManager.hotend_idle[heater].timed_out
+      thermalManager.hotend_idle[heater_id].timed_out
     );
 
     if (!blink && is_idle) {
@@ -990,7 +990,7 @@ void MarlinUI::draw_status_screen() {
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (row < LCD_HEIGHT) {
         lcd_moveto(LCD_WIDTH - 9, row);
-        _draw_heater_status((heater_ind_t)extruder, LCD_STR_THERMOMETER[0], get_blink());
+        _draw_heater_status((heater_id_t)extruder, LCD_STR_THERMOMETER[0], get_blink());
       }
     }
 

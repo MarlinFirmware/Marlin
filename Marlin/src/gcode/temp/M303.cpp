@@ -62,7 +62,7 @@ void GcodeSuite::M303() {
 
   #define SI TERN(PIDTEMPBED, H_BED, H_E0)
   #define EI TERN(PIDTEMP, HOTENDS - 1, H_BED)
-  const heater_ind_t e = (heater_ind_t)parser.intval('E');
+  const heater_id_t e = (heater_id_t)parser.intval('E');
   if (!WITHIN(e, SI, EI)) {
     SERIAL_ECHOLNPGM(STR_PID_BAD_EXTRUDER_NUM);
     TERN_(EXTENSIBLE_UI, ExtUI::onPidTuning(ExtUI::result_t::PID_BAD_EXTRUDER_NUM));
