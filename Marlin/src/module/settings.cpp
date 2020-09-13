@@ -52,7 +52,7 @@
 #include "temperature.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/dwin.h"
+  #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #include "../lcd/ultralcd.h"
@@ -1191,60 +1191,60 @@ void MarlinSettings::postprocess() {
 
       #if HAS_STEALTHCHOP
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_stealth_enabled.X = stepperX.get_stealthChop_status();
+          tmc_stealth_enabled.X = stepperX.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_stealth_enabled.Y = stepperY.get_stealthChop_status();
+          tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_stealth_enabled.Z = stepperZ.get_stealthChop_status();
+          tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_stealth_enabled.X2 = stepperX2.get_stealthChop_status();
+          tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_stealth_enabled.Y2 = stepperY2.get_stealthChop_status();
+          tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_stealth_enabled.Z2 = stepperZ2.get_stealthChop_status();
+          tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_stealth_enabled.Z3 = stepperZ3.get_stealthChop_status();
+          tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop_status();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          tmc_stealth_enabled.Z4 = stepperZ4.get_stealthChop_status();
+          tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop_status();
         #endif
         #if MAX_EXTRUDERS
           #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_stealth_enabled.E0 = stepperE0.get_stealthChop_status();
+            tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop_status();
           #endif
           #if MAX_EXTRUDERS > 1
             #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_stealth_enabled.E1 = stepperE1.get_stealthChop_status();
+              tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop_status();
             #endif
             #if MAX_EXTRUDERS > 2
               #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_stealth_enabled.E2 = stepperE2.get_stealthChop_status();
+                tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop_status();
               #endif
               #if MAX_EXTRUDERS > 3
                 #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_stealth_enabled.E3 = stepperE3.get_stealthChop_status();
+                  tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop_status();
                 #endif
                 #if MAX_EXTRUDERS > 4
                   #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_stealth_enabled.E4 = stepperE4.get_stealthChop_status();
+                    tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop_status();
                   #endif
                   #if MAX_EXTRUDERS > 5
                     #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_stealth_enabled.E5 = stepperE5.get_stealthChop_status();
+                      tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop_status();
                     #endif
                     #if MAX_EXTRUDERS > 6
                       #if AXIS_HAS_STEALTHCHOP(E6)
-                        tmc_stealth_enabled.E6 = stepperE6.get_stealthChop_status();
+                        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop_status();
                       #endif
                       #if MAX_EXTRUDERS > 7
                         #if AXIS_HAS_STEALTHCHOP(E7)
-                          tmc_stealth_enabled.E7 = stepperE7.get_stealthChop_status();
+                          tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop_status();
                         #endif
                       #endif // MAX_EXTRUDERS > 7
                     #endif // MAX_EXTRUDERS > 6
@@ -3595,17 +3595,17 @@ void MarlinSettings::reset() {
       #if HAS_STEALTHCHOP
         CONFIG_ECHO_HEADING("Driver stepping mode:");
         #if AXIS_HAS_STEALTHCHOP(X)
-          const bool chop_x = stepperX.get_stealthChop_status();
+          const bool chop_x = stepperX.get_stored_stealthChop_status();
         #else
           constexpr bool chop_x = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          const bool chop_y = stepperY.get_stealthChop_status();
+          const bool chop_y = stepperY.get_stored_stealthChop_status();
         #else
           constexpr bool chop_y = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          const bool chop_z = stepperZ.get_stealthChop_status();
+          const bool chop_z = stepperZ.get_stored_stealthChop_status();
         #else
           constexpr bool chop_z = false;
         #endif
@@ -3619,17 +3619,17 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(X2)
-          const bool chop_x2 = stepperX2.get_stealthChop_status();
+          const bool chop_x2 = stepperX2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_x2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          const bool chop_y2 = stepperY2.get_stealthChop_status();
+          const bool chop_y2 = stepperY2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_y2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          const bool chop_z2 = stepperZ2.get_stealthChop_status();
+          const bool chop_z2 = stepperZ2.get_stored_stealthChop_status();
         #else
           constexpr bool chop_z2 = false;
         #endif
@@ -3643,36 +3643,36 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          if (stepperZ3.get_stealthChop_status()) { say_M569(forReplay, PSTR("I2 Z"), true); }
+          if (stepperZ3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I2 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          if (stepperZ4.get_stealthChop_status()) { say_M569(forReplay, PSTR("I3 Z"), true); }
+          if (stepperZ4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I3 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(E0)
-          if (stepperE0.get_stealthChop_status()) { say_M569(forReplay, PSTR("T0 E"), true); }
+          if (stepperE0.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T0 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E1)
-          if (stepperE1.get_stealthChop_status()) { say_M569(forReplay, PSTR("T1 E"), true); }
+          if (stepperE1.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T1 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E2)
-          if (stepperE2.get_stealthChop_status()) { say_M569(forReplay, PSTR("T2 E"), true); }
+          if (stepperE2.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T2 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E3)
-          if (stepperE3.get_stealthChop_status()) { say_M569(forReplay, PSTR("T3 E"), true); }
+          if (stepperE3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T3 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E4)
-          if (stepperE4.get_stealthChop_status()) { say_M569(forReplay, PSTR("T4 E"), true); }
+          if (stepperE4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T4 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
-          if (stepperE5.get_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
+          if (stepperE5.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E6)
-          if (stepperE6.get_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
+          if (stepperE6.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E7)
-          if (stepperE7.get_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
+          if (stepperE7.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
         #endif
 
       #endif // HAS_STEALTHCHOP
