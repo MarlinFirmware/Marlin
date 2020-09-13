@@ -868,7 +868,7 @@ namespace ExtUI {
     }
 
     void startPIDTune(const float temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, (heater_ind_t)tool, 8, true);
+      thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
 
