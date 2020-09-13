@@ -470,6 +470,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Cooling...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Bed Heating...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Bed Cooling...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Probe Heating...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Probe Cooling...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chamber Heating...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Chamber Cooling...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Calibration");
@@ -541,7 +543,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

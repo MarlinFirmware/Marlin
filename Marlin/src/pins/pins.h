@@ -196,6 +196,8 @@
   #include "ramps/pins_ORTUR_4.h"               // ATmega2560                             env:mega2560
 #elif MB(TENLOG_D3_HERO)
   #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
+#elif MB(MKS_GEN_L_V21)
+  #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -619,6 +621,10 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
+#elif MB(TEENSY40_41)
+  #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
+#elif MB(T41U5XBB)
+  #include "teensy4/pins_T41U5XBB.h"            // Teensy-4.x                             env:teensy41
 
 //
 // Espressif ESP32

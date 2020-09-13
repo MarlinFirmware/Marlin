@@ -2182,16 +2182,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Make sure features that need to write to the SD card are
- * disabled unless write support is enabled.
+ * Make sure features that need to write to the SD card can
  */
-#if ENABLED(SDCARD_READONLY)
+#if ENABLED(SDCARD_READONLY) && ANY(POWER_LOSS_RECOVERY, BINARY_FILE_TRANSFER, SDCARD_EEPROM_EMULATION)
+  #undef SDCARD_READONLY
   #if ENABLED(POWER_LOSS_RECOVERY)
-    #error "POWER_LOSS_RECOVERY is incompatible with SDCARD_READONLY."
+    #warning "Either disable SDCARD_READONLY or disable POWER_LOSS_RECOVERY."
   #elif ENABLED(BINARY_FILE_TRANSFER)
-    #error "BINARY_FILE_TRANSFER is incompatible with SDCARD_READONLY."
+    #warning "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
-    #error "SDCARD_EEPROM_EMULATION is incompatible with SDCARD_READONLY."
+    #warning "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
   #endif
 #endif
 
