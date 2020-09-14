@@ -101,6 +101,16 @@
   #define ABL_ENABLE
 #endif
 
+#if EITHER(ENDER3_OEM, ENDER5_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+
+#if ENABLED(ENDER3_V2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #define ABL_ENABLE
+#endif
+
 #if ENABLED(ABL_ENABLE)
   //#define ENABLE_LEVELING_FADE_HEIGHT // Disable for release. Can cause issues.
   #define SEGMENT_LEVELED_MOVES

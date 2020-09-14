@@ -554,11 +554,6 @@
   #define EXTRUDE_MAXLENGTH 1000
 
   #define POWER_LOSS_RECOVERY
-
-  #if ENABLED(ENDER3_OEM)
-    #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
-    #define ABL_ENABLE
-  #endif
   
 #endif
 // End Ender 3 V2 Settings

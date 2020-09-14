@@ -1,0 +1,5 @@
+These files are the original, untouched configuration files from the version of Marlin that we based this build on.
+
+They are not used at all for compiling and only provided for a reference in case there are features or commands you want to refer to when adding in your own options.
+
+Current Marlin Base is 2.0.6.1 with some fixes from BugFix branch to fix issues present in 2.0.6.1.
