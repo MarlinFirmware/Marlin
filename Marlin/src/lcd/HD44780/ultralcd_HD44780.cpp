@@ -521,7 +521,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char prefix, const bool blink) {
   #if HAS_HEATED_BED
-    const bool isBed = heater_id < 0;
+    const bool isBed = TERN(HAS_HEATED_CHAMBER, heater_id == H_BED, heater_id < 0);
     const float t1 = (isBed ? thermalManager.degBed()       : thermalManager.degHotend(heater_id)),
                 t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
@@ -536,14 +536,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #else
-    const bool is_idle = (
-      #if HAS_HEATED_BED
-        isBed ? thermalManager.bed_idle.timed_out :
-      #endif
-      thermalManager.hotend_idle[heater_id].timed_out
-    );
-
-    if (!blink && is_idle) {
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
       lcd_put_wchar(' ');
       if (t2 >= 10) lcd_put_wchar(' ');
       if (t2 >= 100) lcd_put_wchar(' ');
@@ -560,27 +553,14 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
 }
 
 FORCE_INLINE void _draw_bed_status(const bool blink) {
-  _draw_heater_status(H_BED, (
-      #if HAS_LEVELING
-        planner.leveling_active && blink ? '_' :
-      #endif
-      LCD_STR_BEDTEMP[0]
-    ),
-    blink
-  );
+  _draw_heater_status(H_BED, TERN0(HAS_LEVELING, blink && planner.leveling_active) ? '_' : LCD_STR_BEDTEMP[0], blink);
 }
 
 #if HAS_PRINT_PROGRESS
 
   FORCE_INLINE void _draw_print_progress() {
     const uint8_t progress = ui.get_progress_percent();
-    lcd_put_u8str_P(PSTR(
-      #if ENABLED(SDSUPPORT)
-        "SD"
-      #elif ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        "P:"
-      #endif
-    ));
+    lcd_put_u8str_P(PSTR(TERN(SDSUPPORT, "SD", "P:")));
     if (progress)
       lcd_put_u8str(ui8tostr3rj(progress));
     else

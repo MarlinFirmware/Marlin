@@ -182,8 +182,6 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΤΗΤΑΣ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Θερμαίνεται…");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Θέρμανση κλίνης…");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Βαθμονόμηση Delta");

@@ -254,7 +254,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
-        const bool dodraw = (blink || !thermalManager.hotend_idle[heater_id].timed_out);
+        const bool dodraw = (blink || !thermalManager.heater_idle[heater_id].timed_out);
       #else
         constexpr bool dodraw = true;
       #endif
@@ -327,7 +327,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
-        const bool dodraw = (blink || !thermalManager.bed_idle.timed_out);
+        const bool dodraw = (blink || !thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
       #else
         constexpr bool dodraw = true;
       #endif

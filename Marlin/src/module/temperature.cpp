@@ -252,7 +252,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   hotend_watch_t Temperature::watch_hotend[HOTENDS]; // = { { 0 } }
 #endif
 #if HEATER_IDLE_HANDLER
-  hotend_idle_t Temperature::hotend_idle[HOTENDS]; // = { { 0 } }
+  Temperature::heater_idle_t Temperature::heater_idle[NR_HEATER_IDLE]; // = { { 0 } }
 #endif
 
 #if HAS_HEATED_BED
@@ -266,7 +266,6 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
   #endif
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
   TERN(PIDTEMPBED,, millis_t Temperature::next_bed_check_ms);
-  TERN_(HEATER_IDLE_HANDLER, hotend_idle_t Temperature::bed_idle); // = { 0 }
 #endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
@@ -841,7 +840,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
         if (temp_hotend[ee].target == 0
           || pid_error < -(PID_FUNCTIONAL_RANGE)
-          || TERN0(HEATER_IDLE_HANDLER, hotend_idle[ee].timed_out)
+          || TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out)
         ) {
           pid_output = 0;
           pid_reset[ee] = true;
@@ -926,7 +925,7 @@ void Temperature::min_temp_error(const heater_id_t heater_id) {
 
     #else // No PID enabled
 
-      const bool is_idling = TERN0(HEATER_IDLE_HANDLER, hotend_idle[ee].timed_out);
+      const bool is_idling = TERN0(HEATER_IDLE_HANDLER, heater_idle[ee].timed_out);
       const float pid_output = (!is_idling && temp_hotend[ee].celsius < temp_hotend[ee].target) ? BANG_MAX : 0;
 
     #endif
@@ -1040,15 +1039,14 @@ void Temperature::manage_heater() {
 
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-        if (degHotend(e) > temp_range[e].maxtemp)
-          _temp_error((heater_id_t)e, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+        if (degHotend(e) > temp_range[e].maxtemp) max_temp_error((heater_id_t)e);
       #endif
 
-      TERN_(HEATER_IDLE_HANDLER, hotend_idle[e].update(ms));
+      TERN_(HEATER_IDLE_HANDLER, heater_idle[e].update(ms));
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
         // Check for thermal runaway
-        thermal_runaway_protection(tr_state_machine[e], temp_hotend[e].celsius, temp_hotend[e].target, (heater_id_t)e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
+        tr_state_machine[e].run(temp_hotend[e].celsius, temp_hotend[e].target, (heater_id_t)e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
       #endif
 
       temp_hotend[e].soft_pwm_amount = (temp_hotend[e].celsius > temp_range[e].mintemp || is_preheating(e)) && temp_hotend[e].celsius < temp_range[e].maxtemp ? (int)get_pid_output_hotend(e) >> 1 : 0;
@@ -1093,8 +1091,7 @@ void Temperature::manage_heater() {
   #if HAS_HEATED_BED
 
     #if ENABLED(THERMAL_PROTECTION_BED)
-      if (degBed() > BED_MAXTEMP)
-        _temp_error(H_BED, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+      if (degBed() > BED_MAXTEMP) max_temp_error(H_BED);
     #endif
 
     #if WATCH_BED
@@ -1127,12 +1124,14 @@ void Temperature::manage_heater() {
         TERN_(PAUSE_CHANGE_REQD, last_pause_state = paused);
       #endif
 
-      TERN_(HEATER_IDLE_HANDLER, bed_idle.update(ms));
+      TERN_(HEATER_IDLE_HANDLER, heater_idle[IDLE_INDEX_BED].update(ms));
 
-      TERN_(HAS_THERMALLY_PROTECTED_BED, thermal_runaway_protection(tr_state_machine_bed, temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS));
+      #if HAS_THERMALLY_PROTECTED_BED
+        tr_state_machine[RUNAWAY_IND_BED].run(temp_bed.celsius, temp_bed.target, H_BED, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
+      #endif
 
       #if HEATER_IDLE_HANDLER
-        if (bed_idle.timed_out) {
+        if (heater_idle[IDLE_INDEX_BED].timed_out) {
           temp_bed.soft_pwm_amount = 0;
           #if DISABLED(PIDTEMPBED)
             WRITE_HEATER_BED(LOW);
@@ -1173,8 +1172,7 @@ void Temperature::manage_heater() {
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-      if (degChamber() > CHAMBER_MAXTEMP)
-        _temp_error(H_CHAMBER, str_t_thermal_runaway, GET_TEXT(MSG_THERMAL_RUNAWAY));
+      if (degChamber() > CHAMBER_MAXTEMP) max_temp_error(H_CHAMBER);
     #endif
 
     #if WATCH_CHAMBER
@@ -1205,7 +1203,9 @@ void Temperature::manage_heater() {
         WRITE_HEATER_CHAMBER(LOW);
       }
 
-      TERN_(THERMAL_PROTECTION_CHAMBER, thermal_runaway_protection(tr_state_machine_chamber, temp_chamber.celsius, temp_chamber.target, H_CHAMBER, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS));
+      #if ENABLED(THERMAL_PROTECTION_CHAMBER)
+        tr_state_machine[RUNAWAY_IND_CHAMBER].run(temp_chamber.celsius, temp_chamber.target, H_CHAMBER, THERMAL_PROTECTION_CHAMBER_PERIOD, THERMAL_PROTECTION_CHAMBER_HYSTERESIS);
+      #endif
     }
 
     // TODO: Implement true PID pwm
@@ -1935,61 +1935,66 @@ void Temperature::init() {
 
 #if HAS_THERMAL_PROTECTION
 
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-    Temperature::tr_state_machine_t Temperature::tr_state_machine[HOTENDS]; // = { { TRInactive, 0 } };
-  #endif
-  #if HAS_THERMALLY_PROTECTED_BED
-    Temperature::tr_state_machine_t Temperature::tr_state_machine_bed; // = { TRInactive, 0 };
-  #endif
-  #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-    Temperature::tr_state_machine_t Temperature::tr_state_machine_chamber; // = { TRInactive, 0 };
-  #endif
+  Temperature::tr_state_machine_t Temperature::tr_state_machine[NR_HEATER_RUNAWAY]; // = { { TRInactive, 0 } };
 
-  void Temperature::thermal_runaway_protection(Temperature::tr_state_machine_t &sm, const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
+  /**
+   * @brief Thermal Runaway state machine for a single heater
+   * @param current          current measured temperature
+   * @param target           current target temperature
+   * @param heater_id        extruder index
+   * @param period_seconds   missed temperature allowed time
+   * @param hysteresis_degc  allowed distance from target
+   *
+   * TODO: Embed the last 3 parameters during init, if not less optimal
+   */
+  void Temperature::tr_state_machine_t::run(const float &current, const float &target, const heater_id_t heater_id, const uint16_t period_seconds, const uint16_t hysteresis_degc) {
 
-    static float tr_target_temperature[HOTENDS + 1] = { 0.0 };
+    #if HEATER_IDLE_HANDLER
+      // Convert the given heater_id_t to an idle array index
+      const IdleIndex idle_index = idle_index_for_id(heater_id);
+    #endif
 
     /**
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM("Thermal Runaway Running. Heater ID: ");
-      if (heater_id == H_CHAMBER) SERIAL_ECHOPGM("chamber");
-      if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
-      SERIAL_ECHOPAIR(" ;  State:", sm.state, " ;  Timer:", sm.timer, " ;  Temperature:", current, " ;  Target Temp:", target);
-      if (heater_id >= 0)
-        SERIAL_ECHOPAIR(" ;  Idle Timeout:", hotend_idle[heater_id].timed_out);
-      else
-        SERIAL_ECHOPAIR(" ;  Idle Timeout:", bed_idle.timed_out);
-      SERIAL_EOL();
+      switch (heater_id) {
+        case H_BED:     SERIAL_ECHOPGM("bed"); break;
+        case H_CHAMBER: SERIAL_ECHOPGM("chamber"); break;
+        default:        SERIAL_ECHO(heater_id);
+      }
+      SERIAL_ECHOLNPAIR(
+        " ; sizeof(running_temp):", sizeof(running_temp),
+        " ;  State:", state, " ;  Timer:", timer, " ;  Temperature:", current, " ;  Target Temp:", target
+        #if HEATER_IDLE_HANDLER
+          , " ;  Idle Timeout:", heater_idle[idle_index].timed_out
+        #endif
+      );
     //*/
-
-    const int heater_index = heater_id >= 0 ? heater_id : HOTENDS;
 
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
-      if ((heater_id >= 0 && hotend_idle[heater_id].timed_out)
-        || TERN0(HAS_HEATED_BED, (heater_id < 0 && bed_idle.timed_out))
-      ) {
-        sm.state = TRInactive;
-        tr_target_temperature[heater_index] = 0;
+      if (heater_idle[idle_index].timed_out) {
+        state = TRInactive;
+        running_temp = 0;
       }
       else
     #endif
     {
       // If the target temperature changes, restart
-      if (tr_target_temperature[heater_index] != target) {
-        tr_target_temperature[heater_index] = target;
-        sm.state = target > 0 ? TRFirstHeating : TRInactive;
+      if (running_temp != target) {
+        running_temp = target;
+        state = target > 0 ? TRFirstHeating : TRInactive;
       }
     }
 
-    switch (sm.state) {
+    switch (state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive: break;
 
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
-        if (current < tr_target_temperature[heater_index]) break;
-        sm.state = TRStable;
+        if (current < running_temp) break;
+        state = TRStable;
 
       // While the temperature is stable watch for a bad temperature
       case TRStable:
@@ -1997,25 +2002,25 @@ void Temperature::init() {
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
           if (adaptive_fan_slowing && heater_id >= 0) {
             const int fan_index = _MIN(heater_id, FAN_COUNT - 1);
-            if (fan_speed[fan_index] == 0 || current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.25f))
+            if (fan_speed[fan_index] == 0 || current >= running_temp - (hysteresis_degc * 0.25f))
               fan_speed_scaler[fan_index] = 128;
-            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.3335f))
+            else if (current >= running_temp - (hysteresis_degc * 0.3335f))
               fan_speed_scaler[fan_index] = 96;
-            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.5f))
+            else if (current >= running_temp - (hysteresis_degc * 0.5f))
               fan_speed_scaler[fan_index] = 64;
-            else if (current >= tr_target_temperature[heater_id] - (hysteresis_degc * 0.8f))
+            else if (current >= running_temp - (hysteresis_degc * 0.8f))
               fan_speed_scaler[fan_index] = 32;
             else
               fan_speed_scaler[fan_index] = 0;
           }
         #endif
 
-        if (current >= tr_target_temperature[heater_index] - hysteresis_degc) {
-          sm.timer = millis() + SEC_TO_MS(period_seconds);
+        if (current >= running_temp - hysteresis_degc) {
+          timer = millis() + SEC_TO_MS(period_seconds);
           break;
         }
-        else if (PENDING(millis(), sm.timer)) break;
-        sm.state = TRRunaway;
+        else if (PENDING(millis(), timer)) break;
+        state = TRRunaway;
 
       case TRRunaway:
         TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
@@ -2086,8 +2091,8 @@ void Temperature::disable_all_heaters() {
     if (p != paused) {
       paused = p;
       if (p) {
-        HOTEND_LOOP() hotend_idle[e].expire();    // Timeout immediately
-        TERN_(HAS_HEATED_BED, bed_idle.expire()); // Timeout immediately
+        HOTEND_LOOP() heater_idle[e].expire();    // Timeout immediately
+        TERN_(HAS_HEATED_BED, heater_idle[IDLE_INDEX_BED].expire()); // Timeout immediately
       }
       else {
         HOTEND_LOOP() reset_hotend_idle_timer(e);
@@ -2333,9 +2338,7 @@ void Temperature::readings_ready() {
     #else
       #define BEDCMP(A,B) ((A)>(B))
     #endif
-    const bool bed_on = temp_bed.target > 0
-      || TERN0(PIDTEMPBED, temp_bed.soft_pwm_amount) > 0
-    ;
+    const bool bed_on = (temp_bed.target > 0) || TERN0(PIDTEMPBED, temp_bed.soft_pwm_amount > 0);
     if (BEDCMP(temp_bed.raw, maxtemp_raw_BED)) max_temp_error(H_BED);
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif

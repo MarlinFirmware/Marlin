@@ -443,10 +443,6 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("FUGA TÉRMICA CÁMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Erro:TEMP MÁX");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Erro:TEMP MÍN");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Erro:TEMP MÁX CAMA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:TEMP MÍN CAMA");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:TEMP MÁX CÁMARA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:TEMP MÍN CÁMARA");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESORA DETIDA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Debe reiniciar!");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only

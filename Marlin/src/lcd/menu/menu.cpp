@@ -34,10 +34,6 @@
   #include "../../libs/buzzer.h"
 #endif
 
-#if WATCH_HOTENDS || WATCH_BED
-  #include "../../module/temperature.h"
-#endif
-
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/probe.h"
 #endif

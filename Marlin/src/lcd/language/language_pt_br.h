@@ -357,10 +357,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ESCAPE TÉRMICO CAMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Erro:Temp Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Erro:Temp Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Erro:Temp Mesa Máx");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:Temp Mesa Mín");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Máx");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Min");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PAROU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Favor resetar");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");

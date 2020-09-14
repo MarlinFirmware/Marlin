@@ -388,10 +388,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("機箱溫度失控");   //"CHAMBER T. RUNAWAY"
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("錯誤：最高溫度");     //"Err: MAXTEMP"
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("錯誤：最低溫度");     //"Err: MINTEMP"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("錯誤：最高熱床溫度");     //"Err: MAXTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("錯誤：最低熱床溫度");     //"Err: MINTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("錯誤：最高機箱溫度");   //"Err: MAXTEMP CHAMBER"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("錯誤：最低機箱溫度");   //"Err: MINTEMP CHAMBER"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("印表機停機");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("請重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only
