@@ -153,6 +153,20 @@ void DWIN_Frame_Clear(const uint16_t color) {
   DWIN_Send(i);
 }
 
+// Draw a point
+//  width: point width   0x01-0x0F
+//  height: point height 0x01-0x0F
+//  x,y: upper left point
+void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x02);
+  DWIN_Btye(i, width);
+  DWIN_Btye(i, height);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  DWIN_Send(i);
+}
+
 // Draw a line
 //  color: Line segment color
 //  xStart/yStart: Start point
@@ -221,6 +235,10 @@ void DWIN_Draw_String(bool widthAdjust, bool bShow, uint8_t size,
                       uint16_t color, uint16_t bColor, uint16_t x, uint16_t y, char *string) {
   size_t i = 0;
   DWIN_Byte(i, 0x11);
+  // Bit 7: widthAdjust
+  // Bit 6: bShow
+  // Bit 5-4: Unused (0)
+  // Bit 3-0: size
   DWIN_Byte(i, (widthAdjust * 0x80) | (bShow * 0x40) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);
@@ -244,6 +262,11 @@ void DWIN_Draw_IntValue(uint8_t bShow, bool zeroFill, uint8_t zeroMode, uint8_t 
                           uint16_t bColor, uint8_t iNum, uint16_t x, uint16_t y, uint16_t value) {
   size_t i = 0;
   DWIN_Byte(i, 0x14);
+  // Bit 7: bshow
+  // Bit 6: 1 = signed; 0 = unsigned number;
+  // Bit 5: zeroFill
+  // Bit 4: zeroMode
+  // Bit 3-0: size
   DWIN_Byte(i, (bShow * 0x80) | (zeroFill * 0x20) | (zeroMode * 0x10) | size);
   DWIN_Word(i, color);
   DWIN_Word(i, bColor);
@@ -359,5 +382,36 @@ void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
   DWIN_Word(i, y);
   DWIN_Send(i);
 }
+
+// Animate a series of icons
+//  animID: Animation ID  up to 16
+//  animate: true on; false off;
+//  libID: Icon library ID
+//  picIDs: Icon starting ID
+//  picIDe: Icon ending ID
+//  x/y: Upper-left point
+//  interval: Display time interval, unit 10mS
+void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t picIDs, uint8_t picIDe, uint16_t x, uint16_t y, uint16_t interval) {
+  NOMORE(x, DWIN_WIDTH - 1);
+  NOMORE(y, DWIN_HEIGHT - 1); // -- ozy -- srl
+  size_t i = 0;
+  DWIN_Byte(i, 0x28);
+  DWIN_Word(i, x);
+  DWIN_Word(i, y);
+  // Bit 7: animation on or off
+  // Bit 6: start from begin or end
+  // Bit 5-4: unused (0)
+  // Bit 3-0: animID
+  DWIN_Byte(i, (animate * 0x80) | 0x40 | animID);
+  DWIN_Byte(i, libID);
+  DWIN_Byte(i, picIDs);
+  DWIN_Byte(i, picIDe);
+  DWIN_Byte(i, interval);
+  DWIN_Send(i);
+}
+
+// Animation Control
+//  command 0x29
+//  send 16 bits, each bit is the state of an animation id
 
 #endif // DWIN_CREALITY_LCD
