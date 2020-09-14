@@ -223,7 +223,7 @@ namespace ExtUI {
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      return thermalManager.hotend_idle[extruder - E0].timed_out;
+      return thermalManager.heater_idle[extruder - E0].timed_out;
     #else
       UNUSED(extruder);
       return false;
@@ -233,10 +233,10 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.bed_idle.timed_out);
+        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
         TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
         default:
-          return TERN0(HAS_HOTEND, thermalManager.hotend_idle[heater - H0].timed_out);
+          return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
     #else
       UNUSED(heater);
@@ -868,7 +868,7 @@ namespace ExtUI {
     }
 
     void startPIDTune(const float temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, (heater_ind_t)tool, 8, true);
+      thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
 
