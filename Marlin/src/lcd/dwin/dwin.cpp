@@ -231,6 +231,7 @@ void ICON_Print() {
 
   if (select_page.now == 0) {
     DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
+    DWIN_Draw_Rectangle(0, White, 17, 130, 17 + 110 , 130 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 1, 447, 271 - 243, 479 - 19, 58, 201);
     else
@@ -238,6 +239,7 @@ void ICON_Print() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Print_0, 17, 130);
+    DWIN_Draw_Rectangle(0, Background_black, 17, 130, 17 + 110, 130 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 1, 405, 271 - 243, 420, 58, 201);
     else
@@ -254,6 +256,7 @@ void ICON_Prepare() {
 
   if (select_page.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
+    DWIN_Draw_Rectangle(0, White, 145, 130, 145 + 110, 130 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 31, 447, 271 - 213, 479 - 19, 186, 201);
     else
@@ -261,6 +264,7 @@ void ICON_Prepare() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Prepare_0, 145, 130);
+    DWIN_Draw_Rectangle(0, Background_black, 145, 130, 145 + 110, 130 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 31, 405, 271 - 213, 420, 186, 201);
     else
@@ -271,6 +275,7 @@ void ICON_Prepare() {
 void ICON_Control() {
   if (select_page.now == 2) {
     DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
+    DWIN_Draw_Rectangle(0, White, 17, 246, 17 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 61, 447, 271 - 183, 479 - 19, 58, 318);
     else
@@ -278,16 +283,18 @@ void ICON_Control() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Control_0, 17, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 17, 246, 17 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 61, 405, 271 - 183, 420, 58, 318);
     else
-      DWIN_Frame_AreaCopy(1, 85, 423, 271 - 139, 479 - 45, 72 - 24, 318);
+      DWIN_Frame_AreaCopy(1, 85, 423, 271 - 139, 479 - 45, 72 - 24, 318); 
   }
 }
 
 void ICON_StartInfo(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
+    DWIN_Draw_Rectangle(0, White, 145, 246, 145 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 91, 447, 271 - 153, 479 - 19, 186, 318);
     else
@@ -295,6 +302,7 @@ void ICON_StartInfo(bool show) {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Info_0, 145, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 145, 246, 145 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 91, 405, 271 - 153, 420, 186, 318);
     else
@@ -305,6 +313,7 @@ void ICON_StartInfo(bool show) {
 void ICON_Leveling(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
+    DWIN_Draw_Rectangle(0, White, 145, 246, 145 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 211, 447, 238, 479 - 19, 186, 318);
     else
@@ -312,6 +321,7 @@ void ICON_Leveling(bool show) {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Leveling_0, 145, 246);
+    DWIN_Draw_Rectangle(0, Background_black, 145, 246, 145 + 110, 246 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 211, 405, 238, 420, 186, 318);
     else
@@ -322,6 +332,7 @@ void ICON_Leveling(bool show) {
 void ICON_Tune() {
   if (select_print.now == 0) {
     DWIN_ICON_Show(ICON, ICON_Setup_1, 8, 252);
+    DWIN_Draw_Rectangle(0, White, 8, 252, 8 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 121, 447, 271 - 123, 479 - 21, 34, 325);
     else
@@ -329,6 +340,7 @@ void ICON_Tune() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Setup_0, 8, 252);
+    DWIN_Draw_Rectangle(0, Background_black, 8, 252, 8 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 121, 405, 271 - 123, 420, 34, 325);
     else
@@ -339,6 +351,7 @@ void ICON_Tune() {
 void ICON_Pause() {
   if (select_print.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Pause_1, 96, 252);
+    DWIN_Draw_Rectangle(0, White, 96, 252, 96 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 181, 447, 271 - 63, 479 - 20, 124, 325);
     else
@@ -346,6 +359,7 @@ void ICON_Pause() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Pause_0, 96, 252);
+    DWIN_Draw_Rectangle(0, Background_black, 96, 252, 96 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 181, 405, 271 - 63, 420, 124, 325);
     else
@@ -373,6 +387,7 @@ void ICON_Continue() {
 void ICON_Stop() {
   if (select_print.now == 2) {
     DWIN_ICON_Show(ICON, ICON_Stop_1, 184, 252);
+    DWIN_Draw_Rectangle(0, White, 184, 252, 184 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 151, 447, 271 - 93, 479 - 20, 210, 325);
     else
@@ -380,6 +395,7 @@ void ICON_Stop() {
   }
   else {
     DWIN_ICON_Show(ICON, ICON_Stop_0, 184, 252);
+    DWIN_Draw_Rectangle(0, Background_black, 184, 252, 184 + 80, 252 + 100); ////********
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 151, 405, 271 - 93, 420, 210, 325);
     else
@@ -421,9 +437,10 @@ inline void Draw_More_Icon(const uint8_t line) {
   DWIN_ICON_Show(ICON, ICON_More, 226, 46 + line * MLINE);
 }
 
+//left rectangle selection tm3d
 inline void Draw_Menu_Cursor(const uint8_t line) {
-  // DWIN_ICON_Show(ICON,ICON_Rectangle, 0, 31 + line * MLINE);
-  DWIN_Draw_Rectangle(1, Rectangle_Color, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
+  //DWIN_ICON_Show(ICON, ICON_Rectangle, 0, 31 + line * MLINE);
+  DWIN_Draw_Rectangle(1, White, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
 }
 
 inline void Erase_Menu_Cursor(const uint8_t line) {
@@ -872,7 +889,7 @@ void Popup_Window_Leveling(void) {
     DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 24, 260, (char*)"Please wait until completed");
   }
 }
-
+//testing tm3d
 void Draw_Select_Highlight(const bool sel) {
   HMI_flag.select_flag = sel;
   const uint16_t c1 = sel ? Select_Color : Background_window,
