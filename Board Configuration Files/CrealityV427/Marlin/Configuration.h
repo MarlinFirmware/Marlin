@@ -244,7 +244,7 @@
   #define X_BED_SIZE 220
   #define Y_BED_SIZE 220
   
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_V427_BOARD)
     #define Z_MAX_POS 300
   #else
     #define Z_MAX_POS 250
@@ -258,7 +258,7 @@
     #define Y_MIN_POS 0
   #endif
 
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_V427_BOARD)
     #define USE_XMAX_PLUG
     #define USE_YMAX_PLUG
     #define USE_ZMIN_PLUG
@@ -268,7 +268,7 @@
     #define USE_ZMIN_PLUG
   #endif
 
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_V427_BOARD)
     #define X_HOME_DIR 1
     #define Y_HOME_DIR 1
     #define Z_HOME_DIR -1
@@ -351,7 +351,7 @@
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR false
   
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_V427_BOARD)
     #define INVERT_Z_DIR false
   #else  
     #define INVERT_Z_DIR true
