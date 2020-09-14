@@ -419,4 +419,37 @@ void DWIN_ICON_AnimationControl(uint16_t state) {
   DWIN_Send(i);
 }
 
+/*---------------------------------------- Memory functions ----------------------------------------*/
+// The LCD has an additional 32KB SRAM and 16KB Flash
+
+// Data can be written to the sram and save to one of the jpeg page files
+
+// Write Data Memory
+//  command 0x31
+//  Type: Write memory selection; 0x5A=SRAM; 0xA5=Flash
+//  Address: Write data memory address; 0x000-0x7FFF for SRAM; 0x000-0x3FFF for Flash
+//  Data: data
+//
+//  Flash writing returns 0xA5 0x4F 0x4B
+
+// Read Data Memory
+//  command 0x32
+//  Type: Read memory selection; 0x5A=SRAM; 0xA5=Flash
+//  Address: Read data memory address; 0x000-0x7FFF for SRAM; 0x000-0x3FFF for Flash
+//  Length: leangth of data to read; 0x01-0xF0
+//
+//  Response:
+//    Type, Address, Length, Data
+
+// Write Picture Memory
+//  Write the contents of the 32KB SRAM data memory into the designated image memory space
+//  Issued: 0x5A, 0xA5, PIC_ID
+//  Response: 0xA5 0x4F 0x4B
+//
+//  command 0x33
+//  0x5A, 0xA5
+//  PicId: Picture Memory location, 0x00-0x0F
+//
+//  Flash writing returns 0xA5 0x4F 0x4B
+
 #endif // DWIN_CREALITY_LCD
