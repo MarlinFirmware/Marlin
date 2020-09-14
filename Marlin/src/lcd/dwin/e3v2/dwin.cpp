@@ -1535,13 +1535,13 @@ void update_variable(void) {
 }
 
 /**
-* Read and cache the working directory.
-*
-* TODO: New code can follow the pattern of menu_media.cpp
-* and rely on Marlin caching for performance. No need to
-* cache files here.
-*
-*/
+ * Read and cache the working directory.
+ *
+ * TODO: New code can follow the pattern of menu_media.cpp
+ * and rely on Marlin caching for performance. No need to
+ * cache files here.
+ *
+ */
 
 #ifndef strcasecmp_P
   #define strcasecmp_P(a, b) strcasecmp((a), (b))
