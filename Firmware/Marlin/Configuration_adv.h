@@ -1898,7 +1898,7 @@
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 
-#if DISABLED(CPU_32BIT)
+#if ENABLED(SPACE_SAVER) || ENABLED(SKR_E3_MINI_BOARD)
   #define BUFSIZE 16
 #else
   #define BUFSIZE 32

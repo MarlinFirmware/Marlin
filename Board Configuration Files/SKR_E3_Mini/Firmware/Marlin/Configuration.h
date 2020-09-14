@@ -16,7 +16,7 @@
 // Config Version BETA3 9/12/2020 - This is still in testing
 
 //===========================================================================
-// *************************   CREALITY PRINTERS    *************************
+// *************   CREALITY PRINTERS W/SKR E3 MINI BOARD    *****************
 //===========================================================================
 
 //===========================================================================
@@ -182,6 +182,10 @@
 //****************** COMMUNITY REQUESTED FEATURES ***************************
 //===========================================================================
 
+// BAUDRATE ADJUSTMENT -----------------------------
+// This firmware uses a 115200 default baud rate as that is the most reliable and compatible. If you want to use 250000 uncomment the below line.
+//#define FASTER_BAUDRATE
+
 // HOME OFFSET ADJUSTMENT --------------------------
 // If you need to adjust your XY home offsets from defaults then you can uncomment the HOME_ADJUST line below and enter your
 // custom XY offsets. This is provided for convenience and is unsupported with included product support.
@@ -216,7 +220,11 @@
   #define SERIAL_PORT_2 2
   #define SKR_E3_MINI_BOARD
 
-  #define BAUDRATE 115200
+  #if ENABLED(FASTER_BAUDRATE)
+    #define BAUDRATE 250000
+  #else
+    #define BAUDRATE 115200
+  #endif
   
   #define CR10_STOCKDISPLAY
   
