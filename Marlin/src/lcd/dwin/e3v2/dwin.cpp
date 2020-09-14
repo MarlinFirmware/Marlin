@@ -3397,7 +3397,7 @@ void EachMomentUpdate(void) {
   update_variable();
 
   if (checkkey == PrintProcess) {
-    // print done
+    // if print done
     if (HMI_flag.print_finish && !HMI_flag.confirm_flag) {
       HMI_flag.print_finish = 0;
       HMI_flag.confirm_flag = 1;
