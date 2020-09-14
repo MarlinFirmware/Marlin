@@ -818,8 +818,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 192: M192(); break;                                  // M192: Wait for probe temp
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
-        case 872: M872(); break;                                  // M872: Wait for probe temp
       #endif
 
       #if ENABLED(LIN_ADVANCE)
