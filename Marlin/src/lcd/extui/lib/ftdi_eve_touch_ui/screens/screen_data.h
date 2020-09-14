@@ -62,7 +62,11 @@ union screen_data_t {
   } MoveAxisScreen;
 #if HAS_MESH
   struct {
-    bool    showMappingDone;
+    enum : uint8_t {
+        MSG_NONE,
+        MSG_MESH_COMPLETE,
+        MSG_MESH_INCOMPLETE
+    } message;
     uint8_t count;
     uint8_t highlightedTag;
   } BedMeshScreen;
