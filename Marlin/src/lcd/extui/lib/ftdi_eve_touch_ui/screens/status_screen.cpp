@@ -376,7 +376,9 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    case 3: GOTO_SCREEN(FilesScreen); break;
+    #if ENABLED(SDSUPPORT)
+      case 3: GOTO_SCREEN(FilesScreen); break;
+    #endif
     case 4:
       if (isPrinting()) {
         GOTO_SCREEN(TuneMenu);

@@ -30,12 +30,12 @@ namespace FTDI {
    */
   static void _draw_text_with_ellipsis(CommandProcessor& cmd, int16_t x, int16_t y, int16_t w, int16_t h, char *str, uint16_t options, uint8_t font) {
     FontMetrics fm(font);
-    const uint16_t ellipsisWidth = fm.get_char_width('.') * 3;
+    const int16_t ellipsisWidth = fm.get_char_width('.') * 3;
 
     // Compute the total line length, as well as
     // the location in the string where it can
     // split and still allow the ellipsis to fit.
-    uint16_t lineWidth = 0;
+    int16_t lineWidth = 0;
     char *breakPoint   = str;
     for(char* c = str; *c; c++) {
       lineWidth += fm.get_char_width(*c);

@@ -304,7 +304,7 @@ void StatusScreen::draw_overlay_icons(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   if (what & FOREGROUND) {
-    ui.button_fill  (TERN(TOUCH_UI_COCOA_PRESS, stroke_rgb, fill_rgb);
+    ui.button_fill  (TERN(TOUCH_UI_COCOA_PRESS, stroke_rgb, fill_rgb));
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
