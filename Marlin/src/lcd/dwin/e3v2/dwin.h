@@ -318,7 +318,7 @@ void HMI_MaxCornerXYZE(void);
 void HMI_StepXYZE(void);
 
 void update_variable(void);
-void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
+void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 // SD Card
 void HMI_SDCardInit(void);

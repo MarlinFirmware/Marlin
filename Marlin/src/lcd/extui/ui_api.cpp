@@ -759,7 +759,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
+      babystep.add_mm(Z_AXIS, value - getZOffset_mm());
     #else
       UNUSED(value);
     #endif
