@@ -39,10 +39,10 @@
  * Some of the LCD interfaces/adapters result in the LCD SPI and the SD card
  * SPI sharing pins. The SCK, MOSI & MISO pins can NOT be set/cleared with
  * WRITE nor digitalWrite when the hardware SPI module within the LPC17xx is
- * active.  If any of these pins are shared then the software SPI must be used.
+ * active. If any of these pins are shared then the software SPI must be used.
  *
- * A more sophisticated hardware SPI can be found at the following link.  This
- * implementation has not been fully debugged.
+ * A more sophisticated hardware SPI can be found at the following link.
+ * This implementation has not been fully debugged.
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
 
@@ -170,8 +170,8 @@ static inline void waitSpiTxEnd(LPC_SSP_TypeDef *spi_d) {
   while (SSP_GetStatus(spi_d, SSP_STAT_BUSY) == SET) { /* nada */ }     // wait until BSY=0
 }
 
-// Hold the pin init state of the SPI, to avoid init more than once,
-//even if more instances of SPIClass exist
+// Retain the pin init state of the SPI, to avoid init more than once,
+// even if more instances of SPIClass exist
 static bool spiInitialised[BOARD_NR_SPI] = { false };
 
 SPIClass::SPIClass(uint8_t device) {
@@ -183,7 +183,7 @@ SPIClass::SPIClass(uint8_t device) {
     _settings[0].dataMode = SPI_MODE0;
     _settings[0].dataSize = DATA_SIZE_8BIT;
     _settings[0].clock = SPI_CLOCK_MAX;
-    // _settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
+    //_settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
   #endif
 
   #if BOARD_NR_SPI >= 2
@@ -191,18 +191,18 @@ SPIClass::SPIClass(uint8_t device) {
     _settings[1].dataMode = SPI_MODE0;
     _settings[1].dataSize = DATA_SIZE_8BIT;
     _settings[1].clock = SPI_CLOCK_MAX;
-    // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
+    //_settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
   #endif
 
   setModule(device);
 
-  /* Initialize GPDMA controller */
-  //TODO: call once in the constructor? or each time?
+  // Init the GPDMA controller
+  // TODO: call once in the constructor? or each time?
   GPDMA_Init();
 }
 
 void SPIClass::begin() {
-  // Init the SPI pins in the firt begin call
+  // Init the SPI pins in the first begin call
   if ((_currentSetting->spi_d == LPC_SSP0 && spiInitialised[0] == false) ||
       (_currentSetting->spi_d == LPC_SSP1 && spiInitialised[1] == false)) {
     pin_t sck, miso, mosi;
@@ -251,7 +251,7 @@ void SPIClass::beginTransaction(const SPISettings &cfg) {
 }
 
 uint8_t SPIClass::transfer(const uint16_t b) {
-  /* send and receive a single byte */
+  // Send and receive a single byte
   SSP_ReceiveData(_currentSetting->spi_d); // read any previous data
   SSP_SendData(_currentSetting->spi_d, b);
   waitSpiTxEnd(_currentSetting->spi_d);  // wait for it to finish
@@ -259,8 +259,7 @@ uint8_t SPIClass::transfer(const uint16_t b) {
 }
 
 uint16_t SPIClass::transfer16(const uint16_t data) {
-  return (transfer((data >> 8) & 0xFF) << 8)
-       | (transfer(data & 0xFF) & 0xFF);
+  return (transfer((data >> 8) & 0xFF) << 8) | (transfer(data & 0xFF) & 0xFF);
 }
 
 void SPIClass::end() {
