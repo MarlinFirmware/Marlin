@@ -337,7 +337,7 @@ class Temperature {
 
     #if HEATER_IDLE_HANDLER
 
-      // Heater idle handling. Marlin creates one of these for each heater.
+      // Heater idle handling. Marlin creates one per hotend and one for the heated bed.
       typedef struct {
         millis_t timeout_ms;
         bool timed_out;
@@ -354,22 +354,16 @@ class Temperature {
         #if ENABLED(HAS_HEATED_BED)
           IDLE_INDEX_BED,
         #endif
-        #if ENABLED(HAS_HEATED_CHAMBER)
-          IDLE_INDEX_CHAMBER,
-        #endif
         NR_HEATER_IDLE
       };
       #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to idle array index
-      inline uint8_t idle_index_for_id(const int8_t heater_id) {
-        #if HAS_HEATED_CHAMBER
-          if (heater_id == H_CHAMBER) return IDLE_INDEX_CHAMBER;
-        #endif
+      static inline IdleIndex idle_index_for_id(const int8_t heater_id) {
         #if HAS_HEATED_BED
           if (heater_id == H_BED) return IDLE_INDEX_BED;
         #endif
-        return _MAX(heater_id, 0);
+        return (IdleIndex)_MAX(heater_id, 0);
       }
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
@@ -772,7 +766,7 @@ class Temperature {
     #if HEATER_IDLE_HANDLER
 
       static void reset_hotend_idle_timer(const uint8_t E_NAME) {
-        hotend_idle[HOTEND_INDEX].reset();
+        heater_idle[HOTEND_INDEX].reset();
         start_watching_hotend(HOTEND_INDEX);
       }
 
@@ -844,9 +838,9 @@ class Temperature {
 
     #if HAS_THERMAL_PROTECTION
 
-      // Indices and size for the heater_idle array
+      // Indices and size for the tr_state_machine array. One for each protected heater.
       #define _ENUM_FOR_E(N) RUNAWAY_IND_E##N,
-      enum IdleIndex : uint8_t {
+      enum RunawayIndex : uint8_t {
         #if ENABLED(THERMAL_PROTECTION_HOTENDS)
           REPEAT(HOTENDS, _ENUM_FOR_E)
         #endif
@@ -861,14 +855,14 @@ class Temperature {
       #undef _ENUM_FOR_E
 
       // Convert the given heater_id_t to runaway state array index
-      inline uint8_t runaway_index_for_id(const int8_t heater_id) {
+      static inline RunawayIndex runaway_index_for_id(const int8_t heater_id) {
         #if HAS_THERMALLY_PROTECTED_CHAMBER
           if (heater_id == H_CHAMBER) return RUNAWAY_IND_CHAMBER;
         #endif
         #if HAS_THERMALLY_PROTECTED_BED
           if (heater_id == H_BED) return RUNAWAY_IND_BED;
         #endif
-        return _MAX(heater_id, 0);
+        return (RunawayIndex)_MAX(heater_id, 0);
       }
 
       enum TRState : char { TRInactive, TRFirstHeating, TRStable, TRRunaway };

@@ -233,7 +233,7 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[IDLE_INDEX_BED].timed_out);
+        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
         TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
         default:
           return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);

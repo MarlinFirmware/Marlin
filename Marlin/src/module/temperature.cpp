@@ -1951,7 +1951,7 @@ void Temperature::init() {
 
     #if HEATER_IDLE_HANDLER
       // Convert the given heater_id_t to an idle array index
-      const uint8_t idle_index = idle_index_for_id(heater_id);
+      const IdleIndex idle_index = idle_index_for_id(heater_id);
     #endif
 
     /**
@@ -1963,8 +1963,8 @@ void Temperature::init() {
         default:        SERIAL_ECHO(heater_id);
       }
       SERIAL_ECHOLNPAIR(
-        " ; sizeof(this->running_temp):", sizeof(this->running_temp),
-        " ;  State:", this->state, " ;  Timer:", this->timer, " ;  Temperature:", current, " ;  Target Temp:", target
+        " ; sizeof(running_temp):", sizeof(running_temp),
+        " ;  State:", state, " ;  Timer:", timer, " ;  Temperature:", current, " ;  Target Temp:", target
         #if HEATER_IDLE_HANDLER
           , " ;  Idle Timeout:", heater_idle[idle_index].timed_out
         #endif
@@ -1974,27 +1974,27 @@ void Temperature::init() {
     #if HEATER_IDLE_HANDLER
       // If the heater idle timeout expires, restart
       if (heater_idle[idle_index].timed_out) {
-        this->state = TRInactive;
-        this->running_temp = 0;
+        state = TRInactive;
+        running_temp = 0;
       }
       else
     #endif
     {
       // If the target temperature changes, restart
-      if (this->running_temp != target) {
-        this->running_temp = target;
-        this->state = target > 0 ? TRFirstHeating : TRInactive;
+      if (running_temp != target) {
+        running_temp = target;
+        state = target > 0 ? TRFirstHeating : TRInactive;
       }
     }
 
-    switch (this->state) {
+    switch (state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive: break;
 
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
-        if (current < this->running_temp) break;
-        this->state = TRStable;
+        if (current < running_temp) break;
+        state = TRStable;
 
       // While the temperature is stable watch for a bad temperature
       case TRStable:
@@ -2002,25 +2002,25 @@ void Temperature::init() {
         #if ENABLED(ADAPTIVE_FAN_SLOWING)
           if (adaptive_fan_slowing && heater_id >= 0) {
             const int fan_index = _MIN(heater_id, FAN_COUNT - 1);
-            if (fan_speed[fan_index] == 0 || current >= this->running_temp - (hysteresis_degc * 0.25f))
+            if (fan_speed[fan_index] == 0 || current >= running_temp - (hysteresis_degc * 0.25f))
               fan_speed_scaler[fan_index] = 128;
-            else if (current >= this->running_temp - (hysteresis_degc * 0.3335f))
+            else if (current >= running_temp - (hysteresis_degc * 0.3335f))
               fan_speed_scaler[fan_index] = 96;
-            else if (current >= this->running_temp - (hysteresis_degc * 0.5f))
+            else if (current >= running_temp - (hysteresis_degc * 0.5f))
               fan_speed_scaler[fan_index] = 64;
-            else if (current >= this->running_temp - (hysteresis_degc * 0.8f))
+            else if (current >= running_temp - (hysteresis_degc * 0.8f))
               fan_speed_scaler[fan_index] = 32;
             else
               fan_speed_scaler[fan_index] = 0;
           }
         #endif
 
-        if (current >= this->running_temp - hysteresis_degc) {
-          this->timer = millis() + SEC_TO_MS(period_seconds);
+        if (current >= running_temp - hysteresis_degc) {
+          timer = millis() + SEC_TO_MS(period_seconds);
           break;
         }
-        else if (PENDING(millis(), this->timer)) break;
-        this->state = TRRunaway;
+        else if (PENDING(millis(), timer)) break;
+        state = TRRunaway;
 
       case TRRunaway:
         TERN_(DWIN_CREALITY_LCD, Popup_Window_Temperature(0));
@@ -2338,9 +2338,7 @@ void Temperature::readings_ready() {
     #else
       #define BEDCMP(A,B) ((A)>(B))
     #endif
-    const bool bed_on = temp_bed.target > 0
-      || TERN0(PIDTEMPBED, temp_bed.soft_pwm_amount) > 0
-    ;
+    const bool bed_on = (temp_bed.target > 0) || TERN0(PIDTEMPBED, temp_bed.soft_pwm_amount > 0);
     if (BEDCMP(temp_bed.raw, maxtemp_raw_BED)) max_temp_error(H_BED);
     if (bed_on && BEDCMP(mintemp_raw_BED, temp_bed.raw)) min_temp_error(H_BED);
   #endif

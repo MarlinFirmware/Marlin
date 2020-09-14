@@ -536,7 +536,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char pr
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #else
-    if (!blink && thermalManager.heater_idle[idle_index_for_id(heater_id)].timed_out) {
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
       lcd_put_wchar(' ');
       if (t2 >= 10) lcd_put_wchar(' ');
       if (t2 >= 100) lcd_put_wchar(' ');
