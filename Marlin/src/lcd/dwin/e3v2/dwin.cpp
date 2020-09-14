@@ -69,7 +69,8 @@
   #include "../../../module/probe.h"
 #endif
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET) || (!HAS_BED_PROBE && ENABLED(BABYSTEPPING))
+#define JUST_BABYSTEP (!HAS_BED_PROBE && ENABLED(BABYSTEPPING))
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET) || JUST_BABYSTEP
   #include "../../../feature/babystep.h"
 #endif
 
@@ -1138,6 +1139,8 @@ void HMI_Move_Z(void) {
 
 #if EITHER(BABYSTEPPING, HAS_BED_PROBE)
 
+  bool printer_busy() { return planner.movesplanned() || printingIsActive(); }
+
   void HMI_Zoffset(void) {
     ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
     if (encoder_diffState != ENCODER_DIFF_NO) {
@@ -1166,8 +1169,9 @@ void HMI_Move_Z(void) {
       NOMORE(HMI_ValueStruct.offset_value, (Z_PROBE_OFFSET_RANGE_MAX) * 100);
       last_zoffset = dwin_zoffset;
       dwin_zoffset = HMI_ValueStruct.offset_value / 100;
-      #if ENABLED(BABYSTEP_ZPROBE_OFFSET) || (!HAS_BED_PROBE && ENABLED(BABYSTEPPING))
-        babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
+      #if ENABLED(BABYSTEP_ZPROBE_OFFSET) || JUST_BABYSTEP
+        if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
+          babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
       #endif
       if (HMI_ValueStruct.show_mode == -4)
         DWIN_Draw_Signed_Float(font8x16, Select_Color, 2, 2, 202, MBASE(4 + MROWS - index_prepare), HMI_ValueStruct.offset_value);
