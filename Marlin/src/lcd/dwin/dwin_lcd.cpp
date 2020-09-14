@@ -160,8 +160,8 @@ void DWIN_Frame_Clear(const uint16_t color) {
 void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y) {
   size_t i = 0;
   DWIN_Byte(i, 0x02);
-  DWIN_Btye(i, width);
-  DWIN_Btye(i, height);
+  DWIN_Byte(i, width);
+  DWIN_Byte(i, height);
   DWIN_Word(i, x);
   DWIN_Word(i, y);
   DWIN_Send(i);
@@ -384,7 +384,7 @@ void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
 }
 
 // Animate a series of icons
-//  animID: Animation ID  up to 16
+//  animID: Animation ID; 0x00-0x0F
 //  animate: true on; false off;
 //  libID: Icon library ID
 //  picIDs: Icon starting ID
@@ -411,7 +411,12 @@ void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t pi
 }
 
 // Animation Control
-//  command 0x29
-//  send 16 bits, each bit is the state of an animation id
+//  state: 16 bits, each bit is the state of an animation id
+void DWIN_ICON_AnimationControl(uint16_t state) {
+  size_t i = 0;
+  DWIN_Byte(i, 0x28);
+  DWIN_Word(i, state);
+  DWIN_Send(i);
+}
 
 #endif // DWIN_CREALITY_LCD
