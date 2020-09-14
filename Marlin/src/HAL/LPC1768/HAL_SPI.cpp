@@ -298,23 +298,23 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Enable dma on SPI
   SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
 
-  // only increase memory if minc is true
+  // Only increase memory if minc is true
   GPDMACfg.MemoryIncrease = (minc ? GPDMA_DMACCxControl_SI : 0);
 
   // Setup channel with given parameter
   GPDMA_Setup(&GPDMACfg);
 
-  // enabled dma
+  // Enable DMA
   GPDMA_ChannelCmd(0, ENABLE);
 
-  // wait data transfer
+  // Wait for data transfer
   while (!GPDMA_IntGetStatus(GPDMA_STAT_RAWINTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_RAWINTERR, 0)) { }
 
-  // clear err and int
+  // Clear err and int
   GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
   GPDMA_ClearIntPending (GPDMA_STATCLR_INTERR, 0);
 
-  // dma disable
+  // Disable DMA
   GPDMA_ChannelCmd(0, DISABLE);
 
   waitSpiTxEnd(_currentSetting->spi_d);
