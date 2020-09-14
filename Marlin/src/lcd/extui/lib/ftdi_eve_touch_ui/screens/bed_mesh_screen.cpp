@@ -223,7 +223,7 @@ bool BedMeshScreen::tagToPoint(uint8_t tag, uint8_t &x, uint8_t &y) {
 void BedMeshScreen::onEntry() {
   screen_data.BedMeshScreen.highlightedTag = 0;
   screen_data.BedMeshScreen.count = GRID_MAX_POINTS;
-  screen_data.BedMeshScreen.showMappingDone = false;
+  screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_NONE;
   BaseScreen::onEntry();
 }
 
@@ -253,8 +253,10 @@ void BedMeshScreen::drawHighlightedPointValue() {
      .tag(1).button( OKAY_POS, GET_TEXT_F(MSG_BUTTON_OKAY))
      .tag(0);
 
-  if (screen_data.BedMeshScreen.showMappingDone) {
-    cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE));
+  switch(screen_data.BedMeshScreen.message) {
+    case screen_data.BedMeshScreen.MSG_MESH_COMPLETE:   cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_DONE)); break;
+    case screen_data.BedMeshScreen.MSG_MESH_INCOMPLETE: cmd.text(MESSAGE_POS, GET_TEXT_F(MSG_BED_MAPPING_INCOMPLETE)); break;
+    default: break;
   }
 }
 
@@ -307,15 +309,30 @@ void BedMeshScreen::onMeshUpdate(const int8_t, const int8_t, const float) {
     onRefresh();
 }
 
+bool BedMeshScreen::isMeshComplete(ExtUI::bed_mesh_t data) {
+  for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++) {
+    for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
+      if (isnan(data[x][y])) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 void BedMeshScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI::probe_state_t state) {
   switch(state) {
     case ExtUI::MESH_START:
       screen_data.BedMeshScreen.count = 0;
-      screen_data.BedMeshScreen.showMappingDone = false;
+      screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_NONE;
       break;
     case ExtUI::MESH_FINISH:
+      if (screen_data.BedMeshScreen.count == GRID_MAX_POINTS && isMeshComplete(ExtUI::getMeshArray())) {
+        screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_COMPLETE;
+      } else {
+        screen_data.BedMeshScreen.message = screen_data.BedMeshScreen.MSG_MESH_INCOMPLETE;
+      }
       screen_data.BedMeshScreen.count = GRID_MAX_POINTS;
-      screen_data.BedMeshScreen.showMappingDone = true;
       break;
     case ExtUI::PROBE_START:
       screen_data.BedMeshScreen.highlightedTag = pointToTag(x, y);
