@@ -3511,7 +3511,7 @@ void EachMomentUpdate(void) {
         }
       }
 
-      // hasn't resumable G-code file
+      // if hasn't resumable G-code file
       if (!recovery_flag) return;
 
       while (recovery_flag) {
