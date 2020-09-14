@@ -162,7 +162,10 @@
     #define X_AXIS_INDEX 0
     #define Y_AXIS_INDEX 1
     #define Z_AXIS_INDEX 2
-    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
+    #define A_AXIS_INDEX 0
+    #define B_AXIS_INDEX 1
+    #define C_AXIS_INDEX 2
+    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B)
   #else
     #define CAN_CALIBRATE(A,B) 1
   #endif
