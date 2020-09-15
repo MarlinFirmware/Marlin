@@ -221,25 +221,28 @@
   #define SD_CHECK_AND_RETRY
   
   #define FSMC_GRAPHICAL_TFT
-  #define TOUCH_BUTTONS
-  #if ENABLED(TOUCH_BUTTONS)
-    #define BUTTON_DELAY_EDIT 150 // (ms) Button repeat delay for edit screens
-    #define BUTTON_DELAY_MENU 200 // (ms) Button repeat delay for menus
+  #define TOUCH_SCREEN
+  #if ENABLED(TOUCH_SCREEN)
+    #define BUTTON_DELAY_EDIT  75 // (ms) Button repeat delay for edit screens
+    #define BUTTON_DELAY_MENU 100 // (ms) Button repeat delay for menus
 
-    #define XPT2046_X_CALIBRATION   12316
-    #define XPT2046_Y_CALIBRATION  -8981
-    #define XPT2046_X_OFFSET       -43
-    #define XPT2046_Y_OFFSET        257
+    #define TOUCH_SCREEN_CALIBRATION
+
+    /* MKS Robin TFT v2.0 */
+    #define XPT2046_X_CALIBRATION  12013
+    #define XPT2046_Y_CALIBRATION  -8711
+    #define XPT2046_X_OFFSET         -32
+    #define XPT2046_Y_OFFSET         256
+
+    /* MKS Robin TFT v1.1 */
+    //#define XPT2046_X_CALIBRATION -11792
+    //#define XPT2046_Y_CALIBRATION   8947
+    //#define XPT2046_X_OFFSET         342
+    //#define XPT2046_Y_OFFSET         -19
   #endif 
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_MKS_ROBIN_MINI
-  #endif
-  
-  #if ENABLED(ENDER5_NEW_LEADSCREW)
-    #define CREALITY_Z_STEPS 800
-  #else
-    #define CREALITY_Z_STEPS 400
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
@@ -260,6 +263,8 @@
     #define DEFAULT_YJERK 10.0
     #define DEFAULT_ZJERK  0.3
   #endif
+
+  #define ENDSTOP_NOISE_THRESHOLD 2
 
   #define DEFAULT_EJERK    5.0
 
@@ -388,9 +393,30 @@
   #define INVERT_E6_DIR false
   #define INVERT_E7_DIR false
 
-  //#define Z_PROBE_OFFSET_RANGE_MIN -10
-  //#define Z_PROBE_OFFSET_RANGE_MAX 10
+  #define FILAMENT_RUNOUT_SENSOR
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_RUNOUT_STATE     HIGH       // Pin state indicating that filament is NOT present.
+    #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+    //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
 
+    // Set one or more commands to execute on filament runout.
+    // (After 'M412 H' Marlin will ask the host to handle the process.)
+    #define FILAMENT_RUNOUT_SCRIPT "M600"
+
+    // After a runout is detected, continue printing this length of filament
+    // before executing the runout script. Useful for a sensor at the end of
+    // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+    //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      // Enable this option to use an encoder disc that toggles the runout pin
+      // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+      // large enough to avoid false positives.)
+      //#define FILAMENT_MOTION_SENSOR
+    #endif
+  #endif
 #endif
 // End Kingroon KP3 Settings
  
