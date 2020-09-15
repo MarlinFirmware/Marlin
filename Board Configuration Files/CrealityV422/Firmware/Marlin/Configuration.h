@@ -199,6 +199,13 @@
 // Change the K Value here or use M900 KX.XX in your starting code (recommended).
 #define LINEAR_ADVANCE_K 0
 
+// BL TOUCH ----------------------------------------
+// If you want to use the BL-Touch uncomment the 2 lines below and refer to the V42X BLTouch Picture in the Marlin Folder for wiring.
+// Video guide from Teaching Tech: https://youtu.be/neS7lB7fCww?t=790
+//#define BLTOUCH
+// Here is where you set your servo pin. For V4.2.X Boards use PB0
+//#define SERVO0_PIN PB0
+
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
 //===========================================================================
