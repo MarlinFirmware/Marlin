@@ -271,17 +271,15 @@
  * Enable Autotemp Mode with M104/M109 F<factor> S<mintemp> B<maxtemp>.
  * Disable by sending M104/M109 with no F parameter (or F0 with AUTOTEMP_PROPORTIONAL).
  */
-#if DISABLED(SPACE_SAVER)
-  #define AUTOTEMP
-  #if ENABLED(AUTOTEMP)
-    #define AUTOTEMP_OLDWEIGHT    0.98
-    // Turn on AUTOTEMP on M104/M109 by default using proportions set here
-    //#define AUTOTEMP_PROPORTIONAL
-    #if ENABLED(AUTOTEMP_PROPORTIONAL)
-      #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
-      #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
-      #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
-    #endif
+//#define AUTOTEMP
+#if ENABLED(AUTOTEMP)
+  #define AUTOTEMP_OLDWEIGHT    0.98
+  // Turn on AUTOTEMP on M104/M109 by default using proportions set here
+  //#define AUTOTEMP_PROPORTIONAL
+  #if ENABLED(AUTOTEMP_PROPORTIONAL)
+    #define AUTOTEMP_MIN_P      0 // (°C) Added to the target temperature
+    #define AUTOTEMP_MAX_P      5 // (°C) Added to the target temperature
+    #define AUTOTEMP_FACTOR_P   1 // Apply this F parameter by default (overridden by M104/M109 F)
   #endif
 #endif
 
@@ -1091,7 +1089,7 @@
 #endif // HAS_LCD_MENU
 
 // Scroll a longer status message into view
-#if NONE(DWIN_CREALITY_LCD, SPACE_SAVER)
+#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
   #define STATUS_MESSAGE_SCROLLING
 #endif
 
@@ -1141,8 +1139,6 @@
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
   #if ENABLED(KINGROON_KP3)
   	#define SD_DETECT_STATE LOW
-  #else
-  	//#define SD_DETECT_STATE HIGH
   #endif
 
   //#define SDCARD_READONLY                 // Read-only SD card (to save over 2K of flash)
@@ -1234,7 +1230,7 @@
   //#define LONG_FILENAME_HOST_SUPPORT
 
   // Enable this option to scroll long filenames in the SD card menu
-  #if NONE(SPACE_SAVER, DWIN_CREALITY_LCD)
+  #if DISABLED(SPACE_SAVER) && DISABLED (DWIN_CREALITY_LCD)
     #define SCROLL_LONG_FILENAMES
   #endif
 
@@ -1625,7 +1621,7 @@
   #if ENABLED(ABL_ENABLE)
     #define BABYSTEP_ZPROBE_OFFSET          // Combine M851 Z and Babystepping
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      #if NONE(SPACE_SAVER, DWIN_CREALITY_LCD)
+      #if DISABLED(SPACE_SAVER) || DISABLED(DWIN_CREALITY_LCD)
         //#define BABYSTEP_HOTEND_Z_OFFSET      // For multiple hotends, babystep relative Z offsets
         #define BABYSTEP_ZPROBE_GFX_OVERLAY   // Enable graphical overlay on Z-offset editor
       #endif
@@ -2553,7 +2549,7 @@
    * CHOPPER_DEFAULT_24V
    * CHOPPER_DEFAULT_36V
    * CHOPPER_09STEP_24V   // 0.9 degree steppers (24V)
-   * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Prusa firmware for MK3 (24V)
+   * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
    *
    * Define you own with

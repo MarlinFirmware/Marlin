@@ -214,6 +214,8 @@
 
   #define BAUDRATE 115200
   
+  #define SPEAKER_KILL
+  
   #define SDIO_SUPPORT
   #define SPI_SPEED SPI_HALF_SPEED
   //#define SPI_SPEED SPI_QUARTER_SPEED
