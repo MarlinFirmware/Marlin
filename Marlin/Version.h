@@ -117,41 +117,41 @@
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
 #if(ENABLED(MachineMini))
-#define MACHINE_NAME "Mini SuPeR"
+#define CUSTOM_MACHINE_NAME "Mini SuPeR"
 #elif(ENABLED(MachineEnder2))
-#define MACHINE_NAME "TM3D Ender2"
+#define CUSTOM_MACHINE_NAME "TM3D Ender2"
 #elif(ENABLED(MachineEnder3))
-#define MACHINE_NAME "TM3D Ender3"
+#define CUSTOM_MACHINE_NAME "TM3D Ender3"
 #elif(ENABLED(MachineEnder3V2))
-#define MACHINE_NAME "TM3D Ender3V2"
+#define CUSTOM_MACHINE_NAME "TM3D Ender3V2"
 #elif(ENABLED(MachineEnder4))
-#define MACHINE_NAME "TM3D Ender4"
+#define CUSTOM_MACHINE_NAME "TM3D Ender4"
 #elif(ENABLED(MachineEnder5))
-#define MACHINE_NAME "TM3D Ender5"
+#define CUSTOM_MACHINE_NAME "TM3D Ender5"
 #elif(ENABLED(MachineEnder5Plus))
-#define MACHINE_NAME "TM3D E5 Plus"
+#define CUSTOM_MACHINE_NAME "TM3D E5 Plus"
 #elif(ENABLED(MachineCR20))
-#define MACHINE_NAME "SuPeR CR-20"
+#define CUSTOM_MACHINE_NAME "SuPeR CR-20"
 #elif(ENABLED(MachineCR10Orig))
-#define MACHINE_NAME "SuPeR CR-10"
+#define CUSTOM_MACHINE_NAME "SuPeR CR-10"
 #elif(ENABLED(MachineCRX))
-#define MACHINE_NAME "TM3D CR-X"
+#define CUSTOM_MACHINE_NAME "TM3D CR-X"
 #elif ENABLED(MachineCR10SProV2)
-  #define MACHINE_NAME "TM3D 10SProV2"
+  #define CUSTOM_MACHINE_NAME "TM3D 10SProV2"
 #elif(ENABLED(MachineCR10SPro))
-#define MACHINE_NAME "TM3D 10S Pro"
+#define CUSTOM_MACHINE_NAME "TM3D 10S Pro"
 #elif(ENABLED(MachineCR10Max))
-#define MACHINE_NAME "TM3D Max"
+#define CUSTOM_MACHINE_NAME "TM3D Max"
 #elif(ENABLED(MachineCR10SV2))
-#define MACHINE_NAME "TM3D CR10V2"
+#define CUSTOM_MACHINE_NAME "TM3D CR10V2"
 #elif(ENABLED(MachineCR10Std))
-#define MACHINE_NAME "300 SuPeR"
+#define CUSTOM_MACHINE_NAME "300 SuPeR"
 #elif(ENABLED(MachineS4))
-#define MACHINE_NAME "400 SuPeR"
+#define CUSTOM_MACHINE_NAME "400 SuPeR"
 #elif(ENABLED(MachineS5))
-#define MACHINE_NAME "500 SuPeR"
+#define CUSTOM_MACHINE_NAME "500 SuPeR"
 #elif ENABLED(MachineCR2020)
-  #define MACHINE_NAME "TM3D 2020"
+  #define CUSTOM_MACHINE_NAME "TM3D 2020"
 #endif
 
 /**
