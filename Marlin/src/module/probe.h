@@ -29,6 +29,11 @@
 
 #include "motion.h"
 
+// check and define probe sanity check
+#ifndef PROBE_SANITY_CHECK
+  #define PROBE_SANITY_CHECK true
+#endif
+
 #if HAS_BED_PROBE
   enum ProbePtRaise : uint8_t {
     PROBE_PT_NONE,      // No raise or stow after run_z_probe
@@ -91,8 +96,8 @@ public:
         move_z_after_probing();
       #endif
     }
-    static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
-    static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
+    static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=PROBE_SANITY_CHECK);
+    static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=PROBE_SANITY_CHECK) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
@@ -220,7 +225,7 @@ public:
 private:
   static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);
-  static float run_z_probe(const bool sanity_check=true);
+  static float run_z_probe(const bool sanity_check=PROBE_SANITY_CHECK);
 };
 
 extern Probe probe;
