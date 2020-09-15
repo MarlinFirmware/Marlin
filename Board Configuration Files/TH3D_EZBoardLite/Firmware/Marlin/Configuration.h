@@ -599,46 +599,6 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
   
-  #if ENABLED(CUSTOM_PROBE)
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(SV01_OEM_MOUNT)
-    #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(CR10_VOLCANO)
-    #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(CR10_V6HEAVYDUTY)
-    #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(CR10_OEM)
-    #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(TM3DAERO)
-    #define NOZZLE_TO_PROBE_OFFSET { -51, -7, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(TM3DAERO_EXTENDED)
-    #define NOZZLE_TO_PROBE_OFFSET { -55, -7, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(PETSFANG)
-    #define NOZZLE_TO_PROBE_OFFSET { 48, -2, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(ENDER2_OEM)
-    #define NOZZLE_TO_PROBE_OFFSET { -33, -10, 0 }
-    #define EZABL_ENABLE
-  #endif
-  #if ENABLED(ENDER2_V6)
-    #define NOZZLE_TO_PROBE_OFFSET { -35, -2, 0 }
-    #define EZABL_ENABLE
-  #endif
-
   #if ENABLED(ENDER5_PLUS)
     #if DISABLED(ENDER5_PLUS_NOABL) && DISABLED(ENDER5_PLUS_EZABL)
       #define BLTOUCH
@@ -654,7 +614,7 @@
       #endif
     #endif  
     #if DISABLED(ENDER5_PLUS_NOABL)
-      #define EZABL_ENABLE
+      #define ABL_ENABLE
     #endif
   #endif
 

@@ -100,14 +100,44 @@
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
 #endif
-
-#if EITHER(ENDER3_OEM, ENDER5_OEM)
+#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
 #endif
-
 #if ENABLED(ENDER3_V2_OEM)
   #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(SV01_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10_VOLCANO)
+  #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10_V6HEAVYDUTY)
+  #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TM3DAERO)
+  #define NOZZLE_TO_PROBE_OFFSET { -51, -7, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TM3DAERO_EXTENDED)
+  #define NOZZLE_TO_PROBE_OFFSET { -55, -7, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(PETSFANG)
+  #define NOZZLE_TO_PROBE_OFFSET { 48, -2, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -33, -10, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER2_V6)
+  #define NOZZLE_TO_PROBE_OFFSET { -35, -2, 0 }
   #define ABL_ENABLE
 #endif
 
