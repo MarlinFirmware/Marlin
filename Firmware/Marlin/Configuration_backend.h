@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.04"
+#define UNIFIED_VERSION "TH3D UFW 2.05"
 
 /**
  * Temp Settings
@@ -72,7 +72,7 @@
   #define DEFAULT_Kd 114
 #endif
 
-#if DISABLED(SPACE_SAVER)
+#if DISABLED(SPACE_SAVER) && ENABLED(ENABLE_PIDBED)
   #define PIDTEMPBED
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
@@ -98,6 +98,16 @@
  */
 
 #if ENABLED(CUSTOM_PROBE)
+  #define ABL_ENABLE
+#endif
+
+#if EITHER(ENDER3_OEM, ENDER5_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
+#endif
+
+#if ENABLED(ENDER3_V2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
   #define ABL_ENABLE
 #endif
 

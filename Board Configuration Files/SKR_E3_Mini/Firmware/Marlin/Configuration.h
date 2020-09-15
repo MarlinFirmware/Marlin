@@ -11,39 +11,37 @@
 //===========================================================================
 
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
+// THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS.
+// REPORT ANY ISSUES TO THE FORUM POST HERE: https://support.th3dstudio.com/hc/en-us/community/posts/360073161631-Unified-2-SKR-E3-Mini-Board-Testing-Thread-Ender-3-Ender5
+// Config Version BETA3 9/12/2020 - This is still in testing
 
 //===========================================================================
-// *************************   CREALITY PRINTERS    *************************
+// *************   CREALITY PRINTERS W/SKR E3 MINI BOARD    *****************
 //===========================================================================
 
 //===========================================================================
-// Creality Ender 3/3 Pro Options - with V4.2.2 Board
+// Creality Ender 3/3 Pro Options - SKR E3 Mini Boards
 //===========================================================================
-//#define ENDER3_V422_BOARD
+//#define ENDER3_SKR_E3_MINI
 
-// If your V4.2.2 board has TMC2208 (silent) drivers on it uncomment the below line
-//#define V422_TMC2208_BOARD
+// Uncomment what SKR E3 Mini Board Version you are using
+//#define SKR_E3_MINI_V1
+//#define SKR_E3_MINI_V1_2
+//#define SKR_E3_MINI_V2_0
 
 // EZABL Probe Mounts
 //#define ENDER3_OEM
 //#define CUSTOM_PROBE
 
 //===========================================================================
-// Creality Ender 3 V2 Options
+// Creality Ender 5/5 Pro Options - SKR E3 Mini Boards
 //===========================================================================
-//#define ENDER3_V2
+//#define ENDER5_SKR_E3_MINI
 
-// EZABL Probe Mounts
-//#define ENDER3_V2_OEM
-//#define CUSTOM_PROBE
-
-//===========================================================================
-// Creality Ender 5/5 Pro Options - with V4.2.2 Board
-//===========================================================================
-//#define ENDER5_V422_BOARD
-
-// If your V4.2.2 board has TMC2208 (silent) drivers on it uncomment the below line
-//#define V422_TMC2208_BOARD
+// Uncomment what SKR E3 Mini Board Version you are using
+//#define SKR_E3_MINI_V1
+//#define SKR_E3_MINI_V1_2
+//#define SKR_E3_MINI_V2_0
 
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
@@ -184,6 +182,10 @@
 //****************** COMMUNITY REQUESTED FEATURES ***************************
 //===========================================================================
 
+// BAUDRATE ADJUSTMENT -----------------------------
+// This firmware uses a 115200 default baud rate as that is the most reliable and compatible. If you want to use 250000 uncomment the below line.
+//#define FASTER_BAUDRATE
+
 // HOME OFFSET ADJUSTMENT --------------------------
 // If you need to adjust your XY home offsets from defaults then you can uncomment the HOME_ADJUST line below and enter your
 // custom XY offsets. This is provided for convenience and is unsupported with included product support.
@@ -212,17 +214,34 @@
  * Machine Configuration Settings
  */
  
- //Ender 3/5 V422 Board Settings
-#if EITHER(ENDER3_V422_BOARD,ENDER5_V422_BOARD)
-  #define SERIAL_PORT 1
+ //Ender 3/5 SKR E3 Mini Board Settings
+#if EITHER(ENDER3_SKR_E3_MINI,ENDER5_SKR_E3_MINI)
+  #define SERIAL_PORT -1
+  #define SERIAL_PORT_2 2
+  #define SKR_E3_MINI_BOARD
 
-  #define BAUDRATE 115200
+  #if ENABLED(FASTER_BAUDRATE)
+    #define BAUDRATE 250000
+  #else
+    #define BAUDRATE 115200
+  #endif
   
   #define CR10_STOCKDISPLAY
-  #define RET6_12864_LCD
-
-  #ifndef MOTHERBOARD
-    #define MOTHERBOARD BOARD_CREALITY_V4
+  
+  #if ENABLED(SKR_E3_MINI_V1)
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_0
+    #endif
+  #elif ENABLED(SKR_E3_MINI_V1_2)
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_2
+    #endif
+  #elif ENABLED(SKR_E3_MINI_V2_0)  
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
+    #endif
+  #else
+    #error "UNCOMMENT YOUR BOARD VERSION AND TRY AGAIN."
   #endif
   
   #if ENABLED(ENDER5_NEW_LEADSCREW)
@@ -259,7 +278,7 @@
   #define X_BED_SIZE 220
   #define Y_BED_SIZE 220
   
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_SKR_E3_MINI)
     #define Z_MAX_POS 300
   #else
     #define Z_MAX_POS 250
@@ -273,7 +292,7 @@
     #define Y_MIN_POS 0
   #endif
 
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_SKR_E3_MINI)
     #define USE_XMAX_PLUG
     #define USE_YMAX_PLUG
     #define USE_ZMIN_PLUG
@@ -283,7 +302,7 @@
     #define USE_ZMIN_PLUG
   #endif
 
-  #if ENABLED(ENDER5_V422_BOARD)
+  #if ENABLED(ENDER5_SKR_E3_MINI)
     #define X_HOME_DIR 1
     #define Y_HOME_DIR 1
     #define Z_HOME_DIR -1
@@ -351,17 +370,10 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #if ENABLED(V422_TMC2208_BOARD)
-    #define X_DRIVER_TYPE TMC2208_STANDALONE
-    #define Y_DRIVER_TYPE TMC2208_STANDALONE
-    #define Z_DRIVER_TYPE TMC2208_STANDALONE
-    #define E0_DRIVER_TYPE TMC2208_STANDALONE
-  #else
-    #define X_DRIVER_TYPE A4988
-    #define Y_DRIVER_TYPE A4988
-    #define Z_DRIVER_TYPE A4988
-    #define E0_DRIVER_TYPE A4988
-  #endif
+  #define X_DRIVER_TYPE TMC2209
+  #define Y_DRIVER_TYPE TMC2209
+  #define Z_DRIVER_TYPE TMC2209
+  #define E0_DRIVER_TYPE TMC2209
 
   #define ENDSTOP_INTERRUPTS_FEATURE
 
@@ -370,19 +382,19 @@
   #define Z_ENABLE_ON 0
   #define E_ENABLE_ON 0
 
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
+  #define INVERT_X_DIR true
+  #define INVERT_Y_DIR true
   
-  #if ENABLED(ENDER5_V422_BOARD)
-    #define INVERT_Z_DIR false
-  #else  
+  #if ENABLED(ENDER5_SKR_E3_MINI)
     #define INVERT_Z_DIR true
+  #else  
+    #define INVERT_Z_DIR false
   #endif
 
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
-    #define INVERT_E0_DIR true
-  #else
     #define INVERT_E0_DIR false
+  #else
+    #define INVERT_E0_DIR true
   #endif
   
   #define INVERT_E1_DIR false
@@ -399,170 +411,16 @@
   #define Z_PROBE_OFFSET_RANGE_MIN -10
   #define Z_PROBE_OFFSET_RANGE_MAX 10
 
-  #if EITHER(ENDER3_OEM, ENDER5_OEM)
+  #if ENABLED(CUSTOM_PROBE)
     #define ABL_ENABLE
-    #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #endif
+
+  #if ENABLED(ABL_ENABLE)
+    #define SPACE_SAVER
   #endif
 #endif
-// End Ender 3/5 V422 Board Settings
+// End Ender 3/5 SKR E3 Mini Board Settings
  
-// Ender 3 V2 Settings
-#if ENABLED(ENDER3_V2)
-  #define SERIAL_PORT 1
-  #define SERIAL_PORT_2 3
-
-  #define BAUDRATE 115200
-
-  #ifndef MOTHERBOARD
-    #define MOTHERBOARD BOARD_CREALITY_V4
-  #endif
-
-  #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
-  #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
-  #endif
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
-  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
-
-  #define DEFAULT_ACCELERATION          500
-  #define DEFAULT_RETRACT_ACCELERATION  500
-  #define DEFAULT_TRAVEL_ACCELERATION   1000
-
-  #define CLASSIC_JERK
-  #if ENABLED(CLASSIC_JERK)
-    #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 10.0
-    #define DEFAULT_ZJERK  0.3
-  #endif
-
-  #define DEFAULT_EJERK    5.0
-
-  #define SHOW_BOOTSCREEN
-
-  #define EXTRUDERS 1
-
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  #define Z_MAX_POS 250
-  #define X_MIN_POS 0
-  #define Y_MIN_POS 0
-
-  #define USE_XMIN_PLUG
-  #define USE_YMIN_PLUG
-  #define USE_ZMIN_PLUG
-
-  #define X_HOME_DIR -1
-  #define Y_HOME_DIR -1
-  #define Z_HOME_DIR -1
-
-  #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
-    #define TEMP_SENSOR_0 1
-  #else
-    #if ENABLED(EZBOARD_PT100)
-      #define TEMP_SENSOR_0 20
-    #elif ENABLED(V6_HOTEND)
-      #define TEMP_SENSOR_0 5
-    #elif ENABLED(KNOWN_HOTEND_THERMISTOR)
-      #define TEMP_SENSOR_0 KNOWN_HOTEND_THERMISTOR_VALUE
-    #elif ENABLED(TH3D_HOTEND_THERMISTOR)
-      #define TEMP_SENSOR_0 1
-    #endif
-  #endif
-  
-  #define TEMP_SENSOR_1 0 
-  #define TEMP_SENSOR_2 0
-  #define TEMP_SENSOR_3 0
-  #define TEMP_SENSOR_4 0
-  #define TEMP_SENSOR_5 0
-  #define TEMP_SENSOR_6 0
-  #define TEMP_SENSOR_7 0
-  
-  #if NONE(TH3D_BED_THERMISTOR, KEENOVO_TEMPSENSOR, KNOWN_BED_THERMISTOR, AC_BED)
-    #define TEMP_SENSOR_BED 1
-  #else
-    #if ENABLED(AC_BED)
-      #define TEMP_SENSOR_BED 0
-    #elif ENABLED(KNOWN_BED_THERMISTOR)
-      #define TEMP_SENSOR_BED KNOWN_BED_THERMISTOR_VALUE
-    #elif ENABLED(TH3D_BED_THERMISTOR)
-      #define TEMP_SENSOR_BED 1
-    #elif ENABLED(KEENOVO_TEMPSENSOR)
-      #define TEMP_SENSOR_BED 11
-    #endif
-  #endif
-  
-  #define TEMP_SENSOR_PROBE 0
-  #define TEMP_SENSOR_CHAMBER 0
-
-  #define DEFAULT_Kp 28.72
-  #define DEFAULT_Ki 2.62
-  #define DEFAULT_Kd 78.81
-  
-  #define DEFAULT_bedKp 462.10
-  #define DEFAULT_bedKi 85.47
-  #define DEFAULT_bedKd 624.59
-
-  #define ENDSTOPPULLUPS
-
-  #define X_MIN_ENDSTOP_INVERTING false
-  #define Y_MIN_ENDSTOP_INVERTING false
-  #define Z_MIN_ENDSTOP_INVERTING false
-  #define X_MAX_ENDSTOP_INVERTING false
-  #define Y_MAX_ENDSTOP_INVERTING false
-  #define Z_MAX_ENDSTOP_INVERTING false
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
-  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-
-  #define X_DRIVER_TYPE TMC2208_STANDALONE
-  #define Y_DRIVER_TYPE TMC2208_STANDALONE
-  #define Z_DRIVER_TYPE TMC2208_STANDALONE
-  #define E0_DRIVER_TYPE TMC2208_STANDALONE
-
-  #define ENDSTOP_INTERRUPTS_FEATURE
-
-  #define X_ENABLE_ON 0
-  #define Y_ENABLE_ON 0
-  #define Z_ENABLE_ON 0
-  #define E_ENABLE_ON 0
-
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
-  #define INVERT_Z_DIR true
-
-  #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
-    #define INVERT_E0_DIR true
-  #else
-    #define INVERT_E0_DIR false
-  #endif
-  
-  #define INVERT_E1_DIR false
-  #define INVERT_E2_DIR false
-  #define INVERT_E3_DIR false
-  #define INVERT_E4_DIR false
-  #define INVERT_E5_DIR false
-  #define INVERT_E6_DIR false
-  #define INVERT_E7_DIR false
-
-  #define DWIN_CREALITY_LCD
-
-  #define ENCODER_PULSES_PER_STEP 4
-  #define ENCODER_STEPS_PER_MENU_ITEM 1
-
-  #define Z_PROBE_OFFSET_RANGE_MIN -10
-  #define Z_PROBE_OFFSET_RANGE_MAX 10
-  #define EXTRUDE_MAXLENGTH 1000
-
-  #define POWER_LOSS_RECOVERY
-
-  #if ENABLED(ENDER3_OEM)
-    #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
-    #define ABL_ENABLE
-  #endif
-  
-#endif
-// End Ender 3 V2 Settings
-
 /*
  * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
  */
