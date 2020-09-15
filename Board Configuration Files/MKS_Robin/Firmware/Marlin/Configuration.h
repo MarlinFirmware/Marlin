@@ -11,44 +11,34 @@
 //===========================================================================
 
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
-// THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS.
-// REPORT ANY ISSUES TO THE FORUM POST HERE: https://support.th3dstudio.com/hc/en-us/community/posts/360073161631-Unified-2-SKR-E3-Mini-Board-Testing-Thread-Ender-3-Ender5
-// Config Version BETA3 9/12/2020 - This is still in testing
 
 //===========================================================================
-// *************   CREALITY PRINTERS W/SKR E3 MINI BOARD    *****************
+// *************************   KINGROON PRINTERS    *************************
 //===========================================================================
 
 //===========================================================================
-// Creality Ender 3/3 Pro Options - SKR E3 Mini Boards
+// Kinroon KP3 Options
 //===========================================================================
-//#define ENDER3_SKR_E3_MINI
-
-// Uncomment what SKR E3 Mini Board Version you are using
-//#define SKR_E3_MINI_V1
-//#define SKR_E3_MINI_V1_2
-//#define SKR_E3_MINI_V2_0
+//#define KINGROON_KP3
 
 // EZABL Probe Mounts
-//#define ENDER3_OEM
+//#define KP3_OEM_MOUNT
 //#define CUSTOM_PROBE
 
 //===========================================================================
-// Creality Ender 5/5 Pro Options - SKR E3 Mini Boards
+// Motor Direction Settings
 //===========================================================================
-//#define ENDER5_SKR_E3_MINI
+// Some new KP3 models have their motors wired reverse from the early batches. If your motors move the wrong direction
+// uncomment the option the axis that needs reversal and then re-upload the firmware to the printer.
 
-// Uncomment what SKR E3 Mini Board Version you are using
-//#define SKR_E3_MINI_V1
-//#define SKR_E3_MINI_V1_2
-//#define SKR_E3_MINI_V2_0
+// Reverse ALL motor directions
+//#define REVERSE_ALL_MOTOR_DIRECTION
 
-// If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
-//#define ENDER5_NEW_LEADSCREW
-
-// EZABL Probe Mounts
-//#define ENDER5_OEM
-//#define CUSTOM_PROBE
+// Reverse specific motor directions (these are all enabled if you uncomment REVERSE_ALL_MOTOR_DIRECTION in the backend).
+//#define REVERSE_X_MOTOR_DIRECTION
+//#define REVERSE_Y_MOTOR_DIRECTION
+//#define REVERSE_Z_MOTOR_DIRECTION
+//#define REVERSE_E_MOTOR_DIRECTION
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -182,10 +172,6 @@
 //****************** COMMUNITY REQUESTED FEATURES ***************************
 //===========================================================================
 
-// BAUDRATE ADJUSTMENT -----------------------------
-// This firmware uses a 115200 default baud rate as that is the most reliable and compatible. If you want to use 250000 uncomment the below line.
-//#define FASTER_BAUDRATE
-
 // HOME OFFSET ADJUSTMENT --------------------------
 // If you need to adjust your XY home offsets from defaults then you can uncomment the HOME_ADJUST line below and enter your
 // custom XY offsets. This is provided for convenience and is unsupported with included product support.
@@ -202,11 +188,11 @@
 #define LINEAR_ADVANCE_K 0
 
 // BL TOUCH ----------------------------------------
-// If you want to use the BL-Touch uncomment the 2 lines below. Refer to BTT documentation for connecting the BL Touch
-// Use the Z endstop port for the black/white wires from the BL Touch.
+// If you want to use the BL-Touch uncomment the 2 lines below and refer to the V42X BLTouch Picture in the Marlin Folder for wiring.
+// Video guide from Teaching Tech: https://youtu.be/neS7lB7fCww?t=790
 //#define BLTOUCH
-// Here is where you set your servo pin. For SKR E3 Mini use PA1
-//#define SERVO0_PIN PA1
+// Here is where you set your servo pin. For V4.2.X Boards use PB0
+//#define SERVO0_PIN PB0
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
@@ -221,53 +207,55 @@
  * Machine Configuration Settings
  */
  
- //Ender 3/5 SKR E3 Mini Board Settings
-#if EITHER(ENDER3_SKR_E3_MINI,ENDER5_SKR_E3_MINI)
-  #define SERIAL_PORT -1
-  #define SERIAL_PORT_2 2
-  #define SKR_E3_MINI_BOARD
+ // Kingroon KP3 Settings
+#if ENABLED(KINGROON_KP3)
+  #define SERIAL_PORT 3
+  #define SERIAL_PORT_2 1
 
-  #if ENABLED(FASTER_BAUDRATE)
-    #define BAUDRATE 250000
-  #else
-    #define BAUDRATE 115200
-  #endif
+  #define BAUDRATE 115200
   
-  #define CR10_STOCKDISPLAY
+  #define SDIO_SUPPORT
+  #define SPI_SPEED SPI_HALF_SPEED
+  //#define SPI_SPEED SPI_QUARTER_SPEED
+  //#define SPI_SPEED SPI_EIGHTH_SPEED
+  #define SD_CHECK_AND_RETRY
   
-  #if ENABLED(SKR_E3_MINI_V1)
-    #ifndef MOTHERBOARD
-      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_0
-    #endif
-  #elif ENABLED(SKR_E3_MINI_V1_2)
-    #ifndef MOTHERBOARD
-      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V1_2
-    #endif
-  #elif ENABLED(SKR_E3_MINI_V2_0)  
-    #ifndef MOTHERBOARD
-      #define MOTHERBOARD BOARD_BTT_SKR_MINI_E3_V2_0
-    #endif
-  #else
-    #error "UNCOMMENT YOUR BOARD VERSION AND TRY AGAIN."
-  #endif
-  
-  #if ENABLED(ENDER5_NEW_LEADSCREW)
-    #define CREALITY_Z_STEPS 800
-  #else
-    #define CREALITY_Z_STEPS 400
+  #define FSMC_GRAPHICAL_TFT
+  #define TOUCH_SCREEN
+  #if ENABLED(TOUCH_SCREEN)
+    #define BUTTON_DELAY_EDIT  75 // (ms) Button repeat delay for edit screens
+    #define BUTTON_DELAY_MENU 100 // (ms) Button repeat delay for menus
+
+    #define TOUCH_SCREEN_CALIBRATION
+
+    /* MKS Robin TFT v2.0 */
+    #define XPT2046_X_CALIBRATION  12013
+    #define XPT2046_Y_CALIBRATION  -8711
+    #define XPT2046_X_OFFSET         -32
+    #define XPT2046_Y_OFFSET         256
+
+    /* MKS Robin TFT v1.1 */
+    //#define XPT2046_X_CALIBRATION -11792
+    //#define XPT2046_Y_CALIBRATION   8947
+    //#define XPT2046_X_OFFSET         342
+    //#define XPT2046_Y_OFFSET         -19
+  #endif 
+
+  #ifndef MOTHERBOARD
+    #define MOTHERBOARD BOARD_MKS_ROBIN_MINI
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, CUSTOM_ESTEPS_VALUE }
+  	#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 95 }
-  #endif
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
-  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+	#endif
+  #define DEFAULT_MAX_FEEDRATE          { 300, 300, 15, 50 }
+  #define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 500, 10000 }
 
   #define DEFAULT_ACCELERATION          500
   #define DEFAULT_RETRACT_ACCELERATION  500
-  #define DEFAULT_TRAVEL_ACCELERATION   1000
+  #define DEFAULT_TRAVEL_ACCELERATION   500
 
   #define CLASSIC_JERK
   #if ENABLED(CLASSIC_JERK)
@@ -276,20 +264,17 @@
     #define DEFAULT_ZJERK  0.3
   #endif
 
+  #define ENDSTOP_NOISE_THRESHOLD 2
+
   #define DEFAULT_EJERK    5.0
 
   #define SHOW_BOOTSCREEN
 
   #define EXTRUDERS 1
 
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
-  
-  #if ENABLED(ENDER5_SKR_E3_MINI)
-    #define Z_MAX_POS 300
-  #else
-    #define Z_MAX_POS 250
-  #endif
+  #define X_BED_SIZE 170
+  #define Y_BED_SIZE 170  
+  #define Z_MAX_POS 180
   
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_ADJUST_LOCATION
@@ -299,25 +284,13 @@
     #define Y_MIN_POS 0
   #endif
 
-  #if ENABLED(ENDER5_SKR_E3_MINI)
-    #define USE_XMAX_PLUG
-    #define USE_YMAX_PLUG
-    #define USE_ZMIN_PLUG
-  #else
-    #define USE_XMIN_PLUG
-    #define USE_YMIN_PLUG
-    #define USE_ZMIN_PLUG
-  #endif
+  #define USE_XMIN_PLUG
+  #define USE_YMIN_PLUG
+  #define USE_ZMIN_PLUG
 
-  #if ENABLED(ENDER5_SKR_E3_MINI)
-    #define X_HOME_DIR 1
-    #define Y_HOME_DIR 1
-    #define Z_HOME_DIR -1
-  #else
-    #define X_HOME_DIR -1
-    #define Y_HOME_DIR -1
-    #define Z_HOME_DIR -1
-  #endif
+  #define X_HOME_DIR -1
+  #define Y_HOME_DIR -1
+  #define Z_HOME_DIR -1
 
   #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
     #define TEMP_SENSOR_0 1
@@ -358,29 +331,21 @@
   #define TEMP_SENSOR_PROBE 0
   #define TEMP_SENSOR_CHAMBER 0
 
-  #define DEFAULT_Kp 28.72
-  #define DEFAULT_Ki 2.62
-  #define DEFAULT_Kd 78.81
+  #define ENDSTOPPULLUPS  
   
-  #define DEFAULT_bedKp 462.10
-  #define DEFAULT_bedKi 85.47
-  #define DEFAULT_bedKd 624.59
-
-  #define ENDSTOPPULLUPS
-
-  #define X_MIN_ENDSTOP_INVERTING false
-  #define Y_MIN_ENDSTOP_INVERTING false
-  #define Z_MIN_ENDSTOP_INVERTING false
+  #define X_MIN_ENDSTOP_INVERTING true
+  #define Y_MIN_ENDSTOP_INVERTING true
+  #define Z_MIN_ENDSTOP_INVERTING true
   #define X_MAX_ENDSTOP_INVERTING false
   #define Y_MAX_ENDSTOP_INVERTING false
   #define Z_MAX_ENDSTOP_INVERTING false
-  #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+  #define Z_MIN_PROBE_ENDSTOP_INVERTING true
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE TMC2209
-  #define Y_DRIVER_TYPE TMC2209
-  #define Z_DRIVER_TYPE TMC2209
-  #define E0_DRIVER_TYPE TMC2209
+  #define X_DRIVER_TYPE A4988
+  #define Y_DRIVER_TYPE A4988
+  #define Z_DRIVER_TYPE A4988
+  #define E0_DRIVER_TYPE A4988
 
   #define ENDSTOP_INTERRUPTS_FEATURE
 
@@ -389,19 +354,35 @@
   #define Z_ENABLE_ON 0
   #define E_ENABLE_ON 0
 
-  #define INVERT_X_DIR true
-  #define INVERT_Y_DIR true
-  
-  #if ENABLED(ENDER5_SKR_E3_MINI)
-    #define INVERT_Z_DIR true
-  #else  
+  #if ENABLED(REVERSE_ALL_MOTOR_DIRECTION)
+		#define REVERSE_X_MOTOR_DIRECTION
+		#define REVERSE_Y_MOTOR_DIRECTION
+		#define REVERSE_Z_MOTOR_DIRECTION
+		#define REVERSE_E_MOTOR_DIRECTION
+	#endif
+	
+	#if ENABLED(REVERSE_X_MOTOR_DIRECTION)
+    #define INVERT_X_DIR true
+  #else
+    #define INVERT_X_DIR false
+  #endif
+	
+	#if ENABLED(REVERSE_Y_MOTOR_DIRECTION)
+    #define INVERT_Y_DIR true
+  #else
+    #define INVERT_Y_DIR false
+  #endif
+	
+	#if ENABLED(REVERSE_Z_MOTOR_DIRECTION)
     #define INVERT_Z_DIR false
+  #else
+    #define INVERT_Z_DIR true
   #endif
 
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
-    #define INVERT_E0_DIR false
-  #else
     #define INVERT_E0_DIR true
+  #else
+    #define INVERT_E0_DIR false
   #endif
   
   #define INVERT_E1_DIR false
@@ -412,21 +393,32 @@
   #define INVERT_E6_DIR false
   #define INVERT_E7_DIR false
 
-  #define ENCODER_PULSES_PER_STEP 4
-  #define ENCODER_STEPS_PER_MENU_ITEM 1
+  #define FILAMENT_RUNOUT_SENSOR
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
+    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #define FIL_RUNOUT_STATE     HIGH       // Pin state indicating that filament is NOT present.
+    #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
+    //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
 
-  #define Z_PROBE_OFFSET_RANGE_MIN -10
-  #define Z_PROBE_OFFSET_RANGE_MAX 10
+    // Set one or more commands to execute on filament runout.
+    // (After 'M412 H' Marlin will ask the host to handle the process.)
+    #define FILAMENT_RUNOUT_SCRIPT "M600"
 
-  #if ENABLED(CUSTOM_PROBE) || ENABLED(ENDER5_OEM) || ENABLED(ENDER3_OEM)
-    #define ABL_ENABLE
-  #endif
+    // After a runout is detected, continue printing this length of filament
+    // before executing the runout script. Useful for a sensor at the end of
+    // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
+    //#define FILAMENT_RUNOUT_DISTANCE_MM 25
 
-  #if ENABLED(ABL_ENABLE)
-    #define SPACE_SAVER
+    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+      // Enable this option to use an encoder disc that toggles the runout pin
+      // as the filament moves. (Be sure to set FILAMENT_RUNOUT_DISTANCE_MM
+      // large enough to avoid false positives.)
+      //#define FILAMENT_MOTION_SENSOR
+    #endif
   #endif
 #endif
-// End Ender 3/5 SKR E3 Mini Board Settings
+// End Kingroon KP3 Settings
  
 /*
  * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.

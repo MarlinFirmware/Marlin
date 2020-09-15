@@ -1058,7 +1058,7 @@
   #endif
 
   // BACK menu items keep the highlight at the top
-  #if DISABLED(SPACE_SAVER)
+  #if DISABLED(SPACE_SAVER) && DISABLED(KINGROON_KP3)
     #define TURBO_BACK_MENU_ITEM
   #endif
 
@@ -1096,7 +1096,9 @@
 #endif
 
 // On the Info Screen, display XY with one decimal place when possible
-//#define LCD_DECIMAL_SMALL_XY
+#if DISABLED(SPACE_SAVER)
+  #define LCD_DECIMAL_SMALL_XY
+#endif
 
 // The timeout (in ms) to return to the status screen from sub-menus
 #define LCD_TIMEOUT_TO_STATUS 10000
@@ -1137,7 +1139,11 @@
 
   // The standard SD detect circuit reads LOW when media is inserted and HIGH when empty.
   // Enable this option and set to HIGH if your SD cards are incorrectly detected.
-  //#define SD_DETECT_STATE HIGH
+  #if ENABLED(KINGROON_KP3)
+  	#define SD_DETECT_STATE LOW
+  #else
+  	//#define SD_DETECT_STATE HIGH
+  #endif
 
   //#define SDCARD_READONLY                 // Read-only SD card (to save over 2K of flash)
 
@@ -1148,7 +1154,7 @@
 
   // Reverse SD sort to show "more recent" files first, according to the card's FAT.
   // Since the FAT gets out of order with usage, SDCARD_SORT_ALPHA is recommended.
-  #define SDCARD_RATHERRECENTFIRST
+  //#define SDCARD_RATHERRECENTFIRST
 
   #if DISABLED(SPACE_SAVER)
     #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
@@ -1340,7 +1346,9 @@
  */
 #if HAS_GRAPHICAL_LCD
   // Show SD percentage next to the progress bar
-  //#define DOGM_SD_PERCENT
+  #if DISABLED(SPACE_SAVER)
+  	#define DOGM_SD_PERCENT
+  #endif
 
   // Save many cycles by drawing a hollow frame or no frame on the Info Screen
   //#define XYZ_NO_FRAME
@@ -1401,12 +1409,9 @@
     //#define STATUS_FAN_FRAMES 3       // :[0,1,2,3,4] Number of fan animation frames
     //#define STATUS_HEAT_PERCENT       // Show heating in a progress bar
   #endif
+  //#define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
   
-  #if ENABLED(SPACE_SAVER)
-    #define BOOT_MARLIN_LOGO_SMALL    // Show a smaller Marlin logo on the Boot Screen (saving 399 bytes of flash)
-  #endif
-  
-  #if DISABLED(SPACE_SAVER)
+  #if DISABLED(SPACE_SAVER) && DISABLED(KINGROON_KP3)
     #define BOOT_MARLIN_LOGO_ANIMATED // Animated Marlin logo. Costs ~‭3260 (or ~940) bytes of PROGMEM.
   #endif
 
@@ -1898,7 +1903,7 @@
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 
-#if ENABLED(SPACE_SAVER) || ENABLED(SKR_E3_MINI_BOARD)
+#if ENABLED(SPACE_SAVER) || ENABLED(SKR_E3_MINI_BOARD) || ENABLED(KINGROON_KP3)
   #define BUFSIZE 16
 #else
   #define BUFSIZE 32
@@ -3530,7 +3535,7 @@
 #endif
 
 /**
- * Prusa Multi-Material Unit v2
+ * Průša Multi-Material Unit v2
  * Enable in Configuration.h
  */
 #if ENABLED(PRUSA_MMU2)
@@ -3554,7 +3559,7 @@
   //#define MMU2_MENUS
   #if ENABLED(MMU2_MENUS)
     // Settings for filament load / unload from the LCD menu.
-    // This is for Prusa MK3-style extruders. Customize for your hardware.
+    // This is for Průša MK3-style extruders. Customize for your hardware.
     #define MMU2_FILAMENTCHANGE_EJECT_FEED 80.0
     #define MMU2_LOAD_TO_NOZZLE_SEQUENCE \
       {  7.2, 1145 }, \
@@ -3580,7 +3585,7 @@
   /**
    * MMU Extruder Sensor
    *
-   * Support for a Prusa (or other) IR Sensor to detect filament near the extruder
+   * Support for a Průša (or other) IR Sensor to detect filament near the extruder
    * and make loading more reliable. Suitable for an extruder equipped with a filament
    * sensor less than 38mm from the gears.
    *

@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.05"
+#define UNIFIED_VERSION "TH3D UFW 2.06"
 
 /**
  * Temp Settings
@@ -100,14 +100,48 @@
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
 #endif
-
-#if EITHER(ENDER3_OEM, ENDER5_OEM)
+#if ENABLED(KP3_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
 #endif
-
 #if ENABLED(ENDER3_V2_OEM)
   #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(SV01_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10_VOLCANO)
+  #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10_V6HEAVYDUTY)
+  #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TM3DAERO)
+  #define NOZZLE_TO_PROBE_OFFSET { -51, -7, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TM3DAERO_EXTENDED)
+  #define NOZZLE_TO_PROBE_OFFSET { -55, -7, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(PETSFANG)
+  #define NOZZLE_TO_PROBE_OFFSET { 48, -2, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -33, -10, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER2_V6)
+  #define NOZZLE_TO_PROBE_OFFSET { -35, -2, 0 }
   #define ABL_ENABLE
 #endif
 
@@ -311,11 +345,8 @@
 
 #define LCD_LANGUAGE en
 #define DISPLAY_CHARSET_HD44780 JAPANESE
-//#define DISPLAY_CHARSET_HD44780 WESTERN test?
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
-#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
-#define LCD_FEEDBACK_FREQUENCY_HZ 5000
 #if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
   #define SHOW_CUSTOM_BOOTSCREEN
 #endif
