@@ -158,6 +158,10 @@ void menu_main() {
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
+    #if defined(ACTION_ON_START)
+      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+    #endif
+
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
