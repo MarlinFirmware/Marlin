@@ -138,10 +138,12 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-  #define XPT2046_X_CALIBRATION            12033
-  #define XPT2046_Y_CALIBRATION            -9047
-  #define XPT2046_X_OFFSET                   -30
-  #define XPT2046_Y_OFFSET                   254
+  #if DISABLED(KINGROON_KP3)
+    #define XPT2046_X_CALIBRATION            12033
+    #define XPT2046_Y_CALIBRATION            -9047
+    #define XPT2046_X_OFFSET                   -30
+    #define XPT2046_Y_OFFSET                   254
+  #endif
 
 #if ENABLED(FSMC_GRAPHICAL_TFT)
 
