@@ -1,0 +1,16 @@
+1. In the firmware download there is a folder called "LCD Firmware". Open that folder and then open the folder labeled "Ender 3 V2"
+
+2. In there is a ZIP file called "Ender3_V2_LCDUpdate_TH3D_X.X". Extract the DWIN_SET folder to a blank, FAT32 formatted MicroSD card.
+NOTE: The files must be in a folder called "DWIN_SET". If they are not the firmware will not update.
+
+3. Power the printer off and remove the LCD from its snap on bracket.
+
+4. On the rear of the Ender 3 V2 LCD there is a SD slot that you access by removing the 4 screws on the rear of the casing.
+
+5. Insert the MicroSD card with the files on it into the LCD.
+
+6. With the LCD cable connected to the printer and the MicroSD card inserted into the rear of the LCD turn on the printer. You will see the LCD change from black to blue to orange. Wait 30 seconds after it turns orange and then power off the printer.
+
+7. Remove the MicroSD card and re-assemble the LCD
+
+8. Turn the printer on. You should see our logo and the Marlin logo when you power on if the firmware updated successfully
