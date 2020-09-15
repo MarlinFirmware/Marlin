@@ -3514,14 +3514,6 @@
   //#define SERVICE_INTERVAL_3    1 // print hours
 #endif
 
-// @section homing
-/**
- * Turn off probe z sanity checks
- * If you are using a CNC and you get Probe::probe_down_to_z SLOW Probe fail! errors,
- * setting this value to false will prevent the error by disabling the probe sanity check.
- */
-//#define PROBE_SANITY_CHECK false
-
 // @section develop
 
 //
