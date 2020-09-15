@@ -361,7 +361,7 @@
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
-  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11)
+  #if NONE(SKR13, SKR14, SKR14Turbo, SKRPRO11, SKRMiniE3V2)
     #define Y_STOP_PIN 14
     #define X_STOP_PIN 3
   #endif
@@ -2953,9 +2953,9 @@
   #define MKS_MINI_12864
 #elif ENABLED(MachineEnder3V2)
   #define DWIN_CREALITY_LCD
-#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427) && DISABLED(GraphicLCD)
+#elif ANY(OrigLCD, MachineCR10Orig, MachineEnder3Pro422, MachineEnder3Pro427, SKRMiniE3V2) && DISABLED(GraphicLCD)
   #define CR10_STOCKDISPLAY
-#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig) || ENABLED(GraphicLCD)
+#elif NONE(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max, OrigLCD, MachineCR10Orig, SKRMiniE3V2) || ENABLED(GraphicLCD)
   #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #endif
 //
@@ -3244,7 +3244,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && (DISABLED(GraphicLCD) || ANY(Force10SProDisplay, ForceCRXDisplay))
+#if ANY(MachineCR10SPro, MachineCRX, MachineEnder5Plus, MachineCR10Max) && (NONE(GraphicLCD, SKRMiniE3V2) || ANY(Force10SProDisplay, ForceCRXDisplay))
   #define EXTENSIBLE_UI
 #endif
 
