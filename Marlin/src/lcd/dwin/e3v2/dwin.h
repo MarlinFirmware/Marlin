@@ -258,11 +258,11 @@ typedef struct {
     bool leveling_offset_flag:1;
   #endif
   #if HAS_FAN
-    char feedspeed_flag;
+    AxisEnum feedspeed_flag;
   #endif
-  char acc_flag;
-  char jerk_flag;
-  char step_flag;
+  AxisEnum acc_flag;
+  AxisEnum jerk_flag;
+  AxisEnum step_flag;
 } HMI_Flag;
 
 extern HMI_value_t HMI_ValueStruct;
