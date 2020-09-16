@@ -437,16 +437,16 @@ void Draw_Popup_Bkgd_105(void) {
 }
 
 inline void Draw_More_Icon(const uint8_t line) {
-  DWIN_ICON_Show(ICON, ICON_More, 226, 46 + line * MLINE);
+  DWIN_ICON_Show(ICON, ICON_More, 226, MBASE(line) - 3);
 }
 
 inline void Draw_Menu_Cursor(const uint8_t line) {
-  // DWIN_ICON_Show(ICON,ICON_Rectangle, 0, 31 + line * MLINE);
-  DWIN_Draw_Rectangle(1, Rectangle_Color, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
+  // DWIN_ICON_Show(ICON,ICON_Rectangle, 0, MBASE(line) - 18);
+  DWIN_Draw_Rectangle(1, Rectangle_Color, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 }
 
 inline void Erase_Menu_Cursor(const uint8_t line) {
-  DWIN_Draw_Rectangle(1, Background_black, 0, 31 + line * MLINE, 14, 31 + (line + 1) * MLINE - 2);
+  DWIN_Draw_Rectangle(1, Background_black, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 }
 
 inline void Move_Highlight(const int16_t from, const uint16_t newline) {
@@ -456,7 +456,7 @@ inline void Move_Highlight(const int16_t from, const uint16_t newline) {
 
 inline void Add_Menu_Line() {
   Move_Highlight(1, MROWS);
-  DWIN_Draw_Line(Line_Color, 16, 82 + MROWS * MLINE, 256, 83 + MROWS * MLINE);
+  DWIN_Draw_Line(Line_Color, 16, MBASE(MROWS + 1) - 20, 256, MBASE(MROWS + 1) - 19);
 }
 
 inline void Scroll_Menu(const uint8_t dir) {
@@ -472,17 +472,17 @@ inline uint16_t nr_sd_menu_items() {
 }
 
 inline void Draw_Menu_Icon(const uint8_t line, const uint8_t icon) {
-  DWIN_ICON_Show(ICON, icon, 26, 46 + line * MLINE);
+  DWIN_ICON_Show(ICON, icon, 26, MBASE(line) - 3);
 }
 
 inline void Erase_Menu_Text(const uint8_t line) {
-  DWIN_Draw_Rectangle(1, Background_black, LBLX, 31 + line * MLINE + 4, 271, 28 + (line + 1) * MLINE - 4);
+  DWIN_Draw_Rectangle(1, Background_black, LBLX, MBASE(line) - 14, 271, MBASE(line) + 28);
 }
 
 inline void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr) {
-  if (label) DWIN_Draw_String(false, false, font8x16, White, Background_black, LBLX, 48 + line * MLINE, (char*)label);
+  if (label) DWIN_Draw_String(false, false, font8x16, White, Background_black, LBLX, MBASE(line) - 1, (char*)label);
   if (icon) Draw_Menu_Icon(line, icon);
-  DWIN_Draw_Line(Line_Color, 16, 29 + (line + 1) * MLINE, 256, 30 + (line + 1) * MLINE);
+  DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
 
 // The "Back" label is always on the first line
@@ -2912,11 +2912,11 @@ inline void Draw_Max_Speed_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title("Max Speed (mm/s)"); // TODO: GET_TEXT_F
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 0), F("Max Feedrate X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 1), F("Max Feedrate Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 2), F("Max Feedrate Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Feedrate X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Feedrate Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Feedrate Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 3), F("Max Feedrate E"));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Feedrate E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Max Speed (mm/s)"
@@ -2974,11 +2974,11 @@ inline void Draw_Max_Accel_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_ACCELERATION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 0), F("Max Accel X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 1), F("Max Accel Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 2), F("Max Accel Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Accel X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Accel Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Accel Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 3), F("Max Accel E"));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Accel E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26);                  // "Acceleration"
@@ -3029,11 +3029,11 @@ inline void Draw_Max_Jerk_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_JERK));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 0), F("Max Jerk X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 1), F("Max Jerk Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 2), F("Max Jerk Z"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Jerk X"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Jerk Y"));
+      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Jerk Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, 102 + (MLINE * 3), F("Max Jerk E"));
+        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Jerk E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Jerk"
