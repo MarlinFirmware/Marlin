@@ -693,12 +693,13 @@ static void quick_feedback() {
   #endif
 }
 
+#define CUR_STEP_VALUE_WIDTH 104
 static void drawCurStepValue() {
   tft_string.set((uint8_t *)ftostr52sp(motionAxisState.currentStepSize));
   tft_string.add("mm");
-  tft.canvas(motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, tft_string.width(), BTN_HEIGHT);
+  tft.canvas(motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_text(0, 0, COLOR_AXIS_HOMED, tft_string);
+  tft.add_text(tft_string.center(CUR_STEP_VALUE_WIDTH), 0, COLOR_AXIS_HOMED, tft_string);
 }
 
 static void drawCurZSelection() {
@@ -724,7 +725,7 @@ static void drawCurESelection() {
 }
 
 static void drawMessage(const char *msg) {
-  tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, (TFT_HEIGHT - X_MARGIN * 2) / 2, 34);
+  tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - 34, TFT_HEIGHT / 2 - X_MARGIN - 5, 34);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_YELLOW, msg);
 }
@@ -759,7 +760,7 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     return;
   }
 
-  const float diff = motionAxisState.currentStepSize * direction; //float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
+  const float diff = motionAxisState.currentStepSize * direction;
 
   if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
@@ -916,6 +917,11 @@ static void z_select() {
   drawAxisValue(Z_AXIS);
 }
 
+static void disable_steppers() {
+  quick_feedback();
+  queue.inject_P(PSTR("M84"));
+}
+
 static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage img, uint16_t bgColor, uint16_t fgColor = COLOR_BLACK) {
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
@@ -926,15 +932,20 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   tft.set_background(COLOR_BACKGROUND);
   tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
-  tft.set_font(Helvetica12Bold);
-  tft_string.set_font(Helvetica12Bold);
-  tft_string.set(label);
-  tft_string.trim();
-  tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
+  if (label != NULL) {
+    tft.set_font(Helvetica12Bold);
+    tft_string.set_font(Helvetica12Bold);
+    tft_string.set(label);
+    tft_string.trim();
+    tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
 
-  tft.queue.sync();
-  tft_string.set_font(Helvetica18);
-  tft.set_font(Helvetica18);
+    tft.queue.sync();
+    tft_string.set_font(Helvetica18);
+    tft.set_font(Helvetica18);
+  }
+  else {
+    tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
+  }
 
   touch.add_control(BUTTON, x, y, width, height, data);
 }
@@ -983,13 +994,16 @@ void MarlinUI::move_axis() {
   add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome);
 
   x += BTN_WIDTH + spacing;
+  uint16_t xplus_x = x;
   drawBtn(x, y, "X+", (int32_t)x_plus, imgRight, X_BTN_COLOR);
 
   x += BTN_WIDTH + spacing;
   motionAxisState.zTypePos.x = x;
   motionAxisState.zTypePos.y = y;
   drawCurZSelection();
-  touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (int32_t)z_select);
+  #if HAS_BED_PROBE
+    touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (int32_t)z_select);
+  #endif
 
   // ROW 3 -> E- CurX Y-  Z-
   y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
@@ -1019,13 +1033,16 @@ void MarlinUI::move_axis() {
   motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
   drawAxisValue(Z_AXIS);
 
-  // ROW 4 -> step_size    Back
+  // ROW 4 -> step_size  disable steppers back
   y = TFT_HEIGHT - Y_MARGIN - 32; //
-  x = (TFT_WIDTH - X_MARGIN * 2) / 2;
+  x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
   motionAxisState.stepValuePos.x = x;
   motionAxisState.stepValuePos.y = y;
   drawCurStepValue();
-  touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, tft_string.width(), BTN_HEIGHT, (int32_t)step_size);
+  touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (int32_t)step_size);
+
+  // alinged with x+
+  drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (int32_t)disable_steppers, imgCancel, COLOR_WHITE);
 
   add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack);
 }
