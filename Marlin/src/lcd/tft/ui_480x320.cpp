@@ -656,10 +656,14 @@ void menu_item(const uint8_t row, bool sel ) {
 }
 
 #include "../../module/probe.h"
+
+#define Z_SELECTION_Z 1
+#define Z_SELECTION_Z_PROBE -1
+
 struct MotionAxisState {
   xy_int_t xValuePos, yValuePos, zValuePos, eValuePos, stepValuePos, zTypePos, eNamePos;
   float currentStepSize = 10.0;
-  int z_selection = 1;
+  int z_selection = Z_SELECTION_Z;
   uint8_t e_selection = 0;
   bool homming = false;
   bool blocked = false;
@@ -706,7 +710,7 @@ static void drawCurZSelection() {
   tft_string.set("Offset");
   tft.canvas(motionAxisState.zTypePos.x, motionAxisState.zTypePos.y + 34, tft_string.width(), 34);
   tft.set_background(COLOR_BACKGROUND);
-  if (motionAxisState.z_selection < 0) {
+  if (motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
     tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
   }
 }
@@ -726,10 +730,12 @@ static void drawMessage(const char *msg) {
 }
 
 static void drawAxisValue(AxisEnum axis) {
-  const float value = NATIVE_TO_LOGICAL(
-    ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
-    axis
-  );
+  const float value = axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ?
+    probe.offset.z :
+    NATIVE_TO_LOGICAL(
+      ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+      axis
+    );
   xy_int_t pos;
   uint16_t color;
   switch (axis) {
@@ -743,8 +749,6 @@ static void drawAxisValue(AxisEnum axis) {
   tft.set_background(COLOR_BACKGROUND);
   tft_string.set(ftostr52sp(value));
   tft.add_text(0, 0, color, tft_string);
-
-  //TODO: handle draw z offset
 }
 
 static void moveAxis(AxisEnum axis, const int8_t direction) {
@@ -752,6 +756,30 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
 
   if (axis == E_AXIS && thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
     drawMessage("Too cold");
+    return;
+  }
+
+  const float diff = motionAxisState.currentStepSize * direction; //float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
+
+  if (axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE) {
+    #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
+     //SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+    #elif HAS_BED_PROBE
+      // only change probe.offset.z
+      probe.offset.z += diff;
+      if (direction < 0 && current_position[axis] < Z_PROBE_OFFSET_RANGE_MIN) {
+        current_position[axis] = Z_PROBE_OFFSET_RANGE_MIN;
+        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+      }
+      else if (direction > 0 && current_position[axis] > Z_PROBE_OFFSET_RANGE_MAX) {
+        current_position[axis] = Z_PROBE_OFFSET_RANGE_MAX;
+        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+      }
+      else {
+        drawMessage(""); // clear the error
+      }
+      drawAxisValue(axis);
+    #endif
     return;
   }
 
@@ -788,7 +816,6 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
     #endif
 
     // Get the new position
-    const float diff = motionAxisState.currentStepSize * direction; //float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
     #if IS_KINEMATIC
       ui.manual_move.offset += diff;
       if (direction < 0)
