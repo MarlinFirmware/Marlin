@@ -546,6 +546,7 @@ inline void Draw_Back_First(const bool is_sel=true) {
 #define PREHEAT_CASE_BED  (PREHEAT_CASE_TEMP + ENABLED(HAS_HEATED_BED))
 #define PREHEAT_CASE_FAN  (PREHEAT_CASE_BED + ENABLED(HAS_FAN))
 #define PREHEAT_CASE_SAVE (PREHEAT_CASE_FAN + ENABLED(EEPROM_SETTINGS))
+#define PREHEAT_CASE_TOTAL PREHEAT_CASE_SAVE
 
 //
 // Draw Menus
@@ -2632,7 +2633,7 @@ void HMI_AxisMove(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_axis.inc(4 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_axis.now);
+    if (select_axis.inc(3 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_axis.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_axis.dec()) Move_Highlight(-1, select_axis.now);
@@ -3125,7 +3126,7 @@ void HMI_Motion(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_motion.inc(4)) Move_Highlight(1, select_motion.now);
+    if (select_motion.inc(MOTION_CASE_TOTAL)) Move_Highlight(1, select_motion.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_motion.dec()) Move_Highlight(-1, select_motion.now);
@@ -3276,7 +3277,7 @@ void HMI_PLAPreheatSetting(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_PLA.inc(4)) Move_Highlight(1, select_PLA.now);
+    if (select_PLA.inc(PREHEAT_CASE_TOTAL)) Move_Highlight(1, select_PLA.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_PLA.dec()) Move_Highlight(-1, select_PLA.now);
@@ -3332,7 +3333,7 @@ void HMI_ABSPreheatSetting(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_ABS.inc(4)) Move_Highlight(1, select_ABS.now);
+    if (select_ABS.inc(PREHEAT_CASE_TOTAL)) Move_Highlight(1, select_ABS.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_ABS.dec()) Move_Highlight(-1, select_ABS.now);
@@ -3388,7 +3389,7 @@ void HMI_MaxSpeed(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_speed.inc(4)) Move_Highlight(1, select_speed.now);
+    if (select_speed.inc(3 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_speed.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_speed.dec()) Move_Highlight(-1, select_speed.now);
@@ -3417,7 +3418,7 @@ void HMI_MaxAcceleration(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_acc.inc(4)) Move_Highlight(1, select_acc.now);
+    if (select_acc.inc(3 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_acc.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_acc.dec()) Move_Highlight(-1, select_acc.now);
@@ -3447,7 +3448,7 @@ void HMI_MaxAcceleration(void) {
 
     // Avoid flicker by updating only the previous menu
     if (encoder_diffState == ENCODER_DIFF_CW) {
-      if (select_jerk.inc(4)) Move_Highlight(1, select_jerk.now);
+      if (select_jerk.inc(3 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_jerk.now);
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
       if (select_jerk.dec()) Move_Highlight(-1, select_jerk.now);
@@ -3477,7 +3478,7 @@ void HMI_Step(void) {
 
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_step.inc(4)) Move_Highlight(1, select_step.now);
+    if (select_step.inc(3 + ENABLED(HAS_HOTEND))) Move_Highlight(1, select_step.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW) {
     if (select_step.dec()) Move_Highlight(-1, select_step.now);
