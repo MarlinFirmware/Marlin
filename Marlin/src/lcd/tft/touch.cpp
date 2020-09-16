@@ -258,7 +258,7 @@ void Touch::touch(touch_control_t *control) {
     #endif
 
     case MOVE_AXIS:
-      ui.goto_screen((screenFunc_t)ui.move_axis);
+      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
       break;
 
     // TODO: TOUCH could receive data to pass to the callback

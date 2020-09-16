@@ -975,7 +975,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   touch.add_control(BUTTON, x, y, width, height, data);
 }
 
-void MarlinUI::move_axis() {
+void MarlinUI::move_axis_screen() {
   // Reset
   motionAxisState.blocked = false;
   touch.enable();

@@ -683,7 +683,7 @@ public:
   #endif
 
   #if HAS_GRAPHICAL_TFT
-    static void move_axis();
+    static void move_axis_screen();
   #endif
 
 private:
