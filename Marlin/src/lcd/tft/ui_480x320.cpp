@@ -797,10 +797,17 @@ static void moveAxis(AxisEnum axis, const int8_t direction) {
         NOMORE(ui.manual_move.offset, max - current_position[axis]);
     #else
       current_position[axis] += diff;
-      if (direction < 0)
-        NOLESS(current_position[axis], min);
-      else
-        NOMORE(current_position[axis], max);
+      if (direction < 0 && current_position[axis] < min) {
+        current_position[axis] = min;
+        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+      }
+      else if (direction > 0 && current_position[axis] > max) {
+        current_position[axis] = max;
+        drawMessage(GET_TEXT(MSG_LCD_SOFT_ENDSTOPS));
+      }
+      else {
+        drawMessage(""); // clear the error
+      }
     #endif
 
     ui.manual_move.soon(axis
