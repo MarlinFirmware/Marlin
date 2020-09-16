@@ -2013,7 +2013,7 @@ void HMI_SelectFile(void) {
     if (select_file.inc(fullCnt)) {
       const uint8_t itemnum = select_file.now - 1;              // -1 for "Back"
       if (TERN0(SCROLL_LONG_FILENAMES, shift_ms)) {             // If line was shifted
-        Erase_Menu_Text(select_file.now - 1 + MROWS - index_file); // Erase and
+        Erase_Menu_Text(itemnum + MROWS - index_file);          // Erase and
         Draw_SDItem(itemnum - 1);                               // redraw
       }
       if (select_file.now > MROWS && select_file.now > index_file) { // Cursor past the bottom
