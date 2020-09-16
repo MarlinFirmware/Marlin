@@ -223,7 +223,7 @@ namespace ExtUI {
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      return thermalManager.hotend_idle[extruder - E0].timed_out;
+      return thermalManager.heater_idle[extruder - E0].timed_out;
     #else
       UNUSED(extruder);
       return false;
@@ -233,10 +233,10 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.bed_idle.timed_out);
+        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
         TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
         default:
-          return TERN0(HAS_HOTEND, thermalManager.hotend_idle[heater - H0].timed_out);
+          return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
     #else
       UNUSED(heater);
@@ -544,11 +544,13 @@ namespace ExtUI {
 
   void setAxisSteps_per_mm(const float value, const axis_t axis) {
     planner.settings.axis_steps_per_mm[axis] = value;
+    planner.refresh_positioning();
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
+    planner.refresh_positioning();
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -580,11 +582,13 @@ namespace ExtUI {
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
+    planner.reset_acceleration_rates();
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
+    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -755,7 +759,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
+      babystep.add_mm(Z_AXIS, value - getZOffset_mm());
     #else
       UNUSED(value);
     #endif
@@ -864,7 +868,7 @@ namespace ExtUI {
     }
 
     void startPIDTune(const float temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, (heater_ind_t)tool, 8, true);
+      thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
 
@@ -1003,7 +1007,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(pos);
+      card.getfilename_sorted(SD_ORDER(pos, count()));
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);

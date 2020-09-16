@@ -536,10 +536,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("УТЕЧКА ТЕПЛА КАМЕРЫ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Ошибка: Т макс.");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Ошибка: Т мин.");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Ошибка: Т стола макс");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Ошибка: Т стола мин.");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Ошибка:Т камеры макс");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Ошибка:Т камеры мин.");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("ПРИНТЕР ОСТАНОВЛЕН");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Сделайте сброс");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("д"); // One character only
@@ -640,7 +636,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("До конца, мм");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Ошибка парковки");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Ошибка зондирования");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Низкая Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ВЫБИРЕТЕ ФИЛАМЕНТ");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Настройки MMU");

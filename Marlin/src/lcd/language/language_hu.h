@@ -445,10 +445,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("KAMRA FÜTÉS KIMARADÁS");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Hiba: MAX Höfok");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Hiba: MIN Höfok");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Hiba: MAX ÁGY HÖFOK");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Hiba: MIN ÁGY HÖFOK");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Hiba: MAX KAMRA HÖFOK");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Hiba: MIN KAMRA HÖFOK");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("A NYOMTATÓ LEFAGYOTT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Indítsd újra!");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n"); // Csak egy karakter
@@ -528,7 +524,6 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Túlfutás Táv. mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Tájolási hiba");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Szondázás hiba");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Túl hideg");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SZÁLVÁLASZTÁS");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

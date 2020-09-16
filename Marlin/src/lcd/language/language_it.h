@@ -46,6 +46,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media inserito");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media rimosso");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Aspettando media");
+  PROGMEM Language_Str MSG_SD_INIT_FAIL                    = _UxGT("Inizial.SD fallita");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Err.leggendo media");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Dispos.USB rimosso");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("Avvio USB fallito");
@@ -221,6 +222,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Viola");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Bianco");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Predefinito");
+  PROGMEM Language_Str MSG_LED_CHANNEL_N                   = _UxGT("Canale =");
+  PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Luci #2");
+  PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Luce #2 Presets");
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Luminosità");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Luci personalizzate");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Intensità rosso");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Intensità verde");
@@ -452,10 +457,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("T.CAMERA FUORI CTRL");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: TEMP MASSIMA");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: TEMP MINIMA");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: TEMP MAX PIATTO");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: TEMP MIN PIATTO");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: TEMP MAX CAMERA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: TEMP MIN CAMERA");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("STAMPANTE FERMATA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Riavviare prego");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("g"); // Un solo carattere
@@ -465,6 +466,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Raffreddamento..");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Risc. piatto...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Raffr. piatto...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Risc. sonda...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Raffr. sonda...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Risc. camera...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Raffr. camera...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibraz. Delta");
@@ -535,7 +538,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm filo term.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Home fallito");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondaggio fallito");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600:Troppo freddo");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SCELTA FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -585,6 +587,17 @@ namespace Language_it {
 
   PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Indice pag. errato");
   PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Vel. pag. errata");
+
+  PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Modif.password");
+  PROGMEM Language_Str MSG_LOGIN_REQUIRED                  = _UxGT("Login richiesto");
+  PROGMEM Language_Str MSG_PASSWORD_SETTINGS               = _UxGT("Impostaz.password");
+  PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Inserisci cifra");
+  PROGMEM Language_Str MSG_CHANGE_PASSWORD                 = _UxGT("Imp./Modif.password");
+  PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Elimina password");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("La password è ");
+  PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Ricominciare");
+  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Ricordati di mem.!");
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Password eliminata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe

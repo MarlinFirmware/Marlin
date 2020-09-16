@@ -530,10 +530,6 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ВИТІК ТЕПЛА КАМЕРИ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("ПЕРЕГРІВ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE;
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("ПЕРЕГРІВ СТОЛУ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" СТОЛУ");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("ПЕРЕГРІВ КАМЕРИ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" КАМЕРИ");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("ПРИНТЕР ЗУПИНЕНО");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Перезавантажте");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("д"); // One character only
@@ -650,7 +646,6 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Помилка паркування");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Помилка зондування");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: низька Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ОБЕРІТЬ ПРУТОК");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Налаштування MMU");

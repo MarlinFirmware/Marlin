@@ -108,7 +108,7 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
     SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
     dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
     return false;
-	}
+  }
 
   //Wait for DMA transaction to complete
   while ((DMA2_BASE->ISR & (DMA_ISR_TEIF4|DMA_ISR_TCIF4)) == 0 ) { /* wait */ }

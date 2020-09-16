@@ -441,10 +441,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("TEPLOTNÝ SKOK KOMO.");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Chyba: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Chyba: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Chyba: MAXTEMP PODL.");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Chyba: MINTEMP PODL.");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Chyba: MAXTEMP KOMO.");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Chyba: MINTEMP KOMO.");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("TLAČIAREŇ ZASTAVENÁ");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reštartuje ju");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");
@@ -525,7 +521,6 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Vzd. mm fil. senz.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Parkovanie zlyhalo");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Kalibrácia zlyhala");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Príliš studený");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("VYBERTE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU2");

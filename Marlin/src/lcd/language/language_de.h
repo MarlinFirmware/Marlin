@@ -452,10 +452,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("GEH.") " " LCD_STR_THERMOMETER _UxGT(" NICHT ERREICHT");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = " " LCD_STR_THERMOMETER _UxGT(" ÜBERSCHRITTEN");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = " " LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" ÜBERSCHRITTEN");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("BETT ") LCD_STR_THERMOMETER _UxGT(" UNTERSCHRITTEN");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err:Gehäuse max Temp");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err:Gehäuse min Temp");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("DRUCKER GESTOPPT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Bitte neustarten");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("t"); // One character only
@@ -536,7 +532,6 @@ namespace Language_de {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout-Weg mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing gescheitert");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing gescheitert");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: zu kalt");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("FILAMENT WÄHLEN");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

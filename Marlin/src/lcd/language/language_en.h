@@ -457,10 +457,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("CHAMBER T. RUNAWAY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: MAXTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: MINTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP CHAMBER");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP CHAMBER");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER HALTED");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Please Reset");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -470,6 +466,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Cooling...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Bed Heating...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Bed Cooling...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Probe Heating...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Probe Cooling...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chamber Heating...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Chamber Cooling...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Calibration");
@@ -541,7 +539,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
