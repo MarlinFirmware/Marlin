@@ -39,10 +39,10 @@
  * Some of the LCD interfaces/adapters result in the LCD SPI and the SD card
  * SPI sharing pins. The SCK, MOSI & MISO pins can NOT be set/cleared with
  * WRITE nor digitalWrite when the hardware SPI module within the LPC17xx is
- * active.  If any of these pins are shared then the software SPI must be used.
+ * active. If any of these pins are shared then the software SPI must be used.
  *
- * A more sophisticated hardware SPI can be found at the following link.  This
- * implementation has not been fully debugged.
+ * A more sophisticated hardware SPI can be found at the following link.
+ * This implementation has not been fully debugged.
  * https://github.com/MarlinFirmware/Marlin/tree/071c7a78f27078fd4aee9a3ef365fcf5e143531e
  */
 
@@ -170,34 +170,20 @@ static inline void waitSpiTxEnd(LPC_SSP_TypeDef *spi_d) {
   while (SSP_GetStatus(spi_d, SSP_STAT_BUSY) == SET) { /* nada */ }     // wait until BSY=0
 }
 
+// Retain the pin init state of the SPI, to avoid init more than once,
+// even if more instances of SPIClass exist
+static bool spiInitialised[BOARD_NR_SPI] = { false };
+
 SPIClass::SPIClass(uint8_t device) {
   // Init things specific to each SPI device
   // clock divider setup is a bit of hack, and needs to be improved at a later date.
 
-  PINSEL_CFG_Type PinCfg;  // data structure to hold init values
   #if BOARD_NR_SPI >= 1
     _settings[0].spi_d = LPC_SSP0;
     _settings[0].dataMode = SPI_MODE0;
     _settings[0].dataSize = DATA_SIZE_8BIT;
     _settings[0].clock = SPI_CLOCK_MAX;
-    // _settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI1_SCK_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_INPUT(BOARD_SPI1_MISO_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI1_MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI1_MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI1_MOSI_PIN);
+    //_settings[0].clockDivider = determine_baud_rate(_settings[0].spi_d, _settings[0].clock);
   #endif
 
   #if BOARD_NR_SPI >= 2
@@ -205,34 +191,53 @@ SPIClass::SPIClass(uint8_t device) {
     _settings[1].dataMode = SPI_MODE0;
     _settings[1].dataSize = DATA_SIZE_8BIT;
     _settings[1].clock = SPI_CLOCK_MAX;
-    // _settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
-    PinCfg.Funcnum = 2;
-    PinCfg.OpenDrain = 0;
-    PinCfg.Pinmode = 0;
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_SCK_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_SCK_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI2_SCK_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MISO_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MISO_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_INPUT(BOARD_SPI2_MISO_PIN);
-
-    PinCfg.Pinnum = LPC176x::pin_bit(BOARD_SPI2_MOSI_PIN);
-    PinCfg.Portnum = LPC176x::pin_port(BOARD_SPI2_MOSI_PIN);
-    PINSEL_ConfigPin(&PinCfg);
-    SET_OUTPUT(BOARD_SPI2_MOSI_PIN);
+    //_settings[1].clockDivider = determine_baud_rate(_settings[1].spi_d, _settings[1].clock);
   #endif
 
   setModule(device);
 
-  /* Initialize GPDMA controller */
-  //TODO: call once in the constructor? or each time?
+  // Init the GPDMA controller
+  // TODO: call once in the constructor? or each time?
   GPDMA_Init();
 }
 
 void SPIClass::begin() {
+  // Init the SPI pins in the first begin call
+  if ((_currentSetting->spi_d == LPC_SSP0 && spiInitialised[0] == false) ||
+      (_currentSetting->spi_d == LPC_SSP1 && spiInitialised[1] == false)) {
+    pin_t sck, miso, mosi;
+    if (_currentSetting->spi_d == LPC_SSP0) {
+      sck = BOARD_SPI1_SCK_PIN;
+      miso = BOARD_SPI1_MISO_PIN;
+      mosi = BOARD_SPI1_MOSI_PIN;
+      spiInitialised[0] = true;
+    }
+    else if (_currentSetting->spi_d == LPC_SSP1) {
+      sck = BOARD_SPI2_SCK_PIN;
+      miso = BOARD_SPI2_MISO_PIN;
+      mosi = BOARD_SPI2_MOSI_PIN;
+      spiInitialised[1] = true;
+    }
+    PINSEL_CFG_Type PinCfg;  // data structure to hold init values
+    PinCfg.Funcnum = 2;
+    PinCfg.OpenDrain = 0;
+    PinCfg.Pinmode = 0;
+    PinCfg.Pinnum = LPC176x::pin_bit(sck);
+    PinCfg.Portnum = LPC176x::pin_port(sck);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(sck);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(miso);
+    PinCfg.Portnum = LPC176x::pin_port(miso);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_INPUT(miso);
+
+    PinCfg.Pinnum = LPC176x::pin_bit(mosi);
+    PinCfg.Portnum = LPC176x::pin_port(mosi);
+    PINSEL_ConfigPin(&PinCfg);
+    SET_OUTPUT(mosi);
+  }
+
   updateSettings();
   SSP_Cmd(_currentSetting->spi_d, ENABLE);  // start SSP running
 }
@@ -246,7 +251,7 @@ void SPIClass::beginTransaction(const SPISettings &cfg) {
 }
 
 uint8_t SPIClass::transfer(const uint16_t b) {
-  /* send and receive a single byte */
+  // Send and receive a single byte
   SSP_ReceiveData(_currentSetting->spi_d); // read any previous data
   SSP_SendData(_currentSetting->spi_d, b);
   waitSpiTxEnd(_currentSetting->spi_d);  // wait for it to finish
@@ -254,8 +259,7 @@ uint8_t SPIClass::transfer(const uint16_t b) {
 }
 
 uint16_t SPIClass::transfer16(const uint16_t data) {
-  return (transfer((data >> 8) & 0xFF) << 8)
-       | (transfer(data & 0xFF) & 0xFF);
+  return (transfer((data >> 8) & 0xFF) << 8) | (transfer(data & 0xFF) & 0xFF);
 }
 
 void SPIClass::end() {
@@ -294,23 +298,23 @@ void SPIClass::dmaSend(void *buf, uint16_t length, bool minc) {
   // Enable dma on SPI
   SSP_DMACmd(_currentSetting->spi_d, SSP_DMA_TX, ENABLE);
 
-  // only increase memory if minc is true
+  // Only increase memory if minc is true
   GPDMACfg.MemoryIncrease = (minc ? GPDMA_DMACCxControl_SI : 0);
 
   // Setup channel with given parameter
   GPDMA_Setup(&GPDMACfg);
 
-  // enabled dma
+  // Enable DMA
   GPDMA_ChannelCmd(0, ENABLE);
 
-  // wait data transfer
+  // Wait for data transfer
   while (!GPDMA_IntGetStatus(GPDMA_STAT_RAWINTTC, 0) && !GPDMA_IntGetStatus(GPDMA_STAT_RAWINTERR, 0)) { }
 
-  // clear err and int
+  // Clear err and int
   GPDMA_ClearIntPending (GPDMA_STATCLR_INTTC, 0);
   GPDMA_ClearIntPending (GPDMA_STATCLR_INTERR, 0);
 
-  // dma disable
+  // Disable DMA
   GPDMA_ChannelCmd(0, DISABLE);
 
   waitSpiTxEnd(_currentSetting->spi_d);

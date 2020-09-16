@@ -352,7 +352,7 @@ void HMI_Tune(void);        // Adjust the menu
 
 void HMI_MaxSpeed(void);        // Maximum speed submenu
 void HMI_MaxAcceleration(void); // Maximum acceleration submenu
-void HMI_MaxJerk(void);         // Maximum corner speed submenu
+void HMI_MaxJerk(void);         // Maximum jerk speed submenu
 void HMI_Step(void);            // Transmission ratio
 
 void HMI_Init(void);
