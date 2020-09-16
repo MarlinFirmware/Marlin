@@ -714,7 +714,7 @@ inline void Draw_Control_Menu() {
     #if ENABLED(EEPROM_SETTINGS)
       DWIN_Frame_AreaCopy(1, 117, 104, 172, 116, LBLX, CLINE(CONTROL_CASE_SAVE)); // Store Config
       DWIN_Frame_AreaCopy(1, 174, 103, 229, 116, LBLX, CLINE(CONTROL_CASE_LOAD)); // Read Config
-      DWIN_Frame_AreaCopy(1,   1, 118, 56, 131, LBLX, CLINE(CONTROL_CASE_RESET)); // Reset Config
+      DWIN_Frame_AreaCopy(1,   1, 118,  56, 131, LBLX, CLINE(CONTROL_CASE_RESET)); // Reset Config
     #endif
 
     if (CVISI(CONTROL_CASE_INFO))
@@ -754,7 +754,7 @@ inline void Draw_Control_Menu() {
   #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_SetEndTemp + (N) - 1); }while(0)
 
   _TEMP_ICON(CONTROL_CASE_TEMP);
-  Draw_More_Icon(CSCROL(i));
+  if (CVISI(i)) Draw_More_Icon(CSCROL(i));
 
   _TEMP_ICON(CONTROL_CASE_MOVE);
   Draw_More_Icon(CSCROL(i));
@@ -2261,13 +2261,13 @@ inline void Draw_Move_Menu() {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_MOVE_AXIS));
     #else
-      DWIN_Frame_TitleCopy(1, 231, 2, 265, 12);              // "Move"
+      DWIN_Frame_TitleCopy(1, 231, 2, 265, 12);                     // "Move"
     #endif
     draw_move_en(MBASE(1)); say_x(36, MBASE(1));                    // "Move X"
     draw_move_en(MBASE(2)); say_y(36, MBASE(2));                    // "Move Y"
     draw_move_en(MBASE(3)); say_z(36, MBASE(3));                    // "Move Z"
     #if HAS_HOTEND
-      DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4)); // "Extruder"
+      DWIN_Frame_AreaCopy(1, 123, 192, 176, 202, LBLX, MBASE(4));   // "Extruder"
     #endif
   }
 
@@ -2334,7 +2334,7 @@ void HMI_Prepare(void) {
 
         if (index_prepare < 7) Draw_More_Icon(MROWS - index_prepare + 1);
 
-        if (index_prepare == 6) Prepare_Item_Move(0);
+             if (index_prepare == 6) Prepare_Item_Move(0);
         else if (index_prepare == 7) Prepare_Item_Disable(0);
         else if (index_prepare == 8) Prepare_Item_Home(0);
       }
@@ -2462,24 +2462,24 @@ void Draw_Temperature_Menu() {
         DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_ABS), F("ABS Preheat Settings"));
       #endif
     #else
-      DWIN_Frame_TitleCopy(1, 56, 16, 141, 28);                                              // "Temperature"
+      DWIN_Frame_TitleCopy(1, 56, 16, 141, 28);                                       // "Temperature"
       #if HAS_HOTEND
-        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX, MBASE(TEMP_CASE_TEMP));                   // Nozzle...
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 44, MBASE(TEMP_CASE_TEMP));        // ...Temperature
+        DWIN_Frame_AreaCopy(1, 197, 104, 238, 114, LBLX, MBASE(TEMP_CASE_TEMP));      // Nozzle...
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 44, MBASE(TEMP_CASE_TEMP));     // ...Temperature
       #endif
       #if HAS_HEATED_BED
-        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX, MBASE(TEMP_CASE_BED));                     // Bed...
-        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 27, MBASE(TEMP_CASE_BED));         // ...Temperature
+        DWIN_Frame_AreaCopy(1, 240, 104, 264, 114, LBLX, MBASE(TEMP_CASE_BED));       // Bed...
+        DWIN_Frame_AreaCopy(1, 1, 89, 83, 101, LBLX + 27, MBASE(TEMP_CASE_BED));      // ...Temperature
       #endif
       #if HAS_FAN
-        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX, MBASE(TEMP_CASE_FAN));                     // Fan speed
+        DWIN_Frame_AreaCopy(1, 0, 119, 64, 132, LBLX, MBASE(TEMP_CASE_FAN));          // Fan speed
       #endif
       #if HAS_HOTEND
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_PLA));                    // Preheat...
-        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(TEMP_CASE_PLA));                 // ...PLA
-        DWIN_Frame_AreaCopy(1, 131, 119, 182, 132, LBLX + 79, MBASE(TEMP_CASE_PLA));      // PLA setting
-        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_ABS));                    // Preheat...
-        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(TEMP_CASE_ABS));                 // ...ABS
+        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_PLA));         // Preheat...
+        DWIN_Frame_AreaCopy(1, 157, 76, 181, 86, LBLX + 52, MBASE(TEMP_CASE_PLA));    // ...PLA
+        DWIN_Frame_AreaCopy(1, 131, 119, 182, 132, LBLX + 79, MBASE(TEMP_CASE_PLA));  // PLA setting
+        DWIN_Frame_AreaCopy(1, 107, 76, 156, 86, LBLX, MBASE(TEMP_CASE_ABS));         // Preheat...
+        DWIN_Frame_AreaCopy(1, 172, 76, 198, 86, LBLX + 52, MBASE(TEMP_CASE_ABS));    // ...ABS
         DWIN_Frame_AreaCopy(1, 131, 119, 182, 132, LBLX + 81, MBASE(TEMP_CASE_ABS));  // ABS setting
       #endif
     #endif
@@ -2896,18 +2896,18 @@ inline void Draw_Max_Speed_Menu() {
     DWIN_Frame_TitleCopy(1, 1, 16, 28, 28); // "Max Speed (mm/s)"
 
     auto say_max_speed = [](const uint16_t row) {
-      DWIN_Frame_AreaCopy(1, 173, 133, 228, 147, LBLX, row);        // "Max speed"
+      DWIN_Frame_AreaCopy(1, 173, 133, 228, 147, LBLX, row);              // "Max speed"
     };
 
-    say_max_speed(MBASE(1));                                                // "Max speed"
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(1)); // X
-    say_max_speed(MBASE(2));                                                // "Max speed"
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(2) + 3); // Y
-    say_max_speed(MBASE(3));                                                // "Max speed"
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(3) + 3); // Z
+    say_max_speed(MBASE(1));                                              // "Max speed"
+    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 58, MBASE(1));      // X
+    say_max_speed(MBASE(2));                                              // "Max speed"
+    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 58, MBASE(2) + 3);      // Y
+    say_max_speed(MBASE(3));                                              // "Max speed"
+    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 58, MBASE(3) + 3);     // Z
     #if HAS_HOTEND
-      say_max_speed(MBASE(4));                                              // "Max speed"
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(4) + 3); // E
+      say_max_speed(MBASE(4));                                            // "Max speed"
+      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 58, MBASE(4) + 3);  // E
     #endif
   }
   else {
@@ -2982,7 +2982,7 @@ inline void Draw_Max_Accel_Menu() {
         DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Accel E"));
       #endif
     #else
-      DWIN_Frame_TitleCopy(1, 144, 16, 189, 26);                  // "Acceleration"
+      DWIN_Frame_TitleCopy(1, 144, 16, 189, 26);          // "Acceleration"
       draw_max_accel_en(MBASE(1)); say_x(108, MBASE(1));  // "Max Acceleration X"
       draw_max_accel_en(MBASE(2)); say_y(108, MBASE(2));  // "Max Acceleration Y"
       draw_max_accel_en(MBASE(3)); say_z(108, MBASE(3));  // "Max Acceleration Z"
