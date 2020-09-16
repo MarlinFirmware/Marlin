@@ -2921,21 +2921,21 @@ inline void Draw_Max_Speed_Menu() {
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Max Speed (mm/s)"
 
-      draw_max_en(MBASE(1));            // "Max"
+      draw_max_en(MBASE(1));          // "Max"
       DWIN_Frame_AreaCopy(1, 184, 119, 234, 132, LBLX + 27, MBASE(1)); // "Speed X"
 
-      draw_max_en(MBASE(2));            // "Max"
-      draw_speed_en(27, MBASE(2));  // "Speed"
-      say_y(70, MBASE(2));     // "Y"
+      draw_max_en(MBASE(2));          // "Max"
+      draw_speed_en(27, MBASE(2));    // "Speed"
+      say_y(70, MBASE(2));            // "Y"
 
-      draw_max_en(MBASE(3));            // "Max"
-      draw_speed_en(27, MBASE(3));  // "Speed"
-      say_z(70, MBASE(3));     // "Z"
+      draw_max_en(MBASE(3));          // "Max"
+      draw_speed_en(27, MBASE(3));    // "Speed"
+      say_z(70, MBASE(3));            // "Z"
 
       #if HAS_HOTEND
-        draw_max_en(MBASE(4));            // "Max"
+        draw_max_en(MBASE(4));        // "Max"
         draw_speed_en(27, MBASE(4));  // "Speed"
-        say_e(70, MBASE(4));     // "E"
+        say_e(70, MBASE(4));          // "E"
       #endif
     #endif
   }
@@ -2958,17 +2958,17 @@ inline void Draw_Max_Accel_Menu() {
 
     DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(1));
     DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(1) + 1);
-    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(1)); // max acceleration X
+    DWIN_Frame_AreaCopy(1, 229, 133, 236, 147, LBLX + 71, MBASE(1));   // Max acceleration X
     DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(2));
     DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(2) + 1);
-    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 71, MBASE(2) + 2); // max acceleration Y
+    DWIN_Frame_AreaCopy(1, 1, 150, 7, 160, LBLX + 71, MBASE(2) + 2);   // Max acceleration Y
     DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(3));
     DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(3) + 1);
-    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 71, MBASE(3) + 2); // max acceleration Z
+    DWIN_Frame_AreaCopy(1, 9, 150, 16, 160, LBLX + 71, MBASE(3) + 2);  // Max acceleration Z
     #if HAS_HOTEND
       DWIN_Frame_AreaCopy(1, 173, 133, 200, 147, LBLX, MBASE(4));
       DWIN_Frame_AreaCopy(1, 28, 149, 69, 161, LBLX + 27, MBASE(4) + 1);
-      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 71, MBASE(4) + 2); // max acceleration E
+      DWIN_Frame_AreaCopy(1, 18, 150, 25, 160, LBLX + 71, MBASE(4) + 2); // Max acceleration E
     #endif
   }
   else {
@@ -3120,40 +3120,42 @@ inline void Draw_Steps_Menu() {
 
 /* Motion */
 void HMI_Motion(void) {
-   ENCODER_DiffState encoder_diffState = get_encoder_state();
-   if (encoder_diffState == ENCODER_DIFF_NO) return;
+  ENCODER_DiffState encoder_diffState = get_encoder_state();
+  if (encoder_diffState == ENCODER_DIFF_NO) return;
 
-   // Avoid flicker by updating only the previous menu
-   if (encoder_diffState == ENCODER_DIFF_CW) {
-     if (select_motion.inc(4)) Move_Highlight(1, select_motion.now);
-   }
-   else if (encoder_diffState == ENCODER_DIFF_CCW) {
-     if (select_motion.dec()) Move_Highlight(-1, select_motion.now);
-   }
-   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-     switch (select_motion.now) {
-       case 0: // Back
-         checkkey = Control;
-         select_control.set(CONTROL_CASE_MOVE);
-         index_control = MROWS;
-         Draw_Control_Menu();
-         break;
-       case MOTION_CASE_RATE:   // Max speed
-         checkkey = MaxSpeed;
-         select_speed.reset();
-         Draw_Max_Speed_Menu();
-         break;
-       case MOTION_CASE_ACCEL:  // Max acceleration
-         checkkey = MaxAcceleration;
-         select_acc.reset();
-         Draw_Max_Accel_Menu();
-         break;
-       case MOTION_CASE_JERK:   // Max jerk
-         checkkey = MaxJerk;
-         select_jerk.reset();
-         Draw_Max_Jerk_Menu();
+  // Avoid flicker by updating only the previous menu
+  if (encoder_diffState == ENCODER_DIFF_CW) {
+    if (select_motion.inc(4)) Move_Highlight(1, select_motion.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_CCW) {
+    if (select_motion.dec()) Move_Highlight(-1, select_motion.now);
+  }
+  else if (encoder_diffState == ENCODER_DIFF_ENTER) {
+    switch (select_motion.now) {
+      case 0: // Back
+        checkkey = Control;
+        select_control.set(CONTROL_CASE_MOVE);
+        index_control = MROWS;
+        Draw_Control_Menu();
         break;
-      case MOTION_CASE_STEPS:   // Steps per mm
+      case MOTION_CASE_RATE:   // Max speed
+        checkkey = MaxSpeed;
+        select_speed.reset();
+        Draw_Max_Speed_Menu();
+        break;
+      case MOTION_CASE_ACCEL:  // Max acceleration
+        checkkey = MaxAcceleration;
+        select_acc.reset();
+        Draw_Max_Accel_Menu();
+        break;
+      #if HAS_CLASSIC_JERK
+        case MOTION_CASE_JERK: // Max jerk
+          checkkey = MaxJerk;
+          select_jerk.reset();
+          Draw_Max_Jerk_Menu();
+         break;
+      #endif
+      case MOTION_CASE_STEPS:  // Steps per mm
         checkkey = Step;
         select_step.reset();
         Draw_Steps_Menu();
