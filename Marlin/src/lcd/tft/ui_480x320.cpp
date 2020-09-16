@@ -947,11 +947,13 @@ static void disable_steppers() {
   queue.inject_P(PSTR("M84"));
 }
 
-static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage img, uint16_t bgColor, uint16_t fgColor = COLOR_BLACK) {
+static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage img, uint16_t bgColor, bool enabled = true) {
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
 
   tft.queue.sync(); //need sync to change font
+
+  if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
   tft.canvas(x, y, width, height);
   tft.set_background(COLOR_BACKGROUND);
@@ -972,7 +974,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
   }
 
-  touch.add_control(BUTTON, x, y, width, height, data);
+  if (enabled) touch.add_control(BUTTON, x, y, width, height, data);
 }
 
 void MarlinUI::move_axis_screen() {
@@ -984,14 +986,19 @@ void MarlinUI::move_axis_screen() {
 
   TERN_(TOUCH_SCREEN, touch.clear());
 
+  const bool busy = printingIsActive();
+
+  // if we have baby step and we are printing, select baby step
+  if (busy && ENABLED(BABYSTEP_ZPROBE_OFFSET)) motionAxisState.z_selection = Z_SELECTION_Z_PROBE;
+
   // ROW 1 -> E- Y- CurY Z+
   int x = X_MARGIN, y = Y_MARGIN, spacing = 0;
 
-  drawBtn(x, y, "E+", (int32_t)e_plus, imgUp, E_BTN_COLOR);
+  drawBtn(x, y, "E+", (int32_t)e_plus, imgUp, E_BTN_COLOR, !busy);
 
   spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "Y+", (int32_t)y_plus, imgUp, Y_BTN_COLOR);
+  drawBtn(x, y, "Y+", (int32_t)y_plus, imgUp, Y_BTN_COLOR, !busy);
 
   // Cur Y
   x += BTN_WIDTH;
@@ -1000,7 +1007,7 @@ void MarlinUI::move_axis_screen() {
   drawAxisValue(Y_AXIS);
 
   x += spacing;
-  drawBtn(x, y, "Z+", (int32_t)z_plus, imgUp, Z_BTN_COLOR);
+  drawBtn(x, y, "Z+", (int32_t)z_plus, imgUp, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
 
   // ROW 2 -> "Ex"  X-  HOME X+  "Z"
   y += BTN_HEIGHT + (TFT_HEIGHT - Y_MARGIN * 2 - 4 * BTN_HEIGHT) / 3;
@@ -1010,24 +1017,24 @@ void MarlinUI::move_axis_screen() {
   motionAxisState.eNamePos.x = x;
   motionAxisState.eNamePos.y = y;
   drawCurESelection();
-  touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (int32_t)e_select);
+  if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (int32_t)e_select);
 
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "X-", (int32_t)x_minus, imgLeft, X_BTN_COLOR);
+  drawBtn(x, y, "X-", (int32_t)x_minus, imgLeft, X_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing; //imgHome is 64x64
-  add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome);
+  add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome, !busy);
 
   x += BTN_WIDTH + spacing;
   uint16_t xplus_x = x;
-  drawBtn(x, y, "X+", (int32_t)x_plus, imgRight, X_BTN_COLOR);
+  drawBtn(x, y, "X+", (int32_t)x_plus, imgRight, X_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing;
   motionAxisState.zTypePos.x = x;
   motionAxisState.zTypePos.y = y;
   drawCurZSelection();
   #if HAS_BED_PROBE
-    touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (int32_t)z_select);
+    if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, 34 * 2, (int32_t)z_select);
   #endif
 
   // ROW 3 -> E- CurX Y-  Z-
@@ -1035,7 +1042,7 @@ void MarlinUI::move_axis_screen() {
   x = X_MARGIN;
   spacing = (TFT_WIDTH - X_MARGIN * 2 - 3 * BTN_WIDTH) / 2;
 
-  drawBtn(x, y, "E-", (int32_t)e_minus, imgDown, E_BTN_COLOR);
+  drawBtn(x, y, "E-", (int32_t)e_minus, imgDown, E_BTN_COLOR, !busy);
 
   // Cur E
   motionAxisState.eValuePos.x = x;
@@ -1048,10 +1055,10 @@ void MarlinUI::move_axis_screen() {
   drawAxisValue(X_AXIS);
 
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "Y-", (int32_t)y_minus, imgDown, Y_BTN_COLOR);
+  drawBtn(x, y, "Y-", (int32_t)y_minus, imgDown, Y_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing;
-  drawBtn(x, y, "Z-", (int32_t)z_minus, imgDown, Z_BTN_COLOR);
+  drawBtn(x, y, "Z-", (int32_t)z_minus, imgDown, Z_BTN_COLOR, !busy || ENABLED(BABYSTEP_ZPROBE_OFFSET)); //only enabled when not busy or have baby step
 
   // Cur Z
   motionAxisState.zValuePos.x = x;
@@ -1063,11 +1070,13 @@ void MarlinUI::move_axis_screen() {
   x = TFT_WIDTH / 2 - CUR_STEP_VALUE_WIDTH / 2;
   motionAxisState.stepValuePos.x = x;
   motionAxisState.stepValuePos.y = y;
-  drawCurStepValue();
-  touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (int32_t)step_size);
+  if (!busy) {
+    drawCurStepValue();
+    touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (int32_t)step_size);
+  }
 
   // alinged with x+
-  drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (int32_t)disable_steppers, imgCancel, COLOR_WHITE);
+  drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (int32_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
 
   add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack);
 }
