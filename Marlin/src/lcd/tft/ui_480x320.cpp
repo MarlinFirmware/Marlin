@@ -737,8 +737,11 @@ static void drawMessage(const char *msg) {
 }
 
 static void drawAxisValue(AxisEnum axis) {
-  const float value = axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ?
-    probe.offset.z :
+  const float value =
+    #if HAS_BED_PROBE
+      axis == Z_AXIS && motionAxisState.z_selection == Z_SELECTION_Z_PROBE ?
+      probe.offset.z :
+    #endif
     NATIVE_TO_LOGICAL(
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
@@ -935,12 +938,14 @@ static void step_size() {
   drawCurStepValue();
 }
 
-static void z_select() {
-  motionAxisState.z_selection *= -1;
-  quick_feedback();
-  drawCurZSelection();
-  drawAxisValue(Z_AXIS);
-}
+#if HAS_BED_PROBE
+  static void z_select() {
+    motionAxisState.z_selection *= -1;
+    quick_feedback();
+    drawCurZSelection();
+    drawAxisValue(Z_AXIS);
+  }
+#endif
 
 static void disable_steppers() {
   quick_feedback();
