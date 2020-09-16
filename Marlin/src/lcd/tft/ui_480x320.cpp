@@ -689,39 +689,6 @@ static void quick_feedback() {
   #endif
 }
 
-static void drawCurYValue() {
-  tft.canvas(motionAxisState.yValuePos.x, motionAxisState.yValuePos.y, 100, BTN_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-  tft_string.set(ftostr52sp(LOGICAL_Y_POSITION(current_position.y)));
-  tft.add_text(0, 0, Y_BTN_COLOR, tft_string);
-}
-
-static void drawCurEValue() {
-  tft.canvas(motionAxisState.eValuePos.x, motionAxisState.eValuePos.y, 100, BTN_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-  tft_string.set(ftostr52sp(LOGICAL_X_POSITION(current_position.e)));
-  tft.add_text(0, 0, E_BTN_COLOR, tft_string);
-}
-
-static void drawCurXValue() {
-  tft.canvas(motionAxisState.xValuePos.x, motionAxisState.xValuePos.y, 100, BTN_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-  tft_string.set(ftostr52sp(LOGICAL_X_POSITION(current_position.x)));
-  tft.add_text(0, 0, X_BTN_COLOR, tft_string);
-}
-
-static void drawCurZValue() {
-  if (motionAxisState.z_selection < 0) {
-    tft_string.set(ftostr52sp(probe.offset.z));
-  }
-  else {
-    tft_string.set(ftostr52sp(LOGICAL_Z_POSITION(current_position.z)));
-  }
-  tft.canvas(motionAxisState.zValuePos.x, motionAxisState.zValuePos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
-  tft.set_background(COLOR_BACKGROUND);
-  tft.add_text(0, 0, Z_BTN_COLOR, tft_string);
-}
-
 static void drawCurStepValue() {
   tft_string.set((uint8_t *)ftostr52sp(motionAxisState.currentStepSize));
   tft_string.add("mm");
@@ -758,95 +725,127 @@ static void drawMessage(const char *msg) {
   tft.add_text(0, 0, COLOR_YELLOW, msg);
 }
 
-static void e_plus() {
-  // maybe Touch class must have a "enable/disable" option
-  if (motionAxisState.blocked) {
-    return;
+static void drawAxisValue(AxisEnum axis) {
+  const float value = NATIVE_TO_LOGICAL(
+    ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
+    axis
+  );
+  xy_int_t pos;
+  uint16_t color;
+  switch (axis) {
+    case X_AXIS: pos = motionAxisState.xValuePos; color = X_BTN_COLOR; break;
+    case Y_AXIS: pos = motionAxisState.yValuePos; color = Y_BTN_COLOR; break;
+    case Z_AXIS: pos = motionAxisState.zValuePos; color = Z_BTN_COLOR; break;
+    case E_AXIS: pos = motionAxisState.eValuePos; color = E_BTN_COLOR; break;
+    default: return;
   }
-  if (thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
+  tft.canvas(pos.x, pos.y, BTN_WIDTH + X_MARGIN, BTN_HEIGHT);
+  tft.set_background(COLOR_BACKGROUND);
+  tft_string.set(ftostr52sp(value));
+  tft.add_text(0, 0, color, tft_string);
+
+  //TODO: handle draw z offset
+}
+
+static void moveAxis(AxisEnum axis, const int8_t direction) {
+  quick_feedback();
+
+  if (axis == E_AXIS && thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
     drawMessage("Too cold");
     return;
   }
-  quick_feedback();
-  current_position.e += motionAxisState.currentStepSize;
-  ui.manual_move.soon(E_AXIS);
-  drawCurEValue();
+
+  if (!ui.manual_move.processing) {
+    // Start with no limits to movement
+    float min = current_position[axis] - 1000,
+          max = current_position[axis] + 1000;
+
+    // Limit to software endstops, if enabled
+    #if HAS_SOFTWARE_ENDSTOPS
+      if (soft_endstops_enabled) switch (axis) {
+        case X_AXIS:
+          TERN_(MIN_SOFTWARE_ENDSTOP_X, min = soft_endstop.min.x);
+          TERN_(MAX_SOFTWARE_ENDSTOP_X, max = soft_endstop.max.x);
+          break;
+        case Y_AXIS:
+          TERN_(MIN_SOFTWARE_ENDSTOP_Y, min = soft_endstop.min.y);
+          TERN_(MAX_SOFTWARE_ENDSTOP_Y, max = soft_endstop.max.y);
+          break;
+        case Z_AXIS:
+          TERN_(MIN_SOFTWARE_ENDSTOP_Z, min = soft_endstop.min.z);
+          TERN_(MAX_SOFTWARE_ENDSTOP_Z, max = soft_endstop.max.z);
+        default: break;
+      }
+    #endif // HAS_SOFTWARE_ENDSTOPS
+
+    // Delta limits XY based on the current offset from center
+    // This assumes the center is 0,0
+    #if ENABLED(DELTA)
+      if (axis != Z_AXIS && axis != E_AXIS) {
+        max = SQRT(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis])); // (Y_AXIS - axis) == the other axis
+        min = -max;
+      }
+    #endif
+
+    // Get the new position
+    const float diff = motionAxisState.currentStepSize * direction; //float(int32_t(ui.encoderPosition)) * ui.manual_move.menu_scale;
+    #if IS_KINEMATIC
+      ui.manual_move.offset += diff;
+      if (direction < 0)
+        NOLESS(ui.manual_move.offset, min - current_position[axis]);
+      else
+        NOMORE(ui.manual_move.offset, max - current_position[axis]);
+    #else
+      current_position[axis] += diff;
+      if (direction < 0)
+        NOLESS(current_position[axis], min);
+      else
+        NOMORE(current_position[axis], max);
+    #endif
+
+    ui.manual_move.soon(axis
+      #if MULTI_MANUAL
+        , motionAxisState.e_selection
+      #endif
+    );
+  }
+
+  drawAxisValue(axis);
+}
+
+static void e_plus() {
+  moveAxis(E_AXIS, 1);
 }
 
 static void e_minus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-  if (thermalManager.temp_hotend[motionAxisState.e_selection].celsius < EXTRUDE_MINTEMP) {
-    drawMessage("Too cold");
-    return;
-  }
-  quick_feedback();
-  current_position.e -= motionAxisState.currentStepSize;
-  ui.manual_move.soon(E_AXIS);
-  drawCurEValue();
+  moveAxis(E_AXIS, -1);
+}
+
+static void x_minus() {
+  moveAxis(X_AXIS, -1);
+}
+
+static void x_plus() {
+  moveAxis(X_AXIS, 1);
 }
 
 static void y_plus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  current_position.y += motionAxisState.currentStepSize;
-  ui.manual_move.soon(Y_AXIS);
-  drawCurYValue();
+  moveAxis(Y_AXIS, 1);
 }
 
 static void y_minus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  current_position.y -= motionAxisState.currentStepSize;
-  ui.manual_move.soon(Y_AXIS);
-  drawCurYValue();
+  moveAxis(Y_AXIS, -1);
 }
 
 static void z_plus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  if (motionAxisState.z_selection < 0) {
-    probe.offset.z += motionAxisState.currentStepSize;
-    //TODO: probe
-  }
-  else {
-    current_position.z += motionAxisState.currentStepSize;
-    ui.manual_move.soon(Z_AXIS);
-  }
-  drawCurZValue();
+  moveAxis(Z_AXIS, 1);
 }
 
 static void z_minus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  if (motionAxisState.z_selection < 0) {
-    probe.offset.z -= motionAxisState.currentStepSize;
-  }
-  else {
-    current_position.z -= motionAxisState.currentStepSize;
-    ui.manual_move.soon(Z_AXIS);
-  }
-  drawCurZValue();
+  moveAxis(Z_AXIS, -1);
 }
 
 static void e_select() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
   motionAxisState.e_selection++;
   if (motionAxisState.e_selection >= EXTRUDERS) {
     motionAxisState.e_selection = 0;
@@ -854,46 +853,22 @@ static void e_select() {
 
   quick_feedback();
   drawCurESelection();
-  drawCurEValue();
+  drawAxisValue(E_AXIS);
 }
 
 static void do_home() {
   quick_feedback();
-  drawMessage("Homming...");
+  drawMessage(GET_TEXT(MSG_LEVEL_BED_HOMING));
   queue.inject_P(G28_STR);
-  motionAxisState.blocked = true;
-  drawCurXValue();
-  drawCurYValue();
-  drawCurZValue();
-}
-
-static void x_minus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  current_position.x -= motionAxisState.currentStepSize;
-  ui.manual_move.soon(X_AXIS);
-  drawCurXValue();
-}
-
-static void x_plus() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
-  quick_feedback();
-  current_position.x += motionAxisState.currentStepSize;
-  ui.manual_move.soon(X_AXIS);
-  drawCurXValue();
+  // Disable touch until home is done
+  touch.disable();
+  drawAxisValue(E_AXIS);
+  drawAxisValue(X_AXIS);
+  drawAxisValue(Y_AXIS);
+  drawAxisValue(Z_AXIS);
 }
 
 static void step_size() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
   motionAxisState.currentStepSize = motionAxisState.currentStepSize / 10.0;
   if (motionAxisState.currentStepSize < 0.0015) motionAxisState.currentStepSize = 10.0;
   quick_feedback();
@@ -901,14 +876,10 @@ static void step_size() {
 }
 
 static void z_select() {
-  if (motionAxisState.blocked) {
-    return;
-  }
-
   motionAxisState.z_selection *= -1;
   quick_feedback();
   drawCurZSelection();
-  drawCurZValue();
+  drawAxisValue(Z_AXIS);
 }
 
 static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage img, uint16_t bgColor, uint16_t fgColor = COLOR_BLACK) {
@@ -937,6 +908,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
 void MarlinUI::move_axis() {
   // Reset
   motionAxisState.blocked = false;
+  touch.enable();
 
   ui.clear_lcd();
 
@@ -955,7 +927,7 @@ void MarlinUI::move_axis() {
   x += BTN_WIDTH;
   motionAxisState.yValuePos.x = x + 2;
   motionAxisState.yValuePos.y = y;
-  drawCurYValue();
+  drawAxisValue(Y_AXIS);
 
   x += spacing;
   drawBtn(x, y, "Z+", (int32_t)z_plus, imgUp, Z_BTN_COLOR);
@@ -995,12 +967,12 @@ void MarlinUI::move_axis() {
   // Cur E
   motionAxisState.eValuePos.x = x;
   motionAxisState.eValuePos.y = y + BTN_HEIGHT + 2;
-  drawCurEValue();
+  drawAxisValue(E_AXIS);
 
   // Cur X
   motionAxisState.xValuePos.x = BTN_WIDTH + (TFT_WIDTH - X_MARGIN * 2 - 5 * BTN_WIDTH) / 4; //X- pos
   motionAxisState.xValuePos.y = y - 10;
-  drawCurXValue();
+  drawAxisValue(X_AXIS);
 
   x += BTN_WIDTH + spacing;
   drawBtn(x, y, "Y-", (int32_t)y_minus, imgDown, Y_BTN_COLOR);
@@ -1011,7 +983,7 @@ void MarlinUI::move_axis() {
   // Cur Z
   motionAxisState.zValuePos.x = x;
   motionAxisState.zValuePos.y = y + BTN_HEIGHT + 2;
-  drawCurZValue();
+  drawAxisValue(Z_AXIS);
 
   // ROW 4 -> step_size    Back
   y = TFT_HEIGHT - Y_MARGIN - 32; //
