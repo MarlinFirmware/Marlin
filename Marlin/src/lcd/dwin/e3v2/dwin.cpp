@@ -1699,27 +1699,31 @@ void MarlinUI::refresh() {
 
 #define ICON_Folder ICON_More
 
-char shift_name[LONG_FILENAME_LENGTH + 1];
-int8_t shift_amt; // = 0
-millis_t shift_ms; // = 0
+#if ENABLED(SCROLL_LONG_FILENAMES)
 
-// Init the shift name based on the highlighted item
-inline void Init_Shift_Name() {
-  const bool is_subdir = !card.flag.workDirIsRoot;
-  const int8_t filenum = select_file.now - 1 - is_subdir; // Skip "Back" and ".."
-  const uint16_t fileCnt = card.get_num_Files();
-  if (WITHIN(filenum, 0, fileCnt - 1)) {
-    card.getfilename_sorted(SD_ORDER(filenum, fileCnt));
-    char * const name = card.longest_filename();
-    make_name_without_ext(shift_name, name, 100);
+  char shift_name[LONG_FILENAME_LENGTH + 1];
+  int8_t shift_amt; // = 0
+  millis_t shift_ms; // = 0
+
+  // Init the shift name based on the highlighted item
+  inline void Init_Shift_Name() {
+    const bool is_subdir = !card.flag.workDirIsRoot;
+    const int8_t filenum = select_file.now - 1 - is_subdir; // Skip "Back" and ".."
+    const uint16_t fileCnt = card.get_num_Files();
+    if (WITHIN(filenum, 0, fileCnt - 1)) {
+      card.getfilename_sorted(SD_ORDER(filenum, fileCnt));
+      char * const name = card.longest_filename();
+      make_name_without_ext(shift_name, name, 100);
+    }
   }
-}
 
-inline void Init_SDItem_Shift() {
-  shift_amt = 0;
-  shift_ms  = select_file.now > 0 && strlen(shift_name) > MENU_CHAR_LIMIT
-         ? millis() + 750UL : 0;
-}
+  inline void Init_SDItem_Shift() {
+    shift_amt = 0;
+    shift_ms  = select_file.now > 0 && strlen(shift_name) > MENU_CHAR_LIMIT
+           ? millis() + 750UL : 0;
+  }
+
+#endif
 
 /**
  * Display an SD item, adding a CDUP for subfolders.
@@ -1735,37 +1739,42 @@ inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   card.getfilename_sorted(item - is_subdir);
   char * const name = card.longest_filename();
 
-  // Init the current selected name
-  // This is used during scroll drawing
-  if (item == select_file.now - 1) {
-    make_name_without_ext(shift_name, name, 100);
-    Init_SDItem_Shift();
-  }
+  #if ENABLED(SCROLL_LONG_FILENAMES)
+    // Init the current selected name
+    // This is used during scroll drawing
+    if (item == select_file.now - 1) {
+      make_name_without_ext(shift_name, name, 100);
+      Init_SDItem_Shift();
+    }
+  #endif
 
+  // Draw the file/folder with name aligned left
   char str[strlen(name) + 1];
-
   make_name_without_ext(str, name);
-
   Draw_Menu_Line(row, card.flag.filenameIsDir ? ICON_Folder : ICON_File, str);
 }
 
-inline void Draw_SDItem_Shifted(int8_t &shift) {
-  // Limit to the number of chars past the cutoff
-  const size_t len = strlen(shift_name);
-  NOMORE(shift, _MAX((signed)len - MENU_CHAR_LIMIT, 0));
+#if ENABLED(SCROLL_LONG_FILENAMES)
 
-  // Shorten to the available space
-  const size_t lastchar = _MIN((signed)len, shift + MENU_CHAR_LIMIT);
+  inline void Draw_SDItem_Shifted(int8_t &shift) {
+    // Limit to the number of chars past the cutoff
+    const size_t len = strlen(shift_name);
+    NOMORE(shift, _MAX((signed)len - MENU_CHAR_LIMIT, 0));
 
-  const char c = shift_name[lastchar];
-  shift_name[lastchar] = '\0';
+    // Shorten to the available space
+    const size_t lastchar = _MIN((signed)len, shift + MENU_CHAR_LIMIT);
 
-  const uint8_t row = select_file.now + MROWS - index_file; // skip "Back" and scroll
-  Erase_Menu_Text(row);
-  Draw_Menu_Line(row, 0, &shift_name[shift]);
+    const char c = shift_name[lastchar];
+    shift_name[lastchar] = '\0';
 
-  shift_name[lastchar] = c;
-}
+    const uint8_t row = select_file.now + MROWS - index_file; // skip "Back" and scroll
+    Erase_Menu_Text(row);
+    Draw_Menu_Line(row, 0, &shift_name[shift]);
+
+    shift_name[lastchar] = c;
+  }
+
+#endif
 
 // Redraw the first set of SD Files
 inline void Redraw_SD_List() {
@@ -1780,7 +1789,7 @@ inline void Redraw_SD_List() {
   LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
     Draw_SDItem(i, i + 1);
 
-  Init_SDItem_Shift();
+  TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
 }
 
 inline void SDCard_Up(void) {
@@ -1975,21 +1984,23 @@ void HMI_SelectFile(void) {
   const uint16_t hasUpDir = !card.flag.workDirIsRoot;
 
   if (encoder_diffState == ENCODER_DIFF_NO) {
-    if (shift_ms && select_file.now >= 1 + hasUpDir) {
-      // Scroll selected filename every second
-      const millis_t ms = millis();
-      if (ELAPSED(ms, shift_ms)) {
-        const bool was_reset = shift_amt < 0;
-        shift_ms = ms + 375UL + was_reset * 250UL;  // ms per character
-        int8_t shift_new = shift_amt + 1;           // Try to shift by...
-        Draw_SDItem_Shifted(shift_new);             // Draw the item
-        if (!was_reset && shift_new == 0)           // Was it limited to 0?
-          shift_ms = 0;                             // No scrolling needed
-        else if (shift_new == shift_amt)            // Scroll reached the end
-          shift_new = -1;                           // Reset
-        shift_amt = shift_new;                      // Set new scroll
+    #if ENABLED(SCROLL_LONG_FILENAMES)
+      if (shift_ms && select_file.now >= 1 + hasUpDir) {
+        // Scroll selected filename every second
+        const millis_t ms = millis();
+        if (ELAPSED(ms, shift_ms)) {
+          const bool was_reset = shift_amt < 0;
+          shift_ms = ms + 375UL + was_reset * 250UL;  // ms per character
+          int8_t shift_new = shift_amt + 1;           // Try to shift by...
+          Draw_SDItem_Shifted(shift_new);             // Draw the item
+          if (!was_reset && shift_new == 0)           // Was it limited to 0?
+            shift_ms = 0;                             // No scrolling needed
+          else if (shift_new == shift_amt)            // Scroll reached the end
+            shift_new = -1;                           // Reset
+          shift_amt = shift_new;                      // Set new scroll
+        }
       }
-    }
+    #endif
     return;
   }
 
@@ -2001,7 +2012,7 @@ void HMI_SelectFile(void) {
   if (encoder_diffState == ENCODER_DIFF_CW && fullCnt) {
     if (select_file.inc(fullCnt)) {
       const uint8_t itemnum = select_file.now - 1;              // -1 for "Back"
-      if (shift_ms) {                                           // If line was shifted
+      if (TERN0(SCROLL_LONG_FILENAMES, shift_ms)) {             // If line was shifted
         Erase_Menu_Text(select_file.now - 1 + MROWS - index_file); // Erase and
         Draw_SDItem(itemnum - 1);                               // redraw
       }
@@ -2012,15 +2023,15 @@ void HMI_SelectFile(void) {
       }
       else {
         Move_Highlight(1, select_file.now + MROWS - index_file); // Just move highlight
-        Init_Shift_Name();                                      // ...and init the shift name
+        TERN_(SCROLL_LONG_FILENAMES, Init_Shift_Name());         // ...and init the shift name
       }
-      Init_SDItem_Shift();
+      TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_CCW && fullCnt) {
     if (select_file.dec()) {
       const uint8_t itemnum = select_file.now - 1;              // -1 for "Back"
-      if (shift_ms) {                                           // If line was shifted
+      if (TERN0(SCROLL_LONG_FILENAMES, shift_ms)) {             // If line was shifted
         Erase_Menu_Text(select_file.now + 1 + MROWS - index_file); // Erase and
         Draw_SDItem(itemnum + 1);                               // redraw
       }
@@ -2029,7 +2040,7 @@ void HMI_SelectFile(void) {
         Scroll_Menu(DWIN_SCROLL_DOWN);
         if (index_file == MROWS) {
           Draw_Back_First();
-          shift_ms = 0;
+          TERN_(SCROLL_LONG_FILENAMES, shift_ms = 0);
         }
         else {
           Draw_SDItem(itemnum, 0);                              // Draw the item (and init shift name)
@@ -2037,9 +2048,9 @@ void HMI_SelectFile(void) {
       }
       else {
         Move_Highlight(-1, select_file.now + MROWS - index_file); // Just move highlight
-        Init_Shift_Name();                                      // ...and init the shift name
+        TERN_(SCROLL_LONG_FILENAMES, Init_Shift_Name());        // ...and init the shift name
       }
-      Init_SDItem_Shift();                                      // Reset left. Init timer.
+      TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());        // Reset left. Init timer.
     }
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
