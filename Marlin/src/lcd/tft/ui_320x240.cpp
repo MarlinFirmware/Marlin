@@ -650,4 +650,7 @@ void menu_item(const uint8_t row, bool sel ) {
   TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
 }
 
+void MarlinUI::move_axis_screen() {
+}
+
 #endif // HAS_UI_320x240
