@@ -333,13 +333,6 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
-  #define Z_PROBE_OFFSET_RANGE_MIN -10
-  #define Z_PROBE_OFFSET_RANGE_MAX 10
-
-  #if EITHER(ENDER3_OEM, ENDER5_OEM)
-    #define ABL_ENABLE
-    #define NOZZLE_TO_PROBE_OFFSET { -48, -15, 0 }
-  #endif
 #endif
 // End PRINTER Board Settings
 
