@@ -44,7 +44,7 @@
 #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
 typedef struct {
-  bool encoderRateEnabled = 0;
+  bool enabled = false;
   int encoderMoveValue = 0;
   millis_t lastEncoderTime = 0;
 } ENCODER_Rate;

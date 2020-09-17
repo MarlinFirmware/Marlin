@@ -124,7 +124,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
       int32_t encoderMultiplier = 1;
 
       // if must encoder rati multiplier
-      if (EncoderRate.encoderRateEnabled) {
+      if (EncoderRate.enabled) {
         const float abs_diff = ABS(temp_diff),
                     encoderMovementSteps = abs_diff / (ENCODER_PULSES_PER_STEP);
         if (EncoderRate.lastEncoderTime) {
