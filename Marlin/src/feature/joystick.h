@@ -30,8 +30,6 @@
 #include "../core/macros.h"
 #include "../module/temperature.h"
 
-
-
 class Joystick {
   friend class Temperature;
   private:
