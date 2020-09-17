@@ -67,6 +67,12 @@ void DWIN_UpdateLCD(void);
 //  color: Clear screen color
 void DWIN_Frame_Clear(const uint16_t color);
 
+// Draw a point
+//  width: point width   0x01-0x0F
+//  height: point height 0x01-0x0F
+//  x,y: upper left point
+void DWIN_Draw_Point(uint8_t width, uint8_t height, uint16_t x, uint16_t y);
+
 // Draw a line
 //  color: Line segment color
 //  xStart/yStart: Start point
@@ -190,3 +196,18 @@ inline void DWIN_JPG_CacheTo1(uint8_t id) { DWIN_JPG_CacheToN(1, id); }
 //  x/y: Screen paste point
 void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
                          uint16_t xEnd, uint16_t yEnd, uint16_t x, uint16_t y);
+
+// Animate a series of icons
+//  animID: Animation ID  up to 16
+//  animate: animation on or off
+//  libID: Icon library ID
+//  picIDs: Icon starting ID
+//  picIDe: Icon ending ID
+//  x/y: Upper-left point
+//  interval: Display time interval, unit 10mS
+void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t picIDs, 
+                         uint8_t picIDe, uint16_t x, uint16_t y, uint16_t interval);
+
+// Animation Control
+//  state: 16 bits, each bit is the state of an animation id
+void DWIN_ICON_AnimationControl(uint16_t state);
