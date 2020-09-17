@@ -1555,6 +1555,9 @@
          * numbers for those locations should be 0.
          */
         #ifdef VALIDATE_MESH_TILT
+          #if ENABLED(Z_SAFE_HOMING)
+            constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT , Z_SAFE_HOMING_Y_POINT };
+          #endif
           auto d_from = []{ DEBUG_ECHOPGM("D from "); };
           auto normed = [&](const xy_pos_t &pos, const float &zadd) {
             return normal.x * pos.x + normal.y * pos.y + zadd;

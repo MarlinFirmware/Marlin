@@ -41,6 +41,12 @@ void GcodeSuite::M206() {
     if (parser.seen(XYZ_CHAR(i)))
       set_home_offset((AxisEnum)i, parser.value_linear_units());
 
+    if (!parser.seen_any()) {
+      SERIAL_ECHOLNPAIR("M206X : ", home_offset[X_AXIS]);
+      SERIAL_ECHOLNPAIR("M206Y : ", home_offset[Y_AXIS]);
+      SERIAL_ECHOLNPAIR("M206Z : ", home_offset[Z_AXIS]);
+    }
+
   #if ENABLED(MORGAN_SCARA)
     if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
     if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi

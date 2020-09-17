@@ -284,8 +284,8 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
-                    ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
+        const float rx = (parser.linearval('X', NAN)),
+                    ry = (parser.linearval('Y', NAN));
         int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
         if (!isnan(rx) && !isnan(ry)) {
@@ -376,16 +376,20 @@ G29_TYPE GcodeSuite::G29() {
       }
       else {
         probe_position_lf.set(
-          parser.seenval('L') ? RAW_X_POSITION(parser.value_linear_units()) : x_min,
-          parser.seenval('F') ? RAW_Y_POSITION(parser.value_linear_units()) : y_min
+          parser.seenval('L') ? (parser.value_linear_units()) : x_min,
+          parser.seenval('F') ? (parser.value_linear_units()) : y_min
         );
         probe_position_rb.set(
-          parser.seenval('R') ? RAW_X_POSITION(parser.value_linear_units()) : x_max,
-          parser.seenval('B') ? RAW_Y_POSITION(parser.value_linear_units()) : y_max
+          parser.seenval('R') ? (parser.value_linear_units()) : x_max,
+          parser.seenval('B') ? (parser.value_linear_units()) : y_max
         );
       }
 
       if (!probe.good_bounds(probe_position_lf, probe_position_rb)) {
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Left : ", probe_position_lf.x);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Right : ", probe_position_rb.x);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Front : ", probe_position_lf.y);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Back : ", probe_position_rb.y);
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false);
       }

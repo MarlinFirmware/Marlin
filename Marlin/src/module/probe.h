@@ -152,6 +152,9 @@ public:
         #else
           _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
         #endif
+        #if ENABLED(NOZZLE_AS_PROBE)
+          - home_offset[X_AXIS]
+        #endif
       );
     }
     static inline float max_x() {
@@ -160,6 +163,9 @@ public:
           (X_CENTER) + probe_radius()
         #else
           _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
+        #endif
+        #if ENABLED(NOZZLE_AS_PROBE)
+          - home_offset[X_AXIS]
         #endif
       );
     }
@@ -170,6 +176,9 @@ public:
         #else
           _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
         #endif
+        #if ENABLED(NOZZLE_AS_PROBE)
+          - home_offset[Y_AXIS]
+        #endif
       );
     }
     static inline float max_y() {
@@ -178,6 +187,9 @@ public:
           (Y_CENTER) + probe_radius()
         #else
           _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
+        #endif
+        #if ENABLED(NOZZLE_AS_PROBE)
+          - home_offset[Y_AXIS]
         #endif
       );
     }
