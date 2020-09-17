@@ -984,6 +984,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
 
 void MarlinUI::move_axis_screen() {
   // Reset
+  defer_status_screen(true);
   motionAxisState.blocked = false;
   touch.enable();
 
