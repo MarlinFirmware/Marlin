@@ -126,7 +126,12 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
+    #if HAS_HOME_OFFSET
     destination.set((xy_float_t){ Z_SAFE_HOMING_X_POINT - home_offset[X_AXIS], Z_SAFE_HOMING_Y_POINT - home_offset[Y_AXIS] }, current_position.z);
+    #else
+      constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+      destination.set(safe_homing_xy, current_position.z);
+    #endif
 
     TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
