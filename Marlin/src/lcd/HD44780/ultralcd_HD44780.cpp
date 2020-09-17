@@ -845,28 +845,29 @@ void MarlinUI::draw_status_screen() {
       lcd_put_wchar('%');
 
       char buffer[14];
-      uint8_t timepos=0;
+      uint8_t timepos = 0;
       #if ENABLED(SHOW_REMAINING_TIME)
-        if (TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE)) {
+        const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
+        if (show_remain) {
           #if ENABLED(USE_M73_REMAINING_TIME)
             duration_t remaining = get_remaining_time();
-            const uint8_t len = remaining.toDigital(buffer);
-            timepos = LCD_WIDTH - len - 1;
-            lcd_put_wchar(timepos, 2, 'R');
           #else
             uint8_t progress = get_progress_percent();
             uint32_t elapsed = print_job_timer.duration();
             duration_t remaining = (progress > 0) ? ((elapsed * 25600 / progress) >> 8) - elapsed : 0;
-            const uint8_t len = remaining.toDigital(buffer);
-            timepos = LCD_WIDTH - len - 1;
-            lcd_put_wchar(timepos, 2, 'R');
           #endif
-        } else
+          const uint8_t len = remaining.toDigital(buffer);
+          timepos = LCD_WIDTH - 1 - len;
+          lcd_put_wchar(timepos, 2, 'R');
+        }
+      #else
+        constexpr bool show_remain = false;
       #endif
-      {
+
+      if (!show_remain) {
         duration_t elapsed = print_job_timer.duration();
         const uint8_t len = elapsed.toDigital(buffer);
-        timepos = LCD_WIDTH - len - 1;
+        timepos = LCD_WIDTH - 1 - len;
         lcd_put_wchar(timepos, 2, LCD_STR_CLOCK[0]);
       }
       lcd_put_u8str(buffer);
