@@ -65,22 +65,22 @@
  * These pin assignments are arbitrary and intending for testing purposes.
  * Assignments may not be ideal, and not every assignment has been tested.
  * Proceed at your own risk.
- *                                                            _____
+ *                                                            _CN7_
  *                                              (X_STEP) PC6 | · · | PB8 (X_EN) 
  *                                              (X_DIR) PB15 | · · | PB9 (X_CS)
  *                                             (LCD_D4) PB13 | · · | AVDD
- *                 _____                                PB12 | · · | GND
+ *                 _CN8_                                PB12 | · · | GND
  *             NC | · · | PC8                (HEATER_0) PA15 | · · | PA5  (SCLK)
- *          RESET | · · | PC9                   (BEEPER) PC7 | · · | PA6  (MISO)
- *          IOREF | · · | PC10              (SERVO1_PIN) PB5 | · · | PA7  (MOSI)
+ *          IOREF | · · | PC9                   (BEEPER) PC7 | · · | PA6  (MISO)
+ *          RESET | · · | PC10              (SERVO1_PIN) PB5 | · · | PA7  (MOSI)
  *          +3.3V | · · | PC11              (HEATER_BED) PB3 | · · | PD14 (SD_DETECT)
  *            +5V | · · | PC12                    (SDSS) PA4 | · · | PD15 (LCD_ENABLE)
  *            GND | · · | PD2               (SERVO0_PIN) PB4 | · · | PF12 (LCD_RS)
  *            GND | · · | PG2                                 ￣￣￣
  *            VIN | · · | PG3                                 
-_*                 ￣￣￣                                     ______
+_*                 ￣￣￣                                      _CN10
  *                                                      AVDD | · · | PF13 (BTN_EN1)
- *                 _____                                AGND | · · | PE9  (BTN_EN2)
+ *                 _CN9_                                AGND | · · | PE9  (BTN_EN2)
  *   (TEMP_0) PA3 | · · | PD7                            GND | · · | PE11 (BTN_ENC)
  * (TEMP_BED) PC0 | · · | PD6                            PB1 | · · | PF14
  *            PC3 | · · | PD5                            PC2 | · · | PE13
@@ -96,7 +96,7 @@ _*                 ￣￣￣                                     ______
  *    (Z_MAX) PD0 | · · | PF7 (X_MIN)                    PA0 | · · | PE15
  *    (Z_MIN) PD1 | · · | PF9 (X_MAX)                    PB0 | · · | PB10 (FAN)
  *    (Y_MAX) PG0 | · · | PG1 (Y_MIN)                    PE0 | · · | PB11 (FAN1)
- *                 ￣￣￣                                     ￣￣￣
+ *                 ￣￣￣                                     ￣￣￣￣
  */
 
 #define X_MIN_PIN                           PF7
