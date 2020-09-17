@@ -79,6 +79,8 @@ enum TouchControlType : uint16_t {
   FEEDRATE,
   FLOWRATE,
   UBL,
+  MOVE_AXIS,
+  BUTTON,
 };
 
 typedef void (*screenFunc_t)();
@@ -132,6 +134,7 @@ class Touch {
   private:
     static TOUCH_DRIVER io;
     static int16_t x, y;
+    static bool enabled;
 
     static touch_control_t controls[MAX_CONTROLS];
     static touch_control_t *current_control;
@@ -162,6 +165,8 @@ class Touch {
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() { return touch_control_type == CLICK; }
+    static void disable() { enabled = false; }
+    static void enable() { enabled = true; }
 
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data = 0);
 
