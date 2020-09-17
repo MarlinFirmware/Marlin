@@ -52,8 +52,8 @@ enum processID {
   MaxSpeed_value,
   MaxAcceleration,
   MaxAcceleration_value,
-  MaxCorner,
-  MaxCorner_value,
+  MaxJerk,
+  MaxJerk_value,
   Step,
   Step_value,
 
@@ -150,7 +150,7 @@ enum processID {
 
 #define ICON_MaxSpeed             51
 #define ICON_MaxAccelerated       52
-#define ICON_MaxCorner            53
+#define ICON_MaxJerk              53
 #define ICON_Step                 54
 #define ICON_PrintSize            55
 #define ICON_Version              56
@@ -164,10 +164,10 @@ enum processID {
 #define ICON_MaxAccY              64
 #define ICON_MaxAccZ              65
 #define ICON_MaxAccE              66
-#define ICON_MaxSpeedCornerX      67
-#define ICON_MaxSpeedCornerY      68
-#define ICON_MaxSpeedCornerZ      69
-#define ICON_MaxSpeedCornerE      70
+#define ICON_MaxSpeedJerkX        67
+#define ICON_MaxSpeedJerkY        68
+#define ICON_MaxSpeedJerkZ        69
+#define ICON_MaxSpeedJerkE        70
 #define ICON_StepX                71
 #define ICON_StepY                72
 #define ICON_StepZ                73
@@ -231,7 +231,7 @@ typedef struct {
   int16_t print_speed     = 100;
   float Max_Feedspeed     = 0;
   float Max_Acceleration  = 0;
-  float Max_Corner        = 0;
+  float Max_Jerk          = 0;
   float Max_Step          = 0;
   float Move_X_scale      = 0;
   float Move_Y_scale      = 0;
@@ -258,11 +258,11 @@ typedef struct {
     bool leveling_offset_flag:1;
   #endif
   #if HAS_FAN
-    char feedspeed_flag;
+    AxisEnum feedspeed_flag;
   #endif
-  char acc_flag;
-  char corner_flag;
-  char step_flag;
+  AxisEnum acc_flag;
+  AxisEnum jerk_flag;
+  AxisEnum step_flag;
 } HMI_Flag;
 
 extern HMI_value_t HMI_ValueStruct;
@@ -314,7 +314,7 @@ void HMI_PrintSpeed(void);
 
 void HMI_MaxFeedspeedXYZE(void);
 void HMI_MaxAccelerationXYZE(void);
-void HMI_MaxCornerXYZE(void);
+void HMI_MaxJerkXYZE(void);
 void HMI_StepXYZE(void);
 
 void update_variable(void);
@@ -332,28 +332,28 @@ void Icon_leveling(bool value);
 
 // Other
 bool Pause_HeatStatus();
-void HMI_StartFrame(const bool with_update); // startup screen
-void HMI_MainMenu(void);          // main process screen
-void HMI_SelectFile(void);        // file page
-void HMI_Printing(void);          // print page
-void HMI_Prepare(void);           // prepare page
-void HMI_Control(void);           // control page
-void HMI_Leveling(void);          // Level the page
-void HMI_AxisMove(void);          // Axis movement menu
-void HMI_Temperature(void);       // Temperature menu
-void HMI_Motion(void);            // Sports menu
-void HMI_Info(void);              // Information menu
-void HMI_Tune(void);              // Adjust the menu
+void HMI_StartFrame(const bool with_update); // Startup screen
+void HMI_MainMenu(void);    // Main process screen
+void HMI_SelectFile(void);  // File page
+void HMI_Printing(void);    // Print page
+void HMI_Prepare(void);     // Prepare page
+void HMI_Control(void);     // Control page
+void HMI_Leveling(void);    // Level the page
+void HMI_AxisMove(void);    // Axis movement menu
+void HMI_Temperature(void); // Temperature menu
+void HMI_Motion(void);      // Sports menu
+void HMI_Info(void);        // Information menu
+void HMI_Tune(void);        // Adjust the menu
 
 #if HAS_HOTEND
   void HMI_PLAPreheatSetting(void); // PLA warm-up setting
   void HMI_ABSPreheatSetting(void); // ABS warm-up setting
 #endif
 
-void HMI_MaxSpeed(void);          // Maximum speed submenu
-void HMI_MaxAcceleration(void);   // Maximum acceleration submenu
-void HMI_MaxCorner(void);         // Maximum corner speed submenu
-void HMI_Step(void);              // transmission ratio
+void HMI_MaxSpeed(void);        // Maximum speed submenu
+void HMI_MaxAcceleration(void); // Maximum acceleration submenu
+void HMI_MaxJerk(void);         // Maximum jerk speed submenu
+void HMI_Step(void);            // Transmission ratio
 
 void HMI_Init(void);
 void DWIN_Update(void);
