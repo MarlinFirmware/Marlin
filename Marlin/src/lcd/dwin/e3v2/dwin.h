@@ -29,9 +29,13 @@
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
 
-#include <stdint.h>
+#include "../../../inc/MarlinConfigPre.h"
 
-enum processID {
+#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN)
+  #define HAS_PREHEAT 1
+#endif
+
+enum processID : uint8_t {
   // Process ID
   MainMenu,
   SelectFile,
@@ -44,7 +48,7 @@ enum processID {
   Motion,
   Info,
   Tune,
-  #if HAS_HOTEND
+  #if HAS_PREHEAT
     PLAPreheat,
     ABSPreheat,
   #endif
@@ -218,7 +222,7 @@ enum processID {
 #define BarFill_Color     0x10E4  // fill color of progress bar
 #define Select_Color      0x33BB  // selected color
 
-extern int checkkey, last_checkkey;
+extern uint8_t checkkey;
 extern float zprobe_zoffset;
 extern char print_filename[16];
 
@@ -236,7 +240,7 @@ typedef struct {
   float Move_X_scale      = 0;
   float Move_Y_scale      = 0;
   float Move_Z_scale      = 0;
-  #if EXTRUDERS
+  #if HAS_HOTEND
     float Move_E_scale    = 0;
   #endif
   float offset_value      = 0;
@@ -246,23 +250,22 @@ typedef struct {
 typedef struct {
   bool language_chinese;  // 0: EN, 1: CN
   bool pause_flag:1;
+  bool pause_action:1;
   bool print_finish:1;
-  bool confirm_flag:1;
+  bool done_confirm_flag:1;
   bool select_flag:1;
   bool home_flag:1;
   bool heat_flag:1;  // 0: heating done  1: during heating
-  #if HAS_HOTEND
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
     bool ETempTooLow_flag:1;
   #endif
   #if HAS_LEVELING
     bool leveling_offset_flag:1;
   #endif
   #if HAS_FAN
-    AxisEnum feedspeed_flag;
+    AxisEnum feedspeed_axis;
   #endif
-  AxisEnum acc_flag;
-  AxisEnum jerk_flag;
-  AxisEnum step_flag;
+  AxisEnum acc_axis, jerk_axis, step_axis;
 } HMI_Flag;
 
 extern HMI_value_t HMI_ValueStruct;
@@ -285,9 +288,12 @@ void ICON_Pause(bool show);
 void ICON_Continue(bool show);
 void ICON_Stop(bool show);
 
-// Popup window tips
-#if HAS_HOTEND
+#if HAS_HOTEND || HAS_HEATED_BED
+  // Popup message window
   void Popup_Window_Temperature(const bool toohigh);
+#endif
+
+#if HAS_HOTEND
   void Popup_Window_ETempTooLow(void);
 #endif
 
@@ -345,7 +351,7 @@ void HMI_Motion(void);      // Sports menu
 void HMI_Info(void);        // Information menu
 void HMI_Tune(void);        // Adjust the menu
 
-#if HAS_HOTEND
+#if HAS_PREHEAT
   void HMI_PLAPreheatSetting(void); // PLA warm-up setting
   void HMI_ABSPreheatSetting(void); // ABS warm-up setting
 #endif
