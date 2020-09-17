@@ -338,8 +338,8 @@
     #define XPT2046_Y_OFFSET                 -24
   #endif
 
-  #define TFT_DRIVER                    ST7796
-  #define TFT_BUFFER_SIZE                14400
+  #define TFT_DRIVER                      ST7796
+  #define TFT_BUFFER_SIZE                  14400
 
 #endif
 
