@@ -54,6 +54,10 @@
   #include "../../feature/password/password.h"
 #endif
 
+#ifdef ACTION_ON_START
+  #include "../../feature/host_actions.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
