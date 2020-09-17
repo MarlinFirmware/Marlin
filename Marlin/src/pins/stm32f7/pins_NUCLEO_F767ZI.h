@@ -85,7 +85,7 @@ _*                 ￣￣￣                                      _CN10
  * (TEMP_BED) PC0 | · · | PD6                            PB1 | · · | PF14
  *            PC3 | · · | PD5                            PC2 | · · | PE13
  *            PF3 | · · | PD4                            PF4 | · · | PF15
- *            PF5 | · · | PD3                   (E_STEP) PB6 | · · | PG14 (E_DIR)
+ *            PF5 | · · | PD3                   (E_STEP) PB6 | · · | PG14 (E_EN)
  *           PF10 | · · | GND                    (E_DIR) PB2 | · · | PG9  (E_CS)
  *             NC | · · | PE2                            GND | · · | PE8
  *            PA7 | · · | PE4                           PD13 | · · | PE7
@@ -125,8 +125,8 @@ _*                 ￣￣￣                                      _CN10
 #define Z_CS_PIN                            PE12
 
 #define E0_STEP_PIN                         PB6
-#define E0_DIR_PIN                          PG14
-#define E0_ENABLE_PIN                       PB2
+#define E0_DIR_PIN                          PB2
+#define E0_ENABLE_PIN                       PG14
 #define E0_CS_PIN                           PG9
 
 #if HAS_TMC_UART
