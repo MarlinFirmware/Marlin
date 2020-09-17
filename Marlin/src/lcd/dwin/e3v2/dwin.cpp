@@ -3484,9 +3484,9 @@ void HMI_Step(void) {
     if (select_step.dec()) Move_Highlight(-1, select_step.now);
   }
   else if (encoder_diffState == ENCODER_DIFF_ENTER) {
-    if (WITHIN(select_jerk.now, 1, 4)) {
+    if (WITHIN(select_step.now, 1, 4)) {
       checkkey = Step_value;
-      HMI_flag.step_flag = AxisEnum(select_jerk.now - 1);
+      HMI_flag.step_flag = AxisEnum(select_step.now - 1);
       HMI_ValueStruct.Max_Step = planner.settings.axis_steps_per_mm[HMI_flag.step_flag] * MINUNITMULT;
       DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
       EncoderRate.encoderRateEnabled = 1;
