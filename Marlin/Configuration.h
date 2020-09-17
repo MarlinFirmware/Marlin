@@ -1520,13 +1520,33 @@
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 215
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
-#define PREHEAT_2_LABEL       "PET"
+#define PREHEAT_2_LABEL      "PETG"
 #define PREHEAT_2_TEMP_HOTEND 230
 #define PREHEAT_2_TEMP_BED     85
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+
+#define PREHEAT_3_LABEL       "ASA"
+#define PREHEAT_3_TEMP_HOTEND 260
+#define PREHEAT_3_TEMP_BED    105
+#define PREHEAT_3_FAN_SPEED     0
+
+#define PREHEAT_4_LABEL       "TPU"
+#define PREHEAT_4_TEMP_HOTEND 230
+#define PREHEAT_4_TEMP_BED     50
+#define PREHEAT_4_FAN_SPEED     0
+
+#define PREHEAT_5_LABEL       "GTP" // Extrudr GreenTEC Pro
+#define PREHEAT_5_TEMP_HOTEND 225
+#define PREHEAT_5_TEMP_BED     50
+#define PREHEAT_5_FAN_SPEED     0
+
+#define PREHEAT_6_LABEL        "PC"
+#define PREHEAT_6_TEMP_HOTEND 275
+#define PREHEAT_6_TEMP_BED    110
+#define PREHEAT_6_FAN_SPEED     0
 
 /**
  * Nozzle Park
