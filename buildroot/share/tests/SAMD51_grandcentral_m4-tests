@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Build tests for Adafruit Grand Central M4 (ATMEL ARM Cortex-M4)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_AGCM4_RAMPS_144
+exec_test $1 $2 "Build Grand Central M4 Default Configuration"
+
+# clean up
+restore_configs

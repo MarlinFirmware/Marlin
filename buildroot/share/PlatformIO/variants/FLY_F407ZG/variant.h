@@ -38,127 +38,126 @@ extern "C" {
  *        Pins
  *----------------------------------------------------------------------------*/
 
+// Left Side
+#define PB12 0
+#define PB13 1
+#define PB14 2
+#define PB15 3
+#define PD8  4
+#define PD9  5
+#define PD10 6
+#define PD11 7
+#define PD12 8
+#define PD13 9
+#define PD14 10
+#define PD15 11
+#define PG2  12
+#define PG3  13
+#define PG4  14
+#define PG5  15
+#define PG6  16
+#define PG7  17
+#define PG8  18
+#define PC6  19
+#define PC7  20
+#define PC8  21
+#define PC9  22
+#define PA8  23
+#define PA9  24
+#define PA10 25
+#define PA11 26 // USB_DM
+#define PA12 27 // USB_DP
+#define PA13 28
+#define PA14 29
+#define PA15 30
+#define PC10 31
+#define PC11 32
+#define PC12 33
+#define PD0  34
+#define PD1  35
+#define PD2  36
+#define PD3  37
+#define PD4  38
+#define PD5  39
+#define PD6  40
+#define PD7  41
+#define PG9  42
+#define PG10 43
+#define PG11 44
+#define PG12 45
+#define PG13 46
+#define PG14 47
+#define PG15 48
+#define PB3  49
+#define PB4  50
+#define PB5  51
+#define PB6  52
+#define PB7  53
+#define PB8  54
+#define PB9  55
 
-#define PA1 	0
-#define PA2 	1
-#define PA3 	2
-#define PA4 	3
-#define PA5 	4
-#define PA6 	5
-#define PA7 	6
-#define PA8 	7
-#define PA9   	8
-#define PA10	9
-#define PA11	10
-#define PA12	11
-#define PA13	12
-#define PA14	13
-#define PA15	14
-#define PB0	    15
-#define PB1   	16
-#define PB2	    17
-#define PB3	    18
-#define PB4    	19
-#define PB5   	20
-#define PB6	    21
-#define PB7	    22
-#define PB8	    23
-#define PB9   	24
-#define PB10	25
-#define PB11	26
-#define PB12	27
-#define PB13	28
-#define PB14	29
-#define PB15	30
-#define PC2 	31
-#define PC3 	32
-#define PC4 	33
-#define PC5 	34
-#define PC6 	35
-#define PC7 	36
-#define PC8 	37
-#define PC9 	38
-#define PC10	39
-#define PC11	40
-#define PC12	41
-#define PC13	42
-#define PC14	43
-#define PC15	44
-#define PD0 	45
-#define PD1 	46
-#define PD2 	47
-#define PD3 	48
-#define PD4 	49
-#define PD5 	50
-#define PD6 	51
-#define PD7 	52
-#define PD8 	53
-#define PD9 	54
-#define PD10	55
-#define PD11	56
-#define PD12	57
-#define PD13	58
-#define PD14	59
-#define PD15	60
-#define PE0 	61
-#define PE1 	62
-#define PE11 	63
-#define PE3 	64
-#define PE4 	65
-#define PE5 	66
-#define PE6 	67
-#define PE7 	68
-#define PE8 	69
-#define PE9 	70
-#define PE10	71
-#define PE2     72
-#define PE12	73
-#define PE13	74
-#define PE14	75
-#define PE15	76
-#define PF0 	77
-#define PF1 	78
-#define PF2 	79
-#define PF6 	80
-#define PF7 	81
-#define PF8 	82
-#define PF9 	83
-#define PF11	84
-#define PF12	85
-#define PF13	86
-#define PF14	87
-#define PF15	88
-#define PG0 	89
-#define PG1 	90
-#define PG2 	91
-#define PG3 	92
-#define PG4 	93
-#define PG5 	94
-#define PG6 	95
-#define PG7 	96
-#define PG8 	97
-#define PG9 	98
-#define PG10	99
-#define PG11	100
-#define PG12	101
-#define PG13	102
-#define PG14	103
-#define PG15	104
-#define PH0 	105
-#define PH1	    106
-#define PA0   	107
-#define PC1 	108
-#define PC0 	109
-#define PF10	110
-#define PF5 	111
-#define PF4 	112
-#define PF3 	113
-
+// Right Side
+#define PB10 56
+#define PB11 57
+#define PE14 58
+#define PE15 59
+#define PE12 60
+#define PE13 61
+#define PE10 62
+#define PE11 63
+#define PE8  64
+#define PE9  65
+#define PG1  66
+#define PE7  67
+#define PF15 68
+#define PG0  69
+#define PF13 70
+#define PF14 71
+#define PF11 72
+#define PF12 73
+#define PB2  74
+#define PB1  75 // A0
+#define PC5  76 // A1
+#define PB0  77 // A2
+#define PA7  78 // A3
+#define PC4  79 // A4
+#define PA5  80 // A5
+#define PA6  81 // A6
+#define PA3  82 // A7
+#define PA4  83 // A8
+#define PA1  84 // A9
+#define PA2  85 // A10
+#define PC3  86 // A11
+#define PA0  87 // A12/PA_0(WK_UP): BUT K_UP)
+#define PC1  88 // A13
+#define PC2  89 // A14
+#define PC0  90 // A15
+#define PF8  91 // A16
+#define PF6  92 // A17
+#define PF7  93 // A18
+#define PF9  94 // LED D1 (active low)
+#define PF10 95 // LED D2 (active low)
+#define PF4  96
+#define PF5  97
+#define PF2  98
+#define PF3  99
+#define PF0  100
+#define PF1  101
+#define PE6  102
+#define PC13 103
+#define PE4  104 // BUT K0
+#define PE5  105 // BUT K1
+#define PE2  106
+#define PE3  107
+#define PE0  108
+#define PE1  109
+#define PC14  110
+#define PC15  111
 // This must be a literal
-#define NUM_DIGITAL_PINS        114
+#define NUM_DIGITAL_PINS        112
 // This must be a literal with a value less than or equal to MAX_ANALOG_INPUTS
-#define NUM_ANALOG_INPUTS       7
-#define NUM_ANALOG_FIRST        107
+#define NUM_ANALOG_INPUTS       23
+#define NUM_ANALOG_FIRST        75
 
 
 // Below SPI and I2C definitions already done in the core
