@@ -196,6 +196,9 @@
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
   #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
+  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
