@@ -107,7 +107,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
       static PGMSTR(preheat_4_label, PREHEAT_5_LABEL);
     #endif
     #ifdef PREHEAT_6_LABEL
-      static PGMSTR(preheat_5_label, PREHEAT_5_LABEL);
+      static PGMSTR(preheat_5_label, PREHEAT_6_LABEL);
     #endif
 
     #define _PLBL(N) preheat_##N##_label,

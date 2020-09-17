@@ -2230,7 +2230,7 @@
 
   #if AXIS_IS_TMC(X)
     //#define X_CURRENT       282        // (mA) RMS current. Multiply by 1.414 for peak current.
-    #define X_CURRENT       450 // custom
+    #define X_CURRENT       500 // custom
     //#define X_CURRENT_HOME  149        // (mA) RMS current for sensorless homing
     #define X_CURRENT_HOME  230 // custom
     #define X_MICROSTEPS     16    // 0..256
@@ -2248,7 +2248,7 @@
 
   #if AXIS_IS_TMC(Y)
     //#define Y_CURRENT       348
-    #define Y_CURRENT       450 // custom
+    #define Y_CURRENT       500 // custom
     //#define Y_CURRENT_HOME  182
     #define Y_CURRENT_HOME  260  // custom
     #define Y_MICROSTEPS     16
