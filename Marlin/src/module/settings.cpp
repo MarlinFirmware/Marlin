@@ -138,7 +138,7 @@
   void M710_report(const bool forReplay);
 #endif
 
-#if ENABLED(CASE_LIGHT_MENU) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+#if ENABLED(CASE_LIGHT_ENABLE) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
   #include "../feature/caselight.h"
   #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
