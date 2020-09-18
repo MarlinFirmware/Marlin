@@ -29,6 +29,15 @@
 #include "rotary_encoder.h"
 #include "../../../libs/BL24CXX.h"
 
+#include "../../../inc/MarlinConfigPre.h"
+
+#if ANY(HAS_HOTEND, HAS_HEATED_BED, HAS_FAN) && PREHEAT_COUNT
+  #define HAS_PREHEAT 1
+  #if PREHEAT_COUNT < 2
+    #error "Creality DWIN requires two material preheat presets."
+  #endif
+#endif
+
 #include <stdint.h>
 
 enum processID {
@@ -38,15 +47,25 @@ enum processID {
   Prepare,
   Control,
   Leveling,
+  BltouchM,
   PrintProcess,
   AxisMove,
+  ZToolbox,
+  PreHeats,
+  LevelUBL,
+  MenuUBL,
+  Meshoffset,
+  Mlevel,
+  HomeM,
+  LiveTune,
   TemperatureID,
   Motion,
   Info,
   Tune,
   #if HAS_HOTEND
+    FilamentChange,
     PLAPreheat,
-    ABSPreheat,
+    Preheat,
   #endif
   MaxSpeed,
   MaxSpeed_value,
@@ -68,11 +87,11 @@ enum processID {
   Move_X,
   Move_Y,
   Move_Z,
+  Extruder,
+  Homeoffset,
   #if HAS_HOTEND
-    Extruder,
     ETemp,
   #endif
-  Homeoffset,
   #if HAS_HEATED_BED
     BedTemp,
   #endif
@@ -85,6 +104,9 @@ enum processID {
   Print_window,
   Popup_Window
 };
+
+//endstop pin for fix mounted probes
+#define COM_PIN     PA7
 
 // Picture ID
 #define Start_Process       0
@@ -209,18 +231,20 @@ enum processID {
 // Color
 #define White             0xFFFF
 #define Background_window 0x31E8  // Popup background color
-#define Background_blue   0x1125  // Dark blue background color
-#define Background_black  0x0841  // black background color
+#define Background_blue   0x1125  // Dark blue background color 0x1125
+#define Background_black  0x0000  // black background color --- original 0x0841
 #define Font_window       0xD6BA  // Popup font background color
-#define Line_Color        0x3A6A  // Split line color
-#define Rectangle_Color   0xEE2F  // blue square cursor color
+#define Line_Color        0x3A6A  // Split line color 0x3A6A
+#define Rectangle_Color   0x34B8  // blue square cursor color --- orginal 0xEE2F -- favorite so far 0x34B8
 #define Percent_Color     0xFE29  // percentage color
 #define BarFill_Color     0x10E4  // fill color of progress bar
-#define Select_Color      0x33BB  // selected color
+#define Select_Color      0x34B8  // selected color ---original 0x33BB
+#define Adjustment_Color  0x03C1  // color for the original values backgrounds
 
-extern int checkkey, last_checkkey;
+//extern int checkkey, last_checkkey, tool, mat;
 extern float zprobe_zoffset;
 extern char print_filename[16];
+extern char c[16];
 
 extern millis_t dwin_heat_time;
 
@@ -244,7 +268,7 @@ typedef struct {
 } HMI_value_t;
 
 typedef struct {
-  bool language_chinese;  // 0: EN, 1: CN
+  bool language_flag;  // 0: EN, 1: CN
   bool pause_flag:1;
   bool print_finish:1;
   bool confirm_flag:1;
@@ -269,9 +293,9 @@ extern HMI_value_t HMI_ValueStruct;
 extern HMI_Flag    HMI_flag;
 
 // Language
-void HMI_SetLanguage(void);
-void HMI_SetAndSaveLanguageWestern(void);
-void HMI_SetAndSaveLanguageChinese(void);
+void lcd_select_language(void);
+void set_english_to_eeprom(void);
+void set_chinese_to_eeprom(void);
 
 // Show ICO
 void ICON_Print(bool show);
@@ -294,6 +318,7 @@ void ICON_Stop(bool show);
 void Popup_Window_Resume(void);
 void Popup_Window_Home(void);
 void Popup_Window_Leveling(void);
+void Popup_Window_Save(void);
 
 void Goto_PrintProcess(void);
 void Goto_MainMenu(void);
@@ -318,6 +343,7 @@ void HMI_MaxCornerXYZE(void);
 void HMI_StepXYZE(void);
 
 void update_variable(void);
+void external_print_tune(void);
 void show_plus_or_minus(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value);
 
 // SD Card
@@ -340,14 +366,24 @@ void HMI_Prepare(void);           // prepare page
 void HMI_Control(void);           // control page
 void HMI_Leveling(void);          // Level the page
 void HMI_AxisMove(void);          // Axis movement menu
+void HMI_ZToolbox (void);	      // Z Toolbox menu
+void HMI_BlTouch_Menu (void);	  // Bltouch menu
+void HMI_PreHeats(void);          // Preheating Menu
 void HMI_Temperature(void);       // Temperature menu
 void HMI_Motion(void);            // Sports menu
 void HMI_Info(void);              // Information menu
 void HMI_Tune(void);              // Adjust the menu
+void HMI_HomingMenu(void);        // homing menu
+void HMI_MlevelMenu(void);        // Manual Level menu
+void HMI_live_Zoffset(void);      // Live z-offset during prints
+void HMI_select_LevelUBL(void);	  // UBL leveling Menu
+void HMI_Menu_UBL(void);		  // UBL map 
+void HMI_Meshoffset(void);		  // UBL Zoffset adjust
+void HMI_Filament(void);          // Filament change
 
 #if HAS_HOTEND
   void HMI_PLAPreheatSetting(void); // PLA warm-up setting
-  void HMI_ABSPreheatSetting(void); // ABS warm-up setting
+  void HMI_PreheatSetting(void); // ABS warm-up setting
 #endif
 
 void HMI_MaxSpeed(void);          // Maximum speed submenu
