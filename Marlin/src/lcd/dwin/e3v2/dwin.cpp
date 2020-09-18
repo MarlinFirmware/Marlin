@@ -3052,31 +3052,31 @@ inline void Prepare_Item_FanSpeed(const uint8_t row) {
 }
 
 inline void Prepare_Item_PLASettings(const uint8_t row) {
-	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"PLA Settings");
+	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)PREHEAT_1_LABEL);
     Draw_Menu_Line(row, ICON_Temperature);
 	Draw_More_Icon(row);
 }
 
 inline void Prepare_Item_ABSSettings(const uint8_t row) {
-	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"ABS Settings");
+	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)PREHEAT_2_LABEL);
     Draw_Menu_Line(row, ICON_Temperature);
 	Draw_More_Icon(row);
 }
 
 inline void Prepare_Item_Custom1Settings(const uint8_t row) {
-	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"Custom 1 Settings");
+	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)PREHEAT_3_LABEL);
     Draw_Menu_Line(row, ICON_Temperature);
 	Draw_More_Icon(row);
 }
 
 inline void Prepare_Item_Custom2Settings(const uint8_t row) {
-	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"Custom 2 Settings");
+	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)PREHEAT_4_LABEL);
     Draw_Menu_Line(row, ICON_Temperature);
 	Draw_More_Icon(row);
 }
 
 inline void Prepare_Item_Custom3Settings(const uint8_t row) {
-	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"Custom 3 Settings");
+	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)PREHEAT_5_LABEL);
     Draw_Menu_Line(row, ICON_Temperature);
 	Draw_More_Icon(row);
 }
@@ -5018,7 +5018,9 @@ void DWIN_HandleScreen(void) {
 	case LevelUBL:				HMI_select_LevelUBL(); break;
 	case MenuUBL:				HMI_Menu_UBL(); break;
 	#endif
+	#ifdef MESH_BED_LEVELING
 	case Meshoffset:            HMI_Meshoffset(); break;
+	#endif
     default: break;
   }
 }
