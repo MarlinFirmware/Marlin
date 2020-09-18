@@ -125,7 +125,7 @@ constexpr uint16_t TROWS = 6, MROWS = TROWS - 1,        // Total rows, and other
 
 #define MBASE(L) (49 + (L)*MLINE)
 
-#define BABY_Z_VAR TERN(HAS_LEVELING, probe.offset.z, zprobe_zoffset)
+#define BABY_Z_VAR TERN(HAS_BED_PROBE, probe.offset.z, zprobe_zoffset)
 
 /* Value Init */
 HMI_value_t HMI_ValueStruct;
@@ -521,7 +521,7 @@ inline void Prepare_Item_Offset(const uint8_t row) {
   if (HMI_flag.language_flag) {
     #if HAS_BED_PROBE
       DWIN_Frame_AreaCopy(1, 174, 164, 271 - 48, 479 - 302, LBLX, MBASE(row));
-      show_plus_or_minus(font8x16, Background_black, 2, 2, 202, MBASE(row), probe.offset.z * 100);
+      show_plus_or_minus(font8x16, Background_black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
     #else
       DWIN_Frame_AreaCopy(1, 43, 89, 271 - 173, 479 - 378, LBLX, MBASE(row));
     #endif
@@ -859,7 +859,9 @@ inline void Draw_Tune_Menu() {
     DWIN_Frame_AreaCopy(1, 240, 104, 271 - 7, 479 - 365, LBLX, MBASE(3)); // Bed...
     DWIN_Frame_AreaCopy(1, 1, 89, 271 - 188, 479 - 377 - 1, LBLX + 24 + 3, MBASE(3)); // ...Temperature
     DWIN_Frame_AreaCopy(1, 0, 119, 271 - 207, 479 - 347, LBLX, MBASE(4)); // fan speed
+	#if EITHER(HAS_BED_PROBE, BABYSTEPPING)
     DWIN_Frame_AreaCopy(1, 93, 179, 271 - 130, 479 - 290, LBLX, MBASE(5)); // Z-offset
+	#endif
   }
 
   if (ExtPrint_flag != 2){
@@ -877,7 +879,9 @@ inline void Draw_Tune_Menu() {
   DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(2), thermalManager.temp_hotend[0].target);
   DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(3), thermalManager.temp_bed.target);
   DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(4), thermalManager.fan_speed[0]);
+  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   show_plus_or_minus(font8x16, Background_black, 2, 2, 202, MBASE(5), BABY_Z_VAR * 100);
+  #endif
 }
 
 inline void draw_max_en(const uint16_t line) {
@@ -1418,7 +1422,7 @@ void HMI_Move_E(void) {
     DWIN_UpdateLCD();
   }
 }
-#if HAS_LEVELING
+#if HAS_BED_PROBE
 void HMI_Zoffset(void) {
   ENCODER_DiffState encoder_diffState = Encoder_ReceiveAnalyze();
   if (encoder_diffState != ENCODER_DIFF_NO) {
@@ -2124,7 +2128,7 @@ void update_variable(void) {
   }
   
   // Bottom z offset update
-  #if HAS_LEVELING
+  #if HAS_BED_PROBE
     if (last_probe_zoffset != probe.offset.z) {
       show_plus_or_minus(STAT_FONT, Background_black, 2, 2, 178 + STAT_CHR_W, 402, probe.offset.z * 100);
       last_probe_zoffset = probe.offset.z;
@@ -2340,7 +2344,11 @@ void HMI_StartFrame(const bool with_update) {
   show_plus_or_minus(font8x16, Background_black, 3, 1, 134, 444, current_position[Y_AXIS] * MINUNITMULT); //y
   show_plus_or_minus(font8x16, Background_black, 3, 1, 220, 444, current_position[Z_AXIS] * MINUNITMULT); //z
 
+  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
   show_plus_or_minus(STAT_FONT, Background_black, 2, 2, 178, 401, BABY_Z_VAR * 100);
+  #else
+  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 178, 401, (char*)"NP");
+  #endif
   DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + 3 * STAT_CHR_W + 5, 363, (char*)"/");
   DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 178 + 3 * STAT_CHR_W + 5, 363, (char*)"/");
   //DWIN_Draw_Line(Line_Color, 16, 431, 256, 431);
@@ -2950,7 +2958,7 @@ void HMI_Prepare(void) {
            Draw_Mlevel_Menu();
 		  break;
 		 }
-		#elif HAS_LEVELING
+		#elif HAS_BED_PROBE
 		 checkkey = ZToolbox;
 		 Tool = 1;
          select_zbox.reset();
@@ -4413,10 +4421,14 @@ void HMI_BlTouch_Menu(void) {
 void HMI_Tune(void) {
   ENCODER_DiffState encoder_diffState = get_encoder_state();
   if (encoder_diffState == ENCODER_DIFF_NO) return;
-
+  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
+	int tuneN = 5;
+  #else
+	int tuneN = 4;
+  #endif
   // Avoid flicker by updating only the previous menu
   if (encoder_diffState == ENCODER_DIFF_CW) {
-    if (select_tune.inc(6)) {
+    if (select_tune.inc(tuneN)) {
       if (select_tune.now > MROWS && select_tune.now > index_tune) {
         index_tune = select_tune.now;
         Scroll_Menu(DWIN_SCROLL_UP);
@@ -4485,30 +4497,14 @@ void HMI_Tune(void) {
             EncoderRate.encoderRateEnabled = 1;
             break;
         #endif
+	  #if EITHER(HAS_BED_PROBE, BABYSTEPPING)
       case 5: // Z-offset
         checkkey = LiveTune;
         HMI_ValueStruct.offset_value = BABY_Z_VAR * 100;
         show_plus_or_minus(font8x16, Select_Color, 2, 2, 202, MBASE(5 + MROWS - index_tune), HMI_ValueStruct.offset_value);
         EncoderRate.encoderRateEnabled = 1;
         break;
-      case 6: // Language
-        // Select language
-        HMI_flag.language_flag = !HMI_flag.language_flag;
-
-        Clear_Main_Window();
-
-        if (HMI_flag.language_flag) {
-          set_chinese_to_eeprom();
-          DWIN_JPG_CacheTo1(Language_Chinese);
-        }
-        else {
-          set_english_to_eeprom();
-          DWIN_JPG_CacheTo1(Language_English);
-        }
-
-        Draw_Tune_Menu();
-        break;
-
+	  #endif
       default: break;
     }
   }
@@ -4892,7 +4888,9 @@ void EachMomentUpdate(void) {
   else if (abort_flag && !HMI_flag.home_flag) { // Print Stop
     abort_flag = 0;
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
+	#if HAS_BED_PROBE
     zprobe_zoffset = TERN(HAS_LEVELING, probe.offset.z, 0);
+	#endif
 
     planner.finish_and_disable();
 
@@ -4995,7 +4993,9 @@ void DWIN_HandleScreen(void) {
     case Move_Y:                HMI_Move_Y(); break;
     case Move_Z:                HMI_Move_Z(); break;
     case Extruder:              HMI_Move_E(); break;
-    case Homeoffset:            HMI_Zoffset(); break;
+	#if HAS_BED_PROBE
+      case Homeoffset:            HMI_Zoffset(); break;
+	#endif
 	case LiveTune:              HMI_live_Zoffset(); break;
 	case FilamentChange:		HMI_Filament(); break;
     #if HAS_HOTEND
@@ -5043,7 +5043,9 @@ void DWIN_CompletedHoming(void) {
   }
   else if (checkkey == Back_Main) {
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
+	#if HAS_BED_PROBE
     zprobe_zoffset = TERN0(BLTOUCH, probe.offset.z);
+	#endif
     planner.finish_and_disable();
     Goto_MainMenu();
   }
