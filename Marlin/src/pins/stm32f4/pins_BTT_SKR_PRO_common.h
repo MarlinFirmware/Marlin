@@ -41,6 +41,7 @@
 // Servos
 //
 #define SERVO0_PIN                          PA1
+#define SERVO1_PIN                          PC9
 
 //
 // Trinamic Stallguard pins
@@ -228,7 +229,7 @@
 //
 #define HEATER_0_PIN                        PB1   // Heater0
 #define HEATER_1_PIN                        PD14  // Heater1
-#define HEATER_2_PIN                        PB0   // Heater1
+#define HEATER_CHAMBER_PIN                  PB0   // Heater1
 #define HEATER_BED_PIN                      PD12  // Hotbed
 #define FAN_PIN                             PC8   // Fan0
 #define FAN1_PIN                            PE5   // Fan1
@@ -239,7 +240,18 @@
 #endif
 
 //
-// Misc. Functions
+// Misc. Functions including servo for heated chamber vent
+//
+#ifdef CHAMBER_VENT_SERVO
+  #define CHAMBER_SERVO_PIN                  SERVO1_PIN
+#endif
+
+#ifndef CHAMBER_AUTO_FAN_PIN
+  #define CHAMBER_AUTO_FAN_PIN               FAN2_PIN
+#endif
+
+//
+// SD
 //
 
 #ifndef SDCARD_CONNECTION
