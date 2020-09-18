@@ -284,8 +284,8 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rx = (parser.linearval('X', NAN)),
-                    ry = (parser.linearval('Y', NAN));
+        const float rx = parser.linearval('X', NAN),
+                    ry = parser.linearval('Y', NAN);
         int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
         if (!isnan(rx) && !isnan(ry)) {
@@ -365,31 +365,19 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        probe_position_lf.set(
-          _MAX(X_CENTER - size / 2, x_min),
-          _MAX(Y_CENTER - size / 2, y_min)
-        );
-        probe_position_rb.set(
-          _MIN(probe_position_lf.x + size, x_max),
-          _MIN(probe_position_lf.y + size, y_max)
-        );
+        probe_position_lf.set(_MAX(X_CENTER - size / 2, x_min), _MAX(Y_CENTER - size / 2, y_min));
+        probe_position_rb.set(_MIN(probe_position_lf.x + size, x_max), _MIN(probe_position_lf.y + size, y_max));
       }
       else {
-        probe_position_lf.set(
-          parser.seenval('L') ? (parser.value_linear_units()) : x_min,
-          parser.seenval('F') ? (parser.value_linear_units()) : y_min
-        );
-        probe_position_rb.set(
-          parser.seenval('R') ? (parser.value_linear_units()) : x_max,
-          parser.seenval('B') ? (parser.value_linear_units()) : y_max
-        );
+        probe_position_lf.set(parser.linearval('L', x_min), parser.linearval('F', y_min));
+        probe_position_rb.set(parser.linearval('R', x_max), parser.linearval('B', y_max));
       }
 
       if (!probe.good_bounds(probe_position_lf, probe_position_rb)) {
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Left : ", probe_position_lf.x);
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Right : ", probe_position_rb.x);
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Front : ", probe_position_lf.y);
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Back : ", probe_position_rb.y);
+        if (DEBUGGING(LEVELING)) {
+          DEBUG_ECHOLNPAIR("G29 L", probe_position_lf.x, " R", probe_position_rb.x,
+                              " F", probe_position_lf.y, " B", probe_position_rb.y);
+        }
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false);
       }
