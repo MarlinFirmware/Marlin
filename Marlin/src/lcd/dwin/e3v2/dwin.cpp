@@ -684,7 +684,7 @@ inline void Prepare_Item_TempSetMenu(const uint8_t row) {
 
 inline void Prepare_Item_MotionSetMenu(const uint8_t row) {
 	DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(row), (char*)"Motion");
-    Draw_Menu_Line(row, ICON_SetBedTemp);
+    Draw_Menu_Line(row, ICON_Motion);
 	Draw_More_Icon(row);
 }
 
