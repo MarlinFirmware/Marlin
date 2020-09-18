@@ -524,8 +524,6 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Сумарно");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Кінцевик спрацював");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Збій нагріву");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Збій нагріву столу");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Збій нагріву камери");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("ЗАВИЩЕНА Т") LCD_STR_DEGREE;
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ВИТІК ТЕПЛА");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ВИТІК ТЕПЛА СТОЛУ");

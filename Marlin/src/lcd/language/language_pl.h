@@ -385,8 +385,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Łącznie");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Błąd krańcówki");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Rozgrz. nieudane");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Rozgrz. stołu nieudane");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Rozgrz. komory nieudane");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Błąd temperatury");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ZANIK TEMPERATURY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ZANIK TEMP. STOŁU");
@@ -500,7 +498,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Usuń, kliknij");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Miks");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mikser");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Pełny gradient");
