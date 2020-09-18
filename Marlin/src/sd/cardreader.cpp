@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,19 +24,21 @@
 
 #if ENABLED(SDSUPPORT)
 
+//#define DEBUG_CARDREADER
+
 #include "cardreader.h"
 
 #include "../MarlinCore.h"
 #include "../lcd/ultralcd.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/dwin.h"
+  #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
-#include "../module/configuration_store.h"
+#include "../module/settings.h"
 #include "../module/stepper/indirection.h"
 
 #if ENABLED(EMERGENCY_PARSER)
@@ -50,6 +52,9 @@
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../feature/pause.h"
 #endif
+
+#define DEBUG_OUT ENABLED(DEBUG_CARDREADER)
+#include "../core/debug_out.h"
 
 // public:
 
@@ -136,6 +141,10 @@ CardReader::CardReader() {
 
   // Disable autostart until card is initialized
   autostart_index = -1;
+
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
+  #endif
 
   #if PIN_EXISTS(SDPOWER)
     OUT_WRITE(SDPOWER_PIN, HIGH); // Power the SD reader
@@ -272,8 +281,10 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 // List all files on the SD card
 //
 void CardReader::ls() {
-  root.rewind();
-  printListing(root);
+  if (flag.mounted) {
+    root.rewind();
+    printListing(root);
+  }
 }
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
@@ -376,7 +387,13 @@ void CardReader::mount() {
     flag.mounted = true;
     SERIAL_ECHO_MSG(STR_SD_CARD_OK);
   }
-  cdroot();
+
+  if (flag.mounted)
+    cdroot();
+  #if ENABLED(USB_FLASH_DRIVE_SUPPORT) || PIN_EXISTS(SD_DETECT)
+    else if (marlin_state != MF_INITIALIZING)
+      ui.set_status_P(GET_TEXT(MSG_SD_INIT_FAIL), -1);
+  #endif
 
   ui.refresh();
 }
@@ -389,9 +406,11 @@ void CardReader::mount() {
 #endif
 
 void CardReader::manage_media() {
-  static uint8_t prev_stat = TERN(INIT_SDCARD_ON_BOOT, 2, 0);
+  static uint8_t prev_stat = 2;       // First call, no prior state
   uint8_t stat = uint8_t(IS_SD_INSERTED());
   if (stat == prev_stat) return;
+
+  DEBUG_ECHOLNPAIR("SD: Status changed from ", prev_stat, " to ", stat);
 
   flag.workDirIsRoot = true;          // Return to root on mount/release
 
@@ -419,12 +438,15 @@ void CardReader::manage_media() {
     if (stat) {
       TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
       if (old_stat == 2)              // First mount?
+        DEBUG_ECHOLNPGM("First mount.");
         TERN(POWER_LOSS_RECOVERY,
           recovery.check(),           // Check for PLR file. (If not there it will beginautostart)
           beginautostart()            // Look for auto0.g on the next loop
         );
     }
   }
+  else
+    DEBUG_ECHOLNPGM("SD: No UI Detected.");
 }
 
 void CardReader::release() {
@@ -947,7 +969,7 @@ void CardReader::cdroot() {
 
         // Init sort order.
         for (uint16_t i = 0; i < fileCnt; i++) {
-          sort_order[i] = SD_ORDER(i, fileCnt);
+          sort_order[i] = i;
           // If using RAM then read all filenames now.
           #if ENABLED(SDSORT_USES_RAM)
             selectFileByIndex(i);

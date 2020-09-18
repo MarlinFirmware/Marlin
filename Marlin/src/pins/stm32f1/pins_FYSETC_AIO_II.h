@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -33,7 +33,7 @@
 #define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Flash EEPROM Emulation
@@ -84,7 +84,7 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
 
   /**
    * TMC2208/TMC2209 stepper drivers
@@ -97,9 +97,14 @@
   #define Y_HARDWARE_SERIAL  Serial1
   #define Z_HARDWARE_SERIAL  Serial1
   #define E0_HARDWARE_SERIAL Serial1
-  #define TMC_SERIAL_MULTIPLEXER
-  #define SERIAL_MUL_PIN1                   PB13
-  #define SERIAL_MUL_PIN2                   PB12
+
+  // The 4xTMC2209 module doesn't have a serial multiplexer and
+  // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
+  #if HAS_DRIVER(TMC2208)
+    #define TMC_SERIAL_MULTIPLEXER
+    #define SERIAL_MUL_PIN1                 PB13
+    #define SERIAL_MUL_PIN2                 PB12
+  #endif
 
 #endif
 
@@ -107,7 +112,7 @@
 // Stepper current PWM
 //
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // origin:2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
@@ -147,7 +152,7 @@
       #define DOGLCD_CS                     PB7
     #endif
 
-    //#define LCD_CONTRAST_INIT 190
+    //#define LCD_CONTRAST_INIT              190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270

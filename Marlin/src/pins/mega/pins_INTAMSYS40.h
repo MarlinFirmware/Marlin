@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -82,7 +82,7 @@
 
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE  2000
+  #define MOTOR_CURRENT_PWM_RANGE            2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT  { 1300, 1300, 1250 }
 

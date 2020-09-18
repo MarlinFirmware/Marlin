@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,6 +26,7 @@
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
+#include "../../../module/stepper/indirection.h"
 
 /**
  * M122: Debug TMC drivers
@@ -36,6 +37,8 @@ void GcodeSuite::M122() {
   LOOP_XYZE(i) if (parser.seen(axis_codes[i])) { print_axis[i] = true; print_all = false; }
 
   if (print_all) LOOP_XYZE(i) print_axis[i] = true;
+
+  if (parser.boolval('I')) restore_stepper_drivers();
 
   #if ENABLED(TMC_DEBUG)
     #if ENABLED(MONITOR_DRIVER_STATUS)

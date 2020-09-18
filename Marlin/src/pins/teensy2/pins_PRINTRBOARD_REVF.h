@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -158,7 +158,7 @@
 #define DAC_STEPPER_MAX                      3520
 #define DAC_STEPPER_VREF                       1  // internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN                       0
-#define DAC_OR_ADDRESS 0x00
+#define DAC_OR_ADDRESS                      0x00
 
 //
 // Temperature Sensors

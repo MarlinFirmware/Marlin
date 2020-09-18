@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -52,7 +52,7 @@ void GcodeSuite::G0_G1(
 
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
-      && !axis_unhomed_error(
+      && !homing_needed_error(
           (parser.seen('X') ? _BV(X_AXIS) : 0)
         | (parser.seen('Y') ? _BV(Y_AXIS) : 0)
         | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )

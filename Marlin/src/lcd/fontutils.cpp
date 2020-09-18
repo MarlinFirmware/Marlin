@@ -73,7 +73,7 @@ int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, 
   return -1;
 }
 
-/* This function gets the character at the pstart position, interpreting UTF8 multybyte sequences
+/* This function gets the character at the pstart position, interpreting UTF8 multibyte sequences
    and returns the pointer to the next character */
 uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval) {
   uint32_t val = 0;
@@ -161,7 +161,6 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
 }
 
 static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
-
   uint8_t cnt = 0;
   uint8_t *pnext = (uint8_t *)pstart;
   for (;;) {

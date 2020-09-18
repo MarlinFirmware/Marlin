@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,7 @@
 #if PIO_PLATFORM_VERSION < 1001
   #error "nxplpc-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries. You may need to remove the platform and let it reinstall automatically."
 #endif
-#if PIO_FRAMEWORK_VERSION < 2002
+#if PIO_FRAMEWORK_VERSION < 2005
   #error "framework-arduino-lpc176x package is out of date, Please update the PlatformIO platforms, frameworks and libraries."
 #endif
 
@@ -58,6 +58,10 @@
  * fallback software channels, FAST_PWM_FAN is incompatible with Servos.
  */
 static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are incompatible with FAST_PWM_FAN on LPC176x boards.");
+
+#if SPINDLE_LASER_FREQUENCY
+  static_assert(!NUM_SERVOS, "BLTOUCH and Servos are incompatible with SPINDLE_LASER_FREQUENCY on LPC176x boards.");
+#endif
 
 /**
  * Test LPC176x-specific configuration values for errors at compile-time.

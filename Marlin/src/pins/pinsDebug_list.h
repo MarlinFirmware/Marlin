@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -1420,4 +1420,23 @@
 #endif
 #if PIN_EXISTS(ESP_WIFI_MODULE_GPIO2)
   REPORT_NAME_DIGITAL(__LINE__, ESP_WIFI_MODULE_GPIO2_PIN)
+#endif
+// TFT PINS
+#if PIN_EXISTS(TFT_CS)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_CS_PIN)
+#endif
+#if PIN_EXISTS(TFT_A0)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_A0_PIN)
+#endif
+#if PIN_EXISTS(TFT_DC)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_DC_PIN)
+#endif
+#if PIN_EXISTS(TFT_MISO)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_MISO_PIN)
+#endif
+#if PIN_EXISTS(TFT_BACKLIGHT)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_BACKLIGHT_PIN)
+#endif
+#if PIN_EXISTS(TFT_RESET)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_RESET_PIN)
 #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -75,6 +75,9 @@ const char* ftostr53_63(const float &x);
 
 // Convert signed float to fixed-length string with 023.456 / -23.456 format
 const char* ftostr63(const float &x);
+
+// Convert float to fixed-length string with +12.3 / -12.3 format
+const char* ftostr31sign(const float &x);
 
 // Convert float to fixed-length string with +123.4 / -123.4 format
 const char* ftostr41sign(const float &x);

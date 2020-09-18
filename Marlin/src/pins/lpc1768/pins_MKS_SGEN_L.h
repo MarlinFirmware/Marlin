@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -188,7 +188,7 @@
   #define Z2_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif // TMC2208 || TMC2209
 
 //
@@ -229,7 +229,7 @@
  *                _____                                            _____
  * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
  * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
- * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 1.20 (SD_MOSI)
+ * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)           (BTN_EN2)   3.26 | · · | 0.9  (SD_MOSI)
  * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
  *           GND | · · | 5V                                   GND | · · | NC
  *                -----                                            -----
@@ -279,7 +279,7 @@
         #define DOGLCD_CS                  P0_18
         #define DOGLCD_A0                  P0_16
         #define DOGLCD_SCK                 P0_07
-        #define DOGLCD_MOSI                P1_20
+        #define DOGLCD_MOSI                P0_09
 
         #define LCD_BACKLIGHT_PIN          -1
 

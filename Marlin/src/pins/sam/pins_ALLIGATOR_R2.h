@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
  * Alligator Board R2
- * http://www.3dartists.org/
+ * https://reprap.org/wiki/Alligator_Board
  */
 
 #ifndef __SAM3X8E__
@@ -144,17 +144,16 @@
 // LCD / Controller
 //
 #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-
   #define LCD_PINS_RS                         18
   #define LCD_PINS_ENABLE                     15
   #define LCD_PINS_D4                         19
   #define BEEPER_PIN                          64
+  #undef UI_VOLTAGE_LEVEL
+  #define UI_VOLTAGE_LEVEL                     1
+#endif
 
+#if ENABLED(NEWPANEL)
   #define BTN_EN1                             14
   #define BTN_EN2                             16
   #define BTN_ENC                             17
-
-  #undef UI_VOLTAGE_LEVEL
-  #define UI_VOLTAGE_LEVEL                     1
-
-#endif // REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#endif

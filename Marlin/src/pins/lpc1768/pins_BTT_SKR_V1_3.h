@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -182,7 +182,7 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 /**
@@ -260,6 +260,10 @@
 
     #define LCD_PINS_ENABLE         EXPA1_03_PIN
     #define LCD_PINS_D4             EXPA1_05_PIN
+
+  #elif HAS_ADC_BUTTONS
+
+    #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
   #else                                           // !CR10_STOCKDISPLAY
 

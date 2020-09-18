@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -50,7 +50,7 @@
 #endif
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 #define IS_RAMPS_EFB
@@ -509,7 +509,7 @@
 
     #elif ENABLED(LCD_I2C_VIKI)
 
-      #define BTN_EN1                         22  // http://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
+      #define BTN_EN1                         22  // https://files.panucatt.com/datasheets/viki_wiring_diagram.pdf explains 40/42.
       #define BTN_EN2                          7  // 22/7 are unused on RAMPS_14. 22 is unused and 7 the SERVO0_PIN on RAMPS_13.
       #define BTN_ENC                         -1
 

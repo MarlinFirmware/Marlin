@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -50,6 +50,8 @@
     #define USE_EMULATED_EEPROM 1
   #elif ANY(I2C_EEPROM, SPI_EEPROM)
     #define USE_WIRED_EEPROM    1
+  #elif ENABLED(IIC_BL24CXX_EEPROM)
+    // nothing
   #else
     #define USE_FALLBACK_EEPROM 1
   #endif
@@ -60,6 +62,7 @@
   #undef SDCARD_EEPROM_EMULATION
   #undef SRAM_EEPROM_EMULATION
   #undef FLASH_EEPROM_EMULATION
+  #undef IIC_BL24CXX_EEPROM
 #endif
 
 #ifdef TEENSYDUINO
@@ -146,11 +149,16 @@
     #define CORE_AXIS_2 C_AXIS
   #endif
   #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
+#elif ENABLED(MARKFORGED_XY)
+  // Markforged kinematics
+  #define CORE_AXIS_1 A_AXIS
+  #define CORE_AXIS_2 B_AXIS
+  #define NORMAL_AXIS Z_AXIS
 #endif
 
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
-  #if IS_CORE
+  #if EITHER(IS_CORE, MARKFORGED_XY)
     #define X_AXIS_INDEX 0
     #define Y_AXIS_INDEX 1
     #define Z_AXIS_INDEX 2
@@ -309,6 +317,10 @@
   #define _LCD_CONTRAST_INIT  17
 #elif ENABLED(MINIPANEL)
   #define _LCD_CONTRAST_INIT  150
+#elif ENABLED(ZONESTAR_12864OLED)
+  #define _LCD_CONTRAST_MIN   64
+  #define _LCD_CONTRAST_INIT 128
+  #define _LCD_CONTRAST_MAX  255
 #endif
 
 #ifdef _LCD_CONTRAST_INIT
@@ -353,11 +365,7 @@
     // mount/unmount the card and refresh it. So we disable card detect.
     //
     #undef SD_DETECT_PIN
-    #define SHARED_SD_CARD
-  #endif
-
-  #if DISABLED(SHARED_SD_CARD)
-    #define INIT_SDCARD_ON_BOOT
+    #define HAS_SHARED_MEDIA 1
   #endif
 
   #if PIN_EXISTS(SD_DETECT)
@@ -374,7 +382,7 @@
 
 #endif
 
-#if EITHER(LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
   #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
 #endif
 
@@ -400,7 +408,7 @@
 #ifndef PSU_NAME
   #if DISABLED(PSU_CONTROL)
     #define PSU_NAME "Generic"  // No control
-  #elif PSU_ACTIVE_HIGH
+  #elif PSU_ACTIVE_STATE
     #define PSU_NAME "XBox"     // X-Box 360 (203W)
   #else
     #define PSU_NAME "ATX"      // ATX style
@@ -1619,7 +1627,7 @@
 //
 
 // Is an endstop plug used for extra Z endstops or the probe?
-#define IS_PROBE_PIN(A,M) (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == P)
+#define IS_PROBE_PIN(A,M) (HAS_CUSTOM_PROBE_PIN && Z_MIN_PROBE_PIN == A##_##M##_PIN)
 #define IS_X2_ENDSTOP(A,M) (ENABLED(X_DUAL_ENDSTOPS) && X2_USE_ENDSTOP == _##A##M##_)
 #define IS_Y2_ENDSTOP(A,M) (ENABLED(Y_DUAL_ENDSTOPS) && Y2_USE_ENDSTOP == _##A##M##_)
 #define IS_Z2_ENDSTOP(A,M) (ENABLED(Z_MULTI_ENDSTOPS) && Z2_USE_ENDSTOP == _##A##M##_)
@@ -1780,7 +1788,10 @@
 // Shorthand for common combinations
 #if HAS_TEMP_BED && HAS_HEATER_BED
   #define HAS_HEATED_BED 1
-  #define BED_MAX_TARGET (BED_MAXTEMP - 10)
+  #ifndef BED_OVERSHOOT
+    #define BED_OVERSHOOT 10
+  #endif
+  #define BED_MAX_TARGET (BED_MAXTEMP - (BED_OVERSHOOT))
 #endif
 #if HAS_HEATED_BED || HAS_TEMP_CHAMBER
   #define BED_OR_CHAMBER 1
@@ -1870,12 +1881,28 @@
   #undef AUTO_POWER_CHAMBER_FAN
 #endif
 
-// Other fans
+// Print Cooling fans (limit)
+#ifdef NUM_M106_FANS
+  #define MAX_FANS NUM_M106_FANS
+#else
+  #define MAX_FANS 8  // Max supported fans
+#endif
+
+#define _NOT_E_AUTO(N,F) (E##N##_AUTO_FAN_PIN != FAN##F##_PIN)
+#define _HAS_FAN(F) (PIN_EXISTS(FAN##F) \
+                     && CONTROLLER_FAN_PIN != FAN##F##_PIN \
+                     && _NOT_E_AUTO(0,F) \
+                     && _NOT_E_AUTO(1,F) \
+                     && _NOT_E_AUTO(2,F) \
+                     && _NOT_E_AUTO(3,F) \
+                     && _NOT_E_AUTO(4,F) \
+                     && _NOT_E_AUTO(5,F) \
+                     && _NOT_E_AUTO(6,F) \
+                     && _NOT_E_AUTO(7,F) \
+                     && F < MAX_FANS)
 #if PIN_EXISTS(FAN)
   #define HAS_FAN0 1
 #endif
-#define _NOT_E_AUTO(N,F) (E##N##_AUTO_FAN_PIN != FAN##F##_PIN)
-#define _HAS_FAN(F) (PIN_EXISTS(FAN##F) && CONTROLLER_FAN_PIN != FAN##F##_PIN && _NOT_E_AUTO(0,F) && _NOT_E_AUTO(1,F) && _NOT_E_AUTO(2,F) && _NOT_E_AUTO(3,F) && _NOT_E_AUTO(4,F) && _NOT_E_AUTO(5,F) && _NOT_E_AUTO(6,F) && _NOT_E_AUTO(7,F))
 #if _HAS_FAN(1)
   #define HAS_FAN1 1
 #endif
@@ -1942,9 +1969,6 @@
 #if PIN_EXISTS(PHOTOGRAPH)
   #define HAS_PHOTOGRAPH 1
 #endif
-#if PIN_EXISTS(CASE_LIGHT) && ENABLED(CASE_LIGHT_ENABLE)
-  #define HAS_CASE_LIGHT 1
-#endif
 
 // Digital control
 #if PIN_EXISTS(STEPPER_RESET)
@@ -1953,7 +1977,7 @@
 #if PIN_EXISTS(DIGIPOTSS)
   #define HAS_DIGIPOTSS 1
 #endif
-#if  ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
+#if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
   #define HAS_MOTOR_CURRENT_PWM 1
 #endif
 
@@ -2133,9 +2157,17 @@
 #endif
 
 #if HAS_TEMPERATURE && EITHER(HAS_LCD_MENU, DWIN_CREALITY_LCD)
-  #define PREHEAT_COUNT 2
-#else
-  #undef PREHEAT_COUNT
+  #ifdef PREHEAT_5_LABEL
+    #define PREHEAT_COUNT 5
+  #elif defined(PREHEAT_4_LABEL)
+    #define PREHEAT_COUNT 4
+  #elif defined(PREHEAT_3_LABEL)
+    #define PREHEAT_COUNT 3
+  #elif defined(PREHEAT_2_LABEL)
+    #define PREHEAT_COUNT 2
+  #elif defined(PREHEAT_1_LABEL)
+    #define PREHEAT_COUNT 1
+  #endif
 #endif
 
 /**
@@ -2213,7 +2245,7 @@
 /**
  * MIN/MAX case light PWM scaling
  */
-#if HAS_CASE_LIGHT
+#if ENABLED(CASE_LIGHT_ENABLE)
   #ifndef CASE_LIGHT_MAX_PWM
     #define CASE_LIGHT_MAX_PWM 255
   #elif !WITHIN(CASE_LIGHT_MAX_PWM, 1, 255)
@@ -2426,7 +2458,7 @@
  */
 #if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
-  #if DISABLED(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #if NONE(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
     #define USE_BEEPER 1
   #endif
 #endif

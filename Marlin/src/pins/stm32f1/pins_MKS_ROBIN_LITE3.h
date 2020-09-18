@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -114,8 +114,6 @@
     #define DOGLCD_CS                       PA7
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
-
-    #undef SHOW_BOOTSCREEN
 
   #else                                           // !MKS_MINI_12864
 

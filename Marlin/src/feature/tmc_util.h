@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,6 +35,7 @@
 #define CHOPPER_DEFAULT_36V  { 5,  2, 4 }
 #define CHOPPER_PRUSAMK3_24V { 3, -2, 6 }
 #define CHOPPER_MARLIN_119   { 5,  2, 3 }
+#define CHOPPER_09STEP_24V   { 3, -1, 5 }
 
 #if ENABLED(MONITOR_DRIVER_STATUS) && !defined(MONITOR_DRIVER_STATUS_INTERVAL_MS)
   #define MONITOR_DRIVER_STATUS_INTERVAL_MS 500u
@@ -104,6 +105,7 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
+      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -170,6 +172,7 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -215,6 +218,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
       inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)

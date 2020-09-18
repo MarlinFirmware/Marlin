@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -81,6 +81,13 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      62
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                            37
@@ -109,6 +116,7 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans

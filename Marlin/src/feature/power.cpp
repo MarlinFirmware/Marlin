@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,6 +32,10 @@
 #include "../module/temperature.h"
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
+
+#if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
+  #include "controllerfan.h"
+#endif
 
 Power powerManager;
 
@@ -55,7 +59,6 @@ bool Power::is_power_needed() {
 
   // If any of the drivers or the bed are enabled...
   if (X_ENABLE_READ() == X_ENABLE_ON || Y_ENABLE_READ() == Y_ENABLE_ON || Z_ENABLE_READ() == Z_ENABLE_ON
-    || TERN0(HAS_HEATED_BED, thermalManager.temp_bed.soft_pwm_amount > 0)
     #if HAS_X2_ENABLE
       || X2_ENABLE_READ() == X_ENABLE_ON
     #endif
@@ -71,8 +74,8 @@ bool Power::is_power_needed() {
     #endif
   ) return true;
 
-  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0) return true;
-  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0)) return true;
+  HOTEND_LOOP() if (thermalManager.degTargetHotend(e) > 0 || thermalManager.temp_hotend[e].soft_pwm_amount > 0) return true;
+  if (TERN0(HAS_HEATED_BED, thermalManager.degTargetBed() > 0 || thermalManager.temp_bed.soft_pwm_amount > 0)) return true;
 
   #if HAS_HOTEND && AUTO_POWER_E_TEMP
     HOTEND_LOOP() if (thermalManager.degHotend(e) >= AUTO_POWER_E_TEMP) return true;
@@ -101,9 +104,9 @@ void Power::power_on() {
   lastPowerOn = millis();
   if (!powersupply_on) {
     PSU_PIN_ON();
-    delay(PSU_POWERUP_DELAY);
+    safe_delay(PSU_POWERUP_DELAY);
     restore_stepper_drivers();
-    TERN_(HAS_TRINAMIC_CONFIG, delay(PSU_POWERUP_DELAY));
+    TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
   }
 }
 

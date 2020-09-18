@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -82,11 +82,11 @@
 // DIGIPOT slave addresses
 //
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A 0x2C              // unshifted slave address for first DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_A             0x2C  // unshifted slave address for first DIGIPOT
 #endif
 
 #ifndef DIGIPOT_I2C_ADDRESS_B
-  #define DIGIPOT_I2C_ADDRESS_B 0x2E              // unshifted slave address for second DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_B             0x2E  // unshifted slave address for second DIGIPOT
 #endif
 
 //

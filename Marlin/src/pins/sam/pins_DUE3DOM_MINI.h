@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -139,7 +139,7 @@
     #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,11 +31,11 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #ifndef MARLIN_EEPROM_SIZE
-  #define MARLIN_EEPROM_SIZE 0x1000
+  #define MARLIN_EEPROM_SIZE              0x1000
 #endif
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Limit Switches

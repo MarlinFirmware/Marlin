@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -38,7 +38,7 @@ bool ConfirmAutoCalibrationDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       GOTO_SCREEN(StatusScreen);
-      injectCommands_P(PSTR(CALIBRATION_COMMANDS));
+      injectCommands_P(PSTR("G425"));
       return true;
     default:
       return DialogBoxBaseClass::onTouchEnd(tag);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 
 #if HAS_FILAMENT_SENSOR
   #include "../../feature/runout.h"
@@ -66,7 +66,7 @@ void menu_advanced_settings();
     bar_percent += (int8_t)ui.encoderPosition;
     LIMIT(bar_percent, 0, 100);
     ui.encoderPosition = 0;
-    MenuItem_static::draw(0, GET_TEXT(MSG_PROGRESS_BAR_TEST), SS_CENTER|SS_INVERT);
+    MenuItem_static::draw(0, GET_TEXT(MSG_PROGRESS_BAR_TEST), SS_DEFAULT|SS_INVERT);
     lcd_put_int((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2, bar_percent); lcd_put_wchar('%');
     lcd_moveto(0, LCD_HEIGHT - 1); ui.draw_progress_bar(bar_percent);
   }
@@ -181,7 +181,7 @@ void menu_advanced_settings();
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
-    const bool need_g28 = !(TEST(axis_known_position, Y_AXIS) && TEST(axis_known_position, Z_AXIS));
+    const bool need_g28 = axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
@@ -224,11 +224,11 @@ void menu_advanced_settings();
     ACTION_ITEM(MSG_BLTOUCH_STOW, bltouch._stow);
     ACTION_ITEM(MSG_BLTOUCH_SW_MODE, bltouch._set_SW_mode);
     #if ENABLED(BLTOUCH_LCD_VOLTAGE_MENU)
-      CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_5V_MODE, MSG_BLTOUCH_5V_MODE, MSG_BUTTON_CANCEL, bltouch._set_5V_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_OD_MODE, MSG_BLTOUCH_OD_MODE, MSG_BUTTON_CANCEL, bltouch._set_OD_mode, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_STORE, bltouch._mode_store);
-      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_5V, MSG_BLTOUCH_MODE_STORE_5V, MSG_BUTTON_CANCEL, bltouch.mode_conv_5V, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
-      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_OD, MSG_BLTOUCH_MODE_STORE_OD, MSG_BUTTON_CANCEL, bltouch.mode_conv_OD, ui.goto_previous_screen, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_5V, MSG_BLTOUCH_MODE_STORE_5V, MSG_BUTTON_CANCEL, bltouch.mode_conv_5V, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
+      CONFIRM_ITEM(MSG_BLTOUCH_MODE_STORE_OD, MSG_BLTOUCH_MODE_STORE_OD, MSG_BUTTON_CANCEL, bltouch.mode_conv_OD, nullptr, GET_TEXT(MSG_BLTOUCH_MODE_CHANGE));
       ACTION_ITEM(MSG_BLTOUCH_MODE_ECHO, bltouch_report);
     #endif
     END_MENU();
@@ -300,17 +300,19 @@ void menu_advanced_settings();
 
 #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
 
-  void _menu_configuration_preheat_settings(const uint8_t m) {
+  void _menu_configuration_preheat_settings() {
     #define _MINTEMP_ITEM(N) HEATER_##N##_MINTEMP,
     #define _MAXTEMP_ITEM(N) HEATER_##N##_MAXTEMP,
     #define MINTEMP_ALL _MIN(REPEAT(HOTENDS, _MINTEMP_ITEM) 999)
     #define MAXTEMP_ALL _MAX(REPEAT(HOTENDS, _MAXTEMP_ITEM) 0)
+    const uint8_t m = MenuItemBase::itemIndex;
     START_MENU();
+    STATIC_ITEM_P(ui.get_preheat_label(m), SS_DEFAULT|SS_INVERT);
     BACK_ITEM(MSG_CONFIGURATION);
     #if HAS_FAN
       editable.uint8 = uint8_t(ui.material_preset[m].fan_speed);
       EDIT_ITEM_N(percent, m, MSG_FAN_SPEED, &editable.uint8, 0, 255, []{ ui.material_preset[MenuItemBase::itemIndex].fan_speed = editable.uint8; });
-    #endif 
+    #endif
     #if HAS_TEMP_HOTEND
       EDIT_ITEM(uint16_3, MSG_NOZZLE, &ui.material_preset[m].hotend_temp, MINTEMP_ALL, MAXTEMP_ALL - HOTEND_OVERSHOOT);
     #endif
@@ -322,18 +324,6 @@ void menu_advanced_settings();
     #endif
     END_MENU();
   }
-
-  void menu_preheat_material1_settings() { _menu_configuration_preheat_settings(0); }
-  void menu_preheat_material2_settings() { _menu_configuration_preheat_settings(1); }
-  #if PREHEAT_COUNT >= 3
-    void menu_preheat_material3_settings() { _menu_configuration_preheat_settings(3); }
-    #if PREHEAT_COUNT >= 4
-      void menu_preheat_material4_settings() { _menu_configuration_preheat_settings(4); }
-      #if PREHEAT_COUNT >= 5
-        void menu_preheat_material5_settings() { _menu_configuration_preheat_settings(5); }
-      #endif
-    #endif
-  #endif
 
 #endif
 
@@ -414,17 +404,8 @@ void menu_configuration() {
 
   // Preheat configurations
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
-    SUBMENU(MSG_PREHEAT_1_SETTINGS, menu_preheat_material1_settings);
-    SUBMENU(MSG_PREHEAT_2_SETTINGS, menu_preheat_material2_settings);
-    #if PREHEAT_COUNT >= 3
-      SUBMENU(MSG_PREHEAT_3_SETTINGS, menu_preheat_material3_settings);
-      #if PREHEAT_COUNT >= 4
-        SUBMENU(MSG_PREHEAT_4_SETTINGS, menu_preheat_material4_settings);
-        #if PREHEAT_COUNT >= 5
-          SUBMENU(MSG_PREHEAT_5_SETTINGS, menu_preheat_material5_settings);
-        #endif
-      #endif
-    #endif
+    LOOP_L_N(m, PREHEAT_COUNT)
+      SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

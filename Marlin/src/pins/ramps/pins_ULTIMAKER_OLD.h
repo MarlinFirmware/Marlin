@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -174,7 +174,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif ENABLED(BOARD_REV_1_5, ULTRA_LCD)
+#elif BOTH(BOARD_REV_1_5, ULTRA_LCD)
 
   #define BEEPER_PIN                          18
 

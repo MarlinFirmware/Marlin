@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -70,20 +70,23 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Seteaza Offseturile Acasa");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offseturi Aplicate");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Seteaza Originea");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Patul");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preincalzeste ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preincalzeste ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Capatul");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Capatul ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Patul");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preincalzeste ") PREHEAT_2_LABEL _UxGT(" Conf");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preincalzeste ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preincalzeste ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Capatul ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Tot");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Patul");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preincalzeste ") PREHEAT_1_LABEL _UxGT(" Conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Preincalzeste $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Preincalzeste $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Preincalzeste $ Capatul");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Preincalzeste $ Capatul ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Preincalzeste $ Tot");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Preincalzeste $ Patul");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Preincalzeste $ Conf");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preincalzeste Personalizat");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Racire");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frecventa");
@@ -146,14 +149,14 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Done Editing Mesh");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Build Custom Mesh");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Build Mesh");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Build Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Build Mesh (") PREHEAT_2_LABEL _UxGT(")");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Build Mesh ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Validate Mesh ($)");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Build Cold Mesh");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Adjust Mesh Height");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Height Amount");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Validate Mesh");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Validate Mesh (") PREHEAT_1_LABEL _UxGT(")");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Validate Mesh (") PREHEAT_2_LABEL _UxGT(")");
   PROGMEM Language_Str MSG_UBL_VALIDATE_CUSTOM_MESH        = _UxGT("Validate Custom Mesh");
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 Heating Bed");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 Heating Nozzle");
@@ -409,14 +412,14 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z Probe Past Bed");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Skew Factor");
   PROGMEM Language_Str MSG_BLTOUCH                         = _UxGT("BLTouch");
-  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Cmd: Self-Test");
-  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Cmd: Reset");
-  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Cmd: Stow");
-  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Cmd: Deploy");
-  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("Cmd: SW-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("Cmd: 5V-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("Cmd: OD-Mode");
-  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Cmd: Mode-Store");
+  PROGMEM Language_Str MSG_BLTOUCH_SELFTEST                = _UxGT("Self-Test");
+  PROGMEM Language_Str MSG_BLTOUCH_RESET                   = _UxGT("Reset");
+  PROGMEM Language_Str MSG_BLTOUCH_STOW                    = _UxGT("Stow");
+  PROGMEM Language_Str MSG_BLTOUCH_DEPLOY                  = _UxGT("Deploy");
+  PROGMEM Language_Str MSG_BLTOUCH_SW_MODE                 = _UxGT("SW-Mode");
+  PROGMEM Language_Str MSG_BLTOUCH_5V_MODE                 = _UxGT("5V-Mode");
+  PROGMEM Language_Str MSG_BLTOUCH_OD_MODE                 = _UxGT("OD-Mode");
+  PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE              = _UxGT("Mode-Store");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_5V           = _UxGT("Set BLTouch to 5V");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_STORE_OD           = _UxGT("Set BLTouch to OD");
   PROGMEM Language_Str MSG_BLTOUCH_MODE_ECHO               = _UxGT("Report Drain");
@@ -439,19 +442,12 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Endstop Abort");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Heating Failed");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Bed Heating Failed");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Chamber Heating Fail");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Err: REDUNDANT TEMP");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("BED THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("CHAMBER T. RUNAWAY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: MAXTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: MINTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP CHAMBER");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP CHAMBER");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY First");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER HALTED");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Please Reset");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -532,7 +528,6 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Runout Dist mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Homing Failed");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Probing Failed");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Too Cold");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOOSE FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -459,7 +459,7 @@ void _O2 Endstops::report_states() {
   #endif
   #if HAS_FILAMENT_SENSOR
     #if NUM_RUNOUT_SENSORS == 1
-      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_INVERTING, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
+      print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
     #else
       #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
       LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
@@ -470,7 +470,7 @@ void _O2 Endstops::report_states() {
         }
         SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) SERIAL_CHAR(' ', '0' + i);
-        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_INVERTING);
+        print_es_state(extDigitalRead(pin) != FIL_RUNOUT_STATE);
       }
       #undef _CASE_RUNOUT
     #endif
@@ -498,7 +498,7 @@ void Endstops::update() {
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT_TO(live_state, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
   #define COPY_LIVE_STATE(SRC_BIT, DST_BIT) SET_BIT_TO(live_state, DST_BIT, TEST(live_state, SRC_BIT))
 
-  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
     // If G38 command is active check Z_MIN_PROBE for ALL movement
     if (G38_move) UPDATE_ENDSTOP_BIT(Z, MIN_PROBE);
   #endif
@@ -514,12 +514,12 @@ void Endstops::update() {
   #endif
 
   // Use HEAD for core axes, AXIS for others
-  #if CORE_IS_XY || CORE_IS_XZ
+  #if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
     #define X_AXIS_HEAD X_HEAD
   #else
     #define X_AXIS_HEAD X_AXIS
   #endif
-  #if CORE_IS_XY || CORE_IS_YZ
+  #if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_XY)
     #define Y_AXIS_HEAD Y_HEAD
   #else
     #define Y_AXIS_HEAD Y_AXIS
@@ -736,7 +736,7 @@ void Endstops::update() {
     #define PROCESS_ENDSTOP_Z(MINMAX) PROCESS_DUAL_ENDSTOP(Z, MINMAX)
   #endif
 
-  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && !(CORE_IS_XY || CORE_IS_XZ)
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN_PROBE) && NONE(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
     #if ENABLED(G38_PROBE_AWAY)
       #define _G38_OPEN_STATE (G38_move >= 4)
     #else
@@ -861,33 +861,29 @@ void Endstops::update() {
 
 #if ENABLED(SPI_ENDSTOPS)
 
-  #define X_STOP (X_HOME_DIR < 0 ? X_MIN : X_MAX)
-  #define Y_STOP (Y_HOME_DIR < 0 ? Y_MIN : Y_MAX)
-  #define Z_STOP (Z_HOME_DIR < 0 ? Z_MIN : Z_MAX)
-
   bool Endstops::tmc_spi_homing_check() {
     bool hit = false;
     #if X_SPI_SENSORLESS
       if (tmc_spi_homing.x && (stepperX.test_stall_status()
-        #if CORE_IS_XY && Y_SPI_SENSORLESS
+        #if ANY(CORE_IS_XY, MARKFORGED_XY) && Y_SPI_SENSORLESS
           || stepperY.test_stall_status()
         #elif CORE_IS_XZ && Z_SPI_SENSORLESS
           || stepperZ.test_stall_status()
         #endif
       )) {
-        SBI(live_state, X_STOP);
+        SBI(live_state, X_ENDSTOP);
         hit = true;
       }
     #endif
     #if Y_SPI_SENSORLESS
       if (tmc_spi_homing.y && (stepperY.test_stall_status()
-        #if CORE_IS_XY && X_SPI_SENSORLESS
+        #if ANY(CORE_IS_XY, MARKFORGED_XY) && X_SPI_SENSORLESS
           || stepperX.test_stall_status()
         #elif CORE_IS_YZ && Z_SPI_SENSORLESS
           || stepperZ.test_stall_status()
         #endif
       )) {
-        SBI(live_state, Y_STOP);
+        SBI(live_state, Y_ENDSTOP);
         hit = true;
       }
     #endif
@@ -899,7 +895,7 @@ void Endstops::update() {
           || stepperY.test_stall_status()
         #endif
       )) {
-        SBI(live_state, Z_STOP);
+        SBI(live_state, Z_ENDSTOP);
         hit = true;
       }
     #endif
@@ -907,9 +903,9 @@ void Endstops::update() {
   }
 
   void Endstops::clear_endstop_state() {
-    TERN_(X_SPI_SENSORLESS, CBI(live_state, X_STOP));
-    TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_STOP));
-    TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_STOP));
+    TERN_(X_SPI_SENSORLESS, CBI(live_state, X_ENDSTOP));
+    TERN_(Y_SPI_SENSORLESS, CBI(live_state, Y_ENDSTOP));
+    TERN_(Z_SPI_SENSORLESS, CBI(live_state, Z_ENDSTOP));
   }
 
 #endif // SPI_ENDSTOPS

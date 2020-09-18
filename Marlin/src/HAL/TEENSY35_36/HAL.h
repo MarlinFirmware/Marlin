@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -45,9 +45,14 @@
 // Defines
 // ------------------------
 
-#define IS_32BIT_TEENSY (defined(__MK64FX512__) || defined(__MK66FX1M0__))
-#define IS_TEENSY35 defined(__MK64FX512__)
-#define IS_TEENSY36 defined(__MK66FX1M0__)
+#ifdef __MK64FX512__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY35 1
+#endif
+#ifdef __MK66FX1M0__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY36 1
+#endif
 
 #define NUM_SERIAL 1
 

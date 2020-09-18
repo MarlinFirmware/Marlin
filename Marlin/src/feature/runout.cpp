@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -43,14 +43,6 @@ bool FilamentMonitorBase::enabled = true,
   //#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
   #include "../module/tool_change.h"
 #endif
-
-/**
- * Called by FilamentSensorSwitch::run when filament is detected.
- * Called by FilamentSensorEncoder::block_completed when motion is detected.
- */
-void FilamentSensorBase::filament_present(const uint8_t extruder) {
-  runout.filament_present(extruder); // calls response.filament_present(extruder)
-}
 
 #if HAS_FILAMENT_RUNOUT_DISTANCE
   float RunoutResponseDelayed::runout_distance_mm = FILAMENT_RUNOUT_DISTANCE_MM;

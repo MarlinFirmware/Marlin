@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,13 +26,13 @@
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
  *
- * Demonstrator: http://www.reprap.org/wiki/STB_Electronics
- * License: http://opensource.org/licenses/BSD-3-Clause
+ * Demonstrator: https://www.reprap.org/wiki/STB_Electronics
+ * License: https://opensource.org/licenses/BSD-3-Clause
  *
  * With the use of:
  *  u8glib by Oliver Kraus
  *  https://github.com/olikraus/U8glib_Arduino
- *  License: http://opensource.org/licenses/BSD-3-Clause
+ *  License: https://opensource.org/licenses/BSD-3-Clause
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -240,39 +240,35 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  #if DISABLED(MKS_LCD12864)
+  #if PIN_EXISTS(LCD_BACKLIGHT)
+    OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
+  #endif
 
-    #if PIN_EXISTS(LCD_BACKLIGHT)
-      OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
+  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED)
+    SET_OUTPUT(LCD_PINS_DC);
+    #ifndef LCD_RESET_PIN
+      #define LCD_RESET_PIN LCD_PINS_RS
     #endif
+  #endif
 
-    #if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
-      SET_OUTPUT(LCD_PINS_DC);
-      #ifndef LCD_RESET_PIN
-        #define LCD_RESET_PIN LCD_PINS_RS
-      #endif
-    #endif
+  #if PIN_EXISTS(LCD_RESET)
+    // Perform a clean hardware reset with needed delays
+    OUT_WRITE(LCD_RESET_PIN, LOW);
+    _delay_ms(5);
+    WRITE(LCD_RESET_PIN, HIGH);
+    _delay_ms(5);
+    u8g.begin();
+  #endif
 
-    #if PIN_EXISTS(LCD_RESET)
-      // Perform a clean hardware reset with needed delays
-      OUT_WRITE(LCD_RESET_PIN, LOW);
-      _delay_ms(5);
-      WRITE(LCD_RESET_PIN, HIGH);
-      _delay_ms(5);
-      u8g.begin();
-    #endif
+  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+    WRITE(LCD_BACKLIGHT_PIN, HIGH);
+  #endif
 
-    #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-      WRITE(LCD_BACKLIGHT_PIN, HIGH);
-    #endif
+  TERN_(HAS_LCD_CONTRAST, refresh_contrast());
 
-    TERN_(HAS_LCD_CONTRAST, refresh_contrast());
-
-    TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
-    TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
-    TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
-
-  #endif // !MKS_LCD12864
+  TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
+  TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
+  TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
@@ -312,7 +308,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
+      if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
@@ -347,20 +343,21 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
+  void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const vstr/*=nullptr*/) {
 
     if (mark_as_selected(row, style & SS_INVERT)) {
 
       pixel_len_t n = LCD_PIXEL_WIDTH; // pixel width of string allowed
 
-      if ((style & SS_CENTER) && !valstr)
-        for (int8_t pad = (LCD_WIDTH - utf8_strlen_P(pstr)) / 2; pad > 0; --pad) {
-          lcd_put_wchar(' ');
-          n -= MENU_FONT_WIDTH;
-        }
+      const int8_t plen = pstr ? utf8_strlen_P(pstr) : 0,
+                   vlen = vstr ? utf8_strlen(vstr) : 0;
+      if (style & SS_CENTER) {
+        int8_t pad = (LCD_WIDTH - plen - vlen) / 2;
+        while (--pad >= 0) n -= lcd_put_wchar(' ');
+      }
 
-      n = lcd_put_u8str_ind_P(pstr, itemIndex, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
-      if (valstr) n -= lcd_put_u8str_max(valstr, n);
+      if (plen) n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n / (MENU_FONT_WIDTH)) * (MENU_FONT_WIDTH);
+      if (vlen) n -= lcd_put_u8str_max(vstr, n);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
     }
   }
@@ -368,7 +365,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   // Draw a generic menu item
   void MenuItemBase::_draw(const bool sel, const uint8_t row, PGM_P const pstr, const char, const char post_char) {
     if (mark_as_selected(row, sel)) {
-      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 1) * (MENU_FONT_WIDTH);
       while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
       lcd_put_wchar(LCD_PIXEL_WIDTH - (MENU_FONT_WIDTH), row_y2, post_char);
       lcd_put_wchar(' ');
@@ -376,17 +373,17 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
   }
 
   // Draw a menu item with an editable value
-  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm) {
+  void MenuEditItemBase::draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm) {
     if (mark_as_selected(row, sel)) {
-      const uint8_t vallen = (pgm ? utf8_strlen_P(data) : utf8_strlen((char*)data)),
-                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), data) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)data));
+      const uint8_t vallen = (pgm ? utf8_strlen_P(inStr) : utf8_strlen((char*)inStr)),
+                    pixelwidth = (pgm ? uxg_GetUtf8StrPixelWidthP(u8g.getU8g(), inStr) : uxg_GetUtf8StrPixelWidth(u8g.getU8g(), (char*)inStr));
 
-      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
+      pixel_len_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2 - vallen) * (MENU_FONT_WIDTH);
       if (vallen) {
         lcd_put_wchar(':');
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');
         lcd_moveto(LCD_PIXEL_WIDTH - _MAX((MENU_FONT_WIDTH) * vallen, pixelwidth + 2), row_y2);
-        if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str((char*)data);
+        if (pgm) lcd_put_u8str_P(inStr); else lcd_put_u8str((char*)inStr);
       }
     }
   }
@@ -423,7 +420,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     // Assume the label is alpha-numeric (with a descender)
     bool onpage = PAGE_CONTAINS(baseline - (EDIT_FONT_ASCENT - 1), baseline + EDIT_FONT_DESCENT);
-    if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex);
+    if (onpage) lcd_put_u8str_ind_P(0, baseline, pstr, itemIndex, itemString);
 
     // If a value is included, print a colon, then print the value right-justified
     if (value != nullptr) {
@@ -438,6 +435,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
         lcd_put_u8str(value);
       }
     }
+    TERN_(USE_BIG_EDIT_FONT, ui.set_font(FONT_MENU));
   }
 
   inline void draw_boxed_string(const u8g_uint_t x, const u8g_uint_t y, PGM_P const pstr, const bool inv) {

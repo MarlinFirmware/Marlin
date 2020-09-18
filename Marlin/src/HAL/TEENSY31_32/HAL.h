@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -44,8 +44,10 @@
 //#undef MOTHERBOARD
 //#define MOTHERBOARD BOARD_TEENSY31_32
 
-#define IS_32BIT_TEENSY defined(__MK20DX256__)
-#define IS_TEENSY32 defined(__MK20DX256__)
+#ifdef __MK20DX256__
+  #define IS_32BIT_TEENSY 1
+  #define IS_TEENSY32 1
+#endif
 
 #define NUM_SERIAL 1
 

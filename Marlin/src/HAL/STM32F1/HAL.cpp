@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -100,7 +100,7 @@ const uint8_t adc_pins[] = {
   #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
-  #if HAS_HEATED_CHAMBER
+  #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER_PIN,
   #endif
   #if HAS_TEMP_ADC_1
@@ -154,7 +154,7 @@ enum TempPinIndex : char {
   #if HAS_HEATED_BED
     TEMP_BED,
   #endif
-  #if HAS_HEATED_CHAMBER
+  #if HAS_TEMP_CHAMBER
     TEMP_CHAMBER,
   #endif
   #if HAS_TEMP_ADC_1
@@ -258,7 +258,7 @@ void HAL_init() {
 // HAL idle task
 void HAL_idletask() {
   #ifdef USE_USB_COMPOSITE
-    #if ENABLED(SHARED_SD_CARD)
+    #if HAS_SHARED_MEDIA
       // If Marlin is using the SD card we need to lock it to prevent access from
       // a PC via USB.
       // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
@@ -266,7 +266,7 @@ void HAL_idletask() {
       // the disk if Marlin has it mounted. Unfortunately there is currently no way
       // to unmount the disk from the LCD menu.
       // if (IS_SD_PRINTING() || IS_SD_FILE_OPEN())
-      /* copy from lpc1768 framework, should be fixed later for process SHARED_SD_CARD*/
+      /* copy from lpc1768 framework, should be fixed later for process HAS_SHARED_MEDIA*/
     #endif
     // process USB mass storage device class loop
     MarlinMSC.loop();
@@ -344,7 +344,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
-    #if HAS_HEATED_CHAMBER
+    #if HAS_TEMP_CHAMBER
       case TEMP_CHAMBER_PIN: pin_index = TEMP_CHAMBER; break;
     #endif
     #if HAS_TEMP_ADC_1

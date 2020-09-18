@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -789,6 +789,24 @@
 
   // Instantiate
   MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
+
+#endif
+
+#ifdef ANYCUBIC_LCD_SERIAL_PORT
+
+  ISR(SERIAL_REGNAME(USART,ANYCUBIC_LCD_SERIAL_PORT,_RX_vect)) {
+    MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>::store_rxd_char();
+  }
+
+  ISR(SERIAL_REGNAME(USART,ANYCUBIC_LCD_SERIAL_PORT,_UDRE_vect)) {
+    MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
+  }
+
+  // Preinstantiate
+  template class MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>;
+
+  // Instantiate
+  MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>> anycubicLcdSerial;
 
 #endif
 

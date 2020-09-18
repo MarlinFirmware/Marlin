@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,7 +32,7 @@
 // https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 #define DISABLE_JTAG
 
@@ -151,7 +151,7 @@
   #define LCD_PINS_D4                       PB13  // SCLK
   #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
 
-  //#define LCD_CONTRAST_INIT 190
+  //#define LCD_CONTRAST_INIT                190
 
   #if ENABLED(NEWPANEL)
     #define BTN_EN1                         PC10
@@ -172,6 +172,6 @@
     #define CLCD_SOFT_SPI_MISO              PB14
     #define CLCD_SOFT_SPI_SCLK              PB13
   #else
-    #define CLCD_SPI_BUS 2
+    #define CLCD_SPI_BUS                       2
   #endif
 #endif

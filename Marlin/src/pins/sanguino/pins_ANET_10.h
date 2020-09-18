@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -82,7 +82,7 @@
  * Additional info:
  *
  *   Anet Schematics                    - https://github.com/ralf-e/ANET-3D-Board-V1.0
- *   Wiring RRDFG Smart Controller      - http://www.thingiverse.com/thing:2103748
+ *   Wiring RRDFG Smart Controller      - https://www.thingiverse.com/thing:2103748
  *   SkyNet3D Anet software development - https://github.com/SkyNet3D/Marlin/
  *   Anet Users / Skynet SW on Facebook - https://www.facebook.com/skynet3ddevelopment/
  *
@@ -163,7 +163,7 @@
     #define LCD_PINS_D6                       16
     #define LCD_PINS_D7                       17
     #define ADC_KEYPAD_PIN                     1
-  #elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD)
+  #elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
@@ -209,7 +209,7 @@
  * ====================================================================
  *
  *   Anet V1.0 controller           | ZONESTAR_LCD      | ANET_FULL_      | RepRapDiscount Full      | Thingiverse RepRap wiring
- *   physical   logical   alt       |                   | GRAPHICS_LCD    | Graphics Display Wiring  | http://www.thingiverse
+ *   physical   logical   alt       |                   | GRAPHICS_LCD    | Graphics Display Wiring  | https://www.thingiverse
  *     pin        pin     functions |                   |                 |                          | .com/thing:2103748
  *------------------------------------------------------------------------------------------------------------------------
  *   ANET-J3.1    8 ***             | N/A               | J3_TX ***       |                          |

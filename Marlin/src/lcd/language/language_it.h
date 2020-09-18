@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -46,6 +46,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Media inserito");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Media rimosso");
   PROGMEM Language_Str MSG_MEDIA_WAITING                   = _UxGT("Aspettando media");
+  PROGMEM Language_Str MSG_SD_INIT_FAIL                    = _UxGT("Inizial.SD fallita");
   PROGMEM Language_Str MSG_MEDIA_READ_ERROR                = _UxGT("Err.leggendo media");
   PROGMEM Language_Str MSG_MEDIA_USB_REMOVED               = _UxGT("Dispos.USB rimosso");
   PROGMEM Language_Str MSG_MEDIA_USB_FAILED                = _UxGT("Avvio USB fallito");
@@ -64,6 +65,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home asse Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home asse Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Allineam.automat. Z");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Tramming assistito");
   PROGMEM Language_Str MSG_LEVEL_BED_HOMING                = _UxGT("Home assi XYZ");
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("Premi per iniziare");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("Punto successivo");
@@ -72,20 +74,23 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Imp. offset home");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset applicato");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Imposta Origine");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preriscalda ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preriscalda ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Ugello ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Tutto");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" Piatto");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preris.") PREHEAT_2_LABEL _UxGT(" conf");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preris.") PREHEAT_1_LABEL _UxGT(" conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Preriscalda $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Preriscalda $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Preris.$ Ugello");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Preris.$ Ugello ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Preris.$ Tutto");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Preris.$ Piatto");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Preris.$ conf");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Prerisc.personal.");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Raffredda");
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequenza");
@@ -118,6 +123,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punto inclinaz.");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Test sonda M48");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("Punto M48");
+  PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonda oltre i limiti");
   PROGMEM Language_Str MSG_M48_DEVIATION                   = _UxGT("Deviazione");
   PROGMEM Language_Str MSG_IDEX_MENU                       = _UxGT("Modo IDEX");
   PROGMEM Language_Str MSG_OFFSETS_MENU                    = _UxGT("Strumenti Offsets");
@@ -148,14 +154,14 @@ namespace Language_it {
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Modif.Mesh fatta");
   PROGMEM Language_Str MSG_UBL_BUILD_CUSTOM_MESH           = _UxGT("Crea Mesh personal.");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Crea Mesh");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = _UxGT("Crea Mesh ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = _UxGT("Crea Mesh ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("Crea Mesh ($)");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("Valida Mesh ($)");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Crea Mesh a freddo");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Aggiusta Alt. Mesh");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_AMOUNT          = _UxGT("Altezza");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Valida Mesh");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = _UxGT("Valida Mesh ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = _UxGT("Valida Mesh ") PREHEAT_2_LABEL;
   PROGMEM Language_Str MSG_G26_HEATING_BED                 = _UxGT("G26 riscald.letto");
   PROGMEM Language_Str MSG_G26_HEATING_NOZZLE              = _UxGT("G26 riscald.ugello");
   PROGMEM Language_Str MSG_G26_MANUAL_PRIME                = _UxGT("Priming manuale...");
@@ -216,6 +222,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SET_LEDS_VIOLET                 = _UxGT("Viola");
   PROGMEM Language_Str MSG_SET_LEDS_WHITE                  = _UxGT("Bianco");
   PROGMEM Language_Str MSG_SET_LEDS_DEFAULT                = _UxGT("Predefinito");
+  PROGMEM Language_Str MSG_LED_CHANNEL_N                   = _UxGT("Canale =");
+  PROGMEM Language_Str MSG_LEDS2                           = _UxGT("Luci #2");
+  PROGMEM Language_Str MSG_NEO2_PRESETS                    = _UxGT("Luce #2 Presets");
+  PROGMEM Language_Str MSG_NEO2_BRIGHTNESS                 = _UxGT("Luminosità");
   PROGMEM Language_Str MSG_CUSTOM_LEDS                     = _UxGT("Luci personalizzate");
   PROGMEM Language_Str MSG_INTENSITY_R                     = _UxGT("Intensità rosso");
   PROGMEM Language_Str MSG_INTENSITY_G                     = _UxGT("Intensità verde");
@@ -440,20 +450,13 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Totali");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Finecorsa annullati");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Riscald. Fallito");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Risc. piatto fallito");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Risc. camera fallito");
+  PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Risc.Fallito"); // Max 12 caratteri
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Err: TEMP RIDONDANTE");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TEMP FUORI CONTROLLO");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("TEMP PIAT.FUORI CTRL");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("T.CAMERA FUORI CTRL");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: TEMP MASSIMA");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: TEMP MINIMA");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: TEMP MAX PIATTO");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: TEMP MIN PIATTO");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: TEMP MAX CAMERA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: TEMP MIN CAMERA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY prima");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("STAMPANTE FERMATA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Riavviare prego");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("g"); // Un solo carattere
@@ -463,6 +466,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Raffreddamento..");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Risc. piatto...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Raffr. piatto...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Risc. sonda...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Raffr. sonda...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Risc. camera...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Raffr. camera...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibraz. Delta");
@@ -533,7 +538,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dist mm filo term.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Home fallito");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondaggio fallito");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600:Troppo freddo");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SCELTA FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -557,7 +561,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Rimuovi, click");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Miscela");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Componente ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Componente =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Miscelatore");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradiente");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Gradiente pieno");
@@ -583,6 +587,17 @@ namespace Language_it {
 
   PROGMEM Language_Str MSG_BAD_PAGE                        = _UxGT("Indice pag. errato");
   PROGMEM Language_Str MSG_BAD_PAGE_SPEED                  = _UxGT("Vel. pag. errata");
+
+  PROGMEM Language_Str MSG_EDIT_PASSWORD                   = _UxGT("Modif.password");
+  PROGMEM Language_Str MSG_LOGIN_REQUIRED                  = _UxGT("Login richiesto");
+  PROGMEM Language_Str MSG_PASSWORD_SETTINGS               = _UxGT("Impostaz.password");
+  PROGMEM Language_Str MSG_ENTER_DIGIT                     = _UxGT("Inserisci cifra");
+  PROGMEM Language_Str MSG_CHANGE_PASSWORD                 = _UxGT("Imp./Modif.password");
+  PROGMEM Language_Str MSG_REMOVE_PASSWORD                 = _UxGT("Elimina password");
+  PROGMEM Language_Str MSG_PASSWORD_SET                    = _UxGT("La password è ");
+  PROGMEM Language_Str MSG_START_OVER                      = _UxGT("Ricominciare");
+  PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Ricordati di mem.!");
+  PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Password eliminata");
 
   //
   // Le schermate di Cambio Filamento possono visualizzare fino a 3 linee su un display a 4 righe

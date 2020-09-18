@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,10 +55,8 @@
 
 void MarlinSerial::begin(unsigned long baud, uint8_t config) {
   HardwareSerial::begin(baud, config);
-  // replace the IRQ callback with the one we have defined
-  #if ENABLED(EMERGENCY_PARSER)
-    _serial.rx_callback = _rx_callback;
-  #endif
+  // Replace the IRQ callback with the one we have defined
+  TERN_(EMERGENCY_PARSER, _serial.rx_callback = _rx_callback);
 }
 
 // This function is Copyright (c) 2006 Nicholas Zambetti.

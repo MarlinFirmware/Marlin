@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -74,17 +74,9 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(TOUCH_BUTTONS, 50, 100)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_XPT2046, 50, 100)
 
   #if HAS_LCD_MENU
-
-    #if HAS_GRAPHICAL_LCD
-      #define SETCURSOR(col, row) lcd_moveto(col * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), (row + 1) * (MENU_FONT_HEIGHT))
-    #else
-      #define SETCURSOR(col, row) lcd_moveto(col, row)
-      #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_WIDTH - (len), row)
-    #endif
 
     #include "lcdprint.h"
 
@@ -98,9 +90,6 @@
 
     typedef void (*screenFunc_t)();
     typedef void (*menuAction_t)();
-
-    // Manual Movement
-    extern float move_menu_scale;
 
     #if ENABLED(ADVANCED_PAUSE_FEATURE)
       void lcd_pause_show_message(const PauseMessage message,
@@ -160,7 +149,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC) || ENABLED(TOUCH_BUTTONS)
+  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_XPT2046
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -226,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || ENABLED(TOUCH_BUTTONS)
+#if BUTTON_EXISTS(BACK) || HAS_TOUCH_XPT2046
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -264,6 +253,35 @@
   } preheat_t;
 #endif
 
+#if HAS_LCD_MENU
+
+  // Manual Movement class
+  class ManualMove {
+  public:
+    static millis_t start_time;
+    static float menu_scale;
+    TERN_(IS_KINEMATIC, static float offset);
+    #if IS_KINEMATIC
+      static bool processing;
+    #else
+      static bool constexpr processing = false;
+    #endif
+    #if MULTI_MANUAL
+      static int8_t e_index;
+    #else
+      static int8_t constexpr e_index = 0;
+    #endif
+    static uint8_t axis;
+    static void task();
+    static void soon(AxisEnum axis
+      #if MULTI_MANUAL
+        , const int8_t eindex=-1
+      #endif
+    );
+  };
+
+#endif
+
 ////////////////////////////////////////////
 //////////// MarlinUI Singleton ////////////
 ////////////////////////////////////////////
@@ -294,18 +312,51 @@ public:
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
 
+  #if ENABLED(DWIN_CREALITY_LCD)
+    static void refresh();
+  #else
+    FORCE_INLINE static void refresh() {
+      TERN_(HAS_SPI_LCD, refresh(LCDVIEW_CLEAR_CALL_REDRAW));
+    }
+  #endif
+
   #if HAS_SPI_LCD
     static bool detected();
     static void init_lcd();
-    FORCE_INLINE static void refresh() { refresh(LCDVIEW_CLEAR_CALL_REDRAW); }
   #else
-    #if ENABLED(DWIN_CREALITY_LCD)
-      static void refresh();
-    #else
-      static inline void refresh()  {}
-    #endif
     static inline bool detected() { return true; }
     static inline void init_lcd() {}
+  #endif
+
+  #if HAS_PRINT_PROGRESS
+    #if HAS_PRINT_PROGRESS_PERMYRIAD
+      typedef uint16_t progress_t;
+      #define PROGRESS_SCALE 100U
+      #define PROGRESS_MASK 0x7FFF
+    #else
+      typedef uint8_t progress_t;
+      #define PROGRESS_SCALE 1U
+      #define PROGRESS_MASK 0x7F
+    #endif
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      static progress_t progress_override;
+      static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
+      static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
+      static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
+      #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+        static uint32_t remaining_time;
+        FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+        FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
+        FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+      #endif
+    #endif
+    static progress_t _get_progress();
+    #if HAS_PRINT_PROGRESS_PERMYRIAD
+      FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
+    #endif
+    static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
+  #else
+    static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
 
   #if HAS_DISPLAY
@@ -329,37 +380,6 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-
-    #if HAS_PRINT_PROGRESS
-      #if HAS_PRINT_PROGRESS_PERMYRIAD
-        typedef uint16_t progress_t;
-        #define PROGRESS_SCALE 100U
-        #define PROGRESS_MASK 0x7FFF
-      #else
-        typedef uint8_t progress_t;
-        #define PROGRESS_SCALE 1U
-        #define PROGRESS_MASK 0x7F
-      #endif
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        static progress_t progress_override;
-        static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
-        static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
-        static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
-        #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-          static uint32_t remaining_time;
-          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
-          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
-        #endif
-      #endif
-      static progress_t _get_progress();
-      #if HAS_PRINT_PROGRESS_PERMYRIAD
-        FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
-      #endif
-      static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    #else
-      static constexpr uint8_t get_progress_percent() { return 0; }
-    #endif
 
     #if HAS_SPI_LCD
 
@@ -385,13 +405,9 @@ public:
 
       #if HAS_GRAPHICAL_LCD
 
-        static bool drawing_screen, first_page;
-
         static void set_font(const MarlinFont font_nr);
 
       #else
-
-        static constexpr bool drawing_screen = false, first_page = true;
 
         static void set_custom_characters(const HD44780CharSet screen_charset=CHARSET_INFO);
 
@@ -433,13 +449,19 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
-      #if ENABLED(TOUCH_BUTTONS)
+      #if HAS_TOUCH_XPT2046
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
 
       static void status_screen();
 
+    #endif
+
+    #if HAS_GRAPHICAL_LCD
+      static bool drawing_screen, first_page;
+    #else
+      static constexpr bool drawing_screen = false, first_page = true;
     #endif
 
     static bool get_blink();
@@ -479,11 +501,15 @@ public:
 
   #if PREHEAT_COUNT
     static preheat_t material_preset[PREHEAT_COUNT];
+    static PGM_P get_preheat_label(const uint8_t m);
   #endif
 
   #if HAS_LCD_MENU
+    #if LCD_TIMEOUT_TO_STATUS
+      static millis_t return_to_status_ms;
+    #endif
 
-    #if ENABLED(TOUCH_BUTTONS)
+    #if HAS_TOUCH_XPT2046
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
     #endif
@@ -492,30 +518,18 @@ public:
       static bool encoderRateMultiplierEnabled;
       static millis_t lastEncoderMovementMillis;
       static void enable_encoder_multiplier(const bool onoff);
-    #endif
-
-    static int8_t manual_move_axis;
-    static millis_t manual_move_start_time;
-
-    #if IS_KINEMATIC
-      static float manual_move_offset;
-      static bool processing_manual_move;
+      #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)
     #else
-      static constexpr bool processing_manual_move = false;
+      #define ENCODER_RATE_MULTIPLY(F) NOOP
     #endif
 
-    #if E_MANUAL > 1
-      static int8_t manual_move_e_index;
-    #else
-      static constexpr int8_t manual_move_e_index = 0;
-    #endif
+    // Manual Movement
+    static ManualMove manual_move;
 
     // Select Screen (modal NO/YES style dialog)
     static bool selection;
     static void set_selection(const bool sel) { selection = sel; }
     static bool update_selection();
-
-    static void manage_manual_move();
 
     static bool lcd_clicked;
     static bool use_click();
@@ -609,6 +623,9 @@ public:
     static bool external_control;
     FORCE_INLINE static void capture() { external_control = true; }
     FORCE_INLINE static void release() { external_control = false; }
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      static void external_encoder();
+    #endif
   #else
     static constexpr bool external_control = false;
   #endif
@@ -626,7 +643,7 @@ public:
     #endif
 
     static void update_buttons();
-    static inline bool button_pressed() { return BUTTON_CLICK(); }
+    static inline bool button_pressed() { return BUTTON_CLICK() || TERN(TOUCH_SCREEN, touch_pressed(), false); }
     #if EITHER(AUTO_BED_LEVELING_UBL, G26_MESH_VALIDATION)
       static void wait_for_release();
     #endif
@@ -661,6 +678,14 @@ public:
 
   #endif
 
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    static void touch_calibration();
+  #endif
+
+  #if HAS_GRAPHICAL_TFT
+    static void move_axis_screen();
+  #endif
+
 private:
 
   #if HAS_DISPLAY
@@ -674,6 +699,12 @@ private:
       static constexpr bool defer_return_to_status = false;
     #endif
     static void draw_status_screen();
+    #if HAS_GRAPHICAL_TFT
+      static void tft_idle();
+      #if ENABLED(TOUCH_SCREEN)
+        static bool touch_pressed();
+      #endif
+    #endif
   #endif
 };
 
