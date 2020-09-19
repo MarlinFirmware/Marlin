@@ -27,6 +27,10 @@
 #include "../theme/theme.h"
 #include "string_format.h"
 
+#ifndef BED_LEVELING_COMMANDS
+  #define BED_LEVELING_COMMANDS "G29"
+#endif
+
 extern tiny_timer_t refresh_timer;
 
 /********************************* DL CACHE SLOTS ******************************/
