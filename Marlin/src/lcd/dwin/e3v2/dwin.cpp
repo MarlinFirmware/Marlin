@@ -744,7 +744,7 @@ inline void Draw_Control_Menu() {
 
   // Draw icons and lines
   uint8_t i = 0;
-  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_SetEndTemp + (N) - 1); }while(0)
+  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_Temperature + (N) - 1); }while(0)
 
   _TEMP_ICON(CONTROL_CASE_TEMP);
   if (CVISI(i)) Draw_More_Icon(CSCROL(i));
