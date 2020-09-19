@@ -2420,19 +2420,19 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TMC2209 X and Z are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E0,X)
-  #error "TMC2209 E0 and Y are on the same serial port, this requires unique driver slave address."
+  #error "TMC2209 E0 and X are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E0,Y)
-  #error "TMC2209 E0 and Z are on the same serial port, this requires unique driver slave address."
+  #error "TMC2209 E0 and Y are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E0,Z)
   #error "TMC2209 E0 and Z are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E1,X)
-  #error "TMC2209 E1 and Y are on the same serial port, this requires unique driver slave address."
+  #error "TMC2209 E1 and X are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E1,Y)
-  #error "TMC2209 E1 and Z are on the same serial port, this requires unique driver slave address."
+  #error "TMC2209 E1 and Y are on the same serial port, this requires unique driver slave address."
 #endif
 #if UNIQUE_SLAVE_ADDRESS(E1,Z)
   #error "TMC2209 E1 and Z are on the same serial port, this requires unique driver slave address."
