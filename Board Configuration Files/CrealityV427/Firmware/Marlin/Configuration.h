@@ -1,7 +1,5 @@
 /**
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
- * THIS VERSION IS NOT FOR PRODUCTION USE AT THIS TIME AND ONLY AVAILABLE FOR TESTING PURPOSES
- * NO IMPLIED SUPPORT OR WARRANTY IS PROVIDED WITH THIS FIRMWARE RELEASE
  */
 #pragma once
 #define CONFIGURATION_H_VERSION 020006
@@ -12,8 +10,12 @@
 
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
 
+// THE BOARD THIS FIRMWARE IS FOR IS A 3RD PARTY/AFTERMARKET/UPGRADE BOARD NOT STANDARD ON THESE MACHINES.
+// THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS.
+// CONTACT CREALITY SUPPORT IF YOU REQUIRE SUPPORT ON THEIR PRODUCT OR YOU CAN POST IN OUR FORUM.
+
 //===========================================================================
-// *************************   CREALITY PRINTERS    *************************
+// *****************   CREALITY PRINTERS W/V4.2.7 BOARD    ******************
 //===========================================================================
 
 //===========================================================================
