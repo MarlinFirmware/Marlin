@@ -7,10 +7,17 @@
 set -e
 
 #
-# Build with configs included in the PR
+# Build with Ender-3 V2 configs
 #
 use_example_configs "Creality/Ender-3 V2"
+exec_test $1 $2 "Ender 3 v2 with Stock UI"
+
+#
+# Build with Ender-3 V2 configs but with MarlinUI
+#
+opt_disable DWIN_CREALITY_LCD
+opt_add DWIN_MARLINUI_PORTRAIT
 opt_enable MARLIN_DEV_MODE
-exec_test $1 $2 "Ender 3 v2"
+exec_test $1 $2 "Ender 3 v2 with MarlinUI"
 
 restore_configs
