@@ -2406,6 +2406,42 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 #undef INVALID_TMC_ADDRESS
 
+/**
+ * TMC2209 slave address conflicts with shared UARTS
+ */
+#define UNIQUE_SLAVE_ADDRESS(A,B) ((AXIS_DRIVER_TYPE_##A(TMC2209) && AXIS_DRIVER_TYPE_##B(TMC2209)) && (A##_SERIAL_TX_PIN == B##_SERIAL_TX_PIN) && (A##_SLAVE_ADDRESS == B##_SLAVE_ADDRESS)) 
+#if UNIQUE_SLAVE_ADDRESS(X,Y)
+  #error "TMC2209 X and Y are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(Y,Z)
+  #error "TMC2209 Y and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(X,Z)
+  #error "TMC2209 X and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E0,X)
+  #error "TMC2209 E0 and Y are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E0,Y)
+  #error "TMC2209 E0 and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E0,Z)
+  #error "TMC2209 E0 and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E1,X)
+  #error "TMC2209 E1 and Y are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E1,Y)
+  #error "TMC2209 E1 and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E1,Z)
+  #error "TMC2209 E1 and Z are on the same serial port, this requires unique driver slave address."
+#endif
+#if UNIQUE_SLAVE_ADDRESS(E1,E0)
+  #error "TMC2209 E1 and E0 are on the same serial port, this requires unique driver slave address."
+#endif
+#undef UNIQUE_SLAVE_ADDRESS
+
 #define _TMC_MICROSTEP_IS_VALID(MS) (MS == 0 || MS == 2 || MS == 4 || MS == 8 || MS == 16 || MS == 32 || MS == 64 || MS == 128 || MS == 256)
 #define TMC_MICROSTEP_IS_VALID(M) (!AXIS_IS_TMC(M) || _TMC_MICROSTEP_IS_VALID(M##_MICROSTEPS))
 #define INVALID_TMC_MS(ST) static_assert(0, "Invalid " STRINGIFY(ST) "_MICROSTEPS. Valid values are 0, 2, 4, 8, 16, 32, 64, 128, and 256.")
