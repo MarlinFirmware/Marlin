@@ -3226,9 +3226,8 @@ void HMI_Control(void) {
         Draw_BlTouch_Menu();
         break;
 		#else
-		  checkkey = Mlevel;
-		  Tool = 0;
-          Draw_Mlevel_Menu();
+		  checkkey = Info;
+          Draw_Info_Menu();
           break;
 		#endif
       case 7: // info
