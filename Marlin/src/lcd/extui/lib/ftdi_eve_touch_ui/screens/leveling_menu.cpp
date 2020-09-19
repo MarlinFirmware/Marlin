@@ -94,9 +94,6 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS();                   break;
     case 2:
-    #ifndef BED_LEVELING_COMMANDS
-      #define BED_LEVELING_COMMANDS "G29"
-    #endif
     #if HAS_MESH
       BedMeshScreen::startMeshProbe();
     #else
