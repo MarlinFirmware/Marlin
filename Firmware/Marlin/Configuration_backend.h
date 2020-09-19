@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.07"
+#define UNIFIED_VERSION "TH3D UFW 2.08"
 
 /**
  * Temp Settings
@@ -222,7 +222,7 @@
 #endif
 
 #if DISABLED(SPACE_SAVER)
-  #define S_CURVE_ACCELERATION
+  //#define S_CURVE_ACCELERATION
 #endif
 
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
