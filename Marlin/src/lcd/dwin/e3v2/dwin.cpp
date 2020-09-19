@@ -24,7 +24,7 @@
  * DWIN by Creality3D
  */
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
 
@@ -1704,28 +1704,32 @@ void HMI_live_Zoffset(void) {
     if (encoder_diffState == ENCODER_DIFF_CW) {
 	  #if ENABLED(BABYSTEPPING)
 	  HMI_ValueStruct.offset_value++;
-      show_plus_or_minus(font8x16, Select_Color, 2, 2, 202, MBASE(5 + MROWS - index_tune), HMI_ValueStruct.offset_value);
+	  if (HMI_ValueStruct.offset_value > -1 && HMI_ValueStruct.offset_value  < 1){
+		HMI_ValueStruct.offset_value++;
+	  }
+	  show_plus_or_minus(font8x16, Select_Color, 2, 2, 202, MBASE(5 + MROWS - index_tune), HMI_ValueStruct.offset_value);
 	  babystep.add_mm(Z_AXIS, (0.01));
-	  #if HAS_BED_PROBE
-	  probe.offset.z = zprobe_zoffset + 0.01;
 	  #endif
-	  #endif
-	  delay(250);
+	  delay(125);
     }
     else if (encoder_diffState == ENCODER_DIFF_CCW) {
 	  #if ENABLED(BABYSTEPPING)
 	  HMI_ValueStruct.offset_value--;
-      show_plus_or_minus(font8x16, Select_Color, 2, 2, 202, MBASE(5 + MROWS - index_tune), HMI_ValueStruct.offset_value);
+	  if (HMI_ValueStruct.offset_value > -1 && HMI_ValueStruct.offset_value  < 1){
+		HMI_ValueStruct.offset_value--;
+	  }
+	  show_plus_or_minus(font8x16, Select_Color, 2, 2, 202, MBASE(5 + MROWS - index_tune), HMI_ValueStruct.offset_value);
 	  babystep.add_mm(Z_AXIS, (-0.01));
-	  #if HAS_BED_PROBE
-	  probe.offset.z = zprobe_zoffset - 0.01;
 	  #endif
-	  #endif
-	  delay(250);
+	  delay(125);
     }
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
 	  EncoderRate.encoderRateEnabled = 0;
       checkkey = Tune;
+	  #if HAS_BED_PROBE
+	  probe.offset.z = HMI_ValueStruct.offset_value/100;
+	  show_plus_or_minus(STAT_FONT, Background_black, 2, 2, 178 + STAT_CHR_W, 402, probe.offset.z * 100);
+	  #endif
 	  settings.save();
       DWIN_UpdateLCD();
       return;
