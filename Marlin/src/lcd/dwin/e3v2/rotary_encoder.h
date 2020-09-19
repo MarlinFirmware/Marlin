@@ -22,7 +22,7 @@
 #pragma once
 
 /*****************************************************************************
-  * @file     rotary_encoder.h
+  * @file     lcd/dwin/e3v2/rotary_encoder.h
   * @author   LEO / Creality3D
   * @date     2019/07/06
   * @version  2.0.1

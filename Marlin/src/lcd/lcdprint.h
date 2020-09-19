@@ -79,6 +79,18 @@
   #define SETCURSOR(col, row)    lcd_moveto((col) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
   #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
 
+#elif IS_DWIN_MARLINUI
+
+  #include "dwin/marlin/ultralcd_dwin.h"
+
+  #define LCD_PIXEL_WIDTH   DWIN_WIDTH
+  #define LCD_PIXEL_HEIGHT  DWIN_HEIGHT
+  #define LCD_WIDTH  ((LCD_PIXEL_WIDTH)  / (MENU_FONT_WIDTH))
+  #define LCD_HEIGHT ((LCD_PIXEL_HEIGHT) / (MENU_FONT_HEIGHT))
+
+  #define SETCURSOR(col, row)    lcd_moveto(col, row)
+  #define SETCURSOR_RJ(len, row) SETCURSOR(LCD_WIDTH - (len), row)
+
 #else
 
   #define _UxGT(a) a

@@ -73,7 +73,6 @@
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "lcd/dwin/e3v2/dwin.h"
-  #include "lcd/dwin/dwin_lcd.h"
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
@@ -1077,11 +1076,7 @@ void setup() {
   // (because EEPROM code calls the UI).
 
   #if ENABLED(DWIN_CREALITY_LCD)
-    delay(800);   // Required delay (since boot?)
-    SERIAL_ECHOPGM("\nDWIN handshake ");
-    if (DWIN_Handshake()) SERIAL_ECHOLNPGM("ok."); else SERIAL_ECHOLNPGM("error.");
-    DWIN_Frame_SetDir(1); // Orientation 90°
-    DWIN_UpdateLCD();     // Show bootscreen (first image)
+    SETUP_RUN(DWIN_Startup());
   #else
     SETUP_RUN(ui.init());
     #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
