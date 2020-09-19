@@ -284,8 +284,8 @@ G29_TYPE GcodeSuite::G29() {
           G29_RETURN(false);
         }
 
-        const float rx = parser.linearval('X', NAN),
-                    ry = parser.linearval('Y', NAN);
+        const float rx = RAW_X_POSITION(parser.linearval('X', NAN)),
+                    ry = RAW_Y_POSITION(parser.linearval('Y', NAN));
         int8_t i = parser.byteval('I', -1), j = parser.byteval('J', -1);
 
         if (!isnan(rx) && !isnan(ry)) {
