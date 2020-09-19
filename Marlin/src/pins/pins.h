@@ -558,6 +558,8 @@
   #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
+#elif MB(MKS_ROBIN_E3P)
+  #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p
 
 //
 // ARM Cortex-M4F

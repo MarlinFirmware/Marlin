@@ -28,6 +28,7 @@
 
 #include "../../../../MarlinCore.h"
 
+extern lv_group_t * g;
 static lv_obj_t * scr;
 
 #define ID_MACHINE_RETURN             1
@@ -138,9 +139,6 @@ void lv_draw_machine_settings(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  LV_IMG_DECLARE(bmp_para_back);
-  LV_IMG_DECLARE(bmp_para_arrow);
-
   buttonAcceleration = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
   lv_obj_set_pos(buttonAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y);             /*Set its position*/
   lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
@@ -150,12 +148,13 @@ void lv_draw_machine_settings(void) {
   lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
   lv_btn_set_layout(buttonAcceleration, LV_LAYOUT_OFF);
   labelAcceleration = lv_label_create(buttonAcceleration, NULL);                /*Add a label to the button*/
+  
 
   buttonAccelerationNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonAccelerationNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonAccelerationNarrow, event_handler, ID_MACHINE_ACCELERATION_ARROW, "bmp_arrow.bin", 0);
-  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_REL, &bmp_para_arrow);
-  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_PR, &bmp_para_arrow);
+  lv_obj_set_event_cb_mks(buttonAccelerationNarrow, event_handler, ID_MACHINE_ACCELERATION_ARROW, NULL, 0);
+  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
+  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
   lv_imgbtn_set_style(buttonAccelerationNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonAccelerationNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_btn_set_layout(buttonAccelerationNarrow, LV_LAYOUT_OFF);
@@ -172,12 +171,13 @@ void lv_draw_machine_settings(void) {
   lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
   lv_btn_set_layout(buttonMaxFeedrate, LV_LAYOUT_OFF);
   labelMaxFeedrate = lv_label_create(buttonMaxFeedrate, NULL);                  /*Add a label to the button*/
+  
 
   buttonMaxFeedrateNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonMaxFeedrateNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonMaxFeedrateNarrow, event_handler, ID_MACHINE_FEEDRATE_ARROW, "bmp_arrow.bin", 0);
-  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_REL, &bmp_para_arrow);
-  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_PR, &bmp_para_arrow);
+  lv_obj_set_event_cb_mks(buttonMaxFeedrateNarrow, event_handler, ID_MACHINE_FEEDRATE_ARROW, NULL, 0);
+  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
+  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
   lv_imgbtn_set_style(buttonMaxFeedrateNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonMaxFeedrateNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_btn_set_layout(buttonMaxFeedrateNarrow, LV_LAYOUT_OFF);
@@ -195,12 +195,13 @@ void lv_draw_machine_settings(void) {
     lv_btn_set_style(buttonJerk, LV_BTN_STYLE_PR, &tft_style_label_pre);        /*Set the button's pressed style*/
     lv_btn_set_layout(buttonJerk, LV_LAYOUT_OFF);
     labelJerk = lv_label_create(buttonJerk, NULL);                              /*Add a label to the button*/
-
+    
+	
     buttonJerkNarrow = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonJerkNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);
-    lv_obj_set_event_cb_mks(buttonJerkNarrow, event_handler, ID_MACHINE_JERK_ARROW, "bmp_arrow.bin", 0);
-    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_REL, &bmp_para_arrow);
-    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_PR, &bmp_para_arrow);
+    lv_obj_set_event_cb_mks(buttonJerkNarrow, event_handler, ID_MACHINE_JERK_ARROW, NULL, 0);
+    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
+    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
     lv_imgbtn_set_style(buttonJerkNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonJerkNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
     lv_btn_set_layout(buttonJerkNarrow, LV_LAYOUT_OFF);
@@ -210,11 +211,12 @@ void lv_draw_machine_settings(void) {
   #endif
 
   buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MACHINE_RETURN, "bmp_back70x40.bin", 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_para_back);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_para_back);
+  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MACHINE_RETURN, NULL, 0);
+  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
+  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  
 
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
@@ -234,8 +236,26 @@ void lv_draw_machine_settings(void) {
       lv_obj_align(labelJerk, buttonJerk, LV_ALIGN_IN_LEFT_MID, 0, 0);
     #endif
   }
+  #if BUTTONS_EXIST(EN1, EN2, ENC)
+	if (gCfgItems.encoder_enable == true) {
+		lv_group_add_obj(g, buttonAcceleration);
+  		lv_group_add_obj(g, buttonMaxFeedrate);
+		#if HAS_CLASSIC_JERK
+  			lv_group_add_obj(g, buttonJerk);
+		#endif
+    		lv_group_add_obj(g, buttonBack);
+	}
+  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
 }
 
-void lv_clear_machine_settings() { lv_obj_del(scr); }
+void lv_clear_machine_settings() { 
+	#if BUTTONS_EXIST(EN1, EN2, ENC)
+	if (gCfgItems.encoder_enable == true) {
+		lv_group_remove_all_objs(g);
+	}
+  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
+	lv_obj_del(scr); 
+}
+
 
 #endif // HAS_TFT_LVGL_UI
