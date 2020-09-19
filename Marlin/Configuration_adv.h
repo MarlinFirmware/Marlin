@@ -3233,7 +3233,8 @@
  */
 //#define HOST_ACTION_COMMANDS
 #if ENABLED(HOST_ACTION_COMMANDS)
-  //#define HOST_PROMPT_SUPPORT
+  //#define HOST_PROMPT_SUPPORT  
+  //#define ACTION_ON_START_MENU_ITEM
 #endif
 
 /**
