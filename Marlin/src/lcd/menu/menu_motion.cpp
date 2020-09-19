@@ -348,8 +348,10 @@ void menu_motion() {
   //
   // Assisted Bed Tramming
   //
-  #if ENABLED(ASSISTED_TRAMMING)
-    GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+  #if ENABLED(ENABLE_ASSISTED_TRAMMING_MENU_ITEM)
+    #if ENABLED(ASSISTED_TRAMMING)
+      GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
+    #endif
   #endif
 
   //
