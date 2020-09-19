@@ -99,9 +99,9 @@
 
 #define USE_STRING_HEADINGS
 
-#define MENU_FONT   font8x16
-#define STAT_FONT   font10x20
-#define HEADER_FONT font10x20
+#define DWIN_FONT_MENU font8x16
+#define DWIN_FONT_STAT font10x20
+#define DWIN_FONT_HEAD font10x20
 
 #define MENU_CHAR_LIMIT  24
 #define STATUS_Y 360
@@ -229,19 +229,19 @@ void HMI_ToggleLanguage() {
 
 void DWIN_Draw_Signed_Float(uint8_t size, uint16_t bColor, uint8_t iNum, uint8_t fNum, uint16_t x, uint16_t y, long value) {
   if (value < 0) {
-    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, F("-"));
-    DWIN_Draw_FloatValue(true, true, 0, size, White, bColor, iNum, fNum, x, y, -value);
+    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F("-"));
+    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, -value);
   }
   else {
-    DWIN_Draw_String(false, true, size, White, bColor, x - 6, y, F(" "));
-    DWIN_Draw_FloatValue(true, true, 0, size, White, bColor, iNum, fNum, x, y, value);
+    DWIN_Draw_String(false, true, size, Color_White, bColor, x - 6, y, F(" "));
+    DWIN_Draw_FloatValue(true, true, 0, size, Color_White, bColor, iNum, fNum, x, y, value);
   }
 }
 
 void ICON_Print() {
   if (select_page.now == 0) {
     DWIN_ICON_Show(ICON, ICON_Print_1, 17, 130);
-    DWIN_Draw_Rectangle(0, White, 17, 130, 126, 229);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 130, 126, 229);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 1, 447, 28, 460, 58, 201);
     else
@@ -259,7 +259,7 @@ void ICON_Print() {
 void ICON_Prepare() {
   if (select_page.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Prepare_1, 145, 130);
-    DWIN_Draw_Rectangle(0, White, 145, 130, 254, 229);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 130, 254, 229);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 31, 447, 58, 460, 186, 201);
     else
@@ -277,7 +277,7 @@ void ICON_Prepare() {
 void ICON_Control() {
   if (select_page.now == 2) {
     DWIN_ICON_Show(ICON, ICON_Control_1, 17, 246);
-    DWIN_Draw_Rectangle(0, White, 17, 246, 126, 345);
+    DWIN_Draw_Rectangle(0, Color_White, 17, 246, 126, 345);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 61, 447, 88, 460, 58, 318);
     else
@@ -295,7 +295,7 @@ void ICON_Control() {
 void ICON_StartInfo(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Info_1, 145, 246);
-    DWIN_Draw_Rectangle(0, White, 145, 246, 254, 345);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 91, 447, 118, 460, 186, 318);
     else
@@ -313,7 +313,7 @@ void ICON_StartInfo(bool show) {
 void ICON_Leveling(bool show) {
   if (show) {
     DWIN_ICON_Show(ICON, ICON_Leveling_1, 145, 246);
-    DWIN_Draw_Rectangle(0, White, 145, 246, 254, 345);
+    DWIN_Draw_Rectangle(0, Color_White, 145, 246, 254, 345);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 211, 447, 238, 460, 186, 318);
     else
@@ -331,7 +331,7 @@ void ICON_Leveling(bool show) {
 void ICON_Tune() {
   if (select_print.now == 0) {
     DWIN_ICON_Show(ICON, ICON_Setup_1, 8, 252);
-    DWIN_Draw_Rectangle(0, White, 8, 252, 87, 351);
+    DWIN_Draw_Rectangle(0, Color_White, 8, 252, 87, 351);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 121, 447, 148, 458, 34, 325);
     else
@@ -349,7 +349,7 @@ void ICON_Tune() {
 void ICON_Pause() {
   if (select_print.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Pause_1, 96, 252);
-    DWIN_Draw_Rectangle(0, White, 96, 252, 175, 351);
+    DWIN_Draw_Rectangle(0, Color_White, 96, 252, 175, 351);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 181, 447, 208, 459, 124, 325);
     else
@@ -367,7 +367,7 @@ void ICON_Pause() {
 void ICON_Continue() {
   if (select_print.now == 1) {
     DWIN_ICON_Show(ICON, ICON_Continue_1, 96, 252);
-    DWIN_Draw_Rectangle(0, White, 96, 252, 175, 351);
+    DWIN_Draw_Rectangle(0, Color_White, 96, 252, 175, 351);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 1, 447, 28, 460, 124, 325);
     else
@@ -385,7 +385,7 @@ void ICON_Continue() {
 void ICON_Stop() {
   if (select_print.now == 2) {
     DWIN_ICON_Show(ICON, ICON_Stop_1, 184, 252);
-    DWIN_Draw_Rectangle(0, White, 184, 252, 263, 351);
+    DWIN_Draw_Rectangle(0, Color_White, 184, 252, 263, 351);
     if (HMI_flag.language_chinese)
       DWIN_Frame_AreaCopy(1, 151, 447, 178, 459, 210, 325);
     else
@@ -401,19 +401,19 @@ void ICON_Stop() {
 }
 
 inline void Clear_Title_Bar() {
-  DWIN_Draw_Rectangle(1, Background_blue, 0, 0, DWIN_WIDTH, 30);
+  DWIN_Draw_Rectangle(1, Color_Bg_Blue, 0, 0, DWIN_WIDTH, 30);
 }
 
 inline void Draw_Title(const char * const title) {
-  DWIN_Draw_String(false, false, HEADER_FONT, White, Background_blue, 14, 4, (char*)title);
+  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
 }
 
 inline void Draw_Title(const __FlashStringHelper * title) {
-  DWIN_Draw_String(false, false, HEADER_FONT, White, Background_blue, 14, 4, (char*)title);
+  DWIN_Draw_String(false, false, DWIN_FONT_HEAD, Color_White, Color_Bg_Blue, 14, 4, (char*)title);
 }
 
 inline void Clear_Menu_Area() {
-  DWIN_Draw_Rectangle(1, Background_black, 0, 31, DWIN_WIDTH, STATUS_Y);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, STATUS_Y);
 }
 
 inline void Clear_Main_Window() {
@@ -423,11 +423,11 @@ inline void Clear_Main_Window() {
 
 inline void Clear_Popup_Area() {
   Clear_Title_Bar();
-  DWIN_Draw_Rectangle(1, Background_black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 31, DWIN_WIDTH, DWIN_HEIGHT);
 }
 
 void Draw_Popup_Bkgd_105() {
-  DWIN_Draw_Rectangle(1, Background_window, 14, 105, 258, 374);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 105, 258, 374);
 }
 
 inline void Draw_More_Icon(const uint8_t line) {
@@ -440,7 +440,7 @@ inline void Draw_Menu_Cursor(const uint8_t line) {
 }
 
 inline void Erase_Menu_Cursor(const uint8_t line) {
-  DWIN_Draw_Rectangle(1, Background_black, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, MBASE(line) - 18, 14, MBASE(line + 1) - 20);
 }
 
 inline void Move_Highlight(const int16_t from, const uint16_t newline) {
@@ -454,7 +454,7 @@ inline void Add_Menu_Line() {
 }
 
 inline void Scroll_Menu(const uint8_t dir) {
-  DWIN_Frame_AreaMove(1, dir, MLINE, Background_black, 0, 31, DWIN_WIDTH, 349);
+  DWIN_Frame_AreaMove(1, dir, MLINE, Color_Bg_Black, 0, 31, DWIN_WIDTH, 349);
   switch (dir) {
     case DWIN_SCROLL_DOWN: Move_Highlight(-1, 0); break;
     case DWIN_SCROLL_UP:   Add_Menu_Line(); break;
@@ -470,11 +470,11 @@ inline void Draw_Menu_Icon(const uint8_t line, const uint8_t icon) {
 }
 
 inline void Erase_Menu_Text(const uint8_t line) {
-  DWIN_Draw_Rectangle(1, Background_black, LBLX, MBASE(line) - 14, 271, MBASE(line) + 28);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, LBLX, MBASE(line) - 14, 271, MBASE(line) + 28);
 }
 
 inline void Draw_Menu_Line(const uint8_t line, const uint8_t icon=0, const char * const label=nullptr) {
-  if (label) DWIN_Draw_String(false, false, font8x16, White, Background_black, LBLX, MBASE(line) - 1, (char*)label);
+  if (label) DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(line) - 1, (char*)label);
   if (icon) Draw_Menu_Icon(line, icon);
   DWIN_Draw_Line(Line_Color, 16, MBASE(line) + 33, 256, MBASE(line) + 34);
 }
@@ -583,7 +583,7 @@ inline void Item_Prepare_Home(const uint8_t row) {
     if (HMI_flag.language_chinese) {
       #if HAS_BED_PROBE
         DWIN_Frame_AreaCopy(1, 174, 164, 223, 177, LBLX, MBASE(row));
-        DWIN_Draw_Signed_Float(font8x16, Background_black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
       #else
         DWIN_Frame_AreaCopy(1, 43, 89, 98, 101, LBLX, MBASE(row));
       #endif
@@ -591,7 +591,7 @@ inline void Item_Prepare_Home(const uint8_t row) {
     else {
       #if HAS_BED_PROBE
         DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row));    // "Z-Offset"
-        DWIN_Draw_Signed_Float(font8x16, Background_black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
       #else
         DWIN_Frame_AreaCopy(1, 1, 76, 106, 86, LBLX, MBASE(row));       // "..."
       #endif
@@ -638,11 +638,11 @@ inline void Item_Prepare_Home(const uint8_t row) {
 inline void Item_Prepare_Lang(const uint8_t row) {
   if (HMI_flag.language_chinese) {
     DWIN_Frame_AreaCopy(1, 239, 134, 266, 146, LBLX, MBASE(row));
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), F("CN"));
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 226, MBASE(row), F("CN"));
   }
   else {
     DWIN_Frame_AreaCopy(1, 0, 194, 121, 207, LBLX, MBASE(row)); // "Language selection"
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, 226, MBASE(row), F("EN"));
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 226, MBASE(row), F("EN"));
   }
   Draw_Menu_Icon(row, ICON_Language);
 }
@@ -716,14 +716,14 @@ inline void Draw_Control_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_CONTROL));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_TEMP), GET_TEXT_F(MSG_TEMPERATURE));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_MOVE), GET_TEXT_F(MSG_MOTION));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_TEMP), GET_TEXT_F(MSG_TEMPERATURE));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_MOVE), GET_TEXT_F(MSG_MOTION));
       #if ENABLED(EEPROM_SETTINGS)
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_LOAD), GET_TEXT_F(MSG_LOAD_EEPROM));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_RESET), GET_TEXT_F(MSG_RESTORE_DEFAULTS));
       #endif
-      if (CVISI(CONTROL_CASE_INFO)) DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(CONTROL_CASE_INFO), F("Info"));
+      if (CVISI(CONTROL_CASE_INFO)) DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(CONTROL_CASE_INFO), F("Info"));
     #else
       DWIN_Frame_TitleCopy(1, 128, 2, 176, 12);                                           // "Control"
       DWIN_Frame_AreaCopy(1,  1, 89,  83, 101, LBLX, CLINE(CONTROL_CASE_TEMP));           // Temperature >
@@ -744,7 +744,7 @@ inline void Draw_Control_Menu() {
 
   // Draw icons and lines
   uint8_t i = 0;
-  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_SetEndTemp + (N) - 1); }while(0)
+  #define _TEMP_ICON(N) do{ ++i; if (CVISI(i)) Draw_Menu_Line(CSCROL(i), ICON_Temperature + (N) - 1); }while(0)
 
   _TEMP_ICON(CONTROL_CASE_TEMP);
   if (CVISI(i)) Draw_More_Icon(CSCROL(i));
@@ -784,17 +784,17 @@ inline void Draw_Tune_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_TUNE));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TUNE_CASE_SPEED), GET_TEXT_F(MSG_SPEED));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TUNE_CASE_SPEED), GET_TEXT_F(MSG_SPEED));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TUNE_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TUNE_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
       #endif
       #if HAS_HEATED_BED
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TUNE_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TUNE_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
       #endif
       #if HAS_FAN
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TUNE_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TUNE_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
       #endif
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TUNE_CASE_ZOFF), GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TUNE_CASE_ZOFF), GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
     #else
       DWIN_Frame_AreaCopy(1, 94, 2, 126, 12, 14, 9);
       DWIN_Frame_AreaCopy(1, 1, 179, 92, 190, LBLX, MBASE(TUNE_CASE_SPEED));      // Print speed
@@ -819,23 +819,23 @@ inline void Draw_Tune_Menu() {
   if (select_tune.now) Draw_Menu_Cursor(select_tune.now);
 
   Draw_Menu_Line(TUNE_CASE_SPEED, ICON_Speed);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_SPEED), feedrate_percentage);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_SPEED), feedrate_percentage);
 
   #if HAS_HOTEND
     Draw_Menu_Line(TUNE_CASE_TEMP, ICON_HotendTemp);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_TEMP), thermalManager.temp_hotend[0].target);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP), thermalManager.temp_hotend[0].target);
   #endif
   #if HAS_HEATED_BED
     Draw_Menu_Line(TUNE_CASE_BED, ICON_BedTemp);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_BED), thermalManager.temp_bed.target);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED), thermalManager.temp_bed.target);
   #endif
   #if HAS_FAN
     Draw_Menu_Line(TUNE_CASE_FAN, ICON_FanSpeed);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_FAN), thermalManager.fan_speed[0]);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN), thermalManager.fan_speed[0]);
   #endif
   #if HAS_ZOFFSET_ITEM
     Draw_Menu_Line(TUNE_CASE_ZOFF, ICON_Zoffset);
-    DWIN_Draw_Signed_Float(font8x16, Background_black, 2, 2, 202, MBASE(TUNE_CASE_ZOFF), BABY_Z_VAR * 100);
+    DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(TUNE_CASE_ZOFF), BABY_Z_VAR * 100);
   #endif
 }
 
@@ -886,12 +886,12 @@ inline void Draw_Motion_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_MOTION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(MOTION_CASE_RATE), F("Feedrate"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(MOTION_CASE_ACCEL), GET_TEXT_F(MSG_ACCELERATION));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(MOTION_CASE_RATE), F("Feedrate"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(MOTION_CASE_ACCEL), GET_TEXT_F(MSG_ACCELERATION));
       #if HAS_CLASSIC_JERK
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(MOTION_CASE_JERK), GET_TEXT_F(MSG_JERK));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(MOTION_CASE_JERK), GET_TEXT_F(MSG_JERK));
       #endif
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(MOTION_CASE_STEPS), GET_TEXT_F(MSG_STEPS_PER_MM));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(MOTION_CASE_STEPS), GET_TEXT_F(MSG_STEPS_PER_MM));
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26);                                        // "Motion"
       draw_max_en(MBASE(MOTION_CASE_RATE)); draw_speed_en(27, MBASE(MOTION_CASE_RATE)); // "Max Speed"
@@ -932,8 +932,8 @@ inline void Draw_Motion_Menu() {
         DWIN_Frame_AreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
       else {
-        DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, F("Nozzle or Bed temperature"));
-        DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, F("is too high"));
+        DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 36, 300, F("Nozzle or Bed temperature"));
+        DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 92, 300, F("is too high"));
       }
     }
     else {
@@ -943,8 +943,8 @@ inline void Draw_Motion_Menu() {
         DWIN_Frame_AreaCopy(1, 189, 389, 271, 402, 95, 310);
       }
       else {
-        DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 36, 300, F("Nozzle or Bed temperature"));
-        DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 92, 300, F("is too low"));
+        DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 36, 300, F("Nozzle or Bed temperature"));
+        DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 92, 300, F("is too low"));
       }
     }
   }
@@ -952,7 +952,7 @@ inline void Draw_Motion_Menu() {
 #endif
 
 inline void Draw_Popup_Bkgd_60() {
-  DWIN_Draw_Rectangle(1, Background_window, 14, 60, 258, 330);
+  DWIN_Draw_Rectangle(1, Color_Bg_Window, 14, 60, 258, 330);
 }
 
 #if HAS_HOTEND
@@ -967,7 +967,7 @@ inline void Draw_Popup_Bkgd_60() {
       DWIN_ICON_Show(ICON, ICON_Confirm_C, 86, 280);
     }
     else {
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, 20, 235, F("Nozzle is too cold"));
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, 20, 235, F("Nozzle is too cold"));
       DWIN_ICON_Show(ICON, ICON_Confirm_E, 86, 280);
     }
   }
@@ -984,9 +984,9 @@ void Popup_Window_Resume() {
     DWIN_ICON_Show(ICON, ICON_Cancel_C, 146, 307);
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 14) / 2, 115, F("Continue Print"));
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 22) / 2, 192, F("It looks like the last"));
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 22) / 2, 212, F("file was interrupted."));
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 14) / 2, 115, F("Continue Print"));
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 192, F("It looks like the last"));
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 22) / 2, 212, F("file was interrupted."));
     DWIN_ICON_Show(ICON, ICON_Continue_E, 26, 307);
     DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 307);
   }
@@ -1002,8 +1002,8 @@ void Popup_Window_Home(const bool parking/*=false*/) {
     DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
   }
   else {
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
-    DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * (parking ? 7 : 10)) / 2, 230, parking ? F("Parking") : F("Homing XYZ"));
+    DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
   }
 }
 
@@ -1018,8 +1018,8 @@ void Popup_Window_Home(const bool parking/*=false*/) {
       DWIN_Frame_AreaCopy(1, 0, 389, 150, 402, 61, 280);
     }
     else {
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
-      DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 13) / 2, 230, GET_TEXT_F(MSG_BED_LEVELING));
+      DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 23) / 2, 260, F("Please wait until done."));
     }
   }
 
@@ -1027,8 +1027,8 @@ void Popup_Window_Home(const bool parking/*=false*/) {
 
 void Draw_Select_Highlight(const bool sel) {
   HMI_flag.select_flag = sel;
-  const uint16_t c1 = sel ? Select_Color : Background_window,
-                 c2 = sel ? Background_window : Select_Color;
+  const uint16_t c1 = sel ? Select_Color : Color_Bg_Window,
+                 c2 = sel ? Color_Bg_Window : Select_Color;
   DWIN_Draw_Rectangle(0, c1, 25, 279, 126, 318);
   DWIN_Draw_Rectangle(0, c1, 24, 278, 127, 319);
   DWIN_Draw_Rectangle(0, c2, 145, 279, 246, 318);
@@ -1046,8 +1046,8 @@ void Popup_window_PauseOrStop() {
     DWIN_ICON_Show(ICON, ICON_Cancel_C, 146, 280);
   }
   else {
-         if (select_print.now == 1) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
-    else if (select_print.now == 2) DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
+         if (select_print.now == 1) DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 11) / 2, 150, GET_TEXT_F(MSG_PAUSE_PRINT));
+    else if (select_print.now == 2) DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, (272 - 8 * 10) / 2, 150, GET_TEXT_F(MSG_STOP_PRINT));
     DWIN_ICON_Show(ICON, ICON_Confirm_E, 26, 280);
     DWIN_ICON_Show(ICON, ICON_Cancel_E, 146, 280);
   }
@@ -1070,21 +1070,21 @@ void Draw_Printing_Screen() {
 void Draw_Print_ProgressBar() {
   DWIN_ICON_Show(ICON, ICON_Bar, 15, 93);
   DWIN_Draw_Rectangle(1, BarFill_Color, 16 + Percentrecord * 240 / 100, 93, 256, 113);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Background_black, 2, 117, 133, Percentrecord);
-  DWIN_Draw_String(false, false, font8x16, Percent_Color, Background_black, 133, 133, F("%"));
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Percent_Color, Color_Bg_Black, 2, 117, 133, Percentrecord);
+  DWIN_Draw_String(false, false, font8x16, Percent_Color, Color_Bg_Black, 133, 133, F("%"));
 }
 
 void Draw_Print_ProgressElapsed() {
   duration_t elapsed = print_job_timer.duration(); // print timer
-  DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 42, 212, elapsed.value / 3600);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, 58, 212, F(":"));
-  DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 66, 212, (elapsed.value % 3600) / 60);
+  DWIN_Draw_IntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, 42, 212, elapsed.value / 3600);
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 58, 212, F(":"));
+  DWIN_Draw_IntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, 66, 212, (elapsed.value % 3600) / 60);
 }
 
 void Draw_Print_ProgressRemain() {
-  DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 176, 212, remain_time / 3600);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, 192, 212, F(":"));
-  DWIN_Draw_IntValue(true, true, 1, font8x16, White, Background_black, 2, 200, 212, (remain_time % 3600) / 60);
+  DWIN_Draw_IntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, 176, 212, remain_time / 3600);
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, 192, 212, F(":"));
+  DWIN_Draw_IntValue(true, true, 1, font8x16, Color_White, Color_Bg_Black, 2, 200, 212, (remain_time % 3600) / 60);
 }
 
 void Goto_PrintProcess() {
@@ -1100,7 +1100,7 @@ void Goto_PrintProcess() {
   // Copy into filebuf string before entry
   char * const name = card.longest_filename();
   const int8_t npos = _MAX(0, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, npos, 60, name);
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
 
   DWIN_ICON_Show(ICON, ICON_PrintTime, 17, 193);
   DWIN_ICON_Show(ICON, ICON_RemainTime, 150, 191);
@@ -1155,7 +1155,7 @@ void HMI_Move_X() {
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
       checkkey = AxisMove;
       EncoderRate.enabled = false;
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
@@ -1167,7 +1167,7 @@ void HMI_Move_X() {
     NOLESS(HMI_ValueStruct.Move_X_scale, (X_MIN_POS) * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_X_scale, (X_MAX_POS) * MINUNITMULT);
     current_position.x = HMI_ValueStruct.Move_X_scale / 10;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
     DWIN_UpdateLCD();
   }
 }
@@ -1184,7 +1184,7 @@ void HMI_Move_Y() {
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
       checkkey = AxisMove;
       EncoderRate.enabled = false;
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
@@ -1196,7 +1196,7 @@ void HMI_Move_Y() {
     NOLESS(HMI_ValueStruct.Move_Y_scale, (Y_MIN_POS) * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_Y_scale, (Y_MAX_POS) * MINUNITMULT);
     current_position.y = HMI_ValueStruct.Move_Y_scale / 10;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
     DWIN_UpdateLCD();
   }
 }
@@ -1213,7 +1213,7 @@ void HMI_Move_Z() {
     else if (encoder_diffState == ENCODER_DIFF_ENTER) {
       checkkey = AxisMove;
       EncoderRate.enabled = false;
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
@@ -1225,7 +1225,7 @@ void HMI_Move_Z() {
     NOLESS(HMI_ValueStruct.Move_Z_scale, Z_MIN_POS * MINUNITMULT);
     NOMORE(HMI_ValueStruct.Move_Z_scale, Z_MAX_POS * MINUNITMULT);
     current_position.z = HMI_ValueStruct.Move_Z_scale / 10;
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
     DWIN_UpdateLCD();
   }
 }
@@ -1246,7 +1246,7 @@ void HMI_Move_Z() {
         checkkey = AxisMove;
         EncoderRate.enabled = false;
         last_E_scale = HMI_ValueStruct.Move_E_scale;
-        DWIN_Draw_Signed_Float(font8x16, Background_black, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), HMI_ValueStruct.Move_E_scale);
         if (!planner.is_full()) {
           planner.synchronize(); // Wait for planner moves to finish!
           planner.buffer_line(current_position, MMM_TO_MMS(FEEDRATE_E), active_extruder);
@@ -1290,11 +1290,11 @@ void HMI_Move_Z() {
         #endif
         if (HMI_ValueStruct.show_mode == -4) {
           checkkey = Prepare;
-          DWIN_Draw_Signed_Float(font8x16, Background_black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
+          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
         }
         else {
           checkkey = Tune;
-          DWIN_Draw_Signed_Float(font8x16, Background_black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
+          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
         }
         DWIN_UpdateLCD();
         return;
@@ -1336,23 +1336,23 @@ void HMI_Move_Z() {
         EncoderRate.enabled = false;
         if (HMI_ValueStruct.show_mode == -1) { // temperature
           checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
         }
         else if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].hotend_temp = HMI_ValueStruct.E_Temp;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(temp_line), ui.material_preset[0].hotend_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), ui.material_preset[0].hotend_temp);
           return;
         }
         else if (HMI_ValueStruct.show_mode == -3) {
           checkkey = ABSPreheat;
           ui.material_preset[1].hotend_temp = HMI_ValueStruct.E_Temp;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(temp_line), ui.material_preset[1].hotend_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), ui.material_preset[1].hotend_temp);
           return;
         }
         else { // tune
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
         }
         thermalManager.setTargetHotend(HMI_ValueStruct.E_Temp, 0);
         return;
@@ -1361,7 +1361,7 @@ void HMI_Move_Z() {
       NOMORE(HMI_ValueStruct.E_Temp, MAX_E_TEMP);
       NOLESS(HMI_ValueStruct.E_Temp, MIN_E_TEMP);
       // E_Temp value
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
     }
   }
 
@@ -1389,23 +1389,23 @@ void HMI_Move_Z() {
         EncoderRate.enabled = false;
         if (HMI_ValueStruct.show_mode == -1) {
           checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
         }
         else if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].bed_temp = HMI_ValueStruct.Bed_Temp;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(bed_line), ui.material_preset[0].bed_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), ui.material_preset[0].bed_temp);
           return;
         }
         else if (HMI_ValueStruct.show_mode == -3) {
           checkkey = ABSPreheat;
           ui.material_preset[1].bed_temp = HMI_ValueStruct.Bed_Temp;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(bed_line), ui.material_preset[1].bed_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), ui.material_preset[1].bed_temp);
           return;
         }
         else {
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
         }
         thermalManager.setTargetBed(HMI_ValueStruct.Bed_Temp);
         return;
@@ -1414,7 +1414,7 @@ void HMI_Move_Z() {
       NOMORE(HMI_ValueStruct.Bed_Temp, BED_MAX_TARGET);
       NOLESS(HMI_ValueStruct.Bed_Temp, MIN_BED_TEMP);
       // Bed_Temp value
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
     }
   }
 
@@ -1443,23 +1443,23 @@ void HMI_Move_Z() {
         EncoderRate.enabled = false;
         if (HMI_ValueStruct.show_mode == -1) {
           checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
         }
         else if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].fan_speed = HMI_ValueStruct.Fan_speed;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(fan_line), ui.material_preset[0].fan_speed);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), ui.material_preset[0].fan_speed);
           return;
         }
         else if (HMI_ValueStruct.show_mode == -3) {
           checkkey = ABSPreheat;
           ui.material_preset[1].fan_speed = HMI_ValueStruct.Fan_speed;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(fan_line), ui.material_preset[1].fan_speed);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), ui.material_preset[1].fan_speed);
           return;
         }
         else {
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
         }
         thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
         return;
@@ -1468,7 +1468,7 @@ void HMI_Move_Z() {
       NOMORE(HMI_ValueStruct.Fan_speed, FANON);
       NOLESS(HMI_ValueStruct.Fan_speed, FANOFF);
       // Fan_speed value
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
     }
   }
 
@@ -1487,14 +1487,14 @@ void HMI_PrintSpeed() {
       checkkey = Tune;
       EncoderRate.enabled = false;
       feedrate_percentage = HMI_ValueStruct.print_speed;
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(select_tune.now + MROWS - index_tune), HMI_ValueStruct.print_speed);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(select_tune.now + MROWS - index_tune), HMI_ValueStruct.print_speed);
       return;
     }
     // print_speed limit
     NOMORE(HMI_ValueStruct.print_speed, MAX_PRINT_SPEED);
     NOLESS(HMI_ValueStruct.print_speed, MIN_PRINT_SPEED);
     // print_speed value
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(select_tune.now + MROWS - index_tune), HMI_ValueStruct.print_speed);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(select_tune.now + MROWS - index_tune), HMI_ValueStruct.print_speed);
   }
 }
 
@@ -1512,7 +1512,7 @@ void HMI_MaxFeedspeedXYZE() {
       EncoderRate.enabled = false;
       if (WITHIN(HMI_flag.feedspeed_axis, X_AXIS, E_AXIS))
         planner.set_max_feedrate(HMI_flag.feedspeed_axis, HMI_ValueStruct.Max_Feedspeed);
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
       return;
     }
     // MaxFeedspeed limit
@@ -1520,7 +1520,7 @@ void HMI_MaxFeedspeedXYZE() {
       NOMORE(HMI_ValueStruct.Max_Feedspeed, default_max_feedrate[HMI_flag.feedspeed_axis] * 2);
     if (HMI_ValueStruct.Max_Feedspeed < MIN_MAXFEEDSPEED) HMI_ValueStruct.Max_Feedspeed = MIN_MAXFEEDSPEED;
     // MaxFeedspeed value
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
   }
 }
 
@@ -1538,7 +1538,7 @@ void HMI_MaxAccelerationXYZE() {
       #if HAS_HOTEND
         else if (HMI_flag.acc_axis == E_AXIS) planner.set_max_acceleration(E_AXIS, HMI_ValueStruct.Max_Acceleration);
       #endif
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
       return;
     }
     // MaxAcceleration limit
@@ -1546,7 +1546,7 @@ void HMI_MaxAccelerationXYZE() {
       NOMORE(HMI_ValueStruct.Max_Acceleration, default_max_acceleration[HMI_flag.acc_axis] * 2);
     if (HMI_ValueStruct.Max_Acceleration < MIN_MAXACCELERATION) HMI_ValueStruct.Max_Acceleration = MIN_MAXACCELERATION;
     // MaxAcceleration value
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
   }
 }
 
@@ -1564,7 +1564,7 @@ void HMI_MaxAccelerationXYZE() {
         EncoderRate.enabled = false;
         if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
           planner.set_max_jerk(HMI_flag.step_axis, HMI_ValueStruct.Max_Jerk / 10);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
         return;
       }
       // MaxJerk limit
@@ -1572,7 +1572,7 @@ void HMI_MaxAccelerationXYZE() {
         NOMORE(HMI_ValueStruct.Max_Jerk, default_max_jerk[HMI_flag.jerk_axis] * 2 * MINUNITMULT);
       NOLESS(HMI_ValueStruct.Max_Jerk, (MIN_MAXJERK) * MINUNITMULT);
       // MaxJerk value
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
     }
   }
 
@@ -1592,7 +1592,7 @@ void HMI_StepXYZE() {
       EncoderRate.enabled = false;
       if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
         planner.settings.axis_steps_per_mm[HMI_flag.step_axis] = HMI_ValueStruct.Max_Step / 10;
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
       return;
     }
     // Step limit
@@ -1600,7 +1600,7 @@ void HMI_StepXYZE() {
       NOMORE(HMI_ValueStruct.Max_Step, default_axis_steps_per_unit[HMI_flag.step_axis] * 2 * MINUNITMULT);
     NOLESS(HMI_ValueStruct.Max_Step, MIN_STEP);
     // Step value
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
   }
 }
 
@@ -1619,15 +1619,15 @@ void update_variable() {
   if (checkkey == Tune) {
     #if HAS_HOTEND
       if (last_temp_hotend_target != thermalManager.temp_hotend[0].target)
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), thermalManager.temp_hotend[0].target);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), thermalManager.temp_hotend[0].target);
     #endif
     #if HAS_HEATED_BED
       if (last_temp_bed_target != thermalManager.temp_bed.target)
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), thermalManager.temp_bed.target);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), thermalManager.temp_bed.target);
     #endif
     #if HAS_FAN
       if (last_fan_speed != thermalManager.fan_speed[0]) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), thermalManager.fan_speed[0]);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), thermalManager.fan_speed[0]);
         last_fan_speed = thermalManager.fan_speed[0];
       }
     #endif
@@ -1637,15 +1637,15 @@ void update_variable() {
   if (checkkey == TemperatureID) {
     #if HAS_HOTEND
       if (last_temp_hotend_target != thermalManager.temp_hotend[0].target)
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TEMP_CASE_TEMP), thermalManager.temp_hotend[0].target);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_TEMP), thermalManager.temp_hotend[0].target);
     #endif
     #if HAS_HEATED_BED
       if (last_temp_bed_target != thermalManager.temp_bed.target)
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TEMP_CASE_BED), thermalManager.temp_bed.target);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_BED), thermalManager.temp_bed.target);
     #endif
     #if HAS_FAN
       if (last_fan_speed != thermalManager.fan_speed[0]) {
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(TEMP_CASE_FAN), thermalManager.fan_speed[0]);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(TEMP_CASE_FAN), thermalManager.fan_speed[0]);
         last_fan_speed = thermalManager.fan_speed[0];
       }
     #endif
@@ -1654,32 +1654,32 @@ void update_variable() {
   /* Bottom temperature update */
   #if HAS_HOTEND
     if (last_temp_hotend_current != thermalManager.temp_hotend[0].celsius) {
-      DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
       last_temp_hotend_current = thermalManager.temp_hotend[0].celsius;
     }
     if (last_temp_hotend_target != thermalManager.temp_hotend[0].target) {
-      DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
       last_temp_hotend_target = thermalManager.temp_hotend[0].target;
     }
   #endif
   #if HAS_HEATED_BED
     if (last_temp_bed_current != thermalManager.temp_bed.celsius) {
-      DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 178, 382, thermalManager.temp_bed.celsius);
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178, 382, thermalManager.temp_bed.celsius);
       last_temp_bed_current = thermalManager.temp_bed.celsius;
     }
     if (last_temp_bed_target != thermalManager.temp_bed.target) {
-      DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
+      DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
       last_temp_bed_target = thermalManager.temp_bed.target;
     }
   #endif
   static uint16_t last_speed = 0;
   if (last_speed != feedrate_percentage) {
-    DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
     last_speed = feedrate_percentage;
   }
   #if HAS_ZOFFSET_ITEM
     if (last_zoffset != BABY_Z_VAR) {
-      DWIN_Draw_Signed_Float(STAT_FONT, Background_black, 2, 2, 178 + STAT_CHR_W, 429, BABY_Z_VAR * 100);
+      DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178 + STAT_CHR_W, 429, BABY_Z_VAR * 100);
       last_zoffset = BABY_Z_VAR;
     }
   #endif
@@ -1869,16 +1869,16 @@ void HMI_StartFrame(const bool with_update) {
   Goto_MainMenu();
 
   // Clear the bottom area of the screen
-  DWIN_Draw_Rectangle(1, Background_black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
+  DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, STATUS_Y, DWIN_WIDTH, DWIN_HEIGHT - 1);
 
   //
   // Status Area
   //
   #if HAS_HOTEND
     DWIN_ICON_Show(ICON, ICON_HotendTemp, 13, 381);
-    DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
-    DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + 3 * STAT_CHR_W + 5, 383, F("/"));
-    DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33, 382, thermalManager.temp_hotend[0].celsius);
+    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 33 + 3 * STAT_CHR_W + 5, 383, F("/"));
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_hotend[0].target);
   #endif
   #if HOTENDS > 1
     // DWIN_ICON_Show(ICON,ICON_HotendTemp, 13, 381);
@@ -1886,18 +1886,18 @@ void HMI_StartFrame(const bool with_update) {
 
   #if HAS_HEATED_BED
     DWIN_ICON_Show(ICON, ICON_BedTemp, 158, 381);
-    DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 178, 382, thermalManager.temp_bed.celsius);
-    DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 178 + 3 * STAT_CHR_W + 5, 383, F("/"));
-    DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178, 382, thermalManager.temp_bed.celsius);
+    DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 178 + 3 * STAT_CHR_W + 5, 383, F("/"));
+    DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 178 + 4 * STAT_CHR_W + 6, 382, thermalManager.temp_bed.target);
   #endif
 
   DWIN_ICON_Show(ICON, ICON_Speed, 13, 429);
-  DWIN_Draw_IntValue(true, true, 0, STAT_FONT, White, Background_black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
-  DWIN_Draw_String(false, false, STAT_FONT, White, Background_black, 33 + 5 * STAT_CHR_W + 2, 429, F("%"));
+  DWIN_Draw_IntValue(true, true, 0, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 3, 33 + 2 * STAT_CHR_W, 429, feedrate_percentage);
+  DWIN_Draw_String(false, false, DWIN_FONT_STAT, Color_White, Color_Bg_Black, 33 + 5 * STAT_CHR_W + 2, 429, F("%"));
 
   #if HAS_ZOFFSET_ITEM
     DWIN_ICON_Show(ICON, ICON_Zoffset, 158, 428);
-    DWIN_Draw_Signed_Float(STAT_FONT, Background_black, 2, 2, 178, 429, BABY_Z_VAR * 100);
+    DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178, 429, BABY_Z_VAR * 100);
   #endif
 
   if (with_update) {
@@ -1909,8 +1909,8 @@ void HMI_StartFrame(const bool with_update) {
 inline void Draw_Info_Menu() {
   Clear_Main_Window();
 
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, (char*)MACHINE_SIZE);
-  DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, (char*)SHORT_BUILD_VERSION);
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(MACHINE_SIZE) * MENU_CHR_W) / 2, 122, (char*)MACHINE_SIZE);
+  DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(SHORT_BUILD_VERSION) * MENU_CHR_W) / 2, 195, (char*)SHORT_BUILD_VERSION);
 
   if (HMI_flag.language_chinese) {
     DWIN_Frame_TitleCopy(1, 30, 17, 57, 29); // "Info"
@@ -1918,7 +1918,7 @@ inline void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1, 197, 149, 252, 161, 108, 102);
     DWIN_Frame_AreaCopy(1, 1, 164, 56, 176, 108, 175);
     DWIN_Frame_AreaCopy(1, 58, 164, 113, 176, 105, 248);
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(CORP_WEBSITE_C) * MENU_CHR_W) / 2, 268, (char*)CORP_WEBSITE_C);
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_C) * MENU_CHR_W) / 2, 268, (char*)CORP_WEBSITE_C);
   }
   else {
     #ifdef USE_STRING_HEADINGS
@@ -1930,7 +1930,7 @@ inline void Draw_Info_Menu() {
     DWIN_Frame_AreaCopy(1, 120, 150, 146, 161, 124, 102);
     DWIN_Frame_AreaCopy(1, 146, 151, 254, 161, 82, 175);
     DWIN_Frame_AreaCopy(1, 0, 165, 94, 175, 89, 248);
-    DWIN_Draw_String(false, false, font8x16, White, Background_black, (DWIN_WIDTH - strlen(CORP_WEBSITE_E) * MENU_CHR_W) / 2, 268, (char*)CORP_WEBSITE_E);
+    DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, (DWIN_WIDTH - strlen(CORP_WEBSITE_E) * MENU_CHR_W) / 2, 268, (char*)CORP_WEBSITE_E);
   }
 
   Draw_Back_First();
@@ -2393,13 +2393,13 @@ void HMI_Prepare() {
         select_axis.reset();
         Draw_Move_Menu();
 
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(1), current_position.x * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(2), current_position.y * MINUNITMULT);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(3), current_position.z * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), current_position.x * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), current_position.y * MINUNITMULT);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), current_position.z * MINUNITMULT);
         #if HAS_HOTEND
           queue.inject_P(PSTR("G92 E0"));
           current_position.e = HMI_ValueStruct.Move_E_scale = 0;
-          DWIN_Draw_Signed_Float(font8x16, Background_black, 3, 1, 216, MBASE(4), 0);
+          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), 0);
         #endif
         break;
       case PREPARE_CASE_DISA: // Disable steppers
@@ -2479,17 +2479,17 @@ void Draw_Temperature_Menu() {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_TEMPERATURE));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TEMP_CASE_TEMP), GET_TEXT_F(MSG_UBL_SET_TEMP_HOTEND));
       #endif
       #if HAS_HEATED_BED
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TEMP_CASE_BED), GET_TEXT_F(MSG_UBL_SET_TEMP_BED));
       #endif
       #if HAS_FAN
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TEMP_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
       #endif
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_PLA), F("PLA Preheat Settings"));
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(TEMP_CASE_ABS), F("ABS Preheat Settings"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TEMP_CASE_PLA), F("PLA Preheat Settings"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(TEMP_CASE_ABS), F("ABS Preheat Settings"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 56, 16, 141, 28);                                       // "Temperature"
@@ -2523,15 +2523,15 @@ void Draw_Temperature_Menu() {
   #define _TMENU_ICON(N) Draw_Menu_Line(++i, ICON_SetEndTemp + (N) - 1)
   #if HAS_HOTEND
     _TMENU_ICON(TEMP_CASE_TEMP);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), thermalManager.temp_hotend[0].target);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), thermalManager.temp_hotend[0].target);
   #endif
   #if HAS_HEATED_BED
     _TMENU_ICON(TEMP_CASE_BED);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), thermalManager.temp_bed.target);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), thermalManager.temp_bed.target);
   #endif
   #if HAS_FAN
     _TMENU_ICON(TEMP_CASE_FAN);
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), thermalManager.fan_speed[0]);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), thermalManager.fan_speed[0]);
   #endif
   #if HAS_HOTEND
     // PLA/ABS items have submenus
@@ -2651,10 +2651,10 @@ void HMI_AxisMove() {
         HMI_flag.ETempTooLow_flag = false;
         current_position.e = HMI_ValueStruct.Move_E_scale = 0;
         Draw_Move_Menu();
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
-        DWIN_Draw_Signed_Float(font8x16, Background_black, 3, 1, 216, MBASE(4), 0);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 3, 1, 216, MBASE(4), 0);
         DWIN_UpdateLCD();
       }
       return;
@@ -2679,19 +2679,19 @@ void HMI_AxisMove() {
       case 1: // X axis move
         checkkey = Move_X;
         HMI_ValueStruct.Move_X_scale = current_position.x * MINUNITMULT;
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(1), HMI_ValueStruct.Move_X_scale);
         EncoderRate.enabled = true;
         break;
       case 2: // Y axis move
         checkkey = Move_Y;
         HMI_ValueStruct.Move_Y_scale = current_position.y * MINUNITMULT;
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(2), HMI_ValueStruct.Move_Y_scale);
         EncoderRate.enabled = true;
         break;
       case 3: // Z axis move
         checkkey = Move_Z;
         HMI_ValueStruct.Move_Z_scale = current_position.z * MINUNITMULT;
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 216, MBASE(3), HMI_ValueStruct.Move_Z_scale);
         EncoderRate.enabled = true;
         break;
         #if HAS_HOTEND
@@ -2740,7 +2740,7 @@ void HMI_Temperature() {
         case TEMP_CASE_TEMP: // Nozzle temperature
           checkkey = ETemp;
           HMI_ValueStruct.E_Temp = thermalManager.temp_hotend[0].target;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(1), thermalManager.temp_hotend[0].target);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(1), thermalManager.temp_hotend[0].target);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -2748,7 +2748,7 @@ void HMI_Temperature() {
         case TEMP_CASE_BED: // Bed temperature
           checkkey = BedTemp;
           HMI_ValueStruct.Bed_Temp = thermalManager.temp_bed.target;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(2), thermalManager.temp_bed.target);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(2), thermalManager.temp_bed.target);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -2756,7 +2756,7 @@ void HMI_Temperature() {
         case TEMP_CASE_FAN: // Fan speed
           checkkey = FanSpeed;
           HMI_ValueStruct.Fan_speed = thermalManager.fan_speed[0];
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(3), thermalManager.fan_speed[0]);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(3), thermalManager.fan_speed[0]);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -2787,15 +2787,15 @@ void HMI_Temperature() {
           else {
             #ifdef USE_STRING_HEADINGS
               Draw_Title("PLA Settings"); // TODO: GET_TEXT_F
-              DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+              DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
               #if HAS_HEATED_BED
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
               #endif
               #if HAS_FAN
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
               #endif
               #if ENABLED(EEPROM_SETTINGS)
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
               #endif
             #else
               DWIN_Frame_TitleCopy(1, 56, 16, 141, 28);                                             // "PLA Settings"
@@ -2821,14 +2821,14 @@ void HMI_Temperature() {
 
           uint8_t i = 0;
           Draw_Menu_Line(++i, ICON_SetEndTemp);
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[0].hotend_temp);
           #if HAS_HEATED_BED
             Draw_Menu_Line(++i, ICON_SetBedTemp);
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[0].bed_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[0].bed_temp);
           #endif
           #if HAS_FAN
             Draw_Menu_Line(++i, ICON_FanSpeed);
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[0].fan_speed);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[0].fan_speed);
           #endif
           #if ENABLED(EEPROM_SETTINGS)
             Draw_Menu_Line(++i, ICON_WriteEEPROM);
@@ -2863,15 +2863,15 @@ void HMI_Temperature() {
           else {
             #ifdef USE_STRING_HEADINGS
               Draw_Title("ABS Settings"); // TODO: GET_TEXT_F
-              DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
+              DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_TEMP), F("Nozzle Temp"));
               #if HAS_HEATED_BED
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_BED), F("Bed Temp"));
               #endif
               #if HAS_FAN
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_FAN), GET_TEXT_F(MSG_FAN_SPEED));
               #endif
               #if ENABLED(EEPROM_SETTINGS)
-                DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
+                DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(PREHEAT_CASE_SAVE), GET_TEXT_F(MSG_STORE_EEPROM));
               #endif
             #else
               DWIN_Frame_TitleCopy(1, 56, 16, 141, 28);                                                  // "ABS Settings"
@@ -2898,14 +2898,14 @@ void HMI_Temperature() {
 
           uint8_t i = 0;
           Draw_Menu_Line(++i, ICON_SetEndTemp);
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[1].hotend_temp);
           #if HAS_HEATED_BED
             Draw_Menu_Line(++i, ICON_SetBedTemp);
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[1].bed_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[1].bed_temp);
           #endif
           #if HAS_FAN
             Draw_Menu_Line(++i, ICON_FanSpeed);
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 3, 216, MBASE(i), ui.material_preset[1].fan_speed);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(i), ui.material_preset[1].fan_speed);
           #endif
           #if ENABLED(EEPROM_SETTINGS)
             Draw_Menu_Line(++i, ICON_WriteEEPROM);
@@ -2943,11 +2943,11 @@ inline void Draw_Max_Speed_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title("Max Speed (mm/s)"); // TODO: GET_TEXT_F
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Feedrate X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Feedrate Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Feedrate Z"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(1), F("Max Feedrate X"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(2), F("Max Feedrate Y"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(3), F("Max Feedrate Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Feedrate E"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(4), F("Max Feedrate E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Max Speed (mm/s)"
@@ -2973,11 +2973,11 @@ inline void Draw_Max_Speed_Menu() {
 
   Draw_Back_First();
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedX + i);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(1), planner.settings.max_feedrate_mm_s[X_AXIS]);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(2), planner.settings.max_feedrate_mm_s[Y_AXIS]);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(3), planner.settings.max_feedrate_mm_s[Z_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(1), planner.settings.max_feedrate_mm_s[X_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(2), planner.settings.max_feedrate_mm_s[Y_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(3), planner.settings.max_feedrate_mm_s[Z_AXIS]);
   #if HAS_HOTEND
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(4), planner.settings.max_feedrate_mm_s[E_AXIS]);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(4), planner.settings.max_feedrate_mm_s[E_AXIS]);
   #endif
 }
 
@@ -3005,11 +3005,11 @@ inline void Draw_Max_Accel_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_ACCELERATION));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Accel X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Accel Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Accel Z"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(1), F("Max Accel X"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(2), F("Max Accel Y"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(3), F("Max Accel Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Accel E"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(4), F("Max Accel E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26);          // "Acceleration"
@@ -3024,11 +3024,11 @@ inline void Draw_Max_Accel_Menu() {
 
   Draw_Back_First();
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxAccX + i);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(1), planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(2), planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
-  DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(3), planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(1), planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(2), planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+  DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(3), planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
   #if HAS_HOTEND
-    DWIN_Draw_IntValue(true, true, 0, font8x16, White, Background_black, 4, 210, MBASE(4), planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+    DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 4, 210, MBASE(4), planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
   #endif
 }
 
@@ -3060,11 +3060,11 @@ inline void Draw_Max_Jerk_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_JERK));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Max Jerk X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Max Jerk Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Max Jerk Z"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(1), F("Max Jerk X"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(2), F("Max Jerk Y"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(3), F("Max Jerk Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Max Jerk E"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(4), F("Max Jerk E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Jerk"
@@ -3094,11 +3094,11 @@ inline void Draw_Max_Jerk_Menu() {
 
   Draw_Back_First();
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_MaxSpeedJerkX + i);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(1), planner.max_jerk[X_AXIS] * MINUNITMULT);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(2), planner.max_jerk[Y_AXIS] * MINUNITMULT);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(3), planner.max_jerk[Z_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(1), planner.max_jerk[X_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(2), planner.max_jerk[Y_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(3), planner.max_jerk[Z_AXIS] * MINUNITMULT);
   #if HAS_HOTEND
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(4), planner.max_jerk[E_AXIS] * MINUNITMULT);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(4), planner.max_jerk[E_AXIS] * MINUNITMULT);
   #endif
 }
 
@@ -3122,11 +3122,11 @@ inline void Draw_Steps_Menu() {
   else {
     #ifdef USE_STRING_HEADINGS
       Draw_Title(GET_TEXT_F(MSG_STEPS_PER_MM));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(1), F("Steps/mm X"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(2), F("Steps/mm Y"));
-      DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(3), F("Steps/mm Z"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(1), F("Steps/mm X"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(2), F("Steps/mm Y"));
+      DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(3), F("Steps/mm Z"));
       #if HAS_HOTEND
-        DWIN_Draw_String(false, true, font8x16, White, Background_black, LBLX, MBASE(4), F("Steps/mm E"));
+        DWIN_Draw_String(false, true, font8x16, Color_White, Color_Bg_Black, LBLX, MBASE(4), F("Steps/mm E"));
       #endif
     #else
       DWIN_Frame_TitleCopy(1, 144, 16, 189, 26); // "Steps per mm"
@@ -3141,11 +3141,11 @@ inline void Draw_Steps_Menu() {
 
   Draw_Back_First();
   LOOP_L_N(i, 3 + ENABLED(HAS_HOTEND)) Draw_Menu_Line(i + 1, ICON_StepX + i);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(1), planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(2), planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
-  DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(3), planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(1), planner.settings.axis_steps_per_mm[X_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(2), planner.settings.axis_steps_per_mm[Y_AXIS] * MINUNITMULT);
+  DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(3), planner.settings.axis_steps_per_mm[Z_AXIS] * MINUNITMULT);
   #if HAS_HOTEND
-    DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Background_black, 3, 1, 210, MBASE(4), planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
+    DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(4), planner.settings.axis_steps_per_mm[E_AXIS] * MINUNITMULT);
   #endif
 }
 
@@ -3253,14 +3253,14 @@ void HMI_Tune() {
       case TUNE_CASE_SPEED: // Print speed
         checkkey = PrintSpeed;
         HMI_ValueStruct.print_speed = feedrate_percentage;
-        DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(TUNE_CASE_SPEED + MROWS - index_tune), feedrate_percentage);
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(TUNE_CASE_SPEED + MROWS - index_tune), feedrate_percentage);
         EncoderRate.enabled = true;
         break;
       #if HAS_HOTEND
         case TUNE_CASE_TEMP: // Nozzle temp
           checkkey = ETemp;
           HMI_ValueStruct.E_Temp = thermalManager.temp_hotend[0].target;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), thermalManager.temp_hotend[0].target);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(TUNE_CASE_TEMP + MROWS - index_tune), thermalManager.temp_hotend[0].target);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -3268,7 +3268,7 @@ void HMI_Tune() {
         case TUNE_CASE_BED: // Bed temp
           checkkey = BedTemp;
           HMI_ValueStruct.Bed_Temp = thermalManager.temp_bed.target;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), thermalManager.temp_bed.target);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(TUNE_CASE_BED + MROWS - index_tune), thermalManager.temp_bed.target);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -3276,7 +3276,7 @@ void HMI_Tune() {
         case TUNE_CASE_FAN: // Fan speed
           checkkey = FanSpeed;
           HMI_ValueStruct.Fan_speed = thermalManager.fan_speed[0];
-          DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), thermalManager.fan_speed[0]);
+          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(TUNE_CASE_FAN + MROWS - index_tune), thermalManager.fan_speed[0]);
           EncoderRate.enabled = true;
           break;
       #endif
@@ -3326,7 +3326,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_TEMP: // Nozzle temperature
             checkkey = ETemp;
             HMI_ValueStruct.E_Temp = ui.material_preset[0].hotend_temp;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[0].hotend_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[0].hotend_temp);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3334,7 +3334,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_BED: // Bed temperature
             checkkey = BedTemp;
             HMI_ValueStruct.Bed_Temp = ui.material_preset[0].bed_temp;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_BED), ui.material_preset[0].bed_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_BED), ui.material_preset[0].bed_temp);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3342,7 +3342,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_FAN: // Fan speed
             checkkey = FanSpeed;
             HMI_ValueStruct.Fan_speed = ui.material_preset[0].fan_speed;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_FAN), ui.material_preset[0].fan_speed);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_FAN), ui.material_preset[0].fan_speed);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3382,7 +3382,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_TEMP: // Set nozzle temperature
             checkkey = ETemp;
             HMI_ValueStruct.E_Temp = ui.material_preset[1].hotend_temp;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[1].hotend_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_TEMP), ui.material_preset[1].hotend_temp);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3390,7 +3390,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_BED: // Set bed temperature
             checkkey = BedTemp;
             HMI_ValueStruct.Bed_Temp = ui.material_preset[1].bed_temp;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_BED), ui.material_preset[1].bed_temp);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_BED), ui.material_preset[1].bed_temp);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3398,7 +3398,7 @@ void HMI_Tune() {
           case PREHEAT_CASE_FAN: // Set fan speed
             checkkey = FanSpeed;
             HMI_ValueStruct.Fan_speed = ui.material_preset[1].fan_speed;
-            DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_FAN), ui.material_preset[1].fan_speed);
+            DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 216, MBASE(PREHEAT_CASE_FAN), ui.material_preset[1].fan_speed);
             EncoderRate.enabled = true;
             break;
         #endif
@@ -3433,7 +3433,7 @@ void HMI_MaxSpeed() {
       checkkey = MaxSpeed_value;
       HMI_flag.feedspeed_axis = AxisEnum(select_speed.now - 1);
       HMI_ValueStruct.Max_Feedspeed = planner.settings.max_feedrate_mm_s[HMI_flag.feedspeed_axis];
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 4, 210, MBASE(select_speed.now), HMI_ValueStruct.Max_Feedspeed);
       EncoderRate.enabled = true;
     }
     else { // Back
@@ -3462,7 +3462,7 @@ void HMI_MaxAcceleration() {
       checkkey = MaxAcceleration_value;
       HMI_flag.acc_axis = AxisEnum(select_acc.now - 1);
       HMI_ValueStruct.Max_Acceleration = planner.settings.max_acceleration_mm_per_s2[HMI_flag.acc_axis];
-      DWIN_Draw_IntValue(true, true, 0, font8x16, White, Select_Color, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
+      DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Select_Color, 4, 210, MBASE(select_acc.now), HMI_ValueStruct.Max_Acceleration);
       EncoderRate.enabled = true;
     }
     else { // Back
@@ -3492,7 +3492,7 @@ void HMI_MaxAcceleration() {
         checkkey = MaxJerk_value;
         HMI_flag.jerk_axis = AxisEnum(select_jerk.now - 1);
         HMI_ValueStruct.Max_Jerk = planner.max_jerk[HMI_flag.jerk_axis] * MINUNITMULT;
-        DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
+        DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
         EncoderRate.enabled = true;
       }
       else { // Back
@@ -3522,7 +3522,7 @@ void HMI_Step() {
       checkkey = Step_value;
       HMI_flag.step_axis = AxisEnum(select_step.now - 1);
       HMI_ValueStruct.Max_Step = planner.settings.axis_steps_per_mm[HMI_flag.step_axis] * MINUNITMULT;
-      DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
+      DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
       EncoderRate.enabled = true;
     }
     else { // Back
@@ -3539,7 +3539,7 @@ void HMI_Init() {
 
   for (uint16_t t = 0; t <= 100; t += 2) {
     DWIN_ICON_Show(ICON, ICON_Bar, 15, 260);
-    DWIN_Draw_Rectangle(1, Background_black, 15 + t * 242 / 100, 260, 257, 280);
+    DWIN_Draw_Rectangle(1, Color_Bg_Black, 15 + t * 242 / 100, 260, 257, 280);
     DWIN_UpdateLCD();
     delay(20);
   }
@@ -3577,7 +3577,7 @@ void EachMomentUpdate() {
       Draw_Print_ProgressBar();
 
       // show print done confirm
-      DWIN_Draw_Rectangle(1, Background_black, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
+      DWIN_Draw_Rectangle(1, Color_Bg_Black, 0, 250, DWIN_WIDTH - 1, STATUS_Y);
       DWIN_ICON_Show(ICON, HMI_flag.language_chinese ? ICON_Confirm_C : ICON_Confirm_E, 86, 283);
     }
     else if (HMI_flag.pause_flag != printingIsPaused()) {
@@ -3654,7 +3654,7 @@ void EachMomentUpdate() {
       if (!recovery.valid()) return recovery.purge();
 
       auto draw_first_option = [](const bool sel) {
-        const uint16_t c1 = sel ? Background_window : Select_Color;
+        const uint16_t c1 = sel ? Color_Bg_Window : Select_Color;
         DWIN_Draw_Rectangle(0, c1, 25, 306, 126, 345);
         DWIN_Draw_Rectangle(0, c1, 24, 305, 127, 346);
       };
@@ -3662,7 +3662,7 @@ void EachMomentUpdate() {
       auto update_selection = [&](const bool sel) {
         HMI_flag.select_flag = sel;
         draw_first_option(sel);
-        const uint16_t c2 = sel ? Select_Color : Background_window;
+        const uint16_t c2 = sel ? Select_Color : Color_Bg_Window;
         DWIN_Draw_Rectangle(0, c2, 145, 306, 246, 345);
         DWIN_Draw_Rectangle(0, c2, 144, 305, 247, 346);
       };
@@ -3679,7 +3679,7 @@ void EachMomentUpdate() {
           draw_first_option(false);
           char * const name = card.longest_filename();
           const int8_t npos = _MAX(0, DWIN_WIDTH - strlen(name) * (MENU_CHR_W)) / 2;
-          DWIN_Draw_String(false, true, font8x16, Font_window, Background_window, npos, 252, name);
+          DWIN_Draw_String(false, true, font8x16, Popup_Text_Color, Color_Bg_Window, npos, 252, name);
           DWIN_UpdateLCD();
           break;
         }
