@@ -104,7 +104,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 3
+#define SERIAL_PORT 0
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
@@ -128,7 +128,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_MKS_ROBIN_E3P
+  #define MOTHERBOARD BOARD_RAMPS_14_EFB
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -1727,7 +1727,7 @@
  * you must uncomment the following option or it won't work.
  *
  */
-#define SDSUPPORT
+//#define SDSUPPORT
 
 /**
  * SD CARD: SPI SPEED
@@ -2232,7 +2232,7 @@
 // root of your SD card, together with the compiled firmware.
 //
 //#define TFT_LVGL_UI_FSMC  // Robin nano v1.2 uses FSMC
-#define TFT_LVGL_UI_SPI   // Robin nano v2.0 uses SPI
+//#define TFT_LVGL_UI_SPI   // Robin nano v2.0 uses SPI
 
 //=============================================================================
 //============================  Other Controllers  ============================
