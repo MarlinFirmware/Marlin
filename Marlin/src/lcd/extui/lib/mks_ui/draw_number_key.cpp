@@ -34,6 +34,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
+
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
@@ -45,6 +46,7 @@
   #include "../../../../module/stepper/indirection.h"
   #include "../../../../feature/tmc_util.h"
 #endif
+
 #if HAS_BED_PROBE
   #include "../../../../module/probe.h"
 #endif
@@ -243,7 +245,7 @@ static void disp_key_value() {
         #if HAS_PROBE_XY_OFFSET
         sprintf_P(public_buf_m, PSTR("%.1f"), probe.offset.x);
         #endif
-        break; 
+        break;
       case y_offset:
         #if HAS_PROBE_XY_OFFSET
         sprintf_P(public_buf_m, PSTR("%.1f"), probe.offset.y);
@@ -476,7 +478,7 @@ static void set_value_confirm() {
           if (WITHIN(x, -(X_BED_SIZE), X_BED_SIZE))
             probe.offset.x = x;
         #endif
-        break; 
+        break;
       case y_offset:
         #if HAS_PROBE_XY_OFFSET
           float y;
@@ -492,29 +494,29 @@ static void set_value_confirm() {
           probe.offset.z = z;
         break;
     #endif
-	  case load_length:
+    case load_length:
       gCfgItems.filamentchange_load_length = atoi(key_value);
       uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length*60.0/gCfgItems.filamentchange_load_speed)+0.5);
-	    update_spi_flash();
+      update_spi_flash();
       break;
-	  case load_speed:
-	    gCfgItems.filamentchange_load_speed = atoi(key_value);
+    case load_speed:
+      gCfgItems.filamentchange_load_speed = atoi(key_value);
       uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length*60.0/gCfgItems.filamentchange_load_speed)+0.5);
-	    update_spi_flash();
+      update_spi_flash();
       break;
-	  case unload_length:
-	    gCfgItems.filamentchange_unload_length = atoi(key_value);
+    case unload_length:
+      gCfgItems.filamentchange_unload_length = atoi(key_value);
       uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length*60.0/gCfgItems.filamentchange_unload_speed)+0.5);
-	    update_spi_flash();
+      update_spi_flash();
       break;
-	  case unload_speed:
-	    gCfgItems.filamentchange_unload_speed = atoi(key_value);
+    case unload_speed:
+      gCfgItems.filamentchange_unload_speed = atoi(key_value);
       uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length*60.0/gCfgItems.filamentchange_unload_speed)+0.5);
-	    update_spi_flash();
+      update_spi_flash();
       break;
-	  case filament_temp:
-	    gCfgItems.filament_limit_temper = atoi(key_value);
-	    update_spi_flash();
+    case filament_temp:
+      gCfgItems.filament_limit_temper = atoi(key_value);
+      update_spi_flash();
       break;
     case x_sensitivity:
       #if X_SENSORLESS
@@ -780,7 +782,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(buttonValue, LV_BTN_STYLE_PR, &style_num_text);      /*Set the button's pressed style*/
   //lv_btn_set_layout(buttonValue, LV_LAYOUT_OFF);
   labelValue = lv_label_create(buttonValue, NULL);                      /*Add a label to the button*/
-  
+
   NumberKey_1 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_1, 92, 90);                                  /*Set its position*/
   lv_obj_set_size(NumberKey_1, 68, 40);
@@ -791,7 +793,6 @@ void lv_draw_number_key(void) {
   labelKey_1 = lv_label_create(NumberKey_1, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_1, machine_menu.key_1);
   lv_obj_align(labelKey_1, NumberKey_1, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_2 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_2, 168, 90);                                 /*Set its position*/
@@ -803,8 +804,7 @@ void lv_draw_number_key(void) {
   labelKey_2 = lv_label_create(NumberKey_2, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_2, machine_menu.key_2);
   lv_obj_align(labelKey_2, NumberKey_2, LV_ALIGN_CENTER, 0, 0);
-  
-  
+
   NumberKey_3 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_3, 244, 90);                                 /*Set its position*/
   lv_obj_set_size(NumberKey_3, 68, 40);
@@ -815,7 +815,6 @@ void lv_draw_number_key(void) {
   labelKey_3 = lv_label_create(NumberKey_3, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_3, machine_menu.key_3);
   lv_obj_align(labelKey_3, NumberKey_3, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_4 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_4, 92, 140);                                 /*Set its position*/
@@ -827,7 +826,6 @@ void lv_draw_number_key(void) {
   labelKey_4 = lv_label_create(NumberKey_4, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_4, machine_menu.key_4);
   lv_obj_align(labelKey_4, NumberKey_4, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_5 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_5, 168, 140);                                /*Set its position*/
@@ -839,7 +837,6 @@ void lv_draw_number_key(void) {
   labelKey_5 = lv_label_create(NumberKey_5, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_5, machine_menu.key_5);
   lv_obj_align(labelKey_5, NumberKey_5, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_6 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_6, 244, 140);                                /*Set its position*/
@@ -851,7 +848,6 @@ void lv_draw_number_key(void) {
   labelKey_6 = lv_label_create(NumberKey_6, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_6, machine_menu.key_6);
   lv_obj_align(labelKey_6, NumberKey_6, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_7 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_7, 92, 190);                                 /*Set its position*/
@@ -863,7 +859,6 @@ void lv_draw_number_key(void) {
   labelKey_7 = lv_label_create(NumberKey_7, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_7, machine_menu.key_7);
   lv_obj_align(labelKey_7, NumberKey_7, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_8 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_8, 168, 190);                                /*Set its position*/
@@ -875,7 +870,6 @@ void lv_draw_number_key(void) {
   labelKey_8 = lv_label_create(NumberKey_8, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_8, machine_menu.key_8);
   lv_obj_align(labelKey_8, NumberKey_8, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_9 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_9, 244, 190);                                /*Set its position*/
@@ -887,7 +881,6 @@ void lv_draw_number_key(void) {
   labelKey_9 = lv_label_create(NumberKey_9, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_9, machine_menu.key_9);
   lv_obj_align(labelKey_9, NumberKey_9, LV_ALIGN_CENTER, 0, 0);
-  
 
   NumberKey_0 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_0, 92, 240);                                 /*Set its position*/
@@ -899,7 +892,6 @@ void lv_draw_number_key(void) {
   labelKey_0 = lv_label_create(NumberKey_0, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_0, machine_menu.key_0);
   lv_obj_align(labelKey_0, NumberKey_0, LV_ALIGN_CENTER, 0, 0);
-  
 
   KeyBack = lv_btn_create(scr, NULL);                                   /*Add a button the current screen*/
   lv_obj_set_pos(KeyBack, 320, 90);                                     /*Set its position*/
@@ -911,7 +903,6 @@ void lv_draw_number_key(void) {
   labelKeyBack = lv_label_create(KeyBack, NULL);                        /*Add a label to the button*/
   lv_label_set_text(labelKeyBack, machine_menu.key_back);
   lv_obj_align(labelKeyBack, KeyBack, LV_ALIGN_CENTER, 0, 0);
-  
 
   KeyReset = lv_btn_create(scr, NULL);                                  /*Add a button the current screen*/
   lv_obj_set_pos(KeyReset, 320, 140);                                   /*Set its position*/
@@ -923,7 +914,6 @@ void lv_draw_number_key(void) {
   labelKeyReset = lv_label_create(KeyReset, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyReset, machine_menu.key_reset);
   lv_obj_align(labelKeyReset, KeyReset, LV_ALIGN_CENTER, 0, 0);
-  
 
   KeyConfirm = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
   lv_obj_set_pos(KeyConfirm, 320, 190);                                 /*Set its position*/
@@ -935,8 +925,7 @@ void lv_draw_number_key(void) {
   labelKeyConfirm = lv_label_create(KeyConfirm, NULL);                  /*Add a label to the button*/
   lv_label_set_text(labelKeyConfirm, machine_menu.key_confirm);
   lv_obj_align(labelKeyConfirm, KeyConfirm, LV_ALIGN_CENTER, 0, 0);
-  
-  
+
   KeyPoint = lv_btn_create(scr, NULL);                                  /*Add a button the current screen*/
   lv_obj_set_pos(KeyPoint, 244, 240);                                   /*Set its position*/
   lv_obj_set_size(KeyPoint, 68, 40);
@@ -947,7 +936,6 @@ void lv_draw_number_key(void) {
   labelKeyPoint = lv_label_create(KeyPoint, NULL);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyPoint, machine_menu.key_point);
   lv_obj_align(labelKeyPoint, KeyPoint, LV_ALIGN_CENTER, 0, 0);
-  
 
   Minus = lv_btn_create(scr, NULL);                                     /*Add a button the current screen*/
   lv_obj_set_pos(Minus, 168, 240);                                      /*Set its position*/
@@ -959,38 +947,35 @@ void lv_draw_number_key(void) {
   labelMinus = lv_label_create(Minus, NULL);                            /*Add a label to the button*/
   lv_label_set_text(labelMinus, machine_menu.negative);
   lv_obj_align(labelMinus, Minus, LV_ALIGN_CENTER, 0, 0);
-  
 
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, NumberKey_1);
-  		lv_group_add_obj(g, NumberKey_2);
-  		lv_group_add_obj(g, NumberKey_3);
-  		lv_group_add_obj(g, KeyBack);
-  		lv_group_add_obj(g, NumberKey_4);
-  		lv_group_add_obj(g, NumberKey_5);
-  		lv_group_add_obj(g, NumberKey_6);
-  		lv_group_add_obj(g, KeyReset);
-  		lv_group_add_obj(g, NumberKey_7);
-  		lv_group_add_obj(g, NumberKey_8);
-  		lv_group_add_obj(g, NumberKey_9);
-  		lv_group_add_obj(g, NumberKey_0);
-		lv_group_add_obj(g, Minus);
-		lv_group_add_obj(g, KeyPoint);
-		lv_group_add_obj(g, KeyConfirm);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, NumberKey_1);
+      lv_group_add_obj(g, NumberKey_2);
+      lv_group_add_obj(g, NumberKey_3);
+      lv_group_add_obj(g, KeyBack);
+      lv_group_add_obj(g, NumberKey_4);
+      lv_group_add_obj(g, NumberKey_5);
+      lv_group_add_obj(g, NumberKey_6);
+      lv_group_add_obj(g, KeyReset);
+      lv_group_add_obj(g, NumberKey_7);
+      lv_group_add_obj(g, NumberKey_8);
+      lv_group_add_obj(g, NumberKey_9);
+      lv_group_add_obj(g, NumberKey_0);
+      lv_group_add_obj(g, Minus);
+      lv_group_add_obj(g, KeyPoint);
+      lv_group_add_obj(g, KeyConfirm);
+    }
+  #endif
 
   disp_key_value();
 }
 
-void lv_clear_number_key() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_number_key() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

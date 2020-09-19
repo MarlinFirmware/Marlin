@@ -36,7 +36,6 @@
 
 #define TFT_LV_PARA_BACK_BODY_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF)
 
-
 #include "tft_lvgl_configuration.h"
 #include "tft_multi_language.h"
 #include "pic_manager.h"
@@ -81,7 +80,7 @@
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
 
-#if USE_WIFI_FUNCTION
+#if ENABLED(USE_WIFI_FUNCTION)
   #include "wifiSerial.h"
   #include "wifi_module.h"
   #include "wifi_upload.h"
@@ -89,15 +88,15 @@
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"
   #include "draw_wifi_tips.h"
-#endif  //USE_WIFI_FUNCTION
+#endif
 
 #include "../../inc/MarlinConfigPre.h"
-#define FILE_SYS_USB	0
-#define FILE_SYS_SD	1
+#define FILE_SYS_USB  0
+#define FILE_SYS_SD 1
 
 #define TICK_CYCLE 1
 
-#define PARA_SEL_ICON_TEXT_COLOR	LV_COLOR_MAKE(0x4a, 0x52, 0xff);
+#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4a, 0x52, 0xff);
 
 #define TFT35
 
@@ -204,16 +203,16 @@ typedef struct {
           stepHeat : 4;
   uint8_t leveling_first_time : 1,
           para_ui_page:1,
-	        configWifi:1,
-	        command_send:1,
+          configWifi:1,
+          command_send:1,
           filament_load_heat_flg:1,
           filament_heat_completed_load:1,
           filament_unload_heat_flg:1,
           filament_heat_completed_unload:1;
   uint8_t filament_loading_completed:1,
-  		    filament_unloading_completed:1,
-  		    filament_loading_time_flg:1,
-  		    filament_unloading_time_flg:1,
+          filament_unloading_completed:1,
+          filament_loading_time_flg:1,
+          filament_unloading_time_flg:1,
           curSprayerChoose_bak:4;
   uint8_t wifi_name[32];
   uint8_t wifi_key[64];
@@ -311,8 +310,8 @@ typedef enum {
   PAUSE_POS_UI,
   TMC_CURRENT_UI,
   TMC_MODE_UI,
-	EEPROM_SETTINGS_UI,
-	WIFI_SETTINGS_UI,
+  EEPROM_SETTINGS_UI,
+  WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
   ENCODER_SETTINGS_UI
 } DISP_STATE;
@@ -400,9 +399,9 @@ typedef enum {
 extern num_key_value_state value;
 
 typedef enum {
-	wifiName,
-	wifiPassWord,
-	wifiConfig,
+  wifiName,
+  wifiPassWord,
+  wifiConfig,
   gcodeCommand
 } keyboard_value_state;
 extern keyboard_value_state keyboard_value;
@@ -451,5 +450,5 @@ extern void LV_TASK_HANDLER();
 extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

@@ -19,11 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 
@@ -32,7 +31,7 @@ extern void lv_clear_wifi();
 extern void disp_wifi_state();
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
 
 

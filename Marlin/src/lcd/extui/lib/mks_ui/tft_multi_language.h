@@ -275,13 +275,13 @@ typedef struct machine_common_disp{
   const char *zPos;
 
   const char *WifiConfTitle;
-	const char *wifiMode;
-	const char *wifiName;
-	const char *wifiPassWord;
-	const char *wifiCloud;
-	const char *wifiConfig;
-	const char *wifiEdit;
-	const char *wifiConfigTips;
+  const char *wifiMode;
+  const char *wifiName;
+  const char *wifiPassWord;
+  const char *wifiCloud;
+  const char *wifiConfig;
+  const char *wifiEdit;
+  const char *wifiConfigTips;
 
   const char *OffsetConfTitle;
   const char *Xoffset;
@@ -830,7 +830,7 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
-#define DIALOG_UPDATE_NO_DEVICE_EN 			"please check \nwether memory device insert!"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "please check \nwether memory device insert!"
 
 #define ZOFFSET_STEP001                 "0.01mm"
 #define ZOFFSET_STEP01                  "0.1mm"

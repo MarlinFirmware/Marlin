@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #ifdef __cplusplus
@@ -31,15 +30,15 @@ extern void lv_draw_wifi_tips(void);
 extern void lv_clear_wifi_tips();
 
 typedef enum {
-	TIPS_TYPE_JOINING,
-	TIPS_TYPE_TAILED_JOIN,
-	TIPS_TYPE_WIFI_CONECTED
+  TIPS_TYPE_JOINING,
+  TIPS_TYPE_TAILED_JOIN,
+  TIPS_TYPE_WIFI_CONECTED
 } TIPS_TYPE;
 extern TIPS_TYPE wifi_tips_type;
 
 typedef struct {
-	unsigned char timer;
-	unsigned int timer_count;
+  unsigned char timer;
+  unsigned int timer_count;
 } TIPS_DISP;
 extern TIPS_DISP tips_disp;
 
@@ -47,6 +46,6 @@ extern TIPS_DISP tips_disp;
 #define TIPS_TIMER_STOP 0
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
 

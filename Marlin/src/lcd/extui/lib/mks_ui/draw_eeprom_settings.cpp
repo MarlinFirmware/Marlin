@@ -143,7 +143,7 @@ void lv_draw_eeprom_settings(void) {
   lv_btn_set_style(buttonRevert, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
   lv_btn_set_layout(buttonRevert, LV_LAYOUT_OFF);
   labelRevert = lv_label_create(buttonRevert, NULL);        /*Add a label to the button*/
-  
+
   buttonRevertNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonRevertNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonRevertNarrow, event_handler, ID_EEPROM_REVERT_ARROW, NULL, 0);
@@ -167,7 +167,7 @@ void lv_draw_eeprom_settings(void) {
   lv_btn_set_style(buttonStore, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
   lv_btn_set_layout(buttonStore, LV_LAYOUT_OFF);
   labelStore = lv_label_create(buttonStore, NULL);        /*Add a label to the button*/
-  
+
   buttonStoreNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonStoreNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonStoreNarrow, event_handler, ID_EEPROM_STORE_ARROW, NULL, 0);
@@ -186,7 +186,7 @@ void lv_draw_eeprom_settings(void) {
   lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
+
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
@@ -204,23 +204,21 @@ void lv_draw_eeprom_settings(void) {
     lv_label_set_text(labelRevert, eeprom_menu.revert);
     lv_obj_align(labelRevert, buttonRevert, LV_ALIGN_IN_LEFT_MID, 0, 0);
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonRevert);
-    lv_group_add_obj(g, buttonStore);
- 	 	lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonRevert);
+      lv_group_add_obj(g, buttonStore);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 
 }
 
 void lv_clear_eeprom_settings() {
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

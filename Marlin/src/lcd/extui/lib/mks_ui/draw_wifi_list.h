@@ -19,13 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #pragma once
 
 #ifdef __cplusplus
   extern "C" { /* C-declarations for C++ */
 #endif
-
 
 extern void lv_draw_wifi_list();
 extern void lv_clear_wifi_list();
@@ -38,7 +36,7 @@ extern void wifi_scan_handle();
 #define WIFI_TOTAL_NUMBER 20
 #define WIFI_NAME_BUFFER_SIZE 33
 
-typedef struct {  
+typedef struct {
   int8_t getNameNum;
   int8_t nameIndex;
   int8_t currentWifipage;
@@ -50,34 +48,29 @@ typedef struct {
 extern WIFI_LIST wifi_list;
 
 typedef struct list_menu_disp {
-	const char *title;
-	const char *file_pages;
+  const char *title;
+  const char *file_pages;
 } list_menu_def;
-extern list_menu_def list_menu;	
+extern list_menu_def list_menu;
 
 typedef struct keyboard_menu_disp {
-	const char *title;
-	const char *apply;
-	const char *password;
-	const char *letter;
-	const char *digital;
-	const char *symbol;
-	const char *space;
+  const char *title;
+  const char *apply;
+  const char *password;
+  const char *letter;
+  const char *digital;
+  const char *symbol;
+  const char *space;
 } keyboard_menu_def;
-extern keyboard_menu_def keyboard_menu;	
+extern keyboard_menu_def keyboard_menu;
 
 typedef struct tips_menu_disp {
-	const char *joining;
-	const char *failedJoin;
-	const char *wifiConected;
+  const char *joining;
+  const char *failedJoin;
+  const char *wifiConected;
 } tips_menu_def;
 extern tips_menu_def tips_menu;
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
-
-
-
-
-

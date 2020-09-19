@@ -139,13 +139,12 @@ void lv_draw_fan(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-
-  /*Create an Image button*/
-  buttonAdd = lv_imgbtn_create(scr, NULL);
-  buttonDec = lv_imgbtn_create(scr, NULL);
+  // Create an Image button
+  buttonAdd  = lv_imgbtn_create(scr, NULL);
+  buttonDec  = lv_imgbtn_create(scr, NULL);
   buttonHigh = lv_imgbtn_create(scr, NULL);
-  buttonMid = lv_imgbtn_create(scr, NULL);
-  buttonOff = lv_imgbtn_create(scr, NULL);
+  buttonMid  = lv_imgbtn_create(scr, NULL);
+  buttonOff  = lv_imgbtn_create(scr, NULL);
   buttonBack = lv_imgbtn_create(scr, NULL);
 
   lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_F_ADD, NULL, 0);
@@ -154,42 +153,38 @@ void lv_draw_fan(void) {
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-  
+
   #if 1
     lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_F_DEC, NULL, 0);
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, "F:/bmp_Dec.bin");
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, "F:/bmp_Dec.bin");
     lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonHigh, event_handler,ID_F_HIGH, NULL,0);
     lv_imgbtn_set_src(buttonHigh, LV_BTN_STATE_REL, "F:/bmp_speed255.bin");
     lv_imgbtn_set_src(buttonHigh, LV_BTN_STATE_PR, "F:/bmp_speed255.bin");
     lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonHigh, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonMid, event_handler,ID_F_MID, NULL,0);
     lv_imgbtn_set_src(buttonMid, LV_BTN_STATE_REL, "F:/bmp_speed127.bin");
     lv_imgbtn_set_src(buttonMid, LV_BTN_STATE_PR, "F:/bmp_speed127.bin");
     lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonMid, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonOff, event_handler,ID_F_OFF, NULL,0);
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_REL, "F:/bmp_speed0.bin");
     lv_imgbtn_set_src(buttonOff, LV_BTN_STATE_PR, "F:/bmp_speed0.bin");
     lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonOff, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_F_RETURN, NULL,0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
+
   #endif
 
   lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
@@ -207,13 +202,12 @@ void lv_draw_fan(void) {
   lv_btn_set_layout(buttonOff, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  lv_obj_t * labelHigh = lv_label_create(buttonHigh, NULL);
-  lv_obj_t * labelMid = lv_label_create(buttonMid, NULL);
-  lv_obj_t * labelOff = lv_label_create(buttonOff, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
-
+  lv_obj_t *labelAdd = lv_label_create(buttonAdd, NULL);
+  lv_obj_t *labelDec = lv_label_create(buttonDec, NULL);
+  lv_obj_t *labelHigh = lv_label_create(buttonHigh, NULL);
+  lv_obj_t *labelMid = lv_label_create(buttonMid, NULL);
+  lv_obj_t *labelOff = lv_label_create(buttonOff, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelAdd, fan_menu.add);
@@ -234,16 +228,16 @@ void lv_draw_fan(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonAdd);
-  		lv_group_add_obj(g, buttonDec);
-		lv_group_add_obj(g, buttonHigh);
-		lv_group_add_obj(g, buttonMid);
-		lv_group_add_obj(g, buttonOff);
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonAdd);
+      lv_group_add_obj(g, buttonDec);
+      lv_group_add_obj(g, buttonHigh);
+      lv_group_add_obj(g, buttonMid);
+      lv_group_add_obj(g, buttonOff);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 
   fanText = lv_label_create(scr, NULL);
   lv_obj_set_style(fanText, &tft_style_label_rel);
@@ -262,12 +256,10 @@ void disp_fan_value() {
 }
 
 void lv_clear_fan() {
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

@@ -265,9 +265,9 @@ void lv_draw_print_file(void) {
   #endif
   disp_gcode_icon(file_count);
 
-  //lv_obj_t * labelPageUp = lv_label_create(buttonPageUp, NULL);
-  //lv_obj_t * labelPageDown = lv_label_create(buttonPageDown, NULL);
-  //lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  //lv_obj_t *labelPageUp = lv_label_create(buttonPageUp, NULL);
+  //lv_obj_t *labelPageDown = lv_label_create(buttonPageDown, NULL);
+  //lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   /*
   if (gCfgItems.multiple_language != 0) {
@@ -310,7 +310,6 @@ void disp_gcode_icon(uint8_t file_num) {
   lv_imgbtn_set_src(buttonPageUp, LV_BTN_STATE_PR, "F:/bmp_pageUp.bin");
   lv_imgbtn_set_style(buttonPageUp, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonPageUp, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
 
   #if 1
     lv_obj_set_event_cb_mks(buttonPageDown, event_handler, ID_P_DOWN, NULL, 0);
@@ -318,14 +317,12 @@ void disp_gcode_icon(uint8_t file_num) {
     lv_imgbtn_set_src(buttonPageDown, LV_BTN_STATE_PR, "F:/bmp_pageDown.bin");
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_REL, &tft_style_label_rel);
-	
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, NULL, 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back.bin");
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back.bin");
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-	
   #endif
 
   lv_obj_set_pos(buttonPageUp, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight);
@@ -439,22 +436,20 @@ void disp_gcode_icon(uint8_t file_num) {
           lv_obj_align(labelPageUp[i], buttonGcode[i], LV_ALIGN_IN_BOTTOM_MID, 0, -5);
         }
       }
-	 #if BUTTONS_EXIST(EN1, EN2, ENC)
-	 	if (gCfgItems.encoder_enable == true) {
-	    		lv_group_add_obj(g, buttonGcode[i]);
-		 }
-  	 #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	  
+      #if HAS_ROTARY_ENCODER
+        if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonGcode[i]);
+      #endif
+
     #else // !TFT35
     #endif // !TFT35
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-    	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonPageUp);
-  		lv_group_add_obj(g, buttonPageDown);
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonPageUp);
+      lv_group_add_obj(g, buttonPageDown);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 }
 
 uint32_t lv_open_gcode_file(char *path) {
@@ -476,7 +471,6 @@ uint32_t lv_open_gcode_file(char *path) {
     return pre_sread_cnt;
   #endif // SDSUPPORT
 }
-
 
 int ascii2dec_test(char *ascii) {
   int result = 0;
@@ -551,7 +545,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
 void lv_close_gcode_file() {TERN_(SDSUPPORT, card.closefile());}
 
 void lv_gcode_file_seek(uint32_t pos) {
-	card.setIndex(pos);
+  card.setIndex(pos);
 }
 
 void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
@@ -636,13 +630,11 @@ void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
   #endif
 }
 
-void lv_clear_print_file() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-		if (gCfgItems.encoder_enable == true) {
-    			lv_group_remove_all_objs(g);
-		}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_print_file() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

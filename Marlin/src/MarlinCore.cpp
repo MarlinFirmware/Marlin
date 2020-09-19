@@ -925,7 +925,6 @@ void setup() {
   #endif
 
   #if BOTH(HAS_TFT_LVGL_UI, USE_WIFI_FUNCTION)
-    #define SERIAL_PORT_2 -1
     mks_esp_wifi_init();
     WIFISERIAL.begin(WIFI_BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;

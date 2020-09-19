@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 typedef struct {
@@ -62,5 +62,5 @@ extern void lv_gcode_file_seek(uint32_t pos);
 
 //extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

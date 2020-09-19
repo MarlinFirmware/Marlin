@@ -147,16 +147,16 @@ void mks_test_beeper() {
   #endif
 }
 
-void mks_gpio_test(){
+void mks_gpio_test() {
   #if ENABLED(MKS_TEST)
     init_test_gpio();
 
     test_gpio_readlevel_L();
     test_gpio_readlevel_H();
     test_gpio_readlevel_L();
-    if ((pw_det_sta == 1) 
+    if ((pw_det_sta == 1)
         && (pw_off_sta == 1)
-        && (mt_det_sta == 1) 
+        && (mt_det_sta == 1)
       #if PIN_EXISTS(MT_DET_2)
         && (mt_det2_sta == 1)
       #endif
@@ -187,7 +187,7 @@ void mks_gpio_test(){
     #endif
 }
 
-void mks_hardware_test(){
+void mks_hardware_test() {
   #if ENABLED(MKS_TEST)
     if (millis() % 2000 < 1000) {
       WRITE(X_DIR_PIN, LOW);

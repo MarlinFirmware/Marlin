@@ -178,7 +178,7 @@ void lv_draw_tmc_current_settings(void) {
   if (uiCfg.para_ui_page != 1) {
     labelXText = lv_label_create(scr, NULL);
     lv_obj_set_style(labelXText, &tft_style_label_rel);
-    lv_obj_set_pos(labelXText, PARA_UI_POS_X, PARA_UI_POS_Y + 10); 
+    lv_obj_set_pos(labelXText, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
     lv_label_set_text(labelXText, machine_menu.X_Current);
 
     buttonXValue = lv_btn_create(scr, NULL);
@@ -186,25 +186,25 @@ void lv_draw_tmc_current_settings(void) {
     lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_TMC_CURRENT_X, NULL, 0);
     lv_btn_set_style(buttonXValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonXValue, LV_BTN_STYLE_PR, &style_para_value); 
+    lv_btn_set_style(buttonXValue, LV_BTN_STYLE_PR, &style_para_value);
     labelXValue = lv_label_create(buttonXValue, NULL);
-    
+
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
     labelYText = lv_label_create(scr, NULL);
     lv_obj_set_style(labelYText, &tft_style_label_rel);
     lv_obj_set_pos(labelYText, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10);
-    lv_label_set_text(labelYText, machine_menu.Y_Current); 
+    lv_label_set_text(labelYText, machine_menu.Y_Current);
 
     buttonYValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
     lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_TMC_CURRENT_Y, NULL, 0);
     lv_btn_set_style(buttonYValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonYValue, LV_BTN_STYLE_PR, &style_para_value); 
+    lv_btn_set_style(buttonYValue, LV_BTN_STYLE_PR, &style_para_value);
     labelYValue = lv_label_create(buttonYValue, NULL);
-    
+
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
@@ -212,13 +212,13 @@ void lv_draw_tmc_current_settings(void) {
     lv_obj_set_style(labelZText, &tft_style_label_rel);
     lv_obj_set_pos(labelZText, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10);
     lv_label_set_text(labelZText, machine_menu.Z_Current);
-	
+
     buttonZValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
     lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_TMC_CURRENT_Z, NULL, 0);
     lv_btn_set_style(buttonZValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonZValue, LV_BTN_STYLE_PR, &style_para_value); 
+    lv_btn_set_style(buttonZValue, LV_BTN_STYLE_PR, &style_para_value);
     labelZValue = lv_label_create(buttonZValue, NULL);
 
     line3 = lv_line_create(scr, NULL);
@@ -228,23 +228,23 @@ void lv_draw_tmc_current_settings(void) {
     lv_obj_set_style(labelE0Text, &tft_style_label_rel);
     lv_obj_set_pos(labelE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10);
     lv_label_set_text(labelE0Text, machine_menu.E0_Current);
-	
+
     buttonE0Value = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonE0Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
     lv_obj_set_size(buttonE0Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonE0Value, event_handler, ID_TMC_CURRENT_E0, NULL, 0);
     lv_btn_set_style(buttonE0Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonE0Value, LV_BTN_STYLE_PR, &style_para_value); 
+    lv_btn_set_style(buttonE0Value, LV_BTN_STYLE_PR, &style_para_value);
     labelE0Value = lv_label_create(buttonE0Value, NULL);
-    
-    #if BUTTONS_EXIST(EN1, EN2, ENC)
-      if (gCfgItems.encoder_enable == true) {
+
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) {
         lv_group_add_obj(g, buttonXValue);
-            lv_group_add_obj(g, buttonYValue);
-            lv_group_add_obj(g, buttonZValue);
+        lv_group_add_obj(g, buttonYValue);
+        lv_group_add_obj(g, buttonZValue);
         lv_group_add_obj(g, buttonE0Value);
       }
-    #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+    #endif
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
@@ -254,19 +254,17 @@ void lv_draw_tmc_current_settings(void) {
       lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_TMC_CURRENT_DOWN, NULL, 0);
       lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
       lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
-      
-      #if BUTTONS_EXIST(EN1, EN2, ENC)
-        if (gCfgItems.encoder_enable == true) {
-          lv_group_add_obj(g, buttonTurnPage);
-        }
-      #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+
+      #if HAS_ROTARY_ENCODER
+        if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonTurnPage);
+      #endif
     //#endif
   }
   else {
     //#if AXIS_IS_TMC(E1)
       labelE1Text = lv_label_create(scr, NULL);
       lv_obj_set_style(labelE1Text, &tft_style_label_rel);
-      lv_obj_set_pos(labelE1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10); 
+      lv_obj_set_pos(labelE1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
       lv_label_set_text(labelE1Text, machine_menu.E1_Current);
 
       buttonE1Value = lv_btn_create(scr, NULL);
@@ -274,9 +272,9 @@ void lv_draw_tmc_current_settings(void) {
       lv_obj_set_size(buttonE1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
       lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_TMC_CURRENT_E1, NULL, 0);
       lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_REL, &style_para_value);
-      lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_PR, &style_para_value); 
+      lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_PR, &style_para_value);
       labelE1Value = lv_label_create(buttonE1Value, NULL);
-      
+
       line1 = lv_line_create(scr, NULL);
       lv_ex_line(line1, line_points[0]);
 
@@ -284,13 +282,13 @@ void lv_draw_tmc_current_settings(void) {
       lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_TMC_CURRENT_UP, NULL, 0);
       lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
       lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
-      
-      #if BUTTONS_EXIST(EN1, EN2, ENC)
-        if (gCfgItems.encoder_enable == true) {
+
+      #if HAS_ROTARY_ENCODER
+        if (gCfgItems.encoder_enable) {
           lv_group_add_obj(g, buttonE1Value);
           lv_group_add_obj(g, buttonTurnPage);
         }
-      #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+      #endif
     //#endif
   }
   //#if AXIS_IS_TMC(E1)
@@ -303,12 +301,10 @@ void lv_draw_tmc_current_settings(void) {
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_TMC_CURRENT_RETURN, NULL, 0);
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
-  
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
+  #endif
 
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
@@ -325,41 +321,40 @@ void lv_draw_tmc_current_settings(void) {
       #else
         milliamps = -1;
       #endif
-        ZERO(public_buf_l);
-        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
-        lv_label_set_text(labelXValue, public_buf_l);
-        lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
-      
+      ZERO(public_buf_l);
+      sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+      lv_label_set_text(labelXValue, public_buf_l);
+      lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
+
       #if AXIS_IS_TMC(Y)
         milliamps = stepperY.getMilliamps();
       #else
         milliamps = -1;
       #endif
-        ZERO(public_buf_l);
-        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
-        lv_label_set_text(labelYValue, public_buf_l);
-        lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
-      
+      ZERO(public_buf_l);
+      sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+      lv_label_set_text(labelYValue, public_buf_l);
+      lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
+
       #if AXIS_IS_TMC(Z)
         milliamps = stepperZ.getMilliamps();
       #else
         milliamps = -1;
       #endif
-        ZERO(public_buf_l);
-        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
-        lv_label_set_text(labelZValue, public_buf_l);
-        lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
-      
+      ZERO(public_buf_l);
+      sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+      lv_label_set_text(labelZValue, public_buf_l);
+      lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
+
       #if AXIS_IS_TMC(E0)
         milliamps = stepperE0.getMilliamps();
       #else
         milliamps = -1;
       #endif
-        ZERO(public_buf_l);
-        sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
-        lv_label_set_text(labelE0Value, public_buf_l);
-        lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
-      
+      ZERO(public_buf_l);
+      sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
+      lv_label_set_text(labelE0Value, public_buf_l);
+      lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
     }
     else {
       //#if AXIS_IS_TMC(E1)
@@ -382,13 +377,11 @@ void lv_draw_tmc_current_settings(void) {
   }
 }
 
-void lv_clear_tmc_current_settings() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-    if (gCfgItems.encoder_enable == true) {
-      lv_group_remove_all_objs(g);
-    }
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_tmc_current_settings() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI && HAS_TRINAMIC_CONFIG

@@ -97,7 +97,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         lv_draw_tool();
       }
       break;
-
   }
 }
 
@@ -127,17 +126,16 @@ void lv_draw_home(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-
-  /*Create an Image button*/
-  //buttonWifi = lv_imgbtn_create(scr, NULL);
-  buttonHomeAll = lv_imgbtn_create(scr, NULL);
-  buttonHomeX = lv_imgbtn_create(scr, NULL);
+  // Create image buttons
+  //buttonWifi     = lv_imgbtn_create(scr, NULL);
+  buttonHomeAll    = lv_imgbtn_create(scr, NULL);
+  buttonHomeX      = lv_imgbtn_create(scr, NULL);
   //buttonContinue = lv_imgbtn_create(scr, NULL);
-  buttonHomeY = lv_imgbtn_create(scr, NULL);
-  buttonHomeZ = lv_imgbtn_create(scr, NULL);
-  buttonOffAll = lv_imgbtn_create(scr, NULL);
-  buttonOffXY = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
+  buttonHomeY      = lv_imgbtn_create(scr, NULL);
+  buttonHomeZ      = lv_imgbtn_create(scr, NULL);
+  buttonOffAll     = lv_imgbtn_create(scr, NULL);
+  buttonOffXY      = lv_imgbtn_create(scr, NULL);
+  buttonBack       = lv_imgbtn_create(scr, NULL);
 
   #if 1
     lv_obj_set_event_cb_mks(buttonHomeAll, event_handler,ID_H_ALL, NULL,0);
@@ -145,7 +143,6 @@ void lv_draw_home(void) {
     lv_imgbtn_set_src(buttonHomeAll, LV_BTN_STATE_PR, "F:/bmp_zeroAll.bin");
     lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonHomeAll, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonHomeX, event_handler, ID_H_X, NULL, 0);
     lv_imgbtn_set_src(buttonHomeX, LV_BTN_STATE_REL, "F:/bmp_zeroX.bin");
@@ -153,43 +150,36 @@ void lv_draw_home(void) {
     lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonHomeX, LV_BTN_STATE_REL, &tft_style_label_rel);
 
-
     lv_obj_set_event_cb_mks(buttonHomeY, event_handler, ID_H_Y, NULL, 0);
     lv_imgbtn_set_src(buttonHomeY, LV_BTN_STATE_REL, "F:/bmp_zeroY.bin");
     lv_imgbtn_set_src(buttonHomeY, LV_BTN_STATE_PR, "F:/bmp_zeroY.bin");
     lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonHomeY, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonHomeZ, event_handler, ID_H_Z, NULL, 0);
     lv_imgbtn_set_src(buttonHomeZ, LV_BTN_STATE_REL, "F:/bmp_zeroZ.bin");
     lv_imgbtn_set_src(buttonHomeZ, LV_BTN_STATE_PR, "F:/bmp_zeroZ.bin");
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonHomeZ, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonOffAll, event_handler,ID_H_OFF_ALL, NULL,0);
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_REL, "F:/bmp_function1.bin");
     lv_imgbtn_set_src(buttonOffAll, LV_BTN_STATE_PR, "F:/bmp_function1.bin");
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonOffAll, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonOffXY, event_handler,ID_H_OFF_XY, NULL,0);
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_REL, "F:/bmp_function1.bin");
     lv_imgbtn_set_src(buttonOffXY, LV_BTN_STATE_PR, "F:/bmp_function1.bin");
     lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonOffXY, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_H_RETURN, NULL,0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
   #endif
-
 
   lv_obj_set_pos(buttonHomeAll, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonHomeX, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
@@ -209,17 +199,15 @@ void lv_draw_home(void) {
   lv_btn_set_layout(buttonOffXY, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelHomeAll = lv_label_create(buttonHomeAll, NULL);
-  lv_obj_t * labelHomeX = lv_label_create(buttonHomeX, NULL);
-  lv_obj_t * labelHomeY = lv_label_create(buttonHomeY, NULL);
-  lv_obj_t * labelHomeZ = lv_label_create(buttonHomeZ, NULL);
-  lv_obj_t * labelOffAll = lv_label_create(buttonOffAll, NULL);
-  lv_obj_t * labelOffXY = lv_label_create(buttonOffXY, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
-
+  lv_obj_t *labelHomeAll = lv_label_create(buttonHomeAll, NULL);
+  lv_obj_t *labelHomeX = lv_label_create(buttonHomeX, NULL);
+  lv_obj_t *labelHomeY = lv_label_create(buttonHomeY, NULL);
+  lv_obj_t *labelHomeZ = lv_label_create(buttonHomeZ, NULL);
+  lv_obj_t *labelOffAll = lv_label_create(buttonOffAll, NULL);
+  lv_obj_t *labelOffXY = lv_label_create(buttonOffXY, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
-
     lv_label_set_text(labelHomeAll, home_menu.home_all);
     lv_obj_align(labelHomeAll, buttonHomeAll, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -241,26 +229,25 @@ void lv_draw_home(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonHomeAll);
-		lv_group_add_obj(g, buttonHomeX);
-		lv_group_add_obj(g, buttonHomeY);
-		lv_group_add_obj(g, buttonHomeZ);
-		lv_group_add_obj(g, buttonOffAll);
-		lv_group_add_obj(g, buttonOffXY);
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonHomeAll);
+      lv_group_add_obj(g, buttonHomeX);
+      lv_group_add_obj(g, buttonHomeY);
+      lv_group_add_obj(g, buttonHomeZ);
+      lv_group_add_obj(g, buttonOffAll);
+      lv_group_add_obj(g, buttonOffXY);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 }
 
-void lv_clear_home() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_home() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

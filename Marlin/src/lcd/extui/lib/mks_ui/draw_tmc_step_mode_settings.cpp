@@ -71,7 +71,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperX.stored.stealthChop_enabled == true) {
+          if (stepperX.stored.stealthChop_enabled) {
             stepperX.stored.stealthChop_enabled = false;
             stepperX.refresh_stepping_mode();
             lv_imgbtn_set_src(buttonXState, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -99,7 +99,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperY.stored.stealthChop_enabled == true) {
+          if (stepperY.stored.stealthChop_enabled) {
             stepperY.stored.stealthChop_enabled = false;
             stepperY.refresh_stepping_mode();
             lv_imgbtn_set_src(buttonYState, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -125,7 +125,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperZ.stored.stealthChop_enabled == true) {
+          if (stepperZ.stored.stealthChop_enabled) {
             stepperZ.stored.stealthChop_enabled = false;
             stepperZ.refresh_stepping_mode();
             lv_imgbtn_set_src(buttonZState, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -151,7 +151,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperE0.stored.stealthChop_enabled == true) {
+          if (stepperE0.stored.stealthChop_enabled) {
             stepperE0.stored.stealthChop_enabled = false;
             stepperE0.refresh_stepping_mode();
             lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -177,7 +177,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperE1.stored.stealthChop_enabled == true) {
+          if (stepperE1.stored.stealthChop_enabled) {
             stepperE1.stored.stealthChop_enabled = false;
             stepperE1.refresh_stepping_mode();
             lv_imgbtn_set_src(buttonE1State, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -291,17 +291,15 @@ void lv_draw_tmc_step_mode_settings(void) {
       lv_imgbtn_set_src(buttonXState, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
     #endif
     lv_obj_set_event_cb_mks(buttonXState, event_handler, ID_TMC_MODE_X, NULL, 0);
-    
+
     lv_imgbtn_set_style(buttonXState, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonXState, LV_BTN_STATE_REL, &tft_style_label_rel);
     lv_btn_set_layout(buttonXState, LV_LAYOUT_OFF);
     labelXState = lv_label_create(buttonXState, NULL);
-    #if BUTTONS_EXIST(EN1, EN2, ENC)
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonXState);
-      }
-    #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-    
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonXState);
+    #endif
+
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
@@ -330,17 +328,15 @@ void lv_draw_tmc_step_mode_settings(void) {
       lv_imgbtn_set_src(buttonYState, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
     #endif
     lv_obj_set_event_cb_mks(buttonYState, event_handler, ID_TMC_MODE_Y, NULL, 0);
-    
+
     lv_imgbtn_set_style(buttonYState, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonYState, LV_BTN_STATE_REL, &tft_style_label_rel);
     lv_btn_set_layout(buttonYState, LV_LAYOUT_OFF);
     labelYState = lv_label_create(buttonYState, NULL);
-    #if BUTTONS_EXIST(EN1, EN2, ENC)
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonYState);
-      }
-    #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-    
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonYState);
+    #endif
+
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
@@ -373,12 +369,10 @@ void lv_draw_tmc_step_mode_settings(void) {
     lv_imgbtn_set_style(buttonZState, LV_BTN_STATE_REL, &tft_style_label_rel);
     lv_btn_set_layout(buttonZState, LV_LAYOUT_OFF);
     labelZState = lv_label_create(buttonZState, NULL);
-    #if BUTTONS_EXIST(EN1, EN2, ENC)
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonZState);
-      }
-    #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-    
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonZState);
+    #endif
+
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
@@ -396,7 +390,7 @@ void lv_draw_tmc_step_mode_settings(void) {
     #if AXIS_HAS_STEALTHCHOP(E0)
       if (stepperE0.get_stealthChop_status()) {
         lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_REL, "F:/bmp_enable.bin");
-        lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_PR, "F:/bmp_enable.bin");	
+        lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_PR, "F:/bmp_enable.bin");
       }
       else {
         lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
@@ -406,19 +400,17 @@ void lv_draw_tmc_step_mode_settings(void) {
       lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
       lv_imgbtn_set_src(buttonE0State, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
     #endif
-	
+
     lv_obj_set_event_cb_mks(buttonE0State, event_handler, ID_TMC_MODE_E0, NULL, 0);
-    
+
     lv_imgbtn_set_style(buttonE0State, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonE0State, LV_BTN_STATE_REL, &tft_style_label_rel);
     lv_btn_set_layout(buttonE0State, LV_LAYOUT_OFF);
     labelE0State = lv_label_create(buttonE0State, NULL);
-    #if BUTTONS_EXIST(EN1, EN2, ENC)
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonE0State);
-      }
-    #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-    
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonE0State);
+    #endif
+
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
@@ -430,11 +422,9 @@ void lv_draw_tmc_step_mode_settings(void) {
       lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
       lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_PR, &tft_style_label_pre);
       lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_REL, &tft_style_label_rel);
-      #if BUTTONS_EXIST(EN1, EN2, ENC)
-        if (gCfgItems.encoder_enable == true) {
-          lv_group_add_obj(g, buttonTurnPage);
-        }
-      #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+      #if HAS_ROTARY_ENCODER
+        if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonTurnPage);
+      #endif
     //#endif
   }
   else {
@@ -468,12 +458,10 @@ void lv_draw_tmc_step_mode_settings(void) {
       lv_imgbtn_set_style(buttonE1State, LV_BTN_STATE_REL, &tft_style_label_rel);
       lv_btn_set_layout(buttonE1State, LV_LAYOUT_OFF);
       labelE1State = lv_label_create(buttonE1State, NULL);
-      #if BUTTONS_EXIST(EN1, EN2, ENC)
-        if (gCfgItems.encoder_enable == true) {
-          lv_group_add_obj(g, buttonE1State);
-        }
-      #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-      
+      #if HAS_ROTARY_ENCODER
+        if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonE1State);
+      #endif
+
       line1 = lv_line_create(scr, NULL);
       lv_ex_line(line1, line_points[0]);
 
@@ -497,12 +485,10 @@ void lv_draw_tmc_step_mode_settings(void) {
   lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-    if (gCfgItems.encoder_enable == true) {
-      lv_group_add_obj(g, buttonBack);
-    }
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-  
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
+  #endif
+
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
@@ -590,13 +576,11 @@ void lv_draw_tmc_step_mode_settings(void) {
   }
 }
 
-void lv_clear_tmc_step_mode_settings() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_tmc_step_mode_settings() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI && HAS_STEALTHCHOP

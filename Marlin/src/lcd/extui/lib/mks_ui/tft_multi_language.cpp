@@ -123,7 +123,7 @@ void machine_setting_disp() {
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_CN;
     machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_CN;
     machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_CN;
-	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_CN;
+    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_CN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_CN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_CN;
@@ -183,7 +183,7 @@ void machine_setting_disp() {
     machine_menu.MotorDirConf          = MOTORDIRCONF_CN;
     machine_menu.HomeFeedRateConf      = HOMEFEEDRATECONF_CN;
     machine_menu.PausePosition         = PAUSE_POSITION_CN;
-	  machine_menu.WifiSettings          = WIFI_SETTINGS_CN;
+    machine_menu.WifiSettings          = WIFI_SETTINGS_CN;
     machine_menu.HomingSensitivityConf = HOMING_SENSITIVITY_CONF_CN;
     machine_menu.EncoderSettings         = ENCODER_SETTINGS_CN;
 
@@ -356,7 +356,7 @@ void machine_setting_disp() {
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_T_CN;
     machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_T_CN;
     machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_T_CN;
-	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_T_CN;
+    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_T_CN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_T_CN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_T_CN;
@@ -416,7 +416,7 @@ void machine_setting_disp() {
     machine_menu.MotorDirConf          = MOTORDIRCONF_T_CN;
     machine_menu.HomeFeedRateConf      = HOMEFEEDRATECONF_T_CN;
     machine_menu.PausePosition         = PAUSE_POSITION_T_CN;
-	  machine_menu.WifiSettings          = WIFI_SETTINGS_T_CN;
+    machine_menu.WifiSettings          = WIFI_SETTINGS_T_CN;
     machine_menu.HomingSensitivityConf = HOMING_SENSITIVITY_CONF_T_CN;
     machine_menu.EncoderSettings         = ENCODER_SETTINGS_T_CN;
 
@@ -591,8 +591,8 @@ void machine_setting_disp() {
     machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_EN;
     machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_EN;
     machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_EN;
-	  machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_EN;
-	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_EN;
+    machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_EN;
+    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_EN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_EN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_EN;
@@ -853,7 +853,7 @@ void disp_language_init() {
   machine_menu.key_point = KEYBOARD_KEY_POINT_EN;
   machine_menu.negative  = KEYBOARD_KEY_NEGATIVE_EN;
   // wifi-list
-  #if USE_WIFI_FUNCTION
+  #if ENABLED(USE_WIFI_FUNCTION)
     list_menu.title        = TEXT_WIFI_MENU_TITLE_EN;
     list_menu.file_pages   = FILE_PAGES_EN;
 

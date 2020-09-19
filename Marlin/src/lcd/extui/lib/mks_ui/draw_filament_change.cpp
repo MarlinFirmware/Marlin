@@ -36,7 +36,7 @@
 extern lv_group_t * g;
 static lv_obj_t * scr;
 static lv_obj_t *buttoType;
-static lv_obj_t * labelType;
+static lv_obj_t *labelType;
 static lv_obj_t * tempText1;
 
 #define ID_FILAMNT_IN     1
@@ -53,13 +53,13 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-	      uiCfg.filament_load_heat_flg = 1;
-	      if ((abs(thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius) <= 1)
-	          || (gCfgItems.filament_limit_temper <= thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) {
+        uiCfg.filament_load_heat_flg = 1;
+        if ((abs(thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius) <= 1)
+            || (gCfgItems.filament_limit_temper <= thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) {
           lv_clear_filament_change();
           lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED);
         }
-	      else {
+        else {
           lv_clear_filament_change();
           lv_draw_dialog(DIALOG_TYPE_FILAMENT_LOAD_HEAT);
           if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].target < gCfgItems.filament_limit_temper) {
@@ -74,15 +74,15 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-	      uiCfg.filament_unload_heat_flg=1;
-	      if ((thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > 0)
-		      && ((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) <= 1)
-		      || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= gCfgItems.filament_limit_temper))
+        uiCfg.filament_unload_heat_flg=1;
+        if ((thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > 0)
+          && ((abs((int)((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target - thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius)) <= 1)
+          || ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= gCfgItems.filament_limit_temper))
         ) {
           lv_clear_filament_change();
           lv_draw_dialog(DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED);
         }
-	      else {
+        else {
           lv_clear_filament_change();
           lv_draw_dialog(DIALOG_TYPE_FILAMENT_UNLOAD_HEAT);
           if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].target < gCfgItems.filament_limit_temper) {
@@ -161,8 +161,7 @@ void lv_draw_filament_change(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-
-  /*Create an Image button*/
+  // Create an Image button
   buttonIn   = lv_imgbtn_create(scr, NULL);
   buttonOut  = lv_imgbtn_create(scr, NULL);
   buttoType  = lv_imgbtn_create(scr, NULL);
@@ -174,26 +173,22 @@ void lv_draw_filament_change(void) {
   lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
-  
 
   lv_obj_set_event_cb_mks(buttonOut, event_handler, ID_FILAMNT_OUT, NULL, 0);
   lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_REL, "F:/bmp_out.bin");
   lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_PR, "F:/bmp_out.bin");
   lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
 
   lv_obj_set_event_cb_mks(buttoType, event_handler, ID_FILAMNT_TYPE, NULL, 0);
   lv_imgbtn_set_style(buttoType, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttoType, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
 
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_FILAMNT_RETURN, NULL, 0);
   lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
   lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
 
   lv_obj_set_pos(buttonIn, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonOut, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
@@ -206,10 +201,10 @@ void lv_draw_filament_change(void) {
   lv_btn_set_layout(buttoType, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelIn  = lv_label_create(buttonIn, NULL);
-  lv_obj_t * labelOut = lv_label_create(buttonOut, NULL);
+  lv_obj_t *labelIn  = lv_label_create(buttonIn, NULL);
+  lv_obj_t *labelOut = lv_label_create(buttonOut, NULL);
   labelType = lv_label_create(buttoType, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelIn, filament_menu.in);
@@ -221,14 +216,15 @@ void lv_draw_filament_change(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonIn);
-  		lv_group_add_obj(g, buttonOut);
-  		lv_group_add_obj(g, buttoType);
-  		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonIn);
+      lv_group_add_obj(g, buttonOut);
+      lv_group_add_obj(g, buttoType);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 
   disp_filament_type();
 
@@ -238,22 +234,22 @@ void lv_draw_filament_change(void) {
 }
 
 void disp_filament_type() {
-    if (uiCfg.curSprayerChoose == 1) {
-      lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
-      lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
-      if (gCfgItems.multiple_language != 0) {
-        lv_label_set_text(labelType, preheat_menu.ext2);
-        lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-      }
+  if (uiCfg.curSprayerChoose == 1) {
+    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
+    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
+    if (gCfgItems.multiple_language != 0) {
+      lv_label_set_text(labelType, preheat_menu.ext2);
+      lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
-    else {
-      lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
-      lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
-      if (gCfgItems.multiple_language != 0) {
-        lv_label_set_text(labelType, preheat_menu.ext1);
-        lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-      }
+  }
+  else {
+    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
+    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
+    if (gCfgItems.multiple_language != 0) {
+      lv_label_set_text(labelType, preheat_menu.ext1);
+      lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
+  }
 }
 
 void disp_filament_temp() {
@@ -274,12 +270,10 @@ void disp_filament_temp() {
 }
 
 void lv_clear_filament_change() {
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

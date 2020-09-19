@@ -36,8 +36,8 @@
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
-static lv_obj_t * labelStep, *buttonStep, *buttonMov, *buttonExt;
-static lv_obj_t * labelMov, *labelExt;
+static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
+static lv_obj_t *labelMov, *labelExt;
 static lv_obj_t * printSpeedText;
 
 #define ID_C_ADD    1
@@ -177,7 +177,7 @@ void lv_draw_change_speed(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
 
-  /*Create an Image button*/
+  // Create an Image button
   buttonAdd  = lv_imgbtn_create(scr, NULL);
   buttonDec  = lv_imgbtn_create(scr, NULL);
   buttonMov  = lv_imgbtn_create(scr, NULL);
@@ -190,7 +190,6 @@ void lv_draw_change_speed(void) {
   lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_PR, "F:/bmp_Add.bin");
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_label_rel);
-  
 
   #if 1
     lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_C_DEC, NULL, 0);
@@ -198,29 +197,24 @@ void lv_draw_change_speed(void) {
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, "F:/bmp_Dec.bin");
     lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, NULL, 0);
     lv_imgbtn_set_style(buttonMov, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonMov, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, NULL, 0);
     lv_imgbtn_set_style(buttonExt, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonExt, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
-	
+
     lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, NULL, 0);
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_C_RETURN, NULL, 0);
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-    
   #endif
 
   lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
@@ -238,12 +232,12 @@ void lv_draw_change_speed(void) {
   lv_btn_set_layout(buttonStep, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  labelMov  = lv_label_create(buttonMov, NULL);
-  labelExt  = lv_label_create(buttonExt, NULL);
-  labelStep = lv_label_create(buttonStep, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *labelAdd    = lv_label_create(buttonAdd, NULL);
+  lv_obj_t *labelDec    = lv_label_create(buttonDec, NULL);
+  labelMov              = lv_label_create(buttonMov, NULL);
+  labelExt              = lv_label_create(buttonExt, NULL);
+  labelStep             = lv_label_create(buttonStep, NULL);
+  lv_obj_t *label_Back  = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelAdd, speed_menu.add);
@@ -255,17 +249,17 @@ void lv_draw_change_speed(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
-  #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_add_obj(g, buttonAdd);
-	  	lv_group_add_obj(g, buttonDec);
-		lv_group_add_obj(g, buttonMov);
-		lv_group_add_obj(g, buttonExt);
-		lv_group_add_obj(g, buttonStep);
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
-  
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonAdd);
+      lv_group_add_obj(g, buttonDec);
+      lv_group_add_obj(g, buttonMov);
+      lv_group_add_obj(g, buttonExt);
+      lv_group_add_obj(g, buttonStep);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
+
   disp_speed_type();
   disp_speed_step();
 
@@ -304,7 +298,7 @@ void disp_speed_step() {
 }
 
 void disp_print_speed() {
-  char buf[30] = {0};
+  char buf[30] = { 0 };
 
   public_buf_l[0] = '\0';
 
@@ -352,13 +346,11 @@ void disp_speed_type() {
   }
 }
 
-void lv_clear_change_speed() { 
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr); 
+void lv_clear_change_speed() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI
