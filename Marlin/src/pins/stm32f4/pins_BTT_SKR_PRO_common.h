@@ -239,16 +239,6 @@
   #define E0_AUTO_FAN_PIN               FAN1_PIN
 #endif
 
-//
-// Misc. Functions including servo for heated chamber vent
-//
-#ifdef CHAMBER_VENT_SERVO
-  #define CHAMBER_SERVO_PIN                  SERVO1_PIN
-#endif
-
-#ifndef CHAMBER_AUTO_FAN_PIN
-  #define CHAMBER_AUTO_FAN_PIN               FAN2_PIN
-#endif
 
 //
 // SD

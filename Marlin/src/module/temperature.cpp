@@ -111,6 +111,14 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if HAS_SERVOS
+  #include "./servo.h"
+#endif
+
+#ifdef DEBUG_SERIAL
+  #include "../core/serial.h"
+#endif
+
 #if HOTEND_USES_THERMISTOR
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     static const temp_entry_t* heater_ttbl_map[2] = { HEATER_0_TEMPTABLE, HEATER_1_TEMPTABLE };
@@ -271,6 +279,11 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #if HAS_TEMP_CHAMBER
   chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
+    int fan_chamber_pwm;
+    bool flag_chamber_off;
+    bool flag_chamber_excess_heat = false;
+    millis_t now, next_cool_check_ms_2 = 0;
+    float old_temp = 9999;
     #ifdef CHAMBER_MINTEMP
       int16_t Temperature::mintemp_raw_CHAMBER = HEATER_CHAMBER_RAW_LO_TEMP;
     #endif
@@ -1185,6 +1198,55 @@ void Temperature::manage_heater() {
       }
     #endif
 
+    #ifdef CHAMBER_FAN
+      if (temp_chamber.target > CHAMBER_MINTEMP) {
+        flag_chamber_off = false;
+        #ifdef CHAMBER_AUTO_FAN
+          fan_chamber_pwm = CHAMBER_FAN_MEDIAN + ( abs(temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR );
+          if(temp_chamber.soft_pwm_amount != 0){
+            fan_chamber_pwm += (2 * CHAMBER_FAN_FACTOR);
+          }
+          fan_chamber_pwm = std::min(fan_chamber_pwm, 255);
+        #endif
+        #ifndef CHAMBER_AUTO_FAN
+          fan_chamber_pwm = CHAMBER_FAN_BASE_PWM
+        #endif
+        thermalManager.set_fan_speed(2, fan_chamber_pwm);
+        
+        #ifdef CHAMBER_VENT
+          #ifndef MIN_COOLING_SLOPE_TIME_CHAMBER_VENT
+            #define MIN_COOLING_SLOPE_TIME_CHAMBER_VENT 20
+          #endif
+          #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
+            #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
+          #endif
+          if( (temp_chamber.celsius - temp_chamber.target >= 5) && !flag_chamber_excess_heat) {
+          // open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds
+          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
+            if (next_cool_check_ms_2 == 0 || ELAPSED(millis(), next_cool_check_ms_2)) {
+              if (old_temp - temp_chamber.celsius < float(MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)) flag_chamber_excess_heat = true;
+              next_cool_check_ms_2 = millis() + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER_VENT;
+              old_temp = temp_chamber.celsius;
+            }
+          }
+          else {
+            next_cool_check_ms_2 = 0;
+            old_temp = 9999;
+          }
+          if (flag_chamber_excess_heat && (temp_chamber.celsius - temp_chamber.target <= -5) ) {
+            flag_chamber_excess_heat = false;
+          }
+        #endif
+
+      } 
+      else if (!flag_chamber_off) {
+        flag_chamber_off = true;
+        thermalManager.set_fan_speed(CHAMBER_VENT_SERVO_NUM, 0);
+        flag_chamber_excess_heat = false;
+        MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, 90);
+      }
+    #endif
+
     if (ELAPSED(ms, next_chamber_check_ms)) {
       next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
@@ -1195,7 +1257,14 @@ void Temperature::manage_heater() {
           else if (temp_chamber.celsius <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
             temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
         #else
-          temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+          if (!flag_chamber_excess_heat){
+           temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, 0);
+          }
+          else {
+            temp_chamber.soft_pwm_amount = 0;
+            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, (temp_chamber.celsius <= temp_chamber.target ? 0 : 90 ) );
+          }
         #endif
       }
       else {
@@ -2985,7 +3054,7 @@ void Temperature::tick() {
       SERIAL_ECHOPAIR(" B@:", getHeaterPower(H_BED));
     #endif
     #if HAS_HEATED_CHAMBER
-      SERIAL_ECHOPAIR(" C@:", getHeaterPower(H_CHAMBER));
+      SERIAL_ECHOPAIR(" C@:", flag_chamber_excess_heat ? 1 : 2);
     #endif
     #if HAS_MULTI_HOTEND
       HOTEND_LOOP() {

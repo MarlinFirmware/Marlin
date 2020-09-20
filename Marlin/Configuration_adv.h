@@ -141,8 +141,17 @@
   /**
   * Custom Chamber fan and servo settings
   */
-  #define CHAMBER_VENT_SERVO
+  #define CHAMBER_FAN
+  #define CHAMBER_FAN_BASE_PWM 255
   #define CHAMBER_AUTO_FAN
+  #ifdef CHAMBER_AUTO_FAN
+    #define CHAMBER_FAN_MEDIAN 128
+    #define CHAMBER_FAN_FACTOR 25
+  #endif
+  #define CHAMBER_VENT
+  #ifdef CHAMBER_VENT
+    #define CHAMBER_VENT_SERVO_NUM 1
+  #endif
 #endif
 
 
@@ -467,7 +476,7 @@
 #define E5_AUTO_FAN_PIN -1
 #define E6_AUTO_FAN_PIN -1
 #define E7_AUTO_FAN_PIN -1
-#define CHAMBER_AUTO_FAN_PIN FAN2_PIN
+#define CHAMBER_AUTO_FAN_PIN -1
 
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED 255   // 255 == full speed
@@ -1314,7 +1323,7 @@
    *
    * :[ 'LCD', 'ONBOARD', 'CUSTOM_CABLE' ]
    */
-  //#define SDCARD_CONNECTION LCD
+  #define SDCARD_CONNECTION ONBOARD
 
 #endif // SDSUPPORT
 
