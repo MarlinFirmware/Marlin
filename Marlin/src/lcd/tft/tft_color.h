@@ -42,6 +42,7 @@
 #define COLOR_SCARLET         0xF904  // #FF2020
 #define COLOR_LIME            0x7E00  // #00FF00
 #define COLOR_BLUE            0x001F  // #0000FF
+#define COLOR_LIGHT_BLUE      0x061F  // #00C3FF
 #define COLOR_YELLOW          0xFFE0  // #FFFF00
 #define COLOR_MAGENTA         0xF81F  // #FF00FF
 #define COLOR_FUCHSIA         0xF81F  // #FF00FF
@@ -66,10 +67,11 @@
 
 #define COLOR_DARK_PURPLE     0x9930  // #992380
 
-
-#define COLOR_BACKGROUND        0x20AC  // #1E156E
-#define COLOR_SELECTION_BG      0x9930  // #992380
-#define COLOR_WEBSITE_URL       0x03B7
+#ifndef COLOR_BACKGROUND
+  #define COLOR_BACKGROUND    0x20AC  // #1E156E
+#endif
+#define COLOR_SELECTION_BG    0x9930  // #992380
+#define COLOR_WEBSITE_URL     0x03B7
 
 #define COLOR_INACTIVE          COLOR_GREY
 #define COLOR_COLD              COLOR_AQUA

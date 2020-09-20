@@ -214,16 +214,16 @@ enum processID : uint8_t {
 #define font32x64 0x09
 
 // Color
-#define White             0xFFFF
-#define Background_window 0x31E8  // Popup background color
-#define Background_blue   0x1125  // Dark blue background color
-#define Background_black  0x0841  // black background color
-#define Font_window       0xD6BA  // Popup font background color
+#define Color_White       0xFFFF
+#define Color_Bg_Window   0x31E8  // Popup background color
+#define Color_Bg_Blue     0x1125  // Dark blue background color
+#define Color_Bg_Black    0x0841  // Black background color
+#define Popup_Text_Color  0xD6BA  // Popup font background color
 #define Line_Color        0x3A6A  // Split line color
-#define Rectangle_Color   0xEE2F  // blue square cursor color
-#define Percent_Color     0xFE29  // percentage color
-#define BarFill_Color     0x10E4  // fill color of progress bar
-#define Select_Color      0x33BB  // selected color
+#define Rectangle_Color   0xEE2F  // Blue square cursor color
+#define Percent_Color     0xFE29  // Percentage color
+#define BarFill_Color     0x10E4  // Fill color of progress bar
+#define Select_Color      0x33BB  // Selected color
 
 extern uint8_t checkkey;
 extern float zprobe_zoffset;
