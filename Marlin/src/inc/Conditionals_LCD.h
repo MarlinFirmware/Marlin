@@ -502,7 +502,7 @@
   #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
 #elif EXTRUDERS > 1
-  #define HAS_MULTI_EXTRUDER
+  #define HAS_MULTI_EXTRUDER 1
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
