@@ -163,7 +163,7 @@ void lv_draw_printing(void) {
 
   // Create image buttons
   buttonExt1 = lv_img_create(scr, NULL);
-  #if EXTRUDERS >= 2
+  #if HAS_MULTI_EXTRUDER
     buttonExt2 = lv_img_create(scr, NULL);
   #endif
   #if HAS_HEATED_BED
@@ -178,7 +178,7 @@ void lv_draw_printing(void) {
 
   lv_img_set_src(buttonExt1, "F:/bmp_ext1_state.bin");
   #if 1
-    #if EXTRUDERS >= 2
+    #if HAS_MULTI_EXTRUDER
       lv_img_set_src(buttonExt2, "F:/bmp_ext2_state.bin");
     #endif
     #if HAS_HEATED_BED
@@ -228,7 +228,7 @@ void lv_draw_printing(void) {
 
   lv_obj_set_pos(buttonExt1, 205, 136);
 
-  #if EXTRUDERS >= 2
+  #if HAS_MULTI_EXTRUDER
     lv_obj_set_pos(buttonExt2, 350, 136);
   #endif
 
@@ -245,7 +245,7 @@ void lv_draw_printing(void) {
 
   // Create labels on the image buttons
   //lv_btn_set_layout(buttonExt1, LV_LAYOUT_OFF);
-  //#if EXTRUDERS >= 2
+  //#if HAS_MULTI_EXTRUDER
     //lv_btn_set_layout(buttonExt2, LV_LAYOUT_OFF);
   //#endif
 
@@ -264,7 +264,7 @@ void lv_draw_printing(void) {
   lv_obj_set_style(labelExt1, &tft_style_label_rel);
   lv_obj_set_pos(labelExt1, 250, 146);
 
-  #if EXTRUDERS >= 2
+  #if HAS_MULTI_EXTRUDER
     labelExt2 = lv_label_create(scr, NULL);
     lv_obj_set_style(labelExt2, &tft_style_label_rel);
     lv_obj_set_pos(labelExt2, 395, 146);
@@ -325,7 +325,7 @@ void disp_ext_temp() {
   sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target);
   lv_label_set_text(labelExt1, public_buf_l);
 
-  #if EXTRUDERS >= 2
+  #if HAS_MULTI_EXTRUDER
     ZERO(public_buf_l);
     sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target);
     lv_label_set_text(labelExt2, public_buf_l);

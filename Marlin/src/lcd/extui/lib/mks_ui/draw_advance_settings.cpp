@@ -38,8 +38,8 @@ static lv_obj_t * scr;
 #define ID_WIFI_PARA_ARROW          5
 #define ID_FILAMENT_SETTINGS        6
 #define ID_FILAMENT_SETTINGS_ARROW  7
-#define ID_ENCODER_SETTINGS       8
-#define ID_ENCODER_SETTINGS_ARROW 9
+#define ID_ENCODER_SETTINGS         8
+#define ID_ENCODER_SETTINGS_ARROW   9
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
@@ -161,7 +161,6 @@ void lv_draw_advance_settings(void) {
   lv_label_set_text(title, machine_menu.AdvancedConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
-
 
   buttonPausePos = lv_btn_create(scr, NULL);
   lv_obj_set_pos(buttonPausePos, PARA_UI_POS_X, PARA_UI_POS_Y);

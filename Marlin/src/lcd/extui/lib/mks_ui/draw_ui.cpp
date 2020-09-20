@@ -737,10 +737,10 @@ char *creat_title_text() {
             //saved_feedrate_percentage = feedrate_percentage;
             planner.flow_percentage[0] = 100;
             planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            if (EXTRUDERS == 2) {
+            #if HAS_MULTI_EXTRUDER
               planner.flow_percentage[1] = 100;
               planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            }
+            #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             once_flag = 0;
@@ -869,10 +869,10 @@ char *creat_title_text() {
             //saved_feedrate_percentage = feedrate_percentage;
             planner.flow_percentage[0] = 100;
             planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            if (EXTRUDERS == 2) {
+            #if HAS_MULTI_EXTRUDER
               planner.flow_percentage[1] = 100;
               planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            }
+            #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             once_flag = 0;
@@ -1101,7 +1101,7 @@ void GUI_RefreshPage() {
       break;
     #if ENABLED(USE_WIFI_FUNCTION)
       case WIFI_TIPS_UI:
-        switch(wifi_tips_type) {
+        switch (wifi_tips_type) {
           case TIPS_TYPE_JOINING:
             if (wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName,(const char *)wifi_list.wifiName[wifi_list.nameIndex]) == 0) {
               tips_disp.timer = TIPS_TIMER_STOP;

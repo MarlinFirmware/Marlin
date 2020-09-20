@@ -125,15 +125,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if(abs((int)(100 * babystep_dist)) == 1) {
+        if (abs((int)(100 * babystep_dist)) == 1)
           babystep_dist = 0.05;
-        }
-        else if(abs((int)(100 * babystep_dist)) == 5) {
+        else if (abs((int)(100 * babystep_dist)) == 5)
           babystep_dist = 0.1;
-        }
-        else {
+        else
           babystep_dist = 0.01;
-        }
         disp_baby_step_dist();
       }
 
@@ -143,7 +140,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if(has_adjust_z == 1) {
+        if (has_adjust_z == 1) {
           gcode.process_subcommands_now_P(PSTR("M500"));
           has_adjust_z = 0;
         }

@@ -98,14 +98,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (EXTRUDERS == 2) {
-          if (uiCfg.curSprayerChoose == 0) {
+        #if HAS_MULTI_EXTRUDER
+          if (uiCfg.curSprayerChoose == 0)
             uiCfg.curSprayerChoose = 1;
-          }
-          else if (uiCfg.curSprayerChoose == 1) {
+          else if (uiCfg.curSprayerChoose == 1)
             uiCfg.curSprayerChoose = 0;
-          }
-        }
+        #endif
         disp_filament_type();
       }
       break;
@@ -114,19 +112,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if ((EXTRUDERS == 2)
-          && (uiCfg.print_state != IDLE)
-          && (uiCfg.print_state != REPRINTED)
-        ) {
-          if(uiCfg.curSprayerChoose_bak == 1) {
-            gcode.process_subcommands_now_P(PSTR("T1"));
-          }
-          else {
-            gcode.process_subcommands_now_P(PSTR("T0"));
-         }
-        }
+        #if HAS_MULTI_EXTRUDER
+          if (uiCfg.print_state != IDLE && uiCfg.print_state != REPRINTED)
+            gcode.process_subcommands_now_P(uiCfg.curSprayerChoose_bak == 1 ? PSTR("T1") : PSTR("T0"));
+        #endif
         feedrate_mm_s = (float)uiCfg.moveSpeed_bak;
-        if(uiCfg.print_state == PAUSED)
+        if (uiCfg.print_state == PAUSED)
           planner.set_e_position_mm((destination.e = current_position.e = uiCfg.current_e_position_bak));
           //current_position.e = destination.e = uiCfg.current_e_position_bak;
         thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;

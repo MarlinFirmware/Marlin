@@ -87,7 +87,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        #if EXTRUDERS >= 2
+        #if HAS_MULTI_EXTRUDER
           uiCfg.curSprayerChoose_bak = active_extruder;
         #endif
         if (uiCfg.print_state == WORKING) {

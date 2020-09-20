@@ -193,7 +193,7 @@ static void dma_init() {
       SET_BIT(huart1.Instance->CR3, USART_CR3_DMAR);
 
   #endif
-  for(uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
+  for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++) {
     wifiDmaRcvFifo.bufferAddr[i] = &bmp_public_buf[1024 * i];
     wifiDmaRcvFifo.state[i] = udisk_buf_empty;
   }
@@ -296,7 +296,7 @@ void esp_port_begin(uint8_t interrupt) {
   if (interrupt) {
     #if ENABLED(USE_WIFI_FUNCTION)
       WIFISERIAL.end();
-      for(uint16_t i=0;i<65535;i++);
+      for (uint16_t i = 0; i < 65535; i++);
       WIFISERIAL.begin(WIFI_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
@@ -306,7 +306,7 @@ void esp_port_begin(uint8_t interrupt) {
   else {
     #if ENABLED(USE_WIFI_FUNCTION)
       WIFISERIAL.end();
-      for(uint16_t i=0;i<65535;i++);
+      for (uint16_t i = 0; i < 65535; i++);
       WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
@@ -319,20 +319,15 @@ void esp_port_begin(uint8_t interrupt) {
 #if ENABLED(USE_WIFI_FUNCTION)
 
 int raw_send_to_wifi(char *buf, int len) {
-  int i;
+  if (buf == 0 || len <= 0) return 0;
 
-  if (buf == 0  ||  len <= 0) {
-    return 0;
-  }
-  for(i = 0; i < len; i++) {
-    WIFISERIAL.write(*(buf+i));
-  }
+  for (int i = 0; i < len; i++)
+    WIFISERIAL.write(*(buf + i));
 
   return len;
-
 }
 
-#endif //USE_WIFI_FUNCTION
+#endif // USE_WIFI_FUNCTION
 
 void wifi_ret_ack() {}
 
@@ -517,7 +512,7 @@ int write_to_file(char *buf, int len) {
   int i;
   int res;
 
-  for(i = 0; i < len; i++) {
+  for (i = 0; i < len; i++) {
     file_writer.write_buf[file_writer.write_index++] = buf[i];
     if (file_writer.write_index >= 512) {
       res = card.write(file_writer.write_buf, file_writer.write_index);
@@ -554,22 +549,19 @@ typedef struct {
 
 
 static int cut_msg_head(uint8_t *msg, uint16_t msgLen, uint16_t cutLen) {
-  int i;
+  if (msgLen < cutLen) return 0;
 
-  if (msgLen < cutLen) {
-    return 0;
-  }
   else if (msgLen == cutLen) {
     memset(msg, 0, msgLen);
     return 0;
   }
-  for(i = 0; i < (msgLen - cutLen); i++) {
+
+  for (int i = 0; i < (msgLen - cutLen); i++)
     msg[i] = msg[cutLen + i];
-  }
+
   memset(&msg[msgLen - cutLen], 0, cutLen);
 
   return msgLen - cutLen;
-
 }
 
 
@@ -639,7 +631,7 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
       cmd_value = atoi((char *)(tmpStr + 1));
       tmpStr = (uint8_t *)strstr((char *)tmpStr, " ");
 
-      switch(cmd_value) {
+      switch (cmd_value) {
 
         case 20: //print sd / udisk file
           if (uiCfg.print_state == IDLE) {
@@ -1068,18 +1060,13 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 }
 
 static int32_t charAtArray(const uint8_t *_array, uint32_t _arrayLen, uint8_t _char) {
-  uint32_t i;
-  for(i = 0; i < _arrayLen; i++) {
-    if (*(_array + i) == _char) {
-      return i;
-    }
-  }
-
+  for (uint32_t i = 0; i < _arrayLen; i++)
+    if (*(_array + i) == _char) return i;
   return -1;
 }
 
 void get_wifi_list_command_send() {
-  char buf[6]={0};
+  char buf[6] = {0};
   buf[0] = 0xA5;
   buf[1] = 0x07;
   buf[2] = 0x00;
@@ -1097,15 +1084,12 @@ static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
   //port
   //connect state
-  if (msg[6] == 0x0a) {
+  if (msg[6] == 0x0A)
     wifi_link_state = WIFI_CONNECTED;
-  }
-  else if (msg[6] == 0x0e) {
+  else if (msg[6] == 0x0E)
     wifi_link_state = WIFI_EXCEPTION;
-  }
-  else {
+  else
     wifi_link_state = WIFI_NOT_CONFIG;
-  }
 
   //mode
   wifiPara.mode = msg[7];
@@ -1197,13 +1181,13 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
 
     if (wifi_list.getNameNum > 0) wifi_list.currentWifipage = 1;
 
-    for(i=0;i<wifi_list.getNameNum;i++) {
+    for (i = 0; i <wifi_list.getNameNum; i++) {
       wifiNameLen = msg[wifiMsgIdex];
       wifiMsgIdex  +=  1;
       if (wifiNameLen < 32) {
         memset(str, 0, WIFI_NAME_BUFFER_SIZE);
         memcpy(str, &msg[wifiMsgIdex], wifiNameLen);
-        for(j=0;j<valid_name_num;j++) {
+        for (j = 0; j < valid_name_num; j++) {
           if (strcmp((const char *)str,(const char *)wifi_list.wifiName[j]) == 0) {
             wifi_name_is_same = 1;
             break;
@@ -1562,7 +1546,7 @@ void esp_data_parser(char *cmdRxBuf, int len) {
     }
 
     esp_frame.data = &esp_msg_buf[4];
-    switch(esp_frame.type) {
+    switch (esp_frame.type) {
       case ESP_TYPE_NET:
         net_msg_handle(esp_frame.data, esp_frame.dataLen);
         break;
@@ -1600,7 +1584,8 @@ int32_t tick_net_time1, tick_net_time2;
 int storeRcvData(int32_t len) {
   unsigned char tmpW = wifiDmaRcvFifo.write_cur;
   if (len <= UDISKBUFLEN && wifiDmaRcvFifo.state[tmpW] == udisk_buf_empty) {
-    for(uint16_t i=0;i<len;i++)wifiDmaRcvFifo.bufferAddr[tmpW][i] = WIFISERIAL.read();
+    for (uint16_t i = 0; i < len; i++)
+      wifiDmaRcvFifo.bufferAddr[tmpW][i] = WIFISERIAL.read();
     wifiDmaRcvFifo.state[tmpW] = udisk_buf_full;
     wifiDmaRcvFifo.write_cur = (tmpW + 1) % TRANS_RCV_FIFO_BLOCK_NUM;
     return 1;
@@ -1647,7 +1632,7 @@ void wifi_rcv_handle() {
   if (wifi_link_state == WIFI_TRANS_FILE) {
     #if 0
       if (WIFISERIAL.available() == UART_RX_BUFFER_SIZE) {
-        for(uint16_t i=0;i<UART_RX_BUFFER_SIZE;i++) {
+        for (uint16_t i=0;i<UART_RX_BUFFER_SIZE;i++) {
           ucStr[i] = WIFISERIAL.read();
           len++;
         }
