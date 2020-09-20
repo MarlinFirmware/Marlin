@@ -107,17 +107,7 @@ void lv_draw_about(void) {
 
   fw_type = lv_label_create(scr, NULL);
   lv_obj_set_style(fw_type, &tft_style_label_rel);
-  lv_label_set_text(fw_type,
-    #if MB(MKS_ROBIN_PRO)
-      "Firmware: Marlin-bugfix2.0.x-MKS-2.1.0"
-    #elif MB(MKS_ROBIN_NANO, MKS_ROBIN_NANO_V2)
-      "Firmware: Marlin-bugfix2.0.x-MKS-2.1.0"
-    #elif MB(MKS_ROBIN_E3P)
-      "Firmware: Marlin-bugfix2.0.x-MKS-2.1.0"
-    #else
-      CUSTOM_MACHINE_NAME
-    #endif
-  );
+  lv_label_set_text(fw_type, "Firmware: Marlin " SHORT_BUILD_VERSION);
   lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
   board = lv_label_create(scr, NULL);
