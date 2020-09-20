@@ -243,7 +243,7 @@ void lv_draw_printing(void) {
   lv_obj_set_pos(buttonStop, 165, 240);
   lv_obj_set_pos(buttonOperat, 325, 240);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   //lv_btn_set_layout(buttonExt1, LV_LAYOUT_OFF);
   //#if EXTRUDERS >= 2
     //lv_btn_set_layout(buttonExt2, LV_LAYOUT_OFF);

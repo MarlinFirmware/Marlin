@@ -178,7 +178,7 @@ void lv_draw_ready_print(void) {
     //lv_obj_set_pos(buttonSet,BTN_X_PIXEL+SIMPLE_FIRST_PAGE_GRAP*2+1,(TFT_HEIGHT-BTN_Y_PIXEL)/2+2);
     //lv_obj_set_pos(buttonPrint,BTN_X_PIXEL*2+SIMPLE_FIRST_PAGE_GRAP*3+1,(TFT_HEIGHT-BTN_Y_PIXEL)/2+2);
 
-    /*Create a label on the Image button*/
+    // Create labels on the image buttons
     //lv_btn_set_layout(buttonPrint, LV_LAYOUT_OFF);
     //lv_btn_set_layout(buttonSet, LV_LAYOUT_OFF);
     lv_btn_set_layout(buttonTool, LV_LAYOUT_OFF);

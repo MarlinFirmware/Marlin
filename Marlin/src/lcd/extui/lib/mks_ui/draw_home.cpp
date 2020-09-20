@@ -189,8 +189,7 @@ void lv_draw_home(void) {
   lv_obj_set_pos(buttonOffXY, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
-
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonHomeAll, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonHomeX, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonHomeY, LV_LAYOUT_OFF);

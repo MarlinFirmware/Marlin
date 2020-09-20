@@ -195,7 +195,7 @@ void lv_draw_filament_change(void) {
   lv_obj_set_pos(buttoType, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonIn, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonOut, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttoType, LV_LAYOUT_OFF);

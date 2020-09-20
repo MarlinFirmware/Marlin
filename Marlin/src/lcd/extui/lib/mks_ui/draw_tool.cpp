@@ -217,7 +217,7 @@ void lv_draw_tool(void) {
   //lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonPreHeat, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonExtrusion, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);
