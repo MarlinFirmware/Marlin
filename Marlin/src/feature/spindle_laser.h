@@ -224,7 +224,7 @@ public:
      */
 
     // Force disengage planner power control
-    static inline void inline_disable()	{
+    static inline void inline_disable() {
       isReady = false;
       unitPower = 0;
       planner.laser_inline.status.isPlanned = false;

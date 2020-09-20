@@ -603,7 +603,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
-      switch(calibration_stage) {
+      switch (calibration_stage) {
         case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
         case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
         case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;

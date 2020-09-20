@@ -27,8 +27,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 #include "../../ui_api.h"
-#include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
-#include "../../../../module/motion.h"	// for A20 read printing speed feedrate_percentage
+#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
 
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))

@@ -89,7 +89,7 @@
 #define ST7789V_WRCABCMB          0x5E // Write CABC Minimum Brightness
 #define ST7789V_RDCABCMB          0x5F // Read CABC Minimum Brightness
 #define ST7789V_RDABCSDR          0x68 // Read Automatic Brightness Control Self-Diagnostic Result
-#define ST7789V_RDID1             0xDA //	Read ID1 Value
+#define ST7789V_RDID1             0xDA // Read ID1 Value
 #define ST7789V_RDID2             0xDB // Read ID2 Value
 #define ST7789V_RDID3             0xDC // Read ID3 Value
 
