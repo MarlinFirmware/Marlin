@@ -141,7 +141,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with probe pin!"
   #elif IS_TX2(X_ENABLE_PIN) || IS_RX2(X_DIR_PIN) || IS_TX2(Y_ENABLE_PIN) || IS_RX2(Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
-  #elif EXTRUDERS > 1 && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
+  #elif HAS_MULTI_EXTRUDER && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
     #error "Serial port pins (2) conflict with E1 stepper pins!"
   #elif EXTRUDERS && (IS_RX2(E0_DIR_PIN) || IS_RX2(E0_STEP_PIN))
     #error "Serial port pins (2) conflict with E stepper pins!"
@@ -168,7 +168,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (3) conflict with Z3 pins!"
   #elif PIN_IS_TX3(Z4_DIR) || PIN_IS_RX3(Z4_STEP)
     #error "Serial port pins (3) conflict with Z4 pins!"
-  #elif EXTRUDERS > 1 && (PIN_IS_TX3(E1_DIR) || PIN_IS_RX3(E1_STEP))
+  #elif HAS_MULTI_EXTRUDER && (PIN_IS_TX3(E1_DIR) || PIN_IS_RX3(E1_STEP))
     #error "Serial port pins (3) conflict with E1 pins!"
   #endif
   #undef PIN_IS_TX3
@@ -214,7 +214,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "One or more i2c (1) pins overlaps with Z3 pins! Disable i2c peripherals."
     #elif PIN_IS_SDA1(Z4_DIR) || PIN_IS_SCL1(Z4_STEP)
       #error "One or more i2c (1) pins overlaps with Z4 pins! Disable i2c peripherals."
-    #elif EXTRUDERS > 1 && (PIN_IS_SDA1(E1_DIR) || PIN_IS_SCL1(E1_STEP))
+    #elif HAS_MULTI_EXTRUDER && (PIN_IS_SDA1(E1_DIR) || PIN_IS_SCL1(E1_STEP))
       #error "One or more i2c (1) pins overlaps with E1 pins! Disable i2c peripherals."
     #endif
     #undef PIN_IS_SDA1
@@ -240,9 +240,9 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "i2c SDA2 overlaps with Z3 enable pin! Disable i2c peripherals."
     #elif PIN_IS_SDA2(Z4_ENABLE)
       #error "i2c SDA2 overlaps with Z4 enable pin! Disable i2c peripherals."
-    #elif EXTRUDERS > 1 && PIN_IS_SDA2(E1_ENABLE)
+    #elif HAS_MULTI_EXTRUDER && PIN_IS_SDA2(E1_ENABLE)
       #error "i2c SDA2 overlaps with E1 enable pin! Disable i2c peripherals."
-    #elif EXTRUDERS > 1 && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
+    #elif HAS_MULTI_EXTRUDER && AXIS_HAS_SPI(E1) && PIN_IS_SDA2(E1_CS)
       #error "i2c SDA2 overlaps with E1 CS pin! Disable i2c peripherals."
     #elif EXTRUDERS && (PIN_IS_SDA2(E0_STEP) || PIN_IS_SDA2(E0_DIR))
       #error "i2c SCL2 overlaps with E0 STEP/DIR pin! Disable i2c peripherals."

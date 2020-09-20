@@ -40,7 +40,7 @@ void StepperCurrentScreen::onRedraw(draw_mode_t what) {
   w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) );
   #if EXTRUDERS == 1
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E),  getAxisCurrent_mA(E0) );
-  #elif EXTRUDERS > 1
+  #elif HAS_MULTI_EXTRUDER
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E1), getAxisCurrent_mA(E0) );
     w.color(e_axis).adjuster(10, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1) );
     #if EXTRUDERS > 2
@@ -64,7 +64,7 @@ bool StepperCurrentScreen::onTouchHeld(uint8_t tag) {
     case  7: UI_INCREMENT(AxisCurrent_mA, Z ); break;
     case  8: UI_DECREMENT(AxisCurrent_mA, E0); break;
     case  9: UI_INCREMENT(AxisCurrent_mA, E0); break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
     case 10: UI_DECREMENT(AxisCurrent_mA, E1); break;
     case 11: UI_INCREMENT(AxisCurrent_mA, E1); break;
     #endif

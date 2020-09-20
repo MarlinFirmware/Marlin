@@ -90,7 +90,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (EXTRUDERS == 2) {
+        if (ENABLED(HAS_MULTI_EXTRUDER)) {
           if (uiCfg.curSprayerChoose == 0) {
             uiCfg.curSprayerChoose = 1;
             queue.inject_P(PSTR("T1"));

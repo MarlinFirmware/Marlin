@@ -595,7 +595,7 @@
       SPI_Enable(SPI0);
 
       SET_OUTPUT(DAC0_SYNC);
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         SET_OUTPUT(DAC1_SYNC);
         WRITE(DAC1_SYNC, HIGH);
       #endif

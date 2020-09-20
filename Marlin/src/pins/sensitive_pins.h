@@ -354,7 +354,7 @@
     #endif
   #endif
 
-#elif EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+#elif EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
 
   #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, _E1_CS _E1_MS1 _E1_MS2 _E1_MS3
@@ -383,7 +383,7 @@
     #endif // EXTRUDERS > 3 || MIXING_EXTRUDER > 3
   #endif // EXTRUDERS > 2 || MIXING_EXTRUDER > 2
 
-#endif // EXTRUDERS > 1 || MIXING_EXTRUDER
+#endif // HAS_MULTI_EXTRUDER || MIXING_EXTRUDER
 
 //
 // Heaters, Fans, Temp Sensors

@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
+#if EITHER(HAS_MULTI_EXTRUDER, DEBUG_LEVELING_FEATURE)
   #include "../../module/motion.h"
 #endif
 

@@ -127,9 +127,7 @@ void StressTestScreen::onIdle() {
       injectCommands_P(PSTR(
         "G0 X100 Y100 Z100 F6000\n"
         "T0\nG4 S1"
-        #if EXTRUDERS > 1
-          "\nT1\nG4 S1"
-        #endif
+        TERN_(HAS_MULTI_EXTRUDER, "\nT1\nG4 S1")
         "\nG0 X150 Y150 Z150"
       ));
     }

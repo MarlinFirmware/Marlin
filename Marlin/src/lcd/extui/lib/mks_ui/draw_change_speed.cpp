@@ -70,7 +70,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           //planner.flow_percentage[1] = planner.flow_percentage[0];
           //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
           planner.refresh_e_factor(0);
-          if (EXTRUDERS == 2) {
+          #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = planner.flow_percentage[0];
             planner.refresh_e_factor(1);
           }

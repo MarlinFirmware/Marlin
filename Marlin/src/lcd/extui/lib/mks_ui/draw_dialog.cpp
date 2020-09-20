@@ -95,7 +95,7 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
             //saved_feedrate_percentage = feedrate_percentage;
             planner.flow_percentage[0] = 100;
             planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
-            #if EXTRUDERS == 2
+            #if HAS_MULTI_EXTRUDER
               planner.flow_percentage[1] = 100;
               planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
             #endif

@@ -29,7 +29,7 @@
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
 #endif
 
