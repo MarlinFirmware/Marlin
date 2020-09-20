@@ -1,5 +1,5 @@
 /*********************
- * filament_menu.cpp *
+ * leveling_menu.cpp *
  *********************/
 
 /****************************************************************************
@@ -22,9 +22,13 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+#if BOTH(TOUCH_UI_FTDI_EVE,HAS_LEVELING)
 
 #include "screens.h"
+
+#if BOTH(HAS_BED_PROBE,BLTOUCH)
+  #include "../../../../../feature/bltouch.h"
+#endif
 
 using namespace FTDI;
 using namespace ExtUI;
@@ -34,19 +38,27 @@ using namespace Theme;
   #define GRID_ROWS 9
   #define GRID_COLS 2
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
-  #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
-  #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
+  #define LEVEL_BED_POS      BTN_POS(1,2), BTN_SIZE(2,1)
+  #define LEVEL_AXIS_POS     BTN_POS(1,3), BTN_SIZE(2,1)
+  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
+  #define BLTOUCH_TITLE_POS  BTN_POS(1,6), BTN_SIZE(2,1)
+  #define BLTOUCH_RESET_POS  BTN_POS(1,7), BTN_SIZE(1,1)
+  #define BLTOUCH_TEST_POS   BTN_POS(2,7), BTN_SIZE(1,1)
   #define BACK_POS           BTN_POS(1,9), BTN_SIZE(2,1)
 #else
-  #define GRID_ROWS 6
+  #define GRID_ROWS 7
   #define GRID_COLS 2
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
-  #define RUNOUT_SENSOR_POS  BTN_POS(1,2), BTN_SIZE(2,1)
-  #define LIN_ADVANCE_POS    BTN_POS(1,3), BTN_SIZE(2,1)
-  #define BACK_POS           BTN_POS(1,6), BTN_SIZE(2,1)
+  #define LEVEL_BED_POS      BTN_POS(1,2), BTN_SIZE(2,1)
+  #define LEVEL_AXIS_POS     BTN_POS(1,3), BTN_SIZE(2,1)
+  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
+  #define BLTOUCH_TITLE_POS  BTN_POS(1,5), BTN_SIZE(2,1)
+  #define BLTOUCH_RESET_POS  BTN_POS(1,6), BTN_SIZE(1,1)
+  #define BLTOUCH_TEST_POS   BTN_POS(2,6), BTN_SIZE(1,1)
+  #define BACK_POS           BTN_POS(1,7), BTN_SIZE(2,1)
 #endif
 
-void FilamentMenu::onRedraw(draw_mode_t what) {
+void LevelingMenu::onRedraw(draw_mode_t what) {
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
@@ -57,29 +69,50 @@ void FilamentMenu::onRedraw(draw_mode_t what) {
   if (what & FOREGROUND) {
     CommandProcessor cmd;
     cmd.font(font_large)
-       .text(TITLE_POS, GET_TEXT_F(MSG_FILAMENT))
+       .text(TITLE_POS, GET_TEXT_F(MSG_LEVELING))
        .font(font_medium).colors(normal_btn)
-       .enabled(ENABLED(FILAMENT_RUNOUT_SENSOR))
-       .tag(2).button(RUNOUT_SENSOR_POS, GET_TEXT_F(MSG_RUNOUT_SENSOR))
-       .enabled(ENABLED(LIN_ADVANCE))
-       .tag(3).button(LIN_ADVANCE_POS, GET_TEXT_F(MSG_LINEAR_ADVANCE))
-       .colors(action_btn)
+       .tag(2).button(LEVEL_BED_POS, GET_TEXT_F(MSG_LEVEL_BED))
+       .enabled(
+         #ifdef AXIS_LEVELING_COMMANDS
+           1
+         #endif
+        )
+       .tag(3).button(LEVEL_AXIS_POS, GET_TEXT_F(MSG_AUTOLEVEL_X_AXIS))
+       .enabled(ENABLED(HAS_MESH))
+       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH));
+    #if ENABLED(BLTOUCH)
+      cmd.text(BLTOUCH_TITLE_POS, GET_TEXT_F(MSG_BLTOUCH))
+         .tag(5).button(BLTOUCH_RESET_POS, GET_TEXT_F(MSG_BLTOUCH_RESET))
+         .tag(6).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST));
+    #endif
+    cmd.colors(action_btn)
        .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
   }
 }
 
-bool FilamentMenu::onTouchEnd(uint8_t tag) {
+bool LevelingMenu::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1: GOTO_PREVIOUS();                   break;
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    case 2: GOTO_SCREEN(FilamentRunoutScreen); break;
+    case 2:
+    #if HAS_MESH
+      BedMeshScreen::startMeshProbe();
+    #else
+      SpinnerDialogBox::enqueueAndWait_P(F(BED_LEVELING_COMMANDS));
     #endif
-    #if ENABLED(LIN_ADVANCE)
-    case 3: GOTO_SCREEN(LinearAdvanceScreen);  break;
+    break;
+    #ifdef AXIS_LEVELING_COMMANDS
+    case 3: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS)); break;
+    #endif
+    #if HAS_MESH
+    case 4: GOTO_SCREEN(BedMeshScreen); break;
+    #endif
+    #if ENABLED(BLTOUCH)
+    case 5: injectCommands_P(PSTR("M280 P0 S60")); break;
+    case 6: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     #endif
     default: return false;
   }
   return true;
 }
 
-#endif // TOUCH_UI_FTDI_EVE
+#endif // BOTH(TOUCH_UI_FTDI_EVE,HAS_LEVELING)

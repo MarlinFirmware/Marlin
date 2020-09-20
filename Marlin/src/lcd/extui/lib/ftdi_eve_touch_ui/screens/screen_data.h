@@ -52,41 +52,46 @@ union screen_data_t {
     uint8_t   num_page;
     uint8_t   cur_page;
     #if ENABLED(SCROLL_LONG_FILENAMES) && (FTDI_API_LEVEL >= 810)
-    uint16_t  scroll_pos;
-    uint16_t  scroll_max;
+      uint16_t  scroll_pos;
+      uint16_t  scroll_max;
     #endif
   } FilesScreen;
   struct {
     struct base_numeric_adjustment_t placeholder;
     float e_rel[ExtUI::extruderCount];
   } MoveAxisScreen;
-#if HAS_MESH
-  struct {
-    uint8_t count;
-    uint8_t highlightedTag;
-  } BedMeshScreen;
-#endif
-#if ENABLED(TOUCH_UI_DEVELOPER_MENU)
-  struct {
-    uint32_t next_watchdog_trigger;
-    const char*  message;
-  } StressTestScreen;
-#endif
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  struct {
-    uint32_t start_ms;
-  } PreheatTimerScreen;
-#endif
-#if ENABLED(BABYSTEPPING)
-  struct {
-    struct base_numeric_adjustment_t placeholder;
-    xyz_int_t rel;
-    #if EXTRUDERS > 1
-      bool link_nozzles;
-    #endif
-    bool show_offsets;
-  } NudgeNozzleScreen;
-#endif
+  #if HAS_MESH
+    struct {
+      enum : uint8_t {
+        MSG_NONE,
+        MSG_MESH_COMPLETE,
+        MSG_MESH_INCOMPLETE
+      } message;
+      uint8_t count;
+      uint8_t highlightedTag;
+    } BedMeshScreen;
+  #endif
+  #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
+    struct {
+      uint32_t next_watchdog_trigger;
+      const char*  message;
+    } StressTestScreen;
+  #endif
+  #if ENABLED(TOUCH_UI_COCOA_PRESS)
+    struct {
+      uint32_t start_ms;
+    } PreheatTimerScreen;
+  #endif
+  #if ENABLED(BABYSTEPPING)
+    struct {
+      struct base_numeric_adjustment_t placeholder;
+      xyz_int_t rel;
+      #if EXTRUDERS > 1
+        bool link_nozzles;
+      #endif
+      bool show_offsets;
+    } NudgeNozzleScreen;
+  #endif
 };
 
 extern screen_data_t screen_data;

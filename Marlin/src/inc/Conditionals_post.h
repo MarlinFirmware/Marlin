@@ -159,10 +159,7 @@
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
   #if EITHER(IS_CORE, MARKFORGED_XY)
-    #define X_AXIS_INDEX 0
-    #define Y_AXIS_INDEX 1
-    #define Z_AXIS_INDEX 2
-    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
+    #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
   #else
     #define CAN_CALIBRATE(A,B) 1
   #endif

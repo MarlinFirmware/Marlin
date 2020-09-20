@@ -56,6 +56,15 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -186,6 +195,9 @@
   #endif
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
   #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"

@@ -89,10 +89,6 @@
   #define HAS_GCODE_M876
 #endif
 
-#if PREHEAT_COUNT
-  #define HAS_PREHEAT_COUNT
-#endif
-
 #if EXTRUDERS
   #define HAS_EXTRUDERS
   #if EXTRUDERS > 1

@@ -150,8 +150,6 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: T Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: T Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: T Base Máxima");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: T Base Mínima");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Aquecendo...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Aquecendo base...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibração Delta");
