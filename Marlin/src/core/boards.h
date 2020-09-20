@@ -296,29 +296,29 @@
 #define BOARD_MKS_ROBIN_LITE          4011  // MKS Robin Lite/Lite2 (STM32F103RCT6)
 #define BOARD_MKS_ROBIN_LITE3         4012  // MKS Robin Lite3 (STM32F103RCT6)
 #define BOARD_MKS_ROBIN_PRO           4013  // MKS Robin Pro (STM32F103ZET6)
-#define BOARD_BTT_SKR_MINI_V1_1       4014  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_0    4015  // BigTreeTech SKR Mini E3 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V1_2    4016  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
-#define BOARD_BTT_SKR_MINI_E3_V2_0    4017  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
-#define BOARD_BTT_SKR_E3_DIP          4018  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4019  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4020  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4021  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4022  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4023  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_GTM32_MINI              4024  // STM32F103VET6 controller
-#define BOARD_GTM32_MINI_A30          4025  // STM32F103VET6 controller
-#define BOARD_GTM32_REV_B             4026  // STM32F103VET6 controller
-#define BOARD_MKS_ROBIN_E3D           4027  // MKS Robin E3D (STM32F103RCT6)
-#define BOARD_MKS_ROBIN_E3            4028  // MKS Robin E3 (STM32F103RCT6)
-#define BOARD_MALYAN_M300             4029  // STM32F070-based delta
-#define BOARD_CCROBOT_MEEB_3DP        4030  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4031  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4032  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CREALITY_V4             4033  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4034  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4035  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_MKS_ROBIN_E3P           4036  // MKS Robin E3p (STM32F103VET6)
+#define BOARD_MKS_ROBIN_E3            4014  // MKS Robin E3  (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3D           4015  // MKS Robin E3D (STM32F103RCT6)
+#define BOARD_MKS_ROBIN_E3P           4016  // MKS Robin E3p (STM32F103VET6)
+#define BOARD_BTT_SKR_MINI_V1_1       4017  // BigTreeTech SKR Mini v1.1 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_0    4018  // BigTreeTech SKR Mini E3 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V1_2    4019  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
+#define BOARD_BTT_SKR_MINI_E3_V2_0    4020  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
+#define BOARD_BTT_SKR_E3_DIP          4021  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4022  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4023  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4024  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4025  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4026  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_GTM32_MINI              4030  // STM32F103VET6 controller
+#define BOARD_GTM32_MINI_A30          4031  // STM32F103VET6 controller
+#define BOARD_GTM32_REV_B             4032  // STM32F103VET6 controller
+#define BOARD_MALYAN_M300             4033  // STM32F070-based delta
+#define BOARD_CCROBOT_MEEB_3DP        4034  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4035  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4036  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
+#define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4039  // Trigorilla Pro (STM32F103ZET6)
 
 //
 // ARM Cortex-M4F
