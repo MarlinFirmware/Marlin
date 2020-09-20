@@ -929,7 +929,7 @@ void setup() {
     WIFISERIAL.begin(WIFI_BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-	#endif
+  #endif
 
   SETUP_RUN(HAL_init());
 
