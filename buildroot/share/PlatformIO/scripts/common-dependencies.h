@@ -153,9 +153,6 @@
 // define all platform macros to include pins file
 #define ARDUINO_GRAND_CENTRAL_M4
 #define __AVR_ATmega1280__
-#define TARGET_LPC1768
-#define __STM32F1__
-#define TARGET_STM32F1
 #define __AVR__
 #define ARDUINO_ARCH_SAM
 #define __MK20DX256__
@@ -169,8 +166,10 @@
 #define ARDUINO_ARCH_ESP32
 #define __PLAT_LINUX__
 #define __SAMD51__
-#if MB(RAMPS_14_EFB)
-  #undef TARGET_LPC1768
-  #undef __STM32F1__
+#define MCU_LPC1769
+#define MCU_LPC1768
+#if !MB(RAMPS_14_EFB)
+  #define TARGET_LPC1768
+  #define __STM32F1__
 #endif
 #include "../../../../Marlin/src/pins/pins.h"
