@@ -32,7 +32,7 @@
  *  625 reload value (counts down to 0)
  *  use 1250 for 8 seconds
  */
-#define STM32F1_WD_RELOAD 625
+#define STM32F1_WD_RELOAD 625 // Note CR-6 requires 1250 but the watchdog is disabled anyway?
 
 // Arduino STM32F1 core now has watchdog support
 
