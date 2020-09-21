@@ -26,6 +26,7 @@
 
 #include "SPI_TFT.h"
 #include "pic_manager.h"
+#include "tft_lvgl_configuration.h"
 
 #include "../../../../inc/MarlinConfig.h"
 
@@ -74,6 +75,7 @@ void TFT::SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
 }
 
 void TFT::LCD_init() {
+  TFT_BLK_L;
   TFT_RST_H;
   delay(150);
   TFT_RST_L;
@@ -92,8 +94,7 @@ void TFT::LCD_init() {
   LCD_WR_DATA(0x96);
 
   LCD_WR_REG(0x36);
-  LCD_WR_DATA(0x28);
-
+  LCD_WR_DATA(0x28 + TERN0(GRAPHICAL_TFT_ROTATE_180, 0x80));
   LCD_WR_REG(0x3A);
   LCD_WR_DATA(0x55);
 

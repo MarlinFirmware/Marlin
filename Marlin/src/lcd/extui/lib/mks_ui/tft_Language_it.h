@@ -205,10 +205,6 @@
 #define STEP_5PERCENT_IT                  "5%"
 #define STEP_10PERCENT_IT                 "10%"
 
-#define ZOFFSET_IT                        "Z Offset"
-#define ZOFFSET_INC_IT                    "Add"
-#define ZOFFSET_DEC_IT                    "Dec"
-
 #define TITLE_READYPRINT_IT               "Pronto"
 #define TITLE_PREHEAT_IT                  "Preris"
 #define TITLE_MOVE_IT                     "Muovi"
@@ -231,7 +227,6 @@
 #define TITLE_CLOUD_TEXT_IT               "Cloud"
 #define TITLE_DIALOG_CONFIRM_IT           "Confirm"
 #define TITLE_FILESYS_IT                  "FileSys"
-#define TITLE_ZOFFSET_IT                  "Z Offset"
 
 #define AUTO_SHUTDOWN_IT                  "Auto"
 #define MANUAL_SHUTDOWN_IT                "Manuale"

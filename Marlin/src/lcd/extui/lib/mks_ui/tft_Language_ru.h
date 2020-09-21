@@ -205,10 +205,6 @@
 #define STEP_5PERCENT_RU                    "5%"
 #define STEP_10PERCENT_RU                   "10%"
 
-#define ZOFFSET_RU                          "Z Offset"
-#define ZOFFSET_INC_RU                      "добавить"
-#define ZOFFSET_DEC_RU                      "уменьшить"
-
 #define TITLE_READYPRINT_RU                 "готов к"
 #define TITLE_PREHEAT_RU                    "движение"
 #define TITLE_MOVE_RU                       "движение"
@@ -232,7 +228,6 @@
 #define TITLE_CLOUD_TEXT_RU                 "Cloud"
 #define TITLE_DIALOG_CONFIRM_RU             "Confirm"
 #define TITLE_FILESYS_RU                    "FileSys"
-#define TITLE_ZOFFSET_RU                    "Z Offset"
 
 #define AUTO_SHUTDOWN_RU                    "авто-откл"
 #define MANUAL_SHUTDOWN_RU                  "ручн-откл"

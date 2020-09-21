@@ -253,6 +253,13 @@ class Stepper {
       static bool initialized;
     #endif
 
+    // Last-moved extruder, as set when the last movement was fetched from planner
+    #if HAS_MULTI_EXTRUDER
+      static uint8_t last_moved_extruder;
+    #else
+      static constexpr uint8_t last_moved_extruder = 0;
+    #endif
+
   private:
 
     static block_t* current_block;          // A pointer to the block currently being traced
@@ -261,13 +268,6 @@ class Stepper {
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
-
-    // Last-moved extruder, as set when the last movement was fetched from planner
-    #if HAS_MULTI_EXTRUDER
-      static uint8_t last_moved_extruder;
-    #else
-      static constexpr uint8_t last_moved_extruder = 0;
-    #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
