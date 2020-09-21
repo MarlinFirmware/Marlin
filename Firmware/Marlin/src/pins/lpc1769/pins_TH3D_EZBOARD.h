@@ -35,14 +35,22 @@
 //
 // Servos
 //
-#define SERVO0_PIN                         P2_04
+#if ENABLED(V3_EZABL_ON_SERVO)
+  #define SERVO0_PIN                          -1
+#else
+  #define SERVO0_PIN                       P2_04
+#endif
 
 //
 // Limit Switches
 //
 #define X_STOP_PIN                         P1_24
 #define Y_STOP_PIN                         P1_25
-#define Z_STOP_PIN                         P1_26
+#if ENABLED(V3_EZABL_ON_SERVO)
+  #define Z_STOP_PIN                       P2_04
+#else
+  #define Z_STOP_PIN                       P1_26
+#endif
 
 //
 // Filament Runout Sensor
