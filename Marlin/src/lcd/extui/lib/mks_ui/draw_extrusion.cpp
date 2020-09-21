@@ -91,7 +91,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (HAS_MULTI_EXTRUDER) {
+        if (ENABLED(HAS_MULTI_EXTRUDER)) {
           if (uiCfg.curSprayerChoose == 0) {
             uiCfg.curSprayerChoose = 1;
             queue.inject_P(PSTR("T1"));
@@ -101,9 +101,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
             queue.inject_P(PSTR("T0"));
           }
         }
-        else {
+        else
           uiCfg.curSprayerChoose = 0;
-        }
+
         extructAmount = 0;
         disp_hotend_temp();
         disp_ext_type();
