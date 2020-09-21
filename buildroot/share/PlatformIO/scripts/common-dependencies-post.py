@@ -1,0 +1,16 @@
+#
+# common-dependencies-post.py
+# Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
+#
+
+Import("env")
+Import("projenv")
+
+def apply_board_build_flags():
+	if not 'BOARD_CUSTOM_BUILD_FLAGS' in env['MARLIN_FEATURES']:
+		return
+	projenv.Append(CCFLAGS=[env['MARLIN_FEATURES']['BOARD_CUSTOM_BUILD_FLAGS']])
+
+# We need add the board build flags in a POST SCRIPT, 
+# so platform script don't remove our CCFLAGS
+apply_board_build_flags()
