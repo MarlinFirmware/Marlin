@@ -8,6 +8,8 @@ This firmware focuses on printers with their stock control boards and select aft
 
 Always download the latest firmware releases from our Unified 2 Firmware website here: [UF2.TH3DStudio.com](http://uf2.th3dstudio.com)
 
+This GitHub repository is for tracking code changes. We have a local script that updates the download packages on the Unified 2 Firmware website linked above.
+
 ## Technical Support & Bug Reporting
 
 For best results getting help with configuration and troubleshooting, please use the following resources:
@@ -18,7 +20,7 @@ For best results getting help with configuration and troubleshooting, please use
 - [3D Printer Support Facebook Group](https://www.facebook.com/groups/c3dforum/)
 - [TH3D Customer Facebook Group](http://fbgroup.th3dstudio.com/)
 
-**Bug Reporting**
+## Bug Reporting
 
 If you find bugs, want to help test new releases, or need help you can post in the [Unified 2 Firmware forum](https://support.th3dstudio.com/hc/en-us/community/topics/360001750572-Unified-2-Firmware).
 
