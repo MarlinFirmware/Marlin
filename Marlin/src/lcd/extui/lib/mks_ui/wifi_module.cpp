@@ -908,15 +908,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             (float)thermalManager.temp_hotend[0].celsius,(float)thermalManager.temp_hotend[0].target,
             #if HAS_HEATED_BED
-            (float)thermalManager.temp_bed.celsius,(float)thermalManager.temp_bed.target,
+              (float)thermalManager.temp_bed.celsius,(float)thermalManager.temp_bed.target,
             #else
-            (float)0,(float)0,
+              (float)0,(float)0,
             #endif
             (float)thermalManager.temp_hotend[0].celsius,(float)thermalManager.temp_hotend[0].target,
-            #if !defined(SINGLENOZZLE) && EXTRUDERS >= 2
-            (float)thermalManager.temp_hotend[1].celsius,(float)thermalManager.temp_hotend[1].target
+            #if !defined(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+              (float)thermalManager.temp_hotend[1].celsius,(float)thermalManager.temp_hotend[1].target
             #else
-            (float)0,(float)0
+              (float)0,(float)0
             #endif
             );
           }
@@ -925,15 +925,15 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
 
             (int)thermalManager.temp_hotend[0].celsius,(int)thermalManager.temp_hotend[0].target,
             #if HAS_HEATED_BED
-            (int)thermalManager.temp_bed.celsius,(int)thermalManager.temp_bed.target,
+              (int)thermalManager.temp_bed.celsius,(int)thermalManager.temp_bed.target,
             #else
-            0,0,
+              0,0,
             #endif
             (int)thermalManager.temp_hotend[0].celsius,(int)thermalManager.temp_hotend[0].target,
-            #if !defined(SINGLENOZZLE) && EXTRUDERS >= 2
-            (int)thermalManager.temp_hotend[1].celsius,(int)thermalManager.temp_hotend[1].target
+            #if !defined(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+              (int)thermalManager.temp_hotend[1].celsius,(int)thermalManager.temp_hotend[1].target
             #else
-            0,0
+              0,0
             #endif
             );
           }
