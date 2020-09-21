@@ -2149,18 +2149,13 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if ( ENABLED(HAS_L64XX)  // Always set direction for L64xx (Also enables the chips)
-        || current_block->direction_bits != last_direction_bits
-        || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
-      ) {
-        last_direction_bits = current_block->direction_bits;
-        #if EXTRUDERS > 1
-          last_moved_extruder = stepper_extruder;
-        #endif
+      last_direction_bits = current_block->direction_bits;
+      #if EXTRUDERS > 1
+        last_moved_extruder = stepper_extruder;
+      #endif
 
-        TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
-        set_directions();
-      }
+      TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
+      set_directions();
 
       #if ENABLED(LASER_POWER_INLINE)
         const power_status_t stat = current_block->laser.status;
