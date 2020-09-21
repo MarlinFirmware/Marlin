@@ -95,6 +95,11 @@ def set_env_field(field, value):
 	proj = env.GetProjectConfig()
 	proj.set("env:" + env['PIOENV'], field, value)
 
+def apply_board_build_flags():
+	if not 'BOARD_CUSTOM_BUILD_FLAGS' in env['MARLIN_FEATURES']:
+		return
+	env.Append(CXXFLAGS=[env['MARLIN_FEATURES']['BOARD_CUSTOM_BUILD_FLAGS']])
+
 # All unused libs should be ignored so that if a library
 # exists in .pio/lib_deps it will not break compilation.
 def force_ignore_unused_libs():
@@ -279,3 +284,4 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 apply_features_config()
 force_ignore_unused_libs()
+apply_board_build_flags()
