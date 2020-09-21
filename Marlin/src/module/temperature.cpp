@@ -966,11 +966,11 @@ Sigma: cooling-heating for individual heaters
 //    #else
 //      pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
 //    #endif
-//
-//  #endif
-//
-//  return pid_output;
-//}
+
+  #endif
+
+  return pid_output;
+}
 
     #else // No PID enabled
 
