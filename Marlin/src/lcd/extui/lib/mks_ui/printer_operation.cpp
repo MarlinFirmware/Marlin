@@ -51,6 +51,7 @@ void printer_state_polling() {
       if (uiCfg.waitEndMoves > 20) {
         uiCfg.waitEndMoves = 0;
         planner.synchronize();
+
         gcode.process_subcommands_now_P(PSTR("M25"));
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
