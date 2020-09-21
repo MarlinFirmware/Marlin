@@ -149,3 +149,28 @@
     #define HAS_MENU_UBL
   #endif
 #endif
+
+// define all platform macros to include pins file
+#define ARDUINO_GRAND_CENTRAL_M4
+#define __AVR_ATmega1280__
+#define TARGET_LPC1768
+#define __STM32F1__
+#define TARGET_STM32F1
+#define __AVR__
+#define ARDUINO_ARCH_SAM
+#define __MK20DX256__
+#define __MK64FX512__
+#define __MK66FX1M0__
+#define __IMXRT1062__
+#define STM32GENERIC
+#define STM32F4
+#define STM32F7
+#define ARDUINO_ARCH_STM32
+#define ARDUINO_ARCH_ESP32
+#define __PLAT_LINUX__
+#define __SAMD51__
+#if MB(RAMPS_14_EFB)
+  #undef TARGET_LPC1768
+  #undef __STM32F1__
+#endif
+#include "../../../../Marlin/src/pins/pins.h"
