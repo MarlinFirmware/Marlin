@@ -930,6 +930,48 @@ void Temperature::min_temp_error(const heater_ind_t heater) {
         }
       #endif // PID_DEBUG
 
+/*
+Sigma: cooling-heating for individual heaters
+*/  
+    #if ENABLED(PELTIER_HE0) || ENABLED(PELTIER_HE1) || ENABLED(PELTIER_HE2) || ENABLED(PELTIER_HE3)
+      if (HOTEND_INDEX == 0){
+        #if ENABLED(PELTIER_HE0)
+          pid_output = (current_temperature[HOTEND_INDEX] > target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #else 
+          pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #endif
+      }
+      if (HOTEND_INDEX == 1){
+        #if ENABLED(PELTIER_HE1)
+          pid_output = (current_temperature[HOTEND_INDEX] > target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #else 
+          pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+      #endif
+      }
+      if (HOTEND_INDEX == 2){
+        #if ENABLED(PELTIER_HE2)
+          pid_output = (current_temperature[HOTEND_INDEX] > target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #else 
+          pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+       #endif
+     }
+      if (HOTEND_INDEX == 3){
+        #if ENABLED(PELTIER_HE3)
+          pid_output = (current_temperature[HOTEND_INDEX] > target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #else 
+          pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+        #endif
+      }
+       
+    #else
+      pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
+    #endif
+
+  #endif
+
+  return pid_output;
+}
+
     #else // No PID enabled
 
       #if HEATER_IDLE_HANDLER
