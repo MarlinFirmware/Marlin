@@ -38,7 +38,7 @@ using namespace ExtUI;
 
 void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   CommandProcessor cmd;
-  for(uint8_t i = 0; i < 100; i++) {
+  for (uint8_t i = 0; i < 100; i++) {
     cmd.cmd(BEGIN(POINTS))
        .cmd(POINT_SIZE(20*16))
        .cmd(COLOR_RGB(random(0xFFFFFF)))
@@ -111,7 +111,7 @@ void StressTestScreen::recursiveLockup() {
 
 void StressTestScreen::iterativeLockup() {
   screen_data.StressTestScreen.message = PSTR("Test 3: Printer will restart.");
-  for(;;) current_screen.onRefresh();
+  for (;;) current_screen.onRefresh();
 }
 
 void StressTestScreen::onIdle() {

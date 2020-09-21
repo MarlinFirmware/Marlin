@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 #define DIALOG_TYPE_STOP                             0
@@ -79,5 +79,5 @@ extern void lv_clear_dialog();
 
 //extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

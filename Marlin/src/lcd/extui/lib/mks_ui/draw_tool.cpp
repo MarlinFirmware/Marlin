@@ -140,7 +140,7 @@ void lv_draw_tool(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create image buttons
   buttonPreHeat   = lv_imgbtn_create(scr, NULL);
   buttonExtrusion = lv_imgbtn_create(scr, NULL);
   buttonMove      = lv_imgbtn_create(scr, NULL);
@@ -210,7 +210,7 @@ void lv_draw_tool(void) {
   //lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonPreHeat, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonExtrusion, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);

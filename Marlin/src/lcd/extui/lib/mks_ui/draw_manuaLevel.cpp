@@ -187,7 +187,7 @@ void lv_draw_manualLevel(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create an Image button
   buttonPoint1 = lv_imgbtn_create(scr, NULL);
   buttonPoint2 = lv_imgbtn_create(scr, NULL);
   buttonPoint3 = lv_imgbtn_create(scr, NULL);
@@ -240,7 +240,7 @@ void lv_draw_manualLevel(void) {
   lv_obj_set_pos(buttonPoint5, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonPoint1, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonPoint2, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonPoint3, LV_LAYOUT_OFF);
@@ -248,12 +248,12 @@ void lv_draw_manualLevel(void) {
   lv_btn_set_layout(buttonPoint5, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * label_Point1 = lv_label_create(buttonPoint1, NULL);
-  lv_obj_t * label_Point2 = lv_label_create(buttonPoint2, NULL);
-  lv_obj_t * label_Point3 = lv_label_create(buttonPoint3, NULL);
-  lv_obj_t * label_Point4 = lv_label_create(buttonPoint4, NULL);
-  lv_obj_t * label_Point5 = lv_label_create(buttonPoint5, NULL);
-  lv_obj_t * label_Back   = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_Point1 = lv_label_create(buttonPoint1, NULL);
+  lv_obj_t *label_Point2 = lv_label_create(buttonPoint2, NULL);
+  lv_obj_t *label_Point3 = lv_label_create(buttonPoint3, NULL);
+  lv_obj_t *label_Point4 = lv_label_create(buttonPoint4, NULL);
+  lv_obj_t *label_Point5 = lv_label_create(buttonPoint5, NULL);
+  lv_obj_t *label_Back   = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(label_Point1, leveling_menu.position1);
