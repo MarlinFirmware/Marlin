@@ -88,7 +88,9 @@ namespace Anycubic {
     // Enable levelling and Disable end stops during print 
     // as Z home places nozzle above the bed so we need to allow it past the end stops
     injectCommands_P(AC_cmnd_enable_levelling); //M211 S0\n"));
-    
+
+    // Startup tunes are defined in Tunes.h
+    //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);    
     PlayTune(BEEPER_PIN, GB_PowerOn, 1);
       _SELP_2_P(PSTR("AC Debug Level "),ACDEBUGLEVEL);
     
@@ -373,50 +375,13 @@ namespace Anycubic {
       }
     }
   }
-  /*bool ChironTFT::ToggleFileMenu(int8_t index) {
-    
-    // There is a separate command menu switch to it pressing reset twice (index = 0)
-    if (index==0) {
-      switch(file_menu) {
-        case AC_menu_file: {
-          file_menu = AC_menu_change_to_command;
-        } break;
-        case AC_menu_change_to_command: {
-          file_menu = AC_menu_command;
-        } break;
-        case AC_menu_command: {
-          file_menu = AC_menu_change_to_file;
-        } break;
-        case AC_menu_change_to_file: {
-          file_menu = AC_menu_file;
-        } break;
-      }
-    }
-    else {
-      if(file_menu == AC_menu_change_to_command) {
-        file_menu = AC_menu_file;
-      }
-      else if(file_menu == AC_menu_change_to_file) {
-        file_menu = AC_menu_command;
-      }
-    }
-    if( (file_menu == AC_menu_file) || (file_menu == AC_menu_change_to_command)) {
-      return false;
-    }
-    return true;  // Enable the command menu
-    
-  }
-  */
   void ChironTFT::SendFileList(int8_t startindex) {
     // respond to panel request for 4 files starting at index
-    // recursively iterate through folders as needed
     #if ACDEBUG(1)
     _SELP_2_P(PSTR("## SendFileList ## "), startindex);
-    #endif
-    bool command_menu = false; //ToggleFileMenu(startindex);
-    
+    #endif    
     SendtoTFTLN(PSTR("FN "));
-    filenavigator.getFiles(startindex, command_menu);
+    filenavigator.getFiles(startindex);
     SendtoTFTLN(PSTR("END"));
   }
   void ChironTFT::SelectFile() {
@@ -530,8 +495,6 @@ namespace Anycubic {
       case 33: { //A33 Get firmware info
         SendtoTFT(PSTR("J33 "));
         SendtoTFT(PSTR(SHORT_BUILD_VERSION));
-        SendtoTFTLN(PSTR("-B10"));
-        
       } break;
     }
   }
@@ -664,7 +627,6 @@ namespace Anycubic {
         // Ignore request if printing
         if(!isPrinting()) {
           // setAxisPosition_mm() uses pre defined manual feedrates so ignore the feedrate from the panel
-          // feedRate_t newfeedrate = atof(AC_Cmnd+Findcmndpos(AC_Cmnd,'F')+1);
           setSoftEndstopState(true);  // enable endstops
           float newposition = atof(&panel_command[6]);
 

@@ -34,7 +34,7 @@ namespace Anycubic {
     public:
       FileNavigator();
       void   reset();
-      void   getFiles(uint16_t, bool);  
+      void   getFiles(uint16_t);  
       void   upDIR();
       void   changeDIR(char *);
       void   sendFile();

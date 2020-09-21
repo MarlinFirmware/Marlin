@@ -55,7 +55,7 @@ namespace Anycubic {
   void FileNavigator::refresh() {
     filelist.refresh();
   }
-  void FileNavigator::getFiles(uint16_t index, bool command_menu) {
+  void FileNavigator::getFiles(uint16_t index) {
     uint8_t files = 4;
     if(index == 0) {
       currentindex = 0; 

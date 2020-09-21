@@ -191,25 +191,7 @@ namespace Anycubic {
     n_A7,l_T2, n_P,l_T1,
     n_END
   };
-        
-  const uint16_t TheSimpsons [] = { 
-    500,
-    n_C6,l_T1, n_P,l_T8, 
-    n_E6,l_T2, n_P,l_T8, 
-    n_FS6,l_T2, n_P,l_T8, 
-    n_A6,l_T4, n_P,l_T8, 
-    n_G6,l_T2, n_P,l_T8, 
-    n_E6,l_T2, n_P,l_T8,
-
-    n_C6,l_T2, n_P,l_T8,
-    n_A5,l_T2, n_P,l_T8,
-    n_FS5,l_T4, n_P,l_T16,
-    n_FS5,l_T4, n_P,l_T16,
-    n_FS5,l_T4,n_P,l_T16,
-    n_G5,l_T1,
-    n_END
-  };
-
+ 
   const uint16_t GB_PowerOn [] = { 
     500,
     n_C6,l_T4, n_P,l_T16, n_C7,l_T2, n_P,l_T8,
