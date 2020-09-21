@@ -246,7 +246,7 @@ void lv_draw_language(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create image buttons
   buttonCN   = lv_imgbtn_create(scr, NULL);
   buttonT_CN = lv_imgbtn_create(scr, NULL);
   buttonEN   = lv_imgbtn_create(scr, NULL);
@@ -304,6 +304,7 @@ void lv_draw_language(void) {
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+
   #endif // if 1
 
   lv_obj_set_pos(buttonCN, INTERVAL_V, titleHeight);
@@ -315,7 +316,7 @@ void lv_draw_language(void) {
   lv_obj_set_pos(buttonIT, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonCN, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonT_CN, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonEN, LV_LAYOUT_OFF);
@@ -325,14 +326,14 @@ void lv_draw_language(void) {
   lv_btn_set_layout(buttonIT, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * label_CN   = lv_label_create(buttonCN, NULL);
-  lv_obj_t * label_T_CN = lv_label_create(buttonT_CN, NULL);
-  lv_obj_t * label_EN   = lv_label_create(buttonEN, NULL);
-  lv_obj_t * label_RU   = lv_label_create(buttonRU, NULL);
-  lv_obj_t * label_ES   = lv_label_create(buttonES, NULL);
-  lv_obj_t * label_FR   = lv_label_create(buttonFR, NULL);
-  lv_obj_t * label_IT   = lv_label_create(buttonIT, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_CN   = lv_label_create(buttonCN, NULL);
+  lv_obj_t *label_T_CN = lv_label_create(buttonT_CN, NULL);
+  lv_obj_t *label_EN   = lv_label_create(buttonEN, NULL);
+  lv_obj_t *label_RU   = lv_label_create(buttonRU, NULL);
+  lv_obj_t *label_ES   = lv_label_create(buttonES, NULL);
+  lv_obj_t *label_FR   = lv_label_create(buttonFR, NULL);
+  lv_obj_t *label_IT   = lv_label_create(buttonIT, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   disp_language(gCfgItems.language, SELECTED);
 

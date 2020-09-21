@@ -305,6 +305,7 @@ void disp_gcode_icon(uint8_t file_num) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
+  // Create image buttons
   buttonPageUp   = lv_imgbtn_create(scr, NULL);
   buttonPageDown = lv_imgbtn_create(scr, NULL);
   buttonBack     = lv_imgbtn_create(scr, NULL);
@@ -334,8 +335,7 @@ void disp_gcode_icon(uint8_t file_num) {
   lv_obj_set_pos(buttonPageDown, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H);
   lv_obj_set_pos(buttonBack, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL * 2 + INTERVAL_H * 2);
 
-  /*Create a label on the Image button*/
-
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonPageUp, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonPageDown, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);

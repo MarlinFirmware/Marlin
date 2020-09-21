@@ -34,7 +34,7 @@
 
 static lv_obj_t * scr;
 
-static lv_obj_t * labelV, *buttonV;
+static lv_obj_t *labelV, *buttonV;
 
 #define ID_M_X_P    1
 #define ID_M_X_N    2
@@ -181,7 +181,7 @@ void lv_draw_move_motor(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create an Image button
   buttonXI   = lv_imgbtn_create(scr, NULL);
   buttonXD   = lv_imgbtn_create(scr, NULL);
   buttonYI   = lv_imgbtn_create(scr, NULL);
@@ -249,7 +249,7 @@ void lv_draw_move_motor(void) {
   lv_obj_set_pos(buttonZD, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonXI, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonXD, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonYI, LV_LAYOUT_OFF);
@@ -259,14 +259,14 @@ void lv_draw_move_motor(void) {
   lv_btn_set_layout(buttonV, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelXI = lv_label_create(buttonXI, NULL);
-  lv_obj_t * labelXD = lv_label_create(buttonXD, NULL);
-  lv_obj_t * labelYI = lv_label_create(buttonYI, NULL);
-  lv_obj_t * labelYD = lv_label_create(buttonYD, NULL);
-  lv_obj_t * labelZI = lv_label_create(buttonZI, NULL);
-  lv_obj_t * labelZD = lv_label_create(buttonZD, NULL);
+  lv_obj_t *labelXI = lv_label_create(buttonXI, NULL);
+  lv_obj_t *labelXD = lv_label_create(buttonXD, NULL);
+  lv_obj_t *labelYI = lv_label_create(buttonYI, NULL);
+  lv_obj_t *labelYD = lv_label_create(buttonYD, NULL);
+  lv_obj_t *labelZI = lv_label_create(buttonZI, NULL);
+  lv_obj_t *labelZD = lv_label_create(buttonZD, NULL);
   labelV = lv_label_create(buttonV, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelXI, move_menu.x_add);

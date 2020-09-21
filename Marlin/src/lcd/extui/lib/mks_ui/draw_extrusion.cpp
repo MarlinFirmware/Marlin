@@ -100,9 +100,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
             queue.inject_P(PSTR("T0"));
           }
         }
-        else {
+        else
           uiCfg.curSprayerChoose = 0;
-        }
+
         extructAmount = 0;
         disp_hotend_temp();
         disp_ext_type();
@@ -149,7 +149,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   }
 }
 
-
 void lv_draw_extrusion(void) {
   lv_obj_t *buttonAdd, *buttonDec, *buttonBack;
 
@@ -174,7 +173,7 @@ void lv_draw_extrusion(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create image buttons
   buttonAdd   = lv_imgbtn_create(scr, NULL);
   buttonDec   = lv_imgbtn_create(scr, NULL);
   buttoType   = lv_imgbtn_create(scr, NULL);
@@ -224,7 +223,7 @@ void lv_draw_extrusion(void) {
   lv_obj_set_pos(buttonSpeed, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonAdd, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonDec, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttoType, LV_LAYOUT_OFF);
@@ -232,12 +231,12 @@ void lv_draw_extrusion(void) {
   lv_btn_set_layout(buttonSpeed, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  labelType  = lv_label_create(buttoType, NULL);
-  labelStep  = lv_label_create(buttonStep, NULL);
-  labelSpeed = lv_label_create(buttonSpeed, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *labelAdd   = lv_label_create(buttonAdd, NULL);
+  lv_obj_t *labelDec   = lv_label_create(buttonDec, NULL);
+  labelType             = lv_label_create(buttoType, NULL);
+  labelStep             = lv_label_create(buttonStep, NULL);
+  labelSpeed            = lv_label_create(buttonSpeed, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelAdd, extrude_menu.in);

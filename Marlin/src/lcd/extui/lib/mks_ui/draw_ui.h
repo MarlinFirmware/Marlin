@@ -328,5 +328,5 @@ extern void LV_TASK_HANDLER();
 extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

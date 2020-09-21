@@ -124,7 +124,7 @@
 #define VAR_INF_ADDR                    0x000000
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 union union32 {
@@ -157,5 +157,5 @@ extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view
 extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

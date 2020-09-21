@@ -140,12 +140,12 @@ void lv_draw_fan(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
-  buttonAdd = lv_imgbtn_create(scr, NULL);
-  buttonDec = lv_imgbtn_create(scr, NULL);
+  // Create an Image button
+  buttonAdd  = lv_imgbtn_create(scr, NULL);
+  buttonDec  = lv_imgbtn_create(scr, NULL);
   buttonHigh = lv_imgbtn_create(scr, NULL);
-  buttonMid = lv_imgbtn_create(scr, NULL);
-  buttonOff = lv_imgbtn_create(scr, NULL);
+  buttonMid  = lv_imgbtn_create(scr, NULL);
+  buttonOff  = lv_imgbtn_create(scr, NULL);
   buttonBack = lv_imgbtn_create(scr, NULL);
 
   lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_F_ADD, "bmp_Add.bin", 0);
@@ -154,6 +154,7 @@ void lv_draw_fan(void) {
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
+
   #if 1
     lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_F_DEC, "bmp_Dec.bin", 0);
     lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, &bmp_pic);
@@ -184,6 +185,7 @@ void lv_draw_fan(void) {
     lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
     lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+
   #endif
 
   lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
@@ -193,7 +195,7 @@ void lv_draw_fan(void) {
   lv_obj_set_pos(buttonOff, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonAdd, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonDec, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonHigh, LV_LAYOUT_OFF);
@@ -201,13 +203,12 @@ void lv_draw_fan(void) {
   lv_btn_set_layout(buttonOff, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  lv_obj_t * labelHigh = lv_label_create(buttonHigh, NULL);
-  lv_obj_t * labelMid = lv_label_create(buttonMid, NULL);
-  lv_obj_t * labelOff = lv_label_create(buttonOff, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
-
+  lv_obj_t *labelAdd = lv_label_create(buttonAdd, NULL);
+  lv_obj_t *labelDec = lv_label_create(buttonDec, NULL);
+  lv_obj_t *labelHigh = lv_label_create(buttonHigh, NULL);
+  lv_obj_t *labelMid = lv_label_create(buttonMid, NULL);
+  lv_obj_t *labelOff = lv_label_create(buttonOff, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelAdd, fan_menu.add);

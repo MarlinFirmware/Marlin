@@ -73,7 +73,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = planner.flow_percentage[0];
             planner.refresh_e_factor(1);
-          }
+          #endif
         }
         disp_print_speed();
       }
@@ -98,10 +98,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           //planner.flow_percentage[1] = planner.flow_percentage[0];
           //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
           planner.refresh_e_factor(0);
-          if (EXTRUDERS == 2) {
+          #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = planner.flow_percentage[0];
             planner.refresh_e_factor(1);
-          }
+          #endif
         }
         disp_print_speed();
       }
@@ -177,7 +177,7 @@ void lv_draw_change_speed(void) {
 
   LV_IMG_DECLARE(bmp_pic);
 
-  /*Create an Image button*/
+  // Create an Image button
   buttonAdd  = lv_imgbtn_create(scr, NULL);
   buttonDec  = lv_imgbtn_create(scr, NULL);
   buttonMov  = lv_imgbtn_create(scr, NULL);
@@ -228,7 +228,7 @@ void lv_draw_change_speed(void) {
   lv_obj_set_pos(buttonStep, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-  /*Create a label on the Image button*/
+  // Create labels on the image buttons
   lv_btn_set_layout(buttonAdd, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonDec, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonMov, LV_LAYOUT_OFF);
@@ -236,12 +236,12 @@ void lv_draw_change_speed(void) {
   lv_btn_set_layout(buttonStep, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  labelMov  = lv_label_create(buttonMov, NULL);
-  labelExt  = lv_label_create(buttonExt, NULL);
-  labelStep = lv_label_create(buttonStep, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *labelAdd    = lv_label_create(buttonAdd, NULL);
+  lv_obj_t *labelDec    = lv_label_create(buttonDec, NULL);
+  labelMov              = lv_label_create(buttonMov, NULL);
+  labelExt              = lv_label_create(buttonExt, NULL);
+  labelStep             = lv_label_create(buttonStep, NULL);
+  lv_obj_t *label_Back  = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelAdd, speed_menu.add);
@@ -286,7 +286,7 @@ void disp_speed_step() {
 }
 
 void disp_print_speed() {
-  char buf[30] = {0};
+  char buf[30] = { 0 };
 
   public_buf_l[0] = '\0';
 

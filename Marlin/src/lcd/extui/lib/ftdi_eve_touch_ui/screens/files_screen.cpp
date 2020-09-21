@@ -115,7 +115,7 @@ void FilesScreen::drawFileList() {
   #define MARGIN_T 0
   #define MARGIN_B 0
   uint16_t fileIndex = screen_data.FilesScreen.cur_page * files_per_page;
-  for(uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
+  for (uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
     if (files.seek(fileIndex)) {
       drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
     }

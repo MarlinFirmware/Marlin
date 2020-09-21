@@ -159,7 +159,7 @@ void lv_draw_ready_print(void) {
     //lv_obj_set_pos(title,TITLE_XPOS,TITLE_YPOS);
     //lv_label_set_text(title, creat_title_text());
 
-    /*Create an Image button*/
+    // Create image buttons
     //buttonPrint = lv_imgbtn_create(scr, NULL);
     buttonTool = lv_imgbtn_create(scr, NULL);
     //buttonSet = lv_imgbtn_create(scr, NULL);
@@ -196,14 +196,14 @@ void lv_draw_ready_print(void) {
     //lv_obj_set_pos(buttonSet,BTN_X_PIXEL+SIMPLE_FIRST_PAGE_GRAP*2+1,(TFT_HEIGHT-BTN_Y_PIXEL)/2+2);
     //lv_obj_set_pos(buttonPrint,BTN_X_PIXEL*2+SIMPLE_FIRST_PAGE_GRAP*3+1,(TFT_HEIGHT-BTN_Y_PIXEL)/2+2);
 
-    /*Create a label on the Image button*/
+    // Create labels on the image buttons
     //lv_btn_set_layout(buttonPrint, LV_LAYOUT_OFF);
     //lv_btn_set_layout(buttonSet, LV_LAYOUT_OFF);
     lv_btn_set_layout(buttonTool, LV_LAYOUT_OFF);
 
-    //lv_obj_t * label_print = lv_label_create(buttonPrint, NULL);
-    //lv_obj_t * label_set = lv_label_create(buttonSet, NULL);
-    lv_obj_t * label_tool = lv_label_create(buttonTool, NULL);
+    //lv_obj_t *label_print = lv_label_create(buttonPrint, NULL);
+    //lv_obj_t *label_set = lv_label_create(buttonSet, NULL);
+    lv_obj_t *label_tool = lv_label_create(buttonTool, NULL);
     if (gCfgItems.multiple_language != 0) {
       //lv_label_set_text(label_print, main_menu.print);
       //lv_obj_align(label_print, buttonPrint, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);

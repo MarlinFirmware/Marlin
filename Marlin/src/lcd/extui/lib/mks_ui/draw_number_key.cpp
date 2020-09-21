@@ -34,8 +34,9 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
+
 #if ENABLED(POWER_LOSS_RECOVERY)
-  #include "../../../../../feature/powerloss.h"
+  #include "../../../../feature/powerloss.h"
 #endif
 
 #include "../../../../gcode/gcode.h"
@@ -253,15 +254,12 @@ static void set_value_confirm() {
   switch (value) {
     case PrintAcceleration:
       planner.settings.acceleration = atof(key_value);
-
       break;
     case RetractAcceleration:
       planner.settings.retract_acceleration = atof(key_value);
-
       break;
     case TravelAcceleration:
       planner.settings.travel_acceleration = atof(key_value);
-
       break;
     case XAcceleration:
       planner.settings.max_acceleration_mm_per_s2[X_AXIS] = atof(key_value);
@@ -293,7 +291,6 @@ static void set_value_confirm() {
     case E1MaxFeedRate:
       planner.settings.max_feedrate_mm_s[E_AXIS_N(1)] = atof(key_value);
       break;
-
     case XJerk:
       #if HAS_CLASSIC_JERK
         planner.max_jerk[X_AXIS] = atof(key_value);
@@ -314,7 +311,6 @@ static void set_value_confirm() {
         planner.max_jerk[E_AXIS] = atof(key_value);
       #endif
       break;
-
     case Xstep:
       planner.settings.axis_steps_per_mm[X_AXIS] = atof(key_value);
       break;
@@ -330,42 +326,35 @@ static void set_value_confirm() {
     case E1step:
       planner.settings.axis_steps_per_mm[E_AXIS_N(1)] = atof(key_value);
       break;
-
     case Xcurrent:
       #if AXIS_IS_TMC(X)
         current_mA = atoi(key_value);
         stepperX.rms_current(current_mA);
       #endif
       break;
-
     case Ycurrent:
       #if AXIS_IS_TMC(Y)
         current_mA = atoi(key_value);
         stepperY.rms_current(current_mA);
       #endif
       break;
-
     case Zcurrent:
       #if AXIS_IS_TMC(Z)
         current_mA = atoi(key_value);
         stepperZ.rms_current(current_mA);
       #endif
       break;
-
     case E0current:
       #if AXIS_IS_TMC(E0)
         current_mA = atoi(key_value);
         stepperE0.rms_current(current_mA);
       #endif
       break;
-
     case E1current:
       #if AXIS_IS_TMC(E1)
         current_mA = atoi(key_value);
         stepperE1.rms_current(current_mA);
       #endif
-      break;
-
       break;
     case pause_pos_x:
       gCfgItems.pausePosX = atof(key_value);

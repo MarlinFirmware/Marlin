@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 extern void lv_draw_preHeat(void);
@@ -33,5 +33,5 @@ extern void disp_desire_temp();
 
 //extern void disp_temp_ready_print();
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
