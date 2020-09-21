@@ -159,10 +159,7 @@
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
   #if EITHER(IS_CORE, MARKFORGED_XY)
-    #define X_AXIS_INDEX 0
-    #define Y_AXIS_INDEX 1
-    #define Z_AXIS_INDEX 2
-    #define CAN_CALIBRATE(A,B) (A##_AXIS_INDEX == B##_INDEX)
+    #define CAN_CALIBRATE(A,B) (_AXIS(A) == B)
   #else
     #define CAN_CALIBRATE(A,B) 1
   #endif
@@ -2337,7 +2334,7 @@
   #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
 #endif
 
-#if EXTRUDERS > 1 && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
+#if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
   #define TOOLCHANGE_FS_EXTRA_PRIME 0
 #endif
 
@@ -2623,6 +2620,10 @@
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
   #endif
+#endif
+
+#if BUTTONS_EXIST(EN1, EN2, ENC)
+  #define HAS_ROTARY_ENCODER 1
 #endif
 
 #if !NUM_SERIAL

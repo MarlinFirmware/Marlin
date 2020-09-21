@@ -173,11 +173,11 @@
 #   define __always_inline   __forceinline
 #elif (defined __GNUC__)
 #ifdef __always_inline
-#	undef __always_inline
+# undef __always_inline
 #endif
-#	define __always_inline   inline __attribute__((__always_inline__))
+# define __always_inline   inline __attribute__((__always_inline__))
 #elif (defined __ICCARM__)
-#	define __always_inline   _Pragma("inline=forced")
+# define __always_inline   _Pragma("inline=forced")
 #endif
 
 /**
@@ -188,11 +188,11 @@
  * heuristics and not inline the function.
  */
 #ifdef __CC_ARM
-#   define __no_inline   __attribute__((noinline))
+# define __no_inline   __attribute__((noinline))
 #elif (defined __GNUC__)
-#	define __no_inline   __attribute__((__noinline__))
+# define __no_inline   __attribute__((__noinline__))
 #elif (defined __ICCARM__)
-#	define __no_inline   _Pragma("inline=never")
+# define __no_inline   _Pragma("inline=never")
 #endif
 
 /*! \brief This macro is used to test fatal errors.
@@ -211,9 +211,9 @@
 #  else
 #undef TEST_SUITE_DEFINE_ASSERT_MACRO
 #    define Assert(expr) \
-	{\
-		if (!(expr)) while (true);\
-	}
+  {\
+    if (!(expr)) while (true);\
+  }
 #  endif
 #else
 #  define Assert(expr) ((void) 0)
@@ -1106,17 +1106,16 @@ static inline uint16_t convert_byte_array_to_16_bit(uint8_t *data)
 /* Converts a 8 Byte array into a 32-Bit value */
 static inline uint32_t convert_byte_array_to_32_bit(uint8_t *data)
 {
-	union
-	{
-		uint32_t u32;
-		uint8_t u8[8];
-	}long_addr;
-	uint8_t index;
-	for (index = 0; index < 4; index++)
-	{
-		long_addr.u8[index] = *data++;
-	}
-	return long_addr.u32;
+  union
+  {
+    uint32_t u32;
+    uint8_t u8[8];
+  }long_addr;
+  uint8_t index;
+  for (index = 0; index < 4; index++) {
+    long_addr.u8[index] = *data++;
+  }
+  return long_addr.u32;
 }
 
 /**

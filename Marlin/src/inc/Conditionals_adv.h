@@ -59,7 +59,7 @@
 #if TEMP_SENSOR_BED == 0
   #undef THERMAL_PROTECTION_BED
   #undef THERMAL_PROTECTION_BED_PERIOD
-#endif 
+#endif
 
 #if TEMP_SENSOR_CHAMBER == 0
   #undef THERMAL_PROTECTION_CHAMBER
@@ -195,6 +195,9 @@
   #endif
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
   #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"

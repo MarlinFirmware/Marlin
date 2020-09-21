@@ -796,6 +796,10 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
     UNUSED(lcd_component);
   #endif
 
+  #if HAS_TFT_LVGL_UI
+    lv_draw_error_message(lcd_error);
+  #endif
+
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
@@ -918,6 +922,13 @@ void setup() {
       while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
     #endif
     SERIAL_ECHO_MSG("start");
+  #endif
+
+  #if BOTH(HAS_TFT_LVGL_UI, USE_WIFI_FUNCTION)
+    mks_esp_wifi_init();
+    WIFISERIAL.begin(WIFI_BAUDRATE);
+    serial_connect_timeout = millis() + 1000UL;
+    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
 
   SETUP_RUN(HAL_init());
