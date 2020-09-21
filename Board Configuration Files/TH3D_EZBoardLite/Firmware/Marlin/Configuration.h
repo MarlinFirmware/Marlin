@@ -36,8 +36,9 @@
 //#define ENDER5_PLUS
 
 // Other Machines -----------------------------------------------------------
-//#define CR20 // The CR-20 Needs special LCD wiring with dupont jumper wires until we can release an adapter PCB.
-               // The diagram for wiring is in the firmware source folder called "CR20EZBoardLCDWiring.png". Dupont jumper wires will work to make the connections.
+//#define CR20
+// The CR-20 Needs special LCD wiring with dupont jumper wires until we can release an adapter PCB.
+// The diagram for wiring is in the firmware source folder called "CR20EZBoardLCDWiring.png". Dupont jumper wires will work to make the connections.
 
 // Sovol Machines -----------------------------------------------------------
 //#define SOVOL_SV01
