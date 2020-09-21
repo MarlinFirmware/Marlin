@@ -117,7 +117,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (uiCfg.curTempType == 0) {
-          if (EXTRUDERS == 2) {
+          if (ENABLED(HAS_MULTI_EXTRUDER)) {
             if (uiCfg.curSprayerChoose == 0) {
               uiCfg.curSprayerChoose = 1;
             }
