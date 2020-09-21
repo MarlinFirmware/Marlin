@@ -63,7 +63,9 @@
 
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.
-#define LCD_SERIAL Serial1
+#ifndef MALYAN_LCD_SERIAL
+  #error "Must define MALYAN_LCD_SERIAL to use MALYAN_LCD"
+#endif
 
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
@@ -84,7 +86,7 @@ void write_to_lcd_P(PGM_P const message) {
   LOOP_L_N(i, message_length)
     encoded_message[i] = pgm_read_byte(&message[i]) | 0x80;
 
-  LCD_SERIAL.Print::write(encoded_message, message_length);
+  MALYAN_LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
 void write_to_lcd(const char * const message) {
@@ -94,7 +96,7 @@ void write_to_lcd(const char * const message) {
   LOOP_L_N(i, message_length)
     encoded_message[i] = message[i] | 0x80;
 
-  LCD_SERIAL.Print::write(encoded_message, message_length);
+  MALYAN_LCD_SERIAL.Print::write(encoded_message, message_length);
 }
 
 // {E:<msg>} is for error states.
@@ -432,7 +434,7 @@ namespace ExtUI {
      * it and translate into ExtUI operations where possible.
      */
     inbound_count = 0;
-    LCD_SERIAL.begin(500000);
+    MALYAN_LCD_SERIAL.begin(500000);
 
     // Signal init
     write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));
@@ -455,8 +457,8 @@ namespace ExtUI {
     update_usb_status(false);
 
     // now drain commands...
-    while (LCD_SERIAL.available())
-      parse_lcd_byte((byte)LCD_SERIAL.read());
+    while (MALYAN_LCD_SERIAL.available())
+      parse_lcd_byte((byte)MALYAN_LCD_SERIAL.read());
 
     #if ENABLED(SDSUPPORT)
       // The way last printing status works is simple:
