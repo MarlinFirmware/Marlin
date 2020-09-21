@@ -186,13 +186,13 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
       info.active_extruder = active_extruder;
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       info.volumetric_enabled = parser.volumetric_enabled;
-      #if HAS_MULTI_EXTRUDER
+      #if EXTRUDERS > 1
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
@@ -367,9 +367,28 @@ void PrintJobRecovery::resume() {
   // Pretend that all axes are homed
   set_all_homed();
 
+  #if ENABLED(POWER_LOSS_ZHOME) 
+    // If defined move to the safe Z homing position that avoids the print 
+    #if POWER_LOSS_ZHOME_XPOS != 0
+      gcode.process_subcommands_now_P( PSTR("G1 F1000 X" STRINGIFY(POWER_LOSS_ZHOME_XPOS)) );
+    #endif
+
+    #if POWER_LOSS_ZHOME_YPOS != 0
+      gcode.process_subcommands_now_P( PSTR("G1 F1000 Y" STRINGIFY(POWER_LOSS_ZHOME_YPOS)) );
+    #endif
+  
+    // Home and restore Z position now we are in a safe position
+    gcode.process_subcommands_now_P(PSTR("G28 Z\n"));
+  
+    // Now move to ZsavedPos + POWER_LOSS_ZRAISE 
+    dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1);
+    sprintf_P(cmd, PSTR("G1 F200 Z%s"), str_1);
+    gcode.process_subcommands_now(cmd);
+  #endif	
+  
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
       for (int8_t e = 0; e < EXTRUDERS; e++) {
         sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
@@ -411,7 +430,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Select the previously active tool (with no_move)
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
@@ -473,7 +492,7 @@ void PrintJobRecovery::resume() {
 
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
-  #if Z_HOME_DIR > 0
+  #if (Z_HOME_DIR > 0) || ENABLED(POWER_LOSS_ZHOME) 
     sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
@@ -543,7 +562,7 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
-        #if HAS_MULTI_EXTRUDER
+        #if EXTRUDERS > 1
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 

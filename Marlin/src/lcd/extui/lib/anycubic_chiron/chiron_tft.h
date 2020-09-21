@@ -1,0 +1,70 @@
+/********************
+ * chiron_tft.h     *
+ *******************/
+
+/****************************************************************************
+ *   Written By Nick Wells 2020 [https://github.com/SwiftNick]              * 
+ *   I am not affiliated with Anycubic Ltd.                                 * 
+ *                                                                          *
+ *   This is an open source interface for the factory TFT panel on the      *
+ *   Anycubic Chiron using the Extensible_UI API                            *
+ *                                                                          *
+ *   This program is free software: you can redistribute it and/or modify   *
+ *   it under the terms of the GNU General Public License as published by   *
+ *   the Free Software Foundation, either version 3 of the License, or      *
+ *   (at your option) any later version.                                    *
+ *                                                                          *
+ *   This program is distributed in the hope that it will be useful,        *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *   GNU General Public License for more details.                           *
+ *                                                                          *
+ *   To view a copy of the GNU General Public License, go to the following  *
+ *   location: <http://www.gnu.org/licenses/>.                              *
+ ***************************************************************************/
+
+#pragma once 
+#include "chiron_tft_defs.h"
+#include "../../../../inc/MarlinConfigPre.h"
+
+namespace Anycubic {
+  class ChironTFT {
+    static printer_state_t  printer_state;
+    static paused_state_t   pause_state;
+    static heater_state_t   hotend_state;
+    static heater_state_t   hotbed_state;
+    static xy_uint8_t       selectedmeshpoint;
+    static char             panel_command[MAX_CMND_LEN];
+    static uint8_t          command_len;
+    static char             selectedfile[MAX_PATH_LEN];
+    static float            live_Zoffset;
+    static file_menu_t      file_menu;
+    public:
+      ChironTFT();
+      void    Startup();
+      void    IdleLoop();
+      void    PrinterKilled(PGM_P,PGM_P);
+      void    MediaEvent(media_event_t);
+      void    TimerEvent(timer_event_t);
+      void    FilamentRunout();
+      void    ConfirmationRequest(const char * const );
+      void    StatusChange(const char * const );
+      void    PowerLossRecovery();
+      
+    private:
+      void    SendtoTFT(PGM_P);
+      void    SendtoTFTLN(PGM_P);
+      uint8_t ReadCommand(); 
+      int8_t  Findcmndpos(const char *, char);
+      void    CheckHeaters();
+      //bool    ToggleFileMenu(int8_t);
+      void    SendFileList(int8_t);
+      void    SelectFile();
+      void    InjectCommandandWait(PGM_P);
+      void    ProcessPanelRequest();
+      void    PanelInfo(uint8_t);
+      void    PanelAction(uint8_t);
+      void    PanelProcess(uint8_t);
+  };
+  extern ChironTFT Chiron;
+}

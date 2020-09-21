@@ -24,9 +24,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-
-#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H)
+#define AVR_ATmega2560_FAMILY_PLUS_70 MB(BQ_ZUM_MEGA_3D, MIGHTYBOARD_REVE, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
 
 #if AVR_AT90USB1286_FAMILY
 
@@ -56,6 +54,8 @@
   #define GET_ARRAY_PIN(p) pgm_read_byte(&pin_array[p].pin)
 
 #endif
+
+#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
 
 #define VALID_PIN(pin) (pin >= 0 && pin < NUM_DIGITAL_PINS ? 1 : 0)
 #if AVR_ATmega1284_FAMILY

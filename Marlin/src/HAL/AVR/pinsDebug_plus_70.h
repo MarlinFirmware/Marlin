@@ -31,6 +31,8 @@
   #define NUM_DIGITAL_PINS            85
 #elif MB(SCOOVO_X9H)
   #define NUM_DIGITAL_PINS            85
+#elif MB(TRIGORILLA_14)
+  #define NUM_DIGITAL_PINS            85
 #endif
 
 #define PA 1
