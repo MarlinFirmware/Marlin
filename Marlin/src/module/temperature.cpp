@@ -970,7 +970,7 @@ Sigma: cooling-heating for individual heaters
   #endif
 
   return pid_output;
-}
+  }
 
     #else // No PID enabled
 
