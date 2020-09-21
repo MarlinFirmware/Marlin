@@ -9,8 +9,8 @@ Import("projenv")
 def apply_board_build_flags():
 	if not 'BOARD_CUSTOM_BUILD_FLAGS' in env['MARLIN_FEATURES']:
 		return
-	projenv.Append(CCFLAGS=[env['MARLIN_FEATURES']['BOARD_CUSTOM_BUILD_FLAGS']])
+	projenv.Append(CCFLAGS=env['MARLIN_FEATURES']['BOARD_CUSTOM_BUILD_FLAGS'].split())
 
-# We need add the board build flags in a POST SCRIPT, 
-# so platform script don't remove our CCFLAGS
+# We need to add the board build flags in a post script
+# so the platform build script doesn't overwrite the custom CCFLAGS
 apply_board_build_flags()
