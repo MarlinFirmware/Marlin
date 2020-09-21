@@ -186,11 +186,10 @@
 #define LINEAR_ADVANCE_K 0
 
 // BL TOUCH ----------------------------------------
-// If you want to use the BL-Touch uncomment the 2 lines below and refer to the V42X BLTouch Picture in the Marlin Folder for wiring.
-// Video guide from Teaching Tech: https://youtu.be/neS7lB7fCww?t=790
+// If you want to use the BL-Touch uncomment the 2 lines below and enter in the pin you are using.
 //#define BLTOUCH
-// Here is where you set your servo pin. For V4.2.X Boards use PB0
-//#define SERVO0_PIN PB0
+// Here is where you set your servo pin.
+//#define SERVO0_PIN 0
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
