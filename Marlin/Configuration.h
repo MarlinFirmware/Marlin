@@ -2165,6 +2165,10 @@
 // Touch-screen LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
+#if ENABLED(MALYAN_LCD)
+  // This will be 1 on a Malyan M200, but may differ on other boards.
+  #define MALYAN_LCD_SERIAL_PORT 1
+#endif
 
 //
 // Touch UI for FTDI EVE (FT800/FT810) displays
