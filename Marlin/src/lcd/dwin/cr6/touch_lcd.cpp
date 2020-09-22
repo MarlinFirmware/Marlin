@@ -2050,3 +2050,86 @@ void creality_finish_bedlevel_status() {
      waitway = 0;
   }
 }
+
+void creality_autohome_with_lcd() {
+  if(change_page_font != 62)
+    {
+      if(waitway == 6)
+      {
+        if(language_change_font != 0)
+        {
+          do_blocking_move_to_z(0);
+          rtscheck.RTS_SndData(ExchangePageBase + 25, ExchangepageAddr);
+          change_page_font = 25;
+        }
+        else
+        {
+          do_blocking_move_to_z(0);
+          rtscheck.RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+          change_page_font = 52;
+        }
+        waitway = 0;
+      }
+      else if(waitway == 4)
+      {
+        if(language_change_font != 0)
+        {
+          do_blocking_move_to_z(0);
+          rtscheck.RTS_SndData(ExchangePageBase + 15 + AxisUnitMode, ExchangepageAddr);
+          change_page_font = 15;
+        }
+        else
+        {
+          do_blocking_move_to_z(0);
+          rtscheck.RTS_SndData(ExchangePageBase + 42 + AxisUnitMode, ExchangepageAddr);
+          change_page_font = 42;
+        }
+        waitway = 0;
+      }
+      else if(waitway == 7)
+      {
+        if(language_change_font != 0)
+        {
+          // exchange to 1 page
+          rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
+          change_page_font = 1;
+        }
+        else
+        {
+          // exchange to 24 page
+          rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+          change_page_font = 28;
+        }
+        rtscheck.RTS_SndData(2, MOTOR_FREE_ICON_VP); 
+        rtscheck.RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
+        rtscheck.RTS_SndData(0, PRINT_PROCESS_VP);
+        delay(2);
+        for(int j = 0;j < 10;j ++)
+        {
+          // clean screen.
+          rtscheck.RTS_SndData(0, CONTINUE_PRINT_FILE_TEXT_VP + j);
+        }
+        waitway = 0;
+      }
+      rtscheck.RTS_SndData(10*current_position[X_AXIS], AXIS_X_COORD_VP);
+      rtscheck.RTS_SndData(10*current_position[Y_AXIS], AXIS_Y_COORD_VP);
+      rtscheck.RTS_SndData(10*current_position[Z_AXIS], AXIS_Z_COORD_VP);
+
+      if(finish_home) finish_home = false;
+
+      if(StartPrint_flag) 
+      {
+        StartPrint_flag = 0;
+        recovery.info.current_position.z = 0;
+      }
+      errorway = errornum = 0;
+    }
+}
+
+void creality_autohome_lcd_complete() {
+  home_flag = false;
+}
+
+bool creality_autohome_lcd_is_ready() {
+  return finish_home == false && waitway != 7;
+}

@@ -50,6 +50,10 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../../lcd/dwin/cr6/touch_lcd.h"
+#endif
+
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
@@ -316,11 +320,19 @@ void GcodeSuite::G28() {
         ? 0
         : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
+    #if ENABLED(RTS_AVAILABLE)
+      if (creality_autohome_lcd_is_ready()) {
+    #endif
+
     if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
       // Raise Z before homing any other axes and z is not already high enough (never lower z)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
       do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
     }
+
+    #if ENABLED(RTS_AVAILABLE)
+      }
+    #endif
 
     #if ENABLED(QUICK_HOME)
 
@@ -458,6 +470,10 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
+
+  TERN_(RTS_AVAILABLE, creality_autohome_with_lcd());
+  TERN_(RTS_AVAILABLE, creality_autohome_lcd_complete());
+  TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
 
   report_current_position();
 
