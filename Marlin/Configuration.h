@@ -282,8 +282,8 @@
     #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 }  // (mm) Security distance X axis (T0,T1)
     //#define PRIME_BEFORE_REMOVE                        // Prime the nozzle before release from the dock
     #if ENABLED(PRIME_BEFORE_REMOVE)
-      #define SWITCHING_TOOLHEAD_PRIME_MM           20   // (mm)   Extruder prime length
-      #define SWITCHING_TOOLHEAD_RETRACT_MM         10   // (mm)   Retract after priming length
+      #define SWITCHING_TOOLHEAD_PRIME_MM           20   // (mm) Extruder prime length
+      #define SWITCHING_TOOLHEAD_RETRACT_MM         10   // (mm) Retract after priming length
       #define SWITCHING_TOOLHEAD_PRIME_FEEDRATE    300   // (mm/min) Extruder prime feedrate
       #define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400   // (mm/min) Extruder retract feedrate
     #endif
