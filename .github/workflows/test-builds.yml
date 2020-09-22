@@ -41,6 +41,7 @@ jobs:
         - mega2560
         - teensy31
         - teensy35
+        - teensy41
         - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
