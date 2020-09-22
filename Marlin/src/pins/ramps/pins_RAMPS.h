@@ -45,7 +45,7 @@
  *         7 | 11
  */
 
-#ifndef __PREBUILD_SCRIPT_RUNNING__
+#ifndef __MARLIN_PREBUILD__
   #ifdef TARGET_LPC1768
     #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
   #elif defined(__STM32F1__)
@@ -53,10 +53,8 @@
   #endif
 #endif
 
-#if NONE(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
-  #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-  #endif
+#if NOT_TARGET(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768, __AVR_ATmega1280__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -181,7 +179,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if NOT_TARGET(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB

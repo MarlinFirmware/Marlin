@@ -151,35 +151,5 @@
 #endif
 
 // define all platform macros to include pins file
-#define __PREBUILD_SCRIPT_RUNNING__
-#define TARGET_LPC1768
-#define IS_TEENSY41 1
-#define IS_32BIT_TEENSY 1
-#define MKS_HAS_LPC1769
-#define ARDUINO_ARCH_ESP32
-#define ARDUINO_ARCH_SAM
-#define ARDUINO_GRAND_CENTRAL_M4
-#define MCU_LPC1768
-#define MCU_LPC1769
-#define STM32F0xx
-#define STM32F1
-#define STM32F4
-#define STM32F7
-#define STM32F1xx
-#define STM32F7xx
-#define STM32F4xx
-#define __STM32F4__
-#define TARGET_STM32F1
-#define __AVR_AT90USB1286P__
-#define __AVR_ATmega2561__
-#define __AVR_AT90USB1286__
-#define __AVR_AT90USB646__
-#define __AVR_ATmega1281__
-#define __AVR_ATmega1284P__
-#define __AVR_ATmega2560__
-#define __AVR_ATmega644P__
-#define __AVR_ATmega644__
-#define __AVR_ATmega1280__
-#define __SAM3X8E__
-#define __STM32F1__
+#define __MARLIN_PREBUILD__
 #include "../../../../Marlin/src/pins/pins.h"

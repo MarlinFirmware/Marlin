@@ -36,7 +36,7 @@
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers
 
-#ifndef MCU_LPC1768
+#if NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -177,7 +177,7 @@
 //
 // Augmentation for auto-assigning RAMPS plugs
 //
-#if NONE(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
+#if NOT_TARGET(IS_RAMPS_EEB, IS_RAMPS_EEF, IS_RAMPS_EFB, IS_RAMPS_EFF, IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HAS_MULTI_HOTEND
     #if TEMP_SENSOR_BED
       #define IS_RAMPS_EEB
