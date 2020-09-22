@@ -64,7 +64,7 @@
 // On the Malyan M200, this will be Serial1. On a RAMPS board,
 // it might not be.
 #ifndef MALYAN_LCD_SERIAL
-  #error "Must define MALYAN_LCD_SERIAL to use MALYAN_LCD"
+  #error "Must define MALYAN_LCD_SERIAL_PORT in Configuration.h to use MALYAN_LCD"
 #endif
 
 // This is based on longest sys command + a filename, plus some buffer

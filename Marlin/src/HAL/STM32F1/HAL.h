@@ -121,7 +121,9 @@
 #endif
 
 #ifdef MALYAN_LCD
-  #if MALYAN_LCD_SERIAL_PORT == SERIAL_PORT
+  #ifndef MALYAN_LCD_SERIAL_PORT
+    #error "MALYAN_LCD requires MALYAN_LCD_SERIAL_PORT to be defined in Configuration.h"
+  #elif MALYAN_LCD_SERIAL_PORT == SERIAL_PORT
     #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
   #elif defined(SERIAL_PORT_2) && MALYAN_LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
