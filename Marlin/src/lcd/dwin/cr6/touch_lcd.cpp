@@ -16,6 +16,8 @@
 #include "../../../sd/cardreader.h"
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
+#include "../../../module/probe.h"
+#include "../../../module/settings.h"
 #include "../../../module/stepper.h"
 #include "../../../module/printcounter.h"
 #include "../../../feature/babystep.h"
@@ -252,8 +254,8 @@ void RTSSHOW::RTS_Init()
 {
   lcd_select_language();
   AxisUnitMode = 1;
-  last_zoffset = probe_offset.z;
-  RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+  last_zoffset = probe.offset.z;
+  RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
   last_target_temperature[0] = thermalManager.temp_hotend[0].target;
   last_target_temperature_bed = thermalManager.temp_bed.target;
   feedrate_percentage = 100;
@@ -289,14 +291,7 @@ void RTSSHOW::RTS_Init()
   sprintf(PRINTSIZE,"%d X %d X %d",MAC_LENGTH, MAC_WIDTH, MAC_HEIGHT);
   RTS_SndData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
   RTS_SndData(PRINTSIZE, PRINTER_PRINTSIZE_TEXT_VP);
-  if(language_change_font != 0)
-  {
-    RTS_SndData(CORP_WEBSITE_C, PRINTER_WEBSITE_TEXT_VP);
-  }
-  else
-  {
-    RTS_SndData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
-  }
+  RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
   RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
 
   /**************************some info init*******************************/
@@ -603,7 +598,7 @@ void RTSSHOW::RTS_SDcard_Stop()
   if(heat_flag)
   {
     if(home_flag) planner.synchronize();
-    card.stopSDPrint();
+    card.pauseSDPrint();
     queue.clear();
     quickstop_stepper();
     print_job_timer.stop();
@@ -613,8 +608,8 @@ void RTSSHOW::RTS_SDcard_Stop()
     #if ENABLED(SDSUPPORT) && ENABLED(POWER_LOSS_RECOVERY)
       card.removeJobRecoveryFile();
     #endif
-    #ifdef EVENT_GCODE_SD_STOP
-      queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+    #ifdef EVENT_GCODE_SD_ABORT
+      queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
   }
   else
@@ -777,10 +772,10 @@ void RTSSHOW::RTS_HandleData()
       {
         Update_Time_Value = RTS_UPDATE_VALUE;
 
-        if(last_zoffset != probe_offset.z)
+        if(last_zoffset != probe.offset.z)
         {
-          last_zoffset = probe_offset.z;
-          RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+          last_zoffset = probe.offset.z;
+          RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
           settings.save();
         }
         if(card.isPrinting())
@@ -989,18 +984,18 @@ void RTSSHOW::RTS_HandleData()
       }
       break;
     case ZoffsetEnterKey:
-      last_zoffset = probe_offset.z;
+      last_zoffset = probe.offset.z;
       if(recdat.data[0] >= 32768)
       {
-        probe_offset.z = ((float)recdat.data[0] - 65536)/100;
+        probe.offset.z = ((float)recdat.data[0] - 65536)/100;
       }
       else
       {
-        probe_offset.z = ((float)recdat.data[0])/100;
+        probe.offset.z = ((float)recdat.data[0])/100;
       }
-      if(WITHIN((probe_offset.z), Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
+      if(WITHIN((probe.offset.z),Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
       {
-        babystep.add_mm(Z_AXIS, probe_offset.z - last_zoffset);
+        babystep.add_mm(Z_AXIS, probe.offset.z - last_zoffset);
       }
       break;
     case TempControlKey:
@@ -1128,13 +1123,13 @@ void RTSSHOW::RTS_HandleData()
       {
         if(language_change_font != 0)
         {
-          RTS_SndData(CORP_WEBSITE_C, PRINTER_WEBSITE_TEXT_VP);
+          RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
           RTS_SndData(ExchangePageBase + 24, ExchangepageAddr);
           change_page_font = 24;
         }
         else
         {
-          RTS_SndData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
+          RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
           RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
           change_page_font = 51;
         }
@@ -1184,21 +1179,21 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 2)
       {
-        if (WITHIN((probe_offset.z + 0.05), -0.52, 0.52))
+        if (WITHIN((probe.offset.z + 0.05), -0.52, 0.52))
         {
           babystep.add_mm(Z_AXIS, 0.05);
-          probe_offset.z = (probe_offset.z + 0.05);
+          probe.offset.z = (probe.offset.z + 0.05);
         }
-        RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       }
       else if(recdat.data[0] == 3)
       {
-        if (WITHIN((probe_offset.z - 0.05), -0.52, 0.52))
+        if (WITHIN((probe.offset.z - 0.05), -0.52, 0.52))
         {
           babystep.add_mm(Z_AXIS, -0.05);
-          probe_offset.z = (probe_offset.z - 0.05);
+          probe.offset.z = (probe.offset.z - 0.05);
         }
-        RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+        RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       }
       else if(recdat.data[0] == 4)
       {
@@ -1414,7 +1409,7 @@ void RTSSHOW::RTS_HandleData()
           RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
           change_page_font = 37;
         }
-        if(recovery.info.recovery_flag) 
+        if(recovery.dwin_flag) 
         {
           power_off_type_yes = 1;
 
@@ -1441,7 +1436,7 @@ void RTSSHOW::RTS_HandleData()
           change_page_font = 28;
         }
         Update_Time_Value = RTS_UPDATE_VALUE;
-        card.stopSDPrint();
+        card.pauseSDPrint();
         queue.clear();
         quickstop_stepper();
         print_job_timer.stop();
@@ -1623,14 +1618,7 @@ void RTSSHOW::RTS_HandleData()
       sprintf(PRINTSIZE,"%d X %d X %d",MAC_LENGTH, MAC_WIDTH, MAC_HEIGHT);
       RTS_SndData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
       RTS_SndData(PRINTSIZE, PRINTER_PRINTSIZE_TEXT_VP);
-      if(language_change_font != 0)
-      {
-        RTS_SndData(CORP_WEBSITE_C, PRINTER_WEBSITE_TEXT_VP);
-      }
-      else
-      {
-        RTS_SndData(CORP_WEBSITE_E, PRINTER_WEBSITE_TEXT_VP);
-      }
+      RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
       RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
 
       if(thermalManager.fan_speed[0])
@@ -1657,7 +1645,7 @@ void RTSSHOW::RTS_HandleData()
         rtscheck.RTS_SndData((unsigned int)Percentrecord, PRINT_PROCESS_TITLE_VP);
       }
 
-      RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+      RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
       RTS_SndData(feedrate_percentage, PRINT_SPEED_RATE_VP);
       RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
@@ -1726,7 +1714,7 @@ void EachMomentUpdate()
   if(ms > next_rts_update_ms)
   {
     // print the file before the power is off.
-    if((power_off_type_yes == 0) && lcd_sd_status && recovery.info.recovery_flag)
+    if((power_off_type_yes == 0) && lcd_sd_status && recovery.dwin_flag)
     {
       power_off_type_yes = 1;
       for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
@@ -1762,7 +1750,7 @@ void EachMomentUpdate()
       }
       return;
     }
-    else if((power_off_type_yes == 0) && !recovery.info.recovery_flag)
+    else if((power_off_type_yes == 0) && !recovery.dwin_flag)
     {
       power_off_type_yes = 1;
       Update_Time_Value = RTS_UPDATE_VALUE;
@@ -1808,17 +1796,17 @@ void EachMomentUpdate()
       }
 
       // save z offset
-      if(probe_offset.z != last_zoffset)
+      if(probe.offset.z != last_zoffset)
       {
         settings.save();
-        last_zoffset = probe_offset.z;
+        last_zoffset = probe.offset.z;
       }
 
       if(print_finish && !planner.has_blocks_queued())
       {
         print_finish = false;
         finish_home = true;
-        queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+        queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
       }
 
       // float temp_buf = thermalManager.temp_hotend[0].celsius;
@@ -2037,7 +2025,7 @@ void creality_update_bedlevel_status(uint8_t count) {
 
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
-  rtscheck.RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+  rtscheck.RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
 
   rtscheck.RTS_SndData(feedrate_percentage, PRINT_SPEED_RATE_VP);
   rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);

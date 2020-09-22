@@ -124,7 +124,7 @@ class PrintJobRecovery {
     static uint32_t cmd_sdpos,        //!< SD position of the next command
                     sdpos[BUFSIZE];   //!< SD positions of queued commands
 
-    #if ENABLED(DWIN_CREALITY_LCD)
+    #if ENABLED(DWIN_CREALITY_LCD) || ENABLED(DWIN_CREALITY_TOUCH)
       static bool dwin_flag;
     #endif
 

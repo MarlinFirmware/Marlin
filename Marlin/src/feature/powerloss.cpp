@@ -40,7 +40,7 @@ uint8_t PrintJobRecovery::queue_index_r;
 uint32_t PrintJobRecovery::cmd_sdpos, // = 0
          PrintJobRecovery::sdpos[BUFSIZE];
 
-#if ENABLED(DWIN_CREALITY_LCD)
+#if ENABLED(DWIN_CREALITY_LCD) || ENABLED(DWIN_CREALITY_TOUCH)
   bool PrintJobRecovery::dwin_flag; // = false
 #endif
 
@@ -114,6 +114,7 @@ void PrintJobRecovery::check() {
     if (!valid()) return cancel();
     queue.inject_P(PSTR("M1000 S"));
     TERN_(DWIN_CREALITY_LCD, dwin_flag = true);
+    TERN_(DWIN_CREALITY_TOUCH, dwin_flag = true);
   }
 }
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../../inc/MarlinConfigPre.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 
 /******************** IIC ********************/
