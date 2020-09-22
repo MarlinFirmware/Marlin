@@ -22,6 +22,7 @@
 #pragma once
 
 #include "../../../inc/MarlinConfigPre.h"
+#include "../../../feature/bedlevel/bedlevel.h" // TODO: added by Creality, necessary?
 
 extern xy_pos_t bilinear_grid_spacing, bilinear_start;
 extern xy_float_t bilinear_grid_factor;
