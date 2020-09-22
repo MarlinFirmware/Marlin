@@ -47,6 +47,11 @@ GCodeQueue queue;
   #include "../feature/powerloss.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../lcd/dwin/cr6/touch_lcd.h"
+  #include "../lcd/dwin/cr6/i2c_eeprom.h"
+#endif
+
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
@@ -581,7 +586,11 @@ void GCodeQueue::get_serial_commands() {
           #endif
         }
 
-        if (card_eof) card.fileHasFinished();         // Handle end of file reached
+        if (card_eof) {
+           card.fileHasFinished();         // Handle end of file reached
+           TERN_(RTS_AVAILABLE, creality_lcd_indicate_print_done());
+        }
+        
       }
       else
         process_stream_char(sd_char, sd_input_state, command_buffer[index_w], sd_count);

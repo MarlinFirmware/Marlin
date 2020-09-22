@@ -2133,3 +2133,21 @@ void creality_autohome_lcd_complete() {
 bool creality_autohome_lcd_is_ready() {
   return finish_home == false && waitway != 7;
 }
+
+void creality_lcd_indicate_print_done() {
+  print_finish = 1;
+
+  rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
+  delay(1);
+  rtscheck.RTS_SndData(100 ,PRINT_PROCESS_TITLE_VP);
+  if(language_change_font != 0)
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr);
+    change_page_font = 9;
+  }
+  else
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 36, ExchangepageAddr);
+    change_page_font = 36;
+  }
+}
