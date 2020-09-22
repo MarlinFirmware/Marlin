@@ -64,6 +64,10 @@
   #include "../../../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../../../lcd/dwin/cr6/touch_lcd.h"
+#endif
+
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
 #endif
@@ -405,6 +409,10 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      do_blocking_move_to_z(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
+    #endif 
+    
     if (!faux) remember_feedrate_scaling_off();
 
     // Disable auto bed leveling during G29.
@@ -601,8 +609,15 @@ G29_TYPE GcodeSuite::G29() {
     measured_z = 0;
 
     #if ABL_GRID
+      #if ENABLED(FIX_MOUNTED_PROBE)
+        bool zig = 1;
+      #else
+        bool zig = (PR_OUTER_END & 1); // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      #endif
 
-      bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+      #if ENABLED(RTS_AVAILABLE)
+        uint8_t bl_count = 0;
+      #endif
 
       measured_z = 0;
 
@@ -668,10 +683,16 @@ G29_TYPE GcodeSuite::G29() {
             incremental_LSF(&lsf_results, probePos, measured_z);
 
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]));
 
+            #if ENABLED(RTS_AVAILABLE)
+               if (bl_count < GRID_MAX_POINTS) {
+                   creality_update_bedlevel_status(bl_count);
+               }
+
+               bl_count++;
+            #endif
           #endif
 
           abl_should_enable = false;
@@ -742,6 +763,8 @@ G29_TYPE GcodeSuite::G29() {
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bilinear_leveling_grid();
+
+      TERN_(RTS_AVAILABLE, creality_finish_bedlevel_status());
 
       refresh_bed_level();
 
@@ -897,6 +920,10 @@ G29_TYPE GcodeSuite::G29() {
   #endif
 
   report_current_position();
+
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    do_blocking_move_to_xy(safe_homing_xy);
+  #endif 
 
   G29_RETURN(isnan(measured_z));
 }

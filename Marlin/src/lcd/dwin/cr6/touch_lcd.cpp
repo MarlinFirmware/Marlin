@@ -2020,3 +2020,33 @@ void creality_touch_init() {
     OUT_WRITE(LED_CONTROL_PIN, 0);
   #endif
 }
+
+void creality_update_bedlevel_status(uint8_t count) {
+  rtscheck.RTS_SndData(count, AUTO_BED_LEVEL_TITLE_VP);
+
+  if(language_change_font != 0)
+  {
+     rtscheck.RTS_SndData(ExchangePageBase + 26, ExchangepageAddr);
+     change_page_font = 26;
+  }
+  else
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+    change_page_font = 53;
+  }
+
+  rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
+  rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
+  rtscheck.RTS_SndData(probe_offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
+
+  rtscheck.RTS_SndData(feedrate_percentage, PRINT_SPEED_RATE_VP);
+  rtscheck.RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
+  rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
+}
+
+void creality_finish_bedlevel_status() {
+  if(3 == waitway)
+  {
+     waitway = 0;
+  }
+}

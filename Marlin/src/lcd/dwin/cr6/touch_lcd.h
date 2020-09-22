@@ -254,3 +254,5 @@ extern char errornum;
 void creality_touch_on_inactive();
 void creality_touch_update();
 void creality_touch_init();
+void creality_update_bedlevel_status(uint8_t count);
+void creality_finish_bedlevel_status();
