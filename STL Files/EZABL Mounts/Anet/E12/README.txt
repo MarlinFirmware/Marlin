@@ -1,1 +1,0 @@
-Made for TH3D by TopHattWaffle.com
