@@ -1,25 +1,30 @@
-#include "LCD_RTS.h"
+#include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(RTS_AVAILABLE)
+
+#include "touch_lcd.h"
+
 #include <arduino.h>
 #include <wstring.h>
 #include <stdio.h>
+
 #include <libmaple/usart.h>
-#include "../../inc/MarlinConfig.h"
-#include "../../../Version.h"
 
-#include "../../Marlin.h"
-#include "../../sd/cardreader.h"
-#include "../../module/temperature.h"
-#include "../../module/planner.h"
-#include "../../module/stepper.h"
-#include "../../module/configuration_store.h"
-#include "../../module/printcounter.h"
-#include "../../feature/babystep.h"
-#include "../../feature/power_loss_recovery.h"
-#include "../../gcode/gcode.h"
+#include "../../../../Version.h"
 
-#include "../../feature/bedlevel/abl/abl.h"
+#include "../../../MarlinCore.h"
+#include "../../../sd/cardreader.h"
+#include "../../../module/temperature.h"
+#include "../../../module/planner.h"
+#include "../../../module/stepper.h"
+#include "../../../module/printcounter.h"
+#include "../../../feature/babystep.h"
+#include "../../../feature/powerloss.h"
+#include "../../../gcode/gcode.h"
 
-#include "../../libs/duration_t.h"
+#include "../../../feature/bedlevel/abl/abl.h"
+
+#include "../../../libs/duration_t.h"
 
 #if ENABLED(BLTOUCH)
   #include "endstops.h"
@@ -1989,4 +1994,29 @@ void ErrorHanding()
       errorway = errornum = 0;
     }
   }
+}
+
+#endif // ENABLED(RTS_AVAILABLE)
+
+void creality_touch_on_inactive() {
+  waitway = 0;
+  rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
+  change_page_font = 62;
+  rtscheck.RTS_SndData(Error_201, ABNORMAL_TEXT_VP);
+  errorway = 1;
+}
+
+void creality_touch_update() {
+  RTSUpdate();
+}
+
+void creality_touch_init() {
+  rtscheck.RTS_Init();
+
+  #ifdef FIX_MOUNTED_PROBE
+    OUT_WRITE(COM_PIN, 1);
+    SET_INPUT(CHECK_MATWEIAL);
+    SET_INPUT(OPTO_SWITCH_PIN);
+    OUT_WRITE(LED_CONTROL_PIN, 0);
+  #endif
 }

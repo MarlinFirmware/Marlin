@@ -1,8 +1,7 @@
-#ifndef __I2C_EEPROM_H
-#define __I2C_EEPROM_H
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
-#include "../../Marlin.h"
+#include "../../../inc/MarlinConfig.h"
+#include "../../../MarlinCore.h"
 
 #include <libmaple/gpio.h>
 
@@ -54,7 +53,3 @@ void BL24CXX_Read(uint16_t ReadAddr,uint8_t *pBuffer,uint16_t NumToRead);   	// 
 
 uint8_t BL24CXX_Check(void);  // Check the device
 void BL24CXX_Init(void);      // Initialize IIC
-
-
-#endif
-

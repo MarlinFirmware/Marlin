@@ -77,6 +77,11 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "lcd/dwin/cr6/touch_lcd.h"
+  #include "lcd/dwin/cr6/i2c_eeprom.h"
+#endif
+
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #include "libs/BL24CXX.h"
 #endif
@@ -502,7 +507,12 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
-    kill();
+
+    #if ENABLED(RTS_AVAILABLE)
+      creality_touch_on_inactive();
+    #else
+      kill();
+    #endif
   }
 
   // M18 / M94 : Handle steppers inactive time timeout
@@ -743,6 +753,23 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle UI input / draw events
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
+  TERN_(RTS_AVAILABLE, creality_touch_update());
+
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    if((IS_SD_PRINTING() == true) && home_flag == false) //  printing and no homing
+    {
+      endstops.enable_z_probe(false);
+    }
+
+    if((0 == READ(OPTO_SWITCH_PIN)) && (home_flag == true))
+    {
+      endstops.enable_z_probe(true);
+      delay(100);
+      WRITE(COM_PIN, 0);
+      delay(200);
+      WRITE(COM_PIN, 1);
+    }
+  #endif
 
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
@@ -1014,6 +1041,18 @@ void setup() {
       SETUP_RUN(ui.show_bootscreen());
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
+
+  #ifdef MYI2C_EEPROM
+    SETUP_RUN(BL24CXX_Init());
+    if(BL24CXX_Check()) // no found I2C_EEPROM
+      SERIAL_ECHOLN("I2C_EEPROM Check Failed!");
+    else
+      SERIAL_ECHOLN("I2C_EEPROM Check Successed!");      
+  #endif
+
+  #if ENABLED(RTS_AVAILABLE)
+    SETUP_RUN(creality_touch_init());
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)

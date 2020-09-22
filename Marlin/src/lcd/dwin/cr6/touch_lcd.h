@@ -1,5 +1,4 @@
-#ifndef RTS_H
-#define RTS_H
+#pragma once
 
 #include "string.h"
 #include <arduino.h>
@@ -250,4 +249,8 @@ extern bool StartPrint_flag;
 extern char errorway;
 extern char errornum;
 
-#endif// RTS_H
+// Facade for touch LCD 
+
+void creality_touch_on_inactive();
+void creality_touch_update();
+void creality_touch_init();
