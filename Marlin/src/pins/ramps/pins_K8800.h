@@ -39,8 +39,8 @@
 //
 #define X_STOP_PIN                             3
 #define Y_STOP_PIN                            14
+#define Z_STOP_PIN                            66
 #define Z_MIN_PIN                             68  // Used for bed leveling
-#define Z_MAX_PIN                             66
 
 //
 // Steppers
@@ -60,10 +60,6 @@
 #define E0_STEP_PIN                           26
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
-
-#define E1_STEP_PIN                           32
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
 
 //
 // Temperature Sensors
@@ -85,6 +81,8 @@
 #define FIL_RUNOUT_PIN                        69  // PK7
 #define KILL_PIN                              20  // PD1
 
+#define CASE_LIGHT_PIN                         7
+
 //
 // LCD / Controller
 //
@@ -101,6 +99,10 @@
 #define LCD_PINS_D5                           35
 #define LCD_PINS_D6                           33
 #define LCD_PINS_D7                           31
+
+#define LCD_CONTRAST_MIN                       0
+#define LCD_CONTRAST_MAX                     100
+#define DEFAULT_LCD_CONTRAST                  30
 
 #if ENABLED(NEWPANEL)
   #define BTN_EN1                             17
