@@ -61,6 +61,10 @@ GcodeSuite gcode;
   #include "../feature/password/password.h"
 #endif
 
+#if ENABLED(FIX_MOUNTED_PROBE)
+  #include "../feature/bedlevel/bedlevel.h"
+#endif 
+
 #include "../MarlinCore.h" // for idle()
 
 // Inactivity shutdown
@@ -311,7 +315,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 27: G27(); break;                                    // G27: Nozzle Park
       #endif
 
-      case 28: G28(); break;                                      // G28: Home one or more axes
+      case 28:
+         G28();                                                   // G28: Home one or more axes
+         TERN_(FIX_MOUNTED_PROBE, set_bed_leveling_enabled(true));
+         break;
+
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
