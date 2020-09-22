@@ -81,6 +81,10 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../lcd/dwin/cr6/touch_lcd.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -550,6 +554,17 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     float probes[TOTAL_PROBING];
   #endif
 
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    if((0 == READ(OPTO_SWITCH_PIN)) && (AutohomeZflag == true))
+    {
+      digitalWrite(COM_PIN, HIGH);
+      delay(200);
+      digitalWrite(COM_PIN, LOW);
+      delay(200);
+      AutohomeZflag = false;
+    }
+  #endif
+
   #if TOTAL_PROBING > 2
     float probes_z_sum = 0;
     for (
@@ -687,6 +702,15 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   // Move the probe to the starting XYZ
   do_blocking_move_to(npos);
 
+  #ifdef FIX_MOUNTED_PROBE
+    if(0 == READ(OPTO_SWITCH_PIN))
+    {
+      delay(100);
+      WRITE(COM_PIN, 0);
+      delay(200);
+    }
+  #endif
+
   float measured_z = NAN;
   if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
   if (!isnan(measured_z)) {
@@ -700,9 +724,14 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
       SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
 
+  #ifdef FIX_MOUNTED_PROBE
+    WRITE(COM_PIN, 1);
+  #endif
+
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
+    TERN_(RTS_AVAILABLE, creality_lcd_probe_failed());
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)

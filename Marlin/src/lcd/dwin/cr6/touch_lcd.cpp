@@ -2159,3 +2159,11 @@ void creality_lcd_home_failed() {
   rtscheck.RTS_SndData(Error_202, ABNORMAL_TEXT_VP);
   errorway = 2;
 }
+
+void creality_lcd_probe_failed() {
+  waitway = 0;
+  rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
+  change_page_font = 62;
+  rtscheck.RTS_SndData(Error_203, ABNORMAL_TEXT_VP);
+  errorway = 3;
+}

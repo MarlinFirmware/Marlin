@@ -261,3 +261,4 @@ void creality_autohome_lcd_complete();
 bool creality_autohome_lcd_is_ready();
 void creality_lcd_indicate_print_done();
 void creality_lcd_home_failed();
+void creality_lcd_probe_failed();
