@@ -27,7 +27,7 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if !IS_32BIT_TEENSY || !IS_TEENSY41
+#if NOT_TARGET(IS_32BIT_TEENSY) || NOT_TARGET(IS_TEENSY41)
   #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
 #else
   #define BOARD_INFO_NAME "Teensy4.1"
@@ -42,7 +42,7 @@
                                           GND |-----#####-----| VIN (3.65 TO 5.5V)
       RX1                 CS1     RX1  PWM  0 |     #####     | GND
       TX1                 MISO1   TX1  PWM  1 |               | 3.3V
-      STPX                             PWM  2 |               | 23  A9 PWM              
+      STPX                             PWM  2 |               | 23  A9 PWM
       DIRX                             PWM  3 |               | 22  A8 PWM              LIMZ
       STPY                             PWM  4 |               | 21  A7      RX5         LIMY
       DIRY                             PWM  5 |               | 20  A6      TX5         LIMX
@@ -58,13 +58,13 @@
       SDA                              PWM 25 |               | 40 A16                  STENY
       STPB                MOSI1            26 |               | 39 A15      MISO1       STENZ
       DIRB                SCK1             27 | *  *  *  *  * | 38 A14                  STENA
-      LIMB                        RX7  PWM 28 |               | 37     PWM              STENB  
+      LIMB                        RX7  PWM 28 |               | 37     PWM              STENB
       DOOR                        TX7  PWM 29 |               | 36     PWM              ST0
       ST1                                  30 |               | 35          TX8         ST3
       AUX0                                 31 |    SDCARD     | 34          RX8         ST2
       AUX1                                 32 |_______________| 33     PWM              AUX2
 
- 
+
 */
 
 //

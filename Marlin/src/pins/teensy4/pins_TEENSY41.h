@@ -27,7 +27,7 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if !IS_32BIT_TEENSY || !IS_TEENSY41
+#if NOT_TARGET(IS_32BIT_TEENSY) || NOT_TARGET(IS_TEENSY41)
   #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
 #else
   #define BOARD_INFO_NAME "Teensy4.1"
@@ -44,27 +44,27 @@
       X_DIR_PIN           MISO1   TX1  PWM  1 |               | 3.3V
       Y_STEP_PIN                       PWM  2 |               | 23  A9 PWM              SERVO1_PIN
       Y_DIR_PIN                        PWM  3 |               | 22  A8 PWM              SERVO0_PIN
-      Z_STEP_PIN                       PWM  4 |               | 21  A7      RX5        
+      Z_STEP_PIN                       PWM  4 |               | 21  A7      RX5
       Z_DIR_PIN                        PWM  5 |               | 20  A6      TX5         FILWIDTH_PIN
-      X_ENABLE_PIN                     PWM  6 |               | 19  A5 PWM        SCL0  
+      X_ENABLE_PIN                     PWM  6 |               | 19  A5 PWM        SCL0
       Y_ENABLE_PIN                RX2  PWM  7 |               | 18  A4 PWM        SDA0  HEATER_1_PIN
-      Z_ENABLE_PIN                TX2  PWM  8 |               | 17  A3      RX4   SDA1  
+      Z_ENABLE_PIN                TX2  PWM  8 |               | 17  A3      RX4   SDA1
       E0_STEP_PIN                      PWM  9 |               | 16  A2      TX4   SCL1  TEMP_0_PIN
       E0_DIR_PIN                       PWM 10 |               | 15  A1 PWM  RX3         TEMP_BED_PIN
       MOSI_PIN            MOSI0        PWM 11 |               | 14  A0 PWM  TX3         TEMP_1_PIN
       MISO_PIN            MISO0        PWM 12 |               | 13 LED PWM  SCK0        SCK_PIN
                                          3.3V |               | GND
-      Z_STOP_PIN                       PWM 24 |               | 41 A17                  
-      E0_ENABLE_PIN                    PWM 25 |               | 40 A16                  
+      Z_STOP_PIN                       PWM 24 |               | 41 A17
+      E0_ENABLE_PIN                    PWM 25 |               | 40 A16
       FAN_PIN             MOSI1            26 |               | 39 A15      MISO1       X_STOP_PIN
       Z-PROBE PWR         SCK1             27 | *  *  *  *  * | 38 A14                  Y_STOP_PIN
-      SOL1_PIN                    RX7  PWM 28 |               | 37     PWM              HEATER_0_PIN  
+      SOL1_PIN                    RX7  PWM 28 |               | 37     PWM              HEATER_0_PIN
       FAN_PIN                     TX7  PWM 29 |               | 36     PWM              HEATER_BED_PIN
       X_CS_PIN                             30 |               | 35          TX8         E1_ENABLE_PIN
       y_CS_PIN                             31 |    SDCARD     | 34          RX8         E1_DIR_PIN
       Z_CS_PIN                             32 |_______________| 33     PWM              E1_STEP_PIN
 
- 
+
 */
 
 //
