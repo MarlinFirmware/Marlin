@@ -150,6 +150,5 @@
   #endif
 #endif
 
-// define all platform macros to include pins file
-#define __MARLIN_PREBUILD__
+// Include pins for the current board. Platform tests will be skipped. No HAL-defined pins.
 #include "../../../../Marlin/src/pins/pins.h"
