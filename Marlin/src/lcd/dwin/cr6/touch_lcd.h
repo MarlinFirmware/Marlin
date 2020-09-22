@@ -262,3 +262,8 @@ bool creality_autohome_lcd_is_ready();
 void creality_lcd_indicate_print_done();
 void creality_lcd_home_failed();
 void creality_lcd_probe_failed();
+void creality_lcd_temperature_update();
+void creality_lcd_temperature_max_temp_error();
+void creality_lcd_temperature_min_temp_error();
+void creality_lcd_temperature_runaway_error();
+void creality_lcd_temperature_heating_display();

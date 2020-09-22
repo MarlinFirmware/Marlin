@@ -2167,3 +2167,41 @@ void creality_lcd_probe_failed() {
   rtscheck.RTS_SndData(Error_203, ABNORMAL_TEXT_VP);
   errorway = 3;
 }
+
+void creality_lcd_temperature_update() {
+  rtscheck.RTS_SndData(ExchangePageBase + 58, ExchangepageAddr);
+  change_page_font = 58;
+}
+
+void creality_lcd_temperature_max_temp_error() {
+   rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
+   change_page_font = 59;
+}
+
+void creality_lcd_temperature_min_temp_error() {
+  rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
+  change_page_font = 59;
+}
+
+void creality_lcd_temperature_runaway_error() {
+  rtscheck.RTS_SndData(ExchangePageBase + 57, ExchangepageAddr);
+  change_page_font = 57;
+}
+
+void creality_lcd_temperature_heating_display() {
+  if(heat_flag && printingIsActive())
+  {
+    if(language_change_font != 0)
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
+      change_page_font = 10;
+    }
+    else
+    {
+      rtscheck.RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+      change_page_font = 37;
+    }
+  }
+  
+  heat_flag = 0;
+}
