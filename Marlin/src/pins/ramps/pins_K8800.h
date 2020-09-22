@@ -39,8 +39,13 @@
 //
 #define X_STOP_PIN                             3
 #define Y_STOP_PIN                            14
-#define Z_MIN_PIN                             68  // Used for bed leveling
-#define Z_MAX_PIN                             66
+#define Z_STOP_PIN                            66
+
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN                     68
+#endif
+
+#define FIL_RUNOUT_PIN                        69  // PK7
 
 //
 // Steppers
@@ -61,10 +66,6 @@
 #define E0_DIR_PIN                            28
 #define E0_ENABLE_PIN                         24
 
-#define E1_STEP_PIN                           32
-#define E1_DIR_PIN                            34
-#define E1_ENABLE_PIN                         30
-
 //
 // Temperature Sensors
 //
@@ -80,30 +81,42 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  25
-
-#define FIL_RUNOUT_PIN                        69  // PK7
 #define KILL_PIN                              20  // PD1
+#define CASE_LIGHT_PIN                         7
+
+//
+// SD Card
+//
+#define SDSS                                  25
+#define SD_DETECT_PIN                         21  // PD0
 
 //
 // LCD / Controller
 //
-#define SD_DETECT_PIN                         21  // PD0
-#define LCD_SDSS                              53
 #define BEEPER_PIN                             6
 
-#define DOGLCD_CS                             29
-#define DOGLCD_A0                             27
+#if HAS_SPI_LCD
 
-#define LCD_PINS_RS                           27
-#define LCD_PINS_ENABLE                       29
-#define LCD_PINS_D4                           37
-#define LCD_PINS_D5                           35
-#define LCD_PINS_D6                           33
-#define LCD_PINS_D7                           31
+  #define LCD_SDSS                            53
 
-#if ENABLED(NEWPANEL)
-  #define BTN_EN1                             17
-  #define BTN_EN2                             16
-  #define BTN_ENC                             23
-#endif
+  #define DOGLCD_CS                           29
+  #define DOGLCD_A0                           27
+
+  #define LCD_PINS_RS                         27
+  #define LCD_PINS_ENABLE                     29
+  #define LCD_PINS_D4                         37
+  #define LCD_PINS_D5                         35
+  #define LCD_PINS_D6                         33
+  #define LCD_PINS_D7                         31
+
+  #define LCD_CONTRAST_MIN                     0
+  #define LCD_CONTRAST_MAX                   100
+  #define DEFAULT_LCD_CONTRAST                30
+
+  #if ENABLED(NEWPANEL)
+    #define BTN_EN1                           17
+    #define BTN_EN2                           16
+    #define BTN_ENC                           23
+  #endif
+
+#endif // HAS_SPI_LCD
