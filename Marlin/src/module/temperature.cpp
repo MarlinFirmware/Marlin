@@ -1567,6 +1567,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 }
 
 #if MAX6675_SEPARATE_SPI
+  template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
   SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
 
