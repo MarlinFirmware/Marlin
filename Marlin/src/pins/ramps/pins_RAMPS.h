@@ -45,17 +45,17 @@
  *         7 | 11
  */
 
-#ifndef __MARLIN_PREBUILD__
-  #ifdef TARGET_LPC1768
-    #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
-  #elif defined(__STM32F1__)
-    #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
-  #endif
+#ifdef TARGET_LPC1768
+  #error "Oops! Set MOTHERBOARD to an LPC1768-based board when building for LPC1768."
+#elif defined(__STM32F1__)
+  #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
 #if NOT_TARGET(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
+
+#define BOARD_CUSTOM_BUILD_FLAGS -DFOO
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS 1.4"
@@ -764,6 +764,3 @@
   #define CLCD_MOD_RESET                      31
   #define CLCD_SPI_CS                         33
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
-
-
-#define BOARD_CUSTOM_BUILD_FLAGS -DFOO
