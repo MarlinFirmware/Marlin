@@ -1093,7 +1093,7 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 190 //witbox
+#define X_MAX_POS 200 //witbox
 #define Y_MAX_POS 180 //witbox
 #define Z_MAX_POS 160 //witbox
 
