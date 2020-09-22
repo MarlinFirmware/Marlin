@@ -81,7 +81,7 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(DWIN_CREALITY_TOUCH)
   #include "../lcd/dwin/cr6/touch_lcd.h"
 #endif
 
@@ -731,7 +731,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    TERN_(RTS_AVAILABLE, creality_lcd_probe_failed());
+    TERN_(DWIN_CREALITY_TOUCH, creality_lcd_probe_failed());
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)

@@ -1,6 +1,6 @@
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(DWIN_CREALITY_TOUCH)
 
 #include "touch_lcd.h"
 
@@ -1996,7 +1996,7 @@ void ErrorHanding()
   }
 }
 
-#endif // ENABLED(RTS_AVAILABLE)
+#endif // ENABLED(DWIN_CREALITY_TOUCH)
 
 void creality_touch_on_inactive() {
   waitway = 0;

@@ -2254,7 +2254,7 @@
 // CR-6 OEM touch screen. A DWIN display with touch.
 //
 
-#define RTS_AVAILABLE
+#define DWIN_CREALITY_TOUCH
 
 #define EEPROM_PLR
 #if ENABLED(EEPROM_PLR)

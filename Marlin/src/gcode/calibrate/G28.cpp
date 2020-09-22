@@ -50,7 +50,7 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(DWIN_CREALITY_TOUCH)
   #include "../../lcd/dwin/cr6/touch_lcd.h"
 #endif
 
@@ -320,7 +320,7 @@ void GcodeSuite::G28() {
         ? 0
         : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    #if ENABLED(RTS_AVAILABLE)
+    #if ENABLED(DWIN_CREALITY_TOUCH)
       if (creality_autohome_lcd_is_ready()) {
     #endif
 
@@ -330,7 +330,7 @@ void GcodeSuite::G28() {
       do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
     }
 
-    #if ENABLED(RTS_AVAILABLE)
+    #if ENABLED(DWIN_CREALITY_TOUCH)
       }
     #endif
 
@@ -471,8 +471,8 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
-  TERN_(RTS_AVAILABLE, creality_autohome_with_lcd());
-  TERN_(RTS_AVAILABLE, creality_autohome_lcd_complete());
+  TERN_(DWIN_CREALITY_TOUCH, creality_autohome_with_lcd());
+  TERN_(DWIN_CREALITY_TOUCH, creality_autohome_lcd_complete());
   TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
 
   report_current_position();

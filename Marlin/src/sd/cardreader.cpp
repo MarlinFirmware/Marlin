@@ -35,7 +35,7 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(DWIN_CREALITY_TOUCH)
   #include "../lcd/dwin/cr6/i2c_eeprom.h"
 #endif
 

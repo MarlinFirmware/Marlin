@@ -77,7 +77,7 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
-#if ENABLED(RTS_AVAILABLE)
+#if ENABLED(DWIN_CREALITY_TOUCH)
   #include "lcd/dwin/cr6/touch_lcd.h"
   #include "lcd/dwin/cr6/i2c_eeprom.h"
 #endif
@@ -508,7 +508,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
 
-    #if ENABLED(RTS_AVAILABLE)
+    #if ENABLED(DWIN_CREALITY_TOUCH)
       creality_touch_on_inactive();
     #else
       kill();
@@ -753,7 +753,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle UI input / draw events
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
-  TERN_(RTS_AVAILABLE, creality_touch_update());
+  TERN_(DWIN_CREALITY_TOUCH, creality_touch_update());
 
   #if ENABLED(FIX_MOUNTED_PROBE)
     if((IS_SD_PRINTING() == true) && home_flag == false) //  printing and no homing
@@ -1051,7 +1051,7 @@ void setup() {
       SERIAL_ECHOLN("I2C_EEPROM Check Successed!");      
   #endif
 
-  #if ENABLED(RTS_AVAILABLE)
+  #if ENABLED(DWIN_CREALITY_TOUCH)
     SETUP_RUN(creality_touch_init());
   #endif
 
