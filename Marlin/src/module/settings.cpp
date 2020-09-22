@@ -55,6 +55,11 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../lcd/dwin/cr6/touch_lcd.h"
+  #include "../lcd/dwin/cr6/i2c_eeprom.h"
+#endif
+
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
