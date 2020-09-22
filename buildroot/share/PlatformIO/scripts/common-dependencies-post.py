@@ -1,6 +1,6 @@
 #
 # common-dependencies-post.py
-# Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
+# Convenience script to add build flags for Marlin Enabled Features
 #
 
 Import("env")
