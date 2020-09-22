@@ -26,7 +26,7 @@
 #pragma once 
 #include "../../../../inc/MarlinConfigPre.h"
 
-//#define ACDEBUGLEVEL 25
+#define ACDEBUGLEVEL 0
 // Sends debug commands to the primary serial port
 // Add values together for selective debugging
 //   1 - info request

@@ -2187,21 +2187,11 @@
 //
 //#define ANYCUBIC_LCD_I3MEGA
 #define ANYCUBIC_LCD_CHIRON
-#define ACDEBUGLEVEL 0
-// Sends debug commands to the primary serial port
-// Add values together for selective debugging
-//   1 - info request
-//   2 - action
-//   4 - file info
-//   8 - panel request
-//  16 - Marlin messages
-//  32 - some Panel Comms
-//  64 - all panel comms
 
-//#if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+#if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
   //#define ANYCUBIC_LCD_SERIAL_PORT 3
   //#define ANYCUBIC_LCD_DEBUG
-//#endif
+#endif
 
 //
 // Third-party or vendor-customized controller interfaces.

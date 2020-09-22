@@ -494,7 +494,7 @@ namespace Anycubic {
       } break;
       case 33: { //A33 Get firmware info
         SendtoTFT(PSTR("J33 "));
-        SendtoTFT(PSTR(SHORT_BUILD_VERSION));
+        SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
       } break;
     }
   }
