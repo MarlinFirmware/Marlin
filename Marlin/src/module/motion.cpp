@@ -55,6 +55,10 @@
   #include "../lcd/ultralcd.h"
 #endif
 
+#if ENABLED(RTS_AVAILABLE)
+  #include "../lcd/dwin/cr6/touch_lcd.h"
+#endif
+
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
 #endif
@@ -1286,6 +1290,13 @@ void do_homing_move(const AxisEnum axis, const float distance, const feedRate_t 
     DEBUG_ECHOLNPGM(")");
   }
 
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    if((axis == Z_AXIS) && (1 == READ(OPTO_SWITCH_PIN)))
+    {
+       probe.set_deployed(false);
+    }
+  #endif 
+
   #if ALL(HOMING_Z_WITH_PROBE, HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
     // Wait for bed to heat back up between probing points
     if (axis == Z_AXIS && distance < 0)
@@ -1563,6 +1574,13 @@ void homeaxis(const AxisEnum axis) {
       TERN_(Z_MULTI_ENDSTOPS, case Z_AXIS:)
         stepper.set_separate_multi_axis(true);
       default: break;
+    }
+  #endif
+
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    if(axis == Z_AXIS)
+    {
+      AutohomeZflag = true;
     }
   #endif
 
