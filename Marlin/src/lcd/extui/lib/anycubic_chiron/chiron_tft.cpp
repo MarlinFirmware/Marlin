@@ -68,7 +68,7 @@ namespace Anycubic {
     // When the power goes OUTAGECON_PIN goes low.
 
     #if ENABLED(POWER_LOSS_RECOVERY)
-      pinMode(OUTAGETEST_PIN,INPUT);
+      //pinMode(OUTAGETEST_PIN,INPUT);
       
       pinMode(OUTAGECON_PIN,OUTPUT);
       WRITE(OUTAGECON_PIN,HIGH);
