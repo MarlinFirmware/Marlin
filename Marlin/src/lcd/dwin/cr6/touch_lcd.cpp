@@ -625,19 +625,8 @@ void RTSSHOW::RTS_SDcard_Stop()
   if(heat_flag)
   {
     if(home_flag) planner.synchronize();
-    card.pauseSDPrint();
-    queue.clear();
-    quickstop_stepper();
-    print_job_timer.stop();
-    thermalManager.disable_all_heaters();
-    thermalManager.zero_fan_speeds();
+    card.flag.abort_sd_printing = true;
     wait_for_heatup = false;
-    #if ENABLED(SDSUPPORT) && ENABLED(POWER_LOSS_RECOVERY)
-      card.removeJobRecoveryFile();
-    #endif
-    #ifdef EVENT_GCODE_SD_ABORT
-      queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
-    #endif
   }
   else
   {
@@ -1463,18 +1452,12 @@ void RTSSHOW::RTS_HandleData()
           change_page_font = 28;
         }
         Update_Time_Value = RTS_UPDATE_VALUE;
-        card.pauseSDPrint();
-        queue.clear();
-        quickstop_stepper();
-        print_job_timer.stop();
-        thermalManager.disable_all_heaters();
-        print_job_timer.reset();
 
-        #if ENABLED(SDSUPPORT) && ENABLED(POWER_LOSS_RECOVERY)
-          card.removeJobRecoveryFile();
-        #endif
+        card.flag.abort_sd_printing = true;
+
         wait_for_heatup = false;
         sdcard_pause_check = true;
+        
         RTS_SndData(1, MOTOR_FREE_ICON_VP);
         delay(500);
         waitway = 0;
