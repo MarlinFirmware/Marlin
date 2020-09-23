@@ -63,9 +63,10 @@
 #define TFT_COLOR_RGB   (1UL << 3)
 #define TFT_COLOR_BGR   (1UL << 4)
 
-#ifndef TFT_COLOR
-  #define TFT_COLOR   TFT_COLOR_RGB
-#endif
+// Each TFT Driver is responsible for its default color mode.
+// #ifndef TFT_COLOR
+//   #define TFT_COLOR   TFT_COLOR_RGB
+// #endif
 
 #define SSD1963         0x5761
 #define ST7735          0x89F0

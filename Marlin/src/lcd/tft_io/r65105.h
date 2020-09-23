@@ -49,7 +49,7 @@
                                   IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    R61505_ETMOD_ID0) | \
                                   IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    R61505_ETMOD_ID1)
 
-#if TFT_COLOR == TFT_COLOR_BGR
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_BGR
   #define R61505_ETMOD_COLOR R61505_ETMOD_BGR
 #elif TFT_COLOR == TFT_COLOR_RGB
   #define R61505_ETMOD_COLOR R61505_ETMOD_RGB
