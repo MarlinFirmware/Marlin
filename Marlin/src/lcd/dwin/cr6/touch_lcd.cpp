@@ -2039,6 +2039,26 @@ void creality_finish_bedlevel_status() {
   }
 }
 
+void creality_lcd_autohome_start() {
+  home_flag = true;
+
+  if(waitway == 4 || waitway == 6 || waitway == 7)
+  {
+    if(language_change_font != 0)
+    {
+      // exchange to 60 page
+      rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
+      change_page_font = 60;
+    }
+    else
+    {
+      // exchange to 61 page
+      rtscheck.RTS_SndData(ExchangePageBase + 61, ExchangepageAddr);
+      change_page_font = 61;
+    }
+  }
+}
+
 void creality_autohome_with_lcd() {
   if(change_page_font != 62)
     {

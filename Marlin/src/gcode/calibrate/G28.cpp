@@ -205,6 +205,7 @@ void GcodeSuite::G28() {
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
+  TERN_(DWIN_CREALITY_TOUCH, creality_lcd_autohome_start());
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;

@@ -256,6 +256,7 @@ void creality_touch_update();
 void creality_touch_init();
 void creality_update_bedlevel_status(uint8_t count);
 void creality_finish_bedlevel_status();
+void creality_lcd_autohome_start();
 void creality_autohome_with_lcd();
 void creality_autohome_lcd_complete();
 bool creality_autohome_lcd_is_ready();
