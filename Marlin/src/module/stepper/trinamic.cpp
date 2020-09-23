@@ -209,113 +209,145 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
   #if AXIS_HAS_UART(X)
     #ifdef X_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X, X);
+      #define X_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, X, X);
+      #define X_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(X2)
     #ifdef X2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, X2, X);
+      #define X2_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, X2, X);
+      #define X2_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Y)
     #ifdef Y_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y, Y);
+      #define Y_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Y, Y);
+      #define Y_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Y2)
     #ifdef Y2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Y2, Y);
+      #define Y2_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Y2, Y);
+      #define Y2_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Z)
     #ifdef Z_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z, Z);
+      #define Z_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Z, Z);
+      #define Z_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Z2)
     #ifdef Z2_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z2, Z);
+      #define Z2_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Z2, Z);
+      #define Z2_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Z3)
     #ifdef Z3_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z3, Z);
+      #define Z3_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Z3, Z);
+      #define Z3_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(Z4)
     #ifdef Z4_HARDWARE_SERIAL
       TMC_UART_DEFINE(HW, Z4, Z);
+      #define Z4_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE(SW, Z4, Z);
+      #define Z4_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E0)
     #ifdef E0_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 0);
+      #define E0_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 0);
+      #define E0_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E1)
     #ifdef E1_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 1);
+      #define E1_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 1);
+      #define E1_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E2)
     #ifdef E2_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 2);
+      #define E2_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 2);
+      #define E2_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E3)
     #ifdef E3_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 3);
+      #define E3_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 3);
+      #define E3_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E4)
     #ifdef E4_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 4);
+      #define E4_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 4);
+      #define E4_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E5)
     #ifdef E5_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 5);
+      #define E5_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 5);
+      #define E5_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E6)
     #ifdef E6_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 6);
+      #define E6_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 6);
+      #define E6_HAS_SW_SERIAL 1
     #endif
   #endif
   #if AXIS_HAS_UART(E7)
     #ifdef E7_HARDWARE_SERIAL
       TMC_UART_DEFINE_E(HW, 7);
+      #define E7_HAS_HW_SERIAL 1
     #else
       TMC_UART_DEFINE_E(SW, 7);
+      #define E7_HAS_SW_SERIAL 1
     #endif
   #endif
 
@@ -768,5 +800,78 @@ void reset_trinamic_drivers() {
 
   stepper.set_directions();
 }
+
+// TMC Slave Address Conflict Detection
+// 
+// Conflict detection is performed in the following way. Similar methods are used for
+// hardware and software serial, but the implementations are indepenent.
+// 
+// 1. Populate a data structure with UART parameters and addresses for all possible axis.
+//      If an axis is not in use, populate it with recognizable placeholder data.
+// 2. For each axis in use, static_assert using a constexpr function, which counts the
+//      number of matching/conflicting axis. If the value is not exactly 1, fail.
+
+#if ANY_AXIS_HAS(HW_SERIAL)
+  // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.
+  // Using a fixed-length character array for the port name allows this to be constexpr compatible.
+  struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
+  #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)  
+  #define TMC_HW_DETAIL(A) {TMC_HW_DETAIL_ARGS(A)}
+  constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
+    TMC_HW_DETAIL(X), TMC_HW_DETAIL(X2),
+    TMC_HW_DETAIL(Y), TMC_HW_DETAIL(Y2),
+    TMC_HW_DETAIL(Z), TMC_HW_DETAIL(Z2), TMC_HW_DETAIL(Z3), TMC_HW_DETAIL(Z4),
+    TMC_HW_DETAIL(E0), TMC_HW_DETAIL(E1), TMC_HW_DETAIL(E2), TMC_HW_DETAIL(E3), TMC_HW_DETAIL(E4), TMC_HW_DETAIL(E5), TMC_HW_DETAIL(E6), TMC_HW_DETAIL(E7)
+  };
+
+  // constexpr compatible string comparison
+  constexpr bool str_eq_ce(const char * a, const char * b) {
+    return *a == *b && (*a == '\0' || str_eq_ce(a+1,b+1));
+  }
+
+  constexpr bool sc_hw_done(size_t start, size_t end) { return start == end; }
+  constexpr bool sc_hw_skip(const char* port_name) { return !(*port_name); }
+  constexpr bool sc_hw_match(const char* port_name, uint32_t address, size_t start, size_t end) {
+    return !sc_hw_done(start, end) && !sc_hw_skip(port_name) && (address == sanity_tmc_hw_details[start].address && str_eq_ce(port_name, sanity_tmc_hw_details[start].port));
+  }
+  constexpr int count_tmc_hw_serial_matches(const char* port_name, uint32_t address, size_t start, size_t end) {
+    return sc_hw_done(start, end) ? 0 : ((sc_hw_skip(port_name) ? 0 : (sc_hw_match(port_name, address, start, end) ? 1 : 0)) + count_tmc_hw_serial_matches(port_name, address, start + 1, end));
+  }
+
+  #define TMC_HWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_HARDWARE_SERIAL"
+  #define SA_NO_TMC_HW_C(A) static_assert(1 >= count_tmc_hw_serial_matches(TMC_HW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_hw_details)), TMC_HWSERIAL_CONFLICT_MSG(A));
+  SA_NO_TMC_HW_C(X);SA_NO_TMC_HW_C(X2);
+  SA_NO_TMC_HW_C(Y);SA_NO_TMC_HW_C(Y2);
+  SA_NO_TMC_HW_C(Z);SA_NO_TMC_HW_C(Z2);SA_NO_TMC_HW_C(Z3);SA_NO_TMC_HW_C(Z4);
+  SA_NO_TMC_HW_C(E0);SA_NO_TMC_HW_C(E1);SA_NO_TMC_HW_C(E2);SA_NO_TMC_HW_C(E3);SA_NO_TMC_HW_C(E4);SA_NO_TMC_HW_C(E5);SA_NO_TMC_HW_C(E6);SA_NO_TMC_HW_C(E7);
+#endif
+
+#if ANY_AXIS_HAS(SW_SERIAL)
+  struct SanitySwSerialDetails { int32_t txpin; int32_t rxpin; uint32_t address; };
+  #define TMC_SW_DETAIL_ARGS(A) TERN(A##_HAS_SW_SERIAL, A##_SERIAL_TX_PIN, -1), TERN(A##_HAS_SW_SERIAL, A##_SERIAL_RX_PIN, -1), TERN0(A##_HAS_SW_SERIAL, A##_SLAVE_ADDRESS)
+  #define TMC_SW_DETAIL(A) TMC_SW_DETAIL_ARGS(A)
+  constexpr SanitySwSerialDetails sanity_tmc_sw_details[] = {
+    TMC_SW_DETAIL(X), TMC_SW_DETAIL(X2),
+    TMC_SW_DETAIL(Y), TMC_SW_DETAIL(Y2),
+    TMC_SW_DETAIL(Z), TMC_SW_DETAIL(Z2), TMC_SW_DETAIL(Z3), TMC_SW_DETAIL(Z4),
+    TMC_SW_DETAIL(E0), TMC_SW_DETAIL(E1), TMC_SW_DETAIL(E2), TMC_SW_DETAIL(E3), TMC_SW_DETAIL(E4), TMC_SW_DETAIL(E5), TMC_SW_DETAIL(E6), TMC_SW_DETAIL(E7)
+  };
+
+  constexpr bool sc_sw_done(size_t start, size_t end) { return start == end; }
+  constexpr bool sc_sw_skip(int32_t txpin) { return txpin < 0; }
+  constexpr bool sc_sw_match(int32_t txpin, int32_t rxpin, uint32_t address, size_t start, size_t end) {
+    return !sc_sw_done(start, end) && !sc_sw_skip(txpin) && (txpin == sanity_tmc_sw_details[start].txpin || rxpin == sanity_tmc_sw_details[start].rxpin) && (address == sanity_tmc_sw_details[start].address);
+  }
+  constexpr int count_tmc_sw_serial_matches(int32_t txpin, int32_t rxpin, uint32_t address, size_t start, size_t end) {
+    return sc_sw_done(start, end) ? 0 : ((sc_sw_skip(txpin) ? 0 : (sc_sw_match(txpin, rxpin, address, start, end) ? 1 : 0)) + count_tmc_sw_serial_matches(txpin, rxpin, address, start + 1, end));
+  }
+
+  #define TMC_SWSERIAL_CONFLICT_MSG(A) STRINGIFY(A) "_SLAVE_ADDRESS conflicts with another driver using the same " STRINGIFY(A) "_SERIAL_RX_PIN or " STRINGIFY(A) "_SERIAL_TX_PIN"
+  #define SA_NO_TMC_SW_C(A) static_assert(1 >= count_tmc_sw_serial_matches(TMC_SW_DETAIL_ARGS(A), 0, COUNT(sanity_tmc_sw_details)), TMC_SWSERIAL_CONFLICT_MSG(A));
+  SA_NO_TMC_SW_C(X);SA_NO_TMC_SW_C(X2);
+  SA_NO_TMC_SW_C(Y);SA_NO_TMC_SW_C(Y2);
+  SA_NO_TMC_SW_C(Z);SA_NO_TMC_SW_C(Z2);SA_NO_TMC_SW_C(Z3);SA_NO_TMC_SW_C(Z4);
+  SA_NO_TMC_SW_C(E0);SA_NO_TMC_SW_C(E1);SA_NO_TMC_SW_C(E2);SA_NO_TMC_SW_C(E3);SA_NO_TMC_SW_C(E4);SA_NO_TMC_SW_C(E5);SA_NO_TMC_SW_C(E6);SA_NO_TMC_SW_C(E7);
+#endif
 
 #endif // HAS_TRINAMIC_CONFIG
