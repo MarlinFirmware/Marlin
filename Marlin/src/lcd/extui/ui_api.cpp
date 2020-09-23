@@ -705,7 +705,7 @@ namespace ExtUI {
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
-        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, linked_nozzles || active_extruder == 0))
+        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
           probe.offset.z += mm;
       #endif
 

@@ -192,8 +192,8 @@ void GcodeSuite::M48() {
           // Choose the next position as an offset to chosen test position
           const xy_pos_t noz_pos = test_position - probe.offset_xy;
           xy_pos_t next_pos = {
-            noz_pos.x + cos(RADIANS(angle)) * radius,
-            noz_pos.y + sin(RADIANS(angle)) * radius
+            noz_pos.x + float(cos(RADIANS(angle))) * radius,
+            noz_pos.y + float(sin(RADIANS(angle))) * radius
           };
 
           #if ENABLED(DELTA)
