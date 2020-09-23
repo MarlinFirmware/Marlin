@@ -34,6 +34,9 @@
 
 #define CHECKFILEMENT true
 
+#define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
+                                            // BL24CXX::check() uses 0x00
+
 char errorway = 0;
 char errornum = 0;
 
@@ -231,22 +234,24 @@ void RTSSHOW::RTS_SDCardUpate(void)
 bool first_load_language = 0;
 void lcd_select_language(void)
 {
-  BL24CXX_Read(FONT_EEPROM+2, (uint8_t*)&first_load_language, sizeof(first_load_language));
+  BL24CXX::read(FONT_EEPROM+2, (uint8_t*)&first_load_language, sizeof(first_load_language));
   delay(10);
   if(first_load_language == 0)
   {
-    BL24CXX_Read(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
+    BL24CXX::read(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
   }
   else
   {
     first_load_language = 0;
-    BL24CXX_Write(FONT_EEPROM+2, (uint8_t*)&first_load_language, sizeof(first_load_language));
+    BL24CXX::write(FONT_EEPROM+2, (uint8_t*)&first_load_language, sizeof(first_load_language));
+    
     #if ENABLED(DEFAULT_LANGUAGE)
       language_change_font = 1;
     #else
       language_change_font = 0;
     #endif
-    BL24CXX_Write(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
+
+    BL24CXX::write(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
   }
 }
 
@@ -1394,7 +1399,7 @@ void RTSSHOW::RTS_HandleData()
         change_page_font = 47;
       }
       RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
-      BL24CXX_Write(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
+      BL24CXX::write(FONT_EEPROM, (uint8_t*)&language_change_font, 1);
       break;
     case PowerContinuePrintKey:
       if(recdat.data[0] == 1)

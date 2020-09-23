@@ -35,17 +35,20 @@
 #define BOARD_NAME "Creality v4.5.2"
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
-
-
 //
 // EEPROM
 //
-/* I2C */
-// #define I2C_EEPROM
-// #define E2END 0x3FFF   // 16Kb (24c16)
-#define MYI2C_EEPROM      // EEPROM on I2C-0
-#define IIC_EEPROM_SDA       PA11
-#define IIC_EEPROM_SCL       PA12
+#if NO_EEPROM_SELECTED
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
+  #if ENABLED(IIC_BL24CXX_EEPROM)
+    #define IIC_EEPROM_SDA                  PA11
+    #define IIC_EEPROM_SCL                  PA12
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+  #else
+    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
+    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
+  #endif
+#endif
 
 /* SPI */
 //#define SPI_EEPROM  // EEPROM on SPI-0
@@ -56,21 +59,14 @@
 // 32Mb FLASH
 //#define SPI_FLASH_CS            ?
 
-/* FLASH */
-// Enable EEPROM Emulation for this board
-// This setting should probably be in configuration.h
-// but it is literally the only board which uses it.
-//#define FLASH_EEPROM_EMULATION
-
-
 //
 // Limit Switches
 //
-#define X_MIN_PIN          PC4
+#define X_MIN_PIN           PC4
 // #define X_MAX_PIN          PA7
-#define Y_MIN_PIN          PC5
-#define Z_MIN_PIN        PA4
-#define COM_PIN          PA5
+#define Y_MIN_PIN           PC5
+#define Z_MIN_PIN           PA4
+#define COM_PIN             PA5
 
 //
 // Steppers

@@ -79,7 +79,6 @@
 
 #if ENABLED(DWIN_CREALITY_TOUCH)
   #include "lcd/dwin/cr6/touch_lcd.h"
-  #include "lcd/dwin/cr6/i2c_eeprom.h"
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -1041,14 +1040,6 @@ void setup() {
       SETUP_RUN(ui.show_bootscreen());
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
-  #endif
-
-  #ifdef MYI2C_EEPROM
-    SETUP_RUN(BL24CXX_Init());
-    if(BL24CXX_Check()) // no found I2C_EEPROM
-      SERIAL_ECHOLN("I2C_EEPROM Check Failed!");
-    else
-      SERIAL_ECHOLN("I2C_EEPROM Check Successed!");      
   #endif
 
   #if ENABLED(DWIN_CREALITY_TOUCH)

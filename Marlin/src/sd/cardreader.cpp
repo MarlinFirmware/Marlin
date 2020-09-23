@@ -35,10 +35,6 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
-  #include "../lcd/dwin/cr6/i2c_eeprom.h"
-#endif
-
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -1174,19 +1170,14 @@ void CardReader::fileHasFinished() {
   // the file being printed, so during SD printing the file should
   // be zeroed and written instead of deleted.
   void CardReader::removeJobRecoveryFile() {
-    #ifdef EEPROM_PLR
+    if (jobRecoverFileExists()) {
       recovery.init();
-      BL24CXX_Write(PLR_ADDR, (uint8_t*)&recovery.info, sizeof(recovery.info));
-    #else
-      if (jobRecoverFileExists()) {
-        recovery.init();
-        removeFile(recovery.filename);
-        #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
-          SERIAL_ECHOPGM("Power-loss file delete");
-          serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
-        #endif
-      }
-    #endif
+      removeFile(recovery.filename);
+      #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+        SERIAL_ECHOPGM("Power-loss file delete");
+        serialprintPGM(jobRecoverFileExists() ? PSTR(" failed.\n") : PSTR("d.\n"));
+      #endif
+    }
   }
 
 #endif // POWER_LOSS_RECOVERY

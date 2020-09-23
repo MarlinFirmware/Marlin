@@ -3,7 +3,7 @@
 #include "string.h"
 #include <arduino.h>
 
-#include "i2c_eeprom.h"
+#include "../../../libs/BL24CXX.h"
 
 /*********************************/
 #define FHONE   (0x5A)
