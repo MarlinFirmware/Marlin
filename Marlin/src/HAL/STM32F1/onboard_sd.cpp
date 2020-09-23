@@ -21,23 +21,23 @@
 #include "fastio.h"
 
 #if HAS_SHARED_MEDIA
-  #ifndef ON_BOARD_SPI_DEVICE
-    #define ON_BOARD_SPI_DEVICE SPI_DEVICE
+  #ifndef ONBOARD_SPI_DEVICE
+    #define ONBOARD_SPI_DEVICE SPI_DEVICE
   #endif
   #define ONBOARD_SD_SPI SPI
 #else
-  SPIClass OnBoardSPI(ON_BOARD_SPI_DEVICE);
-  #define ONBOARD_SD_SPI OnBoardSPI
+  SPIClass OnboardSPI(ONBOARD_SPI_DEVICE);
+  #define ONBOARD_SD_SPI OnboardSPI
 #endif
 
-#if ON_BOARD_SPI_DEVICE == 1
+#if ONBOARD_SPI_DEVICE == 1
   #define SPI_CLOCK_MAX SPI_BAUD_PCLK_DIV_4
 #else
   #define SPI_CLOCK_MAX SPI_BAUD_PCLK_DIV_2
 #endif
 
-#define CS_LOW()  WRITE(ONBOARD_SD_CS_PIN, LOW)  /* Set OnBoardSPI cs low */
-#define CS_HIGH() WRITE(ONBOARD_SD_CS_PIN, HIGH) /* Set OnBoardSPI cs high */
+#define CS_LOW()  WRITE(ONBOARD_SD_CS_PIN, LOW)  /* Set OnboardSPI cs low */
+#define CS_HIGH() WRITE(ONBOARD_SD_CS_PIN, HIGH) /* Set OnboardSPI cs high */
 
 #define FCLK_FAST() ONBOARD_SD_SPI.setClockDivider(SPI_CLOCK_MAX)
 #define FCLK_SLOW() ONBOARD_SD_SPI.setClockDivider(SPI_BAUD_PCLK_DIV_256)
@@ -152,7 +152,7 @@ static int select() { /* 1:OK, 0:Timeout */
 /*-----------------------------------------------------------------------*/
 
 static void power_on() {  /* Enable SSP module and attach it to I/O pads */
-  ONBOARD_SD_SPI.setModule(ON_BOARD_SPI_DEVICE);
+  ONBOARD_SD_SPI.setModule(ONBOARD_SPI_DEVICE);
   ONBOARD_SD_SPI.begin();
   ONBOARD_SD_SPI.setBitOrder(MSBFIRST);
   ONBOARD_SD_SPI.setDataMode(SPI_MODE0);
