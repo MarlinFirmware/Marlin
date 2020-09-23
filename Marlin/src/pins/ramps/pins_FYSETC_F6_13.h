@@ -25,7 +25,7 @@
 // FYSETC F6 1.3 (and 1.4) pin assignments
 //
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
