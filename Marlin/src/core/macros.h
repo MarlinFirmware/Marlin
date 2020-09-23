@@ -201,6 +201,12 @@
 #define BOTH(V1,V2)         ALL(V1,V2)
 #define EITHER(V1,V2)       ANY(V1,V2)
 
+// Macros to test for '0' settings
+#define SET_ZERO(D)         (defined(D) && D == 0)
+#define _ISZER_1            SET_ZERO
+#define ALL_ZERO(V...)      DO(ISZER,&&,V)
+#define ANY_ZERO(V...)      DO(ISZER,||,V)
+
 // Macros to support pins/buttons exist testing
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
 #define _PINEX_1            PIN_EXISTS

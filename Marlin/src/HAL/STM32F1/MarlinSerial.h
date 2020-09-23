@@ -68,7 +68,7 @@ public:
 extern MarlinSerial MSerial1;
 extern MarlinSerial MSerial2;
 extern MarlinSerial MSerial3;
-#if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
   extern MarlinSerial MSerial4;
   extern MarlinSerial MSerial5;
 #endif

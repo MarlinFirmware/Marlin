@@ -80,13 +80,13 @@
   #elif WITHIN(DGUS_SERIAL_PORT, 1, 6)
     #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
   #else
-    #error "DGUS_SERIAL must be -1 or from 1 to 6. Please update your configuration."
+    #error "DGUS_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
   #endif
 
   #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
-#ifdef MALYAN_LCD
+#if ENABLED(MALYAN_LCD)
   #define _FRAMEWORK_SERIAL(X) Serial##X
   #define FRAMEWORK_SERIAL(X) _FRAMEWORK_SERIAL(X)
 
