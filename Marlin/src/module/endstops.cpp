@@ -32,7 +32,7 @@
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
   #include "../lcd/dwin/cr6/touch_lcd.h"
 #endif
 
@@ -320,8 +320,8 @@ void Endstops::not_homing() {
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
     else {
-       #if ENABLED(DWIN_CREALITY_TOUCH)
-         creality_lcd_home_failed();
+       #if ENABLED(DWIN_CREALITY_TOUCHLCD)
+         DWINTouch_error_home_failed();
        #else
          kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
        #endif

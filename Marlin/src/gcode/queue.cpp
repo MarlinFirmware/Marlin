@@ -47,7 +47,7 @@ GCodeQueue queue;
   #include "../feature/powerloss.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
   #include "../lcd/dwin/cr6/touch_lcd.h"
 #endif
 
@@ -587,7 +587,7 @@ void GCodeQueue::get_serial_commands() {
 
         if (card_eof) {
            card.fileHasFinished();         // Handle end of file reached
-           TERN_(DWIN_CREALITY_TOUCH, creality_lcd_indicate_print_done());
+           TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_print_completed_callback());
         }
         
       }

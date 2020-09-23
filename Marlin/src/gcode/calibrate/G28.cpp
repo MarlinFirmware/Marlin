@@ -50,7 +50,7 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
   #include "../../lcd/dwin/cr6/touch_lcd.h"
 #endif
 
@@ -205,7 +205,7 @@ void GcodeSuite::G28() {
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
-  TERN_(DWIN_CREALITY_TOUCH, creality_lcd_autohome_start());
+  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_callback());
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -321,8 +321,8 @@ void GcodeSuite::G28() {
         ? 0
         : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    #if ENABLED(DWIN_CREALITY_TOUCH)
-      if (creality_autohome_lcd_is_ready()) {
+    #if ENABLED(DWIN_CREALITY_TOUCHLCD)
+      if (DWINTouch_autohome_is_lcd_ready()) {
     #endif
 
       if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
@@ -331,7 +331,7 @@ void GcodeSuite::G28() {
         do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
       }
 
-    #if ENABLED(DWIN_CREALITY_TOUCH)
+    #if ENABLED(DWIN_CREALITY_TOUCHLCD)
       }
     #endif
 
@@ -472,8 +472,8 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
-  TERN_(DWIN_CREALITY_TOUCH, creality_autohome_with_lcd());
-  TERN_(DWIN_CREALITY_TOUCH, creality_autohome_lcd_complete());
+  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_update_callback());
+  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_complete_callback());
   TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
 
   report_current_position();

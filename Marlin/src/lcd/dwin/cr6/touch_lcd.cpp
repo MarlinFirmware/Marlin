@@ -1,6 +1,6 @@
 #include "../../../inc/MarlinConfig.h"
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
 
 #include "touch_lcd.h"
 
@@ -1989,9 +1989,9 @@ void ErrorHanding()
   }
 }
 
-#endif // ENABLED(DWIN_CREALITY_TOUCH)
+#endif // ENABLED(DWIN_CREALITY_TOUCHLCD)
 
-void creality_touch_on_inactive() {
+void DWINTouch_inactivity_callback() {
   waitway = 0;
   rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
   change_page_font = 62;
@@ -1999,11 +1999,11 @@ void creality_touch_on_inactive() {
   errorway = 1;
 }
 
-void creality_touch_update() {
+void DWINTouch_refresh() {
   RTSUpdate();
 }
 
-void creality_touch_init() {
+void DWINTouch_init() {
   rtscheck.RTS_Init();
 
   #ifdef FIX_MOUNTED_PROBE
@@ -2014,7 +2014,7 @@ void creality_touch_init() {
   #endif
 }
 
-void creality_update_bedlevel_status(uint8_t count) {
+void DWINTouch_bedlevel_update_callback(uint8_t count) {
   rtscheck.RTS_SndData(count, AUTO_BED_LEVEL_TITLE_VP);
 
   if(language_change_font != 0)
@@ -2037,14 +2037,14 @@ void creality_update_bedlevel_status(uint8_t count) {
   rtscheck.RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
 }
 
-void creality_finish_bedlevel_status() {
+void DWINTouch_bedlevel_finish_callback() {
   if(3 == waitway)
   {
      waitway = 0;
   }
 }
 
-void creality_lcd_autohome_start() {
+void DWINTouch_autohome_callback() {
   home_flag = true;
 
   if(waitway == 4 || waitway == 6 || waitway == 7)
@@ -2064,7 +2064,7 @@ void creality_lcd_autohome_start() {
   }
 }
 
-void creality_autohome_with_lcd() {
+void DWINTouch_autohome_update_callback() {
   if(change_page_font != 62)
     {
       if(waitway == 6)
@@ -2139,15 +2139,15 @@ void creality_autohome_with_lcd() {
     }
 }
 
-void creality_autohome_lcd_complete() {
+void DWINTouch_autohome_complete_callback() {
   home_flag = false;
 }
 
-bool creality_autohome_lcd_is_ready() {
+bool DWINTouch_autohome_is_lcd_ready() {
   return finish_home == false && waitway != 7;
 }
 
-void creality_lcd_indicate_print_done() {
+void DWINTouch_print_completed_callback() {
   print_finish = 1;
 
   rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
@@ -2165,7 +2165,7 @@ void creality_lcd_indicate_print_done() {
   }
 }
 
-void creality_lcd_home_failed() {
+void DWINTouch_error_home_failed() {
   waitway = 0;
   rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
   change_page_font = 62;
@@ -2173,7 +2173,7 @@ void creality_lcd_home_failed() {
   errorway = 2;
 }
 
-void creality_lcd_probe_failed() {
+void DWINTouch_error_probe_failed() {
   waitway = 0;
   rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
   change_page_font = 62;
@@ -2181,27 +2181,27 @@ void creality_lcd_probe_failed() {
   errorway = 3;
 }
 
-void creality_lcd_temperature_update() {
+void DWINTouch_temperature_refresh() {
   rtscheck.RTS_SndData(ExchangePageBase + 58, ExchangepageAddr);
   change_page_font = 58;
 }
 
-void creality_lcd_temperature_max_temp_error() {
+void DWINTouch_error_max_temp() {
    rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
    change_page_font = 59;
 }
 
-void creality_lcd_temperature_min_temp_error() {
+void DWINTouch_error_min_temp() {
   rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
   change_page_font = 59;
 }
 
-void creality_lcd_temperature_runaway_error() {
+void DWINTouch_error_runaway_temp() {
   rtscheck.RTS_SndData(ExchangePageBase + 57, ExchangepageAddr);
   change_page_font = 57;
 }
 
-void creality_lcd_temperature_heating_display() {
+void DWINTouch_heating_callback() {
   if(heat_flag && printingIsActive())
   {
     if(language_change_font != 0)

@@ -55,7 +55,7 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCH)
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
   #include "../lcd/dwin/cr6/touch_lcd.h"
 #endif
 

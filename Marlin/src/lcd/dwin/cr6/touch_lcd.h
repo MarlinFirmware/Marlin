@@ -251,20 +251,20 @@ extern char errornum;
 
 // Facade for touch LCD 
 
-void creality_touch_on_inactive();
-void creality_touch_update();
-void creality_touch_init();
-void creality_update_bedlevel_status(uint8_t count);
-void creality_finish_bedlevel_status();
-void creality_lcd_autohome_start();
-void creality_autohome_with_lcd();
-void creality_autohome_lcd_complete();
-bool creality_autohome_lcd_is_ready();
-void creality_lcd_indicate_print_done();
-void creality_lcd_home_failed();
-void creality_lcd_probe_failed();
-void creality_lcd_temperature_update();
-void creality_lcd_temperature_max_temp_error();
-void creality_lcd_temperature_min_temp_error();
-void creality_lcd_temperature_runaway_error();
-void creality_lcd_temperature_heating_display();
+void DWINTouch_inactivity_callback();
+void DWINTouch_refresh();
+void DWINTouch_init();
+void DWINTouch_bedlevel_update_callback(uint8_t count);
+void DWINTouch_bedlevel_finish_callback();
+void DWINTouch_autohome_callback();
+void DWINTouch_autohome_update_callback();
+void DWINTouch_autohome_complete_callback();
+bool DWINTouch_autohome_is_lcd_ready();
+void DWINTouch_print_completed_callback();
+void DWINTouch_error_home_failed();
+void DWINTouch_error_probe_failed();
+void DWINTouch_temperature_refresh();
+void DWINTouch_error_max_temp();
+void DWINTouch_error_min_temp();
+void DWINTouch_error_runaway_temp();
+void DWINTouch_heating_callback();
