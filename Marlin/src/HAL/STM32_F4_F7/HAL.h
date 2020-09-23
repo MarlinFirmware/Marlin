@@ -63,8 +63,6 @@
 #ifdef SERIAL_PORT_2
   #if defined(STM32F4) && SERIAL_PORT_2 == 0
     #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif WITHIN(SERIAL_PORT_2, 0, 6)
@@ -80,10 +78,6 @@
 #ifdef DGUS_SERIAL_PORT
   #if defined(STM32F4) && DGUS_SERIAL_PORT == 0
     #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
   #elif WITHIN(DGUS_SERIAL_PORT, 0, 6)

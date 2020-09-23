@@ -56,9 +56,7 @@
 
 #ifdef SERIAL_PORT_2
   #define NUM_SERIAL 2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
@@ -71,37 +69,23 @@
 
 
 #if HAS_DGUS_LCD
-  #if DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
+  #if DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
   #elif WITHIN(DGUS_SERIAL_PORT, 1, 6)
     #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
   #else
     #error "DGUS_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
   #endif
-
   #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
 #if ENABLED(MALYAN_LCD)
-  #define _FRAMEWORK_SERIAL(X) Serial##X
-  #define FRAMEWORK_SERIAL(X) _FRAMEWORK_SERIAL(X)
-
-  #ifndef MALYAN_SERIAL_PORT
-    #error "MALYAN_LCD requires MALYAN_SERIAL_PORT to be defined in Configuration.h"
-  #elif MALYAN_SERIAL_PORT == SERIAL_PORT
-    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && MALYAN_SERIAL_PORT == SERIAL_PORT_2
-    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif defined(DGUS_SERIAL) && MALYAN_SERIAL_PORT == DGUS_SERIAL_PORT
-    #error "MALYAN_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
-  #elif WITHIN(MALYAN_SERIAL_PORT, 1, 6)
-    #define MALYAN_LCD_SERIAL FRAMEWORK_SERIAL(MALYAN_SERIAL_PORT)
+  #if MALYAN_LCD_SERIAL_PORT == -1
+    #define MALYAN_LCD_SERIAL SerialUSB
+  #elif WITHIN(MALYAN_LCD_SERIAL_PORT, 1, 6)
+    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_LCD_SERIAL_PORT)
   #else
-    #error "MALYAN_SERIAL_PORT must be from 1 to 6. Please update your configuration."
+    #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
   #endif
 #endif
 

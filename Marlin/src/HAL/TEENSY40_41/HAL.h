@@ -63,9 +63,7 @@
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usbSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
     #define MYSERIAL0 MSERIAL(SERIAL_PORT_2)

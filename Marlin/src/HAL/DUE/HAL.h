@@ -52,9 +52,7 @@
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
+  #if SERIAL_PORT_2 == -1 || ENABLED(EMERGENCY_PARSER)
     #define MYSERIAL1 customizedSerial2
   #elif WITHIN(SERIAL_PORT_2, 0, 3)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
@@ -67,11 +65,7 @@
 #endif
 
 #ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different from SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
+  #if DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL internalDgusSerial
   #elif WITHIN(DGUS_SERIAL_PORT, 0, 3)
     #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)

@@ -88,9 +88,7 @@
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 UsbSerial
   #elif WITHIN(SERIAL_PORT_2, 1, NUM_UARTS)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
@@ -105,11 +103,7 @@
 #endif
 
 #ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
+  #if DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL UsbSerial
   #elif WITHIN(DGUS_SERIAL_PORT, 1, NUM_UARTS)
     #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
@@ -120,21 +114,15 @@
   #endif
 #endif
 
-#if ENABLED(MALYAN_LCD)
-  #ifndef MALYAN_SERIAL_PORT
-    #error "MALYAN_LCD requires MALYAN_SERIAL_PORT to be defined in Configuration.h"
-  #elif MALYAN_SERIAL_PORT == SERIAL_PORT
-    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && MALYAN_SERIAL_PORT == SERIAL_PORT_2
-    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif defined(DGUS_SERIAL) && MALYAN_SERIAL_PORT == DGUS_SERIAL_PORT
-    #error "MALYAN_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
-  #elif WITHIN(MALYAN_SERIAL_PORT, 1, NUM_UARTS)
-    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_SERIAL_PORT)
+#if ENABLED(MALYAN_LCD_SERIAL_PORT)
+  #if MALYAN_LCD_SERIAL_PORT == -1
+    #define MALYAN_LCD_SERIAL UsbSerial
+  #if WITHIN(MALYAN_LCD_SERIAL_PORT, 1, NUM_UARTS)
+    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_LCD_SERIAL_PORT)
   #elif NUM_UARTS == 5
-    #error "MALYAN_SERIAL_PORT must be from 1 to 5. Please update your configuration."
+    #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "MALYAN_SERIAL_PORT must be from 1 to 3. Please update your configuration."
+    #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
 #endif
 
