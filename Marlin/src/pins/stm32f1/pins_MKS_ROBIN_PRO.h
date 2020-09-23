@@ -25,7 +25,7 @@
  * MKS Robin pro (STM32F103ZET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "MKS Robin pro supports up to 3 hotends / E-steppers. Comment out this line to continue."
