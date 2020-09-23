@@ -90,18 +90,18 @@
   #define _FRAMEWORK_SERIAL(X) Serial##X
   #define FRAMEWORK_SERIAL(X) _FRAMEWORK_SERIAL(X)
 
-  #ifndef MALYAN_LCD_SERIAL_PORT
-    #error "MALYAN_LCD requires MALYAN_LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif MALYAN_LCD_SERIAL_PORT == SERIAL_PORT
-    #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && MALYAN_LCD_SERIAL_PORT == SERIAL_PORT_2
-    #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif defined(DGUS_SERIAL) && MALYAN_LCD_SERIAL_PORT == DGUS_SERIAL_PORT
-    #error "MALYAN_LCD_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
-  #elif WITHIN(MALYAN_LCD_SERIAL_PORT, 1, 6)
-    #define MALYAN_LCD_SERIAL FRAMEWORK_SERIAL(MALYAN_LCD_SERIAL_PORT)
+  #ifndef MALYAN_SERIAL_PORT
+    #error "MALYAN_LCD requires MALYAN_SERIAL_PORT to be defined in Configuration.h"
+  #elif MALYAN_SERIAL_PORT == SERIAL_PORT
+    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && MALYAN_SERIAL_PORT == SERIAL_PORT_2
+    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif defined(DGUS_SERIAL) && MALYAN_SERIAL_PORT == DGUS_SERIAL_PORT
+    #error "MALYAN_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
+  #elif WITHIN(MALYAN_SERIAL_PORT, 1, 6)
+    #define MALYAN_LCD_SERIAL FRAMEWORK_SERIAL(MALYAN_SERIAL_PORT)
   #else
-    #error "MALYAN_LCD_SERIAL_PORT must be from 1 to 6. Please update your configuration."
+    #error "MALYAN_SERIAL_PORT must be from 1 to 6. Please update your configuration."
   #endif
 #endif
 

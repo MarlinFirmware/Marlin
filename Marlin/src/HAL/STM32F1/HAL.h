@@ -121,20 +121,20 @@
 #endif
 
 #ifdef MALYAN_LCD
-  #ifndef MALYAN_LCD_SERIAL_PORT
-    #error "MALYAN_LCD requires MALYAN_LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif MALYAN_LCD_SERIAL_PORT == SERIAL_PORT
-    #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && MALYAN_LCD_SERIAL_PORT == SERIAL_PORT_2
-    #error "MALYAN_LCD_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-  #elif defined(DGUS_SERIAL) && MALYAN_LCD_SERIAL_PORT == DGUS_SERIAL_PORT
-    #error "MALYAN_LCD_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
-  #elif WITHIN(MALYAN_LCD_SERIAL_PORT, 1, NUM_UARTS)
-    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_LCD_SERIAL_PORT)
   #elif defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
-    #error "MALYAN_LCD_SERIAL_PORT must be from 1 to 5. Please update your configuration."
+  #ifndef MALYAN_SERIAL_PORT
+    #error "MALYAN_LCD requires MALYAN_SERIAL_PORT to be defined in Configuration.h"
+  #elif MALYAN_SERIAL_PORT == SERIAL_PORT
+    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && MALYAN_SERIAL_PORT == SERIAL_PORT_2
+    #error "MALYAN_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif defined(DGUS_SERIAL) && MALYAN_SERIAL_PORT == DGUS_SERIAL_PORT
+    #error "MALYAN_SERIAL_PORT must be different than DGUS_SERIAL_PORT. Please update your configuration."
+  #elif WITHIN(MALYAN_SERIAL_PORT, 1, NUM_UARTS)
+    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_SERIAL_PORT)
+    #error "MALYAN_SERIAL_PORT must be from 1 to 5. Please update your configuration."
   #else
-    #error "MALYAN_LCD_SERIAL_PORT must be from 1 to 3. Please update your configuration."
+    #error "MALYAN_SERIAL_PORT must be from 1 to 3. Please update your configuration."
   #endif
 #endif
 
