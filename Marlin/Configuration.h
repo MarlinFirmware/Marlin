@@ -73,7 +73,7 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(Creality CR-10 SKRv1.3 TMC2209 - 2020 08 06)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Creality CR-10 SKRv1.3 TMC2209 - 2020 09 23)" // Who made the changes.
 //#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
@@ -995,7 +995,7 @@
  *
  * Specify a Probe position as { X, Y, Z }
  */
-#define NOZZLE_TO_PROBE_OFFSET { -42, -8, -1.350 }
+#define NOZZLE_TO_PROBE_OFFSET { 32, -2, 0 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
