@@ -67,7 +67,6 @@
   #define NUM_SERIAL 1
 #endif
 
-
 #if HAS_DGUS_LCD
   #if DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
