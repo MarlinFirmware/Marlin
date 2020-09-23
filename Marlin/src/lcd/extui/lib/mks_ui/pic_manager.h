@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../../../inc/MarlinConfig.h"
+#include "../../../../inc/MarlinConfigPre.h"
 
 #include "../../../../libs/W25Qxx.h"
 
@@ -119,12 +119,21 @@
 
 // Flash flag
 #define REFLSHE_FLGA_ADD                (0X800000-32)
-#define FLASH_INF_VALID_FLAG            0xAA558761
+
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
+#define FLASH_INF_VALID_FLAG            0x20200831
+
+//Store some gcode commands, such as auto leveling commands
+#define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3*1024
+#define AUTO_LEVELING_COMMAND_ADDR      GCODE_COMMAND_ADDR
+#define OTHERS_COMMAND_ADDR_1           AUTO_LEVELING_COMMAND_ADDR + 100
+#define OTHERS_COMMAND_ADDR_2           OTHERS_COMMAND_ADDR_1 + 100
+#define OTHERS_COMMAND_ADDR_3           OTHERS_COMMAND_ADDR_2 + 100
+#define OTHERS_COMMAND_ADDR_4           OTHERS_COMMAND_ADDR_3 + 100
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 union union32 {
@@ -157,5 +166,5 @@ extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view
 extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

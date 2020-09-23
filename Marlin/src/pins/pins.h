@@ -498,10 +498,10 @@
   #include "stm32f1/pins_STM3R_MINI.h"          // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_PRO_VB)
   #include "stm32f1/pins_GTM32_PRO_VB.h"        // STM32F1                                env:STM32F103RE
-#elif MB(GTM32_MINI_A30)
-  #include "stm32f1/pins_GTM32_MINI_A30.h"      // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_MINI)
   #include "stm32f1/pins_GTM32_MINI.h"          // STM32F1                                env:STM32F103RE
+#elif MB(GTM32_MINI_A30)
+  #include "stm32f1/pins_GTM32_MINI_A30.h"      // STM32F1                                env:STM32F103RE
 #elif MB(GTM32_REV_B)
   #include "stm32f1/pins_GTM32_REV_B.h"         // STM32F1                                env:STM32F103RE
 #elif MB(MORPHEUS)
@@ -518,6 +518,16 @@
   #include "stm32f1/pins_MKS_ROBIN_NANO_V2.h"   // STM32F1                                env:mks_robin_nano35
 #elif MB(MKS_ROBIN_LITE)
   #include "stm32f1/pins_MKS_ROBIN_LITE.h"      // STM32F1                                env:mks_robin_lite
+#elif MB(MKS_ROBIN_LITE3)
+  #include "stm32f1/pins_MKS_ROBIN_LITE3.h"     // STM32F1                                env:mks_robin_lite3
+#elif MB(MKS_ROBIN_PRO)
+  #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
+#elif MB(MKS_ROBIN_E3)
+  #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3D)
+  #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3P)
+  #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p
 #elif MB(BTT_SKR_MINI_V1_1)
   #include "stm32f1/pins_BTT_SKR_MINI_V1_1.h"   // STM32F1                                env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V1_0)
@@ -538,14 +548,6 @@
   #include "stm32f1/pins_FYSETC_CHEETAH_V12.h"  // STM32F1                                env:STM32F103RC_fysetc
 #elif MB(LONGER3D_LK)
   #include "stm32f1/pins_LONGER3D_LK.h"         // STM32F1                                env:STM32F103VE_longer
-#elif MB(MKS_ROBIN_LITE3)
-  #include "stm32f1/pins_MKS_ROBIN_LITE3.h"     // STM32F1                                env:mks_robin_lite3
-#elif MB(MKS_ROBIN_PRO)
-  #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
-#elif MB(MKS_ROBIN_E3D)
-  #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
-#elif MB(MKS_ROBIN_E3)
-  #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
 #elif MB(CCROBOT_MEEB_3DP)
   #include "stm32f1/pins_CCROBOT_MEEB_3DP.h"    // STM32F1                                env:STM32F103RC_meeb
 #elif MB(CHITU3D_V5)
@@ -621,7 +623,7 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
-#elif MB(TEENSY40_41)
+#elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"            // Teensy-4.x                             env:teensy41

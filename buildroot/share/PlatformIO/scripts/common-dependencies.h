@@ -91,9 +91,6 @@
 
 #if EXTRUDERS
   #define HAS_EXTRUDERS
-  #if EXTRUDERS > 1
-    #define HAS_MULTI_EXTRUDER
-  #endif
 #endif
 
 #if HAS_LCD_MENU
