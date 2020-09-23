@@ -33,7 +33,7 @@
 #include "../lcd/ultralcd.h"
 
 #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/cr6/touch_lcd.h"
+  #include "../lcd/dwin/dwin_touch_lcd.h"
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
