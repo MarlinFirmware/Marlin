@@ -55,7 +55,6 @@
 #endif
 
 #ifdef SERIAL_PORT_2
-  #define NUM_SERIAL 2
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
@@ -63,8 +62,6 @@
   #else
     #error "SERIAL_PORT_2 must be -1 or from 1 to 6. Please update your configuration."
   #endif
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #if HAS_DGUS_LCD

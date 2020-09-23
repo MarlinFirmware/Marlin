@@ -54,8 +54,6 @@
   #define IS_TEENSY36 1
 #endif
 
-#define NUM_SERIAL 1
-
 #define _MSERIAL(X) Serial##X
 #define MSERIAL(X) _MSERIAL(X)
 #define Serial0 Serial

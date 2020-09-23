@@ -70,9 +70,6 @@
   #else
       #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define HAL_SERVO_LIB libServo

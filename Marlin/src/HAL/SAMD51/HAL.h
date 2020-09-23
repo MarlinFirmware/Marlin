@@ -54,9 +54,6 @@
     #else
       #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
     #endif
-    #define NUM_SERIAL 2
-  #else
-    #define NUM_SERIAL 1
   #endif
 
   #ifdef DGUS_SERIAL_PORT
