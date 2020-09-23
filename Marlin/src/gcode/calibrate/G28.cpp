@@ -325,11 +325,11 @@ void GcodeSuite::G28() {
       if (creality_autohome_lcd_is_ready()) {
     #endif
 
-    if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
-      do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
-    }
+      if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
+        do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
+      }
 
     #if ENABLED(DWIN_CREALITY_TOUCH)
       }
