@@ -802,10 +802,10 @@ void reset_trinamic_drivers() {
 }
 
 // TMC Slave Address Conflict Detection
-// 
+//
 // Conflict detection is performed in the following way. Similar methods are used for
 // hardware and software serial, but the implementations are indepenent.
-// 
+//
 // 1. Populate a data structure with UART parameters and addresses for all possible axis.
 //      If an axis is not in use, populate it with recognizable placeholder data.
 // 2. For each axis in use, static_assert using a constexpr function, which counts the
@@ -815,7 +815,7 @@ void reset_trinamic_drivers() {
   // Hardware serial names are compared as strings, since actually resolving them cannot occur in a constexpr.
   // Using a fixed-length character array for the port name allows this to be constexpr compatible.
   struct SanityHwSerialDetails { const char port[20]; uint32_t address; };
-  #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)  
+  #define TMC_HW_DETAIL_ARGS(A) TERN(A##_HAS_HW_SERIAL, STRINGIFY(A##_HARDWARE_SERIAL), ""), TERN0(A##_HAS_HW_SERIAL, A##_SLAVE_ADDRESS)
   #define TMC_HW_DETAIL(A) {TMC_HW_DETAIL_ARGS(A)}
   constexpr SanityHwSerialDetails sanity_tmc_hw_details[] = {
     TMC_HW_DETAIL(X), TMC_HW_DETAIL(X2),
