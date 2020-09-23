@@ -37,7 +37,7 @@
  *   https://github.com/ultimachine/Archim/wiki
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 

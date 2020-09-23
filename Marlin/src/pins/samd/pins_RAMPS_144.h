@@ -25,7 +25,7 @@
  * AGCM4 with RAMPS v1.4.4 pin assignments
  */
 
-#ifndef ARDUINO_GRAND_CENTRAL_M4
+#if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
 

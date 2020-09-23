@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(__AVR_ATmega1281__) && !defined(__AVR_ATmega2561__)
+#if NOT_TARGET(__AVR_ATmega1281__, __AVR_ATmega2561__)
   #error "Oops! Select 'Silvergate' in 'Tools > Board.'"
 #endif
 

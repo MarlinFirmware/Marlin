@@ -28,7 +28,7 @@
  * single hotend, and LCD controller.
  */
 
-#ifndef ARDUINO_ARCH_ESP32
+#if NOT_TARGET(ARDUINO_ARCH_ESP32)
   #error "Oops! Select an ESP32 board in 'Tools > Board.'"
 #elif EXTRUDERS > 2 || E_STEPPERS > 2
   #error "MRR ESPE only supports two E Steppers. Comment out this line to continue."
