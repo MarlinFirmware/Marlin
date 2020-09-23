@@ -148,7 +148,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with Y endstop pin!"
   #elif HAS_CUSTOM_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
-  #elif ANY_TX2(X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
+  #elif ANY_TX(2, X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
   #elif HAS_MULTI_EXTRUDER && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
     #error "Serial port pins (2) conflict with E1 stepper pins!"

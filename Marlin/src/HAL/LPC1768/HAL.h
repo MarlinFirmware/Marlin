@@ -63,7 +63,7 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
-#define _MSERIAL(X) Serial##X
+#define _MSERIAL(X) MSerial##X
 #define MSERIAL(X) _MSERIAL(X)
 #define MSerial0 MSerial
 
