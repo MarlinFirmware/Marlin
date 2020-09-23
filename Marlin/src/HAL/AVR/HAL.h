@@ -81,11 +81,7 @@ typedef int8_t pin_t;
 
 // Serial ports
 #ifdef USBCON
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL0 bluetoothSerial
-  #else
-    #define MYSERIAL0 Serial
-  #endif
+  #define MYSERIAL0 TERN(BLUETOOTH, bluetoothSerial, Serial)
   #define NUM_SERIAL 1
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)

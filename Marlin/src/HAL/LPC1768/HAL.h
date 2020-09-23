@@ -63,16 +63,14 @@ extern "C" volatile uint32_t _millis;
   #define ST7920_DELAY_3 DELAY_NS(750)
 #endif
 
+#define _MSERIAL(X) Serial##X
+#define MSERIAL(X) _MSERIAL(X)
+#define MSerial0 MSerial
+
 #if SERIAL_PORT == -1
   #define MYSERIAL0 UsbSerial
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 MSerial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 MSerial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 MSerial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 MSerial3
+#elif WITHIN(SERIAL_PORT, 0, 3)
+  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
   #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
 #endif
@@ -82,14 +80,8 @@ extern "C" volatile uint32_t _millis;
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 UsbSerial
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 MSerial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 MSerial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 MSerial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 MSerial3
+  #elif WITHIN(SERIAL_PORT_2, 0, 3)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
   #endif
@@ -105,14 +97,8 @@ extern "C" volatile uint32_t _millis;
     #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL UsbSerial
-  #elif DGUS_SERIAL_PORT == 0
-    #define DGUS_SERIAL MSerial
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL MSerial1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL MSerial2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL MSerial3
+  #elif WITHIN(DGUS_SERIAL_PORT, 0, 3)
+    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
   #else
     #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif

@@ -46,24 +46,16 @@
 // Serial override
 //extern HalSerial usb_serial;
 
+#define _MSERIAL(X) SerialUART##X
+#define MSERIAL(X) _MSERIAL(X)
+#define SerialUART0 Serial1
+
 #if defined(STM32F4) && SERIAL_PORT == 0
   #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 SerialUART1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 SerialUART2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 SerialUART3
-#elif SERIAL_PORT == 4
-  #define MYSERIAL0 SerialUART4
-#elif SERIAL_PORT == 5
-  #define MYSERIAL0 SerialUART5
-#elif SERIAL_PORT == 6
-  #define MYSERIAL0 SerialUART6
+#elif WITHIN(SERIAL_PORT, 0, 6)
+  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
   #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
 #endif
@@ -75,20 +67,8 @@
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial1
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 SerialUART1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 SerialUART2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 SerialUART3
-  #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 SerialUART4
-  #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 SerialUART5
-  #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 SerialUART6
+  #elif WITHIN(SERIAL_PORT_2, 0, 6)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
     #error "SERIAL_PORT_2 must be from -1 to 6. Please update your configuration."
   #endif
@@ -106,20 +86,8 @@
     #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
-  #elif DGUS_SERIAL_PORT == 0
-    #define DGUS_SERIAL Serial1
-  #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL SerialUART1
-  #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL SerialUART2
-  #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL SerialUART3
-  #elif DGUS_SERIAL_PORT == 4
-    #define DGUS_SERIAL SerialUART4
-  #elif DGUS_SERIAL_PORT == 5
-    #define DGUS_SERIAL SerialUART5
-  #elif DGUS_SERIAL_PORT == 6
-    #define DGUS_SERIAL SerialUART6
+  #elif WITHIN(DGUS_SERIAL_PORT, 0, 6)
+    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
   #else
     #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
   #endif
