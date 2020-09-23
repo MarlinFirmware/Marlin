@@ -1804,8 +1804,11 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-
-        int16_t lcd_contrast;
+        #if HAS_LCD_CONTRAST
+          int16_t &lcd_contrast = ui.contrast;
+        #else
+          int16_t lcd_contrast;
+        #endif
         EEPROM_READ(lcd_contrast);
         TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
       }
