@@ -687,11 +687,11 @@ G29_TYPE GcodeSuite::G29() {
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]));
 
             #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-               if (bl_count < GRID_MAX_POINTS) {
+               bl_count++;
+
+               if (bl_count <= GRID_MAX_POINTS) {
                    DWINTouch_bedlevel_update_callback(bl_count);
                }
-
-               bl_count++;
             #endif
           #endif
 
