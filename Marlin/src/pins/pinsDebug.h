@@ -116,7 +116,7 @@ const PinInfo pin_array[] PROGMEM = {
     #elif AVR_ATmega1284_FAMILY
       { RXD_NAME_0, 8, true },
       { TXD_NAME_0, 9, true },
-    #elif defined(TARGET_LPC1768)           // TX P0_02	RX P0_03
+    #elif defined(TARGET_LPC1768)           // TX P0_02  RX P0_03
       { RXD_NAME_0, 3, true },
       { TXD_NAME_0, 2, true },
     #endif
@@ -128,10 +128,10 @@ const PinInfo pin_array[] PROGMEM = {
       { RXD_NAME_1, 10, true },
       { TXD_NAME_1, 11, true },
     #elif defined(TARGET_LPC1768)
-      #if defined(LPC_PINCFG_UART1_P2_00)   // TX P2_00	RX P2_01
+      #ifdef LPC_PINCFG_UART1_P2_00         // TX P2_00  RX P2_01
         { RXD_NAME_1, 0x41, true },
         { TXD_NAME_1, 0x40, true },
-      #else                                 // TX P0_15	RX P0_16
+      #else                                 // TX P0_15  RX P0_16
         { RXD_NAME_1, 16, true },
         { TXD_NAME_1, 15, true },
       #endif 
@@ -141,10 +141,10 @@ const PinInfo pin_array[] PROGMEM = {
       { RXD_NAME_2, 17, true },
       { TXD_NAME_2, 16, true },
     #elif defined(TARGET_LPC1768)
-      #if defined(LPC_PINCFG_UART2_P2_08)   // TX P2_08	RX P2_09
+      #ifdef LPC_PINCFG_UART2_P2_08         // TX P2_08  RX P2_09
         { RXD_NAME_2, 0x49, true }, 
         { TXD_NAME_2, 0x48, true },   
-      #else                                 // TX P0_10 RX P0_11
+      #else                                 // TX P0_10  RX P0_11
         { RXD_NAME_2, 11, true },
         { TXD_NAME_2, 10, true },
       #endif
@@ -154,13 +154,13 @@ const PinInfo pin_array[] PROGMEM = {
       { RXD_NAME_3, 15, true },
       { TXD_NAME_3, 14, true },
     #elif defined(TARGET_LPC1768)
-      #if defined(LPC_PINCFG_UART3_P0_25)   // TX P0_25	RX P0_26
+      #ifdef LPC_PINCFG_UART3_P0_25         // TX P0_25  RX P0_26
         { RXD_NAME_3, 0x1A, true },
         { TXD_NAME_3, 0x19, true },
-      #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28	RX P4_29
+      #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28  RX P4_29
         { RXD_NAME_3, 0x9D, true },
         { TXD_NAME_3, 0x9C, true },
-      #else                                 // TX P0_00	RX P0_01
+      #else                                 // TX P0_00  RX P0_01
         { RXD_NAME_3, 1, true },
         { TXD_NAME_3, 0, true },
       #endif
@@ -175,7 +175,7 @@ const PinInfo pin_array[] PROGMEM = {
       #elif AVR_ATmega1284_FAMILY
         { RXD_NAME_0, 8, true },
         { TXD_NAME_0, 9, true },
-      #elif defined(TARGET_LPC1768)           // TX P0_02	RX P0_03
+      #elif defined(TARGET_LPC1768)           // TX P0_02  RX P0_03
         { RXD_NAME_0, 3, true },
         { TXD_NAME_0, 2, true },
       #endif
@@ -187,10 +187,10 @@ const PinInfo pin_array[] PROGMEM = {
         { RXD_NAME_1, 10, true },
         { TXD_NAME_1, 11, true },
       #elif defined(TARGET_LPC1768)
-        #if defined(LPC_PINCFG_UART1_P2_00)   // TX P2_00	RX P2_01
+        #if defined(LPC_PINCFG_UART1_P2_00)   // TX P2_00  RX P2_01
           { RXD_NAME_1, 0x41, true },
           { TXD_NAME_1, 0x40, true },
-        #else                                 // TX P0_15	RX P0_16
+        #else                                 // TX P0_15  RX P0_16
           { RXD_NAME_1, 16, true },
           { TXD_NAME_1, 15, true },
         #endif 
@@ -200,10 +200,10 @@ const PinInfo pin_array[] PROGMEM = {
         { RXD_NAME_2, 17, true },
         { TXD_NAME_2, 16, true },
       #elif defined(TARGET_LPC1768)
-        #if defined(LPC_PINCFG_UART2_P2_08)   // TX P2_08	RX P2_09
+        #if defined(LPC_PINCFG_UART2_P2_08)   // TX P2_08  RX P2_09
           { RXD_NAME_2, 0x49, true }, 
           { TXD_NAME_2, 0x48, true },   
-        #else                                 // TX P0_10 RX P0_11
+        #else                                 // TX P0_10  RX P0_11
           { RXD_NAME_2, 11, true },
           { TXD_NAME_2, 10, true },
         #endif
@@ -213,13 +213,13 @@ const PinInfo pin_array[] PROGMEM = {
         { RXD_NAME_3, 15, true },
         { TXD_NAME_3, 14, true },
       #elif defined(TARGET_LPC1768)
-        #if defined(LPC_PINCFG_UART3_P0_25)   // TX P0_25	RX P0_26
+        #if defined(LPC_PINCFG_UART3_P0_25)   // TX P0_25  RX P0_26
           { RXD_NAME_3, 0x1A, true },
           { TXD_NAME_3, 0x19, true },
-        #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28	RX P4_29
+        #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28  RX P4_29
           { RXD_NAME_3, 0x9D, true },
           { TXD_NAME_3, 0x9C, true },
-        #else                                 // TX P0_00	RX P0_01
+        #else                                 // TX P0_00  RX P0_01
           { RXD_NAME_3, 1, true },
           { TXD_NAME_3, 0, true },
         #endif
