@@ -288,5 +288,5 @@
   #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
 #endif
 
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card
