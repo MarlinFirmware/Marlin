@@ -205,7 +205,7 @@ void DWIN_Frame_AreaCopy(uint8_t cacheID, uint16_t xStart, uint16_t yStart,
 //  picIDe: Icon ending ID
 //  x/y: Upper-left point
 //  interval: Display time interval, unit 10mS
-void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t picIDs, 
+void DWIN_ICON_Animation(uint8_t animID, bool animate, uint8_t libID, uint8_t picIDs,
                          uint8_t picIDe, uint16_t x, uint16_t y, uint16_t interval);
 
 // Animation Control
