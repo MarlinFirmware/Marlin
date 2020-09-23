@@ -173,7 +173,7 @@
   #define SS_PIN                            PA4
 #endif
 
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for SD-NAND
 
 #endif
