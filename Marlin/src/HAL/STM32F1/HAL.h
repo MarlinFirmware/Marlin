@@ -114,7 +114,7 @@
 #if ENABLED(MALYAN_LCD_SERIAL_PORT)
   #if MALYAN_LCD_SERIAL_PORT == -1
     #define MALYAN_LCD_SERIAL UsbSerial
-  #if WITHIN(MALYAN_LCD_SERIAL_PORT, 1, NUM_UARTS)
+  #elif WITHIN(MALYAN_LCD_SERIAL_PORT, 1, NUM_UARTS)
     #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_LCD_SERIAL_PORT)
   #elif NUM_UARTS == 5
     #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
