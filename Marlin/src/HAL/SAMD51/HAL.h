@@ -50,7 +50,7 @@
     #if SERIAL_PORT_2 == -1
       #define MYSERIAL1 Serial
     #elif WITHIN(SERIAL_PORT_2, 0, 3)
-      #define MYSERIAL0 MSERIAL(SERIAL_PORT_2)
+      #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
     #else
       #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
     #endif

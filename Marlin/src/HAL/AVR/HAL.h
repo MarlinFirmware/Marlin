@@ -86,7 +86,6 @@ typedef int8_t pin_t;
   #if !WITHIN(SERIAL_PORT, -1, 3)
     #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
-
   #define MYSERIAL0 customizedSerial1
 
   #ifdef SERIAL_PORT_2
