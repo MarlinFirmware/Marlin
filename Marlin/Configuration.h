@@ -2217,7 +2217,7 @@
   // Gradually reduce leveling correction until a set height is reached,
   // at which point movement will be level to the machine's XY plane.
   // The height can be set with M420 Z<height>
-  #if DISABLED(MachineCR10Orig, SKRMiniE3V2)
+  #if NONE(MachineCR10Orig, SKRMiniE3V2)
     #define ENABLE_LEVELING_FADE_HEIGHT
   #endif
 
@@ -2337,7 +2337,7 @@
   #define MESH_EDIT_MENU        // Add a menu to edit mesh points
 #endif
 
-#if NONE(SolidBedMounts, SKRMiniE3V2)
+#if NONE(SolidBedMounts, SKRMiniE3V2, MachineCR10Orig)
 // Add a menu item to move between bed corners for manual bed adjustment
   #define LEVEL_BED_CORNERS
 #endif
@@ -2479,10 +2479,11 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
-#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
-#define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
-
+#if NONE(MachineCR10Orig, MelziHostOnly)
+  #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+  #define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
+  #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
+#endif
 //
 // G20/G21 Inch mode support
 //
