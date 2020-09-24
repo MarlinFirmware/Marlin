@@ -223,6 +223,7 @@
 #define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_BTT_SKR_E3_TURBO        2015  // BigTreeTech SKR E3 Turbo (Power outputs: Hotend0, Hotend1, Fan, Bed)
 
 //
 // LPC1769 ARM Cortex M3
