@@ -60,20 +60,12 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
 #endif
 
 void DGUSDisplay::InitDisplay() {
-  LCD_SERIAL.begin(DGUS_BAUDRATE);
-
-  if (true
-    #if ENABLED(POWER_LOSS_RECOVERY)
-      && !recovery.valid()
-    #endif
-  )
-    RequestScreen(
-      #if ENABLED(SHOW_BOOTSCREEN)
-        DGUSLCD_SCREEN_BOOT
-      #else
-        DGUSLCD_SCREEN_MAIN
-      #endif
-    );
+  #ifndef LCD_BAUDRATE
+    #define LCD_BAUDRATE 115200
+  #endif
+  LCD_SERIAL.begin(LCD_BAUDRATE);
+  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid()))
+    RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {

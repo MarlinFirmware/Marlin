@@ -428,7 +428,11 @@ namespace ExtUI {
      * it and translate into ExtUI operations where possible.
      */
     inbound_count = 0;
-    LCD_SERIAL.begin(500000);
+
+    #ifndef LCD_BAUDRATE
+      #define LCD_BAUDRATE 500000
+    #endif
+    LCD_SERIAL.begin(LCD_BAUDRATE);
 
     // Signal init
     write_to_lcd_P(PSTR("{SYS:STARTED}\r\n"));

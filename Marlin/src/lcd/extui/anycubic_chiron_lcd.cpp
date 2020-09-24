@@ -466,7 +466,10 @@ namespace ExtUI {
   }
 
   void onStartup() {
-    LCD_SERIAL.begin(115200);
+    #ifndef LCD_BAUDRATE
+      #define LCD_BAUDRATE 115200
+    #endif
+    LCD_SERIAL.begin(LCD_BAUDRATE);
     sendNewLine();
     SENDLINE_PGM("J17"); // Reset
     delay_ms(10);
