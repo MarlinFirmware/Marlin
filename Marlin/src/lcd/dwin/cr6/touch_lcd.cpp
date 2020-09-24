@@ -54,8 +54,6 @@
   #include "endstops.h"
 #endif
 
-#define CHECKFILEMENT true
-
 #define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
                                             // BL24CXX::check() uses 0x00
 
