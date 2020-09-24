@@ -1816,7 +1816,6 @@ void EachMomentUpdate()
       {
         print_finish = false;
         finish_home = true;
-        queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
       }
 
       // float temp_buf = thermalManager.temp_hotend[0].celsius;
