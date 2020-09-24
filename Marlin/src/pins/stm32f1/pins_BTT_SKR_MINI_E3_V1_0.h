@@ -30,8 +30,8 @@
  * Hardware serial communication ports.
  */
 #if HAS_TMC_UART
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
+  #define X_HARDWARE_SERIAL  MSerial4
+  #define Y_HARDWARE_SERIAL  MSerial4
+  #define Z_HARDWARE_SERIAL  MSerial4
+  #define E0_HARDWARE_SERIAL MSerial4
 #endif
