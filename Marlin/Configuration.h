@@ -1733,8 +1733,6 @@
  *
  */
 #define SDSUPPORT
-#define SDIO_SUPPORT // Extra added by Creality
-#define SDIO_CLOCK 6000000 // In original source code overridden by Creality in sdio.h
 
 /**
  * SD CARD: SPI SPEED
