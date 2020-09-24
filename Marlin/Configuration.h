@@ -2166,8 +2166,7 @@
 //
 //#define MALYAN_LCD
 #if ENABLED(MALYAN_LCD)
-  // This will be 1 on a Malyan M200, but may differ on other boards.
-  #define MALYAN_LCD_SERIAL_PORT 1
+  #define MALYAN_LCD_SERIAL_PORT 1  // Default is 1 for Malyan M200
 #endif
 
 //
