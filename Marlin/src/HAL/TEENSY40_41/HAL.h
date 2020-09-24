@@ -66,7 +66,7 @@
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usbSerial
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
-    #define MYSERIAL0 MSERIAL(SERIAL_PORT_2)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
       #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
   #endif
