@@ -24,7 +24,7 @@
 #include "../../inc/MarlinConfigPre.h"
 #include "MarlinSerial.h"
 
-#if IS_ZERO(SERIAL_PORT) || IS_ZERO(SERIAL_PORT_2) || IS_ZERO(DGUS_SERIAL_PORT)
+#if (defined(SERIAL_PORT) && SERIAL_PORT == 0) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 0) || (defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT == 0)
   MarlinSerial MSerial(LPC_UART0);
   extern "C" void UART0_IRQHandler() {
     MSerial.IRQHandler();
