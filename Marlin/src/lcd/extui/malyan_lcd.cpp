@@ -45,7 +45,7 @@
 
 #if ENABLED(MALYAN_LCD)
 
-#define DEBUG_MALYAN_LCD
+//#define DEBUG_MALYAN_LCD
 
 #include "ui_api.h"
 
@@ -60,10 +60,6 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_MALYAN_LCD)
 #include "../../core/debug_out.h"
-
-// On the Malyan M200, this will be Serial1. On a RAMPS board,
-// it might not be.
-#define LCD_SERIAL Serial1
 
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
