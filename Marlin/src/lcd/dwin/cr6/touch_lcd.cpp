@@ -145,20 +145,22 @@ RTSSHOW::RTSSHOW()
 
 void RTSSHOW::RTS_SDCardInit(void)
 {
-  if(!IS_SD_INSERTED())
+  lcd_sd_status = card.isMounted();
+  
+  if(!lcd_sd_status)
   {
-    card.mount(); 
+      card.mount();
+
+      lcd_sd_status = card.isMounted();
   }
-  delay(2);
-  if(IS_SD_INSERTED())
+
+  delay(500);
+
+  if(lcd_sd_status)
   {
     uint16_t fileCnt = card.get_num_Files();
     card.getWorkDirName();
-    if (card.filename[0] == '/') 
-    {
-      card.mount();
-    }
-    else 
+    if (card.filename[0] != '/') 
     {
       card.cdup();
     }
@@ -193,7 +195,8 @@ void RTSSHOW::RTS_SDCardInit(void)
       RTS_SndData(CardRecbuf.Cardshowfilename[num],CardRecbuf.addr[num]);
       CardRecbuf.Filesum = (++num);
     }
-    lcd_sd_status = IS_SD_INSERTED();
+    lcd_sd_status = card.isMounted();
+
     SERIAL_ECHOLN("***Initing card is OK***");
   }
   else
@@ -204,17 +207,16 @@ void RTSSHOW::RTS_SDCardInit(void)
 
 void RTSSHOW::RTS_SDCardUpate(void)
 {
-  const bool sd_status = IS_SD_INSERTED();
+  const bool sd_status = card.isMounted();
   if (sd_status != lcd_sd_status)
   {
     if(sd_status)
     {
-      card.mount();
-      RTS_SDCardInit();
+        RTS_SDCardInit();
     }
     else
     {
-      card.release();
+      
       for(int i = 0;i < CardRecbuf.Filesum;i ++)
       {
         for(int j = 0;j < 10;j++)
@@ -239,7 +241,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
   }
 
   // represents to update file list
-  if(CardUpdate && lcd_sd_status && IS_SD_INSERTED())
+  if(CardUpdate && lcd_sd_status)
   {
     for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
     {
