@@ -1042,10 +1042,6 @@ void setup() {
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
   #endif
 
-  #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-    SETUP_RUN(DWINTouch_init());
-  #endif
-
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
@@ -1220,6 +1216,10 @@ void setup() {
     BL24CXX::init();
     const uint8_t err = BL24CXX::check();
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
+  #endif
+
+  #if ENABLED(DWIN_CREALITY_TOUCHLCD)
+    SETUP_RUN(DWINTouch_init());
   #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)
