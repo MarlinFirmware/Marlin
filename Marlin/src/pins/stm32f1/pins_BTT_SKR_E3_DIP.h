@@ -28,7 +28,7 @@
 #define BOARD_INFO_NAME "BTT SKR E3 DIP V1.0"
 
 // Release PB3/PB4 (TMC_SW Pins) from JTAG pins
-// #define DISABLE_JTAG
+#define DISABLE_JTAG
 
 // Ignore temp readings during development.
 //#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
