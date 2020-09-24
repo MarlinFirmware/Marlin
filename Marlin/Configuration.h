@@ -2166,7 +2166,7 @@
 //
 //#define MALYAN_LCD
 #if ENABLED(MALYAN_LCD)
-  #define MALYAN_LCD_SERIAL_PORT 1  // Default is 1 for Malyan M200
+  #define LCD_SERIAL_PORT 1  // Default is 1 for Malyan M200
 #endif
 
 //
@@ -2181,7 +2181,7 @@
 //#define ANYCUBIC_LCD_I3MEGA
 //#define ANYCUBIC_LCD_CHIRON
 #if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-  #define ANYCUBIC_LCD_SERIAL_PORT 3
+  #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 

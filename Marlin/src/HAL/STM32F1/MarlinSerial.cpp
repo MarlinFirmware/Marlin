@@ -84,8 +84,8 @@ constexpr bool serial_handles_emergency(int port) {
     #ifdef SERIAL_PORT_2
       || (SERIAL_PORT_2) == port
     #endif
-    #ifdef DGUS_SERIAL_PORT
-      || (DGUS_SERIAL_PORT) == port
+    #ifdef LCD_SERIAL_PORT
+      || (LCD_SERIAL_PORT) == port
     #endif
   ;
 }
@@ -138,11 +138,11 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 #ifdef MYSERIAL1
   CHECK_CFG_SERIAL(MYSERIAL1);
 #endif
-#ifdef DGUS_SERIAL
-  CHECK_CFG_SERIAL(DGUS_SERIAL);
+#ifdef LCD_SERIAL
+  CHECK_CFG_SERIAL(LCD_SERIAL);
 #endif
-#ifdef MALYAN_LCD_SERIAL
-  CHECK_CFG_SERIAL(MALYAN_LCD_SERIAL);
+#ifdef LCD_SERIAL
+  CHECK_CFG_SERIAL(LCD_SERIAL);
 #endif
 #if AXIS_HAS_HW_SERIAL(X)
   CHECK_AXIS_SERIAL(X);

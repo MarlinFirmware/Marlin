@@ -747,66 +747,50 @@
 
 #endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
-#ifdef INTERNAL_SERIAL_PORT
+#ifdef MMU2_SERIAL_PORT
 
-  ISR(SERIAL_REGNAME(USART, INTERNAL_SERIAL_PORT, _RX_vect)) {
-    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::store_rxd_char();
+  ISR(SERIAL_REGNAME(USART, MMU2_SERIAL_PORT, _RX_vect)) {
+    MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::store_rxd_char();
   }
 
-  ISR(SERIAL_REGNAME(USART, INTERNAL_SERIAL_PORT, _UDRE_vect)) {
-    MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>::_tx_udr_empty_irq();
+  ISR(SERIAL_REGNAME(USART, MMU2_SERIAL_PORT, _UDRE_vect)) {
+    MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
   // Preinstantiate
-  template class MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>>;
+  template class MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>>;
 
   // Instantiate
-  MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
+  MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>> mmuSerial;
 
 #endif
 
-#ifdef DGUS_SERIAL_PORT
+#ifdef LCD_SERIAL_PORT
 
-  template<typename Cfg>
-  typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
-    const ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.
-                            h = tx_buffer.head;  // next pos for queue.
-    int ret = t - h - 1;
-    if (ret < 0) ret += Cfg::TX_SIZE + 1;
-    return ret;
+  ISR(SERIAL_REGNAME(USART, LCD_SERIAL_PORT, _RX_vect)) {
+    MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>::store_rxd_char();
   }
 
-  ISR(SERIAL_REGNAME(USART, DGUS_SERIAL_PORT, _RX_vect)) {
-    MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>::store_rxd_char();
-  }
-
-  ISR(SERIAL_REGNAME(USART, DGUS_SERIAL_PORT, _UDRE_vect)) {
-    MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>::_tx_udr_empty_irq();
+  ISR(SERIAL_REGNAME(USART, LCD_SERIAL_PORT, _UDRE_vect)) {
+    MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
   }
 
   // Preinstantiate
-  template class MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>>;
+  template class MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>>;
 
   // Instantiate
-  MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
+  MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>> lcdSerial;
 
-#endif
-
-#ifdef ANYCUBIC_LCD_SERIAL_PORT
-
-  ISR(SERIAL_REGNAME(USART, ANYCUBIC_LCD_SERIAL_PORT, _RX_vect)) {
-    MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>::store_rxd_char();
-  }
-
-  ISR(SERIAL_REGNAME(USART, ANYCUBIC_LCD_SERIAL_PORT, _UDRE_vect)) {
-    MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>::_tx_udr_empty_irq();
-  }
-
-  // Preinstantiate
-  template class MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>>;
-
-  // Instantiate
-  MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>> anycubicLcdSerial;
+  #if HAS_DGUS_LCD
+    template<typename Cfg>
+    typename MarlinSerial<Cfg>::ring_buffer_pos_t MarlinSerial<Cfg>::get_tx_buffer_free() {
+      const ring_buffer_pos_t t = tx_buffer.tail,  // next byte to send.
+                              h = tx_buffer.head;  // next pos for queue.
+      int ret = t - h - 1;
+      if (ret < 0) ret += Cfg::TX_SIZE + 1;
+      return ret;
+    }
+  #endif
 
 #endif
 

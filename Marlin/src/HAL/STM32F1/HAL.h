@@ -99,27 +99,27 @@
   #endif
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL UsbSerial
-  #elif WITHIN(DGUS_SERIAL_PORT, 1, NUM_UARTS)
-    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL UsbSerial
+  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #elif NUM_UARTS == 5
-    #error "DGUS_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "DGUS_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
 #endif
 
-#ifdef MALYAN_LCD_SERIAL_PORT
-  #if MALYAN_LCD_SERIAL_PORT == -1
-    #define MALYAN_LCD_SERIAL UsbSerial
-  #elif WITHIN(MALYAN_LCD_SERIAL_PORT, 1, NUM_UARTS)
-    #define MALYAN_LCD_SERIAL MSERIAL(MALYAN_LCD_SERIAL_PORT)
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL UsbSerial
+  #elif WITHIN(LCD_SERIAL_PORT, 1, NUM_UARTS)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #elif NUM_UARTS == 5
-    #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 5. Please update your configuration."
   #else
-    #error "MALYAN_LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
 #endif
 
