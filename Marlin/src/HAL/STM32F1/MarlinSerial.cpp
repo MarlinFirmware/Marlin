@@ -141,9 +141,6 @@ constexpr bool IsSerialClassAllowed(const HardwareSerial&) { return false; }
 #ifdef LCD_SERIAL
   CHECK_CFG_SERIAL(LCD_SERIAL);
 #endif
-#ifdef LCD_SERIAL
-  CHECK_CFG_SERIAL(LCD_SERIAL);
-#endif
 #if AXIS_HAS_HW_SERIAL(X)
   CHECK_AXIS_SERIAL(X);
 #endif
