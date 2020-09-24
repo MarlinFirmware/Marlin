@@ -1825,7 +1825,7 @@ void EachMomentUpdate()
       rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
       if((false == card.isPrinting()) && (false == sdcard_pause_check))
       {
-        if(0 == READ(CHECK_MATWEIAL))
+        if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
         {
           if(language_change_font != 0)
           {
@@ -1841,7 +1841,7 @@ void EachMomentUpdate()
         }
       }
 
-      if(1 == READ(CHECK_MATWEIAL))
+      if(1 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
       {
         if(language_change_font != 0)
         {
@@ -1852,7 +1852,7 @@ void EachMomentUpdate()
           rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
         }
       }
-      else if(0 == READ(CHECK_MATWEIAL))
+      else if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
       {
         if(language_change_font != 0)
         {
@@ -1907,12 +1907,12 @@ void RTSUpdate()
   #if CHECKFILEMENT
     if((true == card.isPrinting()) && (true == sdcard_pause_check))
     {
-      if(1 == READ(CHECK_MATWEIAL))
+      if(1 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
       {
         checktime++;
         delay(10);
       }
-      else if(0 == READ(CHECK_MATWEIAL))
+      else if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
       {
         checktime = 0;
       }
