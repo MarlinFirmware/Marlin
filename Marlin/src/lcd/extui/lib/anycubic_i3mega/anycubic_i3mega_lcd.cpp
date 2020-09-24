@@ -123,12 +123,10 @@ void AnycubicTFTClass::OnSetup() {
 
   // initialise the state of the key pins running on the tft
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    pinMode(SD_DETECT_PIN, INPUT);
-    WRITE(SD_DETECT_PIN, HIGH);
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    pinMode(FIL_RUNOUT_PIN, INPUT);
-    WRITE(FIL_RUNOUT_PIN, HIGH);
+    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;

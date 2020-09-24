@@ -161,13 +161,13 @@ void printer_state_polling() {
 
 void filament_pin_setup() {
   #if PIN_EXISTS(MT_DET_1)
-    pinMode(MT_DET_1_PIN, INPUT_PULLUP);
+    SET_INPUT_PULLUP(MT_DET_1_PIN);
   #endif
   #if PIN_EXISTS(MT_DET_2)
-    pinMode(MT_DET_2_PIN, INPUT_PULLUP);
+    SET_INPUT_PULLUP(MT_DET_2_PIN);
   #endif
   #if PIN_EXISTS(MT_DET_3)
-    pinMode(MT_DET_3_PIN, INPUT_PULLUP);
+    SET_INPUT_PULLUP(MT_DET_3_PIN);
   #endif
 }
 
