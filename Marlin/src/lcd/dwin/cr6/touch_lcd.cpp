@@ -43,6 +43,7 @@
 #include "../../../module/stepper.h"
 #include "../../../module/printcounter.h"
 #include "../../../feature/babystep.h"
+#include "../../../feature/e_parser.h"
 #include "../../../feature/powerloss.h"
 #include "../../../gcode/gcode.h"
 
@@ -1400,7 +1401,21 @@ void RTSSHOW::RTS_HandleData()
       BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&language_change_font, 1);
       break;
     case PowerContinuePrintKey:
-      if(recdat.data[0] == 1)
+      if (wait_for_user) {
+        auto state = EmergencyParser::State::EP_M108;
+        emergency_parser.update(state, '\n');
+        
+        if(language_change_font != 0)
+        {
+          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
+          change_page_font = 10;
+        }
+        else
+        {
+          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+          change_page_font = 37;
+        }
+      } else if(recdat.data[0] == 1)
       {
         if(language_change_font != 0)
         {

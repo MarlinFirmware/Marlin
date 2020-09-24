@@ -284,4 +284,17 @@ void DWINTouch_heating_callback() {
   heat_flag = 0;
 }
 
+void DWINTouch_user_confirm_required() {
+  if(language_change_font != 0)
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 27, ExchangepageAddr);
+    change_page_font = 27;
+  }
+  else
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+    change_page_font = 54;
+  }
+}
+
 #endif

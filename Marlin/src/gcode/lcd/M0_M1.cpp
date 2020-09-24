@@ -35,6 +35,8 @@
   #include "../../lcd/ultralcd.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
+#elif ENABLED(DWIN_CREALITY_TOUCHLCD) 
+  #include "../../lcd/dwin/dwin_touch_lcd.h"
 #endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
@@ -63,6 +65,10 @@ void GcodeSuite::M0_M1() {
       #endif
     }
 
+  #elif ENABLED(DWIN_CREALITY_TOUCHLCD)
+
+  DWINTouch_user_confirm_required();
+  
   #elif ENABLED(EXTENSIBLE_UI)
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(parser.string_arg); // Can this take an SRAM string??
