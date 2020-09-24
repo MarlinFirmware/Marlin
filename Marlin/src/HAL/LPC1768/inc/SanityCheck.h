@@ -89,6 +89,9 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
  * Serial2 | P0_10 | P0_11 |
  * Serial3 | P0_00 | P0_01 |
  */
+#define ANY_TX(N,V...) DO(IS_TX##N,||,V)
+#define ANY_RX(N,V...) DO(IS_RX##N,||,V)
+
 #if (defined(SERIAL_PORT) && SERIAL_PORT == 0) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == 0) || (defined(DGUS_SERIAL_PORT) && DGUS_SERIAL_PORT == 0)
   #define IS_TX0(P) (P == P0_02)
   #define IS_RX0(P) (P == P0_03)
@@ -106,48 +109,56 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1 || DGUS_SERIAL_PORT == 1
   #define IS_TX1(P) (P == P0_15)
   #define IS_RX1(P) (P == P0_16)
+  #define _IS_TX1_1 IS_TX1
+  #define _IS_RX1_1 IS_RX1
   #if IS_TX1(TMC_SW_SCK)
     #error "Serial port pins (1) conflict with other pins!"
   #elif HAS_SPI_LCD
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
       #error "Serial port pins (1) conflict with Encoder Buttons!"
-    #elif IS_TX1(SCK_PIN) || IS_TX1(LCD_PINS_D4) || IS_TX1(DOGLCD_SCK) || IS_TX1(LCD_RESET_PIN) || IS_TX1(LCD_PINS_RS) || IS_TX1(SHIFT_CLK) \
-      || IS_RX1(LCD_SDSS) || IS_RX1(LCD_PINS_RS) || IS_RX1(MISO_PIN) || IS_RX1(DOGLCD_A0) || IS_RX1(SS_PIN) || IS_RX1(LCD_SDSS) || IS_RX1(DOGLCD_CS) || IS_RX1(LCD_RESET_PIN) || IS_RX1(LCD_BACKLIGHT_PIN)
+    #elif ANY_TX(1, SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK) \
+       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, MISO_PIN, DOGLCD_A0, SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
       #error "Serial port pins (1) conflict with LCD pins!"
     #endif
   #endif
   #undef IS_TX1
   #undef IS_RX1
+  #undef _IS_TX1_1
+  #undef _IS_RX1_1
 #endif
 
 #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || DGUS_SERIAL_PORT == 2
   #define IS_TX2(P) (P == P0_10)
   #define IS_RX2(P) (P == P0_11)
-  #if  IS_TX2(X2_ENABLE_PIN) || IS_RX2(X2_DIR_PIN) || IS_RX2(X2_STEP_PIN) || (AXIS_HAS_SPI(X2) && IS_TX2(X2_CS_PIN))
+  #define _IS_TX2_1 IS_TX2
+  #define _IS_RX2_1 IS_RX2
+  #if IS_TX2(X2_ENABLE_PIN) || ANY_RX(2, X2_DIR_PIN, X2_STEP_PIN) || (AXIS_HAS_SPI(X2) && IS_TX2(X2_CS_PIN))
     #error "Serial port pins (2) conflict with X2 pins!"
-  #elif IS_TX2(Y2_ENABLE_PIN) || IS_RX2(Y2_DIR_PIN) || IS_RX2(Y2_STEP_PIN) || (AXIS_HAS_SPI(Y2) && IS_TX2(Y2_CS_PIN))
+  #elif IS_TX2(Y2_ENABLE_PIN) || ANY_RX(2, Y2_DIR_PIN, Y2_STEP_PIN) || (AXIS_HAS_SPI(Y2) && IS_TX2(Y2_CS_PIN))
     #error "Serial port pins (2) conflict with Y2 pins!"
-  #elif IS_TX2(Z2_ENABLE_PIN) || IS_RX2(Z2_DIR_PIN) || IS_RX2(Z2_STEP_PIN) || (AXIS_HAS_SPI(Z2) && IS_TX2(Z2_CS_PIN))
+  #elif IS_TX2(Z2_ENABLE_PIN) || ANY_RX(2, Z2_DIR_PIN, Z2_STEP_PIN) || (AXIS_HAS_SPI(Z2) && IS_TX2(Z2_CS_PIN))
     #error "Serial port pins (2) conflict with Z2 pins!"
-  #elif IS_TX2(Z3_ENABLE_PIN) || IS_RX2(Z3_DIR_PIN) || IS_RX2(Z3_STEP_PIN) || (AXIS_HAS_SPI(Z3) && IS_TX2(Z3_CS_PIN))
+  #elif IS_TX2(Z3_ENABLE_PIN) || ANY_RX(2, Z3_DIR_PIN, Z3_STEP_PIN) || (AXIS_HAS_SPI(Z3) && IS_TX2(Z3_CS_PIN))
     #error "Serial port pins (2) conflict with Z3 pins!"
-  #elif IS_TX2(Z4_ENABLE_PIN) || IS_RX2(Z4_DIR_PIN) || IS_RX2(Z4_STEP_PIN) || (AXIS_HAS_SPI(Z4) && IS_TX2(Z4_CS_PIN))
+  #elif IS_TX2(Z4_ENABLE_PIN) || ANY_RX(2, Z4_DIR_PIN, Z4_STEP_PIN) || (AXIS_HAS_SPI(Z4) && IS_TX2(Z4_CS_PIN))
     #error "Serial port pins (2) conflict with Z4 pins!"
-  #elif IS_RX2(X_DIR_PIN) || IS_RX2(Y_DIR_PIN)
+  #elif ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with other pins!"
   #elif Y_HOME_DIR < 0 && IS_TX2(Y_STOP_PIN)
     #error "Serial port pins (2) conflict with Y endstop pin!"
   #elif HAS_CUSTOM_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
-  #elif IS_TX2(X_ENABLE_PIN) || IS_RX2(X_DIR_PIN) || IS_TX2(Y_ENABLE_PIN) || IS_RX2(Y_DIR_PIN)
+  #elif ANY_TX(2, X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
   #elif HAS_MULTI_EXTRUDER && (IS_TX2(E1_ENABLE_PIN) || (AXIS_HAS_SPI(E1) && IS_TX2(E1_CS_PIN)))
     #error "Serial port pins (2) conflict with E1 stepper pins!"
-  #elif EXTRUDERS && (IS_RX2(E0_DIR_PIN) || IS_RX2(E0_STEP_PIN))
+  #elif EXTRUDERS && ANY_RX(2, E0_DIR_PIN, E0_STEP_PIN)
     #error "Serial port pins (2) conflict with E stepper pins!"
   #endif
   #undef IS_TX2
   #undef IS_RX2
+  #undef _IS_TX2_1
+  #undef _IS_RX2_1
 #endif
 
 #if SERIAL_PORT == 3 || SERIAL_PORT_2 == 3 || DGUS_SERIAL_PORT == 3
@@ -155,8 +166,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define PIN_IS_RX3(P) (P##_PIN == P0_01)
   #if PIN_IS_TX3(X_MIN) || PIN_IS_RX3(X_MAX)
     #error "Serial port pins (3) conflict with X endstop pins!"
-  #elif PIN_IS_TX3(Y_SERIAL_TX) || PIN_IS_TX3(Y_SERIAL_RX) \
-    ||  PIN_IS_RX3(X_SERIAL_TX) || PIN_IS_RX3(X_SERIAL_RX)
+  #elif PIN_IS_TX3(Y_SERIAL_TX) || PIN_IS_TX3(Y_SERIAL_RX) || PIN_IS_RX3(X_SERIAL_TX) || PIN_IS_RX3(X_SERIAL_RX)
     #error "Serial port pins (3) conflict with X/Y axis UART pins!"
   #elif PIN_IS_TX3(X2_DIR) || PIN_IS_RX3(X2_STEP)
     #error "Serial port pins (3) conflict with X2 pins!"
@@ -174,6 +184,9 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #undef PIN_IS_TX3
   #undef PIN_IS_RX3
 #endif
+
+#undef ANY_TX
+#undef ANY_RX
 
 //
 // Flag any i2c pin conflicts

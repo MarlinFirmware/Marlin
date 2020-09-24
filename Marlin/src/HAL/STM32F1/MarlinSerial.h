@@ -30,6 +30,7 @@
   #include "../../feature/e_parser.h"
 #endif
 
+// Increase priority of serial interrupts, to reduce overflow errors
 #define UART_IRQ_PRIO 1
 
 class MarlinSerial : public HardwareSerial {
