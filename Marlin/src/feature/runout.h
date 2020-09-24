@@ -41,6 +41,10 @@
   #include "pause.h"
 #endif
 
+#if ENABLED(DWIN_CREALITY_TOUCHLCD)
+  #include "../lcd/dwin/dwin_touch_lcd.h"
+#endif
+
 //#define FILAMENT_RUNOUT_SENSOR_DEBUG
 #ifndef FILAMENT_RUNOUT_THRESHOLD
   #define FILAMENT_RUNOUT_THRESHOLD 5
@@ -144,6 +148,7 @@ class FilamentSensorBase {
      * Called by FilamentSensorEncoder::block_completed when motion is detected.
      */
     static inline void filament_present(const uint8_t extruder) {
+      TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_filament_loaded());
       runout.filament_present(extruder); // ...which calls response.filament_present(extruder)
     }
 

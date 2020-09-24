@@ -46,3 +46,5 @@ void DWINTouch_error_max_temp();
 void DWINTouch_error_min_temp();
 void DWINTouch_error_runaway_temp();
 void DWINTouch_heating_callback();
+void DWINTouch_notify_filament_runout();
+void DWINTouch_filament_loaded();

@@ -66,10 +66,17 @@ void DWINTouch_init() {
 
   #ifdef FIX_MOUNTED_PROBE
     OUT_WRITE(COM_PIN, 1);
-    SET_INPUT(FILAMENT_RUNOUT_SENSOR_PIN);
     SET_INPUT(OPTO_SWITCH_PIN);
     OUT_WRITE(LED_CONTROL_PIN, 0);
   #endif
+}
+
+void DWINTouch_notify_filament_runout() {
+  rtscheck.RTS_FilamentRunout();
+}
+
+void DWINTouch_filament_loaded() {
+  rtscheck.RTS_FilamentLoaded();
 }
 
 void DWINTouch_bedlevel_update_callback(uint8_t count) {

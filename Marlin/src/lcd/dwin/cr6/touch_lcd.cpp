@@ -967,21 +967,12 @@ void RTSSHOW::RTS_HandleData()
       }
       break;
     case ResumePrintKey:
-      if(recdat.data[0] == 1)
-      {
+      // This is apparently triggered when the resume option is pressed
+      if (recdat.data[0] == 1 /*Resume*/) {
         char commandbuf[20];
         char pause_str_Z[16];
         char pause_str_E[16];
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
-	      }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
-        }
+
         memset(pause_str_Z, 0, sizeof(pause_str_Z));
         dtostrf(pause_z, 3, 2, pause_str_Z);
         memset(pause_str_E, 0, sizeof(pause_str_E));
@@ -995,11 +986,11 @@ void RTSSHOW::RTS_HandleData()
 
         gcode.process_subcommands_now_P(PSTR("M24"));
         sdcard_pause_check = true;
-      }
-      else if(recdat.data[0] == 2)
-      {
+      } else if (recdat.data[0] == 2 /*Heating I guess*/) {
         thermalManager.setTargetHotend(temphot, 0);
       }
+
+      
       break;
     case ZoffsetEnterKey:
       last_zoffset = probe.offset.z;
@@ -1823,47 +1814,7 @@ void EachMomentUpdate()
       // float temp_buf = thermalManager.temp_hotend[0].celsius;
       rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
       rtscheck.RTS_SndData(thermalManager.temp_bed.celsius, BED_CURRENT_TEMP_VP);
-      if((false == card.isPrinting()) && (false == sdcard_pause_check))
-      {
-        if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
-        {
-          if(language_change_font != 0)
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 8, ExchangepageAddr);
-            change_page_font = 8;
-          }
-          else
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 35, ExchangepageAddr);
-            change_page_font = 35;
-          }
-          sdcard_pause_check = true;
-        }
-      }
-
-      if(1 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
-      {
-        if(language_change_font != 0)
-        {
-          rtscheck.RTS_SndData(11, FILAMENT_LOAD_ICON_VP);
-        }
-        else
-        {
-          rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
-        }
-      }
-      else if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
-      {
-        if(language_change_font != 0)
-        {
-          rtscheck.RTS_SndData(12, FILAMENT_LOAD_ICON_VP);
-        }
-        else
-        {
-          rtscheck.RTS_SndData(10, FILAMENT_LOAD_ICON_VP);
-        }
-      }
-
+     
       if(pause_action_flag && printingIsPaused() && !planner.has_blocks_queued()) 
       {
         pause_action_flag = false;
@@ -1898,56 +1849,72 @@ void EachMomentUpdate()
   }
 }
 
+void RTSSHOW::RTS_FilamentRunout() {
+  // "No filament, please replace the filament or stop print"
+  if(language_change_font != 0)
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
+    change_page_font = 7;
+  }
+  else
+  {
+    rtscheck.RTS_SndData(ExchangePageBase + 34, ExchangepageAddr);
+    change_page_font = 34;
+  }
+  sdcard_pause_check = false;
+  pause_action_flag = true;
+
+  pause_z = current_position[Z_AXIS];
+  pause_e = current_position[E_AXIS] - 5;
+
+  if(!temphot)
+    temphot = thermalManager.degTargetHotend(0);
+  if(!tempbed)
+    tempbed = thermalManager.degTargetBed();
+
+  if(language_change_font != 0)
+  {
+    rtscheck.RTS_SndData(12, FILAMENT_LOAD_ICON_VP);
+  }
+  else
+  {
+    rtscheck.RTS_SndData(10, FILAMENT_LOAD_ICON_VP);
+  }
+}
+
+void RTSSHOW::RTS_FilamentLoaded() {
+  // "Filament load, please confirm resume print or stop print"
+  if (pause_action_flag == true && sdcard_pause_check == false) {
+    if(language_change_font != 0)
+    {
+      RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
+      change_page_font = 10;
+    }
+    else
+    {
+      RTS_SndData(ExchangePageBase + 35, ExchangepageAddr);
+      change_page_font = 35;
+    }
+
+    // Update icon?
+    if(language_change_font != 0)
+    {
+      rtscheck.RTS_SndData(11, FILAMENT_LOAD_ICON_VP);
+    }
+    else
+    {
+      rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
+    }
+
+    pause_action_flag = false;
+  } 
+}
+
 // looping at the loop function
 void RTSUpdate()
 {
   /* Check the status of card */
   rtscheck.RTS_SDCardUpate();
-
-  #if CHECKFILEMENT
-    if((true == card.isPrinting()) && (true == sdcard_pause_check))
-    {
-      if(1 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
-      {
-        checktime++;
-        delay(10);
-      }
-      else if(0 == READ(FILAMENT_RUNOUT_SENSOR_PIN))
-      {
-        checktime = 0;
-      }
-
-      if(checktime > 200)
-      {
-        checktime = 0;
-        pause_z = current_position[Z_AXIS];
-        pause_e = current_position[E_AXIS] - 5;
-        #if ENABLED(POWER_LOSS_RECOVERY)
-          if (recovery.enabled) recovery.save(true, false);
-        #endif
-        if(!temphot)
-          temphot = thermalManager.degTargetHotend(0);
-        if(!tempbed)
-          tempbed = thermalManager.degTargetBed();
-
-        queue.inject_P(PSTR("M25"));
-
-        Update_Time_Value = 0;
-        if(language_change_font != 0)
-        {
-          rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
-          change_page_font = 7;
-        }
-        else
-        {
-          rtscheck.RTS_SndData(ExchangePageBase + 34, ExchangepageAddr);
-          change_page_font = 34;
-        }
-        sdcard_pause_check = false;
-        pause_action_flag = true;
-      }
-    }
-  #endif
 
   EachMomentUpdate();
 

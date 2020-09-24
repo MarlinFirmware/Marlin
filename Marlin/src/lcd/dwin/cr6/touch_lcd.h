@@ -183,7 +183,9 @@ class RTSSHOW {
     void RTS_SDcard_Stop();
     void RTS_HandleData();
     void RTS_Init();
-    
+    void RTS_FilamentRunout();
+    void RTS_FilamentLoaded();
+
     DB recdat;
     DB snddat;
   private:
