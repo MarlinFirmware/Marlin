@@ -1336,6 +1336,9 @@
 #if PIN_EXISTS(X_MS1)
   #define HAS_X_MS_PINS 1
 #endif
+#if PIN_EXISTS(X_STDBY)
+  #define HAS_X_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(X2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(X2))
   #define HAS_X2_ENABLE 1
@@ -1348,6 +1351,9 @@
 #endif
 #if PIN_EXISTS(X2_MS1)
   #define HAS_X2_MS_PINS 1
+#endif
+#if PIN_EXISTS(X2_STDBY)
+  #define HAS_X2_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(Y_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y))
@@ -1362,6 +1368,9 @@
 #if PIN_EXISTS(Y_MS1)
   #define HAS_Y_MS_PINS 1
 #endif
+#if PIN_EXISTS(Y_STDBY)
+  #define HAS_Y_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(Y2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Y2))
   #define HAS_Y2_ENABLE 1
@@ -1374,6 +1383,9 @@
 #endif
 #if PIN_EXISTS(Y2_MS1)
   #define HAS_Y2_MS_PINS 1
+#endif
+#if PIN_EXISTS(Y2_STDBY)
+  #define HAS_Y2_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(Z_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z))
@@ -1388,6 +1400,9 @@
 #if PIN_EXISTS(Z_MS1)
   #define HAS_Z_MS_PINS 1
 #endif
+#if PIN_EXISTS(Z_STDBY)
+  #define HAS_Z_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(Z2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2))
   #define HAS_Z2_ENABLE 1
@@ -1400,6 +1415,9 @@
 #endif
 #if PIN_EXISTS(Z2_MS1)
   #define HAS_Z2_MS_PINS 1
+#endif
+#if PIN_EXISTS(Z2_STDBY)
+  #define HAS_Z2_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(Z3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z3))
@@ -1414,6 +1432,9 @@
 #if PIN_EXISTS(Z3_MS1)
   #define HAS_Z3_MS_PINS 1
 #endif
+#if PIN_EXISTS(Z3_STDBY)
+  #define HAS_Z3_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(Z4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z4))
   #define HAS_Z4_ENABLE 1
@@ -1426,6 +1447,9 @@
 #endif
 #if PIN_EXISTS(Z4_MS1)
   #define HAS_Z4_MS_PINS 1
+#endif
+#if PIN_EXISTS(Z4_STDBY)
+  #define HAS_Z4_TMC_STDBY 1
 #endif
 
 // Extruder steppers and solenoids
@@ -1444,6 +1468,9 @@
 #if PIN_EXISTS(SOL0)
   #define HAS_SOLENOID_0 1
 #endif
+#if PIN_EXISTS(E0_STDBY)
+  #define HAS_E0_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(E1_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E1))
   #define HAS_E1_ENABLE 1
@@ -1459,6 +1486,9 @@
 #endif
 #if PIN_EXISTS(SOL1)
   #define HAS_SOLENOID_1 1
+#endif
+#if PIN_EXISTS(E1_STDBY)
+  #define HAS_E1_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(E2_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E2))
@@ -1476,6 +1506,9 @@
 #if PIN_EXISTS(SOL2)
   #define HAS_SOLENOID_2 1
 #endif
+#if PIN_EXISTS(E2_STDBY)
+  #define HAS_E2_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(E3_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E3))
   #define HAS_E3_ENABLE 1
@@ -1491,6 +1524,9 @@
 #endif
 #if PIN_EXISTS(SOL3)
   #define HAS_SOLENOID_3 1
+#endif
+#if PIN_EXISTS(E3_STDBY)
+  #define HAS_E3_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(E4_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E4))
@@ -1508,6 +1544,9 @@
 #if PIN_EXISTS(SOL4)
   #define HAS_SOLENOID_4 1
 #endif
+#if PIN_EXISTS(E4_STDBY)
+  #define HAS_E4_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(E5_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E5))
   #define HAS_E5_ENABLE 1
@@ -1523,6 +1562,9 @@
 #endif
 #if PIN_EXISTS(SOL5)
   #define HAS_SOLENOID_5 1
+#endif
+#if PIN_EXISTS(E5_STDBY)
+  #define HAS_E5_TMC_STDBY 1
 #endif
 
 #if PIN_EXISTS(E6_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E6))
@@ -1540,6 +1582,9 @@
 #if PIN_EXISTS(SOL6)
   #define HAS_SOLENOID_6 1
 #endif
+#if PIN_EXISTS(E6_STDBY)
+  #define HAS_E6_TMC_STDBY 1
+#endif
 
 #if PIN_EXISTS(E7_ENABLE) || (ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(E7))
   #define HAS_E7_ENABLE 1
@@ -1555,6 +1600,9 @@
 #endif
 #if PIN_EXISTS(SOL7)
   #define HAS_SOLENOID_7 1
+#endif
+#if PIN_EXISTS(E7_STDBY)
+  #define HAS_E7_TMC_STDBY 1
 #endif
 
 //
