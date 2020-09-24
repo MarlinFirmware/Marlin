@@ -307,9 +307,6 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
  * Save the recovery info the recovery file
  */
 void PrintJobRecovery::write() {
-
-  debug(PSTR("Write"));
-
   open(false);
   file.seekSet(0);
   const int16_t ret = file.write(&info, sizeof(info));

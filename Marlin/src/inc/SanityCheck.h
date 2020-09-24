@@ -2297,7 +2297,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
   #endif
-#elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+#elif ENABLED(ANYCUBIC_LCD_I3MEGA)
   #ifndef ANYCUBIC_LCD_SERIAL_PORT
     #error "The ANYCUBIC LCD requires ANYCUBIC_LCD_SERIAL_PORT to be defined in Configuration.h"
   #elif ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT
