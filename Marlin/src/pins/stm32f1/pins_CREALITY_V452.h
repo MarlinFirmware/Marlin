@@ -137,6 +137,7 @@
 
 /* SD card detect */
 #define SD_DETECT_PIN      PC7
+#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
 
 #define LED_CONTROL_PIN    PA6
 #define CHECK_MATWEIAL     PA7
