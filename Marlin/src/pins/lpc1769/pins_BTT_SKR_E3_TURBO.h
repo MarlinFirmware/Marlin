@@ -176,7 +176,7 @@
 //
 // USB connect control
 //
-//#define USB_CONNECT_PIN                  P2_09
+//#define USB_CONNECT_PIN                  P0_29
 //#define USB_CONNECT_INVERTING            false
 
 /**
