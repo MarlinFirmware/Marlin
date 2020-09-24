@@ -89,7 +89,7 @@
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
 
-#ifndef __AVR_ATmega1284P__
+#if NOT_TARGET(__AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
 #endif
 

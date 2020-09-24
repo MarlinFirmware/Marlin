@@ -25,7 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#ifndef MCU_LPC1769
+#if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -207,20 +207,20 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#if HOTENDS == 1
-  #ifndef FAN1_PIN
-    #define FAN1_PIN                       P2_06
-  #endif
-#else
+#if HAS_MULTI_HOTEND
   #ifndef HEATER_1_PIN
     #define HEATER_1_PIN                   P2_06
   #endif
+#else
+  #ifndef FAN2_PIN
+    #define FAN2_PIN                       P2_06  // HE1 for FAN3
+  #endif
 #endif
 #ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+  #define FAN_PIN                          P2_04  // FAN1
 #endif
-#ifndef FAN2_PIN
-  #define FAN2_PIN                         P1_04
+#ifndef FAN1_PIN
+  #define FAN1_PIN                         P1_04  // FAN2
 #endif
 
 //

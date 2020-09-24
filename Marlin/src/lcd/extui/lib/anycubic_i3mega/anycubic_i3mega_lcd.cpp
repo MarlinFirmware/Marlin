@@ -113,18 +113,20 @@ static void sendLine_P(PGM_P str) {
 AnycubicTFTClass::AnycubicTFTClass() {}
 
 void AnycubicTFTClass::OnSetup() {
-  ANYCUBIC_LCD_SERIAL.begin(115200);
+  #ifndef LCD_BAUDRATE
+    #define LCD_BAUDRATE 115200
+  #endif
+  LCD_SERIAL.begin(LCD_BAUDRATE);
+
   SENDLINE_DBG_PGM("J17", "TFT Serial Debug: Main board reset... J17"); // J17 Main board reset
   ExtUI::delay_ms(10);
 
   // initialise the state of the key pins running on the tft
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    pinMode(SD_DETECT_PIN, INPUT);
-    WRITE(SD_DETECT_PIN, HIGH);
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    pinMode(FIL_RUNOUT_PIN, INPUT);
-    WRITE(FIL_RUNOUT_PIN, HIGH);
+    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;

@@ -51,6 +51,13 @@
 
 #define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
 
+// Test the target within the included pins file
+#ifdef __MARLIN_PREBUILD__
+  #define NOT_TARGET(V...) 0
+#else
+  #define NOT_TARGET(V...) NONE(V)
+#endif
+
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
 //
@@ -623,7 +630,7 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
-#elif MB(TEENSY40_41)
+#elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"            // Teensy-4.x                             env:teensy41

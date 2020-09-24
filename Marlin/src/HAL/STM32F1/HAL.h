@@ -53,7 +53,7 @@
 // ------------------------
 
 #ifndef STM32_FLASH_SIZE
-  #if defined(MCU_STM32F103RE) || defined(MCU_STM32F103VE)
+  #if EITHER(MCU_STM32F103RE, MCU_STM32F103VE)
     #define STM32_FLASH_SIZE 512
   #else
     #define STM32_FLASH_SIZE 256
@@ -106,12 +106,9 @@
   #else
     #error "SERIAL_PORT_2 must be from -1 to 5. Please update your configuration."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
-#ifdef DGUS_SERIAL
+#ifdef DGUS_SERIAL_PORT
   #if DGUS_SERIAL_PORT == 0
     #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
   #elif DGUS_SERIAL_PORT == SERIAL_PORT

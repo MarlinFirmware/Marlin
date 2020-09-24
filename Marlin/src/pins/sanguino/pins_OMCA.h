@@ -77,7 +77,7 @@
  *
  */
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' or 'ATmega644P' in 'Tools > Processor.'"
 #endif
 
