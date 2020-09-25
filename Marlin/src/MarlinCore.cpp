@@ -867,6 +867,57 @@ void stop() {
   }
 }
 
+inline void tmc_standby_setup() {
+  #if PIN_EXISTS(X_STDBY)
+    SET_INPUT_PULLDOWN(X_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(X2_STDBY)
+    SET_INPUT_PULLDOWN(X2_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Y_STDBY)
+    SET_INPUT_PULLDOWN(Y_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Y2_STDBY)
+    SET_INPUT_PULLDOWN(Y2_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Z_STDBY)
+    SET_INPUT_PULLDOWN(Z_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Z2_STDBY)
+    SET_INPUT_PULLDOWN(Z2_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Z3_STDBY)
+    SET_INPUT_PULLDOWN(Z3_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(Z4_STDBY)
+    SET_INPUT_PULLDOWN(Z4_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E0_STDBY)
+    SET_INPUT_PULLDOWN(E0_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E1_STDBY)
+    SET_INPUT_PULLDOWN(E1_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E2_STDBY)
+    SET_INPUT_PULLDOWN(E2_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E3_STDBY)
+    SET_INPUT_PULLDOWN(E3_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E4_STDBY)
+    SET_INPUT_PULLDOWN(E4_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E5_STDBY)
+    SET_INPUT_PULLDOWN(E5_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E6_STDBY)
+    SET_INPUT_PULLDOWN(E6_STDBY_PIN);
+  #endif
+  #if PIN_EXISTS(E7_STDBY)
+    SET_INPUT_PULLDOWN(E7_STDBY_PIN);
+  #endif
+}
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -887,6 +938,8 @@ void stop() {
  *    • Max7219
  */
 void setup() {
+
+  tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {

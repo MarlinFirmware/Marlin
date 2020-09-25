@@ -421,6 +421,8 @@
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 #elif MB(MKS_SGEN_L_V2)
   #include "lpc1769/pins_MKS_SGEN_L_V2.h"       // LPC1769                                env:LPC1769
+#elif MB(BTT_SKR_E3_TURBO)
+  #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"    // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
