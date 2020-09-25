@@ -53,12 +53,12 @@ static bool is_printing_from_sd = false;
 static bool is_out_of_filament = false;
 
 static void sendNewLine(void) {
-  ANYCUBIC_LCD_SERIAL.write('\r');
-  ANYCUBIC_LCD_SERIAL.write('\n');
+  LCD_SERIAL.write('\r');
+  LCD_SERIAL.write('\n');
 }
 
 static void send(const char *str) {
-  ANYCUBIC_LCD_SERIAL.print(str);
+  LCD_SERIAL.print(str);
 }
 
 static void sendLine(const char *str) {
@@ -68,7 +68,7 @@ static void sendLine(const char *str) {
 
 static void send_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++))
-    ANYCUBIC_LCD_SERIAL.write(c);
+    LCD_SERIAL.write(c);
 }
 
 static void sendLine_P(PGM_P str) {
@@ -78,23 +78,23 @@ static void sendLine_P(PGM_P str) {
 
 static void sendValue_P(PGM_P prefix, int value) {
   send_P(prefix);
-  ANYCUBIC_LCD_SERIAL.print(value);
+  LCD_SERIAL.print(value);
 }
 
 static void sendValue_P(PGM_P prefix, float value) {
   send_P(prefix);
-  ANYCUBIC_LCD_SERIAL.print(value);
+  LCD_SERIAL.print(value);
 }
 
 static void sendValueLine_P(PGM_P prefix, int value) {
   send_P(prefix);
-  ANYCUBIC_LCD_SERIAL.print(value);
+  LCD_SERIAL.print(value);
   sendNewLine();
 }
 
 static void sendValueLine_P(PGM_P prefix, float value) {
   send_P(prefix);
-  ANYCUBIC_LCD_SERIAL.print(value);
+  LCD_SERIAL.print(value);
   sendNewLine();
 }
 
@@ -426,8 +426,8 @@ namespace ExtUI {
     static char rxBuffer[RX_LEN_MAX+1];
     static uint8_t rxLen = 0;
 
-    while (ANYCUBIC_LCD_SERIAL.available()) {
-      const char c = ANYCUBIC_LCD_SERIAL.read();
+    while (LCD_SERIAL.available()) {
+      const char c = LCD_SERIAL.read();
       switch (c) {
         case '\r': case '\n':
           if (rxLen > 0 && rxLen <= RX_LEN_MAX) {
@@ -466,7 +466,10 @@ namespace ExtUI {
   }
 
   void onStartup() {
-    ANYCUBIC_LCD_SERIAL.begin(115200);
+    #ifndef LCD_BAUDRATE
+      #define LCD_BAUDRATE 115200
+    #endif
+    LCD_SERIAL.begin(LCD_BAUDRATE);
     sendNewLine();
     SENDLINE_PGM("J17"); // Reset
     delay_ms(10);

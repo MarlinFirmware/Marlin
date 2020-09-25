@@ -536,10 +536,6 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("УТЕЧКА ТЕПЛА КАМЕРЫ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Ошибка: Т макс.");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Ошибка: Т мин.");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Ошибка: Т стола макс");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Ошибка: Т стола мин.");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Ошибка:Т камеры макс");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Ошибка:Т камеры мин.");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("ПРИНТЕР ОСТАНОВЛЕН");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Сделайте сброс");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("д"); // One character only

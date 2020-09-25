@@ -25,6 +25,10 @@
   #define BOARD_INFO_NAME "BTT SKR V1.4"
 #endif
 
+#ifndef BOARD_CUSTOM_BUILD_FLAGS
+  #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
+#endif
+
 //
 // SD Connection
 //
@@ -174,7 +178,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
