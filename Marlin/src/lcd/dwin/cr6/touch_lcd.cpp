@@ -51,9 +51,6 @@
 
 #include "../../../libs/duration_t.h"
 
-#define DWIN_LANGUAGE_EEPROM_ADDRESS 0x01   // Between 0x01 and 0x63 (EEPROM_OFFSET-1)
-                                            // BL24CXX::check() uses 0x00
-
 char errorway = 0;
 char errornum = 0;
 
@@ -101,7 +98,7 @@ float axis_unit = 10.0;
 // represents to update file list
 bool CardUpdate = false;
 extern CardReader card;
-unsigned int language_change_font = 0;
+
 // represents SD-card status, true means SD is available, false means opposite.
 bool lcd_sd_status;
 
@@ -253,25 +250,7 @@ void RTSSHOW::RTS_SDCardUpate(void)
 bool first_load_language = 0;
 void lcd_select_language(void)
 {
-  BL24CXX::read(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&first_load_language, sizeof(first_load_language));
-  delay(10);
-  if(first_load_language == 0)
-  {
-    BL24CXX::read(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&language_change_font, 1);
-  }
-  else
-  {
-    first_load_language = 0;
-    BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&first_load_language, sizeof(first_load_language));
-    
-    #if ENABLED(DEFAULT_LANGUAGE)
-      language_change_font = 1;
-    #else
-      language_change_font = 0;
-    #endif
-
-    BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&language_change_font, 1);
-  }
+  
 }
 
 void RTSSHOW::RTS_Init()
@@ -316,7 +295,6 @@ void RTSSHOW::RTS_Init()
   RTS_SndData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
   RTS_SndData(PRINTSIZE, PRINTER_PRINTSIZE_TEXT_VP);
   RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
-  RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
 
   /**************************some info init*******************************/
   RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
@@ -350,16 +328,10 @@ void RTSSHOW::RTS_Init()
 
   rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   Update_Time_Value = RTS_UPDATE_VALUE;
-  if(language_change_font != 0)
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-    change_page_font = 1;
-  }
-  else
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-    change_page_font = 28;
-  }
+  
+  rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+  change_page_font = 28;
+  
   
   SERIAL_ECHOLN("===Initing RTS has finished===");
 }
@@ -671,56 +643,27 @@ void RTSSHOW::RTS_HandleData()
       {
         CardUpdate = true;
         RTS_SDCardUpate();
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 2, ExchangepageAddr);
-          change_page_font = 2;
-	      }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 29, ExchangepageAddr);
-          change_page_font = 29;
-        }
+        
+        RTS_SndData(ExchangePageBase + 29, ExchangepageAddr);
+        change_page_font = 29;
       }
       else if(recdat.data[0] == 2)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
-          change_page_font = 15;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
-          change_page_font = 42;
-        }
+      
+        RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
+        change_page_font = 42;
       }
       else if(recdat.data[0] == 3)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 20, ExchangepageAddr);
-          change_page_font = 20;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
-          change_page_font = 47;
-        }
-        RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
+       
+        RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
+        change_page_font = 47;
       }
       else if(recdat.data[0] == 4)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 25, ExchangepageAddr);
-          change_page_font = 25;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-          change_page_font = 52;
-        }
+      
+        RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+        change_page_font = 52;
       }
       else if(recdat.data[0] == 5)
       {
@@ -731,32 +674,19 @@ void RTSSHOW::RTS_HandleData()
         RTS_SndData(0, PRINT_TIME_HOUR_VP);
         RTS_SndData(0, PRINT_TIME_MIN_VP);
         print_job_timer.reset();
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
-        }
+        
+        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+        change_page_font = 28;
       }
       else if(recdat.data[0] == 6)
       {
         waitway = 3;
         RTS_SndData(1, AUTO_BED_LEVEL_TITLE_VP);
         RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 26, ExchangepageAddr);
-          change_page_font = 26;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-          change_page_font = 53;
-        }
+       
+        RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+        change_page_font = 53;
+
         thermalManager.setTargetHotend(AUTO_BED_LEVEL_PREHEAT, 0);
         RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
         if(thermalManager.temp_hotend[0].celsius < (AUTO_BED_LEVEL_PREHEAT - 5))
@@ -770,16 +700,8 @@ void RTSSHOW::RTS_HandleData()
     case AdjustEnterKey:
       if(recdat.data[0] == 1)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 14, ExchangepageAddr);
-          change_page_font = 14;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 41, ExchangepageAddr);
-          change_page_font = 41;
-        }
+        RTS_SndData(ExchangePageBase + 41, ExchangepageAddr);
+        change_page_font = 41;
       }
       else if(recdat.data[0] == 2)
       {
@@ -793,29 +715,13 @@ void RTSSHOW::RTS_HandleData()
         }
         if(card.isPrinting())
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-            change_page_font = 37;
-          }
+          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+          change_page_font = 37;
         }
         else
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 12, ExchangepageAddr);
-            change_page_font = 12;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-            change_page_font = 39;
-          }
+          RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
+          change_page_font = 39;
         }
       }
       else if(recdat.data[0] == 3)
@@ -857,16 +763,8 @@ void RTSSHOW::RTS_HandleData()
     case StopPrintKey:
       if(recdat.data[0] == 1)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 13, ExchangepageAddr);
-          change_page_font = 13;
-	      }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 40, ExchangepageAddr);
-          change_page_font = 40;
-        }
+        RTS_SndData(ExchangePageBase + 40, ExchangepageAddr);
+        change_page_font = 40;
       }
       else if(recdat.data[0] == 2)
       {
@@ -881,61 +779,29 @@ void RTSSHOW::RTS_HandleData()
       {
         if(card.isPrinting())
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-            change_page_font = 37;
-          }
-        }
-        else
-        {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 12, ExchangepageAddr);
-            change_page_font = 12;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-            change_page_font = 39;
-          }
-        }
-      }
-      break;
-    case PausePrintKey:
-      if(recdat.data[0] == 1)
-      {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 11, ExchangepageAddr);
-          change_page_font = 11;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 38, ExchangepageAddr);
-          change_page_font = 38;
-        }
-      }
-      else if(recdat.data[0] == 2)
-      {
-        pause_z = current_position[Z_AXIS];
-        pause_e = current_position[E_AXIS] - 5;
-
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+          change_page_font = 37;
         }
         else
         {
           RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
           change_page_font = 39;
         }
+      }
+      break;
+    case PausePrintKey:
+      if(recdat.data[0] == 1)
+      {
+        RTS_SndData(ExchangePageBase + 38, ExchangepageAddr);
+        change_page_font = 38;
+      }
+      else if(recdat.data[0] == 2)
+      {
+        pause_z = current_position[Z_AXIS];
+        pause_e = current_position[E_AXIS] - 5;
+
+        RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
+        change_page_font = 39;
 
         if(!temphot)
           temphot = thermalManager.degTargetHotend(0);
@@ -949,16 +815,8 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 3)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
-        }
+        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+        change_page_font = 37;
       }
       break;
     case ResumePrintKey:
@@ -1005,42 +863,18 @@ void RTSSHOW::RTS_HandleData()
     case TempControlKey:
       if(recdat.data[0] == 2)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 21, ExchangepageAddr);
-          change_page_font = 21;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
-          change_page_font = 48;
-        }
+        RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
+        change_page_font = 48;
       }
       else if(recdat.data[0] == 3)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 22, ExchangepageAddr);
-          change_page_font = 22;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 49, ExchangepageAddr);
-          change_page_font = 49;
-        }
+        RTS_SndData(ExchangePageBase + 49, ExchangepageAddr);
+        change_page_font = 49;
       }
       else if(recdat.data[0] == 4)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 23, ExchangepageAddr);
-          change_page_font = 23;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 50, ExchangepageAddr);
-          change_page_font = 50;
-        }
+        RTS_SndData(ExchangePageBase + 50, ExchangepageAddr);
+        change_page_font = 50;
       }
       else if(recdat.data[0] == 5)
       {
@@ -1060,16 +894,8 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 7)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 20, ExchangepageAddr);
-          change_page_font = 20;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
-          change_page_font = 47;
-        }
+        RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
+        change_page_font = 47;
       }
       break;
     case CoolDownKey:
@@ -1083,16 +909,8 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 2)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 21, ExchangepageAddr);
-          change_page_font = 21;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
-          change_page_font = 48;
-        }
+        RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
+        change_page_font = 48;
       }
       break;
     case HeaterTempEnterKey:
@@ -1112,31 +930,15 @@ void RTSSHOW::RTS_HandleData()
         rtscheck.RTS_SndData(10*current_position[Y_AXIS], AXIS_Y_COORD_VP);
         rtscheck.RTS_SndData(10*current_position[Z_AXIS], AXIS_Z_COORD_VP);
         delay(2);
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 16, ExchangepageAddr);
-          change_page_font = 16;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
-          change_page_font = 43;
-        }
+
+        RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
+        change_page_font = 43;
       }
       else if(recdat.data[0] == 5)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
-          RTS_SndData(ExchangePageBase + 24, ExchangepageAddr);
-          change_page_font = 24;
-        }
-        else
-        {
-          RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
-          RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
-          change_page_font = 51;
-        }
+        RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
+        RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
+        change_page_font = 51;
       }
       else if(recdat.data[0] == 6)
       {
@@ -1154,16 +956,8 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 9)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
-        }
+        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+        change_page_font = 28;
       }
       break;
     case BedLevelKey:
@@ -1201,16 +995,8 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 4)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 25, ExchangepageAddr);
-          change_page_font = 25;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-          change_page_font = 52;
-        }
+        RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+        change_page_font = 52;
       }
       break;
     case AutoHomeKey:
@@ -1218,46 +1004,25 @@ void RTSSHOW::RTS_HandleData()
       {
         AxisUnitMode = 1;
         axis_unit = 10.0;
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 16, ExchangepageAddr);
-          change_page_font = 16;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
-          change_page_font = 43;
-        }
+
+        RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
+        change_page_font = 43;
       }
       else if(recdat.data[0] == 2)
       {
         AxisUnitMode = 2;
         axis_unit = 1.0;
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 17, ExchangepageAddr);
-          change_page_font = 17;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 44, ExchangepageAddr);
-          change_page_font = 44;
-        }
+
+        RTS_SndData(ExchangePageBase + 44, ExchangepageAddr);
+        change_page_font = 44;
       }
       else if(recdat.data[0] == 3)
       {
         AxisUnitMode = 3;
         axis_unit = 0.1;
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 18, ExchangepageAddr);
-          change_page_font = 18;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
-          change_page_font = 45;
-        }
+
+        RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
+        change_page_font = 45;
       }
       else if(recdat.data[0] == 4)
       {
@@ -1355,78 +1120,31 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 3)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 15, ExchangepageAddr);
-          change_page_font = 15;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
-          change_page_font = 42;
-        }
+        RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
+        change_page_font = 42;
       }
       else if(recdat.data[0] == 4)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 19, ExchangepageAddr);
-          change_page_font = 19;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
-          change_page_font = 46;
-        }
+        RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
+        change_page_font = 46;
+
       }
       RTS_line_to_current(E_AXIS);
       RTS_SndData(10 * FilamentLOAD, HEAD_FILAMENT_LOAD_DATA_VP);
       break;
-    case SelectLanguageKey:
-      if(recdat.data[0] != 0)
-      {
-        language_change_font = recdat.data[0] - 1;
-      }
-      if(recdat.data[0] == 2)
-      {
-        RTS_SndData(ExchangePageBase + 20, ExchangepageAddr);
-        change_page_font = 20;
-      }
-      else if(recdat.data[0] == 1)
-      {
-        RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
-        change_page_font = 47;
-      }
-      RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
-      BL24CXX::write(DWIN_LANGUAGE_EEPROM_ADDRESS, (uint8_t*)&language_change_font, 1);
-      break;
+    
     case PowerContinuePrintKey:
       if (wait_for_user) {
         auto state = EmergencyParser::State::EP_M108;
         emergency_parser.update(state, '\n');
         
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
-        }
+        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+        change_page_font = 37;
       } else if(recdat.data[0] == 1)
       {
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
-        }
+        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+        change_page_font = 37;
+
         if(recovery.dwin_flag) 
         {
           power_off_type_yes = 1;
@@ -1443,16 +1161,10 @@ void RTSSHOW::RTS_HandleData()
       else if(recdat.data[0] == 2)
       {
         waitway = 3;
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
-        }
+
+        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+        change_page_font = 28;
+
         Update_Time_Value = RTS_UPDATE_VALUE;
 
         card.flag.abort_sd_printing = true;
@@ -1565,30 +1277,15 @@ void RTSSHOW::RTS_HandleData()
         #endif
         RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP);
 
-        if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr); 
-          change_page_font = 37;
-        }
+        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr); 
+        change_page_font = 37;
+
         Update_Time_Value = 0;
       }
       else if(recdat.data[0] == 4)
       {
-	    if(language_change_font != 0)
-        {
-          RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
-        }
-        else
-        {
-          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
-        }
+	      RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+        change_page_font = 28;
       }
       break;
     case ChangePageKey:
@@ -1631,7 +1328,6 @@ void RTSSHOW::RTS_HandleData()
       RTS_SndData(SOFTVERSION, PRINTER_VERSION_TEXT_VP);
       RTS_SndData(PRINTSIZE, PRINTER_PRINTSIZE_TEXT_VP);
       RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
-      RTS_SndData(language_change_font + 7, SYSTEM_LANGUAGE_TEXT_VP);
 
       if(thermalManager.fan_speed[0])
       {
@@ -1672,42 +1368,18 @@ void RTSSHOW::RTS_HandleData()
       {
         if(printingIsActive()) // printing
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-            change_page_font = 37;
-          }
+          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+          change_page_font = 37;
         }
         else if(printingIsPaused()) // pause
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 12, ExchangepageAddr);
-            change_page_font = 12;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-            change_page_font = 39;
-          }
+          RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
+          change_page_font = 39;
         }
         else  // other
         {
-          if(language_change_font != 0)
-          {
-            RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-            change_page_font = 1;
-          }
-          else
-          {
-            RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-            change_page_font = 28;
-          }
+          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+          change_page_font = 28;
         }
       }
       break;
@@ -1747,16 +1419,9 @@ void EachMomentUpdate()
           {
             rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[i], CONTINUE_PRINT_FILE_TEXT_VP);
           }
-          if(language_change_font != 0)
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 27, ExchangepageAddr);
-            change_page_font = 27;
-          }
-          else
-          {
-            rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-            change_page_font = 54;
-          }
+
+          rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+          change_page_font = 54;
           break;
         }
       }
@@ -1766,16 +1431,9 @@ void EachMomentUpdate()
     {
       power_off_type_yes = 1;
       Update_Time_Value = RTS_UPDATE_VALUE;
-      if(language_change_font != 0)
-      {
-        rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
-      }
-      else
-      {
-        rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
-      }
+
+      rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+      change_page_font = 28;
       return;
     }
     else
@@ -1860,16 +1518,9 @@ void EachMomentUpdate()
 
 void RTSSHOW::RTS_FilamentRunout() {
   // "No filament, please replace the filament or stop print"
-  if(language_change_font != 0)
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 7, ExchangepageAddr);
-    change_page_font = 7;
-  }
-  else
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 34, ExchangepageAddr);
-    change_page_font = 34;
-  }
+  rtscheck.RTS_SndData(ExchangePageBase + 34, ExchangepageAddr);
+  change_page_font = 34;
+
   sdcard_pause_check = false;
   pause_action_flag = true;
 
@@ -1881,39 +1532,17 @@ void RTSSHOW::RTS_FilamentRunout() {
   if(!tempbed)
     tempbed = thermalManager.degTargetBed();
 
-  if(language_change_font != 0)
-  {
-    rtscheck.RTS_SndData(12, FILAMENT_LOAD_ICON_VP);
-  }
-  else
-  {
-    rtscheck.RTS_SndData(10, FILAMENT_LOAD_ICON_VP);
-  }
+  rtscheck.RTS_SndData(10, FILAMENT_LOAD_ICON_VP);
 }
 
 void RTSSHOW::RTS_FilamentLoaded() {
   // "Filament load, please confirm resume print or stop print"
   if (pause_action_flag == true && sdcard_pause_check == false) {
-    if(language_change_font != 0)
-    {
-      RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-      change_page_font = 10;
-    }
-    else
-    {
-      RTS_SndData(ExchangePageBase + 35, ExchangepageAddr);
-      change_page_font = 35;
-    }
+    RTS_SndData(ExchangePageBase + 35, ExchangepageAddr);
+    change_page_font = 35;
 
     // Update icon?
-    if(language_change_font != 0)
-    {
-      rtscheck.RTS_SndData(11, FILAMENT_LOAD_ICON_VP);
-    }
-    else
-    {
-      rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
-    }
+    rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
 
     pause_action_flag = false;
   } 

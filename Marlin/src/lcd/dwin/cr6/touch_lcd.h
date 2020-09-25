@@ -254,8 +254,6 @@ void ErrorHanding();
 
 extern void RTSUpdate();
 
-extern unsigned int language_change_font;
-
 extern char waitway;
 extern int change_page_font;
 extern int Update_Time_Value;

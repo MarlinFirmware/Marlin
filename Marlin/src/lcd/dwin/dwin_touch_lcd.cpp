@@ -82,16 +82,8 @@ void DWINTouch_filament_loaded() {
 void DWINTouch_bedlevel_update_callback(uint8_t count) {
   rtscheck.RTS_SndData(count, AUTO_BED_LEVEL_TITLE_VP);
 
-  if(language_change_font != 0)
-  {
-     rtscheck.RTS_SndData(ExchangePageBase + 26, ExchangepageAddr);
-     change_page_font = 26;
-  }
-  else
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-    change_page_font = 53;
-  }
+  rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
+  change_page_font = 53;
 
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
@@ -114,18 +106,9 @@ void DWINTouch_autohome_callback() {
 
   if(waitway == 4 || waitway == 6 || waitway == 7)
   {
-    if(language_change_font != 0)
-    {
-      // exchange to 60 page
-      rtscheck.RTS_SndData(ExchangePageBase + 60, ExchangepageAddr);
-      change_page_font = 60;
-    }
-    else
-    {
-      // exchange to 61 page
-      rtscheck.RTS_SndData(ExchangePageBase + 61, ExchangepageAddr);
-      change_page_font = 61;
-    }
+    // exchange to 61 page
+    rtscheck.RTS_SndData(ExchangePageBase + 61, ExchangepageAddr);
+    change_page_font = 61;
   }
 }
 
@@ -134,50 +117,29 @@ void DWINTouch_autohome_update_callback() {
     {
       if(waitway == 6)
       {
-        if(language_change_font != 0)
-        {
-          do_blocking_move_to_z(0);
-          rtscheck.RTS_SndData(ExchangePageBase + 25, ExchangepageAddr);
-          change_page_font = 25;
-        }
-        else
-        {
-          do_blocking_move_to_z(0);
-          rtscheck.RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-          change_page_font = 52;
-        }
+        
+        do_blocking_move_to_z(0);
+        rtscheck.RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
+        change_page_font = 52;
+
         waitway = 0;
       }
       else if(waitway == 4)
       {
-        if(language_change_font != 0)
-        {
-          do_blocking_move_to_z(0);
-          rtscheck.RTS_SndData(ExchangePageBase + 15 + AxisUnitMode, ExchangepageAddr);
-          change_page_font = 15;
-        }
-        else
-        {
-          do_blocking_move_to_z(0);
-          rtscheck.RTS_SndData(ExchangePageBase + 42 + AxisUnitMode, ExchangepageAddr);
-          change_page_font = 42;
-        }
+       
+        do_blocking_move_to_z(0);
+        rtscheck.RTS_SndData(ExchangePageBase + 42 + AxisUnitMode, ExchangepageAddr);
+        change_page_font = 42;
+
         waitway = 0;
       }
       else if(waitway == 7)
       {
-        if(language_change_font != 0)
-        {
-          // exchange to 1 page
-          rtscheck.RTS_SndData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
-        }
-        else
-        {
-          // exchange to 24 page
-          rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
-        }
+      
+        // exchange to 24 page
+        rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
+        change_page_font = 28;
+        
         rtscheck.RTS_SndData(2, MOTOR_FREE_ICON_VP); 
         rtscheck.RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
         rtscheck.RTS_SndData(0, PRINT_PROCESS_VP);
@@ -189,6 +151,7 @@ void DWINTouch_autohome_update_callback() {
         }
         waitway = 0;
       }
+
       rtscheck.RTS_SndData(10*current_position[X_AXIS], AXIS_X_COORD_VP);
       rtscheck.RTS_SndData(10*current_position[Y_AXIS], AXIS_Y_COORD_VP);
       rtscheck.RTS_SndData(10*current_position[Z_AXIS], AXIS_Z_COORD_VP);
@@ -218,16 +181,9 @@ void DWINTouch_print_completed_callback() {
   rtscheck.RTS_SndData(100, PRINT_PROCESS_VP);
   delay(1);
   rtscheck.RTS_SndData(100 ,PRINT_PROCESS_TITLE_VP);
-  if(language_change_font != 0)
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 9, ExchangepageAddr);
-    change_page_font = 9;
-  }
-  else
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 36, ExchangepageAddr);
-    change_page_font = 36;
-  }
+ 
+  rtscheck.RTS_SndData(ExchangePageBase + 36, ExchangepageAddr);
+  change_page_font = 36;
 }
 
 void DWINTouch_error_home_failed() {
@@ -269,32 +225,16 @@ void DWINTouch_error_runaway_temp() {
 void DWINTouch_heating_callback() {
   if(heat_flag && printingIsActive())
   {
-    if(language_change_font != 0)
-    {
-      rtscheck.RTS_SndData(ExchangePageBase + 10, ExchangepageAddr);
-      change_page_font = 10;
-    }
-    else
-    {
-      rtscheck.RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-      change_page_font = 37;
-    }
+    rtscheck.RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
+    change_page_font = 37;
   }
   
   heat_flag = 0;
 }
 
 void DWINTouch_user_confirm_required() {
-  if(language_change_font != 0)
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 27, ExchangepageAddr);
-    change_page_font = 27;
-  }
-  else
-  {
-    rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-    change_page_font = 54;
-  }
+  rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
+  change_page_font = 54;
 }
 
 #endif
