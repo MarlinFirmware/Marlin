@@ -61,13 +61,13 @@
   #endif
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL internalDgusSerial
-  #elif WITHIN(DGUS_SERIAL_PORT, 0, 3)
-    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL lcdSerial
+  #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 #endif
 

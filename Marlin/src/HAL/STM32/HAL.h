@@ -64,24 +64,16 @@
   #endif
 #endif
 
-#if HAS_DGUS_LCD
-  #if DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL SerialUSB
-  #elif WITHIN(DGUS_SERIAL_PORT, 1, 6)
-    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
-  #else
-    #error "DGUS_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
-  #endif
-  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
-#endif
-
-#if ENABLED(MALYAN_LCD)
+#ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL SerialUSB
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
     #error "LCD_SERIAL_PORT must be -1 or from 1 to 6. Please update your configuration."
+  #endif
+  #if HAS_DGUS_LCD
+    #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
   #endif
 #endif
 
