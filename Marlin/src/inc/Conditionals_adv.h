@@ -424,8 +424,7 @@
 #endif
 
 // Flag the indexed serial ports that are in use
-#define _ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
-#define  ANY_SERIAL_IS(N) _ANY_SERIAL_IS(N)
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
 #if ANY_SERIAL_IS(-1)
   #define USING_SERIAL_DEFAULT
 #endif
@@ -456,5 +455,4 @@
 #if ANY_SERIAL_IS(8)
   #define USING_SERIAL_8 1
 #endif
-#undef _ANY_SERIAL_IS
-#undef  ANY_SERIAL_IS
+#undef ANY_SERIAL_IS
