@@ -477,6 +477,10 @@
   #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
 #elif defined(DGUS_LCD)
   #error "DGUS_LCD is now DGUS_LCD_UI_(ORIGIN|FYSETC|HIPRECY). Please update your configuration."
+#elif defined(DGUS_SERIAL_PORT)
+  #error "DGUS_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
+#elif defined(DGUS_BAUDRATE)
+  #error "DGUS_BAUDRATE is now LCD_BAUDRATE. Please update your configuration."
 #elif defined(X_DUAL_ENDSTOPS_ADJUSTMENT)
   #error "X_DUAL_ENDSTOPS_ADJUSTMENT is now X2_ENDSTOP_ADJUSTMENT. Please update Configuration_adv.h."
 #elif defined(Y_DUAL_ENDSTOPS_ADJUSTMENT)
@@ -2281,31 +2285,20 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Serial displays require a dedicated serial port
  */
-#if HAS_DGUS_LCD
-  #ifndef DGUS_SERIAL_PORT
-    #error "The DGUS LCD requires DGUS_SERIAL_PORT to be defined in Configuration.h"
-  #elif DGUS_SERIAL_PORT == SERIAL_PORT
-    #error "DGUS_SERIAL_PORT cannot be the same as SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-    #error "DGUS_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
-  #endif
-#elif ENABLED(MALYAN_LCD)
-  #ifndef LCD_SERIAL_PORT
-    #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif LCD_SERIAL_PORT == SERIAL_PORT
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == SERIAL_PORT
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT. Please update your configuration."
   #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
     #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
   #endif
-#elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-  #ifndef ANYCUBIC_LCD_SERIAL_PORT
-    #error "The ANYCUBIC LCD requires ANYCUBIC_LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT
-    #error "ANYCUBIC_LCD_SERIAL_PORT cannot be the same as SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && ANYCUBIC_LCD_SERIAL_PORT == SERIAL_PORT_2
-    #error "ANYCUBIC_LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
+#else
+  #if HAS_DGUS_LCD
+    #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
+  #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+    #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
+  #elif ENABLED(MALYAN_LCD)
+    #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
   #endif
-  #define ANYCUBIC_LCD_SERIAL anycubicLcdSerial
 #endif
 
 /**
