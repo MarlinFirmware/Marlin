@@ -145,7 +145,7 @@ namespace Anycubic {
       reset();
     }
     else {
-      char *pos = NULL;
+      char *pos = nullptr;
       for (uint8_t f = 0; f < folderdepth; f++)
         pos = strchr(currentfoldername, '/');
 
