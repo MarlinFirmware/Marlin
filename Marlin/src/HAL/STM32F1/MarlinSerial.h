@@ -50,7 +50,7 @@ public:
     { }
 
   #ifdef UART_IRQ_PRIO
-    // shadow the parent methods to set irq priority after the begin
+    // Shadow the parent methods to set IRQ priority after begin()
     void begin(uint32 baud) {
       MarlinSerial::begin(baud, SERIAL_8N1);
     }
@@ -62,10 +62,11 @@ public:
   #endif
 };
 
-extern MarlinSerial MSerial1;
-extern MarlinSerial MSerial2;
-extern MarlinSerial MSerial3;
+// Declare the required UARTs
+TERN_(USING_SERIAL_1, extern MarlinSerial MSerial1);
+TERN_(USING_SERIAL_2, extern MarlinSerial MSerial2);
+TERN_(USING_SERIAL_3, extern MarlinSerial MSerial3);
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  extern MarlinSerial MSerial4;
-  extern MarlinSerial MSerial5;
+  TERN_(USING_SERIAL_4, extern MarlinSerial MSerial4);
+  TERN_(USING_SERIAL_5, extern MarlinSerial MSerial5);
 #endif
