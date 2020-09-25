@@ -962,7 +962,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   tft.set_background(COLOR_BACKGROUND);
   tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
-  //TODO: would be great to add_text support font
+  // TODO: Make an add_text() taking a font arg
   if (label != NULL) {
     tft_string.set(label);
     tft_string.trim();
