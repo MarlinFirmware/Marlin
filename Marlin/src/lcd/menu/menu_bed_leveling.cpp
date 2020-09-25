@@ -38,6 +38,7 @@
 
 #if HAS_GRAPHICAL_TFT
   #include "../tft/touch.h"
+  #include "../tft/tft.h"
 #endif
 
 #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
