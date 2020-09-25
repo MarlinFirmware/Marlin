@@ -47,30 +47,30 @@ namespace Anycubic {
     static file_menu_t      file_menu;
     public:
       ChironTFT();
-      void    Startup();
-      void    IdleLoop();
-      void    PrinterKilled(PGM_P,PGM_P);
-      void    MediaEvent(media_event_t);
-      void    TimerEvent(timer_event_t);
-      void    FilamentRunout();
-      void    ConfirmationRequest(const char * const );
-      void    StatusChange(const char * const );
-      void    PowerLossRecovery();
+      void Startup();
+      void IdleLoop();
+      void PrinterKilled(PGM_P,PGM_P);
+      void MediaEvent(media_event_t);
+      void TimerEvent(timer_event_t);
+      void FilamentRunout();
+      void ConfirmationRequest(const char * const );
+      void StatusChange(const char * const );
+      void PowerLossRecovery();
 
     private:
-      void    SendtoTFT(PGM_P);
-      void    SendtoTFTLN(PGM_P);
-      bool    ReadTFTCommand();
-      int8_t  Findcmndpos(const char *, char);
-      void    CheckHeaters();
-      //bool    ToggleFileMenu(int8_t);
-      void    SendFileList(int8_t);
-      void    SelectFile();
-      void    InjectCommandandWait(PGM_P);
-      void    ProcessPanelRequest();
-      void    PanelInfo(uint8_t);
-      void    PanelAction(uint8_t);
-      void    PanelProcess(uint8_t);
+      void SendtoTFT(PGM_P);
+      void SendtoTFTLN(PGM_P);
+      bool ReadTFTCommand();
+      int8_t Findcmndpos(const char *, char);
+      void CheckHeaters();
+      //bool ToggleFileMenu(int8_t);
+      void SendFileList(int8_t);
+      void SelectFile();
+      void InjectCommandandWait(PGM_P);
+      void ProcessPanelRequest();
+      void PanelInfo(uint8_t);
+      void PanelAction(uint8_t);
+      void PanelProcess(uint8_t);
   };
 
   extern ChironTFT Chiron;

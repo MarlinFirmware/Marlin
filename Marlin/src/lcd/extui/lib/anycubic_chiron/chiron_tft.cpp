@@ -32,14 +32,18 @@
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
-#include "../../ui_api.h"
-#include "../../../../gcode/queue.h"
-#include "../../../../sd/cardreader.h"
+
 #include "chiron_tft.h"
 #include "Tunes.h"
 #include "FileNavigator.h"
 
+#include "../../ui_api.h"
+#include "../../../../gcode/queue.h"
+#include "../../../../sd/cardreader.h"
+#include "../../../../libs/numtostr.h"
+
 namespace Anycubic {
+
   printer_state_t  ChironTFT::printer_state;
   paused_state_t   ChironTFT::pause_state;
   heater_state_t   ChironTFT::hotend_state;
@@ -50,25 +54,19 @@ namespace Anycubic {
   uint8_t          ChironTFT::command_len;
   float            ChironTFT::live_Zoffset;
   file_menu_t      ChironTFT::file_menu;
-  char _conv[8];
-  char *itostr2(const uint8_t &x) {
-    int xx=x;
-    _conv[0]=(xx/10)%10+'0';
-    _conv[1]=(xx)%10+'0';
-    _conv[2]=0;
-    return _conv;
-  }
+
   ChironTFT::ChironTFT(){}
+
   void ChironTFT::Startup() {
-    selectedfile[0]      = '\0';
-    panel_command[0]     = '\0';
-    command_len          = 0;
-    printer_state        = AC_printer_idle;
-    pause_state          = AC_paused_idle;
-    hotend_state         = AC_heater_off;
-    hotbed_state         = AC_heater_off;
-    live_Zoffset         = 0.0;
-    file_menu            = AC_menu_file;
+    selectedfile[0]   = '\0';
+    panel_command[0]  = '\0';
+    command_len       = 0;
+    printer_state     = AC_printer_idle;
+    pause_state       = AC_paused_idle;
+    hotend_state      = AC_heater_off;
+    hotbed_state      = AC_heater_off;
+    live_Zoffset      = 0.0;
+    file_menu         = AC_menu_file;
 
     // Setup pins for powerloss detection
     // Two IO pins are connected on the Trigorilla Board
@@ -127,9 +125,11 @@ namespace Anycubic {
       case AC_media_inserted:
         SendtoTFTLN(AC_msg_sd_card_inserted);
       break;
+
       case AC_media_removed:
         SendtoTFTLN(AC_msg_sd_card_removed);
       break;
+
       case AC_media_error:
         SendtoTFTLN(AC_msg_no_sd_card);
       break;
@@ -188,6 +188,7 @@ namespace Anycubic {
           printer_state = AC_printer_paused;
         }
       } break;
+
       case AC_printer_resuming_from_power_outage:
       case AC_printer_printing:
       case AC_printer_paused: {
@@ -239,12 +240,14 @@ namespace Anycubic {
           msg_matched = true;
         }
       } break;
+
       case AC_printer_printing: {
         if (strcmp_P(msg, MARLIN_msg_reheating) == 0 ) {
           SendtoTFTLN(AC_msg_paused); // enable continue button
           msg_matched = true;
          }
       } break;
+
       case AC_printer_pausing: {
         if (strcmp_P(msg, MARLIN_msg_print_paused) == 0 ) {
           SendtoTFTLN(AC_msg_paused);
@@ -253,6 +256,7 @@ namespace Anycubic {
           msg_matched = true;
          }
       } break;
+
       case AC_printer_stopping: {
         if (strcmp_P(msg, MARLIN_msg_print_aborted) == 0 ) {
           SendtoTFTLN(AC_msg_stop);
@@ -310,21 +314,23 @@ namespace Anycubic {
 
     if(command_ready) {
       panel_command[command_len] = 0x00;
-      #if ACDEBUG(64)
-        _SELP_2_P(PSTR("< "), panel_command);
+      #if ACDEBUG(AC_ALL)
+        SERIAL_ECHOLNPAIR("< ", panel_command);
       #endif
-      #if ACDEBUG(32)
+      #if ACDEBUG(AC_SOME)
         // Ignore status request commands
         uint8_t req = atoi(&panel_command[1]);
-        if(( req > 7) && (req != 20) ) {
-          _SELP_2_P(PSTR("> "), panel_command);
-          _SELP_2_P(PSTR("printer_state:"),printer_state);
+        if (req > 7 && req != 20) {
+          SERIAL_ECHOLNPAIR("> ", panel_command);
+          SERIAL_ECHOLNPAIR("printer_state:", printer_state);
         }
       #endif
     }
     return command_ready;
   }
-  /*uint8_t ChironTFT::ReadCommandold() {
+
+  /*
+  uint8_t ChironTFT::ReadCommandold() {
     uint8_t bytes = 0;
     if (TFTSer.available() > 0) {
       // Read a single command from the panel
@@ -346,7 +352,9 @@ namespace Anycubic {
       #endif
     }
     return bytes;
-  } */
+  }
+  */
+
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
     bool found = false;
     int8_t pos = 0;
@@ -432,6 +440,7 @@ namespace Anycubic {
       case '/':   // Valid file selected
         SendtoTFTLN(AC_msg_sd_file_open_success);
         break;
+
       case '<':   // .. (go up folder level)
         filenavigator.upDIR();
         SendtoTFTLN(AC_msg_sd_file_open_failed);
@@ -468,113 +477,116 @@ namespace Anycubic {
 
   void ChironTFT::PanelInfo(uint8_t req) {
     // information requests A0-A8 and A33 switch (req) {
-      case 0: { // A0 Get HOTEND Temp
+      case 0:   // A0 Get HOTEND Temp
         SendtoTFT(PSTR("A0V "));
         TFTSer.println(getActualTemp_celsius(E0));
-      } break;
-      case 1: { // A1 Get HOTEND Target Temp
+        break;
+
+      case 1:   // A1 Get HOTEND Target Temp
         SendtoTFT(PSTR("A1V "));
         TFTSer.println(getTargetTemp_celsius(E0));
-      } break;
-      case 2: { // A2 Get BED Temp
+        break;
+
+      case 2:   // A2 Get BED Temp
         SendtoTFT(PSTR("A2V "));
         TFTSer.println(getActualTemp_celsius(BED));
-      } break;
-      case 3: { // A3 Get BED Target Temp
+        break;
+
+      case 3:   // A3 Get BED Target Temp
         SendtoTFT(PSTR("A3V "));
         TFTSer.println(getTargetTemp_celsius(BED));
-      } break;
-      case 4: { // A4 Get FAN Speed
+        break;
+
+      case 4:   // A4 Get FAN Speed
         SendtoTFT(PSTR("A4V "));
         TFTSer.println(getActualFan_percent(FAN0));
-      } break;
-      case 5: { // A5 Get Current Coordinates
+        break;
+
+      case 5:   // A5 Get Current Coordinates
         SendtoTFT(PSTR("A5V X: "));
         TFTSer.print(getAxisPosition_mm(X));
         SendtoTFT(PSTR(" Y: "));
         TFTSer.print(getAxisPosition_mm(Y));
         SendtoTFT(PSTR(" Z: "));
         TFTSer.println(getAxisPosition_mm(Z));
-      } break;
-      case 6: { // A6 Get printing progress
+        break;
+
+      case 6:   // A6 Get printing progress
         if (isPrintingFromMedia()) {
-        SendtoTFT(PSTR("A6V "));
-        TFTSer.println(getProgress_percent());
+          SendtoTFT(PSTR("A6V "));
+          TFTSer.println(getProgress_percent());
         }
-        else SendtoTFTLN(PSTR("A6V ---"));
-      } break;
+        else
+          SendtoTFTLN(PSTR("A6V ---"));
+        break;
+
       case 7: { // A7 Get Printing Time
-        uint32_t time = 0;
-        time = getProgress_seconds_elapsed()/60;
+        uint32_t time = getProgress_seconds_elapsed() / 60;
         SendtoTFT(PSTR("A7V "));
-        TFTSer.print( itostr2((time-time%60)/60) );
+        TFTSer.print(ui8tostr2(time / 60);
         SendtoTFT(PSTR(" H "));
-        TFTSer.print( itostr2(time%60) );
+        TFTSer.print(ui8tostr2(time % 60));
         SendtoTFT(PSTR(" M"));
         #if ACDEBUG(AC_ALL)
-          SERIAL_ECHOLNPAIR("Print time ", itostr2((time - time % 60) / 60), ":", itostr2(time % 60));
+          SERIAL_ECHOLNPAIR("Print time ", ui8tostr2(time / 60), ":", ui8tostr2(time % 60));
         #endif
       } break;
-      case 8: { // A8 Get SD Card list A8 S0
-        if (!isMediaInserted()) {
-          safe_delay(500);
-        }
-        if (!isMediaInserted()) { // Make sure the card is removed
+
+      case 8:   // A8 Get SD Card list A8 S0
+        if (!isMediaInserted()) safe_delay(500);
+        if (!isMediaInserted())   // Make sure the card is removed
           SendtoTFTLN(AC_msg_no_sd_card);
-        }
-        else {
-          if (panel_command[3] == 'S') {
-            SendFileList( atoi( &panel_command[4] ) );
-          }
-        }
-      } break;
-      case 33: { // A33 Get firmware info
+        else if (panel_command[3] == 'S')
+          SendFileList( atoi( &panel_command[4] ) );
+        break;
+
+      case 33:   // A33 Get firmware info
         SendtoTFT(PSTR("J33 "));
         SendtoTFTLN(PSTR(SHORT_BUILD_VERSION));
-      } break;
+        break;
     }
   }
 
   void ChironTFT::PanelAction(uint8_t req) {
     switch (req) {
-      case  9: { // A9 Pause SD print
+      case  9:   // A9 Pause SD print
         if (isPrintingFromMedia()) {
           SendtoTFTLN(AC_msg_pause);
           pausePrint();
           printer_state = AC_printer_pausing;
         }
-        else {
+        else
           SendtoTFTLN(AC_msg_stop);
-        }
-      } break;
+        break;
+
       case 10: { // A10 Resume SD Print
-        if ( (pause_state == AC_paused_idle) || (printer_state == AC_printer_resuming_from_power_outage) ) {
+        if (pause_state == AC_paused_idle || printer_state == AC_printer_resuming_from_power_outage)
           resumePrint();
-        }
-        else {
+        else
           setUserConfirmed();
-        }
-      } break;
-      case 11: { // A11 Stop SD print
-        if ( isPrintingFromMedia() ) {
+        break;
+
+      case 11:   // A11 Stop SD print
+        if (isPrintingFromMedia()) {
           printer_state = AC_printer_stopping;
           stopPrint();
         }
         else {
-          if (printer_state == AC_printer_resuming_from_power_outage) {
+          if (printer_state == AC_printer_resuming_from_power_outage)
             injectCommands_P(PSTR("M1000 C\n")); // Cancel recovery
-          }
           SendtoTFTLN(AC_msg_stop);
           printer_state = AC_printer_idle;
         }
+        break;
 
-      } break;
-      case 12: { // A12 Kill printer
+      case 12:   // A12 Kill printer
         kill();  // from marlincore.h
-      } break;
+        break;
+
       case 13:   // A13 Select file
         SelectFile();
         break;
+
       case 14: { // A14 Start Printing
         // Allows printer to restart the job ifwe dont want to recover
         if (printer_state == AC_printer_resuming_from_power_outage) {
@@ -591,12 +603,13 @@ namespace Anycubic {
         printFile(file);
         SendtoTFTLN(AC_msg_print_from_sd_card);
       } break;
-      case 15: { // A15 Resuming from outage
-        if (printer_state == AC_printer_resuming_from_power_outage) {
+
+      case 15:   // A15 Resuming from outage
+        if (printer_state == AC_printer_resuming_from_power_outage)
           // Need to home here to restore the Z position
           injectCommands_P(PSTR("M1000\n"));  // home and start recovery
-        }
-      } break;
+        break;
+
       case 16: { // A16 Set HotEnd temp  A17 S170
         const float set_Htemp = atof(&panel_command[5]);
         hotend_state = set_Htemp ? AC_heater_temp_set : AC_heater_off;
@@ -605,32 +618,36 @@ namespace Anycubic {
           case 'S': case 'C': setTargetTemp_celsius(set_Htemp, E0);
         }
       } break;
+
       case 17: { // A17 Set bed temp
         const float set_Btemp = atof(&panel_command[5]);
         hotbed_state = set_Btemp ? AC_heater_temp_set : AC_heater_off;
         if (panel_command[4] == 'S')
           setTargetTemp_celsius(set_Btemp, BED);
       } break;
+
       case 18:   // A18 Set Fan Speed
         if (panel_command[4] == 'S')
           setTargetFan_percent(atof(&panel_command[5]), FAN0);
         break;
+
       case 19:   // A19 Motors off
         if (!isPrinting()) {
           disable_all_steppers(); // from marlincore.h
           SendtoTFTLN(AC_msg_ready);
         }
         break;
-      case 20: { // A20 Read/write print speed
-        if (panel_command[4] == 'S') {
+
+      case 20:   // A20 Read/write print speed
+        if (panel_command[4] == 'S')
           setFeedrate_percent(atoi(&panel_command[5]));
-        }
         else {
           SendtoTFT(PSTR("A20V "));
           TFTSer.println(getFeedrate_percent());
         }
-      } break;
-      case 21: { // A21 Home Axis  A21 X
+        break;
+
+      case 21:   // A21 Home Axis  A21 X
         if (!isPrinting()) {
           switch ((char)panel_command[4]) {
             case 'X': injectCommands_P(PSTR("G28 X\n")); break;
@@ -639,8 +656,9 @@ namespace Anycubic {
             case 'C': injectCommands_P(PSTR("G28\n")); break;
           }
         }
-      } break;
-      case 22: { // A22 Move Axis  A22 Y +10F3000
+        break;
+
+      case 22:   // A22 Move Axis  A22 Y +10F3000
         // Ignore request if printing
         if (!isPrinting()) {
           // setAxisPosition_mm() uses pre defined manual feedrates so ignore the feedrate from the panel
@@ -662,8 +680,9 @@ namespace Anycubic {
               break;
           }
         }
-      } break;
-      case 23: { // A23 Preheat PLA
+        break;
+
+      case 23:   // A23 Preheat PLA
         // Ignore request if printing
         if (!isPrinting()) {
           // Temps defined in configuration.h
@@ -673,8 +692,9 @@ namespace Anycubic {
           hotbed_state = AC_heater_temp_set;
           hotend_state = AC_heater_temp_set;
         }
-      } break;
-      case 24: { // A24 Preheat ABS
+        break;
+
+      case 24:   // A24 Preheat ABS
         // Ignore request if printing
         if (!isPrinting()) {
           setTargetTemp_celsius(PREHEAT_2_TEMP_BED, BED);
@@ -683,8 +703,9 @@ namespace Anycubic {
           hotbed_state = AC_heater_temp_set;
           hotend_state = AC_heater_temp_set;
         }
-      } break;
-      case 25: { // A25 Cool Down
+        break;
+
+      case 25:   // A25 Cool Down
         // Ignore request if printing
         if (!isPrinting()) {
           setTargetTemp_celsius(0, E0);
@@ -693,19 +714,21 @@ namespace Anycubic {
           hotbed_state = AC_heater_off;
           hotend_state = AC_heater_off;
         }
-      } break;
-      case 26: { // A26 Refresh SD
+        break;
+
+      case 26:   // A26 Refresh SD
         // M22 M21 maybe needed here to reset sd card
         filenavigator.reset();
-      } break;
-      case 27: { // A27 Servo Angles adjust
-      } break;
-      case 28: { // A28 Filament set A28 O/C
+        break;
+
+      case 27:   // A27 Servo Angles adjust
+        break;
+
+      case 28:   // A28 Filament set A28 O/C
         // Ignore request if printing
         if (isPrinting()) break;
         SendtoTFTLN();
-      }
-      break;
+        break;
     }
   }
 
@@ -746,55 +769,50 @@ namespace Anycubic {
           selectedmeshpoint.y = pos.y;
         }
       } break;
-      case 30: { // A30 Auto leveling
+
+      case 30:   // A30 Auto leveling
         if (panel_command[3] == 'S') { // Start probing
           // Ignore request if printing
-          if (isPrinting()) {
+          if (isPrinting())
             SendtoTFTLN(AC_msg_probing_not_allowed); // forbid auto leveling
-          }
           else {
-            if (!isMachineHomed()) {
-              injectCommands_P(PSTR("G28\nG29"));
-            }
-            else {
-              injectCommands_P(PSTR("G29"));
-            }
+            injectCommands_P(isMachineHomed() ? PSTR("G29") : PSTR("G28\nG29"));
             printer_state = AC_printer_probing;
             SendtoTFTLN(AC_msg_start_probing);
           }
         }
         else SendtoTFTLN(AC_msg_start_probing);
-      } break;
+        break;
+
       case 31: { // A31 Adjust all Probe Points
         switch (panel_command[3]) {
-          case 'C': { // Restore and apply original offsets
+          case 'C':   // Restore and apply original offsets
             if (!isPrinting()) {
               injectCommands_P(PSTR("M501\nM420 S1\n"));
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-          } break;
-          case 'D': { // Save Z Offset tables and restore levelling state
+            break;
+          case 'D':   // Save Z Offset tables and restore levelling state
             if (!isPrinting()) {
               setAxisPosition_mm(1.0,Z);
               injectCommands_P(PSTR("M500\n"));
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-          } break;
-          case 'G': { // Get current offset
+            break;
+          case 'G':   // Get current offset
             SendtoTFT(PSTR("A31V "));
             // When printing use the live z Offset position
             // we will use babystepping to move the print head
-            if (isPrinting()) {
+            if (isPrinting())
               TFTSer.println(live_Zoffset);
-            }
             else {
               TFTSer.println(getZOffset_mm());
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-          } break;
+            break;
           case 'S': { // Set offset (adjusts all points by value)
             float Zshift = atof(&panel_command[4]);
             setSoftEndstopState(false);  // disable endstops
@@ -807,7 +825,7 @@ namespace Anycubic {
               if (isAxisPositionKnown(Z)) {
                 #if ACDEBUG(AC_INFO)
                   const float currZpos = getAxisPosition_mm(Z);
-                  _SELP_4_P(PSTR("Nudge Z pos from "), currZpos ,PSTR(" to "), currZpos + constrain(Zshift, -0.05, 0.05));
+                  SERIAL_ECHOLNPAIR("Nudge Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
                 #endif
                 // Use babystepping to adjust the head position
                 int16_t steps = mmToWholeSteps(constrain(Zshift,-0.05,0.05), Z);
@@ -820,32 +838,26 @@ namespace Anycubic {
               SendtoTFT(PSTR("A31V "));
               TFTSer.println(live_Zoffset);
             }
-
             else {
-              for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++) {
-                for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y ++) {
-                  xy_uint8_t pos;
-                  pos.x = x;
-                  pos.y = y;
-                  float currval = getMeshPoint(pos);
-                  setMeshPoint(pos,constrain(currval + Zshift,AC_LOWEST_MESHPOINT_VAL,2));
-                }
+              GRID_LOOP(x, y) {
+                const xy_uint8_t pos { x, y };
+                const float currval = getMeshPoint(pos);
+                setMeshPoint(pos, constrain(currval + Zshift, AC_LOWEST_MESHPOINT_VAL, 2));
               }
-              float currZOffset = getZOffset_mm();
+              const float currZOffset = getZOffset_mm();
               #if ACDEBUG(AC_INFO)
-                _SELP_4_P(PSTR("Change probe offset from "), currZOffset, PSTR(" to  ") , currZOffset+Zshift );
+                SERIAL_ECHOLNPAIR("Change probe offset from ", currZOffset, " to  ", currZOffset + Zshift);
               #endif
 
               setZOffset_mm(currZOffset + Zshift);
               SendtoTFT(PSTR("A31V "));
               TFTSer.println(getZOffset_mm());
 
-
               if (isAxisPositionKnown(Z)) {
                 // Move Z axis
-                float currZpos = getAxisPosition_mm(Z);
+                const float currZpos = getAxisPosition_mm(Z);
                 #if ACDEBUG(AC_INFO)
-                  _SELP_4_P(PSTR("Move Z pos from "), currZpos ,PSTR(" to "), currZpos+constrain(Zshift,-0.05,0.05) );
+                  SERIAL_ECHOLNPAIR("Move Z pos from ", currZpos, " to ", currZpos + constrain(Zshift, -0.05, 0.05));
                 #endif
                 setAxisPosition_mm(currZpos+constrain(Zshift,-0.05,0.05),Z);
               }
@@ -854,14 +866,17 @@ namespace Anycubic {
           } break;
         } // end switch
       } break;
+
       case 32: { // A32 clean leveling beep flag
         // Ignore request if printing
         //if (isPrinting()) break;
         //injectCommands_P(PSTR("M500\nM420 S1\nG1 Z10 F240\nG1 X0 Y0 F6000"));
         //TFTSer.println("");
       } break;
+
       // A33 firmware info request seet PanelInfo()
-      case 34: { // A34 Adjust single mesh point A34 C/S X1 Y1 V123
+
+      case 34:   // A34 Adjust single mesh point A34 C/S X1 Y1 V123
         if (panel_command[3] == 'C') { // Restore original offsets
           injectCommands_P(PSTR("M501\nM420 S1"));
           selectedmeshpoint.x = 99;
@@ -876,8 +891,8 @@ namespace Anycubic {
           float currmesh = getMeshPoint(pos);
           float newval   = atof(&panel_command[11])/100;
           #if ACDEBUG(AC_INFO)
-            _SELP_4_P(PSTR("Change mesh point x:"),pos.x,PSTR(" y:"),pos.y);
-            _SELP_4_P(PSTR("from "),currmesh,PSTR(" to "),newval);
+            SERIAL_ECHOLNPAIR("Change mesh point x:", pos.x, " y:", pos.y);
+            SERIAL_ECHOLNPAIR("from ", currmesh, " to ", newval);
           #endif
           // Update Meshpoint
           setMeshPoint(pos,newval);
@@ -887,14 +902,16 @@ namespace Anycubic {
               setSoftEndstopState(false);
               float currZpos = getAxisPosition_mm(Z);
               #if ACDEBUG(AC_INFO)
-                _SELP_4_P(PSTR("Move Z pos from "), currZpos ,PSTR(" to "), currZpos+constrain(newval-currmesh,-0.05,0.05) );
+                SERIAL_ECHOLNPAIR("Move Z pos from ", currZpos, " to ", currZpos + constrain(newval - currmesh, -0.05, 0.05));
               #endif
-              setAxisPosition_mm(currZpos+constrain(newval-currmesh,-0.05,0.05),Z);
+              setAxisPosition_mm(currZpos + constrain(newval - currmesh, -0.05, 0.05), Z);
             }
           }
         }
-      } break;
+        break;
     }
   }
-}
-#endif
+
+} // namespace
+
+#endif // ANYCUBIC_LCD_CHIRON

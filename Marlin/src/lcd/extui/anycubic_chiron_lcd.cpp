@@ -103,12 +103,12 @@ namespace ExtUI {
   #if HAS_MESH
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
-      //_SELP_6_P(PSTR("onMeshUpdate() x:"),xpos,PSTR(" y:"),ypos,PSTR(" z:"),zval);
+      //SERIAL_ECHOLNPAIR("onMeshUpdate() x:", xpos, " y:", ypos, " z:", zval);
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
       // Called to indicate a special condition
-      //_SELP_6_P(PSTR("onMeshUpdate() x:"),xpos,PSTR(" y:"),ypos,PSTR(" state:"),state);
+      //SERIAL_ECHOLNPAIR("onMeshUpdate() x:", xpos, " y:", ypos, " state:", state);
     }
   #endif
 
