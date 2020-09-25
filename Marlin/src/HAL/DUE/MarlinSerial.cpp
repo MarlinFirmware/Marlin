@@ -52,6 +52,7 @@ template<typename Cfg>
 FORCE_INLINE void MarlinSerial<Cfg>::store_rxd_char() {
 
   static EmergencyParser::State emergency_state; // = EP_RESET
+  static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
   // Get the tail - Nothing can alter its value while we are at this ISR
   const ring_buffer_pos_t t = rx_buffer.tail;

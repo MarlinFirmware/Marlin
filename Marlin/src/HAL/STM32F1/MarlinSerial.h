@@ -35,10 +35,16 @@
 
 class MarlinSerial : public HardwareSerial {
 public:
-  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin, bool TERN_(EMERGENCY_PARSER, emergency_parser)) :
+  #if ENABLED(EMERGENCY_PARSER)
+    const bool ep_enabled;
+    EmergencyParser::State emergency_state;
+    inline bool emergency_parser_enabled() { return ep_enabled; }
+  #endif
+
+  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin, bool TERN_(EMERGENCY_PARSER, ep_capable)) :
     HardwareSerial(usart_device, tx_pin, rx_pin)
     #if ENABLED(EMERGENCY_PARSER)
-      , emergency_parser_enabled(emergency_parser)
+      , ep_enabled(ep_capable)
       , emergency_state(EmergencyParser::State::EP_RESET)
     #endif
     { }
@@ -53,11 +59,6 @@ public:
       HardwareSerial::begin(baud, config);
       nvic_irq_set_priority(c_dev()->irq_num, UART_IRQ_PRIO);
     }
-  #endif
-
-  #if ENABLED(EMERGENCY_PARSER)
-    bool emergency_parser_enabled;
-    EmergencyParser::State emergency_state;
   #endif
 };
 
