@@ -52,6 +52,11 @@
 #define RegAddr_R   0x81
 #define VarAddr_W   0x82
 #define VarAddr_R   0x83
+
+// According to the DWIN docs for operation 0x84 (ExchangepageAddr) this is:
+//  0x5A: Enable page operation once, clear after CPU operation
+//  0x01: Page switch (display the selected picture)
+//  rest: Picture ID
 #define ExchangePageBase    ((unsigned long)0x5A010000)     // the first page ID. other page = first page ID + relevant num;
 #define StartSoundSet       ((unsigned long)0x060480A0)     // 06,start-music; 04, 4 musics; 80, the volume value; 04, return value about music number.
 
@@ -164,6 +169,60 @@ typedef struct CardRecord
 
 extern CRec CardRecbuf;
 
+
+enum class DWINTouchPage : unsigned int {
+  BOOT = 0,
+
+  MAIN_MENU = 28,
+
+  FILE_SELECTION_P1 = 29,
+  FILE_SELECTION_P2 = 30,
+  FILE_SELECTION_P3 = 31,
+  FILE_SELECTION_P4 = 32,
+  FILE_SELECTION_P5 = 33,
+
+  ERR_FILAMENTRUNOUT_HOTEND_COLD = 34,
+  ERR_FILAMENTRUNOUT_FILAMENT_LOADED = 35,
+
+  PRINT_FINISHED = 36,
+
+  PRINT_PROGRESS_RUNNING = 37,
+  PRINT_PROGRESS_PAUSED = 39,
+
+  DIALOG_PAUSE_PRINTING = 38,
+  DIALOG_STOP_PRINTING = 40,
+
+  MENU_TUNING = 41,
+  MENU_PREPARE = 42,
+  
+  MOVE_10MM = 43,
+  MOVE_1MM = 44,
+  MOVE_01MM = 45,
+
+  FEED = 46,
+
+  MENU_CONTROL = 47,
+  MENU_TEMP = 48,
+  MENU_PLA_TEMP = 49,
+  MENU_ABS_TEMP = 50,
+
+  MENU_ABOUT = 51,
+
+  MENU_ZOFFSET_LEVELING = 52,
+  LEVELING = 53,
+  DIALOG_POWER_FAILURE = 54,
+
+  KEYBOARD = 55,
+  KEYBOARD_CONFIRM = 56,
+
+  ERR_THERMAL_RUNAWAY = 57,
+  ERR_HEATING_FAILED = 58,
+  ERR_THERMISTOR = 59,
+
+  AUTOHOME_IN_PROGRESS = 61,
+  ERR_FATAL_UNSPECIFIED = 62,
+};
+
 class RTSSHOW {
   public:
     RTSSHOW();
@@ -186,10 +245,18 @@ class RTSSHOW {
     void RTS_FilamentRunout();
     void RTS_FilamentLoaded();
 
+    void change_page(DWINTouchPage newPage);
+    void refresh_page();
+    inline bool has_fatal_error() { return m_current_page == DWINTouchPage::ERR_FATAL_UNSPECIFIED; };
+
     DB recdat;
     DB snddat;
+
+
   private:
     unsigned char databuf[SizeofDatabuf];
+
+    DWINTouchPage m_current_page;
   };
 
 extern RTSSHOW rtscheck;
@@ -255,7 +322,6 @@ void ErrorHanding();
 extern void RTSUpdate();
 
 extern char waitway;
-extern int change_page_font;
 extern int Update_Time_Value;
 extern unsigned char AxisUnitMode;
 extern bool home_flag;

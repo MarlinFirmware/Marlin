@@ -51,8 +51,9 @@
 
 void DWINTouch_inactivity_callback() {
   waitway = 0;
-  rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
-  change_page_font = 62;
+
+  rtscheck.change_page(DWINTouchPage::ERR_FATAL_UNSPECIFIED);
+
   rtscheck.RTS_SndData(Error_201, ABNORMAL_TEXT_VP);
   errorway = 1;
 }
@@ -82,8 +83,7 @@ void DWINTouch_filament_loaded() {
 void DWINTouch_bedlevel_update_callback(uint8_t count) {
   rtscheck.RTS_SndData(count, AUTO_BED_LEVEL_TITLE_VP);
 
-  rtscheck.RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-  change_page_font = 53;
+  rtscheck.change_page(DWINTouchPage::LEVELING);
 
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
   rtscheck.RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
@@ -106,21 +106,18 @@ void DWINTouch_autohome_callback() {
 
   if(waitway == 4 || waitway == 6 || waitway == 7)
   {
-    // exchange to 61 page
-    rtscheck.RTS_SndData(ExchangePageBase + 61, ExchangepageAddr);
-    change_page_font = 61;
+    rtscheck.change_page(DWINTouchPage::AUTOHOME_IN_PROGRESS);
   }
 }
 
 void DWINTouch_autohome_update_callback() {
-  if(change_page_font != 62)
+  if(rtscheck.has_fatal_error() == false)
     {
       if(waitway == 6)
       {
         
         do_blocking_move_to_z(0);
-        rtscheck.RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-        change_page_font = 52;
+        rtscheck.change_page(DWINTouchPage::MENU_ZOFFSET_LEVELING);
 
         waitway = 0;
       }
@@ -128,17 +125,27 @@ void DWINTouch_autohome_update_callback() {
       {
        
         do_blocking_move_to_z(0);
-        rtscheck.RTS_SndData(ExchangePageBase + 42 + AxisUnitMode, ExchangepageAddr);
-        change_page_font = 42;
+
+        switch (AxisUnitMode) {
+          case 1:
+            rtscheck.change_page(DWINTouchPage::MOVE_10MM);
+            break;
+
+          case 2:
+            rtscheck.change_page(DWINTouchPage::MOVE_1MM);
+            break;
+
+          case 3:
+            rtscheck.change_page(DWINTouchPage::MOVE_01MM);
+            break;
+        }
 
         waitway = 0;
       }
       else if(waitway == 7)
       {
       
-        // exchange to 24 page
-        rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        rtscheck.change_page(DWINTouchPage::MAIN_MENU);
         
         rtscheck.RTS_SndData(2, MOTOR_FREE_ICON_VP); 
         rtscheck.RTS_SndData(0, PRINT_PROCESS_TITLE_VP);
@@ -182,59 +189,53 @@ void DWINTouch_print_completed_callback() {
   delay(1);
   rtscheck.RTS_SndData(100 ,PRINT_PROCESS_TITLE_VP);
  
-  rtscheck.RTS_SndData(ExchangePageBase + 36, ExchangepageAddr);
-  change_page_font = 36;
+  rtscheck.change_page(DWINTouchPage::PRINT_FINISHED);
+
 }
 
 void DWINTouch_error_home_failed() {
   waitway = 0;
-  rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
-  change_page_font = 62;
+
+  rtscheck.change_page(DWINTouchPage::ERR_FATAL_UNSPECIFIED);
   rtscheck.RTS_SndData(Error_202, ABNORMAL_TEXT_VP);
   errorway = 2;
 }
 
 void DWINTouch_error_probe_failed() {
   waitway = 0;
-  rtscheck.RTS_SndData(ExchangePageBase + 62, ExchangepageAddr);
-  change_page_font = 62;
+
+  rtscheck.change_page(DWINTouchPage::ERR_FATAL_UNSPECIFIED);
   rtscheck.RTS_SndData(Error_203, ABNORMAL_TEXT_VP);
   errorway = 3;
 }
 
 void DWINTouch_temperature_refresh() {
-  rtscheck.RTS_SndData(ExchangePageBase + 58, ExchangepageAddr);
-  change_page_font = 58;
+  rtscheck.change_page(DWINTouchPage::ERR_HEATING_FAILED);
 }
 
 void DWINTouch_error_max_temp() {
-   rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
-   change_page_font = 59;
+  rtscheck.change_page(DWINTouchPage::ERR_THERMISTOR);
 }
 
 void DWINTouch_error_min_temp() {
-  rtscheck.RTS_SndData(ExchangePageBase + 59, ExchangepageAddr);
-  change_page_font = 59;
+  rtscheck.change_page(DWINTouchPage::ERR_THERMISTOR);
 }
 
 void DWINTouch_error_runaway_temp() {
-  rtscheck.RTS_SndData(ExchangePageBase + 57, ExchangepageAddr);
-  change_page_font = 57;
+  rtscheck.change_page(DWINTouchPage::ERR_THERMAL_RUNAWAY);
 }
 
 void DWINTouch_heating_callback() {
   if(heat_flag && printingIsActive())
   {
-    rtscheck.RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-    change_page_font = 37;
+    rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
   }
   
   heat_flag = 0;
 }
 
 void DWINTouch_user_confirm_required() {
-  rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-  change_page_font = 54;
+  rtscheck.change_page(DWINTouchPage::DIALOG_POWER_FAILURE);
 }
 
 #endif

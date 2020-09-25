@@ -86,7 +86,6 @@ millis_t next_rts_update_ms = 0;
 int last_target_temperature[4] = {0};
 int last_target_temperature_bed;
 char waitway = 0;
-int change_page_font = 0;
 int recnum = 0;
 unsigned char Percentrecord = 0;
 float FilamentLOAD = 0;
@@ -128,11 +127,20 @@ inline void RTS_line_to_current(AxisEnum axis)
   }
 }
 
-RTSSHOW::RTSSHOW()
+RTSSHOW::RTSSHOW() : m_current_page(DWINTouchPage::BOOT)
 {
   recdat.head[0] = snddat.head[0] = FHONE;
   recdat.head[1] = snddat.head[1] = FHTWO;
   memset(databuf, 0, sizeof(databuf));
+}
+
+void RTSSHOW::change_page(DWINTouchPage newPage) {
+  rtscheck.RTS_SndData(ExchangePageBase + ((unsigned long) newPage), ExchangepageAddr);
+  m_current_page = newPage;
+}
+
+void RTSSHOW::refresh_page() {
+  change_page(m_current_page);
 }
 
 void RTSSHOW::RTS_SDCardInit(void)
@@ -318,8 +326,8 @@ void RTSSHOW::RTS_Init()
     RTS_SndData(10, FILE1_SELECT_ICON_VP - 1 + j);
   }
 
-  rtscheck.RTS_SndData(ExchangePageBase, ExchangepageAddr);
-  change_page_font = 0;
+  rtscheck.change_page(DWINTouchPage::BOOT);
+
   for(startprogress = 0; startprogress <= 100; startprogress++)
   {
     rtscheck.RTS_SndData(startprogress, START_PROCESS_ICON_VP);
@@ -329,9 +337,7 @@ void RTSSHOW::RTS_Init()
   rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   Update_Time_Value = RTS_UPDATE_VALUE;
   
-  rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-  change_page_font = 28;
-  
+  rtscheck.change_page(DWINTouchPage::MAIN_MENU);
   
   SERIAL_ECHOLN("===Initing RTS has finished===");
 }
@@ -644,26 +650,19 @@ void RTSSHOW::RTS_HandleData()
         CardUpdate = true;
         RTS_SDCardUpate();
         
-        RTS_SndData(ExchangePageBase + 29, ExchangepageAddr);
-        change_page_font = 29;
+        rtscheck.change_page(DWINTouchPage::FILE_SELECTION_P1);
       }
       else if(recdat.data[0] == 2)
       {
-      
-        RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
-        change_page_font = 42;
+        rtscheck.change_page(DWINTouchPage::MENU_PREPARE);
       }
       else if(recdat.data[0] == 3)
       {
-       
-        RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
-        change_page_font = 47;
+        rtscheck.change_page(DWINTouchPage::MENU_CONTROL);
       }
       else if(recdat.data[0] == 4)
       {
-      
-        RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-        change_page_font = 52;
+        rtscheck.change_page(DWINTouchPage::MENU_ZOFFSET_LEVELING);
       }
       else if(recdat.data[0] == 5)
       {
@@ -675,8 +674,7 @@ void RTSSHOW::RTS_HandleData()
         RTS_SndData(0, PRINT_TIME_MIN_VP);
         print_job_timer.reset();
         
-        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        rtscheck.change_page(DWINTouchPage::MAIN_MENU);
       }
       else if(recdat.data[0] == 6)
       {
@@ -684,8 +682,7 @@ void RTSSHOW::RTS_HandleData()
         RTS_SndData(1, AUTO_BED_LEVEL_TITLE_VP);
         RTS_SndData(AUTO_BED_LEVEL_PREHEAT, AUTO_BED_PREHEAT_HEAD_DATA_VP);
        
-        RTS_SndData(ExchangePageBase + 53, ExchangepageAddr);
-        change_page_font = 53;
+        rtscheck.change_page(DWINTouchPage::LEVELING);
 
         thermalManager.setTargetHotend(AUTO_BED_LEVEL_PREHEAT, 0);
         RTS_SndData(AUTO_BED_LEVEL_PREHEAT, HEAD_SET_TEMP_VP);
@@ -700,8 +697,7 @@ void RTSSHOW::RTS_HandleData()
     case AdjustEnterKey:
       if(recdat.data[0] == 1)
       {
-        RTS_SndData(ExchangePageBase + 41, ExchangepageAddr);
-        change_page_font = 41;
+        rtscheck.change_page(DWINTouchPage::MENU_TUNING);
       }
       else if(recdat.data[0] == 2)
       {
@@ -715,13 +711,11 @@ void RTSSHOW::RTS_HandleData()
         }
         if(card.isPrinting())
         {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
         }
         else
         {
-          RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-          change_page_font = 39;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_PAUSED);
         }
       }
       else if(recdat.data[0] == 3)
@@ -763,8 +757,7 @@ void RTSSHOW::RTS_HandleData()
     case StopPrintKey:
       if(recdat.data[0] == 1)
       {
-        RTS_SndData(ExchangePageBase + 40, ExchangepageAddr);
-        change_page_font = 40;
+        rtscheck.change_page(DWINTouchPage::DIALOG_STOP_PRINTING);
       }
       else if(recdat.data[0] == 2)
       {
@@ -779,29 +772,25 @@ void RTSSHOW::RTS_HandleData()
       {
         if(card.isPrinting())
         {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
         }
         else
         {
-          RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-          change_page_font = 39;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_PAUSED);
         }
       }
       break;
     case PausePrintKey:
       if(recdat.data[0] == 1)
       {
-        RTS_SndData(ExchangePageBase + 38, ExchangepageAddr);
-        change_page_font = 38;
+        rtscheck.change_page(DWINTouchPage::DIALOG_PAUSE_PRINTING);
       }
       else if(recdat.data[0] == 2)
       {
         pause_z = current_position[Z_AXIS];
         pause_e = current_position[E_AXIS] - 5;
 
-        RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-        change_page_font = 39;
+        rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_PAUSED);
 
         if(!temphot)
           temphot = thermalManager.degTargetHotend(0);
@@ -815,8 +804,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 3)
       {
-        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-        change_page_font = 37;
+        rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
       }
       break;
     case ResumePrintKey:
@@ -863,18 +851,15 @@ void RTSSHOW::RTS_HandleData()
     case TempControlKey:
       if(recdat.data[0] == 2)
       {
-        RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
-        change_page_font = 48;
+        rtscheck.change_page(DWINTouchPage::MENU_TEMP);
       }
       else if(recdat.data[0] == 3)
       {
-        RTS_SndData(ExchangePageBase + 49, ExchangepageAddr);
-        change_page_font = 49;
+        rtscheck.change_page(DWINTouchPage::MENU_PLA_TEMP);
       }
       else if(recdat.data[0] == 4)
       {
-        RTS_SndData(ExchangePageBase + 50, ExchangepageAddr);
-        change_page_font = 50;
+        rtscheck.change_page(DWINTouchPage::MENU_ABS_TEMP);
       }
       else if(recdat.data[0] == 5)
       {
@@ -894,8 +879,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 7)
       {
-        RTS_SndData(ExchangePageBase + 47, ExchangepageAddr);
-        change_page_font = 47;
+        rtscheck.change_page(DWINTouchPage::MENU_CONTROL);
       }
       break;
     case CoolDownKey:
@@ -909,8 +893,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 2)
       {
-        RTS_SndData(ExchangePageBase + 48, ExchangepageAddr);
-        change_page_font = 48;
+        rtscheck.change_page(DWINTouchPage::MENU_TEMP);
       }
       break;
     case HeaterTempEnterKey:
@@ -931,14 +914,13 @@ void RTSSHOW::RTS_HandleData()
         rtscheck.RTS_SndData(10*current_position[Z_AXIS], AXIS_Z_COORD_VP);
         delay(2);
 
-        RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
-        change_page_font = 43;
+        rtscheck.change_page(DWINTouchPage::MOVE_10MM);
       }
       else if(recdat.data[0] == 5)
       {
         RTS_SndData("www.creality.com", PRINTER_WEBSITE_TEXT_VP);
-        RTS_SndData(ExchangePageBase + 51, ExchangepageAddr);
-        change_page_font = 51;
+
+        rtscheck.change_page(DWINTouchPage::MENU_ABOUT);
       }
       else if(recdat.data[0] == 6)
       {
@@ -956,8 +938,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 9)
       {
-        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        rtscheck.change_page(DWINTouchPage::MAIN_MENU);
       }
       break;
     case BedLevelKey:
@@ -995,8 +976,7 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 4)
       {
-        RTS_SndData(ExchangePageBase + 52, ExchangepageAddr);
-        change_page_font = 52;
+        rtscheck.change_page(DWINTouchPage::MENU_ZOFFSET_LEVELING);
       }
       break;
     case AutoHomeKey:
@@ -1005,24 +985,21 @@ void RTSSHOW::RTS_HandleData()
         AxisUnitMode = 1;
         axis_unit = 10.0;
 
-        RTS_SndData(ExchangePageBase + 43, ExchangepageAddr);
-        change_page_font = 43;
+        rtscheck.change_page(DWINTouchPage::MOVE_10MM);
       }
       else if(recdat.data[0] == 2)
       {
         AxisUnitMode = 2;
         axis_unit = 1.0;
 
-        RTS_SndData(ExchangePageBase + 44, ExchangepageAddr);
-        change_page_font = 44;
+        rtscheck.change_page(DWINTouchPage::MOVE_1MM);
       }
       else if(recdat.data[0] == 3)
       {
         AxisUnitMode = 3;
         axis_unit = 0.1;
 
-        RTS_SndData(ExchangePageBase + 45, ExchangepageAddr);
-        change_page_font = 45;
+        rtscheck.change_page(DWINTouchPage::MOVE_01MM);
       }
       else if(recdat.data[0] == 4)
       {
@@ -1120,13 +1097,11 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 3)
       {
-        RTS_SndData(ExchangePageBase + 42, ExchangepageAddr);
-        change_page_font = 42;
+        rtscheck.change_page(DWINTouchPage::MENU_PREPARE);
       }
       else if(recdat.data[0] == 4)
       {
-        RTS_SndData(ExchangePageBase + 46, ExchangepageAddr);
-        change_page_font = 46;
+        rtscheck.change_page(DWINTouchPage::FEED);
 
       }
       RTS_line_to_current(E_AXIS);
@@ -1138,12 +1113,10 @@ void RTSSHOW::RTS_HandleData()
         auto state = EmergencyParser::State::EP_M108;
         emergency_parser.update(state, '\n');
         
-        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-        change_page_font = 37;
+        rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
       } else if(recdat.data[0] == 1)
       {
-        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-        change_page_font = 37;
+        rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
 
         if(recovery.dwin_flag) 
         {
@@ -1162,8 +1135,7 @@ void RTSSHOW::RTS_HandleData()
       {
         waitway = 3;
 
-        RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        rtscheck.change_page(DWINTouchPage::MAIN_MENU);
 
         Update_Time_Value = RTS_UPDATE_VALUE;
 
@@ -1277,15 +1249,13 @@ void RTSSHOW::RTS_HandleData()
         #endif
         RTS_SndData(1, PRINTER_FANOPEN_TITLE_VP);
 
-        RTS_SndData(ExchangePageBase + 37, ExchangepageAddr); 
-        change_page_font = 37;
+        rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
 
         Update_Time_Value = 0;
       }
       else if(recdat.data[0] == 4)
       {
-	      RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        rtscheck.change_page(DWINTouchPage::MAIN_MENU);
       }
       break;
     case ChangePageKey:
@@ -1359,7 +1329,7 @@ void RTSSHOW::RTS_HandleData()
       RTS_SndData(thermalManager.temp_hotend[0].target, HEAD_SET_TEMP_VP);
       RTS_SndData(thermalManager.temp_bed.target, BED_SET_TEMP_VP);
 
-      RTS_SndData(ExchangePageBase + change_page_font, ExchangepageAddr);
+      refresh_page();
       break;
     }
     case ErrorKey:
@@ -1368,18 +1338,15 @@ void RTSSHOW::RTS_HandleData()
       {
         if(printingIsActive()) // printing
         {
-          RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
-          change_page_font = 37;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
         }
         else if(printingIsPaused()) // pause
         {
-          RTS_SndData(ExchangePageBase + 39, ExchangepageAddr);
-          change_page_font = 39;
+          rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_PAUSED);
         }
         else  // other
         {
-          RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-          change_page_font = 28;
+          rtscheck.change_page(DWINTouchPage::MAIN_MENU);
         }
       }
       break;
@@ -1420,8 +1387,7 @@ void EachMomentUpdate()
             rtscheck.RTS_SndData(CardRecbuf.Cardshowfilename[i], CONTINUE_PRINT_FILE_TEXT_VP);
           }
 
-          rtscheck.RTS_SndData(ExchangePageBase + 54, ExchangepageAddr);
-          change_page_font = 54;
+          rtscheck.change_page(DWINTouchPage::DIALOG_POWER_FAILURE);
           break;
         }
       }
@@ -1432,8 +1398,7 @@ void EachMomentUpdate()
       power_off_type_yes = 1;
       Update_Time_Value = RTS_UPDATE_VALUE;
 
-      rtscheck.RTS_SndData(ExchangePageBase + 28, ExchangepageAddr);
-      change_page_font = 28;
+      rtscheck.change_page(DWINTouchPage::MAIN_MENU);
       return;
     }
     else
@@ -1518,8 +1483,7 @@ void EachMomentUpdate()
 
 void RTSSHOW::RTS_FilamentRunout() {
   // "No filament, please replace the filament or stop print"
-  rtscheck.RTS_SndData(ExchangePageBase + 34, ExchangepageAddr);
-  change_page_font = 34;
+  rtscheck.change_page(DWINTouchPage::ERR_FILAMENTRUNOUT_HOTEND_COLD);
 
   sdcard_pause_check = false;
   pause_action_flag = true;
@@ -1538,8 +1502,7 @@ void RTSSHOW::RTS_FilamentRunout() {
 void RTSSHOW::RTS_FilamentLoaded() {
   // "Filament load, please confirm resume print or stop print"
   if (pause_action_flag == true && sdcard_pause_check == false) {
-    RTS_SndData(ExchangePageBase + 35, ExchangepageAddr);
-    change_page_font = 35;
+    rtscheck.change_page(DWINTouchPage::ERR_FILAMENTRUNOUT_FILAMENT_LOADED);
 
     // Update icon?
     rtscheck.RTS_SndData(9, FILAMENT_LOAD_ICON_VP);
