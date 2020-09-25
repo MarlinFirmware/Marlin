@@ -308,7 +308,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
+      if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 

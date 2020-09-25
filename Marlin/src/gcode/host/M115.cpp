@@ -42,8 +42,16 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-
-  SERIAL_ECHOLNPGM(STR_M115_REPORT);
+  SERIAL_ECHOLNPGM(
+    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
+    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
+    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
+    "MACHINE_TYPE:" MACHINE_NAME " "
+    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #ifdef MACHINE_UUID
+      "UUID:" MACHINE_UUID
+    #endif
+  );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 

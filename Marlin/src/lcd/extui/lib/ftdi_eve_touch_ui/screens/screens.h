@@ -27,6 +27,10 @@
 #include "../theme/theme.h"
 #include "string_format.h"
 
+#ifndef BED_LEVELING_COMMANDS
+  #define BED_LEVELING_COMMANDS "G29"
+#endif
+
 extern tiny_timer_t refresh_timer;
 
 /********************************* DL CACHE SLOTS ******************************/
@@ -533,6 +537,7 @@ class StepsScreen : public BaseNumericAdjustmentScreen, public CachedScreen<STEP
       static float getHightlightedValue();
       static void drawHighlightedPointValue();
       static void drawMesh(int16_t x, int16_t y, int16_t w, int16_t h, ExtUI::bed_mesh_t data, uint8_t opts, float autoscale_max = 0.1);
+      static bool isMeshComplete(ExtUI::bed_mesh_t data);
 
     public:
       static void onMeshUpdate(const int8_t x, const int8_t y, const float val);

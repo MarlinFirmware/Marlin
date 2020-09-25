@@ -366,6 +366,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Pausing...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause Print");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Resume Print");
+  PROGMEM Language_Str MSG_HOST_START_PRINT                = _UxGT("Host Start");
   PROGMEM Language_Str MSG_STOP_PRINT                      = _UxGT("Stop Print");
   PROGMEM Language_Str MSG_PRINTING_OBJECT                 = _UxGT("Printing Object");
   PROGMEM Language_Str MSG_CANCEL_OBJECT                   = _UxGT("Cancel Object");
@@ -457,10 +458,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("CHAMBER T. RUNAWAY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: MAXTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: MINTEMP BED");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Err: MAXTEMP CHAMBER");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Err: MINTEMP CHAMBER");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER HALTED");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Please Reset");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only

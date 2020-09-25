@@ -50,59 +50,26 @@
   #define IS_TEENSY41 1
 #endif
 
+#define _MSERIAL(X) Serial##X
+#define MSERIAL(X) _MSERIAL(X)
+#define Serial0 Serial
+
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
-#elif SERIAL_PORT == 0
-  #define MYSERIAL0 Serial
-#elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
-#elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
-#elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
-#elif SERIAL_PORT == 4
-  #define MYSERIAL0 Serial4
-#elif SERIAL_PORT == 5
-  #define MYSERIAL0 Serial5
-#elif SERIAL_PORT == 6
-  #define MYSERIAL0 Serial6
-#elif SERIAL_PORT == 7
-  #define MYSERIAL0 Serial7
-#elif SERIAL_PORT == 8
-  #define MYSERIAL0 Serial8
+#elif WITHIN(SERIAL_PORT, 0, 8)
+  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
   #error "The required SERIAL_PORT must be from -1 to 8. Please update your configuration."
 #endif
 
 #ifdef SERIAL_PORT_2
-  #if SERIAL_PORT_2 == SERIAL_PORT
-    #error "SERIAL_PORT_2 must be different from SERIAL_PORT. Please update your configuration."
-  #elif SERIAL_PORT_2 == -1
+  #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usbSerial
-  #elif SERIAL_PORT_2 == 0
-    #define MYSERIAL1 Serial
-  #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
-  #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
-  #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
-  #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 Serial4
-  #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 Serial5
-  #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 Serial6
-  #elif SERIAL_PORT_2 == 7
-    #define MYSERIAL1 Serial7
-  #elif SERIAL_PORT_2 == 8
-    #define MYSERIAL1 Serial8
+  #elif WITHIN(SERIAL_PORT_2, 0, 8)
+    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
       #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define HAL_SERVO_LIB libServo

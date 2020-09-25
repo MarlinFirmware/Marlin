@@ -27,7 +27,7 @@
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
-#if !defined(STM32F1) && !defined(STM32F1xx)
+#if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -188,17 +188,11 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
+  //#define E1_HARDWARE_SERIAL MSerial1
 
   // Unused servo pins may be repurposed with SoftwareSerialM
   //#define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6

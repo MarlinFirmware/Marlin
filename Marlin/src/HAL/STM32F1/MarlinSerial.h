@@ -30,19 +30,27 @@
   #include "../../feature/e_parser.h"
 #endif
 
+// Increase priority of serial interrupts, to reduce overflow errors
 #define UART_IRQ_PRIO 1
 
 class MarlinSerial : public HardwareSerial {
 public:
-  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) :
+  #if ENABLED(EMERGENCY_PARSER)
+    const bool ep_enabled;
+    EmergencyParser::State emergency_state;
+    inline bool emergency_parser_enabled() { return ep_enabled; }
+  #endif
+
+  MarlinSerial(struct usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin, bool TERN_(EMERGENCY_PARSER, ep_capable)) :
     HardwareSerial(usart_device, tx_pin, rx_pin)
     #if ENABLED(EMERGENCY_PARSER)
+      , ep_enabled(ep_capable)
       , emergency_state(EmergencyParser::State::EP_RESET)
     #endif
     { }
 
   #ifdef UART_IRQ_PRIO
-    // shadow the parent methods to set irq priority after the begin
+    // Shadow the parent methods to set IRQ priority after begin()
     void begin(uint32 baud) {
       MarlinSerial::begin(baud, SERIAL_8N1);
     }
@@ -52,14 +60,12 @@ public:
       nvic_irq_set_priority(c_dev()->irq_num, UART_IRQ_PRIO);
     }
   #endif
-
-  #if ENABLED(EMERGENCY_PARSER)
-    EmergencyParser::State emergency_state;
-  #endif
 };
 
 extern MarlinSerial MSerial1;
 extern MarlinSerial MSerial2;
 extern MarlinSerial MSerial3;
-extern MarlinSerial MSerial4;
-extern MarlinSerial MSerial5;
+#if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
+  extern MarlinSerial MSerial4;
+  extern MarlinSerial MSerial5;
+#endif
