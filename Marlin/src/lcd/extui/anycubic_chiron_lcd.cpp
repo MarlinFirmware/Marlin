@@ -118,4 +118,4 @@ namespace ExtUI {
   #endif
 }
 
-#endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
+#endif // ANYCUBIC_LCD_CHIRON
