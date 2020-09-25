@@ -2181,10 +2181,8 @@
 //#define ANYCUBIC_LCD_I3MEGA
 //#define ANYCUBIC_LCD_CHIRON
 #if EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+  #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
   //#define ANYCUBIC_LCD_DEBUG
-  #if ENABLED(ANYCUBIC_LCD_I3MEGA)
-    #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
-  #endif
 #endif
 
 //
