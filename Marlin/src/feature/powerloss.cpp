@@ -359,7 +359,9 @@ void PrintJobRecovery::resume() {
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
       TERN_(MARLIN_DEV_MODE, "S")           // Simulated Homing
-      TERN_(IS_CARTESIAN, "XY")             // Don't home Z on Cartesian
+      #if IS_CARTESIAN && DISABLED(POWER_LOSS_RECOVER_ZHOME)
+        "XY"                                // Don't home Z on Cartesian unless overridden
+      #endif
     ));
 
   #endif
