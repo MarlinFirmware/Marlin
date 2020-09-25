@@ -108,23 +108,15 @@ constexpr bool serial_handles_emergency(int port) {
     my_usart_irq(UART##n->rb, UART##n->wb, UART##n##_BASE, MSerial##n); \
   }
 
-// Instantiate the required UARTs
-#if USING_SERIAL_1
-  DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
-#endif
-#if USING_SERIAL_2
-  DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
-#endif
-#if USING_SERIAL_3
-  DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
-#endif
+// Instantiate all UARTs even if they are not needed
+// This avoids a bunch of logic to figure out every serial
+// port which may be in use on the system.
+DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
+DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
+DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  #if USING_SERIAL_4
-    DEFINE_HWSERIAL_UART_MARLIN(MSerial4, 4);
-  #endif
-  #if USING_SERIAL_5
-    DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);
-  #endif
+  DEFINE_HWSERIAL_UART_MARLIN(MSerial4, 4);
+  DEFINE_HWSERIAL_UART_MARLIN(MSerial5, 5);
 #endif
 
 // Check the type of each serial port by passing it to a template function.

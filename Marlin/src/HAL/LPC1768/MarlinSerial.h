@@ -61,8 +61,7 @@ public:
   #endif
 };
 
-// Declare the required UARTs
-TERN_(USING_SERIAL_0, extern MarlinSerial MSerial);
-TERN_(USING_SERIAL_1, extern MarlinSerial MSerial1);
-TERN_(USING_SERIAL_2, extern MarlinSerial MSerial2);
-TERN_(USING_SERIAL_3, extern MarlinSerial MSerial3);
+extern MarlinSerial MSerial;
+extern MarlinSerial MSerial1;
+extern MarlinSerial MSerial2;
+extern MarlinSerial MSerial3;

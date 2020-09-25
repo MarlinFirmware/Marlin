@@ -51,15 +51,14 @@ protected:
   #endif
 };
 
-// Declare the required UARTs
-TERN_(USING_SERIAL_1, extern MarlinSerial MSerial1);
-TERN_(USING_SERIAL_2, extern MarlinSerial MSerial2);
-TERN_(USING_SERIAL_3, extern MarlinSerial MSerial3);
-TERN_(USING_SERIAL_4, extern MarlinSerial MSerial4);
-TERN_(USING_SERIAL_5, extern MarlinSerial MSerial5);
-TERN_(USING_SERIAL_6, extern MarlinSerial MSerial6);
-TERN_(USING_SERIAL_7, extern MarlinSerial MSerial7);
-TERN_(USING_SERIAL_8, extern MarlinSerial MSerial8);
-TERN_(USING_SERIAL_9, extern MarlinSerial MSerial9);
-TERN_(USING_SERIAL_10, extern MarlinSerial MSerial10);
-TERN_(USING_SERIAL_LP1, extern MarlinSerial MSerialLP1); // LPUART
+extern MarlinSerial MSerial1;
+extern MarlinSerial MSerial2;
+extern MarlinSerial MSerial3;
+extern MarlinSerial MSerial4;
+extern MarlinSerial MSerial5;
+extern MarlinSerial MSerial6;
+extern MarlinSerial MSerial7;
+extern MarlinSerial MSerial8;
+extern MarlinSerial MSerial9;
+extern MarlinSerial MSerial10;
+extern MarlinSerial MSerialLP1;

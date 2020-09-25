@@ -62,11 +62,10 @@ public:
   #endif
 };
 
-// Declare the required UARTs
-TERN_(USING_SERIAL_1, extern MarlinSerial MSerial1);
-TERN_(USING_SERIAL_2, extern MarlinSerial MSerial2);
-TERN_(USING_SERIAL_3, extern MarlinSerial MSerial3);
+extern MarlinSerial MSerial1;
+extern MarlinSerial MSerial2;
+extern MarlinSerial MSerial3;
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
-  TERN_(USING_SERIAL_4, extern MarlinSerial MSerial4);
-  TERN_(USING_SERIAL_5, extern MarlinSerial MSerial5);
+  extern MarlinSerial MSerial4;
+  extern MarlinSerial MSerial5;
 #endif
