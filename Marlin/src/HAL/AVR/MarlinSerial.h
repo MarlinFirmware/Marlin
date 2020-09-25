@@ -310,7 +310,7 @@
     #if HAS_DGUS_LCD
       static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
       static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
-      static constexpr bool RX_OVERRUNS       = ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS);
+      static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);
     #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
       static constexpr unsigned int RX_SIZE   = 64;
       static constexpr unsigned int TX_SIZE   = 128;
