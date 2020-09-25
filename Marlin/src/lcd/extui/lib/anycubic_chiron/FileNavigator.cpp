@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * lcd/extui/lib/FileNavigator.cpp
@@ -33,6 +32,8 @@
  * The AC panel wants files in block of 4 and can only display a flat list *
  * This library allows full folder traversal.                              *
  ***************************************************************************/
+
+#include "../../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(ANYCUBIC_LCD_CHIRON)
 
