@@ -254,16 +254,8 @@ void RTSSHOW::RTS_SDCardUpate(void)
   }
 }
 
-#define DEFAULT_LANGUAGE 0	// 0: EN, 1: CN
-bool first_load_language = 0;
-void lcd_select_language(void)
-{
-  
-}
-
 void RTSSHOW::RTS_Init()
 {
-  lcd_select_language();
   AxisUnitMode = 1;
   last_zoffset = probe.offset.z;
   RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
