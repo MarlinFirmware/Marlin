@@ -1,55 +1,64 @@
-/********************
- * chiron_defs.h    *
- *******************/
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-/****************************************************************************
- *   Written By Nick Wells 2020 [https://github.com/SwiftNick]              * 
- *   I am not affiliated with Anycubic Ltd.                                 * 
- *                                                                          *
- *   This is an open source interface for the factory TFT panel on the      *
- *   Anycubic Chiron using the Extensible_UI API                            *
- *                                                                          *
- *   This program is free software: you can redistribute it and/or modify   *
- *   it under the terms of the GNU General Public License as published by   *
- *   the Free Software Foundation, either version 3 of the License, or      *
- *   (at your option) any later version.                                    *
- *                                                                          *
- *   This program is distributed in the hope that it will be useful,        *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *   GNU General Public License for more details.                           *
- *                                                                          *
- *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
- ***************************************************************************/
+/**
+ * lcd/extui/lib/chiron_defs.h
+ *
+ * Extensible_UI implementation for Anycubic Chiron
+ * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
+ *  (not affiliated with Anycubic, Ltd.)
+ */
 
-#pragma once 
+#pragma once
 #include "../../../../inc/MarlinConfigPre.h"
 
-#define ACDEBUGLEVEL 0
-// Sends debug commands to the primary serial port
-// Add values together for selective debugging
-//   1 - info request
-//   2 - action
-//   4 - file info
-//   8 - panel request
-//  16 - Marlin messages
-//  32 - some Panel Comms
-//  64 - all panel comms
-#define ACDEBUG(var) ( ((var) & ACDEBUGLEVEL) == var )  // Debug flag macro
+#if ACDEBUGLEVEL
+  // Bit-masks for selective debug:
+  enum ACDebugMask : uint8_t {
+    AC_INFO   =  1,
+    AC_ACTION =  2,
+    AC_FILE   =  4,
+    AC_PANEL  =  8,
+    AC_MARLIN = 16,
+    AC_SOME   = 32,
+    AC_ALL    = 64
+  };
+  #define ACDEBUG(mask) ( ((mask) & ACDEBUGLEVEL) == mask )  // Debug flag macro
+#else
+  #define ACDEBUG(mask) false
+#endif
 
 #define TFTSer LCD_SERIAL                    // Serial interface for TFT panel now uses marlinserial
 #define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path
-#define MAX_CMND_LEN                   16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command 
+#define MAX_CMND_LEN                   16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command
 #define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path
 
-#define AC_HEATER_FAULT_VALIDATION_TIME 5    // number of 1/2 second loops before signalling a heater fault 
+#define AC_HEATER_FAULT_VALIDATION_TIME 5    // number of 1/2 second loops before signalling a heater fault
 #define AC_LOWEST_MESHPOINT_VAL        -7.00 // The lowest value you can set for a single mesh point offset
 
  // TFT panel commands
 #define  AC_msg_sd_card_inserted       PSTR("J00")
-#define  AC_msg_sd_card_removed        PSTR("J01")  
-#define  AC_msg_no_sd_card             PSTR("J02")       
+#define  AC_msg_sd_card_removed        PSTR("J01")
+#define  AC_msg_no_sd_card             PSTR("J02")
 #define  AC_msg_usb_connected          PSTR("J03")
 #define  AC_msg_print_from_sd_card     PSTR("J04")
 #define  AC_msg_pause                  PSTR("J05")
@@ -109,7 +118,7 @@ namespace Anycubic {
     AC_paused_purging_filament,
     AC_paused_idle
   };
-  
+
   enum printer_state_t : uint8_t {
     AC_printer_idle,
     AC_printer_probing,

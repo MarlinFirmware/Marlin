@@ -1,33 +1,39 @@
-/********************
- * chiron_tft.h     *
- *******************/
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#pragma once
 
-/****************************************************************************
- *   Written By Nick Wells 2020 [https://github.com/SwiftNick]              * 
- *   I am not affiliated with Anycubic Ltd.                                 * 
- *                                                                          *
- *   This is an open source interface for the factory TFT panel on the      *
- *   Anycubic Chiron using the Extensible_UI API                            *
- *                                                                          *
- *   This program is free software: you can redistribute it and/or modify   *
- *   it under the terms of the GNU General Public License as published by   *
- *   the Free Software Foundation, either version 3 of the License, or      *
- *   (at your option) any later version.                                    *
- *                                                                          *
- *   This program is distributed in the hope that it will be useful,        *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *   GNU General Public License for more details.                           *
- *                                                                          *
- *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
- ***************************************************************************/
+/**
+ * lcd/extui/lib/chiron_tft.h
+ *
+ * Extensible_UI implementation for Anycubic Chiron
+ * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
+ *  (not affiliated with Anycubic, Ltd.)
+ */
 
-#pragma once 
 #include "chiron_tft_defs.h"
 #include "../../../../inc/MarlinConfigPre.h"
 
 namespace Anycubic {
+
   class ChironTFT {
     static printer_state_t  printer_state;
     static paused_state_t   pause_state;
@@ -50,11 +56,11 @@ namespace Anycubic {
       void    ConfirmationRequest(const char * const );
       void    StatusChange(const char * const );
       void    PowerLossRecovery();
-      
+
     private:
       void    SendtoTFT(PGM_P);
       void    SendtoTFTLN(PGM_P);
-      bool    ReadTFTCommand(); 
+      bool    ReadTFTCommand();
       int8_t  Findcmndpos(const char *, char);
       void    CheckHeaters();
       //bool    ToggleFileMenu(int8_t);
@@ -66,5 +72,7 @@ namespace Anycubic {
       void    PanelAction(uint8_t);
       void    PanelProcess(uint8_t);
   };
+
   extern ChironTFT Chiron;
+
 }

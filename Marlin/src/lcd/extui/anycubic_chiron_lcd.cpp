@@ -1,23 +1,30 @@
-/*********************
- * extui_example.cpp *
- *********************/
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
-/****************************************************************************
- *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
- *                                                                          *
- *   This program is free software: you can redistribute it and/or modify   *
- *   it under the terms of the GNU General Public License as published by   *
- *   the Free Software Foundation, either version 3 of the License, or      *
- *   (at your option) any later version.                                    *
- *                                                                          *
- *   This program is distributed in the hope that it will be useful,        *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of         *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
- *   GNU General Public License for more details.                           *
- *                                                                          *
- *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
- ****************************************************************************/
+/**
+ * lcd/extui/anycubic_chiron_lcd.cpp
+ *
+ * Anycubic Chiron TFT support for Marlin
+ */
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -35,47 +42,32 @@
 using namespace Anycubic;
 
 namespace ExtUI {
-  void onStartup() {
-    Chiron.Startup();
-  }
-  void onIdle() {
-    Chiron.IdleLoop();
-  }
+
+  void onStartup() { Chiron.Startup(); }
+
+  void onIdle() { Chiron.IdleLoop(); }
+
   void onPrinterKilled(PGM_P const error, PGM_P const component) {
     Chiron.PrinterKilled(error,component);
   }
-  void onMediaInserted() {
-    Chiron.MediaEvent(AC_media_inserted);
-  };
-  void onMediaError() {
-    Chiron.MediaEvent(AC_media_error);    
-  };
-  void onMediaRemoved() {
-    Chiron.MediaEvent(AC_media_removed);  
-  };
+
+  void onMediaInserted() { Chiron.MediaEvent(AC_media_inserted); }
+  void onMediaError()    { Chiron.MediaEvent(AC_media_error);    }
+  void onMediaRemoved()  { Chiron.MediaEvent(AC_media_removed);  }
+
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {
     #if ENABLED(SPEAKER)
-      tone(BEEPER_PIN,frequency,duration);  // from marlincore.h
+      ::tone(BEEPER_PIN, frequency, duration);
     #endif
   }
-  void onPrintTimerStarted() {
-    Chiron.TimerEvent(AC_timer_started);  
-  }
-  void onPrintTimerPaused() {
-    Chiron.TimerEvent(AC_timer_paused);  
-  }
-  void onPrintTimerStopped() {
-    Chiron.TimerEvent(AC_timer_stopped);  
-  }
-  void onFilamentRunout(const extruder_t extruder) {
-    Chiron.FilamentRunout();  
-  }
-  void onUserConfirmRequired(const char * const msg) {
-    Chiron.ConfirmationRequest(msg);
-  }
-  void onStatusChanged(const char * const msg) {
-    Chiron.StatusChange(msg);
-  }
+
+  void onPrintTimerStarted() { Chiron.TimerEvent(AC_timer_started); }
+  void onPrintTimerPaused()  { Chiron.TimerEvent(AC_timer_paused);  }
+  void onPrintTimerStopped()                         { Chiron.TimerEvent(AC_timer_stopped); }
+  void onFilamentRunout(const extruder_t)            { Chiron.FilamentRunout();             }
+  void onUserConfirmRequired(const char * const msg) { Chiron.ConfirmationRequest(msg);     }
+  void onStatusChanged(const char * const msg)       { Chiron.StatusChange(msg);            }
+
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
@@ -121,10 +113,8 @@ namespace ExtUI {
   #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-      Chiron.PowerLossRecovery();
-    }
+    // Called on resume from power-loss
+    void onPowerLossResume() { Chiron.PowerLossRecovery(); }
   #endif
 
   #if HAS_PID_HEATING
