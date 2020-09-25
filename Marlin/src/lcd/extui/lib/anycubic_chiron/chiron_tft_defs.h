@@ -38,7 +38,7 @@
 //  64 - all panel comms
 #define ACDEBUG(var) ( ((var) & ACDEBUGLEVEL) == var )  // Debug flag macro
 
-#define TFTSer Serial3                       // Serial interface for TFT panel
+#define TFTSer LCD_SERIAL                    // Serial interface for TFT panel now uses marlinserial
 #define MAX_FOLDER_DEPTH                4    // Limit folder depth TFT has a limit for the file path
 #define MAX_CMND_LEN                   16 * MAX_FOLDER_DEPTH // Maximum Length for a Panel command 
 #define MAX_PATH_LEN                   16 * MAX_FOLDER_DEPTH // Maximum number of characters in a SD file path

@@ -97,9 +97,9 @@ namespace Anycubic {
     SendtoTFTLN(AC_msg_ready); 
   }
   void ChironTFT::IdleLoop()  {
-    command_len = ReadCommand();
-    if(command_len > 0) {
+    if(ReadTFTCommand()) {
       ProcessPanelRequest();
+      command_len = 0;
     }
     CheckHeaters();
   }
@@ -288,11 +288,38 @@ namespace Anycubic {
    }
    TFTSer.println("");
   }
-  uint8_t ChironTFT::ReadCommand() {
+  bool ChironTFT::ReadTFTCommand() {
+    bool command_ready = false;
+    while( (TFTSer.available() > 0) && (command_len < MAX_CMND_LEN) ) {
+      panel_command[command_len] = TFTSer.read();
+      if(panel_command[command_len] == '\n') {
+        command_ready = true;
+        break;
+      } 
+      command_len++;
+    }
+    
+    if(command_ready) {
+      panel_command[command_len] = 0x00;
+      #if ACDEBUG(64)
+        _SELP_2_P(PSTR("< "), panel_command);
+      #endif
+      #if ACDEBUG(32) 
+        // Ignore status request commands
+        uint8_t req = atoi(&panel_command[1]);
+        if(( req > 7) && (req != 20) ) {
+          _SELP_2_P(PSTR("> "), panel_command);
+          _SELP_2_P(PSTR("printer_state:"),printer_state);
+        }
+      #endif
+    }
+    return command_ready;
+  }
+  /*uint8_t ChironTFT::ReadCommandold() {
     uint8_t bytes = 0;
     if(TFTSer.available() > 0) {
       // Read a single command from the panel
-      bytes = TFTSer.readBytesUntil('\n', panel_command, MAX_CMND_LEN);
+      //bytes = TFTSer.readBytesUntil('\n', panel_command, MAX_CMND_LEN);
     }
     panel_command[bytes] = 0x00;
   
@@ -310,7 +337,7 @@ namespace Anycubic {
       #endif
     }
     return bytes;
-  }
+  } */
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
     bool found = false;
     int8_t pos = 0;

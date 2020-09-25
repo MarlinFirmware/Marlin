@@ -54,7 +54,7 @@ namespace Anycubic {
     private:
       void    SendtoTFT(PGM_P);
       void    SendtoTFTLN(PGM_P);
-      uint8_t ReadCommand(); 
+      bool    ReadTFTCommand(); 
       int8_t  Findcmndpos(const char *, char);
       void    CheckHeaters();
       //bool    ToggleFileMenu(int8_t);
