@@ -72,15 +72,15 @@
   #endif
 #endif
 
-#ifdef DGUS_SERIAL_PORT
-  #if defined(STM32F4) && DGUS_SERIAL_PORT == 0
-    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif DGUS_SERIAL_PORT == -1
-    #define DGUS_SERIAL SerialUSB
-  #elif WITHIN(DGUS_SERIAL_PORT, 0, 6)
-    #define DGUS_SERIAL MSERIAL(DGUS_SERIAL_PORT)
+#ifdef LCD_SERIAL_PORT
+  #if defined(STM32F4) && LCD_SERIAL_PORT == 0
+    #error "LCD_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif LCD_SERIAL_PORT == -1
+    #define LCD_SERIAL SerialUSB
+  #elif WITHIN(LCD_SERIAL_PORT, 0, 6)
+    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
-    #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
+    #error "LCD_SERIAL_PORT must be from -1 to 6. Please update your configuration."
   #endif
 #endif
 

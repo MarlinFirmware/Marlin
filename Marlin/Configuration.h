@@ -131,7 +131,7 @@
   #define MOTHERBOARD BOARD_TRIGORILLA_14
 #endif
 
-// Anycubic Chiron custom pin defs for the Trigorilla board fastio_1280.h 
+// Anycubic Chiron custom pin defs for the Trigorilla board fastio_1280.h
 #define OUTAGECON_PIN                     58  // p93 F4
 #define OUTAGETEST_PIN                    79  // p8  E6
 #define X_MAX_PIN                         43
@@ -501,7 +501,7 @@
   // Chiron
   #define DEFAULT_Kp 14.51
   #define DEFAULT_Ki 0.86
-  #define DEFAULT_Kd 60.97	   
+  #define DEFAULT_Kd 60.97
   #endif
 #endif // PIDTEMP
 
@@ -541,7 +541,7 @@
   // Chiron
   #define DEFAULT_bedKp 83.15
   #define DEFAULT_bedKi 11.78
-  #define DEFAULT_bedKd 146.74		   
+  #define DEFAULT_bedKd 146.74
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
   //#define DEFAULT_bedKp 10.00
@@ -1374,7 +1374,7 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G27/n G1 Y0 F5000" 
+#define Z_PROBE_END_SCRIPT "G27/n G1 Y0 F5000"
 
 // @section homing
 
@@ -2175,6 +2175,9 @@
 // Touch-screen LCD for Malyan M200/M300 printers
 //
 //#define MALYAN_LCD
+#if ENABLED(MALYAN_LCD)
+  #define LCD_SERIAL_PORT 1  // Default is 1 for Malyan M200
+#endif
 
 //
 // Touch UI for FTDI EVE (FT800/FT810) displays
@@ -2186,10 +2189,12 @@
 // Touch-screen LCD for Anycubic printers
 //
 //#define ANYCUBIC_LCD_I3MEGA
-#define ANYCUBIC_LCD_CHIRON
+#if ENABLED(ANYCUBIC_LCD_I3MEGA)
+  #define LCD_SERIAL_PORT 3  // Default is 3 for Anycubic
+#endif
 
-#if (ANYCUBIC_LCD_I3MEGA)
-  #define ANYCUBIC_LCD_SERIAL_PORT 3
+//#define ANYCUBIC_LCD_CHIRON
+#if ENABLED(ANYCUBIC_LCD_CHIRON)
   //#define ANYCUBIC_LCD_DEBUG
 #endif
 
@@ -2197,7 +2202,7 @@
 // Third-party or vendor-customized controller interfaces.
 // Sources should be installed in 'src/lcd/extensible_ui'.
 //
-#define EXTENSIBLE_UI
+//#define EXTENSIBLE_UI
 
 #if ENABLED(EXTENSIBLE_UI)
   //#define EXTUI_LOCAL_BEEPER // Enables use of local Beeper pin with external display
