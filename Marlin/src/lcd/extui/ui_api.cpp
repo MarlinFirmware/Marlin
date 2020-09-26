@@ -61,7 +61,7 @@
   #include "../../libs/numtostr.h"
 #endif
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "../../module/tool_change.h"
 #endif
 
@@ -348,7 +348,7 @@ namespace ExtUI {
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       const uint8_t e = extruder - E0;
       if (e != active_extruder) tool_change(e, no_move);
       active_extruder = e;
@@ -699,21 +699,17 @@ namespace ExtUI {
      */
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
       const float mm = steps * planner.steps_to_mm[axis];
+      UNUSED(mm);
 
       if (!babystepAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
-        if (axis == Z
-          #if EXTRUDERS > 1
-            && (linked_nozzles || active_extruder == 0)
-          #endif
-        ) probe.offset.z += mm;
-      #else
-        UNUSED(mm);
+        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
+          probe.offset.z += mm;
       #endif
 
-      #if EXTRUDERS > 1 && HAS_HOTEND_OFFSET
+      #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
@@ -730,7 +726,6 @@ namespace ExtUI {
         }
       #else
         UNUSED(linked_nozzles);
-        UNUSED(mm);
       #endif
     }
 

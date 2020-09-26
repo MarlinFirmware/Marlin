@@ -477,6 +477,18 @@
   #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
 #elif defined(DGUS_LCD)
   #error "DGUS_LCD is now DGUS_LCD_UI_(ORIGIN|FYSETC|HIPRECY). Please update your configuration."
+#elif defined(DGUS_SERIAL_PORT)
+  #error "DGUS_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
+#elif defined(DGUS_BAUDRATE)
+  #error "DGUS_BAUDRATE is now LCD_BAUDRATE. Please update your configuration."
+#elif defined(DGUS_STATS_RX_BUFFER_OVERRUNS)
+  #error "DGUS_STATS_RX_BUFFER_OVERRUNS is now STATS_RX_BUFFER_OVERRUNS. Please update your configuration."
+#elif defined(DGUS_SERIAL_PORT)
+  #error "DGUS_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
+#elif defined(ANYCUBIC_LCD_SERIAL_PORT)
+  #error "ANYCUBIC_LCD_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
+#elif defined(INTERNAL_SERIAL_PORT)
+  #error "INTERNAL_SERIAL_PORT is now MMU2_SERIAL_PORT. Please update your configuration."
 #elif defined(X_DUAL_ENDSTOPS_ADJUSTMENT)
   #error "X_DUAL_ENDSTOPS_ADJUSTMENT is now X2_ENDSTOP_ADJUSTMENT. Please update Configuration_adv.h."
 #elif defined(Y_DUAL_ENDSTOPS_ADJUSTMENT)
@@ -582,12 +594,10 @@
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-#if SERIAL_PORT > 7
-  #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
-#endif
-
-#if defined(SERIAL_PORT_2) && NUM_SERIAL < 2
-  #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
+#ifndef SERIAL_PORT
+  #error "SERIAL_PORT must be defined in Configuration.h"
+#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
+  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
 #endif
 
 /**
@@ -865,7 +875,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Options only for EXTRUDERS > 1
  */
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
   #if EXTRUDERS > 8
     #error "Marlin supports a maximum of 8 EXTRUDERS."
@@ -987,7 +997,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Mixing Extruder requirements
  */
 #if ENABLED(MIXING_EXTRUDER)
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     #error "For MIXING_EXTRUDER set MIXING_STEPPERS > 1 instead of EXTRUDERS > 1."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
@@ -2278,6 +2288,25 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if 1 < ENABLED(LCD_SCREEN_ROT_0) + ENABLED(LCD_SCREEN_ROT_90) + ENABLED(LCD_SCREEN_ROT_180) + ENABLED(LCD_SCREEN_ROT_270)
   #error "Please enable only one LCD_SCREEN_ROT_* option: 0, 90, 180, or 270."
+#endif
+
+/**
+ * Serial displays require a dedicated serial port
+ */
+#ifdef LCD_SERIAL_PORT
+  #if LCD_SERIAL_PORT == SERIAL_PORT
+    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
+    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
+  #endif
+#else
+  #if HAS_DGUS_LCD
+    #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
+  #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+    #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
+  #elif ENABLED(MALYAN_LCD)
+    #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
+  #endif
 #endif
 
 /**

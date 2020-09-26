@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F1
+#if NOT_TARGET(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -117,10 +117,10 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
 
   //
   // Software serial
@@ -288,5 +288,5 @@
   #error "SD CUSTOM_CABLE is not compatible with SKR E3 DIP."
 #endif
 
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

@@ -2334,7 +2334,7 @@
   #define FILAMENT_CHANGE_SLOW_LOAD_LENGTH 0
 #endif
 
-#if EXTRUDERS > 1 && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
+#if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
   #define TOOLCHANGE_FS_EXTRA_PRIME 0
 #endif
 
@@ -2620,6 +2620,10 @@
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
     #endif
   #endif
+#endif
+
+#if BUTTONS_EXIST(EN1, EN2, ENC)
+  #define HAS_ROTARY_ENCODER 1
 #endif
 
 #if !NUM_SERIAL

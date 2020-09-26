@@ -50,7 +50,7 @@
  *
  */
 
-#ifndef __AVR_ATmega644P__
+#if NOT_TARGET(__AVR_ATmega644P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board.'"
 #endif
 

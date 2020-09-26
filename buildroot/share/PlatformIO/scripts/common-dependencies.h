@@ -91,9 +91,6 @@
 
 #if EXTRUDERS
   #define HAS_EXTRUDERS
-  #if EXTRUDERS > 1
-    #define HAS_MULTI_EXTRUDER
-  #endif
 #endif
 
 #if HAS_LCD_MENU
@@ -152,3 +149,6 @@
     #define HAS_MENU_UBL
   #endif
 #endif
+
+// Include pins for the current board. Platform tests will be skipped. No HAL-defined pins.
+#include "../../../../Marlin/src/pins/pins.h"

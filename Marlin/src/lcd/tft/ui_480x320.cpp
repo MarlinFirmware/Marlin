@@ -608,7 +608,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
-      switch(calibration_stage) {
+      switch (calibration_stage) {
         case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
         case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
         case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
@@ -956,24 +956,17 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
 
-  tft.queue.sync(); //need sync to change font
-
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
   tft.canvas(x, y, width, height);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
+  // TODO: Make an add_text() taking a font arg
   if (label != NULL) {
-    tft.set_font(Helvetica12Bold);
-    tft_string.set_font(Helvetica12Bold);
     tft_string.set(label);
     tft_string.trim();
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
-
-    tft.queue.sync();
-    tft_string.set_font(Helvetica18);
-    tft.set_font(Helvetica18);
   }
   else {
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
@@ -984,6 +977,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
 
 void MarlinUI::move_axis_screen() {
   // Reset
+  defer_status_screen(true);
   motionAxisState.blocked = false;
   touch.enable();
 
