@@ -279,10 +279,10 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 #if HAS_TEMP_CHAMBER
   chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
-    int fan_chamber_pwm;
+    int16_t fan_chamber_pwm;
     bool flag_chamber_off;
     bool flag_chamber_excess_heat = false;
-    millis_t now, next_cool_check_ms_2 = 0;
+    millis_t next_cool_check_ms_2 = 0;
     float old_temp = 9999;
     #ifdef CHAMBER_MINTEMP
       int16_t Temperature::mintemp_raw_CHAMBER = HEATER_CHAMBER_RAW_LO_TEMP;
@@ -1198,22 +1198,25 @@ void Temperature::manage_heater() {
       }
     #endif
 
-    #ifdef CHAMBER_FAN
+    #if ENABLED(CHAMBER_FAN) || ENABLED(CHAMBER_VENT)
       if (temp_chamber.target > CHAMBER_MINTEMP) {
         flag_chamber_off = false;
-        #ifdef CHAMBER_AUTO_FAN
-          fan_chamber_pwm = CHAMBER_FAN_MEDIAN + ( abs(temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR );
-          if(temp_chamber.soft_pwm_amount != 0){
-            fan_chamber_pwm += (2 * CHAMBER_FAN_FACTOR);
-          }
-          fan_chamber_pwm = std::min(fan_chamber_pwm, 255);
+
+        #if ENABLED(CHAMBER_FAN)
+          #if CHAMBER_FAN_MODE == 0
+            fan_chamber_pwm = CHAMBER_FAN_BASE
+          #elif CHAMBER_FAN_MODE == 1 //TODO
+          #elif CHAMBER_FAN_MODE == 2
+            fan_chamber_pwm = CHAMBER_FAN_BASE + ( abs(temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR );
+            if(temp_chamber.soft_pwm_amount != 0){
+              fan_chamber_pwm += (2 * CHAMBER_FAN_FACTOR);
+            }
+            fan_chamber_pwm = std::min<int>(fan_chamber_pwm, 255);
+          #endif
+          thermalManager.set_fan_speed(2, fan_chamber_pwm);
         #endif
-        #ifndef CHAMBER_AUTO_FAN
-          fan_chamber_pwm = CHAMBER_FAN_BASE_PWM
-        #endif
-        thermalManager.set_fan_speed(2, fan_chamber_pwm);
-        
-        #ifdef CHAMBER_VENT
+
+        #if ENABLED(CHAMBER_VENT)
           #ifndef MIN_COOLING_SLOPE_TIME_CHAMBER_VENT
             #define MIN_COOLING_SLOPE_TIME_CHAMBER_VENT 20
           #endif
@@ -1223,9 +1226,9 @@ void Temperature::manage_heater() {
           if( (temp_chamber.celsius - temp_chamber.target >= 5) && !flag_chamber_excess_heat) {
           // open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
-            if (next_cool_check_ms_2 == 0 || ELAPSED(millis(), next_cool_check_ms_2)) {
-              if (old_temp - temp_chamber.celsius < float(MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)) flag_chamber_excess_heat = true;
-              next_cool_check_ms_2 = millis() + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER_VENT;
+            if (next_cool_check_ms_2 == 0 || ELAPSED(ms, next_cool_check_ms_2)) {
+              if (old_temp - temp_chamber.celsius < float(MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)) flag_chamber_excess_heat = true; //the bed is heating the chamber too much
+              next_cool_check_ms_2 = ms + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER_VENT;
               old_temp = temp_chamber.celsius;
             }
           }
@@ -1233,17 +1236,20 @@ void Temperature::manage_heater() {
             next_cool_check_ms_2 = 0;
             old_temp = 9999;
           }
-          if (flag_chamber_excess_heat && (temp_chamber.celsius - temp_chamber.target <= -5) ) {
+          if (flag_chamber_excess_heat && (temp_chamber.celsius - temp_chamber.target <= -3) ) {
             flag_chamber_excess_heat = false;
           }
         #endif
-
       } 
       else if (!flag_chamber_off) {
-        flag_chamber_off = true;
-        thermalManager.set_fan_speed(CHAMBER_VENT_SERVO_NUM, 0);
-        flag_chamber_excess_heat = false;
-        MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, 90);
+        #if ENABLED(CHAMBER_FAN)
+          flag_chamber_off = true;
+          thermalManager.set_fan_speed(2, 0);
+        #endif
+        #if ENABLED(CHAMBER_VENT)
+          flag_chamber_excess_heat = false;
+          MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 90);
+        #endif
       }
     #endif
 
@@ -1251,21 +1257,21 @@ void Temperature::manage_heater() {
       next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
       if (WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
-        #if ENABLED(CHAMBER_LIMIT_SWITCHING)
-          if (temp_chamber.celsius >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
-            temp_chamber.soft_pwm_amount = 0;
-          else if (temp_chamber.celsius <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
-            temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
-        #else
-          if (!flag_chamber_excess_heat){
-           temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
-            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, 0);
-          }
-          else {
-            temp_chamber.soft_pwm_amount = 0;
-            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NUM, (temp_chamber.celsius <= temp_chamber.target ? 0 : 90 ) );
-          }
-        #endif
+        if (!flag_chamber_excess_heat){
+          #if ENABLED(CHAMBER_LIMIT_SWITCHING)
+            if (temp_chamber.celsius >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
+              temp_chamber.soft_pwm_amount = 0;
+            else if (temp_chamber.celsius <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
+              temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
+          #else
+            temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+          #endif
+          if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
+        }
+        else {
+          heater_chamber_pwm = 0;
+          if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, (temp_chamber.celsius <= temp_chamber.target ? 0 : 90 ) );
+        }
       }
       else {
         temp_chamber.soft_pwm_amount = 0;
@@ -3435,7 +3441,7 @@ void Temperature::tick() {
       #define MIN_COOLING_SLOPE_DEG_CHAMBER 1.50
     #endif
     #ifndef MIN_COOLING_SLOPE_TIME_CHAMBER
-      #define MIN_COOLING_SLOPE_TIME_CHAMBER 60
+      #define MIN_COOLING_SLOPE_TIME_CHAMBER 120
     #endif
 
     bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {

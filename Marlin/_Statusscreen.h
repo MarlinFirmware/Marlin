@@ -51,7 +51,8 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 //
 #define STATUS_HOTEND_ANIM
 #define STATUS_BED_ANIM
-#define STATUS_CHAMBER_ANIM 
+#define STATUS_CHAMBER_ANIM
+#define STATUS_FAN_FRAMES 3 
 #define STATUS_HEATERS_XSPACE   20
 #if HOTENDS < 2
   #define STATUS_HEATERS_X      48

@@ -239,6 +239,9 @@
   #define E0_AUTO_FAN_PIN               FAN1_PIN
 #endif
 
+#if ENABLED(CHAMBER VENT)
+  #define FAN_CHAMBER_PIN                    FAN2_PIN
+#endif
 
 //
 // SD

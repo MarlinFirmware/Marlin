@@ -141,18 +141,23 @@
   /**
   * Custom Chamber fan and servo settings
   */
-  #define CHAMBER_FAN
-  #define CHAMBER_FAN_BASE_PWM 255
-  #define CHAMBER_AUTO_FAN
-  #ifdef CHAMBER_AUTO_FAN
-    #define CHAMBER_FAN_MEDIAN 128
-    #define CHAMBER_FAN_FACTOR 25
+  #if ENABLED(CHAMBER_FAN)
+    #define CHAMBER_FAN_MODE 2 //control fan mode; 0=static, 1=linear increase when temp is higher than target, 2=V-shaped curve, 
+    #if CHAMBER_FAN_MODE == 0
+      #define CHAMBER_FAN_BASE 255
+    #elif CHAMBER_FAN_MODE == 1 //TODO
+    #elif CHAMBER_FAN_MODE == 2
+      #define CHAMBER_FAN_BASE 128
+      #define CHAMBER_FAN_FACTOR 25 //PWM increase per 1°C of difference from the target temperature
+    #endif
   #endif
-  #define CHAMBER_VENT
-  #ifdef CHAMBER_VENT
-    #define CHAMBER_VENT_SERVO_NUM 1
+
+  #if ENABLED(CHAMBER_VENT)
+    #define CHAMBER_VENT_SERVO_NR 1
+    #define MIN_COOLING_SLOPE_TIME_CHAMBER_VENT 20
+    #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
   #endif
-#endif
+#endif //HAS CHAMBER TEMP
 
 
 
@@ -222,8 +227,8 @@
  * Thermal Protection parameters for the heated chamber.
  */
 #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-  #define THERMAL_PROTECTION_CHAMBER_PERIOD    20 // Seconds
-  #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // Degrees Celsius
+  #define THERMAL_PROTECTION_CHAMBER_PERIOD    45 // Seconds
+  #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 4 // Degrees Celsius
 
   /**
    * Heated chamber watch settings (M141/M191).
@@ -1397,10 +1402,10 @@
    */
   //#define STATUS_COMBINE_HEATERS    // Use combined heater images instead of separate ones
   //#define STATUS_HOTEND_NUMBERLESS  // Use plain hotend icons instead of numbered ones (with 2+ hotends)
-  #define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
-  #define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
-  #define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
-  #define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
+  //#define STATUS_HOTEND_INVERTED      // Show solid nozzle bitmaps when heating (Requires STATUS_HOTEND_ANIM)
+  //#define STATUS_HOTEND_ANIM          // Use a second bitmap to indicate hotend heating
+  //#define STATUS_BED_ANIM             // Use a second bitmap to indicate bed heating
+  //#define STATUS_CHAMBER_ANIM         // Use a second bitmap to indicate chamber heating
   //#define STATUS_CUTTER_ANIM        // Use a second bitmap to indicate spindle / laser active
   //#define STATUS_ALT_BED_BITMAP     // Use the alternative bed bitmap
   //#define STATUS_ALT_FAN_BITMAP     // Use the alternative fan bitmap
