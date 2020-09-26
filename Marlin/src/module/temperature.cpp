@@ -1213,7 +1213,7 @@ void Temperature::manage_heater() {
             }
             fan_chamber_pwm = std::min<int>(fan_chamber_pwm, 255);
           #endif
-          thermalManager.set_fan_speed(2, fan_chamber_pwm);
+          thermalManager.set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
         #endif
 
         #if ENABLED(CHAMBER_VENT)
