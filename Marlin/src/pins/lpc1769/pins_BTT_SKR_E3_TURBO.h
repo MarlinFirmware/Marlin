@@ -173,12 +173,6 @@
 #define FAN_PIN                            P2_01
 #define FAN1_PIN                           P2_02
 
-//
-// USB connect control
-//
-//#define USB_CONNECT_PIN                  P0_29
-//#define USB_CONNECT_INVERTING            false
-
 /**
  *                  _____
  *              5V | 1 2 | GND
