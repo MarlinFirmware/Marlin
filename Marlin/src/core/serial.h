@@ -57,9 +57,9 @@ extern uint8_t marlin_debug_flags;
   #else
     #define SERIAL_OUT(WHAT, V...) do{ \
       if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
-      if ( serial_port_index) (void)MYSERIAL0.WHAT(V); \
+      if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
     }while(0)
-  #endif // TODO: CR-6 requires MYSERIAL0 instead of MYSERIAL1, probably because the touch screen sits on the other serial port
+  #endif
 
   #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
 #else
