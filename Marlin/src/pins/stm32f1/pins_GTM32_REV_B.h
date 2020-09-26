@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,7 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
-#define BOARD_NAME           "GTM32 Pro VB"
+#define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "M201"
 
 //#define DISABLE_DEBUG
@@ -49,11 +49,13 @@
 //#define DISABLE_JTAGSWD
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 // Enable EEPROM Emulation for this board as it doesn't have EEPROM
-#define FLASH_EEPROM_EMULATION
-#define E2END 0xFFF                               // 4KB
+#if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+#endif
 
 //
 // Limit Switches
@@ -112,7 +114,10 @@
 //#define FAN_PIN                           PB9   // EXT0 port
 #define FAN1_PIN                            PB8   // EXT1 port
 #define FAN2_PIN                            PB7   // EXT2 port
-#define ORIG_E0_AUTO_FAN_PIN                PB9   // EXT0 port, used as main extruder fan
+
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PB9   // EXT0 port, used as main extruder fan
+#endif
 
 //
 // Temperature Sensors
@@ -140,12 +145,13 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     // connected with a flat wire to J2 connector on the board.
     //
-    #define LCD_PINS_RS                     PE6   // CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE                 PE14  // SID (MOSI)
-    #define LCD_PINS_D4                     PD8   // SCK (CLK) clock
-    #define LCD_PINS_D5                     PD9
-    #define LCD_PINS_D6                     PD10
-    #define LCD_PINS_D7                     PE15
+    #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
+    // RW is hardwired to VSS
+    #define LCD_PINS_ENABLE                 PC7   // SID (MOSI)
+    #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
+    #define LCD_PINS_D5                     PD4
+    #define LCD_PINS_D6                     PD5
+    #define LCD_PINS_D7                     PD7
 
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE9
@@ -163,14 +169,14 @@
   #endif
 
   #if HAS_GRAPHICAL_LCD
-    #ifndef ST7920_DELAY_1
-      #define ST7920_DELAY_1        DELAY_NS(96)
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
     #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2        DELAY_NS(48)
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
     #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3       DELAY_NS(715)
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(715)
     #endif
   #endif
 
@@ -227,6 +233,6 @@
 // ESP WiFi can be soldered to J9 connector which is wired to USART2.
 // Must define WIFISUPPORT in Configuration.h for the printer.
 //
-#define ESP_WIFI_MODULE_COM 2
-#define ESP_WIFI_MODULE_BAUDRATE 115200
+#define ESP_WIFI_MODULE_COM                    2
+#define ESP_WIFI_MODULE_BAUDRATE          115200
 #define ESP_WIFI_MODULE_RESET_PIN           -1

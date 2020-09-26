@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,7 +39,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
@@ -52,7 +52,7 @@ namespace ExtUI {
 
   static constexpr size_t eeprom_data_size = 48;
 
-  enum axis_t     : uint8_t { X, Y, Z };
+  enum axis_t     : uint8_t { X, Y, Z, X2, Y2, Z2, Z3, Z4 };
   enum extruder_t : uint8_t { E0, E1, E2, E3, E4, E5, E6, E7 };
   enum heater_t   : uint8_t { H0, H1, H2, H3, H4, H5, BED, CHAMBER };
   enum fan_t      : uint8_t { FAN0, FAN1, FAN2, FAN3, FAN4, FAN5, FAN6, FAN7 };
@@ -74,6 +74,7 @@ namespace ExtUI {
   bool canMove(const axis_t);
   bool canMove(const extruder_t);
   void injectCommands_P(PGM_P const);
+  void injectCommands(char * const);
   bool commandsInQueue();
 
   bool isHeaterIdle(const heater_t);
@@ -141,6 +142,10 @@ namespace ExtUI {
       void setMeshPoint(const xy_uint8_t &pos, const float zval);
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval);
       inline void onMeshUpdate(const xy_int8_t &pos, const float zval) { onMeshUpdate(pos.x, pos.y, zval); }
+
+      typedef enum : unsigned char { PROBE_START, PROBE_FINISH } probe_state_t;
+      void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state);
+      inline void onMeshUpdate(const xy_int8_t &pos, probe_state_t state) { onMeshUpdate(pos.x, pos.y, state); }
     #endif
   #endif
 
@@ -159,8 +164,8 @@ namespace ExtUI {
   void setTargetTemp_celsius(const float, const heater_t);
   void setTargetTemp_celsius(const float, const extruder_t);
   void setTargetFan_percent(const float, const fan_t);
-  void setAxisPosition_mm(const float, const axis_t);
-  void setAxisPosition_mm(const float, const extruder_t);
+  void setAxisPosition_mm(const float, const axis_t, const feedRate_t=0);
+  void setAxisPosition_mm(const float, const extruder_t, const feedRate_t=0);
   void setAxisSteps_per_mm(const float, const axis_t);
   void setAxisSteps_per_mm(const float, const extruder_t);
   void setAxisMaxFeedrate_mm_s(const feedRate_t, const axis_t);
@@ -182,7 +187,7 @@ namespace ExtUI {
     void setLinearAdvance_mm_mm_s(const float, const extruder_t);
   #endif
 
-  #if DISABLED(CLASSIC_JERK)
+  #if HAS_JUNCTION_DEVIATION
     float getJunctionDeviation_mm();
     void setJunctionDeviation_mm(const float);
   #else
@@ -232,8 +237,10 @@ namespace ExtUI {
   #if HAS_FILAMENT_SENSOR
     bool getFilamentRunoutEnabled();
     void setFilamentRunoutEnabled(const bool);
+    bool getFilamentRunoutState();
+    void setFilamentRunoutState(const bool);
 
-    #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #if HAS_FILAMENT_RUNOUT_DISTANCE
       float getFilamentRunoutDistance_mm();
       void setFilamentRunoutDistance_mm(const float);
     #endif
@@ -335,6 +342,7 @@ namespace ExtUI {
   void onUserConfirmRequired(const char * const msg);
   void onUserConfirmRequired_P(PGM_P const pstr);
   void onStatusChanged(const char * const msg);
+  void onStatusChanged_P(PGM_P const pstr);
   void onFactoryReset();
   void onStoreSettings(char *);
   void onLoadSettings(const char *);

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,12 +31,6 @@
 
 #define BOARD_INFO_NAME   "Selena Compact"
 #define BOARD_WEBSITE_URL "github.com/Ales2-k/Selena"
-
-//
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
 
 //
 // Servos

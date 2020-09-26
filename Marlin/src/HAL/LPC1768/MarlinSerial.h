@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -44,10 +44,9 @@ public:
   MarlinSerial(LPC_UART_TypeDef *UARTx) :
     HardwareSerial<RX_BUFFER_SIZE, TX_BUFFER_SIZE>(UARTx)
     #if ENABLED(EMERGENCY_PARSER)
-       , emergency_state(EmergencyParser::State::EP_RESET)
+      , emergency_state(EmergencyParser::State::EP_RESET)
     #endif
-    {
-    }
+    { }
 
   void end() {}
 

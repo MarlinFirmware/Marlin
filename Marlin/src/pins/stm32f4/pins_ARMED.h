@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,9 +39,7 @@
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
 #define I2C_EEPROM
-
-#undef E2END                                      // Defined in Arduino Core STM32 to be used with EEPROM emulation. This board uses a real EEPROM.
-#define E2END 0xFFF                               // 4KB
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Limit Switches
@@ -227,5 +225,5 @@
   #define Z2_SERIAL_RX_PIN              EXT4_PIN
   #define Z2_SERIAL_TX_PIN              EXT4_PIN
 
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif

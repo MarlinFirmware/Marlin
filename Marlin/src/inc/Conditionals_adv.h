@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -56,6 +56,10 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
+  #define HAS_MIXER_SYNC_CHANNEL 1
+#endif
+
 #if EITHER(DUAL_X_CARRIAGE, MULTI_NOZZLE_DUPLICATION)
   #define HAS_DUPLICATION_MODE 1
 #endif
@@ -66,6 +70,18 @@
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define HAS_FILAMENT_SENSOR 1
+  #ifdef FILAMENT_RUNOUT_DISTANCE_MM
+    #define HAS_FILAMENT_RUNOUT_DISTANCE 1
+  #endif
+#endif
+
+// Let SD_FINISHED_RELEASECOMMAND stand in for SD_FINISHED_STEPPERRELEASE
+#if ENABLED(SD_FINISHED_STEPPERRELEASE)
+  #ifndef SD_FINISHED_RELEASECOMMAND
+    #define SD_FINISHED_RELEASECOMMAND "M84" // planner.finish_and_disable()
+  #endif
+#else
+  #undef SD_FINISHED_RELEASECOMMAND
 #endif
 
 #if EITHER(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
@@ -93,7 +109,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS)
+#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -102,6 +118,10 @@
 #endif
 #if ALL(HAS_RESUME_CONTINUE, PRINTER_EVENT_LEDS, SDSUPPORT)
   #define HAS_LEDS_OFF_FLAG 1
+#endif
+
+#if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
+  #define HAS_I2C_DIGIPOT 1
 #endif
 
 // Multiple Z steppers
@@ -116,7 +136,23 @@
   #define Z_STEPPER_ALIGN_AMP 1.0
 #endif
 
-#define HAS_CUTTER EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+//
+// Spindle/Laser power display types
+// Defined here so sanity checks can use them
+//
+#if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
+  #define HAS_CUTTER 1
+  #define _CUTTER_POWER_PWM255  1
+  #define _CUTTER_POWER_PERCENT 2
+  #define _CUTTER_POWER_RPM     3
+  #define _CUTTER_POWER(V)      _CAT(_CUTTER_POWER_, V)
+  #define CUTTER_UNIT_IS(V)    (_CUTTER_POWER(CUTTER_POWER_UNIT)    == _CUTTER_POWER(V))
+#endif
+
+// Add features that need hardware PWM here
+#if ANY(FAST_PWM_FAN, SPINDLE_LASER_PWM)
+  #define NEEDS_HARDWARE_PWM 1
+#endif
 
 #if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
@@ -172,7 +208,7 @@
   #endif
 #endif
 
-#if ENABLED(FYSETC_MINI_12864_2_1)
+#if EITHER(FYSETC_MINI_12864_2_1, FYSETC_242_OLED_12864)
   #define LED_CONTROL_MENU
   #define LED_USER_PRESET_STARTUP
   #define LED_COLOR_PRESETS
@@ -210,9 +246,42 @@
   #endif
 #endif
 
+#if BOTH(LED_CONTROL_MENU, NEOPIXEL2_SEPARATE)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
 // If platform requires early initialization of watchdog to properly boot
 #if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
   #define EARLY_WATCHDOG 1
+#endif
+
+// Full Touch Screen needs 'tft/xpt2046'
+#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
+  #define HAS_TFT_XPT2046 1
+#endif
+
+// Touch Screen or "Touch Buttons" need XPT2046 pins
+// but they use different components
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+  #define NEED_TOUCH_PINS 1
 #endif
 
 // Extensible UI pin mapping for RepRapDiscount
@@ -226,11 +295,10 @@
 #endif
 
 /**
- * Driver Timings
+ * Driver Timings (in nanoseconds)
  * NOTE: Driver timing order is longest-to-shortest duration.
  *       Preserve this ordering when adding new drivers.
  */
-
 #ifndef MINIMUM_STEPPER_POST_DIR_DELAY
   #if HAS_DRIVER(TB6560)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 15000
@@ -245,7 +313,7 @@
   #elif HAS_DRIVER(A4988)
     #define MINIMUM_STEPPER_POST_DIR_DELAY 200
   #elif HAS_TRINAMIC_CONFIG || HAS_TRINAMIC_STANDALONE
-    #define MINIMUM_STEPPER_POST_DIR_DELAY 20
+    #define MINIMUM_STEPPER_POST_DIR_DELAY 60
   #else
     #define MINIMUM_STEPPER_POST_DIR_DELAY 0   // Expect at least 10µS since one Stepper ISR must transpire
   #endif
@@ -289,4 +357,56 @@
   #else
     #define MAXIMUM_STEPPER_RATE 250000
   #endif
+#endif
+
+#if ENABLED(DIRECT_STEPPING)
+  #ifndef STEPPER_PAGES
+    #define STEPPER_PAGES 16
+  #endif
+  #ifndef STEPPER_PAGE_FORMAT
+    #define STEPPER_PAGE_FORMAT SP_4x2_256
+  #endif
+  #ifndef PAGE_MANAGER
+    #define PAGE_MANAGER SerialPageManager
+  #endif
+#endif
+
+//
+// SD Card connection methods
+// Defined here so pins and sanity checks can use them
+//
+#if ENABLED(SDSUPPORT)
+  #define _SDCARD_LCD          1
+  #define _SDCARD_ONBOARD      2
+  #define _SDCARD_CUSTOM_CABLE 3
+  #define _SDCARD_ID(V) _CAT(_SDCARD_, V)
+  #define SD_CONNECTION_IS(V) (_SDCARD_ID(SDCARD_CONNECTION) == _SDCARD_ID(V))
+#else
+  #define SD_CONNECTION_IS(...) 0
+#endif
+
+// Power Monitor sensors
+#if EITHER(POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE)
+  #define HAS_POWER_MONITOR 1
+#endif
+#if ENABLED(POWER_MONITOR_CURRENT) && defined(POWER_MONITOR_FIXED_VOLTAGE)
+  #define HAS_POWER_MONITOR_VREF 1
+#endif
+#if BOTH(HAS_POWER_MONITOR_VREF, POWER_MONITOR_CURRENT)
+  #define HAS_POWER_MONITOR_WATTS 1
+#endif
+
+// Flag if an EEPROM type is pre-selected
+#if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
+  #define NO_EEPROM_SELECTED 1
+#endif
+
+// Flag whether hex_print.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
+  #define NEED_HEX_PRINT 1
+#endif
+
+// Flag whether least_squares_fit.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #define NEED_LSF 1
 #endif

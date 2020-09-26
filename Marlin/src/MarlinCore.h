@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,26 +31,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if HAS_L64XX
-  #include "libs/L64XX/L64XX_Marlin.h"
-  extern uint8_t axis_known_position;
-#endif
-
 void stop();
 
-void idle(
-  #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    bool no_stepper_sleep=false    // Pass true to keep steppers from timing out
-  #endif
-);
-
-inline void idle_no_sleep() {
-  idle(
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      true
-    #endif
-  );
-}
+// Pass true to keep steppers from timing out
+void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep=false));
+inline void idle_no_sleep() { idle(TERN_(ADVANCED_PAUSE_FEATURE, true)); }
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
   #include "feature/twibus.h"
@@ -102,17 +87,10 @@ extern bool wait_for_heatup;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
-// Inactivity shutdown timer
-extern millis_t max_inactive_time, stepper_inactive_time;
-
-#if ENABLED(USE_CONTROLLER_FAN)
-  extern uint8_t controllerfan_speed;
-#endif
-
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()  powerManager.power_on()
     #define PSU_OFF() powerManager.power_off()
@@ -129,12 +107,19 @@ void protected_pin_err();
   inline void suicide() { OUT_WRITE(SUICIDE_PIN, SUICIDE_PIN_INVERTING); }
 #endif
 
+#if HAS_KILL
+  #ifndef KILL_PIN_STATE
+    #define KILL_PIN_STATE LOW
+  #endif
+  inline bool kill_state() { return READ(KILL_PIN) == KILL_PIN_STATE; }
+#endif
+
 #if ENABLED(G29_RETRY_AND_RECOVER)
   void event_probe_recover();
   void event_probe_failure();
 #endif
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
                   SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
-

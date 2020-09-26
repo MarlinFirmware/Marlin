@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,6 +30,7 @@
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
 #include "watchdog.h"
+#include "MarlinSerial.h"
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -48,17 +49,17 @@
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
 #elif SERIAL_PORT == 1
-  #define MYSERIAL0 Serial1
+  #define MYSERIAL0 MSerial1
 #elif SERIAL_PORT == 2
-  #define MYSERIAL0 Serial2
+  #define MYSERIAL0 MSerial2
 #elif SERIAL_PORT == 3
-  #define MYSERIAL0 Serial3
+  #define MYSERIAL0 MSerial3
 #elif SERIAL_PORT == 4
-  #define MYSERIAL0 Serial4
+  #define MYSERIAL0 MSerial4
 #elif SERIAL_PORT == 5
-  #define MYSERIAL0 Serial5
+  #define MYSERIAL0 MSerial5
 #elif SERIAL_PORT == 6
-  #define MYSERIAL0 Serial6
+  #define MYSERIAL0 MSerial6
 #else
   #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
 #endif
@@ -72,17 +73,17 @@
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
   #elif SERIAL_PORT_2 == 1
-    #define MYSERIAL1 Serial1
+    #define MYSERIAL1 MSerial1
   #elif SERIAL_PORT_2 == 2
-    #define MYSERIAL1 Serial2
+    #define MYSERIAL1 MSerial2
   #elif SERIAL_PORT_2 == 3
-    #define MYSERIAL1 Serial3
+    #define MYSERIAL1 MSerial3
   #elif SERIAL_PORT_2 == 4
-    #define MYSERIAL1 Serial4
+    #define MYSERIAL1 MSerial4
   #elif SERIAL_PORT_2 == 5
-    #define MYSERIAL1 Serial5
+    #define MYSERIAL1 MSerial5
   #elif SERIAL_PORT_2 == 6
-    #define MYSERIAL1 Serial6
+    #define MYSERIAL1 MSerial6
   #else
     #error "SERIAL_PORT_2 must be from -1 to 6. Please update your configuration."
   #endif
@@ -100,17 +101,17 @@
   #elif DGUS_SERIAL_PORT == -1
     #define DGUS_SERIAL SerialUSB
   #elif DGUS_SERIAL_PORT == 1
-    #define DGUS_SERIAL Serial1
+    #define DGUS_SERIAL MSerial1
   #elif DGUS_SERIAL_PORT == 2
-    #define DGUS_SERIAL Serial2
+    #define DGUS_SERIAL MSerial2
   #elif DGUS_SERIAL_PORT == 3
-    #define DGUS_SERIAL Serial3
+    #define DGUS_SERIAL MSerial3
   #elif DGUS_SERIAL_PORT == 4
-    #define DGUS_SERIAL Serial4
+    #define DGUS_SERIAL MSerial4
   #elif DGUS_SERIAL_PORT == 5
-    #define DGUS_SERIAL Serial5
+    #define DGUS_SERIAL MSerial5
   #elif DGUS_SERIAL_PORT == 6
-    #define DGUS_SERIAL Serial6
+    #define DGUS_SERIAL MSerial6
   #else
     #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
   #endif
@@ -118,7 +119,6 @@
   #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
-#include "timers.h"
 
 /**
  * TODO: review this to return 1 for pins that are not analog input
@@ -192,16 +192,6 @@ static inline int freeMemory() {
 #pragma GCC diagnostic pop
 
 //
-// EEPROM
-//
-
-// Wire library should work for i2c EEPROMs
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
-
-//
 // ADC
 //
 
@@ -209,8 +199,9 @@ void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 inline void HAL_adc_init() {}
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
@@ -221,6 +212,11 @@ uint16_t HAL_adc_get_result();
 #define GET_PIN_MAP_PIN(index) index
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
+
+#ifdef STM32F1xx
+  #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
+  #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
+#endif
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);

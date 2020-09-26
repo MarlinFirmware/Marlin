@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -40,17 +40,11 @@ constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
 FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
-FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
-FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
+FORCE_INLINE void set_all_homed() { axis_homed = axis_known_position = xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
-  return !(
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      all_axes_known()
-    #else
-      all_axes_homed()
-    #endif
-  );
+  return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }
 
 // Error margin to work around float imprecision
@@ -114,24 +108,29 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
+inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
-  extern const XYZval<T> NAME##_P; \
-  FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); }
-
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    return pgm_read_any(&NAME##_P[axis]); \
+  }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_DEFS(signed char, home_dir, HOME_DIR);
+
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
 #else
-  #define update_workspace_offset(x) NOOP
+  inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
 #if HAS_HOTEND_OFFSET
@@ -153,6 +152,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
 #else
   constexpr bool soft_endstops_enabled = false;
   //constexpr axis_limits_t soft_endstop = {
@@ -160,6 +160,7 @@ typedef struct { xyz_pos_t min, max; } axis_limits_t;
   //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
   #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
 #endif
 
 void report_real_position();
@@ -233,24 +234,22 @@ void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
+void do_z_clearance(const float &zclear, const bool z_known=true, const bool raise_on_unknown=true, const bool lower_allowed=false);
+
 //
 // Homing
 //
-
-uint8_t axes_need_homing(uint8_t axis_bits=0x07);
-bool axis_unhomed_error(uint8_t axis_bits=0x07);
+void homeaxis(const AxisEnum axis);
+void set_axis_is_at_home(const AxisEnum axis);
+void set_axis_never_homed(const AxisEnum axis);
+uint8_t axes_should_home(uint8_t axis_bits=0x07);
+bool homing_needed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
 #else
   #define MOTION_CONDITIONS IsRunning()
 #endif
-
-void set_axis_is_at_home(const AxisEnum axis);
-
-void set_axis_not_trusted(const AxisEnum axis);
-
-void homeaxis(const AxisEnum axis);
 
 /**
  * Workspace offsets
@@ -375,7 +374,7 @@ void homeaxis(const AxisEnum axis);
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
-  float x_home_pos(const int extruder);
+  float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
@@ -391,4 +390,10 @@ void homeaxis(const AxisEnum axis);
 
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
+#endif
+
+#if USE_SENSORLESS
+  struct sensorless_t;
+  sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
+  void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif

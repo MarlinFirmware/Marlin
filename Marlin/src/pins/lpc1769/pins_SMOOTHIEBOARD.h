@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,12 +31,6 @@
 
 #define BOARD_INFO_NAME   "Smoothieboard"
 #define BOARD_WEBSITE_URL "smoothieware.org/smoothieboard"
-
-//
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
 
 //
 // Servos
@@ -119,4 +113,21 @@
 
   #error "Marlin's Smoothieboard support cannot drive your LCD."
 
+#endif
+
+/**
+ * I2C Digipots - MCP4451
+ * Address 58 (2C << 1)
+ * Set from 0 - 127 with stop bit.
+ * (Ex. 3F << 1 | 1)
+ */
+#define DIGIPOTS_I2C_SCL                   P0_0
+#define DIGIPOTS_I2C_SDA_X                 P0_04
+#define DIGIPOTS_I2C_SDA_Y                 P0_10
+#define DIGIPOTS_I2C_SDA_Z                 P0_19
+#define DIGIPOTS_I2C_SDA_E0                P0_21
+#define DIGIPOTS_I2C_SDA_E1                P4_29
+
+#ifndef DIGIPOT_I2C_ADDRESS_A
+  #define DIGIPOT_I2C_ADDRESS_A             0x2C  // unshifted slave address (58 <- 2C << 1)
 #endif

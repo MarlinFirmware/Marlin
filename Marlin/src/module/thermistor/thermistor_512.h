@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 // 100k thermistor supplied with RPW-Ultra hotend, 4.7k pullup
 
-const short temptable_512[][2] PROGMEM = {
+const temp_entry_t temptable_512[] PROGMEM = {
   { OV(26),  300 },
   { OV(28),  295 },
   { OV(30),  290 },

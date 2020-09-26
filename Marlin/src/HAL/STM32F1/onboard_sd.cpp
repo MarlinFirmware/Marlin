@@ -14,13 +14,13 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#ifdef HAS_ONBOARD_SD
+#if SD_CONNECTION_IS(ONBOARD)
 
 #include "onboard_sd.h"
 #include "SPI.h"
 #include "fastio.h"
 
-#ifdef SHARED_SD_CARD
+#if HAS_SHARED_MEDIA
   #ifndef ON_BOARD_SPI_DEVICE
     #define ON_BOARD_SPI_DEVICE SPI_DEVICE
   #endif
@@ -553,4 +553,4 @@ DRESULT disk_read (
 
 #endif // _DISKIO_IOCTL
 
-#endif // HAS_ONBOARD_SD
+#endif // SD_CONNECTION_IS(ONBOARD)

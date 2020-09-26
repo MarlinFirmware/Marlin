@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -35,6 +35,10 @@
   #error "OnBoard SPI BUS can't be shared with other devices."
 #endif
 
+#if SERVO_TC == RTC_TIMER_NUM
+  #error "Servos can't use RTC timer"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #error "EMERGENCY_PARSER is not yet implemented for SAMD51. Disable EMERGENCY_PARSER to continue."
 #endif
@@ -43,6 +47,6 @@
   #error "SDIO_SUPPORT is not supported on SAMD51."
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on SAMD51."
 #endif

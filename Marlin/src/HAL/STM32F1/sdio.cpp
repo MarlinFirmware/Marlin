@@ -17,10 +17,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef ARDUINO_ARCH_STM32F1
 
 #include <libmaple/stm32.h>
@@ -102,7 +101,23 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
     return false;
   }
 
-  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) {}
+  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) { /* wait */ }
+
+  //If there were SDIO errors, do not wait DMA.
+  if (SDIO->STA & SDIO_STA_TRX_ERROR_FLAGS) {
+    SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
+    dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
+    return false;
+	}
+
+  //Wait for DMA transaction to complete
+  while ((DMA2_BASE->ISR & (DMA_ISR_TEIF4|DMA_ISR_TCIF4)) == 0 ) { /* wait */ }
+
+  if (DMA2_BASE->ISR & DMA_ISR_TEIF4) {
+    dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
+    SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
+    return false;
+  }
 
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
 
@@ -121,7 +136,7 @@ bool SDIO_ReadBlock_DMA(uint32_t blockAddress, uint8_t *data) {
 }
 
 bool SDIO_ReadBlock(uint32_t blockAddress, uint8_t *data) {
-  uint32_t retries = 3;
+  uint32_t retries = SDIO_READ_RETRIES;
   while (retries--) if (SDIO_ReadBlock_DMA(blockAddress, data)) return true;
   return false;
 }
@@ -147,7 +162,7 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 
   sdio_setup_transfer(SDIO_DATA_TIMEOUT * (F_CPU / 1000U), 512U, SDIO_BLOCKSIZE_512 | SDIO_DCTRL_DMAEN | SDIO_DCTRL_DTEN);
 
-  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) {}
+  while (!SDIO_GET_FLAG(SDIO_STA_DATAEND | SDIO_STA_TRX_ERROR_FLAGS)) { /* wait */ }
 
   dma_disable(SDIO_DMA_DEV, SDIO_DMA_CHANNEL);
 

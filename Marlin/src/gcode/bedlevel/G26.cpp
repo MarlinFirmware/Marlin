@@ -16,57 +16,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * Marlin Firmware -- G26 - Mesh Validation Tool
- */
-
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(G26_MESH_VALIDATION)
-
-#define G26_OK false
-#define G26_ERR true
-
-#include "../../gcode/gcode.h"
-#include "../../feature/bedlevel/bedlevel.h"
-
-#include "../../MarlinCore.h"
-#include "../../module/planner.h"
-#include "../../module/stepper.h"
-#include "../../module/motion.h"
-#include "../../module/tool_change.h"
-#include "../../module/temperature.h"
-#include "../../lcd/ultralcd.h"
-
-#define EXTRUSION_MULTIPLIER 1.0
-#define PRIME_LENGTH 10.0
-#define OOZE_AMOUNT 0.3
-
-#define INTERSECTION_CIRCLE_RADIUS 5
-#define CROSSHAIRS_SIZE 3
-
-#ifndef G26_RETRACT_MULTIPLIER
-  #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
-#endif
-
-#ifndef G26_XY_FEEDRATE
-  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
-#endif
-
-#if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
-  #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
-#endif
-
-#define G26_OK false
-#define G26_ERR true
-
-#if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
-#endif
 
 /**
  *   G26 Mesh Validation Tool
@@ -94,6 +46,8 @@
  *                    it is on.
  *
  *   H #  Hotend      Set the Nozzle Temperature. If not specified, a default of 205 C. will be assumed.
+ *
+ *   I #  Preset      Heat the Nozzle and Bed based on a Material Preset (if material presets are defined).
  *
  *   F #  Filament    Used to specify the diameter of the filament being used. If not specified
  *                    1.75mm filament is assumed. If you are not getting acceptable results by using the
@@ -141,13 +95,54 @@
  *   Y #  Y Coord.    Specify the starting location of the drawing activity.
  */
 
-// External references
+#include "../../inc/MarlinConfig.h"
 
-// Private functions
+#if ENABLED(G26_MESH_VALIDATION)
+
+#define G26_OK false
+#define G26_ERR true
+
+#include "../../gcode/gcode.h"
+#include "../../feature/bedlevel/bedlevel.h"
+
+#include "../../MarlinCore.h"
+#include "../../module/planner.h"
+#include "../../module/stepper.h"
+#include "../../module/motion.h"
+#include "../../module/tool_change.h"
+#include "../../module/temperature.h"
+#include "../../lcd/ultralcd.h"
+
+#define EXTRUSION_MULTIPLIER 1.0
+#define PRIME_LENGTH 10.0
+#define OOZE_AMOUNT 0.3
+
+#define INTERSECTION_CIRCLE_RADIUS 5
+#define CROSSHAIRS_SIZE 3
+
+#ifndef G26_RETRACT_MULTIPLIER
+  #define G26_RETRACT_MULTIPLIER 1.0 // x 1mm
+#endif
+
+#ifndef G26_XY_FEEDRATE
+  #define G26_XY_FEEDRATE (PLANNER_XY_FEEDRATE() / 3.0)
+#endif
+
+#if CROSSHAIRS_SIZE >= INTERSECTION_CIRCLE_RADIUS
+  #error "CROSSHAIRS_SIZE must be less than INTERSECTION_CIRCLE_RADIUS."
+#endif
+
+#define G26_OK false
+#define G26_ERR true
+
+#if ENABLED(ARC_SUPPORT)
+  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
+#endif
+
+constexpr float g26_e_axis_feedrate = 0.025;
 
 static MeshFlags circle_flags, horizontal_mesh_line_flags, vertical_mesh_line_flags;
-float g26_e_axis_feedrate = 0.025,
-      random_deviation = 0.0;
+float g26_random_deviation = 0.0;
 
 static bool g26_retracted = false; // Track the retracted state of the nozzle so mismatched
                                    // retracts/recovers won't result in a bad state.
@@ -172,9 +167,7 @@ int8_t g26_prime_flag;
   bool user_canceled() {
     if (!ui.button_pressed()) return false; // Return if the button isn't pressed
     ui.set_status_P(GET_TEXT(MSG_G26_CANCELED), 99);
-    #if HAS_LCD_MENU
-      ui.quick_feedback();
-    #endif
+    TERN_(HAS_LCD_MENU, ui.quick_feedback());
     ui.wait_for_release();
     return true;
   }
@@ -202,7 +195,7 @@ mesh_index_pair find_closest_circle_to_print(const xy_pos_t &pos) {
       f += (g26_xy_pos - m).magnitude() / 15.0f;
 
       // Add the specified amount of Random Noise to our search
-      if (random_deviation > 1.0) f += random(0.0, random_deviation);
+      if (g26_random_deviation > 1.0) f += random(0.0, g26_random_deviation);
 
       if (f < closest) {
         closest = f;          // Found a closer un-printed location
@@ -308,9 +301,7 @@ inline bool look_for_lines_to_connect() {
 
   GRID_LOOP(i, j) {
 
-    #if HAS_LCD_MENU
-      if (user_canceled()) return true;
-    #endif
+    if (TERN0(HAS_LCD_MENU, user_canceled())) return true;
 
     if (i < (GRID_MAX_POINTS_X)) {  // Can't connect to anything farther to the right than GRID_MAX_POINTS_X.
                                     // Already a half circle at the edge of the bed.
@@ -371,9 +362,7 @@ inline bool turn_on_heaters() {
       #if HAS_SPI_LCD
         ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
         ui.quick_feedback();
-        #if HAS_LCD_MENU
-          ui.capture();
-        #endif
+        TERN_(HAS_LCD_MENU, ui.capture());
       #endif
       thermalManager.setTargetBed(g26_bed_temp);
 
@@ -397,11 +386,10 @@ inline bool turn_on_heaters() {
 
   // Wait for the temperature to stabilize
   if (!thermalManager.wait_for_hotend(active_extruder, true
-      #if G26_CLICK_CAN_CANCEL
-        , true
-      #endif
-    )
-  ) return G26_ERR;
+    #if G26_CLICK_CAN_CANCEL
+      , true
+    #endif
+  )) return G26_ERR;
 
   #if HAS_SPI_LCD
     ui.reset_status();
@@ -417,7 +405,7 @@ inline bool turn_on_heaters() {
 inline bool prime_nozzle() {
 
   const feedRate_t fr_slow_e = planner.settings.max_feedrate_mm_s[E_AXIS] / 15.0f;
-  #if HAS_LCD_MENU && DISABLED(TOUCH_BUTTONS) // ui.button_pressed issue with touchscreen
+  #if HAS_LCD_MENU && !HAS_TOUCH_XPT2046 // ui.button_pressed issue with touchscreen
     #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
       float Total_Prime = 0.0;
     #endif
@@ -502,7 +490,7 @@ void GcodeSuite::G26() {
 
   // Don't allow Mesh Validation without homing first,
   // or if the parameter parsing did not go OK, abort
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
 
   // Change the tool first, if specified
   if (parser.seenval('T')) tool_change(parser.value_int());
@@ -522,15 +510,35 @@ void GcodeSuite::G26() {
   bool g26_continue_with_closest = parser.boolval('C'),
        g26_keep_heaters_on       = parser.boolval('K');
 
+  // Accept 'I' if temperature presets are defined
+  const uint8_t preset_index = (0
+    #if PREHEAT_COUNT
+      + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0)
+    #endif
+  );
+
   #if HAS_HEATED_BED
-    if (parser.seenval('B')) {
-      g26_bed_temp = parser.value_celsius();
-      if (g26_bed_temp && !WITHIN(g26_bed_temp, 40, (BED_MAXTEMP - 10))) {
-        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAXTEMP - 10), "C).");
+
+    // Get a temperature from 'I' or 'B'
+    int16_t bedtemp = 0;
+
+    // Use the 'I' index if temperature presets are defined
+    #if PREHEAT_COUNT
+      if (preset_index) bedtemp = ui.material_preset[preset_index - 1].bed_temp;
+    #endif
+
+    // Look for 'B' Bed Temperature
+    if (parser.seenval('B')) bedtemp = parser.value_celsius();
+
+    if (bedtemp) {
+      if (!WITHIN(bedtemp, 40, BED_MAX_TARGET)) {
+        SERIAL_ECHOLNPAIR("?Specified bed temperature not plausible (40-", int(BED_MAX_TARGET), "C).");
         return;
       }
+      g26_bed_temp = bedtemp;
     }
-  #endif
+
+  #endif // HAS_HEATED_BED
 
   if (parser.seenval('L')) {
     g26_layer_height = parser.value_linear_units();
@@ -594,20 +602,34 @@ void GcodeSuite::G26() {
 
   g26_extrusion_multiplier *= g26_filament_diameter * sq(g26_nozzle) / sq(0.3); // Scale up by nozzle size
 
-  if (parser.seenval('H')) {
-    g26_hotend_temp = parser.value_celsius();
-    if (!WITHIN(g26_hotend_temp, 165, (HEATER_0_MAXTEMP - 15))) {
+  // Get a temperature from 'I' or 'H'
+  int16_t noztemp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    if (preset_index) noztemp = ui.material_preset[preset_index - 1].hotend_temp;
+  #endif
+
+  // Look for 'H' Hotend Temperature
+  if (parser.seenval('H')) noztemp = parser.value_celsius();
+
+  // If any preset or temperature was specified
+  if (noztemp) {
+    if (!WITHIN(noztemp, 165, (HEATER_0_MAXTEMP) - (HOTEND_OVERSHOOT))) {
       SERIAL_ECHOLNPGM("?Specified nozzle temperature not plausible.");
       return;
     }
+    g26_hotend_temp = noztemp;
   }
 
+  // 'U' to Randomize and optionally set circle deviation
   if (parser.seen('U')) {
     randomSeed(millis());
     // This setting will persist for the next G26
-    random_deviation = parser.has_value() ? parser.value_float() : 50.0;
+    g26_random_deviation = parser.has_value() ? parser.value_float() : 50.0;
   }
 
+  // Get repeat from 'R', otherwise do one full circuit
   int16_t g26_repeats;
   #if HAS_LCD_MENU
     g26_repeats = parser.intval('R', GRID_MAX_POINTS + 1);
@@ -624,6 +646,7 @@ void GcodeSuite::G26() {
     return;
   }
 
+  // Set a position with 'X' and/or 'Y'. Default: current_position
   g26_xy_pos.set(parser.seenval('X') ? RAW_X_POSITION(parser.value_linear_units()) : current_position.x,
                  parser.seenval('Y') ? RAW_Y_POSITION(parser.value_linear_units()) : current_position.y);
   if (!position_is_reachable(g26_xy_pos)) {
@@ -636,8 +659,7 @@ void GcodeSuite::G26() {
    */
   set_bed_leveling_enabled(!parser.seen('D'));
 
-  if (current_position.z < Z_CLEARANCE_BETWEEN_PROBES)
-    do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
+  do_z_clearance(Z_CLEARANCE_BETWEEN_PROBES);
 
   #if DISABLED(NO_VOLUMETRICS)
     bool volumetric_was_enabled = parser.volumetric_enabled;
@@ -672,9 +694,7 @@ void GcodeSuite::G26() {
   move_to(destination, 0.0);
   move_to(destination, g26_ooze_amount);
 
-  #if HAS_LCD_MENU
-    ui.capture();
-  #endif
+  TERN_(HAS_LCD_MENU, ui.capture());
 
   #if DISABLED(ARC_SUPPORT)
 
@@ -769,9 +789,7 @@ void GcodeSuite::G26() {
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 
-        #if HAS_LCD_MENU
-          if (user_canceled()) goto LEAVE; // Check if the user wants to stop the Mesh Validation
-        #endif
+        if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
       #else // !ARC_SUPPORT
 
@@ -795,9 +813,7 @@ void GcodeSuite::G26() {
 
         for (int8_t ind = start_ind; ind <= end_ind; ind++) {
 
-          #if HAS_LCD_MENU
-            if (user_canceled()) goto LEAVE;          // Check if the user wants to stop the Mesh Validation
-          #endif
+          if (TERN0(HAS_LCD_MENU, user_canceled())) goto LEAVE; // Check if the user wants to stop the Mesh Validation
 
           xyz_float_t p = { circle.x + _COS(ind    ), circle.y + _SIN(ind    ), g26_layer_height },
                       q = { circle.x + _COS(ind + 1), circle.y + _SIN(ind + 1), g26_layer_height };
@@ -840,14 +856,10 @@ void GcodeSuite::G26() {
     planner.calculate_volumetric_multipliers();
   #endif
 
-  #if HAS_LCD_MENU
-    ui.release();                                             // Give back control of the LCD
-  #endif
+  TERN_(HAS_LCD_MENU, ui.release()); // Give back control of the LCD
 
   if (!g26_keep_heaters_on) {
-    #if HAS_HEATED_BED
-      thermalManager.setTargetBed(0);
-    #endif
+    TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(0));
     thermalManager.setTargetHotend(active_extruder, 0);
   }
 }

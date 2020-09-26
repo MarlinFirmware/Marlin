@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -115,7 +115,7 @@
 //
 // Z Probe (when not Z_MIN_PIN)
 //
-#if !defined(Z_MIN_PROBE_PIN) && !(HAS_CUTTER && ENABLED(BOARD_REV_1_0))
+#if !defined(Z_MIN_PROBE_PIN) && !BOTH(HAS_CUTTER, BOARD_REV_1_0)
   #define Z_MIN_PROBE_PIN              Z_MAX_PIN
 #endif
 
@@ -134,7 +134,7 @@
 #define Z_DIR_PIN                             39
 #define Z_ENABLE_PIN                          35
 
-#if HAS_CUTTER && ENABLED(BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
+#if BOTH(HAS_CUTTER, BOARD_REV_1_1_TO_1_3) && EXTRUDERS == 1
   // Move E0 to the spare and get Spindle/Laser signals from E0
   #define E0_STEP_PIN                         49
   #define E0_DIR_PIN                          47
@@ -174,7 +174,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif ENABLED(BOARD_REV_1_5, ULTRA_LCD)
+#elif BOTH(BOARD_REV_1_5, ULTRA_LCD)
 
   #define BEEPER_PIN                          18
 

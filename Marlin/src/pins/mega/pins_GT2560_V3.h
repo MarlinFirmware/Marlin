@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -121,7 +121,7 @@
 //
 #define TEMP_0_PIN                            11  // Analog Input
 #define TEMP_1_PIN                             9  // Analog Input
-#define TEMP_2_PIN                             1  // Analog Input
+#define TEMP_2_PIN                             8  // Analog Input
 #define TEMP_BED_PIN                          10  // Analog Input
 
 //
@@ -129,7 +129,7 @@
 //
 #define HEATER_0_PIN                          10
 #define HEATER_1_PIN                           3
-#define HEATER_2_PIN                           1
+#define HEATER_2_PIN                           2
 #define HEATER_BED_PIN                         4
 #define FAN_PIN                                9
 #define FAN1_PIN                               8
@@ -140,7 +140,7 @@
 //
 #define SD_DETECT_PIN                         38
 #define SDSS                                  53
-#define LED_PIN                                6
+#define LED_PIN                               13  // Use 6 (case light) for external LED. 13 is internal (yellow) LED.
 #define PS_ON_PIN                             12
 #define SUICIDE_PIN                           54  // This pin must be enabled at boot to keep power flowing
 

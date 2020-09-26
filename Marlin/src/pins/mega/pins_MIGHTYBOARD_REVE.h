@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -116,7 +116,7 @@
 #define DIGIPOTS_I2C_SDA_E1                   77  // J6
 
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A 0x2F              // unshifted slave address (5E <- 2F << 1)
+  #define DIGIPOT_I2C_ADDRESS_A             0x2F  // unshifted slave address (5E <- 2F << 1)
 #endif
 
 //
@@ -159,7 +159,7 @@
 #define HBP_PIN                               45  // L4
 #define EXTRA_FET_PIN                         44  // L5
 
-#if HOTENDS > 1
+#if HAS_MULTI_HOTEND
   #if TEMP_SENSOR_BED
     #define IS_EEB
   #else
@@ -197,12 +197,17 @@
   #endif
 #endif
 
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN         EX2_FAN_PIN
+#endif
+
 //
 // Misc. Functions
 //
 #define LED_PIN                               13  // B7
 #define CUTOFF_RESET_PIN                      16  // H1
 #define CUTOFF_TEST_PIN                       17  // H0
+#define CUTOFF_SR_CHECK_PIN                   70  // G4 (TOSC1)
 
 //
 // LCD / Controller
