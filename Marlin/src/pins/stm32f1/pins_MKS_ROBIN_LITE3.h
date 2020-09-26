@@ -115,6 +115,12 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #if ENABLED(SPI_PANEL)
+      #define DOGLCD_CS                     PB11
+    #endif
+
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6

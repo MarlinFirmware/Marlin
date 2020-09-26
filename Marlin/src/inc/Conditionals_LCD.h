@@ -217,6 +217,22 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
+#elif ENABLED(TFTGLCD_PANEL)
+
+  #define IS_ULTIPANEL
+  #define SPI_PANEL                   // Disable if panel is not connected by SPI bus
+  #define LCD_USE_I2C_BUZZER          // Hardware buzzer on panel for I2C and SPI buses
+  #define STD_ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
+  #define LCD_WIDTH              20   // 20 or 24 chars in line
+  #define LCD_HEIGHT             10   // Character lines
+  #define LCD_I2C_ADDRESS      0x27   // Must be equal to panel's I2C slave addres
+  #define LCD_CONTRAST_MIN      127
+  #define LCD_CONTRAST_MAX      255
+  #define DEFAULT_LCD_CONTRAST  250
+  #define CONVERT_TO_EXT_ASCII  // Use extended 128-255 symbols from ASCII table.
+                                // At this time conversion is only done for cyrillic - bg, ru and uk languages.
+                                // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)

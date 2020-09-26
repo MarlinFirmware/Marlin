@@ -282,11 +282,19 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if ENABLED(TFTGLCD_PANEL)
+
+  #if ENABLED(SPI_PANEL)
+    #define DOGLCD_CS                       PG10
+  #endif
+
+#elif HAS_SPI_LCD
+
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS                     PG6
 
     #define BTN_EN1                         PD11
@@ -301,10 +309,12 @@
     #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
+
     #define DOGLCD_A0                       PG6
     #define DOGLCD_CS                       PG3
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
+
   #else
 
     #define LCD_PINS_RS                     PD10
@@ -343,20 +353,20 @@
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
-  #endif
-
 #endif // HAS_SPI_LCD
+
+// Alter timing for graphical display
+#if HAS_GRAPHICAL_LCD
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+  #endif
+#endif
 
 //
 // WIFI

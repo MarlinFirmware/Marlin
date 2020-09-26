@@ -218,59 +218,74 @@
  */
 
 #if HAS_SPI_LCD
-  #define BEEPER_PIN                       P1_31  // EXP1.1
-  #define BTN_ENC                          P1_30  // EXP1.2
-  #define BTN_EN1                          P3_26  // EXP2.5
-  #define BTN_EN2                          P3_25  // EXP2.3
-  #define LCD_PINS_RS                      P0_16  // EXP1.4
-  #define LCD_SDSS                         P0_28  // EXP2.4
-  #define LCD_PINS_ENABLE                  P0_18  // EXP1.3
-  #define LCD_PINS_D4                      P0_15  // EXP1.5
-  #if ANY(VIKI2, miniVIKI)
-    #define DOGLCD_SCK                   SCK_PIN
-    #define DOGLCD_MOSI                 MOSI_PIN
-  #endif
 
-  #if ENABLED(FYSETC_MINI_12864)
-    /**
-     * The FYSETC display can NOT use the SCK and MOSI pins on EXP2, so a
-     * special cable is needed to go between EXP2 on the FYSETC and the
-     * controller board's EXP2 and J8. It also means that a software SPI
-     * is needed to drive those pins.
-     *
-     * The FYSETC requires mode 3 SPI interface.
-     *
-     * Pins 6, 7 & 8 on EXP2 are no connects. That means a second special
-     * cable will be needed if the RGB LEDs are to be active.
-     */
-    #define DOGLCD_CS            LCD_PINS_ENABLE  // EXP1.3  (LCD_EN on FYSETC schematic)
-    #define DOGLCD_A0                LCD_PINS_RS  // EXP1.4  (LCD_A0 on FYSETC schematic)
-    #define DOGLCD_SCK                     P2_11  // J8-5  (SCK on FYSETC schematic)
-    #define DOGLCD_MOSI                    P4_28  // J8-6  (MOSI on FYSETC schematic)
+  #if ENABLED(TFTGLCD_PANEL)
 
-    //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+    #if ENABLED(SPI_PANEL)
+      #define DOGLCD_CS                    P3_25  // EXP2.3
+    #endif
+  
+    #if SD_CONNECTION_IS(LCD)
+      #define SD_DETECT_PIN                P0_28  // EXP2.4
+    #endif
+  
+  #else
 
-    #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      #ifndef RGB_LED_R_PIN
-        #define RGB_LED_R_PIN              P2_12  // J8-4  (LCD_D6 on FYSETC schematic)
-      #endif
-      #ifndef RGB_LED_G_PIN
-        #define RGB_LED_G_PIN              P1_23  // J8-3  (LCD_D5 on FYSETC schematic)
-      #endif
-      #ifndef RGB_LED_B_PIN
-        #define RGB_LED_B_PIN              P1_22  // J8-2  (LCD_D7 on FYSETC schematic)
-      #endif
-    #elif ENABLED(FYSETC_MINI_12864_2_1)
-      #define NEOPIXEL_PIN                 P2_12
+    #define BEEPER_PIN                     P1_31  // EXP1.1
+    #define BTN_ENC                        P1_30  // EXP1.2
+    #define BTN_EN1                        P3_26  // EXP2.5
+    #define BTN_EN2                        P3_25  // EXP2.3
+    #define LCD_PINS_RS                    P0_16  // EXP1.4
+    #define LCD_SDSS                       
+    #define LCD_PINS_ENABLE                P0_18  // EXP1.3
+    #define LCD_PINS_D4                    P0_15  // EXP1.5
+    #if ANY(VIKI2, miniVIKI)
+      #define DOGLCD_SCK                   SCK_PIN
+      #define DOGLCD_MOSI                  MOSI_PIN
     #endif
 
-  #elif ENABLED(MINIPANEL)
-    // GLCD features
-    // Uncomment screen orientation
-    //#define LCD_SCREEN_ROT_90
-    //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
+    #if ENABLED(FYSETC_MINI_12864)
+      /**
+       * The FYSETC display can NOT use the SCK and MOSI pins on EXP2, so a
+       * special cable is needed to go between EXP2 on the FYSETC and the
+       * controller board's EXP2 and J8. It also means that a software SPI
+       * is needed to drive those pins.
+       *
+       * The FYSETC requires mode 3 SPI interface.
+       *
+       * Pins 6, 7 & 8 on EXP2 are no connects. That means a second special
+       * cable will be needed if the RGB LEDs are to be active.
+       */
+      #define DOGLCD_CS          LCD_PINS_ENABLE  // EXP1.3  (LCD_EN on FYSETC schematic)
+      #define DOGLCD_A0              LCD_PINS_RS  // EXP1.4  (LCD_A0 on FYSETC schematic)
+      #define DOGLCD_SCK                   P2_11  // J8-5  (SCK on FYSETC schematic)
+      #define DOGLCD_MOSI                  P4_28  // J8-6  (MOSI on FYSETC schematic)
+
+      //#define FORCE_SOFT_SPI                    // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+      #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN            P2_12  // J8-4  (LCD_D6 on FYSETC schematic)
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN            P1_23  // J8-3  (LCD_D5 on FYSETC schematic)
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN            P1_22  // J8-2  (LCD_D7 on FYSETC schematic)
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN               P2_12
+      #endif
+
+    #elif ENABLED(MINIPANEL)
+      // GLCD features
+      // Uncomment screen orientation
+      //#define LCD_SCREEN_ROT_90
+      //#define LCD_SCREEN_ROT_180
+      //#define LCD_SCREEN_ROT_270
+    #endif
+
   #endif
 
 #endif

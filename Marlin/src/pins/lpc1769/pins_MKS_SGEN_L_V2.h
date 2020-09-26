@@ -254,6 +254,17 @@
     #define LCD_PINS_ENABLE                P1_22
     #define LCD_PINS_D4                    P0_17
 
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(SPI_PANEL)
+      #define DOGLCD_CS                    P3_25
+    #endif
+  
+    #define SD_DETECT_PIN                  P0_27
+  
   #else
 
     #define BTN_EN1                        P3_25

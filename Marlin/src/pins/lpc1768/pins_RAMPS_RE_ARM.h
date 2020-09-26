@@ -326,6 +326,15 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
+#elif ENABLED(TFTGLCD_PANEL)
+
+  #if ENABLED(SPI_PANEL)
+    #define DOGLCD_CS                      P3_26  // (31) J3-2 & AUX-4
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+  
 #elif HAS_SPI_LCD
 
   //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
@@ -370,7 +379,7 @@
     #define DOGLCD_SCK                   SCK_PIN
     #define DOGLCD_MOSI                 MOSI_PIN
 
-    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
+    #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
   #else
 

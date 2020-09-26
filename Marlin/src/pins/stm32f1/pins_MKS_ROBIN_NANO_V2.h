@@ -233,9 +233,6 @@
 //
 // LCD / Controller
 //
-#ifndef BEEPER_PIN
-  #define BEEPER_PIN                        PC5
-#endif
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
@@ -359,6 +356,19 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
+  #elif ENABLED(TFTGLCD_PANEL)
+
+    #if ENABLED(SPI_PANEL)
+      #define PIN_SPI_SCK                   PA5
+      #define PIN_TFT_MISO                  PA6
+      #define PIN_TFT_MOSI                  PA7
+      #define DOGLCD_CS                     PE8
+    #endif
+
+    #ifndef BEEPER_PIN
+      #define BEEPER_PIN                    -1
+    #endif
+  
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
@@ -389,6 +399,10 @@
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
+#endif
+
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
 #endif
 
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5

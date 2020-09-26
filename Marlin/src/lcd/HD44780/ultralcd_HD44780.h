@@ -90,6 +90,10 @@
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
+#elif ENABLED(TFTGLCD_PANEL)
+
+  // Do nothing
+
 #else
 
   // Standard directly connected LCD implementations
@@ -98,5 +102,7 @@
 
 #endif
 
-#include "../fontutils.h"
-#include "../lcdprint.h"
+#if DISABLED(TFTGLCD_PANEL)
+  #include "../fontutils.h"
+  #include "../lcdprint.h"
+#endif
