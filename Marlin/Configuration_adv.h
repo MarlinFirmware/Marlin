@@ -134,7 +134,7 @@
 #if TEMP_SENSOR_CHAMBER
   #define CHAMBER_MINTEMP             5
   #define CHAMBER_MAXTEMP            100
-  //#define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
+  #define TEMP_CHAMBER_HYSTERESIS     1   // (°C) Temperature proximity considered "close enough" to the target
   //#define CHAMBER_LIMIT_SWITCHING
   //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
   //#define HEATER_CHAMBER_INVERTING false
@@ -154,7 +154,7 @@
 
   #if ENABLED(CHAMBER_VENT)
     #define CHAMBER_VENT_SERVO_NR 1
-    #define HIGH_EXCESS_HEAT_LIMIT 5
+    #define HIGH_EXCESS_HEAT_LIMIT 5 //How much above target temp to consider there is excess heat in the chamber
     #define LOW_EXCESS_HEAT_LIMIT 3
     #define MIN_COOLING_SLOPE_TIME_CHAMBER_VENT 20
     #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5

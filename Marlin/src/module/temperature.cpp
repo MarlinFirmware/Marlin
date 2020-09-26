@@ -1269,7 +1269,7 @@ void Temperature::manage_heater() {
           if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
         }
         else {
-          heater_chamber_pwm = 0;
+          temp_chamber.soft_pwm_amount = 0;
           if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, (temp_chamber.celsius <= temp_chamber.target ? 0 : 90 ) );
         }
       }
