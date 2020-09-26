@@ -576,18 +576,20 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if HAS_CUSTOM_USER_BUTTONS
     // Handle a custom user button if defined as part of a user-defined menu item
+    const bool printer_not_busy = !printingIsActive();
     #define HAS_CUSTOM_USER_BUTTON(N) ((defined(USER_GCODE_PIN_##N) && USER_GCODE_PIN_##N >= 0) && defined(USER_GCODE_PIN_STATE_##N) && defined(USER_GCODE_##N) && defined(USER_DESC_##N))
-    #define CHECK_CUSTOM_USER_BUTTON(N) do{                       \
-      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 2000UL;         \
-      static millis_t next_cub_ms_##N;                            \
-      if (USER_GCODE_PIN_STATE_##N == READ(USER_GCODE_PIN_##N)) { \
-        const millis_t ms = millis();                             \
-        if (ELAPSED(ms, next_cub_ms_##N)) {                       \
-          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;          \
-          LCD_MESSAGEPGM_P(USER_DESC_##N);                        \
-          queue.inject_P(USER_GCODE_##N);                         \
-        }                                                         \
-      }                                                           \
+    #define CHECK_CUSTOM_USER_BUTTON(N) do{                                 \
+      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 2000UL;                   \
+      static millis_t next_cub_ms_##N;                                      \
+      if ((USER_GCODE_PIN_STATE_##N == READ(USER_GCODE_PIN_##N))            \
+        && (USER_GCODE_PIN_TRIGGER_ALWAYS_##N || printer_not_busy)) {       \
+        const millis_t ms = millis();                                       \
+        if (ELAPSED(ms, next_cub_ms_##N)) {                                 \
+          next_cub_ms_##N = ms + CUB_DEBOUNCE_DELAY_##N;                    \
+          LCD_MESSAGEPGM_P(USER_DESC_##N);                                  \
+          queue.inject_P(USER_GCODE_##N);                                   \
+        }                                                                   \
+      }                                                                     \
     }while(0)
 
     #if HAS_CUSTOM_USER_BUTTON(1)
