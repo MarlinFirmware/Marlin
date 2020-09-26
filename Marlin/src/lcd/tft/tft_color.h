@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #define RED(color)            ((color >> 8) & 0xF8)
 #define GREEN(color)          ((color >> 3) & 0xFC)
