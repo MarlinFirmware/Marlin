@@ -69,12 +69,11 @@ namespace Anycubic {
 
     // Setup pins for powerloss detection
     // Two IO pins are connected on the Trigorilla Board
-    // When the power goes OUTAGECON_PIN goes low.
+    // On a power interruption the OUTAGECON_PIN goes low.
 
     #if ENABLED(POWER_LOSS_RECOVERY)
       //pinMode(OUTAGETEST_PIN,INPUT);
-      pinMode(OUTAGECON_PIN,OUTPUT);
-      WRITE(OUTAGECON_PIN,HIGH);
+      OUT_WRITE(OUTAGECON_PIN, HIGH);
     #endif
 
     // Filament runout is handled by Marlin settings in Configuration.h
