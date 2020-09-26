@@ -166,7 +166,7 @@
   void _lcd_level_bed_homing_done() {
     if (ui.should_draw()) {
       MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
-      // Color UI needs a control to be clicable
+      // Color UI needs a control to detect a touch
       TERN_(HAS_GRAPHICAL_TFT, touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT));
     }
     if (ui.use_click()) {
