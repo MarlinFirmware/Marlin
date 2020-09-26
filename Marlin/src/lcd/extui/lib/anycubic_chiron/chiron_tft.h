@@ -31,7 +31,7 @@
 
 #include "chiron_tft_defs.h"
 #include "../../../../inc/MarlinConfigPre.h"
-
+#include "../../ui_api.h"
 namespace Anycubic {
 
   class ChironTFT {
@@ -63,7 +63,6 @@ namespace Anycubic {
       bool ReadTFTCommand();
       int8_t Findcmndpos(const char *, char);
       void CheckHeaters();
-      //bool ToggleFileMenu(int8_t);
       void SendFileList(int8_t);
       void SelectFile();
       void InjectCommandandWait(PGM_P);

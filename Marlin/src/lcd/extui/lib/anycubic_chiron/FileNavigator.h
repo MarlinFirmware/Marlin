@@ -30,9 +30,7 @@
  */
 
 #include "chiron_tft_defs.h"
-#include <stdint.h>
-
-class FileList;
+#include "../../ui_api.h"
 
 using namespace ExtUI;
 

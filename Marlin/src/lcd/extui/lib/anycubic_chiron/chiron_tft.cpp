@@ -36,11 +36,10 @@
 #include "Tunes.h"
 #include "FileNavigator.h"
 
-#include "../../ui_api.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../libs/numtostr.h"
-
+#include "../../../../MarlinCore.h"
 namespace Anycubic {
 
   printer_state_t  ChironTFT::printer_state;
@@ -94,9 +93,9 @@ namespace Anycubic {
     // Startup tunes are defined in Tunes.h
     //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
     PlayTune(BEEPER_PIN, GB_PowerOn, 1);
-
-    SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
-
+    #if ACDEBUGLEVEL
+      SERIAL_ECHOLNPAIR("AC Debug Level ", ACDEBUGLEVEL);
+    #endif
     SendtoTFTLN(AC_msg_ready);
   }
 
@@ -299,6 +298,7 @@ namespace Anycubic {
    }
    TFTSer.println("");
   }
+ 
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
     while( (TFTSer.available() > 0) && (command_len < MAX_CMND_LEN) ) {
@@ -326,32 +326,6 @@ namespace Anycubic {
     }
     return command_ready;
   }
-
-  /*
-  uint8_t ChironTFT::ReadCommandold() {
-    uint8_t bytes = 0;
-    if (TFTSer.available() > 0) {
-      // Read a single command from the panel
-      //bytes = TFTSer.readBytesUntil('\n', panel_command, MAX_CMND_LEN);
-    }
-    panel_command[bytes] = 0x00;
-
-    if (bytes > 0) {
-      #if ACDEBUG(AC_ALL)
-        SERIAL_ECHOLNPAIR("< ", panel_command);
-      #endif
-      #if ACDEBUG(AC_SOME)
-        // Ignore status request commands
-        uint8_t req = atoi(&panel_command[1]);
-        if (req > 7 && req != 20) {
-          SERIAL_ECHOLNPAIR("> ", panel_command);
-          SERIAL_ECHOLNPAIR("printer_state:", printer_state);
-        }
-      #endif
-    }
-    return bytes;
-  }
-  */
 
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
     bool found = false;
@@ -429,7 +403,7 @@ namespace Anycubic {
   }
 
   void ChironTFT::SelectFile() {
- strncpy(selectedfile,panel_command+4,command_len-4);
+    strncpy(selectedfile,panel_command+4,command_len-4);
     selectedfile[command_len-5] = '\0';
     #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR_F(" Selected File: ",selectedfile);
@@ -474,7 +448,8 @@ namespace Anycubic {
   }
 
   void ChironTFT::PanelInfo(uint8_t req) {
-    // information requests A0-A8 and A33 switch (req) {
+    // information requests A0-A8 and A33 
+    switch (req) {
       case 0:   // A0 Get HOTEND Temp
         SendtoTFT(PSTR("A0V "));
         TFTSer.println(getActualTemp_celsius(E0));
@@ -521,7 +496,7 @@ namespace Anycubic {
       case 7: { // A7 Get Printing Time
         uint32_t time = getProgress_seconds_elapsed() / 60;
         SendtoTFT(PSTR("A7V "));
-        TFTSer.print(ui8tostr2(time / 60);
+        TFTSer.print(ui8tostr2(time / 60));
         SendtoTFT(PSTR(" H "));
         TFTSer.print(ui8tostr2(time % 60));
         SendtoTFT(PSTR(" M"));
@@ -557,7 +532,7 @@ namespace Anycubic {
           SendtoTFTLN(AC_msg_stop);
         break;
 
-      case 10: { // A10 Resume SD Print
+      case 10: // A10 Resume SD Print
         if (pause_state == AC_paused_idle || printer_state == AC_printer_resuming_from_power_outage)
           resumePrint();
         else
@@ -768,7 +743,7 @@ namespace Anycubic {
         }
       } break;
 
-      case 30:   // A30 Auto leveling
+      case 30: {  // A30 Auto leveling
         if (panel_command[3] == 'S') { // Start probing
           // Ignore request if printing
           if (isPrinting())
@@ -780,8 +755,8 @@ namespace Anycubic {
           }
         }
         else SendtoTFTLN(AC_msg_start_probing);
-        break;
-
+      }  break;
+      
       case 31: { // A31 Adjust all Probe Points
         switch (panel_command[3]) {
           case 'C':   // Restore and apply original offsets
@@ -790,7 +765,7 @@ namespace Anycubic {
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-            break;
+          break;
           case 'D':   // Save Z Offset tables and restore levelling state
             if (!isPrinting()) {
               setAxisPosition_mm(1.0,Z);
@@ -798,7 +773,7 @@ namespace Anycubic {
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-            break;
+          break;
           case 'G':   // Get current offset
             SendtoTFT(PSTR("A31V "));
             // When printing use the live z Offset position
@@ -810,7 +785,7 @@ namespace Anycubic {
               selectedmeshpoint.x = 99;
               selectedmeshpoint.y = 99;
             }
-            break;
+          break;
           case 'S': { // Set offset (adjusts all points by value)
             float Zshift = atof(&panel_command[4]);
             setSoftEndstopState(false);  // disable endstops
@@ -860,7 +835,6 @@ namespace Anycubic {
                 setAxisPosition_mm(currZpos+constrain(Zshift,-0.05,0.05),Z);
               }
             }
-
           } break;
         } // end switch
       } break;
@@ -874,7 +848,7 @@ namespace Anycubic {
 
       // A33 firmware info request seet PanelInfo()
 
-      case 34:   // A34 Adjust single mesh point A34 C/S X1 Y1 V123
+      case 34: {  // A34 Adjust single mesh point A34 C/S X1 Y1 V123
         if (panel_command[3] == 'C') { // Restore original offsets
           injectCommands_P(PSTR("M501\nM420 S1"));
           selectedmeshpoint.x = 99;
@@ -906,10 +880,9 @@ namespace Anycubic {
             }
           }
         }
-        break;
+      }  break;
     }
   }
-
 } // namespace
 
 #endif // ANYCUBIC_LCD_CHIRON
