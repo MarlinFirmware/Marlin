@@ -34,6 +34,7 @@
 
 #include "../../../../Version.h"
 
+#include "../../ultralcd.h"
 #include "../../../MarlinCore.h"
 #include "../../../sd/cardreader.h"
 #include "../../../module/temperature.h"
@@ -50,6 +51,11 @@
 #include "../../../feature/bedlevel/abl/abl.h"
 
 #include "../../../libs/duration_t.h"
+
+#if HAS_HOTEND
+  #define MAX_E_TEMP    (HEATER_0_MAXTEMP - (HOTEND_OVERSHOOT))
+  #define MIN_E_TEMP    HEATER_0_MINTEMP
+#endif
 
 char errorway = 0;
 char errornum = 0;
@@ -328,6 +334,17 @@ void RTSSHOW::RTS_Init()
 
   rtscheck.RTS_SndData(StartSoundSet, SoundAddr);
   Update_Time_Value = RTS_UPDATE_VALUE;
+
+  // Load pre-heat settings into struct
+  // ... PLA
+  HMI_ValueStruct.preheat_hotend_temp[0] = ui.material_preset[0].hotend_temp;
+  HMI_ValueStruct.preheat_bed_temp[0] = ui.material_preset[0].bed_temp;
+  HMI_ValueStruct.preheat_fan_speed[0] = ui.material_preset[0].fan_speed;
+
+  // ... ABS
+  HMI_ValueStruct.preheat_hotend_temp[1] = ui.material_preset[1].hotend_temp;
+  HMI_ValueStruct.preheat_bed_temp[1] = ui.material_preset[1].bed_temp;
+  HMI_ValueStruct.preheat_fan_speed[1] = ui.material_preset[1].fan_speed;
   
   rtscheck.change_page(DWINTouchPage::MAIN_MENU);
   
@@ -1152,26 +1169,54 @@ void RTSSHOW::RTS_HandleData()
       break;
     case PLAHeadSetEnterKey:
       HMI_ValueStruct.preheat_hotend_temp[0] = recdat.data[0];
+      NOMORE(HMI_ValueStruct.preheat_hotend_temp[0], MAX_E_TEMP);
+      NOLESS(HMI_ValueStruct.preheat_hotend_temp[0], MIN_E_TEMP);
+
+      ui.material_preset[0].hotend_temp = HMI_ValueStruct.preheat_hotend_temp[0];
+       
       RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[0], PLA_HEAD_SET_DATA_VP);
       break;
     case PLABedSetEnterKey:
       HMI_ValueStruct.preheat_bed_temp[0] = recdat.data[0];
+      NOMORE(HMI_ValueStruct.preheat_bed_temp[0], BED_MAX_TARGET);
+      NOLESS(HMI_ValueStruct.preheat_bed_temp[0], BED_MINTEMP);
+
+      ui.material_preset[0].bed_temp = HMI_ValueStruct.preheat_bed_temp[0];
+
       RTS_SndData(HMI_ValueStruct.preheat_bed_temp[0], PLA_BED_SET_DATA_VP);
       break;
+
     case PLAFanSetEnterKey:
       HMI_ValueStruct.preheat_fan_speed[0] = recdat.data[0];
+      ui.material_preset[0].fan_speed = HMI_ValueStruct.preheat_fan_speed[0];
+
       RTS_SndData(HMI_ValueStruct.preheat_fan_speed[0], PLA_FAN_SET_DATA_VP);
       break;
+
     case ABSHeadSetEnterKey:
       HMI_ValueStruct.preheat_hotend_temp[1] = recdat.data[0];
+      NOMORE(HMI_ValueStruct.preheat_hotend_temp[1], MAX_E_TEMP);
+      NOLESS(HMI_ValueStruct.preheat_hotend_temp[1], MIN_E_TEMP);
+
+      ui.material_preset[1].hotend_temp = HMI_ValueStruct.preheat_hotend_temp[1];
+
       RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[1], ABS_HEAD_SET_DATA_VP);
       break;
+      
     case ABSBedSetEnterKey:
       HMI_ValueStruct.preheat_bed_temp[1] = recdat.data[0];
+      NOMORE(HMI_ValueStruct.preheat_bed_temp[1], BED_MAX_TARGET);
+      NOLESS(HMI_ValueStruct.preheat_bed_temp[1], BED_MINTEMP);
+
+      ui.material_preset[1].bed_temp = HMI_ValueStruct.preheat_bed_temp[1];
+
       RTS_SndData(HMI_ValueStruct.preheat_bed_temp[1], ABS_BED_SET_DATA_VP);
       break;
+
     case ABSFanSetEnterKey:
       HMI_ValueStruct.preheat_fan_speed[1] = recdat.data[0];
+      ui.material_preset[1].fan_speed = HMI_ValueStruct.preheat_fan_speed[1];
+
       RTS_SndData(HMI_ValueStruct.preheat_fan_speed[1], ABS_FAN_SET_DATA_VP);
       break;
     case SelectFileKey:
