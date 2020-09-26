@@ -247,7 +247,7 @@ void GCodeParser::parse(char *p) {
     #if ENABLED(EXPECTED_PRINTER_CHECK)
       case 16:
     #endif
-    case 23: case 28: case 30: case 117: case 118: case 928:
+    case 23: case 28: case 30: case 33: case 117: case 118: case 928:
       string_arg = unescape_string(p);
       return;
     default: break;
