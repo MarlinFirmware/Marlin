@@ -126,12 +126,7 @@
 #endif
 #define LED_PIN                             PB2
 
-#ifdef HAS_GRAPHICAL_TFT
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-#else
+#if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
    * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
@@ -148,10 +143,17 @@
   #define LCD_BACKLIGHT_PIN                 PG11
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF0   // A0
+  #define TFT_CS_PIN                        FSMC_CS_PIN
+  #define TFT_RS_PIN                        FSMC_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+#elif HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
 #endif
 
 #if NEED_TOUCH_PINS
