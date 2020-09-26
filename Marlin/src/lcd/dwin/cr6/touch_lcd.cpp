@@ -341,10 +341,16 @@ void RTSSHOW::RTS_Init()
   HMI_ValueStruct.preheat_bed_temp[0] = ui.material_preset[0].bed_temp;
   HMI_ValueStruct.preheat_fan_speed[0] = ui.material_preset[0].fan_speed;
 
+  RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[0], PLA_HEAD_SET_DATA_VP);
+  RTS_SndData(HMI_ValueStruct.preheat_bed_temp[0], PLA_BED_SET_DATA_VP);
+
   // ... ABS
   HMI_ValueStruct.preheat_hotend_temp[1] = ui.material_preset[1].hotend_temp;
   HMI_ValueStruct.preheat_bed_temp[1] = ui.material_preset[1].bed_temp;
   HMI_ValueStruct.preheat_fan_speed[1] = ui.material_preset[1].fan_speed;
+
+  RTS_SndData(HMI_ValueStruct.preheat_hotend_temp[1], ABS_HEAD_SET_DATA_VP);
+  RTS_SndData(HMI_ValueStruct.preheat_bed_temp[1], ABS_BED_SET_DATA_VP);
   
   rtscheck.change_page(DWINTouchPage::MAIN_MENU);
   
