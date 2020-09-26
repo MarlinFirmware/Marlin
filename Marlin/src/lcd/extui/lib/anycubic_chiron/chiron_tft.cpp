@@ -71,7 +71,6 @@ namespace Anycubic {
     // On a power interruption the OUTAGECON_PIN goes low.
 
     #if ENABLED(POWER_LOSS_RECOVERY)
-      //pinMode(OUTAGETEST_PIN,INPUT);
       OUT_WRITE(OUTAGECON_PIN, HIGH);
     #endif
 
@@ -135,8 +134,8 @@ namespace Anycubic {
 
   void ChironTFT::TimerEvent(timer_event_t event)  {
     #if ACDEBUG(AC_MARLIN)
-      SERIAL_ECHOLNPAIR(PSTR("TimerEvent() "), event);
-      SERIAL_ECHOLNPAIR(PSTR("Printer State: "), printer_state);
+      SERIAL_ECHOLNPAIR("TimerEvent() ", event);
+      SERIAL_ECHOLNPAIR("Printer State: ", printer_state);
     #endif
 
     switch (event) {
@@ -286,13 +285,19 @@ namespace Anycubic {
   }
 
   void ChironTFT::SendtoTFT(PGM_P str) {  // A helper to print PROGMEN string to the panel
-    while (const char c = pgm_read_byte(str++)) TFTSer.print(c); }
+    #if ACDEBUG(AC_SOME)
+      serialprintPGM(str);
+    #endif
+    while (const char c = pgm_read_byte(str++)) TFTSer.print(c); 
+    }
 
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
-    if (str != nullptr) { SendtoTFT(str);
+    if (str != nullptr) { 
       #if ACDEBUG(AC_SOME)
         SERIAL_ECHO("> ");
-        serialprintPGM(str);
+      #endif
+      SendtoTFT(str);
+      #if ACDEBUG(AC_SOME)
         SERIAL_EOL();
       #endif
    }
@@ -351,7 +356,7 @@ namespace Anycubic {
         faultDuration ++;
         if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
           SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
-          SERIAL_ECHOLNPAIR_P(PSTR("Extruder temp abnormal! : "), temp);
+          SERIAL_ECHOLNPAIR("Extruder temp abnormal! : ", temp);
           break;
         }
         delay_ms(500);
@@ -367,7 +372,7 @@ namespace Anycubic {
         faultDuration ++;
         if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
           SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
-          SERIAL_ECHOLNPAIR_P(PSTR("Bed temp abnormal! : "), temp);
+          SERIAL_ECHOLNPAIR_P("Bed temp abnormal! : ", temp);
         break;
         }
         delay_ms(500);
@@ -487,7 +492,8 @@ namespace Anycubic {
       case 6:   // A6 Get printing progress
         if (isPrintingFromMedia()) {
           SendtoTFT(PSTR("A6V "));
-          TFTSer.println(getProgress_percent());
+          TFTSer.println(ui8tostr2(getProgress_percent()));
+
         }
         else
           SendtoTFTLN(PSTR("A6V ---"));
@@ -561,13 +567,13 @@ namespace Anycubic {
         break;
 
       case 14: { // A14 Start Printing
-        // Allows printer to restart the job ifwe dont want to recover
+        // Allows printer to restart the job if we dont want to recover
         if (printer_state == AC_printer_resuming_from_power_outage) {
           injectCommands_P(PSTR("M1000 C\n")); // Cancel recovery
           printer_state = AC_printer_idle;
         }
         #if ACDebugLevel >= 1
-          SERIAL_ECHOLNPAIR_P(PSTR("Print: "), selectedfile);
+          SERIAL_ECHOLNPAIR_F("Print: ", selectedfile);
         #endif
         // the card library needs a path starting // but the File api doesn't...
         char file[MAX_PATH_LEN];
@@ -580,6 +586,8 @@ namespace Anycubic {
       case 15:   // A15 Resuming from outage
         if (printer_state == AC_printer_resuming_from_power_outage)
           // Need to home here to restore the Z position
+          injectCommands_P(AC_cmnd_power_loss_recovery);
+
           injectCommands_P(PSTR("M1000\n"));  // home and start recovery
         break;
 
