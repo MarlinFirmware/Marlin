@@ -213,7 +213,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     clear_lcd();
 
     // Re-initialize custom characters that may be re-used
-    #if HAS_CHARACTER_LCD && DISABLED(TFTGLCD_PANEL)
+    #if HAS_CHARACTER_LCD
       if (TERN1(AUTO_BED_LEVELING_UBL, !ubl.lcd_map_control))
         set_custom_characters(on_status_screen() ? CHARSET_INFO : CHARSET_MENU);
     #endif
