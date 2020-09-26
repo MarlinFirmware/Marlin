@@ -74,7 +74,6 @@
 #define PRINT_TIME_HOUR_VP              0x1010
 #define PRINT_TIME_MIN_VP               0x1012
 #define PRINT_PROCESS_VP                0x1016
-#define SYSTEM_LANGUAGE_TEXT_VP         0x101D
 #define PRINTER_FANOPEN_TITLE_VP        0x101E
 #define PRINTER_LEDOPEN_TITLE_VP        0x101F
 #define AUTO_BED_LEVEL_ZOFFSET_VP       0x1026
@@ -282,7 +281,7 @@ enum PROC_COM
   ZaxismoveKey          = 16,
   HeaterLoadEnterKey    = 17,
   HeaterLoadStartKey    = 18,
-  SelectLanguageKey     = 19,
+
   PowerContinuePrintKey = 20,
   FanSpeedEnterKey      = 21,
   PLAHeadSetEnterKey    = 22,
