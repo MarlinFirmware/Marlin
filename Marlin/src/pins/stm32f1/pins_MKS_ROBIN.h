@@ -126,7 +126,7 @@
 #endif
 #define LED_PIN                             PB2
 
-#ifdef HAS_FSMC_TFT
+#if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
    * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
