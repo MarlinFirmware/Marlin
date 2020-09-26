@@ -36,6 +36,11 @@
   #include "../../module/probe.h"
 #endif
 
+#if HAS_GRAPHICAL_TFT
+  #include "../tft/touch.h"
+  #include "../tft/tft.h"
+#endif
+
 #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
 
   #include "../../module/motion.h"
@@ -159,7 +164,11 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+    if (ui.should_draw()) {
+      MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+      // Color UI needs a control to detect a touch
+      TERN_(HAS_GRAPHICAL_TFT, touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT));
+    }
     if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();
