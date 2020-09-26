@@ -1126,6 +1126,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "The selected board doesn't support enough user-controlled fans. Reduce NUM_M106_FANS."
 #endif
 
+//Chamber fan modes
+#if CHAMBER_FAN_MODE > 2
+  #error "The selected chamber fan mode doesen't exist. Please chach configuration_adv.h"
+#endif
+
 /**
  * Limited number of servos
  */
@@ -1805,6 +1810,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if TEMP_SENSOR_CHAMBER && !PIN_EXISTS(TEMP_CHAMBER)
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN. Please add it to your configuration."
+#endif
+
+#if CHAMBER_VENT_SERVO_NR == Z_PROBE_SERVO_NR && ENABLED(BLTOUCH)
+  #error "CHAMBER SERVO is already used by BLTOUCH. Please change"
 #endif
 
 #if TEMP_SENSOR_PROBE

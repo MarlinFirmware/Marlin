@@ -574,6 +574,12 @@
 #define PREVENT_LENGTHY_EXTRUDE
 #define EXTRUDE_MAXLENGTH 200
 
+// @section CHAMBER
+#if TEMP_SENSOR_CHAMBER
+  #define CHAMBER_FAN
+  #define CHAMBER_VENT
+#endif
+
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
 //===========================================================================

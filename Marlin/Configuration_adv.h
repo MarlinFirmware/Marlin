@@ -136,7 +136,28 @@
   //#define CHAMBER_LIMIT_SWITCHING
   //#define HEATER_CHAMBER_PIN       44   // Chamber heater on/off pin
   //#define HEATER_CHAMBER_INVERTING false
-#endif
+  /**
+  * Custom Chamber fan and servo settings
+  */
+  #if ENABLED(CHAMBER_FAN)
+    #define CHAMBER_FAN_MODE 2 //control fan mode; 0=static, 1=linear increase when temp is higher than target, 2=V-shaped curve, 
+    #if CHAMBER_FAN_MODE == 0
+      #define CHAMBER_FAN_BASE 255
+    #elif CHAMBER_FAN_MODE == 1
+    #elif CHAMBER_FAN_MODE == 2
+      #define CHAMBER_FAN_BASE 128
+      #define CHAMBER_FAN_FACTOR 25 //PWM increase per 1°C of difference from the target temperature
+    #endif
+  #endif
+
+  #if ENABLED(CHAMBER_VENT)
+    #define CHAMBER_VENT_SERVO_NR 1
+    #define HIGH_EXCESS_HEAT_LIMIT 5 //How much above target temp to consider there is excess heat in the chamber
+    #define LOW_EXCESS_HEAT_LIMIT 3
+    #define MIN_COOLING_SLOPE_TIME_CHAMBER_VENT 20
+    #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
+  #endif
+#endif //HAS CHAMBER TEMP
 
 #if DISABLED(PIDTEMPBED)
   #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
@@ -204,8 +225,8 @@
  * Thermal Protection parameters for the heated chamber.
  */
 #if ENABLED(THERMAL_PROTECTION_CHAMBER)
-  #define THERMAL_PROTECTION_CHAMBER_PERIOD    20 // Seconds
-  #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 2 // Degrees Celsius
+  #define THERMAL_PROTECTION_CHAMBER_PERIOD    45 // Seconds
+  #define THERMAL_PROTECTION_CHAMBER_HYSTERESIS 4 // Degrees Celsius
 
   /**
    * Heated chamber watch settings (M141/M191).
