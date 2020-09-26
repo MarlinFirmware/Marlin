@@ -576,8 +576,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
 
   #if HAS_CUSTOM_USER_BUTTONS
     // Handle a custom user button if defined as part of a user-defined menu item
-    // Debug macro on https://godbolt.org/z/SJDZmp
-    #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(USER_GCODE_PIN_##N) && defined(USER_GCODE_PIN_STATE_##N) && defined(USER_GCODE_##N) && defined(USER_DESC_##N))
+    #define HAS_CUSTOM_USER_BUTTON(N) ((defined(USER_GCODE_PIN_##N) && USER_GCODE_PIN_##N >= 0) && defined(USER_GCODE_PIN_STATE_##N) && defined(USER_GCODE_##N) && defined(USER_DESC_##N))
     #define CHECK_CUSTOM_USER_BUTTON(N) do{                       \
       constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 1000UL;         \
       static millis_t next_cub_ms_##N;                            \
