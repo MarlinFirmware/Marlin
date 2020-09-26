@@ -341,33 +341,26 @@ void MMU2::mmu_loop() {
       #endif
 
       if (rx_ok()) {
-        #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
-        if(last_cmd == MMU_CMD_C0)
-        {
-          if(mmu2s_triggered) // MMU ok and filament sensor ok
-          {
+        // response to C0 mmu command in PRUSA_MMU2_S_MODE
+        if (ENABLED(PRUSA_MMU2_S_MODE) && last_cmd == MMU_CMD_C0) {
+          if (mmu2s_triggered) { // MMU ok and filament sensor ok
             DEBUG_ECHOLNPGM("MMU => 'ok'");
             ready = true;
             state = 1;
             last_cmd = MMU_CMD_NONE;
           }
-          else // MMU ok received but filament sensor not triggered, retrying...
-          {
+          else { // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (filament not present in gears)");
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
             tx_str_P(PSTR("C0\n"));
           }
         }
-        else
-        {
-        #endif
-        DEBUG_ECHOLNPGM("MMU => 'ok'");
-        ready = true;
-        state = 1;
-        last_cmd = MMU_CMD_NONE;
-        #if ENABLED(PRUSA_MMU2_S_MODE) // response to C0 mmu command in PRUSA_MMU2_S_MODE
+        else {
+          DEBUG_ECHOLNPGM("MMU => 'ok'");
+          ready = true;
+          state = 1;
+          last_cmd = MMU_CMD_NONE;
         }
-        #endif
       }
       else if (ELAPSED(millis(), prev_request + MMU_CMD_TIMEOUT)) {
         // resend request after timeout
@@ -885,17 +878,17 @@ void MMU2::filament_runout() {
 
   void MMU2::check_filament() {
     const bool present = FILAMENT_PRESENT();
-    if(cmd == MMU_CMD_NONE && last_cmd == MMU_CMD_C0)
-    {
+    if (cmd == MMU_CMD_NONE && last_cmd == MMU_CMD_C0) {
       if (present && !mmu2s_triggered) {
         DEBUG_ECHOLNPGM("MMU <= 'A'");
         tx_str_P(PSTR("A\n"));
       }
-      // Slowly spins the extruder while C0 is being executed
-      else while(planner.movesplanned()<3)
-      {
-        current_position.e += 0.25;
-        line_to_current_position(MMM_TO_MMS(120));
+      // Slowly spin the extruder during C0
+      else {
+        while (planner.movesplanned() < 3) {
+          current_position.e += 0.25;
+          line_to_current_position(MMM_TO_MMS(120));
+        }
       }
     }
     mmu2s_triggered = present;
