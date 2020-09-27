@@ -161,6 +161,7 @@ void Sd2Card::chipDeselect() {
 }
 
 void Sd2Card::chipSelect() {
+  spiInit(spiRate_);
   extDigitalWrite(chipSelectPin_, LOW);
 }
 

@@ -209,7 +209,7 @@
     #endif
   
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and TFTGLCD_PANEL are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864 and TFTGLCD_PANEL are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_SPI_LCD

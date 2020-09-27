@@ -63,6 +63,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
       ubl.encoder_diff * 0.005f / ENCODER_PULSES_PER_STEP,
       ubl.encoder_diff > 0 ? 0.005f : -0.005f
     );
+    ubl.encoder_diff = 0;
     #if DISABLED(TFTGLCD_PANEL)
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }

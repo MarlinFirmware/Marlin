@@ -688,7 +688,7 @@
 
     #elif ENABLED(TFTGLCD_PANEL)
     
-      #define SD_DETECT_PIN                 49
+      #define SD_DETECT_PIN                   49
 
     #else
 

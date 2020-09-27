@@ -496,19 +496,19 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
-FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *prefix, const bool blink) {
+FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *prefix, const bool blink) {
   uint8_t pic_hot_bits;
   #if HAS_HEATED_BED
-    const bool isBed = heater < 0;
-    const float t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater));
-    const float t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater));
+    const bool isBed = heater_id < 0;
+    const float t1 = (isBed ? thermalManager.degBed() : thermalManager.degHotend(heater_id));
+    const float t2 = (isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater_id));
   #else
-    const float t1 = thermalManager.degHotend(heater);
-    const float t2 = thermalManager.degTargetHotend(heater);
+    const float t1 = thermalManager.degHotend(heater_id);
+    const float t2 = thermalManager.degTargetHotend(heater_id);
   #endif
 
   #if HOTENDS < 2
-    if (heater == H_E0) {
+    if (heater_id == H_E0) {
       lcd.setCursor(2, 5);  lcd.print(prefix); //HE
       lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
       lcd.setCursor(1, 7);
@@ -519,10 +519,10 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
       lcd.setCursor(6, 7);
     }
   #else
-    if (heater > H_BED) {
-      lcd.setCursor(heater * 4, 5);  lcd.print(prefix); //HE1 or HE2 or HE3
-      lcd.setCursor(heater * 4, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
-      lcd.setCursor(heater * 4, 7); 
+    if (heater_id > H_BED) {
+      lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); //HE1 or HE2 or HE3
+      lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
+      lcd.setCursor(heater_id * 4, 7); 
     }
     else {
       lcd.setCursor(13, 5);  lcd.print(prefix); //BED
@@ -534,12 +534,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
   #else
-    const bool is_idle = (
-    #if HAS_HEATED_BED
-      isBed ? thermalManager.bed_idle.timed_out :
-    #endif
-      thermalManager.hotend_idle[heater].timed_out);
-    if (!blink && is_idle) {
+    if (!blink && thermalManager.heater_idle[thermalManager.idle_index_for_id(heater_id)].timed_out) {
       lcd.write(' ');
       if (t2 >= 10) lcd.write(' ');
       if (t2 >= 100) lcd.write(' ');
@@ -548,7 +543,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
   #endif // !HEATER_IDLE_HANDLER
       lcd.print(i16tostr3rj(t2 + 0.5));
 
-  switch (heater) {
+  switch (heater_id) {
     case H_BED: pic_hot_bits = ICON_BED;   break;
     case H_E0:  pic_hot_bits = ICON_TEMP1; break;
     case H_E1:  pic_hot_bits = ICON_TEMP2; break;
