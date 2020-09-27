@@ -1753,11 +1753,17 @@ inline void Redraw_SD_List() {
 
   Draw_Back_First();
 
-  // As many files as will fit
-  LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
-    Draw_SDItem(i, i + 1);
+  if (card.isMounted()) {
+    // As many files as will fit
+    LOOP_L_N(i, _MIN(nr_sd_menu_items(), MROWS))
+      Draw_SDItem(i, i + 1);
 
-  TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
+    TERN_(SCROLL_LONG_FILENAMES, Init_SDItem_Shift());
+  }
+  else {
+    DWIN_Draw_Rectangle(1, Color_Bg_Red, 10, MBASE(3) - 10, DWIN_WIDTH - 10, MBASE(4));
+    DWIN_Draw_String(false, false, font16x32, Color_Yellow, Color_Bg_Red, ((DWIN_WIDTH) - 8 * 16) / 2, MBASE(3), F("No Media"));
+  }
 }
 
 bool DWIN_lcd_sd_status = false;
