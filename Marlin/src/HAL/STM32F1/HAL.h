@@ -111,7 +111,7 @@
   #define NUM_SERIAL 1
 #endif
 
-#ifdef DGUS_SERIAL
+#ifdef DGUS_SERIAL_PORT
   #if DGUS_SERIAL_PORT == 0
     #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
   #elif DGUS_SERIAL_PORT == SERIAL_PORT
