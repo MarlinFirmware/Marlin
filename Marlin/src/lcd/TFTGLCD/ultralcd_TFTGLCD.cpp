@@ -419,7 +419,9 @@ bool MarlinUI::detected() {
 }
 
 void MarlinUI::clear_lcd() {
-  if (PanelDetected) lcd.clear_buffer();
+  if (!PanelDetected) return;
+  lcd.clear_buffer();
+  lcd.print_screen();
 }
 
 int16_t MarlinUI::contrast; // Initialized by settings.load()
@@ -587,7 +589,17 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
   if (!PanelDetected) return;
-    lcd.write('%'); lcd.write(percent);
+    if (fb == &framebuffer[0] + LCD_WIDTH * 2) {  // for status screen
+      lcd.write('%'); lcd.write(percent);
+    }
+    else { // for progress bar test
+      lcd.setCursor(LCD_WIDTH / 2 - 2, LCD_HEIGHT / 2 - 2);
+      lcd.print(i16tostr3rj(percent));  lcd.write('%');
+      lcd.print_line();
+      lcd.setCursor(0, LCD_HEIGHT / 2 - 1);
+      lcd.write('%'); lcd.write(percent);
+      lcd.print_line();
+    }
   }
 
 #endif
@@ -856,36 +868,14 @@ void MarlinUI::draw_status_screen() {
   #include "../menu/menu.h"
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    
-    FORCE_INLINE void _draw_heater_status_line(const heater_ind_t heater, const bool blink) {
-      const float t1 = thermalManager.degHotend(heater);
-      const float t2 = thermalManager.degTargetHotend(heater);
 
-      lcd.write(0x02);  //THERMOMETER_CHAR
-      lcd.write(' ');
-      lcd.print(i16tostr3rj(t1 + 0.5)); lcd.write('/');
-
-      #if !HEATER_IDLE_HANDLER
-        UNUSED(blink);
-      #else
-        const bool is_idle = thermalManager.hotend_idle[heater].timed_out;
-
-        if (!blink && is_idle) {
-          lcd.write(' ');
-          if (t2 >= 10) lcd.write(' ');
-          if (t2 >= 100) lcd.write(' ');
-        }
-        else
-      #endif  //!HEATER_IDLE_HANDLER
-          lcd.print(i16tostr3rj(t2 + 0.5));  lcd.write(0x01);  //DEGREE_CHAR
-    }
-    
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (!PanelDetected) return;
-      if (row < LCD_HEIGHT) {
-        lcd.setCursor(LCD_WIDTH - 10, row);
-        _draw_heater_status_line((heater_ind_t)extruder, get_blink());
-      }
+      lcd.setCursor((LCD_WIDTH - 14) / 2, row + 1);
+      lcd.write(0x02);  lcd_put_u8str_P(" E"); lcd.write('1' + extruder); lcd.write(' ');
+      lcd.print(i16tostr3rj(thermalManager.degHotend(extruder))); lcd.write(0x01);  lcd.write('/');
+      lcd.print(i16tostr3rj(thermalManager.degTargetHotend(extruder)));  lcd.write(0x01);
+      lcd.print_line();
     }
 
   #endif // ADVANCED_PAUSE_FEATURE
@@ -902,6 +892,7 @@ void MarlinUI::draw_status_screen() {
     n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, n);
     if (valstr) n -= lcd_put_u8str_max(valstr, n);
     for (; n; --n) lcd.write(' ');
+    lcd.print_line();
   }
 
   // Draw a generic menu item with pre_char (if selected) and post_char
@@ -912,6 +903,7 @@ void MarlinUI::draw_status_screen() {
     uint8_t n = lcd_put_u8str_ind_P(pstr, itemIndex, itemString, LCD_WIDTH - 2);
     for (; n; --n) lcd.write(' ');
     lcd.write(post_char);
+    lcd.print_line();
   }
 
   // Draw a menu item with a (potentially) editable value
@@ -926,6 +918,7 @@ void MarlinUI::draw_status_screen() {
       for (; n; --n) lcd.write(' ');
       if (pgm) lcd_put_u8str_P(data); else lcd_put_u8str(data);
     }
+    lcd.print_line();
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
@@ -967,6 +960,7 @@ void MarlinUI::draw_status_screen() {
       uint8_t n = maxlen - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), maxlen);
       for (; n; --n) lcd.write(' ');
       lcd.write(isDir ? LCD_STR_FOLDER[0] : ' ');
+      lcd.print_line();
     }
 
   #endif // SDSUPPORT
