@@ -319,7 +319,7 @@ inline bool serial_data_available() {
   #endif
   #ifdef ETHERNET_SUPPORT
     if (have_telnet_client) {
-      if (telnetClient.available() > 0) {
+      if (telnetClient.available()) {
         data_available++;
       }
     }
@@ -334,9 +334,7 @@ inline int read_serial(const uint8_t index) {
     case 1:
     #ifdef ETHERNET_SUPPORT
       if (have_telnet_client)
-        if (telnetClient.available() > 0) {
-          return telnetClient.read(); // was getting occasional hangs when reading if data was not available
-        }
+        return telnetClient.read();
       return -1;
     #else
       return MYSERIAL1.read();
