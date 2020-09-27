@@ -115,7 +115,7 @@
  * Select a secondary serial port on the board to use for communication with the host.
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 3
+//#define SERIAL_PORT_2 3
 
 /**
  * This setting determines the communication speed of the printer.
@@ -2165,6 +2165,8 @@
 //#define DGUS_LCD_UI_ORIGIN
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
+
+#define DGUS_LCD_UI_CREALITY_TOUCH
 
 //
 // Touch-screen LCD for Malyan M200/M300 printers

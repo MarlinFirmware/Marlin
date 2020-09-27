@@ -35,7 +35,9 @@
   #include "../../lcd/ultralcd.h"
 #elif ENABLED(EXTENSIBLE_UI)
   #include "../../lcd/extui/ui_api.h"
-#elif ENABLED(DWIN_CREALITY_TOUCHLCD) 
+#endif
+
+#if ENABLED(DWIN_CREALITY_TOUCHLCD) 
   #include "../../lcd/dwin/dwin_touch_lcd.h"
 #endif
 

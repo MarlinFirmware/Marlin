@@ -359,10 +359,10 @@ void RTSSHOW::RTS_Init()
 
 int RTSSHOW::RTS_RecData()
 {
-  while(MYSERIAL1.available() > 0 && (recnum < SizeofDatabuf))
+  while(DGUS_SERIAL.available() > 0 && (recnum < SizeofDatabuf))
   {
     delay(1);
-    databuf[recnum] = MYSERIAL1.read();
+    databuf[recnum] = DGUS_SERIAL.read();
     if(databuf[0] == FHONE)
     {
       recnum++;
@@ -488,11 +488,11 @@ void RTSSHOW::RTS_SndData(void)
     }
     // for(int i = 0;i < (snddat.len + 3);i ++)
     // {
-    //   MYSERIAL1.write(databuf[i]);
+    //   DGUS_SERIAL.write(databuf[i]);
     //   delayMicroseconds(1);
     // }
-    usart_tx(MYSERIAL1.c_dev(), databuf, snddat.len + 3);
-    MYSERIAL1.flush();
+    usart_tx(DGUS_SERIAL.c_dev(), databuf, snddat.len + 3);
+    DGUS_SERIAL.flush();
 
     memset(&snddat, 0, sizeof(snddat));
     memset(databuf, 0, sizeof(databuf));
@@ -528,7 +528,7 @@ void RTSSHOW::RTS_SndData(const char *str, unsigned long addr, unsigned char cmd
 
     for(int i = 0;i < (len + 6);i ++)
     {
-      MYSERIAL1.write(databuf[i]);
+      DGUS_SERIAL.write(databuf[i]);
       delayMicroseconds(1);
     }
     memset(databuf, 0, sizeof(databuf));
