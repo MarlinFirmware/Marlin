@@ -1099,7 +1099,7 @@ void Goto_PrintProcess() {
 
   // Copy into filebuf string before entry
   char * const name = card.longest_filename();
-  const int8_t npos = _MAX(0, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
+  const int8_t npos = _MAX(0U, DWIN_WIDTH - strlen(name) * MENU_CHR_W) / 2;
   DWIN_Draw_String(false, false, font8x16, Color_White, Color_Bg_Black, npos, 60, name);
 
   DWIN_ICON_Show(ICON, ICON_PrintTime, 17, 193);
@@ -1787,7 +1787,7 @@ inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
   inline void Draw_SDItem_Shifted(int8_t &shift) {
     // Limit to the number of chars past the cutoff
     const size_t len = strlen(shift_name);
-    NOMORE(shift, _MAX((signed)len - MENU_CHAR_LIMIT, 0));
+    NOMORE(shift, _MAX(len - MENU_CHAR_LIMIT, 0U));
 
     // Shorten to the available space
     const size_t lastchar = _MIN((signed)len, shift + MENU_CHAR_LIMIT);
