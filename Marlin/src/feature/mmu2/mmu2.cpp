@@ -838,8 +838,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
       if (move_axes && all_axes_homed()) {
         LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
-        BUZZ(200, 404);
-        BUZZ(200, 404);
+        BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
 
         // Move XY to starting position, then Z
         do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
@@ -848,8 +847,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
       else {
-        BUZZ(200, 404);
-        BUZZ(200, 404);
+        BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
         LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
       }
     }

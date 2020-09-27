@@ -53,7 +53,7 @@
   #include "../feature/pause.h"
 #endif
 
-#define DEBUG_OUT ENABLED(DEBUG_CARDREADER)
+#define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
 
 // public:
@@ -716,7 +716,7 @@ void CardReader::beginautostart() {
   cdroot();
 }
 
-void CardReader::closefile(const bool store_location) {
+void CardReader::closefile(const bool store_location/*=false*/) {
   file.sync();
   file.close();
   flag.saving = flag.logging = false;

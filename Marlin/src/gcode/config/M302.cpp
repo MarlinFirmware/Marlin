@@ -37,7 +37,7 @@
  *
  *       M302         ; report current cold extrusion state
  *       M302 P0      ; enable cold extrusion checking
- *       M302 P1      ; disables cold extrusion checking
+ *       M302 P1      ; disable cold extrusion checking
  *       M302 S0      ; always allow extrusion (disables checking)
  *       M302 S170    ; only allow extrusion above 170
  *       M302 S170 P1 ; set min extrude temp to 170 but leave disabled
