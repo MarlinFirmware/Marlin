@@ -236,7 +236,6 @@
   #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
                                       // At this time present conversion only for cyrillic - bg, ru and uk languages.
                                       // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
-
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)
@@ -521,6 +520,8 @@
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
+#elif EXTRUDERS > 1
+  #define HAS_MULTI_EXTRUDER 1
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS

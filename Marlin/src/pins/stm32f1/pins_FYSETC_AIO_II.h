@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -93,10 +93,10 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  Serial1
-  #define Y_HARDWARE_SERIAL  Serial1
-  #define Z_HARDWARE_SERIAL  Serial1
-  #define E0_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL  MSerial1
+  #define Y_HARDWARE_SERIAL  MSerial1
+  #define Z_HARDWARE_SERIAL  MSerial1
+  #define E0_HARDWARE_SERIAL MSerial1
 
   // The 4xTMC2209 module doesn't have a serial multiplexer and
   // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0

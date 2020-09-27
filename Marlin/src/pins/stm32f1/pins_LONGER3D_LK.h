@@ -22,7 +22,7 @@
  * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
  */
 
-#if !defined(__STM32F1__) && !defined(STM32F1xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."

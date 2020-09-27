@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 6 || E_STEPPERS > 6
   #error "FLYF407ZG supports up to 6 hotends / E-steppers."

@@ -27,8 +27,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 #include "../../ui_api.h"
-#include "../../../../MarlinCore.h" // for quickstop_stepper and disable_steppers
-#include "../../../../module/motion.h"	// for A20 read printing speed feedrate_percentage
+#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
 
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
@@ -59,12 +59,12 @@ char *itostr2(const uint8_t &x) {
 }
 
 static void sendNewLine(void) {
-  ANYCUBIC_LCD_SERIAL.write('\r');
-  ANYCUBIC_LCD_SERIAL.write('\n');
+  LCD_SERIAL.write('\r');
+  LCD_SERIAL.write('\n');
 }
 
 static void send(const char *str) {
-  ANYCUBIC_LCD_SERIAL.print(str);
+  LCD_SERIAL.print(str);
 }
 
 static void sendLine(const char *str) {
@@ -74,7 +74,7 @@ static void sendLine(const char *str) {
 
 static void send_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++))
-    ANYCUBIC_LCD_SERIAL.write(c);
+    LCD_SERIAL.write(c);
 }
 
 static void sendLine_P(PGM_P str) {
@@ -113,18 +113,20 @@ static void sendLine_P(PGM_P str) {
 AnycubicTFTClass::AnycubicTFTClass() {}
 
 void AnycubicTFTClass::OnSetup() {
-  ANYCUBIC_LCD_SERIAL.begin(115200);
+  #ifndef LCD_BAUDRATE
+    #define LCD_BAUDRATE 115200
+  #endif
+  LCD_SERIAL.begin(LCD_BAUDRATE);
+
   SENDLINE_DBG_PGM("J17", "TFT Serial Debug: Main board reset... J17"); // J17 Main board reset
   ExtUI::delay_ms(10);
 
   // initialise the state of the key pins running on the tft
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    pinMode(SD_DETECT_PIN, INPUT);
-    WRITE(SD_DETECT_PIN, HIGH);
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    pinMode(FIL_RUNOUT_PIN, INPUT);
-    WRITE(FIL_RUNOUT_PIN, HIGH);
+    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
@@ -574,8 +576,8 @@ void AnycubicTFTClass::OnPrintTimerStopped() {
 
 void AnycubicTFTClass::GetCommandFromTFT() {
   char *starpos = NULL;
-  while (ANYCUBIC_LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
-    serial3_char = ANYCUBIC_LCD_SERIAL.read();
+  while (LCD_SERIAL.available() > 0  && TFTbuflen < TFTBUFSIZE) {
+    serial3_char = LCD_SERIAL.read();
     if (serial3_char == '\n' ||
         serial3_char == '\r' ||
         serial3_char == ':'  ||
@@ -637,11 +639,11 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             float yPostition = ExtUI::getAxisPosition_mm(ExtUI::Y);
             float zPostition = ExtUI::getAxisPosition_mm(ExtUI::Z);
             SEND_PGM("A5V X: ");
-            ANYCUBIC_LCD_SERIAL.print(xPostition);
+            LCD_SERIAL.print(xPostition);
             SEND_PGM(" Y: ");
-            ANYCUBIC_LCD_SERIAL.print(yPostition);
+            LCD_SERIAL.print(yPostition);
             SEND_PGM(" Z: ");
-            ANYCUBIC_LCD_SERIAL.print(zPostition);
+            LCD_SERIAL.print(zPostition);
             SENDLINE_PGM("");
           }
           break;

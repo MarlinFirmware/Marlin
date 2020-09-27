@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
@@ -178,7 +178,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -282,7 +282,16 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if ENABLED(TFTGLCD_PANEL)
+
+  #if ENABLED(SPI_PANEL)
+    #define DOGLCD_CS                       PG10
+  #endif
+
+  #define BEEPER_PIN                        -1
+  #define BTN_ENC                           -1
+
+#elif HAS_SPI_LCD
 
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
@@ -308,14 +317,6 @@
     #define DOGLCD_CS                       PG3
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
-
-  #elif ENABLED(TFTGLCD_PANEL)
-
-    #undef BEEPER_PIN
-    #undef BTN_ENC
-    #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                     PG10
-    #endif
 
   #else
 
@@ -355,20 +356,20 @@
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
-  #endif
-
 #endif // HAS_SPI_LCD
+
+// Alter timing for graphical display
+#if HAS_GRAPHICAL_LCD
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+  #endif
+#endif
 
 //
 // WIFI

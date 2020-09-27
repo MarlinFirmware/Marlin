@@ -186,13 +186,13 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
 
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       info.active_extruder = active_extruder;
     #endif
 
     #if DISABLED(NO_VOLUMETRICS)
       info.volumetric_enabled = parser.volumetric_enabled;
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         for (int8_t e = 0; e < EXTRUDERS; e++) info.filament_size[e] = planner.filament_size[e];
       #else
         if (parser.volumetric_enabled) info.filament_size[0] = planner.filament_size[active_extruder];
@@ -369,7 +369,7 @@ void PrintJobRecovery::resume() {
 
   // Recover volumetric extrusion state
   #if DISABLED(NO_VOLUMETRICS)
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       for (int8_t e = 0; e < EXTRUDERS; e++) {
         sprintf_P(cmd, PSTR("M200 T%i D%s"), e, dtostrf(info.filament_size[e], 1, 3, str_1));
         gcode.process_subcommands_now(cmd);
@@ -411,7 +411,7 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Select the previously active tool (with no_move)
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     sprintf_P(cmd, PSTR("T%i S"), info.active_extruder);
     gcode.process_subcommands_now(cmd);
   #endif
@@ -543,7 +543,7 @@ void PrintJobRecovery::resume() {
 
         DEBUG_ECHOLNPAIR("feedrate: ", info.feedrate);
 
-        #if EXTRUDERS > 1
+        #if HAS_MULTI_EXTRUDER
           DEBUG_ECHOLNPAIR("active_extruder: ", int(info.active_extruder));
         #endif
 

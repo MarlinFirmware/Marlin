@@ -25,7 +25,7 @@
  * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
-#if !defined(STM32F1) && !defined(STM32F1xx)
+#if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -57,10 +57,6 @@
 #define Y_STOP_PIN                          PA12
 #define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
-#endif
 
 //
 // Steppers
@@ -123,24 +119,32 @@
 //
 // Misc. Functions
 //
-#define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PA3   // PW_OFF
+#if HAS_TFT_LVGL_UI
+  //#define MKSPWC
+  #ifdef MKSPWC
+    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
+    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
+    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
+    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+  #endif
 
-//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define SUICIDE_PIN_INVERTING            false
+  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
+  #define MT_DET_2_PIN                      PE6   // LVGL UI FILAMENT RUNOUT2 PIN
+  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
 
-//#define KILL_PIN                          PA2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support ROBIN NANO v1.2 ONLY
+  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
+#else
+  //#define POWER_LOSS_PIN                  PA2   // PW_DET
+  //#define PS_ON_PIN                       PB2   // PW_OFF
+  #define FIL_RUNOUT_PIN                    PA4
+  #define FIL_RUNOUT2_PIN                   PE6
+#endif
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 
 //#define LED_PIN                           PB2
-
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_2_PIN                        PE6
-#define MT_DET_PIN_INVERTING               false
-
-#define WIFI_IO0_PIN                        PC13
 
 //
 // SD Card

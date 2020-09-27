@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,7 +32,7 @@
 #include "../../libs/duration_t.h"
 
 ////////////////////////////////////
-// Setup button and encode mappings for each panel (into 'buttons' variable
+// Set up button and encode mappings for each panel (into 'buttons' variable)
 //
 // This is just to map common functions (across different panels) onto the same
 // macro name. The mapping is independent of whether the button is directly connected or
@@ -57,21 +57,16 @@ class TFTGLCD {
 #include "../fontutils.h"
 #include "../lcdprint.h"
 
-//use panel encoder - free old encoder pins
-#ifdef BTN_EN1
-  #undef  BTN_EN1
-  #define BTN_EN1     -1
-#endif
-#ifdef BTN_EN2
-  #undef  BTN_EN2
-  #define BTN_EN2     -1
-#endif
-#ifdef BTN_ENC
-  #undef  BTN_ENC
-  #define BTN_ENC     -1
-#endif
+// Use panel encoder - free old encoder pins
+#undef  BTN_EN1
+#undef  BTN_EN2
+#undef  BTN_ENC
+#define BTN_EN1     -1
+#define BTN_EN2     -1
+#define BTN_ENC     -1
+
 #ifndef EN_C
-  #define EN_C        4 //for click
+  #define EN_C       4 //for click
 #endif
 
-#endif
+#endif // TFTGLCD_PANEL

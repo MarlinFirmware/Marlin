@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F1
+#if NOT_TARGET(TARGET_STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -209,7 +209,7 @@
     #endif
   
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864 and TFTGLCD_PANEL are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and TFTGLCD_PANEL are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_SPI_LCD
@@ -268,12 +268,12 @@
   #define SD_DETECT_PIN                     PC4
 #endif
 
-#if ANY(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050, TFTGLCD_PANEL) && SD_CONNECTION_IS(LCD)
+#if (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || ENABLED(TFTGLCD_PANEL)) && SD_CONNECTION_IS(LCD)
   #define SD_DETECT_PIN                     PB5
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif
 
-#define ON_BOARD_SPI_DEVICE                    1  // SPI1
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

@@ -103,8 +103,6 @@
 #endif
 
 #if DISABLED(TFTGLCD_PANEL)
-
   #include "../fontutils.h"
   #include "../lcdprint.h"
-
 #endif

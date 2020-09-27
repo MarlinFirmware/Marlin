@@ -328,6 +328,37 @@ public:
     static inline void init_lcd() {}
   #endif
 
+  #if HAS_PRINT_PROGRESS
+    #if HAS_PRINT_PROGRESS_PERMYRIAD
+      typedef uint16_t progress_t;
+      #define PROGRESS_SCALE 100U
+      #define PROGRESS_MASK 0x7FFF
+    #else
+      typedef uint8_t progress_t;
+      #define PROGRESS_SCALE 1U
+      #define PROGRESS_MASK 0x7F
+    #endif
+    #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+      static progress_t progress_override;
+      static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
+      static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
+      static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
+      #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+        static uint32_t remaining_time;
+        FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
+        FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
+        FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
+      #endif
+    #endif
+    static progress_t _get_progress();
+    #if HAS_PRINT_PROGRESS_PERMYRIAD
+      FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
+    #endif
+    static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
+  #else
+    static constexpr uint8_t get_progress_percent() { return 0; }
+  #endif
+
   #if HAS_DISPLAY
 
     static void init();
@@ -349,37 +380,6 @@ public:
     static void abort_print();
     static void pause_print();
     static void resume_print();
-
-    #if HAS_PRINT_PROGRESS
-      #if HAS_PRINT_PROGRESS_PERMYRIAD
-        typedef uint16_t progress_t;
-        #define PROGRESS_SCALE 100U
-        #define PROGRESS_MASK 0x7FFF
-      #else
-        typedef uint8_t progress_t;
-        #define PROGRESS_SCALE 1U
-        #define PROGRESS_MASK 0x7F
-      #endif
-      #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-        static progress_t progress_override;
-        static void set_progress(const progress_t p) { progress_override = _MIN(p, 100U * (PROGRESS_SCALE)); }
-        static void set_progress_done() { progress_override = (PROGRESS_MASK + 1U) + 100U * (PROGRESS_SCALE); }
-        static void progress_reset() { if (progress_override & (PROGRESS_MASK + 1U)) set_progress(0); }
-        #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-          static uint32_t remaining_time;
-          FORCE_INLINE static void set_remaining_time(const uint32_t r) { remaining_time = r; }
-          FORCE_INLINE static uint32_t get_remaining_time() { return remaining_time; }
-          FORCE_INLINE static void reset_remaining_time() { set_remaining_time(0); }
-        #endif
-      #endif
-      static progress_t _get_progress();
-      #if HAS_PRINT_PROGRESS_PERMYRIAD
-        FORCE_INLINE static uint16_t get_progress_permyriad() { return _get_progress(); }
-      #endif
-      static uint8_t get_progress_percent() { return uint8_t(_get_progress() / (PROGRESS_SCALE)); }
-    #else
-      static constexpr uint8_t get_progress_percent() { return 0; }
-    #endif
 
     #if HAS_SPI_LCD
 
@@ -680,6 +680,10 @@ public:
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     static void touch_calibration();
+  #endif
+
+  #if HAS_GRAPHICAL_TFT
+    static void move_axis_screen();
   #endif
 
 private:

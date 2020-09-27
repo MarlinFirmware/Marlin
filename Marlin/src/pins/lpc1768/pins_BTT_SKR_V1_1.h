@@ -72,7 +72,7 @@
     #if ENABLED(SPI_PANEL)
       #define DOGLCD_CS                    P3_26
     #endif
-  
+
     #define SD_DETECT_PIN                  P1_31
 
   #else
@@ -92,9 +92,9 @@
       #define DOGLCD_A0                    P0_16
     #endif
 
-  #endif  //TFTGLCD_PANEL
+  #endif // TFTGLCD_PANEL
 
-#endif
+#endif // HAS_SPI_LCD
 
 //
 // SD Support

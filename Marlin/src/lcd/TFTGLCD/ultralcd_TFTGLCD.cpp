@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -135,8 +135,8 @@ void TFTGLCD::clear_buffer() {
 
 //set new text cursor position
 void TFTGLCD::setCursor(uint8_t col, uint8_t row) {
-    fb = &framebuffer[0] + col + row * LCD_WIDTH;
-    cour_line = row;
+  fb = &framebuffer[0] + col + row * LCD_WIDTH;
+  cour_line = row;
 }
 
 //send char to buffer
@@ -146,11 +146,11 @@ void TFTGLCD::write(char c) {
 
 //send text line to buffer
 void TFTGLCD::print(const char *line) {
-    while (*line)  *fb++ = *line++;
+  while (*line) *fb++ = *line++;
 }
 
-//for menu
-void TFTGLCD::print_line(){
+// For menu
+void TFTGLCD::print_line() {
   if (!PanelDetected) return;
   #if ENABLED(SPI_PANEL)
     digitalWrite(DOGLCD_CS, LOW);
@@ -183,7 +183,7 @@ void TFTGLCD::print_line(){
     Wire.write(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);  //transfer 1 line to txBuffer
     Wire.endTransmission(); //transmit data
     safe_delay(1);
-#endif
+  #endif
 }
 
 void TFTGLCD::print_screen(){
@@ -191,7 +191,7 @@ void TFTGLCD::print_screen(){
   framebuffer[FBSIZE - 2] = picBits & PIC_MASK;
   framebuffer[FBSIZE - 1] = ledBits;
   #if ENABLED(SPI_PANEL)
-    //send all framebuffer to panel
+    // Send all framebuffer to panel
     digitalWrite(DOGLCD_CS, LOW);
     #if defined(__AVR__)
       SPI.transfer(LCD_WRITE);
@@ -212,19 +212,18 @@ void TFTGLCD::print_screen(){
     digitalWrite(DOGLCD_CS, HIGH);
   #else
     uint8_t r;
-    //send framebuffer to panel by line
+    // Send framebuffer to panel by line
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
-    //first line
+    // First line
     Wire.write(LCD_WRITE);
     Wire.write(&framebuffer[0], LCD_WIDTH);
     Wire.endTransmission();
-    for (r = 1; r < (LCD_HEIGHT - 1); r++)
-    {
+    for (r = 1; r < (LCD_HEIGHT - 1); r++) {
       Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
       Wire.write(&framebuffer[r * LCD_WIDTH], LCD_WIDTH);
       Wire.endTransmission();
     }
-    //last line
+    // Last line
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(&framebuffer[r * LCD_WIDTH], LCD_WIDTH);
     Wire.write(&framebuffer[FBSIZE - 2], 2);
@@ -255,7 +254,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
     Wire.write(CONTRAST);
     Wire.write((uint8_t)contrast);
     Wire.endTransmission();
-#endif
+  #endif
 }
 
 //reading buttons and encoder states
@@ -530,7 +529,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
       lcd.setCursor(13, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
       lcd.setCursor(13, 7);
     }
-  #endif  //HOTENDS <= 1
+  #endif // HOTENDS <= 1
 
   #if !HEATER_IDLE_HANDLER
     UNUSED(blink);
@@ -546,7 +545,7 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
       if (t2 >= 100) lcd.write(' ');
     }
     else
-  #endif  //!HEATER_IDLE_HANDLER
+  #endif // !HEATER_IDLE_HANDLER
       lcd.print(i16tostr3rj(t2 + 0.5));
 
   switch (heater) {
@@ -584,16 +583,16 @@ FORCE_INLINE void _draw_heater_status(const heater_ind_t heater, const char *pre
     lcd.write('%');
   }
 
-#endif  //HAS_PRINT_PROGRESS
+#endif // HAS_PRINT_PROGRESS
 
 #if ENABLED(LCD_PROGRESS_BAR)
 
   void MarlinUI::draw_progress_bar(const uint8_t percent) {
     if (!PanelDetected) return;
-    if (fb == &framebuffer[0] + LCD_WIDTH * 2) {  // for status screen
+    if (fb == &framebuffer[0] + LCD_WIDTH * 2) {  // For status screen
       lcd.write('%'); lcd.write(percent);
     }
-    else { // for progress bar test
+    else { // For progress bar test
       lcd.setCursor(LCD_WIDTH / 2 - 2, LCD_HEIGHT / 2 - 2);
       lcd.print(i16tostr3rj(percent));  lcd.write('%');
       lcd.print_line();
@@ -754,27 +753,25 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 1);
-  lcd_put_u8str_P(PSTR("FR"));  lcd.print(i16tostr3rj(feedrate_percentage));  lcd.write('%');
+  lcd_put_u8str_P(PSTR("FR")); lcd.print(i16tostr3rj(feedrate_percentage)); lcd.write('%');
 
   #if BOTH(SDSUPPORT, HAS_PRINT_PROGRESS)
-
     lcd.setCursor(LCD_WIDTH / 2 - 3, 1);
     _draw_print_progress();
-
-  #endif // SDSUPPORT
+  #endif
 
   char buffer[10];
   duration_t elapsed = print_job_timer.duration();
   uint8_t len = elapsed.toDigital(buffer);
 
   lcd.setCursor((LCD_WIDTH - 1) - len, 1);
-  lcd.write(0x07);  lcd.print(buffer);  //  LCD_CLOCK_CHAR
+  lcd.write(0x07); lcd.print(buffer); // LCD_CLOCK_CHAR
 
   //
-  //Line 3 - progressbar
+  // Line 3 - progressbar
   //
 
-    lcd.setCursor(0, 2);
+  lcd.setCursor(0, 2);
   #if ENABLED(LCD_PROGRESS_BAR)
     draw_progress_bar(_get_progress());
   #else
@@ -788,34 +785,33 @@ void MarlinUI::draw_status_screen() {
   draw_status_message(blink);
 
   //
-  //Line 5
+  // Line 5
   //
 
-  #if  HOTENDS <= 2 && (HOTENDS <= 1 || !HAS_HEATED_BED)
+  #if HOTENDS <= 1 || (HOTENDS <= 2 && !HAS_HEATED_BED)
     #if DUAL_MIXING_EXTRUDER
       lcd.setCursor(0, 4);
       // Two-component mix / gradient instead of XY
-
       char mixer_messages[12];
       const char *mix_label;
       #if ENABLED(GRADIENT_MIX)
-          if (mixer.gradient.enabled) {
-              mixer.update_mix_from_gradient();
-              mix_label = "Gr";
-          }
-          else
+        if (mixer.gradient.enabled) {
+          mixer.update_mix_from_gradient();
+          mix_label = "Gr";
+        }
+        else
       #endif
-      {
+        {
           mixer.update_mix_from_vtool();
           mix_label = "Mx";
-      }
+        }
       sprintf_P(mixer_messages, PSTR("%s %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
       lcd_put_u8str(mixer_messages);
     #endif
   #endif
 
   //
-  //Line 6..8 Temperatures, FAN
+  // Line 6..8 Temperatures, FAN
   //
 
   #if HOTENDS < 2
@@ -828,55 +824,42 @@ void MarlinUI::draw_status_screen() {
     #endif
   #endif // HOTENDS <= 1
 
-  #if  HAS_HEATED_BED
+  #if HAS_HEATED_BED
     #if HAS_LEVELING
-        _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
+      _draw_heater_status(H_BED, (planner.leveling_active && blink ? "___" : "BED"), blink);
     #else
-        _draw_heater_status(H_BED, "BED", blink);
+      _draw_heater_status(H_BED, "BED", blink);
     #endif
-  #endif  //HAS_HEATED_BED
+  #endif // HAS_HEATED_BED
 
-  #if HAS_FAN0
+  #if FAN_COUNT > 0
     uint16_t spd = thermalManager.fan_speed[0];
     
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
+      if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
 
     uint16_t per = thermalManager.fanPercent(spd);
     #if HOTENDS < 2
-        lcd.setCursor(11, 5);   lcd_put_u8str_P(PSTR("FAN"));
-        lcd.setCursor(12, 6);   lcd.write('%');
-        lcd.setCursor(11, 7);
+      #define FANX 11
     #else
-        lcd.setCursor(17, 5);   lcd_put_u8str_P(PSTR("FAN"));
-        lcd.setCursor(18, 6);   lcd.write('%');
-        lcd.setCursor(17, 7);
+      #define FANX 17
     #endif
+    lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
+    lcd.setCursor(FANX + 1, 6); lcd.write('%');
+    lcd.setCursor(FANX, 7);
     lcd.print(i16tostr3rj(per));
 
-    #if FAN_COUNT > 0
-      if (0
-        #if HAS_FAN0
-          || thermalManager.fan_speed[0]
-        #endif
-        #if HAS_FAN1
-          || thermalManager.fan_speed[1]
-        #endif
-        #if HAS_FAN2
-          || thermalManager.fan_speed[2]
-        #endif
-      )
-          picBits |= ICON_FAN;
-      else
-          picBits &= ~ICON_FAN;
-    #endif // FAN_COUNT > 0
-  #endif  //HAS_FAN0
+    if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
+      picBits |= ICON_FAN;
+    else
+      picBits &= ~ICON_FAN;
+
+  #endif // FAN_COUNT > 0
 
   //
-  //Line 9, 10 - icons
+  // Line 9, 10 - icons
   //
-
   lcd.print_screen();
 }
 
@@ -885,7 +868,7 @@ void MarlinUI::draw_status_screen() {
   #include "../menu/menu.h"
 
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
-    
+
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (!PanelDetected) return;
       lcd.setCursor((LCD_WIDTH - 14) / 2, row + 1);
