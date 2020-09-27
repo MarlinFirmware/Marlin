@@ -14,9 +14,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if DISABLED(TFTGLCD_PANEL)
-
-#if HAS_CHARACTER_LCD
+#if HAS_CHARACTER_LCD && DISABLED(TFTGLCD_PANEL)
 
 #include "../ultralcd.h"
 #include "../../MarlinCore.h"
@@ -1122,5 +1120,3 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 #endif // DEBUG_LCDPRINT
 
 #endif // HAS_CHARACTER_LCD
-
-#endif //TFTGLCD_PANEL

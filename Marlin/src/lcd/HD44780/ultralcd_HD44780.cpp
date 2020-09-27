@@ -22,9 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if DISABLED(TFTGLCD_PANEL)
-
-#if HAS_CHARACTER_LCD
+#if HAS_CHARACTER_LCD && DISABLED(TFTGLCD_PANEL)
 
 /**
  * ultralcd_HD44780.cpp
@@ -1519,5 +1517,3 @@ void MarlinUI::draw_status_screen() {
 #endif // HAS_LCD_MENU
 
 #endif // HAS_CHARACTER_LCD
-
-#endif //TFTGLCD_PANEL

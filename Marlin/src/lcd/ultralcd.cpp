@@ -146,7 +146,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_ENCODER_ACTION
   volatile uint8_t MarlinUI::buttons;
-  #if ENABLED(HAS_SLOW_BUTTONS)
+  #if HAS_SLOW_BUTTONS
     volatile uint8_t MarlinUI::slow_buttons;
   #endif
   #if HAS_TOUCH_XPT2046
@@ -917,11 +917,7 @@ void MarlinUI::update() {
 
       const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
-        if (encoderPastThreshold
-          #if ENABLED(TFTGLCD_PANEL)
-            && !external_control
-          #endif
-            ) {
+        if (encoderPastThreshold && TERN1(TFTGLCD_PANEL, !external_control)) {
 
           #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
@@ -1227,7 +1223,7 @@ void MarlinUI::update() {
         #endif // UP || DWN || LFT || RT
 
         buttons = (newbutton
-          #if ENABLED(HAS_SLOW_BUTTONS)
+          #if HAS_SLOW_BUTTONS
             | slow_buttons
           #endif
           #if BOTH(HAS_TOUCH_XPT2046, HAS_ENCODER_ACTION)

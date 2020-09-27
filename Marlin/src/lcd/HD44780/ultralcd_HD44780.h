@@ -27,8 +27,6 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if DISABLED(TFTGLCD_PANEL)
-
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
 
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
@@ -92,6 +90,10 @@
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
+#elif ENABLED(TFTGLCD_PANEL)
+
+  // Do nothing
+
 #else
 
   // Standard directly connected LCD implementations
@@ -100,7 +102,9 @@
 
 #endif
 
-#include "../fontutils.h"
-#include "../lcdprint.h"
+#if DISABLED(TFTGLCD_PANEL)
 
-#endif //TFTGLCD_PANEL
+  #include "../fontutils.h"
+  #include "../lcdprint.h"
+
+#endif

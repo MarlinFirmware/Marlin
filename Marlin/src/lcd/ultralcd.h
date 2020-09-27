@@ -45,7 +45,7 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#if EITHER(LCD_I2C_VIKI, LCD_I2C_PANELOLU2) && DISABLED(TFTGLCD_PANEL)
+#if ANY(LCD_I2C_VIKI, LCD_I2C_PANELOLU2, TFTGLCD_PANEL)
   #define HAS_SLOW_BUTTONS 1
 #endif
 
