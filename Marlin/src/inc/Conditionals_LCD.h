@@ -219,19 +219,23 @@
 
 #elif ENABLED(TFTGLCD_PANEL)
 
-  #define SPI_PANEL                   // Disable if panel is not connected by SPI bus
-  #define LCD_USE_I2C_BUZZER          // Hardware buzzer on panel for I2C and SPI buses
-  #define LCD_I2C_ADDRESS      0x27   // Must be equal to panel's I2C slave addres
+  #define IS_ULTIPANEL
+  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
+    #define LCD_PROGRESS_BAR
+  #endif
+  #define SPI_PANEL                         // Disable if panel is not connected by SPI bus
+  #define LCD_USE_I2C_BUZZER                // Enable buzzer on LCD for I2C and SPI buses (LiquidTWI2 not requred)
+  #define LCD_I2C_ADDRESS             0x27  // Must be equal to panel's I2C slave addres
   #define STD_ENCODER_PULSES_PER_STEP 2
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
-  #define LCD_WIDTH              20   // 20 or 24 chars in line
-  #define LCD_HEIGHT             10   // Character lines
-  #define LCD_CONTRAST_MIN      127
-  #define LCD_CONTRAST_MAX      255
-  #define DEFAULT_LCD_CONTRAST  250
-  #define CONVERT_TO_EXT_ASCII  // Use extended 128-255 symbols from ASCII table.
-                                // At this time conversion is only done for cyrillic - bg, ru and uk languages.
-                                // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
+  #define LCD_WIDTH                   20    // 20 or 24 chars in line
+  #define LCD_HEIGHT                  10    // Character lines
+  #define LCD_CONTRAST_MIN            127
+  #define LCD_CONTRAST_MAX            255
+  #define DEFAULT_LCD_CONTRAST        250
+  #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
+                                      // At this time present conversion only for cyrillic - bg, ru and uk languages.
+                                      // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)
@@ -330,7 +334,7 @@
 #endif
 
 // Color UI
-#if ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI, TFT_GLCD_PANEL)
+#if ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI)
   #define HAS_GRAPHICAL_TFT 1
   #define IS_ULTIPANEL
 #endif
