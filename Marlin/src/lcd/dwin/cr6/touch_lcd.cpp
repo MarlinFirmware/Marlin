@@ -86,6 +86,7 @@ float pause_z = 0;
 float pause_e = 0;
 bool sdcard_pause_check = true;
 bool pause_action_flag = false;
+bool had_filament_runout = false;
 bool probe_offset_flag = false;
 
 millis_t next_rts_update_ms = 0;
@@ -822,6 +823,7 @@ void RTSSHOW::RTS_HandleData()
         rtscheck.change_page(DWINTouchPage::PRINT_PROGRESS_RUNNING);
       }
       break;
+      
     case ResumePrintKey:
       // This is apparently triggered when the resume option is pressed
       if (recdat.data[0] == 1 /*Resume*/) {
@@ -846,8 +848,10 @@ void RTSSHOW::RTS_HandleData()
         thermalManager.setTargetHotend(temphot, 0);
       }
 
+      had_filament_runout = false;
       
       break;
+
     case ZoffsetEnterKey:
       last_zoffset = probe.offset.z;
       if(recdat.data[0] >= 32768)
@@ -1530,6 +1534,7 @@ void RTSSHOW::RTS_FilamentRunout() {
 
   sdcard_pause_check = false;
   pause_action_flag = true;
+  had_filament_runout = true;
 
   pause_z = current_position[Z_AXIS];
   pause_e = current_position[E_AXIS] - 5;
@@ -1544,7 +1549,7 @@ void RTSSHOW::RTS_FilamentRunout() {
 
 void RTSSHOW::RTS_FilamentLoaded() {
   // "Filament load, please confirm resume print or stop print"
-  if (pause_action_flag == true && sdcard_pause_check == false) {
+  if (pause_action_flag == true && sdcard_pause_check == false && had_filament_runout == true) {
     rtscheck.change_page(DWINTouchPage::ERR_FILAMENTRUNOUT_FILAMENT_LOADED);
 
     // Update icon?
