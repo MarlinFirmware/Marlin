@@ -21,7 +21,7 @@
  */
 #pragma once
 
-/* DGUS implementation written by coldtobi in 2019 for Marlin */
+/* DGUS implementation written by Sebastiaan Dammann in 2020 for Marlin */
 
 #include "DGUSVPVariable.h"
 
