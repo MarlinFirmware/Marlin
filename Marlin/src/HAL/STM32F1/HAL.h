@@ -133,6 +133,8 @@
   #else
     #error "DGUS_SERIAL_PORT must be from -1 to 5. Please update your configuration."
   #endif
+
+  #define DGUS_SERIAL_GET_TX_BUFFER_FREE DGUS_SERIAL.availableForWrite
 #endif
 
 
