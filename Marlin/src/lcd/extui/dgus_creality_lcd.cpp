@@ -21,19 +21,19 @@
  */
 
 /**
- * dgus_lcd.cpp
+ * dgus_creality_lcd.cpp
  *
- * DGUS implementation for Marlin by coldtobi, Feb-May 2019
+ * DGUS implementation written by coldtobi in 2019 for Marlin
  */
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "ui_api.h"
-#include "lib/dgus/DGUSDisplay.h"
-#include "lib/dgus/DGUSDisplayDef.h"
-#include "lib/dgus/DGUSScreenHandler.h"
+#include "lib/dgus_creality/DGUSDisplay.h"
+#include "lib/dgus_creality/DGUSDisplayDef.h"
+#include "lib/dgus_creality/DGUSScreenHandler.h"
 
 extern const char NUL_STR[];
 
@@ -64,7 +64,7 @@ namespace ExtUI {
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      ScreenHandler.sendinfoscreen(PSTR("Please confirm."), nullptr, msg, nullptr, true, true, false, true);
+      ScreenHandler.sendinfoscreen(PSTR("Please confirm."), msg, msg, nullptr, true, true, false, true);
       ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
@@ -77,6 +77,7 @@ namespace ExtUI {
   void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }
 
   void onFactoryReset() {}
+  
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
@@ -128,21 +129,21 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst) {
       // Called for temperature PID tuning result
-      switch (rst) {
-        case PID_BAD_EXTRUDER_NUM:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
-          break;
-        case PID_TEMP_TOO_HIGH:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
-          break;
-        case PID_TUNING_TIMEOUT:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
-          break;
-        case PID_DONE:
-          ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
-          break;
-      }
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+      // switch (rst) {
+      //   case PID_BAD_EXTRUDER_NUM:
+      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_BAD_EXTRUDER_NUM));
+      //     break;
+      //   case PID_TEMP_TOO_HIGH:
+      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TEMP_TOO_HIGH));
+      //     break;
+      //   case PID_TUNING_TIMEOUT:
+      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_TIMEOUT));
+      //     break;
+      //   case PID_DONE:
+      //     ScreenHandler.setstatusmessagePGM(GET_TEXT(MSG_PID_AUTOTUNE_DONE));
+      //     break;
+      // }
+      // ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   #endif
 

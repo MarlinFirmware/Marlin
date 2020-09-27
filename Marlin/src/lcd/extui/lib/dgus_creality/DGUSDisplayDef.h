@@ -23,7 +23,7 @@
 
 /* DGUS implementation written by Sebastiaan Dammann in 2020 for Marlin */
 
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 
 #include <stdint.h>
 
@@ -45,10 +45,6 @@ extern const struct DGUS_VP_Variable ListOfVP[];
 
 #include "../../../../inc/MarlinConfig.h"
 
-#if ENABLED(DGUS_LCD_UI_ORIGIN)
-  #include "origin/DGUSDisplayDef.h"
-#elif ENABLED(DGUS_LCD_UI_FYSETC)
-  #include "fysetc/DGUSDisplayDef.h"
-#elif ENABLED(DGUS_LCD_UI_HIPRECY)
-  #include "hiprecy/DGUSDisplayDef.h"
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+  #include "creality_touch/DGUSDisplayDef.h"
 #endif

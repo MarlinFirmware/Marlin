@@ -23,15 +23,31 @@
 
 enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_BOOT = 0,
-  DGUSLCD_SCREEN_POPUP = 0,
-  DGUSLCD_SCREEN_KILL = 0,
-  DGUSLCD_SCREEN_CONFIRM = 0,
-  DGUSLCD_SCREEN_POWER_LOSS = 0,
-  DGUSLCD_SCREEN_MAIN = 0,
-  DGUSLCD_SCREEN_STATUS = 0,
-  DGUSLCD_SCREEN_SDFILELIST = 0,
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 0,
-  DGUSLCD_SCREEN_SDPRINTTUNE = 0,
+
+  DGUSLCD_SCREEN_MAIN = 28,
+
+  DGUSLCD_SCREEN_CONFIRM = 0, // TODO: remove references to this
+  DGUSLCD_SCREEN_STATUS = 0, // TODO: remove references to this
+  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 0, // TODO: remove references to this
+  DGUSLCD_SCREEN_SDPRINTTUNE = 0, // TODO: remove references to this
+  DGUSLCD_SCREEN_SDFILELIST = 0, // TODO: remove references to this
+
+  DGUSLCD_SCREEN_SDFILELIST_1 = 29,
+  DGUSLCD_SCREEN_SDFILELIST_2 = 30,
+  DGUSLCD_SCREEN_SDFILELIST_3 = 31,
+  DGUSLCD_SCREEN_SDFILELIST_4 = 32,
+  DGUSLCD_SCREEN_SDFILELIST_5 = 33, 
+
+  DGUSLCD_SCREEN_PREPARE = 42,        // DWINTouchPage::MENU_PREPARE
+  DGUSLCD_SCREEN_CONTROL = 47,        // DWINTouchPage::MENU_CONTROL
+  
+  DGUSLCD_SCREEN_ZOFFSET_LEVEL = 52,  // DWINTouchPage::MENU_ZOFFSET_LEVELING
+  DGUSLCD_SCREEN_LEVELING = 53,       // DWINTouchPage::LEVELING
+
+  DGUSLCD_SCREEN_POWER_LOSS = 0,      // DWINTouchPage::DIALOG_POWER_FAILURE
+
+  DGUSLCD_SCREEN_POPUP = 63,          // NEW - does not exist in original display
+  DGUSLCD_SCREEN_KILL = 64,           // NEW - does not exist in original display
 };
 
 // Display Memory layout used (T5UID)
@@ -53,10 +69,10 @@ enum DGUSLCD_Screens : uint8_t {
 // constexpr uint16_t VP_UI_FLAVOUR       = 0x1010;  // lets reserve 16 bytes here to determine if UI is suitable for this Marlin. tbd.
 
 // // Storage space for the Killscreen messages. 0x1100 - 0x1200 . Reused for the popup.
-constexpr uint16_t VP_MSGSTR1 = 0x1100;
-// constexpr uint8_t VP_MSGSTR1_LEN = 0x20;  // might be more place for it...
-constexpr uint16_t VP_MSGSTR2 = 0x1140;
-// constexpr uint8_t VP_MSGSTR2_LEN = 0x20;
+constexpr uint16_t VP_MSGSTR1 = 0x2010;
+constexpr uint8_t VP_MSGSTR1_LEN = 0x20;  // might be more place for it...
+constexpr uint16_t VP_MSGSTR2 = 0x2030;
+constexpr uint8_t VP_MSGSTR2_LEN = 0x40;
 constexpr uint16_t VP_MSGSTR3 = 0x1180;
 // constexpr uint8_t VP_MSGSTR3_LEN = 0x20;
 constexpr uint16_t VP_MSGSTR4 = 0x11C0;
@@ -70,7 +86,7 @@ constexpr uint16_t VP_MSGSTR4 = 0x11C0;
 // constexpr uint16_t VP_TEMP_ALL_OFF = 0x2002;   // Turn all heaters off. Value arbitrary ;)=
 // constexpr uint16_t VP_SCREENCHANGE_WHENSD = 0x2003; // "Print" Button touched -- go only there if there is an SD Card.
 
-// constexpr uint16_t VP_CONFIRMED = 0x2010; // OK on confirm screen.
+constexpr uint16_t VP_CONFIRMED = 0x20A0; // OK on confirm screen.
 
 // // Buttons on the SD-Card File listing.
 // constexpr uint16_t VP_SD_ScrollEvent = 0x2020; // Data: 0 for "up a directory", numbers are the amount to scroll, e.g -1 one up, 1 one down
@@ -145,12 +161,12 @@ constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 // constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = 0x3020;
+constexpr uint16_t VP_M117 = VP_MSGSTR2; // TODO: implement M117
 // constexpr uint8_t VP_M117_LEN = 0x20;
 
 // // Temperatures.
-// constexpr uint16_t VP_T_E0_Is = 0x3060;  // 4 Byte Integer
-constexpr uint16_t VP_T_E0_Set = 0x3062; // 2 Byte Integer
+constexpr uint16_t VP_T_E0_Is = 0x1036;  // 4 Byte Integer - HEAD_CURRENT_TEMP_VP
+constexpr uint16_t VP_T_E0_Set = 0x1034; // 2 Byte Integer - HEAD_SET_TEMP_VP
 // constexpr uint16_t VP_T_E1_Is = 0x3064;  // 4 Byte Integer
 
 // // reserved to support up to 6 Extruders:
@@ -166,24 +182,18 @@ constexpr uint16_t VP_T_E0_Set = 0x3062; // 2 Byte Integer
 // //constexpr uint16_t VP_T_E5_Is = 0x3078;  // 4 Byte Integer
 // //constexpr uint16_t VP_T_E5_Set = 0x307A; // 2 Byte Integer
 
-// constexpr uint16_t VP_T_Bed_Is = 0x3080;  // 4 Byte Integer
-constexpr uint16_t VP_T_Bed_Set = 0x3082; // 2 Byte Integer
+constexpr uint16_t VP_T_Bed_Is = 0x1034;  // 4 Byte Integer - BED_SET_TEMP_VP
+constexpr uint16_t VP_T_Bed_Set = 0x103A; // 2 Byte Integer - BED_CURRENT_TEMP_VP
 
 constexpr uint16_t VP_Flowrate_E0 = 0x3090; // 2 Byte Integer
 // constexpr uint16_t VP_Flowrate_E1 = 0x3092; // 2 Byte Integer
-
-// // reserved for up to 6 Extruders:
-// //constexpr uint16_t VP_Flowrate_E2 = 0x3094;
-// //constexpr uint16_t VP_Flowrate_E3 = 0x3096;
-// //constexpr uint16_t VP_Flowrate_E4 = 0x3098;
-// //constexpr uint16_t VP_Flowrate_E5 = 0x309A;
 
 // constexpr uint16_t VP_Fan0_Percentage = 0x3100;  // 2 Byte Integer (0..100)
 // constexpr uint16_t VP_Fan1_Percentage = 0x33A2;  // 2 Byte Integer (0..100)
 // //constexpr uint16_t VP_Fan2_Percentage = 0x33A4;  // 2 Byte Integer (0..100)
 // //constexpr uint16_t VP_Fan3_Percentage = 0x33A6;  // 2 Byte Integer (0..100)
 
-// constexpr uint16_t VP_Feedrate_Percentage = 0x3102; // 2 Byte Integer (0..100)
+constexpr uint16_t VP_Feedrate_Percentage = 0x1006; // 2 Byte Integer (0..100) - PRINT_SPEED_RATE_VP
 // constexpr uint16_t VP_PrintProgress_Percentage = 0x3104; // 2 Byte Integer (0..100)
 
 constexpr uint16_t VP_PrintTime = 0x3106;
@@ -198,7 +208,7 @@ constexpr uint16_t VP_PrintTime = 0x3106;
 // // Actual Position
 // constexpr uint16_t VP_XPos = 0x3110;  // 4 Byte Fixed point number; format xxx.yy
 // constexpr uint16_t VP_YPos = 0x3112;  // 4 Byte Fixed point number; format xxx.yy
-// constexpr uint16_t VP_ZPos = 0x3114;  // 4 Byte Fixed point number; format xxx.yy
+constexpr uint16_t VP_ZPos = 0x1026;  // 4 Byte Fixed point number; format xxx.yy - AUTO_BED_LEVEL_ZOFFSET_VP [SD: this is actually Z-offset?]
 
 // constexpr uint16_t VP_EPos = 0x3120;  // 4 Byte Fixed point number; format xxx.yy
 
@@ -265,3 +275,19 @@ constexpr uint16_t VP_BED_PID_D = 0x3714;
 // constexpr uint16_t SP_T_E1_Is = 0x5020;
 // constexpr uint16_t SP_T_Bed_Is = 0x5030;
 // constexpr uint16_t SP_T_Bed_Set = 0x5040;
+
+// Buttons defined by Creality - Don't worry if you're confused by the naming, so am I
+constexpr uint16_t VP_BUTTON_MAINENTERKEY = 0x1002;
+constexpr uint16_t VP_BUTTON_ADJUSTENTERKEY = 0x1004;
+constexpr uint16_t VP_BUTTON_PREPAREENTERKEY = 0x103E;
+
+// Additional stuff defined by Creality
+constexpr uint16_t VP_LED_TOGGLE = 0x101F;
+
+// Icons
+constexpr uint16_t ICON_TOGGLE_ON = 1;
+constexpr uint16_t ICON_TOGGLE_OFF = 2;
+
+
+// Additional variables to migrate later
+extern bool LEDStatus;

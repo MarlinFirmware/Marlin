@@ -24,7 +24,7 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #if HOTENDS > 2
   #error "More than 2 hotends not implemented on the Display UI design."
@@ -45,7 +45,7 @@
 #endif
 
 #include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
 // Preamble... 2 Bytes, usually 0x5A 0xA5, but configurable
@@ -76,6 +76,13 @@ void DGUSDisplay::InitDisplay() {
         DGUSLCD_SCREEN_MAIN
       #endif
     );
+}
+
+void DGUSDisplay::ReadVariable(uint16_t adr) {
+  WriteHeader(adr, DGUS_CMD_READVAR, sizeof(u_int8_t));
+
+  // Specify to read one byte
+  dgusserial.write(static_cast<u_int8_t>(1));
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
@@ -207,17 +214,26 @@ void DGUSDisplay::ProcessRx() {
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
-          //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
-          //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
-          DGUS_VP_Variable ramcopy;
-          if (populate_VPVar(vp, &ramcopy)) {
-            if (ramcopy.set_by_display_handler)
-              ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
+
+          if (vp == 0x12 /*PIC_Now*/) {
+            const uint16_t screen_id = tmp[3] << 8 | tmp[4];
+
+            if (current_screen_update_callback != nullptr) {
+              current_screen_update_callback(static_cast<DGUSLCD_Screens>(screen_id));
+            }
+          } else {
+            //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
+            //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
+            DGUS_VP_Variable ramcopy;
+            if (populate_VPVar(vp, &ramcopy)) {
+              if (ramcopy.set_by_display_handler)
+                ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
+              else
+                DEBUG_ECHOLNPGM(" VPVar found, no handler.");
+            }
             else
-              DEBUG_ECHOLNPGM(" VPVar found, no handler.");
+              DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
           }
-          else
-            DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
 
           rx_datagram_state = DGUS_IDLE;
           break;
@@ -251,6 +267,16 @@ void DGUSDisplay::loop() {
     ProcessRx();
     no_reentrance = false;
   }
+}
+
+void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
+  DEBUG_ECHOLNPAIR("GotoScreen ", screen);
+  const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
+  WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
+}
+
+void DGUSDisplay::ReadCurrentScreen() {
+  ReadVariable(0x14 /*PIC_NOW*/);
 }
 
 rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;

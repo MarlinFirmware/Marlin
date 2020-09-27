@@ -22,11 +22,11 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_DGUS_LCD && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+#if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "DGUSScreenHandler.h"
 #include "DGUSDisplay.h"
-#include "DGUSVPVariable.h"
+#include "../dgus/DGUSVPVariable.h"
 #include "DGUSDisplayDef.h"
 
 #include "../../ui_api.h"
@@ -62,6 +62,7 @@ uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 
 //DGUSDisplay dgusdisplay;
+UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
 
 // endianness swap
 uint16_t swap16(const uint16_t value) { return (value & 0xffU) << 8U | (value >> 8U); }
@@ -187,11 +188,6 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
         case VP_E0_PID_P: valuesend = value; break;
         case VP_E0_PID_I: valuesend = unscalePID_i(value); break;
         case VP_E0_PID_D: valuesend = unscalePID_d(value); break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_E1_PID_P: valuesend = value; break;
-        case VP_E1_PID_I: valuesend = unscalePID_i(value); break;
-        case VP_E1_PID_D: valuesend = unscalePID_d(value); break;
       #endif
       #if HAS_HEATED_BED
         case VP_BED_PID_P: valuesend = value; break;
@@ -428,7 +424,7 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
-  while (ret = (uint16_t*) pgm_read_ptr(&(map->VPList))) {
+  while ((ret = (uint16_t*) pgm_read_ptr(&(map->VPList)))) {
     if (pgm_read_byte(&(map->screen)) == screen) return ret;
     map++;
   }
@@ -1117,6 +1113,9 @@ bool DGUSScreenHandler::loop() {
   if (!IsScreenComplete() || ELAPSED(ms, next_event_ms)) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
     UpdateScreenVPData();
+    
+    // Read which screen is currently triggered - navigation at display side may occur
+    dgusdisplay.ReadCurrentScreen();
   }
 
   #if ENABLED(SHOW_BOOTSCREEN)
@@ -1129,12 +1128,6 @@ bool DGUSScreenHandler::loop() {
     }
   #endif
   return IsScreenComplete();
-}
-
-void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
-  DEBUG_ECHOLNPAIR("GotoScreen ", screen);
-  const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
-  WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
 }
 
 #endif // HAS_DGUS_LCD
