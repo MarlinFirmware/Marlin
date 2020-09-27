@@ -312,14 +312,34 @@ void GCodeQueue::flush_and_request_resend() {
 }
 
 inline bool serial_data_available() {
-  return MYSERIAL0.available() || TERN0(HAS_MULTI_SERIAL, MYSERIAL1.available());
+  byte data_available = 0;
+  if (MYSERIAL0.available()) data_available++;
+  #ifdef SERIAL_PORT_2
+    if (MYSERIAL1.available()) data_available++;
+  #endif
+  #ifdef ETHERNET_SUPPORT
+    if (have_telnet_client) {
+      if (telnetClient.available() > 0) {
+        data_available++;
+      }
+    }
+  #endif
+  return data_available > 0;
 }
 
 inline int read_serial(const uint8_t index) {
   switch (index) {
-    case 0: return MYSERIAL0.read();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.read();
+    case 0: 
+      return MYSERIAL0.read();
+    case 1:
+    #ifdef ETHERNET_SUPPORT
+      if (have_telnet_client)
+        if (telnetClient.available() > 0) {
+          return telnetClient.read(); // was getting occasional hangs when reading if data was not available
+        }
+      return -1;
+    #else
+      return MYSERIAL1.read();
     #endif
     default: return -1;
   }

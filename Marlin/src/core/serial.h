@@ -23,6 +23,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if ENABLED(ETHERNET_SUPPORT)
+  #include "../feature/ethernet.h"
+#endif
+
 /**
  * Define debug bit-masks
  */
@@ -55,10 +59,17 @@ extern uint8_t marlin_debug_flags;
   #ifdef SERIAL_CATCHALL
     #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
   #else
-    #define SERIAL_OUT(WHAT, V...) do{ \
-      if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
-      if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
-    }while(0)
+    #ifdef ETHERNET_SUPPORT
+      #define SERIAL_OUT(WHAT, V...) do{ \
+        if (serial_port_index == 0) (void)MYSERIAL0.WHAT(V); \
+        if (serial_port_index == 1) (void)telnetClient.WHAT(V); \
+      }while(0)
+    #else
+      #define SERIAL_OUT(WHAT, V...) do{ \
+        if (serial_port_index == 0) (void)MYSERIAL0.WHAT(V); \
+        if (serial_port_index == 1) (void)MYSERIAL1.WHAT(V); \
+      }while(0)
+    #endif
   #endif
 
   #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }

@@ -21,32 +21,21 @@
  */
 #pragma once
 
-#include "platforms.h"
+#include "../inc/MarlinConfig.h"
 
-#include HAL_PATH(.,HAL.h)
+#ifdef ETHERNET_SUPPORT
 
-#if defined(SERIAL_PORT_2) || defined(ETHERNET_SUPPORT)
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
+#ifdef __IMXRT1062__
+    #include <NativeEthernet.h>
 #endif
 
-#define HAL_ADC_RANGE _BV(HAL_ADC_RESOLUTION)
+extern IPAddress ip, myDns, gateway, subnet;
 
-#ifndef I2C_ADDRESS
-  #define I2C_ADDRESS(A) (A)
-#endif
+extern bool ethernet_hardware_enabled, have_telnet_client;
 
-// Needed for AVR sprintf_P PROGMEM extension
-#ifndef S_FMT
-  #define S_FMT "%s"
-#endif
+extern EthernetClient telnetClient;
 
-// String helper
-#ifndef PGMSTR
-  #define PGMSTR(NAM,STR) const char NAM[] = STR
-#endif
+void ethernet_init();
+void ethernet_check();
 
-inline void watchdog_refresh() {
-  TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
-}
+#endif  // ETHERNET_SUPPORT

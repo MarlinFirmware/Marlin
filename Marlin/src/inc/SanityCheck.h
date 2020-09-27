@@ -600,6 +600,10 @@
   #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
 #endif
 
+#if defined(SERIAL_PORT_2) && defined(ETHERNET_SUPPORT)
+  #error "SERIAL_PORT_2 and ETHERNET_SUPPORT cannot both be defined. Please update your configuration."
+#endif
+
 /**
  * Multiple Stepper Drivers Per Axis
  */

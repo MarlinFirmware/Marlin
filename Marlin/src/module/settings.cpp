@@ -37,12 +37,12 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V81"
+#define EEPROM_VERSION "V82"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
 // Can be disabled for production build.
-//#define DEBUG_EEPROM_READWRITE
+#define DEBUG_EEPROM_READWRITE
 
 #include "settings.h"
 
@@ -153,6 +153,12 @@
 
 #pragma pack(push, 1) // No padding between variables
 
+#if ENABLED(ETHERNET_SUPPORT)
+  void M552_report();
+  void M553_report();
+  void M554_report();
+#endif
+
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
 typedef struct {  int16_t X, Y, Z, X2, Y2, Z2, Z3, Z4;                                 } tmc_sgt_t;
@@ -177,6 +183,15 @@ extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
   uint16_t  crc;                                        // Data Checksum
+
+  // Ethernet settings
+  #if ENABLED(ETHERNET_SUPPORT)
+    bool use_ethernet;                                  // M552 S
+    uint32_t ip_address;                                // M552 P
+    uint32_t myDns_address;
+    uint32_t gateway_address;                           // M553 P
+    uint32_t subnet_mask;                               // M554 P
+  #endif
 
   //
   // DISTINCT_E_FACTORS
@@ -589,7 +604,23 @@ void MarlinSettings::postprocess() {
 
     working_crc = 0; // clear before first "real data"
 
-    _FIELD_TEST(esteppers);
+    #if ENABLED(ETHERNET_SUPPORT)
+      _FIELD_TEST(use_ethernet);
+      bool use_ethernet = ethernet_hardware_enabled;
+      EEPROM_WRITE(use_ethernet);
+      _FIELD_TEST(ip_address);
+      uint32_t ip_address = ip;
+      EEPROM_WRITE(ip_address);
+      _FIELD_TEST(myDns_address);
+      uint32_t myDns_address = myDns;
+      EEPROM_WRITE(myDns_address);
+      _FIELD_TEST(gateway_address);
+      uint32_t gateway_address = gateway;
+      EEPROM_WRITE(gateway_address);
+      uint32_t subnet_mask = subnet;
+      _FIELD_TEST(subnet_mask);
+      EEPROM_WRITE(subnet_mask);
+    #endif
 
     const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
@@ -1446,6 +1477,31 @@ void MarlinSettings::postprocess() {
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
+      #if ENABLED(ETHERNET_SUPPORT)
+        _FIELD_TEST(use_ethernet);
+        EEPROM_READ(ethernet_hardware_enabled);
+        _FIELD_TEST(ip_address);
+        EEPROM_READ(ip[0]);
+        EEPROM_READ(ip[1]);
+        EEPROM_READ(ip[2]);
+        EEPROM_READ(ip[3]);
+        _FIELD_TEST(myDns_address);
+        EEPROM_READ(myDns[0]);
+        EEPROM_READ(myDns[1]);
+        EEPROM_READ(myDns[2]);
+        EEPROM_READ(myDns[3]);
+        _FIELD_TEST(gateway_address);
+        EEPROM_READ(gateway[0]);
+        EEPROM_READ(gateway[1]);
+        EEPROM_READ(gateway[2]);
+        EEPROM_READ(gateway[3]);
+        _FIELD_TEST(subnet_mask);
+        EEPROM_READ(subnet[0]);
+        EEPROM_READ(subnet[1]);
+        EEPROM_READ(subnet[2]);
+        EEPROM_READ(subnet[3]);
+      #endif
+
       _FIELD_TEST(esteppers);
 
       // Number of esteppers may change
@@ -1468,9 +1524,9 @@ void MarlinSettings::postprocess() {
 
         if (!validating) LOOP_XYZE_N(i) {
           const bool in = (i < esteppers + XYZ);
-          planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
-          planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
-          planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
+            planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
+            planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+            planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
         }
 
         EEPROM_READ(planner.settings.acceleration);
@@ -3749,6 +3805,25 @@ void MarlinSettings::reset() {
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );
+    #endif
+
+    #if ENABLED(ETHERNET_SUPPORT)
+      CONFIG_ECHO_HEADING("Ethernet Settings:");
+      CONFIG_ECHO_START();
+      SERIAL_ECHO("  Ethernet ");
+      if (ethernet_hardware_enabled)
+        SERIAL_ECHOLN("enabled");
+      else
+        SERIAL_ECHOLN("disabled");
+      CONFIG_ECHO_START();
+      SERIAL_ECHO("  M552 ");
+      M552_report();
+      CONFIG_ECHO_START();
+      SERIAL_ECHO("  M553 ");
+      M553_report();
+      CONFIG_ECHO_START();
+      SERIAL_ECHO("  M554 ");
+      M554_report();
     #endif
   }
 
