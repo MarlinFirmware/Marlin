@@ -810,7 +810,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& curDir, const
 
     // Open curDir
     if (!sub->open(curDir, dosSubdirname, O_READ)) {
-      SERIAL_ECHOLNPAIR(STR_SD_OPEN_FILE_FAIL, dosSubdirname, ".");
+      openFailed(dosSubdirname);
       return nullptr;
     }
 
