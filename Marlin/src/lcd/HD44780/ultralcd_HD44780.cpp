@@ -1517,4 +1517,4 @@ void MarlinUI::draw_status_screen() {
 
 #endif // HAS_LCD_MENU
 
-#endif // HAS_CHARACTER_LCD
+#endif // HAS_CHARACTER_LCD && !TFTGLCD_PANEL

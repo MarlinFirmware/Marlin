@@ -205,19 +205,10 @@ class MenuItem_bool : public MenuEditItemBase {
  *   _menuLineNr is the menu item to draw and process
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  */
-#if ENABLED(TFTGLCD_PANEL)
-  #define _BEFORE_SCREEN_LOOP() lcd.clear_buffer()
-  #define _AFTER_SCREEN_LOOP()  lcd.print_screen()
-#else
-  #define _BEFORE_SCREEN_LOOP() NOOP
-  #define _AFTER_SCREEN_LOOP()  NOOP
-#endif
-
 #define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
   scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
   int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
   bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
-  _BEFORE_SCREEN_LOOP();                                \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 
@@ -232,7 +223,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define START_MENU() SCREEN_OR_MENU_LOOP(true)
 #define NEXT_ITEM() (++_thisItemNr)
 #define SKIP_ITEM() NEXT_ITEM()
-#define END_SCREEN() } _AFTER_SCREEN_LOOP(); screen_items = _thisItemNr
+#define END_SCREEN() } screen_items = _thisItemNr
 #define END_MENU() END_SCREEN(); UNUSED(_skipStatic)
 
 /**

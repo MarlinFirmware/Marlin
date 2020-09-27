@@ -60,6 +60,9 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
     mesh_edit_accumulator += TERN(TFTGLCD_PANEL,
+      ubl.encoder_diff * 0.005f / ENCODER_PULSES_PER_STEP,
+      ubl.encoder_diff > 0 ? 0.005f : -0.005f
+    );
     #if DISABLED(TFTGLCD_PANEL)
         ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
       }

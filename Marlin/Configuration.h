@@ -1971,7 +1971,7 @@
 // panel based on low cost STM32F103C8T6 "Blue Pill" board and 320x240 or 400x240 color TFT LCD
 // https://github.com/Serhiy-K/TFTGLCDAdapter
 //
-//#define TFTGLCD_PANEL
+#define TFTGLCD_PANEL
 
 //=============================================================================
 //=======================   LCD / Controller Selection  =======================
