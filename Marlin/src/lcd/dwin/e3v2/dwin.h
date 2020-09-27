@@ -335,8 +335,8 @@ void Icon_temperature(bool value);
 void Icon_leveling(bool value);
 
 // Other
-bool Pause_HeatStatus();
-void HMI_StartFrame(const bool with_update); // Startup screen
+void Draw_Status_Area(const bool with_update); // Status Area
+void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
 void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
