@@ -124,7 +124,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
   #define LCD_PINS_RS                         13
   #define LCD_PINS_ENABLE                     17
@@ -152,7 +152,7 @@
   #define BTN_EN2                             12
   #define BTN_ENC                             14
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB
 
 // Hardware serial pins
 // Add the following to Configuration.h or Configuration_adv.h to assign

@@ -1,6 +1,28 @@
 /**
- * @file    lcdprint_hd44780.cpp
- * @brief   LCD print api for HD44780
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file    lcdprint_TFTGLCD.cpp
+ * @brief   LCD print API for TFT-GLCD interface
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2016-08-19
@@ -8,30 +30,28 @@
  */
 
 /**
- * Due to the limitation of the HD44780 hardware, the current available LCD modules can only support
- *   Western(English), Cyrillic(Russian), Kana(Japanese) charsets.
+ * The TFTGLCD only supports ??? languages.
  */
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_HD44780
+#if IS_TFTGLCD_PANEL
 
 #include "../ultralcd.h"
 #include "../../MarlinCore.h"
+#include "../../libs/numtostr.h"
 
-#include "ultralcd_HD44780.h"
+#include "ultralcd_TFTGLCD.h"
 
 #include <string.h>
 
-extern LCD_CLASS lcd;
+int lcd_glyph_height(void) { return 1; }
 
-int lcd_glyph_height() { return 1; }
-
-typedef struct _hd44780_charmap_t {
+typedef struct _TFTGLCD_charmap_t {
   wchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
-} hd44780_charmap_t;
+} TFTGLCD_charmap_t;
 
 #ifdef __AVR__
   #define IV(a) U##a
@@ -39,7 +59,7 @@ typedef struct _hd44780_charmap_t {
   #define IV(a) L##a
 #endif
 
-static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
+static const TFTGLCD_charmap_t g_TFTGLCD_charmap_device[] PROGMEM = {
   // sorted by uchar:
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
 
@@ -96,7 +116,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('カ'), 0xB6, 0},
     {IV('ガ'), 0xB6, 0xDE},
     {IV('キ'), 0xB7, 0},
-    {IV('ギ'), 0xB7, 0xDE},
+    {IV('ギ'), 0xB7, 0xDE}, //
     {IV('ク'), 0xB8, 0},
     {IV('グ'), 0xB8, 0xDE},
     {IV('ケ'), 0xB9, 0},
@@ -412,7 +432,6 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
     {IV('⎭'), 0x17, 0},
     {IV('⎰'), 0x18, 0},
     {IV('⎱'), 0x19, 0},
-
     {IV('⎲'), 0x12, 0},
     {IV('⎳'), 0x13, 0},
 
@@ -440,54 +459,135 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
 
   #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
 
-    {IV('¢'), 0x5C, 0}, // 00A2
-    {IV('£'), 0xCF, 0}, // 00A3
-    {IV('°'), 0x01, 0}, // 00B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
+    #ifdef CONVERT_TO_EXT_ASCII
+      {IV('°'), 0x01, 0}, // 00B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
+      {IV('²'), 0x0e, 0}, // 0x32 if no special symbol in panel font
+      {IV('³'), 0x0f, 0}, // 0x33 if no special symbol in panel font
 
-    //{IV(''), 0x80, 0},
-    //{IV(''), 0x81, 0},
-    //{IV(''), 0x82, 0},
-    //{IV(''), 0x83, 0},
-    //{IV(''), 0x84, 0},
-    //{IV(''), 0x85, 0},
-    //{IV(''), 0x86, 0},
-    //{IV(''), 0x87, 0},
-    //{IV(''), 0x88, 0},
-    //{IV(''), 0x89, 0},
-    //{IV(''), 0x8A, 0},
-    //{IV(''), 0x8B, 0},
-    //{IV(''), 0x8C, 0},
-    //{IV(''), 0x8D, 0},
-    //{IV(''), 0x8E, 0},
-    //{IV(''), 0x8F, 0},
+      // translate to cp866 codepage
+      //first ASCII symbols in panel font must be replaced with Marlin special symbols
+      {IV('Ё'), 0xF0, 0}, // 0401
+      {IV('Є'), 0xF2, 0}, // 0404
+      {IV('І'), 'I', 0},  // 0406
+      {IV('Ї'), 0xF4, 0}, // 0407
+      {IV('Ў'), 0xF6, 0}, // 040E
+      {IV('А'), 0x80, 0}, // 0410
+      {IV('Б'), 0x81, 0},
+      {IV('В'), 0x82, 0},
+      {IV('Г'), 0x83, 0},
+      {IV('Д'), 0x84, 0},
+      {IV('Е'), 0x85, 0},
+      {IV('Ж'), 0x86, 0},
+      {IV('З'), 0x87, 0},
+      {IV('И'), 0x88, 0},
+      {IV('Й'), 0x89, 0},
+      {IV('К'), 0x8A, 0},
+      {IV('Л'), 0x8B, 0},
+      {IV('М'), 0x8C, 0},
+      {IV('Н'), 0x8D, 0},
+      {IV('О'), 0x8E, 0},
+      {IV('П'), 0x8F, 0},
+      {IV('Р'), 0x90, 0},
+      {IV('С'), 0x91, 0},
+      {IV('Т'), 0x92, 0},
+      {IV('У'), 0x93, 0},
+      {IV('Ф'), 0x94, 0},
+      {IV('Х'), 0x95, 0},
+      {IV('Ц'), 0x96, 0},
+      {IV('Ч'), 0x97, 0},
+      {IV('Ш'), 0x98, 0},
+      {IV('Щ'), 0x99, 0},
+      {IV('Ъ'), 0x9A, 0},
+      {IV('Ы'), 0x9B, 0},
+      {IV('Ь'), 0x9C, 0},
+      {IV('Э'), 0x9D, 0},
+      {IV('Ю'), 0x9E, 0},
+      {IV('Я'), 0x9F, 0},
 
-    //{IV(''), 0x90, 0},
-    //{IV(''), 0x91, 0},
-    //{IV(''), 0x92, 0},
-    //{IV(''), 0x93, 0},
-    //{IV(''), 0x94, 0},
-    //{IV(''), 0x95, 0},
-    //{IV(''), 0x96, 0},
-    //{IV(''), 0x97, 0},
-    //{IV(''), 0x98, 0},
-    //{IV(''), 0x99, 0},
-    //{IV(''), 0x9A, 0},
-    //{IV(''), 0x9B, 0},
-    //{IV(''), 0x9C, 0},
-    //{IV(''), 0x9D, 0},
-    //{IV(''), 0x9E, 0},
-    //{IV(''), 0x9F, 0},
+      {IV('а'), 0xA0, 0},
+      {IV('б'), 0xA1, 0},
+      {IV('в'), 0xA2, 0},
+      {IV('г'), 0xA3, 0},
+      {IV('д'), 0xA4, 0},
+      {IV('е'), 0xA5, 0},
+      {IV('ж'), 0xA6, 0},
+      {IV('з'), 0xA7, 0},
+      {IV('и'), 0xA8, 0},
+      {IV('й'), 0xA9, 0},
+      {IV('к'), 0xAA, 0},
+      {IV('л'), 0xAB, 0},
+      {IV('м'), 0xAC, 0},
+      {IV('н'), 0xAD, 0},
+      {IV('о'), 0xAE, 0},
+      {IV('п'), 0xAF, 0},
+      {IV('р'), 0xE0, 0},
+      {IV('с'), 0xE1, 0},
+      {IV('т'), 0xE2, 0},
+      {IV('у'), 0xE3, 0},
+      {IV('ф'), 0xE4, 0},
+      {IV('х'), 0xE5, 0},
+      {IV('ц'), 0xE6, 0},
+      {IV('ч'), 0xE7, 0},
+      {IV('ш'), 0xE8, 0},
+      {IV('щ'), 0xE9, 0},
+      {IV('ъ'), 0xEA, 0},
+      {IV('ы'), 0xEB, 0},
+      {IV('ь'), 0xEC, 0},
+      {IV('э'), 0xED, 0},
+      {IV('ю'), 0xEE, 0},
+      {IV('я'), 0xEF, 0}, // 044F
+      {IV('ё'), 0xF1, 0}, // 0451
+      {IV('є'), 0xF3, 0}, // 0454
+      {IV('і'), 'i', 0},  // 0456
+      {IV('ї'), 0xF5, 0}, // 0457
+      {IV('ў'), 0xF7, 0}, // 045E
 
+    #else
 
-    {IV('¼'), 0xF0, 0}, // 00BC
-    {IV('⅓'), 0xF1, 0},
-    {IV('½'), 0xF2, 0}, // 00BD
-    {IV('¾'), 0xF3, 0}, // 00BE
-    {IV('¿'), 0xCD, 0}, // 00BF
+      {IV('¢'), 0x5C, 0}, // 00A2
+      {IV('£'), 0xCF, 0}, // 00A3
+      {IV('°'), 0x01, 0}, // 00B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
 
-    #if ENABLED(DISPLAY_CHARSET_ISO10646_5)
+      //{IV(''), 0x80, 0},
+      //{IV(''), 0x81, 0},
+      //{IV(''), 0x82, 0},
+      //{IV(''), 0x83, 0},
+      //{IV(''), 0x84, 0},
+      //{IV(''), 0x85, 0},
+      //{IV(''), 0x86, 0},
+      //{IV(''), 0x87, 0},
+      //{IV(''), 0x88, 0},
+      //{IV(''), 0x89, 0},
+      //{IV(''), 0x8A, 0},
+      //{IV(''), 0x8B, 0},
+      //{IV(''), 0x8C, 0},
+      //{IV(''), 0x8D, 0},
+      //{IV(''), 0x8E, 0},
+      //{IV(''), 0x8F, 0},
 
-      // Map Cyrillic to HD44780 extended CYRILLIC where possible
+      //{IV(''), 0x90, 0},
+      //{IV(''), 0x91, 0},
+      //{IV(''), 0x92, 0},
+      //{IV(''), 0x93, 0},
+      //{IV(''), 0x94, 0},
+      //{IV(''), 0x95, 0},
+      //{IV(''), 0x96, 0},
+      //{IV(''), 0x97, 0},
+      //{IV(''), 0x98, 0},
+      //{IV(''), 0x99, 0},
+      //{IV(''), 0x9A, 0},
+      //{IV(''), 0x9B, 0},
+      //{IV(''), 0x9C, 0},
+      //{IV(''), 0x9D, 0},
+      //{IV(''), 0x9E, 0},
+      //{IV(''), 0x9F, 0},
+
+      {IV('¼'), 0xF0, 0}, // 00BC
+      {IV('⅓'), 0xF1, 0},
+      {IV('½'), 0xF2, 0}, // 00BD
+      {IV('¾'), 0xF3, 0}, // 00BE
+      {IV('¿'), 0xCD, 0}, // 00BF
+
       {IV('Ё'), 0xA2, 0}, // 0401
       {IV('А'), 'A', 0}, // 0410
       {IV('Б'), 0xA0, 0},
@@ -532,7 +632,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
       {IV('з'), 0xB7, 0},
       {IV('и'), 0xB8, 0},
       {IV('й'), 0xB9, 0},
-      {IV('к'), 0xBA, 0}, //клмноп
+      {IV('к'), 0xBA, 0},
       {IV('л'), 0xBB, 0},
       {IV('м'), 0xBC, 0},
       {IV('н'), 0xBD, 0},
@@ -602,182 +702,105 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
       //{IV(''), 0xFE, 0},
       //{IV(''), 0xFF, 0},
 
+      {IV('↑'), 0xD9, 0}, // 2191 ←↑→↓
+      {IV('↓'), 0xDA, 0}, // 2193
+
     #endif
 
-    {IV('↑'), 0xD9, 0}, // 2191 ←↑→↓
-    {IV('↓'), 0xDA, 0}, // 2193
   #endif
 };
 
 // the plain ASCII replacement for various char
-static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
+static const TFTGLCD_charmap_t g_TFTGLCD_charmap_common[] PROGMEM = {
   {IV('¡'), 'i', 0}, // A1
   {IV('¢'), 'c', 0}, // A2
   {IV('°'), 0x09, 0}, // B0 Marlin special: '°'  LCD_STR_DEGREE (0x09)
 
-  // Map WESTERN code to plain ASCII
-  {IV('Á'), 'A', 0}, // C1
-  {IV('Â'), 'A', 0}, // C2
-  {IV('Ã'), 'A', 0}, // C3
-  {IV('Ä'), 'A', 0}, // C4
-  {IV('Å'), 'A', 0}, // C5
-  {IV('Æ'), 'A', 'E'}, // C6
-  {IV('Ç'), 'C', 0}, // C7
-  {IV('È'), 'E', 0}, // C8
-  {IV('É'), 'E', 0}, // C9
-  {IV('Í'), 'I', 0}, // CD
-  {IV('Ñ'), 'N', 0}, // D1
-  {IV('Õ'), 'O', 0}, // D5
-  {IV('Ö'), 'O', 0}, // D6
-  {IV('×'), 'x', 0}, // D7
-  {IV('Ü'), 'U', 0}, // DC
-  {IV('Ý'), 'Y', 0}, // DD
-  {IV('à'), 'a', 0}, // E0
-  {IV('á'), 'a', 0},
-  {IV('â'), 'a', 0},
-  {IV('ã'), 'a', 0},
-  {IV('ä'), 'a', 0},
-  {IV('å'), 'a', 0},
-  {IV('æ'), 'a', 'e'},
-  {IV('ç'), 'c', 0},
-  {IV('è'), 'e', 0}, // 00E8
-  {IV('é'), 'e', 0},
-  {IV('ê'), 'e', 0},
-  {IV('ë'), 'e', 0},
-  {IV('ì'), 'i', 0}, // 00EC
-  {IV('í'), 'i', 0},
-  {IV('î'), 'i', 0},
-  {IV('ï'), 'i', 0}, // 00EF
+  #ifndef CONVERT_TO_EXT_ASCII  //this time CONVERT_TO_EXT_ASCII works only with en, ru and uk languages
 
-  {IV('ñ'), 'n', 0}, // 00F1
-  {IV('ò'), 'o', 0},
-  {IV('ó'), 'o', 0},
-  {IV('ô'), 'o', 0},
-  {IV('õ'), 'o', 0},
-  {IV('ö'), 'o', 0},
-  //{IV('÷'), 0xB8, 0},
-  {IV('ø'), 'o', 0},
-  {IV('ù'), 'u', 0},
-  {IV('ú'), 'u', 0},
-  {IV('û'), 'u', 0},
-  {IV('ü'), 'u', 0}, // FC
-  {IV('ý'), 'y', 0}, // FD
-  {IV('ÿ'), 'y', 0}, // FF
+    // map WESTERN code to the plain ASCII
+    {IV('Á'), 'A', 0}, // C1
+    {IV('Â'), 'A', 0}, // C2
+    {IV('Ã'), 'A', 0}, // C3
+    {IV('Ä'), 'A', 0}, // C4
+    {IV('Å'), 'A', 0}, // C5
+    {IV('Æ'), 'A', 'E'}, // C6
+    {IV('Ç'), 'C', 0}, // C7
+    {IV('È'), 'E', 0}, // C8
+    {IV('É'), 'E', 0}, // C9
+    {IV('Í'), 'I', 0}, // CD
+    {IV('Ñ'), 'N', 0}, // D1
+    {IV('Õ'), 'O', 0}, // D5
+    {IV('Ö'), 'O', 0}, // D6
+    {IV('×'), 'x', 0}, // D7
+    {IV('Ü'), 'U', 0}, // DC
+    {IV('Ý'), 'Y', 0}, // DD
+    {IV('à'), 'a', 0}, // E0
+    {IV('á'), 'a', 0},
+    {IV('â'), 'a', 0},
+    {IV('ã'), 'a', 0},
+    {IV('ä'), 'a', 0},
+    {IV('å'), 'a', 0},
+    {IV('æ'), 'a', 'e'},
+    {IV('ç'), 'c', 0},
+    {IV('è'), 'e', 0}, // 00E8
+    {IV('é'), 'e', 0},
+    {IV('ê'), 'e', 0},
+    {IV('ë'), 'e', 0},
+    {IV('ì'), 'i', 0}, // 00EC
+    {IV('í'), 'i', 0},
+    {IV('î'), 'i', 0},
+    {IV('ï'), 'i', 0}, // 00EF
 
-  {IV('Ą'), 'A', 0}, // 0104
-  {IV('ą'), 'a', 0}, // 0105
-  {IV('Ć'), 'C', 0}, // 0106
-  {IV('ć'), 'c', 0}, // 0107
-  {IV('Č'), 'C', 0}, // 010C
-  {IV('č'), 'c', 0}, // 010D
-  {IV('Ď'), 'D', 0}, // 010E
-  {IV('ď'), 'd', 0}, // 010F
-  {IV('đ'), 'd', 0}, // 0111
-  {IV('ę'), 'e', 0}, // 0119
-  {IV('Ě'), 'E', 0}, // 011A
-  {IV('ě'), 'e', 0}, // 011B
-  {IV('ğ'), 'g', 0}, // 011F
-  {IV('İ'), 'I', 0}, // 0130
-  {IV('ı'), 'i', 0}, // 0131
+    {IV('ñ'), 'n', 0}, // 00F1
+    {IV('ò'), 'o', 0},
+    {IV('ó'), 'o', 0},
+    {IV('ô'), 'o', 0},
+    {IV('õ'), 'o', 0},
+    {IV('ö'), 'o', 0},
+    //{IV('÷'), 0xB8, 0},
+    {IV('ø'), 'o', 0},
+    {IV('ù'), 'u', 0},
+    {IV('ú'), 'u', 0},
+    {IV('û'), 'u', 0},
+    {IV('ü'), 'u', 0}, // FC
+    {IV('ý'), 'y', 0}, // FD
+    {IV('ÿ'), 'y', 0}, // FF
 
-  {IV('Ł'), 'L', 0}, // 0141
-  {IV('ł'), 'l', 0}, // 0142
-  {IV('Ń'), 'N', 0}, // 0143
-  {IV('ń'), 'n', 0}, // 0144
-  {IV('ň'), 'n', 0}, // 0148
+    {IV('Ą'), 'A', 0}, // 0104
+    {IV('ą'), 'a', 0}, // 0105
+    {IV('Ć'), 'C', 0}, // 0106
+    {IV('ć'), 'c', 0}, // 0107
+    {IV('Č'), 'C', 0}, // 010C
+    {IV('č'), 'c', 0}, // 010D
+    {IV('Ď'), 'D', 0}, // 010E
+    {IV('ď'), 'd', 0}, // 010F
+    {IV('đ'), 'd', 0}, // 0111
+    {IV('ę'), 'e', 0}, // 0119
+    {IV('ğ'), 'g', 0}, // 011F
+    {IV('İ'), 'I', 0}, // 0130
+    {IV('ı'), 'i', 0}, // 0131
 
-  {IV('Ř'), 'R', 0}, // 0158
-  {IV('ř'), 'r', 0}, // 0159
-  {IV('Ś'), 'S', 0}, // 015A
-  {IV('ś'), 's', 0}, // 015B
-  {IV('ş'), 's', 0}, // 015F
-  {IV('Š'), 'S', 0}, // 0160
-  {IV('š'), 's', 0}, // 0161
-  {IV('ť'), 't', 0}, // 0165
-  {IV('ů'), 'u', 0}, // 016F
-  {IV('ż'), 'z', 0}, // 017C
-  {IV('Ž'), 'Z', 0}, // 017D
-  {IV('ž'), 'z', 0}, // 017E
-  {IV('ƒ'), 'f', 0}, // 0192
+    {IV('Ł'), 'L', 0}, // 0141
+    {IV('ł'), 'l', 0}, // 0142
+    {IV('Ń'), 'N', 0}, // 0143
+    {IV('ń'), 'n', 0}, // 0144
+    {IV('ň'), 'n', 0}, // 0148
 
-  {IV('ˣ'), 'x', 0}, // 02E3
+    {IV('ř'), 'r', 0}, // 0159
+    {IV('Ś'), 'S', 0}, // 015A
+    {IV('ś'), 's', 0}, // 015B
+    {IV('ş'), 's', 0}, // 015F
+    {IV('Š'), 'S', 0}, // 0160
+    {IV('š'), 's', 0}, // 0161
+    {IV('ť'), 't', 0}, // 0165
+    {IV('ů'), 'u', 0}, // 016F
+    {IV('ż'), 'z', 0}, // 017C
+    {IV('Ž'), 'Z', 0}, // 017D
+    {IV('ž'), 'z', 0}, // 017E
+    {IV('ƒ'), 'f', 0}, // 0192
 
-  #if ENABLED(DISPLAY_CHARSET_ISO10646_VI)
-
-    // Map Vietnamese phonetics
-
-    //{IV('à'), 'a', 0}, {IV('À'), 'A', 0},
-    {IV('ạ'), 'a', 0}, {IV('Ạ'), 'A', 0},
-    {IV('ả'), 'a', 0}, {IV('Ả'), 'A', 0},
-    //{IV('ã'), 'a', 0}, {IV('Ã'), 'A', 0},
-    //{IV('á'), 'á', 0}, {IV('Á'), 'A', 0},
-    {IV('Ạ'), 'A', 0},
-    {IV('ă'), 'a', 0}, {IV('Ă'), 'A', 0},
-    {IV('ằ'), 'a', 0}, {IV('Ằ'), 'A', 0},
-    {IV('ẳ'), 'a', 0}, {IV('Ẳ'), 'A', 0},
-    {IV('ẵ'), 'a', 0}, {IV('Ẵ'), 'A', 0},
-    {IV('ắ'), 'a', 0}, {IV('Ắ'), 'A', 0},
-    {IV('ặ'), 'a', 0}, {IV('Ặ'), 'A', 0},
-    {IV('â'), 'a', 0}, {IV('Â'), 'A', 0},
-    {IV('ầ'), 'a', 0}, {IV('Ầ'), 'A', 0},
-    {IV('ẩ'), 'a', 0}, {IV('Ẩ'), 'A', 0},
-    {IV('ẫ'), 'a', 0}, {IV('Ẫ'), 'A', 0},
-    {IV('ấ'), 'a', 0}, {IV('Ấ'), 'A', 0},
-    {IV('ậ'), 'a', 0}, {IV('Ậ'), 'A', 0},
-    //{IV('đ'), 'd', 0},
-                       {IV('Đ'), 'D', 0},
-    {IV('e'), 'e', 0}, {IV('E'), 'E', 0},
-    {IV('è'), 'e', 0}, {IV('È'), 'E', 0},
-    {IV('ẻ'), 'e', 0}, {IV('Ẻ'), 'E', 0},
-    {IV('ẽ'), 'e', 0}, {IV('Ẽ'), 'E', 0},
-    {IV('é'), 'e', 0}, {IV('É'), 'E', 0},
-    {IV('ẹ'), 'e', 0}, {IV('Ẹ'), 'E', 0},
-    {IV('ê'), 'e', 0}, {IV('Ê'), 'E', 0},
-    {IV('ề'), 'e', 0}, {IV('Ề'), 'E', 0},
-    {IV('ể'), 'e', 0}, {IV('Ể'), 'E', 0},
-    {IV('ễ'), 'e', 0}, {IV('Ễ'), 'E', 0},
-    {IV('ế'), 'e', 0}, {IV('Ế'), 'E', 0},
-    {IV('ệ'), 'e', 0}, {IV('Ệ'), 'E', 0},
-    {IV('i'), 'i', 0}, {IV('I'), 'I', 0},
-    //{IV('ì'), 'ì', 0}, {IV('Ì'), 'Ì', 0},
-    {IV('ỉ'), 'ỉ', 0}, {IV('Ỉ'), 'Ỉ', 0},
-    {IV('ĩ'), 'ĩ', 0}, {IV('Ĩ'), 'Ĩ', 0},
-    {IV('í'), 'í', 0}, {IV('Í'), 'Í', 0},
-    {IV('ị'), 'ị', 0}, {IV('Ị'), 'Ị', 0},
-    {IV('o'), 'o', 0}, {IV('O'), 'O', 0},
-    {IV('ò'), 'o', 0}, {IV('Ò'), 'O', 0},
-    {IV('ỏ'), 'o', 0}, {IV('Ỏ'), 'O', 0},
-    {IV('õ'), 'o', 0}, {IV('Õ'), 'O', 0},
-    {IV('ó'), 'o', 0}, {IV('Ó'), 'O', 0},
-    {IV('ọ'), 'o', 0}, {IV('Ọ'), 'O', 0},
-    {IV('ô'), 'o', 0}, {IV('Ô'), 'O', 0},
-    {IV('ồ'), 'o', 0}, {IV('Ồ'), 'O', 0},
-    {IV('ổ'), 'o', 0}, {IV('Ổ'), 'O', 0},
-    {IV('ỗ'), 'o', 0}, {IV('Ỗ'), 'O', 0},
-    {IV('ố'), 'o', 0}, {IV('Ố'), 'O', 0},
-    {IV('ộ'), 'o', 0}, {IV('Ộ'), 'O', 0},
-    {IV('ơ'), 'o', 0}, {IV('Ơ'), 'O', 0},
-    {IV('ờ'), 'o', 0}, {IV('Ờ'), 'O', 0},
-    {IV('ở'), 'o', 0}, {IV('Ở'), 'O', 0},
-    {IV('ỡ'), 'o', 0}, {IV('Ỡ'), 'O', 0},
-    {IV('ớ'), 'o', 0}, {IV('Ớ'), 'O', 0},
-    {IV('ợ'), 'o', 0}, {IV('Ợ'), 'O', 0},
-    {IV('ù'), 'u', 0}, {IV('Ù'), 'U', 0},
-    {IV('ủ'), 'u', 0}, {IV('Ủ'), 'U', 0},
-    {IV('ũ'), 'u', 0}, {IV('Ũ'), 'U', 0},
-    //{IV('ú'), 'u', 0}, {IV('Ú'), 'U', 0},
-    {IV('ụ'), 'u', 0}, {IV('Ụ'), 'U', 0},
-    {IV('ư'), 'u', 0}, {IV('Ư'), 'U', 0},
-    {IV('ừ'), 'u', 0}, {IV('Ừ'), 'U', 0},
-    {IV('ử'), 'u', 0}, {IV('Ử'), 'U', 0},
-    {IV('ữ'), 'u', 0}, {IV('Ữ'), 'U', 0},
-    {IV('ứ'), 'u', 0}, {IV('Ứ'), 'U', 0},
-    {IV('ự'), 'u', 0}, {IV('Ự'), 'U', 0},
-    {IV('y'), 'y', 0}, {IV('Y'), 'Y', 0},
-
-  #endif
-
-  #if ENABLED(DISPLAY_CHARSET_ISO10646_GREEK)
+    {IV('ˣ'), 'x', 0}, // 02E3
 
     {IV('΄'), '\'', 0}, // 0384
     {IV('΅'), '\'', 0}, // 0385
@@ -852,11 +875,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('ύ'), 'v', 0}, // 03CD
     {IV('ώ'), 'w', 0}, // 03CE
 
-  #endif
-
-  #if ENABLED(DISPLAY_CHARSET_ISO10646_5)
-    // Map CYRILLIC code to plain ASCII
-    {IV('Ё'), 'E', 0}, // 0401
+    // map CYRILLIC code to the plain ASCII
     {IV('А'), 'A', 0}, // 0410
     {IV('Б'), 'b', 0}, // 0411
     {IV('В'), 'B', 0}, // 0412
@@ -922,7 +941,6 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('э'), 'e', 0},
     {IV('ю'), '|', 'o'},
     {IV('я'), 'g', 0}, // 044F
-    {IV('ё'), 'e', 0}, // 0451
 
   #endif
 
@@ -953,20 +971,23 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
 };
 
 /* return v1 - v2 */
-static int hd44780_charmap_compare(hd44780_charmap_t * v1, hd44780_charmap_t * v2) {
+static int TFTGLCD_charmap_compare(TFTGLCD_charmap_t * v1, TFTGLCD_charmap_t * v2) {
   return (v1->uchar < v2->uchar) ? -1 : (v1->uchar > v2->uchar) ? 1 : 0;
 }
 
 static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data_pin) {
-  hd44780_charmap_t localval;
-  hd44780_charmap_t *p_hd44780_charmap = (hd44780_charmap_t *)userdata;
-  memcpy_P(&localval, p_hd44780_charmap + idx, sizeof(localval));
-  return hd44780_charmap_compare(&localval, (hd44780_charmap_t *)data_pin);
+  TFTGLCD_charmap_t localval;
+  TFTGLCD_charmap_t *p_TFTGLCD_charmap = (TFTGLCD_charmap_t *)userdata;
+  memcpy_P(&localval, p_TFTGLCD_charmap + idx, sizeof(localval));
+  return TFTGLCD_charmap_compare(&localval, (TFTGLCD_charmap_t *)data_pin);
 }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { lcd.setCursor(col, row); }
 
-void lcd_put_int(const int i) { lcd.print(i); }
+void lcd_put_int(const int i) {
+  const char* str = i16tostr3left(i);
+  while (*str) lcd.write(*str++);
+}
 
 // return < 0 on error
 // return the advanced cols
@@ -975,30 +996,29 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   // find the HD44780 internal ROM first
   int ret;
   size_t idx = 0;
-  hd44780_charmap_t pinval;
-  hd44780_charmap_t *copy_address = nullptr;
+  TFTGLCD_charmap_t pinval;
+  TFTGLCD_charmap_t *copy_address = nullptr;
   pinval.uchar = c;
   pinval.idx = -1;
 
   if (max_length < 1) return 0;
 
-  // TODO: fix the '\\' that doesn't exist in the HD44870
   if (c < 128) {
     lcd.write((uint8_t)c);
     return 1;
   }
   copy_address = nullptr;
-  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+  ret = pf_bsearch_r((void *)g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
-    copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
+    copy_address = (TFTGLCD_charmap_t *)(g_TFTGLCD_charmap_device + idx);
   }
   else {
-    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
-    if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
+    ret = pf_bsearch_r((void *)g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+    if (ret >= 0) copy_address = (TFTGLCD_charmap_t *)(g_TFTGLCD_charmap_common + idx);
   }
 
   if (ret >= 0) {
-    hd44780_charmap_t localval;
+    TFTGLCD_charmap_t localval;
     // found
     memcpy_P(&localval, copy_address, sizeof(localval));
     lcd.write(localval.idx);
@@ -1047,11 +1067,11 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #if ENABLED(DEBUG_LCDPRINT)
 
-  int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
+  int test_TFTGLCD_charmap(TFTGLCD_charmap_t *data, size_t size, char *name, char flg_show_contents) {
     int ret;
     size_t idx = 0;
-    hd44780_charmap_t preval = {0, 0, 0};
-    hd44780_charmap_t pinval = {0, 0, 0};
+    TFTGLCD_charmap_t preval = {0, 0, 0};
+    TFTGLCD_charmap_t pinval = {0, 0, 0};
     char flg_error = 0;
 
     int i;
@@ -1099,15 +1119,15 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
     return 0;
   }
 
-  int test_hd44780_charmap_all() {
+  int test_TFTGLCD_charmap_all(void) {
     int flg_error = 0;
-    if (test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
+    if (test_TFTGLCD_charmap(g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), "g_TFTGLCD_charmap_device", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
+      test_TFTGLCD_charmap(g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), "g_TFTGLCD_charmap_device", 1);
     }
-    if (test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
+    if (test_TFTGLCD_charmap(g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), "g_TFTGLCD_charmap_common", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
+      test_TFTGLCD_charmap(g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), "g_TFTGLCD_charmap_common", 1);
     }
     if (flg_error) {
       TRACE("\nFAILED in hd44780 tests!\n");
@@ -1119,4 +1139,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #endif // DEBUG_LCDPRINT
 
-#endif // HAS_MARLINUI_HD44780
+#endif // IS_TFTGLCD_PANEL

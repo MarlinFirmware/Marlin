@@ -187,21 +187,22 @@
 #define SDSS                                PA4
 
 /**
- * -------------------------------------BTT002 V1.0-----------------------------------------------
- *               _____                                             _____                      |
+ * -------------------------------------BTT002 V1.0--------------------------------------------
+ *               -----                                             -----                      |
  *          PA3 | · · | GND                                    5V | · · | GND                 |
  *       NRESET | · · | PC4(SD_DET)                 (LCD_D7) PE13 | · · | PE12  (LCD_D6)      |
  *   (MOSI)PA7  | · · | PB0(BTN_EN2)                (LCD_D5) PE11 | · · | PE10  (LCD_D4)      |
  *  (SD_SS)PA4  | · · | PC5(BTN_EN1)                (LCD_RS) PE8  | · · | PE9   (LCD_EN)      |
  *    (SCK)PA5  | · · | PA6(MISO)                  (BTN_ENC) PB1  | · · | PE7   (BEEPER)      |
- *               ￣￣                                               ￣￣                       |
+ *               -----                                             -----                      |
  *               EXP2                                              EXP1                       |
- * ---------------------------------------------------------------------------------------------
+ * --------------------------------------------------------------------------------------------
  */
+
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PE7
   #define BTN_ENC                           PB1
 
@@ -236,7 +237,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
     #endif
@@ -248,7 +249,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // RGB LEDs

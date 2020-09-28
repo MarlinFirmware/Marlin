@@ -165,7 +165,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif

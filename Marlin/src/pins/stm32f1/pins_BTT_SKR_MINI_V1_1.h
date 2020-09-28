@@ -110,7 +110,7 @@
  *                EXP2                                              EXP1
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC10
   #define BTN_ENC                           PC11
 
@@ -122,6 +122,17 @@
 
     #define LCD_PINS_ENABLE                 PC14
     #define LCD_PINS_D4                     PB7
+
+  #elif IS_TFTGLCD_PANEL
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PD2
+    #endif
+
+    #define SD_DETECT_PIN                   PB9
 
   #else
 
@@ -172,7 +183,7 @@
 
     #endif // !FYSETC_MINI_12864
 
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #ifndef BOARD_ST7920_DELAY_1
         #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
       #endif
@@ -186,7 +197,7 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

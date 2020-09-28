@@ -215,9 +215,11 @@ enum processID : uint8_t {
 
 // Color
 #define Color_White       0xFFFF
+#define Color_Yellow      0xFF0F
 #define Color_Bg_Window   0x31E8  // Popup background color
 #define Color_Bg_Blue     0x1125  // Dark blue background color
 #define Color_Bg_Black    0x0841  // Black background color
+#define Color_Bg_Red      0xF00F  // Red background color
 #define Popup_Text_Color  0xD6BA  // Popup font background color
 #define Line_Color        0x3A6A  // Split line color
 #define Rectangle_Color   0xEE2F  // Blue square cursor color
@@ -335,8 +337,8 @@ void Icon_temperature(bool value);
 void Icon_leveling(bool value);
 
 // Other
-bool Pause_HeatStatus();
-void HMI_StartFrame(const bool with_update); // Startup screen
+void Draw_Status_Area(const bool with_update); // Status Area
+void HMI_StartFrame(const bool with_update);   // Prepare the menu view
 void HMI_MainMenu();    // Main process screen
 void HMI_SelectFile();  // File page
 void HMI_Printing();    // Print page
