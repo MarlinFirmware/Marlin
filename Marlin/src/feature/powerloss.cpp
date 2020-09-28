@@ -379,8 +379,7 @@ void PrintJobRecovery::resume() {
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
     // Z has been homed so restore Z to ZsavedPos + POWER_LOSS_ZRAISE
-    dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1);
-    sprintf_P(cmd, PSTR("G1 F500 Z%s"), str_1);
+    sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
   #endif
 
