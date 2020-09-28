@@ -251,9 +251,12 @@
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
 #if SD_CONNECTION_IS(LCD)
+
   #define SD_DETECT_PIN                     PF12
   #define SDSS                              PB12
+
 #elif SD_CONNECTION_IS(ONBOARD)
+
   // The SKR Pro's ONBOARD SD interface is on SPI1.
   // Due to a pull resistor on the clock line, it needs to use SPI Data Mode 3 to
   // function with Hardware SPI. This is not currently configurable in the HAL,
@@ -264,8 +267,9 @@
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
   #define SD_DETECT_PIN                     PB11
+
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #define "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
 /**
@@ -275,7 +279,7 @@
  *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
  *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
  *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
- *               ￣￣                                               ￣￣
+ *               ￣￣￣                                             ￣￣￣
  *               EXP2                                              EXP1
  */
 
@@ -285,11 +289,8 @@
 #if ENABLED(TFTGLCD_PANEL)
 
   #if ENABLED(SPI_PANEL)
-    #define DOGLCD_CS                       PG10
+    #define TFTGLCD_CS                      PG10
   #endif
-
-  #define BEEPER_PIN                        -1
-  #define BTN_ENC                           -1
 
 #elif HAS_SPI_LCD
 

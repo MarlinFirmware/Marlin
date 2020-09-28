@@ -70,7 +70,7 @@
   #if ENABLED(TFTGLCD_PANEL)
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                    P3_26
+      #define TFTGLCD_CS                   P3_26
     #endif
 
     #define SD_DETECT_PIN                  P1_31

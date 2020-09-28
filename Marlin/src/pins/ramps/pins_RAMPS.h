@@ -452,7 +452,7 @@
 
   #elif ENABLED(TFTGLCD_PANEL)
 
-    #define DOGLCD_CS                         33
+    #define TFTGLCD_CS                        33
 
   #else
 
@@ -687,7 +687,7 @@
       // Pins only defined for RAMPS_SMART currently
 
     #elif ENABLED(TFTGLCD_PANEL)
-    
+
       #define SD_DETECT_PIN                   49
 
     #else

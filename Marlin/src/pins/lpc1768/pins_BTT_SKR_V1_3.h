@@ -268,11 +268,11 @@
   #elif ENABLED(TFTGLCD_PANEL)
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS             EXPA2_08_PIN
+      #define TFTGLCD_CS            EXPA2_08_PIN
     #endif
-  
+
     #define SD_DETECT_PIN           EXPA2_04_PIN
-  
+
   #else                                           // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS             EXPA1_07_PIN

@@ -129,11 +129,11 @@
     #undef BTN_ENC
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                     PD2
+      #define TFTGLCD_CS                    PD2
     #endif
-  
+
     #define SD_DETECT_PIN                   PB9
-  
+
   #else
 
     #define LCD_PINS_RS                     PC12

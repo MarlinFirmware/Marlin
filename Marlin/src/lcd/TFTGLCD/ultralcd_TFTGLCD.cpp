@@ -32,7 +32,7 @@
  * and supports color output.
  */
 
-#if !(defined(__AVR__) || defined(MCU_LPC1768) || defined(__STM32F1__) || defined(STM32F4xx))
+#if NONE(__AVR__, MCU_LPC1768, __STM32F1__, STM32F4xx)
   #error "Selected platform not tested in hardware. Comment out this line to continue."
 #endif
 
@@ -153,12 +153,12 @@ void TFTGLCD::print(const char *line) {
 void TFTGLCD::print_line() {
   if (!PanelDetected) return;
   #if ENABLED(SPI_PANEL)
-    digitalWrite(DOGLCD_CS, LOW);
-    #if defined(__AVR__)
+    WRITE(TFTGLCD_CS, LOW);
+    #ifdef __AVR__
       SPI.transfer(LCD_PUT);
       SPI.transfer(cour_line);
       SPI.transfer(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);
-    #elif defined(MCU_LPC1768) || defined(__STM32F1__)
+    #elif EITHER(MCU_LPC1768, __STM32F1__)
       SPI.transfer(LCD_PUT);
       SPI.transfer(cour_line);
       for (uint16_t i = 0; i < LCD_WIDTH; i++)  SPI.transfer(framebuffer[cour_line * LCD_WIDTH + i]);
@@ -173,9 +173,9 @@ void TFTGLCD::print_line() {
     #elif defined(ARDUINO_ARCH_ESP32)
       SPI.write(LCD_PUT);
       SPI.write(cour_line);
-      for (uint16_t i = 0; i < LCD_WIDTH; i++)  SPI.write(framebuffer[cour_line * LCD_WIDTH + i]);
+      for (uint16_t i = 0; i < LCD_WIDTH; i++) SPI.write(framebuffer[cour_line * LCD_WIDTH + i]);
     #endif
-    digitalWrite(DOGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
     Wire.write(LCD_PUT);
@@ -192,11 +192,11 @@ void TFTGLCD::print_screen(){
   framebuffer[FBSIZE - 1] = ledBits;
   #if ENABLED(SPI_PANEL)
     // Send all framebuffer to panel
-    digitalWrite(DOGLCD_CS, LOW);
-    #if defined(__AVR__)
+    WRITE(TFTGLCD_CS, LOW);
+    #ifdef __AVR__
       SPI.transfer(LCD_WRITE);
       SPI.transfer(&framebuffer[0], FBSIZE);
-    #elif defined(MCU_LPC1768) || defined(__STM32F1__)
+    #elif EITHER(MCU_LPC1768, __STM32F1__)
       SPI.transfer(LCD_WRITE);
       for (uint16_t i = 0; i < FBSIZE; i++) SPI.transfer(framebuffer[i]);
     #elif defined(STM32F4xx)
@@ -209,7 +209,7 @@ void TFTGLCD::print_screen(){
       SPI.write(LCD_WRITE);
       for (uint16_t i = 0; i < FBSIZE; i++) SPI.write(framebuffer[i]);
     #endif
-    digitalWrite(DOGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     uint8_t r;
     // Send framebuffer to panel by line
@@ -234,7 +234,7 @@ void TFTGLCD::print_screen(){
 void TFTGLCD::setContrast(uint16_t contrast) {
   if (!PanelDetected) return;
   #if ENABLED(SPI_PANEL)
-    digitalWrite(DOGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(CONTRAST);
       SPI.transfer((uint8_t)contrast);
@@ -248,7 +248,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
       SPI.write(CONTRAST);
       SPI.write((uint8_t)contrast);
     #endif
-    digitalWrite(DOGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(CONTRAST);
@@ -258,18 +258,18 @@ void TFTGLCD::setContrast(uint16_t contrast) {
 }
 
 //reading buttons and encoder states
-extern volatile int8_t encoderDiff; 
+extern volatile int8_t encoderDiff;
 
 uint8_t MarlinUI::read_slow_buttons(void) {
   if (!PanelDetected)    return 0;
   #if ENABLED(SPI_PANEL)
     uint8_t b = 0;
-    digitalWrite(DOGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(READ_ENCODER);
-      digitalWrite(DOGLCD_CS, LOW); //for delay
+      WRITE(TFTGLCD_CS, LOW); //for delay
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      digitalWrite(DOGLCD_CS, LOW); //for delay
+      WRITE(TFTGLCD_CS, LOW); //for delay
       b = SPI.transfer(GET_SPI_DATA);
     #elif defined(STM32F4xx)
       SPI.transfer(READ_ENCODER, SPI_CONTINUE);
@@ -277,28 +277,28 @@ uint8_t MarlinUI::read_slow_buttons(void) {
       b = SPI.transfer(GET_SPI_DATA, SPI_CONTINUE);
     #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
       SPI.transfer(READ_ENCODER);
-      digitalWrite(DOGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      digitalWrite(DOGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       b = SPI.transfer(GET_SPI_DATA);
     #elif defined(ARDUINO_ARCH_ESP32)
       SPI.transfer(READ_ENCODER);
-      digitalWrite(DOGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      digitalWrite(DOGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       b = SPI.transfer(GET_SPI_DATA);
     #endif
-    digitalWrite(DOGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
     return b;
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(READ_ENCODER);
     Wire.endTransmission();
-    #if defined(__AVR__)
+    #ifdef __AVR__
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2, 0, 0, 1);
     #elif defined(__STM32F1__)
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, (uint8_t)2);
-    #elif defined(STM32F4xx) || defined(MCU_LPC1768)
+    #elif EITHER(STM32F4xx, MCU_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 2);
     #endif
     encoderDiff += Wire.read();
@@ -310,7 +310,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
   #if ENABLED(SPI_PANEL)
-    digitalWrite(DOGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(BUZZER);
       SPI.transfer16((uint16_t)duration);
@@ -328,7 +328,7 @@ void MarlinUI::buzz(const long duration, const uint16_t freq) {
       SPI.write16((uint16_t)duration);
       SPI.write16(freq);
     #endif
-    digitalWrite(DOGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(BUZZER);
@@ -345,15 +345,10 @@ void MarlinUI::init_lcd() {
   lcd.clear_buffer();
   t = 0;
   #if ENABLED(SPI_PANEL)
-    pinMode(DOGLCD_CS, OUTPUT);
-    digitalWrite(DOGLCD_CS, HIGH);
-    //SPI speed must be less 10MHz
-    #if defined(__STM32F1__)
-      spiInit(SPI_QUARTER_SPEED);
-    #else
-      spiInit(SPI_FULL_SPEED);
-    #endif
-    digitalWrite(DOGLCD_CS, LOW);
+    // SPI speed must be less 10MHz
+    OUT_WRITE(TFTGLCD_CS, HIGH);
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(GET_LCD_ROW);
       t = SPI.transfer(GET_SPI_DATA);
@@ -368,7 +363,7 @@ void MarlinUI::init_lcd() {
       t = SPI.transfer(GET_SPI_DATA);
     #endif
   #else
-    #if defined(MCU_LPC1768)
+    #ifdef MCU_LPC1768
       Wire.begin();   //init twi/I2C
     #else
       Wire.begin((uint8_t)LCD_I2C_ADDRESS); //init twi/I2C
@@ -376,9 +371,9 @@ void MarlinUI::init_lcd() {
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write((uint8_t)GET_LCD_ROW); // put command to buffer
     Wire.endTransmission(); // send buffer
-    #if defined(__AVR__)
+    #ifdef __AVR__
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 1, 0, 0, 1);
-    #elif defined(__STM32F1__) || defined(STM32F4xx) || defined(MCU_LPC1768)
+    #elif ANY(__STM32F1__, STM32F4xx, MCU_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 1);
     #endif
     t = (uint8_t)Wire.read();
@@ -401,7 +396,7 @@ void MarlinUI::init_lcd() {
         SPI.write(INIT_SCREEN);
         SPI.write(Marlin);
       #endif
-      digitalWrite(DOGLCD_CS, HIGH);
+      WRITE(TFTGLCD_CS, HIGH);
     #else
       Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
       Wire.write((uint8_t)INIT_SCREEN);
@@ -512,7 +507,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
       lcd.setCursor(2, 5);  lcd.print(prefix); //HE
       lcd.setCursor(1, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
       lcd.setCursor(1, 7);
-    } 
+    }
     else {
       lcd.setCursor(6, 5);  lcd.print(prefix); //BED
       lcd.setCursor(6, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
@@ -522,7 +517,7 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
     if (heater_id > H_BED) {
       lcd.setCursor(heater_id * 4, 5);  lcd.print(prefix); //HE1 or HE2 or HE3
       lcd.setCursor(heater_id * 4, 6);  lcd.print(i16tostr3rj(t1 + 0.5));
-      lcd.setCursor(heater_id * 4, 7); 
+      lcd.setCursor(heater_id * 4, 7);
     }
     else {
       lcd.setCursor(13, 5);  lcd.print(prefix); //BED
@@ -829,7 +824,7 @@ void MarlinUI::draw_status_screen() {
 
   #if FAN_COUNT > 0
     uint16_t spd = thermalManager.fan_speed[0];
-    
+
     #if ENABLED(ADAPTIVE_FAN_SLOWING)
       if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
     #endif
@@ -1010,7 +1005,7 @@ void MarlinUI::draw_status_screen() {
         lcd.print(ftostr43sign(ubl.z_values[x_plot][y_plot]));
       else
         lcd_put_u8str_P(PSTR(" -----"));
-      
+
       center_text_P(GET_TEXT(MSG_UBL_FINE_TUNE_MESH), 8);
 
       lcd.print_screen();

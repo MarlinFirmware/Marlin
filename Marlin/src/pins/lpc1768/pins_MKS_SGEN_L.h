@@ -255,9 +255,9 @@
     #undef BTN_ENC
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                    P3_25
+      #define TFTGLCD_CS                   P3_25
     #endif
-  
+
   #else
 
     #define BTN_EN1                        P3_25

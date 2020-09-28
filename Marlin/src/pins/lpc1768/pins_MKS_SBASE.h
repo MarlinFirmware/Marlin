@@ -222,13 +222,13 @@
   #if ENABLED(TFTGLCD_PANEL)
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                    P3_25  // EXP2.3
+      #define TFTGLCD_CS                   P3_25  // EXP2.3
     #endif
-  
+
     #if SD_CONNECTION_IS(LCD)
       #define SD_DETECT_PIN                P0_28  // EXP2.4
     #endif
-  
+
   #else
 
     #define BEEPER_PIN                     P1_31  // EXP1.1
@@ -236,7 +236,7 @@
     #define BTN_EN1                        P3_26  // EXP2.5
     #define BTN_EN2                        P3_25  // EXP2.3
     #define LCD_PINS_RS                    P0_16  // EXP1.4
-    #define LCD_SDSS                       
+    #define LCD_SDSS
     #define LCD_PINS_ENABLE                P0_18  // EXP1.3
     #define LCD_PINS_D4                    P0_15  // EXP1.5
     #if ANY(VIKI2, miniVIKI)

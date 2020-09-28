@@ -118,7 +118,7 @@
   #elif ENABLED(TFTGLCD_PANEL)
 
     #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                     PB11
+      #define TFTGLCD_CS                    PB11
     #endif
 
   #else                                           // !MKS_MINI_12864
