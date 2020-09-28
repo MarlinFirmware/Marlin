@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #include "../../../../libs/W25Qxx.h"
 
