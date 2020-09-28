@@ -228,35 +228,35 @@
 #elif IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS                       PG5
+    #define TFTGLCD_CS                      PG5
   #endif
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                      PC5
-  #define BTN_ENC                         PG2
-  #define LCD_PINS_ENABLE                 PG0
-  #define LCD_PINS_RS                     PG1
-  #define BTN_EN1                         PG5
-  #define BTN_EN2                         PG4
+  #define BEEPER_PIN                        PC5
+  #define BTN_ENC                           PG2
+  #define LCD_PINS_ENABLE                   PG0
+  #define LCD_PINS_RS                       PG1
+  #define BTN_EN1                           PG5
+  #define BTN_EN2                           PG4
 
   // MKS MINI12864 and MKS LCD12864B. If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
 
-    #define LCD_BACKLIGHT_PIN             -1
-    #define LCD_RESET_PIN                 -1
-    #define DOGLCD_A0                     PF12
-    #define DOGLCD_CS                     PF15
-    #define DOGLCD_SCK                    PB13
-    #define DOGLCD_MOSI                   PB15
+    #define LCD_BACKLIGHT_PIN               -1
+    #define LCD_RESET_PIN                   -1
+    #define DOGLCD_A0                       PF12
+    #define DOGLCD_CS                       PF15
+    #define DOGLCD_SCK                      PB13
+    #define DOGLCD_MOSI                     PB15
 
-  #else                                         // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+  #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
-    #define LCD_PINS_D4                   PF14
+    #define LCD_PINS_D4                     PF14
     #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5                 PF15
-      #define LCD_PINS_D6                 PF12
-      #define LCD_PINS_D7                 PF13
+      #define LCD_PINS_D5                   PF15
+      #define LCD_PINS_D6                   PF12
+      #define LCD_PINS_D7                   PF13
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY

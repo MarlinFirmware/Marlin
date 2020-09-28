@@ -71,4 +71,4 @@ extern TFTGLCD lcd;
   #define EN_C       4 //for click
 #endif
 
-#endif // TFTGLCD_PANEL
+#endif // IS_TFTGLCD_PANEL

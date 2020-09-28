@@ -450,7 +450,7 @@
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
 
-  #elif IS_TFTGLCD_PANEL
+  #elif ENABLED(TFTGLCD_PANEL_SPI)
 
     #define TFTGLCD_CS                        33
 

@@ -506,7 +506,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
+#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -517,7 +517,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
+  #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
 
     //
     // HD44780 implements the following message blinking and
@@ -915,7 +915,7 @@ void MarlinUI::update() {
 
       const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
-        if (encoderPastThreshold && TERN1(TFTGLCD_PANEL, !external_control)) {
+        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
           #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
@@ -1337,7 +1337,7 @@ void MarlinUI::update() {
       const millis_t ms = millis();
     #endif
 
-    #if ENABLED(LCD_PROGRESS_BAR) && DISABLED(TFTGLCD_PANEL)
+    #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
       progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
         expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;

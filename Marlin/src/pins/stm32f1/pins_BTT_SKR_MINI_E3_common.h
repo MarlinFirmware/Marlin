@@ -173,10 +173,10 @@
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
 
-      #error "CAUTION! TFTGLCD_PANEL requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
+      #error "CAUTION! TFTGLCD_PANEL_SPI requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
       /**
-       * TFTGLCD_PANEL display pinout
+       * TFTGLCD_PANEL_SPI display pinout
        *
        *               Board                                      Display
        *               _____                                       _____
@@ -210,7 +210,7 @@
     #endif
 
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864 and TFTGLCD_PANEL are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
 #endif // HAS_WIRED_LCD
@@ -267,9 +267,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#endif
-
-#if (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL) && SD_CONNECTION_IS(LCD)
+#elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN                     PB5
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

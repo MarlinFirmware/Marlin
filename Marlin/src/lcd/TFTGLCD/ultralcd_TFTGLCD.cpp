@@ -1015,4 +1015,4 @@ void MarlinUI::draw_status_screen() {
 
 #endif // HAS_LCD_MENU
 
-#endif // TFTGLCD_PANEL
+#endif // IS_TFTGLCD_PANEL

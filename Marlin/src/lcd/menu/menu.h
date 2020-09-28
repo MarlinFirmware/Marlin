@@ -27,10 +27,6 @@
 
 #include "limits.h"
 
-#if IS_TFTGLCD_PANEL
-  #include "../TFTGLCD/ultralcd_TFTGLCD.h"
-#endif
-
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
 void scroll_screen(const uint8_t limit, const bool is_menu);

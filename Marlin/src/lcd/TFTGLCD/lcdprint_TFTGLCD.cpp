@@ -1139,4 +1139,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #endif // DEBUG_LCDPRINT
 
-#endif // TFTGLCD_PANEL
+#endif // IS_TFTGLCD_PANEL

@@ -100,9 +100,9 @@
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
   #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, IS_TFTGLCD_PANEL)
-    #define SDCARD_CONNECTION              LCD
+    #define SDCARD_CONNECTION                LCD
   #else
-    #define SDCARD_CONNECTION              ONBOARD
+    #define SDCARD_CONNECTION            ONBOARD
   #endif
 #endif
 
