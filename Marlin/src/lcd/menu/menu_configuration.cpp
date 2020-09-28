@@ -60,7 +60,9 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      ui.set_custom_characters(CHARSET_MENU);
+      #if HAS_MARLINUI_HD44780
+        ui.set_custom_characters(CHARSET_MENU);
+      #endif
       return;
     }
     bar_percent += (int8_t)ui.encoderPosition;
@@ -73,7 +75,9 @@ void menu_advanced_settings();
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    ui.set_custom_characters(CHARSET_INFO);
+    #if HAS_MARLINUI_HD44780
+      ui.set_custom_characters(CHARSET_INFO);
+    #endif
   }
 
 #endif // LCD_PROGRESS_BAR_TEST

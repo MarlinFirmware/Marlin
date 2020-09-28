@@ -152,7 +152,7 @@
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_SDSS                            28
   #if ENABLED(ADC_KEYPAD)
     #define SERVO0_PIN                        27  // free for BLTouch/3D-Touch

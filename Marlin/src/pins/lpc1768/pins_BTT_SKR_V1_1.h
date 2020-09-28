@@ -65,7 +65,7 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BTN_EN1                          P3_26
   #define BTN_EN2                          P3_25
   #define BTN_ENC                          P2_11

@@ -218,7 +218,7 @@ typedef struct block_t {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     uint32_t segment_time_us;
   #endif
 
@@ -438,7 +438,7 @@ class Planner {
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
@@ -871,7 +871,7 @@ class Planner {
         block_buffer_tail = next_block_index(block_buffer_tail);
     }
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       static uint16_t block_buffer_runtime();
       static void clear_block_buffer_runtime();
     #endif

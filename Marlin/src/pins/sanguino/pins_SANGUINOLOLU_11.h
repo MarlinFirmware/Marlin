@@ -154,11 +154,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define SD_DETECT_PIN                       -1
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #if ENABLED(LCD_FOR_MELZI)
 
@@ -290,7 +290,7 @@
     #define BTN_EN2                           10
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control

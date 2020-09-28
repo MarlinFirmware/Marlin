@@ -430,7 +430,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -706,7 +706,7 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
   #define SHIFT_OUT                           40

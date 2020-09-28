@@ -139,7 +139,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                          37
@@ -203,7 +203,7 @@
     #define DOGLCD_MISO                       74  // MISO_PIN
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_TMC_UART
   /**

@@ -1227,7 +1227,7 @@
   #define LCD_PINS_D4 -1
 #endif
 
-#if HAS_CHARACTER_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_MARLINUI_HD44780 || TOUCH_UI_ULTIPANEL
   #ifndef LCD_PINS_D5
     #define LCD_PINS_D5 -1
   #endif
@@ -1597,7 +1597,7 @@
   #define Z4_MS3_PIN -1
 #endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
     #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
   #endif

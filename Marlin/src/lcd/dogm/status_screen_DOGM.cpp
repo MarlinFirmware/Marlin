@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
+#if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
 
 #include "dogm_Statusscreen.h"
 #include "ultralcd_DOGM.h"
@@ -913,4 +913,4 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
-#endif // HAS_GRAPHICAL_LCD && !LIGHTWEIGHT_UI
+#endif // HAS_MARLINUI_U8GLIB && !LIGHTWEIGHT_UI

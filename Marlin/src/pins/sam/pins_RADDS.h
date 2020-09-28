@@ -226,7 +226,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
@@ -287,7 +287,7 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #ifndef SDSS
   #define SDSS                                 4

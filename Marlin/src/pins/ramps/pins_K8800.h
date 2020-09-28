@@ -95,7 +95,7 @@
 //
 #define BEEPER_PIN                             6
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_SDSS                            53
 
@@ -119,4 +119,4 @@
     #define BTN_ENC                           23
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
