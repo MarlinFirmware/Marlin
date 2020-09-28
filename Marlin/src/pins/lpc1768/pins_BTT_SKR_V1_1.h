@@ -65,34 +65,30 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if HAS_WIRED_LCD
+#if IS_TFTGLCD_PANEL
 
-  #if IS_TFTGLCD_PANEL
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26
+  #endif
 
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS                   P3_26
-    #endif
+  #define SD_DETECT_PIN                    P1_31
 
-    #define SD_DETECT_PIN                  P1_31
+#elif HAS_WIRED_LCD
 
-  #else
+  #define BTN_EN1                          P3_26
+  #define BTN_EN2                          P3_25
+  #define BTN_ENC                          P2_11
 
-    #define BTN_EN1                        P3_26
-    #define BTN_EN2                        P3_25
-    #define BTN_ENC                        P2_11
+  #define SD_DETECT_PIN                    P1_31
+  #define LCD_SDSS                         P1_23
+  #define LCD_PINS_RS                      P0_16
+  #define LCD_PINS_ENABLE                  P0_18
+  #define LCD_PINS_D4                      P0_15
 
-    #define SD_DETECT_PIN                  P1_31
-    #define LCD_SDSS                       P1_23
-    #define LCD_PINS_RS                    P0_16
-    #define LCD_PINS_ENABLE                P0_18
-    #define LCD_PINS_D4                    P0_15
-
-    #if ENABLED(MKS_MINI_12864)
-      #define DOGLCD_CS                    P2_06
-      #define DOGLCD_A0                    P0_16
-    #endif
-
-  #endif // TFTGLCD_PANEL
+  #if ENABLED(MKS_MINI_12864)
+    #define DOGLCD_CS                      P2_06
+    #define DOGLCD_A0                      P0_16
+  #endif
 
 #endif // HAS_WIRED_LCD
 
