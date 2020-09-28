@@ -55,6 +55,7 @@
 
 #define DEBUG_OUT EITHER(DEBUG_CARDREADER, MARLIN_DEV_MODE)
 #include "../core/debug_out.h"
+#include "../libs/hex_print.h"
 
 // public:
 
@@ -796,15 +797,20 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
   // Parsing the path string
   const char *item_name_adr = path;
 
+  DEBUG_ECHOLNPAIR("diveToFile: path = '", path, "'");
+
   if (path[0] == '/') {               // Starting at the root directory?
     diveDir = &root;
     item_name_adr++;
+    DEBUG_ECHOLNPAIR("diveToFile: CWD to root: ", hex_address((void*)diveDir));
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
     diveDir = &workDir;               // Dive from workDir (as set by the UI)
 
   startDir = diveDir;
+
+  DEBUG_ECHOLNPAIR("diveToFile: startDir = ", hex_address((void*)startDir));
 
   while (item_name_adr) {
     // Find next subdirectory delimiter
@@ -821,6 +827,8 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
+    DEBUG_ECHOLNPAIR("diveToFile: sub = ", hex_address((void*)sub));
+
     // Open diveDir (closing first)
     sub->close();
     if (!sub->open(diveDir, dosSubdirname, O_READ)) {
@@ -830,19 +838,25 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
     }
 
     // Close diveDir if not at starting-point
-    if (diveDir != startDir) diveDir->close();
+    if (diveDir != startDir) {
+      DEBUG_ECHOLNPAIR("diveToFile: closing diveDir: ", hex_address((void*)diveDir));
+      diveDir->close();
+    }
 
     // diveDir now subDir
     diveDir = sub;
+    DEBUG_ECHOLNPAIR("diveToFile: diveDir = sub: ", hex_address((void*)diveDir));
 
     // Update workDirParents and workDirDepth
     if (update_cwd) {
+      DEBUG_ECHOLNPAIR("diveToFile: update_cwd");
       if (workDirDepth < MAX_DIR_DEPTH)
         workDirParents[workDirDepth++] = *diveDir;
     }
 
     // Point sub at the other scratch object
     sub = (diveDir != &newDir1) ? &newDir1 : &newDir2;
+    DEBUG_ECHOLNPAIR("diveToFile: swapping sub = ", hex_address((void*)sub));
 
     // Next path atom address
     item_name_adr = name_end + 1;
@@ -850,6 +864,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
 
   if (update_cwd) {
     workDir = *diveDir;
+    DEBUG_ECHOLNPAIR("diveToFile: final workDir = ", hex_address((void*)diveDir));
     flag.workDirIsRoot = (workDirDepth == 0);
     TERN_(SDCARD_SORT_ALPHA, presort());
   }
