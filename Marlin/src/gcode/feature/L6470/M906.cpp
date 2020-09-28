@@ -33,7 +33,6 @@
 #include "../../../core/debug_out.h"
 
 /**
- *
  * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
  *       PWMs to the steppers
  *

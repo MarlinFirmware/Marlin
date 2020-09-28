@@ -710,7 +710,6 @@ void MMU2::tool_change(const uint8_t index) {
 }
 
 /**
- *
  * Handle special T?/Tx/Tc commands
  *
  * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
@@ -921,9 +920,7 @@ void MMU2::filament_runout() {
   }
 
   /**
-   *
    * Switch material and load to nozzle
-   *
    */
   bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 

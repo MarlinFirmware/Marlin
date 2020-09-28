@@ -1162,7 +1162,6 @@ uint8_t BulkOnly::HandleSCSIError(uint8_t status) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
  * @param ep_ptr
  */
 void BulkOnly::PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR * ep_ptr) {

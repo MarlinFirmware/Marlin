@@ -339,7 +339,6 @@ void Planner::init() {
      *  const uint32_t r = _BV(24) - x * d;                             // Estimate remainder
      *  if (r >= d) x++;                                                // Check whether to adjust result
      *  return uint32_t(x);                                             // x holds the proper estimation
-     *
      */
     static uint32_t get_period_inverse(uint32_t d) {
 
@@ -2243,7 +2242,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
-       *
        * Use LIN_ADVANCE for blocks if all these are true:
        *
        * esteps             : This is a print move, because we checked for A, B, C steps before.
