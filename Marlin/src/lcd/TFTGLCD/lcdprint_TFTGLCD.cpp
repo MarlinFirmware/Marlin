@@ -16,8 +16,6 @@
 
 #if ENABLED(TFTGLCD_PANEL)
 
-#if HAS_CHARACTER_LCD
-
 #include "../ultralcd.h"
 #include "../../MarlinCore.h"
 #include "../../libs/numtostr.h"
@@ -924,7 +922,7 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
     {IV('э'), 'e', 0},
     {IV('ю'), '|', 'o'},
     {IV('я'), 'g', 0}, // 044F
- 
+
   #endif
 
   {IV('•'), '.', 0}, // 2022 ·
@@ -967,10 +965,9 @@ static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { lcd.setCursor(col, row); }
 
-void lcd_put_int(const int i)
-{
-    const char* str = i16tostr3left(i);
-    while (*str)    lcd.write(*str++);
+void lcd_put_int(const int i) {
+  const char* str = i16tostr3left(i);
+  while (*str) lcd.write(*str++);
 }
 
 // return < 0 on error
@@ -1122,5 +1119,5 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
   }
 
 #endif // DEBUG_LCDPRINT
-#endif // HAS_CHARACTER_LCD
-#endif
+
+#endif // TFTGLCD_PANEL

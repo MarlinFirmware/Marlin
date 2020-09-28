@@ -33,7 +33,7 @@
  */
 
 #if NONE(__AVR__, MCU_LPC1768, __STM32F1__, STM32F4xx)
-  #error "Selected platform not tested in hardware. Comment out this line to continue."
+  #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
 #if ENABLED(SPI_PANEL)
@@ -306,7 +306,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
   #endif
 }
 
-//duration in ms, freq in Hz
+// duration in ms, freq in Hz
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
   #if ENABLED(SPI_PANEL)
@@ -347,7 +347,7 @@ void MarlinUI::init_lcd() {
   #if ENABLED(SPI_PANEL)
     // SPI speed must be less 10MHz
     OUT_WRITE(TFTGLCD_CS, HIGH);
-    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED);
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(GET_LCD_ROW);
