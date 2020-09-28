@@ -21,10 +21,6 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
-#endif
-
 #include <lvgl.h>
 
 #include <stdint.h>
@@ -167,6 +163,10 @@
   #define TFT_HEIGHT    240
 
 #endif // ifdef TFT35
+
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
 extern char public_buf_m[100];
 extern char public_buf_l[30];
