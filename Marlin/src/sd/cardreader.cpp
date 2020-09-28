@@ -571,11 +571,11 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
 
   endFilePrint();
 
-  SdFile *curDir;
-  const char * const fname = diveToFile(true, curDir, path);
+  SdFile *diveDir;
+  const char * const fname = diveToFile(true, diveDir, path);
   if (!fname) return;
 
-  if (file.open(curDir, fname, O_READ)) {
+  if (file.open(diveDir, fname, O_READ)) {
     filesize = file.fileSize();
     sdpos = 0;
 
@@ -606,14 +606,14 @@ void CardReader::openFileWrite(char * const path) {
 
   endFilePrint();
 
-  SdFile *curDir;
-  const char * const fname = diveToFile(false, curDir, path);
+  SdFile *diveDir;
+  const char * const fname = diveToFile(false, diveDir, path);
   if (!fname) return;
 
   #if ENABLED(SDCARD_READONLY)
     openFailed(fname);
   #else
-    if (file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
+    if (file.open(diveDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       flag.saving = true;
       selectFileByName(fname);
       TERN_(EMERGENCY_PARSER, emergency_parser.disable());
@@ -623,6 +623,16 @@ void CardReader::openFileWrite(char * const path) {
     else
       openFailed(fname);
   #endif
+}
+
+//
+// Check if a file exists by absolute or workDir-relative path
+//
+bool CardReader::fileExists(const char * const path) {
+  if (!isMounted()) return false;
+  SdFile *diveDir = nullptr;
+  const char * const fname = diveToFile(false, diveDir, path);
+  return fname != nullptr;
 }
 
 //
@@ -770,13 +780,15 @@ uint16_t CardReader::countFilesInWorkDir() {
 /**
  * Dive to the given DOS 8.3 file path, with optional echo of the dive paths.
  *
- * On exit, curDir contains an SdFile reference to the file's directory.
+ * On exit:
+ *  - Your curDir pointer contains an SdFile reference to the file's directory.
+ *  - If update_cwd was 'true' the workDir now points to the file's directory.
  *
  * Returns a pointer to the last segment (filename) of the given DOS 8.3 path.
  *
  * A nullptr result indicates an unrecoverable error.
  */
-const char* CardReader::diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo/*=false*/) {
+const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, const char * const path, const bool echo/*=false*/) {
   // Track both parent and subfolder
   static SdFile newDir1, newDir2;
   SdFile *sub = &newDir1, *startDir;
@@ -785,14 +797,15 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& curDir, const
   const char *item_name_adr = path;
 
   if (path[0] == '/') {               // Starting at the root directory?
-    curDir = &root;
-    if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
+    diveDir = &root;
     item_name_adr++;
+    if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
-    curDir = &workDir;                // Dive from workDir (as set by the UI)
+    diveDir = &workDir;               // Dive from workDir (as set by the UI)
 
-  startDir = curDir;
+  startDir = diveDir;
+
   while (item_name_adr) {
     // Find next subdirectory delimiter
     char * const name_end = strchr(item_name_adr, '/');
@@ -808,30 +821,39 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& curDir, const
 
     if (echo) SERIAL_ECHOLN(dosSubdirname);
 
-    // Open curDir
-    if (!sub->open(curDir, dosSubdirname, O_READ)) {
+    // Open diveDir (closing first)
+    sub->close();
+    if (!sub->open(diveDir, dosSubdirname, O_READ)) {
       openFailed(dosSubdirname);
-      return nullptr;
+      item_name_adr = nullptr;
+      break;
     }
 
-    // Close curDir if not at starting-point
-    if (curDir != startDir) curDir->close();
+    // Close diveDir if not at starting-point
+    if (diveDir != startDir) diveDir->close();
 
-    // curDir now subDir
-    curDir = sub;
+    // diveDir now subDir
+    diveDir = sub;
 
-    // Update workDirParents, workDirDepth, and workDir
+    // Update workDirParents and workDirDepth
     if (update_cwd) {
-      if (workDirDepth < MAX_DIR_DEPTH) workDirParents[workDirDepth++] = *curDir;
-      workDir = *curDir;
+      if (workDirDepth < MAX_DIR_DEPTH)
+        workDirParents[workDirDepth++] = *diveDir;
     }
 
     // Point sub at the other scratch object
-    sub = (curDir != &newDir1) ? &newDir1 : &newDir2;
+    sub = (diveDir != &newDir1) ? &newDir1 : &newDir2;
 
     // Next path atom address
     item_name_adr = name_end + 1;
   }
+
+  if (update_cwd) {
+    workDir = *diveDir;
+    flag.workDirIsRoot = (workDirDepth == 0);
+    TERN_(SDCARD_SORT_ALPHA, presort());
+  }
+
   return item_name_adr;
 }
 
