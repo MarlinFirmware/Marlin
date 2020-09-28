@@ -99,6 +99,7 @@ public:
   static void openFileRead(char * const path, const uint8_t subcall=0);
   static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
+  static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
