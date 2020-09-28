@@ -337,7 +337,9 @@ inline int read_serial(const uint8_t index) {
         return telnetClient.read();
       return -1;
     #else
-      return MYSERIAL1.read();
+      #ifdef HAS_MULTI_SERIAL
+        return MYSERIAL1.read();
+      #endif
     #endif
     default: return -1;
   }
