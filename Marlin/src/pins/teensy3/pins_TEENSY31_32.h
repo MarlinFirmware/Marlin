@@ -98,7 +98,7 @@
 //
 
 /*
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         40
   #define LCD_PINS_ENABLE                     41
   #define LCD_PINS_D4                         42

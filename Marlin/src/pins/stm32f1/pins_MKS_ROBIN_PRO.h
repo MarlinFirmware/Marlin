@@ -225,7 +225,7 @@
     #define BTN_EN2                         PG4
   #endif
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PG2
