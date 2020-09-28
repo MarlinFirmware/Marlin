@@ -456,11 +456,11 @@
 #endif
 
 #if ENABLED(ULTRA_LCD)
-  #define HAS_SPI_LCD 1
+  #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
-    #define HAS_GRAPHICAL_LCD 1
+    #define HAS_MARLINUI_U8GLIB 1
   #elif DISABLED(HAS_GRAPHICAL_TFT)
-    #define HAS_CHARACTER_LCD 1
+    #define HAS_MARLINUI_HD44780 1
   #endif
 #endif
 
@@ -471,7 +471,7 @@
   #define HAS_ADC_BUTTONS 1
 #endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef LCD_PIXEL_WIDTH
     #define LCD_PIXEL_WIDTH 128
   #endif

@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
 #include "lcdprint.h"
 
@@ -73,4 +73,4 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
   return n;
 }
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

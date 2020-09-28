@@ -200,7 +200,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BEEPER_PIN                        62
@@ -271,4 +271,4 @@
     #define BTN_ENC                           40
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
