@@ -113,7 +113,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
   #define LCD_PINS_ENABLE                     43
@@ -168,4 +168,4 @@
 
     #define BEEPER_PIN                        -1
   #endif // SPARK_FULL_GRAPHICS
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

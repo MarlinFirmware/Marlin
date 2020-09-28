@@ -335,7 +335,7 @@
   #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
   #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
   //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
   //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
@@ -432,7 +432,7 @@
     //#define LCD_SCREEN_ROT_270
  #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // Ethernet pins

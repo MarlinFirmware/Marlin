@@ -81,7 +81,7 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PD2
   #define BTN_ENC                           PB3
   #define LCD_PINS_RS                       PC3
@@ -123,7 +123,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 // Motor current PWM pins
 #define MOTOR_CURRENT_PWM_XY_PIN            PB0

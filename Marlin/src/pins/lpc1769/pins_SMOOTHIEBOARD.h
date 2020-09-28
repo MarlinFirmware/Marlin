@@ -109,7 +109,7 @@
   #define STAT_LED_RED_PIN                 P1_19
   #define STAT_LED_BLUE_PIN                P1_20
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
   /**
    * SD Support

@@ -202,7 +202,7 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PE7
   #define BTN_ENC                           PB1
 
@@ -249,7 +249,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // RGB LEDs

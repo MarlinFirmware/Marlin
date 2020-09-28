@@ -135,7 +135,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
     //
@@ -178,7 +178,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // Beeper

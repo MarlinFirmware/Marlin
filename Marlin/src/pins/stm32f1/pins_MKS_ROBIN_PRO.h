@@ -231,7 +231,7 @@
     #define TFTGLCD_CS                       PG5
   #endif
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                      PC5
   #define BTN_ENC                         PG2

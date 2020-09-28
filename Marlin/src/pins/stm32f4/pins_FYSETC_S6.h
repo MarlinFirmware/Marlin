@@ -199,7 +199,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC9
   #define BTN_ENC                           PA8
 
@@ -273,7 +273,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB6

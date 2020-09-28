@@ -97,7 +97,7 @@
  * for the onboard SD card, and a chip select signal is not provided for the remote
  * SD card.
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                       P1_31  // EXP1-1
 
@@ -118,7 +118,7 @@
     #error "SDSUPPORT is not supported by the BIQU BQ111-A4 when an LCD controller is used"
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 /**
  * SD Card Reader

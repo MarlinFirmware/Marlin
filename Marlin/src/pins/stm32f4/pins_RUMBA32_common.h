@@ -147,7 +147,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BTN_EN1                           PB2
   #define BTN_EN2                           PB1

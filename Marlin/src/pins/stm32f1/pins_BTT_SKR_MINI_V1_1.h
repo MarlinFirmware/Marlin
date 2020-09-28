@@ -110,7 +110,7 @@
  *                EXP2                                              EXP1
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC10
   #define BTN_ENC                           PC11
 
@@ -197,7 +197,7 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

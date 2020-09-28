@@ -232,7 +232,7 @@
  *              -----                                             -----
  *              EXP2                                              EXP1
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
     #define LCD_PINS_RS                    P1_23
@@ -381,7 +381,7 @@
 
   #endif // HAS_MARLINUI_U8GLIB
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."

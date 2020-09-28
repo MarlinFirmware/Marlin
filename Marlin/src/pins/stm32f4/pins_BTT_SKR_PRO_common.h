@@ -292,7 +292,7 @@
     #define TFTGLCD_CS                      PG10
   #endif
 
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
@@ -357,7 +357,7 @@
 
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 // Alter timing for graphical display
 #if HAS_MARLINUI_U8GLIB

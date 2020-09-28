@@ -51,7 +51,7 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
     constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
@@ -62,7 +62,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#if EITHER(HAS_SPI_LCD, EXTENSIBLE_UI)
+#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
@@ -114,7 +114,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
 #if HAS_MARLINUI_U8GLIB
   #include "dogm/ultralcd_DOGM.h"
@@ -1300,7 +1300,7 @@ void MarlinUI::update() {
 
 #endif // HAS_ENCODER_ACTION
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_DISPLAY
 
@@ -1348,7 +1348,7 @@ void MarlinUI::update() {
       next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
-    #if BOTH(HAS_SPI_LCD, STATUS_MESSAGE_SCROLLING)
+    #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
       status_scroll_offset = 0;
     #endif
 
@@ -1507,7 +1507,7 @@ void MarlinUI::update() {
     set_status_P(print_paused);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
-      TERN_(HAS_SPI_LCD, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT)); // Show message immediately to let user know about pause in progress
+      TERN_(HAS_WIRED_LCD, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT)); // Show message immediately to let user know about pause in progress
       queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       queue.inject_P(PSTR("M25"));
@@ -1616,11 +1616,11 @@ void MarlinUI::update() {
 
     refresh();
 
-    #if HAS_SPI_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+    #if HAS_WIRED_LCD || defined(LED_BACKLIGHT_TIMEOUT)
       const millis_t ms = millis();
     #endif
 
-    TERN_(HAS_SPI_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
+    TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
 
     #ifdef LED_BACKLIGHT_TIMEOUT
       leds.reset_timeout(ms);

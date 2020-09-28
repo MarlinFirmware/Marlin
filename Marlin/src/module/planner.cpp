@@ -234,7 +234,7 @@ float Planner::previous_nominal_speed_sqr;
   xyze_pos_t Planner::position_cart;
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
 #endif
 
@@ -747,7 +747,7 @@ block_t* Planner::get_current_block() {
     if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
     // We can't be sure how long an active block will take, so don't count it.
-    TERN_(HAS_SPI_LCD, block_buffer_runtime_us -= block->segment_time_us);
+    TERN_(HAS_WIRED_LCD, block_buffer_runtime_us -= block->segment_time_us);
 
     // As this block is busy, advance the nonbusy block pointer
     block_buffer_nonbusy = next_block_index(block_buffer_tail);
@@ -761,7 +761,7 @@ block_t* Planner::get_current_block() {
   }
 
   // The queue became empty
-  TERN_(HAS_SPI_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+  TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
 
   return nullptr;
 }
@@ -1578,7 +1578,7 @@ void Planner::quick_stop() {
   // forced to empty, there's no risk the ISR will touch this.
   delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     // Clear the accumulated runtime
     clear_block_buffer_runtime();
   #endif
@@ -2081,7 +2081,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if EITHER(SLOWDOWN, HAS_SPI_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if EITHER(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2096,14 +2096,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
         const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
-        #if defined(XY_FREQUENCY_LIMIT) || HAS_SPI_LCD
+        #if defined(XY_FREQUENCY_LIMIT) || HAS_WIRED_LCD
           segment_time_us = nst;
         #endif
       }
     }
   #endif
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     // Protect the access to the position.
     const bool was_enabled = stepper.suspend();
 
@@ -3029,7 +3029,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
   #endif
 }
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   uint16_t Planner::block_buffer_runtime() {
     #ifdef __AVR__

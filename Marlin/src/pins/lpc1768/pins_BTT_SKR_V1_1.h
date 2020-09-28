@@ -65,7 +65,7 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if IS_TFTGLCD_PANEL
 
@@ -94,7 +94,7 @@
 
   #endif // TFTGLCD_PANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support

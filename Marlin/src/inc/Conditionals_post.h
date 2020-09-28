@@ -2608,7 +2608,7 @@
   #define HAS_FOLDER_SORTING 1
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.
   #ifndef LCD_WIDTH
     #if HAS_MARLINUI_U8GLIB

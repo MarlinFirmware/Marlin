@@ -220,7 +220,7 @@
 #elif EITHER(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C)
 
   #define IS_TFTGLCD_PANEL 1
-  #define IS_ULTIPANEL                      // Note that IS_ULTIPANEL leads to HAS_SPI_LCD
+  #define IS_ULTIPANEL                      // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
   #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
@@ -478,7 +478,7 @@
 #endif
 
 #if ENABLED(ULTRA_LCD)
-  #define HAS_SPI_LCD 1
+  #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
     #define HAS_MARLINUI_U8GLIB 1
   #elif IS_TFTGLCD_PANEL

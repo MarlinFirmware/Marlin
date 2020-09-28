@@ -217,7 +217,7 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if IS_TFTGLCD_PANEL
 

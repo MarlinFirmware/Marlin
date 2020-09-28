@@ -323,7 +323,7 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC11
   #define BTN_ENC                           PA15
 
@@ -406,6 +406,6 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #undef TP
