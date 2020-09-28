@@ -408,9 +408,7 @@ void SysTick_Callback() {
       OUT_WRITE(LCD_BACKLIGHT_PIN, LOW);
       LCD_Clear(0x0000);
 
-      #if HAS_LOGO_IN_FLASH
-        lcd_draw_logo();
-      #endif
+      TERN_(HAS_LOGO_IN_FLASH, lcd_draw_logo());
 
       OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
       delay(2000);
