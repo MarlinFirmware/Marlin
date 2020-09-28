@@ -450,7 +450,7 @@
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
     #define TFTGLCD_CS                        33
 
@@ -686,7 +686,7 @@
 
       // Pins only defined for RAMPS_SMART currently
 
-    #elif ENABLED(TFTGLCD_PANEL)
+    #elif IS_TFTGLCD_PANEL
 
       #define SD_DETECT_PIN                   49
 

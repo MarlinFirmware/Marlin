@@ -27,9 +27,8 @@
 
 #include "limits.h"
 
-#if ENABLED(TFTGLCD_PANEL)
+#if IS_TFTGLCD_PANEL
   #include "../TFTGLCD/ultralcd_TFTGLCD.h"
-  extern TFTGLCD lcd;
 #endif
 
 extern int8_t encoderLine, encoderTopLine, screen_items;

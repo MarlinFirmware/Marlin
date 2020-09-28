@@ -1260,7 +1260,7 @@ void MarlinUI::update() {
         TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
       #endif
 
-      #if ENABLED(TFTGLCD_PANEL)
+      #if IS_TFTGLCD_PANEL
         next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
         buttons = slow_buttons;
         TERN_(AUTO_BED_LEVELING_UBL, external_encoder());

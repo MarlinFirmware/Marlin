@@ -217,15 +217,15 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
-#elif ENABLED(TFTGLCD_PANEL)
+#elif EITHER(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C)
 
-  #define SPI_PANEL                         // Disable if panel is not connected by SPI bus
+  #define IS_TFTGLCD_PANEL 1
   #define IS_ULTIPANEL                      // Note that IS_ULTIPANEL leads to HAS_SPI_LCD
 
   #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
   #endif
-  #if DISABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_I2C)
     #define LCD_USE_I2C_BUZZER              // Enable buzzer on LCD for I2C and SPI buses (LiquidTWI2 not required)
     #define LCD_I2C_ADDRESS           0x27  // Must be equal to panel's I2C slave addres
   #endif
@@ -481,7 +481,7 @@
   #define HAS_SPI_LCD 1
   #if ENABLED(DOGLCD)
     #define HAS_GRAPHICAL_LCD 1
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
     // Neither DOGM nor HD44780. Fully customized interface.
   #elif DISABLED(HAS_GRAPHICAL_TFT)
     #define HAS_CHARACTER_LCD 1

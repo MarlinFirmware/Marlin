@@ -169,9 +169,9 @@
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
 
       #error "CAUTION! TFTGLCD_PANEL requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
 
@@ -269,7 +269,7 @@
   #define SD_DETECT_PIN                     PC4
 #endif
 
-#if (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || ENABLED(TFTGLCD_PANEL)) && SD_CONNECTION_IS(LCD)
+#if (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL) && SD_CONNECTION_IS(LCD)
   #define SD_DETECT_PIN                     PB5
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

@@ -309,9 +309,9 @@
       #define XPT2046_Y_OFFSET             -285
     #endif
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS                   P3_26
     #endif
 

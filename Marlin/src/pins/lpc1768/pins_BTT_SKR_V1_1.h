@@ -67,9 +67,9 @@
 
 #if HAS_SPI_LCD
 
-  #if ENABLED(TFTGLCD_PANEL)
+  #if IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS                   P3_26
     #endif
 
@@ -103,7 +103,7 @@
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
-  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, TFTGLCD_PANEL)
+  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, IS_TFTGLCD_PANEL)
     #define SDCARD_CONNECTION              LCD
   #else
     #define SDCARD_CONNECTION              ONBOARD

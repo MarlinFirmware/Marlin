@@ -115,9 +115,9 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS                    PB11
     #endif
 

@@ -356,9 +356,9 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define PIN_SPI_SCK                   PA5
       #define PIN_TFT_MISO                  PA6
       #define PIN_TFT_MOSI                  PA7

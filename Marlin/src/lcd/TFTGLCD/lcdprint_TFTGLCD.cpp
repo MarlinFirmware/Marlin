@@ -14,7 +14,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFTGLCD_PANEL)
+#if IS_TFTGLCD_PANEL
 
 #include "../ultralcd.h"
 #include "../../MarlinCore.h"
@@ -23,8 +23,6 @@
 #include "ultralcd_TFTGLCD.h"
 
 #include <string.h>
-
-extern TFTGLCD lcd;
 
 int lcd_glyph_height(void) { return 1; }
 

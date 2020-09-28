@@ -149,11 +149,11 @@
     #define BTN_EN2                        P3_26  // EXP2 Pin 3
     #define BTN_EN1                        P3_25  // EXP2 Pin 5
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
     #define SD_DETECT_PIN                  P0_27  // EXP2 Pin 7 (SD_CD, SD_DET)
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS                   P3_26  // EXP2 Pin 3
     #endif
 

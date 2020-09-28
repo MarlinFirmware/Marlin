@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFTGLCD_PANEL)
+#if IS_TFTGLCD_PANEL
 
 /**
  * ultralcd_TFTGLCD.cpp
@@ -36,7 +36,7 @@
   #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
-#if ENABLED(SPI_PANEL)
+#if ENABLED(TFTGLCD_PANEL_SPI)
   #include <SPI.h>
 #else
   #include <Wire.h>
@@ -152,7 +152,7 @@ void TFTGLCD::print(const char *line) {
 // For menu
 void TFTGLCD::print_line() {
   if (!PanelDetected) return;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     WRITE(TFTGLCD_CS, LOW);
     #ifdef __AVR__
       SPI.transfer(LCD_PUT);
@@ -190,7 +190,7 @@ void TFTGLCD::print_screen(){
   if (!PanelDetected) return;
   framebuffer[FBSIZE - 2] = picBits & PIC_MASK;
   framebuffer[FBSIZE - 1] = ledBits;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     // Send all framebuffer to panel
     WRITE(TFTGLCD_CS, LOW);
     #ifdef __AVR__
@@ -233,7 +233,7 @@ void TFTGLCD::print_screen(){
 
 void TFTGLCD::setContrast(uint16_t contrast) {
   if (!PanelDetected) return;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(CONTRAST);
@@ -262,7 +262,7 @@ extern volatile int8_t encoderDiff;
 
 uint8_t MarlinUI::read_slow_buttons(void) {
   if (!PanelDetected)    return 0;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     uint8_t b = 0;
     WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
@@ -309,7 +309,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
 // duration in ms, freq in Hz
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(BUZZER);
@@ -344,7 +344,7 @@ void MarlinUI::init_lcd() {
   uint8_t t;
   lcd.clear_buffer();
   t = 0;
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     // SPI speed must be less 10MHz
     OUT_WRITE(TFTGLCD_CS, HIGH);
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
@@ -381,7 +381,7 @@ void MarlinUI::init_lcd() {
 
   if (t == LCD_HEIGHT) {
     PanelDetected = 1;
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       PanelDetected = 1;
       #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
         SPI.transfer(INIT_SCREEN);

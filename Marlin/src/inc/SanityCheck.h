@@ -693,8 +693,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(LCD_PROGRESS_BAR)
   #if NONE(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
     #error "LCD_PROGRESS_BAR requires SDSUPPORT or LCD_SET_PROGRESS_MANUALLY."
-  #elif NONE(HAS_CHARACTER_LCD, TFTGLCD_PANEL)
-    #error "LCD_PROGRESS_BAR only applies to HD44780 character LCD and TFTGLCD_PANEL."
+  #elif NONE(HAS_CHARACTER_LCD, IS_TFTGLCD_PANEL)
+    #error "LCD_PROGRESS_BAR only applies to HD44780 character LCD and TFTGLCD_PANEL_(SPI|I2C)."
   #elif HAS_GRAPHICAL_LCD
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
   #elif ENABLED(FILAMENT_LCD_DISPLAY)
@@ -2275,7 +2275,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_LVGL_UI_SPI) \
   + ENABLED(ANYCUBIC_LCD_I3MEGA) \
   + ENABLED(ANYCUBIC_LCD_CHIRON) \
-  + ENABLED(TFTGLCD_PANEL)
+  + ENABLED(TFTGLCD_PANEL_SPI) \
+  + ENABLED(TFTGLCD_PANEL_I2C)
   #error "Please select only one LCD controller option."
 #endif
 

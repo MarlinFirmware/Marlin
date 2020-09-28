@@ -219,9 +219,9 @@
 
 #if HAS_SPI_LCD
 
-  #if ENABLED(TFTGLCD_PANEL)
+  #if IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define TFTGLCD_CS                   P3_25  // EXP2.3
     #endif
 

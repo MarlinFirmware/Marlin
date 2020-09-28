@@ -225,9 +225,9 @@
     #define BTN_EN2                         PG4
   #endif
 
-#elif ENABLED(TFTGLCD_PANEL)
+#elif IS_TFTGLCD_PANEL
 
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     #define TFTGLCD_CS                       PG5
   #endif
 

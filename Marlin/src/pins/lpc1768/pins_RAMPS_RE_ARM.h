@@ -326,9 +326,9 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
-#elif ENABLED(TFTGLCD_PANEL)
+#elif IS_TFTGLCD_PANEL
 
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
   #endif
 

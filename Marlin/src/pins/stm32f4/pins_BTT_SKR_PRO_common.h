@@ -286,9 +286,9 @@
 //
 // LCDs and Controllers
 //
-#if ENABLED(TFTGLCD_PANEL)
+#if IS_TFTGLCD_PANEL
 
-  #if ENABLED(SPI_PANEL)
+  #if ENABLED(TFTGLCD_PANEL_SPI)
     #define TFTGLCD_CS                      PG10
   #endif
 

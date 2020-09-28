@@ -45,7 +45,7 @@
 #endif
 
 // I2C buttons must be read in the main thread
-#if ANY(LCD_I2C_VIKI, LCD_I2C_PANELOLU2, TFTGLCD_PANEL)
+#if ANY(LCD_I2C_VIKI, LCD_I2C_PANELOLU2, IS_TFTGLCD_PANEL)
   #define HAS_SLOW_BUTTONS 1
 #endif
 
@@ -215,7 +215,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || HAS_TOUCH_XPT2046 || ENABLED(TFTGLCD_PANEL)
+#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_XPT2046, IS_TFTGLCD_PANEL)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
