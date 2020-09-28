@@ -626,6 +626,16 @@ void CardReader::openFileWrite(char * const path) {
 }
 
 //
+// Check if a file exists by absolute or workDir-relative path
+//
+bool CardReader::fileExists(const char * const path) {
+  if (!isMounted()) return false;
+  SdFile *diveDir = nullptr;
+  const char * const fname = diveToFile(false, diveDir, path);
+  return fname != nullptr;
+}
+
+//
 // Delete a file by name in the working directory
 //
 void CardReader::removeFile(const char * const name) {
@@ -820,9 +830,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
     }
 
     // Close diveDir if not at starting-point
-    if (diveDir != startDir) {
-      diveDir->close();
-    }
+    if (diveDir != startDir) diveDir->close();
 
     // diveDir now subDir
     diveDir = sub;
