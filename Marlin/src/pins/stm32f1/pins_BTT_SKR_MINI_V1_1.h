@@ -123,6 +123,17 @@
     #define LCD_PINS_ENABLE                 PC14
     #define LCD_PINS_D4                     PB7
 
+  #elif IS_TFTGLCD_PANEL
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PD2
+    #endif
+
+    #define SD_DETECT_PIN                   PB9
+
   #else
 
     #define LCD_PINS_RS                     PC12

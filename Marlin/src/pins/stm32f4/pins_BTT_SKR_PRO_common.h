@@ -286,7 +286,14 @@
 //
 // LCDs and Controllers
 //
-#if HAS_WIRED_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                      PG10
+  #endif
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                        PG4
   #define BTN_ENC                           PA8
 

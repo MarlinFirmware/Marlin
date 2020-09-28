@@ -241,7 +241,16 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-#if HAS_WIRED_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_25
+  #endif
+
+  #define SD_DETECT_PIN                    P0_27
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                       P1_31
   #define BTN_ENC                          P1_30
 
