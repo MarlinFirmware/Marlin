@@ -112,8 +112,7 @@ void PrintJobRecovery::check() {
   if (card.isMounted()) {
     load();
     if (!valid()) return cancel();
-    queue.inject_P(PSTR("M1000 S"));
-    TERN_(DWIN_CREALITY_LCD, dwin_flag = true);
+    queue.inject_P(PSTR("M1000S"));
   }
 }
 
@@ -227,6 +226,10 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     // Elapsed print job time
     info.print_job_elapsed = print_job_timer.duration();
 
+    // Misc. Marlin flags
+    info.flag.dryrun = !!(marlin_debug_flags & MARLIN_DEBUG_DRYRUN);
+    info.flag.allow_cold_extrusion = TERN0(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude);
+
     write();
   }
 }
@@ -326,6 +329,12 @@ void PrintJobRecovery::resume() {
 
   const uint32_t resume_sdpos = info.sdpos; // Get here before the stepper ISR overwrites it
 
+  // Apply the dry-run flag if enabled
+  if (info.flag.dryrun) marlin_debug_flags |= MARLIN_DEBUG_DRYRUN;
+
+  // Restore cold extrusion permission
+  TERN_(PREVENT_COLD_EXTRUSION, thermalManager.allow_cold_extrude = info.flag.allow_cold_extrusion);
+
   #if HAS_LEVELING
     // Make sure leveling is off before any G92 and G28
     gcode.process_subcommands_now_P(PSTR("M420 S0 Z0"));
@@ -337,7 +346,7 @@ void PrintJobRecovery::resume() {
     // If Z homing goes to max, just reset E and home all
     gcode.process_subcommands_now_P(PSTR(
       "G92.9 E0\n"
-      "G28R0" TERN_(MARLIN_DEV_MODE, "S")
+      "G28R0"
     ));
 
   #else // "G92.9 E0 ..."
@@ -358,7 +367,6 @@ void PrintJobRecovery::resume() {
 
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
-      TERN_(MARLIN_DEV_MODE, "S")           // Simulated Homing
       TERN_(IS_CARTESIAN, "XY")             // Don't home Z on Cartesian
     ));
 
@@ -498,6 +506,14 @@ void PrintJobRecovery::resume() {
     LOOP_XYZ(i) update_workspace_offset((AxisEnum)i);
   #endif
 
+  #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
+    const uint8_t old_flags = marlin_debug_flags;
+    marlin_debug_flags |= MARLIN_DEBUG_ECHO;
+  #endif
+
+  // Continue to apply PLR when a file is resumed!
+  enable(true);
+
   // Resume the SD file from the last position
   char *fn = info.sd_filename;
   extern const char M23_STR[];
@@ -505,6 +521,8 @@ void PrintJobRecovery::resume() {
   gcode.process_subcommands_now(cmd);
   sprintf_P(cmd, PSTR("M24 S%ld T%ld"), resume_sdpos, info.print_job_elapsed);
   gcode.process_subcommands_now(cmd);
+
+  TERN_(DEBUG_POWER_LOSS_RECOVERY, marlin_debug_flags = old_flags);
 }
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
@@ -584,6 +602,8 @@ void PrintJobRecovery::resume() {
         DEBUG_ECHOLNPAIR("sd_filename: ", info.sd_filename);
         DEBUG_ECHOLNPAIR("sdpos: ", info.sdpos);
         DEBUG_ECHOLNPAIR("print_job_elapsed: ", info.print_job_elapsed);
+        DEBUG_ECHOLNPAIR("dryrun: ", int(info.flag.dryrun));
+        DEBUG_ECHOLNPAIR("allow_cold_extrusion: ", int(info.flag.allow_cold_extrusion));
       }
       else
         DEBUG_ECHOLNPGM("INVALID DATA");
