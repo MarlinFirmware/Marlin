@@ -30,7 +30,6 @@
  *
  * Translated by Michal Holeš, Farma MaM
  * https://www.facebook.com/farmamam
- *
  */
 #define DISPLAY_CHARSET_ISO10646_SK
 
