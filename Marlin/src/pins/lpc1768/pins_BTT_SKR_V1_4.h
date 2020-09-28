@@ -61,6 +61,9 @@
     #define X_MIN_PIN                      P1_26  // E0DET
   #endif
 #else
+  #ifdef USE_XMAX_PLUG
+    #define X_MAX_PIN                      P1_26  // E0DET
+  #endif
   #define X_STOP_PIN                       P1_29  // X-STOP
 #endif
 
@@ -73,6 +76,9 @@
   #endif
 #else
   #define Y_STOP_PIN                       P1_28  // Y-STOP
+  #ifdef USE_YMAX_PLUG
+    #define Y_MAX_PIN                      P1_25  // E1DET
+  #endif
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
@@ -83,6 +89,9 @@
     #define Z_MIN_PIN                      P1_00  // PWRDET
   #endif
 #else
+  #ifdef USE_ZMAX_PLUG
+    #define Z_MAX_PIN                      P1_00  // PWRDET
+  #endif
   #ifndef Z_STOP_PIN
     #define Z_STOP_PIN                     P1_27  // Z-STOP
   #endif
