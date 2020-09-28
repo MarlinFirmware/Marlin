@@ -252,8 +252,11 @@ typedef struct {
   char show_mode          = 0;    // -1: Temperature control    0: Printing temperature
 } HMI_value_t;
 
+#define DWIN_CHINESE 123
+#define DWIN_ENGLISH 0
+
 typedef struct {
-  bool language_chinese;  // 0: EN, 1: CN
+  uint8_t language;
   bool pause_flag:1;
   bool pause_action:1;
   bool print_finish:1;
@@ -271,10 +274,10 @@ typedef struct {
     AxisEnum feedspeed_axis;
   #endif
   AxisEnum acc_axis, jerk_axis, step_axis;
-} HMI_Flag;
+} HMI_Flag_t;
 
 extern HMI_value_t HMI_ValueStruct;
-extern HMI_Flag    HMI_flag;
+extern HMI_Flag_t HMI_flag;
 
 // Show ICO
 void ICON_Print(bool show);
