@@ -628,7 +628,6 @@ void UHS_NI UHS_Bulk_Storage::CheckMedia() {
 
 /**
  * For driver use only.
- *
  */
 void UHS_NI UHS_Bulk_Storage::Poll() {
         if((long)(millis() - qNextPollTime) >= 0L) {
@@ -839,7 +838,6 @@ uint8_t UHS_NI UHS_Bulk_Storage::ClearEpHalt(uint8_t index) {
 
 /**
  * For driver use only.
- *
  */
 void UHS_NI UHS_Bulk_Storage::Reset() {
         if(!bAddress) return;

@@ -62,7 +62,6 @@
  *
  * D - time (in seconds) to run each setting of KVAL_HOLD/TVAL
  *     optional - defaults to zero (runs each setting once)
- *
  */
 
 /**
@@ -214,7 +213,6 @@ void GcodeSuite::M916() {
  *
  * K - value for KVAL_HOLD (0 - 255) (ignored for L6474)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M917() {
 
@@ -543,7 +541,6 @@ void GcodeSuite::M917() {
  *
  * M - value for microsteps (1 - 128) (optional)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M918() {
 

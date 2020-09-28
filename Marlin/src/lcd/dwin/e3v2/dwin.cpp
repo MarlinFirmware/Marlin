@@ -1632,7 +1632,6 @@ void update_variable() {
  * TODO: New code can follow the pattern of menu_media.cpp
  * and rely on Marlin caching for performance. No need to
  * cache files here.
- *
  */
 
 #ifndef strcasecmp_P

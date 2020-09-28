@@ -29,7 +29,6 @@
  * it saves roughly 10K of program memory. It also does not require all of
  * coordinates to be present during the calculations. Each point can be
  * probed and then discarded.
- *
  */
 
 #include "../inc/MarlinConfig.h"

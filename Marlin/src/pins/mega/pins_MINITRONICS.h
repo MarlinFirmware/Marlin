@@ -29,7 +29,6 @@
  * Rev B   2 JAN 2017
  *
  *  Added pin definitions for M3, M4 & M5 spindle control commands
- *
  */
 
 #if NOT_TARGET(__AVR_ATmega1281__)

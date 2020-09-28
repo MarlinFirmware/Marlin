@@ -38,7 +38,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * \asf_license_stop
- *
  */
 /*
  * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>

@@ -512,7 +512,6 @@
  *  HOTENDS      - Number of hotends, whether connected or separate
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
- *
  */
 
 #if EXTRUDERS == 0

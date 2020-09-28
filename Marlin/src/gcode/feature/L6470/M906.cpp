@@ -56,7 +56,6 @@
  *
  * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
  * that affects the effective voltage seen by the stepper.
- *
  */
 
 /**

@@ -716,7 +716,6 @@ void MMU2::tool_change(const uint8_t index) {
  * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
  * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
  * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
- *
  */
 void MMU2::tool_change(const char* special) {
   if (!enabled) return;
