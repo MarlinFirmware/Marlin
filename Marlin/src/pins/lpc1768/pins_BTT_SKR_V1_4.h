@@ -379,7 +379,7 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // HAS_GRAPHICAL_LCD
+  #endif // HAS_MARLINUI_U8GLIB
 
 #endif // HAS_SPI_LCD
 

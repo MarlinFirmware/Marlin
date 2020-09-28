@@ -231,7 +231,7 @@
   #endif
 #endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   enum MarlinFont : uint8_t {
     FONT_STATUSMENU = 1,
     FONT_EDIT,
@@ -403,7 +403,7 @@ public:
         static void show_bootscreen();
       #endif
 
-      #if HAS_GRAPHICAL_LCD
+      #if HAS_MARLINUI_U8GLIB
 
         static void set_font(const MarlinFont font_nr);
 
@@ -458,7 +458,7 @@ public:
 
     #endif
 
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       static bool drawing_screen, first_page;
     #else
       static constexpr bool drawing_screen = false, first_page = true;

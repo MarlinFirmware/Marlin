@@ -116,7 +116,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
 #if HAS_SPI_LCD
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #include "dogm/ultralcd_DOGM.h"
 #endif
 
@@ -167,7 +167,7 @@ uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
 millis_t MarlinUI::next_button_update_ms; // = 0
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
 #endif
 
@@ -873,7 +873,7 @@ void MarlinUI::update() {
 
   #endif // HAS_LCD_MENU
 
-  if (ELAPSED(ms, next_lcd_update_ms) || TERN0(HAS_GRAPHICAL_LCD, drawing_screen)) {
+  if (ELAPSED(ms, next_lcd_update_ms) || TERN0(HAS_MARLINUI_U8GLIB, drawing_screen)) {
 
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
@@ -971,7 +971,7 @@ void MarlinUI::update() {
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (on_status_screen() && !lcd_status_update_delay--) {
-      lcd_status_update_delay = TERN(HAS_GRAPHICAL_LCD, 12, 9);
+      lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
       if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
       refresh(LCDVIEW_REDRAW_NOW);
     }
@@ -1010,7 +1010,7 @@ void MarlinUI::update() {
 
       TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
 
-      #if HAS_GRAPHICAL_LCD
+      #if HAS_MARLINUI_U8GLIB
 
         #if ENABLED(LIGHTWEIGHT_UI)
           const bool in_status = on_status_screen(),

@@ -2487,7 +2487,7 @@
 /**
  * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
  */
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef DOGLCD_SCK
     #define DOGLCD_SCK  SCK_PIN
   #endif
@@ -2611,14 +2611,14 @@
 #if HAS_SPI_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.
   #ifndef LCD_WIDTH
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
     #else
       #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
     #else
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)

@@ -139,7 +139,7 @@
   #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && HAS_CHARACTER_LCD
+  #if BOTH(HAS_MARLINUI_HD44780, REPRAP_DISCOUNT_SMART_CONTROLLER)
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER is not supported by the BIQU B300 v1.0"
   #endif
 

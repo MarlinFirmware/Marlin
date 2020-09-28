@@ -133,7 +133,7 @@
 #if HAS_SPI_LCD
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                       PB14
     #define DOGLCD_CS                       PB12
     #define DOGLCD_SCK                      PB13

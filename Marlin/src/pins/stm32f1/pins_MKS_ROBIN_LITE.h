@@ -111,7 +111,7 @@
 
   #endif // !MKS_MINI_12864
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
     #endif

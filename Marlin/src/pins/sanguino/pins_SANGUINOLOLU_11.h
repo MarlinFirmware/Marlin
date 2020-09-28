@@ -158,7 +158,7 @@
 
   #define SD_DETECT_PIN                       -1
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #if ENABLED(LCD_FOR_MELZI)
 
