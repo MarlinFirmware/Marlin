@@ -288,11 +288,11 @@ namespace Anycubic {
     #if ACDEBUG(AC_SOME)
       serialprintPGM(str);
     #endif
-    while (const char c = pgm_read_byte(str++)) TFTSer.print(c); 
+    while (const char c = pgm_read_byte(str++)) TFTSer.print(c);
     }
 
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
-    if (str != nullptr) { 
+    if (str != nullptr) {
       #if ACDEBUG(AC_SOME)
         SERIAL_ECHO("> ");
       #endif
@@ -303,7 +303,7 @@ namespace Anycubic {
    }
    TFTSer.println("");
   }
- 
+
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
     while( (TFTSer.available() > 0) && (command_len < MAX_CMND_LEN) ) {
@@ -453,7 +453,7 @@ namespace Anycubic {
   }
 
   void ChironTFT::PanelInfo(uint8_t req) {
-    // information requests A0-A8 and A33 
+    // information requests A0-A8 and A33
     switch (req) {
       case 0:   // A0 Get HOTEND Temp
         SendtoTFT(PSTR("A0V "));
@@ -764,7 +764,7 @@ namespace Anycubic {
         }
         else SendtoTFTLN(AC_msg_start_probing);
       }  break;
-      
+
       case 31: { // A31 Adjust all Probe Points
         switch (panel_command[3]) {
           case 'C':   // Restore and apply original offsets
