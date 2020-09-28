@@ -290,9 +290,12 @@
 // overriding pins to access.
 //
 #if SD_CONNECTION_IS(LCD)
+
   #define SD_DETECT_PIN                     PB10
   #define SDSS                              PB12
+
 #elif SD_CONNECTION_IS(ONBOARD)
+
   // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
   #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
@@ -301,18 +304,19 @@
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PA7
   #define SD_DETECT_PIN                     PC4
+
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #define "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
 /**
- *               _____                                             _____
+ *               -----                                             -----
  *           NC | · · | GND                                    5V | · · | GND
  *        RESET | · · | PB10(SD_DETECT)             (LCD_D7)  PG5 | · · | PG6  (LCD_D6)
  *   (MOSI)PB15 | · · | PH10(BTN_EN2)               (LCD_D5)  PG7 | · · | PG8  (LCD_D4)
  *  (SD_SS)PB12 | · · | PD10(BTN_EN1)               (LCD_RS)  PA8 | · · | PC10 (LCD_EN)
  *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC) PA15 | · · | PC11  (BEEPER)
- *               ￣￣                                               ￣￣
+ *               -----                                             -----
  *               EXP2                                              EXP1
  */
 

@@ -273,13 +273,13 @@
 #endif
 
 /**
- *               _____                                             _____
+ *               -----                                             -----
  *           NC | · · | GND                                    5V | · · | GND
  *        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
  *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
  *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
  *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
- *               ￣￣￣                                             ￣￣￣
+ *               -----                                             -----
  *               EXP2                                              EXP1
  */
 
@@ -377,12 +377,12 @@
 //
 
 /**
- *          _____
+ *          -----
  *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
  *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
  *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *           ￣￣
+ *    3.3V | 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *          -----
  *            W1
  */
 #define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this

@@ -1,6 +1,28 @@
 /**
- * @file    lcdprint_hd44780.cpp
- * @brief   LCD print api for HD44780
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @file    lcdprint_TFTGLCD.cpp
+ * @brief   LCD print API for TFT-GLCD interface
  * @author  Yunhui Fu (yhfudev@gmail.com)
  * @version 1.0
  * @date    2016-08-19
@@ -8,8 +30,7 @@
  */
 
 /**
- * Due to the limitation of the HD44780 hardware, the current available LCD modules can only support
- *   Western(English), Cyrillic(Russian), Kana(Japanese) charsets.
+ * The TFTGLCD only supports ??? languages.
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -26,11 +47,11 @@
 
 int lcd_glyph_height(void) { return 1; }
 
-typedef struct _hd44780_charmap_t {
+typedef struct _TFTGLCD_charmap_t {
   wchar_t uchar; // the unicode char
   uint8_t idx;   // the glyph of the char in the ROM
   uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
-} hd44780_charmap_t;
+} TFTGLCD_charmap_t;
 
 #ifdef __AVR__
   #define IV(a) U##a
@@ -38,7 +59,7 @@ typedef struct _hd44780_charmap_t {
   #define IV(a) L##a
 #endif
 
-static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
+static const TFTGLCD_charmap_t g_TFTGLCD_charmap_device[] PROGMEM = {
   // sorted by uchar:
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
 
@@ -690,7 +711,7 @@ static const hd44780_charmap_t g_hd44780_charmap_device[] PROGMEM = {
 };
 
 // the plain ASCII replacement for various char
-static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
+static const TFTGLCD_charmap_t g_TFTGLCD_charmap_common[] PROGMEM = {
   {IV('¡'), 'i', 0}, // A1
   {IV('¢'), 'c', 0}, // A2
   {IV('°'), 0x09, 0}, // B0 Marlin special: '°'  LCD_STR_DEGREE (0x09)
@@ -950,15 +971,15 @@ static const hd44780_charmap_t g_hd44780_charmap_common[] PROGMEM = {
 };
 
 /* return v1 - v2 */
-static int hd44780_charmap_compare(hd44780_charmap_t * v1, hd44780_charmap_t * v2) {
+static int TFTGLCD_charmap_compare(TFTGLCD_charmap_t * v1, TFTGLCD_charmap_t * v2) {
   return (v1->uchar < v2->uchar) ? -1 : (v1->uchar > v2->uchar) ? 1 : 0;
 }
 
 static int pf_bsearch_cb_comp_hd4map_pgm(void *userdata, size_t idx, void * data_pin) {
-  hd44780_charmap_t localval;
-  hd44780_charmap_t *p_hd44780_charmap = (hd44780_charmap_t *)userdata;
-  memcpy_P(&localval, p_hd44780_charmap + idx, sizeof(localval));
-  return hd44780_charmap_compare(&localval, (hd44780_charmap_t *)data_pin);
+  TFTGLCD_charmap_t localval;
+  TFTGLCD_charmap_t *p_TFTGLCD_charmap = (TFTGLCD_charmap_t *)userdata;
+  memcpy_P(&localval, p_TFTGLCD_charmap + idx, sizeof(localval));
+  return TFTGLCD_charmap_compare(&localval, (TFTGLCD_charmap_t *)data_pin);
 }
 
 void lcd_moveto(const lcd_uint_t col, const lcd_uint_t row) { lcd.setCursor(col, row); }
@@ -975,8 +996,8 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
   // find the HD44780 internal ROM first
   int ret;
   size_t idx = 0;
-  hd44780_charmap_t pinval;
-  hd44780_charmap_t *copy_address = nullptr;
+  TFTGLCD_charmap_t pinval;
+  TFTGLCD_charmap_t *copy_address = nullptr;
   pinval.uchar = c;
   pinval.idx = -1;
 
@@ -987,17 +1008,17 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
     return 1;
   }
   copy_address = nullptr;
-  ret = pf_bsearch_r((void *)g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+  ret = pf_bsearch_r((void *)g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
   if (ret >= 0) {
-    copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_device + idx);
+    copy_address = (TFTGLCD_charmap_t *)(g_TFTGLCD_charmap_device + idx);
   }
   else {
-    ret = pf_bsearch_r((void *)g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
-    if (ret >= 0) copy_address = (hd44780_charmap_t *)(g_hd44780_charmap_common + idx);
+    ret = pf_bsearch_r((void *)g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx);
+    if (ret >= 0) copy_address = (TFTGLCD_charmap_t *)(g_TFTGLCD_charmap_common + idx);
   }
 
   if (ret >= 0) {
-    hd44780_charmap_t localval;
+    TFTGLCD_charmap_t localval;
     // found
     memcpy_P(&localval, copy_address, sizeof(localval));
     lcd.write(localval.idx);
@@ -1046,11 +1067,11 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #if ENABLED(DEBUG_LCDPRINT)
 
-  int test_hd44780_charmap(hd44780_charmap_t *data, size_t size, char *name, char flg_show_contents) {
+  int test_TFTGLCD_charmap(TFTGLCD_charmap_t *data, size_t size, char *name, char flg_show_contents) {
     int ret;
     size_t idx = 0;
-    hd44780_charmap_t preval = {0, 0, 0};
-    hd44780_charmap_t pinval = {0, 0, 0};
+    TFTGLCD_charmap_t preval = {0, 0, 0};
+    TFTGLCD_charmap_t pinval = {0, 0, 0};
     char flg_error = 0;
 
     int i;
@@ -1098,15 +1119,15 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
     return 0;
   }
 
-  int test_hd44780_charmap_all(void) {
+  int test_TFTGLCD_charmap_all(void) {
     int flg_error = 0;
-    if (test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 0) < 0) {
+    if (test_TFTGLCD_charmap(g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), "g_TFTGLCD_charmap_device", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_device, COUNT(g_hd44780_charmap_device), "g_hd44780_charmap_device", 1);
+      test_TFTGLCD_charmap(g_TFTGLCD_charmap_device, COUNT(g_TFTGLCD_charmap_device), "g_TFTGLCD_charmap_device", 1);
     }
-    if (test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 0) < 0) {
+    if (test_TFTGLCD_charmap(g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), "g_TFTGLCD_charmap_common", 0) < 0) {
       flg_error = 1;
-      test_hd44780_charmap(g_hd44780_charmap_common, COUNT(g_hd44780_charmap_common), "g_hd44780_charmap_common", 1);
+      test_TFTGLCD_charmap(g_TFTGLCD_charmap_common, COUNT(g_TFTGLCD_charmap_common), "g_TFTGLCD_charmap_common", 1);
     }
     if (flg_error) {
       TRACE("\nFAILED in hd44780 tests!\n");
