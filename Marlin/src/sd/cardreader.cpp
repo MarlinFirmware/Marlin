@@ -628,11 +628,17 @@ void CardReader::openFileWrite(char * const path) {
 
 //
 // Check if a file exists by absolute or workDir-relative path
+// If the file exists, the long name can also be fetched.
 //
 bool CardReader::fileExists(const char * const path) {
   if (!isMounted()) return false;
   SdFile *diveDir = nullptr;
   const char * const fname = diveToFile(false, diveDir, path);
+  if (fname) {
+    diveDir->rewind();
+    selectByName(*diveDir, fname);
+    diveDir->close();
+  }
   return fname != nullptr;
 }
 
