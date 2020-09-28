@@ -289,7 +289,6 @@
  * "T" Codes
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
- *
  */
 
 #include "../inc/MarlinConfig.h"

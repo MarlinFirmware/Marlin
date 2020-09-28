@@ -27,7 +27,6 @@
  * Applies to the following boards:
  *
  *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
- *
  */
 
 #if NOT_TARGET(MCU_LPC1768)
