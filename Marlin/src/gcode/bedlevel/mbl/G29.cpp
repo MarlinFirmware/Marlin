@@ -57,7 +57,6 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
- *
  */
 void GcodeSuite::G29() {
 

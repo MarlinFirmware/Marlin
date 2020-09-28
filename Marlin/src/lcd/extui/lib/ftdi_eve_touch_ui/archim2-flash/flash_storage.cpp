@@ -42,7 +42,6 @@ constexpr uint32_t flash_eeprom_version = 1;
  * 0       16       DATA STORAGE AREA
  * 16      1        VERSIONING DATA
  * 17      inf      MEDIA STORAGE AREA
- *
  */
 
 #define DATA_STORAGE_SIZE_64K

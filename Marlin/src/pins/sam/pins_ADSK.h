@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

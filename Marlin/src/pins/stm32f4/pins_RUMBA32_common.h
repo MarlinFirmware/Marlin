@@ -23,7 +23,6 @@
 
 /**
  * Common pin assignments for all RUMBA32 boards
- *
  */
 
 #if NOT_TARGET(STM32F4)

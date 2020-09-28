@@ -101,9 +101,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 }
 
 /**
- *
  * "Change Filament" submenu
- *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 

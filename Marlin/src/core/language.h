@@ -348,7 +348,6 @@
  * However, internal to Marlin E0/T0 is the first tool, and
  * most board silkscreens say "E0." Zero-based labels will
  * make these indexes consistent but this defies expectation.
- *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
   #define LCD_FIRST_TOOL 0

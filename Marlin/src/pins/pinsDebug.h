@@ -31,7 +31,6 @@
  *
  *  Both passes use the same pin list.  The list contains two macro names. The
  *  actual macro definitions are changed depending on which pass is being done.
- *
  */
 
 // first pass - put the name strings into FLASH

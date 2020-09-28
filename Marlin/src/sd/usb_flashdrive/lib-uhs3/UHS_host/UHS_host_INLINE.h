@@ -101,7 +101,6 @@ uint8_t UHS_USB_HOST_BASE::setEpInfoEntry(uint8_t addr, uint8_t iface, uint8_t e
  *
  * @param maxep How many endpoints to initialize
  * @param device pointer to the device driver instance (this)
- *
  */
 
 void UHS_USB_HOST_BASE::DeviceDefaults(uint8_t maxep, UHS_USBInterface *interface) {
@@ -207,7 +206,6 @@ uint8_t UHS_USB_HOST_BASE::doSoftReset(uint8_t parent, uint8_t port, uint8_t add
  *                      need it, the additional reset is harmless. Here is an
  *                      example of one of these documents, see page Five:
  *                      https://www.ftdichip.com/Support/Documents/TechnicalNotes/TN_113_Simplified%20Description%20of%20USB%20Device%20Enumeration.pdf
- *
  *
  */
 

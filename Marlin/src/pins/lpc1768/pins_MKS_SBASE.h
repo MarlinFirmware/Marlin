@@ -372,7 +372,6 @@
  *   P1_31 - not 5V tolerant - EXP1
  *   P0_27 - open collector  - EXP2
  *   P0_28 - open collector  - EXP2
- *
  */
 
 /**
@@ -387,5 +386,4 @@
  *   P0_03 - AUX1
  *   P0_29 - Port -1
  *   P0_30 - USB
- *
  */

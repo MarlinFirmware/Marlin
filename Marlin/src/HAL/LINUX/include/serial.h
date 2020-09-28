@@ -33,7 +33,6 @@
  * Generic RingBuffer
  * T type of the buffer array
  * S size of the buffer (must be power of 2)
- *
  */
 template <typename T, uint32_t S> class RingBuffer {
 public:

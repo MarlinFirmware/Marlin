@@ -257,7 +257,6 @@
    *   EXP1-8 ----------- EXP1-3
    *   SPI1-1 ----------- EXP1-1
    *  EXP1-10 ----------- EXP1-7
-   *
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector

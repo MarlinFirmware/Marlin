@@ -166,7 +166,6 @@
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
- *
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)

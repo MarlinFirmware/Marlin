@@ -30,7 +30,6 @@
  *
  * 1) no longer uses Sanguino files to define some of the pins
  * 2) added pointers to useable Arduino IDE extensions
- *
  */
 
 /**
@@ -48,7 +47,6 @@
  * "Anet V1.0 (Optiboot)" frees up another 3K of FLASH.  You'll need to burn
  * a new bootloader to the board to be able to automatically download a
  * compiled image.
- *
  */
 
 /**
@@ -66,7 +64,6 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
 /**

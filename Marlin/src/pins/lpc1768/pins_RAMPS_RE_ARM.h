@@ -31,7 +31,6 @@
  *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
  *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
- *
  */
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers

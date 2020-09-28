@@ -38,7 +38,6 @@
  *    M32 !PATH/TO/FILE.GCO#      ; Start FILE.GCO
  *    M32 P !PATH/TO/FILE.GCO#    ; Start FILE.GCO as a procedure
  *    M32 S60 !PATH/TO/FILE.GCO#  ; Start FILE.GCO at byte 60
- *
  */
 void GcodeSuite::M32() {
   if (IS_SD_PRINTING()) planner.synchronize();

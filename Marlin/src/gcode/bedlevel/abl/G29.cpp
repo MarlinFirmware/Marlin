@@ -160,7 +160,6 @@
  *  E  By default G29 will engage the Z probe, test the bed, then disengage.
  *     Include "E" to engage/disengage the Z probe for each sample.
  *     There's no extra effect if you have a fixed Z probe.
- *
  */
 G29_TYPE GcodeSuite::G29() {
 

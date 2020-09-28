@@ -828,7 +828,6 @@ uint8_t BulkOnly::ClearEpHalt(uint8_t index) {
 
 /**
  * For driver use only.
- *
  */
 void BulkOnly::Reset() {
         while (pUsb->ctrlReq(bAddress, 0, bmREQ_MASSOUT, MASS_REQ_BOMSR, 0, 0, bIface, 0, 0, nullptr, nullptr) == 0x01) delay(6);
@@ -1163,7 +1162,6 @@ uint8_t BulkOnly::HandleSCSIError(uint8_t status) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
  * @param ep_ptr
  */
 void BulkOnly::PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR * ep_ptr) {

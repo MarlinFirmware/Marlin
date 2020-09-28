@@ -192,7 +192,6 @@
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
  *  Z   Home to the Z endstop
- *
  */
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
