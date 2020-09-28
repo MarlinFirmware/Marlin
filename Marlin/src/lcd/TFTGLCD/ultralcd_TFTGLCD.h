@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(TFTGLCD_PANEL)
+#if IS_TFTGLCD_PANEL
 
 #include "../../libs/duration_t.h"
 
@@ -54,6 +54,8 @@ class TFTGLCD {
     void setContrast(uint16_t contrast);
 };
 
+extern TFTGLCD lcd;
+
 #include "../fontutils.h"
 #include "../lcdprint.h"
 
@@ -69,4 +71,4 @@ class TFTGLCD {
   #define EN_C       4 //for click
 #endif
 
-#endif // TFTGLCD_PANEL
+#endif // IS_TFTGLCD_PANEL

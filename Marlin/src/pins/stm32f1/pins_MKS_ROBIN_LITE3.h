@@ -96,7 +96,7 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
@@ -115,10 +115,10 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
-      #define DOGLCD_CS                     PB11
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PB11
     #endif
 
   #else                                           // !MKS_MINI_12864
@@ -132,7 +132,7 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

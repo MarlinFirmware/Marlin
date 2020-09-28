@@ -60,7 +60,7 @@ void menu_advanced_settings();
     static int8_t bar_percent = 0;
     if (ui.use_click()) {
       ui.goto_previous_screen();
-      #if DISABLED(TFTGLCD_PANEL)
+      #if HAS_MARLINUI_HD44780
         ui.set_custom_characters(CHARSET_MENU);
       #endif
       return;
@@ -75,7 +75,7 @@ void menu_advanced_settings();
 
   void _progress_bar_test() {
     ui.goto_screen(progress_bar_test);
-    #if DISABLED(TFTGLCD_PANEL)
+    #if HAS_MARLINUI_HD44780
       ui.set_custom_characters(CHARSET_INFO);
     #endif
   }

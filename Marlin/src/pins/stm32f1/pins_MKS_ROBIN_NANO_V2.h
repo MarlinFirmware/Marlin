@@ -340,7 +340,7 @@
 
 #endif
 
-#if HAS_SPI_LCD && !HAS_SPI_TFT
+#if HAS_WIRED_LCD && !HAS_SPI_TFT
 
   // NON TFT Displays
 
@@ -356,19 +356,19 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
-  #elif ENABLED(TFTGLCD_PANEL)
+  #elif IS_TFTGLCD_PANEL
 
-    #if ENABLED(SPI_PANEL)
+    #if ENABLED(TFTGLCD_PANEL_SPI)
       #define PIN_SPI_SCK                   PA5
       #define PIN_TFT_MISO                  PA6
       #define PIN_TFT_MOSI                  PA7
-      #define DOGLCD_CS                     PE8
+      #define TFTGLCD_CS                    PE8
     #endif
 
     #ifndef BEEPER_PIN
       #define BEEPER_PIN                    -1
     #endif
-  
+
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
@@ -390,7 +390,7 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD && !HAS_SPI_TFT
+#endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
 #define SPI_FLASH_SIZE                 0x1000000  // 16MB
