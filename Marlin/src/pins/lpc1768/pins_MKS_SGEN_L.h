@@ -249,6 +249,15 @@
     #define LCD_PINS_ENABLE                P1_22
     #define LCD_PINS_D4                    P0_17
 
+  #elif IS_TFTGLCD_PANEL
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_25
+    #endif
+
   #else
 
     #define BTN_EN1                        P3_25

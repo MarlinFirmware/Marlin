@@ -265,6 +265,14 @@
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
 
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS            EXPA2_08_PIN
+    #endif
+
+    #define SD_DETECT_PIN           EXPA2_04_PIN
+
   #else                                           // !CR10_STOCKDISPLAY
 
     #define LCD_PINS_RS             EXPA1_07_PIN

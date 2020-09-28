@@ -225,6 +225,12 @@
     #define BTN_EN2                         PG4
   #endif
 
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                      PG5
+  #endif
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC5
@@ -254,6 +260,7 @@
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+
 #endif
 
 #ifndef BOARD_ST7920_DELAY_1

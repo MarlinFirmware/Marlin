@@ -309,6 +309,14 @@
       #define XPT2046_Y_OFFSET             -285
     #endif
 
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_26
+    #endif
+
+    #define SD_DETECT_PIN                  P1_31
+
   #else
 
     #define BTN_ENC                        P0_28  // (58) open-drain

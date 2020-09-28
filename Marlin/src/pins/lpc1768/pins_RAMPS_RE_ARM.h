@@ -326,6 +326,15 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+
 #elif HAS_WIRED_LCD
 
   //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
