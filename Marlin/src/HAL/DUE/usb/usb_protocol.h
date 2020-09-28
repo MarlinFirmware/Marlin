@@ -41,6 +41,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * \asf_license_stop
+ *
  */
 /*
  * Support and FAQ: visit <a href="https://www.atmel.com/design-support/">Atmel Support</a>
@@ -122,6 +123,7 @@ enum usb_reqid {
 
 /**
  * \brief Standard USB device status flags
+ *
  */
 enum usb_device_status {
 	USB_DEV_STATUS_BUS_POWERED = 0,
@@ -131,6 +133,7 @@ enum usb_device_status {
 
 /**
  * \brief Standard USB Interface status flags
+ *
  */
 enum usb_interface_status {
 	USB_IFACE_STATUS_RESERVED = 0
@@ -138,6 +141,7 @@ enum usb_interface_status {
 
 /**
  * \brief Standard USB endpoint status flags
+ *
  */
 enum usb_endpoint_status {
 	USB_EP_STATUS_HALTED = 1,

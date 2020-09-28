@@ -38,6 +38,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  * \asf_license_stop
+ *
  */
 #pragma once
 
@@ -72,6 +73,7 @@
 /**
  * \page arduino_due_x_board_info "Arduino Due/X - Board informations"
  * This page lists several definition related to the board description.
+ *
  */
 
 /* ------------------------------------------------------------------------ */
