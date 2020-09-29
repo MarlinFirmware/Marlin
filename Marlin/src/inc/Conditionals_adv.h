@@ -56,6 +56,15 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -186,6 +195,9 @@
   #endif
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
   #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
@@ -410,3 +422,37 @@
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
 #endif
+
+// Flag the indexed serial ports that are in use
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+#if ANY_SERIAL_IS(-1)
+  #define USING_SERIAL_DEFAULT
+#endif
+#if ANY_SERIAL_IS(0)
+  #define USING_SERIAL_0 1
+#endif
+#if ANY_SERIAL_IS(1)
+  #define USING_SERIAL_1 1
+#endif
+#if ANY_SERIAL_IS(2)
+  #define USING_SERIAL_2 1
+#endif
+#if ANY_SERIAL_IS(3)
+  #define USING_SERIAL_3 1
+#endif
+#if ANY_SERIAL_IS(4)
+  #define USING_SERIAL_4 1
+#endif
+#if ANY_SERIAL_IS(5)
+  #define USING_SERIAL_5 1
+#endif
+#if ANY_SERIAL_IS(6)
+  #define USING_SERIAL_6 1
+#endif
+#if ANY_SERIAL_IS(7)
+  #define USING_SERIAL_7 1
+#endif
+#if ANY_SERIAL_IS(8)
+  #define USING_SERIAL_8 1
+#endif
+#undef ANY_SERIAL_IS

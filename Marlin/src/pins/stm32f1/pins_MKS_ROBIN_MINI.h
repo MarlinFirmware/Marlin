@@ -25,7 +25,7 @@
  * MKS Robin mini (STM32F130VET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin mini only supports 1 hotend / E-stepper. Comment out this line to continue."
@@ -87,7 +87,7 @@
 #define MOTOR_CURRENT_PWM_E_PIN             PB0
 #define MOTOR_CURRENT_PWM_RANGE             1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
 #ifndef DEFAULT_PWM_MOTOR_CURRENT
-  #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 } 
+  #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
 #endif
 //
 // Temperature Sensors
@@ -126,6 +126,7 @@
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
 #define SD_DETECT_PIN                       PD12
+#define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PC11
 
 //
@@ -180,7 +181,7 @@
 
   #define TFT_DRIVER                     ILI9341
   #define TFT_BUFFER_SIZE                  14400
- 
+
   // YV for normal screen mounting
   #define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
   // XV for 180° rotated screen mounting

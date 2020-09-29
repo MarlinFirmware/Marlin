@@ -25,6 +25,10 @@
   #define BOARD_INFO_NAME "BTT SKR V1.4"
 #endif
 
+#ifndef BOARD_CUSTOM_BUILD_FLAGS
+  #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
+#endif
+
 //
 // SD Connection
 //
@@ -149,8 +153,8 @@
   #define E1_CS_PIN                        P1_01
 #endif
 
-#define TEMP_1_PIN                      P0_23_A0  // A2 (T2) - (69) - TEMP_1_PIN
-#define TEMP_BED_PIN                    P0_25_A2  // A0 (T0) - (67) - TEMP_BED_PIN
+#define TEMP_1_PIN                      P0_23_A0  // A0 (T0) - (67) - TEMP_1_PIN
+#define TEMP_BED_PIN                    P0_25_A2  // A2 (T2) - (69) - TEMP_BED_PIN
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -174,7 +178,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -228,7 +232,7 @@
  *              -----                                             -----
  *              EXP2                                              EXP1
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
     #define LCD_PINS_RS                    P1_23
@@ -275,9 +279,6 @@
     #define LCD_BACKLIGHT_PIN              -1
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
-    #define SS_PIN                         -1
-    //#define ONBOARD_SD_CS_PIN            -1
-
     #define TFT_CS_PIN                     P1_22
     #define TFT_A0_PIN                     P1_23
     #define TFT_DC_PIN                     P1_23
@@ -285,7 +286,6 @@
     #define TFT_BACKLIGHT_PIN              P1_18
     #define TFT_RESET_PIN                  P1_19
 
-    #define LPC_HW_SPI_DEV                     0
     #define LCD_USE_DMA_SPI
 
     #define TOUCH_INT_PIN                  P1_21
@@ -297,14 +297,25 @@
       #define GRAPHICAL_TFT_UPSCALE            3
     #endif
 
-    // SPI 1
-    #define SCK_PIN                        P0_15
-    #define MISO_PIN                       P0_17
-    #define MOSI_PIN                       P0_18
-
     // Disable any LCD related PINs config
     #define LCD_PINS_ENABLE                -1
     #define LCD_PINS_RS                    -1
+
+    // Emulated DOGM have xpt calibration values independent of display resolution
+    #if ENABLED(SPI_GRAPHICAL_TFT)
+      #define XPT2046_X_CALIBRATION      -11245
+      #define XPT2046_Y_CALIBRATION        8629
+      #define XPT2046_X_OFFSET              685
+      #define XPT2046_Y_OFFSET             -285
+    #endif
+
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_26
+    #endif
+
+    #define SD_DETECT_PIN                  P1_31
 
   #else
 
@@ -368,9 +379,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // HAS_GRAPHICAL_LCD
+  #endif // HAS_MARLINUI_U8GLIB
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."

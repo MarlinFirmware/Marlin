@@ -22,10 +22,10 @@
 #pragma once
 
 #ifdef SKR_HAS_LPC1769
-  #ifndef MCU_LPC1769
+  #if NOT_TARGET(MCU_LPC1769)
     #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
   #endif
-#elif !defined(MCU_LPC1768)
+#elif NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -92,7 +92,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
 #endif
 

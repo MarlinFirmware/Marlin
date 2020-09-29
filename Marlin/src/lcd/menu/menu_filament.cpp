@@ -101,9 +101,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 }
 
 /**
- *
  * "Change Filament" submenu
- *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 
@@ -138,8 +136,9 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[13];
-            sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
+            PGM_P const cmdpstr = PSTR("M600 B0 T%i");
+            char cmd[strlen_P(cmdpstr) + 3 + 1];
+            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
             queue.inject(cmd);
           });
         }

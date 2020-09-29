@@ -25,7 +25,7 @@
  * TH3D EZBoard pin assignments
  */
 
-#ifndef MCU_LPC1769
+#if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -166,7 +166,6 @@
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
- *
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)
@@ -178,6 +177,6 @@
   #define LCD_PINS_ENABLE                  P0_18
   #define LCD_PINS_D4                      P0_15
   #define KILL_PIN                         P2_11
-#elif HAS_SPI_LCD
+#elif HAS_WIRED_LCD
   #error "Only the CR10_STOCKDISPLAY is supported with TH3D EZBoard."
 #endif

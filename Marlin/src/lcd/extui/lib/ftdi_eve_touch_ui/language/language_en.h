@@ -145,7 +145,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
   PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS         = u8"Level X Axis";
   PROGMEM Language_Str MSG_BED_MAPPING_DONE         = u8"Bed mapping finished";
-  PROGMEM Language_Str MSG_RESET_BLTOUCH            = u8"Reset BLTouch";
+  PROGMEM Language_Str MSG_BED_MAPPING_INCOMPLETE   = u8"Not all points probed";
+  PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
+  PROGMEM Language_Str MSG_SHOW_MESH                = u8"Show Bed Mesh";
 
   #ifdef TOUCH_UI_LULZBOT_BIO
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";

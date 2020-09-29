@@ -47,7 +47,7 @@
 
 #include "../../lcd/ultralcd.h"
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/dwin.h"
+  #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -192,7 +192,6 @@
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
  *  Z   Home to the Z endstop
- *
  */
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
