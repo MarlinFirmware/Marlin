@@ -26,11 +26,11 @@
 // Resistance Tolerance     + / -1%
 // B Value             3950K at 25/50 deg. C
 // B Value Tolerance         + / - 1%
-// Kis3d Silicone Heater 24V 200W/300W with 6mm Precision cast plate (EN AW 5083) 
+// Kis3d Silicone Heater 24V 200W/300W with 6mm Precision cast plate (EN AW 5083)
 // Temperature setting time 10 min to determine the 12Bit ADC value on the surface. (le3tspeak)
 const temp_entry_t temptable_30[] PROGMEM = {
-  { OV(   1), 938 }, 
-  { OV( 298), 125 }, // 1193 - 125° 
+  { OV(   1), 938 },
+  { OV( 298), 125 }, // 1193 - 125°
   { OV( 321), 121 }, // 1285 - 121°
   { OV( 348), 117 }, // 1392 - 117°
   { OV( 387), 113 }, // 1550 - 113°

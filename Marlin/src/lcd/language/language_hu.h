@@ -29,7 +29,6 @@
  * A Magyar fordítást készítette: AntoszHUN
  *
  *
- *
  */
 
 namespace Language_hu {
