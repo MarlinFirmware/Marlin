@@ -73,12 +73,8 @@
   // Feature checks for SR_LCD_3W_NL
 #elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
   #define USES_LIQUIDTWI2
-#elif ANY(HAS_CHARACTER_LCD, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+#elif ANY(HAS_MARLINUI_HD44780, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
   #define USES_LIQUIDCRYSTAL
-#endif
-
-#if BOTH(ANYCUBIC_LCD_I3MEGA, EXTENSIBLE_UI)
-  #define HAS_ANYCUBIC_TFT_EXTUI
 #endif
 
 #if SAVED_POSITIONS
@@ -89,15 +85,8 @@
   #define HAS_GCODE_M876
 #endif
 
-#if PREHEAT_COUNT
-  #define HAS_PREHEAT_COUNT
-#endif
-
 #if EXTRUDERS
   #define HAS_EXTRUDERS
-  #if EXTRUDERS > 1
-    #define HAS_MULTI_EXTRUDER
-  #endif
 #endif
 
 #if HAS_LCD_MENU
@@ -156,3 +145,6 @@
     #define HAS_MENU_UBL
   #endif
 #endif
+
+// Include pins for the current board. Platform tests will be skipped. No HAL-defined pins.
+#include "../../../../Marlin/src/pins/pins.h"

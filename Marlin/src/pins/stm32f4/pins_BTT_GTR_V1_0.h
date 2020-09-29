@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 8 || E_STEPPERS > 8
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
@@ -171,7 +171,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -290,9 +290,12 @@
 // overriding pins to access.
 //
 #if SD_CONNECTION_IS(LCD)
+
   #define SD_DETECT_PIN                     PB10
   #define SDSS                              PB12
+
 #elif SD_CONNECTION_IS(ONBOARD)
+
   // Instruct the STM32 HAL to override the default SPI pins from the variant.h file
   #define CUSTOM_SPI_PINS
   #define SDSS                              PA4
@@ -301,25 +304,26 @@
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PA7
   #define SD_DETECT_PIN                     PC4
+
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #define "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
 /**
- *               _____                                             _____
+ *               -----                                             -----
  *           NC | · · | GND                                    5V | · · | GND
  *        RESET | · · | PB10(SD_DETECT)             (LCD_D7)  PG5 | · · | PG6  (LCD_D6)
  *   (MOSI)PB15 | · · | PH10(BTN_EN2)               (LCD_D5)  PG7 | · · | PG8  (LCD_D4)
  *  (SD_SS)PB12 | · · | PD10(BTN_EN1)               (LCD_RS)  PA8 | · · | PC10 (LCD_EN)
  *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC) PA15 | · · | PC11  (BEEPER)
- *               ￣￣                                               ￣￣
+ *               -----                                             -----
  *               EXP2                                              EXP1
  */
 
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC11
   #define BTN_ENC                           PA15
 
@@ -390,7 +394,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
     #endif
@@ -402,6 +406,6 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #undef TP

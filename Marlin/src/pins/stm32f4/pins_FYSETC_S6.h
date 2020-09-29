@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA32 supports up to 3 hotends / E-steppers."
@@ -199,7 +199,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC9
   #define BTN_ENC                           PA8
 
@@ -261,7 +261,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
     #endif
@@ -273,7 +273,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #ifndef RGB_LED_R_PIN
   #define RGB_LED_R_PIN                     PB6

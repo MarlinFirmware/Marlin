@@ -253,6 +253,13 @@ class Stepper {
       static bool initialized;
     #endif
 
+    // Last-moved extruder, as set when the last movement was fetched from planner
+    #if HAS_MULTI_EXTRUDER
+      static uint8_t last_moved_extruder;
+    #else
+      static constexpr uint8_t last_moved_extruder = 0;
+    #endif
+
   private:
 
     static block_t* current_block;          // A pointer to the block currently being traced
@@ -261,13 +268,6 @@ class Stepper {
                    axis_did_move;           // Last Movement in the given direction is not null, as computed when the last movement was fetched from planner
 
     static bool abort_current_block;        // Signals to the stepper that current block should be aborted
-
-    // Last-moved extruder, as set when the last movement was fetched from planner
-    #if EXTRUDERS < 2
-      static constexpr uint8_t last_moved_extruder = 0;
-    #elif DISABLED(MIXING_EXTRUDER)
-      static uint8_t last_moved_extruder;
-    #endif
 
     #if ENABLED(X_DUAL_ENDSTOPS)
       static bool locked_X_motor, locked_X2_motor;
@@ -304,7 +304,7 @@ class Stepper {
                     decelerate_after,       // The point from where we need to start decelerating
                     step_event_count;       // The total event count for the current block
 
-    #if EXTRUDERS > 1 || ENABLED(MIXING_EXTRUDER)
+    #if EITHER(HAS_MULTI_EXTRUDER, MIXING_EXTRUDER)
       static uint8_t stepper_extruder;
     #else
       static constexpr uint8_t stepper_extruder = 0;
@@ -450,11 +450,6 @@ class Stepper {
 
     // The last movement direction was not null on the specified axis. Note that motor direction is not necessarily the same.
     FORCE_INLINE static bool axis_is_moving(const AxisEnum axis) { return TEST(axis_did_move, axis); }
-
-    // The extruder associated to the last movement
-    FORCE_INLINE static uint8_t movement_extruder() {
-      return (EXTRUDERS > 1 && DISABLED(MIXING_EXTRUDER)) ? last_moved_extruder : 0;
-    }
 
     // Handle a triggered endstop
     static void endstop_triggered(const AxisEnum axis);

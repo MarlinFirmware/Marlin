@@ -33,10 +33,10 @@
 #define ILI9341_MADCTL_RGB        0x00
 #define ILI9341_MADCTL_MH         0x04 // Horizontal Refresh Order
 
-#define ILI9341_ORIENTATION_UP    ILI9341_MADCTL_MY	                                        // 240x320 ; Cable on the upper side
+#define ILI9341_ORIENTATION_UP    ILI9341_MADCTL_MY                                         // 240x320 ; Cable on the upper side
 #define ILI9341_ORIENTATION_RIGHT ILI9341_MADCTL_MV                                         // 320x240 ; Cable on the right side
 #define ILI9341_ORIENTATION_LEFT  ILI9341_MADCTL_MY | ILI9341_MADCTL_MX | ILI9341_MADCTL_MV // 320x240 ; Cable on the left side
-#define ILI9341_ORIENTATION_DOWN  ILI9341_MADCTL_MX	                                        // 240x320 ; Cable on the upper side
+#define ILI9341_ORIENTATION_DOWN  ILI9341_MADCTL_MX                                         // 240x320 ; Cable on the upper side
 
 #ifndef ILI9341_COLOR_RGB
   #define ILI9341_COLOR_BGR

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "STM32F4 supports up to 2 hotends / E-steppers."
@@ -165,7 +165,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
