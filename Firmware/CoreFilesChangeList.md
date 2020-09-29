@@ -9,6 +9,8 @@ This does not include machine configs.
 
 - **Marlin**
 	- **src**
+		- **core**
+			- `language.h`
 		- **lcd**
 			- **dwin**
 				- **e3v2**
