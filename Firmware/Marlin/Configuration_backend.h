@@ -69,6 +69,11 @@
 #define PID_MAX BANG_MAX
 #define PID_K1 0.95
 
+#if DISABLED(SPACE_SAVER)
+  #define PID_EDIT_MENU
+  #define PID_AUTOTUNE_MENU
+#endif
+
 #ifndef DEFAULT_Kp
   #define DEFAULT_Kp 22.2 // Define Marlin default PID if no machine specific PID is defined.
   #define DEFAULT_Ki 1.08
