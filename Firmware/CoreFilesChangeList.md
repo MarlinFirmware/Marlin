@@ -2,6 +2,8 @@ This is a list of files that we have modified in the core Marlin files for our d
 
 This is for our reference to make sure to retain changes made to the core files when merging in the latest Marlin firmware baseline.
 
+This does not include machine configs.
+
 ----------
 
 
