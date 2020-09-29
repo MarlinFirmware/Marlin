@@ -1,6 +1,6 @@
 {
   "build": {
-    "core": "sam",
+    "core": "arduino",
     "cpu": "cortex-m3",
     "extra_flags": "-D__SAM3X8E__ -DARDUINO_ARCH_SAM -DARDUINO_SAM_DUE",
     "f_cpu": "84000000L",
@@ -18,7 +18,7 @@
         "0x003D"
       ]
     ],
-    "ldscript": "flash.ld",
+    "ldscript": "linker_scripts/gcc/flash.ld",
     "mcu": "at91sam3x8e",
     "usb_product": "Archim",
     "variant": "archim"
