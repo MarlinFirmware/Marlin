@@ -205,7 +205,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       #if DISABLED(HAS_GRAPHICAL_TFT)
         extern const char NUL_STR[];
         SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-        MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
+        MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
         lcd_put_u8str(tmp);
         MENU_ITEM_ADDON_END();
       #else
@@ -348,7 +348,7 @@ void menu_motion() {
   //
   // Assisted Bed Tramming
   //
-  #if ENABLED(ASSISTED_TRAMMING)
+  #if ENABLED(ASSISTED_TRAMMING_MENU_ITEM)
     GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
   #endif
 

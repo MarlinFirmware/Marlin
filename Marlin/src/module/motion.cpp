@@ -111,7 +111,7 @@ xyze_pos_t destination; // {0}
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   uint8_t active_extruder = 0; // = 0
 #endif
 
@@ -1152,7 +1152,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             stealth_states.x2 = tmc_enable_stallguard(stepperX2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
           #elif CORE_IS_XZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1165,7 +1165,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             stealth_states.y2 = tmc_enable_stallguard(stepperY2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1216,7 +1216,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             tmc_disable_stallguard(stepperX2, enable_stealth.x2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
           #elif CORE_IS_XZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1229,7 +1229,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             tmc_disable_stallguard(stepperY2, enable_stealth.y2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1789,7 +1789,7 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
-  #else // CARTESIAN / CORE
+  #else // CARTESIAN / CORE / MARKFORGED_XY
 
     set_axis_is_at_home(axis);
     sync_plan_position();
@@ -1818,8 +1818,11 @@ void homeaxis(const AxisEnum axis) {
 
       #if ENABLED(SENSORLESS_HOMING)
         planner.synchronize();
-        if (TERN0(IS_CORE, axis != NORMAL_AXIS))
-          safe_delay(200);  // Short delay to allow belts to spring back
+        if (false
+          #if EITHER(IS_CORE, MARKFORGED_XY)
+            || axis != NORMAL_AXIS
+          #endif
+        ) safe_delay(200);  // Short delay to allow belts to spring back
       #endif
     }
   #endif

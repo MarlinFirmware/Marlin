@@ -24,6 +24,7 @@
 #if HAS_TFT_LVGL_UI
 
 #include "string.h"
+#include "draw_ui.h"
 #include "pic_manager.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
@@ -41,59 +42,61 @@ extern unsigned char bmp_public_buf[17 * 1024];
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
-static char assets[][LONG_FILENAME_LENGTH] = {
+static const char assets[][LONG_FILENAME_LENGTH] = {
   //homing screen
-  "bmp_Zero.bin",
+  "bmp_zeroAll.bin",
+  "bmp_zero.bin",
   "bmp_zeroX.bin",
   "bmp_zeroY.bin",
   "bmp_zeroZ.bin",
   "bmp_manual_off.bin",
 
   //tool screen
-  "bmp_PreHeat.bin",
-  "bmp_Extruct.bin",
-  "bmp_Mov.bin",
+  "bmp_preHeat.bin",
+  "bmp_extruct.bin",
+  "bmp_mov.bin",
   // "bmp_Zero.bin",
-  "bmp_Leveling.bin",
+  "bmp_leveling.bin",
+  "bmp_filamentchange.bin",
 
   //fan screen
   "bmp_Add.bin",
   "bmp_Dec.bin",
-  "bmp_Speed255.bin",
-  "bmp_Speed127.bin",
-  "bmp_Speed0.bin",
+  "bmp_speed255.bin",
+  "bmp_speed127.bin",
+  "bmp_speed0.bin",
 
   //preheat screen
   // "bmp_Add.bin",
   // "bmp_Dec.bin",
-  "bmp_Speed0.bin",
+  "bmp_speed0.bin",
   // "bmp_Extru2.bin",
   // "bmp_Extru1.bin",
-  "bmp_Bed.bin",
-  "bmp_Step1_degree.bin",
-  "bmp_Step5_degree.bin",
-  "bmp_Step10_degree.bin",
+  "bmp_bed.bin",
+  "bmp_step1_degree.bin",
+  "bmp_step5_degree.bin",
+  "bmp_step10_degree.bin",
 
   //extrusion screen
-  "bmp_In.bin",
-  "bmp_Out.bin",
-  "bmp_Extru1.bin",
-  #if EXTRUDERS > 1
-    "bmp_Extru2.bin",
+  "bmp_in.bin",
+  "bmp_out.bin",
+  "bmp_extru1.bin",
+  #if HAS_MULTI_EXTRUDER
+    "bmp_extru2.bin",
   #endif
-  "bmp_Speed_high.bin",
-  "bmp_Speed_slow.bin",
-  "bmp_Speed_normal.bin",
-  "bmp_Step1_mm.bin",
-  "bmp_Step5_mm.bin",
-  "bmp_Step10_mm.bin",
+  "bmp_speed_high.bin",
+  "bmp_speed_slow.bin",
+  "bmp_speed_normal.bin",
+  "bmp_step1_mm.bin",
+  "bmp_step5_mm.bin",
+  "bmp_step10_mm.bin",
 
   //select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
-  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
-  "bmp_Dir.bin",
-  "bmp_File.bin",
+  "bmp_back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  "bmp_dir.bin",
+  "bmp_file.bin",
 
   //move motor screen
   //TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
@@ -103,68 +106,69 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_yDec.bin",
   "bmp_zAdd.bin",
   "bmp_zDec.bin",
-  "bmp_Step_move0_1.bin",
-  "bmp_Step_move1.bin",
-  "bmp_Step_move10.bin",
+  "bmp_step_move0_1.bin",
+  "bmp_step_move1.bin",
+  "bmp_step_move10.bin",
 
   //operation screen
   "bmp_auto_off.bin",
-  "bmp_Speed.bin",
+  "bmp_speed.bin",
   //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_manual_off.bin
-  "bmp_Fan.bin",
-  //"bmp_PreHeat.bin",
-  //"bmp_Extruct.bin",
-  // "bmp_Mov.bin",
+  "bmp_fan.bin",
+  "bmp_temp.bin",
+  "bmp_extrude_opr.bin",
+  "bmp_move_opr.bin",
 
   //change speed screen
-  "bmp_Step1_percent.bin",
-  "bmp_Step5_percent.bin",
-  "bmp_Step10_percent.bin",
+  "bmp_step1_percent.bin",
+  "bmp_step5_percent.bin",
+  "bmp_step10_percent.bin",
   "bmp_extruct_sel.bin",
   "bmp_mov_changespeed.bin",
   // "bmp_extrude_opr.bin", equal to "bmp_Extruct.bin"
   "bmp_mov_sel.bin",
+  "bmp_speed_extruct.bin",
 
   //printing screen
-  "bmp_Pause.bin",
-  "bmp_Resume.bin",
-  "bmp_Stop.bin",
-  "bmp_Ext1_state.bin",
-  #if EXTRUDERS > 1
-    "bmp_Ext2_state.bin",
+  "bmp_pause.bin",
+  "bmp_resume.bin",
+  "bmp_stop.bin",
+  "bmp_ext1_state.bin",
+  #if HAS_MULTI_EXTRUDER
+    "bmp_ext2_state.bin",
   #endif
-  "bmp_Bed_state.bin",
-  "bmp_Fan_state.bin",
-  "bmp_Time_state.bin",
-  "bmp_Zpos_state.bin",
-  "bmp_Operate.bin",
+  "bmp_bed_state.bin",
+  "bmp_fan_state.bin",
+  "bmp_time_state.bin",
+  "bmp_zpos_state.bin",
+  "bmp_operate.bin",
 
   //manual leval screen (only if disabled auto level)
   #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    "bmp_Leveling1.bin",
-    "bmp_Leveling2.bin",
-    "bmp_Leveling3.bin",
-    "bmp_Leveling4.bin",
-    "bmp_Leveling5.bin",
+    "bmp_leveling1.bin",
+    "bmp_leveling2.bin",
+    "bmp_leveling3.bin",
+    "bmp_leveling4.bin",
+    "bmp_leveling5.bin",
   #endif
 
   //lang select screen
   #if HAS_LANG_SELECT_SCREEN
-    "bmp_Language.bin",
+    "bmp_language.bin",
     "bmp_simplified_cn.bin",
     "bmp_simplified_cn_sel.bin",
     "bmp_traditional_cn.bin",
     "bmp_traditional_cn_sel.bin",
-    "bmp_English.bin",
-    "bmp_English_sel.bin",
-    "bmp_Russian.bin",
-    "bmp_Russian_sel.bin",
-    "bmp_Spanish.bin",
-    "bmp_Spanish_sel.bin",
-    "bmp_French.bin",
-    "bmp_French_sel.bin",
-    "bmp_Italy.bin",
-    "bmp_Italy_sel.bin",
+    "bmp_english.bin",
+    "bmp_english_sel.bin",
+    "bmp_russian.bin",
+    "bmp_russian_sel.bin",
+    "bmp_spanish.bin",
+    "bmp_spanish_sel.bin",
+    "bmp_french.bin",
+    "bmp_french_sel.bin",
+    "bmp_italy.bin",
+    "bmp_italy_sel.bin",
   #endif // HAS_LANG_SELECT_SCREEN
 
   // gcode preview
@@ -177,21 +181,15 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   #endif
 
   // settings screen
-  "bmp_About.bin",
+  "bmp_about.bin",
   //"bmp_Language.bin",
   //"bmp_Fan.bin",
   //"bmp_manual_off.bin",
 
   //start screen
   "bmp_printing.bin",
-  "bmp_Set.bin",
-  "bmp_Tool.bin",
-
-  #if ENABLED(HAS_STEALTHCHOP)
-    //"bmp_back70x40.bin",
-    "bmp_disable.bin",
-    "bmp_enable.bin",
-  #endif
+  "bmp_set.bin",
+  "bmp_tool.bin",
 
   // settings screen
   "bmp_eeprom_settings.bin",
@@ -202,14 +200,27 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
-  "bmp_Return.bin"
+  "bmp_blank_sel.bin",
+  "bmp_disable.bin",
+  "bmp_enable.bin",
+  "bmp_return.bin",
+
+  #if ENABLED(USE_WIFI_FUNCTION)
+    //wifi screen
+    "bmp_wifi.bin",
+  #endif
+
+  //babystep screen
+  "bmp_baby_move0_01.bin",
+  "bmp_baby_move0_05.bin",
+  "bmp_baby_move0_1.bin"
 };
 
 #if HAS_SPI_FLASH_FONT
   static char fonts[][LONG_FILENAME_LENGTH] = { "FontUNIGBK.bin" };
 #endif
 
-static uint8_t currentFlashPage = 0;
+uint8_t currentFlashPage = 0;
 
 uint32_t lv_get_pic_addr(uint8_t *Pname) {
   uint8_t Pic_cnt;
@@ -253,8 +264,13 @@ const char *bakPath = "_assets";
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  for (pic_sectorcnt = 0; pic_sectorcnt < PIC_SIZE_xM * 1024 / 64; pic_sectorcnt++)
-    W25QXX.SPI_FLASH_BlockErase(PICINFOADDR + pic_sectorcnt * 64 * 1024);
+  //erase 0x001000 -64K
+  for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
+    W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
+  }
+  //erase 64K -- 6M
+  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++)
+    W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
 }
 
 #if HAS_SPI_FLASH_FONT

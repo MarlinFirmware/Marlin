@@ -36,7 +36,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
 
@@ -870,7 +870,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool) invalid_extruder_error(new_tool);
     return;
 
-  #else // EXTRUDERS > 1
+  #elif HAS_MULTI_EXTRUDER
 
     planner.synchronize();
 
@@ -1197,7 +1197,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // EXTRUDERS > 1
+  #endif // HAS_MULTI_EXTRUDER
 }
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

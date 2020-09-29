@@ -25,9 +25,9 @@
  * MKS SBASE pin assignments
  */
 
-#if defined(MKS_HAS_LPC1769) && !defined(MCU_LPC1769)
+#if defined(MKS_HAS_LPC1769) && NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
-#elif !defined(MKS_HAS_LPC1769) && !defined(MCU_LPC1768)
+#elif NOT_TARGET(MKS_HAS_LPC1769, MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -217,7 +217,18 @@
  * that the garbage/lines are erased immediately after the SD card accesses are completed.
  */
 
-#if HAS_SPI_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define   TFTGLCD_CS                   P3_25  // EXP2.3
+  #endif
+
+  #if SD_CONNECTION_IS(LCD)
+    #define SD_DETECT_PIN                  P0_28  // EXP2.4
+  #endif
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                       P1_31  // EXP1.1
   #define BTN_ENC                          P1_30  // EXP1.2
   #define BTN_EN1                          P3_26  // EXP2.5
@@ -273,7 +284,7 @@
     //#define LCD_SCREEN_ROT_270
   #endif
 
-#endif
+#endif // HAS_WIRED_LCD
 
 /**
  * Example for trinamic drivers using the J8 connector on MKs Sbase.
@@ -289,20 +300,21 @@
   #define E0_CS_PIN                        P2_11
   #define E1_CS_PIN                        P4_28
 
-// Hardware SPI is on EXP2. See if you can make it work:
-// https://github.com/makerbase-mks/MKS-SBASE/issues/25
-#define TMC_USE_SW_SPI
-#if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                    P0_03  // AUX1
+  // Hardware SPI is on EXP2. See if you can make it work:
+  // https://github.com/makerbase-mks/MKS-SBASE/issues/25
+  #define TMC_USE_SW_SPI
+  #if ENABLED(TMC_USE_SW_SPI)
+    #ifndef TMC_SW_MOSI
+      #define TMC_SW_MOSI                  P0_03  // AUX1
+    #endif
+    #ifndef TMC_SW_MISO
+      #define TMC_SW_MISO                  P0_02  // AUX1
+    #endif
+    #ifndef TMC_SW_SCK
+      #define TMC_SW_SCK                   P0_26  // TH4
+    #endif
   #endif
-  #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                    P0_02  // AUX1
-  #endif
-  #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                     P0_26  // TH4
-  #endif
- #endif
+
 #endif
 
 #if MB(MKS_SBASE) && HAS_TMC_UART
@@ -360,7 +372,6 @@
  *   P1_31 - not 5V tolerant - EXP1
  *   P0_27 - open collector  - EXP2
  *   P0_28 - open collector  - EXP2
- *
  */
 
 /**
@@ -375,5 +386,4 @@
  *   P0_03 - AUX1
  *   P0_29 - Port -1
  *   P0_30 - USB
- *
  */

@@ -318,7 +318,6 @@ UHS_NI UHS_Bulk_Storage::UHS_Bulk_Storage(UHS_USB_HOST_BASE *p) {
 }
 
 /**
- *
  * @param ei Enumeration information
  * @return true if this interface driver can handle this interface description
  */
@@ -375,7 +374,6 @@ uint8_t UHS_NI UHS_Bulk_Storage::SetInterface(ENUMERATION_INFO *ei) {
 };
 
 /**
- *
  * @return 0 for success
  */
 uint8_t UHS_NI UHS_Bulk_Storage::Start() {
@@ -628,7 +626,6 @@ void UHS_NI UHS_Bulk_Storage::CheckMedia() {
 
 /**
  * For driver use only.
- *
  */
 void UHS_NI UHS_Bulk_Storage::Poll() {
         if((long)(millis() - qNextPollTime) >= 0L) {
@@ -839,7 +836,6 @@ uint8_t UHS_NI UHS_Bulk_Storage::ClearEpHalt(uint8_t index) {
 
 /**
  * For driver use only.
- *
  */
 void UHS_NI UHS_Bulk_Storage::Reset() {
         if(!bAddress) return;
@@ -1185,7 +1181,6 @@ uint8_t UHS_NI UHS_Bulk_Storage::HandleSCSIError(uint8_t status) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
  * @param ep_ptr
  */
 void UHS_NI UHS_Bulk_Storage::PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR * ep_ptr) {

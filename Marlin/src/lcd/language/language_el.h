@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
@@ -180,8 +179,6 @@ namespace Language_el {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΚΡΑΣΙΑΣ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("ΠΕΡΙΤΗ ΘΕΡΜΟΚΡΑΣΙΑ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("ΜΗ ΕΠΑΡΚΗΣ ΘΕΡΜΟΚΡΑΣΙΑΣ"); //SHORTEN
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("ΜΕΓΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ"); //SHORTEN
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ"); //SHORTEN
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("H εκτύπωση διακόπηκε");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Θερμαίνεται…");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Θέρμανση ΕΠ. Εκτύπωσης"); //SHORTEN
