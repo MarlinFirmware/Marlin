@@ -108,6 +108,8 @@
   #define THERMISTOR_NAME "100k with 10k pull-up"
 
 // Modified thermistors
+#elif THERMISTOR_ID == 30
+  #define THERMISTOR_NAME "Kis3d EN AW NTC100K/3950"
 #elif THERMISTOR_ID == 51
   #define THERMISTOR_NAME "EPCOS 1K"
 #elif THERMISTOR_ID == 52

@@ -46,7 +46,7 @@
 
   #include "../../feature/babystep.h"
   #include "../lcdprint.h"
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #include "../dogm/ultralcd_DOGM.h"
   #endif
 
@@ -68,10 +68,10 @@
       const float spm = planner.steps_to_mm[axis];
       MenuEditItemBase::draw_edit_screen(msg, BABYSTEP_TO_STR(spm * babystep.accum));
       #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
-        const bool in_view = TERN1(HAS_GRAPHICAL_LCD, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
+        const bool in_view = TERN1(HAS_MARLINUI_U8GLIB, PAGE_CONTAINS(LCD_PIXEL_HEIGHT - MENU_FONT_HEIGHT, LCD_PIXEL_HEIGHT - 1));
         if (in_view) {
-          TERN_(HAS_GRAPHICAL_LCD, ui.set_font(FONT_MENU));
-          lcd_moveto(0, TERN(HAS_GRAPHICAL_LCD, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
+          TERN_(HAS_MARLINUI_U8GLIB, ui.set_font(FONT_MENU));
+          lcd_moveto(0, TERN(HAS_MARLINUI_U8GLIB, LCD_PIXEL_HEIGHT - MENU_FONT_DESCENT, LCD_HEIGHT - 1));
           lcd_put_u8str_P(GET_TEXT(MSG_BABYSTEP_TOTAL));
           lcd_put_wchar(':');
           lcd_put_u8str(BABYSTEP_TO_STR(spm * babystep.axis_total[BS_TOTAL_IND(axis)]));
@@ -215,7 +215,7 @@ void menu_tune() {
   #if EXTRUDERS
     EDIT_ITEM(int3, MSG_FLOW, &planner.flow_percentage[active_extruder], 10, 999, []{ planner.refresh_e_factor(active_extruder); });
     // Flow En:
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       LOOP_L_N(n, EXTRUDERS)
         EDIT_ITEM_N(int3, n, MSG_FLOW_N, &planner.flow_percentage[n], 10, 999, []{ planner.refresh_e_factor(MenuItemBase::itemIndex); });
     #endif
@@ -227,7 +227,7 @@ void menu_tune() {
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if EXTRUDERS == 1
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
-    #elif EXTRUDERS > 1
+    #elif HAS_MULTI_EXTRUDER
       LOOP_L_N(n, EXTRUDERS)
         EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
