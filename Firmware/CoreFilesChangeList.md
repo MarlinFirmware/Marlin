@@ -11,6 +11,9 @@ This is for our reference to make sure to retain changes made to the core files 
 			- **dwin**
 				- **e3v2**
 					- `dwin.cpp`
+			- **menu**
+				- `menu_advanced.cpp`
+				- `menu_configuration.cpp`
 			- **language**
 				- `language_en.h`
 		- **pins**

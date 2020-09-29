@@ -1,6 +1,6 @@
 #pragma once
 
-#define CONFIGURATION_BACKEND_H_VERSION 020006
+#define CONFIGURATION_BACKEND_H_VERSION 020007
 
 //===========================================================================
 //======================= DO NOT MODIFY THIS FILE ===========================
@@ -11,6 +11,9 @@
 /**
  * Temp Settings
  */
+
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 170
 
 #define DUMMY_THERMISTOR_998_VALUE 25
 #define DUMMY_THERMISTOR_999_VALUE 100

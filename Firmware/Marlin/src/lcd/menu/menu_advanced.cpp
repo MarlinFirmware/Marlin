@@ -611,14 +611,6 @@ void menu_advanced_settings() {
     SUBMENU(MSG_PASSWORD_SETTINGS, password.access_menu_password);
   #endif
 
-  #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
-    CONFIRM_ITEM(MSG_INIT_EEPROM,
-      MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
-      ui.init_eeprom, nullptr,
-      GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
-    );
-  #endif
-
   END_MENU();
 }
 
