@@ -129,7 +129,7 @@
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_BTT_SKR_V1_4_TURBO
-  #define PS_ON_PIN -1
+  #define PS_ON_PIN P1_00
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
