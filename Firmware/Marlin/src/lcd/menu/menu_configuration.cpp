@@ -418,7 +418,7 @@ void menu_configuration() {
 
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
     CONFIRM_ITEM(MSG_INIT_EEPROM,
-      MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
+      MSG_BUTTON_RESET, MSG_BUTTON_CANCEL,
       ui.init_eeprom, nullptr,
       GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
     );
