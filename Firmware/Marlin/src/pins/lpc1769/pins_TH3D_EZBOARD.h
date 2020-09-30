@@ -30,7 +30,8 @@
 #endif
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
-#define BOARD_WEBSITE_URL "th3dstudio.com"
+//spacing to center website on lcd
+#define BOARD_WEBSITE_URL "   TH3DStudio.com"
 
 //
 // Servos

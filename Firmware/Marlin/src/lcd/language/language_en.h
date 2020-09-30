@@ -483,7 +483,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_DELTA_HEIGHT                    = _UxGT("Height");
   PROGMEM Language_Str MSG_DELTA_RADIUS                    = _UxGT("Radius");
   PROGMEM Language_Str MSG_INFO_MENU                       = _UxGT("About Printer");
-  PROGMEM Language_Str MSG_INFO_PRINTER_MENU               = _UxGT("Printer Info");
+  PROGMEM Language_Str MSG_INFO_PRINTER_MENU               = _UxGT("Firmware Info");
   PROGMEM Language_Str MSG_3POINT_LEVELING                 = _UxGT("3-Point Leveling");
   PROGMEM Language_Str MSG_LINEAR_LEVELING                 = _UxGT("Linear Leveling");
   PROGMEM Language_Str MSG_BILINEAR_LEVELING               = _UxGT("Bilinear Leveling");
