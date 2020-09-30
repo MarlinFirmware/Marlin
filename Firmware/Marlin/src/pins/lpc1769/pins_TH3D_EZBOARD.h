@@ -25,12 +25,13 @@
  * TH3D EZBoard pin assignments
  */
 
-#ifndef MCU_LPC1769
+#if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
 #define BOARD_INFO_NAME   "TH3D EZBoard"
-#define BOARD_WEBSITE_URL "th3dstudio.com"
+//spacing to center website on lcd
+#define BOARD_WEBSITE_URL "   TH3DStudio.com"
 
 //
 // Servos
@@ -174,7 +175,6 @@
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
- *
  */
 
 #if ENABLED(CR10_STOCKDISPLAY)
@@ -199,6 +199,6 @@
   #define LCD_CONTRAST_MAX                 180 
   #define FORCE_SOFT_SPI
   #define LCD_BACKLIGHT_PIN                -1
-#elif HAS_SPI_LCD
-  #error "Only the CR10_STOCKDISPLAY is supported with TH3D EZBoard."
+#elif HAS_WIRED_LCD
+  #error "Only CR10_STOCKDISPLAY or MKS_MINI_12864 are supported with TH3D EZBoard."
 #endif

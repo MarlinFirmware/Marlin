@@ -1,1 +1,0 @@
-V2.09b addressed an issue with the PT100 not working. No binaries use this so they remain at V2.09a. No other changes were made from 2.09a to 2.09b.

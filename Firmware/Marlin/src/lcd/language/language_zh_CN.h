@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_zh_CN {
   using namespace Language_en;  // Inherit undefined strings from English
@@ -441,18 +440,12 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("总计");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("挡块终止");     //"Endstop abort"
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("加热失败");     //"Heating failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("热床加热失败");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("机箱加热失败");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("错误：冗余温度");     //"Err: REDUNDANT TEMP"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("温控失控");     //"THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("热床热量失控");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("机箱热量失控");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("错误：最高温度");     //"Err: MAXTEMP"
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("错误：最低温度");     //"Err: MINTEMP"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("错误：最高热床温度");     //"Err: MAXTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("错误：最低热床温度");     //"Err: MINTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("错误：最高机箱温度");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("错误：最低机箱温度");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("打印停机");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("请重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only
@@ -534,7 +527,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("断料距离mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("归原位失败");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探针探测失败");     // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("选择料");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

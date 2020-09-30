@@ -2,7 +2,7 @@
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 020006
+#define CONFIGURATION_H_VERSION 020007
 
 //===========================================================================
 //============================ TH3D Configuration ===========================
@@ -221,7 +221,7 @@
  */
  
  //Ender 3/5 SKR E3 Mini Board Settings
-#if EITHER(ENDER3_SKR_E3_MINI,ENDER5_SKR_E3_MINI)
+#if ENABLED(ENDER3_SKR_E3_MINI) || ENABLED(ENDER5_SKR_E3_MINI)
   #define SERIAL_PORT -1
   #define SERIAL_PORT_2 2
   #define SKR_E3_MINI_BOARD
@@ -291,8 +291,8 @@
   #endif
   
   #if ENABLED(HOME_ADJUST)
-    #define X_MIN_POS X_HOME_ADJUST_LOCATION
-    #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+    #define X_MIN_POS X_HOME_LOCATION
+    #define Y_MIN_POS Y_HOME_LOCATION
   #else
     #define X_MIN_POS 0
     #define Y_MIN_POS 0

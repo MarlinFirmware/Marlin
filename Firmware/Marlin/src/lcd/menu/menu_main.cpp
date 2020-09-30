@@ -54,6 +54,10 @@
   #include "../../feature/password/password.h"
 #endif
 
+#if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+  #include "../../feature/host_actions.h"
+#endif
+
 void menu_tune();
 void menu_cancelobject();
 void menu_motion();
@@ -158,6 +162,10 @@ void menu_main() {
     if (TERN0(MACHINE_CAN_PAUSE, printingIsPaused()))
       ACTION_ITEM(MSG_RESUME_PRINT, ui.resume_print);
 
+    #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
+      ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+    #endif
+
     SUBMENU(MSG_MOTION, menu_motion);
   }
 
@@ -200,10 +208,6 @@ void menu_main() {
     #else
       SUBMENU(MSG_FILAMENTCHANGE, menu_change_filament);
     #endif
-  #endif
-
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
   #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
@@ -282,6 +286,10 @@ void menu_main() {
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
+  #endif
+
+  #if ENABLED(LCD_INFO_MENU)
+    SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
   #if HAS_GAMES && DISABLED(LCD_INFO_MENU)

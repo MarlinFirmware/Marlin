@@ -25,7 +25,7 @@
  * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -36,7 +36,7 @@
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
-#define DISABLE_DEBUG
+#define DISABLE_JTAG
 
 //
 // EEPROM
@@ -57,10 +57,6 @@
 #define Y_STOP_PIN                          PA12
 #define Z_MIN_PIN                           PA11
 #define Z_MAX_PIN                           PC4
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
-#endif
 
 //
 // Steppers
@@ -123,24 +119,32 @@
 //
 // Misc. Functions
 //
-#define POWER_LOSS_PIN                      PA2   // PW_DET
-#define PS_ON_PIN                           PA3   // PW_OFF
+#if HAS_TFT_LVGL_UI
+  //#define MKSPWC
+  #ifdef MKSPWC
+    #define SUICIDE_PIN                     PB2   // Enable MKSPWC SUICIDE PIN
+    #define SUICIDE_PIN_INVERTING          false  // Enable MKSPWC PIN STATE
+    #define KILL_PIN                        PA2   // Enable MKSPWC DET PIN
+    #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
+  #endif
 
-//#define SUICIDE_PIN                       PB2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define SUICIDE_PIN_INVERTING            false
+  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
+  #define MT_DET_2_PIN                      PE6   // LVGL UI FILAMENT RUNOUT2 PIN
+  #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
 
-//#define KILL_PIN                          PA2   // Enable MKSPWC support ROBIN NANO v1.2 ONLY
-//#define KILL_PIN_INVERTING                true  // Enable MKSPWC support ROBIN NANO v1.2 ONLY
+  #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
+#else
+  //#define POWER_LOSS_PIN                  PA2   // PW_DET
+  //#define PS_ON_PIN                       PB2   // PW_OFF
+  #define FIL_RUNOUT_PIN                    PA4
+  #define FIL_RUNOUT2_PIN                   PE6
+#endif
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support ROBIN NANO v1.2 ONLY
+#define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 
 //#define LED_PIN                           PB2
-
-#define MT_DET_1_PIN                        PA4
-#define MT_DET_2_PIN                        PE6
-#define MT_DET_PIN_INVERTING               false
-
-#define WIFI_IO0_PIN                        PC13
 
 //
 // SD Card
@@ -194,10 +198,18 @@
 // LVGL Configs
 #if ENABLED(TFT_LVGL_UI_FSMC)
 
-  #define XPT2046_X_CALIBRATION            17880
-  #define XPT2046_Y_CALIBRATION           -12234
-  #define XPT2046_X_OFFSET                   -45
-  #define XPT2046_Y_OFFSET                   349
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          17880
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         -12234
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -45
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+   #define XPT2046_Y_OFFSET                  349
+  #endif
 
 // Emulated DOGM Configs
 #elif ENABLED(FSMC_GRAPHICAL_TFT)
@@ -244,10 +256,18 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define XPT2046_X_CALIBRATION           -12246
-  #define XPT2046_Y_CALIBRATION             9453
-  #define XPT2046_X_OFFSET                   360
-  #define XPT2046_Y_OFFSET                   -22
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -12246
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION           9453
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 360
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -22
+  #endif
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
@@ -265,10 +285,18 @@
   #define ILI9341_COLOR_RGB
 
 #elif ENABLED(TFT_480x320)
-  #define XPT2046_X_CALIBRATION            17880
-  #define XPT2046_Y_CALIBRATION           -12234
-  #define XPT2046_X_OFFSET                   -45
-  #define XPT2046_Y_OFFSET                   349
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          17880
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         -12234
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -45
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 349
+  #endif
 
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400

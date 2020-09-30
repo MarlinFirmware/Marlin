@@ -614,7 +614,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
 
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
@@ -818,6 +818,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 192: M192(); break;                                  // M192: Wait for probe temp
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 

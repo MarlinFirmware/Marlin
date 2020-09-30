@@ -3,7 +3,7 @@
  */
 
 #pragma once
-#define CONFIGURATION_H_VERSION 020006
+#define CONFIGURATION_H_VERSION 020007
 
 //#@CONFIGURATION_START_FLAG
 
@@ -106,6 +106,7 @@
 //#define EZBOARD_PT100
 
 // Ender Xtender Kit Options
+//#define ENDER_XTENDER_300
 //#define ENDER_XTENDER_400
 //#define ENDER_XTENDER_400XL
 //#define ENDER_XTENDER_XL
@@ -405,23 +406,27 @@
   #endif
 
   #if ENABLED(ENDER3)
-		#if ENABLED(ENDER_XTENDER_400)
-			#define X_BED_SIZE 400
-			#define Y_BED_SIZE 400
-			#define Z_MAX_POS 250
-		#elif ENABLED(ENDER_XTENDER_400XL)
-			#define X_BED_SIZE 400
-			#define Y_BED_SIZE 400
-			#define Z_MAX_POS 500
-		#elif ENABLED(ENDER_XTENDER_XL)
-			#define X_BED_SIZE 235
-			#define Y_BED_SIZE 235
-			#define Z_MAX_POS 500
-		#else
-			#define X_BED_SIZE 235
-			#define Y_BED_SIZE 235
-			#define Z_MAX_POS 250
-		#endif
+	#if ENABLED(ENDER_XTENDER_400)
+	  #define X_BED_SIZE 400
+	  #define Y_BED_SIZE 400
+	  #define Z_MAX_POS 250
+    #elif ENABLED(ENDER_XTENDER_300)
+	  #define X_BED_SIZE 300
+	  #define Y_BED_SIZE 300
+	  #define Z_MAX_POS 250
+	#elif ENABLED(ENDER_XTENDER_400XL)
+	  #define X_BED_SIZE 400
+	  #define Y_BED_SIZE 400
+	  #define Z_MAX_POS 500
+	#elif ENABLED(ENDER_XTENDER_XL)
+	  #define X_BED_SIZE 235
+	  #define Y_BED_SIZE 235
+	  #define Z_MAX_POS 500
+	#else
+	  #define X_BED_SIZE 235
+	  #define Y_BED_SIZE 235
+	  #define Z_MAX_POS 250
+	#endif
     #define PRINTER_VOLTAGE_24
   #endif
 

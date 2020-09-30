@@ -1,16 +1,19 @@
 #pragma once
 
-#define CONFIGURATION_BACKEND_H_VERSION 020006
+#define CONFIGURATION_BACKEND_H_VERSION 020007
 
 //===========================================================================
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.09b"
+#define UNIFIED_VERSION "TH3D UFW 2.10"
 
 /**
  * Temp Settings
  */
+
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 170
 
 #define DUMMY_THERMISTOR_998_VALUE 25
 #define DUMMY_THERMISTOR_999_VALUE 100
@@ -65,6 +68,11 @@
 #define BANG_MAX 255
 #define PID_MAX BANG_MAX
 #define PID_K1 0.95
+
+#if DISABLED(SPACE_SAVER) && DISABLED(SKR_E3_MINI_BOARD)
+  #define PID_EDIT_MENU
+  #define PID_AUTOTUNE_MENU
+#endif
 
 #ifndef DEFAULT_Kp
   #define DEFAULT_Kp 22.2 // Define Marlin default PID if no machine specific PID is defined.
@@ -368,6 +376,7 @@
 #if ENABLED(MANUAL_MESH_LEVELING) && DISABLED(ABL_ENABLE)
   #define LCD_BED_LEVELING
   #define MESH_BED_LEVELING
+  #define RESTORE_LEVELING_AFTER_G28
   #define MESH_EDIT_Z_STEP  0.025
   #define LCD_PROBE_Z_RANGE 4
 

@@ -2,7 +2,7 @@
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
  */
 #pragma once
-#define CONFIGURATION_H_VERSION 020006
+#define CONFIGURATION_H_VERSION 020007
 
 //===========================================================================
 //============================ TH3D Configuration ===========================
@@ -260,8 +260,8 @@
   #endif
   
   #if ENABLED(HOME_ADJUST)
-    #define X_MIN_POS X_HOME_ADJUST_LOCATION
-    #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
+    #define X_MIN_POS X_HOME_LOCATION
+    #define Y_MIN_POS Y_HOME_LOCATION
   #else
     #define X_MIN_POS 0
     #define Y_MIN_POS 0
