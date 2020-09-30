@@ -219,7 +219,7 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   width = area->x2 - area->x1 + 1;
   height = area->y2 - area->y1 + 1;
 
-  SPI_TFT.SetWindows((uint16_t)area->x1, (uint16_t)area->y1, width, height);
+  SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
   for (i = 0; i < height; i++) {
     SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
   }

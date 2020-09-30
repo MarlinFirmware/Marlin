@@ -40,7 +40,7 @@ public:
   void LCD_WR_REG(uint8_t cmd);
   void LCD_WR_DATA(uint8_t data);
   void SetPoint(uint16_t x, uint16_t y, uint16_t point);
-  void SetWindows(uint16_t x, uint16_t y, uint16_t with, uint16_t height);
+  void setWindow(uint16_t x, uint16_t y, uint16_t with, uint16_t height);
   void LCD_init();
   void LCD_clear(uint16_t color);
   void LCD_Draw_Logo();

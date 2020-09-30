@@ -653,7 +653,7 @@ char *creat_title_text() {
         }
 
         card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-        SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+        SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
 
         j = i = 0;
 
@@ -752,7 +752,7 @@ char *creat_title_text() {
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
         #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
         #else
           LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
           LCD_WriteRAM_Prepare();
@@ -885,7 +885,7 @@ char *creat_title_text() {
         default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
       #endif
 
-      SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+      SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
       SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
       y_off++;
