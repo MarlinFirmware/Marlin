@@ -1048,6 +1048,9 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
+  // Init buzzer pins
+  TERN_(USE_BEEPER, buzzer.init());
+
   // Set up LEDs early
   #if HAS_COLOR_LEDS
     SETUP_RUN(leds.setup());
