@@ -63,7 +63,7 @@ uint16_t HAL_adc_result;
 void HAL_init() {
   FastIO_init();
 
-  #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT)
+  #if ENABLED(SDSUPPORT) && DISABLED(SDIO_SUPPORT) && SDSS != -1
     OUT_WRITE(SDSS, HIGH); // Try to set SDSS inactive before any other SPI users start up
   #endif
 
@@ -126,5 +126,17 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRe
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
 void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+
+static void (*systick_user_callback)(void);
+
+void HAL_SYSTICK_Callback(void) {
+    if (systick_user_callback) {
+        systick_user_callback();
+    }
+}
+
+void systick_attach_callback(void (*callback)(void)) {
+  systick_user_callback = callback;
+}
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
