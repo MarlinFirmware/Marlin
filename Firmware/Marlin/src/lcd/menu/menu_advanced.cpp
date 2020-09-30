@@ -373,11 +373,11 @@ void menu_backlash();
         EDIT_ITEM_FAST_N(float3, n, MSG_VMAX_EN, &planner.settings.max_feedrate_mm_s[E_AXIS_N(n)], 1, max_fr_edit_scaled.e);
     #endif
 
-    // M205 S Min Feedrate
-    EDIT_ITEM_FAST(float3, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 999);
+    // M205 S Min Feedrate - Disabled by TH3D to Save space, not used by users
+    //EDIT_ITEM_FAST(float3, MSG_VMIN, &planner.settings.min_feedrate_mm_s, 0, 999);
 
-    // M205 T Min Travel Feedrate
-    EDIT_ITEM_FAST(float3, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 999);
+    // M205 T Min Travel Feedrate - Disabled by TH3D to Save space, not used by users
+    //EDIT_ITEM_FAST(float3, MSG_VTRAV_MIN, &planner.settings.min_travel_feedrate_mm_s, 0, 999);
 
     END_MENU();
   }
