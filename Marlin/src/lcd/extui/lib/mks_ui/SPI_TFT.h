@@ -27,18 +27,10 @@
 
 #include "../../../tft_io/tft_io.h"
 
-#define TFT_RST_H OUT_WRITE(TFT_RESET_PIN, HIGH)
-#define TFT_RST_L OUT_WRITE(TFT_RESET_PIN, LOW)
-
-#define TFT_BLK_H OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH)
-#define TFT_BLK_L OUT_WRITE(TFT_BACKLIGHT_PIN, LOW)
-
 class TFT {
 public:
   TFT_IO tftio;
   void spi_init(uint8_t spiRate);
-  void LCD_WR_REG(uint8_t cmd);
-  void LCD_WR_DATA(uint8_t data);
   void SetPoint(uint16_t x, uint16_t y, uint16_t point);
   void setWindow(uint16_t x, uint16_t y, uint16_t with, uint16_t height);
   void LCD_init();

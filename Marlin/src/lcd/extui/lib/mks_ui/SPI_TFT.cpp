@@ -41,14 +41,6 @@ void TFT::spi_init(uint8_t spiRate) {
   tftio.Init();
 }
 
-void TFT::LCD_WR_REG(uint8_t cmd) {
-  tftio.WriteReg(cmd);
-}
-
-void TFT::LCD_WR_DATA(uint8_t data) {
-  tftio.WriteData(data);
-}
-
 void TFT::SetPoint(uint16_t x, uint16_t y, uint16_t point) {
   if ((x > 480) || (y > 320)) return;
 
@@ -61,18 +53,16 @@ void TFT::setWindow(uint16_t x, uint16_t y, uint16_t with, uint16_t height) {
 }
 
 void TFT::LCD_init() {
-  TFT_BLK_L;
-  TFT_RST_H;
-  delay(150);
-  TFT_RST_L;
-  delay(150);
-  TFT_RST_H;
-
   tftio.InitTFT();
-
-  LCD_clear(0x0000);    //
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+  #endif
+  delay(100);
+  LCD_clear(0x0000);
   LCD_Draw_Logo();
-  TFT_BLK_H;
+  #if PIN_EXISTS(TFT_BACKLIGHT)
+    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
+  #endif
   #if HAS_LOGO_IN_FLASH
     delay(2000);
   #endif
