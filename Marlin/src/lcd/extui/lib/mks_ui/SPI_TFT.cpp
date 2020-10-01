@@ -69,7 +69,7 @@ void TFT::LCD_init() {
 }
 
 void TFT::LCD_clear(uint16_t color) {
-  setWindow(0, 0, (TFT_WIDTH) - 1, (TFT_HEIGHT) - 1);
+  setWindow(0, 0, (TFT_WIDTH), (TFT_HEIGHT));
   tftio.WriteMultiple(color, (uint32_t)(TFT_WIDTH) * (TFT_HEIGHT));
 }
 
