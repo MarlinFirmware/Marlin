@@ -241,11 +241,21 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-#if HAS_SPI_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_25
+  #endif
+
+  #define SD_DETECT_PIN                    P0_27
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                       P1_31
   #define BTN_ENC                          P1_30
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS                    P1_00
 
     #define BTN_EN1                        P0_18
@@ -327,7 +337,7 @@
 
   #endif // !CR10_STOCKDISPLAY
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD

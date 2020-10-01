@@ -51,7 +51,7 @@ MarlinUI ui;
 
 constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(STATUS_MESSAGE_SCROLLING)
     uint8_t MarlinUI::status_scroll_offset; // = 0
     constexpr uint8_t MAX_MESSAGE_LENGTH = _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * 2 * (LCD_WIDTH));
@@ -62,7 +62,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   constexpr uint8_t MAX_MESSAGE_LENGTH = 63;
 #endif
 
-#if EITHER(HAS_SPI_LCD, EXTENSIBLE_UI)
+#if EITHER(HAS_WIRED_LCD, EXTENSIBLE_UI)
   uint8_t MarlinUI::alert_level; // = 0
   char MarlinUI::status_message[MAX_MESSAGE_LENGTH + 1];
 #endif
@@ -114,9 +114,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #include "dogm/ultralcd_DOGM.h"
 #endif
 
@@ -167,7 +167,7 @@ uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
 millis_t MarlinUI::next_button_update_ms; // = 0
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
 #endif
 
@@ -372,7 +372,7 @@ void MarlinUI::init() {
 
   #endif // HAS_SHIFT_ENCODER
 
-  #if HAS_ENCODER_ACTION && HAS_SLOW_BUTTONS
+  #if BOTH(HAS_ENCODER_ACTION, HAS_SLOW_BUTTONS)
     slow_buttons = 0;
   #endif
 
@@ -506,7 +506,7 @@ bool MarlinUI::get_blink() {
  * This is very display-dependent, so the lcd implementation draws this.
  */
 
-#if ENABLED(LCD_PROGRESS_BAR)
+#if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
   millis_t MarlinUI::progress_bar_ms; // = 0
   #if PROGRESS_MSG_EXPIRE > 0
     millis_t MarlinUI::expire_status_ms; // = 0
@@ -517,7 +517,7 @@ void MarlinUI::status_screen() {
 
   TERN_(HAS_LCD_MENU, ENCODER_RATE_MULTIPLY(false));
 
-  #if ENABLED(LCD_PROGRESS_BAR)
+  #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
 
     //
     // HD44780 implements the following message blinking and
@@ -873,7 +873,7 @@ void MarlinUI::update() {
 
   #endif // HAS_LCD_MENU
 
-  if (ELAPSED(ms, next_lcd_update_ms) || TERN0(HAS_GRAPHICAL_LCD, drawing_screen)) {
+  if (ELAPSED(ms, next_lcd_update_ms) || TERN0(HAS_MARLINUI_U8GLIB, drawing_screen)) {
 
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
@@ -915,7 +915,7 @@ void MarlinUI::update() {
 
       const bool encoderPastThreshold = (abs_diff >= epps);
       if (encoderPastThreshold || lcd_clicked) {
-        if (encoderPastThreshold) {
+        if (encoderPastThreshold && TERN1(IS_TFTGLCD_PANEL, !external_control)) {
 
           #if BOTH(HAS_LCD_MENU, ENCODER_RATE_MULTIPLIER)
 
@@ -971,7 +971,7 @@ void MarlinUI::update() {
     // This runs every ~100ms when idling often enough.
     // Instead of tracking changes just redraw the Status Screen once per second.
     if (on_status_screen() && !lcd_status_update_delay--) {
-      lcd_status_update_delay = TERN(HAS_GRAPHICAL_LCD, 12, 9);
+      lcd_status_update_delay = TERN(HAS_MARLINUI_U8GLIB, 12, 9);
       if (max_display_update_time) max_display_update_time--;  // Be sure never go to a very big number
       refresh(LCDVIEW_REDRAW_NOW);
     }
@@ -1010,7 +1010,7 @@ void MarlinUI::update() {
 
       TERN_(HAS_ADC_BUTTONS, keypad_buttons = 0);
 
-      #if HAS_GRAPHICAL_LCD
+      #if HAS_MARLINUI_U8GLIB
 
         #if ENABLED(LIGHTWEIGHT_UI)
           const bool in_status = on_status_screen(),
@@ -1260,6 +1260,12 @@ void MarlinUI::update() {
         TERN(REPRAPWORLD_KEYPAD, keypad_buttons, buttons) = ~val;
       #endif
 
+      #if IS_TFTGLCD_PANEL
+        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
+        buttons = slow_buttons;
+        TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
+      #endif
+
     } // next_button_update_ms
 
     #if HAS_ENCODER_WHEEL
@@ -1294,7 +1300,7 @@ void MarlinUI::update() {
 
 #endif // HAS_ENCODER_ACTION
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_DISPLAY
 
@@ -1331,7 +1337,7 @@ void MarlinUI::update() {
       const millis_t ms = millis();
     #endif
 
-    #if ENABLED(LCD_PROGRESS_BAR)
+    #if ENABLED(LCD_PROGRESS_BAR) && !IS_TFTGLCD_PANEL
       progress_bar_ms = ms;
       #if PROGRESS_MSG_EXPIRE > 0
         expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
@@ -1342,7 +1348,7 @@ void MarlinUI::update() {
       next_filament_display = ms + 5000UL; // Show status message for 5s
     #endif
 
-    #if BOTH(HAS_SPI_LCD, STATUS_MESSAGE_SCROLLING)
+    #if BOTH(HAS_WIRED_LCD, STATUS_MESSAGE_SCROLLING)
       status_scroll_offset = 0;
     #endif
 
@@ -1501,7 +1507,7 @@ void MarlinUI::update() {
     set_status_P(print_paused);
 
     #if ENABLED(PARK_HEAD_ON_PAUSE)
-      TERN_(HAS_SPI_LCD, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT)); // Show message immediately to let user know about pause in progress
+      TERN_(HAS_WIRED_LCD, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT)); // Show message immediately to let user know about pause in progress
       queue.inject_P(PSTR("M25 P\nM24"));
     #elif ENABLED(SDSUPPORT)
       queue.inject_P(PSTR("M25"));
@@ -1610,11 +1616,11 @@ void MarlinUI::update() {
 
     refresh();
 
-    #if HAS_SPI_LCD || defined(LED_BACKLIGHT_TIMEOUT)
+    #if HAS_WIRED_LCD || defined(LED_BACKLIGHT_TIMEOUT)
       const millis_t ms = millis();
     #endif
 
-    TERN_(HAS_SPI_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
+    TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
 
     #ifdef LED_BACKLIGHT_TIMEOUT
       leds.reset_timeout(ms);
