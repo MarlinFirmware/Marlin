@@ -34,7 +34,7 @@
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
 #define SENDLINE_PGM(x)                             sendLine_P(PSTR(x))
-#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(ui16tostr3rj(y)))
+#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
 #define SEND(x)                                     send(x)
 #define SENDLINE(x)                                 sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
