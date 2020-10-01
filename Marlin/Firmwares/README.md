@@ -34,32 +34,44 @@ No validate:
 
   ## Exemple: 
 
-8CWBL-Robin_mini.bin =>  TMC2208 standalone/UI Marlin/Module Wifi/Extruder BMG/LinearAdvance  
+8CWBL-Robin_mini.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
 Caption:
 
   ### /*------Drivers--------*/
 (S) A4988
+
 (8) TMC2208
+
 (9) TMC2209
+
 (U8) TMC2208_UART with no module ESP12.
+
 (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
+
 (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
 
   ### /*------Modules--------*/
 (W) Module ESP8266/ESP12
+
 (T) Extruder Titan
+
 (B) Extruder BMG
+
 (N) NeoPixel
 
   ### /*-------Options UI TFT--------*/
 (F) UI STANDARD 
+
 (C) UI MARLIN 
+
 (I) UI MKS
 
   ### /*-------Others options in firmware----*/ 
 (A) BED_LEVELING_BILINEAR
+
 (U) BED_LEVELING_UBL
+
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
 ## For the Wifi Module (MKS_Wifi):
