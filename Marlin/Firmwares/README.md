@@ -7,6 +7,9 @@
 
 __Not for production use. Use with caution!__
 
+## Marlin 2.0.7 
+ Update 2020-10-01
+ 
 ## Marlin 2.0 Bugfix Branch
  Update Marlin-BugFix 20200905
 
