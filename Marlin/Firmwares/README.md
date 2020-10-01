@@ -16,7 +16,7 @@ Firmware for QQS-Pro with A4988.
 
 Firmware for QQS-Pro with TMC2208_Standalone
 
-Firmware for QQS-Pro with TMC2208_UART (only screen FSMC with UBL or Color UI with ABL)
+Firmware for QQS-Pro with TMC2208_UART
 
 With activate parts:
 
@@ -39,12 +39,15 @@ Caption:
 (S) A4988
 (8) TMC2208
 (9) TMC2209
-(U8) TMC2208_UART with no module ESP12.    
+(U8) TMC2208_UART with no module ESP12.
+(U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
+(U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
 
   ### /*------Modules--------*/
 (W) Module ESP8266/ESP12
 (T) Extruder Titan
 (B) Extruder BMG
+(N) NeoPixel
 
   ### /*-------Options UI TFT--------*/
 (F) UI STANDARD 
