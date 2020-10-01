@@ -72,11 +72,11 @@ static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY pos
  *   S<screw_thread>
  *
  * Screw thread: 30 - Clockwise M3
- *               31 - Counter-Clockwise M3
+ *               31 - Anti-Clockwise M3
  *               40 - Clockwise M4
- *               41 - Counter-Clockwise M4
+ *               41 - Anti-Clockwise M4
  *               50 - Clockwise M5
- *               51 - Counter-Clockwise M5
+ *               51 - Anti-Clockwise M5
  **/
 void GcodeSuite::G35() {
   DEBUG_SECTION(log_G35, "G35", DEBUGGING(LEVELING));
@@ -157,7 +157,7 @@ void GcodeSuite::G35() {
       const int minutes = trunc(decimal_part * 60.0f);
 
       SERIAL_ECHOPAIR("Turn ", tramming_point_name[i],
-             " ", (screw_thread & 1) == (adjust > 0) ? "Counter-Clockwise" : "Clockwise",
+             " ", (screw_thread & 1) == (adjust > 0) ? "Anti-Clockwise" : "Clockwise",
              " by ", abs(full_turns), " turns");
       if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
       SERIAL_EOL();
