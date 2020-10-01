@@ -612,7 +612,7 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Retract to prevent oozing
   unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
-  if(!axes_should_home()) {
+  if (!axes_should_home()) {
     // Move XY to starting position, then Z
     do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
