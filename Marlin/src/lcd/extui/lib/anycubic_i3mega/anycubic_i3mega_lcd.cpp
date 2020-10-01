@@ -496,12 +496,12 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
         SEND_PGM("/");
         SENDLINE(currentFileList.shortFilename());
         SEND_PGM("/");
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
 
       }
       else {
         SENDLINE(currentFileList.shortFilename());
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
       }
     }
   }
