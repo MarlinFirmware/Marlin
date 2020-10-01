@@ -24,7 +24,7 @@
 
 #define BOARD_INFO_NAME "Melzi V2"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
   #endif

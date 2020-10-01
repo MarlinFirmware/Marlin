@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "LERDGE S supports up to 2 hotends / E-steppers."
@@ -127,7 +127,7 @@
 #endif
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 //#define E_MUX0_PIN                        -1
 //#define E_MUX1_PIN                        -1
