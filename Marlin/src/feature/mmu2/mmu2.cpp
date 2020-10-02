@@ -340,10 +340,10 @@ void MMU2::mmu_loop() {
       #endif
 
       if (rx_ok()) {
-        // response to C0 mmu command in PRUSA_MMU2_S_MODE
+        // Response to C0 mmu command in PRUSA_MMU2_S_MODE
         bool can_reset = true;
         #if ENABLED(PRUSA_MMU2_S_MODE)
-          if ((last_cmd == MMU_CMD_C0) && !mmu2s_triggered) {
+          if (!mmu2s_triggered && last_cmd == MMU_CMD_C0) {
             can_reset = false;
             // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (filament not present in gears)");
