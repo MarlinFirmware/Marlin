@@ -555,5 +555,4 @@ DRESULT disk_read (
 #endif // _DISKIO_IOCTL
 
 #endif // SD_CONNECTION_IS(ONBOARD)
-
 #endif // __STM32F1__
