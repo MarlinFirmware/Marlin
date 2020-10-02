@@ -399,11 +399,20 @@ namespace ExtUI {
         #if AXIS_IS_TMC(X)
           case X: return stepperX.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: return stepperX2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Y)
           case Y: return stepperY.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: return stepperY2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Z)
           case Z: return stepperZ.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: return stepperZ2.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -442,13 +451,22 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-          case X: stepperX.rms_current(constrain(mA, 500, 1500)); break;
+          case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Y)
-          case Y: stepperY.rms_current(constrain(mA, 500, 1500)); break;
+          case Y: stepperY.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: stepperY2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Z)
-          case Z: stepperZ.rms_current(constrain(mA, 500, 1500)); break;
+          case Z: stepperZ.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -457,28 +475,28 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-          case E0: stepperE0.rms_current(constrain(mA, 500, 1500)); break;
+          case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E1)
-          case E1: stepperE1.rms_current(constrain(mA, 500, 1500)); break;
+          case E1: stepperE1.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E2)
-          case E2: stepperE2.rms_current(constrain(mA, 500, 1500)); break;
+          case E2: stepperE2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E3)
-          case E3: stepperE3.rms_current(constrain(mA, 500, 1500)); break;
+          case E3: stepperE3.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E4)
-          case E4: stepperE4.rms_current(constrain(mA, 500, 1500)); break;
+          case E4: stepperE4.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E5)
-          case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
+          case E5: stepperE5.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E6)
-          case E6: stepperE6.rms_current(constrain(mA, 500, 1500)); break;
+          case E6: stepperE6.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E7)
-          case E7: stepperE7.rms_current(constrain(mA, 500, 1500)); break;
+          case E7: stepperE7.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };

@@ -57,8 +57,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AMAX_Y                   = u8"Amax Y";
   PROGMEM Language_Str MSG_AMAX_Z                   = u8"Amax Z";
   PROGMEM Language_Str MSG_AXIS_X                   = u8"X";
+  PROGMEM Language_Str MSG_AXIS_X2                  = u8"X2";
   PROGMEM Language_Str MSG_AXIS_Y                   = u8"Y";
+  PROGMEM Language_Str MSG_AXIS_Y2                  = u8"Y2";
   PROGMEM Language_Str MSG_AXIS_Z                   = u8"Z";
+  PROGMEM Language_Str MSG_AXIS_Z2                  = u8"Z2";
   PROGMEM Language_Str MSG_AXIS_E                   = u8"E";
   PROGMEM Language_Str MSG_AXIS_E1                  = u8"E1";
   PROGMEM Language_Str MSG_AXIS_E2                  = u8"E2";
