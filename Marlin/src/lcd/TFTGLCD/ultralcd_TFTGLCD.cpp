@@ -113,8 +113,8 @@ enum Commands {         // based on Smoothieware commands
   // Other commands... 0xE0 thru 0xFF
   GET_LCD_ROW = 0xE0,   // for detect panel
   GET_LCD_COL,          // reserved for compatibility with Smoothieware, not used
-	LCD_PUT,		          // write one line to LCD
-	INIT_SCREEN = 0xFE,   // clear panel buffer
+  LCD_PUT,              // write one line to LCD
+  INIT_SCREEN = 0xFE,   // clear panel buffer
 };
 
 static unsigned char framebuffer[FBSIZE];
