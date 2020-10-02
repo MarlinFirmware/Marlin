@@ -171,7 +171,7 @@
  *                 EXP1
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -225,7 +225,7 @@
     #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and MKS_LCD12864 are currently supported on the BIGTREE_SKR_E3_DIP."
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
@@ -257,7 +257,6 @@
    *   EXP1-8 ----------- EXP1-3
    *   SPI1-1 ----------- EXP1-1
    *  EXP1-10 ----------- EXP1-7
-   *
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
@@ -279,9 +278,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#endif
-
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) && SD_CONNECTION_IS(LCD)
+#elif SD_CONNECTION_IS(LCD) && BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
   #define SD_DETECT_PIN                     PA15
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
