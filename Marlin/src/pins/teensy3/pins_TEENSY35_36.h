@@ -27,7 +27,7 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if NOT_TARGET(IS_32BIT_TEENSY)
+#if NOT_TARGET(IS_TEENSY_35_36)
   #error "Oops! Select 'Teensy 3.5' or 'Teensy 3.6' in 'Tools > Board.'"
 #endif
 

@@ -22,9 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL for Arduino Due and compatible (SAM3X8E)
  */
 
 #define CPU_32_BIT

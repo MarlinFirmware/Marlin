@@ -27,11 +27,11 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if NOT_TARGET(IS_32BIT_TEENSY) || NOT_TARGET(IS_TEENSY41)
+#if NOT_TARGET(IS_TEENSY41)
   #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
-#else
-  #define BOARD_INFO_NAME "Teensy4.1"
 #endif
+
+#define BOARD_INFO_NAME "Teensy4.1"
 
 /**
  * Plan for Teensy 4.0 and Teensy 4.1:

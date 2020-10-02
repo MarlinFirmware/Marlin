@@ -23,8 +23,7 @@
 #if USE_WIRED_EEPROM
 
 /**
- * PersistentStore for Arduino-style EEPROM interface
- * with implementations supplied by the framework.
+ * HAL PersistentStore for Teensy 3.2 (MK20DX256)
  */
 
 #include "../shared/eeprom_api.h"
