@@ -8,8 +8,13 @@
 // For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 // For NeoPixel use library : https://github.com/......./MKS-Robin-Nano-NeoPixel-Lib/archive/master.zip
 // And commented error in SanityCheck.h
+=======
+// For NeoPixel use library : https://github.com/................/archive/master.zip
+// and commented error in SanityCheck.h
+>>>>>>> Stashed changes
 =======
 // For NeoPixel use library : https://github.com/................/archive/master.zip
 // and commented error in SanityCheck.h
@@ -80,9 +85,15 @@
 #define PID_AUTOTUNE_MENU          //
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 //#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
 #define LCD_INFO_MENU                 //
 #define LED_CONTROL_MENU              // For LedStrip
+=======
+#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
+#define LCD_INFO_MENU                 //
+//#define LED_CONTROL_MENU              // For LedStrip
+>>>>>>> Stashed changes
 =======
 #define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
 #define LCD_INFO_MENU                 //
