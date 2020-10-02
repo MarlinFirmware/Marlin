@@ -6,8 +6,13 @@
 // config/examples/delta directory and customize for your machine.
 // TIPS:
 // For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
+<<<<<<< Updated upstream
 // For NeoPixel use library : https://github.com/le3tspeak/MKS-Robin-Nano-NeoPixel-Lib/archive/master.zip
 // And commented error in SanityCheck.h
+=======
+// For NeoPixel use library : https://github.com/................/archive/master.zip
+// and commented error in SanityCheck.h
+>>>>>>> Stashed changes
 //========= Hardware ==========
 //#define STOCK
 
@@ -68,9 +73,15 @@
 #define DELTA_CALIBRATION_MENU        //NC LVGL
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
+<<<<<<< Updated upstream
 //#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
 #define LCD_INFO_MENU                 //
 #define LED_CONTROL_MENU              // For LedStrip
+=======
+#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
+#define LCD_INFO_MENU                 //
+//#define LED_CONTROL_MENU              // For LedStrip
+>>>>>>> Stashed changes
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR  //(A)
