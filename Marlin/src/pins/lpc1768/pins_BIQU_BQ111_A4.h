@@ -27,10 +27,9 @@
  * Applies to the following boards:
  *
  *  BOARD_BIQU_BQ111_A4 (Hotend, Fan, Bed)
- *
  */
 
-#ifndef MCU_LPC1768
+#if NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -97,7 +96,7 @@
  * for the onboard SD card, and a chip select signal is not provided for the remote
  * SD card.
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                       P1_31  // EXP1-1
 
@@ -110,7 +109,7 @@
   #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && HAS_CHARACTER_LCD
+  #if BOTH(HAS_MARLINUI_HD44780, REPRAP_DISCOUNT_SMART_CONTROLLER)
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER is not supported by the BIQU BQ111-A4"
   #endif
 
@@ -118,7 +117,7 @@
     #error "SDSUPPORT is not supported by the BIQU BQ111-A4 when an LCD controller is used"
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 /**
  * SD Card Reader

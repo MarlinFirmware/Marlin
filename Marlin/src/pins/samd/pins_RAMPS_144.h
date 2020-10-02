@@ -25,7 +25,7 @@
  * AGCM4 with RAMPS v1.4.4 pin assignments
  */
 
-#ifndef ARDUINO_GRAND_CENTRAL_M4
+#if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
 
@@ -46,7 +46,7 @@
 //
 //#define QSPI_EEPROM                             // Use AGCM4 onboard QSPI EEPROM (Uses 4K of RAM)
 #define I2C_EEPROM                                // EEPROM on I2C-0
-#define MARLIN_EEPROM_SIZE 0x8000                 // 32K (24lc256)
+#define MARLIN_EEPROM_SIZE                0x8000  // 32K (24lc256)
 
 //
 // Limit Switches
@@ -287,7 +287,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -594,7 +594,7 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support

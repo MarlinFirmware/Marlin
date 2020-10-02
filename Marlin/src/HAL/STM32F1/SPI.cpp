@@ -40,6 +40,9 @@
 #include <boards.h>
 #include <wirish.h>
 
+#include "../../inc/MarlinConfig.h"
+#include "spi_pins.h"
+
 /** Time in ms for DMA receive timeout */
 #define DMA_TIMEOUT 100
 
@@ -277,7 +280,7 @@ void SPIClass::read(uint8_t *buf, uint32_t len) {
   regs->DR = 0x00FF;            // write the first byte
   // main loop
   while (--len) {
-    while(!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
+    while (!(regs->SR & SPI_SR_TXE)) { /* nada */ } // wait for TXE flag
     noInterrupts();    // go atomic level - avoid interrupts to surely get the previously received data
     regs->DR = 0x00FF; // write the next data item to be transmitted into the SPI_DR register. This clears the TXE flag.
     while (!(regs->SR & SPI_SR_RXNE)) { /* nada */ } // wait till data is available in the DR register
@@ -710,6 +713,6 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   return baud_rates[i];
 }
 
-SPIClass SPI(1);
+SPIClass SPI(SPI_DEVICE);
 
 #endif // __STM32F1__

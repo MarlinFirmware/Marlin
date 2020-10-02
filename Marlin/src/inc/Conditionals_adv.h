@@ -56,6 +56,15 @@
   #undef SHOW_TEMP_ADC_VALUES
 #endif
 
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
+#endif
+
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
   #define HAS_MIXER_SYNC_CHANNEL 1
 #endif
@@ -187,6 +196,9 @@
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
   #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
+  #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
   #endif
@@ -246,9 +258,42 @@
   #endif
 #endif
 
+#if BOTH(LED_CONTROL_MENU, NEOPIXEL2_SEPARATE)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
 // If platform requires early initialization of watchdog to properly boot
 #if ENABLED(USE_WATCHDOG) && defined(ARDUINO_ARCH_SAM)
   #define EARLY_WATCHDOG 1
+#endif
+
+// Full Touch Screen needs 'tft/xpt2046'
+#if EITHER(TOUCH_SCREEN, HAS_TFT_LVGL_UI)
+  #define HAS_TFT_XPT2046 1
+#endif
+
+// Touch Screen or "Touch Buttons" need XPT2046 pins
+// but they use different components
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+  #define NEED_TOUCH_PINS 1
 #endif
 
 // Extensible UI pin mapping for RepRapDiscount
@@ -367,3 +412,47 @@
 #if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
   #define NO_EEPROM_SELECTED 1
 #endif
+
+// Flag whether hex_print.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE)
+  #define NEED_HEX_PRINT 1
+#endif
+
+// Flag whether least_squares_fit.cpp is used
+#if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+  #define NEED_LSF 1
+#endif
+
+// Flag the indexed serial ports that are in use
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+#if ANY_SERIAL_IS(-1)
+  #define USING_SERIAL_DEFAULT
+#endif
+#if ANY_SERIAL_IS(0)
+  #define USING_SERIAL_0 1
+#endif
+#if ANY_SERIAL_IS(1)
+  #define USING_SERIAL_1 1
+#endif
+#if ANY_SERIAL_IS(2)
+  #define USING_SERIAL_2 1
+#endif
+#if ANY_SERIAL_IS(3)
+  #define USING_SERIAL_3 1
+#endif
+#if ANY_SERIAL_IS(4)
+  #define USING_SERIAL_4 1
+#endif
+#if ANY_SERIAL_IS(5)
+  #define USING_SERIAL_5 1
+#endif
+#if ANY_SERIAL_IS(6)
+  #define USING_SERIAL_6 1
+#endif
+#if ANY_SERIAL_IS(7)
+  #define USING_SERIAL_7 1
+#endif
+#if ANY_SERIAL_IS(8)
+  #define USING_SERIAL_8 1
+#endif
+#undef ANY_SERIAL_IS
