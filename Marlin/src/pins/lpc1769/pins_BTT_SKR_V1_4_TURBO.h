@@ -29,8 +29,6 @@
 //
 #include "../lpc1768/pins_BTT_SKR_V1_4.h"
 
-#define X_STOP_PIN P1_29 
-#define Y_STOP_PIN P1_28 
 #define Z_MIN_PIN P1_27 
 #define X_MAX_PIN P1_26 
 #define Y_MAX_PIN P1_25 
