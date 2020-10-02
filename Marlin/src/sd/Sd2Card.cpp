@@ -231,6 +231,13 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * The reason for failure can be determined by calling errorCode() and errorData().
  */
 bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
+  #if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1052__) || defined(__IMXRT1062__)
+    chipSelectPin_ = BUILTIN_SDCARD;
+    uint8_t ret = SDHC_CardInit();
+    type_ = SDHC_CardGetType();
+    return (ret == 0) ? true : false;
+  #endif
+
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
@@ -332,6 +339,10 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
  * \return true for success, false for failure.
  */
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
+  #if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1052__) || defined(__IMXRT1062__)
+    return (SDHC_CardReadBlock(dst, blockNumber) == 0) ? true : false;
+  #endif
+  
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
 
   #if ENABLED(SD_CHECK_AND_RETRY)
@@ -547,6 +558,10 @@ bool Sd2Card::waitNotBusy(const millis_t timeout_ms) {
 bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
+  #if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1052__) || defined(__IMXRT1062__)
+    return (SDHC_CardWriteBlock(src, blockNumber) == 0) ? true : false;
+  #endif
+  
   bool success = false;
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
   if (!cardCommand(CMD24, blockNumber)) {

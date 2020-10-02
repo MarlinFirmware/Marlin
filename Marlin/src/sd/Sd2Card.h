@@ -86,6 +86,11 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
   #define SOFTWARE_SPI
 #endif  // MEGA_SOFT_SPI
 
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1052__) || defined(__IMXRT1062__)
+	#include "NXP_SDHC.h"
+	#define BUILTIN_SDCARD 254
+#endif
+
 /**
  * \class Sd2Card
  * \brief Raw access to SD and SDHC flash memory cards.
