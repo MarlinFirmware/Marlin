@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Neopixel support
+ * NeoPixel support
  */
 
 // ------------------------
@@ -38,8 +38,12 @@
 // Defines
 // ------------------------
 
-#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE
+#if defined(NEOPIXEL2_TYPE) && NEOPIXEL2_TYPE != NEOPIXEL_TYPE && DISABLED(NEOPIXEL2_SEPARATE)
   #define MULTIPLE_NEOPIXEL_TYPES 1
+#endif
+
+#if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
+  #define CONJOINED_NEOPIXEL 1
 #endif
 
 #if NEOPIXEL_TYPE == NEO_RGB || NEOPIXEL_TYPE == NEO_RBG || NEOPIXEL_TYPE == NEO_GRB || NEOPIXEL_TYPE == NEO_GBR || NEOPIXEL_TYPE == NEO_BRG || NEOPIXEL_TYPE == NEO_BGR
@@ -61,20 +65,18 @@
 class Marlin_NeoPixel {
 private:
   static Adafruit_NeoPixel adaneo1
-    #if MULTIPLE_NEOPIXEL_TYPES
+    #if CONJOINED_NEOPIXEL
       , adaneo2
     #endif
   ;
-  static int8_t neoindex;
 
 public:
+  static int8_t neoindex;
+
   static void init();
   static void set_color_startup(const uint32_t c);
 
   static void set_color(const uint32_t c);
-
-  FORCE_INLINE static void set_neo_index(const int8_t neoIndex) { neoindex = neoIndex; }
-  FORCE_INLINE static int8_t get_neo_index() { return neoindex; }
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
     static void set_color_background();
@@ -82,26 +84,33 @@ public:
 
   static inline void begin() {
     adaneo1.begin();
-    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.begin());
+    TERN_(CONJOINED_NEOPIXEL, adaneo2.begin());
   }
 
   static inline void set_pixel_color(const uint16_t n, const uint32_t c) {
-    adaneo1.setPixelColor(n, c);
-    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setPixelColor(n, c));
+    #if ENABLED(NEOPIXEL2_INSERIES)
+      if (n >= NEOPIXEL_PIXELS) adaneo2.setPixelColor(n - (NEOPIXEL_PIXELS), c);
+      else adaneo1.setPixelColor(n, c);
+    #else
+      adaneo1.setPixelColor(n, c);
+      #if MULTIPLE_NEOPIXEL_TYPES
+        adaneo2.setPixelColor(n, c);
+      #endif
+    #endif
   }
 
   static inline void set_brightness(const uint8_t b) {
     adaneo1.setBrightness(b);
-    TERN_(MULTIPLE_NEOPIXEL_TYPES, adaneo2.setBrightness(b));
+    TERN_(CONJOINED_NEOPIXEL, adaneo2.setBrightness(b));
   }
 
   static inline void show() {
     adaneo1.show();
     #if PIN_EXISTS(NEOPIXEL2)
-      #if MULTIPLE_NEOPIXEL_TYPES
+      #if CONJOINED_NEOPIXEL
         adaneo2.show();
       #else
-        adaneo1.setPin(NEOPIXEL2_PIN);
+        TERN(NEOPIXEL2_SEPARATE,,adaneo1.setPin(NEOPIXEL2_PIN));
         adaneo1.show();
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
@@ -113,7 +122,7 @@ public:
   #endif
 
   // Accessors
-  static inline uint16_t pixels() { return adaneo1.numPixels(); }
+  static inline uint16_t pixels() { TERN(NEOPIXEL2_INSERIES, return adaneo1.numPixels() * 2, return adaneo1.numPixels()); }
   static inline uint8_t brightness() { return adaneo1.getBrightness(); }
   static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
     return adaneo1.Color(r, g, b, w);
@@ -121,3 +130,50 @@ public:
 };
 
 extern Marlin_NeoPixel neo;
+
+// Neo pixel channel 2
+#if ENABLED(NEOPIXEL2_SEPARATE)
+
+  #if NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
+    #define NEOPIXEL2_IS_RGB 1
+  #else
+    #define NEOPIXEL2_IS_RGBW 1
+  #endif
+
+  #if NEOPIXEL2_IS_RGB
+    #define NEO2_WHITE 255, 255, 255, 0
+  #else
+    #define NEO2_WHITE 0, 0, 0, 255
+  #endif
+
+  class Marlin_NeoPixel2 {
+  private:
+    static Adafruit_NeoPixel adaneo;
+
+  public:
+    static int8_t neoindex;
+
+    static void init();
+    static void set_color_startup(const uint32_t c);
+
+    static void set_color(const uint32_t c);
+
+    static inline void begin() { adaneo.begin(); }
+    static inline void set_pixel_color(const uint16_t n, const uint32_t c) { adaneo.setPixelColor(n, c); }
+    static inline void set_brightness(const uint8_t b) { adaneo.setBrightness(b); }
+    static inline void show() {
+      adaneo.show();
+      adaneo.setPin(NEOPIXEL2_PIN);
+    }
+
+    // Accessors
+    static inline uint16_t pixels() { return adaneo.numPixels();}
+    static inline uint8_t brightness() { return adaneo.getBrightness(); }
+    static inline uint32_t Color(uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
+      return adaneo.Color(r, g, b, w);
+    }
+  };
+
+  extern Marlin_NeoPixel2 neo2;
+
+#endif // NEOPIXEL2_SEPARATE

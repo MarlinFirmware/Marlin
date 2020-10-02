@@ -76,7 +76,24 @@
 
   SD_HandleTypeDef hsd;  // create SDIO structure
 
-  #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
+  /*
+    SDIO_INIT_CLK_DIV is 118
+    SDIO clock frequency is 48MHz / (TRANSFER_CLOCK_DIV + 2)
+    SDIO init clock frequency should not exceed 400KHz = 48MHz / (118 + 2)
+
+    Default TRANSFER_CLOCK_DIV is 2 (118 / 40)
+    Default SDIO clock frequency is 48MHz / (2 + 2) = 12 MHz
+    This might be too fast for stable SDIO operations
+
+    MKS Robin board seems to have stable SDIO with BusWide 1bit and ClockDiv 8 i.e. 4.8MHz SDIO clock frequency
+    Additional testing is required as there are clearly some 4bit initialization problems
+
+    Add -DTRANSFER_CLOCK_DIV=8 to build parameters to improve SDIO stability
+  */
+
+  #ifndef TRANSFER_CLOCK_DIV
+    #define TRANSFER_CLOCK_DIV (uint8_t(SDIO_INIT_CLK_DIV) / 40)
+  #endif
 
   #ifndef USBD_OK
     #define USBD_OK 0
@@ -100,24 +117,25 @@
   void SD_LowLevel_Init(void) {
     uint32_t tempreg;
 
-    GPIO_InitTypeDef  GPIO_InitStruct;
-
+    __HAL_RCC_SDIO_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE(); //enable GPIO clocks
     __HAL_RCC_GPIOD_CLK_ENABLE(); //enable GPIO clocks
 
-    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_12;  // D0 & SCK
+    GPIO_InitTypeDef  GPIO_InitStruct;
+
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = 1;  //GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
+
+    #if DISABLED(STM32F1xx)
+      GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
+    #endif
+
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_12;  // D0 & SCK
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3)  // define D1-D3 only if have a four bit wide SDIO bus
       GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;  // D1-D3
-      GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-      GPIO_InitStruct.Pull = 1;  // GPIO_NOPULL;
-      GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-      GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
       HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
     #endif
 
@@ -125,10 +143,13 @@
     GPIO_InitStruct.Pin = GPIO_PIN_2;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    RCC->APB2RSTR &= ~RCC_APB2RSTR_SDIORST_Msk;  // take SDIO out of reset
-    RCC->APB2ENR  |=  RCC_APB2RSTR_SDIORST_Msk;  // enable SDIO clock
 
-    // Enable the DMA2 Clock
+    #if DISABLED(STM32F1xx)
+      // TODO: use __HAL_RCC_SDIO_RELEASE_RESET() and __HAL_RCC_SDIO_CLK_ENABLE();
+      RCC->APB2RSTR &= ~RCC_APB2RSTR_SDIORST_Msk;  // take SDIO out of reset
+      RCC->APB2ENR  |=  RCC_APB2RSTR_SDIORST_Msk;  // enable SDIO clock
+      // Enable the DMA2 Clock
+    #endif
 
     //Initialize the SDIO (with initial <400Khz Clock)
     tempreg = 0;  //Reset value
@@ -156,10 +177,21 @@
     bool status;
     hsd.Instance = SDIO;
     hsd.State = (HAL_SD_StateTypeDef) 0;  // HAL_SD_STATE_RESET
+
+    /*
+    hsd.Init.ClockEdge = SDIO_CLOCK_EDGE_RISING;
+    hsd.Init.ClockBypass = SDIO_CLOCK_BYPASS_DISABLE;
+    hsd.Init.ClockPowerSave = SDIO_CLOCK_POWER_SAVE_DISABLE;
+    hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
+    hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd.Init.ClockDiv = 8;
+    */
+
     SD_LowLevel_Init();
 
     uint8_t retry_Cnt = retryCnt;
     for (;;) {
+      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
       status = (bool) HAL_SD_Init(&hsd);
       if (!status) break;
       if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -170,6 +202,7 @@
     #if PINS_EXIST(SDIO_D1, SDIO_D2, SDIO_D3) // go to 4 bit wide mode if pins are defined
       retry_Cnt = retryCnt;
       for (;;) {
+        TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
         if (!HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B)) break;  // some cards are only 1 bit wide so a pass here is not required
         if (!--retry_Cnt) break;
       }
@@ -178,6 +211,7 @@
         SD_LowLevel_Init();
         retry_Cnt = retryCnt;
         for (;;) {
+          TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
           status = (bool) HAL_SD_Init(&hsd);
           if (!status) break;
           if (!--retry_Cnt) return false;   // return failing status if retries are exhausted
@@ -187,15 +221,15 @@
 
     return true;
   }
-
+  /*
   void init_SDIO_pins(void) {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    /**SDIO GPIO Configuration
-    PC8     ------> SDIO_D0
-    PC12    ------> SDIO_CK
-    PD2     ------> SDIO_CMD
-    */
+    // SDIO GPIO Configuration
+    // PC8     ------> SDIO_D0
+    // PC12    ------> SDIO_CK
+    // PD2     ------> SDIO_CMD
+
     GPIO_InitStruct.Pin = GPIO_PIN_8;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -217,7 +251,7 @@
     GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
   }
-
+  */
   //bool SDIO_init() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
   //bool SDIO_Init_C() { return (bool) (SD_SDIO_Init() ? 1 : 0);}
 
@@ -227,6 +261,7 @@
 
     bool status;
     for (;;) {
+      TERN_(USE_WATCHDOG, HAL_watchdog_refresh());
       status = (bool) HAL_SD_ReadBlocks(&hsd, (uint8_t*)dst, block, 1, 1000);  // read one 512 byte block with 500mS timeout
       status |= (bool) HAL_SD_GetCardState(&hsd);     // make sure all is OK
       if (!status) break;       // return passing status

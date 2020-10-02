@@ -57,4 +57,4 @@ void SoftwareSerial::stopListening() {
   listening = false;
 }
 
-#endif //__STM32F1__
+#endif // __STM32F1__

@@ -28,7 +28,7 @@
  * https://github.com/MarlinFirmware/Marlin/files/3401484/x5sa-main_board-2.pdf
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -92,7 +92,7 @@
 //
 #define HEATER_0_PIN                        PG12  // HEATER1
 #define HEATER_BED_PIN                      PG11  // HOT BED
-#define HEATER_BED_INVERTING true
+#define HEATER_BED_INVERTING                true
 
 //
 // Fans
@@ -129,7 +129,7 @@
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PA5   // SPI2_SCK
   #define TOUCH_MISO_PIN                    PA6   // SPI2_MISO

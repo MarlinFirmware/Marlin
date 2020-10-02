@@ -151,7 +151,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -182,7 +182,7 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 /**
@@ -214,7 +214,7 @@
 #define EXPA2_09_PIN                       P0_15
 #define EXPA2_10_PIN                       P0_17
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
@@ -264,6 +264,14 @@
   #elif HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
+
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS            EXPA2_08_PIN
+    #endif
+
+    #define SD_DETECT_PIN           EXPA2_04_PIN
 
   #else                                           // !CR10_STOCKDISPLAY
 
@@ -350,7 +358,7 @@
 
   #endif // !CR10_STOCKDISPLAY
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support

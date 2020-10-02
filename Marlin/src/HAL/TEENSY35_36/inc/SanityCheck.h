@@ -29,8 +29,8 @@
   #error "EMERGENCY_PARSER is not yet implemented for Teensy 3.5/3.6. Disable EMERGENCY_PARSER to continue."
 #endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
+#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
+  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on Teensy 3.5/3.6."
 #endif
 
 #if HAS_TMC_SW_SERIAL

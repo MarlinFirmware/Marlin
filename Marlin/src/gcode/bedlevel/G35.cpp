@@ -29,6 +29,10 @@
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_MULTI_HOTEND
+  #include "../../module/tool_change.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -176,7 +180,7 @@ void GcodeSuite::G35() {
   probe.stow();
 
   // After this operation the Z position needs correction
-  set_axis_not_trusted(Z_AXIS);
+  set_axis_never_homed(Z_AXIS);
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));

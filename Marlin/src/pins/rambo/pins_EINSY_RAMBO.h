@@ -25,7 +25,7 @@
  * Einsy-Rambo pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
@@ -81,6 +81,13 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      62
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                            37
@@ -109,6 +116,7 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans
@@ -152,7 +160,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN                            32
 
@@ -180,4 +188,4 @@
     #define SD_DETECT_PIN                     15
 
   #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
