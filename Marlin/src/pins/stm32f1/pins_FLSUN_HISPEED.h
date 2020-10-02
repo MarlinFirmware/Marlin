@@ -65,11 +65,6 @@
 #define Z_MIN_PIN                          PA11   ///-Z
 #define Z_MAX_PIN                           PC4   ///+Z
 
-//#define X_DIAG_PIN                          PA15  //-X
-//#define Y_DIAG_PIN                          PA12  //-Y
-//#define Z_DIAG_PIN                          PA11  //-Z
-//#define E0_DIAG_PIN                         PC4   //+Z
-
 //
 // Steppers
 //
@@ -89,29 +84,6 @@
 #define E0_STEP_PIN                         PD6   ///E0_STEP
 #define E0_DIR_PIN                          PD3   ///E0_DIR
 
-  // Set Hardware Serial UART only für TCM 2209
-  //#define HARDWARE_SERIAL
-  // Set Software Serial UART for TMC 2208 / TMC 2209
-//#define SOFTWARE_SERIAL
-
-/*
-#if HAS_TMC_UART
- //FOR TMC in SPI mode and software SPI
-  #ifndef X_CS_PIN 
-    #define X_CS_PIN                         PA10   //RXD1 /PD5
-  #endif
-  #ifndef Y_CS_PIN
-    #define Y_CS_PIN                         PA9   //TXD1  /PD7
-  #endif
-  #ifndef Z_CS_PIN
-    #define Z_CS_PIN                         PC7   //IO1 /PD4
-  #endif
- // #ifndef E0_CS_PIN 
- //   #define E0_CS_PIN                        PA8   //IO0 /PD9
- // #endif
-*/  
-//#if HAS_TRINAMIC_CONFIG
-//#if HAS_TMC_UART
 #if HAS_TMC220x
   
   #if ENABLED(HARDWARE_SERIAL)  /*  TMC2209 */ 
@@ -160,43 +132,14 @@
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
    #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 230 } 
   #endif
-
-/**
- * src: MKS Robin_Mini V2
- *           __ESP(M1)__           -J1-
- *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
- *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
- *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()     // Must be high for module to run
- *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
- *        RX| 21 | | nc |       
- *        TX| 22 | | 01 |RST  
- *            ￣￣ AE￣￣              
- *
-
-    #define ESP_WIFI_MODULE_COM                 2   // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
-    #define ESP_WIFI_MODULE_BAUDRATE     BAUDRATE   // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
-    #define ESP_WIFI_MODULE_RESET_PIN         PA5   //WIFI CTRL/RST
-    #define ESP_WIFI_MODULE_ENABLE_PIN         -1
-    #define ESP_WIFI_MODULE_GPIO0_PIN         PA8   //IO0
-    #define ESP_WIFI_MODULE_GPIO1_PIN         PC7   //IO1
-    #define ESP_WIFI_MODULE_TXD_PIN           PA9   //TXD1
-    #define ESP_WIFI_MODULE_RXD_PIN          PA10   //RXD1
-
-    #if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)  
-      #define WIFI_TX_PIN    PA10
-      #define WIFI_RX_PIN    PA9
-      #define WIFI_IO0_PIN   PA8
-      #define WIFI_IO1_PIN   PC7
-    #endif
-**/   
+ 
   #ifdef ESP_WIFI
     #define WIFI_IO0_PIN                        PA8  // PC13 MKS ESP WIFI IO0 PIN
     #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
     #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
   #endif 
 #endif
+
 //=================EXTRUDER=======================//
 
 //#if HAS_TMC220x
@@ -264,18 +207,10 @@
 //
 //#define LED_PIN                              PB2  //BOOT1
 
-//#define LED_PWM                                PA8
+//#define LED_PWM                              PA8
 #if ENABLED(NEOPIXEL_LED)
-  //#define NEOPIXEL_PIN                         LED_PIN //USED WIFI RX PIN
   #define NEOPIXEL_PIN                       PA8   // USED WIFI RX PIN
-    #ifdef NEOPIXEL2_PIN
-      #define NEO_PIXEL_2                   PA8   // USED WIFI TX PIN
-    #endif
 #endif
-//#define SERVO0_PIN        PA5 //WIFI CRTL
-//#define GPIO_CLEAR         PA8 //IO0
-//#define GPIO_SET    PA5
-
 
 //
 // SD Card
@@ -331,11 +266,7 @@
   
   /* QQS-Pro use MKS Robin TFT v2.0 */
   //+++++++++++++++++++++++//
-  //#if HAS_TOUCH_XPT2046
-//#if HAS_SPI_TFT || HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
 
-//#if HAS_FSMC_TFT
-//#if HAS_GRAPHICAL_TFT || HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -381,7 +312,7 @@
   #endif
 
 #elif ENABLED(TFT_320x240)
-  #define TFT_RESET_PIN                     PC6
+  #define TFT_RESET_PIN                       PC6
   //#define TFT_BACKLIGHT_PIN                 PD13
 
   //#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
@@ -397,9 +328,8 @@
       #define TOUCH_MOSI_PIN                   PB15    // SPI2_MOSI
     #endif
 
-    #define TFT_BUFFER_SIZE                 14400
+  #define TFT_BUFFER_SIZE                     14400
 
-  //#endif
 #endif
 // end defintion  MKS robin TFT
 
@@ -418,157 +348,3 @@
   #define W25QXX_MISO_PIN                  PB14
   #define W25QXX_SCK_PIN                   PB13
 #endif
-
-/*
-  // Beta_Test with TFT Robin
-#if HAS_TFT_LVGL_UI
-  #define HAS_SPI_FLASH_FONT                      0
-  #define HAS_GCODE_PREVIEW                       1
-  #define HAS_GCODE_DEFAULT_VIEW_IN_FLASH         0
-  #define HAS_LANG_SELECT_SCREEN                  0
-  #define HAS_BAK_VIEW_IN_FLASH                   0
-  #define HAS_LOGO_IN_FLASH                       0
-  #define HAS_TOUCH_XPT2046                       1
-
-  #define TOUCH_CS_PIN                          PC2   // SPI1_NSS
-  #define TOUCH_SCK_PIN                        PB13   // SPI1_SCK
-  #define TOUCH_MISO_PIN                       PB14   // SPI1_MISO
-  #define TOUCH_MOSI_PIN                       PB15   // SPI1_MOSI
-  #define TOUCH_INT_PIN                          -1   //PB6
-
-  #if ENABLED(TFT_LVGL_UI_SPI)
-    #define SPI_TFT_CS_PIN             TOUCH_CS_PIN
-    #define SPI_TFT_SCK_PIN           TOUCH_SCK_PIN
-    #define SPI_TFT_MISO_PIN         TOUCH_MISO_PIN
-    #define SPI_TFT_MOSI_PIN         TOUCH_MOSI_PIN
-    #define SPI_TFT_DC_PIN                     PD11
-    #define SPI_TFT_RST_PIN                     PC6
-  #endif
-
-  #define LCD_RESET_PIN                         PC6
-  #define LCD_BACKLIGHT_PIN                    PD13
-
-  #define LCD_PIXEL_WIDTH                       320
-  #define LCD_PIXEL_HEIGHT                      240
-  //#define LCD_FULL_PIXEL_WIDTH      LCD_PIXEL_WIDTH
-  //#define LCD_FULL_PIXEL_HEIGHT    LCD_PIXEL_HEIGHT
-  #define LCD_PIXEL_OFFSET_X                    32
-  #define LCD_PIXEL_OFFSET_Y                    32
-
-#endif
-*/
-//====================================================//
-//============== Test to integrate LVGL==============//
-// Shared FSMC Configs
-/*
-#if HAS_FSMC_TFT
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
-  #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PD13
-
-  #define TFT_RESET_PIN                     PC6   // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-#endif
-
-// LVGL Configs
-#if ENABLED(TFT_LVGL_UI_FSMC)
-
-  #define XPT2046_X_CALIBRATION         12013
-  #define XPT2046_Y_CALIBRATION         -8711
-  #define XPT2046_X_OFFSET                -32
-  #define XPT2046_Y_OFFSET                256
-
-// Emulated DOGM Configs
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
-
-  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              2
-  #endif
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH                        320
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_X
-    #define TFT_PIXEL_OFFSET_X                32
-  #endif
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                       240
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12013
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8711
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -32
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 256
-  #endif
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PC2   // SPI2_NSS
-    #define TOUCH_SCK_PIN                  PB13   // SPI2_SCK
-    #define TOUCH_MISO_PIN                 PB14   // SPI2_MISO
-    #define TOUCH_MOSI_PIN                 PB15   // SPI2_MOSI
-  
-  #ifndef  BUTTON_DELAY_EDIT
-    #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
-  #endif
-  #ifndef BUTTON_DELAY_MENU 
-    #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
-  #endif
-
-    #define TFT_MARLINUI_COLOR           0xFFFF   // White
-    #define TFT_BTARROWS_COLOR           0xDEE6   // 11011 110111 00110 Yellow
-    #define TFT_BTOKMENU_COLOR           0x145F   // 00010 100010 11111 Cyan
-  #endif
-
-#elif ENABLED(TFT_320x240)                        // TFT32/28
-  #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define XPT2046_X_CALIBRATION            12013
-  #define XPT2046_Y_CALIBRATION            -8711
-  #define XPT2046_X_OFFSET                   -32
-  #define XPT2046_Y_OFFSET                   256
-  
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
-    #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-    #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-    #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-  #endif
-
-  #define TFT_BUFFER_SIZE                  14400
-  
-#endif
-
-==============================================*/
