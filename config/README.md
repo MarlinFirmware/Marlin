@@ -1,6 +1,6 @@
 # Where have all the configurations gone?
 
-Marlin config files are now maintained in their own repository at:
+Marlin configurations for specific machines are now maintained in their own repository at:
 
 ## https://github.com/MarlinFirmware/Configurations
 
