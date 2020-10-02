@@ -87,7 +87,7 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ZONESTAR_LCD)
     #define LCD_PINS_RS                        2
     #define LCD_PINS_ENABLE                   36

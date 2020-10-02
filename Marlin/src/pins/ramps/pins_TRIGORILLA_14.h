@@ -128,7 +128,7 @@
 // AnyCubic made the following changes to 1.1.0-RC8
 // If these are appropriate for your LCD let us know.
 //
-#if 0 && HAS_SPI_LCD
+#if 0 && HAS_WIRED_LCD
 
   // LCD Display output pins
   #if BOTH(NEWPANEL, PANEL_ONE)
@@ -154,4 +154,4 @@
     #define DOGLCD_A0                         42
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                          18
 
@@ -158,7 +158,7 @@
 
   #endif // !NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control

@@ -35,7 +35,6 @@
  *  RAMPS_PLUS_EFF (Extruder, Fan, Fan)
  *  RAMPS_PLUS_EEF (Extruder, Extruder, Fan)
  *  RAMPS_PLUS_SF  (Spindle, Controller Fan)
- *
  */
 
 #if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
