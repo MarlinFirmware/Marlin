@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,6 +39,11 @@
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
 #define DISABLE_JTAG
+
+//
+// Enable SD EEPROM to prevent infinite boot loop
+//
+#define SDCARD_EEPROM_EMULATION
 
 //
 // Servos
@@ -178,10 +183,10 @@
   //#define E4_HARDWARE_SERIAL Serial1
 
   // Unused servo pins may be repurposed with SoftwareSerialM
-  //#define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN
-  //#define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN
-  //#define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN
-  //#define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN
+  //#define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
+  //#define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
+  //#define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
+  //#define E0_SERIAL_TX_PIN                PC3   // SERVO0_PIN -- XS1 - 5
   //#define X_SERIAL_RX_PIN      X_SERIAL_TX_PIN
   //#define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
   //#define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN

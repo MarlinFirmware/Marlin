@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -77,15 +77,11 @@ void GcodeSuite::M0_M1() {
 
   #endif
 
-  #if ENABLED(HOST_PROMPT_SUPPORT)
-    host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR);
-  #endif
+  TERN_(HOST_PROMPT_SUPPORT, host_prompt_do(PROMPT_USER_CONTINUE, parser.codenum ? PSTR("M1 Stop") : PSTR("M0 Stop"), CONTINUE_STR));
 
   wait_for_user_response(ms);
 
-  #if HAS_LCD_MENU
-    ui.reset_status();
-  #endif
+  TERN_(HAS_LCD_MENU, ui.reset_status());
 }
 
 #endif // HAS_RESUME_CONTINUE
