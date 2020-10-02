@@ -46,10 +46,8 @@
 
 #define IS_32BIT_TEENSY 1
 #define IS_TEENSY_31_32 1
-#ifdef __MK20DX256__
+#ifndef IS_TEENSY31
   #define IS_TEENSY32 1
-#else
-  #define IS_TEENSY31 1
 #endif
 
 #define _MSERIAL(X) Serial##X

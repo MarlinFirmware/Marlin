@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Teensy 3.5 and Teensy 3.6
+ * HAL for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  */
 
 #define CPU_32_BIT

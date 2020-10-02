@@ -78,7 +78,7 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
               SD_CARD_TYPE_SDHC = 3;                    // High Capacity SD card
 
 /**
- * define SOFTWARE_SPI to use bit-bang SPI
+ * Define SOFTWARE_SPI to use bit-bang SPI
  */
 #if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI

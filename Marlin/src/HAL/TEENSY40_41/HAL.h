@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Teensy 4.0 (IMXRT1052) and Teensy 4.1 (IMXRT1062)
+ * HAL for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
 
 #define CPU_32_BIT

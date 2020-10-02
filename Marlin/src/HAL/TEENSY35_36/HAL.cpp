@@ -21,7 +21,7 @@
  */
 
 /**
- * Description: HAL for Teensy35 (MK64FX512)
+ * HAL for Teensy35 (MK64FX512)
  */
 
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
