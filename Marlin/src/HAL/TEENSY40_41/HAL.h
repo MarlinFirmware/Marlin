@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Teensy 4.0 and Teensy 4.1
+ * Description: HAL for Teensy 4.0 (IMXRT1052) and Teensy 4.1 (IMXRT1062)
  */
 
 #define CPU_32_BIT
@@ -45,9 +45,12 @@
 // Defines
 // ------------------------
 
+#define IS_32BIT_TEENSY 1
+#define IS_TEENSY_40_41 1
 #ifdef __IMXRT1062__
-  #define IS_32BIT_TEENSY 1
   #define IS_TEENSY41 1
+#else
+  #define IS_TEENSY40 1
 #endif
 
 #define _MSERIAL(X) Serial##X
