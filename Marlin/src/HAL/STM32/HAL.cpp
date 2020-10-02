@@ -122,21 +122,14 @@ extern "C" {
 
 // TODO: Make sure this doesn't cause any delay
 void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
-
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
+// Reset the system (to initiate a firmware flash)
 void flashFirmware(const int16_t) { NVIC_SystemReset(); }
 
-static void (*systick_user_callback)(void);
-
-void HAL_SYSTICK_Callback(void) {
-    if (systick_user_callback) {
-        systick_user_callback();
-    }
-}
-
-void systick_attach_callback(void (*callback)(void)) {
-  systick_user_callback = callback;
-}
+// Maple Compatibility
+systickCallback_t systick_user_callback;
+void systick_attach_callback(systickCallback_t cb) { systick_user_callback = cb; }
+void HAL_SYSTICK_Callback() { if (systick_user_callback) systick_user_callback(); }
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
