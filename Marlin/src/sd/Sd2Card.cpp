@@ -233,9 +233,9 @@ bool Sd2Card::eraseSingleBlockEnable() {
 bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
   #if IS_TEENSY_35_36 || IS_TEENSY_40_41
     chipSelectPin_ = BUILTIN_SDCARD;
-    uint8_t ret = SDHC_CardInit();
+    const uint8_t ret = SDHC_CardInit();
     type_ = SDHC_CardGetType();
-    return (ret == 0) ? true : false;
+    return (ret == 0);
   #endif
 
   errorCode_ = type_ = 0;
@@ -340,7 +340,7 @@ bool Sd2Card::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
  */
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
   #if IS_TEENSY_35_36 || IS_TEENSY_40_41
-    return (SDHC_CardReadBlock(dst, blockNumber) == 0) ? true : false;
+    return 0 == SDHC_CardReadBlock(dst, blockNumber);
   #endif
 
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;   // Use address if not SDHC card
@@ -559,7 +559,7 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
   #if IS_TEENSY_35_36 || IS_TEENSY_40_41
-    return (SDHC_CardWriteBlock(src, blockNumber) == 0) ? true : false;
+    return 0 == SDHC_CardWriteBlock(src, blockNumber);
   #endif
 
   bool success = false;

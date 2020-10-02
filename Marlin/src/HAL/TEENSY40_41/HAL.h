@@ -47,10 +47,8 @@
 
 #define IS_32BIT_TEENSY 1
 #define IS_TEENSY_40_41 1
-#ifdef __IMXRT1062__
+#ifndef IS_TEENSY40
   #define IS_TEENSY41 1
-#else
-  #define IS_TEENSY40 1
 #endif
 
 #define _MSERIAL(X) Serial##X

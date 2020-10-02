@@ -80,13 +80,11 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
 /**
  * define SOFTWARE_SPI to use bit-bang SPI
  */
-#if MEGA_SOFT_SPI
+#if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI
-#elif USE_SOFTWARE_SPI
-  #define SOFTWARE_SPI
-#endif  // MEGA_SOFT_SPI
+#endif
 
-#if defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1052__) || defined(__IMXRT1062__)
+#if IS_TEENSY_35_36 || IS_TEENSY_40_41
 	#include "NXP_SDHC.h"
 	#define BUILTIN_SDCARD 254
 #endif

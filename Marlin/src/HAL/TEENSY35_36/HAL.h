@@ -47,11 +47,10 @@
 
 #define IS_32BIT_TEENSY 1
 #define IS_TEENSY_35_36 1
-#ifdef __MK64FX512__
-  #define IS_TEENSY35 1
-#endif
 #ifdef __MK66FX1M0__
   #define IS_TEENSY36 1
+#else // __MK64FX512__
+  #define IS_TEENSY35 1
 #endif
 
 #define _MSERIAL(X) Serial##X
