@@ -14,8 +14,8 @@
 //#define STOCK
 
 /*------Drivers-(1 CHOICE)-----*/
-#define QQS               //(S) 4xA4988
-//#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
+//#define QQS               //(S) 4xA4988
+#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
 
 /* MODE UART XYZ*/
 //#define QQS_UART8           //(U8) 4xTMC2208 (Remove module ESP12)
