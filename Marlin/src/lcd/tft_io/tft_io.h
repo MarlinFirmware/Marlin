@@ -37,10 +37,13 @@
 #define TFT_INVERT_X    (1UL << 2)
 #define TFT_INVERT_Y    (1UL << 3)
 
-#define TFT_NO_ROTATION         0x00
+#define TFT_NO_ROTATION           (0x00)
 #define TFT_ROTATE_90             (TFT_EXCHANGE_XY | TFT_INVERT_X)
 #define TFT_ROTATE_180            (TFT_INVERT_X    | TFT_INVERT_Y)
 #define TFT_ROTATE_270            (TFT_EXCHANGE_XY | TFT_INVERT_Y)
+
+#define TFT_MIRROR_X              (TFT_INVERT_Y)
+#define TFT_MIRROR_Y              (TFT_INVERT_X)
 
 #define TFT_ROTATE_90_MIRROR_X    (TFT_ROTATE_90 ^ TFT_INVERT_Y)
 #define TFT_ROTATE_90_MIRROR_Y    (TFT_ROTATE_90 ^ TFT_INVERT_X)
