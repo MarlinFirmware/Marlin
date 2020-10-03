@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_CHARACTER_LCD
+#if HAS_MARLINUI_HD44780
 
 /**
  * ultralcd_HD44780.cpp
@@ -1517,4 +1517,4 @@ void MarlinUI::draw_status_screen() {
 
 #endif // HAS_LCD_MENU
 
-#endif // HAS_CHARACTER_LCD
+#endif // HAS_MARLINUI_HD44780

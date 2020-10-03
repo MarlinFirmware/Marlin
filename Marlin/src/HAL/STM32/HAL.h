@@ -177,3 +177,8 @@ uint16_t HAL_adc_get_result();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+// Maple Compatibility
+typedef void (*systickCallback_t)(void);
+void systick_attach_callback(systickCallback_t cb);
+void HAL_SYSTICK_Callback();

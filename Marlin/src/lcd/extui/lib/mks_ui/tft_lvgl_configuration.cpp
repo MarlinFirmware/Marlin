@@ -408,7 +408,7 @@ void SysTick_Callback() {
       OUT_WRITE(LCD_BACKLIGHT_PIN, LOW);
       LCD_Clear(0x0000);
 
-      lcd_draw_logo();
+      TERN_(HAS_LOGO_IN_FLASH, lcd_draw_logo());
 
       OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
       delay(2000);
@@ -724,6 +724,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   if (temp) { strcpy(temp,".GCO"); }
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
+  if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
   return LV_FS_RES_OK;
 }
 

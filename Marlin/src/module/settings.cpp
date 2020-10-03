@@ -33,7 +33,6 @@
  * ALSO: Variables in the Store and Retrieve sections must be in the same order.
  *       If a feature is disabled, some data must still be written that, when read,
  *       either sets a Sane Default, or results in No Change to the existing value.
- *
  */
 
 // Change EEPROM version if the structure changes

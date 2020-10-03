@@ -27,7 +27,7 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
-#if NOT_TARGET(IS_32BIT_TEENSY)
+#if NOT_TARGET(IS_TEENSY_35_36)
   #error "Oops! Select 'Teensy 3.5' or 'Teensy 3.6' in 'Tools > Board.'"
 #endif
 
@@ -130,7 +130,7 @@
 //
 #define SDSS                                  39  // 8
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         40
   #define LCD_PINS_ENABLE                     41
   #define LCD_PINS_D4                         42
