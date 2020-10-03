@@ -62,8 +62,13 @@ extern uint8_t marlin_debug_flags;
     #ifdef ETHERNET_SUPPORT
       #define SERIAL_OUT(WHAT, V...) do{ \
         if (serial_port_index == 0) (void)MYSERIAL0.WHAT(V); \
-        if (serial_port_index == 1) (void)telnetClient.WHAT(V); \
-        if (serial_port_index == SERIAL_BOTH) {(void)MYSERIAL0.WHAT(V); (void)telnetClient.WHAT(V); } \
+        if (serial_port_index == 1) { \
+          if (have_telnet_client) (void)telnetClient.WHAT(V); \
+        } \
+        if (serial_port_index == SERIAL_BOTH) { \
+          (void)MYSERIAL0.WHAT(V); \
+          if (have_telnet_client) (void)telnetClient.WHAT(V); \
+        } \
       }while(0)
     #else
       #define SERIAL_OUT(WHAT, V...) do{ \
