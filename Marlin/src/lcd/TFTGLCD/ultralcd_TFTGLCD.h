@@ -45,7 +45,6 @@ class TFTGLCD {
   public:
     TFTGLCD();
     void clear_buffer();
-    void clr_screen();
     void setCursor(uint8_t col, uint8_t row);
     void write(char c);
     void print(const char *line);

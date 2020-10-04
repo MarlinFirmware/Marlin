@@ -79,10 +79,9 @@ TFTGLCD lcd;
 #define LED_HOT         B00001000
 #define LED_MASK        0x0f
 
-#define FBSIZE          (LCD_WIDTH * LCD_HEIGHT + 2)
-#define MIDDLE_Y        ((LCD_HEIGHT - 1) / 2)
+#define FBSIZE      (LCD_WIDTH * LCD_HEIGHT + 2)
 
-//markers for change line colors
+//markers for change line color
 #define COLOR_EDIT      '#'
 #define COLOR_ERROR     '!'
 
@@ -114,9 +113,8 @@ enum Commands {         // based on Smoothieware commands
   // Other commands... 0xE0 thru 0xFF
   GET_LCD_ROW = 0xE0,   // for detect panel
   GET_LCD_COL,          // reserved for compatibility with Smoothieware, not used
-  LCD_PUT,		          // write one line to LCD
-  CLR_SCREEN,
-  INIT_SCREEN = 0xFE    // clear panel buffer
+	LCD_PUT,		          // write one line to LCD
+	INIT_SCREEN = 0xFE,   // clear panel buffer
 };
 
 static unsigned char framebuffer[FBSIZE];
@@ -133,29 +131,6 @@ void TFTGLCD::clear_buffer() {
   memset(&framebuffer[0], ' ', FBSIZE - 2);
   framebuffer[FBSIZE - 1] = framebuffer[FBSIZE - 2] = 0;
   picBits = ledBits = 0;
-}
-
-//clearing panel's screen
-void TFTGLCD::clr_screen() {
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    extDigitalWrite(TFTGLCD_CS, LOW);
-    #ifdef __AVR__
-      SPI.transfer(CLR_SCREEN);
-    #elif EITHER(MCU_LPC1768, __STM32F1__)
-      SPI.transfer(CLR_SCREEN);
-    #elif defined(STM32F4xx)
-      SPI.transfer(CLR_SCREEN, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(CLR_SCREEN);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(CLR_SCREEN);
-    #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
-  #else
-    Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
-    Wire.write(CLR_SCREEN);
-    Wire.endTransmission(); //transmit data
-  #endif
 }
 
 //set new text cursor position
@@ -178,7 +153,7 @@ void TFTGLCD::print(const char *line) {
 void TFTGLCD::print_line() {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #ifdef __AVR__
       SPI.transfer(LCD_PUT);
       SPI.transfer(cour_line);
@@ -200,7 +175,7 @@ void TFTGLCD::print_line() {
       SPI.write(cour_line);
       for (uint16_t i = 0; i < LCD_WIDTH; i++) SPI.write(framebuffer[cour_line * LCD_WIDTH + i]);
     #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
     Wire.write(LCD_PUT);
@@ -217,7 +192,7 @@ void TFTGLCD::print_screen(){
   framebuffer[FBSIZE - 1] = ledBits;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // Send all framebuffer to panel
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #ifdef __AVR__
       SPI.transfer(LCD_WRITE);
       SPI.transfer(&framebuffer[0], FBSIZE);
@@ -234,7 +209,7 @@ void TFTGLCD::print_screen(){
       SPI.write(LCD_WRITE);
       for (uint16_t i = 0; i < FBSIZE; i++) SPI.write(framebuffer[i]);
     #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     uint8_t r;
     // Send framebuffer to panel by line
@@ -259,7 +234,7 @@ void TFTGLCD::print_screen(){
 void TFTGLCD::setContrast(uint16_t contrast) {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(CONTRAST);
       SPI.transfer((uint8_t)contrast);
@@ -273,7 +248,7 @@ void TFTGLCD::setContrast(uint16_t contrast) {
       SPI.write(CONTRAST);
       SPI.write((uint8_t)contrast);
     #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(CONTRAST);
@@ -289,12 +264,12 @@ uint8_t MarlinUI::read_slow_buttons(void) {
   if (!PanelDetected)    return 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     uint8_t b = 0;
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay
+      WRITE(TFTGLCD_CS, LOW); //for delay
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay
+      WRITE(TFTGLCD_CS, LOW); //for delay
       b = SPI.transfer(GET_SPI_DATA);
     #elif defined(STM32F4xx)
       SPI.transfer(READ_ENCODER, SPI_CONTINUE);
@@ -302,18 +277,18 @@ uint8_t MarlinUI::read_slow_buttons(void) {
       b = SPI.transfer(GET_SPI_DATA, SPI_CONTINUE);
     #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
       SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       b = SPI.transfer(GET_SPI_DATA);
     #elif defined(ARDUINO_ARCH_ESP32)
       SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
+      WRITE(TFTGLCD_CS, LOW); //for delay ????
       b = SPI.transfer(GET_SPI_DATA);
     #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
     return b;
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
@@ -335,7 +310,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(BUZZER);
       SPI.transfer16((uint16_t)duration);
@@ -353,7 +328,7 @@ void MarlinUI::buzz(const long duration, const uint16_t freq) {
       SPI.write16((uint16_t)duration);
       SPI.write16(freq);
     #endif
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    WRITE(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
     Wire.write(BUZZER);
@@ -371,10 +346,9 @@ void MarlinUI::init_lcd() {
   t = 0;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // SPI speed must be less 10MHz
-    _SET_OUTPUT(TFTGLCD_CS);
-    extDigitalWrite(TFTGLCD_CS, HIGH);
+    OUT_WRITE(TFTGLCD_CS, HIGH);
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
-    extDigitalWrite(TFTGLCD_CS, LOW);
+    WRITE(TFTGLCD_CS, LOW);
     #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
       SPI.transfer(GET_LCD_ROW);
       t = SPI.transfer(GET_SPI_DATA);
@@ -422,7 +396,7 @@ void MarlinUI::init_lcd() {
         SPI.write(INIT_SCREEN);
         SPI.write(Marlin);
       #endif
-      extDigitalWrite(TFTGLCD_CS, HIGH);
+      WRITE(TFTGLCD_CS, HIGH);
     #else
       Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
       Wire.write((uint8_t)INIT_SCREEN);
@@ -441,8 +415,8 @@ bool MarlinUI::detected() {
 
 void MarlinUI::clear_lcd() {
   if (!PanelDetected) return;
-  lcd.clr_screen();
   lcd.clear_buffer();
+  lcd.print_screen();
 }
 
 int16_t MarlinUI::contrast; // Initialized by settings.load()
@@ -609,10 +583,10 @@ FORCE_INLINE void _draw_heater_status(const heater_id_t heater_id, const char *p
       lcd.write('%'); lcd.write(percent);
     }
     else { // For progress bar test
-      lcd.setCursor(LCD_WIDTH / 2 - 2, MIDDLE_Y);
+      lcd.setCursor(LCD_WIDTH / 2 - 2, LCD_HEIGHT / 2 - 2);
       lcd.print(i16tostr3rj(percent));  lcd.write('%');
       lcd.print_line();
-      lcd.setCursor(0, MIDDLE_Y + 1);
+      lcd.setCursor(0, LCD_HEIGHT / 2 - 1);
       lcd.write('%'); lcd.write(percent);
       lcd.print_line();
     }
@@ -938,17 +912,16 @@ void MarlinUI::draw_status_screen() {
   }
 
   // Low-level draw_edit_screen can be used to draw an edit screen from anyplace
-  // This line moves to the last line of the screen for UBL plot screen on the panel side
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     if (!PanelDetected) return;
     ui.encoder_direction_normal();
-    lcd.setCursor(0, MIDDLE_Y);
+    lcd.setCursor(0, LCD_HEIGHT - 1);  //last line is free most time
     lcd.write(COLOR_EDIT);
     lcd_put_u8str_P(pstr);
     if (value != nullptr) {
       lcd.write(':');
-      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), MIDDLE_Y);  // Right-justified, padded by spaces
-      lcd.write(' ');    // Overwrite char if value gets shorter
+      lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), LCD_HEIGHT - 1);  // Right-justified, padded by spaces
+      lcd.write(' ');                                                // Overwrite char if value gets shorter
       lcd.print(value);
       lcd.write(' ');
       lcd.print_line();
@@ -959,10 +932,10 @@ void MarlinUI::draw_status_screen() {
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
     if (!PanelDetected) return;
     ui.draw_select_screen_prompt(pref, string, suff);
-    lcd.setCursor(0, MIDDLE_Y);
+    lcd.setCursor(0, LCD_HEIGHT - 1);
     lcd.write(COLOR_EDIT);
     lcd.write(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd.write(yesno ? ' ' : ']');
-    lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3, MIDDLE_Y);
+    lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3, LCD_HEIGHT - 1);
     lcd.write(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd.write(yesno ? ']' : ' ');
     lcd.print_line();
   }
