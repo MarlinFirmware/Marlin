@@ -74,16 +74,25 @@ void HotendIdleProtection::check() {
 // Lower (but don't raise) hotend / bed temperatures
 void HotendIdleProtection::timed_out() {
   next_protect_ms = 0;
-  SERIAL_ECHOLNPGM("Hotend Idle Timeout");
-  LCD_MESSAGEPGM(MSG_HOTEND_IDLE_TIMEOUT);
+  bool actually_timed_out = false;
+
   HOTEND_LOOP() {
-    if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e))
+    if ((HOTEND_IDLE_NOZZLE_TARGET) < thermalManager.degTargetHotend(e)) {
       thermalManager.setTargetHotend(HOTEND_IDLE_NOZZLE_TARGET, e);
+      actually_timed_out = true;
+    }
   }
   #if HAS_HEATED_BED
-    if ((HOTEND_IDLE_BED_TARGET) < thermalManager.degTargetBed())
+    if ((HOTEND_IDLE_BED_TARGET) < thermalManager.degTargetBed()) {
       thermalManager.setTargetBed(HOTEND_IDLE_BED_TARGET);
+      actually_timed_out = true;
+    }
   #endif
+
+  if (actually_timed_out) {
+    SERIAL_ECHOLNPGM("Hotend Idle Timeout");
+    LCD_MESSAGEPGM(MSG_HOTEND_IDLE_TIMEOUT);
+  }
 }
 
 #endif // HOTEND_IDLE_TIMEOUT
