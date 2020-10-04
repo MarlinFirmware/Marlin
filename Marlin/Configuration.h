@@ -1097,6 +1097,9 @@
 #define INVERT_E7_DIR false
 
 // @section homing
+//=========================================================================== 
+//============================= Homing Options ============================= 
+//=========================================================================== 
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed
 
