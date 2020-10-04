@@ -93,7 +93,9 @@
 //#define LED_PIN                PC13
 
 #define SDSS                   PA3
-#define DOGLCD_CS              PA4
+#ifdef TFTGLCD_PANEL_SPI
+  #define TFTGLCD_CS           PA4
+#endif
 #define SD_DETECT_PIN          PB15
 
 // On-board LED pin number
