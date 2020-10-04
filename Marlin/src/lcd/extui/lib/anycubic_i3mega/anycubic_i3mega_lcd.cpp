@@ -34,7 +34,7 @@
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
 #define SENDLINE_PGM(x)                             sendLine_P(PSTR(x))
-#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(i8tostr3rj(y)))
+#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
 #define SEND(x)                                     send(x)
 #define SENDLINE(x)                                 sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
@@ -496,12 +496,12 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
         SEND_PGM("/");
         SENDLINE(currentFileList.shortFilename());
         SEND_PGM("/");
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
 
       }
       else {
         SENDLINE(currentFileList.shortFilename());
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
       }
     }
   }
