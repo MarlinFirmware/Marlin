@@ -47,7 +47,7 @@ using namespace ExtUI;
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 
 // ----- Which variables to auto-update on which screens
-const uint16_t VPList_Boot[] PROGMEM = {
+const uint16_t VPList_None[] PROGMEM = {
   0x0000
 };
 
@@ -68,6 +68,28 @@ const uint16_t VPList_Main[] PROGMEM = {
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
     VP_PrintProgress_Percentage,
   #endif
+  0x0000
+};
+
+const uint16_t VPList_File1[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HOTENDS >= 2
+    VP_T_E1_Is, VP_T_E1_Set,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    VP_PrintProgress_Percentage,
+  #endif
+
+
   0x0000
 };
 
@@ -94,6 +116,50 @@ const uint16_t VPList_Control[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_PrintPausingError[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HOTENDS >= 2
+    VP_T_E1_Is, VP_T_E1_Set,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    VP_PrintProgress_Percentage,
+  #endif
+
+
+  0x0000
+};
+
+const uint16_t VPList_PrintScreen[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HOTENDS >= 2
+    VP_T_E1_Is, VP_T_E1_Set,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    VP_PrintProgress_Percentage,
+  #endif
+
+
+  0x0000
+};
+
 // Toggle button handler
 void DGUSCrealityDisplay_HandleToggleButton(DGUS_VP_Variable &var, void *val_ptr) {
   switch (*(uint16_t*)var.memadr) {
@@ -113,9 +179,51 @@ void DGUSCrealityDisplay_SendToggleButton(DGUS_VP_Variable &var) {
 
 // -- Mapping from screen to variable list
 const struct VPMapping VPMap[] PROGMEM = {
-  { DGUSLCD_SCREEN_BOOT, VPList_Boot },
+  { DGUSLCD_SCREEN_BOOT, VPList_None },
   { DGUSLCD_SCREEN_MAIN, VPList_Main },
+
+  { DGUSLCD_SCREEN_SDFILELIST_1, VPList_File1 },
+  { DGUSLCD_SCREEN_SDFILELIST_2, VPList_File1 },
+  { DGUSLCD_SCREEN_SDFILELIST_3, VPList_File1 },
+  { DGUSLCD_SCREEN_SDFILELIST_4, VPList_File1 },
+  { DGUSLCD_SCREEN_SDFILELIST_5, VPList_File1 },
+
+  { DGUSLCD_SCREEN_FILAMENTRUNOUT1, VPList_PrintPausingError },
+  { DGUSLCD_SCREEN_FILAMENTRUNOUT2, VPList_PrintPausingError },
+
+  { DGUSLCD_SCREEN_PRINT_FINISH, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_PRINT_RUNNING, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_PRINT_PAUSED, VPList_PrintScreen },
+
+  { DGUSLCD_SCREEN_TUNING, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_PREPARE, VPList_PrintScreen },
+
+  { DGUSLCD_SCREEN_MOVE1MM, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_MOVE10MM, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_MOVE01MM, VPList_PrintScreen },
+
+  { DGUSLCD_SCREEN_FEED, VPList_PrintScreen },
   { DGUSLCD_SCREEN_CONTROL, VPList_Control },
+
+  { DGUSLCD_SCREEN_TEMP, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_TEMP_PLA, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_TEMP_ABS, VPList_PrintScreen },
+
+  { DGUSLCD_SCREEN_INFO, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_ZOFFSET_LEVEL, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_LEVELING, VPList_PrintScreen },
+
+  { DGUSLCD_SCREEN_POWER_LOSS, VPList_None },
+  { DGUSLCD_SCREEN_THERMAL_RUNAWAY, VPList_None },
+  { DGUSLCD_SCREEN_HEATING_FAILED, VPList_None },
+  { DGUSLCD_SCREEN_THERMISTOR_ERROR, VPList_None },
+
+  { DGUSLCD_SCREEN_AUTOHOME, VPList_None },
+
+  { DGUSLCD_SCREEN_DIALOG_PAUSE, VPList_None },
+  { DGUSLCD_SCREEN_DIALOG_STOP, VPList_None },
+
+  { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 
 // Helper to define a DGUS_VP_Variable for common use cases.
