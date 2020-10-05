@@ -1103,7 +1103,7 @@ void Temperature::manage_heater() {
       if (watch_bed.elapsed(ms)) {        // Time to check the bed?
         if (degBed() < watch_bed.target) {                              // Failed to increase enough?
           TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
-          _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+          _temp_error(H_BED, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD_BED));
         }
         else                                                            // Start again if the target is still far off
           start_watching_bed();
@@ -1183,7 +1183,7 @@ void Temperature::manage_heater() {
       // Make sure temperature is increasing
       if (watch_chamber.elapsed(ms)) {              // Time to check the chamber?
         if (degChamber() < watch_chamber.target)    // Failed to increase enough?
-          _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD));
+          _temp_error(H_CHAMBER, str_t_heating_failed, GET_TEXT(MSG_HEATING_FAILED_LCD_CHAMBER));
         else
           start_watching_chamber();                 // Start again if the target is still far off
       }
