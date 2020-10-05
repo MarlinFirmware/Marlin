@@ -445,6 +445,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Probe Z Offset");
+  PROGMEM Language_Str MSG_MOVE_NOZZLE_TO_BED              = _UxGT("Move Nozzle to Bed");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");

@@ -83,7 +83,7 @@ void probe_offset_wizard_menu() {
   calculated_z_offset = probe.offset.z + current_position.z;
 
   if (LCD_HEIGHT >= 4)
-    STATIC_ITEM(MSG_MOVE_Z, SS_CENTER|SS_INVERT);
+    STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
   STATIC_ITEM_P(PSTR("Z="), SS_CENTER, ftostr42_52(current_position.z));
   STATIC_ITEM(MSG_ZPROBE_ZOFFSET, SS_LEFT, ftostr42_52(calculated_z_offset));
@@ -104,7 +104,7 @@ void probe_offset_wizard_menu() {
     MENU_ITEM_ADDON_END();
   }
 
-  ACTION_ITEM(MSG_BUTTON_DONE,   []{
+  ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
     do_z_clearance(20.0
       #ifdef Z_AFTER_HOMING
