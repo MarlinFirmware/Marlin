@@ -815,12 +815,36 @@ void Temperature::max_temp_error(const heater_id_t heater_id) {
   #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(1);
   #endif
+  #if HAS_HEATED_BED
+    if (H_BED == heater_ind_t) {
+      _temp_error(heater, PSTR(MSG_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP_BED));
+      return;
+    }
+  #endif
+  #if HAS_HEATED_CHAMBER
+    if (H_CHAMBER == heater_ind_t) {
+      _temp_error(heater, PSTR(MSG_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP_CHAMBER));
+      return;
+    }
+  #endif
   _temp_error(heater_id, PSTR(STR_T_MAXTEMP), GET_TEXT(MSG_ERR_MAXTEMP));
 }
 
 void Temperature::min_temp_error(const heater_id_t heater_id) {
   #if ENABLED(DWIN_CREALITY_LCD) && (HAS_HOTEND || HAS_HEATED_BED)
     DWIN_Popup_Temperature(0);
+  #endif
+  #if HAS_HEATED_BED
+    if (H_BED == heater_ind_t) {
+      _temp_error(heater, PSTR(MSG_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP_BED));
+      return;
+    }
+  #endif
+  #if HAS_HEATED_CHAMBER
+    if (H_CHAMBER == heater_ind_t) {
+      _temp_error(heater, PSTR(MSG_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP_CHAMBER));
+      return;
+    }
   #endif
   _temp_error(heater_id, PSTR(STR_T_MINTEMP), GET_TEXT(MSG_ERR_MINTEMP));
 }
