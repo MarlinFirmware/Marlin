@@ -1049,7 +1049,7 @@
 #if HAS_LCD_MENU
 
   // Add Probe Z Offset calibration to the Bed Leveling menu
-  #if HAS_BED_PROBE
+  #if BOTH(HAS_BED_PROBE, LCD_BED_LEVELING)
     //#define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
       #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
