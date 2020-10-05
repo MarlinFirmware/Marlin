@@ -148,7 +148,7 @@
 #elif MB(AZTEEG_X3_PRO)
   #include "ramps/pins_AZTEEG_X3_PRO.h"         // ATmega2560                             env:mega2560
 #elif MB(ULTIMAIN_2)
-  #include "ramps/pins_ULTIMAIN_2.h"            // ATmega2560                             env:mega2560
+  #include "ramps/pins_ULTIMAIN_2.h"            // ATmega2560                             env:mega2560ext
 #elif MB(FORMBOT_RAPTOR)
   #include "ramps/pins_FORMBOT_RAPTOR.h"        // ATmega2560                             env:mega2560
 #elif MB(FORMBOT_RAPTOR2)
@@ -164,7 +164,7 @@
 #elif MB(RL200)
   #include "ramps/pins_RL200.h"                 // ATmega2560                             env:mega2560
 #elif MB(BQ_ZUM_MEGA_3D)
-  #include "ramps/pins_BQ_ZUM_MEGA_3D.h"        // ATmega2560                             env:mega2560
+  #include "ramps/pins_BQ_ZUM_MEGA_3D.h"        // ATmega2560                             env:mega2560ext
 #elif MB(MAKEBOARD_MINI)
   #include "ramps/pins_MAKEBOARD_MINI.h"        // ATmega2560                             env:mega2560
 #elif MB(TRIGORILLA_13)
