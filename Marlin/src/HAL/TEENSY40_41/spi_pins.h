@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * HAL SPI Pins for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ */
+
 #define SCK_PIN   13
 #define MISO_PIN  12
 #define MOSI_PIN  11

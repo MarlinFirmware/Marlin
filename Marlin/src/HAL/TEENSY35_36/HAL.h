@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Teensy 3.5 and Teensy 3.6
+ * HAL for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  */
 
 #define CPU_32_BIT
@@ -45,13 +45,12 @@
 // Defines
 // ------------------------
 
-#ifdef __MK64FX512__
-  #define IS_32BIT_TEENSY 1
-  #define IS_TEENSY35 1
-#endif
+#define IS_32BIT_TEENSY 1
+#define IS_TEENSY_35_36 1
 #ifdef __MK66FX1M0__
-  #define IS_32BIT_TEENSY 1
   #define IS_TEENSY36 1
+#else // __MK64FX512__
+  #define IS_TEENSY35 1
 #endif
 
 #define _MSERIAL(X) Serial##X
