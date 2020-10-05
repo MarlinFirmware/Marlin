@@ -38,7 +38,7 @@ execUserPreload()
     __message "------------------------------ execUserPreload ---------------------------------";
 
     __hwReset(0);                          //* Hardware Reset: CPU is automatically halted after the reset
-    
+
     // perpheral reset RSTC_CR
     __writeMemory32(0xA5000004,0x400e1200,"Memory");
 }
