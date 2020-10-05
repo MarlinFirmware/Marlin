@@ -271,7 +271,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins

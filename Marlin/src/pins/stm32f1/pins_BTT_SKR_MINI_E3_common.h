@@ -129,7 +129,7 @@
   #define EXP1_3                            PB7
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -169,11 +169,50 @@
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
 
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+
+      #error "CAUTION! TFTGLCD_PANEL_SPI requires wiring modifications. See 'pins_BTT_SKR_MINI_E3_common.h' for details. Comment out this line to continue."
+
+      /**
+       * TFTGLCD_PANEL_SPI display pinout
+       *
+       *               Board                                      Display
+       *               _____                                       _____
+       *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
+       * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)      (PA9)    GLCD_CS | 3 4 | SD_CS (PA10)
+       * (FREE)   PB9 | 5 6 | PA10 (SD_CS)                 (FREE) | 5 6 | MOSI  (SPI1-MOSI)
+       *        RESET | 7 8 | PA9  (MOD_RESET)   (PB5)     SD_DET | 7 8 | (FREE)
+       * (BEEPER) PB6 | 9 10| PB5  (SD_DET)                   GND | 9 10| 5V
+       *               -----                                       -----
+       *                EXP1                                        EXP1
+       *
+       * Needs custom cable:
+       *
+       *    Board   Adapter   Display
+       *           _________
+       *   EXP1-1 ----------- EXP1-10
+       *   EXP1-2 ----------- EXP1-9
+       *   SPI1-4 ----------- EXP1-6
+       *   EXP1-4 ----------- FREE
+       *   SPI1-3 ----------- EXP1-2
+       *   EXP1-6 ----------- EXP1-4
+       *   EXP1-7 ----------- FREE
+       *   EXP1-8 ----------- EXP1-3
+       *   SPI1-1 ----------- EXP1-1
+       *  EXP1-10 ----------- EXP1-7
+       */
+
+      #define TFTGLCD_CS                    PA9
+
+    #endif
+
   #else
-    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, and MKS_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3."
+    #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BIGTREE_SKR_MINI_E3."
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
@@ -185,7 +224,7 @@
    *               _____                                       _____
    *           5V | 1 2 | GND                (SPI1-MISO) MISO | 1 2 | SCK   (SPI1-SCK)
    * (FREE)   PB7 | 3 4 | PB8  (LCD_CS)      (PA9)  MOD_RESET | 3 4 | SD_CS (PA10)
-   * (FREE)   PB9 | 5 6   PA10 (SD_CS)       (PB8)     LCD_CS | 5 6   MOSI  (SPI1-MOSI)
+   * (FREE)   PB9 | 5 6 | PA10 (SD_CS)       (PB8)     LCD_CS | 5 6 | MOSI  (SPI1-MOSI)
    *        RESET | 7 8 | PA9  (MOD_RESET)   (PB5)     SD_DET | 7 8 | RESET
    * (BEEPER) PB6 | 9 10| PB5  (SD_DET)                   GND | 9 10| 5V
    *               -----                                       -----
@@ -205,7 +244,6 @@
    *   EXP1-8 ----------- EXP1-3
    *   SPI1-1 ----------- EXP1-1
    *  EXP1-10 ----------- EXP1-7
-   *
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
@@ -227,9 +265,7 @@
 
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC4
-#endif
-
-#if BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) && SD_CONNECTION_IS(LCD)
+#elif SD_CONNECTION_IS(LCD) && (BOTH(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
   #define SD_DETECT_PIN                     PB5
   #define SS_PIN                            PA10
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)

@@ -30,7 +30,6 @@
  * Bu çeviri dosyasındaki sorunlar ve düzeltmeler için iletişim;
  * Contact for issues and corrections in this translation file;
  * Yücel Temel - (info@elektromanyetix.com) - https://elektromanyetix.com/
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_TR
@@ -591,8 +590,8 @@ namespace Language_tr {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

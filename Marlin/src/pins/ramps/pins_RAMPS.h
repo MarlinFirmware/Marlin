@@ -430,7 +430,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -449,6 +449,10 @@
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
+
+  #elif ENABLED(TFTGLCD_PANEL_SPI)
+
+    #define TFTGLCD_CS                        33
 
   #else
 
@@ -682,6 +686,10 @@
 
       // Pins only defined for RAMPS_SMART currently
 
+    #elif IS_TFTGLCD_PANEL
+
+      #define SD_DETECT_PIN                   49
+
     #else
 
       // Beeper on AUX-4
@@ -706,7 +714,7 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
   #define SHIFT_OUT                           40

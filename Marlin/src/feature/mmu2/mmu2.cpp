@@ -340,17 +340,17 @@ void MMU2::mmu_loop() {
       #endif
 
       if (rx_ok()) {
-        // response to C0 mmu command in PRUSA_MMU2_S_MODE
+        // Response to C0 mmu command in PRUSA_MMU2_S_MODE
         bool can_reset = true;
-        if (ENABLED(PRUSA_MMU2_S_MODE) && last_cmd == MMU_CMD_C0) {
-          if (!mmu2s_triggered) {
+        #if ENABLED(PRUSA_MMU2_S_MODE)
+          if (!mmu2s_triggered && last_cmd == MMU_CMD_C0) {
             can_reset = false;
             // MMU ok received but filament sensor not triggered, retrying...
             DEBUG_ECHOLNPGM("MMU => 'ok' (filament not present in gears)");
             DEBUG_ECHOLNPGM("MMU <= 'C0' (keep trying)");
             MMU2_COMMAND("C0");
           }
-        }
+        #endif
         if (can_reset) {
           DEBUG_ECHOLNPGM("MMU => 'ok'");
           ready = true;
@@ -710,13 +710,11 @@ void MMU2::tool_change(const uint8_t index) {
 }
 
 /**
- *
  * Handle special T?/Tx/Tc commands
  *
  * T? Gcode to extrude shouldn't have to follow, load to extruder wheels is done automatically
  * Tx Same as T?, except nozzle doesn't have to be preheated. Tc must be placed after extruder nozzle is preheated to finish filament load.
  * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
- *
  */
 void MMU2::tool_change(const char* special) {
   if (!enabled) return;
@@ -838,8 +836,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
 
       if (move_axes && all_axes_homed()) {
         LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
-        BUZZ(200, 404);
-        BUZZ(200, 404);
+        BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
 
         // Move XY to starting position, then Z
         do_blocking_move_to_xy(resume_position, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
@@ -848,8 +845,7 @@ void MMU2::manage_response(const bool move_axes, const bool turn_off_nozzle) {
         do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
       }
       else {
-        BUZZ(200, 404);
-        BUZZ(200, 404);
+        BUZZ(198, 404); BUZZ(4, 0); BUZZ(198, 404);
         LCD_MESSAGEPGM(MSG_MMU2_RESUMING);
       }
     }
@@ -924,9 +920,7 @@ void MMU2::filament_runout() {
   }
 
   /**
-   *
    * Switch material and load to nozzle
-   *
    */
   bool MMU2::load_filament_to_nozzle(const uint8_t index) {
 

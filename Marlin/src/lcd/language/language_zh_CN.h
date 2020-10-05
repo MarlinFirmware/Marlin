@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_zh_CN {
   using namespace Language_en;  // Inherit undefined strings from English
@@ -631,8 +630,8 @@ namespace Language_zh_CN {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

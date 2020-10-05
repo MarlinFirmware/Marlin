@@ -217,6 +217,28 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
+#elif EITHER(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C)
+
+  #define IS_TFTGLCD_PANEL 1
+  #define IS_ULTIPANEL                      // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
+
+  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
+    #define LCD_PROGRESS_BAR
+  #endif
+  #if ENABLED(TFTGLCD_PANEL_I2C)
+    #define LCD_USE_I2C_BUZZER              // Enable buzzer on LCD for I2C and SPI buses (LiquidTWI2 not required)
+    #define LCD_I2C_ADDRESS           0x27  // Must be equal to panel's I2C slave addres
+  #endif
+  #define STD_ENCODER_PULSES_PER_STEP 2
+  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
+  #define LCD_WIDTH                   20    // 20 or 24 chars in line
+  #define LCD_HEIGHT                  10    // Character lines
+  #define LCD_CONTRAST_MIN            127
+  #define LCD_CONTRAST_MAX            255
+  #define DEFAULT_LCD_CONTRAST        250
+  #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
+                                      // At this time present conversion only for cyrillic - bg, ru and uk languages.
+                                      // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)
@@ -456,11 +478,13 @@
 #endif
 
 #if ENABLED(ULTRA_LCD)
-  #define HAS_SPI_LCD 1
+  #define HAS_WIRED_LCD 1
   #if ENABLED(DOGLCD)
-    #define HAS_GRAPHICAL_LCD 1
+    #define HAS_MARLINUI_U8GLIB 1
+  #elif IS_TFTGLCD_PANEL
+    // Neither DOGM nor HD44780. Fully customized interface.
   #elif DISABLED(HAS_GRAPHICAL_TFT)
-    #define HAS_CHARACTER_LCD 1
+    #define HAS_MARLINUI_HD44780 1
   #endif
 #endif
 
@@ -471,7 +495,7 @@
   #define HAS_ADC_BUTTONS 1
 #endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef LCD_PIXEL_WIDTH
     #define LCD_PIXEL_WIDTH 128
   #endif
@@ -488,7 +512,6 @@
  *  HOTENDS      - Number of hotends, whether connected or separate
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
- *
  */
 
 #if EXTRUDERS == 0

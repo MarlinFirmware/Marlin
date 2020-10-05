@@ -170,11 +170,6 @@ void _goto_manual_move(const float scale) {
 
 void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int8_t eindex=-1) {
   _manual_move_func_ptr = func;
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    const bool too_cold = axis == E_AXIS && thermalManager.tooColdToExtrude(eindex >= 0 ? eindex : active_extruder);
-  #else
-    constexpr bool too_cold = false;
-  #endif
   START_MENU();
   if (LCD_HEIGHT >= 4) {
     switch (axis) {
@@ -187,34 +182,56 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
         break;
     }
   }
-  if (too_cold)
-    BACK_ITEM(MSG_HOTEND_TOO_COLD);
-  else {
-    BACK_ITEM(MSG_MOVE_AXIS);
-    SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
-    SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
-    SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
-    if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
-      // Determine digits needed right of decimal
-      constexpr uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                               !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-      PGM_P const label = GET_TEXT(MSG_MOVE_Z_DIST);
-      char tmp[strlen_P(label) + 10 + 1], numstr[10];
-      sprintf_P(tmp, label, dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
 
-      #if DISABLED(HAS_GRAPHICAL_TFT)
-        extern const char NUL_STR[];
-        SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-        MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
-        lcd_put_u8str(tmp);
-        MENU_ITEM_ADDON_END();
-      #else
-        SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-      #endif
-    }
+  BACK_ITEM(MSG_MOVE_AXIS);
+  SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
+  SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
+  SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
+  if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+    // Determine digits needed right of decimal
+    constexpr uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
+                              !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
+    PGM_P const label = GET_TEXT(MSG_MOVE_Z_DIST);
+    char tmp[strlen_P(label) + 10 + 1], numstr[10];
+    sprintf_P(tmp, label, dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+
+    #if DISABLED(HAS_GRAPHICAL_TFT)
+      extern const char NUL_STR[];
+      SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
+      lcd_put_u8str(tmp);
+      MENU_ITEM_ADDON_END();
+    #else
+      SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+    #endif
   }
   END_MENU();
 }
+
+#if E_MANUAL
+
+  inline void _goto_menu_move_distance_e() {
+    ui.goto_screen([]{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }, -1); });
+  }
+
+  inline void _menu_move_distance_e_maybe() {
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      const bool too_cold = thermalManager.tooColdToExtrude(active_extruder);
+      if (too_cold) {
+        ui.goto_screen([]{
+          MenuItem_confirm::select_screen(
+            GET_TEXT(MSG_BUTTON_PROCEED), GET_TEXT(MSG_BACK),
+            _goto_menu_move_distance_e, ui.goto_previous_screen,
+            GET_TEXT(MSG_HOTEND_TOO_COLD), (const char *)nullptr, PSTR("!")
+          );
+        });
+        return;
+      }
+    #endif
+    _goto_menu_move_distance_e();
+  }
+
+#endif // E_MANUAL
 
 void menu_move() {
   START_MENU();
@@ -278,7 +295,7 @@ void menu_move() {
   #if E_MANUAL
 
     // The current extruder
-    SUBMENU(MSG_MOVE_E, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(); }, -1); });
+    SUBMENU(MSG_MOVE_E, []{ _menu_move_distance_e_maybe(); });
 
     #define SUBMENU_MOVE_E(N) SUBMENU_N(N, MSG_MOVE_EN, []{ _menu_move_distance(E_AXIS, []{ lcd_move_e(MenuItemBase::itemIndex); }, MenuItemBase::itemIndex); });
 

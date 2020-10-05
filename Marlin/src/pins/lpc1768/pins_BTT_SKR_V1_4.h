@@ -232,7 +232,7 @@
  *              -----                                             -----
  *              EXP2                                              EXP1
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
     #define LCD_PINS_RS                    P1_23
@@ -309,6 +309,14 @@
       #define XPT2046_Y_OFFSET             -285
     #endif
 
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_26
+    #endif
+
+    #define SD_DETECT_PIN                  P1_31
+
   #else
 
     #define BTN_ENC                        P0_28  // (58) open-drain
@@ -371,9 +379,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // HAS_GRAPHICAL_LCD
+  #endif // HAS_MARLINUI_U8GLIB
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."

@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define en 1234
@@ -446,6 +445,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Probe X Offset");
   PROGMEM Language_Str MSG_ZPROBE_YOFFSET                  = _UxGT("Probe Y Offset");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Probe Z Offset");
+  PROGMEM Language_Str MSG_MOVE_NOZZLE_TO_BED              = _UxGT("Move Nozzle to Bed");
   PROGMEM Language_Str MSG_BABYSTEP_X                      = _UxGT("Babystep X");
   PROGMEM Language_Str MSG_BABYSTEP_Y                      = _UxGT("Babystep Y");
   PROGMEM Language_Str MSG_BABYSTEP_Z                      = _UxGT("Babystep Z");
@@ -654,12 +654,14 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Reheat");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
+
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
 }
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

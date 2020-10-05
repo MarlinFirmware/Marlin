@@ -141,7 +141,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN                          32
@@ -189,4 +189,4 @@
 
   #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
 
-#endif // HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
+#endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL

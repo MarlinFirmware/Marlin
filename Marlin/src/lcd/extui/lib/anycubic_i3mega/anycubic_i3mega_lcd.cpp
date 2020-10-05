@@ -24,16 +24,17 @@
 #if ENABLED(ANYCUBIC_LCD_I3MEGA)
 
 #include "anycubic_i3mega_lcd.h"
-
-#include "../../../../inc/MarlinConfig.h"
 #include "../../ui_api.h"
-#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+
+#include "../../../../libs/numtostr.h"
 #include "../../../../module/motion.h"  // for A20 read printing speed feedrate_percentage
+#include "../../../../MarlinCore.h"     // for quickstop_stepper and disable_steppers
+#include "../../../../inc/MarlinConfig.h"
 
 // command sending macro's with debugging capability
 #define SEND_PGM(x)                                 send_P(PSTR(x))
 #define SENDLINE_PGM(x)                             sendLine_P(PSTR(x))
-#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(itostr3(y)))
+#define SEND_PGM_VAL(x,y)                           (send_P(PSTR(x)), sendLine(i16tostr3rj(y)))
 #define SEND(x)                                     send(x)
 #define SENDLINE(x)                                 sendLine(x)
 #if ENABLED(ANYCUBIC_LCD_DEBUG)
@@ -44,19 +45,7 @@
   #define SENDLINE_DBG_PGM_VAL(x,y,z)               sendLine_P(PSTR(x))
 #endif
 
-
 AnycubicTFTClass AnycubicTFT;
-
-char _conv[8];
-
-char *itostr2(const uint8_t &x) {
-  // sprintf(conv,"%5.1f",x);
-  int xx = x;
-  _conv[0] = (xx / 10) % 10 + '0';
-  _conv[1] = (xx) % 10 + '0';
-  _conv[2] = 0;
-  return _conv;
-}
 
 static void sendNewLine(void) {
   LCD_SERIAL.write('\r');
@@ -81,34 +70,6 @@ static void sendLine_P(PGM_P str) {
   send_P(str);
   sendNewLine();
 }
-
-#ifndef ULTRA_LCD
-  #define DIGIT(n) ('0' + (n))
-  #define DIGIMOD(n, f) DIGIT((n) / (f) % 10)
-  #define RJDIGIT(n, f) ((n) >= (f) ? DIGIMOD(n, f) : ' ')
-  #define MINUSOR(n, alt) (n >= 0 ? (alt) : (n = -n, '-'))
-
-  char* itostr3(const int x) {
-    int xx = x;
-    _conv[4] = MINUSOR(xx, RJDIGIT(xx, 100));
-    _conv[5] = RJDIGIT(xx, 10);
-    _conv[6] = DIGIMOD(xx, 1);
-    return &_conv[4];
-  }
-
-// Convert signed float to fixed-length string with 023.45 / -23.45 format
-  char *ftostr32(const float &x) {
-    long xx = x * 100;
-    _conv[1] = MINUSOR(xx, DIGIMOD(xx, 10000));
-    _conv[2] = DIGIMOD(xx, 1000);
-    _conv[3] = DIGIMOD(xx, 100);
-    _conv[4] = '.';
-    _conv[5] = DIGIMOD(xx, 10);
-    _conv[6] = DIGIMOD(xx, 1);
-    return &_conv[1];
-  }
-
-#endif
 
 AnycubicTFTClass::AnycubicTFTClass() {}
 
@@ -181,7 +142,7 @@ void AnycubicTFTClass::OnKillTFT() {
 void AnycubicTFTClass::OnSDCardStateChange(bool isInserted) {
   #if ENABLED(ANYCUBIC_LCD_DEBUG)
     SERIAL_ECHOPGM("TFT Serial Debug: OnSDCardStateChange event triggered...");
-    SERIAL_ECHO(itostr2(isInserted));
+    SERIAL_ECHO(ui8tostr2(isInserted));
     SERIAL_EOL();
   #endif
   DoSDCardStateCheck();
@@ -535,12 +496,12 @@ void AnycubicTFTClass::RenderCurrentFolder(uint16_t selectedNumber) {
         SEND_PGM("/");
         SENDLINE(currentFileList.shortFilename());
         SEND_PGM("/");
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
 
       }
       else {
         SENDLINE(currentFileList.shortFilename());
-        SENDLINE(currentFileList.longFilename());
+        SENDLINE(currentFileList.filename());
       }
     }
   }
@@ -622,19 +583,15 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           case 3: { // A3 GET HOTBED TARGET TEMP
             float heatedBedTargetTemp = ExtUI::getTargetTemp_celsius((ExtUI::heater_t) ExtUI::BED);
             SEND_PGM_VAL("A3V ", int(heatedBedTargetTemp + 0.5));
-          }
-          break;
+          } break;
 
-          case 4: // A4 GET FAN SPEED
-          {
+          case 4: { // A4 GET FAN SPEED
             float fanPercent = ExtUI::getActualFan_percent(ExtUI::FAN0);
             fanPercent = constrain(fanPercent, 0, 100);
             SEND_PGM_VAL("A4V ", int(fanPercent));
-          }
-          break;
+          } break;
 
-          case 5: // A5 GET CURRENT COORDINATE
-          {
+          case 5: { // A5 GET CURRENT COORDINATE
             float xPostition = ExtUI::getAxisPosition_mm(ExtUI::X);
             float yPostition = ExtUI::getAxisPosition_mm(ExtUI::Y);
             float zPostition = ExtUI::getAxisPosition_mm(ExtUI::Z);
@@ -645,39 +602,34 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             SEND_PGM(" Z: ");
             LCD_SERIAL.print(zPostition);
             SENDLINE_PGM("");
-          }
-          break;
+          } break;
 
           case 6: // A6 GET SD CARD PRINTING STATUS
             #if ENABLED(SDSUPPORT)
               if (ExtUI::isPrintingFromMedia()) {
                 SEND_PGM("A6V ");
-                if (ExtUI::isMediaInserted()) {
-                  SENDLINE(itostr3(int(ExtUI::getProgress_percent())));
-                }
-                else {
+                if (ExtUI::isMediaInserted())
+                  SENDLINE(ui8tostr3rj(ExtUI::getProgress_percent()));
+                else
                   SENDLINE_DBG_PGM("J02", "TFT Serial Debug: No SD Card mounted to return printing status... J02");
-                }
               }
-              else {
+              else
                 SENDLINE_PGM("A6V ---");
-              }
             #endif
             break;
 
           case 7: { // A7 GET PRINTING TIME
-            uint32_t elapsedSeconds = ExtUI::getProgress_seconds_elapsed();
+            const uint32_t elapsedSeconds = ExtUI::getProgress_seconds_elapsed();
             SEND_PGM("A7V ");
             if (elapsedSeconds != 0) {  // print time
-              uint32_t elapsedMinutes = elapsedSeconds / 60;
-              SEND(itostr2(elapsedMinutes / 60));
+              const uint32_t elapsedMinutes = elapsedSeconds / 60;
+              SEND(ui8tostr2(elapsedMinutes / 60));
               SEND_PGM(" H ");
-              SEND(itostr2(elapsedMinutes % 60));
+              SEND(ui8tostr2(elapsedMinutes % 60));
               SENDLINE_PGM(" M");
             }
-            else {
+            else
               SENDLINE_PGM(" 999:999");
-            }
           }
           break;
 
@@ -692,7 +644,6 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             #if ENABLED(SDSUPPORT)
               if (ExtUI::isPrintingFromMedia())
                 PausePrint();
-
             #endif
             break;
 
@@ -700,14 +651,11 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             #if ENABLED(SDSUPPORT)
               if (ExtUI::isPrintingFromMediaPaused())
                 ResumePrint();
-
             #endif
             break;
 
           case 11: // A11 STOP SD PRINT
-            #if ENABLED(SDSUPPORT)
-              StopPrint();
-            #endif
+            TERN_(SDSUPPORT, StopPrint());
             break;
 
           case 12: // A12 kill
@@ -748,7 +696,6 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             #if ENABLED(SDSUPPORT)
               if (!ExtUI::isPrinting() && strlen(SelectedFile) > 0)
                 StartPrint();
-
             #endif
             break;
 
@@ -771,8 +718,7 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           }
           break;
 
-          case 17:// A17 set heated bed temp
-          {
+          case 17: { // A17 set heated bed temp
             unsigned int tempbed;
             if (CodeSeen('S')) {
               tempbed = constrain(CodeValue(), 0, 100);
@@ -781,19 +727,17 @@ void AnycubicTFTClass::GetCommandFromTFT() {
           }
           break;
 
-          case 18:// A18 set fan speed
-          {
+          case 18: { // A18 set fan speed
             float fanPercent;
             if (CodeSeen('S')) {
               fanPercent = CodeValue();
               fanPercent = constrain(fanPercent, 0, 100);
               ExtUI::setTargetFan_percent(fanPercent, ExtUI::FAN0);
             }
-            else {
+            else
               fanPercent = 100;
-            }
-            ExtUI::setTargetFan_percent(fanPercent, ExtUI::FAN0);
 
+            ExtUI::setTargetFan_percent(fanPercent, ExtUI::FAN0);
             SENDLINE_PGM("");
           }
           break;
@@ -807,13 +751,11 @@ void AnycubicTFTClass::GetCommandFromTFT() {
             SENDLINE_PGM("");
             break;
 
-          case 20: { // A20 read printing speed
-
+          case 20: // A20 read printing speed
             if (CodeSeen('S'))
               feedrate_percentage = constrain(CodeValue(), 40, 999);
             else
               SEND_PGM_VAL("A20V ", feedrate_percentage);
-          }
             break;
 
           case 21: // A21 all home
