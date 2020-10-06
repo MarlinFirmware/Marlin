@@ -62,10 +62,7 @@
       #undef NUM_SERVOS
       #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
     #endif
-<<<<<<< HEAD
-=======
   #endif
->>>>>>> 26a010c25... Smarter automatic NUM_SERVOS
 #endif
 
 // Convenience override for a BLTouch alone
