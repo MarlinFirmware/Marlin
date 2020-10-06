@@ -375,7 +375,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Ugrás mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Visszah.helyre mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Csere.Visszah.helyre mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVisszah.");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Visszahúzás Távolság");
