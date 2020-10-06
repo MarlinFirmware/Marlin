@@ -22,8 +22,10 @@
 #     (e.g. UPLOAD_PORT = /dev/tty.USB0).  If the exact name of this file
 #     changes, you can use * as a wild card (e.g. UPLOAD_PORT = /dev/tty.usb*).
 #
-#  3. Set the line containing "MCU" to match your board's processor.
-#     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
+#  3. Set the line containing "MCU" to match your board's processor. Set
+#     "PROG_MCU" as the AVR part name corresponding to "MCU". You can use the
+#     following command to get a list of correspondances: `avrdude -c alf -p x`
+#     Older boards are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
 #     change F_CPU to 8000000. If you are using Gen7 electronics, you
 #     probably need to use 20000000. Either way, you must regenerate
@@ -214,7 +216,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1119)
 else ifeq ($(HARDWARE_MOTHERBOARD),1120)
 # Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 else ifeq ($(HARDWARE_MOTHERBOARD),1121)
-  MCU ?= atmega1280
+  MCU              ?= atmega1280
+  PROG_MCU         ?= m1280
 
 # Azteeg X3
 else ifeq ($(HARDWARE_MOTHERBOARD),1122)
@@ -356,9 +359,11 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1320)
 # Minitronics v1.0/1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1400)
   MCU              ?= atmega1281
+  PROG_MCU         ?= m1281
 # Silvergate v1.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1401)
   MCU              ?= atmega1281
+  PROG_MCU         ?= m1281
 
 #
 # Sanguinololu and Derivatives - ATmega644P, ATmega1284P
@@ -368,46 +373,57 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1401)
 else ifeq ($(HARDWARE_MOTHERBOARD),1500)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Sanguinololu 1.2 and above
 else ifeq ($(HARDWARE_MOTHERBOARD),1501)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Melzi
 else ifeq ($(HARDWARE_MOTHERBOARD),1502)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Melzi V2.0
 else ifeq ($(HARDWARE_MOTHERBOARD),1503)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi with ATmega1284 (MaKr3d version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1504)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi Creality3D board (for CR-10 etc)
 else ifeq ($(HARDWARE_MOTHERBOARD),1505)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Melzi Malyan M150 board
 else ifeq ($(HARDWARE_MOTHERBOARD),1506)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Tronxy X5S
 else ifeq ($(HARDWARE_MOTHERBOARD),1507)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # STB V1.1
 else ifeq ($(HARDWARE_MOTHERBOARD),1508)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Azteeg X1
 else ifeq ($(HARDWARE_MOTHERBOARD),1509)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 # Anet 1.0 (Melzi clone)
 else ifeq ($(HARDWARE_MOTHERBOARD),1510)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
 
 #
 # Other ATmega644P, ATmega644, ATmega1284P
@@ -417,50 +433,61 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1510)
 else ifeq ($(HARDWARE_MOTHERBOARD),1600)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen3+
 else ifeq ($(HARDWARE_MOTHERBOARD),1601)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen6
 else ifeq ($(HARDWARE_MOTHERBOARD),1602)
   HARDWARE_VARIANT ?= Gen6
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen6 deluxe
 else ifeq ($(HARDWARE_MOTHERBOARD),1603)
   HARDWARE_VARIANT ?= Gen6
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Gen7 custom (Alfons3 Version)
 else ifeq ($(HARDWARE_MOTHERBOARD),1604)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644
+  PROG_MCU         ?= m644
   F_CPU            ?= 20000000
 # Gen7 v1.1, v1.2
 else ifeq ($(HARDWARE_MOTHERBOARD),1605)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
   F_CPU            ?= 20000000
 # Gen7 v1.3
 else ifeq ($(HARDWARE_MOTHERBOARD),1606)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
   F_CPU            ?= 20000000
 # Gen7 v1.4
 else ifeq ($(HARDWARE_MOTHERBOARD),1607)
   HARDWARE_VARIANT ?= Gen7
   MCU              ?= atmega1284p
+  PROG_MCU         ?= m1284p
   F_CPU            ?= 20000000
 # Alpha OMCA board
 else ifeq ($(HARDWARE_MOTHERBOARD),1608)
   HARDWARE_VARIANT ?= SanguinoA
   MCU              ?= atmega644
+  PROG_MCU         ?= m644
 # Final OMCA board
 else ifeq ($(HARDWARE_MOTHERBOARD),1609)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 # Sethi 3D_1
 else ifeq ($(HARDWARE_MOTHERBOARD),1610)
   HARDWARE_VARIANT ?= Sanguino
   MCU              ?= atmega644p
+  PROG_MCU         ?= m644p
 
 #
 # Teensyduino - AT90USB1286, AT90USB1286P
@@ -470,34 +497,42 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1610)
 else ifeq ($(HARDWARE_MOTHERBOARD),1700)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Printrboard (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1701)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Printrboard Revision F (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1702)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Brainwave (AT90USB646)
 else ifeq ($(HARDWARE_MOTHERBOARD),1703)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb646
+  PROG_MCU         ?= usb646
 # Brainwave Pro (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1704)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # SAV Mk-I (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1705)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # Teensy++2.0 (AT90USB1286)
 else ifeq ($(HARDWARE_MOTHERBOARD),1706)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 # 5DPrint D8 Driver Board
 else ifeq ($(HARDWARE_MOTHERBOARD),1707)
   HARDWARE_VARIANT ?= Teensy
   MCU              ?= at90usb1286
+  PROG_MCU         ?= usb1286
 
 # UltiMachine Archim1 (with DRV8825 drivers)
 else ifeq ($(HARDWARE_MOTHERBOARD),3023)
@@ -524,7 +559,8 @@ IS_MCU ?= 1
 ifeq ($(IS_MCU),1)
   # Set to arduino, ATmega2560 if not yet set.
   HARDWARE_VARIANT ?= arduino
-  MCU ?= atmega2560
+  MCU              ?= atmega2560
+  PROG_MCU         ?= m2560
 
   TOOL_PREFIX = avr
   MCU_FLAGS   = -mmcu=$(MCU)
@@ -785,7 +821,7 @@ else
   AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
 AVRDUDE_FLAGS = -D -C$(AVRDUDE_CONF) \
-  -p$(MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
+  -p$(PROG_MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
   -b$(UPLOAD_RATE)
 
 # Since Marlin 2.0, the source files may be distributed into several
