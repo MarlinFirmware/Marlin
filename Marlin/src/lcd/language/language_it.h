@@ -385,9 +385,9 @@ namespace Language_it {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Scamb. Ritrai mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Ritrai  V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Salta mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Scamb. UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Scamb. Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRitrai");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Lunghezza scambio");

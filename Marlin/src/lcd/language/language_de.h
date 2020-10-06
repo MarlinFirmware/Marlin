@@ -380,9 +380,9 @@ namespace Language_de {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Wechs. Einzug mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("V Einzug");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Z-Sprung mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Wechs. UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Wechs. Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Autom. Einzug");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Einzugslänge");

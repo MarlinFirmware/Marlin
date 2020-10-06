@@ -141,10 +141,10 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Ruil Retract mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Retract  F");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Ruil UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  F");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Ruil Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretr. FR");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
