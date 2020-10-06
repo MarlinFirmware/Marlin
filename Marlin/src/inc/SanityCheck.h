@@ -1249,8 +1249,10 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * NUM_SERVOS is required for a Z servo probe
    */
   #if HAS_Z_SERVO_PROBE
-    #ifndef NUM_SERVOS
+    #if !NUM_SERVOS
       #error "NUM_SERVOS is required for a Z servo probe (Z_PROBE_SERVO_NR)."
+    #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
+      #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
     #elif Z_PROBE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
       #error "SERVO0_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -1259,8 +1261,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "SERVO2_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
       #error "SERVO3_PIN must be defined for your servo or BLTOUCH probe."
-    #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
-      #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
@@ -1814,7 +1814,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if ENABLED(CHAMBER_VENT)
   #ifndef CHAMBER_VENT_SERVO_NR
     #error "CHAMBER_VENT_SERVO_NR is required for CHAMBER SERVO. Update your Configuration_adv.h."
-  #elif !defined(NUM_SERVOS)
+  #elif !NUM_SERVOS
     #error "NUM_SERVOS is required for a Heated Chamber vent servo (CHAMBER_VENT_SERVO_NR)."
   #elif CHAMBER_VENT_SERVO_NR >= NUM_SERVOS
     #error "CHAMBER_VENT_SERVO_NR must be smaller than NUM_SERVOS."
