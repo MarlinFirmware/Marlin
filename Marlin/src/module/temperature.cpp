@@ -1205,7 +1205,7 @@ void Temperature::manage_heater() {
           #if CHAMBER_FAN_MODE == 0
             fan_chamber_pwm = CHAMBER_FAN_BASE
           #elif CHAMBER_FAN_MODE == 1
-            // TODO
+            fan_chamber_pwm = temp_chamber.celsius > temp_chamber.target ? CHAMBER_FAN_BASE + ((temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR ) : 0;
           #elif CHAMBER_FAN_MODE == 2
             fan_chamber_pwm = CHAMBER_FAN_BASE + ( abs(temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR );
             if (temp_chamber.soft_pwm_amount)
