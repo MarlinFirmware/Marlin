@@ -2215,14 +2215,12 @@ void HMI_PauseOrStop() {
           checkkey = Back_Main;
           // Wait for planner moves to finish!
           if (HMI_flag.home_flag) planner.synchronize();
-          card.endFilePrint();
+          card.flag.abort_sd_printing = true;
+          marlin_state = MF_SD_COMPLETE;
           #ifdef ACTION_ON_CANCEL
             host_action_cancel();
           #endif
-          #ifdef EVENT_GCODE_SD_ABORT
-            Popup_Window_Home(true);
-            queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
-          #endif
+          Popup_Window_Home(true);
           dwin_abort_flag = true;
         #endif
       }
