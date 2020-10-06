@@ -1126,11 +1126,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #error "The selected board doesn't support enough user-controlled fans. Reduce NUM_M106_FANS."
 #endif
 
-//Chamber fan modes
-#if CHAMBER_FAN_MODE > 2
-  #error "The selected chamber fan mode doesen't exist. Please chach configuration_adv.h"
-#endif
-
 /**
  * Limited number of servos
  */
@@ -1255,7 +1250,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    */
   #if HAS_Z_SERVO_PROBE
     #ifndef NUM_SERVOS
-      #error "You must set NUM_SERVOS for a Z servo probe (Z_PROBE_SERVO_NR)."
+      #error "NUM_SERVOS is required for a Z servo probe (Z_PROBE_SERVO_NR)."
     #elif Z_PROBE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
       #error "SERVO0_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -1812,8 +1807,28 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN. Please add it to your configuration."
 #endif
 
-#if CHAMBER_VENT_SERVO_NR == Z_PROBE_SERVO_NR && ENABLED(BLTOUCH)
-  #error "CHAMBER SERVO is already used by BLTOUCH. Please change"
+#if ENABLED(CHAMBER_FAN) && !(defined(CHAMBER_FAN_MODE) && WITHIN(CHAMBER_FAN_MODE, 0, 2))
+  #error "CHAMBER_FAN_MODE must be between 0 and 2. Please update your Configuration_adv.h."
+#endif
+
+#if ENABLED(CHAMBER_VENT)
+  #ifndef CHAMBER_VENT_SERVO_NR
+    #error "CHAMBER_VENT_SERVO_NR is required for CHAMBER SERVO. Update your Configuration_adv.h."
+  #elif !defined(NUM_SERVOS)
+    #error "NUM_SERVOS is required for a Heated Chamber vent servo (CHAMBER_VENT_SERVO_NR)."
+  #elif CHAMBER_VENT_SERVO_NR >= NUM_SERVOS
+    #error "CHAMBER_VENT_SERVO_NR must be smaller than NUM_SERVOS."
+  #elif HAS_Z_SERVO_PROBE && CHAMBER_VENT_SERVO_NR == Z_PROBE_SERVO_NR
+    #error "CHAMBER SERVO is already used by BLTOUCH. Please change."
+  #elif CHAMBER_VENT_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
+    #error "SERVO0_PIN must be defined for your Heated Chamber vent servo."
+  #elif CHAMBER_VENT_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
+    #error "SERVO1_PIN must be defined for your Heated Chamber vent servo."
+  #elif CHAMBER_VENT_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
+    #error "SERVO2_PIN must be defined for your Heated Chamber vent servo."
+  #elif CHAMBER_VENT_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
+    #error "SERVO3_PIN must be defined for your Heated Chamber vent servo."
+  #endif
 #endif
 
 #if TEMP_SENSOR_PROBE

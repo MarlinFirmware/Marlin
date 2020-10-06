@@ -653,24 +653,6 @@
  * The BLTouch Probe emulates a servo probe
  * and uses "special" angles for its state.
  */
-#if ENABLED(CHAMBER_VENT) || ENABLED(BLTOUCH)
-  #ifndef NUM_SERVOS
-    #if ENABLED(CHAMBER_VENT)
-      #define NUM_SERVOS 2
-    #elif ENABLED(BLTOUCH)
-      #define NUM_SERVOS 1
-    #endif
-  #endif
-  #if NUM_SERVOS == 1
-    #undef SERVO_DELAY
-    #define SERVO_DELAY { 50 }
-  #endif
-  #if NUM_SERVOS == 2
-    #undef SERVO_DELAY
-    #define SERVO_DELAY { 50, 300 }
-  #endif
-#endif
-
 #if ENABLED(BLTOUCH)
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
@@ -686,14 +668,10 @@
   #endif
 #endif
 
-#ifndef NUM_SERVOS
-  #define NUM_SERVOS 0
-#endif
-
 /**
  * Set a flag for a servo probe (or BLTouch)
  */
-#if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
+#ifdef Z_PROBE_SERVO_NR
   #define HAS_Z_SERVO_PROBE 1
 #endif
 #if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
@@ -701,6 +679,15 @@
 #endif
 #if !HAS_SERVO_ANGLES
   #undef EDITABLE_SERVO_ANGLES
+#endif
+
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS (ENABLED(CHAMBER_VENT) + ENABLED(HAS_Z_SERVO_PROBE) + ENABLED(SWITCHING_EXTRUDER) + ENABLED(SWITCHING_NOZZLE))
+#endif
+
+#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 50 }
 #endif
 
 /**

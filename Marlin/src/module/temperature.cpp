@@ -1197,20 +1197,20 @@ void Temperature::manage_heater() {
       }
     #endif
 
-    #if ENABLED(CHAMBER_FAN) || ENABLED(CHAMBER_VENT)
+    #if EITHER(CHAMBER_FAN, CHAMBER_VENT)
       if (temp_chamber.target > CHAMBER_MINTEMP) {
         flag_chamber_off = false;
 
         #if ENABLED(CHAMBER_FAN)
           #if CHAMBER_FAN_MODE == 0
             fan_chamber_pwm = CHAMBER_FAN_BASE
-          #elif CHAMBER_FAN_MODE == 1 //TODO
+          #elif CHAMBER_FAN_MODE == 1
+            // TODO
           #elif CHAMBER_FAN_MODE == 2
             fan_chamber_pwm = CHAMBER_FAN_BASE + ( abs(temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR );
-            if(temp_chamber.soft_pwm_amount != 0){
-              fan_chamber_pwm += (2 * CHAMBER_FAN_FACTOR);
-            }
-            fan_chamber_pwm = std::min<int>(fan_chamber_pwm, 255);
+            if (temp_chamber.soft_pwm_amount)
+              fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
+            fan_chamber_pwm = _MIN(fan_chamber_pwm, 255);
           #endif
           thermalManager.set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
         #endif
@@ -1239,7 +1239,7 @@ void Temperature::manage_heater() {
             flag_chamber_excess_heat = false;
           }
         #endif
-      } 
+      }
       else if (!flag_chamber_off) {
         #if ENABLED(CHAMBER_FAN)
           flag_chamber_off = true;
@@ -1261,15 +1261,19 @@ void Temperature::manage_heater() {
             if (temp_chamber.celsius >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
               temp_chamber.soft_pwm_amount = 0;
             else if (temp_chamber.celsius <= temp_chamber.target - (TEMP_CHAMBER_HYSTERESIS))
-              temp_chamber.soft_pwm_amount = MAX_CHAMBER_POWER >> 1;
+              temp_chamber.soft_pwm_amount = (MAX_CHAMBER_POWER) >> 1;
           #else
-            temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? MAX_CHAMBER_POWER >> 1 : 0;
+            temp_chamber.soft_pwm_amount = temp_chamber.celsius < temp_chamber.target ? (MAX_CHAMBER_POWER) >> 1 : 0;
           #endif
-          if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
+          #if ENABLED(CHAMBER_VENT)
+            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
+          #endif
         }
         else {
           temp_chamber.soft_pwm_amount = 0;
-          if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, (temp_chamber.celsius <= temp_chamber.target ? 0 : 90 ) );
+          #if ENABLED(CHAMBER_VENT)
+            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
+          #endif
         }
       }
       else {
