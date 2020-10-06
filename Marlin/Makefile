@@ -57,7 +57,7 @@
 #
 
 # This defines the board to compile for (see boards.h for your board's ID)
-HARDWARE_MOTHERBOARD ?= 11
+HARDWARE_MOTHERBOARD ?= 1020
 
 # Arduino source install directory, and version number
 # On most linuxes this will be /usr/share/arduino
