@@ -86,6 +86,10 @@ LIQUID_TWI2        ?= 0
 # this defines if Wire is needed
 WIRE               ?= 0
 
+# this defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
+# Disabling this (and SPEAKER) saves approximatively 350 bytes of memory.
+TONE               ?= 1
+
 # this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
 U8GLIB             ?= 0
 
@@ -648,6 +652,10 @@ endif
 ifeq ($(WIRE), 1)
   LIB_SRC += twi.c
   LIB_CXXSRC += Wire.cpp
+endif
+
+ifeq ($(TONE), 1)
+  LIB_CXXSRC += Tone.cpp
 endif
 
 ifeq ($(U8GLIB), 1)
