@@ -603,10 +603,6 @@
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
-#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
-  #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
 /**
  * Default hotend offsets, if not defined
  */
@@ -679,15 +675,6 @@
 #endif
 #if !HAS_SERVO_ANGLES
   #undef EDITABLE_SERVO_ANGLES
-#endif
-
-#ifndef NUM_SERVOS
-  #define NUM_SERVOS (ENABLED(CHAMBER_VENT) + ENABLED(HAS_Z_SERVO_PROBE) + ENABLED(SWITCHING_EXTRUDER) + ENABLED(SWITCHING_NOZZLE))
-#endif
-
-#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
-  #undef SERVO_DELAY
-  #define SERVO_DELAY { 50 }
 #endif
 
 /**
