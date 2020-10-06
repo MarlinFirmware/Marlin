@@ -24,9 +24,6 @@
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
  * Copyright (c) 2009 by William Greiman
- */
-
-/**
  * Adapted to the STM32F1 HAL
  */
 
