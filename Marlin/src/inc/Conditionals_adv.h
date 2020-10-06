@@ -26,6 +26,51 @@
  * Defines that depend on advanced configuration.
  */
 
+#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+  #define SWITCHING_NOZZLE_TWO_SERVOS 1
+#endif
+
+// Determine NUM_SERVOS if none was supplied
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS 0
+  #if ANY(CHAMBER_VENT, HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+    #if NUM_SERVOS <= Z_PROBE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_E1_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_E1_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_E23_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
+    #endif
+  #endif
+#endif
+
+// Convenience override for a BLTouch alone
+#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 50 }
+#endif
+
 #if EXTRUDERS == 0
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
