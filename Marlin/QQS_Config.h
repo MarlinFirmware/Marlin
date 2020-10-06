@@ -14,15 +14,15 @@
 //#define STOCK
 
 /*------Drivers-(1 CHOICE)-----*/
-//#define QQS               //(S) 4xA4988
-#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
+#define QQS               //(S) 4xA4988
+//#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
 
 /* MODE UART XYZ*/
 //#define QQS_UART8           //(U8) 4xTMC2208 (Remove module ESP12)
 //#define QQS_UART9         //(U9) 4xTMC2209 (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------*/
-//#define DRIVER_EXT  TMC2208_STANDALONE
+//#define DRIVER_EXT  TMC2208
 
 // Set Software Serial UART for TMC 2208 / TMC 2209
 #ifdef QQS_UART8
@@ -67,7 +67,7 @@
 //============= End_Hardware ===============//
 
 //Choice menu: (OPT)
-#define DELTA_CALIBRATION_MENU        //NC LVGL
+#define DELTA_CALIBRATION_MENU     //NC LVGL
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
 

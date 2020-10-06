@@ -134,7 +134,7 @@
   #endif
  
   #ifdef ESP_WIFI
-    #define WIFI_IO0_PIN                        PA8  // PC13 MKS ESP WIFI IO0 PIN
+    #define WIFI_IO0_PIN                        PA8  // MKS ESP WIFI IO0 PIN
     #define WIFI_IO1_PIN       			            PC7   // MKS ESP WIFI IO1 PIN
     #define WIFI_RESET_PIN			              	PA5   // MKS ESP WIFI RESET PIN
   #endif 
@@ -143,11 +143,11 @@
 //=================EXTRUDER=======================//
 
 //#if HAS_TMC220x
-#if AXIS_DRIVER_TYPE(E0,TMC2208)
+#if AXIS_DRIVER_TYPE(E0,TMC2208)||AXIS_DRIVER_TYPE(E0,TMC2209)
     #define E0_SLAVE_ADDRESS 0
 
-    #define E0_SERIAL_TX_PIN                  PA8  //IO0 /PD9 
-    #define E0_SERIAL_RX_PIN                  PA8  //IO0 /PD9 
+    #define E0_SERIAL_TX_PIN                  PA8  //IO0 
+    #define E0_SERIAL_RX_PIN                  PA8  //IO0 
     #define TMC_BAUD_RATE 19200
 #else
 // Motor current PWM pins

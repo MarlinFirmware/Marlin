@@ -2477,7 +2477,6 @@
   #define TOUCH_SCREEN
 #endif
   #if ENABLED(TOUCH_SCREEN)
-    #define TOUCH_SCREEN
     #define BUTTON_DELAY_EDIT  75 // (ms) Button repeat delay for edit screens
     #define BUTTON_DELAY_MENU 100 // (ms) Button repeat delay for menus
 
