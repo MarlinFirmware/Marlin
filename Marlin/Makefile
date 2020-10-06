@@ -87,10 +87,10 @@ LIQUID_TWI2        ?= 0
 WIRE               ?= 0
 
 # this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
-U8GLIB             ?= 1
+U8GLIB             ?= 0
 
 # this defines whether to include the Trinamic TMCStepper library
-TMC                ?= 1
+TMC                ?= 0
 
 # this defines whether to include the AdaFruit NeoPixel library
 NEOPIXEL           ?= 0
