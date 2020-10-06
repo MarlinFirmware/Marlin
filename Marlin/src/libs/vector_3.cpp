@@ -103,14 +103,14 @@ void matrix_3x3::set_to_identity() {
 
 // Create a matrix from 3 vector_3 inputs
 matrix_3x3 matrix_3x3::create_from_rows(const vector_3 &row_0, const vector_3 &row_1, const vector_3 &row_2) {
-  //row_0.debug(PSTR("row_0"));
-  //row_1.debug(PSTR("row_1"));
-  //row_2.debug(PSTR("row_2"));
+  row_0.debug(PSTR("row_0"));
+  row_1.debug(PSTR("row_1"));
+  row_2.debug(PSTR("row_2"));
   matrix_3x3 new_matrix;
   new_matrix.vectors[0] = row_0;
   new_matrix.vectors[1] = row_1;
   new_matrix.vectors[2] = row_2;
-  //new_matrix.debug(PSTR("new_matrix"));
+  new_matrix.debug(PSTR("new_matrix"));
   return new_matrix;
 }
 
@@ -120,14 +120,14 @@ matrix_3x3 matrix_3x3::create_look_at(const vector_3 &target) {
                  x_row = vector_3(1, 0, -target.x / target.z).get_normal(),
                  y_row = vector_3::cross(z_row, x_row).get_normal();
 
-  // x_row.debug(PSTR("x_row"));
-  // y_row.debug(PSTR("y_row"));
-  // z_row.debug(PSTR("z_row"));
+   x_row.debug(PSTR("x_row"));
+   y_row.debug(PSTR("y_row"));
+   z_row.debug(PSTR("z_row"));
 
   // create the matrix already correctly transposed
   matrix_3x3 rot = matrix_3x3::create_from_rows(x_row, y_row, z_row);
 
-  // rot.debug(PSTR("rot"));
+   rot.debug(PSTR("rot"));
   return rot;
 }
 
