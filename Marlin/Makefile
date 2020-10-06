@@ -549,27 +549,36 @@ VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
 
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/LiquidCrystal/src
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/marlin/avr/libraries/SPI
+  # Old libraries (avr-core 1.6.21 < / Arduino < 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI/src
 endif
 
 ifeq ($(IS_MCU),1)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/cores/arduino
 
+  # Old libraries (avr-core 1.6.21 < / Arduino < 1.6.8)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SoftwareSerial
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI/src
   VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SoftwareSerial/src
 endif
 
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
+
 ifeq ($(LIQUID_TWI2), 1)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
+  WIRE   = 1
+  VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
 endif
 ifeq ($(WIRE), 1)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+  # Old libraries (avr-core 1.6.21 / Arduino < 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/utility
+  # New libraries (avr-core >= 1.6.21 / Arduino >= 1.6.8)
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/src
+  VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/Wire/src/utility
 endif
 ifeq ($(NEOPIXEL), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Adafruit_NeoPixel
