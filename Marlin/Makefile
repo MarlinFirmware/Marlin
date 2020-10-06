@@ -67,17 +67,19 @@ ARDUINO_VERSION      ?= 106
 # The installed Libraries are in the User folder
 ARDUINO_USER_DIR ?= ${HOME}/Arduino
 
-# You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
+# You can optionally set a path to the avr-gcc tools. Requires a trailing
+# slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
 
-#Programmer configuration
+# Programmer configuration
 UPLOAD_RATE        ?= 57600
 AVRDUDE_PROGRAMMER ?= arduino
 # on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
-#Directory used to build files in, contains all the build files, from object files to the final hex file
-#on linux it is best to put an absolute path like /home/username/tmp .
+# Directory used to build files in, contains all the build files, from object
+# files to the final hex file on linux it is best to put an absolute path
+# like /home/username/tmp .
 BUILD_DIR          ?= applet
 
 # This defines whether Liquid_TWI2 support will be built
@@ -660,11 +662,17 @@ endif
 
 ifeq ($(U8GLIB), 1)
   LIB_CXXSRC += U8glib.cpp
-  LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c u8g_font_6x13.c u8g_font_04b_03.c u8g_font_5x8.c
+  LIB_SRC += u8g_ll_api.c u8g_bitmap.c u8g_clip.c u8g_com_null.c u8g_delay.c \
+    u8g_page.c u8g_pb.c u8g_pb16h1.c u8g_rect.c u8g_state.c u8g_font.c \
+    u8g_font_6x13.c u8g_font_04b_03.c u8g_font_5x8.c
 endif
 
 ifeq ($(TMC), 1)
-  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
+  LIB_CXXSRC += TMCStepper.cpp COOLCONF.cpp DRV_STATUS.cpp IHOLD_IRUN.cpp \
+    CHOPCONF.cpp GCONF.cpp PWMCONF.cpp DRV_CONF.cpp DRVCONF.cpp DRVCTRL.cpp \
+    DRVSTATUS.cpp ENCMODE.cpp RAMP_STAT.cpp SGCSCONF.cpp SHORT_CONF.cpp \
+    SMARTEN.cpp SW_MODE.cpp SW_SPI.cpp TMC2130Stepper.cpp TMC2208Stepper.cpp \
+    TMC2209Stepper.cpp TMC2660Stepper.cpp TMC5130Stepper.cpp TMC5160Stepper.cpp
 endif
 
 ifeq ($(RELOC_WORKAROUND), 1)
@@ -710,13 +718,19 @@ CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VER
 CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
-  CDEFS  += -DUSB_SERIAL
+  CDEFS      += -DUSB_SERIAL
   LIB_SRC    += usb.c pins_teensy.c
   LIB_CXXSRC += usb_api.cpp
 
 else ifeq ($(HARDWARE_VARIANT), archim)
-  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__ -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
-  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp PluggableUSB.cpp USBCore.cpp
+  CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__
+  CDEFS      += -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON
+  CDEFS      += '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
+
+  LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp \
+    UARTClass.cpp  USARTClass.cpp abi.cpp new.cpp watchdog.cpp CDC.cpp \
+    PluggableUSB.cpp USBCore.cpp
+
   LIB_SRC    += cortex_handlers.c iar_calls_sam3.c syscalls_sam3.c dtostrf.c itoa.c
 
   ifeq ($(U8GLIB), 1)
@@ -742,16 +756,20 @@ CTUNING = -fsigned-char -funsigned-bitfields -fno-exceptions \
 ifneq ($(HARDWARE_MOTHERBOARD),)
   CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
 endif
+
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 CXXEXTRA = -fno-use-cxa-atexit -fno-threadsafe-statics -fno-rtti
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CEXTRA)   $(CTUNING) $(CSTANDARD)
 CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) $(CXXEXTRA) $(CTUNING) $(CXXSTANDARD)
 ASFLAGS :=          $(CDEFS)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
+
 ifeq ($(HARDWARE_VARIANT), archim)
   LD_PREFIX = -Wl,--gc-sections,-Map,Marlin.ino.map,--cref,--check-sections,--entry=Reset_Handler,--unresolved-symbols=report-all,--warn-common,--warn-section-align
   LD_SUFFIX = $(LDLIBS)
-  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
+
+  LDFLAGS   = -lm -T$(LDSCRIPT) -u _sbrk -u link -u _close -u _fstat -u _isatty
+  LDFLAGS  += -u _lseek -u _read -u _write -u _exit -u kill -u _getpid
 else
   LD_PREFIX = -Wl,--gc-sections,--relax
   LDFLAGS   = -lm
@@ -868,7 +886,7 @@ extcoff: $(TARGET).elf
 
 .elf.eep:
 	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-    --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
+	  --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
 
 # Create extended listing file from ELF output file.
 .elf.lss:
