@@ -184,3 +184,4 @@ cmake-build-*
 
 #Python
 __pycache__
+Marlin/QQS_Config.h
