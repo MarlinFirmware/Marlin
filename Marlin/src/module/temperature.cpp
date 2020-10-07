@@ -1205,13 +1205,13 @@ void Temperature::manage_heater() {
           #if CHAMBER_FAN_MODE == 0
             fan_chamber_pwm = CHAMBER_FAN_BASE
           #elif CHAMBER_FAN_MODE == 1
-            fan_chamber_pwm = temp_chamber.celsius > temp_chamber.target ? CHAMBER_FAN_BASE + ((temp_chamber.celsius - temp_chamber.target)  * CHAMBER_FAN_FACTOR ) : 0;
+            fan_chamber_pwm = (temp_chamber.celsius > temp_chamber.target) ? (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * (temp_chamber.celsius - temp_chamber.target) : 0;
           #elif CHAMBER_FAN_MODE == 2
             fan_chamber_pwm = (CHAMBER_FAN_BASE) + (CHAMBER_FAN_FACTOR) * ABS(temp_chamber.celsius - temp_chamber.target);
             if (temp_chamber.soft_pwm_amount)
               fan_chamber_pwm += (CHAMBER_FAN_FACTOR) * 2;
           #endif
-          fan_chamber_pwm = _MIN(225, fan_chamber_pwm);
+          NOMORE(fan_chamber_pwm, 225);
           thermalManager.set_fan_speed(2, fan_chamber_pwm); // TODO: instead of fan 2, set to chamber fan
         #endif
 
@@ -1256,7 +1256,13 @@ void Temperature::manage_heater() {
       next_chamber_check_ms = ms + CHAMBER_CHECK_INTERVAL;
 
       if (WITHIN(temp_chamber.celsius, CHAMBER_MINTEMP, CHAMBER_MAXTEMP)) {
-        if (!flag_chamber_excess_heat){
+        if (flag_chamber_excess_heat) {
+          temp_chamber.soft_pwm_amount = 0;
+          #if ENABLED(CHAMBER_VENT)
+            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
+          #endif
+        }
+        else {
           #if ENABLED(CHAMBER_LIMIT_SWITCHING)
             if (temp_chamber.celsius >= temp_chamber.target + TEMP_CHAMBER_HYSTERESIS)
               temp_chamber.soft_pwm_amount = 0;
@@ -1267,12 +1273,6 @@ void Temperature::manage_heater() {
           #endif
           #if ENABLED(CHAMBER_VENT)
             if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, 0);
-          #endif
-        }
-        else {
-          temp_chamber.soft_pwm_amount = 0;
-          #if ENABLED(CHAMBER_VENT)
-            if (!flag_chamber_off) MOVE_SERVO(CHAMBER_VENT_SERVO_NR, temp_chamber.celsius <= temp_chamber.target ? 0 : 90);
           #endif
         }
       }
