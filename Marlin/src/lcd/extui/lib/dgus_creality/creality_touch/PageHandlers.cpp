@@ -71,6 +71,38 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 digitalWrite(LED_CONTROL_PIN, LOW);
                 LEDStatus = true;
             }
+            break;
+    }
+}
+
+void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_ADJUSTENTERKEY:
+            switch (buttonValue) {
+                case 3:
+                    if (thermalManager.fan_speed[0] == 0) {
+                        thermalManager.fan_speed[0] = 255;
+                    } else {
+                        thermalManager.fan_speed[0] = 0;
+                    }
+                break;
+            }
+
+            break;
+
+        case VP_BUTTON_TEMPCONTROL:
+            switch (buttonValue) {
+                case 3:
+                    thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
+                    thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+                    break;
+
+                case 4:
+                    thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
+                    thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
+                    break;
+            }
+            break;
     }
 }
 
@@ -80,6 +112,8 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_MAIN, MainMenuHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
+
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
 
     // Terminating
     PAGE_HANDLER(static_cast<DGUSLCD_Screens>(0) ,0)
