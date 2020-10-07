@@ -538,18 +538,19 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1707)
 else ifeq ($(HARDWARE_MOTHERBOARD),3023)
   HARDWARE_VARIANT ?= archim
   MCPU              = cortex-m3
-  F_CPU             = 84000000L
+  F_CPU             = 84000000
   IS_MCU            = 0
 # UltiMachine Archim2 (with TMC2130 drivers)
 else ifeq ($(HARDWARE_MOTHERBOARD),3024)
   HARDWARE_VARIANT ?= archim
   MCPU              = cortex-m3
-  F_CPU             = 84000000L
+  F_CPU             = 84000000
   IS_MCU            = 0
 endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
 # if you are setting this to something other than 16MHz
+# Do not put the UL suffix, it's done later on.
 # Set to 16Mhz if not yet set.
 F_CPU ?= 16000000
 
@@ -750,7 +751,7 @@ REMOVE = rm -f
 MV = mv -f
 
 # Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
+CDEFS    = -DF_CPU=$(F_CPU)UL ${addprefix -D , $(DEFINES)} -DARDUINO=$(ARDUINO_VERSION)
 CXXDEFS  = $(CDEFS)
 
 ifeq ($(HARDWARE_VARIANT), Teensy)
