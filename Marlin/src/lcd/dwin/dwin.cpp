@@ -287,7 +287,7 @@ void ICON_Control() {
     if (HMI_flag.language_flag)
       DWIN_Frame_AreaCopy(1, 61, 405, 271 - 183, 420, 58, 318);
     else
-      DWIN_Frame_AreaCopy(1, 85, 423, 271 - 139, 479 - 45, 72 - 24, 318); 
+      DWIN_Frame_AreaCopy(1, 85, 423, 271 - 139, 479 - 45, 72 - 24, 318);
   }
 }
 
@@ -1497,7 +1497,7 @@ void HMI_StepXYZE(void) {
     else if (HMI_flag.step_flag == Z_AXIS)
       NOMORE(HMI_ValueStruct.Max_Step, default_axis_steps_per_unit[Z_AXIS] * 2 * MINUNITMULT);
     else if (HMI_flag.step_flag == E_AXIS)
-      NOMORE(HMI_ValueStruct.Max_Step, default_axis_steps_per_unit[E_AXIS] * 2 * MINUNITMULT);
+      NOMORE(HMI_ValueStruct.Max_Step, default_axis_steps_per_unit[E_AXIS] * 6 * MINUNITMULT);
     NOLESS(HMI_ValueStruct.Max_Step, MIN_STEP);
     // Step value
     DWIN_Draw_FloatValue(true, true, 0, font8x16, White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
