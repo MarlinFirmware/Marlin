@@ -84,6 +84,9 @@
 #define E0_STEP_PIN                         PD6   ///E0_STEP
 #define E0_DIR_PIN                          PD3   ///E0_DIR
 
+//
+// Drivers
+//
 #if HAS_TMC220x
   
   #if ENABLED(HARDWARE_SERIAL)  /*  TMC2209 */ 
@@ -142,7 +145,6 @@
 
 //=================EXTRUDER=======================//
 
-//#if HAS_TMC220x
 #if AXIS_DRIVER_TYPE(E0,TMC2208)||AXIS_DRIVER_TYPE(E0,TMC2209)
     #define E0_SLAVE_ADDRESS 0
 
@@ -173,7 +175,6 @@
 #define HEATER_BED_PIN                      PA0   /// HEATER_BED-WKUP
 
 #define FAN_PIN                             PB1   /// E_FAN
-//#define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 
 //
 // Misc. Functions
@@ -207,9 +208,8 @@
 //
 //#define LED_PIN                              PB2  //BOOT1
 
-//#define LED_PWM                              PA8
 #if ENABLED(NEOPIXEL_LED)
-  #define NEOPIXEL_PIN                       PA8   // USED WIFI RX PIN
+  #define NEOPIXEL_PIN                PA8  // USED WIFI IO0/IO1/TX/RX PIN
 #endif
 
 //
@@ -217,7 +217,6 @@
 //
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000  // 4.5 MHz /* 18 MHz (18000000) or 4.5MHz (450000) */
-//#define SDIO_CLOCK                      18000000  // 18 MHz (18000000)
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
@@ -313,23 +312,13 @@
 
 #elif ENABLED(TFT_320x240)
   #define TFT_RESET_PIN                       PC6
-  //#define TFT_BACKLIGHT_PIN                 PD13
-
-  //#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  //#define FSMC_CS_PIN                       PD7
-  //#define FSMC_RS_PIN                       PD11
-  //#define FSMC_DMA_DEV                      DMA2
-  //#define FSMC_DMA_CHANNEL               DMA_CH5
-
     #if NEED_TOUCH_PINS
       #define TOUCH_CS_PIN                      PC2    // SPI2_NSS
       #define TOUCH_SCK_PIN                    PB13    // SPI2_SCK
       #define TOUCH_MISO_PIN                   PB14    // SPI2_MISO
       #define TOUCH_MOSI_PIN                   PB15    // SPI2_MOSI
     #endif
-
   #define TFT_BUFFER_SIZE                     14400
-
 #endif
 // end defintion  MKS robin TFT
 
