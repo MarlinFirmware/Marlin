@@ -53,7 +53,11 @@ const unsigned char custom_start_bmp[] PROGMEM = {
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 };
+=======
+};
+>>>>>>> Stashed changes
 =======
 };
 >>>>>>> Stashed changes
