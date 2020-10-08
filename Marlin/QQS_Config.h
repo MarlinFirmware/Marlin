@@ -6,24 +6,24 @@
 // config/examples/delta directory and customize for your machine.
 // TIPS:
 // For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
-// For NeoPixel use library : https://github.com/................/archive/master.zip
+// For NeoPixel use library : https://github.com/........./MKS-Robin-Nano-NeoPixel-Lib/archive/master.zip
 // and commented error in SanityCheck.h
 //========= Hardware ==========
-//#define STOCK
-
 /*------Drivers-(1 CHOICE)-----*/
-//#define QQS               //(S) 4xA4988
+#define QQS               //(S) 4xA4988
 //#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
 
 /* MODE UART XYZ*/
-#define QQS_UART8           //(U8) 4xTMC2208 (Remove module ESP12)
+//#define QQS_UARTx         //(U8) 4xTMC220x (Remove module ESP12)
 //#define QQS_UART9         //(U9) 4xTMC2209 (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------*/
-#define DRIVER_EXT  TMC2208_STANDALONE
+//#define DRIVER_EXT  TMC2208_STANDALONE
 
 // Set Software Serial UART for TMC 2208 / TMC 2209
-#ifdef QQS_UART8
+//TIPS: for 2209 change TMC2208 by TMC2209 
+//#define TMC_SOFTWARE_SERIAL
+#ifdef QQS_UARTx
     #define QQS_UART
     #define SOFTWARE_SERIAL
     #define DRIVER_AXES TMC2208
@@ -33,6 +33,7 @@
 #endif
 
 // Set Hardware Serial UART only TMC 2209
+//#define TMC_HARDWARE_SERIAL
 #ifdef QQS_UART9
     #define QQS_UART
     #define HARDWARE_SERIAL
@@ -44,10 +45,10 @@
 
 
 /*----  Modules -----*/
-//#define ESP_WIFI               //(W) Module ESP8266/ESP12
-//#define ESP3D_WIFISUPPORT      //(W)
-//#define BMG                    //(B) Extruder
-#define NEOPIXEL_LED             //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
+#define ESP_WIFI                 //(W) Module ESP8266/ESP12
+//#define ESP3D_WIFISUPPORT        //(W)
+//#define BMG                      //(B) Extruder
+//#define NEOPIXEL_LED             //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 
 //Many options for Modules: 
@@ -66,14 +67,14 @@
 
 //Choice menu: (OPT)
 #define DELTA_CALIBRATION_MENU        //NC LVGL
-#define PID_EDIT_MENU              //
-#define PID_AUTOTUNE_MENU          //
-#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
+#define PID_EDIT_MENU                 //
+#define PID_AUTOTUNE_MENU             //
+//#define PAUSE_BEFORE_DEPLOY_STOW      //Message Stow/remove Probe (bug Octoprint & UI Marlin)
 #define LCD_INFO_MENU                 //
 //#define LED_CONTROL_MENU              // For LedStrip
 
 //  Type Calibration (CAL)
-//#define AUTO_BED_LEVELING_BILINEAR  //(A)
+//#define AUTO_BED_LEVELING_BILINEAR    //(A)
 #define AUTO_BED_LEVELING_UBL         //(U) 
 
 // Option for Octoprint (OCTO)

@@ -26,7 +26,6 @@
  * MKS Robin Mini USB Use UART3(PB10-TX,PB11-RX)     
  * #define SERIAL_PORT_2 3
  */
-
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
@@ -43,13 +42,6 @@
 //
 // EEPROM
 //
-/*
-#if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #define I2C_EEPROM                              // EEPROM on I2C-0
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
-#endif
-*/
-
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE     (0x800U)          // 2KB
@@ -109,7 +101,7 @@
  *   Software serial 
  */
 
-  #elif ENABLED(SOFTWARE_SERIAL)  /*  TMC2208   */
+  #elif ENABLED(SOFTWARE_SERIAL)  /*  TMC220x  */
     #define  X_SLAVE_ADDRESS 0
     #define  Y_SLAVE_ADDRESS 0
     #define  Z_SLAVE_ADDRESS 0
