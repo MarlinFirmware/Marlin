@@ -88,14 +88,14 @@ ARDUINO_VERSION      ?= 106
 # The installed Libraries are in the User folder
 ARDUINO_USER_DIR ?= ${HOME}/Arduino
 
-# You can optionally set a path to the avr-gcc tools. Requires a trailing
-# slash. (ex: /usr/local/avr-gcc/bin)
+# You can optionally set a path to the avr-gcc tools.
+# Requires a trailing slash. For example, /usr/local/avr-gcc/bin/
 AVR_TOOLS_PATH ?=
 
 # Programmer configuration
 UPLOAD_RATE        ?= 57600
 AVRDUDE_PROGRAMMER ?= arduino
-# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
+# On most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
 # Directory used to build files in, contains all the build files, from object
@@ -106,20 +106,20 @@ BUILD_DIR          ?= applet
 # This defines whether Liquid_TWI2 support will be built
 LIQUID_TWI2        ?= 0
 
-# this defines if Wire is needed
+# This defines if Wire is needed
 WIRE               ?= 0
 
-# this defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
+# This defines if Tone is needed (i.e SPEAKER is defined in Configuration.h)
 # Disabling this (and SPEAKER) saves approximatively 350 bytes of memory.
 TONE               ?= 1
 
-# this defines if U8GLIB is needed (may require RELOC_WORKAROUND)
+# This defines if U8GLIB is needed (may require RELOC_WORKAROUND)
 U8GLIB             ?= 0
 
-# this defines whether to include the Trinamic TMCStepper library
+# This defines whether to include the Trinamic TMCStepper library
 TMC                ?= 0
 
-# this defines whether to include the AdaFruit NeoPixel library
+# This defines whether to include the AdaFruit NeoPixel library
 NEOPIXEL           ?= 0
 
 ############
