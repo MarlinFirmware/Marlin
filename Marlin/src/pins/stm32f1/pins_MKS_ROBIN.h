@@ -45,10 +45,14 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_EEPROM_SDA                    PB7
-  #define IIC_EEPROM_SCL                    PB6
-  #define MARLIN_EEPROM_SIZE                0x800  // 2KB
-  #undef NO_EEPROM_SELECTED
+  #ifdef ARDUINO_ARCH_STM32
+    #define FLASH_EEPROM_EMULATION
+    #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+    #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+    #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+  #else
+    #define SDCARD_EEPROM_EMULATION
+  #endif
 #endif
 
 //
