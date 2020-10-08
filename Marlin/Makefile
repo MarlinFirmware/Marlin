@@ -61,6 +61,25 @@
 # This defines the board to compile for (see boards.h for your board's ID)
 HARDWARE_MOTHERBOARD ?= 1020
 
+ifeq ($(OS),Windows_NT)
+  # Windows
+  ARDUINO_INSTALL_DIR ?= ${HOME}/Arduino
+  ARDUINO_USER_DIR ?= ${HOME}/Arduino
+else
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    # Linux
+    ARDUINO_INSTALL_DIR ?= /usr/share/arduino
+    ARDUINO_USER_DIR ?= ${HOME}/Arduino
+  endif
+  ifeq ($(UNAME_S),Darwin)
+    # Darwin (macOS)
+    ARDUINO_INSTALL_DIR ?= /Applications/Arduino.app/Contents/Java
+    ARDUINO_USER_DIR ?= ${HOME}/Documents/Arduino
+    AVR_TOOLS_PATH ?= /Applications/Arduino.app/Contents/Java/hardware/tools/avr/bin/
+  endif
+endif
+
 # Arduino source install directory, and version number
 # On most linuxes this will be /usr/share/arduino
 ARDUINO_INSTALL_DIR  ?= ${HOME}/Arduino
