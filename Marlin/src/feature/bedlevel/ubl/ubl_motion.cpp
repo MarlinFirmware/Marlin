@@ -236,9 +236,7 @@
     }
 
     /**
-     *
      * Generic case of a line crossing both X and Y Mesh lines.
-     *
      */
 
     xy_int8_t cnt = (istart - iend).ABS();

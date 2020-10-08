@@ -25,11 +25,11 @@
  * MKS Robin (STM32F130ZET6) board pin assignments
  *
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
- * 
+ *
  * Note: MKS Robin board is using SPI2 interface. Make sure your stm32duino library is configured accordingly
  */
 
-#if !defined(STM32F1) && !defined(STM32F1xx)
+#if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -55,10 +55,10 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          PA1   // XS1 - 6 (BLTOUCH)
-#define SERVO1_PIN                          PC3   // XS1 - 5
-#define SERVO2_PIN                          PF8   // XS2 - 6
-#define SERVO3_PIN                          PF9   // XS2 - 5
+#define SERVO0_PIN                          PC3   // XS1 - 5
+#define SERVO1_PIN                          PA1   // XS1 - 6 (Best for Probe)
+#define SERVO2_PIN                          PF9   // XS2 - 5
+#define SERVO3_PIN                          PF8   // XS2 - 6
 
 //
 // Limit Switches
@@ -114,7 +114,7 @@
 
 //
 // Thermocouples
-// 
+//
 //#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
 //#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
 
@@ -165,6 +165,18 @@
 // LCD screen
 //
 #if HAS_FSMC_TFT
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
   #define FSMC_CS_PIN                       PG12  // NE4
   #define FSMC_RS_PIN                       PF0   // A0
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
@@ -181,6 +193,14 @@
   // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
   #define LCD_RESET_PIN                     PF6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                 FSMC_CS_PIN
+  #define TFT_RS_PIN                 FSMC_RS_PIN
+
+#elif HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
 #endif
 
 // Config for Classic UI (emulated DOGM) and Color UI
@@ -196,7 +216,7 @@
     #define TFT_DRIVER                   ILI9328
     #define TFT_BUFFER_SIZE                14400
     #define ILI9328_COLOR_RGB
-  
+
     // YV for normal screen mounting
     //#define ILI9328_ORIENTATION  ILI9328_MADCTL_MY | ILI9328_MADCTL_MV
     // XV for 180° rotated screen mounting
@@ -215,7 +235,7 @@
     // XV for 180° rotated screen mounting
     #define R61505_ORIENTATION              R61505_MADCTL_MX | R61505_MADCTL_MV
   #endif
-  
+
   // MKS Robin TFT with ST7789V
   //#define ST7789V
   #if ENABLED(ST7789V)
@@ -245,20 +265,33 @@
 // Trinamic TMC2208/2209 UART
 //
 #if HAS_TMC_UART
+
+  // Reduce baud rate for software serial reliability
+  #if HAS_TMC_SW_SERIAL
+    #define TMC_BAUD_RATE                  19200
+  #endif
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+
   // Hardware serial on Serial 1
   #define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
-    #define X_HARDWARE_SERIAL               Serial1
-    #define X2_HARDWARE_SERIAL              Serial1
-    #define Y_HARDWARE_SERIAL               Serial1
-    #define Y2_HARDWARE_SERIAL              Serial1
-    #define Z_HARDWARE_SERIAL               Serial1
-    #define Z2_HARDWARE_SERIAL              Serial1
-    #define E0_HARDWARE_SERIAL              Serial1
-    #define E1_HARDWARE_SERIAL              Serial1
-    #define E2_HARDWARE_SERIAL              Serial1
-    #define E3_HARDWARE_SERIAL              Serial1
-    #define E4_HARDWARE_SERIAL              Serial1
+    #define X_HARDWARE_SERIAL            Serial1
+    #define X2_HARDWARE_SERIAL           Serial1
+    #define Y_HARDWARE_SERIAL            Serial1
+    #define Y2_HARDWARE_SERIAL           Serial1
+    #define Z_HARDWARE_SERIAL            Serial1
+    #define Z2_HARDWARE_SERIAL           Serial1
+    #define E0_HARDWARE_SERIAL           Serial1
+    #define E1_HARDWARE_SERIAL           Serial1
+    #define E2_HARDWARE_SERIAL           Serial1
+    #define E3_HARDWARE_SERIAL           Serial1
+    #define E4_HARDWARE_SERIAL           Serial1
   #endif
 
   // Software serial on unused servo pins
@@ -272,8 +305,8 @@
     #define Y_SERIAL_RX_PIN      Y_SERIAL_TX_PIN
     #define Z_SERIAL_RX_PIN      Z_SERIAL_TX_PIN
     #define E0_SERIAL_RX_PIN    E0_SERIAL_TX_PIN
-    #define TMC_BAUD_RATE                  19200
   #endif
+
 #endif
 
 //

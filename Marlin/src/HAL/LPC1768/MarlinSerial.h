@@ -57,6 +57,7 @@ public:
     }
 
     EmergencyParser::State emergency_state;
+    static inline bool emergency_parser_enabled() { return true; }
   #endif
 };
 

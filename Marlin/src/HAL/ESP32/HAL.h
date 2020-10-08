@@ -15,11 +15,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
 /**
- * Description: HAL for Espressif ESP32 WiFi
+ * HAL for Espressif ESP32 WiFi
  */
 
 #define CPU_32_BIT
@@ -58,9 +59,6 @@ extern portMUX_TYPE spinlock;
   #else
     #define MYSERIAL1 webSocketSerial
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)

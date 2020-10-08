@@ -37,7 +37,7 @@
  *   https://github.com/ultimachine/Archim/wiki
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #elif DISABLED(TMC_USE_SW_SPI)
   #error "Archim2 requires Software SPI. Enable TMC_USE_SW_SPI in Configuration_adv.h."
@@ -237,7 +237,7 @@
 //
 // LCD / Controller
 //
-#if ANY(HAS_SPI_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
   #define LCD_PINS_ENABLE                     24  // D23 PA14_RTS1
