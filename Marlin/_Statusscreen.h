@@ -72,5 +72,10 @@ const unsigned char status_logo_bmp[] PROGMEM = {
 #define STATUS_HOTEND_ANIM
 #define STATUS_BED_ANIM
 // 
+<<<<<<< Updated upstream
 #define STATUS_HEATERS_X      48
 #define STATUS_BED_X          70
+=======
+#define STATUS_HEATERS_X      48  //48
+#define STATUS_BED_X          70 //74
+>>>>>>> Stashed changes
