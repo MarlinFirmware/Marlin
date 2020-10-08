@@ -200,8 +200,6 @@
 #if ENABLED(TFT_320x240)
   #define TFT_RESET_PIN                     PF6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PG11
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
 
   // MKS Robin TFT with ILI9328
   #define TFT_ILI9328
@@ -237,9 +235,9 @@
     #define ST7789V_COLOR_RGB
 
     // YV for normal screen mounting
-    //#define ST7789V_ORIENTATION  ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
+    //#define ST7789V_ORIENTATION ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
     // XV for 180° rotated screen mounting
-    #define ST7789V_ORIENTATION             ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
+    #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
   #endif
 #endif
 
