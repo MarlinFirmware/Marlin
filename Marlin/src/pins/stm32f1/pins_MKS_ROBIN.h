@@ -196,58 +196,59 @@
   #define TFT_CS_PIN                 FSMC_CS_PIN
   #define TFT_RS_PIN                 FSMC_RS_PIN
 
+  // Config for Classic UI (emulated DOGM) and Color UI
+  #if ENABLED(TFT_320x240)
+    #define TFT_RESET_PIN                   PF6   // FSMC_RST
+    #define TFT_BACKLIGHT_PIN               PG11
+
+    // MKS Robin TFT with ILI9328
+    #define TFT_ILI9328
+    #if ENABLED(TFT_ILI9328)
+      #define TFT_DRIVER                 ILI9328
+      #define TFT_BUFFER_SIZE              14400
+      #define ILI9328_COLOR_RGB
+
+      // YV for normal screen mounting
+      //#define ILI9328_ORIENTATION ILI9328_MADCTL_MY | ILI9328_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define ILI9328_ORIENTATION ILI9328_MADCTL_MX | ILI9328_MADCTL_MV
+    #endif
+
+    // MKS Robin TFT with R61505
+    //#define TFT_R61505
+    #if ENABLED(TFT_R61505)
+      #define TFT_DRIVER                  R61505
+      #define TFT_BUFFER_SIZE              14400
+      #define R61505_COLOR_RGB
+
+      // YV for normal screen mounting
+      //#define R61505_ORIENTATION R61505_MADCTL_MY | R61505_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define R61505_ORIENTATION R61505_MADCTL_MX | R61505_MADCTL_MV
+    #endif
+
+    // MKS Robin TFT with ST7789V
+    //#define ST7789V
+    #if ENABLED(ST7789V)
+      #define TFT_DRIVER                 ST7789V
+      #define TFT_BUFFER_SIZE              14400
+      #define ST7789V_COLOR_RGB
+
+      // YV for normal screen mounting
+      //#define ST7789V_ORIENTATION ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
+    #endif
+  #else
+  #endif
+
 #elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
   #define TFT_CS_PIN                        PG12  // NE4
   #define TFT_RS_PIN                        PF0   // A0
-#endif
 
-// Config for Classic UI (emulated DOGM) and Color UI
-#if ENABLED(TFT_320x240)
-  #define TFT_RESET_PIN                     PF6   // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                 PG11
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-
-  // MKS Robin TFT with ILI9328
-  #define TFT_ILI9328
-  #if ENABLED(TFT_ILI9328)
-    #define TFT_DRIVER                   ILI9328
-    #define TFT_BUFFER_SIZE                14400
-    #define ILI9328_COLOR_RGB
-
-    // YV for normal screen mounting
-    //#define ILI9328_ORIENTATION  ILI9328_MADCTL_MY | ILI9328_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define ILI9328_ORIENTATION             ILI9328_MADCTL_MX | ILI9328_MADCTL_MV
-  #endif
-
-  // MKS Robin TFT with R61505
-  //#define TFT_R61505
-  #if ENABLED(TFT_R61505)
-    #define TFT_DRIVER                    R61505
-    #define TFT_BUFFER_SIZE                14400
-    #define R61505_COLOR_RGB
-
-    // YV for normal screen mounting
-    //#define R61505_ORIENTATION  R61505_MADCTL_MY | R61505_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define R61505_ORIENTATION              R61505_MADCTL_MX | R61505_MADCTL_MV
-  #endif
-
-  // MKS Robin TFT with ST7789V
-  //#define ST7789V
-  #if ENABLED(ST7789V)
-    #define TFT_DRIVER                   ST7789V
-    #define TFT_BUFFER_SIZE                14400
-    #define ST7789V_COLOR_RGB
-
-    // YV for normal screen mounting
-    //#define ST7789V_ORIENTATION  ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define ST7789V_ORIENTATION             ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
-  #endif
 #endif
 
 //
