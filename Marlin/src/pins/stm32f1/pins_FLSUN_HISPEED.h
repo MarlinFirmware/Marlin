@@ -87,14 +87,14 @@
     #define  Z_SLAVE_ADDRESS 1    // |  :  :
     //#define E0_SLAVE_ADDRESS 0    // :  :  :
 
-    #define X_SERIAL_TX_PIN                  PA9  //TXD1  /PD5
-    #define X_SERIAL_RX_PIN                  PA9  //TXD1  /PD5
+    #define X_SERIAL_TX_PIN                   PA9  //TXD1
+    #define X_SERIAL_RX_PIN                   PA9  //TXD1
 
-    #define Y_SERIAL_TX_PIN                   PA9  //TXD1  /PD7
-    #define Y_SERIAL_RX_PIN                   PA9  //TXD1  /PD7
+    #define Y_SERIAL_TX_PIN                   PA9  //TXD1
+    #define Y_SERIAL_RX_PIN                   PA9  //TXD1
 
-    #define Z_SERIAL_TX_PIN                   PA9  //TXD1  /PD4
-    #define Z_SERIAL_RX_PIN                   PA9  //TXD1  /PD4
+    #define Z_SERIAL_TX_PIN                   PA9  //TXD1
+    #define Z_SERIAL_RX_PIN                   PA9  //TXD1
 
 /*
  * TMC2208 stepper UART-configurable by PDN_UART pin
@@ -106,14 +106,14 @@
     #define  Y_SLAVE_ADDRESS 0
     #define  Z_SLAVE_ADDRESS 0
 
-    #define X_SERIAL_TX_PIN                  PA10  //RXD1  /PD5
-    #define X_SERIAL_RX_PIN                  PA10  //RXD1  /PD5
+    #define X_SERIAL_TX_PIN                  PA10  //RXD1
+    #define X_SERIAL_RX_PIN                  PA10  //RXD1
 
-    #define Y_SERIAL_TX_PIN                   PA9  //TXD1  /PD7
-    #define Y_SERIAL_RX_PIN                   PA9  //TXD1  /PD7
+    #define Y_SERIAL_TX_PIN                   PA9  //TXD1
+    #define Y_SERIAL_RX_PIN                   PA9  //TXD1
 
-    #define Z_SERIAL_TX_PIN                   PC7  //IO1  /PD4
-    #define Z_SERIAL_RX_PIN                   PC7  //IO1  /PD4
+    #define Z_SERIAL_TX_PIN                   PC7  //IO1
+    #define Z_SERIAL_RX_PIN                   PC7  //IO1
 
   #endif  
   // Reduce baud rate to improve software serial reliability
@@ -291,10 +291,10 @@
     #define TOUCH_MOSI_PIN                 PB15   // SPI2_MOSI
   
     #ifndef  BUTTON_DELAY_EDIT
-      #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
+      #define BUTTON_DELAY_EDIT              50   // (ms) Button repeat delay for edit screens
     #endif
     #ifndef BUTTON_DELAY_MENU 
-      #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
+      #define BUTTON_DELAY_MENU             250   // (ms) Button repeat delay for menus
     #endif
   
     #define TFT_MARLINUI_COLOR           0xFFFF   // White
@@ -303,14 +303,14 @@
   #endif
 
 #elif ENABLED(TFT_320x240)
-  #define TFT_RESET_PIN                       PC6
+  #define TFT_RESET_PIN                    PC6
     #if NEED_TOUCH_PINS
-      #define TOUCH_CS_PIN                      PC2    // SPI2_NSS
-      #define TOUCH_SCK_PIN                    PB13    // SPI2_SCK
-      #define TOUCH_MISO_PIN                   PB14    // SPI2_MISO
-      #define TOUCH_MOSI_PIN                   PB15    // SPI2_MOSI
+      #define TOUCH_CS_PIN                 PC2    // SPI2_NSS
+      #define TOUCH_SCK_PIN               PB13    // SPI2_SCK
+      #define TOUCH_MISO_PIN              PB14    // SPI2_MISO
+      #define TOUCH_MOSI_PIN              PB15    // SPI2_MOSI
     #endif
-  #define TFT_BUFFER_SIZE                     14400
+  #define TFT_BUFFER_SIZE                14400
 #endif
 // end defintion  MKS robin TFT
 

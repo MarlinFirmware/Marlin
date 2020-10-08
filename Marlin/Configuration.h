@@ -817,13 +817,6 @@
     #endif
 #endif
 
-#ifdef QQS_TMC
-    #define DRIVER_AXES TMC2208_STANDALONE
-    #ifndef DRIVER_EXT
-      #define DRIVER_EXT TMC2208_STANDALONE
-    #endif
-#endif
-
 #define X_DRIVER_TYPE DRIVER_AXES
 #define Y_DRIVER_TYPE DRIVER_AXES
 #define Z_DRIVER_TYPE DRIVER_AXES
