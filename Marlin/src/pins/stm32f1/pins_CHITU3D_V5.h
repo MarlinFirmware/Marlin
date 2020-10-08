@@ -105,8 +105,10 @@
 #define FIL_RUNOUT_PIN                      PA15
 
 // SPI Flash
-#define SPI_FLASH_SIZE                  0x200000  // 2MB
 #define HAS_SPI_FLASH                          1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE                0x200000  // 2MB
+#endif
 
 // SPI 2
 #define W25QXX_CS_PIN                       PB12
