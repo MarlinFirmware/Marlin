@@ -96,7 +96,7 @@ setup_motherboard(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/../../../Marlin)
 #  Include Marlin.ino to compile libs not included in *.cpp files    #
 #====================================================================#
 
-file(GLOB SOURCES "../../../src/*.cpp")
+file(GLOB_RECURSE SOURCES "../../../Marlin/*.cpp")
 set(${PROJECT_NAME}_SRCS "${SOURCES};../../../Marlin/Marlin.ino")
 
 #====================================================================#
