@@ -16,13 +16,14 @@
 #define QQS               //(S) 4xA4988
 //#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
 
-/* MODE UART XYZ*/
+/* MODE UART XYZ */
 //#define QQS_UARTx         //(U8) 4xTMC220x (Remove module ESP12)
 //#define QQS_UART9         //(U9) 4xTMC2209 (Remove module ESP12)
 
-/*------- Choice Other driver for EXTRUDER-------*/
-//Options: 
-//LV8729/A4988/TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209 
+/*------- Choice Other driver for EXTRUDER-------
+* Options: 
+* LV8729/A4988/TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209 
+*/
 //#define DRIVER_EXT  A4988
 
 /*----  Modules -----*/
