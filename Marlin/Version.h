@@ -54,12 +54,12 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "https://github.com/Foxies-CSTL/Marlin2.0.x-FLSun_QQ-S"
+#define SOURCE_CODE_URL "https://github.com/Foxies-CSTL/Marlin2.0.x"
 
 /**
  * Default generic printer UUID.
  */
-//#define DEFAULT_MACHINE_UUID "8959c708-a02c-45fb-bb2e-a9bae09dbc02"
+//#define DEFAULT_MACHINE_UUID ""
 
 /**
  * The WEBSITE_URL is the location where users can get more information such as
