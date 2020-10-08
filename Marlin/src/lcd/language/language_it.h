@@ -651,5 +651,5 @@ namespace Language_it {
   PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Riscalda");
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Riscaldando...");
 
-  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Proc.guidata sonda Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Proc.guid.sonda Z");
 }
