@@ -28,6 +28,10 @@
 
 W25QXXFlash W25QXX;
 
+#ifndef SPI_DEVICE
+  #error "SPI_DEVICE must be defined for HAS_SPI_FLASH. Missing 'STM32F1/spi_pins.h' include?"
+#endif
+
 #ifndef SPI_FLASH_MISO_PIN
   #define SPI_FLASH_MISO_PIN W25QXX_MISO_PIN
 #endif
