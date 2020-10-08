@@ -24,7 +24,7 @@
 #
 #  3. Set the line containing "MCU" to match your board's processor. Set
 #     "PROG_MCU" as the AVR part name corresponding to "MCU". You can use the
-#     following command to get a list of correspondances: `avrdude -c alf -p x`
+#     following command to get a list of correspondences: `avrdude -c alf -p x`
 #     Older boards are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
 #     change F_CPU to 8000000. If you are using Gen7 electronics, you
@@ -36,18 +36,18 @@
 #  5. Type "make upload", reset your Arduino board, and press enter to
 #     upload your program to the Arduino board.
 #
-# Note that all settings at the top of this file can be overriden from
+# Note that all settings at the top of this file can be overridden from
 # the command line with, for example, "make HARDWARE_MOTHERBOARD=71"
 #
 # To compile for RAMPS (atmega2560) with Arduino 1.6.9 at root/arduino you would use...
 #
 #   make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ \
-#   HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino
+#   HARDWARE_MOTHERBOARD=1200 ARDUINO_INSTALL_DIR=/root/arduino
 #
 # To compile and upload simply add "upload" to the end of the line...
 #
 #   make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ \
-#   HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino upload
+#   HARDWARE_MOTHERBOARD=1200 ARDUINO_INSTALL_DIR=/root/arduino upload
 #
 # If uploading doesn't work try adding the parameter "AVRDUDE_PROGRAMMER=wiring" or
 # start upload manually (using stk500) like so:
