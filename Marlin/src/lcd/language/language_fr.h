@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -413,6 +412,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Refroidissement");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Lit en chauffe...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Refroid. du lit...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Probe en chauffe...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Refroid. Probe...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chauffe caisson...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Refroid. caisson...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibration Delta");
@@ -485,7 +486,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Capteur fil.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Echec origine");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Echec sonde");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Trop froid");
 
   PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MAJ firmware MMU!!");
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOISIR FILAMENT");

@@ -22,7 +22,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- *
  */
 
 #if defined(STM32GENERIC) && defined(STM32F7)
@@ -662,7 +661,6 @@ boolean TMC26XStepper::isEnabled() { return !!(chopper_config_register & T_OFF_P
 /**
  * reads a value from the TMC26X status register. The value is not obtained directly but can then
  * be read by the various status routines.
- *
  */
 void TMC26XStepper::readStatus(char read_value) {
   uint32_t old_driver_configuration_register_value = driver_configuration_register_value;
