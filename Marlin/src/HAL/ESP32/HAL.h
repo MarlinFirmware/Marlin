@@ -96,6 +96,8 @@ void HAL_clear_reset_source();
 // reset reason
 uint8_t HAL_get_reset_source();
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 void _delay_ms(int delay);
 
 #pragma GCC diagnostic push

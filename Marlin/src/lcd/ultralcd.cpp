@@ -123,10 +123,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
-#include "../module/settings.h"
+
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
+
+#if HAS_LCD_MENU
+  #include "../module/settings.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
