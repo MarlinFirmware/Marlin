@@ -39,6 +39,12 @@ def parse_pkg_uri(spec):
 FEATURE_CONFIG = {}
 
 def add_to_feat_cnf(feature, flines):
+
+	try:
+		feat = FEATURE_CONFIG[feature]
+	except:
+		FEATURE_CONFIG[feature] = {}
+
 	feat = FEATURE_CONFIG[feature]
 	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
 	for dep in atoms:
@@ -238,7 +244,7 @@ def load_marlin_features():
 		else:
 			cmd += ['-D' + s]
 
-	cmd += ['-D__MARLIN_PREBUILD__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
+	cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
 	cmd = ' '.join(cmd)
 	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()

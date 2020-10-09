@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(DIRECT_PIN_CONTROL)
 
