@@ -294,6 +294,7 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
+// XPT2046 Touch Screen calibration
 #if EITHER(TFT_LVGL_UI_SPI, TFT_480x320_SPI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17253

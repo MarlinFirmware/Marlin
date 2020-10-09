@@ -305,7 +305,7 @@
     #define LCD_PINS_ENABLE                -1
     #define LCD_PINS_RS                    -1
 
-    // Emulated DOGM have xpt calibration values independent of display resolution
+    // XPT2046 Touch Screen calibration
     #if ENABLED(SPI_GRAPHICAL_TFT)
       #ifndef XPT2046_X_CALIBRATION
         #define XPT2046_X_CALIBRATION    -11245

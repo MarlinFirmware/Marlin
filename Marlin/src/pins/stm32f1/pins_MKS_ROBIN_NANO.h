@@ -252,6 +252,7 @@
   #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
 #endif
 
+// XPT2046 Touch Screen calibration
 #if EITHER(TFT_LVGL_UI_FSMC, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          17880

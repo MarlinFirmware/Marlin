@@ -161,6 +161,7 @@
   #define GRAPHICAL_TFT_UPSCALE                3
 #endif
 
+// XPT2046 Touch Screen calibration
 #if EITHER(HAS_TFT_LVGL_UI, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17181

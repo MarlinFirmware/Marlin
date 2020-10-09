@@ -136,7 +136,7 @@
   #define LCD_BACKLIGHT_PIN                   PD13
 #endif
 
-// default xpt values
+// XPT2046 Touch Screen calibration
 #if ENABLED(TFT_COLOR_UI) || ENABLED(TFT_LVGL_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17181
