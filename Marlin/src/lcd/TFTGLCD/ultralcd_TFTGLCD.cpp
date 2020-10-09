@@ -70,14 +70,14 @@ TFTGLCD lcd;
 #define ICON_BED        B00010000
 #define ICON_FAN        B00100000
 #define ICON_HOT        B01000000    //when any T > 50deg
-#define PIC_MASK        0x7f
+#define PIC_MASK        0x7F
 
 //LEDs not used, for compatibility with Smoothieware
 #define LED_HOTEND_ON   B00000001
 #define LED_BED_ON      B00000010
 #define LED_FAN_ON      B00000100
 #define LED_HOT         B00001000
-#define LED_MASK        0x0f
+#define LED_MASK        0x0F
 
 #define FBSIZE      (LCD_WIDTH * LCD_HEIGHT + 2)
 
