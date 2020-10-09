@@ -25,7 +25,7 @@
  * MKS Robin E3 & E3D (STM32F103RCT6) common board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -33,7 +33,6 @@
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
-#define ENABLE_SPI2
 
 //
 // EEPROM
@@ -84,10 +83,10 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
 
   //
   // Software serial
@@ -133,7 +132,7 @@
  *                -----                                      -----                                     -----
  *                EXP1                                       EXP2                                      EXP3
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
@@ -152,8 +151,6 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-    #undef SHOW_BOOTSCREEN
-
   #else
 
     #define LCD_PINS_D4                     PA6
@@ -165,7 +162,7 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

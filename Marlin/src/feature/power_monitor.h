@@ -88,8 +88,10 @@ public:
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
   #endif
 
-  #if HAS_SPI_LCD
-    FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+  #if HAS_WIRED_LCD
+    #if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
+      FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+    #endif
     #if ENABLED(POWER_MONITOR_CURRENT)
       static void draw_current();
       FORCE_INLINE static bool current_display_enabled() { return TEST(flags, PM_DISP_BIT_I); }

@@ -32,7 +32,7 @@
  *           |
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -200,7 +200,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ANY(RADDS_DISPLAY, REPRAP_DISCOUNT_SMART_CONTROLLER, REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     #define BEEPER_PIN                        62
@@ -221,7 +221,7 @@
     #define LCD_PINS_RS                       52
     #define LCD_PINS_ENABLE                   53
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BEEPER_PIN                        62
     #define LCD_SDSS                          10
@@ -271,4 +271,4 @@
     #define BTN_ENC                           40
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

@@ -64,7 +64,7 @@
 #elif TEMP_SENSOR_BED
   // EFB (Anycubic Kossel default)
   #define RAMPS_D9_PIN               TG_FAN0_PIN
-  #if ENABLED(ANYCUBIC_CHIRON)
+  #if ENABLED(ANYCUBIC_LCD_CHIRON)
     #define RAMPS_D8_PIN         TG_HEATER_1_PIN  // Heated bed is connected to HEATER1 output
   #else
     #define RAMPS_D8_PIN       TG_HEATER_BED_PIN
@@ -84,7 +84,7 @@
   #define E0_AUTO_FAN_PIN            TG_FAN2_PIN  // Used in Anycubic Kossel example config
 #endif
 
-#if ENABLED(ANYCUBIC_I3MEGA)
+#if ENABLED(ANYCUBIC_LCD_I3MEGA)
   #define CONTROLLER_FAN_PIN         TG_FAN1_PIN
 #endif
 
@@ -105,14 +105,14 @@
 #if ENABLED(ANYCUBIC_4_MAX_PRO_ENDSTOPS)
   #define X_MAX_PIN                           43
   #define Y_STOP_PIN                          19
-#elif EITHER(ANYCUBIC_CHIRON, ANYCUBIC_I3MEGA)
+#elif EITHER(ANYCUBIC_LCD_CHIRON, ANYCUBIC_LCD_I3MEGA)
   #define Y_STOP_PIN                          42
   #define Z2_MIN_PIN                          43
   #ifndef Z_MIN_PROBE_PIN
     #define Z_MIN_PROBE_PIN                    2
   #endif
   #ifndef FIL_RUNOUT_PIN
-    #if ENABLED(ANYCUBIC_CHIRON)
+    #if ENABLED(ANYCUBIC_LCD_CHIRON)
       #define FIL_RUNOUT_PIN                  33
     #else
       #define FIL_RUNOUT_PIN                  19
@@ -128,7 +128,7 @@
 // AnyCubic made the following changes to 1.1.0-RC8
 // If these are appropriate for your LCD let us know.
 //
-#if 0 && HAS_SPI_LCD
+#if 0 && HAS_WIRED_LCD
 
   // LCD Display output pins
   #if BOTH(NEWPANEL, PANEL_ONE)
@@ -154,4 +154,4 @@
     #define DOGLCD_A0                         42
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

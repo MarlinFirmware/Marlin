@@ -24,9 +24,10 @@
 
 #if HAS_SPI_FLASH
 
+#include "W25Qxx.h"
 #include <SPI.h>
 
-#include "W25Qxx.h"
+W25QXXFlash W25QXX;
 
 #ifndef SPI_FLASH_MISO_PIN
   #define SPI_FLASH_MISO_PIN W25QXX_MISO_PIN
@@ -79,16 +80,14 @@ void W25QXXFlash::init(uint8_t spiRate) {
  * @brief  Receive a single byte from the SPI port.
  *
  * @return Byte received
- *
- * @details
  */
 uint8_t W25QXXFlash::spi_flash_Rec() {
-  uint8_t returnByte = SPI.transfer(ff);
+  const uint8_t returnByte = SPI.transfer(0xFF);
   return returnByte;
 }
 
 uint8_t W25QXXFlash::spi_flash_read_write_byte(uint8_t data) {
-  uint8_t returnByte = SPI.transfer(data);
+  const uint8_t returnByte = SPI.transfer(data);
   return returnByte;
 }
 

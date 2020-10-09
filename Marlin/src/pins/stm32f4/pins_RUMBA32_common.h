@@ -23,10 +23,9 @@
 
 /**
  * Common pin assignments for all RUMBA32 boards
- *
  */
 
-#ifndef STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
@@ -42,11 +41,12 @@
 // Configure Timers
 // TIM6 is used for TONE
 // TIM7 is used for SERVO
-// TIMER_SERIAL defaults to TIM7 so we'll override it here
-//
-#define STEP_TIMER                            10
-#define TEMP_TIMER                            14
-#define TIMER_SERIAL                        TIM9
+// TIMER_SERIAL defaults to TIM7 and must be overridden in the platformio.h file if SERVO will also be used.
+//              This will be difficult to solve from the Arduino IDE, without modifying the RUMBA32 variant
+//              included with the STM32 framework.
+
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
 #define HAL_TIMER_RATE                     F_CPU
 
 //
@@ -146,7 +146,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BTN_EN1                           PB2
   #define BTN_EN2                           PB1
@@ -168,7 +168,7 @@
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
     #endif
