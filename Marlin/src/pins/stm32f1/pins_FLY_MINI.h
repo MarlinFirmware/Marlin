@@ -138,7 +138,7 @@
 #define MISO_PIN                            PB14
 #define MOSI_PIN                            PB15
 
-#define SDSS                              SS_PIN 
+#define SDSS                              SS_PIN
 #define SD_DETECT_PIN                       PB11
 
 #define BEEPER_PIN                          PC14

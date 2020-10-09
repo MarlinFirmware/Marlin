@@ -101,7 +101,7 @@
 
 #define SETCURSOR_X(col)    SETCURSOR(col, _lcdLineNr)
 #define SETCURSOR_X_RJ(len) SETCURSOR_RJ(len, _lcdLineNr)
-#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 int lcd_glyph_height();
 

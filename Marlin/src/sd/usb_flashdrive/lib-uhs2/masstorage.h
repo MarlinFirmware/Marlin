@@ -214,7 +214,7 @@ struct CDB6 {
 public:
 
   CDB6(uint8_t _Opcode, uint8_t _LUN, uint32_t LBA, uint8_t _AllocationLength, uint8_t _Control) :
-  Opcode(_Opcode), LBAMSB(BGRAB2(LBA) & 0x1f), LUN(_LUN), LBAHB(BGRAB1(LBA)), LBALB(BGRAB0(LBA)),
+  Opcode(_Opcode), LBAMSB(BGRAB2(LBA) & 0x1F), LUN(_LUN), LBAHB(BGRAB1(LBA)), LBALB(BGRAB0(LBA)),
   AllocationLength(_AllocationLength), Control(_Control) {
   }
 

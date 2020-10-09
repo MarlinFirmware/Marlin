@@ -1005,7 +1005,7 @@ uint8_t UHS_USB_HOST_BASE::ctrlReq(uint8_t addr, uint64_t Request, uint16_t nbyt
                                 rcode = ctrlReqRead(pep, &left, &read, nbytes, dataptr);
 
 #if UHS_DEVICE_WINDOWS_USB_SPEC_VIOLATION_DESCRIPTOR_DEVICE
-                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request>>32)&0xfffffffflu), (uint32_t)(Request&0xfffffffflu));
+                                HOST_DEBUG("RESULT: 0x%2.2x 0x%2.2x 0x%2.2x 0x%8.8lx%8.8lx\r\n", rcode, addr, read, (uint32_t)((Request>>32)&0xFFFFFFFFLU), (uint32_t)(Request&0xFFFFFFFFLU));
                                 // Should only be used for GET_DESCRIPTOR USB_DESCRIPTOR_DEVICE
                                 constexpr uint32_t req_match = ((uint32_t)USB_DESCRIPTOR_DEVICE      << 24) |
                                                                ((uint32_t)USB_REQUEST_GET_DESCRIPTOR <<  8);

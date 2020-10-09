@@ -780,7 +780,7 @@ ifeq ($(HARDWARE_VARIANT), Teensy)
 
 else ifeq ($(HARDWARE_VARIANT), archim)
   CDEFS      += -DARDUINO_SAM_ARCHIM -DARDUINO_ARCH_SAM -D__SAM3X8E__
-  CDEFS      += -DUSB_VID=0x27b1 -DUSB_PID=0x0001 -DUSBCON
+  CDEFS      += -DUSB_VID=0x27B1 -DUSB_PID=0x0001 -DUSBCON
   CDEFS      += '-DUSB_MANUFACTURER="UltiMachine"' '-DUSB_PRODUCT_STRING="Archim"'
 
   LIB_CXXSRC += variant.cpp IPAddress.cpp Reset.cpp RingBuffer.cpp Stream.cpp \

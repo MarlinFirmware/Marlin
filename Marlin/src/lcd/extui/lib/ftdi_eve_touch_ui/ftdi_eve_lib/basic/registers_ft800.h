@@ -63,7 +63,7 @@ namespace FTDI {
     static constexpr uint32_t RAM_REG        = 0x102400;   // Registers
     static constexpr uint32_t RAM_CMD        = 0x108000;   // Command Buffer
 
-    static constexpr uint32_t RAM_G_SIZE     = 256*1024l;  // 256k
+    static constexpr uint32_t RAM_G_SIZE     = 256*1024L;  // 256k
   };
 
   struct ft800_registers {

@@ -453,9 +453,9 @@ uint8_t UHS_NI UHS_Bulk_Storage::Start() {
         for(uint8_t lun = 0; lun <= bMaxLUN; lun++) {
                 if(!UHS_SLEEP_MS(3)) goto FailUnPlug;
                 #ifndef USB_NO_TEST_UNIT_READY
-                uint8_t tries = 0xf0;
+                uint8_t tries = 0xF0;
                 while((rcode = TestUnitReady(lun))) {
-                        BS_HOST_DEBUG("\r\nTry %2.2x TestUnitReady %2.2x\r\n", tries - 0xf0, rcode);
+                        BS_HOST_DEBUG("\r\nTry %2.2x TestUnitReady %2.2x\r\n", tries - 0xF0, rcode);
                         if(rcode == 0x08) break; // break on no media, this is OK to do.
                         if(rcode == UHS_BULK_ERR_DEVICE_DISCONNECTED) goto FailUnPlug;
                         if(rcode == UHS_BULK_ERR_INVALID_CSW) goto Fail;
@@ -475,7 +475,7 @@ uint8_t UHS_NI UHS_Bulk_Storage::Start() {
                         if(!UHS_SLEEP_MS(3)) goto FailUnPlug;
                         if(MediaCTL(lun, 1) == UHS_BULK_ERR_DEVICE_DISCONNECTED) goto FailUnPlug; // I actually have a USB stick that needs this!
                 }
-                BS_HOST_DEBUG("\r\nTry %2.2x TestUnitReady %2.2x\r\n", tries - 0xf0, rcode);
+                BS_HOST_DEBUG("\r\nTry %2.2x TestUnitReady %2.2x\r\n", tries - 0xF0, rcode);
                 if(!rcode) {
                         if(!UHS_SLEEP_MS(3)) goto FailUnPlug;
                         BS_HOST_DEBUG("CheckLUN...\r\n");
@@ -579,7 +579,7 @@ bool UHS_NI UHS_Bulk_Storage::CheckLUN(uint8_t lun) {
 
         CurrentCapacity[lun] = UHS_BYTES_TO_UINT32(capacity.data[0], capacity.data[1], capacity.data[2], capacity.data[3]) + 1;
         if(CurrentCapacity[lun] == /*0xffffffffLU */ 0x01LU || CurrentCapacity[lun] == 0x00LU) {
-                // Buggy firmware will report 0xffffffff or 0 for no media
+                // Buggy firmware will report 0xFFFFFFFF or 0 for no media
 #ifdef DEBUG_USB_HOST
                 if(CurrentCapacity[lun])
                         ErrorMessage<uint8_t > (PSTR(">>>>>>>>>>>>>>>>BUGGY FIRMWARE. CAPACITY FAIL ON LUN"), lun);
@@ -756,7 +756,7 @@ uint8_t UHS_NI UHS_Bulk_Storage::Page3F(uint8_t lun) {
                 buf[i] = 0x00;
         }
         WriteOk[lun] = true;
-        uint8_t rc = ModeSense6(lun, 0, 0x3f, 0, 192, buf);
+        uint8_t rc = ModeSense6(lun, 0, 0x3F, 0, 192, buf);
         if(!rc) {
                 WriteOk[lun] = ((buf[2] & 0x80) == 0);
 #ifdef DEBUG_USB_HOST
