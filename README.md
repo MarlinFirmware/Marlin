@@ -1,3 +1,21 @@
+
+Marlin 2.0.x adapted for my personal use. MKS Robin E3D, Ender 3-Pro, BMG Direct Drive, BL Touch for Z_MIN
+
+- Supports BL Touch as Z_MIN
+- Esteps on E0 420
+- Babystepping
+- Bilinear bed leveling
+- TMC2209 drivers
+- S-curve advance
+- Y_MIN_OFFSET -17
+- NOZZLE_TO_PROBE_OFFSET 32 -2 -1.7
+- Increased clearence for probing
+- Z safe homing
+
+
+
+
+
 # Marlin 3D Printer Firmware
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
