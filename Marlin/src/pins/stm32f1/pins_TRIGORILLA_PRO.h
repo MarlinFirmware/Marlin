@@ -121,19 +121,19 @@
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
 #if HAS_FSMC_TFT
-  #define TFT_RESET_PIN                       PF11
-  #define TFT_BACKLIGHT_PIN                   PD13
-  #define FSMC_CS_PIN                         PD7   // NE4
-  #define FSMC_RS_PIN                         PD11  // A0
+  #define TFT_RESET_PIN                     PF11
+  #define TFT_BACKLIGHT_PIN                 PD13
+  #define FSMC_CS_PIN                       PD7   // NE4
+  #define FSMC_RS_PIN                       PD11  // A0
 
-  #define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
-  #define FSMC_DMA_DEV                        DMA2
-  #define FSMC_DMA_CHANNEL                 DMA_CH5
+  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define ANYCUBIC_TFT35
 #else
-  #define LCD_RESET_PIN                       PF11
-  #define LCD_BACKLIGHT_PIN                   PD13
+  #define LCD_RESET_PIN                     PF11
+  #define LCD_BACKLIGHT_PIN                 PD13
 #endif
 
 // XPT2046 Touch Screen calibration
@@ -148,7 +148,7 @@
     #define XPT2046_X_OFFSET                 501
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -9
+    #define XPT2046_Y_OFFSET                  -9
   #endif
 #elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION

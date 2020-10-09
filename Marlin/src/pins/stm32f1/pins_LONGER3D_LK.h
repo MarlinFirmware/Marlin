@@ -134,7 +134,7 @@
 #define LONGER_LK_TFT28
 
 // Buffer for Color UI
-#define TFT_BUFFER_SIZE                   3200
+#define TFT_BUFFER_SIZE                     3200
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
