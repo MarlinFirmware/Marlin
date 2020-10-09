@@ -306,13 +306,13 @@
       #ifndef XPT2046_X_CALIBRATION
         #define XPT2046_X_CALIBRATION    -11245
       #endif
-      #ifdef XPT2046_Y_CALIBRATION
+      #ifndef XPT2046_Y_CALIBRATION
         #define XPT2046_Y_CALIBRATION      8629
       #endif
-      #ifdef XPT2046_X_OFFSET
+      #ifndef XPT2046_X_OFFSET
         #define XPT2046_X_OFFSET            685
       #endif
-      #ifdef XPT2046_Y_OFFSET
+      #ifndef XPT2046_Y_OFFSET
         #define XPT2046_Y_OFFSET           -285
       #endif
     #endif
