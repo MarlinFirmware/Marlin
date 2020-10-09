@@ -198,10 +198,10 @@ void SysTick_Callback() {
       LCD_WriteReg(0x0046, xEnd);
     }
     else if (DeviceCode == 0x9488) {
-      s_h = (StartX >> 8) & 0x00ff;
-      s_l = StartX & 0x00ff;
-      e_h = ((StartX + width - 1) >> 8) & 0x00ff;
-      e_l = (StartX + width - 1) & 0x00ff;
+      s_h = (StartX >> 8) & 0x00FF;
+      s_l = StartX & 0x00FF;
+      e_h = ((StartX + width - 1) >> 8) & 0x00FF;
+      e_l = (StartX + width - 1) & 0x00FF;
 
       LCD_IO_WriteReg(0x002A);
       LCD_IO_WriteData(s_h);
@@ -209,10 +209,10 @@ void SysTick_Callback() {
       LCD_IO_WriteData(e_h);
       LCD_IO_WriteData(e_l);
 
-      s_h = (StartY >> 8) & 0x00ff;
-      s_l = StartY & 0x00ff;
-      e_h = ((StartY + heigh - 1) >> 8) & 0x00ff;
-      e_l = (StartY + heigh - 1) & 0x00ff;
+      s_h = (StartY >> 8) & 0x00FF;
+      s_l = StartY & 0x00FF;
+      e_h = ((StartY + heigh - 1) >> 8) & 0x00FF;
+      e_l = (StartY + heigh - 1) & 0x00FF;
 
       LCD_IO_WriteReg(0x002B);
       LCD_IO_WriteData(s_h);
@@ -275,18 +275,18 @@ void SysTick_Callback() {
       //while(index --) LCD_IO_WriteData(Color);
     }
     else if (DeviceCode == 0x5761) {
-      LCD_IO_WriteReg(0x002a);
+      LCD_IO_WriteReg(0x002A);
       LCD_IO_WriteData(0);
       LCD_IO_WriteData(0);
       LCD_IO_WriteData(HDP >> 8);
-      LCD_IO_WriteData(HDP & 0x00ff);
-      LCD_IO_WriteReg(0x002b);
+      LCD_IO_WriteData(HDP & 0x00FF);
+      LCD_IO_WriteReg(0x002B);
       LCD_IO_WriteData(0);
       LCD_IO_WriteData(0);
       LCD_IO_WriteData(VDP >> 8);
-      LCD_IO_WriteData(VDP & 0x00ff);
-      LCD_IO_WriteReg(0x002c);
-      LCD_IO_WriteReg(0x002c);
+      LCD_IO_WriteData(VDP & 0x00FF);
+      LCD_IO_WriteReg(0x002C);
+      LCD_IO_WriteReg(0x002C);
       for (count = 0; count < (HDP + 1) * (VDP + 1); count++)
         LCD_IO_WriteData(Color);
     }
@@ -323,19 +323,19 @@ void SysTick_Callback() {
       LCD_IO_WriteReg(0x00E0);
       LCD_IO_WriteData(0x0000);
       LCD_IO_WriteData(0x0007);
-      LCD_IO_WriteData(0x000f);
+      LCD_IO_WriteData(0x000F);
       LCD_IO_WriteData(0x000D);
       LCD_IO_WriteData(0x001B);
       LCD_IO_WriteData(0x000A);
-      LCD_IO_WriteData(0x003c);
+      LCD_IO_WriteData(0x003C);
       LCD_IO_WriteData(0x0078);
       LCD_IO_WriteData(0x004A);
       LCD_IO_WriteData(0x0007);
       LCD_IO_WriteData(0x000E);
       LCD_IO_WriteData(0x0009);
       LCD_IO_WriteData(0x001B);
-      LCD_IO_WriteData(0x001e);
-      LCD_IO_WriteData(0x000f);
+      LCD_IO_WriteData(0x001E);
+      LCD_IO_WriteData(0x000F);
 
       LCD_IO_WriteReg(0x00E1);
       LCD_IO_WriteData(0x0000);
@@ -348,11 +348,11 @@ void SysTick_Callback() {
       LCD_IO_WriteData(0x0047);
       LCD_IO_WriteData(0x0047);
       LCD_IO_WriteData(0x0006);
-      LCD_IO_WriteData(0x000a);
+      LCD_IO_WriteData(0x000A);
       LCD_IO_WriteData(0x0007);
       LCD_IO_WriteData(0x0030);
       LCD_IO_WriteData(0x0037);
-      LCD_IO_WriteData(0x000f);
+      LCD_IO_WriteData(0x000F);
 
       LCD_IO_WriteReg(0x00C0);
       LCD_IO_WriteData(0x0010);

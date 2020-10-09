@@ -157,14 +157,14 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
   if (stop >= start) {
     // no overflow, so only loop while in between start and stop:
-    // 0x00000000 -----------------start****stop-- 0xffffffff
+    // 0x00000000 -----------------start****stop-- 0xFFFFFFFF
     while (ccount >= start && ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }
   }
   else {
     // stop did overflow, so only loop while outside of stop and start:
-    // 0x00000000 **stop-------------------start** 0xffffffff
+    // 0x00000000 **stop-------------------start** 0xFFFFFFFF
     while (ccount >= start || ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }
