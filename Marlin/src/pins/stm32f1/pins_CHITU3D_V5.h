@@ -129,8 +129,6 @@
   #define TOUCH_MISO_PIN                    PA6   // SPI1_MISO
   #define TOUCH_MOSI_PIN                    PA7   // SPI1_MOSI
 
-  // #define LCD_RESET_PIN                     PF11
-  // #define LCD_BACKLIGHT_PIN                 PD13
   #define TFT_RESET_PIN                     PF11
   #define TFT_BACKLIGHT_PIN                 PD13
 

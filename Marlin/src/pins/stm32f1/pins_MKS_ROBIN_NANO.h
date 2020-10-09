@@ -182,9 +182,6 @@
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
 
-  // #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  // #define LCD_BACKLIGHT_PIN                 PD13
-
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
 
