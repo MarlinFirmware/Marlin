@@ -32,7 +32,7 @@
  * and supports color output.
  */
 
-#if NONE(__AVR__, MCU_LPC1768, __STM32F1__, STM32F4xx)
+#if NONE(__AVR__, TARGET_LPC1768, __STM32F1__, STM32F4xx)
   #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
@@ -125,31 +125,41 @@ static uint8_t cour_line;
 static uint8_t picBits, ledBits, hotBits;
 static uint8_t PanelDetected = 0;
 
+// Different platforms use different SPI methods
+#if ANY(__AVR__, TARGET_LPC1768, __STM32F1__, ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
+  #define SPI_SEND_ONE(V) SPI.transfer(V);
+  #define SPI_SEND_TWO(V) SPI.transfer16(V);
+#elif defined(STM32F4xx)
+  #define SPI_SEND_ONE(V) SPI.transfer(V, SPI_CONTINUE);
+  #define SPI_SEND_TWO(V) SPI.transfer16(V, SPI_CONTINUE);
+#elif defined(ARDUINO_ARCH_ESP32)
+  #define SPI_SEND_ONE(V) SPI.write(V);
+  #define SPI_SEND_TWO(V) SPI.write16(V);
+#endif
+
+#if ANY(__AVR__, ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
+  #define SPI_SEND_SOME(V,L,Z)  SPI.transfer(&V[Z], L);
+#elif defined(STM32F4xx)
+  #define SPI_SEND_SOME(V,L,Z)  SPI.transfer(&V[Z], L, SPI_CONTINUE);
+#elif ANY(TARGET_LPC1768, __STM32F1__, ARDUINO_ARCH_ESP32)
+  #define SPI_SEND_SOME(V,L,Z)  do{ for (uint16_t i = 0; i < L; i++) SPI_SEND_ONE(V[(Z)+i]); }while(0)
+#endif
+
 // Constructor
 TFTGLCD::TFTGLCD() {}
 
-//clearing local buffer
+// Clear local buffer
 void TFTGLCD::clear_buffer() {
   memset(&framebuffer[0], ' ', FBSIZE - 2);
   framebuffer[FBSIZE - 1] = framebuffer[FBSIZE - 2] = 0;
   picBits = ledBits = 0;
 }
 
-//clearing panel's screen
+// Clear panel's screen
 void TFTGLCD::clr_screen() {
   #if ENABLED(TFTGLCD_PANEL_SPI)
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #ifdef __AVR__
-      SPI.transfer(CLR_SCREEN);
-    #elif EITHER(MCU_LPC1768, __STM32F1__)
-      SPI.transfer(CLR_SCREEN);
-    #elif defined(STM32F4xx)
-      SPI.transfer(CLR_SCREEN, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(CLR_SCREEN);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(CLR_SCREEN);
-    #endif
+    SPI_SEND_ONE(CLR_SCREEN);
     extDigitalWrite(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
@@ -179,27 +189,9 @@ void TFTGLCD::print_line() {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #ifdef __AVR__
-      SPI.transfer(LCD_PUT);
-      SPI.transfer(cour_line);
-      SPI.transfer(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);
-    #elif EITHER(MCU_LPC1768, __STM32F1__)
-      SPI.transfer(LCD_PUT);
-      SPI.transfer(cour_line);
-      for (uint16_t i = 0; i < LCD_WIDTH; i++)  SPI.transfer(framebuffer[cour_line * LCD_WIDTH + i]);
-    #elif defined(STM32F4xx)
-      SPI.transfer(LCD_PUT, SPI_CONTINUE);
-      SPI.transfer(cour_line, SPI_CONTINUE);
-      SPI.transfer(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(LCD_PUT);
-      SPI.transfer(cour_line);
-      SPI.transfer(&framebuffer[cour_line * LCD_WIDTH], LCD_WIDTH);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(LCD_PUT);
-      SPI.write(cour_line);
-      for (uint16_t i = 0; i < LCD_WIDTH; i++) SPI.write(framebuffer[cour_line * LCD_WIDTH + i]);
-    #endif
+    SPI_SEND_ONE(LCD_PUT);
+    SPI_SEND_ONE(cour_line);
+    SPI_SEND_SOME(framebuffer, LCD_WIDTH, cour_line * LCD_WIDTH);
     extDigitalWrite(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);  //set I2C device address
@@ -218,22 +210,8 @@ void TFTGLCD::print_screen(){
   #if ENABLED(TFTGLCD_PANEL_SPI)
     // Send all framebuffer to panel
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #ifdef __AVR__
-      SPI.transfer(LCD_WRITE);
-      SPI.transfer(&framebuffer[0], FBSIZE);
-    #elif EITHER(MCU_LPC1768, __STM32F1__)
-      SPI.transfer(LCD_WRITE);
-      for (uint16_t i = 0; i < FBSIZE; i++) SPI.transfer(framebuffer[i]);
-    #elif defined(STM32F4xx)
-      SPI.transfer(LCD_WRITE, SPI_CONTINUE);
-      SPI.transfer(&framebuffer[0], FBSIZE, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(LCD_WRITE);
-      SPI.transfer(&framebuffer[0], FBSIZE);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(LCD_WRITE);
-      for (uint16_t i = 0; i < FBSIZE; i++) SPI.write(framebuffer[i]);
-    #endif
+    SPI_SEND_ONE(LCD_WRITE);
+    SPI_SEND_SOME(framebuffer, FBSIZE, 0);
     extDigitalWrite(TFTGLCD_CS, HIGH);
   #else
     uint8_t r;
@@ -260,19 +238,8 @@ void TFTGLCD::setContrast(uint16_t contrast) {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
-      SPI.transfer(CONTRAST);
-      SPI.transfer((uint8_t)contrast);
-    #elif defined(STM32F4xx)
-      SPI.transfer(CONTRAST, SPI_CONTINUE);
-      SPI.transfer((uint8_t)contrast, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(CONTRAST);
-      SPI.transfer((uint8_t)contrast);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(CONTRAST);
-      SPI.write((uint8_t)contrast);
-    #endif
+    SPI_SEND_ONE(CONTRAST);
+    SPI_SEND_ONE((uint8_t)contrast);
     extDigitalWrite(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
@@ -290,29 +257,15 @@ uint8_t MarlinUI::read_slow_buttons(void) {
   #if ENABLED(TFTGLCD_PANEL_SPI)
     uint8_t b = 0;
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
-      SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay
-      encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay
-      b = SPI.transfer(GET_SPI_DATA);
-    #elif defined(STM32F4xx)
-      SPI.transfer(READ_ENCODER, SPI_CONTINUE);
-      encoderDiff += SPI.transfer(READ_BUTTONS, SPI_CONTINUE);
-      b = SPI.transfer(GET_SPI_DATA, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
-      encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
-      b = SPI.transfer(GET_SPI_DATA);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.transfer(READ_ENCODER);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
-      encoderDiff += SPI.transfer(READ_BUTTONS);
-      extDigitalWrite(TFTGLCD_CS, LOW); //for delay ????
-      b = SPI.transfer(GET_SPI_DATA);
+    SPI_SEND_ONE(READ_ENCODER);
+    #ifndef STM32F4xx
+      extDigitalWrite(TFTGLCD_CS, LOW); // for delay
     #endif
+    encoderDiff += SPI_SEND_ONE(READ_BUTTONS);
+    #ifndef STM32F4xx
+      extDigitalWrite(TFTGLCD_CS, LOW); // for delay
+    #endif
+    b = SPI_SEND_ONE(GET_SPI_DATA);
     extDigitalWrite(TFTGLCD_CS, HIGH);
     return b;
   #else
@@ -323,7 +276,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 2, 0, 0, 1);
     #elif defined(__STM32F1__)
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, (uint8_t)2);
-    #elif EITHER(STM32F4xx, MCU_LPC1768)
+    #elif EITHER(STM32F4xx, TARGET_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 2);
     #endif
     encoderDiff += Wire.read();
@@ -336,23 +289,9 @@ void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
-      SPI.transfer(BUZZER);
-      SPI.transfer16((uint16_t)duration);
-      SPI.transfer16(freq);
-    #elif defined(STM32F4xx)
-      SPI.transfer(BUZZER, SPI_CONTINUE);
-      SPI.transfer16((uint16_t)duration, SPI_CONTINUE);
-      SPI.transfer16(freq, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(BUZZER);
-      SPI.transfer16((uint16_t)duration);
-      SPI.transfer16(freq);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(BUZZER);
-      SPI.write16((uint16_t)duration);
-      SPI.write16(freq);
-    #endif
+    SPI_SEND_ONE(BUZZER);
+    SPI_SEND_TWO((uint16_t)duration);
+    SPI_SEND_TWO(freq);
     extDigitalWrite(TFTGLCD_CS, HIGH);
   #else
     Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
@@ -375,21 +314,10 @@ void MarlinUI::init_lcd() {
     extDigitalWrite(TFTGLCD_CS, HIGH);
     spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
     extDigitalWrite(TFTGLCD_CS, LOW);
-    #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
-      SPI.transfer(GET_LCD_ROW);
-      t = SPI.transfer(GET_SPI_DATA);
-    #elif defined(STM32F4xx)
-      SPI.transfer(GET_LCD_ROW, SPI_CONTINUE);
-      t = SPI.transfer(GET_SPI_DATA, SPI_CONTINUE);
-    #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-      SPI.transfer(GET_LCD_ROW);
-      t = SPI.transfer(GET_SPI_DATA);
-    #elif defined(ARDUINO_ARCH_ESP32)
-      SPI.write(GET_LCD_ROW);
-      t = SPI.transfer(GET_SPI_DATA);
-    #endif
+    SPI_SEND_ONE(GET_LCD_ROW);
+    t = SPI_SEND_ONE(GET_SPI_DATA);
   #else
-    #ifdef MCU_LPC1768
+    #ifdef TARGET_LPC1768
       Wire.begin();   //init twi/I2C
     #else
       Wire.begin((uint8_t)LCD_I2C_ADDRESS); //init twi/I2C
@@ -399,7 +327,7 @@ void MarlinUI::init_lcd() {
     Wire.endTransmission(); // send buffer
     #ifdef __AVR__
       Wire.requestFrom((uint8_t)LCD_I2C_ADDRESS, 1, 0, 0, 1);
-    #elif ANY(__STM32F1__, STM32F4xx, MCU_LPC1768)
+    #elif ANY(__STM32F1__, STM32F4xx, TARGET_LPC1768)
       Wire.requestFrom(LCD_I2C_ADDRESS, 1);
     #endif
     t = (uint8_t)Wire.read();
@@ -409,19 +337,8 @@ void MarlinUI::init_lcd() {
     PanelDetected = 1;
     #if ENABLED(TFTGLCD_PANEL_SPI)
       PanelDetected = 1;
-      #if ANY(__AVR__, MCU_LPC1768, __STM32F1__)
-        SPI.transfer(INIT_SCREEN);
-        SPI.transfer(Marlin);
-      #elif defined(STM32F4xx)
-        SPI.transfer(INIT_SCREEN, SPI_CONTINUE);
-        SPI.transfer(Marlin, SPI_CONTINUE);
-      #elif ANY(ARDUINO_ARCH_SAM, __SAMD51__, __MK20DX256__, __MK64FX512__)
-        SPI.transfer(INIT_SCREEN);
-        SPI.transfer(Marlin);
-      #elif defined(ARDUINO_ARCH_ESP32)
-        SPI.write(INIT_SCREEN);
-        SPI.write(Marlin);
-      #endif
+      SPI_SEND_ONE(INIT_SCREEN);
+      SPI_SEND_ONE(Marlin);
       extDigitalWrite(TFTGLCD_CS, HIGH);
     #else
       Wire.beginTransmission((uint8_t)LCD_I2C_ADDRESS);
@@ -959,10 +876,10 @@ void MarlinUI::draw_status_screen() {
   void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string, PGM_P const suff) {
     if (!PanelDetected) return;
     ui.draw_select_screen_prompt(pref, string, suff);
-    lcd.setCursor(0,  MIDDLE_Y);
+    lcd.setCursor(0, MIDDLE_Y);
     lcd.write(COLOR_EDIT);
     lcd.write(yesno ? ' ' : '['); lcd_put_u8str_P(no); lcd.write(yesno ? ' ' : ']');
-    lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3,  MIDDLE_Y);
+    lcd.setCursor(LCD_WIDTH - utf8_strlen_P(yes) - 3, MIDDLE_Y);
     lcd.write(yesno ? '[' : ' '); lcd_put_u8str_P(yes); lcd.write(yesno ? ']' : ' ');
     lcd.print_line();
   }
