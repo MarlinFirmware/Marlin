@@ -20,7 +20,7 @@
 #pragma once
 
 /**
- * Description: HAL for Espressif ESP32 WiFi
+ * HAL for Espressif ESP32 WiFi
  */
 
 #define CPU_32_BIT

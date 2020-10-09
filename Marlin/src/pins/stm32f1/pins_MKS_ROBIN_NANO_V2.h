@@ -273,21 +273,41 @@
 
 #endif
 
-#if ENABLED(TFT_LVGL_UI) || ENABLED(TFT_COLOR_UI)
-
-  // LVGL
-
-  #define XPT2046_X_CALIBRATION           -17253
-  #define XPT2046_Y_CALIBRATION            11579
-  #define XPT2046_X_OFFSET                   514
-  #define XPT2046_Y_OFFSET                   -24
-
-  #define TFT_BUFFER_SIZE                14400
-
-#elif ENABLED(TFT_CLASSIC_UI)
-
+#if ENABLED(SPI_GRAPHICAL_TFT)
   // Emulated DOGM SPI
+  #ifndef GRAPHICAL_TFT_UPSCALE
+    #define GRAPHICAL_TFT_UPSCALE              3
+  #endif
+  #ifndef TFT_PIXEL_OFFSET_Y
+    #define TFT_PIXEL_OFFSET_Y                32
+  #endif
 
+  #define BTN_ENC                           PE13
+  #define BTN_EN1                           PE8
+  #define BTN_EN2                           PE11
+
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
+
+#elif ENABLED(TFT_480x320_SPI)
+  #define TFT_DRIVER                      ST7796
+  #define TFT_BUFFER_SIZE                  14400
+#endif
+
+#if EITHER(TFT_LVGL_UI_SPI, TFT_480x320_SPI)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -17253
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          11579
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 514
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -24
+  #endif
+#elif ENABLED(SPI_GRAPHICAL_TFT)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -11386
   #endif
@@ -300,14 +320,6 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 -18
   #endif
-
-  #define BTN_ENC                           PE13
-  #define BTN_EN1                           PE8
-  #define BTN_EN2                           PE11
-
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-
 #endif
 
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
@@ -363,8 +375,8 @@
 #endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
-#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
