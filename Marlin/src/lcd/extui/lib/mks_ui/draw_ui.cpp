@@ -163,7 +163,7 @@ void gCfgItems_init() {
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[4], OTHERS_COMMAND_ADDR_4, 100);
   }
 
-  const byte rot = TERN0(GRAPHICAL_TFT_ROTATE_180, 0xEE);
+  const byte rot = (TFT_ROTATION & TFT_ROTATE_180) ? 0xEE : 0x00;
   if (gCfgItems.disp_rotation_180 != rot) {
     gCfgItems.disp_rotation_180 = rot;
     update_spi_flash();
