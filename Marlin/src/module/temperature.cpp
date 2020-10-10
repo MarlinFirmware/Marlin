@@ -637,6 +637,11 @@ volatile bool Temperature::raw_temps_ready = false;
 
         goto EXIT_M303;
       }
+
+      // Run HAL idle tasks
+      TERN_(HAL_IDLETASK, HAL_idletask());
+
+      // Run UI update
       TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
     }
     wait_for_heatup = false;
