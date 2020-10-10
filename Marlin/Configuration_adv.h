@@ -2240,8 +2240,7 @@
  * To help diagnose print quality issues stemming from command buffers being empty,
  * we add M576 which enables reporting of buffer empty
  */
-
-#define BUFFER_MONITORING
+//#define BUFFER_MONITORING
 
 // Printrun may have trouble receiving long strings all at once.
 // This option inserts short delays between lines of serial output.
