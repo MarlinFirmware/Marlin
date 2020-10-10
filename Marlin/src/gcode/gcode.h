@@ -779,6 +779,8 @@ private:
 
   TERN_(BAUD_RATE_GCODE, static void M575());
 
+  TERN_(BUFFER_MONITORING, static void M576());
+
   #if ENABLED(ADVANCED_PAUSE_FEATURE)
     static void M600();
     static void M603();

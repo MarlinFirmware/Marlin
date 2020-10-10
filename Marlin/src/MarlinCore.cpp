@@ -761,6 +761,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (!gcode.autoreport_paused) {
       TERN_(AUTO_REPORT_TEMPERATURES, thermalManager.auto_report_temperatures());
       TERN_(AUTO_REPORT_SD_STATUS, card.auto_report_sd_status());
+
+      #if ENABLED(BUFFER_MONITORING)
+        queue.auto_report_buffer_statistics();
+      #endif
     }
   #endif
 
