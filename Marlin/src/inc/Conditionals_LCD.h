@@ -226,9 +226,9 @@
     #define LCD_PROGRESS_BAR
   #endif
   #if ENABLED(TFTGLCD_PANEL_I2C)
-    #define LCD_USE_I2C_BUZZER              // Enable buzzer on LCD for I2C and SPI buses (LiquidTWI2 not required)
     #define LCD_I2C_ADDRESS           0x27  // Must be equal to panel's I2C slave addres
   #endif
+  #define LCD_USE_I2C_BUZZER                // Enable buzzer on LCD, used for both I2C and SPI buses (LiquidTWI2 not required)
   #define STD_ENCODER_PULSES_PER_STEP 2
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #define LCD_WIDTH                   20    // 20 or 24 chars in line
@@ -603,10 +603,6 @@
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
-#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
-  #define SWITCHING_NOZZLE_TWO_SERVOS 1
-#endif
-
 /**
  * Default hotend offsets, if not defined
  */
@@ -657,14 +653,7 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
-  #ifndef NUM_SERVOS
-    #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
-  #endif
   #undef DEACTIVATE_SERVOS_AFTER_MOVE
-  #if NUM_SERVOS == 1
-    #undef SERVO_DELAY
-    #define SERVO_DELAY { 50 }
-  #endif
 
   // Always disable probe pin inverting for BLTouch
   #undef Z_MIN_PROBE_ENDSTOP_INVERTING
@@ -675,14 +664,10 @@
   #endif
 #endif
 
-#ifndef NUM_SERVOS
-  #define NUM_SERVOS 0
-#endif
-
 /**
  * Set a flag for a servo probe (or BLTouch)
  */
-#if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
+#ifdef Z_PROBE_SERVO_NR
   #define HAS_Z_SERVO_PROBE 1
 #endif
 #if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)

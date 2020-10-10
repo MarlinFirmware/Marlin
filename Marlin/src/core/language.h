@@ -303,7 +303,7 @@
 #define LCD_STR_C STR_C
 #define LCD_STR_E STR_E
 
-#if HAS_MARLINUI_HD44780
+#if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
   // Custom characters defined in the first 8 characters of the LCD
   #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!

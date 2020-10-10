@@ -373,13 +373,13 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("已停止");     //"STOPPED. "
   PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("回抽长度mm");     //"Retract mm" retract_length, retract length (positive mm)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("换手回抽长度mm");     //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回抽速率mm/s");     //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回抽速率mm/s");     //"Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");     //"Hop mm" retract_zraise, retract Z-lift
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("回抽恢复长度mm");     //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("换手回抽恢复长度mm");     //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回抽恢复后进料速率mm/s");     //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回抽恢复后进料速率mm/s");     //"Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");     // "S UnRet V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自动抽回");     //"AutoRetr." autoretract_enabled,
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自动抽回");     //"Auto-Retract" autoretract_enabled,
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("交换长度");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("额外的交换");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("清洗长度");
@@ -630,8 +630,8 @@ namespace Language_zh_CN {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

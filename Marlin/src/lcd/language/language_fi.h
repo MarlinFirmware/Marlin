@@ -116,9 +116,9 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Va. Vedä mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Vedä V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Z mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Va. UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Va. Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVeto.");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Delta Kalibrointi");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE_X               = _UxGT("Kalibroi X");
