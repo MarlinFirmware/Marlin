@@ -666,13 +666,18 @@
   #define _BED_PINS
 #endif
 
+#if PIN_EXISTS(CHAMBER_AUTO_FAN)
+  #define ___CHAMBER_PINS CHAMBER_AUTO_FAN_PIN
+#else
+  #define ___CHAMBER_PINS
+#endif
 #if PIN_EXISTS(TEMP_CHAMBER)
-  #define __CHAMBER_PINS CHAMBER_AUTO_FAN_PIN, analogInputToDigitalPin(TEMP_CHAMBER_PIN),
+  #define __CHAMBER_PINS analogInputToDigitalPin(TEMP_CHAMBER_PIN),
 #else
   #define __CHAMBER_PINS
 #endif
 #if PIN_EXISTS(HEATER_CHAMBER)
-  #define _CHAMBER_PINS __CHAMBER_PINS HEATER_CHAMBER_PIN,
+  #define _CHAMBER_PINS __CHAMBER_PINS ___CHAMBER_PINS HEATER_CHAMBER_PIN,
 #else
   #define _CHAMBER_PINS
 #endif
