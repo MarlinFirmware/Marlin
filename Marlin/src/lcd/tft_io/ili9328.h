@@ -40,7 +40,9 @@
 #define ILI9328_ETMOD_AM          0x0008 // 0 - Horizontal / 1 - Vertical
 
 // MKS Robin TFT v1.1 - 320x240 ; Cable on the left side
-#define ILI9328_DRVCTL_DATA       ILI9328_DRVCTL_SS
+
+// ILI9328_DRVCTL_SS is needed when using XY
+#define ILI9328_DRVCTL_DATA       IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9328_DRVCTL_SS)
 
 #define ILI9328_ETMOD_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ILI9328_ETMOD_AM) | \
                                   IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ILI9328_ETMOD_ID0) | \
