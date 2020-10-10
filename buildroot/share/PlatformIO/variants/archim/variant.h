@@ -55,10 +55,10 @@ extern "C"{
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (79u)
-#define NUM_DIGITAL_PINS     (66u)
-#define NUM_ANALOG_INPUTS    (12u)
-#define analogInputToDigitalPin(p)  ((p < 12u) ? (p) + 54u : -1)
+#define PINS_COUNT           (79U)
+#define NUM_DIGITAL_PINS     (66U)
+#define NUM_ANALOG_INPUTS    (12U)
+#define analogInputToDigitalPin(p)  ((p < 12U) ? (p) + 54U : -1)
 
 #define digitalPinToPort(P)        ( g_APinDescription[P].pPort )
 #define digitalPinToBitMask(P)     ( g_APinDescription[P].ulPin )
@@ -89,9 +89,9 @@ extern "C"{
 #define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 
 // LEDs
-#define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (72u)
-#define PIN_LED_TXL          (73u)
+#define PIN_LED_13           (13U)
+#define PIN_LED_RXL          (72U)
+#define PIN_LED_TXL          (73U)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -105,16 +105,16 @@ extern "C"{
 #define SPI_INTERFACE        SPI0
 #define SPI_INTERFACE_ID     ID_SPI0
 #define SPI_CHANNELS_NUM 4
-#define PIN_SPI_SS0          (77u)
-#define PIN_SPI_SS1          (87u)
-#define PIN_SPI_SS2          (86u)
-#define PIN_SPI_SS3          (78u)
-#define PIN_SPI_MOSI         (75u)
-#define PIN_SPI_MISO         (74u)
-#define PIN_SPI_SCK          (76u)
-#define BOARD_SPI_SS0        (77u) //(10u)
-#define BOARD_SPI_SS1        (4u)
-#define BOARD_SPI_SS2        (52u)
+#define PIN_SPI_SS0          (77U)
+#define PIN_SPI_SS1          (87U)
+#define PIN_SPI_SS2          (86U)
+#define PIN_SPI_SS3          (78U)
+#define PIN_SPI_MOSI         (75U)
+#define PIN_SPI_MISO         (74U)
+#define PIN_SPI_SCK          (76U)
+#define BOARD_SPI_SS0        (77U) //(10U)
+#define BOARD_SPI_SS1        (4U)
+#define BOARD_SPI_SS2        (52U)
 #define BOARD_SPI_SS3        PIN_SPI_SS3
 #define BOARD_SPI_DEFAULT_SS BOARD_SPI_SS3
 
@@ -140,15 +140,15 @@ static const uint8_t SCK  = PIN_SPI_SCK;
  */
 #define WIRE_INTERFACES_COUNT 2
 
-#define PIN_WIRE_SDA         (20u)
-#define PIN_WIRE_SCL         (21u)
+#define PIN_WIRE_SDA         (20U)
+#define PIN_WIRE_SCL         (21U)
 #define WIRE_INTERFACE       TWI1
 #define WIRE_INTERFACE_ID    ID_TWI1
 #define WIRE_ISR_HANDLER     TWI1_Handler
 #define WIRE_ISR_ID          TWI1_IRQn
 
-#define PIN_WIRE1_SDA        (70u)
-#define PIN_WIRE1_SCL        (71u)
+#define PIN_WIRE1_SDA        (70U)
+#define PIN_WIRE1_SCL        (71U)
 #define WIRE1_INTERFACE      TWI0
 #define WIRE1_INTERFACE_ID   ID_TWI0
 #define WIRE1_ISR_HANDLER    TWI0_Handler
@@ -163,18 +163,18 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
  * UART/USART Interfaces
  */
 // Serial
-#define PINS_UART            (81u)
+#define PINS_UART            (81U)
 // Serial1
-#define PINS_USART0          (82u)
+#define PINS_USART0          (82U)
 // Serial2
-#define PINS_USART1          (83u)
+#define PINS_USART1          (83U)
 // Serial3
-#define PINS_USART3          (84u)
+#define PINS_USART3          (84U)
 
 /*
  * USB Interfaces
  */
-#define PINS_USB             (85u)
+#define PINS_USB             (85U)
 
 /*
  * Analog pins
@@ -204,9 +204,9 @@ static const uint8_t CAN1RX = 88;
 static const uint8_t CAN1TX = 89;
 
 // CAN0
-#define PINS_CAN0            (90u)
+#define PINS_CAN0            (90U)
 // CAN1
-#define PINS_CAN1            (91u)
+#define PINS_CAN1            (91U)
 
 
 /*
