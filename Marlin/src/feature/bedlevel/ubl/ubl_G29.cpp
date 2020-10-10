@@ -989,6 +989,10 @@
 
         if (!position_is_reachable(raw)) break;             // SHOULD NOT OCCUR (find_closest_mesh_point_of_type only returns reachable)
 
+        #if HAS_SOFTWARE_ENDSTOPS
+          gcode.process_subcommands_now_P(PSTR("M211 S0")); // We can go below Z=0 while fine tuning the mesh
+        #endif
+
         do_blocking_move_to(raw);                           // Move the nozzle to the edit point with probe clearance
 
         TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset)); // Move Z to the given 'H' offset before editing
@@ -1015,6 +1019,10 @@
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
+
+        #if HAS_SOFTWARE_ENDSTOPS
+          gcode.process_subcommands_now_P(PSTR("M211 S1")); // Return to normal endstop operation
+        #endif
 
         if (!lcd_map_control) ui.return_to_status();        // Just editing a single point? Return to status
 
