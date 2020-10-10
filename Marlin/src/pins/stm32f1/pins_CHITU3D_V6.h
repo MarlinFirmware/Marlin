@@ -153,11 +153,9 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TFT_BUFFER_SIZE                  14400
-
 #endif
 
-#if HAS_TFT_LVGL_UI
+#if ENABLED(TFT_LVGL_UI)
   // LVGL
   #define HAS_SPI_FLASH_FONT                   1
   #define HAS_GCODE_PREVIEW                    1
@@ -165,17 +163,17 @@
   #define HAS_LANG_SELECT_SCREEN               1
   #define HAS_BAK_VIEW_IN_FLASH                0
   #define HAS_LOGO_IN_FLASH                    0
-#elif ENABLED(TFT_480x320)
+#elif ENABLED(TFT_COLOR_UI)
   // Color UI
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#elif ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM
   #define GRAPHICAL_TFT_UPSCALE                3
 #endif
 
 // XPT2046 Touch Screen calibration
-#if EITHER(HAS_TFT_LVGL_UI, TFT_480x320)
+#if EITHER(TFT_LVGL_UI, TFT_COLOR_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17181
   #endif
@@ -188,7 +186,7 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                  -9
   #endif
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -12316
   #endif
