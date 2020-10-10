@@ -376,7 +376,7 @@ void tft_style_init() {
   style_sel_text.text.letter_space  = 0;
   style_sel_text.text.line_space    = -5;
   lv_style_copy(&style_line, &lv_style_plain);
-  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xff);
+  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xFF);
   style_line.line.width   = 1;
   style_line.line.rounded = 1;
 
@@ -687,12 +687,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -787,7 +787,7 @@ char *creat_title_text() {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
 
             Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xff) << 8);
+            *p_index = Color | ((*p_index & 0xFF) << 8);
             i       += 2;
             if (*p_index == 0x0000) *p_index = 0xC318;
           }
@@ -819,12 +819,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -1609,7 +1609,7 @@ void print_time_count() {
 void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
-  if (mks_test_flag == 0x1e) mks_hardware_test();
+  if (mks_test_flag == 0x1E) mks_hardware_test();
 
   #if HAS_GCODE_PREVIEW
     disp_pre_gcode(2, 36);

@@ -41,7 +41,7 @@ MarlinUI ui;
   #include "fontutils.h"
   #include "../sd/cardreader.h"
   #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
   #endif
 #endif
 
@@ -123,10 +123,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
-#include "../module/settings.h"
+
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
+
+#if HAS_LCD_MENU
+  #include "../module/settings.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
