@@ -12,6 +12,11 @@ Please test this firmware and let us know if it misbehaves in any way. Volunteer
 
 # Last release of Marlin 2.0 for Delta FLSun QQ-S Pro (motherboard HISPEED).
 
+20201010 Updated Marlin 2.0.7 for FLSun QQS-Pro.
+  -Update binairies (U8+S)
+  -Enlarge range Z probe
+  -Adjust Step/mm (417) for BMG LG 
+
 20201001 Updated Marlin 2.0.7 for FLSun QQ-S with A4988 and TMC220x mode _UART and _StandAlone.
 
 20200830 Updated Marlin 2.0.6 for FLSun QQ-S with A4988 and TMC2208_StandAlone.

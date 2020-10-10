@@ -24,10 +24,14 @@ Firmware for QQS-Pro with TMC2208_UART
 With activate parts:
 
 [PID_EDIT_MENU]
+
+[ENDSTOP_MENU]
+
 [DELTA_CALIBRATION_MENU ]
+
 [POWER_LOSS_RECOVERY]
+
 [FILAMENT_RUNOUT_SENSOR]
-[PAUSE_BEFORE_DEPLOY_STOW]
 
 No validate:
 -TMC2209
@@ -47,9 +51,18 @@ Caption:
 
 (U8) TMC2208_UART with no module ESP12.
 
-(U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
+(U8+S) TMC2208 (XYZ) + Choice for E0 (A4988)
+
+(U8+8) TMC2208 (XYZ) + Choice for E0 (TMC220x) 
 
 (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
+
+  ### /*-------Options UI TFT--------*/
+(F) UI STANDARD 
+
+(C) UI MARLIN 
+
+(I) UI MKS
 
   ### /*------Modules--------*/
 (W) Module ESP8266/ESP12
@@ -59,13 +72,6 @@ Caption:
 (B) Extruder BMG
 
 (N) NeoPixel
-
-  ### /*-------Options UI TFT--------*/
-(F) UI STANDARD 
-
-(C) UI MARLIN 
-
-(I) UI MKS
 
   ### /*-------Others options in firmware----*/ 
 (A) BED_LEVELING_BILINEAR

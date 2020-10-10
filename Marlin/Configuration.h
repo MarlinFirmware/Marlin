@@ -170,10 +170,10 @@
 #endif
 #ifdef QQS_TMC
   #define CUSTOM_MACHINE_NAME "FLSUN QQ-S TMC"
-#endif                   
+#endif
 #ifdef QQS_UART
   #define CUSTOM_MACHINE_NAME "FLSUN QQ-S UART"
-#endif        
+#endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
