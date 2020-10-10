@@ -71,6 +71,20 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
  * Serial command injection
  */
 
+/*
+ * Track buffer underruns
+ */
+#if ENABLED(BUFFER_MONITORING)
+  uint32_t GCodeQueue::command_buffer_underruns = 0;
+  bool GCodeQueue::command_buffer_empty = false;
+
+  millis_t GCodeQueue::max_command_buffer_empty_duration = 0;
+  millis_t GCodeQueue::command_buffer_empty_at = 0;
+
+  uint8_t GCodeQueue::auto_buffer_report_interval;
+  millis_t GCodeQueue::next_buffer_report_ms;
+#endif
+
 /**
  * Next Injected PROGMEM Command pointer. (nullptr == empty)
  * Internal commands are enqueued ahead of serial / SD commands.
@@ -621,7 +635,25 @@ void GCodeQueue::advance() {
   if (process_injected_command_P() || process_injected_command()) return;
 
   // Return if the G-code buffer is empty
-  if (ring_buffer.empty()) return;
+  if (ring_buffer.empty()) {
+    #if ENABLED(BUFFER_MONITORING)
+      if (!command_buffer_empty) {
+        command_buffer_empty = true;
+        command_buffer_underruns++;
+        command_buffer_empty_at = millis();
+      }
+    #endif
+    return;
+  }
+
+  #if ENABLED(BUFFER_MONITORING)
+    static millis_t command_buffer_empty_duration;
+    command_buffer_empty_duration = millis() - command_buffer_empty_at;
+    if (command_buffer_empty_duration > max_command_buffer_empty_duration) {
+      max_command_buffer_empty_duration = command_buffer_empty_duration;
+    }
+    command_buffer_empty = false;
+  #endif
 
   #if ENABLED(SDSUPPORT)
 
@@ -664,3 +696,27 @@ void GCodeQueue::advance() {
   // The queue may be reset by a command handler or by code invoked by idle() within a handler
   ring_buffer.advance_pos(ring_buffer.index_r, -1);
 }
+
+#if ENABLED(BUFFER_MONITORING)
+void GCodeQueue::report_buffer_statistics() {
+  SERIAL_ECHO("M576");
+  SERIAL_ECHOLNPAIR(SP_P_STR, int(planner.moves_free()),
+                    SP_B_STR, int(BUFSIZE - length),
+                    " BU", queue.command_buffer_underruns,
+                    " BD", queue.max_command_buffer_empty_duration,
+                    );
+
+  command_buffer_underruns = 0;
+  max_command_buffer_empty_duration = 0;
+}
+
+void GCodeQueue::auto_report_buffer_statistics() {
+  if (queue.auto_buffer_report_interval && ELAPSED(millis(), queue.next_buffer_report_ms)) {
+    queue.next_buffer_report_ms = millis() + 1000UL * queue.auto_buffer_report_interval;
+    PORT_REDIRECT(SERIAL_BOTH);
+    report_buffer_statistics();
+    PORT_RESTORE();
+  }
+}
+
+#endif
