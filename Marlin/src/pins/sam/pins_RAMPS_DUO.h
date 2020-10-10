@@ -76,7 +76,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
@@ -129,4 +129,4 @@
 
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

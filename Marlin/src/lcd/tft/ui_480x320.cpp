@@ -924,7 +924,7 @@ static void do_home() {
   drawMessage(GET_TEXT(MSG_LEVEL_BED_HOMING));
   queue.inject_P(G28_STR);
   // Disable touch until home is done
-  touch.disable();
+  TERN_(HAS_TFT_XPT2046, touch.disable());
   drawAxisValue(E_AXIS);
   drawAxisValue(X_AXIS);
   drawAxisValue(Y_AXIS);
@@ -956,36 +956,30 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   uint16_t width = Images[imgBtn52Rounded].width;
   uint16_t height = Images[imgBtn52Rounded].height;
 
-  tft.queue.sync(); //need sync to change font
-
   if (!enabled) bgColor = COLOR_CONTROL_DISABLED;
 
   tft.canvas(x, y, width, height);
   tft.set_background(COLOR_BACKGROUND);
   tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
+  // TODO: Make an add_text() taking a font arg
   if (label != NULL) {
-    tft.set_font(Helvetica12Bold);
-    tft_string.set_font(Helvetica12Bold);
     tft_string.set(label);
     tft_string.trim();
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);
-
-    tft.queue.sync();
-    tft_string.set_font(Helvetica18);
-    tft.set_font(Helvetica18);
   }
   else {
     tft.add_image(0, 0, img, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
   }
 
-  if (enabled) touch.add_control(BUTTON, x, y, width, height, data);
+  TERN_(HAS_TFT_XPT2046, if (enabled) touch.add_control(BUTTON, x, y, width, height, data));
 }
 
 void MarlinUI::move_axis_screen() {
   // Reset
+  defer_status_screen(true);
   motionAxisState.blocked = false;
-  touch.enable();
+  TERN_(HAS_TFT_XPT2046, touch.enable());
 
   ui.clear_lcd();
 
@@ -1022,13 +1016,13 @@ void MarlinUI::move_axis_screen() {
   motionAxisState.eNamePos.x = x;
   motionAxisState.eNamePos.y = y;
   drawCurESelection();
-  if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (int32_t)e_select);
+  TERN_(HAS_TFT_XPT2046, if (!busy) touch.add_control(BUTTON, x, y, BTN_WIDTH, BTN_HEIGHT, (int32_t)e_select));
 
   x += BTN_WIDTH + spacing;
   drawBtn(x, y, "X-", (int32_t)x_minus, imgLeft, X_BTN_COLOR, !busy);
 
   x += BTN_WIDTH + spacing; //imgHome is 64x64
-  add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome, !busy);
+  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH / 2 - Images[imgHome].width / 2, y - (Images[imgHome].width - BTN_HEIGHT) / 2, BUTTON, (int32_t)do_home, imgHome, !busy));
 
   x += BTN_WIDTH + spacing;
   uint16_t xplus_x = x;
@@ -1077,13 +1071,13 @@ void MarlinUI::move_axis_screen() {
   motionAxisState.stepValuePos.y = y;
   if (!busy) {
     drawCurStepValue();
-    touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (int32_t)step_size);
+    TERN_(HAS_TFT_XPT2046, touch.add_control(BUTTON, motionAxisState.stepValuePos.x, motionAxisState.stepValuePos.y, CUR_STEP_VALUE_WIDTH, BTN_HEIGHT, (int32_t)step_size));
   }
 
   // alinged with x+
   drawBtn(xplus_x, TFT_HEIGHT - Y_MARGIN - BTN_HEIGHT, "off", (int32_t)disable_steppers, imgCancel, COLOR_WHITE, !busy);
 
-  add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack);
+  TERN_(HAS_TFT_XPT2046, add_control(TFT_WIDTH - X_MARGIN - BTN_WIDTH, y, BACK, imgBack));
 }
 
 #undef BTN_WIDTH

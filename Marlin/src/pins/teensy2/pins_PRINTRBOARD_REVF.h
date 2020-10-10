@@ -201,7 +201,7 @@
 //
 //#define USE_INTERNAL_SD
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
   #define LCD_PINS_D4                          7  // D7       JP11-8

@@ -153,8 +153,8 @@
   #define E1_CS_PIN                        P1_01
 #endif
 
-#define TEMP_1_PIN                      P0_23_A0  // A2 (T2) - (69) - TEMP_1_PIN
-#define TEMP_BED_PIN                    P0_25_A2  // A0 (T0) - (67) - TEMP_BED_PIN
+#define TEMP_1_PIN                      P0_23_A0  // A0 (T0) - (67) - TEMP_1_PIN
+#define TEMP_BED_PIN                    P0_25_A2  // A2 (T2) - (69) - TEMP_BED_PIN
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -232,7 +232,7 @@
  *              -----                                             -----
  *              EXP2                                              EXP1
  */
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
     #define LCD_PINS_RS                    P1_23
@@ -303,11 +303,27 @@
 
     // Emulated DOGM have xpt calibration values independent of display resolution
     #if ENABLED(SPI_GRAPHICAL_TFT)
-      #define XPT2046_X_CALIBRATION      -11245
-      #define XPT2046_Y_CALIBRATION        8629
-      #define XPT2046_X_OFFSET              685
-      #define XPT2046_Y_OFFSET             -285
+      #ifndef XPT2046_X_CALIBRATION
+        #define XPT2046_X_CALIBRATION    -11245
+      #endif
+      #ifndef XPT2046_Y_CALIBRATION
+        #define XPT2046_Y_CALIBRATION      8629
+      #endif
+      #ifndef XPT2046_X_OFFSET
+        #define XPT2046_X_OFFSET            685
+      #endif
+      #ifndef XPT2046_Y_OFFSET
+        #define XPT2046_Y_OFFSET           -285
+      #endif
     #endif
+
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                   P3_26
+    #endif
+
+    #define SD_DETECT_PIN                  P1_31
 
   #else
 
@@ -371,9 +387,9 @@
 
     #endif // !FYSETC_MINI_12864
 
-  #endif // HAS_GRAPHICAL_LCD
+  #endif // HAS_MARLINUI_U8GLIB
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."

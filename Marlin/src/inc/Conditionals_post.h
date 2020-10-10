@@ -313,10 +313,14 @@
 #elif ENABLED(MAKRPANEL)
   #define _LCD_CONTRAST_INIT  17
 #elif ENABLED(MINIPANEL)
-  #define _LCD_CONTRAST_INIT  150
+  #define _LCD_CONTRAST_INIT 150
 #elif ENABLED(ZONESTAR_12864OLED)
   #define _LCD_CONTRAST_MIN   64
   #define _LCD_CONTRAST_INIT 128
+  #define _LCD_CONTRAST_MAX  255
+#elif IS_TFTGLCD_PANEL
+  #define _LCD_CONTRAST_MIN    0
+  #define _LCD_CONTRAST_INIT 250
   #define _LCD_CONTRAST_MAX  255
 #endif
 
@@ -2453,9 +2457,9 @@
 /**
  * Buzzer/Speaker
  */
-#if PIN_EXISTS(BEEPER) || EITHER(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+#if PIN_EXISTS(BEEPER) || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER, IS_TFTGLCD_PANEL)
   #define HAS_BUZZER 1
-  #if NONE(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+  #if PIN_EXISTS(BEEPER)
     #define USE_BEEPER 1
   #endif
 #endif
@@ -2483,7 +2487,7 @@
 /**
  * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
  */
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef DOGLCD_SCK
     #define DOGLCD_SCK  SCK_PIN
   #endif
@@ -2604,17 +2608,17 @@
   #define HAS_FOLDER_SORTING 1
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   // Get LCD character width/height, which may be overridden by pins, configs, etc.
   #ifndef LCD_WIDTH
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
     #else
       #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
-    #if HAS_GRAPHICAL_LCD
+    #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
     #else
       #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
