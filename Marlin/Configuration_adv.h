@@ -820,6 +820,9 @@
    */
   #define TRAMMING_SCREW_THREAD 30
 
+  // Show Z distance (mm) difference for each point, compared to the first point
+  //#define TRAMMING_POINT_Z_DISTANCE
+
 #endif
 
 // @section motion

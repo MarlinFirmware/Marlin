@@ -160,6 +160,7 @@ void GcodeSuite::G35() {
              " ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW",
              " by ", abs(full_turns), " turns");
       if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
+      if ENABLED(TRAMMING_POINT_Z_DISTANCE) SERIAL_ECHOPAIR(", Diff: ", (diff * -1));
       SERIAL_EOL();
     }
   }
