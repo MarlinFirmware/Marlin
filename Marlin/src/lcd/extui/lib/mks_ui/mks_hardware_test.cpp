@@ -662,7 +662,7 @@ const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))
-      mks_test_flag = 0x1e;
+      mks_test_flag = 0x1E;
   }
 #endif
 

@@ -134,6 +134,8 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
@@ -177,3 +179,8 @@ uint16_t HAL_adc_get_result();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+// Maple Compatibility
+typedef void (*systickCallback_t)(void);
+void systick_attach_callback(systickCallback_t cb);
+void HAL_SYSTICK_Callback();
