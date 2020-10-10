@@ -113,3 +113,10 @@
     #define HAS_MENU_UBL
   #endif
 #endif
+
+// This is currently defined only in some HALs
+#if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
+  #undef TOUCH_SCREEN
+  #undef TOUCH_SCREEN_CALIBRATION
+  #define HAS_TOUCH_XPT2046 1
+#endif
