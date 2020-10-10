@@ -77,9 +77,13 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 #if ENABLED(BUFFER_MONITORING)
   uint32_t GCodeQueue::command_buffer_underruns = 0;
   bool GCodeQueue::command_buffer_empty = false;
-
   millis_t GCodeQueue::max_command_buffer_empty_duration = 0;
   millis_t GCodeQueue::command_buffer_empty_at = 0;
+
+  uint32_t GCodeQueue::planner_buffer_underruns = 0;
+  bool GCodeQueue::planner_buffer_empty = false;
+  millis_t GCodeQueue::max_planner_buffer_empty_duration = 0;
+  millis_t GCodeQueue::planner_buffer_empty_at = 0;
 
   uint8_t GCodeQueue::auto_buffer_report_interval;
   millis_t GCodeQueue::next_buffer_report_ms;
@@ -647,12 +651,14 @@ void GCodeQueue::advance() {
   }
 
   #if ENABLED(BUFFER_MONITORING)
-    static millis_t command_buffer_empty_duration;
-    command_buffer_empty_duration = millis() - command_buffer_empty_at;
-    if (command_buffer_empty_duration > max_command_buffer_empty_duration) {
-      max_command_buffer_empty_duration = command_buffer_empty_duration;
+    if (command_buffer_empty) {
+      static millis_t command_buffer_empty_duration;
+      command_buffer_empty_duration = millis() - command_buffer_empty_at;
+      if (command_buffer_empty_duration > max_command_buffer_empty_duration) {
+        max_command_buffer_empty_duration = command_buffer_empty_duration;
+      }
+      command_buffer_empty = false;
     }
-    command_buffer_empty = false;
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -702,15 +708,40 @@ void GCodeQueue::report_buffer_statistics() {
   SERIAL_ECHO("M576");
   SERIAL_ECHOLNPAIR(SP_P_STR, int(planner.moves_free()),
                     SP_B_STR, int(BUFSIZE - length),
+                    " PU", queue.planner_buffer_underruns,
+                    " PD", queue.max_planner_buffer_empty_duration,
                     " BU", queue.command_buffer_underruns,
                     " BD", queue.max_command_buffer_empty_duration,
                     );
 
   command_buffer_underruns = 0;
   max_command_buffer_empty_duration = 0;
+
+  planner_buffer_underruns = 0;
+  max_planner_buffer_empty_duration = 0;
 }
 
 void GCodeQueue::auto_report_buffer_statistics() {
+  // Bit of a hack to try to catch planner buffer underruns without having logic
+  // running inside Stepper::block_phase_isr
+  if (planner.movesplanned() == 0) {
+    if (!planner_buffer_empty) { // if the planner buffer wasn't empty, but now it is
+      planner_buffer_empty = true;
+      planner_buffer_underruns++;
+      planner_buffer_empty_at = millis();
+    }
+  } else if (planner_buffer_empty) { // if the planner buffer was empty, but now it ain't
+    static millis_t planner_buffer_empty_duration;
+    planner_buffer_empty_duration = millis() - planner_buffer_empty_at;
+
+    // if it's longer than the currently tracked max duration, replace it
+    if (planner_buffer_empty_duration > max_planner_buffer_empty_duration) {
+      max_planner_buffer_empty_duration = planner_buffer_empty_duration;
+    }
+
+    planner_buffer_empty = false;
+  }
+
   if (queue.auto_buffer_report_interval && ELAPSED(millis(), queue.next_buffer_report_ms)) {
     queue.next_buffer_report_ms = millis() + 1000UL * queue.auto_buffer_report_interval;
     PORT_REDIRECT(SERIAL_BOTH);

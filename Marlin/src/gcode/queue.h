@@ -206,13 +206,21 @@ public:
     static millis_t max_command_buffer_empty_duration;
     static millis_t command_buffer_empty_at;
 
+    static uint32_t planner_buffer_underruns;
+    static bool planner_buffer_empty;
+    static millis_t max_planner_buffer_empty_duration;
+    static millis_t planner_buffer_empty_at;
+
     /**
      * Report buffer statistics to the host to be able to detect buffer underruns
      *
      * Returns "M576 " followed by:
-     *  P<uint>  Planner space remaining
-     *  B<uint>  Command buffer space remaining
-     *  U<uint>  Number of command buffer underruns since last report
+     *  P<uint>   Planner space remaining
+     *  B<uint>   Command buffer space remaining
+     *  PU<uint>  Number of planner buffer underruns since last report
+     *  PD<uint>  Max time in ms the planner buffer was empty since last report
+     *  BU<uint>  Number of command buffer underruns since last report
+     *  BD<uint>  Max time in ms the command buffer was empty since last report
      */
     static void report_buffer_statistics();
 
