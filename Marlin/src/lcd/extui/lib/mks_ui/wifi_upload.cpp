@@ -611,6 +611,8 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   //printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
 
   return stat;
+  #else
+    return success;
   #endif
 }
 
