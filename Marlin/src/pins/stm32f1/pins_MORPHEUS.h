@@ -89,3 +89,4 @@
 //
 #define LED_PIN                             PC13
 #define SDSS                                PA3
+#define TFTGLCD_CS                          PA4

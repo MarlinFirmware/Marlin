@@ -490,7 +490,7 @@ void menu_backlash();
       #if ENABLED(PROBE_OFFSET_WIZARD)
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
       #endif
-      
+
       END_MENU();
     }
   #endif
