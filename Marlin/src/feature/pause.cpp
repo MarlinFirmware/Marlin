@@ -61,6 +61,10 @@
   #include "../libs/buzzer.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "powerloss.h"
+#endif
+
 #include "../libs/nozzle.h"
 #include "pause.h"
 
@@ -639,6 +643,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
   planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
+
+  // Write PLR now to update the z axis value
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_STATUS));
 
