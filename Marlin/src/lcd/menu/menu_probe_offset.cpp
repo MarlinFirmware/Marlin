@@ -94,7 +94,7 @@ void probe_offset_wizard_menu() {
   if ((SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
     extern const char NUL_STR[];
     SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
-    MENU_ITEM_ADDON_START(0 + ENABLED(HAS_CHARACTER_LCD));
+    MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       char tmp[20], numstr[10];
       // Determine digits needed right of decimal
       const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
