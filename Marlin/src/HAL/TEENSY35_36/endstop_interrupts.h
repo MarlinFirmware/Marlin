@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * Endstop Interrupts
+ * HAL Endstop Interrupts for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
  *
  * Without endstop interrupts the endstop pins must be polled continually in
  * the temperature-ISR via endstops.update(), most of the time finding no change.

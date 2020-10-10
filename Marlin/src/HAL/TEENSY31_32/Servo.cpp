@@ -51,5 +51,4 @@ void libServo::move(const int value) {
 }
 
 #endif // HAS_SERVOS
-
 #endif // __MK20DX256__
