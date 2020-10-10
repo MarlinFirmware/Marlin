@@ -74,7 +74,7 @@ TouchButtons touch;
 void TouchButtons::init() { touchIO.Init(); }
 
 uint8_t TouchButtons::read_buttons() {
-  #ifdef HAS_SPI_LCD
+  #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
     if (!touchIO.getRawPoint(&x, &y)) return 0;

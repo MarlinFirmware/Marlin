@@ -89,7 +89,8 @@ public:
 
       case EP_N:
         switch (c) {
-          case '0' ... '9': case '-': case ' ':   break;
+          case '0' ... '9':
+          case '-': case ' ':   break;
           case 'M': state = EP_M;      break;
            default: state = EP_IGNORE;
         }
@@ -144,18 +145,18 @@ public:
              default: state = EP_IGNORE; break;
           }
           break;
+        
+      case EP_M876S:
+        switch (c) {
+          case ' ': break;
+          case '0' ... '9':
+            state = EP_M876SN;
+            M876_reason = (uint8_t)(c - '0');
+            break;
+        }
+        break;
+      #endif
 
-        case EP_M876S:
-          switch (c) {
-            case ' ': break;
-            case '0' ... '9':
-              state = EP_M876SN;
-              M876_reason = (uint8_t)(c - '0');
-              break;
-          }
-          break;
-
-      #endif // HOST_PROMPT_SUPPORT
 
       case EP_IGNORE:
         if (ISEOL(c)) state = EP_RESET;

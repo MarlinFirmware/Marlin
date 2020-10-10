@@ -37,7 +37,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include "ultralcd_DOGM.h"
 #include "u8g_fontutf8.h"
@@ -308,7 +308,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
+      if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
@@ -687,4 +687,4 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #endif // HAS_LCD_MENU
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB

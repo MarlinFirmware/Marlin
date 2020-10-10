@@ -271,12 +271,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     #endif
     case 'G': switch (parser.codenum) {
 
-      case 0: case 1: G0_G1(                                      // G0: Fast Move, G1: Linear Move
-                        #if IS_SCARA || defined(G0_FEEDRATE)
-                          parser.codenum == 0
-                        #endif
-                      );
-                      break;
+      case 0: case 1:                                             // G0: Fast Move, G1: Linear Move
+        G0_G1(TERN_(HAS_FAST_MOVES, parser.codenum == 0)); break;
 
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
         case 2: case 3: G2_G3(parser.codenum == 2); break;        // G2: CW ARC, G3: CCW ARC
@@ -326,13 +322,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if HAS_LEVELING
         case 29:                                                  // G29: Bed leveling calibration
-          #if ENABLED(G29_RETRY_AND_RECOVER)
-            G29_with_retry();
-          #else
-            G29();
-          #endif
+          TERN(G29_RETRY_AND_RECOVER, G29_with_retry, G29)();
           break;
-      #endif // HAS_LEVELING
+      #endif
 
       #if HAS_BED_PROBE
         case 30: G30(); break;                                    // G30: Single Z probe
@@ -464,7 +456,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif // SDSUPPORT
 
       case 31: M31(); break;                                      // M31: Report time since the start of SD print or last M109
-      case 42: M42(); break;                                      // M42: Change pin state
+
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 42: M42(); break;                                    // M42: Change pin state
+      #endif
 
       #if ENABLED(PINS_DEBUGGING)
         case 43: M43(); break;                                    // M43: Read pin state
@@ -625,7 +620,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 211: M211(); break;                                  // M211: Enable, Disable, and/or Report software endstops
       #endif
 
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         case 217: M217(); break;                                  // M217: Set filament swap parameters
       #endif
 
@@ -639,7 +634,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
-      case 226: M226(); break;                                    // M226: Wait until a pin reaches a state
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 226: M226(); break;                                  // M226: Wait until a pin reaches a state
+      #endif
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
@@ -829,6 +826,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       #if ENABLED(PROBE_TEMP_COMPENSATION)
+        case 192: M192(); break;                                  // M192: Wait for probe temp
         case 871: M871(); break;                                  // M871: Print/reset/clear first layer temperature offset values
       #endif
 
@@ -940,6 +938,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     break;
 
     case 'T': T(parser.codenum); break;                           // Tn: Tool Change
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      case 'D': D(parser.codenum); break;                         // Dn: Debug codes
+    #endif
 
     default:
       #if ENABLED(WIFI_CUSTOM_COMMAND)

@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_vi {
   using namespace Language_en; // Inherit undefined strings from English
@@ -294,11 +293,11 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Rút Trao.mm");                          // Swap Re.mm
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Rút V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Nhảy mm");                              // hop
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("BỏRút mm");                             // UnRet mm
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("BỏRút T mm");                           // S UnRet mm
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("BỏRút mm");                             // Unretr. mm
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("BỏRút T mm");                           // S Unretr. mm
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("BỏRút V");                              // UnRet V
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("BỏRút T V");                            // S UnRet V
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("RútTựĐộng");                            // AutoRetr.
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("RútTựĐộng");                            // Auto-Retract
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Khoảng Cách Rút");                      // Retract Distance
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("Thay Đổi Công Cụ");                     // Tool Change
   PROGMEM Language_Str MSG_TOOL_CHANGE_ZLIFT               = _UxGT("Đưa Lên Z");                            // Z Raise
@@ -335,8 +334,6 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("Vấn đề nhiệt bàn");                     // BED THERMAL RUNAWAY
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Điều sai: nhiệt độ tối đa");            // Err: MAXTEMP
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Điều sai: nhiệt độ tối thiểu");         // Err: MINTEMP
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Điều sai: nhiệt độ bàn tối đa");        // Err: MAXTEMP BED
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Điều sai: nhiệt độ bàn tối thiểu");     // Err: MINTEMP BED
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("MÁY IN ĐÃ DỪNG LẠI");                   // PRINTER HALTED
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Xin bặt lại");                          // Please reset
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n");                                    // d - ngày - One character only

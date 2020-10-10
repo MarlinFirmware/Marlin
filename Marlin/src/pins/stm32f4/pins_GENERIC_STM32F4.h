@@ -25,7 +25,7 @@
  * To build with Arduino IDE use "Discovery F407VG"
  * To build with PlatformIO use environment "STM32F4"
  */
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "STM32F4 supports up to 2 hotends / E-steppers."
@@ -184,7 +184,7 @@
 //
 // ST7920 Delays
 //
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
   #endif

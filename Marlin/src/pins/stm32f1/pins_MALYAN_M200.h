@@ -25,7 +25,7 @@
  * MALYAN M200 pin assignments
  */
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 

@@ -17,7 +17,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.   If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
 /**
@@ -73,7 +72,7 @@
   *  The pin assignments in this file match the silkscreen.
   */
 
-#if !defined(__AVR_AT90USB1286__) && !defined(__AVR_AT90USB1286P__)
+#if NOT_TARGET(__AVR_AT90USB1286__, __AVR_AT90USB1286P__)
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
