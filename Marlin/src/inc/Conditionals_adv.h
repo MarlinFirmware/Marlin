@@ -175,7 +175,7 @@
 #endif
 
 #if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
-  #define HAS_I2C_DIGIPOT 1
+  #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
 // Multiple Z steppers
