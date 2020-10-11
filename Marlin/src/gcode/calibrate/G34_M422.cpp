@@ -281,7 +281,17 @@ void GcodeSuite::G34() {
         ui.set_status(msg);
       #endif
 
+      auto decreasing_accuracy = [](const float &v1, const float &v2){
+        if (v1 < v2 * 0.7f) {
+          SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
+          LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
+          return true;
+        }
+        return false;
+      };
+
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+
         // Check if the applied corrections go in the correct direction.
         // Calculate the sum of the absolute deviations from the mean of the probe measurements.
         // Compare to the last iteration to ensure it's getting better.
@@ -297,12 +307,8 @@ void GcodeSuite::G34() {
           z_align_level_indicator += ABS(z_measured[zstepper] - z_measured_mean);
 
         // If it's getting worse, stop and throw an error
-        if (last_z_align_level_indicator < z_align_level_indicator * 0.7f) {
-          SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
-          LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
-          err_break = true;
-          break;
-        }
+        err_break = decreasing_accuracy(last_z_align_level_indicator, z_align_level_indicator);
+        if (err_break) break;
 
         last_z_align_level_indicator = z_align_level_indicator;
       #endif
@@ -322,9 +328,7 @@ void GcodeSuite::G34() {
           if (z_align_abs) amplification = (iteration == 1) ? _MIN(last_z_align_move[zstepper] / z_align_abs, 2.0f) : z_auto_align_amplification;
 
           // Check for less accuracy compared to last move
-          if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
-            SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
-            LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
+          if (decreasing_accuracy(last_z_align_move[zstepper], z_align_abs)) {
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " last_z_align_move = ", last_z_align_move[zstepper]);
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " z_align_abs = ", z_align_abs);
             adjustment_reverse = !adjustment_reverse;
