@@ -90,3 +90,5 @@
 #define MALYAN_FAN2_PIN                     PB3   // FAN2 header on board - CONTROLLER FAN
 
 #define FAN1_PIN                 MALYAN_FAN2_PIN
+
+#define DISABLE_WATCHDOG_INIT
