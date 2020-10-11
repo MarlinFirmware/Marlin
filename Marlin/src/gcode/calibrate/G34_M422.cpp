@@ -20,7 +20,7 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 
@@ -31,17 +31,18 @@
 #include "../../module/stepper.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
-
-#if HAS_MULTI_HOTEND
-  #include "../../module/tool_change.h"
-#endif
+#include "../../lcd/ultralcd.h" // for LCD_MESSAGEPGM
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-   #include "../../libs/least_squares_fit.h"
+  #include "../../libs/least_squares_fit.h"
+#endif
+
+#if HAS_MULTI_HOTEND
+  #include "../../module/tool_change.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -117,7 +118,7 @@ void GcodeSuite::G34() {
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G34 might have a badly misaligned bed, so raise Z by the
     // length of the deployed pin (BLTOUCH stroke < 7mm)
-    #define Z_BASIC_CLEARANCE Z_CLEARANCE_BETWEEN_PROBES + 7.0f * BOTH(BLTOUCH, BLTOUCH_HS_MODE)
+    #define Z_BASIC_CLEARANCE (Z_CLEARANCE_BETWEEN_PROBES + 7.0f * BOTH(BLTOUCH, BLTOUCH_HS_MODE))
 
     // Compute a worst-case clearance height to probe from. After the first
     // iteration this will be re-calculated based on the actual bed position
@@ -154,21 +155,29 @@ void GcodeSuite::G34() {
           z_maxdiff = 0.0f,
           amplification = z_auto_align_amplification;
 
-    // These are needed after the for-loop
-    uint8_t iteration;
-    bool err_break = false;
-    float z_measured_min;
-
     #if DISABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
       bool adjustment_reverse = false;
     #endif
 
-    // 'iteration' is declared above and is also used after the for-loop.
-    // *not* the same as LOOP_L_N(iteration, z_auto_align_iterations)
-    for (iteration = 0; iteration < z_auto_align_iterations; ++iteration) {
+    #if HAS_DISPLAY
+      PGM_P const msg_iteration = GET_TEXT(MSG_ITERATION);
+      const uint8_t iter_str_len = strlen_P(msg_iteration);
+    #endif
+
+    // Final z and iteration values will be used after breaking the loop
+    float z_measured_min;
+    uint8_t iteration = 0;
+    bool err_break = false; // To break out of nested loops
+    while (iteration < z_auto_align_iterations) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> probing all positions.");
 
-      SERIAL_ECHOLNPAIR("\nITERATION: ", int(iteration + 1));
+      const int iter = iteration + 1;
+      SERIAL_ECHOLNPAIR("\nG34 Iteration: ", iter);
+      #if HAS_DISPLAY
+        char str[iter_str_len + 2 + 1];
+        sprintf_P(str, msg_iteration, iter);
+        ui.set_status(str);
+      #endif
 
       // Initialize minimum value
       z_measured_min =  100000.0f;
@@ -190,7 +199,8 @@ void GcodeSuite::G34() {
         // current_position.z has been manually altered in the "dirty trick" above.
         const float z_probed_height = probe.probe_at_point(z_stepper_align.xy[iprobe], raise_after, 0, true, false);
         if (isnan(z_probed_height)) {
-          SERIAL_ECHOLNPGM("Probing failed.");
+          SERIAL_ECHOLNPGM("Probing failed");
+          LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
           err_break = true;
           break;
         }
@@ -249,6 +259,27 @@ void GcodeSuite::G34() {
           , " Z3-Z1=", ABS(z_measured[2] - z_measured[0])
         #endif
       );
+      #if HAS_DISPLAY
+        char fstr1[10];
+        #if NUM_Z_STEPPER_DRIVERS == 2
+          char msg[6 + (6 + 5) * 1 + 1];
+        #else
+          char msg[6 + (6 + 5) * 3 + 1], fstr2[10], fstr3[10];
+        #endif
+        sprintf_P(msg,
+          PSTR("Diffs Z1-Z2=%s"
+            #if NUM_Z_STEPPER_DRIVERS == 3
+              " Z2-Z3=%s"
+              " Z3-Z1=%s"
+            #endif
+          ), dtostrf(ABS(z_measured[0] - z_measured[1]), 1, 3, fstr1)
+          #if NUM_Z_STEPPER_DRIVERS == 3
+            , dtostrf(ABS(z_measured[1] - z_measured[2]), 1, 3, fstr2)
+            , dtostrf(ABS(z_measured[2] - z_measured[0]), 1, 3, fstr3)
+          #endif
+        );
+        ui.set_status(msg);
+      #endif
 
       #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
         // Check if the applied corrections go in the correct direction.
@@ -267,7 +298,8 @@ void GcodeSuite::G34() {
 
         // If it's getting worse, stop and throw an error
         if (last_z_align_level_indicator < z_align_level_indicator * 0.7f) {
-          SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
+          SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
+          LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
           err_break = true;
           break;
         }
@@ -291,7 +323,8 @@ void GcodeSuite::G34() {
 
           // Check for less accuracy compared to last move
           if (last_z_align_move[zstepper] < z_align_abs * 0.7f) {
-            SERIAL_ECHOLNPGM("Decreasing accuracy detected.");
+            SERIAL_ECHOLNPGM("Decreasing Accuracy Detected.");
+            LCD_MESSAGEPGM(MSG_DECREASING_ACCURACY);
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " last_z_align_move = ", last_z_align_move[zstepper]);
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("> Z", int(zstepper + 1), " z_align_abs = ", z_align_abs);
             adjustment_reverse = !adjustment_reverse;
@@ -329,9 +362,14 @@ void GcodeSuite::G34() {
 
       if (err_break) break;
 
-      if (success_break) { SERIAL_ECHOLNPGM("Target accuracy achieved."); break; }
+      if (success_break) {
+        SERIAL_ECHOLNPGM("Target accuracy achieved.");
+        LCD_MESSAGEPGM(MSG_ACCURACY_ACHIEVED);
+        break;
+      }
 
-    } // for (iteration)
+      iteration++;
+    } // while (iteration < z_auto_align_iterations)
 
     if (err_break)
       SERIAL_ECHOLNPGM("G34 aborted.");
@@ -468,5 +506,129 @@ void GcodeSuite::M422() {
 
   pos_dest[position_index] = pos;
 }
+
+#elif ENABLED(MECHANICAL_GANTRY_CALIBRATION)
+
+  #include "../../module/endstops.h"
+
+  void GcodeSuite::G34() {
+
+    if (homing_needed()) return;
+
+    TEMPORARY_SOFT_ENDSTOP_STATE(false);
+    TEMPORARY_BED_LEVELING_STATE(false);
+    TemporaryGlobalEndstopsState unlock_z(false);
+
+    #ifdef GANTRY_CALIBRATION_COMMANDS_PRE
+      gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_PRE));
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sub Commands Processed");
+    #endif
+
+    #ifdef GANTRY_CALIBRATION_SAFE_POSITION
+      // Move XY to safe position
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Parking XY");
+      const xy_pos_t safe_pos = GANTRY_CALIBRATION_SAFE_POSITION;
+      do_blocking_move_to(safe_pos, MMM_TO_MMS(GANTRY_CALIBRATION_XY_PARK_FEEDRATE));
+    #endif
+
+    const float move_distance = parser.intval('Z', GANTRY_CALIBRATION_EXTRA_HEIGHT),
+                zbase = ENABLED(GANTRY_CALIBRATION_TO_MIN) ? Z_MIN_POS : Z_MAX_POS,
+                zpounce = zbase - move_distance, zgrind = zbase + move_distance;
+
+    // Move Z to pounce position
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Setting Z Pounce");
+    do_blocking_move_to_z(zpounce, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+
+    // Store current motor settings, then apply reduced value
+
+    #define _REDUCE_CURRENT ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_I2C, HAS_TRINAMIC_CONFIG)
+    #if _REDUCE_CURRENT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Reducing Current");
+    #endif
+
+    #if HAS_MOTOR_CURRENT_SPI
+      const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
+      const uint32_t previous_current = stepper.motor_current_setting[Z_AXIS];
+      stepper.set_digipot_current(Z_AXIS, target_current);
+    #elif HAS_MOTOR_CURRENT_PWM
+      const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
+      const uint32_t previous_current = stepper.motor_current_setting[Z_AXIS];
+      stepper.set_digipot_current(1, target_current);
+    #elif HAS_MOTOR_CURRENT_DAC
+      const float target_current = parser.floatval('S', GANTRY_CALIBRATION_CURRENT);
+      const float previous_current = dac_amps(Z_AXIS, target_current);
+      stepper_dac.set_current_value(Z_AXIS, target_current);
+    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)
+      const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
+      previous_current = dac_amps(Z_AXIS);
+      digipot_i2c.set_current(Z_AXIS, target_current)
+    #elif HAS_TRINAMIC_CONFIG
+      const uint16_t target_current = parser.intval('S', GANTRY_CALIBRATION_CURRENT);
+      static uint16_t previous_current_arr[NUM_Z_STEPPER_DRIVERS];
+      #if AXIS_IS_TMC(Z)
+        previous_current_arr[0] = stepperZ.getMilliamps();
+        stepperZ.rms_current(target_current);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        previous_current_arr[1] = stepperZ2.getMilliamps();
+        stepperZ2.rms_current(target_current);
+      #endif
+      #if AXIS_IS_TMC(Z3)
+        previous_current_arr[2] = stepperZ3.getMilliamps();
+        stepperZ3.rms_current(target_current);
+      #endif
+      #if AXIS_IS_TMC(Z4)
+        previous_current_arr[3] = stepperZ4.getMilliamps();
+        stepperZ4.rms_current(target_current);
+      #endif
+    #endif
+
+    // Do Final Z move to adjust
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Final Z Move");
+    do_blocking_move_to_z(zgrind, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+
+    // Back off end plate, back to normal motion range
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Z Backoff");
+    do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
+
+    #if _REDUCE_CURRENT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
+    #endif
+
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
+    // Reset current to original values
+
+    #if _REDUCE_CURRENT
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
+    #endif
+
+    #if HAS_MOTOR_CURRENT_SPI
+      stepper.set_digipot_current(Z_AXIS, previous_current);
+    #elif HAS_MOTOR_CURRENT_PWM
+      stepper.set_digipot_current(1, previous_current);
+    #elif HAS_MOTOR_CURRENT_DAC
+      stepper_dac.set_current_value(Z_AXIS, previous_current);
+    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)
+      digipot_i2c.set_current(Z_AXIS, previous_current)
+    #elif HAS_TRINAMIC_CONFIG
+      #if AXIS_IS_TMC(Z)
+        stepperZ.rms_current(previous_current_arr[0]);
+      #endif
+      #if AXIS_IS_TMC(Z2)
+        stepperZ2.rms_current(previous_current_arr[1]);
+      #endif
+      #if AXIS_IS_TMC(Z3)
+        stepperZ3.rms_current(previous_current_arr[2]);
+      #endif
+      #if AXIS_IS_TMC(Z4)
+        stepperZ4.rms_current(previous_current_arr[3]);
+      #endif
+    #endif
+
+    #ifdef GANTRY_CALIBRATION_COMMANDS_POST
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Running Post Commands");
+      gcode.process_subcommands_now_P(PSTR(GANTRY_CALIBRATION_COMMANDS_POST));
+    #endif
+  }
 
 #endif // Z_STEPPER_AUTO_ALIGN
