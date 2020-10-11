@@ -510,7 +510,12 @@ void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool
   const bool rel = raise_on_unknown && !z_known;
   float zdest = zclear + (rel ? current_position.z : 0.0f);
   if (!lower_allowed) NOLESS(zdest, current_position.z);
-  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS),
+  #if HAS_BED_PROBE
+    MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+  #else
+    MMM_TO_MMS(HOMING_FEEDRATE_Z));
+  #endif
 }
 
 //
@@ -1126,8 +1131,10 @@ bool homing_needed_error(uint8_t axis_bits/*=0x07*/) {
  * Homing bump feedrate (mm/s)
  */
 feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
-  if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS))
-    return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS)
+      return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+  #endif
   static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
@@ -1588,7 +1595,7 @@ void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(Z_AXIS));
   const float bump = axis_home_dir * (
-    use_probe_bump ? _MAX(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) : home_bump_mm(axis)
+    use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(Z_AXIS)) : home_bump_mm(axis)
   );
 
   // If a second homing move is configured...
