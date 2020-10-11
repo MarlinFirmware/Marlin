@@ -595,13 +595,7 @@
     do_blocking_move_to_z(zpounce, MMM_TO_MMS(GANTRY_CALIBRATION_FEEDRATE));
 
     #if _REDUCE_CURRENT
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
-    #endif
-
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
-    // Reset current to original values
-
-    #if _REDUCE_CURRENT
+      // Reset current to original values
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Restore Current");
     #endif
 
