@@ -208,7 +208,10 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if !defined(__AVR__) || !defined(USBCON)
+#if defined(__AVR__) && defined(USBCON)
+  #define IS_AT90USB 1
+  #undef SERIAL_XON_XOFF // Not supported on USB-native devices
+#else
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
   // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -220,9 +223,6 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
-#else
-  // SERIAL_XON_XOFF not supported on USB-native devices
-  #undef SERIAL_XON_XOFF
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
