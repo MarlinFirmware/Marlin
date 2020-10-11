@@ -512,7 +512,7 @@ void GcodeSuite::G26() {
 
   // Accept 'I' if temperature presets are defined
   #if PREHEAT_COUNT
-    const uint8_t preset_index = (0 + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0));
+    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0;
   #endif
 
   #if HAS_HEATED_BED
