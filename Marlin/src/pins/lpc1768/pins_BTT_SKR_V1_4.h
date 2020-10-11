@@ -306,7 +306,7 @@
     #define LCD_PINS_RS                    -1
 
     // XPT2046 Touch Screen calibration
-    #if ENABLED(SPI_GRAPHICAL_TFT)
+    #if ENABLED(TFT_CLASSIC_UI)
       #ifndef XPT2046_X_CALIBRATION
         #define XPT2046_X_CALIBRATION     -11245
       #endif
@@ -319,6 +319,21 @@
       #ifndef XPT2046_Y_OFFSET
         #define XPT2046_Y_OFFSET            -285
       #endif
+    #elif ENABLED(TFT_480x320_SPI)
+      #ifndef XPT2046_X_CALIBRATION
+        #define XPT2046_X_CALIBRATION     -17232
+      #endif
+      #ifndef XPT2046_Y_CALIBRATION
+        #define XPT2046_Y_CALIBRATION      11196
+      #endif
+      #ifndef XPT2046_X_OFFSET
+        #define XPT2046_X_OFFSET            1047
+      #endif
+      #ifndef XPT2046_Y_OFFSET
+        #define XPT2046_Y_OFFSET            -358
+      #endif
+
+      #define TFT_BUFFER_SIZE               2400
     #endif
 
   #elif IS_TFTGLCD_PANEL
