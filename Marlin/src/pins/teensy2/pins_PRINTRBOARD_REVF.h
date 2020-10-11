@@ -67,6 +67,10 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
+#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
+  #error "USBCON should be defined by the platform for this board."
+#endif
+
 #define BOARD_INFO_NAME "Printrboard Rev.F"
 
 // Disable JTAG pins so EXP1 pins work correctly
