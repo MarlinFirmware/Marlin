@@ -624,7 +624,7 @@ void GCodeQueue::advance() {
         card.closefile();
         SERIAL_ECHOLNPGM(STR_FILE_SAVED);
 
-        #if !defined(__AVR__) || !defined(USBCON)
+        #if !IS_AT90USB
           #if ENABLED(SERIAL_STATS_DROPPED_RX)
             SERIAL_ECHOLNPAIR("Dropped bytes: ", MYSERIAL0.dropped());
           #endif

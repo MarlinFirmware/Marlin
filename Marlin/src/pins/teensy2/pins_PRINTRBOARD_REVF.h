@@ -67,7 +67,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#ifndef USBCON
+#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
   #error "USBCON should be defined by the platform for this board."
 #endif
 

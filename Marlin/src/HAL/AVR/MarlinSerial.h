@@ -327,6 +327,6 @@
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if BOTH(IS_AT90USB, BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif
