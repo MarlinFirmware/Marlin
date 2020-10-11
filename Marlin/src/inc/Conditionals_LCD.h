@@ -942,3 +942,10 @@
   #define HAS_UI_480x320 1
   #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
+
+// This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
+#if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
+  #undef TOUCH_SCREEN
+  #undef TOUCH_SCREEN_CALIBRATION
+  #define HAS_TOUCH_XPT2046 1
+#endif
