@@ -534,12 +534,11 @@ void restore_feedrate_and_scaling() {
 
 #if HAS_SOFTWARE_ENDSTOPS
 
-  bool soft_endstops_enabled = true;
-
   // Software Endstops are based on the configured limits.
-  axis_limits_t soft_endstop = {
+  soft_endstops_t soft_endstop = {
     { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-    { X_MAX_POS, Y_MAX_POS, Z_MAX_POS }
+    { X_MAX_POS, Y_MAX_POS, Z_MAX_POS },
+    { true, false }
   };
 
   /**
@@ -624,9 +623,9 @@ void restore_feedrate_and_scaling() {
 
     #endif
 
-  if (DEBUGGING(LEVELING))
-    SERIAL_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
-}
+    if (DEBUGGING(LEVELING))
+      SERIAL_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
+  }
 
   /**
    * Constrain the given coordinates to the software endstops.
@@ -636,7 +635,7 @@ void restore_feedrate_and_scaling() {
    */
   void apply_motion_limits(xyz_pos_t &target) {
 
-    if (!soft_endstops_enabled) return;
+    if (!soft_endstop._enabled) return;
 
     #if IS_KINEMATIC
 
@@ -688,7 +687,11 @@ void restore_feedrate_and_scaling() {
     }
   }
 
-#endif // HAS_SOFTWARE_ENDSTOPS
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  soft_endstops_t soft_endstop;
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
 
 #if !UBL_SEGMENTED
 
