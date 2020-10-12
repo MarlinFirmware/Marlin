@@ -33,6 +33,9 @@
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
 
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
+
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
@@ -90,5 +93,3 @@
 #define MALYAN_FAN2_PIN                     PB3   // FAN2 header on board - CONTROLLER FAN
 
 #define FAN1_PIN                 MALYAN_FAN2_PIN
-
-#define DISABLE_WATCHDOG_INIT
