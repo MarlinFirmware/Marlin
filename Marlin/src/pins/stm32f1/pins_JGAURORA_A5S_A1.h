@@ -39,7 +39,7 @@
   #define STM32_XL_DENSITY
 #endif
 
-// #define MCU_STM32F103ZE // not yet required
+//#define MCU_STM32F103ZE // not yet required
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
 //#define I2C_EEPROM                              // AT24C64
