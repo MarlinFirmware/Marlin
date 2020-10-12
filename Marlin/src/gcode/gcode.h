@@ -465,10 +465,11 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
-    static void M422();
   #endif
+
+  TERN_(Z_STEPPER_AUTO_ALIGN, static void M422());
 
   TERN_(ASSISTED_TRAMMING, static void G35());
 
