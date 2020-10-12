@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 
@@ -38,11 +38,17 @@
 #define ST7789V_ORIENTATION_LEFT  ST7789V_MADCTL_MY | ST7789V_MADCTL_MV // 320x240 ; Cable on the left side
 #define ST7789V_ORIENTATION_DOWN  0                                     // 240x320 ; Cable on the lower side
 
-//#define ST7789V_COLOR_BGR
-#ifndef ST7789V_ORIENTATION
-  #define ST7789V_ORIENTATION     ST7789V_ORIENTATION_LEFT
+#define ST7789V_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ST7789V_MADCTL_MV) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ST7789V_MADCTL_MX) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ST7789V_MADCTL_MY)
+
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_RGB
+  #define ST7789V_COLOR ST7789V_MADCTL_RGB
+#elif TFT_COLOR == TFT_COLOR_BGR
+  #define ST7789V_COLOR ST7789V_MADCTL_BGR
 #endif
-#define ST7789V_MADCTL_DATA       (ST7789V_ORIENTATION | TERN(ST7789V_COLOR_BGR, ST7789V_MADCTL_BGR, ST7789V_MADCTL_RGB))
+
+#define ST7789V_MADCTL_DATA       (ST7789V_ORIENTATION) | (ST7789V_COLOR)
 
 #define ST7789V_NOP               0x00 // No Operation
 #define ST7789V_SWRESET           0x01 // Software reset

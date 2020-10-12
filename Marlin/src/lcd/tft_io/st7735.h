@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#include "tft.h"
+#include "tft_io.h"
 
 #include "../../inc/MarlinConfig.h"
 
@@ -38,9 +38,17 @@
 #define ST7735_ORIENTATION_LEFT   ST7735_MADCTL_MV | ST7735_MADCTL_MX // 160x128 ; Cable on the left side
 #define ST7735_ORIENTATION_DOWN   ST7735_MADCTL_MX | ST7735_MADCTL_MY // 128x160 ; Cable on the lower side
 
-//#define ST7735_COLOR_BGR
-#define ST7735_ORIENTATION        ST7735_ORIENTATION_DOWN
-#define ST7735_MADCTL_DATA       (ST7735_ORIENTATION | TERN(ST7735_COLOR_BGR, ST7735_MADCTL_BGR, ST7735_MADCTL_RGB))
+#define ST7735_ORIENTATION IF_0((TFT_ORIENTATION) & TFT_EXCHANGE_XY, ST7735_MADCTL_MV) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_X,    ST7735_MADCTL_MX) | \
+                            IF_0((TFT_ORIENTATION) & TFT_INVERT_Y,    ST7735_MADCTL_MY)
+
+#if !defined(TFT_COLOR) || TFT_COLOR == TFT_COLOR_RGB
+  #define ST7735_COLOR ST7735_MADCTL_RGB
+#elif TFT_COLOR == TFT_COLOR_BGR
+  #define ST7735_COLOR ST7735_MADCTL_BGR
+#endif
+
+#define ST7735_MADCTL_DATA       (ST7735_ORIENTATION) | (ST7735_COLOR)
 
 #define ST7735_NOP                0x00 // No Operation
 #define ST7735_SWRESET            0x01 // Software reset
