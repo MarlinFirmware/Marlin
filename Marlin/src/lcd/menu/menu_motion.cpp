@@ -358,7 +358,7 @@ void menu_motion() {
   //
   // Auto Z-Align
   //
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     GCODES_ITEM(MSG_AUTO_Z_ALIGN, PSTR("G34"));
   #endif
 
