@@ -1553,12 +1553,15 @@ void MarlinUI::update() {
     //  - On edit screens, touch Up Half for -,  Bottom Half to +
     //
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
+      const millis_t now = millis();
+      if (PENDING(now, next_button_update_ms)) return;
+      next_button_update_ms = now + repeat_delay;    // Assume the repeat delay
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
         encoderDiff = epps * ydir;
       else if (screen_items > 0) {
-        // Last 3 cols act as a scroll :-)
+        // Last 5 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
           encoderDiff = epps * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
