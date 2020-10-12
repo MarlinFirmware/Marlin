@@ -9,6 +9,10 @@
 
 You are here because you are looking for the latest BIQU B1 firmware and you will hopefully find what you are looking for! Read below to find out how.
 
+## Current version of Marlin
+
+The files in this repository contain the source, configs and compiled firmware for Marlin: 2.0.7.1
+
 ## Using this repo.
 
 People love to add on to their printers. For this reason there cannot be just a single Marlin firmware that satisfies all of the variations of B1 out there. This repo aims to create firmware for the most popular variants and keep it up to date with the latest Marlin releases.
@@ -41,6 +45,8 @@ Before installing the firmware take note of the following points:
 2. The ABL versions of this firmware are programmed to apply any z babysteps to the z-offset. This means that if you save your babysteps the nozzle will alwasy start in the right place for each print regardless of what you do to your bed provided that you don't mess with the position of the BL touch between prints (e.g. take apart the hotend).
 
 To install: once you have downloaded the firmware file just copy the it onto your SD card in the motherboard (not TFT) and reboot. Once it is done you should have a FIRMWARE.CUR file on the SD. That means it worked.
+
+If you use an ABL version you will receive an error message relating to EEPROM as soon as you boot up. This is normal. Simply enter the terminal and send M500 in order to clear it.
 
 I recommend performing a home on all axes directly after installing the firmware and using your finger to trigger the probe on the way down for the z home. This will confirm that the probe is working fine and prevent the nozzle from crashing into the bed if it is not.
 
