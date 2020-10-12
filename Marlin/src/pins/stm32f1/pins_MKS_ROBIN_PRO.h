@@ -200,6 +200,7 @@
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
