@@ -511,11 +511,9 @@ void GcodeSuite::G26() {
        g26_keep_heaters_on       = parser.boolval('K');
 
   // Accept 'I' if temperature presets are defined
-  const uint8_t preset_index = (0
-    #if PREHEAT_COUNT
-      + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0)
-    #endif
-  );
+  #if PREHEAT_COUNT
+    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0;
+  #endif
 
   #if HAS_HEATED_BED
 
