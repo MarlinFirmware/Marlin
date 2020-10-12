@@ -116,6 +116,17 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
   eol();
 }
 
+void TFT_String::add(uint8_t *string) {
+  wchar_t wchar;
+  while (*string) {
+    string = get_utf8_value_cb(string, read_byte, &wchar);
+    if (wchar > 255) wchar |= 0x0080;
+    uint8_t ch = uint8_t(wchar & 0x00FF);
+    add_character(ch);
+  }
+  eol();
+}
+
 void TFT_String::add_character(uint8_t character) {
   if (length < MAX_STRING_LENGTH) {
     data[length] = character;
