@@ -510,12 +510,7 @@ void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool
   const bool rel = raise_on_unknown && !z_known;
   float zdest = zclear + (rel ? current_position.z : 0.0f);
   if (!lower_allowed) NOLESS(zdest, current_position.z);
-  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS),
-  #if HAS_BED_PROBE
-    MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-  #else
-    MMM_TO_MMS(HOMING_FEEDRATE_Z));
-  #endif
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(TERN(HAS_BED_PROBE, Z_PROBE_SPEED_FAST, HOMING_FEEDRATE_Z)));
 }
 
 //
