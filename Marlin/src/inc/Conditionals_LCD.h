@@ -883,9 +883,6 @@
   #define TFT_HEIGHT 240
   #define TFT_INTERFACE_FSMC
   #define GRAPHICAL_TFT_UPSCALE 2
-  #if TFT_ROTATION != TFT_NO_ROTATION
-    #error "Rotation is not currently supported by the driver of this display."
-  #endif
 #elif EITHER(TFT_TRONXY_X5SA, ANYCUBIC_TFT35)
   #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
   #define TFT_DRIVER ILI9488
