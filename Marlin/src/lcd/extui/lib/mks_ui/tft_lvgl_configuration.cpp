@@ -442,39 +442,39 @@ void lv_encoder_pin_init() {
   //static const int8_t encoderDirection = 1;
   //static int16_t enc_Direction;
   void lv_update_encoder() {
-    static uint8_t buttons;
     static uint32_t encoder_time1;
     uint32_t tmpTime, diffTime = 0;
     tmpTime = millis();
     diffTime = getTickDiff(tmpTime, encoder_time1);
     if (diffTime > 50) {
 
-      #if ANY_BUTTON(EN1, EN2, ENC, BACK)
-
-        uint8_t newbutton = 0;
-
-        #if BUTTON_EXISTS(EN1)
-          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-        #endif
-        #if BUTTON_EXISTS(EN2)
-          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-        #endif
-        #if BUTTON_EXISTS(ENC)
-          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-        #endif
-        #if BUTTON_EXISTS(BACK)
-          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-        #endif
-
-      #else
-
-        constexpr uint8_t newbutton = 0;
-
-      #endif
-
-      buttons = newbutton;
-
       #if HAS_ENCODER_WHEEL
+
+        #if ANY_BUTTON(EN1, EN2, ENC, BACK)
+
+          uint8_t newbutton = 0;
+
+          #if BUTTON_EXISTS(EN1)
+            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          #endif
+          #if BUTTON_EXISTS(EN2)
+            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          #endif
+          #if BUTTON_EXISTS(ENC)
+            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          #endif
+          #if BUTTON_EXISTS(BACK)
+            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
+          #endif
+
+        #else
+
+          constexpr uint8_t newbutton = 0;
+
+        #endif
+
+
+        static uint8_t buttons = newbutton;
         static uint8_t lastEncoderBits;
 
         #define encrot0 0
