@@ -473,7 +473,6 @@ void lv_encoder_pin_init() {
 
         #endif
 
-
         static uint8_t buttons = newbutton;
         static uint8_t lastEncoderBits;
 
