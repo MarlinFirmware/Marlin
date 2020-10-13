@@ -130,7 +130,7 @@
   #define MOTOR_CURRENT_PWM_Z_PIN             PA7 //VREF4 CONTROL Z
   #define MOTOR_CURRENT_PWM_RANGE             1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
-   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 230 } 
+   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 } 
   #endif
  
   #ifdef ESP_WIFI
@@ -155,7 +155,7 @@
   #define MOTOR_CURRENT_PWM_E_PIN             PB0 //VREF1 CONTROL E
   #define MOTOR_CURRENT_PWM_RANGE             1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
-   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 230 } 
+   #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 } 
   #endif
 #endif
 
@@ -288,7 +288,7 @@
   #define FSMC_DMA_DEV                     DMA2
   #define FSMC_DMA_CHANNEL              DMA_CH5
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if ENABLED(TFT_CLASSIC_UI)
 
   #define LCD_RESET_PIN             TFT_RST_PIN    // FSMC_RST
   #define LCD_BACKLIGHT_PIN   TFT_BACKLIGHT_PIN
@@ -311,7 +311,7 @@
     #define TFT_BTOKMENU_COLOR           0x145F   // 00010 100010 11111 Cyan
   #endif
 
-#elif ENABLED(TFT_320x240)
+#elif ENABLED(TFT_COLOR_UI)
   #define TFT_RESET_PIN                       PC6
   //#define TFT_BACKLIGHT_PIN                 PD13
 
