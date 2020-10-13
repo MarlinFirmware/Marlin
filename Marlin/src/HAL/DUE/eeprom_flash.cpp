@@ -53,7 +53,6 @@
  * per page. We can't emulate EE endurance with FLASH for all
  * bytes, but we can emulate endurance for a given percent of
  * bytes.
- *
  */
 
 //#define EE_EMU_DEBUG
@@ -61,7 +60,7 @@
 #define EEPROMSize     4096
 #define PagesPerGroup   128
 #define GroupCount        2
-#define PageSize        256u
+#define PageSize        256U
 
  /* Flash storage */
 typedef struct FLASH_SECTOR {

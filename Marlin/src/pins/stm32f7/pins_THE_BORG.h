@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef STM32F7
+#if NOT_TARGET(STM32F7)
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "The-Borg supports up to 3 hotends / E-steppers."
