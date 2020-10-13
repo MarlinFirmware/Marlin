@@ -220,7 +220,7 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define   TFTGLCD_CS                   P3_25  // EXP2.3
+    #define TFTGLCD_CS                     P3_25  // EXP2.3
   #endif
 
   #if SD_CONNECTION_IS(LCD)

@@ -58,16 +58,16 @@
 void menu_tmc();
 void menu_backlash();
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if ENABLED(HAS_MOTOR_CURRENT_DAC)
 
   #include "../../feature/dac/stepper_dac.h"
 
   void menu_dac() {
     static xyze_uint8_t driverPercent;
-    LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i);
+    LOOP_XYZE(i) driverPercent[i] = stepper_dac.get_current_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ dac_current_set_percents(driverPercent); })
+    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -490,7 +490,7 @@ void menu_backlash();
       #if ENABLED(PROBE_OFFSET_WIZARD)
         SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
       #endif
-      
+
       END_MENU();
     }
   #endif
@@ -568,7 +568,7 @@ void menu_advanced_settings() {
     SUBMENU(MSG_BACKLASH, menu_backlash);
   #endif
 
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
     SUBMENU(MSG_DRIVE_STRENGTH, menu_dac);
   #endif
   #if HAS_MOTOR_CURRENT_PWM

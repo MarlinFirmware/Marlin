@@ -41,7 +41,7 @@ MarlinUI ui;
   #include "fontutils.h"
   #include "../sd/cardreader.h"
   #if EITHER(EXTENSIBLE_UI, DWIN_CREALITY_LCD)
-    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+    #define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
   #endif
 #endif
 
@@ -123,10 +123,14 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #include "lcdprint.h"
 
 #include "../sd/cardreader.h"
-#include "../module/settings.h"
+
 #include "../module/temperature.h"
 #include "../module/planner.h"
 #include "../module/motion.h"
+
+#if HAS_LCD_MENU
+  #include "../module/settings.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "../feature/bedlevel/bedlevel.h"
@@ -1549,12 +1553,15 @@ void MarlinUI::update() {
     //  - On edit screens, touch Up Half for -,  Bottom Half to +
     //
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
+      const millis_t now = millis();
+      if (PENDING(now, next_button_update_ms)) return;
+      next_button_update_ms = now + repeat_delay;    // Assume the repeat delay
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
         encoderDiff = epps * ydir;
       else if (screen_items > 0) {
-        // Last 3 cols act as a scroll :-)
+        // Last 5 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
           encoderDiff = epps * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
