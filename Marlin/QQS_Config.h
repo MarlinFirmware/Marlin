@@ -12,15 +12,15 @@
 //#define STOCK
 
 /*------Drivers-(1 CHOICE)-----*/
-//#define QQS               //(S) 4xA4988
+#define QQS               //(S) 4xA4988
 //#define QQS_TMC           //(8) 4xTMC220x For 2208 or 2209
 
 /* MODE UART XYZ*/
-#define QQS_UART8           //(U8) 4xTMC2208 (Remove module ESP12)
+//#define QQS_UART8           //(U8) 4xTMC2208 (Remove module ESP12)
 //#define QQS_UART9         //(U9) 4xTMC2209 (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------*/
-#define DRIVER_EXT  TMC2208_STANDALONE
+//#define DRIVER_EXT  TMC2208_STANDALONE
 
 // Set Software Serial UART for TMC 2208 / TMC 2209
 #ifdef QQS_UART8
@@ -44,10 +44,10 @@
 
 
 /*----  Modules -----*/
-//#define ESP_WIFI               //(W) Module ESP8266/ESP12
+#define ESP_WIFI               //(W) Module ESP8266/ESP12
 //#define ESP3D_WIFISUPPORT      //(W)
 //#define BMG                    //(B) Extruder
-#define NEOPIXEL_LED             //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
+//#define NEOPIXEL_LED             //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 
 //Many options for Modules: 
@@ -58,8 +58,8 @@
 
 /*-------Screen Mks_Robin_TFT_v2---(FSMC)-----*/
 //Choice UI TFT 
-//#define FSMC_GRAPHICAL_TFT    //(F) UI STANDARD 
-#define TFT_320x240             //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+#define FSMC_GRAPHICAL_TFT    //(F) UI STANDARD 
+//#define TFT_320x240             //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
 //#define TFT_LVGL_UI_FSMC      //(I) UI MKS  => (Bug)
 
 //============= End_Hardware ===============//
@@ -77,7 +77,7 @@
 #define AUTO_BED_LEVELING_UBL         //(U) 
 
 // Option for Octoprint (OCTO)
-#define HOST_ACTION_COMMANDS        // Action Command Prompt support Message on Octoprint
+//#define HOST_ACTION_COMMANDS        // Action Command Prompt support Message on Octoprint
 //#define BINARY_FILE_TRANSFER        // Bin transfert
 
 //#define USE_CONTROLLER_FAN          //BOARD FAN
