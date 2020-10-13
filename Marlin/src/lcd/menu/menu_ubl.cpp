@@ -28,12 +28,12 @@
 
 #if BOTH(HAS_LCD_MENU, AUTO_BED_LEVELING_UBL)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../gcode/gcode.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 static int16_t ubl_storage_slot = 0,
@@ -59,15 +59,20 @@ inline float rounded_mesh_value() {
 static void _lcd_mesh_fine_tune(PGM_P const msg) {
   ui.defer_status_screen();
   if (ubl.encoder_diff) {
-    mesh_edit_accumulator += ubl.encoder_diff > 0 ? 0.005f : -0.005f;
+    mesh_edit_accumulator += TERN(IS_TFTGLCD_PANEL,
+      ubl.encoder_diff * 0.005f / ENCODER_PULSES_PER_STEP,
+      ubl.encoder_diff > 0 ? 0.005f : -0.005f
+    );
     ubl.encoder_diff = 0;
-    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    TERN(IS_TFTGLCD_PANEL,,ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
   }
+  TERN_(IS_TFTGLCD_PANEL, ui.refresh(LCDVIEW_CALL_REDRAW_NEXT));
 
   if (ui.should_draw()) {
     const float rounded_f = rounded_mesh_value();
     MenuEditItemBase::draw_edit_screen(msg, ftostr43sign(rounded_f));
     TERN_(MESH_EDIT_GFX_OVERLAY, _lcd_zoffset_overlay_gfx(rounded_f));
+    TERN_(HAS_GRAPHICAL_TFT, ui.refresh(LCDVIEW_NONE));
   }
 }
 
@@ -77,6 +82,7 @@ static void _lcd_mesh_fine_tune(PGM_P const msg) {
 float lcd_mesh_edit() { return rounded_mesh_value(); }
 
 void lcd_mesh_edit_setup(const float &initial) {
+  TERN_(HAS_GRAPHICAL_TFT, ui.clear_lcd());
   mesh_edit_accumulator = initial;
   ui.goto_screen([]{ _lcd_mesh_fine_tune(GET_TEXT(MSG_MESH_EDIT_Z)); });
 }
@@ -182,11 +188,10 @@ void _lcd_ubl_edit_mesh() {
    */
   void _lcd_ubl_validate_custom_mesh() {
     char ubl_lcd_gcode[24];
-    const int16_t temp = TERN(HAS_HEATED_BED, custom_bed_temp, 0);
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26 C P H%" PRIi16 TERN_(HAS_HEATED_BED, " B%" PRIi16))
       , custom_hotend_temp
       #if HAS_HEATED_BED
-        , temp
+        , custom_bed_temp
       #endif
     );
     queue.inject(ubl_lcd_gcode);
@@ -449,15 +454,15 @@ void ubl_map_screen() {
 
     #if IS_KINEMATIC
       // Index of the mesh point upon entry
-      const uint32_t old_pos_index = grid_index(x_plot, y_plot);
+      const int32_t old_pos_index = grid_index(x_plot, y_plot);
       // Direction from new (unconstrained) encoder value
       const int8_t step_dir = int32_t(ui.encoderPosition) < old_pos_index ? -1 : 1;
     #endif
 
     do {
       // Now, keep the encoder position within range
-      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS - 1;
-      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = 0;
+      if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = GRID_MAX_POINTS + TERN(TOUCH_SCREEN, ui.encoderPosition, -1);
+      if (int32_t(ui.encoderPosition) > GRID_MAX_POINTS - 1) ui.encoderPosition = TERN(TOUCH_SCREEN, ui.encoderPosition - GRID_MAX_POINTS, 0);
 
       // Draw the grid point based on the encoder
       x = ui.encoderPosition % (GRID_MAX_POINTS_X);

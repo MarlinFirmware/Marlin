@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * emergency_parser.h - Intercept special commands directly in the serial stream
+ * e_parser.h - Intercept special commands directly in the serial stream
  */
 
 #include "../inc/MarlinConfigPre.h"
@@ -88,10 +88,8 @@ public:
 
       case EP_N:
         switch (c) {
-          case '0': case '1': case '2':
-          case '3': case '4': case '5':
-          case '6': case '7': case '8':
-          case '9': case '-': case ' ':   break;
+          case '0' ... '9':
+          case '-': case ' ':   break;
           case 'M': state = EP_M;      break;
           default:  state = EP_IGNORE;
         }
@@ -153,10 +151,7 @@ public:
       case EP_M876S:
         switch (c) {
           case ' ': break;
-          case '0': case '1': case '2':
-          case '3': case '4': case '5':
-          case '6': case '7': case '8':
-          case '9':
+          case '0' ... '9':
             state = EP_M876SN;
             M876_reason = (uint8_t)(c - '0');
             break;

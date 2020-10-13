@@ -41,6 +41,7 @@ jobs:
         - mega2560
         - teensy31
         - teensy35
+        - teensy41
         - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
@@ -67,8 +68,10 @@ jobs:
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
         - mks_robin
+        - mks_robin_stm32
         - ARMED
         - FYSETC_S6
+        - STM32F070CB_malyan
         - STM32F070RB_malyan
         - malyan_M300
         - mks_robin_lite
@@ -77,6 +80,7 @@ jobs:
         - mks_robin_pro
         - STM32F103RET6_creality
         - LERDGEX
+        - mks_robin_nano35
 
         # Put lengthy tests last
 
@@ -93,7 +97,6 @@ jobs:
         #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
-        #- mks_robin_nano
 
     steps:
 

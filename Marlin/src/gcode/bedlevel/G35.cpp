@@ -29,6 +29,10 @@
 #include "../../module/probe.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
+#if HAS_MULTI_HOTEND
+  #include "../../module/tool_change.h"
+#endif
+
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
 
@@ -153,9 +157,10 @@ void GcodeSuite::G35() {
       const int minutes = trunc(decimal_part * 60.0f);
 
       SERIAL_ECHOPAIR("Turn ", tramming_point_name[i],
-             " ", (screw_thread & 1) == (adjust > 0) ? "Counter-Clockwise" : "Clockwise",
+             " ", (screw_thread & 1) == (adjust > 0) ? "CCW" : "CW",
              " by ", abs(full_turns), " turns");
       if (minutes) SERIAL_ECHOPAIR(" and ", abs(minutes), " minutes");
+      if (ENABLED(REPORT_TRAMMING_MM)) SERIAL_ECHOPAIR(" (", -diff, "mm)");
       SERIAL_EOL();
     }
   }
@@ -176,7 +181,7 @@ void GcodeSuite::G35() {
   probe.stow();
 
   // After this operation the Z position needs correction
-  set_axis_not_trusted(Z_AXIS);
+  set_axis_never_homed(Z_AXIS);
 
   // Home Z after the alignment procedure
   process_subcommands_now_P(PSTR("G28Z"));

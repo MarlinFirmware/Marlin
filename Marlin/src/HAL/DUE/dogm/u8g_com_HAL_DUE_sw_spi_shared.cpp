@@ -57,7 +57,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include "../../shared/Delay.h"
 
@@ -108,5 +108,5 @@ void u8g_spiSend_sw_DUE_mode_3(uint8_t val) { // 3.5MHz
   }
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB
 #endif // ARDUINO_ARCH_SAM

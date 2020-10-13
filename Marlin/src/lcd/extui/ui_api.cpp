@@ -61,7 +61,7 @@
   #include "../../libs/numtostr.h"
 #endif
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "../../module/tool_change.h"
 #endif
 
@@ -223,7 +223,7 @@ namespace ExtUI {
 
   bool isHeaterIdle(const extruder_t extruder) {
     #if HAS_HOTEND && HEATER_IDLE_HANDLER
-      return thermalManager.hotend_idle[extruder - E0].timed_out;
+      return thermalManager.heater_idle[extruder - E0].timed_out;
     #else
       UNUSED(extruder);
       return false;
@@ -233,10 +233,10 @@ namespace ExtUI {
   bool isHeaterIdle(const heater_t heater) {
     #if HEATER_IDLE_HANDLER
       switch (heater) {
-        TERN_(HAS_HEATED_BED, case BED: return thermalManager.bed_idle.timed_out);
+        TERN_(HAS_HEATED_BED, case BED: return thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
         TERN_(HAS_HEATED_CHAMBER, case CHAMBER: return false); // Chamber has no idle timer
         default:
-          return TERN0(HAS_HOTEND, thermalManager.hotend_idle[heater - H0].timed_out);
+          return TERN0(HAS_HOTEND, thermalManager.heater_idle[heater - H0].timed_out);
       }
     #else
       UNUSED(heater);
@@ -304,28 +304,10 @@ namespace ExtUI {
     return epos;
   }
 
-  void setAxisPosition_mm(const float position, const axis_t axis) {
-    // Start with no limits to movement
-    float min = current_position[axis] - 1000,
-          max = current_position[axis] + 1000;
-
-    // Limit to software endstops, if enabled
-    #if HAS_SOFTWARE_ENDSTOPS
-      if (soft_endstops_enabled) switch (axis) {
-        case X_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_X, min = soft_endstop.min.x);
-          TERN_(MAX_SOFTWARE_ENDSTOP_X, max = soft_endstop.max.x);
-          break;
-        case Y_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Y, min = soft_endstop.min.y);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Y, max = soft_endstop.max.y);
-          break;
-        case Z_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Z, min = soft_endstop.min.z);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Z, max = soft_endstop.max.z);
-        default: break;
-      }
-    #endif // HAS_SOFTWARE_ENDSTOPS
+  void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
+    // Get motion limit from software endstops, if any
+    float min, max;
+    soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
@@ -337,18 +319,18 @@ namespace ExtUI {
     #endif
 
     current_position[axis] = constrain(position, min, max);
-    line_to_current_position(manual_feedrate_mm_s[axis]);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s[axis]);
   }
 
-  void setAxisPosition_mm(const float position, const extruder_t extruder) {
+  void setAxisPosition_mm(const float position, const extruder_t extruder, const feedRate_t feedrate/*=0*/) {
     setActiveTool(extruder, true);
 
     current_position.e = position;
-    line_to_current_position(manual_feedrate_mm_s.e);
+    line_to_current_position(feedrate ?: manual_feedrate_mm_s.e);
   }
 
   void setActiveTool(const extruder_t extruder, bool no_move) {
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       const uint8_t e = extruder - E0;
       if (e != active_extruder) tool_change(e, no_move);
       active_extruder = e;
@@ -389,8 +371,8 @@ namespace ExtUI {
   }
 
   #if HAS_SOFTWARE_ENDSTOPS
-    bool getSoftEndstopState() { return soft_endstops_enabled; }
-    void setSoftEndstopState(const bool value) { soft_endstops_enabled = value; }
+    bool getSoftEndstopState() { return soft_endstop._enabled; }
+    void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
   #endif
 
   #if HAS_TRINAMIC_CONFIG
@@ -399,11 +381,20 @@ namespace ExtUI {
         #if AXIS_IS_TMC(X)
           case X: return stepperX.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: return stepperX2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Y)
           case Y: return stepperY.getMilliamps();
         #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: return stepperY2.getMilliamps();
+        #endif
         #if AXIS_IS_TMC(Z)
           case Z: return stepperZ.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: return stepperZ2.getMilliamps();
         #endif
         default: return NAN;
       };
@@ -442,13 +433,22 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const axis_t axis) {
       switch (axis) {
         #if AXIS_IS_TMC(X)
-          case X: stepperX.rms_current(constrain(mA, 500, 1500)); break;
+          case X: stepperX.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(X2)
+          case X2: stepperX2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Y)
-          case Y: stepperY.rms_current(constrain(mA, 500, 1500)); break;
+          case Y: stepperY.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Y2)
+          case Y2: stepperY2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(Z)
-          case Z: stepperZ.rms_current(constrain(mA, 500, 1500)); break;
+          case Z: stepperZ.rms_current(constrain(mA, 400, 1500)); break;
+        #endif
+        #if AXIS_IS_TMC(Z2)
+          case Z2: stepperZ2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -457,28 +457,28 @@ namespace ExtUI {
     void  setAxisCurrent_mA(const float mA, const extruder_t extruder) {
       switch (extruder) {
         #if AXIS_IS_TMC(E0)
-          case E0: stepperE0.rms_current(constrain(mA, 500, 1500)); break;
+          case E0: stepperE0.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E1)
-          case E1: stepperE1.rms_current(constrain(mA, 500, 1500)); break;
+          case E1: stepperE1.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E2)
-          case E2: stepperE2.rms_current(constrain(mA, 500, 1500)); break;
+          case E2: stepperE2.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E3)
-          case E3: stepperE3.rms_current(constrain(mA, 500, 1500)); break;
+          case E3: stepperE3.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E4)
-          case E4: stepperE4.rms_current(constrain(mA, 500, 1500)); break;
+          case E4: stepperE4.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E5)
-          case E5: stepperE5.rms_current(constrain(mA, 500, 1500)); break;
+          case E5: stepperE5.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E6)
-          case E6: stepperE6.rms_current(constrain(mA, 500, 1500)); break;
+          case E6: stepperE6.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         #if AXIS_IS_TMC(E7)
-          case E7: stepperE7.rms_current(constrain(mA, 500, 1500)); break;
+          case E7: stepperE7.rms_current(constrain(mA, 400, 1500)); break;
         #endif
         default: break;
       };
@@ -544,11 +544,13 @@ namespace ExtUI {
 
   void setAxisSteps_per_mm(const float value, const axis_t axis) {
     planner.settings.axis_steps_per_mm[axis] = value;
+    planner.refresh_positioning();
   }
 
   void setAxisSteps_per_mm(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
-    planner.settings.axis_steps_per_mm[E_AXIS_N(axis - E0)] = value;
+    planner.settings.axis_steps_per_mm[E_AXIS_N(extruder - E0)] = value;
+    planner.refresh_positioning();
   }
 
   feedRate_t getAxisMaxFeedrate_mm_s(const axis_t axis) {
@@ -557,7 +559,7 @@ namespace ExtUI {
 
   feedRate_t getAxisMaxFeedrate_mm_s(const extruder_t extruder) {
     UNUSED_E(extruder);
-    return planner.settings.max_feedrate_mm_s[E_AXIS_N(axis - E0)];
+    return planner.settings.max_feedrate_mm_s[E_AXIS_N(extruder - E0)];
   }
 
   void setAxisMaxFeedrate_mm_s(const feedRate_t value, const axis_t axis) {
@@ -580,11 +582,13 @@ namespace ExtUI {
 
   void setAxisMaxAcceleration_mm_s2(const float value, const axis_t axis) {
     planner.set_max_acceleration(axis, value);
+    planner.reset_acceleration_rates();
   }
 
   void setAxisMaxAcceleration_mm_s2(const float value, const extruder_t extruder) {
     UNUSED_E(extruder);
     planner.set_max_acceleration(E_AXIS_N(extruder - E0), value);
+    planner.reset_acceleration_rates();
   }
 
   #if HAS_FILAMENT_SENSOR
@@ -599,18 +603,18 @@ namespace ExtUI {
     #endif
   #endif
 
-  #if HAS_CASE_LIGHT
-    bool getCaseLightState()                 { return case_light_on; }
+  #if ENABLED(CASE_LIGHT_ENABLE)
+    bool getCaseLightState()                 { return caselight.on; }
     void setCaseLightState(const bool value) {
-      case_light_on = value;
-      update_case_light();
+      caselight.on = value;
+      caselight.update_enabled();
     }
 
     #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
-      float getCaseLightBrightness_percent()                 { return ui8_to_percent(case_light_brightness); }
+      float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const float value) {
-         case_light_brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
-         update_case_light();
+         caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
+         caselight.update_brightness();
       }
     #endif
   #endif
@@ -695,21 +699,17 @@ namespace ExtUI {
      */
     void smartAdjustAxis_steps(const int16_t steps, const axis_t axis, bool linked_nozzles) {
       const float mm = steps * planner.steps_to_mm[axis];
+      UNUSED(mm);
 
       if (!babystepAxis_steps(steps, axis)) return;
 
       #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
         // Make it so babystepping in Z adjusts the Z probe offset.
-        if (axis == Z
-          #if EXTRUDERS > 1
-            && (linked_nozzles || active_extruder == 0)
-          #endif
-        ) probe.offset.z += mm;
-      #else
-        UNUSED(mm);
+        if (axis == Z && TERN1(HAS_MULTI_EXTRUDER, (linked_nozzles || active_extruder == 0)))
+          probe.offset.z += mm;
       #endif
 
-      #if EXTRUDERS > 1 && HAS_HOTEND_OFFSET
+      #if HAS_MULTI_EXTRUDER && HAS_HOTEND_OFFSET
         /**
          * When linked_nozzles is false, as an axis is babystepped
          * adjust the hotend offsets so that the other nozzles are
@@ -726,7 +726,6 @@ namespace ExtUI {
         }
       #else
         UNUSED(linked_nozzles);
-        UNUSED(mm);
       #endif
     }
 
@@ -755,7 +754,7 @@ namespace ExtUI {
       if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX))
         probe.offset.z = value;
     #elif ENABLED(BABYSTEP_DISPLAY_TOTAL)
-      babystep.add_mm(Z_AXIS, (value - getZOffset_mm()));
+      babystep.add_mm(Z_AXIS, value - getZOffset_mm());
     #else
       UNUSED(value);
     #endif
@@ -864,7 +863,7 @@ namespace ExtUI {
     }
 
     void startPIDTune(const float temp, extruder_t tool) {
-      thermalManager.PID_autotune(temp, (heater_ind_t)tool, 8, true);
+      thermalManager.PID_autotune(temp, (heater_id_t)tool, 8, true);
     }
   #endif
 
@@ -1003,7 +1002,7 @@ namespace ExtUI {
   bool FileList::seek(const uint16_t pos, const bool skip_range_check) {
     #if ENABLED(SDSUPPORT)
       if (!skip_range_check && (pos + 1) > count()) return false;
-      card.getfilename_sorted(pos);
+      card.getfilename_sorted(SD_ORDER(pos, count()));
       return card.filename[0] != '\0';
     #else
       UNUSED(pos);
@@ -1057,10 +1056,6 @@ namespace ExtUI {
 // At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
 
 void MarlinUI::init() {
-  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    SET_INPUT_PULLUP(SD_DETECT_PIN);
-  #endif
-
   ExtUI::onStartup();
 }
 

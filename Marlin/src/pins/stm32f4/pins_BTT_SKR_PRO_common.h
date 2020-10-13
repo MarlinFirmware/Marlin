@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
@@ -41,6 +41,7 @@
 // Servos
 //
 #define SERVO0_PIN                          PA1
+#define SERVO1_PIN                          PC9
 
 //
 // Trinamic Stallguard pins
@@ -178,7 +179,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -212,7 +213,7 @@
   #define E2_SERIAL_RX_PIN                  PD6
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -250,36 +251,55 @@
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SD_CONNECTION_IS(ONBOARD)
-  #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
+#if SD_CONNECTION_IS(LCD)
+
+  #define SD_DETECT_PIN                     PF12
+  #define SDSS                              PB12
+
+#elif SD_CONNECTION_IS(ONBOARD)
+
+  // The SKR Pro's ONBOARD SD interface is on SPI1.
+  // Due to a pull resistor on the clock line, it needs to use SPI Data Mode 3 to
+  // function with Hardware SPI. This is not currently configurable in the HAL,
+  // so force Software SPI to work around this issue.
+  #define SOFTWARE_SPI
   #define SDSS                              PA4
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
+  #define SD_DETECT_PIN                     PB11
+
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
 /**
- *               _____                                             _____
+ *               -----                                             -----
  *           NC | · · | GND                                    5V | · · | GND
  *        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
  *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
  *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
  *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
- *               ￣￣                                               ￣￣
+ *               -----                                             -----
  *               EXP2                                              EXP1
  */
 
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
-  #define BEEPER_PIN                        PG4
-  #define BTN_ENC                           PA8
-  #if SD_CONNECTION_IS(LCD)
-    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                      PG10
   #endif
 
+#elif HAS_WIRED_LCD
+
+  #define BEEPER_PIN                        PG4
+  #define BTN_ENC                           PA8
+
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS                     PG6
 
     #define BTN_EN1                         PD11
@@ -294,8 +314,11 @@
     #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
+
     #define DOGLCD_A0                       PG6
     #define DOGLCD_CS                       PG3
+    #define BTN_EN1                         PG10
+    #define BTN_EN2                         PF11
 
   #else
 
@@ -303,9 +326,6 @@
 
     #define BTN_EN1                         PG10
     #define BTN_EN2                         PF11
-    #define SD_DETECT_PIN                   PF12
-
-    #define LCD_SDSS                        PB12
 
     #define LCD_PINS_ENABLE                 PD11
     #define LCD_PINS_D4                     PG2
@@ -338,35 +358,35 @@
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
-  #endif
+#endif // HAS_WIRED_LCD
 
-#endif // HAS_SPI_LCD
+// Alter timing for graphical display
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+  #endif
+#endif
 
 //
 // WIFI
 //
 
 /**
- *          _____
+ *          -----
  *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
  *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
  *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *           ￣￣
+ *    3.3V | 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *          -----
  *            W1
  */
-#define ESP_WIFI_MODULE_COM 6                     // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PG0
 #define ESP_WIFI_MODULE_ENABLE_PIN          PG1

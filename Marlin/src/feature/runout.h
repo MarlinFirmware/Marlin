@@ -48,6 +48,24 @@
 
 void event_filament_runout();
 
+template<class RESPONSE_T, class SENSOR_T>
+class TFilamentMonitor;
+class FilamentSensorEncoder;
+class FilamentSensorSwitch;
+class RunoutResponseDelayed;
+class RunoutResponseDebounced;
+
+/********************************* TEMPLATE SPECIALIZATION *********************************/
+
+typedef TFilamentMonitor<
+          TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
+          TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
+        > FilamentMonitor;
+
+extern FilamentMonitor runout;
+
+/*******************************************************************************************/
+
 class FilamentMonitorBase {
   public:
     static bool enabled, filament_ran_out;
@@ -121,7 +139,13 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
 class FilamentSensorBase {
   protected:
-    static void filament_present(const uint8_t extruder);
+    /**
+     * Called by FilamentSensorSwitch::run when filament is detected.
+     * Called by FilamentSensorEncoder::block_completed when motion is detected.
+     */
+    static inline void filament_present(const uint8_t extruder) {
+      runout.filament_present(extruder); // ...which calls response.filament_present(extruder)
+    }
 
   public:
     static inline void setup() {
@@ -311,12 +335,3 @@ class FilamentSensorBase {
   };
 
 #endif // !HAS_FILAMENT_RUNOUT_DISTANCE
-
-/********************************* TEMPLATE SPECIALIZATION *********************************/
-
-typedef TFilamentMonitor<
-          TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
-          TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
-        > FilamentMonitor;
-
-extern FilamentMonitor runout;

@@ -23,11 +23,8 @@
 
 #if HAS_TFT_LVGL_UI
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
+#include "SPI_TFT.h"
 
-#include "W25Qxx.h"
 #include "tft_lvgl_configuration.h"
 
 #include "pic_manager.h"
@@ -56,7 +53,8 @@ DISP_STATE_STACK disp_state_stack;
 DISP_STATE disp_state = MAIN_UI;
 DISP_STATE last_disp_state;
 PRINT_TIME print_time;
-value_state value;
+num_key_value_state value;
+keyboard_value_state keyboard_value;
 
 uint32_t To_pre_view;
 uint8_t gcode_preview_over;
@@ -73,6 +71,14 @@ extern uint8_t public_buf[512];
 extern uint8_t bmp_public_buf[17 * 1024];
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
+
+static const char custom_gcode_command[][100] = {
+  "G28\nG29\nM500",
+  "G28",
+  "G28",
+  "G28",
+  "G28"
+};
 
 lv_point_t line_points[4][2] = {
   {{PARA_UI_POS_X, PARA_UI_POS_Y + PARA_UI_SIZE_Y}, {TFT_WIDTH, PARA_UI_POS_Y + PARA_UI_SIZE_Y}},
@@ -109,28 +115,66 @@ void gCfgItems_init() {
   #elif LCD_LANGUAGE == pt
     gCfgItems.language = LANG_PORTUGUESE;
   #endif
-  gCfgItems.leveling_mode    = 0;
-  gCfgItems.from_flash_pic   = 0;
-  gCfgItems.curFilesize      = 0;
-  gCfgItems.finish_power_off = 0;
-  gCfgItems.pause_reprint    = 0;
-  gCfgItems.pausePosX        = -1;
-  gCfgItems.pausePosY        = -1;
-  gCfgItems.pausePosZ        = 5;
+  gCfgItems.leveling_mode     = 0;
+  gCfgItems.from_flash_pic    = 0;
+  gCfgItems.curFilesize       = 0;
+  gCfgItems.finish_power_off  = 0;
+  gCfgItems.pause_reprint     = 0;
+  gCfgItems.pausePosX         = -1;
+  gCfgItems.pausePosY         = -1;
+  gCfgItems.pausePosZ         = 5;
+  gCfgItems.levelingPos[0][0] = X_MIN_POS + 30;
+  gCfgItems.levelingPos[0][1] = Y_MIN_POS + 30;
+  gCfgItems.levelingPos[1][0] = X_MAX_POS - 30;
+  gCfgItems.levelingPos[1][1] = Y_MIN_POS + 30;
+  gCfgItems.levelingPos[2][0] = X_MAX_POS - 30;
+  gCfgItems.levelingPos[2][1] = Y_MAX_POS - 30;
+  gCfgItems.levelingPos[3][0] = X_MIN_POS + 30;
+  gCfgItems.levelingPos[3][1] = Y_MAX_POS - 30;
+  gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
+  gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
+  gCfgItems.cloud_enable  = true;
+  #if ENABLED(USE_WIFI_FUNCTION)
+    gCfgItems.wifi_mode_sel = STA_MODEL;
+    gCfgItems.fileSysType   = FILE_SYS_SD;
+    gCfgItems.wifi_type     = ESP_WIFI;
+  #endif
+  gCfgItems.filamentchange_load_length   = 200;
+  gCfgItems.filamentchange_load_speed    = 1000;
+  gCfgItems.filamentchange_unload_length = 200;
+  gCfgItems.filamentchange_unload_speed  = 1000;
+  gCfgItems.filament_limit_temper        = 200;
+
+  gCfgItems.encoder_enable = true;
+
   W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems.spi_flash_flag, VAR_INF_ADDR, sizeof(gCfgItems.spi_flash_flag));
-  if (gCfgItems.spi_flash_flag == GCFG_FLAG_VALUE) {
+  if (gCfgItems.spi_flash_flag == FLASH_INF_VALID_FLAG) {
     W25QXX.SPI_FLASH_BufferRead((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
   }
   else {
-    gCfgItems.spi_flash_flag = GCFG_FLAG_VALUE;
+    gCfgItems.spi_flash_flag = FLASH_INF_VALID_FLAG;
     W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
+    //init gcode command
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[0], AUTO_LEVELING_COMMAND_ADDR, 100);
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[1], OTHERS_COMMAND_ADDR_1, 100);
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[2], OTHERS_COMMAND_ADDR_2, 100);
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[3], OTHERS_COMMAND_ADDR_3, 100);
+    W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[4], OTHERS_COMMAND_ADDR_4, 100);
   }
-}
 
-void gCfg_to_spiFlah() {
-  W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
-  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
+  const byte rot = (TFT_ROTATION & TFT_ROTATE_180) ? 0xEE : 0x00;
+  if (gCfgItems.disp_rotation_180 != rot) {
+    gCfgItems.disp_rotation_180 = rot;
+    update_spi_flash();
+  }
+
+  uiCfg.F[0] = 'N';
+  uiCfg.F[1] = 'A';
+  uiCfg.F[2] = 'N';
+  uiCfg.F[3] = 'O';
+  W25QXX.SPI_FLASH_BlockErase(REFLSHE_FLGA_ADD + 32 - 64*1024);
+  W25QXX.SPI_FLASH_BufferWrite(uiCfg.F,REFLSHE_FLGA_ADD,4);
 }
 
 void ui_cfg_init() {
@@ -144,12 +188,81 @@ void ui_cfg_init() {
   uiCfg.move_dist           = 1;
   uiCfg.moveSpeed           = 3000;
   uiCfg.stepPrintSpeed      = 10;
+  uiCfg.command_send        = 0;
+  uiCfg.dialogType          = 0;
+  uiCfg.filament_heat_completed_load = 0;
+  uiCfg.filament_rate                = 0;
+  uiCfg.filament_loading_completed   = 0;
+  uiCfg.filament_unloading_completed = 0;
+  uiCfg.filament_loading_time_flg    = 0;
+  uiCfg.filament_loading_time_cnt    = 0;
+  uiCfg.filament_unloading_time_flg  = 0;
+  uiCfg.filament_unloading_time_cnt  = 0;
+
+  #if ENABLED(USE_WIFI_FUNCTION)
+    memset(&wifiPara, 0, sizeof(wifiPara));
+    memset(&ipPara, 0, sizeof(ipPara));
+    strcpy(wifiPara.ap_name, WIFI_AP_NAME);
+    strcpy(wifiPara.keyCode, WIFI_KEY_CODE);
+    //client
+    strcpy(ipPara.ip_addr, IP_ADDR);
+    strcpy(ipPara.mask, IP_MASK);
+    strcpy(ipPara.gate, IP_GATE);
+    strcpy(ipPara.dns, IP_DNS);
+
+    ipPara.dhcp_flag = IP_DHCP_FLAG;
+
+    //AP
+    strcpy(ipPara.dhcpd_ip, AP_IP_ADDR);
+    strcpy(ipPara.dhcpd_mask, AP_IP_MASK);
+    strcpy(ipPara.dhcpd_gate, AP_IP_GATE);
+    strcpy(ipPara.dhcpd_dns, AP_IP_DNS);
+    strcpy(ipPara.start_ip_addr, IP_START_IP);
+    strcpy(ipPara.end_ip_addr, IP_END_IP);
+
+    ipPara.dhcpd_flag = AP_IP_DHCP_FLAG;
+
+    strcpy((char*)uiCfg.cloud_hostUrl, "baizhongyun.cn");
+    uiCfg.cloud_port = 10086;
+  #endif
+
+  uiCfg.filament_loading_time = (uint32_t)((gCfgItems.filamentchange_load_length * 60.0 / gCfgItems.filamentchange_load_speed) + 0.5);
+  uiCfg.filament_unloading_time = (uint32_t)((gCfgItems.filamentchange_unload_length * 60.0 / gCfgItems.filamentchange_unload_speed) + 0.5);
 }
 
 void update_spi_flash() {
+  uint8_t command_buf[512];
+
   W25QXX.init(SPI_QUARTER_SPEED);
+  //read back the gcode command befor erase spi flash
+  W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
   W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
   W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
+}
+
+void update_gcode_command(int addr,uint8_t *s) {
+  uint8_t command_buf[512];
+
+  W25QXX.init(SPI_QUARTER_SPEED);
+  //read back the gcode command befor erase spi flash
+  W25QXX.SPI_FLASH_BufferRead((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
+  W25QXX.SPI_FLASH_SectorErase(VAR_INF_ADDR);
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&gCfgItems, VAR_INF_ADDR, sizeof(gCfgItems));
+  switch (addr) {
+    case AUTO_LEVELING_COMMAND_ADDR: memcpy(&command_buf[0*100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_1: memcpy(&command_buf[1*100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_2: memcpy(&command_buf[2*100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_3: memcpy(&command_buf[3*100], s, 100); break;
+    case OTHERS_COMMAND_ADDR_4: memcpy(&command_buf[4*100], s, 100); break;
+    default: break;
+  }
+  W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&command_buf, GCODE_COMMAND_ADDR, sizeof(command_buf));
+}
+
+void get_gcode_command(int addr,uint8_t *d) {
+  W25QXX.init(SPI_QUARTER_SPEED);
+  W25QXX.SPI_FLASH_BufferRead((uint8_t *)d, addr, 100);
 }
 
 lv_style_t tft_style_scr;
@@ -163,6 +276,13 @@ lv_style_t style_num_key_pre;
 lv_style_t style_num_key_rel;
 
 lv_style_t style_num_text;
+lv_style_t style_sel_text;
+
+lv_style_t style_para_value;
+lv_style_t style_para_back;
+
+lv_style_t lv_bar_style_indic;
+
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
   tft_style_scr.body.main_color   = LV_COLOR_BACKGROUND;
@@ -191,12 +311,13 @@ void tft_style_init() {
   tft_style_label_rel.text.letter_space = 0;
   tft_style_label_pre.text.line_space   = -5;
   tft_style_label_rel.text.line_space   = -5;
+
   lv_style_copy(&style_para_value_pre, &lv_style_scr);
   lv_style_copy(&style_para_value_rel, &lv_style_scr);
   style_para_value_pre.body.main_color = LV_COLOR_BACKGROUND;
   style_para_value_pre.body.grad_color = LV_COLOR_BACKGROUND;
-  style_para_value_pre.text.color      = LV_COLOR_BLACK;
-  style_para_value_pre.text.sel_color  = LV_COLOR_BLACK;
+  style_para_value_pre.text.color      = LV_COLOR_TEXT;
+  style_para_value_pre.text.sel_color  = LV_COLOR_TEXT;
   style_para_value_rel.body.main_color = LV_COLOR_BACKGROUND;
   style_para_value_rel.body.grad_color = LV_COLOR_BACKGROUND;
   style_para_value_rel.text.color      = LV_COLOR_BLACK;
@@ -209,6 +330,7 @@ void tft_style_init() {
   style_para_value_rel.text.letter_space = 0;
   style_para_value_pre.text.line_space   = -5;
   style_para_value_rel.text.line_space   = -5;
+
   lv_style_copy(&style_num_key_pre, &lv_style_scr);
   lv_style_copy(&style_num_key_rel, &lv_style_scr);
   style_num_key_pre.body.main_color = LV_COLOR_KEY_BACKGROUND;
@@ -244,10 +366,48 @@ void tft_style_init() {
   style_num_text.text.letter_space = 0;
   style_num_text.text.line_space   = -5;
 
+  lv_style_copy(&style_sel_text, &lv_style_scr);
+  style_sel_text.body.main_color  = LV_COLOR_BACKGROUND;
+  style_sel_text.body.grad_color  = LV_COLOR_BACKGROUND;
+  style_sel_text.text.color       = LV_COLOR_YELLOW;
+  style_sel_text.text.sel_color   = LV_COLOR_YELLOW;
+  style_sel_text.text.font        = &gb2312_puhui32;
+  style_sel_text.line.width       = 0;
+  style_sel_text.text.letter_space  = 0;
+  style_sel_text.text.line_space    = -5;
   lv_style_copy(&style_line, &lv_style_plain);
-  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xff);
+  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xFF);
   style_line.line.width   = 1;
   style_line.line.rounded = 1;
+
+  lv_style_copy(&style_para_value, &lv_style_plain);
+  style_para_value.body.border.color = LV_COLOR_BACKGROUND;
+  style_para_value.body.border.width = 1;
+  style_para_value.body.main_color   = LV_COLOR_WHITE;
+  style_para_value.body.grad_color   = LV_COLOR_WHITE;
+  style_para_value.body.shadow.width = 0;
+  style_para_value.body.radius       = 3;
+  style_para_value.text.color        = LV_COLOR_BLACK;
+  style_para_value.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+
+  lv_style_copy(&style_para_back, &lv_style_plain);
+  style_para_back.body.border.color = LV_COLOR_BACKGROUND;
+  style_para_back.body.border.width = 1;
+  style_para_back.body.main_color   = TFT_LV_PARA_BACK_BODY_COLOR;
+  style_para_back.body.grad_color   = TFT_LV_PARA_BACK_BODY_COLOR;
+  style_para_back.body.shadow.width = 0;
+  style_para_back.body.radius       = 3;
+  style_para_back.text.color        = LV_COLOR_WHITE;
+  style_para_back.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+
+  lv_style_copy(&lv_bar_style_indic, &lv_style_pretty_color);
+  lv_bar_style_indic.text.color        = lv_color_hex3(0xADF);
+  lv_bar_style_indic.image.color       = lv_color_hex3(0xADF);
+  lv_bar_style_indic.line.color        = lv_color_hex3(0xADF);
+  lv_bar_style_indic.body.main_color   = lv_color_hex3(0xADF);
+  lv_bar_style_indic.body.grad_color   = lv_color_hex3(0xADF);
+  lv_bar_style_indic.body.border.color = lv_color_hex3(0xADF);
+
 }
 
 #define MAX_TITLE_LEN 28
@@ -354,15 +514,14 @@ char *getDispText(int index) {
     case BIND_UI:
       strcpy(public_buf_l, cloud_menu.title);
       break;
-    case ZOFFSET_UI:
-      strcpy(public_buf_l, zoffset_menu.title);
-      break;
     case TOOL_UI:
       strcpy(public_buf_l, tool_menu.title);
       break;
     case WIFI_LIST_UI:
-      //strcpy(public_buf_l, list_menu.title);
-      break;
+      #if ENABLED(USE_WIFI_FUNCTION)
+        strcpy(public_buf_l, list_menu.title);
+        break;
+      #endif
     case MACHINE_PARA_UI:
       strcpy(public_buf_l, MachinePara_menu.title);
       break;
@@ -493,18 +652,8 @@ char *creat_title_text() {
           }
         }
 
-        //SERIAL_ECHOLNPAIR("gPicturePreviewStart: ", gPicturePreviewStart, " PREVIEW_LITTLE_PIC_SIZE: ", PREVIEW_LITTLE_PIC_SIZE);
-
         card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          //SPI_TFT.SetCursor(0,0);
-          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-          SPI_TFT.LCD_WriteRAM_Prepare();
-        #else
-          ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-          LCD_WriteRAM_Prepare();
-        #endif
+        SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
 
         j = i = 0;
 
@@ -517,28 +666,11 @@ char *creat_title_text() {
           }
           if (j >= 400) break;
         }
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          uint16_t Color, SpiColor;
-          SpiColor = (LV_COLOR_BACKGROUND.full >> 8) | ((LV_COLOR_BACKGROUND.full & 0xFF) << 8);
-          for (i = 0; i < 400;) {
-            p_index  = (uint16_t *)(&bmp_public_buf[i]);
-            Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xFF) << 8);
-            i       += 2;
-            if (*p_index == 0x0000) *p_index = SpiColor;
-          }
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
-          SPI.dmaSend(bmp_public_buf, 400, true);
-          SPI_TFT_CS_H;
-        #else
-          for (i = 0; i < 400;) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-            LCD_IO_WriteData(*p_index);
-            i += 2;
-          }
-        #endif
+        for (i = 0; i < 400; i += 2) {
+          p_index  = (uint16_t *)(&bmp_public_buf[i]);
+          if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
+        }
+        SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
         #if HAS_BAK_VIEW_IN_FLASH
           W25QXX.init(SPI_QUARTER_SPEED);
           if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
@@ -555,12 +687,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -589,10 +721,10 @@ char *creat_title_text() {
             //saved_feedrate_percentage = feedrate_percentage;
             planner.flow_percentage[0] = 100;
             planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            if (EXTRUDERS == 2) {
+            #if HAS_MULTI_EXTRUDER
               planner.flow_percentage[1] = 100;
               planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            }
+            #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             once_flag = 0;
@@ -620,12 +752,9 @@ char *creat_title_text() {
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
         #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          //SPI_TFT.SetCursor(0,0);
-          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-          SPI_TFT.LCD_WriteRAM_Prepare();
+          SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
         #else
-          ili9320_SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+          LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
           LCD_WriteRAM_Prepare();
         #endif
 
@@ -658,14 +787,14 @@ char *creat_title_text() {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
 
             Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xff) << 8);
+            *p_index = Color | ((*p_index & 0xFF) << 8);
             i       += 2;
             if (*p_index == 0x0000) *p_index = 0xC318;
           }
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
+          TFT_CS_L;
+          TFT_DC_H;
           SPI.dmaSend(bmp_public_buf, 400, true);
-          SPI_TFT_CS_H;
+          TFT_CS_H;
 
         #else
           for (i = 0; i < 400;) {
@@ -690,12 +819,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -724,10 +853,10 @@ char *creat_title_text() {
             //saved_feedrate_percentage = feedrate_percentage;
             planner.flow_percentage[0] = 100;
             planner.e_factor[0]        = planner.flow_percentage[0] * 0.01;
-            if (EXTRUDERS == 2) {
+            #if HAS_MULTI_EXTRUDER
               planner.flow_percentage[1] = 100;
               planner.e_factor[1]        = planner.flow_percentage[1] * 0.01;
-            }
+            #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
             once_flag = 0;
@@ -743,84 +872,22 @@ char *creat_title_text() {
   void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
     int index;
     int y_off = 0;
-    int _y;
-    uint16_t *p_index;
-    int i;
-
+    W25QXX.init(SPI_QUARTER_SPEED);
     for (index = 0; index < 10; index++) { // 200*200
       #if HAS_BAK_VIEW_IN_FLASH
         if (sel == 1) {
           flash_view_Read(bmp_public_buf, 8000); // 20k
         }
         else {
-          default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-          #if ENABLED(TFT_LVGL_UI_SPI)
-            uint16_t Color;
-            for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
-              p_index = (uint16_t *)(&bmp_public_buf[i]);
-              Color = (*p_index >> 8);
-              *p_index = Color | ((*p_index & 0xff) << 8);
-              i += 2;
-            }
-          #endif
+          default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
         }
       #else
-        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 20k
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          for (i = 0; i < (DEFAULT_VIEW_MAX_SIZE / 10);) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-            Color = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xff) << 8);
-            i += 2;
-          }
-        #endif
+        default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
       #endif
 
-      i = 0;
-      #if ENABLED(TFT_LVGL_UI_SPI)
+      SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+      SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
-        //SPI_TFT.spi_init(SPI_FULL_SPEED);
-        //SPI_TFT.SetWindows(xpos_pixel, y_off * 20+ypos_pixel, 200,20);     //200*200
-        //SPI_TFT.LCD_WriteRAM_Prepare();
-        int j = 0;
-        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-          SPI_TFT.spi_init(SPI_FULL_SPEED);
-          SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel + j, 200, 1); // 200*200
-          SPI_TFT.LCD_WriteRAM_Prepare();
-
-          j++;
-          //memcpy(public_buf,&bmp_public_buf[i],400);
-          SPI_TFT_CS_L;
-          SPI_TFT_DC_H;
-          SPI.dmaSend(&bmp_public_buf[i], 400, true);
-          SPI_TFT_CS_H;
-
-          i += 400;
-          if (i >= 8000) break;
-        }
-      #else
-        int x_off = 0;
-        uint16_t temp_p;
-        ili9320_SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
-
-        LCD_WriteRAM_Prepare();
-
-        for (_y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-          for (x_off = 0; x_off < 200; x_off++) {
-            if (sel == 1) {
-              temp_p  = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
-              p_index = &temp_p;
-            }
-            else {
-              p_index = (uint16_t *)(&bmp_public_buf[i]);
-            }
-            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-            LCD_IO_WriteData(*p_index);
-            i += 2;
-          }
-          if (i >= 8000) break;
-        }
-      #endif // TFT_LVGL_UI_SPI
       y_off++;
     }
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -951,29 +1018,28 @@ void GUI_RefreshPage() {
       */
       break;
 
-    case WIFI_UI:
-      /*
-      if (wifi_refresh_flg == 1) {
-        disp_wifi_state();
-        wifi_refresh_flg = 0;
-      }
-      */
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case WIFI_UI:
+        if (temperature_change_frequency == 1) {
+          disp_wifi_state();
+          temperature_change_frequency = 0;
+        }
+        break;
+    #endif
+
     case BIND_UI:
       /*refresh_bind_ui();*/
       break;
 
     case FILAMENTCHANGE_UI:
-      /*
       if (temperature_change_frequency) {
         temperature_change_frequency = 0;
-        disp_filament_sprayer_temp();
+        disp_filament_temp();
       }
-      */
       break;
     case DIALOG_UI:
-      /*filament_dialog_handle();
-      wifi_scan_handle();*/
+      filament_dialog_handle();
+      TERN_(USE_WIFI_FUNCTION, wifi_scan_handle());
       break;
     case MESHLEVELING_UI:
       /*disp_zpos();*/
@@ -981,66 +1047,68 @@ void GUI_RefreshPage() {
     case HARDWARE_TEST_UI:
       break;
     case WIFI_LIST_UI:
-      /*
-      if (wifi_refresh_flg == 1) {
-        disp_wifi_list();
-        wifi_refresh_flg = 0;
-      }
-      */
+      #if ENABLED(USE_WIFI_FUNCTION)
+        if (printing_rate_update_flag == 1) {
+          disp_wifi_list();
+          printing_rate_update_flag = 0;
+        }
+      #endif
       break;
     case KEY_BOARD_UI:
       /*update_password_disp();
       update_join_state_disp();*/
       break;
-    case TIPS_UI:
-      /*
-      switch (tips_type) {
-        case TIPS_TYPE_JOINING:
-          if (wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName, (const char *)wifi_list.wifiName[wifi_list.nameIndex]) == 0) {
-            tips_disp.timer = TIPS_TIMER_STOP;
-            tips_disp.timer_count = 0;
-            Clear_Tips();
-            tips_type = TIPS_TYPE_WIFI_CONECTED;
-            draw_Tips();
-          }
-          if (tips_disp.timer_count >= 30) {
-            tips_disp.timer = TIPS_TIMER_STOP;
-            tips_disp.timer_count = 0;
-            Clear_Tips();
-            tips_type = TIPS_TYPE_TAILED_JOIN;
-            draw_Tips();
-          }
-          break;
-        case TIPS_TYPE_TAILED_JOIN:
-          if (tips_disp.timer_count >= 3) {
-            tips_disp.timer = TIPS_TIMER_STOP;
-            tips_disp.timer_count = 0;
-            last_disp_state = TIPS_UI;
-            Clear_Tips();
-            draw_Wifi_list();
-          }
-          break;
-        case TIPS_TYPE_WIFI_CONECTED:
-          if (tips_disp.timer_count >= 3) {
-            tips_disp.timer = TIPS_TIMER_STOP;
-            tips_disp.timer_count = 0;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case WIFI_TIPS_UI:
+        switch (wifi_tips_type) {
+          case TIPS_TYPE_JOINING:
+            if (wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName,(const char *)wifi_list.wifiName[wifi_list.nameIndex]) == 0) {
+              tips_disp.timer = TIPS_TIMER_STOP;
+              tips_disp.timer_count = 0;
 
-            last_disp_state = TIPS_UI;
-            Clear_Tips();
-            draw_Wifi();
-          }
-          break;
-        default: break;
-      }
-      */
-      break;
+              lv_clear_wifi_tips();
+              wifi_tips_type = TIPS_TYPE_WIFI_CONECTED;
+              lv_draw_wifi_tips();
+
+            }
+            if (tips_disp.timer_count >= 30 * 1000) {
+              tips_disp.timer = TIPS_TIMER_STOP;
+              tips_disp.timer_count = 0;
+              lv_clear_wifi_tips();
+              wifi_tips_type = TIPS_TYPE_TAILED_JOIN;
+              lv_draw_wifi_tips();
+            }
+            break;
+          case TIPS_TYPE_TAILED_JOIN:
+            if (tips_disp.timer_count >= 3 * 1000) {
+              tips_disp.timer = TIPS_TIMER_STOP;
+              tips_disp.timer_count = 0;
+
+              last_disp_state = WIFI_TIPS_UI;
+              lv_clear_wifi_tips();
+              lv_draw_wifi_list();
+            }
+            break;
+          case TIPS_TYPE_WIFI_CONECTED:
+            if (tips_disp.timer_count >= 3 * 1000) {
+              tips_disp.timer = TIPS_TIMER_STOP;
+              tips_disp.timer_count = 0;
+
+              last_disp_state = WIFI_TIPS_UI;
+              lv_clear_wifi_tips();
+              lv_draw_wifi();
+            }
+            break;
+          default: break;
+        }
+        break;
+    #endif
+
     case BABY_STEP_UI:
-      /*
       if (temperature_change_frequency == 1) {
         temperature_change_frequency = 0;
         disp_z_offset_value();
       }
-      */
       break;
     default: break;
   }
@@ -1107,9 +1175,11 @@ void clear_cur_ui() {
     case DISK_UI:
       //Clear_Disk();
       break;
-    case WIFI_UI:
-      //Clear_Wifi();
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case WIFI_UI:
+        lv_clear_wifi();
+        break;
+    #endif
     case MORE_UI:
       //Clear_more();
       break;
@@ -1125,15 +1195,20 @@ void clear_cur_ui() {
     case PRINT_MORE_UI:
       //Clear_Printmore();
       break;
+    case FILAMENTCHANGE_UI:
+      lv_clear_filament_change();
+      break;
     case LEVELING_UI:
       lv_clear_manualLevel();
       break;
     case BIND_UI:
       //Clear_Bind();
       break;
-    case ZOFFSET_UI:
-      //Clear_Zoffset();
-      break;
+    #if HAS_BED_PROBE
+      case NOZZLE_PROBE_OFFSET_UI:
+        lv_clear_auto_level_offset_settings();
+        break;
+    #endif
     case TOOL_UI:
       lv_clear_tool();
       break;
@@ -1143,15 +1218,19 @@ void clear_cur_ui() {
     case HARDWARE_TEST_UI:
       //Clear_Hardwaretest();
       break;
-    case WIFI_LIST_UI:
-      //Clear_Wifi_list();
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case WIFI_LIST_UI:
+          lv_clear_wifi_list();
+        break;
+    #endif
     case KEY_BOARD_UI:
-      //Clear_Keyboard();
+      lv_clear_keyboard();
       break;
-    case TIPS_UI:
-      //Clear_Tips();
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case WIFI_TIPS_UI:
+        lv_clear_wifi_tips();
+        break;
+    #endif
     case MACHINE_PARA_UI:
       lv_clear_machine_para();
       break;
@@ -1177,19 +1256,19 @@ void clear_cur_ui() {
       //Clear_EndstopType();
       break;
     case FILAMENT_SETTINGS_UI:
-      //Clear_FilamentSettings();
+      lv_clear_filament_settings();
       break;
     case LEVELING_SETTIGNS_UI:
       //Clear_LevelingSettings();
       break;
     case LEVELING_PARA_UI:
-      //Clear_LevelingPara();
+      lv_clear_level_settings();
       break;
     case DELTA_LEVELING_PARA_UI:
       //Clear_DeltaLevelPara();
       break;
-    case XYZ_LEVELING_PARA_UI:
-      //Clear_XYZLevelPara();
+    case MANUAL_LEVELING_POSIGION_UI:
+      lv_clear_manual_level_pos_settings();
       break;
     case MAXFEEDRATE_UI:
       lv_clear_max_feedrate_settings();
@@ -1230,7 +1309,7 @@ void clear_cur_ui() {
       lv_clear_number_key();
       break;
     case BABY_STEP_UI:
-      //Clear_babyStep();
+      lv_clear_baby_stepping();
       break;
     case PAUSE_POS_UI:
       lv_clear_pause_position();
@@ -1248,8 +1327,22 @@ void clear_cur_ui() {
           lv_clear_tmc_step_mode_settings();
           break;
       #endif
-    default:
+    #if ENABLED(USE_WIFI_FUNCTION)
+    case WIFI_SETTINGS_UI:
+      lv_clear_wifi_settings();
       break;
+    #endif
+    #if USE_SENSORLESS
+      case HOMING_SENSITIVITY_UI:
+        lv_clear_homing_sensitivity_settings();
+        break;
+    #endif
+    #if HAS_ROTARY_ENCODER
+      case ENCODER_SETTINGS_UI:
+        lv_clear_encoder_settings();
+        break;
+    #endif
+    default: break;
   }
   //GUI_Clear();
 }
@@ -1314,21 +1407,17 @@ void draw_return_ui() {
         lv_draw_about();
         break;
 
-        #if tan_mask
-          case LOG_UI:
-            //draw_Connect();
-            break;
-        #endif
-
       case CALIBRATE_UI:
         //draw_calibrate();
         break;
       case DISK_UI:
         //draw_Disk();
         break;
-      case WIFI_UI:
-        //draw_Wifi();
-        break;
+      #if ENABLED(USE_WIFI_FUNCTION)
+        case WIFI_UI:
+          lv_draw_wifi();
+          break;
+      #endif
       case MORE_UI:
         //draw_More();
         break;
@@ -1336,7 +1425,7 @@ void draw_return_ui() {
         //draw_printmore();
         break;
       case FILAMENTCHANGE_UI:
-        //draw_FilamentChange();
+        lv_draw_filament_change();
         break;
       case LEVELING_UI:
         lv_draw_manualLevel();
@@ -1344,13 +1433,11 @@ void draw_return_ui() {
       case BIND_UI:
         //draw_bind();
         break;
-
-        #if tan_mask
-          case ZOFFSET_UI:
-            //draw_Zoffset();
-            break;
-        #endif
-
+      #if HAS_BED_PROBE
+        case NOZZLE_PROBE_OFFSET_UI:
+          lv_draw_auto_level_offset_settings();
+          break;
+      #endif
       case TOOL_UI:
         lv_draw_tool();
         break;
@@ -1361,13 +1448,17 @@ void draw_return_ui() {
         //draw_Hardwaretest();
         break;
       case WIFI_LIST_UI:
-        //draw_Wifi_list();
+        #if ENABLED(USE_WIFI_FUNCTION)
+          lv_draw_wifi_list();
+        #endif
         break;
       case KEY_BOARD_UI:
-        //draw_Keyboard();
+        lv_draw_keyboard();
         break;
-      case TIPS_UI:
-        //draw_Tips();
+      case WIFI_TIPS_UI:
+        #if ENABLED(USE_WIFI_FUNCTION)
+          lv_draw_wifi_tips();
+        #endif
         break;
       case MACHINE_PARA_UI:
         lv_draw_machine_para();
@@ -1394,19 +1485,19 @@ void draw_return_ui() {
         //draw_EndstopType();
         break;
       case FILAMENT_SETTINGS_UI:
-        //draw_FilamentSettings();
+        lv_draw_filament_settings();
         break;
       case LEVELING_SETTIGNS_UI:
         //draw_LevelingSettings();
         break;
       case LEVELING_PARA_UI:
-        //draw_LevelingPara();
+        lv_draw_level_settings();
         break;
       case DELTA_LEVELING_PARA_UI:
         //draw_DeltaLevelPara();
         break;
-      case XYZ_LEVELING_PARA_UI:
-        //draw_XYZLevelPara();
+      case MANUAL_LEVELING_POSIGION_UI:
+        lv_draw_manual_level_pos_settings();
         break;
       case MAXFEEDRATE_UI:
         lv_draw_max_feedrate_settings();
@@ -1447,10 +1538,10 @@ void draw_return_ui() {
         lv_draw_number_key();
         break;
       case DIALOG_UI:
-        //draw_dialog(DialogType);
+        //draw_dialog(uiCfg.dialogType);
         break;
       case BABY_STEP_UI:
-        //draw_babyStep();
+        lv_draw_baby_stepping();
         break;
       case PAUSE_POS_UI:
         lv_draw_pause_position();
@@ -1468,6 +1559,21 @@ void draw_return_ui() {
             lv_draw_tmc_step_mode_settings();
             break;
         #endif
+      #if ENABLED(USE_WIFI_FUNCTION)
+        case WIFI_SETTINGS_UI:
+        lv_draw_wifi_settings();
+        break;
+      #endif
+      #if USE_SENSORLESS
+        case HOMING_SENSITIVITY_UI:
+          lv_draw_homing_sensitivity_settings();
+          break;
+      #endif
+      #if HAS_ROTARY_ENCODER
+        case ENCODER_SETTINGS_UI:
+          lv_draw_encoder_settings();
+          break;
+      #endif
       default: break;
     }
   }
@@ -1487,8 +1593,8 @@ void draw_return_ui() {
 #endif
 
 void lv_ex_line(lv_obj_t * line, lv_point_t *points) {
-  /*Copy the previous line and apply the new style*/
-  lv_line_set_points(line, points, 2);     /*Set the points*/
+  // Copy the previous line and apply the new style
+  lv_line_set_points(line, points, 2);     // Set the points
   lv_line_set_style(line, LV_LINE_STYLE_MAIN, &style_line);
   lv_obj_align(line, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
 }
@@ -1497,18 +1603,29 @@ extern volatile uint32_t systick_uptime_millis;
 
 void print_time_count() {
   if ((systick_uptime_millis % 1000) == 0)
-    if (print_time.start == 1) print_time.seconds++;
+  if (print_time.start == 1) print_time.seconds++;
 }
 
 void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
-  if (mks_test_flag == 0x1e) mks_hardware_test();
+  if (mks_test_flag == 0x1E) mks_hardware_test();
+
   #if HAS_GCODE_PREVIEW
     disp_pre_gcode(2, 36);
   #endif
+
   GUI_RefreshPage();
+
+  #if ENABLED(USE_WIFI_FUNCTION)
+    get_wifi_commands();
+  #endif
+
   //sd_detection();
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_update_encoder();
+  #endif
 }
 
 #endif // HAS_TFT_LVGL_UI

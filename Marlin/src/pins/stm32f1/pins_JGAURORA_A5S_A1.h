@@ -28,7 +28,7 @@
   *   Pin assignments for 32-bit JGAurora A5S & A1
   */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
@@ -39,14 +39,14 @@
   #define STM32_XL_DENSITY
 #endif
 
-// #define MCU_STM32F103ZE // not yet required
+//#define MCU_STM32F103ZE // not yet required
 // Enable EEPROM Emulation for this board, so that we don't overwrite factory data
 
 //#define I2C_EEPROM                              // AT24C64
-//#define MARLIN_EEPROM_SIZE 0x8000UL             // 64KB
+//#define MARLIN_EEPROM_SIZE            0x8000UL  // 64KB
 
 //#define FLASH_EEPROM_EMULATION
-//#define MARLIN_EEPROM_SIZE 0x1000UL             // 4KB
+//#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
 //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
 
 //#define EEPROM_CHITCHAT
@@ -126,7 +126,7 @@
 //
 // Touch support
 //
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PA4
   #define TOUCH_INT_PIN                     PC4
 #endif
