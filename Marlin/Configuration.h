@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define CONFIG_EXAMPLES_DIR "delta/FLSUN/QQ-S"
+
 /**
  * Configuration.h
  *
@@ -531,6 +533,8 @@
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
+  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+  // FLSUN QQ-S, 200 C with 100% part cooling
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
@@ -1498,7 +1502,7 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 3              // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 11      // Don't use more than 15 points per axis, implementation limited.
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
@@ -2446,14 +2450,14 @@
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
-//#if EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
+#if EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
   #define TOUCH_SCREEN
-//#endif
+#endif
   #if ENABLED(TOUCH_SCREEN)
     #define BUTTON_DELAY_EDIT  25 // (ms) Button repeat delay for edit screens
     #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-    #define TOUCH_SCREEN_CALIBRATION //or (M995) 
+    //#define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   //#define XPT2046_X_CALIBRATION 12316
   //#define XPT2046_Y_CALIBRATION -8981
@@ -2461,12 +2465,12 @@
   //#define XPT2046_Y_OFFSET        257
 
   // Define in pins QQS-Pro (M995)
-  #define XPT2046_X_CALIBRATION 12218
-  #define XPT2046_Y_CALIBRATION -8814
-  #define XPT2046_X_OFFSET        -34
-  #define XPT2046_Y_OFFSET        256
+  //#define XPT2046_X_CALIBRATION 12218
+  //#define XPT2046_Y_CALIBRATION -8814
+  //#define XPT2046_X_OFFSET        -34
+  //#define XPT2046_Y_OFFSET        256
   
-#endif
+  #endif
 
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
