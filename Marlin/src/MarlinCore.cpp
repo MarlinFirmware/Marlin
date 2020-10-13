@@ -77,10 +77,6 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #include "libs/BL24CXX.h"
 #endif
@@ -507,11 +503,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLNPAIR(STR_KILL_INACTIVE_TIME, parser.command_ptr);
 
-    #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-      DWINTouch_inactivity_callback();
-    #else
-      kill();
-    #endif
+    kill();
   }
 
   // M18 / M94 : Handle steppers inactive time timeout
@@ -752,15 +744,14 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   // Handle UI input / draw events
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
-  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_refresh());
 
   #if ENABLED(FIX_MOUNTED_PROBE)
-    if((IS_SD_PRINTING() == true) && home_flag == false) //  printing and no homing
+    if((IS_SD_PRINTING() == true) && is_homing == false) //  printing and no homing
     {
       endstops.enable_z_probe(false);
     }
 
-    if((0 == READ(OPTO_SWITCH_PIN)) && (home_flag == true))
+    if((0 == READ(OPTO_SWITCH_PIN)) && (is_homing == true))
     {
       endstops.enable_z_probe(true);
       delay(100);
@@ -1218,9 +1209,6 @@ void setup() {
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
 
-  #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-    SETUP_RUN(DWINTouch_init());
-  #endif
 
   #if ENABLED(DWIN_CREALITY_LCD)
     Encoder_Configuration();

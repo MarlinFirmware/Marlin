@@ -55,10 +55,6 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #include "../lcd/ultralcd.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"

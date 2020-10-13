@@ -55,10 +55,6 @@
   #include "../lcd/ultralcd.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #if HAS_FILAMENT_SENSOR
   #include "../feature/runout.h"
 #endif
@@ -1580,7 +1576,7 @@ void homeaxis(const AxisEnum axis) {
   #if ENABLED(FIX_MOUNTED_PROBE)
     if(axis == Z_AXIS)
     {
-      AutohomeZflag = true;
+      is_homing_z = true;
     }
   #endif
 

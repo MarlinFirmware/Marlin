@@ -295,6 +295,9 @@
 #include "../inc/MarlinConfig.h"
 #include "parser.h"
 
+extern bool is_homing;
+extern bool is_homing_z;
+
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "../feature/encoder_i2c.h"
 #endif

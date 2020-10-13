@@ -47,10 +47,6 @@ GCodeQueue queue;
   #include "../feature/powerloss.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
@@ -587,7 +583,6 @@ void GCodeQueue::get_serial_commands() {
 
         if (card_eof) {
            card.fileHasFinished();         // Handle end of file reached
-           TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_print_completed_callback());
         }
         
       }

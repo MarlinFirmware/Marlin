@@ -2166,6 +2166,10 @@
 //#define DGUS_LCD_UI_FYSETC
 //#define DGUS_LCD_UI_HIPRECY
 
+//
+// CR-6 OEM touch screen. A DWIN display with touch.
+//
+
 #define DGUS_LCD_UI_CREALITY_TOUCH
 
 //
@@ -2249,12 +2253,6 @@
 // Ender-3 v2 OEM display. A DWIN display with Rotary Encoder.
 //
 //#define DWIN_CREALITY_LCD
-
-//
-// CR-6 OEM touch screen. A DWIN display with touch.
-//
-
-#define DWIN_CREALITY_TOUCHLCD
 
 #define EEPROM_PLR
 #if ENABLED(EEPROM_PLR)

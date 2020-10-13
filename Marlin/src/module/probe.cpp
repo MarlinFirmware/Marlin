@@ -81,10 +81,6 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -555,13 +551,13 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
 
   #if ENABLED(FIX_MOUNTED_PROBE)
-    if((0 == READ(OPTO_SWITCH_PIN)) && (AutohomeZflag == true))
+    if((0 == READ(OPTO_SWITCH_PIN)) && (is_homing_z == true))
     {
       digitalWrite(COM_PIN, HIGH);
       delay(200);
       digitalWrite(COM_PIN, LOW);
       delay(200);
-      AutohomeZflag = false;
+      is_homing_z = false;
     }
   #endif
 
@@ -731,7 +727,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
-    TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_error_probe_failed());
     stow();
     LCD_MESSAGEPGM(MSG_LCD_PROBING_FAILED);
     #if DISABLED(G29_RETRY_AND_RECOVER)

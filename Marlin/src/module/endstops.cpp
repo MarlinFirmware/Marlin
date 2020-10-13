@@ -32,10 +32,6 @@
 #include "temperature.h"
 #include "../lcd/ultralcd.h"
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include HAL_PATH(../HAL, endstop_interrupts.h)
 #endif
@@ -320,11 +316,7 @@ void Endstops::not_homing() {
   void Endstops::validate_homing_move() {
     if (trigger_state()) hit_on_purpose();
     else {
-       #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-         DWINTouch_error_home_failed();
-       #else
-         kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
-       #endif
+        kill(GET_TEXT(MSG_KILL_HOMING_FAILED));
     }
   }
 #endif

@@ -50,10 +50,6 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../../lcd/dwin/dwin_touch_lcd.h"
-#endif
-
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
@@ -64,6 +60,9 @@
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../../core/debug_out.h"
+
+bool is_homing = false;
+bool is_homing_z = false;
 
 #if ENABLED(QUICK_HOME)
 
@@ -205,7 +204,8 @@ void GcodeSuite::G28() {
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
-  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_callback());
+  
+  is_homing = true;
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -321,19 +321,13 @@ void GcodeSuite::G28() {
         ? 0
         : (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT);
 
-    #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-      if (DWINTouch_autohome_is_lcd_ready()) {
-    #endif
-
       if (z_homing_height && (doX || doY || (ENABLED(Z_SAFE_HOMING) && doZ))) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
         if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Raise Z (before homing) by ", z_homing_height);
         do_z_clearance(z_homing_height, true, DISABLED(UNKNOWN_Z_NO_RAISE));
       }
 
-    #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-      }
-    #endif
+      is_homing = false;
 
     #if ENABLED(QUICK_HOME)
 
@@ -472,8 +466,6 @@ void GcodeSuite::G28() {
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
-  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_update_callback());
-  TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_autohome_complete_callback());
   TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
 
   report_current_position();

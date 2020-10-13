@@ -64,9 +64,6 @@
   #include "../../../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#if ENABLED(DWIN_CREALITY_TOUCHLCD)
-  #include "../../../lcd/dwin/dwin_touch_lcd.h"
-#endif
 
 #if HAS_MULTI_HOTEND
   #include "../../../module/tool_change.h"
@@ -615,10 +612,6 @@ G29_TYPE GcodeSuite::G29() {
         bool zig = (PR_OUTER_END & 1); // Always end at RIGHT and BACK_PROBE_BED_POSITION
       #endif
 
-      #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-        uint8_t bl_count = 0;
-      #endif
-
       measured_z = 0;
 
       xy_int8_t meshCount;
@@ -685,14 +678,6 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]));
-
-            #if ENABLED(DWIN_CREALITY_TOUCHLCD)
-               bl_count++;
-
-               if (bl_count <= GRID_MAX_POINTS) {
-                   DWINTouch_bedlevel_update_callback(bl_count);
-               }
-            #endif
           #endif
 
           abl_should_enable = false;
@@ -763,8 +748,6 @@ G29_TYPE GcodeSuite::G29() {
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bilinear_leveling_grid();
-
-      TERN_(DWIN_CREALITY_TOUCHLCD, DWINTouch_bedlevel_finish_callback());
 
       refresh_bed_level();
 
