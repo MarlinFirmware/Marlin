@@ -121,9 +121,12 @@ void tft_lvgl_init() {
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
+  watchdog_refresh();
+
   //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
+    watchdog_refresh();
   #endif
   mks_test_get();
 
