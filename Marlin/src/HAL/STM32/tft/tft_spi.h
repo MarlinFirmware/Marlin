@@ -38,7 +38,11 @@
 
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT   SPI_DATASIZE_16BIT
+<<<<<<< HEAD
 #define TFT_IO TFT_SPI
+=======
+#define TFT_IO_DRIVER TFT_SPI
+>>>>>>> 2.0.x
 
 class TFT_SPI {
 private:

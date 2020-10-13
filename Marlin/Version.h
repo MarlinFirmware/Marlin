@@ -29,6 +29,7 @@
  * Marlin release version identifier
  */
 #define SHORT_BUILD_VERSION "FLSUN HISPEEDv2"
+//#define SHORT_BUILD_VERSION "2.0.7.2"
 
 /**
  * Verbose version identifier which should contain a reference to the location
@@ -65,7 +66,7 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "https://marlinfw.org"
+//#define WEBSITE_URL "https://marlinfw.org"
 
 /**
  * Set the vendor info the serial USB interface, if changable

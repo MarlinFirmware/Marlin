@@ -26,6 +26,51 @@
  * Defines that depend on advanced configuration.
  */
 
+#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+  #define SWITCHING_NOZZLE_TWO_SERVOS 1
+#endif
+
+// Determine NUM_SERVOS if none was supplied
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS 0
+  #if ANY(CHAMBER_VENT, HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+    #if NUM_SERVOS <= Z_PROBE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_E1_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_E1_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_E23_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
+    #endif
+  #endif
+#endif
+
+// Convenience override for a BLTouch alone
+#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 50 }
+#endif
+
 #if EXTRUDERS == 0
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
@@ -130,7 +175,7 @@
 #endif
 
 #if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
-  #define HAS_I2C_DIGIPOT 1
+  #define HAS_MOTOR_CURRENT_I2C 1
 #endif
 
 // Multiple Z steppers
@@ -163,7 +208,10 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if !defined(__AVR__) || !defined(USBCON)
+#if defined(__AVR__) && defined(USBCON)
+  #define IS_AT90USB 1
+  #undef SERIAL_XON_XOFF // Not supported on USB-native devices
+#else
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
   // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -175,9 +223,6 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
-#else
-  // SERIAL_XON_XOFF not supported on USB-native devices
-  #undef SERIAL_XON_XOFF
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)

@@ -27,12 +27,21 @@
 * https://www.pjrc.com/teensy/teensyduino.html
 ****************************************************************************************/
 
+<<<<<<< HEAD
 #if NOT_TARGET(IS_32BIT_TEENSY) || NOT_TARGET(IS_TEENSY41)
   #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
 #else
   #define BOARD_INFO_NAME "Teensy4.1"
 #endif
 
+=======
+#if NOT_TARGET(IS_TEENSY41)
+  #error "Oops! Select 'Teensy 4.1' in 'Tools > Board.'"
+#endif
+
+#define BOARD_INFO_NAME "Teensy4.1"
+
+>>>>>>> 2.0.x
 /**
  * Plan for Teensy 4.0 and Teensy 4.1:
  *                                     USB
@@ -85,17 +94,29 @@
 #define X_STEP_PIN                             2
 #define X_DIR_PIN                              3
 #define X_ENABLE_PIN                          10
+<<<<<<< HEAD
 //#define X_CS_PIN                              30
+=======
+//#define X_CS_PIN                            30
+>>>>>>> 2.0.x
 
 #define Y_STEP_PIN                             4
 #define Y_DIR_PIN                              5
 #define Y_ENABLE_PIN                          40
+<<<<<<< HEAD
 //#define Y_CS_PIN                              31
+=======
+//#define Y_CS_PIN                            31
+>>>>>>> 2.0.x
 
 #define Z_STEP_PIN                             6
 #define Z_DIR_PIN                              7
 #define Z_ENABLE_PIN                          39
+<<<<<<< HEAD
 //#define Z_CS_PIN                              32
+=======
+//#define Z_CS_PIN                            32
+>>>>>>> 2.0.x
 
 #define E0_STEP_PIN                            8
 #define E0_DIR_PIN                             9

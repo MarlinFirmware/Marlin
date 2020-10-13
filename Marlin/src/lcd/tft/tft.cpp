@@ -25,6 +25,7 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "tft.h"
+<<<<<<< HEAD
 #include "st7735.h"
 #include "st7789v.h"
 #include "st7796s.h"
@@ -32,12 +33,15 @@
 #include "ili9328.h"
 #include "ili9341.h"
 #include "ili9488.h"
+=======
+>>>>>>> 2.0.x
 
 //#define DEBUG_GRAPHICAL_TFT
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
 
 uint16_t TFT::buffer[];
+<<<<<<< HEAD
 uint32_t TFT::lcd_id = 0xFFFFFFFF;
 
 void TFT::init() {
@@ -192,6 +196,12 @@ void TFT::write_esc_sequence(const uint16_t *Sequence) {
   }
 
   io.DataTransferEnd();
+=======
+
+void TFT::init() {
+  io.Init();
+  io.InitTFT();
+>>>>>>> 2.0.x
 }
 
 TFT tft;

@@ -19,6 +19,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+<<<<<<< HEAD
+=======
+
+/**
+ * HAL Watchdog for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ */
+
+>>>>>>> 2.0.x
 #ifdef __IMXRT1062__
 
 #include "../../inc/MarlinConfig.h"
@@ -48,5 +56,8 @@ void HAL_watchdog_refresh() {
 }
 
 #endif // USE_WATCHDOG
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2.0.x
 #endif // __IMXRT1062__

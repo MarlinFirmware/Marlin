@@ -39,7 +39,11 @@
   //#define SDCARD_EEPROM_EMULATION
   //#define I2C_EEPROM                            // AT24C32
   #define FLASH_EEPROM_EMULATION
+<<<<<<< HEAD
   #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+=======
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+>>>>>>> 2.0.x
 #endif
 
 //
@@ -190,7 +194,11 @@
   #define E1_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
+<<<<<<< HEAD
   #define TMC_BAUD_RATE 19200
+=======
+  #define TMC_BAUD_RATE                    19200
+>>>>>>> 2.0.x
 #endif // HAS_TMC_UART
 
 //

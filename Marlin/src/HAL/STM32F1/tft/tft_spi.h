@@ -34,7 +34,11 @@
 
 #define DATASIZE_8BIT    DATA_SIZE_8BIT
 #define DATASIZE_16BIT   DATA_SIZE_16BIT
+<<<<<<< HEAD
 #define TFT_IO TFT_SPI
+=======
+#define TFT_IO_DRIVER TFT_SPI
+>>>>>>> 2.0.x
 
 #define DMA_MINC_ENABLE 1
 #define DMA_MINC_DISABLE 0

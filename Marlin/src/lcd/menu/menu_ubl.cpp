@@ -188,11 +188,10 @@ void _lcd_ubl_edit_mesh() {
    */
   void _lcd_ubl_validate_custom_mesh() {
     char ubl_lcd_gcode[24];
-    const int16_t temp = TERN(HAS_HEATED_BED, custom_bed_temp, 0);
     sprintf_P(ubl_lcd_gcode, PSTR("G28\nG26 C P H%" PRIi16 TERN_(HAS_HEATED_BED, " B%" PRIi16))
       , custom_hotend_temp
       #if HAS_HEATED_BED
-        , temp
+        , custom_bed_temp
       #endif
     );
     queue.inject(ubl_lcd_gcode);

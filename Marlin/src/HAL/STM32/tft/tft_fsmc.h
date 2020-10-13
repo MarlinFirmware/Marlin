@@ -38,7 +38,11 @@
 
 #define DATASIZE_8BIT    SPI_DATASIZE_8BIT
 #define DATASIZE_16BIT   SPI_DATASIZE_16BIT
+<<<<<<< HEAD
 #define TFT_IO TFT_FSMC
+=======
+#define TFT_IO_DRIVER TFT_FSMC
+>>>>>>> 2.0.x
 
 #ifdef STM32F1xx
   #define __IS_DMA_ENABLED(__HANDLE__)      ((__HANDLE__)->Instance->CCR & DMA_CCR_EN)

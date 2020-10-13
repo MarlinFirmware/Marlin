@@ -543,7 +543,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
   PIC_MSG PIC;
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xff)
+  if (Pic_cnt == 0xFF)
     Pic_cnt = 0;
 
   for (i = 0; i < Pic_cnt; i++) {

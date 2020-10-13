@@ -32,7 +32,11 @@
 
 #define DATASIZE_8BIT    DMA_SIZE_8BITS
 #define DATASIZE_16BIT   DMA_SIZE_16BITS
+<<<<<<< HEAD
 #define TFT_IO TFT_FSMC
+=======
+#define TFT_IO_DRIVER TFT_FSMC
+>>>>>>> 2.0.x
 
 typedef struct {
   __IO uint16_t REG;

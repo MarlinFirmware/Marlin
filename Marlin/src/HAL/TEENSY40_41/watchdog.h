@@ -22,7 +22,11 @@
 #pragma once
 
 /**
+<<<<<<< HEAD
  * Watchdog for Teensy4.0/4.1 (__IMXRT1062__)
+=======
+ * HAL Watchdog for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+>>>>>>> 2.0.x
  */
 
 void watchdog_init();

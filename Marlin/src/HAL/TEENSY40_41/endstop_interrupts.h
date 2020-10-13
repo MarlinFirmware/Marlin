@@ -22,7 +22,11 @@
 #pragma once
 
 /**
+<<<<<<< HEAD
  * Endstop Interrupts
+=======
+ * HAL Endstop Interrupts for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+>>>>>>> 2.0.x
  *
  * Without endstop interrupts the endstop pins must be polled continually in
  * the temperature-ISR via endstops.update(), most of the time finding no change.

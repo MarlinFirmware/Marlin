@@ -181,7 +181,11 @@ uint8_t index_file     = MROWS,
         index_leveling = MROWS,
         index_tune     = MROWS;
 
+<<<<<<< HEAD
 bool dwin_abort_flag = false;
+=======
+bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
+>>>>>>> 2.0.x
 
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
@@ -1801,8 +1805,13 @@ void HMI_SDCardUpdate() {
         // TODO: Move card removed abort handling
         //       to CardReader::manage_media.
         card.flag.abort_sd_printing = true;
+<<<<<<< HEAD
         wait_for_heatup = false;
         dwin_abort_flag = true;
+=======
+        wait_for_heatup = wait_for_user = false;
+        dwin_abort_flag = true; // Reset feedrate, return to Home
+>>>>>>> 2.0.x
       }
     }
     DWIN_UpdateLCD();
@@ -2097,7 +2106,11 @@ void HMI_Printing() {
   if (HMI_flag.done_confirm_flag) {
     if (encoder_diffState == ENCODER_DIFF_ENTER) {
       HMI_flag.done_confirm_flag = false;
+<<<<<<< HEAD
       dwin_abort_flag = true;
+=======
+      dwin_abort_flag = true; // Reset feedrate, return to Home
+>>>>>>> 2.0.x
     }
     return;
   }
@@ -2206,6 +2219,7 @@ void HMI_PauseOrStop() {
     }
     else if (select_print.now == 2) { // stop window
       if (HMI_flag.select_flag) {
+<<<<<<< HEAD
         wait_for_heatup = false; // Stop waiting for heater
 
         #if 0
@@ -2225,6 +2239,17 @@ void HMI_PauseOrStop() {
           #endif
           dwin_abort_flag = true;
         #endif
+=======
+        checkkey = Back_Main;
+        if (HMI_flag.home_flag) planner.synchronize(); // Wait for planner moves to finish!
+        wait_for_heatup = wait_for_user = false;       // Stop waiting for heating/user
+        card.flag.abort_sd_printing = true;            // Let the main loop handle SD abort
+        dwin_abort_flag = true;                        // Reset feedrate, return to Home
+        #ifdef ACTION_ON_CANCEL
+          host_action_cancel();
+        #endif
+        Popup_Window_Home(true);
+>>>>>>> 2.0.x
       }
       else
         Goto_PrintProcess(); // cancel stop
@@ -3584,6 +3609,7 @@ void EachMomentUpdate() {
     dwin_abort_flag = false;
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
     dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
+<<<<<<< HEAD
 
     planner.finish_and_disable();
 
@@ -3591,6 +3617,8 @@ void EachMomentUpdate() {
       thermalManager.disable_all_heaters();
     #endif
 
+=======
+>>>>>>> 2.0.x
     select_page.set(0);
     Goto_MainMenu();
   }

@@ -371,7 +371,7 @@
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2

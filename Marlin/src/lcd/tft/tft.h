@@ -26,7 +26,11 @@
 #include "tft_color.h"
 #include "tft_string.h"
 #include "tft_image.h"
+<<<<<<< HEAD
 #include "tft_io.h"
+=======
+#include "../tft_io/tft_io.h"
+>>>>>>> 2.0.x
 
 #include "../../inc/MarlinConfig.h"
 
@@ -40,6 +44,7 @@
   #error "Unsupported display resolution!"
 #endif
 
+<<<<<<< HEAD
 #define ST7735          0x89F0
 #define ST7789          0x8552
 #define ST7796          0x7796
@@ -54,6 +59,8 @@
   #define TFT_DRIVER    AUTO
 #endif
 
+=======
+>>>>>>> 2.0.x
 #ifndef TFT_BUFFER_SIZE
   #ifdef STM32F103xB
     #define TFT_BUFFER_SIZE       1024
@@ -71,6 +78,7 @@
   #error "TFT_BUFFER_SIZE can not exceed 65535"
 #endif
 
+<<<<<<< HEAD
 #define ESC_REG(x)        0xFFFF, 0x00FF & (uint16_t)x
 #define ESC_DELAY(x)      0xFFFF, 0x8000 | (x & 0x7FFF)
 #define ESC_END           0xFFFF, 0x7FFF
@@ -79,6 +87,10 @@
 class TFT {
   private:
     static uint32_t lcd_id;
+=======
+class TFT {
+  private:
+>>>>>>> 2.0.x
     static TFT_String string;
     static TFT_IO io;
 
@@ -91,13 +103,20 @@ class TFT {
     static inline void set_font(const uint8_t *Font) { string.set_font(Font); }
     static inline void add_glyphs(const uint8_t *Font) { string.add_glyphs(Font); }
 
+<<<<<<< HEAD
     static void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax);
     static void write_esc_sequence(const uint16_t *Sequence);
 
+=======
+>>>>>>> 2.0.x
     static inline bool is_busy() { return io.isBusy(); }
     static inline void abort() { io.Abort(); }
     static inline void write_multiple(uint16_t Data, uint16_t Count) { io.WriteMultiple(Data, Count); }
     static inline void write_sequence(uint16_t *Data, uint16_t Count) { io.WriteSequence(Data, Count); }
+<<<<<<< HEAD
+=======
+    static inline void set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) { io.set_window(Xmin, Ymin, Xmax, Ymax); }
+>>>>>>> 2.0.x
 
     static inline void fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.fill(x, y, width, height, color); }
     static inline void canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) { queue.canvas(x, y, width, height); }
