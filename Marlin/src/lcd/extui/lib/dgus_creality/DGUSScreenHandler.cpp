@@ -324,7 +324,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   }
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
-    uint16_t touched_nr = (int16_t)swap16(*(uint16_t*)val_ptr) + top_file;
+    uint16_t touched_nr = *((uint16_t*)val_ptr);
     if (touched_nr > filelist.count()) return;
     if (!filelist.seek(touched_nr)) return;
     if (filelist.isDir()) {
@@ -334,25 +334,21 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
       return;
     }
 
-    #if ENABLED(DGUS_PRINT_FILENAME)
-      // Send print filename
-      dgusdisplay.WriteVariable(VP_SD_Print_Filename, filelist.filename(), VP_SD_FileName_LEN, true);
-    #endif
-
-    // Setup Confirmation screen
+    // Set selection marker
     file_to_print = touched_nr;
-    HandleUserConfirmationPopUp(VP_SD_FileSelectConfirm, nullptr, PSTR("Print file"), filelist.filename(), PSTR("from SD Card?"), true, true, false, true);
+
+    for (uint16_t vpAddr = VP_SD_SelectionMarker_FileName0; vpAddr < VP_SD_SelectionMarker_FileName0 + VP_SD_FileName_CNT; vpAddr++){
+      dgusdisplay.WriteVariable(vpAddr, VP_ICON_OVERLAY_CLEAR);
+    }
+
+    dgusdisplay.WriteVariable(VP_SD_SelectionMarker_FileName0 + touched_nr, VP_ICON_OVERLAY_SELECTED);
   }
 
   void DGUSScreenHandler::DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr) {
     if (!filelist.seek(file_to_print)) return;
     ExtUI::printFile(filelist.shortFilename());
     ScreenHandler.GotoScreen(
-      #if ENABLED(DGUS_LCD_UI_ORIGIN)
-        DGUSLCD_SCREEN_STATUS
-      #else
-        DGUSLCD_SCREEN_SDPRINTMANIPULATION
-      #endif
+      DGUSLCD_SCREEN_SDPRINTMANIPULATION
     );
   }
 
@@ -382,12 +378,17 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
   }
 
   void DGUSScreenHandler::DGUSLCD_SD_SendFilename(DGUS_VP_Variable& var) {
-    uint16_t target_line = (var.VP - VP_SD_FileName0) / VP_SD_FileName_LEN;
-    if (target_line > DGUS_SD_FILESPERSCREEN) return;
+    uint16_t fileIndex = VP_SD_FileName_CNT - ((VP_SD_FileName19 - var.VP) / VP_SD_FileName_CNT);
+    
+    if (fileIndex > VP_SD_FileName_CNT) return;
+    if (fileIndex < 0) return;
+
     char tmpfilename[VP_SD_FileName_LEN + 1] = "";
     var.memadr = (void*)tmpfilename;
-    if (filelist.seek(top_file + target_line))
+
+    if (filelist.seek(fileIndex))
       snprintf_P(tmpfilename, VP_SD_FileName_LEN, PSTR("%s%c"), filelist.filename(), filelist.isDir() ? '/' : 0);
+
     DGUSLCD_SendStringToDisplay(var);
   }
 
@@ -396,7 +397,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     filelist.refresh();
     auto cs = ScreenHandler.getCurrentScreen();
     if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS)
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST_1);
   }
 
   void DGUSScreenHandler::SDCardRemoved() {

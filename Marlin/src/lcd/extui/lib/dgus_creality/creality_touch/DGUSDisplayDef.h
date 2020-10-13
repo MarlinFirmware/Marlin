@@ -241,16 +241,41 @@ constexpr uint16_t VP_ZPos = 0x1026;  // 4 Byte Fixed point number; format xxx.y
 // constexpr uint16_t VP_EPos = 0x3120;  // 4 Byte Fixed point number; format xxx.yy
 
 // // SDCard File Listing
-constexpr uint16_t VP_SD_FileName_LEN = 16; // LEN is shared for all entries.
-constexpr uint16_t DGUS_SD_FILESPERSCREEN = 5; // FIXME move that info to the display and read it from there.
-constexpr uint16_t VP_SD_FileName0 = 0x3200;
-constexpr uint16_t VP_SD_FileName1 = 0x3220;
-constexpr uint16_t VP_SD_FileName2 = 0x3240;
-constexpr uint16_t VP_SD_FileName3 = 0x3260;
-constexpr uint16_t VP_SD_FileName4 = 0x3280;
+constexpr uint16_t VP_SD_FileName_LEN = 16; // LEN is shared for all entries. (TODO: this might be 20)
+constexpr uint16_t VP_SD_FileName_CNT = 20; // LEN is shared for all entries. (TODO: this might be 20)
+constexpr uint16_t DGUS_SD_FILESPERSCREEN = 4; // FIXME move that info to the display and read it from there.
+constexpr uint16_t VP_SD_FileName0 = 0x200A;
+constexpr uint16_t VP_SD_FileName1 = 0x2014;
+constexpr uint16_t VP_SD_FileName2 = 0x201E;
+constexpr uint16_t VP_SD_FileName3 = 0x2028;
+
+constexpr uint16_t VP_SD_FileName4 = 0x2032;
+constexpr uint16_t VP_SD_FileName5 = 0x203C;
+constexpr uint16_t VP_SD_FileName6 = 0x2046;
+constexpr uint16_t VP_SD_FileName7 = 0x2050;
+
+constexpr uint16_t VP_SD_FileName8 = 0x205A;
+constexpr uint16_t VP_SD_FileName9 = 0x2064;
+constexpr uint16_t VP_SD_FileName10 = 0x206E;
+constexpr uint16_t VP_SD_FileName11 = 0x2078;
+
+constexpr uint16_t VP_SD_FileName12 = 0x2082;
+constexpr uint16_t VP_SD_FileName13 = 0x208C;
+constexpr uint16_t VP_SD_FileName14 = 0x2096;
+constexpr uint16_t VP_SD_FileName15 = 0x20A0;
+
+constexpr uint16_t VP_SD_FileName16 = 0x20AA;
+constexpr uint16_t VP_SD_FileName17 = 0x20B4;
+constexpr uint16_t VP_SD_FileName18 = 0x20BE;
+constexpr uint16_t VP_SD_FileName19 = 0x20C8;
+
+constexpr uint16_t VP_SD_SelectionMarker_FileName0 = 0x1221;
 
 constexpr uint16_t VP_SD_Print_ProbeOffsetZ = 0x32A0; //
 constexpr uint16_t VP_SD_Print_Filename = 0x32C0; //
+
+constexpr uint16_t VP_ICON_OVERLAY_CLEAR = 10;
+constexpr uint16_t VP_ICON_OVERLAY_SELECTED = 6;
 
 // // Fan status
 // constexpr uint16_t VP_FAN0_STATUS = 0x3300;
@@ -309,6 +334,9 @@ constexpr uint16_t VP_BUTTON_MAINENTERKEY = 0x1002;
 constexpr uint16_t VP_BUTTON_ADJUSTENTERKEY = 0x1004;
 constexpr uint16_t VP_BUTTON_TEMPCONTROL = 0x1030;
 constexpr uint16_t VP_BUTTON_PREPAREENTERKEY = 0x103E;
+
+constexpr uint16_t VP_BUTTON_SELECTFILEKEY = 0x20D3;
+constexpr uint16_t VP_BUTTON_STARTPRINTKEY = 0x20D2;
 
 // Additional stuff defined by Creality
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
