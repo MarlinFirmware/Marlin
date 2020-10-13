@@ -210,7 +210,7 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if HAS_FSMC_GRAPHICAL_TFT
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 

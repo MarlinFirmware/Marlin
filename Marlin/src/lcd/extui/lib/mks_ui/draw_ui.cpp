@@ -751,7 +751,7 @@ char *creat_title_text() {
         card.openFileRead(cur_name);
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
-        #if ENABLED(TFT_LVGL_UI_SPI)
+        #if HAS_TFT_LVGL_UI_SPI
           SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
         #else
           LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
@@ -782,7 +782,7 @@ char *creat_title_text() {
           //#endif
 
         }
-        #if ENABLED(TFT_LVGL_UI_SPI)
+        #if HAS_TFT_LVGL_UI_SPI
           for (i = 0; i < 400;) {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
 

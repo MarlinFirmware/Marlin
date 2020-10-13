@@ -293,9 +293,6 @@
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
-    #ifndef GRAPHICAL_TFT_UPSCALE
-      #define GRAPHICAL_TFT_UPSCALE            3
-    #endif
     // SPI 1
     #define SCK_PIN                        P0_15
     #define MISO_PIN                       P0_17

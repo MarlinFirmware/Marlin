@@ -275,20 +275,11 @@
 
 #if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              3
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
   #define BTN_ENC                           PE13
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
-
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-
 #elif ENABLED(TFT_COLOR_UI)
   #define TFT_BUFFER_SIZE                  14400
 #endif
