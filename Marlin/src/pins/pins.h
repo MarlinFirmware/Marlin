@@ -52,7 +52,7 @@
 #define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
 
 // Test the target within the included pins file
-#ifdef __MARLIN_PREBUILD__
+#ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
 #else
   #define NOT_TARGET(V...) NONE(V)
@@ -569,6 +569,8 @@
   #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
+#elif MB(FLY_MINI)
+  #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
 
 //
 // ARM Cortex-M4F
@@ -632,6 +634,8 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
+#elif MB(NUCLEO_F767ZI)
+  #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)

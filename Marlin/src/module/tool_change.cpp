@@ -1017,14 +1017,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          #if HAS_SOFTWARE_ENDSTOPS
-            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
-          #else
-            constexpr float maxz = Z_MAX_POS;
-          #endif
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
           if (newz > maxz) return;
 
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);

@@ -105,13 +105,15 @@ void sei();                     // Enable interrupts
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 //
 // ADC
 //
 extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define HAL_ANALOG_SELECT(ch)
