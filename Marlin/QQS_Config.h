@@ -8,7 +8,7 @@
 // TIPS:
 // For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
 // For NeoPixel use library : https://github.com/........./MKS-Robin-Nano-NeoPixel-Lib/archive/master.zip
-// and commented error in SanityCheck.h
+// And commented error in SanityCheck.h
 // For 2209 change TMC2208 by TMC2209
 //========= Hardware ==========
 /*------Drivers-(1 CHOICE)-----*/
@@ -30,9 +30,9 @@
 #define MKS_ROBIN_TFT28
 //#define TFT_ROTATION TFT_NO_ROTATION
 //Choice UI TFT
-//#define TFT_CLASSIC_UI      //(F) UI STANDARD 
-#define TFT_COLOR_UI             //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
-//#define TFT_LVGL_UI      //(I) UI MKS  => (Bug)
+#define TFT_CLASSIC_UI             //(F) UI STANDARD 
+//#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+//#define TFT_LVGL_UI                //(I) UI MKS  => (Bug)
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
@@ -57,8 +57,8 @@
 //#define LED_CONTROL_MENU           // For LedStrip
 
 //  Type Calibration (CAL)
-#define AUTO_BED_LEVELING_BILINEAR //(A)
-//#define AUTO_BED_LEVELING_UBL      //(U) 
+//#define AUTO_BED_LEVELING_BILINEAR //(A)
+#define AUTO_BED_LEVELING_UBL      //(U) 
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint

@@ -74,8 +74,8 @@
 // @section info
 
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
-//#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
+//#define STRING_CONFIG_H_AUTHOR "(Foxies, QQS_Pro)" // Who made the changes.
+#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -92,12 +92,12 @@
 #define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-#ifdef FSMC_GRAPHICAL_TFT 
+#ifdef TFT_CLASSIC_UI 
   #define SHOW_CUSTOM_BOOTSCREEN  //TIPS
 #endif
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-#ifdef FSMC_GRAPHICAL_TFT 
+#ifdef TFT_CLASSIC_UI 
   #define CUSTOM_STATUS_SCREEN_IMAGE  //TIPS
 #endif
 
@@ -707,7 +707,7 @@
   #define DELTA_DIAGONAL_ROD 280.0        //280 (mm)
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 360            //E3D 360 (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 372            //E3D 360 (mm) Get this value from G33 auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
@@ -796,13 +796,6 @@
     #define DRIVER_AXES A4988
     #ifndef DRIVER_EXT
       #define DRIVER_EXT A4988
-    #endif
-#endif
-
-#ifdef QQS_TMC
-    #define DRIVER_AXES TMC2208_STANDALONE
-    #ifndef DRIVER_EXT
-      #define DRIVER_EXT TMC2208_STANDALONE
     #endif
 #endif
 
@@ -1347,7 +1340,7 @@
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-  #define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+  //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
 #endif
 
 /**
@@ -2412,7 +2405,7 @@
  *   Resolution: TFT_WIDTH and TFT_HEIGHT
  *   Interface:  TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI
  */
-//#define TFT_GENERIC
+//#define TFT_GENERIC //Define on QQS_Config
 
 /**
  * TFT UI - User Interface Selection. Enable one of the following options:
@@ -2424,6 +2417,7 @@
  *   For LVGL_UI also copy the 'assets' folder from the build directory to the
  *   root of your SD card, together with the compiled firmware.
  */
+//Define on QQS_Config
 //#define TFT_CLASSIC_UI
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
@@ -2450,14 +2444,12 @@
 //
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
-#if EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
-  #define TOUCH_SCREEN
-#endif
+#define TOUCH_SCREEN
   #if ENABLED(TOUCH_SCREEN)
-    #define BUTTON_DELAY_EDIT  25 // (ms) Button repeat delay for edit screens
-    #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
+   #define BUTTON_DELAY_EDIT  25 // (ms) Button repeat delay for edit screens
+   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-    //#define TOUCH_SCREEN_CALIBRATION //or (M995) 
+  //#define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   //#define XPT2046_X_CALIBRATION 12316
   //#define XPT2046_Y_CALIBRATION -8981
@@ -2469,7 +2461,7 @@
   //#define XPT2046_Y_CALIBRATION -8814
   //#define XPT2046_X_OFFSET        -34
   //#define XPT2046_Y_OFFSET        256
-  
+
   #endif
 
 //

@@ -262,65 +262,47 @@
   #define XPT2046_X_OFFSET                -32
   #define XPT2046_Y_OFFSET                256
 
-  #define CS_PIN                           PD7
-  #define DC_PIN                          PD11
+  #define FSMC_CS_PIN                     PD7
+  #define FSMC_RS_PIN                    PD11
   
-  #define TFT_RST_PIN                       PC6  // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                PD13  // FSMC_LIGHT
-  #define TFT_CS_PIN                     CS_PIN
-  #define TFT_DC_PIN                     DC_PIN
-  #define TFT_A0_PIN                     DC_PIN
-
-  #define FSMC_CS_PIN                    CS_PIN
-  #define FSMC_RS_PIN                    DC_PIN
+  #define TFT_RST_PIN                      PC6  // FSMC_RST
+  #define TFT_BACKLIGHT_PIN               PD13  // FSMC_LIGHT
 
   #define LCD_USE_DMA_FSMC      // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                     DMA2
   #define FSMC_DMA_CHANNEL              DMA_CH5
 
+  #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
+  #define DOGLCD_SCK                          -1
+
 #if ENABLED(TFT_CLASSIC_UI)
-
-  #define LCD_RESET_PIN             TFT_RST_PIN    // FSMC_RST
-  #define LCD_BACKLIGHT_PIN   TFT_BACKLIGHT_PIN
-
-  #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PC2   // SPI2_NSS
-    #define TOUCH_SCK_PIN                  PB13   // SPI2_SCK
-    #define TOUCH_MISO_PIN                 PB14   // SPI2_MISO
-    #define TOUCH_MOSI_PIN                 PB15   // SPI2_MOSI
+//If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
+// init the screen.
   
+  //#define LCD_RESET_PIN             TFT_RST_PIN    // FSMC_RST
+  #define LCD_BACKLIGHT_PIN     TFT_BACKLIGHT_PIN
+
     #ifndef  BUTTON_DELAY_EDIT
       #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
     #endif
     #ifndef BUTTON_DELAY_MENU 
       #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
     #endif
-  
-    #define TFT_MARLINUI_COLOR           0xFFFF   // White
-    #define TFT_BTARROWS_COLOR           0xDEE6   // 11011 110111 00110 Yellow
-    #define TFT_BTOKMENU_COLOR           0x145F   // 00010 100010 11111 Cyan
-  #endif
-
-#elif ENABLED(TFT_COLOR_UI)
-  #define TFT_RESET_PIN                     PC6
-  //#define TFT_BACKLIGHT_PIN                 PD13
-
-  //#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  //#define FSMC_CS_PIN                       PD7
-  //#define FSMC_RS_PIN                       PD11
-  //#define FSMC_DMA_DEV                      DMA2
-  //#define FSMC_DMA_CHANNEL               DMA_CH5
 
     #if NEED_TOUCH_PINS
-      #define TOUCH_CS_PIN                      PC2    // SPI2_NSS
-      #define TOUCH_SCK_PIN                    PB13    // SPI2_SCK
-      #define TOUCH_MISO_PIN                   PB14    // SPI2_MISO
-      #define TOUCH_MOSI_PIN                   PB15    // SPI2_MOSI
+      #define TFT_MARLINUI_COLOR             0xFFFF   // White
+      #define TFT_BTARROWS_COLOR             0xDEE6   // 11011 110111 00110 Yellow
+      #define TFT_BTOKMENU_COLOR             0x145F   // 00010 100010 11111 Cyan
     #endif
+#elif ENABLED(TFT_COLOR_UI)
+  #define TFT_BUFFER_SIZE                   14400
+#endif
 
-    #define TFT_BUFFER_SIZE                 14400
-
-  //#endif
+#if NEED_TOUCH_PINS
+  #define TOUCH_CS_PIN                  PC2    // SPI2_NSS
+  #define TOUCH_SCK_PIN                PB13    // SPI2_SCK
+  #define TOUCH_MISO_PIN               PB14    // SPI2_MISO
+  #define TOUCH_MOSI_PIN               PB15    // SPI2_MOSI
 #endif
 // end defintion  MKS robin TFT
 
