@@ -51,6 +51,13 @@
 
 #define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
 
+// Test the target within the included pins file
+#ifdef __MARLIN_DEPS__
+  #define NOT_TARGET(V...) 0
+#else
+  #define NOT_TARGET(V...) NONE(V)
+#endif
+
 //
 // RAMPS 1.3 / 1.4 - ATmega1280, ATmega2560
 //
@@ -141,7 +148,7 @@
 #elif MB(AZTEEG_X3_PRO)
   #include "ramps/pins_AZTEEG_X3_PRO.h"         // ATmega2560                             env:mega2560
 #elif MB(ULTIMAIN_2)
-  #include "ramps/pins_ULTIMAIN_2.h"            // ATmega2560                             env:mega2560
+  #include "ramps/pins_ULTIMAIN_2.h"            // ATmega2560                             env:mega2560ext
 #elif MB(FORMBOT_RAPTOR)
   #include "ramps/pins_FORMBOT_RAPTOR.h"        // ATmega2560                             env:mega2560
 #elif MB(FORMBOT_RAPTOR2)
@@ -157,7 +164,7 @@
 #elif MB(RL200)
   #include "ramps/pins_RL200.h"                 // ATmega2560                             env:mega2560
 #elif MB(BQ_ZUM_MEGA_3D)
-  #include "ramps/pins_BQ_ZUM_MEGA_3D.h"        // ATmega2560                             env:mega2560
+  #include "ramps/pins_BQ_ZUM_MEGA_3D.h"        // ATmega2560                             env:mega2560ext
 #elif MB(MAKEBOARD_MINI)
   #include "ramps/pins_MAKEBOARD_MINI.h"        // ATmega2560                             env:mega2560
 #elif MB(TRIGORILLA_13)
@@ -225,7 +232,7 @@
 #elif MB(CNCONTROLS_15)
   #include "mega/pins_CNCONTROLS_15.h"          // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(MIGHTYBOARD_REVE)
-  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+  #include "mega/pins_MIGHTYBOARD_REVE.h"       // ATmega1280, ATmega2560                 env:mega1280 env:mega2560ext
 #elif MB(CHEAPTRONIC)
   #include "mega/pins_CHEAPTRONIC.h"            // ATmega2560                             env:mega2560
 #elif MB(CHEAPTRONIC_V2)
@@ -253,7 +260,7 @@
 #elif MB(GT2560_V3_A20)
   #include "mega/pins_GT2560_V3_A20.h"          // ATmega2560                             env:mega2560
 #elif MB(EINSTART_S)
-  #include "mega/pins_EINSTART-S.h"             // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+  #include "mega/pins_EINSTART-S.h"             // ATmega1280, ATmega2560                 env:mega1280 env:mega2560ext
 #elif MB(WANHAO_ONEPLUS)
   #include "mega/pins_WANHAO_ONEPLUS.h"         // ATmega2560                             env:mega2560
 #elif MB(OVERLORD)
@@ -414,6 +421,8 @@
   #include "lpc1769/pins_BTT_SKR_V1_4_TURBO.h"  // LPC1769                                env:LPC1769
 #elif MB(MKS_SGEN_L_V2)
   #include "lpc1769/pins_MKS_SGEN_L_V2.h"       // LPC1769                                env:LPC1769
+#elif MB(BTT_SKR_E3_TURBO)
+  #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"    // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards
@@ -560,6 +569,8 @@
   #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality
 #elif MB(TRIGORILLA_PRO)
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
+#elif MB(FLY_MINI)
+  #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
 
 //
 // ARM Cortex-M4F
@@ -623,7 +634,9 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
-#elif MB(TEENSY40_41)
+#elif MB(NUCLEO_F767ZI)
+  #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
+#elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)
   #include "teensy4/pins_T41U5XBB.h"            // Teensy-4.x                             env:teensy41
@@ -1218,7 +1231,7 @@
   #define LCD_PINS_D4 -1
 #endif
 
-#if HAS_CHARACTER_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_MARLINUI_HD44780 || TOUCH_UI_ULTIPANEL
   #ifndef LCD_PINS_D5
     #define LCD_PINS_D5 -1
   #endif
@@ -1588,7 +1601,7 @@
   #define Z4_MS3_PIN -1
 #endif
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #if !defined(ST7920_DELAY_1) && defined(BOARD_ST7920_DELAY_1)
     #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
   #endif

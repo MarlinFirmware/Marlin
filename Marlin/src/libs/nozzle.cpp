@@ -161,7 +161,7 @@ Nozzle nozzle;
         LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
       }while(0)
 
-      if (soft_endstops_enabled) {
+      if (soft_endstop.enabled()) {
 
         LIMIT_AXIS(x);
         LIMIT_AXIS(y);

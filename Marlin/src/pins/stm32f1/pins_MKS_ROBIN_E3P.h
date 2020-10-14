@@ -25,7 +25,7 @@
  * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin e3p supports up to 1 hotends / E-steppers. Comment out this line to continue."
@@ -184,7 +184,7 @@
 
   #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
   #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
- 
+
   #define WIFI_IO0_PIN                      PC13  // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN                    PE9   // MKS ESP WIFI RESET PIN
@@ -269,32 +269,8 @@
 
 #endif
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-
-  // LVGL
-
-  #define XPT2046_X_CALIBRATION           -17253
-  #define XPT2046_Y_CALIBRATION            11579
-  #define XPT2046_X_OFFSET                   514
-  #define XPT2046_Y_OFFSET                   -24
-
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-
+#if ENABLED(SPI_GRAPHICAL_TFT)
   // Emulated DOGM SPI
-
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -11386
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8684
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 339
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -18
-  #endif
-
   #ifndef GRAPHICAL_TFT_UPSCALE
     #define GRAPHICAL_TFT_UPSCALE              3
   #endif
@@ -310,17 +286,40 @@
   #define LCD_PINS_RS                       PC6
 
 #elif ENABLED(TFT_480x320_SPI)
-    #define XPT2046_X_CALIBRATION         -17253
-    #define XPT2046_Y_CALIBRATION          11579
-    #define XPT2046_X_OFFSET                 514
-    #define XPT2046_Y_OFFSET                 -24
-
-    #define TFT_DRIVER                    ST7796
-    #define TFT_BUFFER_SIZE                14400
-
+  #define TFT_DRIVER                      ST7796
+  #define TFT_BUFFER_SIZE                  14400
 #endif
 
-#if HAS_SPI_LCD && !HAS_SPI_TFT
+// XPT2046 Touch Screen calibration
+#if EITHER(HAS_TFT_LVGL_UI, TFT_480x320_SPI)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -17253
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          11579
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 514
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -24
+  #endif
+#elif ENABLED(SPI_GRAPHICAL_TFT)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -11386
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION           8684
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 339
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -18
+  #endif
+#endif
+
+#if HAS_WIRED_LCD && !HAS_SPI_TFT
 
   // NON TFT Displays
 
@@ -361,11 +360,11 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD && !HAS_SPI_TFT
+#endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
-#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14

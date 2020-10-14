@@ -238,6 +238,7 @@
 #define BOARD_TH3D_EZBOARD            2507  // TH3D EZBoard v1.0
 #define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2 (Power outputs: Hotend0, Hotend1, Bed, Fan)
+#define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1)
 
 //
 // SAM3X8E ARM Cortex M3
@@ -319,6 +320,7 @@
 #define BOARD_CREALITY_V4             4034  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4035  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_TRIGORILLA_PRO          4036  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4037  // FLY MINI (STM32F103RCT6)
 
 //
 // ARM Cortex-M4F
@@ -359,8 +361,9 @@
 
 #define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_REMRAM_V1               5001  // RemRam v1
-#define BOARD_TEENSY41                5002  // Teensy4.0 and Teensy4.1
-#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy4.1 breakout board
+#define BOARD_TEENSY41                5002  // Teensy 4.1
+#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_NUCLEO_F767ZI           5004  // ST NUCLEO-F767ZI Dev Board
 
 //
 // Espressif ESP32 WiFi

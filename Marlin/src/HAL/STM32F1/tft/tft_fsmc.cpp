@@ -89,13 +89,10 @@ void TFT_FSMC::Init() {
   uint8_t cs = FSMC_CS_PIN, rs = FSMC_RS_PIN;
   uint32_t controllerAddress;
 
-  #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RESET_PIN, HIGH);
-    delay(100);
-  #endif
-
-  #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
+  #if ENABLED(LCD_USE_DMA_FSMC)
+    dma_init(FSMC_DMA_DEV);
+    dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+    dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
   #endif
 
   struct fsmc_nor_psram_reg_map* fsmcPsramRegion;

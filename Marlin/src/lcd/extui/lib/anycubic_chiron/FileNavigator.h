@@ -21,10 +21,36 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
-#endif
+/**
+ * lcd/extui/lib/FileNavigator.h
+ *
+ * Extensible_UI implementation for Anycubic Chiron
+ * Written By Nick Wells, 2020 [https://github.com/SwiftNick]
+ *  (not affiliated with Anycubic, Ltd.)
+ */
 
-#ifdef __cplusplus
-  } /* C-declarations for C++ */
-#endif
+#include "chiron_tft_defs.h"
+#include "../../ui_api.h"
+
+using namespace ExtUI;
+
+namespace Anycubic {
+  class FileNavigator {
+    public:
+      FileNavigator();
+      void   reset();
+      void   getFiles(uint16_t);
+      void   upDIR();
+      void   changeDIR(char *);
+      void   sendFile();
+      void   refresh();
+      char * getCurrentFolderName();
+    private:
+      static FileList  filelist;
+      static char      currentfoldername[MAX_PATH_LEN];
+      static uint16_t  lastindex;
+      static uint8_t   folderdepth;
+      static uint16_t  currentindex;
+  };
+  extern FileNavigator filenavigator;
+}

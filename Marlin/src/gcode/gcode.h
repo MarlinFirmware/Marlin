@@ -109,7 +109,7 @@
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
- * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
+ * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted. (Requires DIRECT_PIN_CONTROL)
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M73  - Set the progress percentage. (Requires LCD_SET_PROGRESS_MANUALLY)
@@ -183,7 +183,7 @@
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
  *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires PRUSA_MMU2)
  * M221 - Set Flow Percentage: "M221 S<percent>"
- * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
+ * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
@@ -258,9 +258,9 @@
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
- * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
- * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
- * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
+ * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
+ * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
+ * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires HAS_MOTOR_CURRENT_DAC)
  * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
@@ -285,11 +285,11 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * D... - Custom Development G-code. Add hooks to 'gcode_D.cpp' for developers to test features. (Requires MARLIN_DEV_MODE)
  *
  * "T" Codes
  *
  * T0-T3 - Select an extruder (tool) by index: "T<n> F<units/min>"
- *
  */
 
 #include "../inc/MarlinConfig.h"
@@ -297,6 +297,10 @@
 
 #if ENABLED(I2C_POSITION_ENCODERS)
   #include "../feature/encoder_i2c.h"
+#endif
+
+#if IS_SCARA || defined(G0_FEEDRATE)
+  #define HAS_FAST_MOVES 1
 #endif
 
 enum AxisRelative : uint8_t { REL_X, REL_Y, REL_Z, REL_E, E_MODE_ABS, E_MODE_REL };
@@ -405,11 +409,9 @@ public:
 
 private:
 
-  static void G0_G1(
-    #if IS_SCARA || defined(G0_FEEDRATE)
-      const bool fast_move=false
-    #endif
-  );
+  TERN_(MARLIN_DEV_MODE, static void D(const int16_t dcode));
+
+  static void G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move=false));
 
   TERN_(ARC_SUPPORT, static void G2_G3(const bool clockwise));
 
@@ -463,10 +465,11 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
-    static void M422();
   #endif
+
+  TERN_(Z_STEPPER_AUTO_ALIGN, static void M422());
 
   TERN_(ASSISTED_TRAMMING, static void G35());
 
@@ -542,8 +545,7 @@ private:
     #endif
   #endif
 
-  static void M42();
-
+  TERN_(DIRECT_PIN_CONTROL, static void M42());
   TERN_(PINS_DEBUGGING, static void M43());
 
   TERN_(Z_MIN_PROBE_REPEATABILITY_TEST, static void M48());
@@ -671,7 +673,7 @@ private:
     static void M221();
   #endif
 
-  static void M226();
+  TERN_(DIRECT_PIN_CONTROL, static void M226());
 
   TERN_(PHOTO_GCODE, static void M240());
 
@@ -846,11 +848,11 @@ private:
     static void M918();
   #endif
 
-  #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
+  #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
     static void M907();
-    #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
+    #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
       static void M908();
-      #if ENABLED(DAC_STEPPER_CURRENT)
+      #if ENABLED(HAS_MOTOR_CURRENT_DAC)
         static void M909();
         static void M910();
       #endif
@@ -883,7 +885,7 @@ private:
 
   TERN_(CONTROLLER_FAN_EDITABLE, static void M710());
 
-  static void T(const uint8_t tool_index);
+  static void T(const int8_t tool_index);
 
 };
 

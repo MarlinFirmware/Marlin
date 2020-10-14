@@ -22,7 +22,7 @@
  * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
  */
 
-#if !defined(__STM32F1__) && !defined(STM32F1xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
@@ -118,26 +118,23 @@
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
 
-#define LCD_RESET_PIN                       PC4   // pin 33
 #define TFT_RESET_PIN                       PC4   // pin 33
 #define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
 #define FSMC_RS_PIN                         PD11  // pin 58 A16 Register. Only one address needed
 
-//#define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT (broken)
+#define LCD_USE_DMA_FSMC                          // Use DMA transfers to send data to the TFT
 #define FSMC_DMA_DEV                        DMA2
 #define FSMC_DMA_CHANNEL                 DMA_CH5
 
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-#define GRAPHICAL_TFT_UPSCALE                  2
-#define TFT_WIDTH                            320
-#define TFT_HEIGHT                           240
-#define TFT_PIXEL_OFFSET_X                    32
-#define TFT_PIXEL_OFFSET_Y                    32
+// Longer/Alfawise TFT
+#define LONGER_LK_TFT28
 
-//#define TFT_DRIVER                     ILI9341
+// Buffer for Color UI
+#define TFT_BUFFER_SIZE                     3200
 
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
