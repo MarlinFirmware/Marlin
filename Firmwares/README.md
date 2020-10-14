@@ -7,10 +7,34 @@
 
 __Not for production use. Use with caution!__
 
-## Marlin 2.0.7 
+## Marlin 2.0.7 Branch "FLSUN"
  Update 2020-10-08
- 
-## Marlin 2.0 Bugfix Branch
+
+### Features of the Preset Configuration
+
+  Features|Active|Value
+  --------|------|-----
+  Multi-Config Switch QQS-PRO|True|QQS_Config.h
+  Module Wifi|True|Ready
+  ZoffSet ED3v6|-|Ready|
+  Extruder TITAN/BMG| Titan|Ready|
+  UI Type|True|Color Marlin|
+  TFT Color Selection|True|Classic,Color
+  EEPROM|True|-
+  Menu PID|True|-
+  Arc Support|False|-
+  Classic Jerk|True|10
+  LinearAdvance|True|0
+  Bezier curve acceleration|False|-
+  Junction Deviation|False|0.013
+  Unified Bed Leveling|True|53pts
+  Filament sensor|True|Ready
+  Recovery PowerFailed|True|-
+  TMC 220x Soft Serial|UART|Ready
+  TMC 2209 Hard Serial|UART|Ready
+  Neopixel|-|Ready
+  
+## Marlin 2.0 Bugfix Branch Branch "FLSUN_QQS-PROv2"
  Update Marlin-BugFix 20200905
 
   ## Validate:
