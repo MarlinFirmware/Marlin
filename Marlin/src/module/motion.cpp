@@ -997,6 +997,8 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder))
               if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
                   line_to_current_position(planner.settings.max_feedrate_mm_s[Z_AXIS]);
+          planner.synchronize(); // paranoia
+          stepper.set_directions();
           delayed_move_time = 0;
           active_extruder_parked = false;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Clear active_extruder_parked");
@@ -1015,6 +1017,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             if (!planner.buffer_line(new_pos, planner.settings.max_feedrate_mm_s[X_AXIS], 1)) break;
             planner.synchronize();
             sync_plan_position();
+            stepper.set_directions();
             extruder_duplication_enabled = true;
             active_extruder_parked = false;
             if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set extruder_duplication_enabled\nClear active_extruder_parked");
@@ -1023,7 +1026,6 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
           break;
       }
     }
-    stepper.set_directions();
     return false;
   }
 

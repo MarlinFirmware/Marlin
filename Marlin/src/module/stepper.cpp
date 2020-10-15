@@ -2154,6 +2154,7 @@ uint32_t Stepper::block_phase_isr() {
       if ( ENABLED(HAS_L64XX)  // Always set direction for L64xx (Also enables the chips)
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
+        || ENABLED(DUAL_X_CARRIAGE) // For some reason, motion becomes jittery on small circles with dualx machines without this.
       ) {
         last_direction_bits = current_block->direction_bits;
         #if HAS_MULTI_EXTRUDER
