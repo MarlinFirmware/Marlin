@@ -126,7 +126,7 @@
     #define LCD_PINS_RS                     PD1   // 49  // CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE                 PD3   // 51  // SID (MOSI)
     #define LCD_PINS_D4                     PD4   // 52  // SCK (CLK) clock
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
     #define LCD_PINS_RS                     PB8
     #define LCD_PINS_ENABLE                 PD2
     #define LCD_PINS_D4                     PB12
@@ -140,7 +140,7 @@
     #define LCD_PINS_D5                     PB13
     #define LCD_PINS_D6                     PB14
     #define LCD_PINS_D7                     PB15
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       #define BEEPER_PIN                    PC1   // 33
       // Buttons attached to a shift register
       // Not wired yet
@@ -151,9 +151,9 @@
     #endif
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                    PC5
 
@@ -254,7 +254,7 @@
       #define BEEPER_PIN                    PC1   // 33
 
       // Buttons directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         #define BTN_EN1                     PE0   // 64
         #define BTN_EN2                     PD11  // 59
         #define BTN_ENC                     PD15  // 63
@@ -279,6 +279,6 @@
       #endif
 
     #endif
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

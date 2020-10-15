@@ -247,11 +247,11 @@
   #define LCD_PINS_D7                         34  // D34 PC2_PWML0
 
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
+#endif
 
-  #if ANY(ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
-    // Buttons on AUX-2
-    #define BTN_EN1                           60  // D60 PA3_TIOB1
-    #define BTN_EN2                           13  // D13 PB27_TIOB0
-    #define BTN_ENC                           16  // D16 PA13_TXD1 // the click
-  #endif
+#if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
+  // Buttons on AUX-2
+  #define BTN_EN1                             60  // D60 PA3_TIOB1
+  #define BTN_EN2                             13  // D13 PB27_TIOB0
+  #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
 #endif

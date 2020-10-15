@@ -109,8 +109,8 @@
   #define LCD_PINS_ENABLE                  P0_18  // (MOSI) EXP1-3
   #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
 
-  #if BOTH(HAS_MARLINUI_HD44780, REPRAP_DISCOUNT_SMART_CONTROLLER)
-    #error "REPRAP_DISCOUNT_SMART_CONTROLLER is not supported by the BIQU BQ111-A4"
+  #if BOTH(HAS_MARLINUI_HD44780, IS_RRD_SC)
+    #error "REPRAP_DISCOUNT_SMART_CONTROLLER displays aren't supported by the BIQU BQ111-A4"
   #endif
 
   #if ENABLED(SDSUPPORT)

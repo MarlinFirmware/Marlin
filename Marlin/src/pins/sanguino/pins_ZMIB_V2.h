@@ -225,7 +225,7 @@
 //
 // All the above are also RRDSC with rotary encoder
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BTN_EN1                              2
   #define BTN_EN2                             12
   #define BTN_ENC                             29

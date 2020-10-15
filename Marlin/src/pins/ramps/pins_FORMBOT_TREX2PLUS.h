@@ -175,7 +175,7 @@
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #ifndef BEEPER_PIN
     #define BEEPER_PIN                        37
   #endif

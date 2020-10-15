@@ -153,7 +153,7 @@
 
   //#define LCD_CONTRAST_INIT                190
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11
     #define BTN_ENC                         PC12

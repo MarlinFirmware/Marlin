@@ -136,7 +136,7 @@
   #define LCD_BACKLIGHT_PIN                   17  // LCD backlight LED
 #endif
 
-#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)// try to use IO Header
+#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
   #define CASE_LIGHT_PIN                       4  // Hardware PWM  - see if IO Header is available
 #endif
 
@@ -185,7 +185,7 @@
         // with M42 instead of BEEPER_PIN.
         #define BEEPER_PIN                    27
 
-        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #if IS_RRD_FG_SC
           #ifndef BOARD_ST7920_DELAY_1
             #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
           #endif
@@ -283,7 +283,7 @@
 
   #endif
 
-  #if ENABLED(NEWPANEL) && !defined(BTN_EN1)
+  #if IS_NEWPANEL && !defined(BTN_EN1)
     #define BTN_EN1                           11
     #define BTN_EN2                           10
   #endif
@@ -294,7 +294,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)// try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
 
     #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM

@@ -348,7 +348,7 @@
         #define LCD_BACKLIGHT_PIN          -1
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if IS_ULTIPANEL
         #define LCD_PINS_D5         EXPA1_05_PIN
         #define LCD_PINS_D6         EXPA1_04_PIN
         #define LCD_PINS_D7         EXPA1_03_PIN

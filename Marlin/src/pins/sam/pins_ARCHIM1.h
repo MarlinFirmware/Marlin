@@ -192,10 +192,10 @@
 
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // Buttons on AUX-2
     #define BTN_EN1                           60  // D60 PA3_TIOB1
     #define BTN_EN2                           13  // D13 PB27_TIOB0
     #define BTN_ENC                           16  // D16 PA13_TXD1
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 #endif // HAS_WIRED_LCD

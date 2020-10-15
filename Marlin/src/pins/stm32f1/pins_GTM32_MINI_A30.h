@@ -137,7 +137,7 @@
 //
 #if HAS_WIRED_LCD
 
-  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+  #if IS_RRD_SC
     //
     // LCD display on J2 FFC40
     // Geeetech's LCD2004A Control Panel is very much like

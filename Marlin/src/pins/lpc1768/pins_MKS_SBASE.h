@@ -147,7 +147,7 @@
 //
 // Ethernet pins
 //
-#ifndef ULTIPANEL
+#if !IS_ULTIPANEL
   #define ENET_MDIO                        P1_17  // J12-4
   #define ENET_RX_ER                       P1_14  // J12-6
   #define ENET_RXD1                        P1_10  // J12-8

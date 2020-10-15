@@ -32,7 +32,7 @@
 
 #define SPEAKER  // The speaker can produce tones
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_EN1                            16
   #define BTN_EN2                            17
   #define BTN_ENC                            19

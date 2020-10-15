@@ -109,7 +109,7 @@
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_A0                        5
@@ -130,7 +130,7 @@
     #define BTN_ENC                           19
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !NEWPANEL
+  #else                                           // !IS_NEWPANEL
 
     #define SHIFT_CLK                         38
     #define SHIFT_LD                          42
@@ -146,6 +146,6 @@
 
     #define SD_DETECT_PIN                     -1
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

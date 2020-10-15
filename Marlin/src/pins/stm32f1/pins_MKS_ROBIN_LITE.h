@@ -103,7 +103,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PC1
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   -1
       #define LCD_PINS_D6                   -1
       #define LCD_PINS_D7                   -1

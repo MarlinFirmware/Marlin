@@ -139,7 +139,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         33
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // Buttons are directly attached using keypad
     #define BTN_EN1                           61
     #define BTN_EN2                           59
