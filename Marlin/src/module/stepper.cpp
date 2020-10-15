@@ -1605,10 +1605,9 @@ void Stepper::pulse_phase_isr() {
               PAGE_SEGMENT_UPDATE(Z, high >> 4);
               PAGE_SEGMENT_UPDATE(E, high & 0xF);
 
-              if (dm != last_direction_bits) {
-                last_direction_bits = dm;
-                set_directions();
-              }
+              if (dm != last_direction_bits)
+                set_directions(dm);
+
             } break;
 
             default: break;
@@ -2154,10 +2153,9 @@ uint32_t Stepper::block_phase_isr() {
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
-        last_direction_bits = current_block->direction_bits;
         TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
-        set_directions();
+        set_directions(current_block->direction_bits);
       }
 
       #if ENABLED(LASER_POWER_INLINE)
@@ -2579,12 +2577,9 @@ void Stepper::init() {
   #endif
 
   // Init direction bits for first moves
-  last_direction_bits = 0
-    | (INVERT_X_DIR ? _BV(X_AXIS) : 0)
-    | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
-    | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
-
-  set_directions();
+  set_directions((INVERT_X_DIR ? _BV(X_AXIS) : 0)
+               | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
+               | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0));
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
     initialized = true;
