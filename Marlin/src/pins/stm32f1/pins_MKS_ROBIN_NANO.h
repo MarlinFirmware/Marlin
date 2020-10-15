@@ -198,7 +198,7 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_480x320)
+#if EITHER(HAS_TFT_LVGL_UI_FSMC, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          17880
   #endif
