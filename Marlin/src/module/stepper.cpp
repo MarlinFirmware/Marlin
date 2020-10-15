@@ -348,7 +348,7 @@ xyze_int8_t Stepper::count_direction{0};
   }
 
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ ENABLED(INVERT_X2_VS_X_DIR)); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
   #else
@@ -356,7 +356,7 @@ xyze_int8_t Stepper::count_direction{0};
   #endif
 #elif ENABLED(DUAL_X_CARRIAGE)
   #define X_APPLY_DIR(v,ALWAYS) do{ \
-    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE(idex_mirrored_mode ? !(v) : v); } \
+    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ idex_mirrored_mode); } \
     else if (last_moved_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
   }while(0)
   #define X_APPLY_STEP(v,ALWAYS) do{ \
@@ -369,7 +369,7 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
+  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) ^ ENABLED(INVERT_Y2_VS_Y_DIR)); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
   #else
@@ -2131,9 +2131,7 @@ uint32_t Stepper::block_phase_isr() {
         MIXER_STEPPER_SETUP();
       #endif
 
-      #if HAS_MULTI_EXTRUDER
-        stepper_extruder = current_block->extruder;
-      #endif
+      TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
@@ -2151,16 +2149,13 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if ( ENABLED(HAS_L64XX)  // Always set direction for L64xx (Also enables the chips)
+      if ( ENABLED(HAS_L64XX)       // Always set direction for L64xx (Also enables the chips)
+        || ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
-        || ENABLED(DUAL_X_CARRIAGE) // For some reason, motion becomes jittery on small circles with dualx machines without this.
       ) {
         last_direction_bits = current_block->direction_bits;
-        #if HAS_MULTI_EXTRUDER
-          last_moved_extruder = stepper_extruder;
-        #endif
-
+        TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
         set_directions();
       }

@@ -101,9 +101,8 @@
           dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
           break;
       }
-      active_extruder_parked = false;
+      idex_set_parked(false);
       set_duplication_enabled(false);
-      delayed_move_time = 0;
     }
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
       dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
@@ -123,7 +122,7 @@
         if (!active_extruder_parked) DEBUG_ECHOPGM(" NOT ");
         DEBUG_ECHOPGM(" parked.");
         DEBUG_ECHOPAIR("\nactive_extruder_x_pos: ", current_position.x);
-        DEBUG_ECHOPAIR("\ninactive_extruder_x_pos: ", inactive_extruder_x_pos);
+        DEBUG_ECHOPAIR("\ninactive_extruder_x: ", inactive_extruder_x);
         DEBUG_ECHOPAIR("\nextruder_duplication_enabled: ", int(extruder_duplication_enabled));
         DEBUG_ECHOPAIR("\nduplicate_extruder_x_offset: ", duplicate_extruder_x_offset);
         DEBUG_ECHOPAIR("\nduplicate_extruder_temp_offset: ", duplicate_extruder_temp_offset);
