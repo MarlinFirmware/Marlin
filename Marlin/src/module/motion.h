@@ -384,8 +384,7 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
  * Duplication mode
  */
 #if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              mirrored_duplication_mode;          // Used in Dual X mode 3
+  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     extern uint8_t duplication_e_mask;
   #endif
@@ -410,6 +409,7 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
   extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // Used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+  extern bool idex_mirrored_mode;                 // Used in mode 3
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
@@ -417,10 +417,14 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
+  void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
+  void idex_set_mirrored_mode(const bool mirr);
+
 #else
 
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+    FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
   FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }

@@ -282,7 +282,7 @@ void GcodeSuite::G28() {
     tool_change(0, true);
   #endif
 
-  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
+  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   remember_feedrate_scaling_off();
 
@@ -411,9 +411,8 @@ void GcodeSuite::G28() {
       raised_parked_position = current_position;
       delayed_move_time = 0;
       active_extruder_parked = true;
-      extruder_duplication_enabled = IDEX_saved_duplication_state;
-      dual_x_carriage_mode         = IDEX_saved_mode;
-      stepper.set_directions();
+      dual_x_carriage_mode = IDEX_saved_mode;
+      set_duplication_enabled(IDEX_saved_duplication_state);
 
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
     }
