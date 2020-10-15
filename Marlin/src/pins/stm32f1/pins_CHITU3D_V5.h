@@ -152,9 +152,6 @@
   // Color UI
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
-#elif ENABLED(TFT_CLASSIC_UI)
-  // Emulated DOGM
-  #define GRAPHICAL_TFT_UPSCALE                3
 #endif
 
 // XPT2046 Touch Screen calibration
