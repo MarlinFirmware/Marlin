@@ -57,9 +57,9 @@ void FastIO_init(); // Must be called before using fast io macros
   #define _READ(IO)             bool(READ_BIT(FastIOPortMap[STM_PORT(digitalPin[IO])]->IDR, _BV32(STM_PIN(digitalPin[IO]))))
   #define _TOGGLE(IO)           (FastIOPortMap[STM_PORT(digitalPin[IO])]->ODR ^= _BV32(STM_PIN(digitalPin[IO])))
 #else
-  #define _WRITE(IO, V)         (FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BSRR = _BV32((digitalPinToPinName(IO) & 0xF) + ((V) ? 0 : 16)))
-  #define _READ(IO)             bool(READ_BIT(FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->IDR, _BV32(digitalPinToPinName(IO) & 0xF)))
-  #define _TOGGLE(IO)           (FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->ODR ^= _BV32(digitalPinToPinName(IO) & 0xF))
+  #define _WRITE(IO, V)         (FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->BSRR = _BV32(STM_PIN(digitalPinToPinName(IO)) + ((V) ? 0 : 16)))
+  #define _READ(IO)             bool(READ_BIT(FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->IDR, _BV32(STM_PIN(digitalPinToPinName(IO)))))
+  #define _TOGGLE(IO)           (FastIOPortMap[STM_PORT(digitalPinToPinName(IO))]->ODR ^= _BV32(STM_PIN(digitalPinToPinName(IO))))
 #endif
 
 #define _GET_MODE(IO)
