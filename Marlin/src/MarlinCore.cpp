@@ -221,10 +221,6 @@
   #include "feature/password/password.h"
 #endif
 
-#if ENABLED(EMERGENCY_PARSER)
-  #include "feature/e_parser.h"
-#endif
-
 PGMSTR(NUL_STR, "");
 PGMSTR(M112_KILL_STR, "M112 Shutdown");
 PGMSTR(G28_STR, "G28");
@@ -779,14 +775,6 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
 
   #if HAS_TFT_LVGL_UI
     LV_TASK_HANDLER();
-  #endif
-
-  #if ENABLED(EMERGENCY_PARSER)
-    if (emergency_parser.quickstop_by_M410) {
-      // quickstop_stepper will call idle, so we must set it to false to avoid infinite loop
-      emergency_parser.quickstop_by_M410 = false;
-      quickstop_stepper();
-    }
   #endif
 }
 
