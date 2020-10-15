@@ -127,7 +127,7 @@
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20  // LCD_CS
     #define LCD_PINS_ENABLE                   15  // LCD_SDA
@@ -168,6 +168,6 @@
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

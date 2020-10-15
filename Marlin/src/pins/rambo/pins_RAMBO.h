@@ -187,7 +187,7 @@
 
   #define KILL_PIN                            80
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #define LCD_PINS_RS                       70
     #define LCD_PINS_ENABLE                   71
@@ -228,7 +228,7 @@
 
     #endif // !VIKI2 && !miniVIKI
 
-  #else                                           // !NEWPANEL - old style panel with shift register
+  #else                                           // !IS_NEWPANEL - old style panel with shift register
 
     // No Beeper added
     #define BEEPER_PIN                        33
@@ -247,6 +247,6 @@
     #define LCD_PINS_D6                       27
     #define LCD_PINS_D7                       29
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD
