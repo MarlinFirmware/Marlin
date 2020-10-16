@@ -168,7 +168,7 @@ class Touch {
       if (touch_control_type == CLICK) {
         touch_control_type = NONE;
         return true;
-      };
+      }
       return false;
     }
     static void disable() { enabled = false; }
