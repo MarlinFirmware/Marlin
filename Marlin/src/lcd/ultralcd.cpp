@@ -251,9 +251,9 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     bool MarlinUI::external_control; // = false
 
     void MarlinUI::wait_for_release() {
-      wait_for_user = true;
+      TERN_(TOUCH_SCREEN, wait_for_user = true);
       while (button_pressed()) safe_delay(50);
-      wait_for_user = false;
+      TERN_(TOUCH_SCREEN, wait_for_user = false);
       safe_delay(50);
     }
 
@@ -1479,10 +1479,6 @@ void MarlinUI::update() {
 
     set_status_P(msg, -1);
   }
-
-  #if ENABLED(SDSUPPORT)
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
 
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
