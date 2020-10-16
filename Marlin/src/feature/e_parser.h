@@ -63,6 +63,7 @@ public:
   };
 
   static bool killed_by_M112;
+  static bool quickstop_by_M410;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
@@ -168,7 +169,7 @@ public:
           if (enabled) switch (state) {
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;
-            case EP_M410: quickstop_stepper(); break;
+            case EP_M410: quickstop_by_M410 = true; break;
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: host_response_handler(M876_reason); break;
             #endif
