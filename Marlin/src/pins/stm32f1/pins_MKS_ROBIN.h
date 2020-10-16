@@ -152,11 +152,45 @@
 #define WIFI_IO0_PIN                        PG1
 
 //
+// SD Card
+//
+
+#define SPI_DEVICE                             2
+
+#ifndef SDCARD_CONNECTION
+  // Set ONBOARD connection even if you use MKS SLOT.
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#define SDIO_SUPPORT
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
+#define SD_DETECT_PIN                       -1
+#define ONBOARD_SD_CS_PIN                   PC11
+
+//
 // LCD screen
 //
 #if HAS_FSMC_TFT
-  #define FSMC_CS_PIN                       PG12  // NE4
-  #define FSMC_RS_PIN                       PF0   // A0
+  /**
+   * Note: MKS Robin TFT screens use various TFT controllers
+   * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
+   * ILI9488 is not supported
+   * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
+   *
+   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * to let the bootloader init the screen.
+   *
+   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
+   */
+
+  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
+  #define LCD_RESET_PIN                     PF6   // FSMC_RST
+  #define LCD_BACKLIGHT_PIN                 PG11
+
+  #define FSMC_CS_PIN                 TFT_CS_PIN
+  #define FSMC_RS_PIN                 TFT_RS_PIN
+
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
@@ -180,30 +214,10 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
-  #define LCD_RESET_PIN                     PF6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PG11
-#endif
-
-#define SPI_DEVICE                             2
-
-//
-// SD Card
-//
-#ifndef SDCARD_CONNECTION
-  // Set ONBOARD connection even if you use MKS SLOT.
-  #define SDCARD_CONNECTION                 ONBOARD
-#endif
-
-#define SDIO_SUPPORT
-#define SDIO_CLOCK                          4500000  // 4.5 MHz
-#define SD_DETECT_PIN                       -1
-#define ONBOARD_SD_CS_PIN                   PC11
-
-// Config for Classic UI (emulated DOGM) and Color UI
-#if ENABLED(TFT_320x240)
-  #define TFT_RESET_PIN                     PF6   // FSMC_RST
-  #define TFT_BACKLIGHT_PIN                 PG11
+  // Config for Classic UI (emulated DOGM) and Color UI
+  #if ENABLED(TFT_320x240)
+    #define TFT_RESET_PIN                   PF6   // FSMC_RST
+    #define TFT_BACKLIGHT_PIN               PG11
 
   // MKS Robin TFT with ILI9328
   #define TFT_ILI9328
@@ -243,6 +257,13 @@
     // XV for 180° rotated screen mounting
     #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
   #endif
+#endif
+
+#elif HAS_GRAPHICAL_TFT
+
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
+
 #endif
 
 //
