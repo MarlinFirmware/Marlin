@@ -23,9 +23,11 @@
 
 /** 
  * FLSUN HiSpeed V1 (STM32F130VET6) board pin assignments
+ * FLSun Hispeed (clone MKS_Robin_miniV2) board.
  * MKS Robin Mini USB Use UART3(PB10-TX,PB11-RX)     
  * #define SERIAL_PORT_2 3
  */
+
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
@@ -257,6 +259,7 @@
   
   /* QQS-Pro use MKS Robin TFT v2.0 */
   //+++++++++++++++++++++++//
+#if HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -275,35 +278,37 @@
   #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                          -1
 
-#if ENABLED(TFT_CLASSIC_UI)
+  #if ENABLED(TFT_CLASSIC_UI)
 //If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
 // init the screen.
   
-  //#define LCD_RESET_PIN             TFT_RST_PIN    // FSMC_RST
-  #define LCD_BACKLIGHT_PIN     TFT_BACKLIGHT_PIN
+    //#define LCD_RESET_PIN             TFT_RST_PIN    // FSMC_RST
+    #define LCD_BACKLIGHT_PIN     TFT_BACKLIGHT_PIN
 
-    #ifndef  BUTTON_DELAY_EDIT
-      #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
-    #endif
-    #ifndef BUTTON_DELAY_MENU 
-      #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
-    #endif
+      #ifndef  BUTTON_DELAY_EDIT
+        #define BUTTON_DELAY_EDIT                50   // (ms) Button repeat delay for edit screens
+      #endif
+      #ifndef BUTTON_DELAY_MENU 
+        #define BUTTON_DELAY_MENU               250   // (ms) Button repeat delay for menus
+      #endif
 
-    #if NEED_TOUCH_PINS
       #define TFT_MARLINUI_COLOR             0xFFFF   // White
       #define TFT_BTARROWS_COLOR             0xDEE6   // 11011 110111 00110 Yellow
       #define TFT_BTOKMENU_COLOR             0x145F   // 00010 100010 11111 Cyan
-    #endif
-#elif ENABLED(TFT_COLOR_UI)
-  #define TFT_BUFFER_SIZE                   14400
+      
+  #elif ENABLED(TFT_COLOR_UI)
+      #define TFT_BUFFER_SIZE                   14400
+  
+  #endif
+
+  #if NEED_TOUCH_PINS
+    #define TOUCH_CS_PIN                  PC2    // SPI2_NSS
+    #define TOUCH_SCK_PIN                PB13    // SPI2_SCK
+    #define TOUCH_MISO_PIN               PB14    // SPI2_MISO
+    #define TOUCH_MOSI_PIN               PB15    // SPI2_MOSI
+  #endif
 #endif
 
-#if NEED_TOUCH_PINS
-  #define TOUCH_CS_PIN                  PC2    // SPI2_NSS
-  #define TOUCH_SCK_PIN                PB13    // SPI2_SCK
-  #define TOUCH_MISO_PIN               PB14    // SPI2_MISO
-  #define TOUCH_MOSI_PIN               PB15    // SPI2_MOSI
-#endif
 // end defintion  MKS robin TFT
 
 // SPI

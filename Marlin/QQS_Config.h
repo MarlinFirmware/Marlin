@@ -30,8 +30,8 @@
 #define MKS_ROBIN_TFT28
 //#define TFT_ROTATION TFT_NO_ROTATION
 //Choice UI TFT
-#define TFT_CLASSIC_UI             //(F) UI STANDARD 
-//#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+//#define TFT_CLASSIC_UI             //(F) UI STANDARD 
+#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
 //#define TFT_LVGL_UI                //(I) UI MKS  => (Bug)
 
 /*----  Modules -----*/
@@ -49,7 +49,7 @@
 //============= End_Hardware ===============//
 
 //Choice menu: (OPT)
-#define DELTA_CALIBRATION_MENU     //NC LVGL
+//#define DELTA_CALIBRATION_MENU     //NC LVGL
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
 //#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe (bug Octoprint & UI Marlin)

@@ -150,7 +150,6 @@
   #endif
   #ifdef QQS
     #define MOTHERBOARD BOARD_FLSUN_HISPEED
-    //#define MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
   #endif
   #ifdef QQS_TMC
     #define MOTHERBOARD BOARD_FLSUN_HISPEED
