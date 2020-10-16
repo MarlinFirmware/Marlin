@@ -140,7 +140,7 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t now;
+    static millis_t last_touch_ms;
     static millis_t time_to_hold;
     static millis_t repeat_delay;
     static millis_t touch_time;
