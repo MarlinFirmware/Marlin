@@ -2614,14 +2614,14 @@
     #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
     #else
-      #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
+      #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
     #else
-      #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
+      #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
 #endif
