@@ -295,10 +295,6 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   if (is_touched && calibration.orientation != TOUCH_ORIENTATION_NONE) {
     *x = int16_t((int32_t(*x) * calibration.x) >> 16) + calibration.offset_x;
     *y = int16_t((int32_t(*y) * calibration.y) >> 16) + calibration.offset_y;
-    #if (TFT_ROTATION & TFT_ROTATE_180)
-      *x = TFT_WIDTH - *x;
-      *y = TFT_HEIGHT - *y;
-    #endif
   }
   return is_touched;
 }
