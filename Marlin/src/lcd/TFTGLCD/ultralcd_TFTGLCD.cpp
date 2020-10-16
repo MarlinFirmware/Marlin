@@ -28,7 +28,7 @@
  * ultralcd_TFTGLCD.cpp
  *
  * Implementation of the LCD display routines for a TFT GLCD displays with external controller.
- * This display looks as a REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER but has good text font
+ * This display looks like a REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER but has good text font
  * and supports color output.
  */
 

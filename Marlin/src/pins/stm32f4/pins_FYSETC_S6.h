@@ -252,7 +252,7 @@
       #endif
     #endif // !FYSETC_MINI_12864
 
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1

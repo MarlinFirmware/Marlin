@@ -138,7 +138,7 @@
    * http://chibidibidiwah.wdfiles.com/local--files/panel/smoothieboard2sd.jpg
    * http://smoothieware.org/panel
    */
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
     //  EXP1 Pins
     #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
     #define BTN_ENC                        P1_30  // EXP1 Pin 2

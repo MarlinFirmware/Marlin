@@ -147,7 +147,7 @@
     #define KILL_PIN                          32
   #endif
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if MB(MINIRAMBO_10A)
 
@@ -187,6 +187,6 @@
 
     #endif // !MINIRAMBO_10A
 
-  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
+  #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
 #endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL

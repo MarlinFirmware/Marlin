@@ -169,6 +169,11 @@
 //
 // LCD screen
 //
+#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
+#endif
+
 #if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
@@ -182,11 +187,10 @@
    * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  #define FSMC_CS_PIN                       PG12  // NE4
-  #define FSMC_RS_PIN                       PF0   // A0
-
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
+  //#define LCD_RESET_PIN                   PF6
+  #define LCD_BACKLIGHT_PIN                 PG11
+  #define FSMC_CS_PIN                 TFT_CS_PIN
+  #define FSMC_RS_PIN                 TFT_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
@@ -255,8 +259,6 @@
 
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
 
 #endif
 

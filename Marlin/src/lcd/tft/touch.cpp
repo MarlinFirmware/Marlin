@@ -40,7 +40,7 @@ int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::now = 0;
+millis_t Touch::last_touch_ms = 0;
 millis_t Touch::time_to_hold;
 millis_t Touch::repeat_delay;
 millis_t Touch::touch_time;
@@ -79,8 +79,10 @@ void Touch::idle() {
 
   if (!enabled) return;
 
-  if (now == millis()) return;
-  now = millis();
+  // Return if Touch::idle is called within the same millisecond
+  const millis_t now = millis();
+  if (last_touch_ms == now) return;
+  last_touch_ms = now;
 
   if (get_point(&_x, &_y)) {
     #if HAS_RESUME_CONTINUE
@@ -88,24 +90,25 @@ void Touch::idle() {
       if (wait_for_user) {
         touch_control_type = CLICK;
         ui.lcd_clicked = true;
+        if (ui.external_control) wait_for_user = false;
         return;
       }
     #endif
 
     #if LCD_TIMEOUT_TO_STATUS
-      ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
+      ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
     #endif
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(last_touch_ms, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
     }
 
-    if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
-    if (PENDING(now, time_to_hold)) return;
+    if (time_to_hold == 0) time_to_hold = last_touch_ms + MINIMUM_HOLD_TIME;
+    if (PENDING(last_touch_ms, time_to_hold)) return;
 
     if (x != 0 && y != 0) {
       if (current_control) {
@@ -131,7 +134,7 @@ void Touch::idle() {
       }
 
       if (current_control == NULL)
-        touch_time = now;
+        touch_time = last_touch_ms;
     }
     x = _x;
     y = _y;
@@ -284,7 +287,7 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
     repeat_delay = delay > MIN_REPEAT_DELAY ? delay : MIN_REPEAT_DELAY;
-    time_to_hold = now + repeat_delay;
+    time_to_hold = last_touch_ms + repeat_delay;
   }
   ui.refresh();
 }
