@@ -1036,8 +1036,7 @@ void Temperature::manage_heater() {
     if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
 
     if (emergency_parser.quickstop_by_M410) {
-      // quickstop_stepper will call idle, so we must set it to false to avoid infinite loop
-      emergency_parser.quickstop_by_M410 = false;
+      emergency_parser.quickstop_by_M410 = false; // quickstop_stepper may call idle so clear this now!
       quickstop_stepper();
     }
   #endif
