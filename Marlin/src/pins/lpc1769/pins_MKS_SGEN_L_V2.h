@@ -227,9 +227,18 @@
 // Misc. Functions
 //
 #define LED_PIN                            P1_18  // Used as a status indicator
-#define LED2_PIN                           P1_19
-#define LED3_PIN                           P1_20
-#define LED4_PIN                           P1_21
+//#define LED2_PIN                         P1_19
+//#define LED3_PIN                         P1_20
+//#define LED4_PIN                         P1_21
+
+//
+// RGB LED
+//
+#if ENABLED(RGB_LED)
+  #define RGB_LED_R_PIN                    P1_19
+  #define RGB_LED_G_PIN                    P1_20
+  #define RGB_LED_B_PIN                    P1_21
+#endif
 
 /**
  *                _____                                            _____
