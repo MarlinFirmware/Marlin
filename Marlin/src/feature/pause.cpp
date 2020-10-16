@@ -223,8 +223,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Slow Load filament
@@ -245,9 +244,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   }
 
   #if ENABLED(DUAL_X_CARRIAGE)      // Tie the two extruders movement back together.
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -439,17 +436,14 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   if (unload_length)   // Unload the filament
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   return true;
@@ -495,8 +489,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Wait for filament insert by user and press button
@@ -550,9 +543,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     idle_no_sleep();
   }
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 }
 

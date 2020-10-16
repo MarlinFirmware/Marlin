@@ -113,7 +113,7 @@ void GcodeSuite::G34() {
       tool_change(0, true);
     #endif
 
-    TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
+    TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
     // In BLTOUCH HS mode, the probe travels in a deployed state.
     // Users of G34 might have a badly misaligned bed, so raise Z by the
