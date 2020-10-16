@@ -251,7 +251,9 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     bool MarlinUI::external_control; // = false
 
     void MarlinUI::wait_for_release() {
+      wait_for_user = true;
       while (button_pressed()) safe_delay(50);
+      wait_for_user = false;
       safe_delay(50);
     }
 
