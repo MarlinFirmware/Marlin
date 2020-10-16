@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Build tests for NUCLEO_F767ZI
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_NUCLEO_F767ZI
+opt_set SERIAL_PORT -1
+opt_enable BLTOUCH Z_SAFE_HOMING SPEAKER
+opt_set X_DRIVER_TYPE TMC2209
+opt_set Y_DRIVER_TYPE TMC2208
+exec_test $1 $2 "Mixed timer usage"
+
+# clean up
+restore_configs
