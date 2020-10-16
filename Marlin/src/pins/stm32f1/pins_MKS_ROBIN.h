@@ -187,8 +187,11 @@
    * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  //#define LCD_RESET_PIN                   PF6
+
+  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
+  #define LCD_RESET_PIN                     PF6   // FSMC_RST
   #define LCD_BACKLIGHT_PIN                 PG11
+
   #define FSMC_CS_PIN                 TFT_CS_PIN
   #define FSMC_RS_PIN                 TFT_RS_PIN
 
@@ -202,12 +205,6 @@
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-
-  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
-  #define LCD_RESET_PIN                     PF6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PG11
-  #define TFT_CS_PIN                 FSMC_CS_PIN
-  #define TFT_RS_PIN                 FSMC_RS_PIN
 
   // Config for Classic UI (emulated DOGM) and Color UI
   #if ENABLED(TFT_320x240)
@@ -252,7 +249,6 @@
       // XV for 180° rotated screen mounting
       #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
     #endif
-  #else
   #endif
 
 #elif HAS_GRAPHICAL_TFT
