@@ -116,8 +116,6 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
   eol();
 }
 
-<<<<<<< HEAD
-=======
 void TFT_String::add(uint8_t *string) {
   wchar_t wchar;
   while (*string) {
@@ -129,7 +127,6 @@ void TFT_String::add(uint8_t *string) {
   eol();
 }
 
->>>>>>> 2.0.x
 void TFT_String::add_character(uint8_t character) {
   if (length < MAX_STRING_LENGTH) {
     data[length] = character;

@@ -259,7 +259,7 @@
   
   /* QQS-Pro use MKS Robin TFT v2.0 */
   //+++++++++++++++++++++++//
-#if HAS_FSMC_TFT
+//#if HAS_FSMC_TFT
   #define XPT2046_X_CALIBRATION         12013
   #define XPT2046_Y_CALIBRATION         -8711
   #define XPT2046_X_OFFSET                -32
@@ -307,7 +307,7 @@
     #define TOUCH_MISO_PIN               PB14    // SPI2_MISO
     #define TOUCH_MOSI_PIN               PB15    // SPI2_MOSI
   #endif
-#endif
+//#endif
 
 // end defintion  MKS robin TFT
 

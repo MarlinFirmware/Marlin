@@ -452,8 +452,6 @@ class MenuItem_bool : public MenuEditItemBase {
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
 #endif
-<<<<<<< HEAD
-=======
 
 #if HAS_FAN
 
@@ -492,4 +490,3 @@ class MenuItem_bool : public MenuEditItemBase {
   #endif
 
 #endif // HAS_FAN
->>>>>>> 2.0.x
