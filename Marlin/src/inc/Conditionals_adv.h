@@ -148,7 +148,7 @@
 
 #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
   #define HAS_GAMES 1
-  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+  #if MANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
     #define HAS_GAME_MENU 1
   #endif
 #endif
@@ -163,7 +163,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
+#if ANY(EXTENSIBLE_UI, IS_NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -208,10 +208,7 @@
   #define NEEDS_HARDWARE_PWM 1
 #endif
 
-#if defined(__AVR__) && defined(USBCON)
-  #define IS_AT90USB 1
-  #undef SERIAL_XON_XOFF // Not supported on USB-native devices
-#else
+#if !defined(__AVR__) || !defined(USBCON)
   // Define constants and variables for buffering serial data.
   // Use only 0 or powers of 2 greater than 1
   // : [0, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, ...]
@@ -223,6 +220,9 @@
   #ifndef TX_BUFFER_SIZE
     #define TX_BUFFER_SIZE 32
   #endif
+#else
+  // SERIAL_XON_XOFF not supported on USB-native devices
+  #undef SERIAL_XON_XOFF
 #endif
 
 #if ENABLED(HOST_ACTION_COMMANDS)
