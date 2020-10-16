@@ -261,7 +261,7 @@
       #define NEOPIXEL_PIN                    25
     #endif
 
-  #elif HAS_MARLINUI_U8GLIB
+  #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                   17
