@@ -514,8 +514,14 @@ class Stepper {
       static void refresh_motor_power();
     #endif
 
-    // Set direction bits for all steppers
+    // Update direction states for all steppers
     static void set_directions();
+
+    // Set direction bits and update all stepper DIR states
+    static void set_directions(const uint8_t bits) {
+      last_direction_bits = bits;
+      set_directions();
+    }
 
   private:
 

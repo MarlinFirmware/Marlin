@@ -110,9 +110,8 @@ void GcodeSuite::G35() {
     tool_change(0, true);
   #endif
 
-  #if HAS_DUPLICATION_MODE
-    extruder_duplication_enabled = false;
-  #endif
+  // Disable duplication mode on homing
+  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   // Home all before this procedure
   home_all_axes();
