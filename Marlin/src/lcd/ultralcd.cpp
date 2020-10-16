@@ -819,8 +819,6 @@ void MarlinUI::update() {
     leds.update_timeout(powersupply_on);
   #endif
 
-  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
-
   #if HAS_LCD_MENU
 
     // Handle any queued Move Axis motion
@@ -1082,6 +1080,8 @@ void MarlinUI::update() {
     } // switch
 
   } // ELAPSED(ms, next_lcd_update_ms)
+
+  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
 }
 
 #if HAS_ADC_BUTTONS
