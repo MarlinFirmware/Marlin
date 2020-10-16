@@ -1478,10 +1478,6 @@ void MarlinUI::update() {
     set_status_P(msg, -1);
   }
 
-  #if ENABLED(SDSUPPORT)
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
-
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
