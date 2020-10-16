@@ -56,12 +56,14 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
     UNUSED(indb);
   #endif
   #if HAS_FAN
-    set_fan_speed((
-      #if FAN_COUNT > 1
-        active_extruder < FAN_COUNT ? active_extruder :
-      #endif
-      0), ui.material_preset[indh].fan_speed
-    );
+    if (indh >= 0) {
+      set_fan_speed((
+        #if FAN_COUNT > 1
+          active_extruder < FAN_COUNT ? active_extruder :
+        #endif
+        0), ui.material_preset[indh].fan_speed
+      );
+    }
   #endif
   ui.return_to_status();
 }
@@ -93,7 +95,9 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
   #endif
 
-  void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
+  void do_preheat_end_m() {
+    _preheat_end(editable.int8, 0);
+  }
 
   #if HAS_MULTI_HOTEND || HAS_HEATED_BED
 
