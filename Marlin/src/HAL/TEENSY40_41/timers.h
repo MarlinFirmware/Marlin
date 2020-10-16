@@ -21,8 +21,7 @@
 #pragma once
 
 /**
- * Description: HAL for
- * Teensy4.0/4.1 (__IMXRT1062__)
+ * HAL Timers for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
 
 #include <stdint.h>
