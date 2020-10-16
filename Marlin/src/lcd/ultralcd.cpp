@@ -251,9 +251,7 @@ millis_t MarlinUI::next_button_update_ms; // = 0
     bool MarlinUI::external_control; // = false
 
     void MarlinUI::wait_for_release() {
-      TERN_(TOUCH_SCREEN, wait_for_user = true);
       while (button_pressed()) safe_delay(50);
-      TERN_(TOUCH_SCREEN, wait_for_user = false);
       safe_delay(50);
     }
 
@@ -821,6 +819,8 @@ void MarlinUI::update() {
     leds.update_timeout(powersupply_on);
   #endif
 
+  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
+
   #if HAS_LCD_MENU
 
     // Handle any queued Move Axis motion
@@ -1082,8 +1082,6 @@ void MarlinUI::update() {
     } // switch
 
   } // ELAPSED(ms, next_lcd_update_ms)
-
-  TERN_(HAS_GRAPHICAL_TFT, tft_idle());
 }
 
 #if HAS_ADC_BUTTONS
