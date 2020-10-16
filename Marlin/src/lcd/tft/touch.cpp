@@ -50,12 +50,9 @@ touch_calibration_t Touch::calibration;
   calibrationState Touch::calibration_state = CALIBRATION_NONE;
   touch_calibration_point_t Touch::calibration_points[4];
 #endif
-<<<<<<< HEAD
-=======
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
 #endif
->>>>>>> 2.0.x
 
 void Touch::init() {
   calibration_reset();
@@ -86,8 +83,6 @@ void Touch::idle() {
   now = millis();
 
   if (get_point(&_x, &_y)) {
-<<<<<<< HEAD
-=======
     #if HAS_RESUME_CONTINUE
       // UI is waiting for a click anywhere?
       if (wait_for_user) {
@@ -97,7 +92,6 @@ void Touch::idle() {
       }
     #endif
 
->>>>>>> 2.0.x
     #if LCD_TIMEOUT_TO_STATUS
       ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
     #endif
@@ -301,13 +295,6 @@ bool Touch::get_point(int16_t *x, int16_t *y) {
   if (is_touched && calibration.orientation != TOUCH_ORIENTATION_NONE) {
     *x = int16_t((int32_t(*x) * calibration.x) >> 16) + calibration.offset_x;
     *y = int16_t((int32_t(*y) * calibration.y) >> 16) + calibration.offset_y;
-<<<<<<< HEAD
-=======
-    #if (TFT_ROTATION & TFT_ROTATE_180)
-      *x = TFT_WIDTH - *x;
-      *y = TFT_HEIGHT - *y;
-    #endif
->>>>>>> 2.0.x
   }
   return is_touched;
 }

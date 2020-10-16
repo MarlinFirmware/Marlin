@@ -151,12 +151,10 @@ inline float home_bump_mm(const AxisEnum axis) {
 #if HAS_SOFTWARE_ENDSTOPS
 
   typedef struct {
-    xyz_pos_t min, max;
-    struct {
-      bool _enabled:1;
-      bool _loose:1;
-    };
+    bool _enabled, _loose;
     bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
     void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
       amin = -100000; amax = 100000; // "No limits"
       #if HAS_SOFTWARE_ENDSTOPS
@@ -200,7 +198,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern soft_endstops_t soft_endstop;
   #define apply_motion_limits(V)        NOOP
   #define update_software_endstops(...) NOOP
-  #define SET_SOFT_ENDSTOP_LOOSE()      NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 
