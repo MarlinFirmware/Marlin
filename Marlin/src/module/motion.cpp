@@ -36,7 +36,7 @@
 
 #if IS_SCARA
   #include "../libs/buzzer.h"
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -52,7 +52,7 @@
 #endif
 
 #if HAS_DISPLAY
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR

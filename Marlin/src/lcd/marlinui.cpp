@@ -31,7 +31,7 @@
 #endif
 
 // All displays share the MarlinUI class
-#include "ultralcd.h"
+#include "marlinui.h"
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -117,7 +117,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_WIRED_LCD
 
 #if HAS_MARLINUI_U8GLIB
-  #include "dogm/ultralcd_DOGM.h"
+  #include "dogm/marlinui_DOGM.h"
 #endif
 
 #include "lcdprint.h"

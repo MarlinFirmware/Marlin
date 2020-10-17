@@ -59,7 +59,7 @@
 
 #include "sd/cardreader.h"
 
-#include "lcd/ultralcd.h"
+#include "lcd/marlinui.h"
 #if HAS_TOUCH_XPT2046
   #include "lcd/touch/touch_buttons.h"
 #endif

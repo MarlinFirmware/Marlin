@@ -22,7 +22,7 @@
 #pragma once
 
 #include "menu.h"
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h" // for inject_P
 
 #include "../../inc/MarlinConfigPre.h"

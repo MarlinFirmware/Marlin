@@ -25,7 +25,7 @@
 #if HAS_PID_HEATING
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
 #if ENABLED(EXTENSIBLE_UI)

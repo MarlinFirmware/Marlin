@@ -47,7 +47,7 @@
   #include "../../feature/babystep.h"
   #include "../lcdprint.h"
   #if HAS_MARLINUI_U8GLIB
-    #include "../dogm/ultralcd_DOGM.h"
+    #include "../dogm/marlinui_DOGM.h"
   #endif
 
   void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {

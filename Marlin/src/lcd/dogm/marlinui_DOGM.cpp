@@ -21,7 +21,7 @@
  */
 
 /**
- * lcd/dogm/ultralcd_DOGM.h
+ * lcd/dogm/marlinui_DOGM.h
  *
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * by STB for ErikZalm/Marlin. Common LCD 128x64 pixel graphic displays.
@@ -39,7 +39,7 @@
 
 #if HAS_MARLINUI_U8GLIB
 
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 #include "u8g_fontutf8.h"
 
 #if ENABLED(SHOW_BOOTSCREEN)
@@ -49,7 +49,7 @@
 #include "../lcdprint.h"
 #include "../fontutils.h"
 #include "../../libs/numtostr.h"
-#include "../ultralcd.h"
+#include "../marlinui.h"
 
 #include "../../sd/cardreader.h"
 #include "../../module/temperature.h"

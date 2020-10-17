@@ -54,7 +54,7 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"

@@ -29,7 +29,7 @@
 #include "../../module/motion.h"
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #if HAS_BED_PROBE
   #include "../../module/probe.h"

@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #include "../../feature/bedlevel/bedlevel.h"
 

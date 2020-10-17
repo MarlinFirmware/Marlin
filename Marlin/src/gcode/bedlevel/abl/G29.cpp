@@ -42,7 +42,7 @@
 #endif
 
 #if HAS_DISPLAY
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)

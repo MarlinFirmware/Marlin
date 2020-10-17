@@ -33,7 +33,7 @@
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
-#include "../../../../lcd/ultralcd.h"
+#include "../../../../lcd/marlinui.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/planner.h"
 #if ENABLED(POWER_LOSS_RECOVERY)

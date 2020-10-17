@@ -29,7 +29,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 
 #define BW(N) ((N + 7) / 8)
 

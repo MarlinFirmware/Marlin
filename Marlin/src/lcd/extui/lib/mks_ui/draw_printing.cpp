@@ -41,7 +41,7 @@
   #include "../../../../feature/powerloss.h"
 #endif
 #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
-  #include "../../../ultralcd.h"
+  #include "../../../marlinui.h"
 #endif
 
 extern lv_group_t * g;

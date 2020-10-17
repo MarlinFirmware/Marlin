@@ -30,7 +30,7 @@
 MMU2 mmu2;
 
 #include "../../gcode/gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../libs/buzzer.h"
 #include "../../libs/nozzle.h"
 #include "../../module/temperature.h"

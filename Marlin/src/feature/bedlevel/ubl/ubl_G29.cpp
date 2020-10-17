@@ -30,7 +30,7 @@
   #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print.h"
   #include "../../../module/settings.h"
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"

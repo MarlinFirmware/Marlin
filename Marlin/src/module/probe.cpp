@@ -36,7 +36,7 @@
 #include "endstops.h"
 
 #include "../gcode/gcode.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #include "../MarlinCore.h" // for stop(), disable_e_steppers
 

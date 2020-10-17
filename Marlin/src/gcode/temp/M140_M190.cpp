@@ -33,7 +33,7 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
