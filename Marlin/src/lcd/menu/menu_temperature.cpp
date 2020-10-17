@@ -31,7 +31,7 @@
 #include "menu_item.h"
 #include "../../module/temperature.h"
 
-#if FAN_COUNT > 1 || ENABLED(SINGLENOZZLE)
+#if HAS_FAN || ENABLED(SINGLENOZZLE)
   #include "../../module/motion.h"
 #endif
 
