@@ -70,7 +70,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_Z_FADE_HEIGHT                   = _UxGT("Ausblendhöhe");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Setze Homeversatz");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Homeversatz aktiv");
-  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
+  PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Setze Nullpunkte"); //"G92 X0 Y0 Z0" commented out in marlinui.cpp
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" Vorwärmen");
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" Vorwärmen ~");
