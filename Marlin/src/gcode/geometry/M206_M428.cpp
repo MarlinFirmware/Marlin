@@ -28,6 +28,13 @@
 #include "../../module/motion.h"
 #include "../../lcd/ultralcd.h"
 #include "../../libs/buzzer.h"
+#include "../../MarlinCore.h"
+
+extern const char SP_Y_STR[], SP_Z_STR[];
+
+void m206_report() {
+  SERIAL_ECHOLNPAIR_P(PSTR("M206 X"), home_offset.x, SP_Y_STR, home_offset.y, SP_Z_STR, home_offset.z);
+}
 
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -41,18 +48,15 @@ void GcodeSuite::M206() {
     if (parser.seen(XYZ_CHAR(i)))
       set_home_offset((AxisEnum)i, parser.value_linear_units());
 
-    if (!parser.seen_any()) {
-      SERIAL_ECHOLNPAIR("M206X : ", home_offset[X_AXIS]);
-      SERIAL_ECHOLNPAIR("M206Y : ", home_offset[Y_AXIS]);
-      SERIAL_ECHOLNPAIR("M206Z : ", home_offset[Z_AXIS]);
-    }
-
   #if ENABLED(MORGAN_SCARA)
     if (parser.seen('T')) set_home_offset(A_AXIS, parser.value_float()); // Theta
     if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
-  report_current_position();
+  if (!parser.seen("XYZ"))
+    m206_report();
+  else
+    report_current_position();
 }
 
 /**

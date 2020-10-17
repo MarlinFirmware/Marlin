@@ -365,7 +365,7 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        probe_position_lf.set(_MAX(X_CENTER - size / 2, x_min), _MAX(Y_CENTER - size / 2, y_min));
+        probe_position_lf.set(_MAX((X_CENTER) - size / 2, x_min), _MAX((Y_CENTER) - size / 2, y_min));
         probe_position_rb.set(_MIN(probe_position_lf.x + size, x_max), _MIN(probe_position_lf.y + size, y_max));
       }
       else {
@@ -382,7 +382,7 @@ G29_TYPE GcodeSuite::G29() {
         G29_RETURN(false);
       }
 
-      // probe at the points of a lattice grid
+      // Probe at the points of a lattice grid
       gridSpacing.set((probe_position_rb.x - probe_position_lf.x) / (abl_grid_points.x - 1),
                       (probe_position_rb.y - probe_position_lf.y) / (abl_grid_points.y - 1));
 
