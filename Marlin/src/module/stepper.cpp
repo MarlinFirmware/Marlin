@@ -2962,7 +2962,7 @@ void Stepper::report_positions() {
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
     void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
-      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
+      if (WITHIN(driver, 0, MOTOR_CURRENT_COUNT - 1))
         motor_current_setting[driver] = current; // update motor_current_setting
 
       if (!initialized) return;
