@@ -34,7 +34,7 @@
 #include "../../queue.h"
 
 #include "../../../libs/buzzer.h"
-#include "../../../lcd/ultralcd.h"
+#include "../../../lcd/marlinui.h"
 #include "../../../module/motion.h"
 #include "../../../module/stepper.h"
 

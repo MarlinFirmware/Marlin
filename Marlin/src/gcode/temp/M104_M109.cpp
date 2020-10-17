@@ -34,7 +34,7 @@
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #include "../../MarlinCore.h" // for startOrResumeJob, etc.
 
@@ -94,7 +94,7 @@ void GcodeSuite::M104() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && target_extruder == 0)
+      if (idex_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -172,7 +172,7 @@ void GcodeSuite::M109() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && target_extruder == 0)
+      if (idex_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 

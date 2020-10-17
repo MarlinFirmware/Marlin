@@ -383,7 +383,7 @@
 
 #endif
 
-#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
   #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
 #endif
 
@@ -2578,7 +2578,7 @@
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && (SCK_PIN == LCD_PINS_D4)
+#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
@@ -2614,14 +2614,14 @@
     #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
     #else
-      #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
+      #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
     #else
-      #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
+      #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
 #endif
