@@ -17,7 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
+ * 
  */
 
 /**
@@ -136,10 +136,10 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing.toff;
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
@@ -171,10 +171,11 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing.toff;
+    
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
@@ -495,10 +496,11 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = chopper_timing.toff;
+    
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
@@ -537,10 +539,10 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     TMC2208_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 0b01; // blank_time = 24
-    chopconf.toff = chopper_timing.toff;
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
@@ -573,9 +575,11 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     TMC2660_n::CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing.toff;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+
+    
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     st.CHOPCONF(chopconf.sr);
 
     st.sdoff(0);
@@ -595,10 +599,11 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing.toff;
+    
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
@@ -630,10 +635,10 @@ enum StealthIndex : uint8_t { STEALTH_AXIS_XY, STEALTH_AXIS_Z, STEALTH_AXIS_E };
 
     CHOPCONF_t chopconf{0};
     chopconf.tbl = 1;
-    chopconf.toff = chopper_timing.toff;
+    chopconf.toff = chopper_timing[AXIS_ID%4].toff;
     chopconf.intpol = INTERPOLATE;
-    chopconf.hend = chopper_timing.hend + 3;
-    chopconf.hstrt = chopper_timing.hstrt - 1;
+    chopconf.hend = chopper_timing[AXIS_ID%4].hend + 3;
+    chopconf.hstrt = chopper_timing[AXIS_ID%4].hstrt - 1;
     TERN_(SQUARE_WAVE_STEPPING, chopconf.dedge = true);
     st.CHOPCONF(chopconf.sr);
 
