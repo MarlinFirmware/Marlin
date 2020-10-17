@@ -24,9 +24,6 @@
 /**
  * Software SPI functions originally from Arduino Sd2Card Library
  * Copyright (c) 2009 by William Greiman
- */
-
-/**
  * Adapted to the STM32F1 HAL
  */
 
@@ -113,7 +110,7 @@ void spiInit(uint8_t spiRate) {
  * @details
  */
 uint8_t spiRec() {
-  uint8_t returnByte = SPI.transfer(ff);
+  uint8_t returnByte = SPI.transfer(0xFF);
   return returnByte;
 }
 
@@ -157,7 +154,7 @@ void spiSendBlock(uint8_t token, const uint8_t* buf) {
 #if ENABLED(SPI_EEPROM)
 
 // Read single byte from specified SPI channel
-uint8_t spiRec(uint32_t chan) { return SPI.transfer(ff); }
+uint8_t spiRec(uint32_t chan) { return SPI.transfer(0xFF); }
 
 // Write single byte to specified SPI channel
 void spiSend(uint32_t chan, byte b) { SPI.send(b); }
