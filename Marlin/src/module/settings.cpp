@@ -3726,11 +3726,11 @@ void MarlinSettings::reset() {
         );
       #elif HAS_MOTOR_CURRENT_SPI
         SERIAL_ECHOPGM("  M907");                              // SPI-based has 5 values:
-        LOOP_XYZE(q) {                                         // X Y Z E0 (by default)
+        LOOP_XYZE(q) {                                         // X Y Z E (map to X Y Z E0 by default)
           SERIAL_CHAR(' ', axis_codes[q]);
           SERIAL_ECHO(stepper.motor_current_setting[q]);
         }
-        SERIAL_CHAR(' ', 'B');                                 // B maps to E1 (by default)
+        SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
         SERIAL_ECHOLN(stepper.motor_current_setting[4]);
       #endif
     #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
