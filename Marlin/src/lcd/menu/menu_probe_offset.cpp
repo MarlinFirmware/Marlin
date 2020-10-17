@@ -48,16 +48,12 @@
 float z_offset_backup, calculated_z_offset;
 
 TERN_(HAS_LEVELING, bool leveling_was_active);
-TERN_(HAS_SOFTWARE_ENDSTOPS, bool store_soft_endstops_enabled);
 
 void prepare_for_calibration() {
   z_offset_backup = probe.offset.z;
 
   // Disable soft endstops for free Z movement
-  #if HAS_SOFTWARE_ENDSTOPS
-    store_soft_endstops_enabled = soft_endstops_enabled;
-    soft_endstops_enabled = false;
-  #endif
+  SET_SOFT_ENDSTOP_LOOSE(true);
 
   // Disable leveling for raw planner motion
   #if HAS_LEVELING
@@ -68,7 +64,7 @@ void prepare_for_calibration() {
 
 void set_offset_and_go_back(const float &z) {
   probe.offset.z = z;
-  TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = store_soft_endstops_enabled);
+  SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
   ui.goto_previous_screen_no_defer();
 }
@@ -92,16 +88,20 @@ void probe_offset_wizard_menu() {
   SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move_z( 0.1f); });
 
   if ((SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
-    extern const char NUL_STR[];
-    SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
-    MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
-      char tmp[20], numstr[10];
-      // Determine digits needed right of decimal
-      const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                           !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-      sprintf_P(tmp, GET_TEXT(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+    char tmp[20], numstr[10];
+    // Determine digits needed right of decimal
+    const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
+                          !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
+    sprintf_P(tmp, GET_TEXT(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+    #if DISABLED(HAS_GRAPHICAL_TFT)
+      extern const char NUL_STR[];
+      SUBMENU_P(NUL_STR, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
+      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
       lcd_put_u8str(tmp);
-    MENU_ITEM_ADDON_END();
+      MENU_ITEM_ADDON_END();
+    #else
+      SUBMENU_P(tmp, []{ _goto_manual_move_z(float(SHORT_MANUAL_Z_MOVE)); });
+    #endif
   }
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{

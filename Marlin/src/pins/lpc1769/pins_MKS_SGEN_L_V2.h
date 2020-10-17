@@ -39,7 +39,7 @@
   //#define SDCARD_EEPROM_EMULATION
   //#define I2C_EEPROM                            // AT24C32
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -190,7 +190,7 @@
   #define E1_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif // HAS_TMC_UART
 
 //
@@ -227,9 +227,25 @@
 // Misc. Functions
 //
 #define LED_PIN                            P1_18  // Used as a status indicator
-#define LED2_PIN                           P1_19
-#define LED3_PIN                           P1_20
-#define LED4_PIN                           P1_21
+
+//
+// RGB LED
+//
+#if ENABLED(RGB_LED)
+  #ifndef RGB_LED_R_PIN
+    #define RGB_LED_R_PIN                  P1_19
+  #endif
+  #ifndef RGB_LED_G_PIN
+    #define RGB_LED_G_PIN                  P1_20
+  #endif
+  #ifndef RGB_LED_B_PIN
+    #define RGB_LED_B_PIN                  P1_21
+  #endif
+#else
+  #define LED2_PIN                         P1_19  // Initialized by HAL/LPC1768/main.cpp
+  #define LED3_PIN                         P1_20
+  #define LED4_PIN                         P1_21
+#endif
 
 /**
  *                _____                                            _____
@@ -325,7 +341,7 @@
           #define DOGLCD_A0                P1_00
         #endif
 
-        #if ENABLED(ULTIPANEL)
+        #if IS_ULTIPANEL
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22

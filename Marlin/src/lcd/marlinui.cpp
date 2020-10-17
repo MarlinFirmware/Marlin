@@ -31,7 +31,7 @@
 #endif
 
 // All displays share the MarlinUI class
-#include "ultralcd.h"
+#include "marlinui.h"
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -117,7 +117,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_WIRED_LCD
 
 #if HAS_MARLINUI_U8GLIB
-  #include "dogm/ultralcd_DOGM.h"
+  #include "dogm/marlinui_DOGM.h"
 #endif
 
 #include "lcdprint.h"
@@ -400,7 +400,7 @@ bool MarlinUI::get_blink() {
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
 
-#if BOTH(REPRAPWORLD_KEYPAD, HAS_ENCODER_ACTION)
+#if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
   volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -432,7 +432,7 @@ bool MarlinUI::get_blink() {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
           #if HAS_LCD_MENU
-            if (encoderDirection == -(ENCODERBASE)) { // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+            if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
                    if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
@@ -497,12 +497,12 @@ bool MarlinUI::get_blink() {
         return true;
       }
 
-    #endif // !ADC_KEYPAD
+    #endif // !HAS_ADC_BUTTONS
 
     return false;
   }
 
-#endif // REPRAPWORLD_KEYPAD
+#endif // IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
 /**
  * Status Screen
@@ -1478,10 +1478,6 @@ void MarlinUI::update() {
     set_status_P(msg, -1);
   }
 
-  #if ENABLED(SDSUPPORT)
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
-
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)
       wait_for_heatup = wait_for_user = false;
@@ -1553,12 +1549,15 @@ void MarlinUI::update() {
     //  - On edit screens, touch Up Half for -,  Bottom Half to +
     //
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
+      const millis_t now = millis();
+      if (PENDING(now, next_button_update_ms)) return;
+      next_button_update_ms = now + repeat_delay;    // Assume the repeat delay
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
         encoderDiff = epps * ydir;
       else if (screen_items > 0) {
-        // Last 3 cols act as a scroll :-)
+        // Last 5 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
           encoderDiff = epps * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;

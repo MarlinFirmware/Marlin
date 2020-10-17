@@ -32,7 +32,7 @@
 
 #include <lvgl.h>
 
-//#define GRAPHICAL_TFT_ROTATE_180
+//#define TFT_ROTATION TFT_ROTATE_180
 #define USE_WIFI_FUNCTION 0
 
 extern void tft_lvgl_init();

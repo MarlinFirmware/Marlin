@@ -25,7 +25,7 @@
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
 
 /**

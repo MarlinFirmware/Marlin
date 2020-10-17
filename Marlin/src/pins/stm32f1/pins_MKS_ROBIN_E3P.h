@@ -269,27 +269,19 @@
 
 #endif
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
+#if HAS_SPI_GRAPHICAL_TFT
   // Emulated DOGM SPI
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              3
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
   #define BTN_ENC                           PE13
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
-
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-
 #elif ENABLED(TFT_480x320_SPI)
   #define TFT_DRIVER                      ST7796
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
+// XPT2046 Touch Screen calibration
 #if EITHER(HAS_TFT_LVGL_UI, TFT_480x320_SPI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17253
@@ -303,7 +295,7 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 -24
   #endif
-#elif ENABLED(SPI_GRAPHICAL_TFT)
+#elif HAS_SPI_GRAPHICAL_TFT
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -11386
   #endif
@@ -341,7 +333,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PE15
       #define LCD_PINS_D6                   PD11
       #define LCD_PINS_D7                   PD10

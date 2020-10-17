@@ -55,7 +55,7 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
@@ -132,8 +132,10 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   DEBUG_SECTION(est, "ensure_safe_temperature", true);
   DEBUG_ECHOLNPAIR("... wait:", int(wait), " mode:", int(mode));
 
-  if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
-    thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
+      thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+  #endif
 
   #if HAS_LCD_MENU
     lcd_pause_show_message(PAUSE_MESSAGE_HEATING, mode);
@@ -221,8 +223,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Slow Load filament
@@ -243,9 +244,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   }
 
   #if ENABLED(DUAL_X_CARRIAGE)      // Tie the two extruders movement back together.
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -437,17 +436,14 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   if (unload_length)   // Unload the filament
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   return true;
@@ -493,8 +489,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Wait for filament insert by user and press button
@@ -548,9 +543,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     idle_no_sleep();
   }
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 }
 

@@ -34,7 +34,7 @@
 #include "planner.h"
 #include "../HAL/shared/Delay.h"
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/e3v2/dwin.h"
@@ -1032,8 +1032,14 @@ void Temperature::manage_heater() {
     if (!inited) return watchdog_refresh();
   #endif
 
-  if (TERN0(EMERGENCY_PARSER, emergency_parser.killed_by_M112))
-    kill(M112_KILL_STR, nullptr, true);
+  #if ENABLED(EMERGENCY_PARSER)
+    if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
+
+    if (emergency_parser.quickstop_by_M410) {
+      emergency_parser.quickstop_by_M410 = false; // quickstop_stepper may call idle so clear this now!
+      quickstop_stepper();
+    }
+  #endif
 
   if (!raw_temps_ready) return;
 
@@ -1461,7 +1467,7 @@ void Temperature::manage_heater() {
         #elif ENABLED(HEATER_0_USES_MAX6675)
           return (
             #if ENABLED(MAX6675_IS_MAX31865)
-              max31865.temperature(100, 400)  // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+              max31865.temperature(MAX31865_SENSOR_OHMS, MAX31865_CALIBRATION_OHMS)
             #else
               raw * 0.25
             #endif
@@ -2236,7 +2242,7 @@ void Temperature::disable_all_heaters() {
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
     #if ENABLED(MAX6675_IS_MAX31865)
-      max6675_temp = int(max31865.temperature(100, 400)); // 100 ohms = PT100 resistance. 400 ohms = calibration resistor
+      max6675_temp = int(max31865.temperature(MAX31865_SENSOR_OHMS, MAX31865_CALIBRATION_OHMS));
     #endif
 
     //

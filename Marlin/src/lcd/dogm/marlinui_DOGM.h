@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/dogm/ultralcd_DOGM.h
+ * lcd/dogm/marlinui_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -189,7 +189,7 @@
   // Unspecified 320x240 TFT pre-initialized by built-in bootloader
 
   #define U8G_CLASS U8GLIB_TFT_320X240_UPSCALE_FROM_128X64
-  #if ENABLED(FSMC_GRAPHICAL_TFT)
+  #if HAS_FSMC_GRAPHICAL_TFT
     #define U8G_PARAM FSMC_CS_PIN, FSMC_RS_PIN
   #else
     #define U8G_PARAM -1, -1

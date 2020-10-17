@@ -83,10 +83,6 @@ Stepper stepper; // Singleton
 
 #define BABYSTEPPING_EXTRA_DIR_WAIT
 
-#if HAS_MOTOR_CURRENT_PWM
-  bool Stepper::initialized; // = false
-#endif
-
 #ifdef __AVR__
   #include "speed_lookuptable.h"
 #endif
@@ -96,7 +92,7 @@ Stepper stepper; // Singleton
 #include "motion.h"
 
 #include "temperature.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../gcode/queue.h"
 #include "../sd/cardreader.h"
 #include "../MarlinCore.h"
@@ -110,7 +106,7 @@ Stepper stepper; // Singleton
   #include "../feature/dac/dac_dac084s085.h"
 #endif
 
-#if HAS_DIGIPOTSS
+#if HAS_MOTOR_CURRENT_SPI
   #include <SPI.h>
 #endif
 
@@ -142,8 +138,12 @@ Stepper stepper; // Singleton
   bool Stepper::separate_multi_axis = false;
 #endif
 
-#if HAS_MOTOR_CURRENT_PWM
-  uint32_t Stepper::motor_current_setting[3]; // Initialized by settings.load()
+#if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+  bool Stepper::initialized; // = false
+  uint32_t Stepper::motor_current_setting[MOTOR_CURRENT_COUNT]; // Initialized by settings.load()
+  #if HAS_MOTOR_CURRENT_SPI
+    constexpr uint32_t Stepper::digipot_count[];
+  #endif
 #endif
 
 // private:
@@ -348,7 +348,7 @@ xyze_int8_t Stepper::count_direction{0};
   }
 
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
-  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ ENABLED(INVERT_X2_VS_X_DIR)); }while(0)
   #if ENABLED(X_DUAL_ENDSTOPS)
     #define X_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(X,v)
   #else
@@ -356,7 +356,7 @@ xyze_int8_t Stepper::count_direction{0};
   #endif
 #elif ENABLED(DUAL_X_CARRIAGE)
   #define X_APPLY_DIR(v,ALWAYS) do{ \
-    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE(mirrored_duplication_mode ? !(v) : v); } \
+    if (extruder_duplication_enabled || ALWAYS) { X_DIR_WRITE(v); X2_DIR_WRITE((v) ^ idex_mirrored_mode); } \
     else if (last_moved_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
   }while(0)
   #define X_APPLY_STEP(v,ALWAYS) do{ \
@@ -369,7 +369,7 @@ xyze_int8_t Stepper::count_direction{0};
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
+  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) ^ ENABLED(INVERT_Y2_VS_Y_DIR)); }while(0)
   #if ENABLED(Y_DUAL_ENDSTOPS)
     #define Y_APPLY_STEP(v,Q) DUAL_ENDSTOP_APPLY_STEP(Y,v)
   #else
@@ -1605,10 +1605,9 @@ void Stepper::pulse_phase_isr() {
               PAGE_SEGMENT_UPDATE(Z, high >> 4);
               PAGE_SEGMENT_UPDATE(E, high & 0xF);
 
-              if (dm != last_direction_bits) {
-                last_direction_bits = dm;
-                set_directions();
-              }
+              if (dm != last_direction_bits)
+                set_directions(dm);
+
             } break;
 
             default: break;
@@ -2131,9 +2130,7 @@ uint32_t Stepper::block_phase_isr() {
         MIXER_STEPPER_SETUP();
       #endif
 
-      #if HAS_MULTI_EXTRUDER
-        stepper_extruder = current_block->extruder;
-      #endif
+      TERN_(HAS_MULTI_EXTRUDER, stepper_extruder = current_block->extruder);
 
       // Initialize the trapezoid generator from the current block.
       #if ENABLED(LIN_ADVANCE)
@@ -2151,17 +2148,14 @@ uint32_t Stepper::block_phase_isr() {
         else LA_isr_rate = LA_ADV_NEVER;
       #endif
 
-      if ( ENABLED(HAS_L64XX)  // Always set direction for L64xx (Also enables the chips)
+      if ( ENABLED(HAS_L64XX)       // Always set direction for L64xx (Also enables the chips)
+        || ENABLED(DUAL_X_CARRIAGE) // TODO: Find out why this fixes "jittery" small circles
         || current_block->direction_bits != last_direction_bits
         || TERN(MIXING_EXTRUDER, false, stepper_extruder != last_moved_extruder)
       ) {
-        last_direction_bits = current_block->direction_bits;
-        #if HAS_MULTI_EXTRUDER
-          last_moved_extruder = stepper_extruder;
-        #endif
-
+        TERN_(HAS_MULTI_EXTRUDER, last_moved_extruder = stepper_extruder);
         TERN_(HAS_L64XX, L64XX_OK_to_power_up = true);
-        set_directions();
+        set_directions(current_block->direction_bits);
       }
 
       #if ENABLED(LASER_POWER_INLINE)
@@ -2583,15 +2577,12 @@ void Stepper::init() {
   #endif
 
   // Init direction bits for first moves
-  last_direction_bits = 0
-    | (INVERT_X_DIR ? _BV(X_AXIS) : 0)
-    | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
-    | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0);
+  set_directions((INVERT_X_DIR ? _BV(X_AXIS) : 0)
+               | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
+               | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0));
 
-  set_directions();
-
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
-    TERN_(HAS_MOTOR_CURRENT_PWM, initialized = true);
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    initialized = true;
     digipot_init();
   #endif
 }
@@ -2930,10 +2921,10 @@ void Stepper::report_positions() {
  * Software-controlled Stepper Motor Current
  */
 
-#if HAS_DIGIPOTSS
+#if HAS_MOTOR_CURRENT_SPI
 
   // From Arduino DigitalPotControl example
-  void Stepper::digitalPotWrite(const int16_t address, const int16_t value) {
+  void Stepper::set_digipot_value_spi(const int16_t address, const int16_t value) {
     WRITE(DIGIPOTSS_PIN, LOW);  // Take the SS pin low to select the chip
     SPI.transfer(address);      // Send the address and value via SPI
     SPI.transfer(value);
@@ -2941,7 +2932,7 @@ void Stepper::report_positions() {
     //delay(10);
   }
 
-#endif // HAS_DIGIPOTSS
+#endif // HAS_MOTOR_CURRENT_SPI
 
 #if HAS_MOTOR_CURRENT_PWM
 
@@ -2958,7 +2949,7 @@ void Stepper::report_positions() {
         #if ANY_PIN(MOTOR_CURRENT_PWM_E, MOTOR_CURRENT_PWM_E0, MOTOR_CURRENT_PWM_E1)
           case 2:
         #endif
-            digipot_current(i, motor_current_setting[i]);
+            set_digipot_current(i, motor_current_setting[i]);
         default: break;
       }
     }
@@ -2968,21 +2959,22 @@ void Stepper::report_positions() {
 
 #if !MB(PRINTRBOARD_G2)
 
-  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+  #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
 
-    void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
+    void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
+      if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
+        motor_current_setting[driver] = current; // update motor_current_setting
 
-      #if HAS_DIGIPOTSS
+      if (!initialized) return;
+
+      #if HAS_MOTOR_CURRENT_SPI
+
+        //SERIAL_ECHOLNPAIR("Digipotss current ", current);
 
         const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
-        digitalPotWrite(digipot_ch[driver], current);
+        set_digipot_value_spi(digipot_ch[driver], current);
 
       #elif HAS_MOTOR_CURRENT_PWM
-
-        if (!initialized) return;
-
-        if (WITHIN(driver, 0, COUNT(motor_current_setting) - 1))
-          motor_current_setting[driver] = current; // update motor_current_setting
 
         #define _WRITE_CURRENT_PWM(P) analogWrite(pin_t(MOTOR_CURRENT_PWM_## P ##_PIN), 255L * current / (MOTOR_CURRENT_PWM_RANGE))
         switch (driver) {
@@ -3019,17 +3011,13 @@ void Stepper::report_positions() {
 
     void Stepper::digipot_init() {
 
-      #if HAS_DIGIPOTSS
-
-        static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+      #if HAS_MOTOR_CURRENT_SPI
 
         SPI.begin();
         SET_OUTPUT(DIGIPOTSS_PIN);
 
-        LOOP_L_N(i, COUNT(digipot_motor_current)) {
-          //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-          digipot_current(i, digipot_motor_current[i]);
-        }
+        LOOP_L_N(i, COUNT(motor_current_setting))
+          set_digipot_current(i, motor_current_setting[i]);
 
       #elif HAS_MOTOR_CURRENT_PWM
 

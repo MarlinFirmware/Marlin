@@ -357,8 +357,8 @@
   #define LCD_PINS_RS                      P0_16  // (16) J3-7 & AUX-4
   #define LCD_SDSS                         P1_23  // (53) J3-5 & AUX-3
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
+  #if IS_NEWPANEL
+    #if IS_RRW_KEYPAD
       #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
       #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
       #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
@@ -371,7 +371,7 @@
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
@@ -416,7 +416,7 @@
     #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
     #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
       #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
       #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
@@ -436,7 +436,7 @@
 //
 // Ethernet pins
 //
-#if DISABLED(ULTIPANEL)
+#if !IS_ULTIPANEL
   #define ENET_MDIO                        P1_17  // (71)  J12-4
   #define ENET_RX_ER                       P1_14  // (73)  J12-6
   #define ENET_RXD1                        P1_10  // (75)  J12-8

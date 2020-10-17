@@ -45,7 +45,7 @@ uint32_t PrintJobRecovery::cmd_sdpos, // = 0
 #endif
 
 #include "../sd/cardreader.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../gcode/queue.h"
 #include "../gcode/gcode.h"
 #include "../module/motion.h"
