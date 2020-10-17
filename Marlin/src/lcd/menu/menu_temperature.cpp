@@ -44,26 +44,17 @@
 //
 
 void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
+  UNUSED(e); UNUSED(indh); UNUSED(indb);
   #if HAS_HOTEND
     if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
       setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.material_preset[indh].hotend_temp), e);
-  #else
-    UNUSED(e); UNUSED(indh);
   #endif
   #if HAS_HEATED_BED
     if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
-  #else
-    UNUSED(indb);
   #endif
   #if HAS_FAN
-    if (indh >= 0) {
-      set_fan_speed((
-        #if FAN_COUNT > 1
-          active_extruder < FAN_COUNT ? active_extruder :
-        #endif
-        0), ui.material_preset[indh].fan_speed
-      );
-    }
+    if (indh >= 0)
+      set_fan_speed(active_extruder < (FAN_COUNT) ? active_extruder : 0, ui.material_preset[indh].fan_speed);
   #endif
   ui.return_to_status();
 }
