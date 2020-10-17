@@ -3728,9 +3728,10 @@ void MarlinSettings::reset() {
         SERIAL_ECHOPGM("  M907");
         LOOP_L_N(q, MOTOR_CURRENT_COUNT) {
           SERIAL_CHAR(' ');
-          SERIAL_CHAR(axis_codes[q]);
+          SERIAL_CHAR(axis_codes[_MIN(q, E_AXIS)]);
           SERIAL_ECHO(stepper.motor_current_setting[q]);
         }
+        SERIAL_EOL();
       #endif
     #endif
 
