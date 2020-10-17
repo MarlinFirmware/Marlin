@@ -45,7 +45,7 @@
 
 #if ENABLED(EXTENSIBLE_UI)
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -1053,11 +1053,9 @@ namespace ExtUI {
 
 } // namespace ExtUI
 
-// At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
+// At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() {
-  ExtUI::onStartup();
-}
+void MarlinUI::init() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 

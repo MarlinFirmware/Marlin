@@ -44,7 +44,7 @@
 #include "../../../../inc/MarlinConfig.h"
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
-#include "../../../ultralcd.h"
+#include "../../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)

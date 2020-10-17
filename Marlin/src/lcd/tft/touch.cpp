@@ -23,7 +23,7 @@
 
 #include "touch.h"
 
-#include "../ultralcd.h"  // for ui methods
+#include "../marlinui.h"  // for ui methods
 #include "../menu/menu_item.h" // for touch_screen_calibration
 
 #include "../../module/temperature.h"
@@ -40,10 +40,10 @@ int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::last_touch_ms = 0;
-millis_t Touch::time_to_hold;
-millis_t Touch::repeat_delay;
-millis_t Touch::touch_time;
+millis_t Touch::last_touch_ms = 0,
+         Touch::time_to_hold,
+         Touch::repeat_delay,
+         Touch::touch_time;
 TouchControlType  Touch::touch_control_type = NONE;
 touch_calibration_t Touch::calibration;
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)

@@ -111,7 +111,7 @@
 #include "../../module/motion.h"
 #include "../../module/tool_change.h"
 #include "../../module/temperature.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #define EXTRUSION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
