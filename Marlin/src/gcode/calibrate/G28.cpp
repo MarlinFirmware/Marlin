@@ -45,7 +45,7 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
