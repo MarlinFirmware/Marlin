@@ -31,7 +31,7 @@
 #include "../../module/stepper.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
-#include "../../lcd/ultralcd.h" // for LCD_MESSAGEPGM
+#include "../../lcd/marlinui.h" // for LCD_MESSAGEPGM
 
 #if HAS_LEVELING
   #include "../../feature/bedlevel/bedlevel.h"
