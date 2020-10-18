@@ -60,6 +60,47 @@ void GcodeSuite::G34() {
   DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
+  if ( parser.seen('Z') )
+  {
+    int zStepper;
+    bool state;
+    parser.intval('Z', zStepper);
+    parser.boolval(S, state);
+
+
+    stepper.set_separate_multi_axis(true);
+
+    switch(zStepper)
+    {
+      case 1 :
+        set_z1_lock(state);
+        break;
+      case 2 :
+        set_z2_lock(state);
+        break;
+      #if NUM_Z_STEPPER_DRIVERS >= 3
+        case 3 :
+          set_z3_lock(state);
+        break;
+      #if NUM_Z_STEPPER_DRIVERS >= 4
+        case 4 :
+          set_z4_lock(state);
+        break;
+      #endif
+      default:
+        break;
+    #endif
+    }
+
+    return;
+  }
+  else if ( parser.seen('L') )
+  {
+    stepper.set_all_z_lock(false);
+    stepper.set_separate_multi_axis(false);
+    return;
+  }
+
   do { // break out on error
 
     #if NUM_Z_STEPPER_DRIVERS == 4
