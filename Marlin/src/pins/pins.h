@@ -47,6 +47,12 @@
   #define IS_RAMPS_EEF
 #elif MB(RAMPS_13_SF,  RAMPS_14_SF,  RAMPS_PLUS_SF,  RAMPS_14_RE_ARM_SF,  RAMPS_SMART_SF,  RAMPS_DUO_SF,  RAMPS4DUE_SF)
   #define IS_RAMPS_SF
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EEFB)
+  #define IS_RAMPS_S_EEFB
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EEEB)
+  #define IS_RAMPS_S_EEEB
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EFFB)
+  #define IS_RAMPS_S_EFFB
 #endif
 
 #if !(BOTH(IS_ULTRA_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
@@ -207,7 +213,12 @@
   #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
 #elif MB(MKS_GEN_L_V21)
   #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
-
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EEFB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EEEB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MOTHERBOARD == (BOARD_RAMPS_S_12_EFFB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 //
 // RAMBo and derivatives
 //
