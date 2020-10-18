@@ -116,6 +116,21 @@
   #define HAS_TMC220x 1
 #endif
 
+#define AXIS_IS_KNOWN(A)  (    AXIS_DRIVER_TYPE(A,A4988)  || AXIS_DRIVER_TYPE(A,A5984) \
+                           || AXIS_DRIVER_TYPE(A,DRV8825) || AXIS_DRIVER_TYPE(A,LV8729) \
+                           || AXIS_DRIVER_TYPE(A,L6470)   || AXIS_DRIVER_TYPE(A,L6474) \
+                           || AXIS_DRIVER_TYPE(A,L6480)   || AXIS_DRIVER_TYPE(A,POWERSTEP01) \
+                           || AXIS_DRIVER_TYPE(A,TB6560)  || AXIS_DRIVER_TYPE(A,TB6600) \
+                           || AXIS_DRIVER_TYPE(A,TMC2100) \
+                           || AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2130_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC2160) || AXIS_DRIVER_TYPE(A,TMC2160_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2208_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC2209) || AXIS_DRIVER_TYPE(A,TMC2209_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC26X)  || AXIS_DRIVER_TYPE(A,TMC26X_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC2660) || AXIS_DRIVER_TYPE(A,TMC2660_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC5130) || AXIS_DRIVER_TYPE(A,TMC5130_STANDALONE) \
+                           || AXIS_DRIVER_TYPE(A,TMC5160) || AXIS_DRIVER_TYPE(A,TMC5160_STANDALONE) )
+
 #define AXIS_IS_TMC(A)   (    AXIS_DRIVER_TYPE(A,TMC2130) || AXIS_DRIVER_TYPE(A,TMC2160) \
                            || AXIS_DRIVER_TYPE(A,TMC2208) || AXIS_DRIVER_TYPE(A,TMC2209) \
                            || AXIS_DRIVER_TYPE(A,TMC2660) \

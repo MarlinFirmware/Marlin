@@ -3173,5 +3173,89 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
+/**
+ * Sanity check for valid stepper driver types
+ */
+#ifdef X_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(X)
+    #error "X_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Y_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Y)
+    #error "Y_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Z_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Z)
+    #error "Z_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef X2_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(X2)
+    #error "X2_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Y2_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Y2)
+    #error "Y2_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Z2_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Z2)
+    #error "Z2_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Z3_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Z3)
+    #error "Z3_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef Z4_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(Z4)
+    #error "Z4_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E0_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E0)
+    #error "E0_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E1_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E1)
+    #error "E1_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E2_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E2)
+    #error "E2_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E3_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E3)
+    #error "E3_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E4_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E4)
+    #error "E4_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E5_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E5)
+    #error "E5_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E6_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E6)
+    #error "E6_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+#ifdef E7_DRIVER_TYPE
+  #if !AXIS_IS_KNOWN(E7)
+    #error "E7_DRIVER_TYPE is Unknown."
+  #endif
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM
