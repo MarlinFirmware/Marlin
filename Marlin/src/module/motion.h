@@ -148,26 +148,59 @@ inline float home_bump_mm(const AxisEnum axis) {
   constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
-typedef struct { xyz_pos_t min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
-  extern axis_limits_t soft_endstop;
+
+  typedef struct {
+    bool _enabled, _loose;
+    bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      amin = -100000; amax = 100000; // "No limits"
+      #if HAS_SOFTWARE_ENDSTOPS
+        if (enabled()) switch (axis) {
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
+          case Y_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+            break;
+          case Z_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+          default: break;
+        }
+      #endif
+    }
+  } soft_endstops_t;
+
+  extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
-#else
-  constexpr bool soft_endstops_enabled = false;
-  //constexpr axis_limits_t soft_endstop = {
-  //  { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-  //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
-  #define apply_motion_limits(V)    NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
+
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool enabled() { return false; }
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      // No limits
+      amin = current_position[axis] - 1000;
+      amax = current_position[axis] + 1000;
+    }
+  } soft_endstops_t;
+  extern soft_endstops_t soft_endstop;
+  #define apply_motion_limits(V)        NOOP
   #define update_software_endstops(...) NOOP
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
-#endif
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
 
 void report_real_position();
 void report_current_position();
@@ -351,8 +384,7 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
  * Duplication mode
  */
 #if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              mirrored_duplication_mode;          // Used in Dual X mode 3
+  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     extern uint8_t duplication_e_mask;
   #endif
@@ -371,23 +403,29 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+  extern float inactive_extruder_x,               // Used in mode 0 & 1
                duplicate_extruder_x_offset;       // Used in mode 2 & 3
   extern xyz_pos_t raised_parked_position;        // Used in mode 1
   extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // Used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+  extern bool idex_mirrored_mode;                 // Used in mode 3
 
-  FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
+  FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
   float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
+  void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
+  void idex_set_mirrored_mode(const bool mirr);
+  void idex_set_parked(const bool park=true);
+
 #else
 
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+    FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
   FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }

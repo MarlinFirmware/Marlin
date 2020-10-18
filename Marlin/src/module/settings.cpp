@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V81"
+#define EEPROM_VERSION "V82"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -54,7 +54,7 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
@@ -365,7 +365,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_MOTOR_CURRENT_PWM
   //
-  uint32_t motor_current_setting[3];                    // M907 X Z E
+  #ifndef MOTOR_CURRENT_COUNT
+    #define MOTOR_CURRENT_COUNT 3
+  #endif
+  uint32_t motor_current_setting[MOTOR_CURRENT_COUNT];  // M907 X Z E
 
   //
   // CNC_COORDINATE_SYSTEMS
@@ -1277,10 +1280,10 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(motor_current_setting);
 
-      #if HAS_MOTOR_CURRENT_PWM
+      #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const uint32_t no_current[3] = { 0 };
+        const uint32_t no_current[MOTOR_CURRENT_COUNT] = { 0 };
         EEPROM_WRITE(no_current);
       #endif
     }
@@ -2110,10 +2113,16 @@ void MarlinSettings::postprocess() {
       // Motor Current PWM
       //
       {
-        uint32_t motor_current_setting[3];
         _FIELD_TEST(motor_current_setting);
+        uint32_t motor_current_setting[MOTOR_CURRENT_COUNT]
+          #if HAS_MOTOR_CURRENT_SPI
+             = DIGIPOT_MOTOR_CURRENT
+          #endif
+        ;
+        DEBUG_ECHOLNPGM("DIGIPOTS Loading");
         EEPROM_READ(motor_current_setting);
-        #if HAS_MOTOR_CURRENT_PWM
+        DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
+        #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
         #endif
@@ -2791,9 +2800,20 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_MOTOR_CURRENT_PWM
-    constexpr uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    LOOP_L_N(q, 3)
-      stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+    constexpr uint32_t tmp_motor_current_setting[MOTOR_CURRENT_COUNT] = PWM_MOTOR_CURRENT;
+    LOOP_L_N(q, MOTOR_CURRENT_COUNT)
+      stepper.set_digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+  #endif
+
+  //
+  // DIGIPOTS
+  //
+  #if HAS_MOTOR_CURRENT_SPI
+    static constexpr uint32_t tmp_motor_current_setting[] = DIGIPOT_MOTOR_CURRENT;
+    DEBUG_ECHOLNPGM("Writing Digipot");
+    LOOP_L_N(q, COUNT(tmp_motor_current_setting))
+      stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
+    DEBUG_ECHOLNPGM("Digipot Written");
   #endif
 
   //
@@ -3695,14 +3715,29 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if HAS_MOTOR_CURRENT_PWM
+    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
       CONFIG_ECHO_HEADING("Stepper motor currents:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M907 X"), stepper.motor_current_setting[0]
-        , SP_Z_STR, stepper.motor_current_setting[1]
-        , SP_E_STR, stepper.motor_current_setting[2]
-      );
+      #if HAS_MOTOR_CURRENT_PWM
+        SERIAL_ECHOLNPAIR_P(                                   // PWM-based has 3 values:
+            PSTR("  M907 X"), stepper.motor_current_setting[0] // X and Y
+                  , SP_Z_STR, stepper.motor_current_setting[1] // Z
+                  , SP_E_STR, stepper.motor_current_setting[2] // E
+        );
+      #elif HAS_MOTOR_CURRENT_SPI
+        SERIAL_ECHOPGM("  M907");                              // SPI-based has 5 values:
+        LOOP_XYZE(q) {                                         // X Y Z E (map to X Y Z E0 by default)
+          SERIAL_CHAR(' ', axis_codes[q]);
+          SERIAL_ECHO(stepper.motor_current_setting[q]);
+        }
+        SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
+        SERIAL_ECHOLN(stepper.motor_current_setting[4]);
+      #endif
+    #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
+      // Values sent over i2c are not stored.
+      // Indexes map directly to drivers, not axes.
+    #elif HAS_MOTOR_CURRENT_DAC                                // DAC-based has 4 values, for X Y Z E
+      // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 
     /**

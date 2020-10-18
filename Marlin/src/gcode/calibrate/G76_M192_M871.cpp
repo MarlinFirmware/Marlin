@@ -37,7 +37,7 @@
 #include "../../module/probe.h"
 #include "../../feature/probe_temp_comp.h"
 
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../MarlinCore.h" // for wait_for_heatup and idle()
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)

@@ -61,6 +61,10 @@
   #include "../gcode/gcode.h"
 #endif
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  #include "stepper.h"
+#endif
+
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
   #include "servo.h"
 #endif
@@ -90,7 +94,7 @@
 #endif
 
 #if HAS_LCD_MENU
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -701,6 +705,13 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
+  /**
+   * @brief Dual X Tool Change
+   * @details Change tools, with extra behavior based on current mode
+   *
+   * @param new_tool Tool index to activate
+   * @param no_move Flag indicating no moves should take place
+   */
   inline void dualx_tool_change(const uint8_t new_tool, bool &no_move) {
 
     DEBUG_ECHOPGM("Dual X Carriage Mode ");
@@ -711,17 +722,16 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       case DXC_MIRRORED_MODE:     DEBUG_ECHOLNPGM("MIRRORED");     break;
     }
 
+    // Get the home position of the currently-active tool
     const float xhome = x_home_pos(active_extruder);
-    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE
-        && IsRunning() && !no_move
-        && (delayed_move_time || current_position.x != xhome)
+
+    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE                  // If Auto-Park mode is enabled
+        && IsRunning() && !no_move                                  // ...and movement is permitted
+        && (delayed_move_time || current_position.x != xhome)       // ...and delayed_move_time is set OR not "already parked"...
     ) {
-
       DEBUG_ECHOLNPAIR("MoveX to ", xhome);
-
-      // Park old head
       current_position.x = xhome;
-      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);
+      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);   // Park the current head
       planner.synchronize();
     }
 
@@ -736,19 +746,20 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE:
         // New current position is the position of the activated extruder
-        current_position.x = inactive_extruder_x_pos;
+        current_position.x = inactive_extruder_x;
         // Save the inactive extruder's position (from the old current_position)
-        inactive_extruder_x_pos = destination.x;
+        inactive_extruder_x = destination.x;
+        DEBUG_ECHOLNPAIR("DXC Full Control curr.x=", current_position.x, " dest.x=", destination.x);
         break;
       case DXC_AUTO_PARK_MODE:
-        // record current raised toolhead position for use by unpark
-        raised_parked_position = current_position;
-        active_extruder_parked = true;
-        delayed_move_time = 0;
+        idex_set_parked();
         break;
       default:
         break;
     }
+
+    // Ensure X axis DIR pertains to the correct carriage
+    stepper.set_directions();
 
     DEBUG_ECHOLNPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", current_position);
@@ -875,7 +886,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_MIRRORED_MODE
-      if (new_tool != 0 && dxc_is_duplicating())
+      if (new_tool != 0 && idex_is_duplicating())
          return invalid_extruder_error(new_tool);
     #endif
 
@@ -1017,14 +1028,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          #if HAS_SOFTWARE_ENDSTOPS
-            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
-          #else
-            constexpr float maxz = Z_MAX_POS;
-          #endif
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
           if (newz > maxz) return;
 
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
@@ -1155,7 +1162,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           }
         #endif
 
-        TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
+        TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
       }
 
       #if ENABLED(SWITCHING_NOZZLE)

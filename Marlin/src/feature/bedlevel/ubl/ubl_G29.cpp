@@ -30,7 +30,7 @@
   #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print.h"
   #include "../../../module/settings.h"
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
@@ -1009,12 +1009,16 @@
 
         lcd_mesh_edit_setup(new_z);
 
+        SET_SOFT_ENDSTOP_LOOSE(true);
+
         do {
           idle();
           new_z = lcd_mesh_edit();
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
+
+        SET_SOFT_ENDSTOP_LOOSE(false);
 
         if (!lcd_map_control) ui.return_to_status();        // Just editing a single point? Return to status
 

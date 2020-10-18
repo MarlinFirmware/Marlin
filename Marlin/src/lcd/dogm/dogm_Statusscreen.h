@@ -29,7 +29,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 
 #define BW(N) ((N + 7) / 8)
 
@@ -1341,7 +1341,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if (HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
+  #if !defined(STATUS_HEATERS_X) && ((HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN))
     #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2

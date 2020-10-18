@@ -320,6 +320,7 @@
 #define BOARD_CREALITY_V4             4034  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4035  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_TRIGORILLA_PRO          4036  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4037  // FLY MINI (STM32F103RCT6)
 
 //
 // ARM Cortex-M4F
@@ -362,6 +363,7 @@
 #define BOARD_REMRAM_V1               5001  // RemRam v1
 #define BOARD_TEENSY41                5002  // Teensy 4.1
 #define BOARD_T41U5XBB                5003  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_NUCLEO_F767ZI           5004  // ST NUCLEO-F767ZI Dev Board
 
 //
 // Espressif ESP32 WiFi

@@ -162,7 +162,7 @@
   // not connected to a pin
   #define SD_DETECT_PIN                     PC3
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // The encoder and click button
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11

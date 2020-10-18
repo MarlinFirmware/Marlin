@@ -112,7 +112,7 @@
 #define E1_MS2_PIN                            64
 
 #define DIGIPOTSS_PIN                         38
-#define DIGIPOT_CHANNELS  { 4,5,3,0,1 }           // X Y Z E0 E1 digipot channels to stepper driver mapping
+#define DIGIPOT_CHANNELS { 4, 5, 3, 0, 1 }        // X Y Z E0 E1 digipot channels to stepper driver mapping
 #ifndef DIGIPOT_MOTOR_CURRENT
   #define DIGIPOT_MOTOR_CURRENT { 135,135,135,135,135 }   // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 #endif
@@ -187,7 +187,7 @@
 
   #define KILL_PIN                            80
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #define LCD_PINS_RS                       70
     #define LCD_PINS_ENABLE                   71
@@ -228,7 +228,7 @@
 
     #endif // !VIKI2 && !miniVIKI
 
-  #else                                           // !NEWPANEL - old style panel with shift register
+  #else                                           // !IS_NEWPANEL - old style panel with shift register
 
     // No Beeper added
     #define BEEPER_PIN                        33
@@ -247,6 +247,6 @@
     #define LCD_PINS_D6                       27
     #define LCD_PINS_D7                       29
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

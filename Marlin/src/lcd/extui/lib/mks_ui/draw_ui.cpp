@@ -23,9 +23,7 @@
 
 #if HAS_TFT_LVGL_UI
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
+#include "SPI_TFT.h"
 
 #include "tft_lvgl_configuration.h"
 
@@ -165,7 +163,7 @@ void gCfgItems_init() {
     W25QXX.SPI_FLASH_BufferWrite((uint8_t *)&custom_gcode_command[4], OTHERS_COMMAND_ADDR_4, 100);
   }
 
-  const byte rot = TERN0(GRAPHICAL_TFT_ROTATE_180, 0xEE);
+  const byte rot = (TFT_ROTATION & TFT_ROTATE_180) ? 0xEE : 0x00;
   if (gCfgItems.disp_rotation_180 != rot) {
     gCfgItems.disp_rotation_180 = rot;
     update_spi_flash();
@@ -378,7 +376,7 @@ void tft_style_init() {
   style_sel_text.text.letter_space  = 0;
   style_sel_text.text.line_space    = -5;
   lv_style_copy(&style_line, &lv_style_plain);
-  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xff);
+  style_line.line.color   = LV_COLOR_MAKE(0x49, 0x54, 0xFF);
   style_line.line.width   = 1;
   style_line.line.rounded = 1;
 
@@ -655,12 +653,7 @@ char *creat_title_text() {
         }
 
         card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
-        #else
-          LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
-          LCD_WriteRAM_Prepare();
-        #endif
+        SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
 
         j = i = 0;
 
@@ -673,20 +666,11 @@ char *creat_title_text() {
           }
           if (j >= 400) break;
         }
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          for (i = 0; i < 400; i += 2) {
-            p_index  = (uint16_t *)(&bmp_public_buf[i]);
-            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
-          }
-          SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
-        #else
-          for (i = 0; i < 400;) {
-            p_index = (uint16_t *)(&bmp_public_buf[i]);
-            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-            LCD_IO_WriteData(*p_index);
-            i += 2;
-          }
-        #endif
+        for (i = 0; i < 400; i += 2) {
+          p_index  = (uint16_t *)(&bmp_public_buf[i]);
+          if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
+        }
+        SPI_TFT.tftio.WriteSequence((uint16_t*)bmp_public_buf, 200);
         #if HAS_BAK_VIEW_IN_FLASH
           W25QXX.init(SPI_QUARTER_SPEED);
           if (row < 20) W25QXX.SPI_FLASH_SectorErase(BAK_VIEW_ADDR_TFT35 + row * 4096);
@@ -703,12 +687,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -767,8 +751,8 @@ char *creat_title_text() {
         card.openFileRead(cur_name);
 
         card.setIndex((PREVIEW_LITTLE_PIC_SIZE + To_pre_view) + size * row + 8);
-        #if ENABLED(TFT_LVGL_UI_SPI)
-          SPI_TFT.SetWindows(xpos_pixel, ypos_pixel + row, 200, 1);
+        #if HAS_TFT_LVGL_UI_SPI
+          SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
         #else
           LCD_setWindowArea(xpos_pixel, ypos_pixel + row, 200, 1);
           LCD_WriteRAM_Prepare();
@@ -798,12 +782,12 @@ char *creat_title_text() {
           //#endif
 
         }
-        #if ENABLED(TFT_LVGL_UI_SPI)
+        #if HAS_TFT_LVGL_UI_SPI
           for (i = 0; i < 400;) {
             p_index = (uint16_t *)(&bmp_public_buf[i]);
 
             Color    = (*p_index >> 8);
-            *p_index = Color | ((*p_index & 0xff) << 8);
+            *p_index = Color | ((*p_index & 0xFF) << 8);
             i       += 2;
             if (*p_index == 0x0000) *p_index = 0xC318;
           }
@@ -835,12 +819,12 @@ char *creat_title_text() {
           card.closefile();
 
           /*
-          if (gCurFileState.file_open_flag != 0xaa) {
+          if (gCurFileState.file_open_flag != 0xAA) {
             reset_file_info();
             res = f_open(file, curFileName, FA_OPEN_EXISTING | FA_READ);
             if (res == FR_OK) {
               f_lseek(file,PREVIEW_SIZE+To_pre_view);
-              gCurFileState.file_open_flag = 0xaa;
+              gCurFileState.file_open_flag = 0xAA;
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
@@ -901,34 +885,9 @@ char *creat_title_text() {
         default_view_Read(bmp_public_buf, DEFAULT_VIEW_MAX_SIZE / 10); // 8k
       #endif
 
-      #if ENABLED(TFT_LVGL_UI_SPI)
-        SPI_TFT.SetWindows(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
-        SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
-      #else
-        int x_off = 0;
-        uint16_t temp_p;
-        int i = 0;
-        uint16_t *p_index;
-        LCD_setWindowArea(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+      SPI_TFT.setWindow(xpos_pixel, y_off * 20 + ypos_pixel, 200, 20); // 200*200
+      SPI_TFT.tftio.WriteSequence((uint16_t*)(bmp_public_buf), DEFAULT_VIEW_MAX_SIZE / 20);
 
-        LCD_WriteRAM_Prepare();
-
-        for (int _y = y_off * 20; _y < (y_off + 1) * 20; _y++) {
-          for (x_off = 0; x_off < 200; x_off++) {
-            if (sel == 1) {
-              temp_p  = (uint16_t)(bmp_public_buf[i] | bmp_public_buf[i + 1] << 8);
-              p_index = &temp_p;
-            }
-            else {
-              p_index = (uint16_t *)(&bmp_public_buf[i]);
-            }
-            if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; //gCfgItems.preview_bk_color;
-            LCD_IO_WriteData(*p_index);
-            i += 2;
-          }
-          if (i >= 8000) break;
-        }
-      #endif // TFT_LVGL_UI_SPI
       y_off++;
     }
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -1650,7 +1609,7 @@ void print_time_count() {
 void LV_TASK_HANDLER() {
   //lv_tick_inc(1);
   lv_task_handler();
-  if (mks_test_flag == 0x1e) mks_hardware_test();
+  if (mks_test_flag == 0x1E) mks_hardware_test();
 
   #if HAS_GCODE_PREVIEW
     disp_pre_gcode(2, 36);
