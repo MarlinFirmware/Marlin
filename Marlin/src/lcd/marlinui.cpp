@@ -962,7 +962,7 @@ void MarlinUI::update() {
           #endif // ENCODER_RATE_MULTIPLIER
 
           #if HAS_ENCODER_ACTIVE_SIGNAL
-          //keep track of encoder steps but do not update position if ENC_EN_PIN is HIGH.
+          //keep track of encoder steps but do not update position if ENC_EN is HIGH.
             if (BUTTON_PRESSED(ENC_EN))
           #endif
           encoderPosition += (encoderDiff * encoderMultiplier) / epps;
@@ -1184,7 +1184,7 @@ void MarlinUI::update() {
           #endif
           #if BUTTON_EXISTS(ENC)
             #if HAS_ENCODER_ACTIVE_SIGNAL
-            //do not update if ENC_EN_PIN is HIGH.
+            //do not update if ENC_EN is HIGH.
             if (BUTTON_PRESSED(ENC_EN))
             #endif
             if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
