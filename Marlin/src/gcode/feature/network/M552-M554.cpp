@@ -28,6 +28,20 @@
 #include "../../../core/serial.h"
 #include "../../gcode.h"
 
+void MAC_report() {
+  uint8_t mac[6];
+
+  Ethernet.MACAddress(mac);
+
+  SERIAL_ECHO("MAC: ");
+  SERIAL_PRINTF("%02X:",mac[0]);
+  SERIAL_PRINTF("%02X:",mac[1]);
+  SERIAL_PRINTF("%02X:",mac[2]);
+  SERIAL_PRINTF("%02X:",mac[3]);
+  SERIAL_PRINTF("%02X:",mac[4]);
+  SERIAL_PRINTF("%02X\n",mac[5]);
+}
+
 void M552_report() {
   IPAddress thisip;
   if (Ethernet.linkStatus() == LinkON)
