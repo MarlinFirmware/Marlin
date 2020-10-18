@@ -3201,28 +3201,28 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #if NUM_Z_STEPPER_DRIVERS > 3 && _BAD_DRIVER(Z4)
   #error "Z4_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 0 && _BAD_DRIVER(E0)
+#if E_STEPPERS > 0 && _BAD_DRIVER(E0)
   #error "E0_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 1 && _BAD_DRIVER(E1)
+#if E_STEPPERS > 1 && _BAD_DRIVER(E1)
   #error "E1_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 2 && _BAD_DRIVER(E2)
+#if E_STEPPERS > 2 && _BAD_DRIVER(E2)
   #error "E2_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 3 && _BAD_DRIVER(E3)
+#if E_STEPPERS > 3 && _BAD_DRIVER(E3)
   #error "E3_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 4 && _BAD_DRIVER(E4)
+#if E_STEPPERS > 4 && _BAD_DRIVER(E4)
   #error "E4_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 5 && _BAD_DRIVER(E5)
+#if E_STEPPERS > 5 && _BAD_DRIVER(E5)
   #error "E5_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 6 && _BAD_DRIVER(E6)
+#if E_STEPPERS > 6 && _BAD_DRIVER(E6)
   #error "E6_DRIVER_TYPE is unknown (and must be defined)."
 #endif
-#if EXTRUDERS > 7 && _BAD_DRIVER(E7)
+#if E_STEPPERS > 7 && _BAD_DRIVER(E7)
   #error "E7_DRIVER_TYPE is unknown (and must be defined)."
 #endif
 #undef _BAD_DRIVER
