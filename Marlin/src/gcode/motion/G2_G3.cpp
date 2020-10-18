@@ -320,12 +320,40 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do
-        int8_t circles_to_do = parser.byteval('P');
-        if (!WITHIN(circles_to_do, 0, 100))
+        int8_t circles_to_do = parser.byteval('P', 1);
+        if (!WITHIN(circles_to_do, 1, 100))
           SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
+/* Note1: G2/3 P<n>    rotate <n>-1 times 360° PLUS 1 time <=360°
+   Note2: Only full circles are handled correctly with respect to linear motion
+   The last <=360° turn has same linear increment like the other ==360° turns even if it is <360° */
+        if(circles_to_do > 1)
+        {
+          xyze_pos_t cart= current_position;
+          xyze_pos_t cart_offset;
+          float de=(destination[E_AXIS] - current_position[E_AXIS]) / circles_to_do;
+          #if ENABLED(CNC_WORKSPACE_PLANES)
+            switch (gcode.workspace_plane) {
+              default:
+              case GcodeSuite::PLANE_XY:
+                cart_offset.set(0, 0, (destination[Z_AXIS] - current_position[Z_AXIS]) / circles_to_do, de);
+                break;
+              case GcodeSuite::PLANE_YZ:
+                cart_offset.set((destination[X_AXIS] - current_position[X_AXIS]) / circles_to_do, 0, 0, de);
+                break;
+              case GcodeSuite::PLANE_ZX:
+                cart_offset.set(0, (destination[Y_AXIS] - current_position[Y_AXIS]) / circles_to_do, 0, de);
+                break;
+            }
+          #else
+            cart_offset.set(0, 0, (destination[Z_AXIS] - current_position[Z_AXIS]) / circles_to_do, de);
+          #endif
 
-        while (circles_to_do--)
-          plan_arc(current_position, arc_offset, clockwise);
+          while (--circles_to_do) // <p> - 1 full 360° turns
+          {
+            cart += cart_offset;
+            plan_arc(cart, arc_offset, clockwise);
+          }
+        }
       #endif
 
       // Send the arc to the planner
