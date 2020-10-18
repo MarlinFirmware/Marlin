@@ -172,7 +172,7 @@
   #define LCD_PINS_D7                         36
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #ifndef BTN_EN1
     #define BTN_EN1                           42
   #endif

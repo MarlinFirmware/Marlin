@@ -99,7 +99,7 @@ const uint8_t adc_pins[] = {
   #endif
   #if HAS_TEMP_ADC_PROBE
     TEMP_PROBE_PIN,
-  #endif   
+  #endif
   #if HAS_HEATED_BED
     TEMP_BED_PIN,
   #endif
@@ -130,7 +130,7 @@ const uint8_t adc_pins[] = {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH_PIN,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     ADC_KEYPAD_PIN,
   #endif
   #if HAS_JOY_ADC_X
@@ -156,7 +156,7 @@ enum TempPinIndex : char {
   #endif
   #if HAS_TEMP_ADC_PROBE
     TEMP_PROBE,
-  #endif   
+  #endif
   #if HAS_HEATED_BED
     TEMP_BED,
   #endif
@@ -187,7 +187,7 @@ enum TempPinIndex : char {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     FILWIDTH,
   #endif
-  #if ENABLED(ADC_KEYPAD)
+  #if HAS_ADC_BUTTONS
     ADC_KEY,
   #endif
   #if HAS_JOY_ADC_X
@@ -349,7 +349,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #endif
     #if HAS_TEMP_ADC_PROBE
       case TEMP_PROBE_PIN: pin_index = TEMP_PROBE; break;
-    #endif   
+    #endif
     #if HAS_HEATED_BED
       case TEMP_BED_PIN: pin_index = TEMP_BED; break;
     #endif
@@ -389,7 +389,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       case FILWIDTH_PIN: pin_index = FILWIDTH; break;
     #endif
-    #if ENABLED(ADC_KEYPAD)
+    #if HAS_ADC_BUTTONS
       case ADC_KEYPAD_PIN: pin_index = ADC_KEY; break;
     #endif
     #if ENABLED(POWER_MONITOR_CURRENT)

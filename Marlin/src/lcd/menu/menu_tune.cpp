@@ -47,7 +47,7 @@
   #include "../../feature/babystep.h"
   #include "../lcdprint.h"
   #if HAS_MARLINUI_U8GLIB
-    #include "../dogm/ultralcd_DOGM.h"
+    #include "../dogm/marlinui_DOGM.h"
   #endif
 
   void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
@@ -142,69 +142,45 @@ void menu_tune() {
   //
   #if HAS_FAN
 
-    auto on_fan_update = []{
-      thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
-    };
-
-    #if HAS_FAN1 || HAS_FAN2 || HAS_FAN3 || HAS_FAN4 || HAS_FAN5 || HAS_FAN6 || HAS_FAN7
-      auto fan_edit_items = [&](const uint8_t f) {
-        editable.uint8 = thermalManager.fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_FAN_SPEED_N, &editable.uint8, 0, 255, on_fan_update);
-        #if ENABLED(EXTRA_FAN_SPEED)
-          EDIT_ITEM_FAST_N(percent, f, MSG_EXTRA_FAN_SPEED_N, &thermalManager.new_fan_speed[f], 3, 255);
-        #endif
-      };
-    #endif
-
-    #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
-    #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
-      auto singlenozzle_item = [&](const uint8_t f) {
-        editable.uint8 = singlenozzle_fan_speed[f];
-        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update);
-      };
-    #endif
+    DEFINE_SINGLENOZZLE_ITEM();
 
     #if HAS_FAN0
-      editable.uint8 = thermalManager.fan_speed[0];
-      EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_FAN_SPEED, &editable.uint8, 0, 255, on_fan_update);
-      #if ENABLED(EXTRA_FAN_SPEED)
-        EDIT_ITEM_FAST_N(percent, 0, MSG_FIRST_EXTRA_FAN_SPEED, &thermalManager.new_fan_speed[0], 3, 255);
-      #endif
+      _FAN_EDIT_ITEMS(0,FIRST_FAN_SPEED);
     #endif
     #if HAS_FAN1
-      fan_edit_items(1);
+      FAN_EDIT_ITEMS(1);
     #elif SNFAN(1)
       singlenozzle_item(1);
     #endif
     #if HAS_FAN2
-      fan_edit_items(2);
+      FAN_EDIT_ITEMS(2);
     #elif SNFAN(2)
-      singlenozzle_item(1);
+      singlenozzle_item(2);
     #endif
     #if HAS_FAN3
-      fan_edit_items(3);
+      FAN_EDIT_ITEMS(3);
     #elif SNFAN(3)
-      singlenozzle_item(1);
+      singlenozzle_item(3);
     #endif
     #if HAS_FAN4
-      fan_edit_items(4);
+      FAN_EDIT_ITEMS(4);
     #elif SNFAN(4)
-      singlenozzle_item(1);
+      singlenozzle_item(4);
     #endif
     #if HAS_FAN5
-      fan_edit_items(5);
+      FAN_EDIT_ITEMS(5);
     #elif SNFAN(5)
-      singlenozzle_item(1);
+      singlenozzle_item(5);
     #endif
     #if HAS_FAN6
-      fan_edit_items(6);
+      FAN_EDIT_ITEMS(6);
     #elif SNFAN(6)
-      singlenozzle_item(1);
+      singlenozzle_item(6);
     #endif
     #if HAS_FAN7
-      fan_edit_items(7);
+      FAN_EDIT_ITEMS(7);
     #elif SNFAN(7)
-      singlenozzle_item(1);
+      singlenozzle_item(7);
     #endif
 
   #endif // HAS_FAN

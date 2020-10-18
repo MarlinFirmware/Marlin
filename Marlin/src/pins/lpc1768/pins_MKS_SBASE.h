@@ -147,7 +147,7 @@
 //
 // Ethernet pins
 //
-#ifndef ULTIPANEL
+#if !IS_ULTIPANEL
   #define ENET_MDIO                        P1_17  // J12-4
   #define ENET_RX_ER                       P1_14  // J12-6
   #define ENET_RXD1                        P1_10  // J12-8
@@ -220,7 +220,7 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define   TFTGLCD_CS                   P3_25  // EXP2.3
+    #define TFTGLCD_CS                     P3_25  // EXP2.3
   #endif
 
   #if SD_CONNECTION_IS(LCD)

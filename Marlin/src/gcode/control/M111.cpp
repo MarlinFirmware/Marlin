@@ -71,7 +71,7 @@ void GcodeSuite::M111() {
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
         SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
       #endif
-    #endif //  !defined(__AVR__) || !defined(USBCON)
+    #endif // !__AVR__ || !USBCON
   }
   SERIAL_EOL();
 }

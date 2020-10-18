@@ -63,6 +63,7 @@ public:
   };
 
   static bool killed_by_M112;
+  static bool quickstop_by_M410;
 
   #if ENABLED(HOST_PROMPT_SUPPORT)
     static uint8_t M876_reason;
@@ -88,10 +89,8 @@ public:
 
       case EP_N:
         switch (c) {
-          case '0': case '1': case '2':
-          case '3': case '4': case '5':
-          case '6': case '7': case '8':
-          case '9': case '-': case ' ':   break;
+          case '0' ... '9':
+          case '-': case ' ':   break;
           case 'M': state = EP_M;      break;
           default:  state = EP_IGNORE;
         }
@@ -153,10 +152,7 @@ public:
       case EP_M876S:
         switch (c) {
           case ' ': break;
-          case '0': case '1': case '2':
-          case '3': case '4': case '5':
-          case '6': case '7': case '8':
-          case '9':
+          case '0' ... '9':
             state = EP_M876SN;
             M876_reason = (uint8_t)(c - '0');
             break;
@@ -173,7 +169,7 @@ public:
           if (enabled) switch (state) {
             case EP_M108: wait_for_user = wait_for_heatup = false; break;
             case EP_M112: killed_by_M112 = true; break;
-            case EP_M410: quickstop_stepper(); break;
+            case EP_M410: quickstop_by_M410 = true; break;
             #if ENABLED(HOST_PROMPT_SUPPORT)
               case EP_M876SN: host_response_handler(M876_reason); break;
             #endif
