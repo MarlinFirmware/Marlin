@@ -1406,6 +1406,22 @@
   #endif
 
   /**
+   * Check for encoder active signal
+   * On Smart TFT controller with dual modes, the encoder pins are hard-wired
+   * to the EXP ports. This results in unxpected changed on the printer when
+   * the encoder is used on these controller in modes other than ST7920 emulators.
+   *
+   * Enable this option to use LCD_PINS_D7 on EXP1 to detect encoder enable signal
+   * for enabling encoder only when ST7920 emulator is active on these controllers.
+   *
+   * Make sure this feature is supported by the Serial controller or it will disable
+   * the encoder.
+  */
+  //#define CHECK_ENCODER_ACTIVE_SIGNAL
+  #if defined(CHECK_ENCODER_ACTIVE_SIGNAL)
+    #define BTN_ENC_EN LCD_PINS_D7
+  #endif
+  /**
    * Status (Info) Screen customizations
    * These options may affect code size and screen render time.
    * Custom status screens can forcibly override these settings.
