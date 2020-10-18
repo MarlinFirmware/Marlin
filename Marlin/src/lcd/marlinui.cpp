@@ -1182,7 +1182,7 @@ void MarlinUI::update() {
           #if BUTTON_EXISTS(EN2)
             if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
           #endif
-          #if BUTTON_EXISTS(ENC_EN)
+          #if BUTTON_EXISTS(ENC)
             #if HAS_ENCODER_ACTIVE_SIGNAL
             //do not update if ENC_EN_PIN is HIGH.
             if (BUTTON_PRESSED(ENC_EN))
