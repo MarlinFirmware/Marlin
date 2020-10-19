@@ -199,17 +199,18 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     first_impatient_beep(max_beep_count);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
+
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
         #endif
       ;
-      host_action_prompt_begin(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool);
-      host_action_prompt_button(CONTINUE_STR);
-      host_action_prompt_show();
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
+
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
+
     while (wait_for_user) {
       impatient_beep(max_beep_count);
       idle_no_sleep();
