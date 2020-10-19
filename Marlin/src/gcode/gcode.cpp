@@ -754,8 +754,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 511: M511(); break;                                // M511: Unlock Printer
         #endif
         #if ENABLED(PASSWORD_CHANGE_GCODE)
-          case 512: M512(); break;
-        #endif                                                    // M512: Set/Change/Remove Password
+          case 512: M512(); break;                                // M512: Set/Change/Remove Password
+        #endif
       #endif
 
       #if ENABLED(SDSUPPORT)

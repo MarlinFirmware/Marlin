@@ -3179,5 +3179,59 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #endif
 #endif
 
+/**
+ * Sanity check for valid stepper driver types
+ */
+#define _BAD_DRIVER(A) (defined(A##_DRIVER_TYPE) && !_DRIVER_ID(A##_DRIVER_TYPE))
+#if _BAD_DRIVER(X)
+  #error "X_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Y)
+  #error "Y_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Z)
+  #error "Z_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(X2)
+  #error "X2_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Y2)
+  #error "Y2_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Z2)
+  #error "Z2_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Z3)
+  #error "Z3_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(Z4)
+  #error "Z4_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E0)
+  #error "E0_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E1)
+  #error "E1_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E2)
+  #error "E2_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E3)
+  #error "E3_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E4)
+  #error "E4_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E5)
+  #error "E5_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E6)
+  #error "E6_DRIVER_TYPE is not recognized."
+#endif
+#if _BAD_DRIVER(E7)
+  #error "E7_DRIVER_TYPE is not recognized."
+#endif
+#undef _BAD_DRIVER
+
 // Misc. Cleanup
 #undef _TEST_PWM
