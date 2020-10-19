@@ -22,13 +22,13 @@
 #pragma once
 
 /** 
- * FLSUN HiSpeed V1 (STM32F130VET6) board pin assignments
+ * FLSUN HiSpeed V1 (STM32F103VET6) board pin assignments
  * FLSun Hispeed (clone MKS_Robin_miniV2) board.
  * MKS Robin Mini USB Use UART3(PB10-TX,PB11-RX)     
  * #define SERIAL_PORT_2 3
  */
 
-#if NOT_TARGET(__STM32F1__)
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "FLSUN hispeed supports 1 hotends / E-steppers. Comment out this line to continue."
