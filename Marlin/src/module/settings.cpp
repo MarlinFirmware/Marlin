@@ -1482,12 +1482,14 @@ void MarlinSettings::postprocess() {
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
       #if HAS_ETHERNET
+        uint32_t ip_address;
+
         _FIELD_TEST(use_ethernet);
         EEPROM_READ(ethernet_hardware_enabled);
-        EEPROM_READ(ip);
-        EEPROM_READ(myDns);
-        EEPROM_READ(gateway);
-        EEPROM_READ(subnet);
+        EEPROM_READ(ip_address); ip = ip_address;
+        EEPROM_READ(ip_address); myDns = ip_address;
+        EEPROM_READ(ip_address); gateway = ip_address;
+        EEPROM_READ(ip_address); subnet = ip_address;
       #endif
 
       _FIELD_TEST(esteppers);

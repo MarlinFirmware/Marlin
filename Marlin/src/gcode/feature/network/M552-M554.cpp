@@ -36,9 +36,12 @@ void ETH0_report() {
 
 void MAC_report() {
   uint8_t mac[6];
-  Ethernet.MACAddress(mac);
-  SERIAL_ECHOPGM("MAC: ");
-  LOOP_LE_N(i, 6) SERIAL_PRINTF("%02X:", mac[i]);
+  if (ethernet_hardware_enabled) {
+    Ethernet.MACAddress(mac);
+    SERIAL_ECHOPGM("MAC: ");
+    LOOP_LE_N(i, 5) SERIAL_PRINTF("%02X:", mac[i]);
+    SERIAL_PRINTF("%02X", mac[5]);
+  }
   SERIAL_EOL();
 }
 
