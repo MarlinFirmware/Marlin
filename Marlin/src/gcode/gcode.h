@@ -781,7 +781,7 @@ private:
 
   TERN_(SD_ABORT_ON_ENDSTOP_HIT, static void M540());
 
-  #if ENABLED(ETHERNET_SUPPORT)
+  #if HAS_ETHERNET
     static void M552();
     static void M553();
     static void M554();
@@ -834,7 +834,7 @@ private:
     static void M192();
     static void M871();
   #endif
-  
+
   TERN_(LIN_ADVANCE, static void M900());
 
   #if HAS_TRINAMIC_CONFIG

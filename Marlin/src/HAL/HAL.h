@@ -25,7 +25,7 @@
 
 #include HAL_PATH(.,HAL.h)
 
-#if defined(SERIAL_PORT_2) || defined(ETHERNET_SUPPORT)
+#ifdef SERIAL_PORT_2
   #define NUM_SERIAL 2
 #else
   #define NUM_SERIAL 1

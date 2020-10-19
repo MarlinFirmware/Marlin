@@ -714,9 +714,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #endif
 
   // Check network connection
-  #ifdef ETHERNET_SUPPORT
-    ethernet_check();
-  #endif
+  TERN_(HAS_ETHERNET, ethernet_check());
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
@@ -1095,7 +1093,7 @@ void setup() {
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
-  #if ENABLED(ETHERNET_SUPPORT)
+  #if HAS_ETHERNET
     SETUP_RUN(ethernet_init());
   #endif
 

@@ -20,12 +20,15 @@
  *
  */
 
-#include "../core/serial.h"
 #include "../inc/MarlinConfigPre.h"
 
-#if ENABLED(ETHERNET_SUPPORT)
+#if HAS_ETHERNET
 
 #include "ethernet.h"
+#include "../core/serial.h"
+
+#define DEBUG_OUT ENABLED(DEBUG_ETHERNET)
+#include "../core/debug_out.h"
 
 EthernetServer server(23);    // telnet server
 
@@ -34,9 +37,9 @@ EthernetClient telnetClient;  // connected client
 enum linkStates {UNLINKED, LINKING, LINKED, CONNECTING, CONNECTED, NO_HARDWARE} linkState;
 
 #ifdef __IMXRT1062__
-  static void teensyMAC(uint8_t *mac) {
-    uint32_t m1 = HW_OCOTP_MAC1;
-    uint32_t m2 = HW_OCOTP_MAC0;
+
+  static void teensyMAC(uint8_t * const mac) {
+    const uint32_t m1 = HW_OCOTP_MAC1, m2 = HW_OCOTP_MAC0;
     mac[0] = m1 >> 8;
     mac[1] = m1 >> 0;
     mac[2] = m2 >> 24;
@@ -46,13 +49,12 @@ enum linkStates {UNLINKED, LINKING, LINKED, CONNECTING, CONNECTED, NO_HARDWARE} 
   }
 
 #else
-  byte mac[] = { MAC_ADDRESS };
+
+  byte mac[] = MAC_ADDRESS;
+
 #endif
 
-IPAddress ip;
-IPAddress myDns;
-IPAddress gateway;
-IPAddress subnet;
+IPAddress ip, myDns, gateway, subnet;
 
 bool ethernet_hardware_enabled = false; // from EEPROM
 bool have_telnet_client = false;
@@ -62,12 +64,15 @@ void ethernet_init() {
 
   SERIAL_ECHO_MSG("Starting network...");
 
-  // initialize the Ethernet device
+  // Init the Ethernet device
   #ifdef __IMXRT1062__
     uint8_t mac[6];
     teensyMAC(mac);
   #endif
-  if (!ip) { Ethernet.begin(mac); }  // use DHCP
+
+  if (!ip) {
+    Ethernet.begin(mac); // use DHCP
+  }
   else {
     if (!gateway) {
       gateway = ip;
@@ -89,15 +94,10 @@ void ethernet_init() {
 
   linkState = UNLINKED;
 
-  if (Ethernet.linkStatus() == LinkOFF) {
+  if (Ethernet.linkStatus() == LinkOFF)
     SERIAL_ERROR_MSG("Ethernet cable is not connected.");
-  }
-
-  return;
-
 }
 
-bool newClient=0;
 void ethernet_check() {
   if (!ethernet_hardware_enabled) return;
 
@@ -106,10 +106,9 @@ void ethernet_check() {
       break;
 
     case UNLINKED:
-      if (Ethernet.linkStatus() == LinkOFF) {
-        break;
-      }
-      SERIAL_ECHOLN("Ethernet cable connected");
+      if (Ethernet.linkStatus() == LinkOFF) break;
+
+      SERIAL_ECHOLNPGM("Ethernet cable connected");
       server.begin();
       linkState = LINKING;
       break;
@@ -117,7 +116,7 @@ void ethernet_check() {
     case LINKING:
       if (!Ethernet.localIP()) break;
 
-      SERIAL_ECHO("Successfully started telnet server with IP ");
+      SERIAL_ECHOPGM("Successfully started telnet server with IP ");
       MYSERIAL0.println(Ethernet.localIP());
 
       linkState = LINKED;
@@ -130,9 +129,7 @@ void ethernet_check() {
         break;
       }
       telnetClient = server.accept();
-      if (telnetClient) {
-        linkState = CONNECTING;
-      }
+      if (telnetClient) linkState = CONNECTING;
       break;
 
     case CONNECTING:
@@ -145,14 +142,14 @@ void ethernet_check() {
       #endif
       telnetClient.println("Compiled: " __DATE__);
 
-      SERIAL_ECHOLN("Client connected");
+      SERIAL_ECHOLNPGM("Client connected");
       have_telnet_client = true;
       linkState = CONNECTED;
       break;
 
     case CONNECTED:
       if (telnetClient && !telnetClient.connected()) {
-        SERIAL_ECHOLN("Client disconnected");
+        SERIAL_ECHOLNPGM("Client disconnected");
         telnetClient.stop();
         have_telnet_client = false;
         linkState = LINKED;
@@ -164,10 +161,8 @@ void ethernet_check() {
       }
       break;
 
-    default:
-      break;
+    default: break;
   }
-    return;
 }
 
-#endif // ETHERNET_SUPPORT
+#endif // HAS_ETHERNET

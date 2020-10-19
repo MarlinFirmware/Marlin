@@ -107,7 +107,8 @@
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
- * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+ * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
+ * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
 //#define SERIAL_PORT_2 -1
 
@@ -121,13 +122,6 @@
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
  */
 #define BAUDRATE 250000
-
-// Enable the Ethernet interface (must have SERIAL_PORT_2 undefined)
-// Currently only supported on Teensy 4.1 boards
-// The IP address can be set, and ethernet enabled with M552
-//#define ETHERNET_SUPPORT
-// MAC_ADDRESS must be unique on your network.
-//#define MAC_ADDRESS 0xDE, 0xAD, 0xBE, 0xEF, 0xBA, 0xAD
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH

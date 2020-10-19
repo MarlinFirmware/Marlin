@@ -152,7 +152,7 @@
 
 #pragma pack(push, 1) // No padding between variables
 
-#if ENABLED(ETHERNET_SUPPORT)
+#if HAS_ETHERNET
   void MAC_report();
   void M552_report();
   void M553_report();
@@ -185,12 +185,12 @@ typedef struct SettingsDataStruct {
   uint16_t  crc;                                        // Data Checksum
 
   // Ethernet settings
-  #if ENABLED(ETHERNET_SUPPORT)
+  #if HAS_ETHERNET
     bool use_ethernet;                                  // M552 S
-    uint32_t ip_address;                                // M552 P
-    uint32_t myDns_address;
-    uint32_t gateway_address;                           // M553 P
-    uint32_t subnet_mask;                               // M554 P
+    uint32_t ip_address,                                // M552 P
+             myDns_address,
+             gateway_address,                           // M553 P
+             subnet_mask;                               // M554 P
   #endif
 
   //
@@ -607,22 +607,23 @@ void MarlinSettings::postprocess() {
 
     working_crc = 0; // clear before first "real data"
 
-    #if ENABLED(ETHERNET_SUPPORT)
+    //
+    // Ethernet network info
+    //
+    #if HAS_ETHERNET
+    {
       _FIELD_TEST(use_ethernet);
       bool use_ethernet = ethernet_hardware_enabled;
+      uint32_t ip_address = ip,
+               myDns_address = myDns,
+               gateway_address = gateway,
+               subnet_mask = subnet;
       EEPROM_WRITE(use_ethernet);
-      _FIELD_TEST(ip_address);
-      uint32_t ip_address = ip;
       EEPROM_WRITE(ip_address);
-      _FIELD_TEST(myDns_address);
-      uint32_t myDns_address = myDns;
       EEPROM_WRITE(myDns_address);
-      _FIELD_TEST(gateway_address);
-      uint32_t gateway_address = gateway;
       EEPROM_WRITE(gateway_address);
-      uint32_t subnet_mask = subnet;
-      _FIELD_TEST(subnet_mask);
       EEPROM_WRITE(subnet_mask);
+    }
     #endif
 
     const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
@@ -1480,29 +1481,13 @@ void MarlinSettings::postprocess() {
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
 
-      #if ENABLED(ETHERNET_SUPPORT)
+      #if HAS_ETHERNET
         _FIELD_TEST(use_ethernet);
         EEPROM_READ(ethernet_hardware_enabled);
-        _FIELD_TEST(ip_address);
-        EEPROM_READ(ip[0]);
-        EEPROM_READ(ip[1]);
-        EEPROM_READ(ip[2]);
-        EEPROM_READ(ip[3]);
-        _FIELD_TEST(myDns_address);
-        EEPROM_READ(myDns[0]);
-        EEPROM_READ(myDns[1]);
-        EEPROM_READ(myDns[2]);
-        EEPROM_READ(myDns[3]);
-        _FIELD_TEST(gateway_address);
-        EEPROM_READ(gateway[0]);
-        EEPROM_READ(gateway[1]);
-        EEPROM_READ(gateway[2]);
-        EEPROM_READ(gateway[3]);
-        _FIELD_TEST(subnet_mask);
-        EEPROM_READ(subnet[0]);
-        EEPROM_READ(subnet[1]);
-        EEPROM_READ(subnet[2]);
-        EEPROM_READ(subnet[3]);
+        EEPROM_READ(ip);
+        EEPROM_READ(myDns);
+        EEPROM_READ(gateway);
+        EEPROM_READ(subnet);
       #endif
 
       _FIELD_TEST(esteppers);
@@ -3842,25 +3827,23 @@ void MarlinSettings::reset() {
       );
     #endif
 
-    #if ENABLED(ETHERNET_SUPPORT)
+    #if HAS_ETHERNET
       CONFIG_ECHO_HEADING("Ethernet Settings:");
+      if (!forReplay) {
+        CONFIG_ECHO_START();
+        SERIAL_ECHO_TERNARY(ethernet_hardware_enabled, "  Ethernet ", "en", "dis", "abled.\n");
+      }
       CONFIG_ECHO_START();
-      SERIAL_ECHO("  Ethernet ");
-      if (ethernet_hardware_enabled)
-        SERIAL_ECHOLN("enabled");
-      else
-        SERIAL_ECHOLN("disabled");
-      CONFIG_ECHO_START();
-      SERIAL_ECHO("  ");
+      SERIAL_ECHOPGM("  ");
       MAC_report();
       CONFIG_ECHO_START();
-      SERIAL_ECHO("  M552 ");
+      SERIAL_ECHOPGM("  M552 ");
       M552_report();
       CONFIG_ECHO_START();
-      SERIAL_ECHO("  M553 ");
+      SERIAL_ECHOPGM("  M553 ");
       M553_report();
       CONFIG_ECHO_START();
-      SERIAL_ECHO("  M554 ");
+      SERIAL_ECHOPGM("  M554 ");
       M554_report();
     #endif // ETHERNET
   }

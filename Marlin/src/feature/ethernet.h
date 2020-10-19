@@ -21,16 +21,10 @@
  */
 #pragma once
 
-#include "../inc/MarlinConfig.h"
-
-#ifdef ETHERNET_SUPPORT
-
 #ifdef __IMXRT1062__
-    #include <NativeEthernet.h>
+  #include <NativeEthernet.h>
 #endif
 
-// MAC_ADDRESS must be unique on your network.
-//#define MAC_ADDRESS 0xDE, 0xAD, 0xBE, 0xEF, 0xBA, 0xAD
 // Teensy 4.1 uses internal MAC Address
 
 extern IPAddress ip, myDns, gateway, subnet;
@@ -41,5 +35,3 @@ extern EthernetClient telnetClient;
 
 void ethernet_init();
 void ethernet_check();
-
-#endif  // ETHERNET_SUPPORT

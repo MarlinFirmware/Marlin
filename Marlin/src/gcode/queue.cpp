@@ -315,32 +315,21 @@ inline bool serial_data_available() {
   byte data_available = 0;
   if (MYSERIAL0.available()) data_available++;
   #ifdef SERIAL_PORT_2
-    if (MYSERIAL1.available()) data_available++;
-  #endif
-  #ifdef ETHERNET_SUPPORT
-    if (have_telnet_client) {
-      if (telnetClient.available()) {
-        data_available++;
-      }
-    }
+    const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client);
+    if (port2_open && MYSERIAL1.available()) data_available++;
   #endif
   return data_available > 0;
 }
 
 inline int read_serial(const uint8_t index) {
   switch (index) {
-    case 0: 
-      return MYSERIAL0.read();
-    case 1:
-    #ifdef ETHERNET_SUPPORT
-      if (have_telnet_client)
-        return telnetClient.read();
-      return -1;
-    #else
+    case 0: return MYSERIAL0.read();
+    case 1: {
       #ifdef HAS_MULTI_SERIAL
-        return MYSERIAL1.read();
+        const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client);
+        if (port2_open) return MYSERIAL1.read();
       #endif
-    #endif
+    }
     default: return -1;
   }
 }

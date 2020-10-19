@@ -23,7 +23,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(ETHERNET_SUPPORT)
+#if HAS_ETHERNET
   #include "../feature/ethernet.h"
 #endif
 
@@ -59,24 +59,11 @@ extern uint8_t marlin_debug_flags;
   #ifdef SERIAL_CATCHALL
     #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
   #else
-    #ifdef ETHERNET_SUPPORT
-      #define SERIAL_OUT(WHAT, V...) do{ \
-        if (serial_port_index == 0) (void)MYSERIAL0.WHAT(V); \
-        if (serial_port_index == 1) { \
-          if (have_telnet_client) (void)telnetClient.WHAT(V); \
-        } \
-        if (serial_port_index == SERIAL_BOTH) { \
-          (void)MYSERIAL0.WHAT(V); \
-          if (have_telnet_client) (void)telnetClient.WHAT(V); \
-        } \
-      }while(0)
-    #else
-      #define SERIAL_OUT(WHAT, V...) do{ \
-        if (serial_port_index == 0) (void)MYSERIAL0.WHAT(V); \
-        if (serial_port_index == 1) (void)MYSERIAL1.WHAT(V); \
-        if (serial_port_index == SERIAL_BOTH) {(void)MYSERIAL0.WHAT(V); (void)MYSERIAL1.WHAT(V); } \
-      }while(0)
-    #endif
+    #define SERIAL_OUT(WHAT, V...) do{ \
+      const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client); \
+      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
+      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
+    }while(0)
   #endif
 
   #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
