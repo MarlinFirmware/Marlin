@@ -437,7 +437,10 @@ public:
       #if HAS_BUZZER
         static void completion_feedback(const bool good=true);
       #else
-        static inline void completion_feedback(const bool=true) {}
+        static inline void completion_feedback(const bool=true) {
+          // for top icons like RST, on config load/save/reset menu
+          TERN_(FSMC_GRAPHICAL_TFT, refresh(LCDVIEW_CALL_REDRAW_NEXT));
+        }
       #endif
 
       #if DISABLED(LIGHTWEIGHT_UI)

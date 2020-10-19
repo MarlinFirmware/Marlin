@@ -114,7 +114,7 @@
 #include "../../lcd/ultralcd.h"
 
 #define EXTRUSION_MULTIPLIER 1.0
-#define PRIME_LENGTH 10.0
+#define PRIME_LENGTH 20.0
 #define OOZE_AMOUNT 0.3
 
 #define INTERSECTION_CIRCLE_RADIUS 5

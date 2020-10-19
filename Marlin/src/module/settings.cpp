@@ -73,6 +73,10 @@
   #include "../feature/z_stepper_align.h"
 #endif
 
+#if ENABLED(TOUCH_CALIBRATION)
+  #include "../feature/touch/calibration.h"
+#endif
+
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
@@ -386,6 +390,9 @@ typedef struct SettingsDataStruct {
   #if EXTRUDERS
     fil_change_settings_t fc_settings[EXTRUDERS];       // M603 T U L
   #endif
+
+  // TOUCH_CALIBRATION (XPT2046)
+  int16_t touchscreen_calibration[4];
 
   //
   // Tool-change settings
@@ -1318,6 +1325,17 @@ void MarlinSettings::postprocess() {
     }
     #endif
 
+    // TOUCH_CALIBRATION
+    {
+      _FIELD_TEST(touchscreen_calibration);
+      #if ENABLED(TOUCH_CALIBRATION)
+        EEPROM_WRITE(calibration.results);
+      #else
+        const int16_t touchscreen_calibration[4] = { 0, 0, 0, 0 };
+        EEPROM_WRITE(touchscreen_calibration);
+      #endif
+    }
+
     //
     // Multiple Extruders
     //
@@ -1415,6 +1433,8 @@ void MarlinSettings::postprocess() {
     if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
+
+    settings.was_reset = eeprom_error;
 
     return !eeprom_error;
   }
@@ -2173,6 +2193,16 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+      // TOUCH_CALIBRATION (XPT2046)
+      {
+        int16_t touchscreen_calibration[4];
+        _FIELD_TEST(touchscreen_calibration);
+        EEPROM_READ(touchscreen_calibration);
+        #if ENABLED(TOUCH_CALIBRATION)
+          memcpy(calibration.results, touchscreen_calibration, sizeof(touchscreen_calibration));
+        #endif
+      }
+
       //
       // Tool-change settings
       //
@@ -2327,12 +2357,14 @@ void MarlinSettings::postprocess() {
     if (validate()) {
       const bool success = _load();
       TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreRead(success));
+      settings.was_reset = !success;
       return success;
     }
     reset();
     #if ENABLED(EEPROM_AUTO_INIT)
       (void)save();
       SERIAL_ECHO_MSG("EEPROM Initialized");
+      settings.was_reset = true;
     #endif
     return false;
   }
@@ -2456,6 +2488,8 @@ void MarlinSettings::reset() {
   planner.settings.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   planner.settings.min_feedrate_mm_s = feedRate_t(DEFAULT_MINIMUMFEEDRATE);
   planner.settings.min_travel_feedrate_mm_s = feedRate_t(DEFAULT_MINTRAVELFEEDRATE);
+
+  settings.was_reset = true;
 
   #if HAS_CLASSIC_JERK
     #ifndef DEFAULT_XJERK

@@ -604,6 +604,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REMINDER_SAVE_SETTINGS          = _UxGT("Remember to Save!");
   PROGMEM Language_Str MSG_PASSWORD_REMOVED                = _UxGT("Password Removed");
 
+  // FSMC/SPI Touchscreen
+  PROGMEM Language_Str MSG_TOUCHSCREEN                     = _UxGT("Touchscreen");
+  PROGMEM Language_Str MSG_CALIBRATION                     = _UxGT("Calibration");
+
   //
   // Filament Change screens show up to 3 lines on a 4-line display
   //                        ...or up to 2 lines on a 3-line display

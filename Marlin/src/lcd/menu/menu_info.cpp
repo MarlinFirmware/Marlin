@@ -212,6 +212,13 @@ void menu_info_board() {
   PSTRING_ITEM(MSG_INFO_BAUDRATE, STRINGIFY(BAUDRATE), SS_CENTER); // Baud: 250000
   PSTRING_ITEM(MSG_INFO_PROTOCOL, PROTOCOL_VERSION, SS_CENTER);    // Protocol: 1.0
   PSTRING_ITEM(MSG_INFO_PSU, PSU_NAME, SS_CENTER);
+  #ifdef OVERCLOCK
+    STATIC_ITEM_P("Freq: " STRINGIFY(OC_TARGET_MHZ) " MHz", SS_LEFT);
+  #elif defined(F_CPU)
+    char buffer[21];
+    snprintf_P(buffer, 20, "Freq: %u MHz", unsigned(F_CPU/1000000));
+    STATIC_ITEM_P(buffer, SS_LEFT);
+  #endif
   END_SCREEN();
 }
 
