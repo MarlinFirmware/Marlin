@@ -294,7 +294,7 @@ namespace Anycubic {
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
     if (str != nullptr) {
       #if ACDEBUG(AC_SOME)
-        SERIAL_ECHO("> ");
+        SERIAL_ECHOPGM("> ");
       #endif
       SendtoTFT(str);
       #if ACDEBUG(AC_SOME)
