@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -60,39 +60,38 @@
  * (Search the web for "Arduino DUE Board Pinout" to see the correct header.)
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME "RAMPS-SMART"
-
 #define IS_RAMPS_SMART
 #include "../ramps/pins_RAMPS.h"
 
 // I2C EEPROM with 4K of space
 #define I2C_EEPROM
-#define E2END 0xFFF
+#define MARLIN_EEPROM_SIZE                0x1000
 
-#define RESET_PIN          42   // Resets the board if the jumper is attached
+#define RESET_PIN                             42  // Resets the board if the jumper is attached
 
 //
 // Temperature Sensors
 //
 #undef TEMP_0_PIN
-#define TEMP_0_PIN          9   // Analog Input
+#define TEMP_0_PIN                             9  // Analog Input
 
 #undef TEMP_1_PIN
-#define TEMP_1_PIN         10   // Analog Input
+#define TEMP_1_PIN                            10  // Analog Input
 
 #undef TEMP_BED_PIN
-#define TEMP_BED_PIN       11   // Analog Input
+#define TEMP_BED_PIN                          11  // Analog Input
 
 // SPI for Max6675 or Max31855 Thermocouple
 #undef MAX6675_SS_PIN
 #if DISABLED(SDSUPPORT)
-  #define MAX6675_SS_PIN   67   // Don't use 53 if there is even the remote possibility of using Display/SD card
+  #define MAX6675_SS_PIN                      67  // Don't use 53 if using Display/SD card
 #else
-  #define MAX6675_SS_PIN   67   // Don't use 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define MAX6675_SS_PIN                      67  // Don't use 49 (SD_DETECT_PIN)
 #endif
 
 //
@@ -100,12 +99,12 @@
 //
 // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel
 #if ENABLED(AZSMZ_12864)
-  #define BEEPER_PIN       66   // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 65
-  #define DOGLCD_A0        59
-  #define DOGLCD_CS        44
-  #define BTN_EN1          58
-  #define BTN_EN2          40
-  #define BTN_ENC          67   // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 66
-  #define SD_DETECT_PIN    49   // Pin 49 for display sd interface, 72 for easy adapter board
-  #define KILL_PIN         42
+  #define BEEPER_PIN                          66  // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 65
+  #define DOGLCD_A0                           59
+  #define DOGLCD_CS                           44
+  #define BTN_EN1                             58
+  #define BTN_EN2                             40
+  #define BTN_ENC                             67  // Smart RAMPS 1.42 pinout diagram on RepRap WIKI erroneously says this should be pin 66
+  #define SD_DETECT_PIN                       49  // Pin 49 for display sd interface, 72 for easy adapter board
+  #define KILL_PIN                            42
 #endif

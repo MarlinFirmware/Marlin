@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "ADSK"
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #endif
 
@@ -81,55 +81,55 @@ A stepper for E0 extruder
 //
 // Servos
 //
-#define SERVO0_PIN         61   // Analog pin 7, Digital pin 61
+#define SERVO0_PIN                            61  // Analog pin 7, Digital pin 61
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN           9
-#define Y_MIN_PIN          10
-#define Z_MIN_PIN          11
+#define X_MIN_PIN                              9
+#define Y_MIN_PIN                             10
+#define Z_MIN_PIN                             11
 
-#define Z_MIN_PROBE_PIN    62   // Analog pin 8, Digital pin 62
+#define Z_MIN_PROBE_PIN                       62  // Analog pin 8, Digital pin 62
 
 //
 // Steppers
 //
-#define X_STEP_PIN          2
-#define X_DIR_PIN           5
-#define X_ENABLE_PIN        8
+#define X_STEP_PIN                             2
+#define X_DIR_PIN                              5
+#define X_ENABLE_PIN                           8
 
-#define Y_STEP_PIN          3
-#define Y_DIR_PIN           6
-#define Y_ENABLE_PIN        8
+#define Y_STEP_PIN                             3
+#define Y_DIR_PIN                              6
+#define Y_ENABLE_PIN                           8
 
-#define Z_STEP_PIN          4
-#define Z_DIR_PIN           7
-#define Z_ENABLE_PIN        8
+#define Z_STEP_PIN                             4
+#define Z_DIR_PIN                              7
+#define Z_ENABLE_PIN                           8
 
-#define E0_STEP_PIN        12
-#define E0_DIR_PIN         13
-#define E0_ENABLE_PIN       8
+#define E0_STEP_PIN                           12
+#define E0_DIR_PIN                            13
+#define E0_ENABLE_PIN                          8
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       55   // "Hold":   Analog pin 1, Digital pin 55
-#define HEATER_BED_PIN     57   // "CoolEn": Analog pin 3, Digital pin 57
-#define FAN_PIN            54   // "Abort":  Analog pin 0, Digital pin 54
+#define HEATER_0_PIN                          55  // "Hold":   Analog pin 1, Digital pin 55
+#define HEATER_BED_PIN                        57  // "CoolEn": Analog pin 3, Digital pin 57
+#define FAN_PIN                               54  // "Abort":  Analog pin 0, Digital pin 54
 #undef E0_AUTO_FAN_PIN
-#define E0_AUTO_FAN_PIN    56   // "Resume": Analog pin 2, Digital pin 56
+#define E0_AUTO_FAN_PIN                       56  // "Resume": Analog pin 2, Digital pin 56
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          4   // "SDA":    Analog pin 4, Digital pin 58
-#define TEMP_BED_PIN        5   // "SCL":    Analog pin 5, Digital pin 59
+#define TEMP_0_PIN                             4  // "SDA":    Analog pin 4, Digital pin 58
+#define TEMP_BED_PIN                           5  // "SCL":    Analog pin 5, Digital pin 59
 
 //
 // Misc. Functions
 //
-#define SDSS               52
+#define SDSS                                  52
 
 #if ENABLED(ZONESTAR_LCD)
 
@@ -160,13 +160,13 @@ A stepper for E0 extruder
   //
   // LCD / Controller
   //
-  #define LCD_PINS_ENABLE  14
-  #define LCD_PINS_RS      15
-  #define LCD_PINS_D4      16
-  #define LCD_PINS_D5      17
-  #define LCD_PINS_D6      18
-  #define LCD_PINS_D7      19
-  #define ADC_KEYPAD_PIN    6   //60 // Analog pin 6, Digital pin 60
+  #define LCD_PINS_ENABLE                     14
+  #define LCD_PINS_RS                         15
+  #define LCD_PINS_D4                         16
+  #define LCD_PINS_D5                         17
+  #define LCD_PINS_D6                         18
+  #define LCD_PINS_D7                         19
+  #define ADC_KEYPAD_PIN                       6  //60 // Analog pin 6, Digital pin 60
 
   /**
    * The below defines will scale all the values to work properly on both
@@ -175,12 +175,12 @@ A stepper for E0 extruder
 
   #define ADC_BUTTONS_VALUE_SCALE         (5.0/AREF_VOLTS) // The LCD module pullup voltage is 5.0V but ADC reference voltage is 3.3V
 
-  #define ADC_BUTTONS_R_PULLDOWN          4.7  // Moves voltage down to be bellow 3.3V instead of 5V
+  #define ADC_BUTTONS_R_PULLDOWN          4.7     // Moves voltage down to be bellow 3.3V instead of 5V
   // the resistors values will be scaled because of 4.7K pulldown parallel resistor
   #define _ADC_BUTTONS_R_SCALED(R)        ((R) * (ADC_BUTTONS_R_PULLDOWN) / ((R) + ADC_BUTTONS_R_PULLDOWN))
 
   // buttons pullup resistor
-  #define ADC_BUTTONS_R_PULLUP            4.7 // the resistor on the 2004 LCD panel
+  #define ADC_BUTTONS_R_PULLUP            4.7     // the resistor on the 2004 LCD panel
   // buttons resistors with scaled values because of parallel pulldown resistor
   #define ADC_BUTTONS_LEFT_R_PULLDOWN     _ADC_BUTTONS_R_SCALED(0.47)
   #define ADC_BUTTONS_RIGHT_R_PULLDOWN    _ADC_BUTTONS_R_SCALED(4.7)
@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

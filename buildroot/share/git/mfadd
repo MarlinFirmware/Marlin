@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 #
-# mfadd (user|ref) [copyname]
+# mfadd user[:branch] [copyname]
 #
 # Add a remote and fetch it. Optionally copy a branch.
 #
-# Example: mfadd myfork:patch-1 copy_of_patch-1
+# Examples:
+#  mfadd thefork
+#  mfadd thefork:patch-1
+#  mfadd thefork:patch-1 the_patch_12345
 #
 
-[[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` (user|ref) [copyname]" 1>&2 ; exit 1; }
+[[ $# > 0 && $# < 3 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` user[:branch] [copyname]" 1>&2 ; exit 1; }
 
-# If a colon is included, split the parts
-if [[ $1 =~ ":" ]]; then
-  IFS=':' read -a DATA <<< "$1"
+# If a colon or slash is included, split the parts
+if [[ $1 =~ ":" || $1 =~ "/" ]]; then
+  [[ $1 =~ ":" ]] && IFS=':' || IFS="/"
+  read -a DATA <<< "$1"
   USER=${DATA[0]}
   BRANCH=${DATA[1]}
-  NAME=$2
+  NAME=${2:-$BRANCH}
 else
   USER=$1
 fi
@@ -29,4 +33,4 @@ echo "Adding and fetching $USER..."
 git remote add "$USER" "git@github.com:$USER/$REPO.git" >/dev/null 2>&1 || echo "Remote exists."
 git fetch "$USER"
 
-[[ ! -z "$BRANCH" && ! -z "$NAME" ]] && git checkout $USER/$BRANCH -b $NAME
+[[ ! -z "$BRANCH" && ! -z "$NAME" ]] && git checkout -b "$NAME" --track "$USER/$BRANCH"

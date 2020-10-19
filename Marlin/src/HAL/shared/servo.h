@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -41,7 +41,6 @@
  */
 
 /**
- *
  * A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
  * The servos are pulsed in the background using the value most recently written using the write() method
  *
@@ -68,19 +67,21 @@
  */
 
 #if IS_TEENSY32
-  #include "../HAL_TEENSY31_32/Servo.h"
+  #include "../TEENSY31_32/Servo.h"
 #elif IS_TEENSY35 || IS_TEENSY36
-  #include "../HAL_TEENSY35_36/Servo.h"
+  #include "../TEENSY35_36/Servo.h"
+#elif IS_TEENSY40 || IS_TEENSY41
+  #include "../TEENSY40_41/Servo.h"
 #elif defined(TARGET_LPC1768)
-  #include "../HAL_LPC1768/Servo.h"
+  #include "../LPC1768/Servo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
-  #include "../HAL_STM32F1/Servo.h"
+  #include "../STM32F1/Servo.h"
 #elif defined(STM32GENERIC) && defined(STM32F4)
-  #include "../HAL_STM32_F4_F7/Servo.h"
+  #include "../STM32_F4_F7/Servo.h"
 #elif defined(ARDUINO_ARCH_STM32)
-  #include "../HAL_STM32/Servo.h"
+  #include "../STM32/Servo.h"
 #elif defined(ARDUINO_ARCH_ESP32)
-  #include "../HAL_ESP32/Servo.h"
+  #include "../ESP32/Servo.h"
 #else
   #include <stdint.h>
 

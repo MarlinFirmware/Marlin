@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,12 +28,17 @@
 
 #if ENABLED(LCD_BED_LEVELING)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 #include "../../feature/bedlevel/bedlevel.h"
 
 #if HAS_BED_PROBE && DISABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "../../module/probe.h"
+#endif
+
+#if HAS_GRAPHICAL_TFT
+  #include "../tft/touch.h"
+  #include "../tft/tft.h"
 #endif
 
 #if EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -48,13 +53,7 @@
   static uint8_t manual_probe_index;
 
   // LCD probed points are from defaults
-  constexpr uint8_t total_probe_points = (
-    #if ENABLED(AUTO_BED_LEVELING_3POINT)
-      3
-    #elif ABL_GRID || ENABLED(MESH_BED_LEVELING)
-      GRID_MAX_POINTS
-    #endif
-  );
+  constexpr uint8_t total_probe_points = TERN(AUTO_BED_LEVELING_3POINT, 3, GRID_MAX_POINTS);
 
   //
   // Bed leveling is done. Wait for G29 to complete.
@@ -75,9 +74,7 @@
         ui.synchronize(GET_TEXT(MSG_LEVEL_BED_DONE));
       #endif
       ui.goto_previous_screen_no_defer();
-      #if HAS_BUZZER
-        ui.completion_feedback();
-      #endif
+      ui.completion_feedback();
     }
     if (ui.should_draw()) MenuItem_static::draw(LCD_HEIGHT >= 4, GET_TEXT(MSG_LEVEL_BED_DONE));
     ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
@@ -167,7 +164,11 @@
   //         Move to the first probe position
   //
   void _lcd_level_bed_homing_done() {
-    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+    if (ui.should_draw()) {
+      MenuItem_static::draw(1, GET_TEXT(MSG_LEVEL_BED_WAITING));
+      // Color UI needs a control to detect a touch
+      TERN_(HAS_GRAPHICAL_TFT, touch.add_control(CLICK, 0, 0, TFT_WIDTH, TFT_HEIGHT));
+    }
     if (ui.use_click()) {
       manual_probe_index = 0;
       _lcd_level_goto_next_point();
@@ -232,10 +233,11 @@
  *    Save Settings       (Req: EEPROM_SETTINGS)
  */
 void menu_bed_leveling() {
+  const bool is_homed = all_axes_known(),
+             is_valid = leveling_is_valid();
+
   START_MENU();
   BACK_ITEM(MSG_MOTION);
-
-  const bool is_homed = all_axes_known();
 
   // Auto Home if not using manual probing
   #if NONE(PROBE_MANUALLY, MESH_BED_LEVELING)
@@ -252,12 +254,11 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(MESH_EDIT_MENU)
-    if (leveling_is_valid())
-      SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
+    if (is_valid) SUBMENU(MSG_EDIT_MESH, menu_edit_mesh);
   #endif
 
   // Homed and leveling is valid? Then leveling can be toggled.
-  if (is_homed && leveling_is_valid()) {
+  if (is_homed && is_valid) {
     bool show_state = planner.leveling_active;
     EDIT_ITEM(bool, MSG_BED_LEVELING, &show_state, _lcd_toggle_bed_leveling);
   }
@@ -279,7 +280,7 @@ void menu_bed_leveling() {
   #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
     SUBMENU(MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
   #elif HAS_BED_PROBE
-    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe_offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+    EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
 
   #if ENABLED(LEVEL_BED_CORNERS)
@@ -287,8 +288,8 @@ void menu_bed_leveling() {
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
-    ACTION_ITEM(MSG_LOAD_EEPROM, lcd_load_settings);
-    ACTION_ITEM(MSG_STORE_EEPROM, lcd_store_settings);
+    ACTION_ITEM(MSG_LOAD_EEPROM, ui.load_settings);
+    ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
   #endif
   END_MENU();
 }

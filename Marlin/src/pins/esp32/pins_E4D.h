@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,19 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * E4d@Box pin assignments
- *
- * E4d@Box is a small factor 3D printer control board based on the ESP32 microcontroller for Laser, CNC and 3D printers.
- * For more info see http://atbox.tech/ and join the Facebook group E4d@box.
+ * E4d@Box  pin assignments
+ * E4d@Box is a small factor 3D printer control board based on the ESP32 microcontroller for Laser, CNC and 3d printers
+ * for more info check https://atbox.tech/ and join to Facebook page E4d@box.
  */
 
-#ifndef ARDUINO_ARCH_ESP32
+#if NOT_TARGET(ARDUINO_ARCH_ESP32)
   #error "Oops! Select an ESP32 board in 'Tools > Board.'"
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "E4d@box only supports one E Stepper. Comment out this line to continue."
@@ -45,7 +44,7 @@
 //
 #define X_STOP_PIN                            34
 #define Y_STOP_PIN                            35
-#define Z_STOP_PIN                            16  // 15
+#define Z_STOP_PIN                            16
 
 //
 // Steppers
