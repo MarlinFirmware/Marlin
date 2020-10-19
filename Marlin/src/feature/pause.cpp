@@ -206,7 +206,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
           + active_extruder
         #endif
       ;
-      host_action_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
 
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
