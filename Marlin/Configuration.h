@@ -2137,7 +2137,7 @@
 //
 //#define MKS_12864OLED          // Uses the SH1106 controller (default)
 //UWE
-#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
+//#define MKS_12864OLED_SSD1306  // Uses the SSD1306 controller
 
 //
 // Zonestar OLED 128×64 FULL GRAPHICS CONTROLLER
