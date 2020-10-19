@@ -23,13 +23,11 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
-#include "draw_ui.h"
+#include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
 
-#include "../../../../../Configuration.h"
-#include "../../../../module/temperature.h"
+#include "draw_ui.h"
 
 extern lv_group_t * g;
 static lv_obj_t *scr, *wifi_name_text, *wifi_key_text, *wifi_state_text, *wifi_ip_text;

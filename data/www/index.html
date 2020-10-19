@@ -19,7 +19,7 @@
     var ua = window.navigator.userAgent;
     var msie = ua.indexOf("MSIE ");
     if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)){ top.location.replace('index-ie.html'); }
-    function hideAddressBar() { if(!window.location.hash) { if(document.height < window.outerHeight) { document.body.style.height = (window.outerHeight + 50) + 'px'; } 
+    function hideAddressBar() { if(!window.location.hash) { if(document.height < window.outerHeight) { document.body.style.height = (window.outerHeight + 50) + 'px'; }
         setTimeout( function(){ window.scrollTo(0, 1); }, 50 );
     }}
     window.addEventListener("load", function(){ if(!window.pageYOffset){ hideAddressBar(); } } );
@@ -37,19 +37,19 @@
   <script async="" src="filesaver.min.js"></script>
   <script type="text/javascript" src="chart.min.js"></script>
   <script type="text/javascript" src="webmarlin.js"></script>
-  
+
   <!-- Accordion =================================================================================================== -->
   <div id="main-panel" class="h-100 bg-secondary m-0 p-0">
     <div class="container-fluid h-100 p-0">
       <div class="accordion accordion-always-open h-100 d-flex flex-column bg-light" id="accordion-panels">
-        
+
         <!-- PANEL: Fixed Title ==================================================================================== -->
         <div class="bg-dark text-light text-left p-2">
           <span class="h4">Marlin WebUI </span> by atbox.tech
           <button type="button" class="btn btn-sm btn-success float-right ml-1" data-toggle="modal" data-target="#modal-info" style="width:35px; height:33px"><i class="icon icon-info"></i></button>
           <a href="http://marlinfw.org/" target="_blank" class="float-right"><img src="marlin-logo-dark.png" alt="MarlinLogo" width="100" height="33" /></a>
         </div>
-        
+
         <!-- PANEL: Fixed connection status bar ==================================================================== -->
         <div id="div-conn-statusbar" class="bg-danger text-light text-left p-1">
           <div class="float-left font-italic h5 my-0 pl-1">
@@ -81,13 +81,13 @@
                   Printing status <div id="div-pstatus-sdprint" class="badge badge-danger badge-description float-right pb-1">Not connected</div>
                 </div>
                 <div id="div-pstatus-timer" class="border-bottom py-1 collapse">
-                  Printing timer 
+                  Printing timer
                   <div class="float-right ml-1">Remain: <span id="div-pstatus-timer-remain" class="badge badge-info badge-description pb-1">0:45:12</span></div>
                   <div class="float-right ml-1">Estimated: <span id="div-pstatus-timer-estimated" class="badge badge-info badge-description pb-1">1:12:34</span></div>
                   <div class="float-right">Elapsed: <span id="div-pstatus-timer-elapsed" class="badge badge-info badge-description pb-1">0:00:00</span></div>
                 </div>
                 <div id="div-pstatus-progress" class="pt-1 collapse">
-                  Printing progress: 
+                  Printing progress:
                   <div id="div-pstatus-progress-percent" class="badge badge-info badge-description float-right pb-1">10%</div>
                   <div id="div-pstatus-progress-bytes" class="badge badge-info badge-description float-right pb-1 mr-1">1 of 123456</div>
                   <div class="progress mt-1" style="height: 10px;"><div class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
@@ -273,7 +273,7 @@
                 <div class="list-group list-group-flush">
                   <div class="list-group-item bg-light px-0 py-1">
                     <label for="txt-move-steps" class="">Steps movements size (mm)</label>
-                    
+
                     <div class="form-group">
                       <input type="text" id="txt-move-steps" class="form-control form-control-sm float-right" value="10" style="width:80px"/>
                       <input type="range" class="form-control-range" min="0" max="50" step="1" id="customRange3" value="10">
@@ -297,7 +297,7 @@
                 </div>
               </div>
             </div>
-             
+
             <div class="card mb-1 border-0">
               <div class="card-header card-header-title text-light bg-secondary m-0 p-1"><i class="icon icon-cog mr-1 ml-1"></i>Steppers locking</div>
               <div class="card-body px-0 py-1 bg-light badge-description">
@@ -345,7 +345,7 @@
 
           </div>
         </div>
-        
+
         <!-- PANEL: File management ================================================================================ -->
         <div class="card-header flex-shrink-1 p-0 bg-dark text-light" id="accordion-panel-file-head">
           <button class="btn btn-sm btn-dark btn-block text-left" type="button" data-toggle="collapse" data-target="#accordion-panel-file-body" aria-expanded="true" aria-controls="accordion-panel-file-body">
@@ -408,7 +408,7 @@
                     </table>
                   </div>
                 </div>
-              </div>  
+              </div>
             </div>
             <div class="card mb-0 border-0">
               <div class="card-header card-header-title text-white bg-secondary m-0 p-1"><i class="icon icon-file ml-1 mr-1"></i>SD Content management</div>
@@ -483,7 +483,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -498,7 +498,7 @@
           <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         </div>
         <div class="modal-body p-2 text-left">
-          <span class="h3">E4d@box Marin WebUI 1.0</span>
+          <span class="h3">E4d@box Marlin WebUI 1.0</span>
           <p>Release date: January, 1 2020</p>
           <p>
             <i class="icon icon-github"></i> Github project: <a href="https://github.com/exilaus/E4d-box-project" target="_blank">E4d-box-project</a><br />
@@ -547,7 +547,7 @@
                     <option value="10">10 sec</option>
                     <option value="30">30 sec</option>
                     <option value="60">60 sec</option>
-                  </select>  
+                  </select>
                 </div>
               </div>
               <small class="form-text text-muted font-italic mt-0">Set the default temperature detection interval (secs)</small>
@@ -560,7 +560,7 @@
                     <option value="0">Celsius (default)</option>
                     <option value="1">Fahrenheit</option>
                     <option value="2">Kelvin</option>
-                  </select>  
+                  </select>
                 </div>
               </div>
               <small class="form-text text-muted font-italic mt-0">Set the default temperature unit</small>
@@ -641,7 +641,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MODAL: Presets command ====================================================================================== -->
   <div class="modal fade" id="modal-presets" tabindex="-1" role="dialog" aria-labelledby="modal-presets-label" aria-hidden="true">
     <div class="modal-dialog modal-popup" role="document">
@@ -659,7 +659,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MODAL: Connect ============================================================================================== -->
   <div class="modal fade" id="modal-connect" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-popup" role="document">
@@ -680,7 +680,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MODAL: SD file deletion confirmation  ======================================================================= -->
   <div class="modal fade" id="modal-sdfile-delete" data-backdrop="static" role="dialog" tabindex="-1" aria-labelledby="modal-sdfile-label" aria-hidden="true">
     <div class="modal-dialog modal-popup">
@@ -703,7 +703,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- MODAL: SD file print confirmation  ======================================================================= -->
   <div class="modal fade" id="modal-sdfile-print" data-backdrop="static" role="dialog" tabindex="-1" aria-labelledby="modal-sdfile-print" aria-hidden="true">
     <div class="modal-dialog modal-popup">
@@ -745,6 +745,6 @@
       </div>
     </div>
   </div>
-  
+
 </body>
 </html>

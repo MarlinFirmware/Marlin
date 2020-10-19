@@ -73,7 +73,6 @@ extern uint8_t pause_resum;
 uint8_t wifi_connect_flg = 0;
 extern volatile uint8_t get_temp_flag;
 
-
 #define WIFI_MODE 2
 #define WIFI_AP_MODE  3
 
@@ -300,8 +299,7 @@ void esp_port_begin(uint8_t interrupt) {
       WIFISERIAL.begin(WIFI_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for(uint8_t i=0;i<100;i++)WIFISERIAL.write(0x33);
-    #endif
+      //for (uint8_t i=0;i<100;i++)WIFISERIAL.write(0x33); f
   }
   else {
     #if ENABLED(USE_WIFI_FUNCTION)
@@ -310,8 +308,7 @@ void esp_port_begin(uint8_t interrupt) {
       WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for(uint16_t i=0;i<65535;i++);//WIFISERIAL.write(0x33);
-    #endif
+      //for (uint16_t i=0;i<65535;i++);//WIFISERIAL.write(0x33); f
     dma_init();
   }
 }
@@ -1194,8 +1191,7 @@ static void wifi_list_msg_handle(uint8_t * msg, uint16_t msgLen) {
           }
         }
         if (wifi_name_is_same != 1) {
-          //for(j=0;j<wifiNameLen;j++)
-          //{
+          //for (j=0;j<wifiNameLen;j++) {
             if (str[0] > 0x80) {
               wifi_name_is_same = 1;
               //break;
@@ -1412,7 +1408,8 @@ static void file_first_msg_handle(uint8_t * msg, uint16_t msgLen) {
       lv_draw_dialog(DIALOG_TYPE_UPLOAD_FILE);
       return;
     }
-  #endif
+
+  #endif // SDSUPPORT
 
   wifi_link_state = WIFI_TRANS_FILE;
 
@@ -1432,14 +1429,14 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
   uint32_t frag = *((uint32_t *)msg);
 
   if ((frag & FRAG_MASK) != (uint32_t)(lastFragment + 1)) {
-    memset(file_writer.write_buf, 0, sizeof(file_writer.write_buf));
+    ZERO(file_writer.write_buf);
     file_writer.write_index = 0;
     wifi_link_state = WIFI_CONNECTED;
     upload_result = 2;
   }
   else {
     if (write_to_file((char *)msg + 4, msgLen - 4) < 0) {
-      memset(file_writer.write_buf, 0, sizeof(file_writer.write_buf));
+      ZERO(file_writer.write_buf);
       file_writer.write_index = 0;
       wifi_link_state = WIFI_CONNECTED;
       upload_result = 2;
@@ -1450,13 +1447,13 @@ static void file_fragment_msg_handle(uint8_t * msg, uint16_t msgLen) {
     if ((frag & (~FRAG_MASK))) {
       int res = card.write(file_writer.write_buf, file_writer.write_index);
       if (res == -1) {
-        memset(file_writer.write_buf, 0, sizeof(file_writer.write_buf));
+        ZERO(file_writer.write_buf);
         file_writer.write_index = 0;
         wifi_link_state = WIFI_CONNECTED;
         upload_result = 2;
         return;
       }
-      memset(file_writer.write_buf, 0, sizeof(file_writer.write_buf));
+      ZERO(file_writer.write_buf);
       file_writer.write_index = 0;
       file_writer.tick_end = getWifiTick();
       upload_time = getWifiTickDiff(file_writer.tick_begin, file_writer.tick_end) / 1000;
@@ -1521,9 +1518,12 @@ void esp_data_parser(char *cmdRxBuf, int len) {
     }
 
     esp_frame.type = esp_msg_buf[1];
-    if ((esp_frame.type != ESP_TYPE_NET) && (esp_frame.type != ESP_TYPE_GCODE)
-       && (esp_frame.type != ESP_TYPE_FILE_FIRST) && (esp_frame.type != ESP_TYPE_FILE_FRAGMENT)
-       &&(esp_frame.type != ESP_TYPE_WIFI_LIST)) {
+    if (  esp_frame.type != ESP_TYPE_NET
+       && esp_frame.type != ESP_TYPE_GCODE
+       && esp_frame.type != ESP_TYPE_FILE_FIRST
+       && esp_frame.type != ESP_TYPE_FILE_FRAGMENT
+       && esp_frame.type != ESP_TYPE_WIFI_LIST
+    ) {
       memset(esp_msg_buf, 0, sizeof(esp_msg_buf));
       esp_msg_index = 0;
       return;
@@ -1717,7 +1717,7 @@ void wifi_rcv_handle() {
 }
 
 void wifi_looping() {
-   do { wifi_rcv_handle(); } while (wifi_link_state == WIFI_TRANS_FILE);
+  do { wifi_rcv_handle(); } while (wifi_link_state == WIFI_TRANS_FILE);
 }
 
 void mks_esp_wifi_init() {

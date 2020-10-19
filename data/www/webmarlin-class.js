@@ -6,7 +6,7 @@ var wmEnums = {
   WsMsgSymbols     : { SENT:{LETTER:"S",ICON:null}, RECEIVED:{LETTER:"R",ICON:null} },
   WSSatuses        : { CONNECTING:0, OPEN:1, CLOSING:2, CLOSED:3 },
   LogLevels        : { INFO:0, WARNING:1, ERROR:2, DEBUG:3, VERBOSE:4},
-  TempUnits        : { CELSIUS: {LABEL:"Celsius",VALUE:0,GP:"C"}, FAHRENHEIT:{LABEL:"Fahrenheit",VALUE:1,GP:"F"}, KELVIN:{LABEL:"Kelvin",VALUE:2,GP:"K"} } 
+  TempUnits        : { CELSIUS: {LABEL:"Celsius",VALUE:0,GP:"C"}, FAHRENHEIT:{LABEL:"Fahrenheit",VALUE:1,GP:"F"}, KELVIN:{LABEL:"Kelvin",VALUE:2,GP:"K"} }
 };
 
 var wmSettings = {
@@ -18,7 +18,7 @@ var wmSettings = {
   DefaultPanel: wmEnums.Panels.CONTROLS,
   LogLevel: wmEnums.LogLevels.VERBOSE,
   WsUrl: "ws://192.168.1.16/ws",
-  SymbolMode: 'letter', 
+  SymbolMode: 'letter',
   SymbolSend: wmEnums.WsMsgSymbols.SENT.LETTER,
   SymbolReceive: wmEnums.WsMsgSymbols.RECEIVED.LETTER,
   AutoTempInterval: 1,
@@ -50,28 +50,28 @@ class wmLogItem {
   ToLoglist(){
     switch (this.RsType) {
       case wmEnums.ConsoleLevels.INFO:
-        this.BgClass = "console-list-items-info"; 
+        this.BgClass = "console-list-items-info";
         this.FontIcon = wmIcons.InfoCircle;
         break;
       case wmEnums.ConsoleLevels.SUCCESS:
-        this.BgClass = "console-list-items-success"; 
+        this.BgClass = "console-list-items-success";
         this.FontIcon = wmIcons.CheckSquare;
         break;
       case wmEnums.ConsoleLevels.ERROR:
-        this.BgClass = "console-list-items-error"; 
+        this.BgClass = "console-list-items-error";
         this.FontIcon = wmIcons.Triangle;
         break;
       case wmEnums.ConsoleLevels.MONITOR:
-        this.BgClass = "console-list-items-terminal"; 
+        this.BgClass = "console-list-items-terminal";
         this.FontIcon = wmIcons.Terminal;
         break;
       case wmEnums.ConsoleLevels.WARNING:
-        this.BgClass = "console-list-items-warning"; 
+        this.BgClass = "console-list-items-warning";
         this.FontIcon = wmIcons.Triangle;
         break;
     }
     let strout = '<li class="list-group-item console-list-items '+this.BgClass+'">';
-    strout += '<span class="badge badge-light mr-1">'+this.FontIcon.ToHtml()+"</span>"; 
+    strout += '<span class="badge badge-light mr-1">'+this.FontIcon.ToHtml()+"</span>";
     strout += '<span class="badge badge-secondary mr-1">'+this.DateTime+'</span>';
     strout += '<span class="badge badge-'+(this.Direction === wmEnums.WSMsgDirection.SENT ? "danger" : "success")+' mr-1">';
     strout += this.Direction === wmEnums.WSMsgDirection.SENT ? wmSettings.SymbolSend : wmSettings.SymbolReceive;
@@ -140,18 +140,18 @@ class wmLogItem {
       li.SdFile = msg;
     }
     //else if() {
-    //} 
+    //}
     else {
       let rgx_rtemp_eb = /^T:\d{1,3}\.\d{1,2}\s+\/\d{1,3}\.\d{1,2}\s+B:\d{1,3}\.\d{1,2}\s+\/\d{1,3}\.\d{1,2}/;
       let rgx_rtemp_e  = /^T:\d{1,3}\.\d{1,2}\s+\/\d{1,3}\.\d{1,2}/;
-      
+
       if(rgx_rtemp_eb.test(msg) || rgx_rtemp_e.test(msg)){
         jsLog.Verbose("Extruder temperatore report: "+msg);
         msg = msg.replace(/\//g,"");
         let tarr = msg.split(/\s/);
         WmCharts.SetTempReport(tarr);
         li.Text = "Temp report: "+msg;
-      } 
+      }
       else { li.Text = msg; }
     }
     jsLog.Verbose(li.ToString());
@@ -204,15 +204,15 @@ class wmTools {
       for (let [k, v] of Object.entries(obj)) { rt += `${k}=${v};`; }
       return rt;
     } else {
-      return obj; 
+      return obj;
     }
   }
   static StringFormat() {
     var args = Array.prototype.slice.call(arguments, 1);
     return arguments[0].replace(/\{(\d+)\}/g, function (match, index) { return args[index]; });
   }
-  static StringFormatJson(str) { 
-    return JSON.stringify(str); 
+  static StringFormatJson(str) {
+    return JSON.stringify(str);
   }
   static StringFormatCsv(obj) {
     let rt = "";
@@ -243,7 +243,7 @@ class wmTools {
     unsafe = unsafe.replace(/"/g, "&quot;");
     unsafe = unsafe.replace(/'/g, "&#039;");
     return unsafe;
-  }  
+  }
   static GetDateTime() {
     var dt = new Date();
     var hr = dt.getHours() < 10 ? "0" + dt.getHours() : dt.getHours();
@@ -251,7 +251,7 @@ class wmTools {
     var sc = dt.getSeconds() < 10 ? "0" + dt.getSeconds() : dt.getSeconds();
     return hr + ":" + mn + ":" + sc;
   }
-  static GetBrowser() { 
+  static GetBrowser() {
     return $.browser.name+" v"+$.browser.versionNumber+" on "+$.browser.platform;
   }
   static GetScreenSize() {
@@ -263,8 +263,8 @@ class wmTools {
   static GetNumPercent(p,n) {
      return (p / 100) * n;
   }
-  static GetPercentage(p,n) { 
-     return (p * 100) / n;  
+  static GetPercentage(p,n) {
+     return (p * 100) / n;
   }
   static FormatNumber(v,d) {
     v = parseFloat(v);
@@ -310,9 +310,9 @@ class wmCookie {
     if(wmCookie.CheckBrowser()===true) {
       jsLog.Debug("Cookies supported. Looking for custom settings");
       var cStr = wmCookie.Read("E4dWUI");
-      if(cStr === null){ 
+      if(cStr === null){
         jsLog.Verbose("No settings cookie found. Define defaults");
-        wmCookie.Write(JSON.stringify(wmSettings)); 
+        wmCookie.Write(JSON.stringify(wmSettings));
       } else {
         jsLog.Debug("Settings cookie found. Loading customized settings");
         var cv = JSON.parse(cStr);
@@ -324,27 +324,27 @@ class wmCookie {
         jsLog.Verbose("Customized cookie stored settings loaded");
         jsLog.Verbose(wmTools.Stringfy(wmSettings));
       }
-    } else { 
-      jsLog.Warning("Cookies are not supported by the browser. Use default settings"); 
+    } else {
+      jsLog.Warning("Cookies are not supported by the browser. Use default settings");
     }
   }
 }
 
 class jsLog {
   static Info(logmsg) {
-    if(wmSettings.LogLevel >= wmEnums.LogLevels.INFO) { console.log("[INFO   ] "+logmsg); } 
-  } 
-  static Warning(logmsg) { 
-    if(wmSettings.LogLevel >= wmEnums.LogLevels.WARNING) { console.log("[WARN   ] "+logmsg); } 
-  } 
-  static Error(logmsg) { 
-    if(wmSettings.LogLevel >= wmEnums.LogLevels.ERROR)   { console.log("[ERROR  ] "+logmsg); }
-  } 
-  static Debug(logmsg) { 
-    if(wmSettings.LogLevel >= wmEnums.LogLevels.DEBUG)   { console.log("[DEBUG  ] "+logmsg); } 
-  } 
-  static Verbose(logmsg) { 
-    if(wmSettings.LogLevel >= wmEnums.LogLevels.VERBOSE) { console.log("[VERBOSE] "+logmsg); } 
+    if (wmSettings.LogLevel >= wmEnums.LogLevels.INFO) { console.log("[INFO   ] "+logmsg); }
+  }
+  static Warning(logmsg) {
+    if (wmSettings.LogLevel >= wmEnums.LogLevels.WARNING) { console.log("[WARN   ] "+logmsg); }
+  }
+  static Error(logmsg) {
+    if (wmSettings.LogLevel >= wmEnums.LogLevels.ERROR)   { console.log("[ERROR  ] "+logmsg); }
+  }
+  static Debug(logmsg) {
+    if (wmSettings.LogLevel >= wmEnums.LogLevels.DEBUG)   { console.log("[DEBUG  ] "+logmsg); }
+  }
+  static Verbose(logmsg) {
+    if (wmSettings.LogLevel >= wmEnums.LogLevels.VERBOSE) { console.log("[VERBOSE] "+logmsg); }
   }
 }
 
@@ -377,7 +377,7 @@ var wmGCommands = {
   SdFileStop    : new wmGCommandItem('M29',null,null,'Stop SD write'),
   SdFileDel     : new wmGCommandItem('M30','{0}','','Delete an SD file'),
   PrintTime     : new wmGCommandItem('M31',null,null,'Print time'),
-  FanOn         : new wmGCommandItem('M106','S{0}',128,'Set fan on with speed'), 
+  FanOn         : new wmGCommandItem('M106','S{0}',128,'Set fan on with speed'),
   FanOff        : new wmGCommandItem('M107',null,null,'Set fan off'),
   GetPosition   : new wmGCommandItem('M114',null,null,'Get Current Position'),
   FWInfo        : new wmGCommandItem('M115',null,null,'Get firmware info',false),

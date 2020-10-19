@@ -1,6 +1,6 @@
 var wmLogBuffer = new Array();
-var wmSdListCounter = { 
-  FILES:0, 
+var wmSdListCounter = {
+  FILES:0,
   FOLDERS:0,
   Reset: function() {
     wmSdListCounter.FILES = 0;
@@ -21,7 +21,7 @@ var WmButtonGroups = {
   Move: ["#btn-move-xl","#btn-move-xr","#btn-move-yf","#btn-move-yb","#btn-move-zu","#btn-move-zd"],
   StepperAll: ["#set-stepper-all","#set-stepper-x","#set-stepper-y","#set-stepper-z","#set-stepper-e"],
   Stepper: ["#set-stepper-x","#set-stepper-y","#set-stepper-z","#set-stepper-e"],
-  
+
   All: function() {
     let all = [];
     all = all.concat(
@@ -69,22 +69,22 @@ var wmWebSoket = {
       }
     }
     catch (exception) {
-      jsLog.Error("WebSocket: Exception: "+exception); 
+      jsLog.Error("WebSocket: Exception: "+exception);
       wmWebSoket.SetWsStatusBar(wmWebSoket.WSObject.readyState);
       WmConsole.Trace(new wmLogItem("WebSocket: Connection exception", wmEnums.WSMsgDirection.RECEIVED, wmEnums.ConsoleLevels.ERROR));
     }
   },
   Disconnect: function() {
-    try { 
+    try {
       if(wmWebSoket.WSObject !== null && wmWebSoket.WSObject.readyState === wmEnums.WSSatuses.OPEN) {
         jsLog.Debug("WebSocket: Disconnecting from "+wmSettings.WsUrl);
         WmConsole.Trace(new wmLogItem("WebSoket disconnecting...", wmEnums.WSMsgDirection.SENT, wmEnums.ConsoleLevels.INFO));
         wmWebSoket.WSObject.close();
         wmWebSoket.WSObject = null;
       }
-    } 
+    }
     catch (exception) {
-      jsLog.Error("WebSocket: Exception: "+exception); 
+      jsLog.Error("WebSocket: Exception: "+exception);
       wmWebSoket.SetWsStatusBar(wmWebSoket.WSObject.readyState);
       WmConsole.Trace(new wmLogItem("WebSoket connection exception", wmEnums.WSMsgDirection.RECEIVED, wmEnums.ConsoleLevels.ERROR));
     }
@@ -108,7 +108,7 @@ var wmWebSoket = {
     } else { $('#modal-connect').modal('show'); }
   },
   OnMessage: function(mdt) {
-    if(mdt === "") { jsLog.Debug("WSMessage match: Empty message (skipped)"); } 
+    if(mdt === "") { jsLog.Debug("WSMessage match: Empty message (skipped)"); }
     else {
       let litem = wmLogItem.ParseWsMessage(mdt);
       WmConsole.Trace(litem);
@@ -178,7 +178,7 @@ var WmUpload = {
         $('#div-upload-fname').html(WmUpload.FileName);
         if(!$('#upload-process-collapse').hasClass("show")){ $('#upload-process-collapse').collapse('show'); }
       };
-      WmUpload.Reader.onload = function(e) { 
+      WmUpload.Reader.onload = function(e) {
         jsLog.Debug("File uploading completed");
         WmUpload.FileSize = e.loaded;
         WmUpload.FileContent = e.target.result.split("\n");
@@ -187,7 +187,7 @@ var WmUpload = {
         $('#div-upload-fproc').html(wmTools.FormatNumber(WmUpload.FileContent.length,0));
         WmControls.Enable(WmButtonGroups.FileProcess);
         WmUpload.FileProgress(0,"Ready to process...");
-        
+
       };
       WmUpload.Reader.onloadend = function(e) {
         jsLog.Debug("File uploading finished");
@@ -195,7 +195,7 @@ var WmUpload = {
       };
       WmUpload.Reader.readAsText(tfile);
       return true;
-    } else { 
+    } else {
       WmControls.ShowModalAlert('Please select the upload file before continuing');
       WmControls.Enable(WmButtonGroups.FileManagement,WmButtonGroups.FileActions);
       return false;
@@ -225,15 +225,15 @@ var WmUpload = {
     var i = 0;
     var n = 1;
     (function pgline() {
-      if(WmUpload.Cancelled){ 
+      if(WmUpload.Cancelled){
         wmWebSoket.Send(wmGCommands.SdFileStop);
-        return; 
-      } 
-      else if(!WmUpload.ReadyToWrite){ 
+        return;
+      }
+      else if(!WmUpload.ReadyToWrite){
         jsLog.Debug("WmUpload.FileProcess: Waiting ready to write...");
         WmUpload.FileProgress(0,"Waiting ready to write...");
-        setTimeout(pgline, 500); 
-      } 
+        setTimeout(pgline, 500);
+      }
       else {
         let p = wmTools.GetPercentage(i+1,fl);
         WmUpload.FileProgress(p,"Analyzing line "+(i+1)+" of "+fl);
@@ -253,8 +253,8 @@ var WmUpload = {
           n++;
         }
         i++;
-        if (i < fl) { setTimeout(pgline, 10); } 
-        else { 
+        if (i < fl) { setTimeout(pgline, 10); }
+        else {
           WmUpload.FileProgress(100,"GCode Analysis completed!");
           WmUpload.ReadyToWrite = false;
           wmWebSoket.Send(wmGCommands.SdFileStop);
@@ -288,8 +288,8 @@ var WmButtons = {
     $('#div-sdfile-delete-rs').collapse('show');
     wmGCommands.SdFileDel.GParams = $("#txt-sdfile-selected").val();
     wmWebSoket.Send(wmGCommands.SdFileDel);
-    setTimeout(function(){ 
-      $('#modal-sdfile-delete').modal('hide'); 
+    setTimeout(function(){
+      $('#modal-sdfile-delete').modal('hide');
       $('#div-sdfile-delete-rs').collapse('hide');
       WmButtons.GetSdContentList();
     }, 2000);
@@ -315,8 +315,8 @@ var WmButtons = {
     $('#div-sdfile-print-rs').collapse('show');
     wmGCommands.SdFilePrint.GParams = $("#txt-sdfile-selected").val();
     wmWebSoket.Send(wmGCommands.SdFilePrint);
-    setTimeout(function(){ 
-      $('#modal-sdfile-print').modal('hide'); 
+    setTimeout(function(){
+      $('#modal-sdfile-print').modal('hide');
       $('#div-sdfile-print-rs').collapse('hide');
       WmAutostart.SetShownPanel(wmEnums.Panels.STATUS);
     }, 2000);
@@ -329,14 +329,14 @@ var WmButtons = {
     wmSettings.LogLevel = parseInt($('#set-log-level').val());
     wmSettings.SymbolMode = $('#set-log-symbol').val();
     wmSettings.AutoTempInterval = $('#set-default-autotemp').val();
-    if($('#set-default-tempunit').val()===0) { wmSettings.TempUnit = wmEnums.TempUnits.CELSIUS; } 
-    else if($('#set-default-tempunit').val()===1) { wmSettings.TempUnit = wmEnums.TempUnits.FAHRENHEIT; } 
+    if($('#set-default-tempunit').val()===0) { wmSettings.TempUnit = wmEnums.TempUnits.CELSIUS; }
+    else if($('#set-default-tempunit').val()===1) { wmSettings.TempUnit = wmEnums.TempUnits.FAHRENHEIT; }
     else if( $('#set-default-tempunit').val()===2) { wmSettings.TempUnit = wmEnums.TempUnits.KELVIN; }
-    
-    if(wmSettings.SymbolMode==='letter') {  
+
+    if (wmSettings.SymbolMode==='letter') {
       wmSettings.SymbolSend = wmEnums.WsMsgSymbols.SENT.LETTER;
       wmSettings.SymbolReceive = wmEnums.WsMsgSymbols.RECEIVED.LETTER;
-    } else {  
+    } else {
       wmSettings.SymbolSend = $('#div-log-symbol-icon-sample-s').html();
       wmSettings.SymbolReceive = $('#div-log-symbol-icon-sample-r').html();
     }
@@ -347,8 +347,8 @@ var WmButtons = {
     }
     wmCookie.Write(wmTools.StringFormatJson(wmSettings));
     $('#div-save-setting-rs').collapse('show');
-    setTimeout(function(){ 
-      $('#modal-settings').modal('hide'); 
+    setTimeout(function(){
+      $('#modal-settings').modal('hide');
       $('#div-save-setting-rs').collapse('hide');
       WmControls.Enable(['#btn-save-settings','#btn-close-settings']);
     }, 2000);
@@ -420,9 +420,9 @@ var WmButtons = {
         WmControls.Enable(WmButtonGroups.FileManagement,WmButtonGroups.FileActions);
     } else {
       jsLog.Debug("Starting upload file process");
-      if(WmUpload.Load()) { jsLog.Debug("Upload completed"); } 
-      else { 
-        jsLog.Error("Upload failed"); 
+      if(WmUpload.Load()) { jsLog.Debug("Upload completed"); }
+      else {
+        jsLog.Error("Upload failed");
         WmControls.Enable(WmButtonGroups.FileManagement,WmButtonGroups.FileActions);
       }
     }
@@ -451,7 +451,7 @@ var WmControls = {
     } else { jsLog.Warning("WmControls.Disable: Missing input arguments"); }
   },
   SetInputStatus(inid,st) {
-    if($(inid).attr("data-input-type")==="togglebtn"){ 
+    if($(inid).attr("data-input-type")==="togglebtn"){
       if(st==="enabled") { $(inid).bootstrapToggle('enable'); } else { $(inid).bootstrapToggle('disable'); }
     } else {
       if(st==="enabled") { $(inid).prop("disabled", false); } else { $(inid).prop("disabled", true); }
@@ -476,7 +476,7 @@ var WmControls = {
   SetAutoTemp: function() {
     if($('#set-auto-temp').prop('checked')) {
       wmGCommands.SetTempOn.GParams = "S"+$('#auto-temp-interval').val();
-      wmWebSoket.Send(wmGCommands.SetTempOn); 
+      wmWebSoket.Send(wmGCommands.SetTempOn);
     } else { wmWebSoket.Send(wmGCommands.SetTempOff); }
   },
   SetFanSpeed: function(rv) {
@@ -485,8 +485,8 @@ var WmControls = {
     let fsv = wmTools.FormatNumber(wmTools.GetNumPercent(rv,255),0);
     $('#div-fan-speed-current').html(rv+"%<span class='badge badge-success ml-1'>"+fsv+"</span>");
     $('#div-fan-speed-set').html(rv+"%<span class='badge badge-success ml-1'>"+fsv+"</span>");
-    if(rv===0) { wmWebSoket.Send(wmGCommands.FanOff); } 
-    else { 
+    if(rv===0) { wmWebSoket.Send(wmGCommands.FanOff); }
+    else {
       wmGCommands.FanOn.GParams = "S"+fsv;
       wmWebSoket.Send(wmGCommands.FanOn);
     }
@@ -521,7 +521,7 @@ var WmControls = {
     }
   },
   SetSteppers: function(o) {
-    if(o.id==="set-stepper-all") {  
+    if(o.id==="set-stepper-all") {
       WmControls.SetCheckStatus(WmButtonGroups.Stepper,o.checked);
       if(o.checked) { wmWebSoket.Send(wmGCommands.StepEnableAll); } else { wmWebSoket.Send(wmGCommands.StepDisableAll); }
     } else {
@@ -539,17 +539,17 @@ var WmChartsData = {
     TimeFormat: 'HH:mm:ss',
     Speed: 1000,
     Scale: 1,
-    Extruder: { 
-      Label: "Extruder", 
-      BorderColor: wmColors.RedCoral, 
-      BgColor: wmColors.RedCoral, 
-      Data:[] 
+    Extruder: {
+      Label: "Extruder",
+      BorderColor: wmColors.RedCoral,
+      BgColor: wmColors.RedCoral,
+      Data:[]
     },
-    Bed: { 
-      Label: "Bed", 
-      BorderColor: wmColors.Blue, 
-      BgColor: wmColors.Blue, 
-      Data:[] 
+    Bed: {
+      Label: "Bed",
+      BorderColor: wmColors.Blue,
+      BgColor: wmColors.Blue,
+      Data:[]
     },
     AddEmpty: function(arr, n) {
       for(var i = 0; i < n; i++) {
@@ -591,7 +591,7 @@ var WmCharts = {
     CanvasItem: null,
     Config: {
       type: 'line',
-      data: { 
+      data: {
         datasets: [{
           label: WmChartsData.Temperatures.Extruder.Label,
           data: WmChartsData.Temperatures.Extruder.Data,
@@ -610,10 +610,10 @@ var WmCharts = {
           pointRadius: 1.5
         }]
       },
-      options: { 
+      options: {
         responsive: true,
         animation: { duration: WmChartsData.Temperatures.Speed * 1.5, easing:'linear' },
-        scales: { 
+        scales: {
           xAxes: [{ type:'time', time:{ displayFormats: { second: 'HH:mm:ss'} }, scaleLabel: { display: false } }],
           yAxes: [{ ticks: { min: 0} }]
         }
@@ -649,8 +649,8 @@ var WmCharts = {
         legend: { display: false },
         tooltips: { enabled: false },
         title: { display: false },
-        animation: { 
-          animateScale: true, 
+        animation: {
+          animateScale: true,
           animateRotate: true,
           onComplete: function () {
             var ctx = this.chart.ctx;
@@ -675,13 +675,13 @@ var WmCharts = {
     WmCharts.FanSpeed.CanvasItem = new Chart(document.getElementById('chart-fanspeed'), WmCharts.FanSpeed.Config);
   },
   Advance: function() {
-    if (WmChartsData.Temperatures.Extruder.Data[0] !== null && WmChartsData.Temperatures.Extruder.Scale < 4) { WmCharts.Temperatures.CanvasItem.update(); } 
+    if (WmChartsData.Temperatures.Extruder.Data[0] !== null && WmChartsData.Temperatures.Extruder.Scale < 4) { WmCharts.Temperatures.CanvasItem.update(); }
     WmCharts.Temperatures.CanvasItem.update();
   },
   SetTempReport: function(tr) {
-    let temps = { 
-      ExtruderTemp: tr[0].replace(/T:/,""), 
-      ExtruderSet: tr[1], 
+    let temps = {
+      ExtruderTemp: tr[0].replace(/T:/,""),
+      ExtruderSet: tr[1],
       BedTemp: tr[2]==="undefined" ? null : tr[2].replace(/B:/,""),
       BedSet: tr[3]==="undefined" ? null : tr[3]
     };
@@ -705,13 +705,13 @@ var WmConsole = {
     wmTools.FileDownload("e4dbox_log.csv", "text/csv;charset=utf-8", fdt);
   },
   SetMessageSymbol: function() {
-    if($('#set-log-symbol').val()==="icon") { 
+    if($('#set-log-symbol').val()==="icon") {
       jsLog.Verbose("Set message symbol icon collapse panel to 'show'",this);
       WmConsole.SetSymbolIcon();
-      $('#div-log-symbol-icon').collapse('show'); 
-    } else { 
+      $('#div-log-symbol-icon').collapse('show');
+    } else {
       jsLog.Verbose("Set message symbol icon collapse panel to 'hide'",this);
-      $('#div-log-symbol-icon').collapse('hide'); 
+      $('#div-log-symbol-icon').collapse('hide');
     }
   },
   SetSymbolIcon: function() {
@@ -733,7 +733,7 @@ var WmConsole = {
   },
   TraceSdFile: function(litem) {
     if(litem.SdFile === "Begin file list") { wmSdListCounter.Reset(); }
-    if(litem.SdFile !== "Begin file list" && litem.SdFile !== "End file list") { 
+    if(litem.SdFile !== "Begin file list" && litem.SdFile !== "End file list") {
       wmSdListCounter.FILES++;
       if(litem.SdFile.indexOf("/")>-1) { wmSdListCounter.FOLDERS++; }
     }
@@ -791,15 +791,15 @@ var WmAutostart = {
     $('#set-default-autotemp').val(wmSettings.AutoTempInterval);
     $('#set-default-tempunit').val(wmSettings.TempUnit.VALUE);
     $('#set-log-level').val(wmSettings.LogLevel);
-    if(wmSettings.ConsoleDirection===wmEnums.ConsoleDirection.APPEND) { 
+    if (wmSettings.ConsoleDirection===wmEnums.ConsoleDirection.APPEND) {
       $('#set-trace-mode-prepend').prop('checked',false);
-      $('#set-trace-mode-append').prop('checked',true); 
-    } else { 
-      $('#set-trace-mode-append').prop('checked',false); 
+      $('#set-trace-mode-append').prop('checked',true);
+    } else {
+      $('#set-trace-mode-append').prop('checked',false);
       $('#set-trace-mode-prepend').prop('checked',true);
     }
     $('#set-log-symbol').val(wmSettings.SymbolMode);
-    if(wmSettings.SymbolMode==='letter') { $('#div-log-symbol-icon').collapse('hide'); } 
+    if (wmSettings.SymbolMode==='letter') { $('#div-log-symbol-icon').collapse('hide'); }
     else { $('#div-log-symbol-icon').collapse('show'); SetConsoleSymbolIcon(); }
   },
   SetAutotempDefault: function() {
@@ -815,13 +815,13 @@ $(document).ready(function () {
   });
   jsLog.Debug("Browser in use: "+wmTools.GetBrowser());
   jsLog.Debug("Browser sizes: "+wmTools.GetScreenSize());
-  
+
   // AutoStar Actions
   WmAutostart.SetWmSettingsControls();
   WmAutostart.SetDefaultPanel();
   WmAutostart.SetGCommandPresetList();
   WmAutostart.SetAutotempDefault();
-  
+
   // EVENTS: Buttons
   $('#btn-clear-console').click(function() { WmButtons.ConsoleListClear(); });
   $('#btn-export-console').click(function() { WmButtons.ConsoleListExport(); });
@@ -858,16 +858,14 @@ $(document).ready(function () {
   $('#set-stepper-x').change( function() { WmControls.SetSteppers(this); });
   $('#set-stepper-y').change( function() { WmControls.SetSteppers(this); });
   $('#set-stepper-z').change( function() { WmControls.SetSteppers(this); });
-  
+
   // Autorun onload
   WmConsole.Trace(new wmLogItem("Ready", wmEnums.WSMsgDirection.SENT, wmEnums.ConsoleLevels.SUCCESS));
-  if(wmSettings.AutoConnect===true) { wmWebSoket.Connect(); }
-  window.onload = function() { 
+  if (wmSettings.AutoConnect===true) { wmWebSoket.Connect(); }
+  window.onload = function() {
     WmCharts.Init();
     WmCharts.Advance();
   };
-  
-  
-  
+
   WmControls.Enable(WmButtonGroups.All());
 });

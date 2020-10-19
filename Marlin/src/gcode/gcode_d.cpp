@@ -131,7 +131,7 @@
             SERIAL_EOL();
           }
         } break;
-      #endif      
+      #endif
 
       case 4: { // D4 Read / Write PIN
         // const uint8_t pin = parser.byteval('P');
