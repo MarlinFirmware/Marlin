@@ -2285,9 +2285,8 @@ void MarlinSettings::postprocess() {
       // Ethernet network info
       //
       #if HAS_ETHERNET
-        uint32_t ethernet_ip, ethernet_dns, ethernet_gateway, ethernet_subnet;
-
         _FIELD_TEST(ethernet_hardware_enabled);
+        uint32_t ethernet_ip, ethernet_dns, ethernet_gateway, ethernet_subnet;
         EEPROM_READ(ethernet.hardware_enabled);
         EEPROM_READ(ethernet_ip);      ethernet.ip      = ethernet_ip;
         EEPROM_READ(ethernet_dns);     ethernet.myDns   = ethernet_dns;
