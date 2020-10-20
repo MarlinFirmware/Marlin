@@ -39,6 +39,10 @@ GCodeQueue queue;
   #include "../feature/leds/printer_event_leds.h"
 #endif
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 #if ENABLED(BINARY_FILE_TRANSFER)
   #include "../feature/binary_stream.h"
 #endif
@@ -315,7 +319,7 @@ inline bool serial_data_available() {
   byte data_available = 0;
   if (MYSERIAL0.available()) data_available++;
   #ifdef SERIAL_PORT_2
-    const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client);
+    const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
     if (port2_open && MYSERIAL1.available()) data_available++;
   #endif
   return data_available > 0;
@@ -326,7 +330,7 @@ inline int read_serial(const uint8_t index) {
     case 0: return MYSERIAL0.read();
     case 1: {
       #if HAS_MULTI_SERIAL
-        const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client);
+        const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
         if (port2_open) return MYSERIAL1.read();
       #endif
     }

@@ -27,11 +27,13 @@
 
 // Teensy 4.1 uses internal MAC Address
 
-extern IPAddress ip, myDns, gateway, subnet;
+class MarlinEthernet {
+  public:
+    static bool hardware_enabled, have_telnet_client;
+    static IPAddress ip, myDns, gateway, subnet;
+    static EthernetClient telnetClient;
+    static void init();
+    static void check();
+};
 
-extern bool ethernet_hardware_enabled, have_telnet_client;
-
-extern EthernetClient telnetClient;
-
-void ethernet_init();
-void ethernet_check();
+extern MarlinEthernet ethernet;

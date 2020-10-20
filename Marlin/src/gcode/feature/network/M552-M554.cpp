@@ -32,10 +32,10 @@ void say_ethernet() { SERIAL_ECHOPGM("  Ethernet "); }
 
 void ETH0_report() {
   say_ethernet();
-  SERIAL_ECHO_TERNARY(ethernet_hardware_enabled, "port ", "en", "dis", "abled.\n");
-  if (ethernet_hardware_enabled) {
+  SERIAL_ECHO_TERNARY(ethernet.hardware_enabled, "port ", "en", "dis", "abled.\n");
+  if (ethernet.hardware_enabled) {
     say_ethernet();
-    SERIAL_ECHO_TERNARY(have_telnet_client, "client ", "en", "dis", "abled.\n");
+    SERIAL_ECHO_TERNARY(ethernet.have_telnet_client, "client ", "en", "dis", "abled.\n");
   }
   else
     SERIAL_ECHOLNPGM("Send 'M552 S1' to enable.");
@@ -43,7 +43,7 @@ void ETH0_report() {
 
 void MAC_report() {
   uint8_t mac[6];
-  if (ethernet_hardware_enabled) {
+  if (ethernet.hardware_enabled) {
     Ethernet.MACAddress(mac);
     SERIAL_ECHOPGM("  MAC: ");
     LOOP_L_N(i, 6) {
@@ -67,13 +67,13 @@ void ip_report(const uint16_t cmd, PGM_P const post, const IPAddress &ipo) {
   SERIAL_EOL();
 }
 void M552_report() {
-  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ip);
+  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ethernet.ip);
 }
 void M553_report() {
-  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : subnet);
+  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : ethernet.subnet);
 }
 void M554_report() {
-  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : gateway);
+  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : ethernet.gateway);
 }
 
 /**
@@ -87,17 +87,17 @@ void M554_report() {
  */
 void GcodeSuite::M552() {
   const bool seenP = parser.seenval('P');
-  if (seenP) ip.fromString(parser.value_string());
+  if (seenP) ethernet.ip.fromString(parser.value_string());
 
   const bool seenS = parser.seenval('S');
   if (seenS) {
     switch (parser.value_int()) {
       case -1:
-        if (telnetClient) telnetClient.stop();
-        ethernet_init();
+        if (ethernet.telnetClient) ethernet.telnetClient.stop();
+        ethernet.init();
         break;
-      case 0: ethernet_hardware_enabled = false; break;
-      case 1: ethernet_hardware_enabled = true; break;
+      case 0: ethernet.hardware_enabled = false; break;
+      case 1: ethernet.hardware_enabled = true; break;
       default: break;
     }
   }
@@ -110,7 +110,7 @@ void GcodeSuite::M552() {
  * M553 Pnnn - Set netmask
  */
 void GcodeSuite::M553() {
-  if (parser.seenval('P')) subnet.fromString(parser.value_string());
+  if (parser.seenval('P')) ethernet.subnet.fromString(parser.value_string());
   M553_report();
 }
 
@@ -118,7 +118,7 @@ void GcodeSuite::M553() {
  * M554 Pnnn - Set Gateway
  */
 void GcodeSuite::M554() {
-  if (parser.seenval('P')) gateway.fromString(parser.value_string());
+  if (parser.seenval('P')) ethernet.gateway.fromString(parser.value_string());
   M554_report();
 }
 

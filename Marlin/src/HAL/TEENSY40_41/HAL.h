@@ -67,7 +67,7 @@
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usbSerial
   #elif SERIAL_PORT_2 == -2
-    #define MYSERIAL1 telnetClient
+    #define MYSERIAL1 ethernet.telnetClient
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else

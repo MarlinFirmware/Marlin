@@ -150,6 +150,10 @@
   #include "../lcd/tft/touch.h"
 #endif
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -441,11 +445,11 @@ typedef struct SettingsDataStruct {
 
   // Ethernet settings
   #if HAS_ETHERNET
-    bool use_ethernet;                                  // M552 S
-    uint32_t ip_address,                                // M552 P
-             myDns_address,
-             gateway_address,                           // M553 P
-             subnet_mask;                               // M554 P
+    bool ethernet_hardware_enabled;                     // M552 S
+    uint32_t ethernet_ip,                               // M552 P
+             ethernet_dns,
+             ethernet_gateway,                          // M553 P
+             ethernet_subnet;                           // M554 P
   #endif
 
 } SettingsData;
@@ -607,6 +611,8 @@ void MarlinSettings::postprocess() {
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
+
+    _FIELD_TEST(esteppers);
 
     const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
@@ -1403,17 +1409,17 @@ void MarlinSettings::postprocess() {
     //
     #if HAS_ETHERNET
     {
-      _FIELD_TEST(use_ethernet);
-      const bool use_ethernet = ethernet_hardware_enabled;
-      const uint32_t ip_address      = ip,
-                     myDns_address   = myDns,
-                     gateway_address = gateway,
-                     subnet_mask     = subnet;
-      EEPROM_WRITE(use_ethernet);
-      EEPROM_WRITE(ip_address);
-      EEPROM_WRITE(myDns_address);
-      EEPROM_WRITE(gateway_address);
-      EEPROM_WRITE(subnet_mask);
+      _FIELD_TEST(ethernet_hardware_enabled);
+      const bool ethernet_hardware_enabled = ethernet.hardware_enabled;
+      const uint32_t ethernet_ip      = ethernet.ip,
+                     ethernet_dns     = ethernet.myDns,
+                     ethernet_gateway = ethernet.gateway,
+                     ethernet_subnet  = ethernet.subnet;
+      EEPROM_WRITE(ethernet_hardware_enabled);
+      EEPROM_WRITE(ethernet_ip);
+      EEPROM_WRITE(ethernet_dns);
+      EEPROM_WRITE(ethernet_gateway);
+      EEPROM_WRITE(ethernet_subnet);
     }
     #endif
 
@@ -1504,9 +1510,9 @@ void MarlinSettings::postprocess() {
 
         if (!validating) LOOP_XYZE_N(i) {
           const bool in = (i < esteppers + XYZ);
-            planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
-            planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
-            planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
+          planner.settings.max_acceleration_mm_per_s2[i] = in ? tmp1[i] : pgm_read_dword(&_DMA[ALIM(i, _DMA)]);
+          planner.settings.axis_steps_per_mm[i]          = in ? tmp2[i] : pgm_read_float(&_DASU[ALIM(i, _DASU)]);
+          planner.settings.max_feedrate_mm_s[i]          = in ? tmp3[i] : pgm_read_float(&_DMF[ALIM(i, _DMF)]);
         }
 
         EEPROM_READ(planner.settings.acceleration);
@@ -2279,14 +2285,14 @@ void MarlinSettings::postprocess() {
       // Ethernet network info
       //
       #if HAS_ETHERNET
-        uint32_t ip_address, myDns_address, gateway_address, subnet_mask;
+        uint32_t ethernet_ip, ethernet_dns, ethernet_gateway, ethernet_subnet;
 
-        _FIELD_TEST(use_ethernet);
-        EEPROM_READ(ethernet_hardware_enabled);
-        EEPROM_READ(ip_address);      ip = ip_address;
-        EEPROM_READ(myDns_address);   myDns = myDns_address;
-        EEPROM_READ(gateway_address); gateway = gateway_address;
-        EEPROM_READ(subnet_mask);     subnet = subnet_mask;
+        _FIELD_TEST(ethernet_hardware_enabled);
+        EEPROM_READ(ethernet.hardware_enabled);
+        EEPROM_READ(ethernet_ip);      ethernet.ip      = ethernet_ip;
+        EEPROM_READ(ethernet_dns);     ethernet.myDns   = ethernet_dns;
+        EEPROM_READ(ethernet_gateway); ethernet.gateway = ethernet_gateway;
+        EEPROM_READ(ethernet_subnet);  ethernet.subnet  = ethernet_subnet;
       #endif
 
       //

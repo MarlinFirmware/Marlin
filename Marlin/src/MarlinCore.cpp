@@ -77,6 +77,10 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
+#if HAS_ETHERNET
+  #include "feature/ethernet.h"
+#endif
+
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #include "libs/BL24CXX.h"
 #endif
@@ -714,7 +718,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #endif
 
   // Check network connection
-  TERN_(HAS_ETHERNET, ethernet_check());
+  TERN_(HAS_ETHERNET, ethernet.check());
 
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
@@ -1094,7 +1098,7 @@ void setup() {
                                       // This also updates variables in the planner, elsewhere
 
   #if HAS_ETHERNET
-    SETUP_RUN(ethernet_init());
+    SETUP_RUN(ethernet.init());
   #endif
 
   #if HAS_TOUCH_XPT2046

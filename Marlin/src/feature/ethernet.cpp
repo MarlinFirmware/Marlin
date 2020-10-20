@@ -30,11 +30,21 @@
 #define DEBUG_OUT ENABLED(DEBUG_ETHERNET)
 #include "../core/debug_out.h"
 
+bool MarlinEthernet::hardware_enabled, // = false
+     MarlinEthernet::have_telnet_client; // = false
+
+IPAddress MarlinEthernet::ip,
+          MarlinEthernet::myDns,
+          MarlinEthernet::gateway,
+          MarlinEthernet::subnet;
+
+EthernetClient  MarlinEthernet::telnetClient;  // connected client
+
+MarlinEthernet ethernet;
+
 EthernetServer server(23);    // telnet server
 
-EthernetClient telnetClient;  // connected client
-
-enum linkStates {UNLINKED, LINKING, LINKED, CONNECTING, CONNECTED, NO_HARDWARE} linkState;
+enum linkStates { UNLINKED, LINKING, LINKED, CONNECTING, CONNECTED, NO_HARDWARE } linkState;
 
 #ifdef __IMXRT1062__
 
@@ -54,15 +64,10 @@ enum linkStates {UNLINKED, LINKING, LINKED, CONNECTING, CONNECTED, NO_HARDWARE} 
 
 #endif
 
-IPAddress ip, myDns, gateway, subnet;
-
-bool ethernet_hardware_enabled = false; // from EEPROM
-bool have_telnet_client = false;
-
 void ethernet_cable_error() { SERIAL_ERROR_MSG("Ethernet cable is not connected."); }
 
-void ethernet_init() {
-  if (!ethernet_hardware_enabled) return;
+void MarlinEthernet::init() {
+  if (!hardware_enabled) return;
 
   SERIAL_ECHO_MSG("Starting network...");
 
@@ -100,8 +105,8 @@ void ethernet_init() {
     ethernet_cable_error();
 }
 
-void ethernet_check() {
-  if (!ethernet_hardware_enabled) return;
+void MarlinEthernet::check() {
+  if (!hardware_enabled) return;
 
   switch (linkState) {
     case NO_HARDWARE:
