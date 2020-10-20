@@ -28,72 +28,82 @@
 #include "../../../core/serial.h"
 #include "../../gcode.h"
 
+void say_ethernet() { SERIAL_ECHOPGM("  Ethernet "); }
+
 void ETH0_report() {
-  SERIAL_ECHO_TERNARY(ethernet_hardware_enabled, "  Ethernet port ", "en", "dis", "abled.\n");
-  if (!ethernet_hardware_enabled) SERIAL_ECHOLNPGM("Send 'M552 S1' to enable.");
-  SERIAL_ECHO_TERNARY(have_telnet_client, "  Ethernet client ", "en", "dis", "abled.\n");
+  say_ethernet();
+  SERIAL_ECHO_TERNARY(ethernet_hardware_enabled, "port ", "en", "dis", "abled.\n");
+  if (ethernet_hardware_enabled) {
+    say_ethernet();
+    SERIAL_ECHO_TERNARY(have_telnet_client, "client ", "en", "dis", "abled.\n");
+  }
+  else
+    SERIAL_ECHOLNPGM("Send 'M552 S1' to enable.");
 }
 
 void MAC_report() {
   uint8_t mac[6];
   if (ethernet_hardware_enabled) {
     Ethernet.MACAddress(mac);
-    SERIAL_ECHOPGM("MAC: ");
-    LOOP_LE_N(i, 5) SERIAL_PRINTF("%02X:", mac[i]);
-    SERIAL_PRINTF("%02X", mac[5]);
+    SERIAL_ECHOPGM("  MAC: ");
+    LOOP_L_N(i, 6) {
+      SERIAL_PRINTF("%02X", mac[i]);
+      if (i < 5) SERIAL_CHAR(':');
+    }
   }
   SERIAL_EOL();
 }
 
+// Display current values when the link is active,
+// otherwise show the stored values
+void ip_report(const uint16_t cmd, PGM_P const post, const IPAddress &ipo) {
+  SERIAL_CHAR('M'); SERIAL_ECHO(cmd); SERIAL_CHAR(' ');
+  LOOP_L_N(i, 4) {
+    SERIAL_ECHO(ipo[i]);
+    if (i < 3) SERIAL_CHAR('.');
+  }
+  SERIAL_ECHOPGM(" ; ");
+  SERIAL_ECHOPGM_P(post);
+  SERIAL_EOL();
+}
 void M552_report() {
-  IPAddress thisip;
-  if (Ethernet.linkStatus() == LinkON)
-    thisip = Ethernet.localIP();  // Display current value if link is active
-  else
-    thisip = ip;                  // Otherwise show the EEPROM value
-
-  SERIAL_ECHOLNPAIR("ip address: ", thisip[0], ".", thisip[1], ".", thisip[2], ".", thisip[3]);
+  ip_report(552, PSTR("ip address"), Ethernet.linkStatus() == LinkON ? Ethernet.localIP() : ip);
 }
 void M553_report() {
-  IPAddress thisip;
-  if (Ethernet.linkStatus() == LinkON)
-    thisip = Ethernet.subnetMask();
-  else
-    thisip = subnet;
-
-  SERIAL_ECHOLNPAIR("subnet mask: ", thisip[0], ".", thisip[1], ".", thisip[2], ".", thisip[3]);
+  ip_report(553, PSTR("subnet mask"), Ethernet.linkStatus() == LinkON ? Ethernet.subnetMask() : subnet);
 }
 void M554_report() {
-  IPAddress thisip;
-  if (Ethernet.linkStatus() == LinkON)
-    thisip = Ethernet.gatewayIP();
-  else
-    thisip = gateway;
-
-  SERIAL_ECHOLNPAIR("gateway address: ", thisip[0], ".", thisip[1], ".", thisip[2], ".", thisip[3]);
+  ip_report(554, PSTR("gateway"), Ethernet.linkStatus() == LinkON ? Ethernet.gatewayIP() : gateway);
 }
 
 /**
  * M552: Set IP address, enable/disable network interface
  *
- *  Pnnn : Set IP address, 0.0.0.0 means acquire an IP address using DHCP
  *  S0   : disable networking
  *  S1   : enable networking
  *  S-1  : reset network interface
+ *
+ *  Pnnn : Set IP address, 0.0.0.0 means acquire an IP address using DHCP
  */
 void GcodeSuite::M552() {
-  if (parser.seenval('P')) ip.fromString(parser.value_string());
-  M552_report();
-  if (parser.seenval('S')) switch (parser.value_int()) {
-    case -1:
-      if (telnetClient) telnetClient.stop();
-      ethernet_init();
-      break;
-    case 0: ethernet_hardware_enabled = false; break;
-    case 1: ethernet_hardware_enabled = true; break;
-    default: break;
+  const bool seenP = parser.seenval('P');
+  if (seenP) ip.fromString(parser.value_string());
+
+  const bool seenS = parser.seenval('S');
+  if (seenS) {
+    switch (parser.value_int()) {
+      case -1:
+        if (telnetClient) telnetClient.stop();
+        ethernet_init();
+        break;
+      case 0: ethernet_hardware_enabled = false; break;
+      case 1: ethernet_hardware_enabled = true; break;
+      default: break;
+    }
   }
-  ETH0_report();
+  const bool nopar = !seenS && !seenP
+  if (nopar || seenS) ETH0_report();
+  if (nopar || seenP) M552_report();
 }
 
 /**

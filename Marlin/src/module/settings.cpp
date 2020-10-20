@@ -153,6 +153,7 @@
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
+  void ETH0_report();
   void MAC_report();
   void M552_report();
   void M553_report();
@@ -183,15 +184,6 @@ extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[];
 typedef struct SettingsDataStruct {
   char      version[4];                                 // Vnn\0
   uint16_t  crc;                                        // Data Checksum
-
-  // Ethernet settings
-  #if HAS_ETHERNET
-    bool use_ethernet;                                  // M552 S
-    uint32_t ip_address,                                // M552 P
-             myDns_address,
-             gateway_address,                           // M553 P
-             subnet_mask;                               // M554 P
-  #endif
 
   //
   // DISTINCT_E_FACTORS
@@ -447,6 +439,15 @@ typedef struct SettingsDataStruct {
     touch_calibration_t touch_calibration;
   #endif
 
+  // Ethernet settings
+  #if HAS_ETHERNET
+    bool use_ethernet;                                  // M552 S
+    uint32_t ip_address,                                // M552 P
+             myDns_address,
+             gateway_address,                           // M553 P
+             subnet_mask;                               // M554 P
+  #endif
+
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -606,25 +607,6 @@ void MarlinSettings::postprocess() {
     EEPROM_SKIP(working_crc); // Skip the checksum slot
 
     working_crc = 0; // clear before first "real data"
-
-    //
-    // Ethernet network info
-    //
-    #if HAS_ETHERNET
-    {
-      _FIELD_TEST(use_ethernet);
-      bool use_ethernet = ethernet_hardware_enabled;
-      uint32_t ip_address = ip,
-               myDns_address = myDns,
-               gateway_address = gateway,
-               subnet_mask = subnet;
-      EEPROM_WRITE(use_ethernet);
-      EEPROM_WRITE(ip_address);
-      EEPROM_WRITE(myDns_address);
-      EEPROM_WRITE(gateway_address);
-      EEPROM_WRITE(subnet_mask);
-    }
-    #endif
 
     const uint8_t esteppers = COUNT(planner.settings.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
@@ -1417,7 +1399,26 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Validate CRC and Data Size
+    // Ethernet network info
+    //
+    #if HAS_ETHERNET
+    {
+      _FIELD_TEST(use_ethernet);
+      const bool use_ethernet = ethernet_hardware_enabled;
+      const uint32_t ip_address      = ip,
+                     myDns_address   = myDns,
+                     gateway_address = gateway,
+                     subnet_mask     = subnet;
+      EEPROM_WRITE(use_ethernet);
+      EEPROM_WRITE(ip_address);
+      EEPROM_WRITE(myDns_address);
+      EEPROM_WRITE(gateway_address);
+      EEPROM_WRITE(subnet_mask);
+    }
+    #endif
+
+    //
+    // Report final CRC and Data Size
     //
     if (!eeprom_error) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
@@ -1480,17 +1481,6 @@ void MarlinSettings::postprocess() {
     else {
       float dummyf = 0;
       working_crc = 0;  // Init to 0. Accumulated by EEPROM_READ
-
-      #if HAS_ETHERNET
-        uint32_t ip_address;
-
-        _FIELD_TEST(use_ethernet);
-        EEPROM_READ(ethernet_hardware_enabled);
-        EEPROM_READ(ip_address); ip = ip_address;
-        EEPROM_READ(ip_address); myDns = ip_address;
-        EEPROM_READ(ip_address); gateway = ip_address;
-        EEPROM_READ(ip_address); subnet = ip_address;
-      #endif
 
       _FIELD_TEST(esteppers);
 
@@ -2285,6 +2275,23 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(touch.calibration);
       #endif
 
+      //
+      // Ethernet network info
+      //
+      #if HAS_ETHERNET
+        uint32_t ip_address, myDns_address, gateway_address, subnet_mask;
+
+        _FIELD_TEST(use_ethernet);
+        EEPROM_READ(ethernet_hardware_enabled);
+        EEPROM_READ(ip_address);      ip = ip_address;
+        EEPROM_READ(myDns_address);   myDns = myDns_address;
+        EEPROM_READ(gateway_address); gateway = gateway_address;
+        EEPROM_READ(subnet_mask);     subnet = subnet_mask;
+      #endif
+
+      //
+      // Validate Final Size and CRC
+      //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -2340,7 +2347,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && (DISABLED(EEPROM_BOOT_SILENT) || IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
     #endif
 
     EEPROM_FINISH();
@@ -3830,24 +3837,13 @@ void MarlinSettings::reset() {
     #endif
 
     #if HAS_ETHERNET
-      CONFIG_ECHO_HEADING("Ethernet Settings:");
-      if (!forReplay) {
-        CONFIG_ECHO_START();
-        SERIAL_ECHO_TERNARY(ethernet_hardware_enabled, "  Ethernet ", "en", "dis", "abled.\n");
-      }
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("  ");
-      MAC_report();
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("  M552 ");
-      M552_report();
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("  M553 ");
-      M553_report();
-      CONFIG_ECHO_START();
-      SERIAL_ECHOPGM("  M554 ");
-      M554_report();
-    #endif // ETHERNET
+      CONFIG_ECHO_HEADING("Ethernet:");
+      if (!forReplay) { CONFIG_ECHO_START(); ETH0_report(); }
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
+    #endif
   }
 
 #endif // !DISABLE_M503
