@@ -1209,25 +1209,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
+  #define DEBUG_OUT ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../core/debug_out.h"
+
   bool extruder_migration() {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-          SERIAL_ECHOLN("Migration Source Too Cold");
-        #endif
+        DEBUG_ECHOLNPGM("Migration Source Too Cold");
         return false;
       }
     #endif
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHO_MSG("No Migration Target");
-        SERIAL_ECHO_MSG("Target: ", migration.target,
-                        " Last: ", migration.last,
-                        " Active: ", active_extruder);
-      #endif
+      DEBUG_ECHO_MSG("No Migration Target");
+      DEBUG_ECHO_MSG("Target: ", migration.target, " Last: ", migration.last, " Active: ", active_extruder);
       migration.automode = false;
       return false;
     }
@@ -1237,9 +1234,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     uint8_t migration_extruder = active_extruder;
 
     if (migration.target) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration using fixed target");
-      #endif
+      DEBUG_ECHOLNPGM("Migration using fixed target");
       // Specified target ok?
       const int16_t t = migration.target - 1;
       if (t != active_extruder) migration_extruder = t;
@@ -1248,16 +1243,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       migration_extruder++;
 
     if (migration_extruder == active_extruder) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration source matches active");
-      #endif
+      DEBUG_ECHOLNPGM("Migration source matches active");
       return false;
     }
 
     // Migration begins
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Beginning migration");
-    #endif
+    DEBUG_ECHOLNPGM("Beginning migration");
 
     migration.in_progress = true; // Prevent runout script
     planner.synchronize();
@@ -1303,9 +1294,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Migration Complete");
-    #endif
+    DEBUG_ECHOLNPGM("Migration Complete");
     return true;
   }
 
