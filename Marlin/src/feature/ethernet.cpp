@@ -59,6 +59,8 @@ IPAddress ip, myDns, gateway, subnet;
 bool ethernet_hardware_enabled = false; // from EEPROM
 bool have_telnet_client = false;
 
+void ethernet_cable_error() { SERIAL_ERROR_MSG("Ethernet cable is not connected."); }
+
 void ethernet_init() {
   if (!ethernet_hardware_enabled) return;
 
@@ -87,7 +89,7 @@ void ethernet_init() {
 
   // Check for Ethernet hardware present
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    SERIAL_ERROR_MSG("Ethernet hardware was not found.  Sorry, can't run without hardware. :(");
+    SERIAL_ERROR_MSG("No Ethernet hardware found.");
     linkState = NO_HARDWARE;
     return;
   }
@@ -95,7 +97,7 @@ void ethernet_init() {
   linkState = UNLINKED;
 
   if (Ethernet.linkStatus() == LinkOFF)
-    SERIAL_ERROR_MSG("Ethernet cable is not connected.");
+    ethernet_cable_error();
 }
 
 void ethernet_check() {
@@ -124,7 +126,7 @@ void ethernet_check() {
 
     case LINKED:
       if (Ethernet.linkStatus() == LinkOFF) {
-        SERIAL_ERROR_MSG("Ethernet cable is not connected.");
+        ethernet_cable_error();
         linkState = UNLINKED;
         break;
       }
@@ -155,7 +157,7 @@ void ethernet_check() {
         linkState = LINKED;
       }
       if (Ethernet.linkStatus() == LinkOFF) {
-        SERIAL_ERROR_MSG("Ethernet cable is not connected.");
+        ethernet_cable_error();
         if (telnetClient) telnetClient.stop();
         linkState = UNLINKED;
       }

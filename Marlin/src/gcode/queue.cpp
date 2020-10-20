@@ -325,7 +325,7 @@ inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
     case 1: {
-      #ifdef HAS_MULTI_SERIAL
+      #if HAS_MULTI_SERIAL
         const bool port2_open = TERN1(HAS_ETHERNET, have_telnet_client);
         if (port2_open) return MYSERIAL1.read();
       #endif

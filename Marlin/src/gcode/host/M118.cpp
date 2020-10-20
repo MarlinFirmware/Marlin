@@ -58,7 +58,7 @@ void GcodeSuite::M118() {
       serial_port_index = (
         port == 0 ? SERIAL_BOTH
         : port == 1 ? 0
-        #ifdef HAS_MULTI_SERIAL
+        #if HAS_MULTI_SERIAL
           : port == 2 ? 1
         #endif
         : SERIAL_PORT
