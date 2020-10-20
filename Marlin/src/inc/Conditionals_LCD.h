@@ -778,52 +778,67 @@
   #define HAS_USB_SERIAL 1
 #endif
 
-// Fallback Stepper Driver types
+// Fallback Stepper Driver types that don't depend on Configuration_adv.h
 #ifndef X_DRIVER_TYPE
-  #define X_DRIVER_TYPE A4988
+  #define X_DRIVER_TYPE  A4988
+#endif
+#ifndef X2_DRIVER_TYPE
+  #define X2_DRIVER_TYPE A4988
 #endif
 #ifndef Y_DRIVER_TYPE
-  #define Y_DRIVER_TYPE A4988
+  #define Y_DRIVER_TYPE  A4988
+#endif
+#ifndef Y2_DRIVER_TYPE
+  #define Y2_DRIVER_TYPE A4988
 #endif
 #ifndef Z_DRIVER_TYPE
-  #define Z_DRIVER_TYPE A4988
+  #define Z_DRIVER_TYPE  A4988
 #endif
-#if E_STEPPERS < 1
+#ifndef Z2_DRIVER_TYPE
+  #define Z2_DRIVER_TYPE A4988
+#endif
+#ifndef Z3_DRIVER_TYPE
+  #define Z3_DRIVER_TYPE A4988
+#endif
+#ifndef Z4_DRIVER_TYPE
+  #define Z4_DRIVER_TYPE A4988
+#endif
+#if E_STEPPERS <= 0
   #undef E0_DRIVER_TYPE
 #elif !defined(E0_DRIVER_TYPE)
   #define E0_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 2
+#if E_STEPPERS <= 1
   #undef E1_DRIVER_TYPE
 #elif !defined(E1_DRIVER_TYPE)
   #define E1_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 3
+#if E_STEPPERS <= 2
   #undef E2_DRIVER_TYPE
 #elif !defined(E2_DRIVER_TYPE)
   #define E2_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 4
+#if E_STEPPERS <= 3
   #undef E3_DRIVER_TYPE
 #elif !defined(E3_DRIVER_TYPE)
   #define E3_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 5
+#if E_STEPPERS <= 4
   #undef E4_DRIVER_TYPE
 #elif !defined(E4_DRIVER_TYPE)
   #define E4_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 6
+#if E_STEPPERS <= 5
   #undef E5_DRIVER_TYPE
 #elif !defined(E5_DRIVER_TYPE)
   #define E5_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 7
+#if E_STEPPERS <= 6
   #undef E6_DRIVER_TYPE
 #elif !defined(E6_DRIVER_TYPE)
   #define E6_DRIVER_TYPE A4988
 #endif
-#if E_STEPPERS < 8
+#if E_STEPPERS <= 7
   #undef E7_DRIVER_TYPE
 #elif !defined(E7_DRIVER_TYPE)
   #define E7_DRIVER_TYPE A4988
