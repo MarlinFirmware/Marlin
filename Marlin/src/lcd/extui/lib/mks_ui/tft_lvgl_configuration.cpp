@@ -72,7 +72,7 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
-extern uint8_t gcode_preview_over, flash_preview_begin, default_preview_flg;
+extern bool gcode_preview_over, flash_preview_begin, default_preview_flg;
 
 uint8_t bmp_public_buf[17 * 1024];
 
@@ -192,10 +192,10 @@ void tft_lvgl_init() {
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
-      if (gCfgItems.from_flash_pic == 1)
-        flash_preview_begin = 1;
+      if (gCfgItems.from_flash_pic)
+        flash_preview_begin = true;
       else
-        default_preview_flg = 1;
+        default_preview_flg = true;
 
       uiCfg.print_state = REPRINTING;
 

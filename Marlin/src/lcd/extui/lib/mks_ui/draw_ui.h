@@ -177,7 +177,7 @@ typedef struct {
   uint8_t multiple_language;
   uint8_t language;
   uint8_t leveling_mode;
-  uint8_t from_flash_pic;
+  bool from_flash_pic;
   uint8_t finish_power_off;
   uint8_t pause_reprint;
   uint8_t wifi_mode_sel;

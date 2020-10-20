@@ -40,7 +40,7 @@
 #include "../../../../module/planner.h"
 
 extern uint32_t To_pre_view;
-extern uint8_t flash_preview_begin, default_preview_flg, gcode_preview_over;
+extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void printer_state_polling() {
   if (uiCfg.print_state == PAUSING) {
@@ -240,10 +240,10 @@ void filament_check() {
     stop_print_time();
     uiCfg.print_state = PAUSING;
 
-    if (gCfgItems.from_flash_pic == 1)
-      flash_preview_begin = 1;
+    if (gCfgItems.from_flash_pic)
+      flash_preview_begin = true;
     else
-      default_preview_flg = 1;
+      default_preview_flg = true;
 
     lv_draw_printing();
   }
