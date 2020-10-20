@@ -190,12 +190,12 @@
 // Misc. Functions
 //
 //#define POWER_LOSS_PIN                     PA1   // PW_SO 
-#if ENABLED(BACKUP_POWER_SUPPLY)
+#ifdef BACKUP_POWER_SUPPLY
   #define POWER_LOSS_PIN                     PA2   // PW_DET (UPS) MKSPWC
 #endif
 
 // Enable Power Supply Control
-#if ENABLED(PSU_CONTROL)
+#ifdef PSU_CONTROL
   #define KILL_PIN 			                     PA2   // PW_DET
   #define KILL_PIN_INVERTING 		            true  //
   //#define PS_ON_PIN                          PA3  // PW_CN /PW_OFF
@@ -219,7 +219,7 @@
 //#define LED_PIN                              PB2  //BOOT1
 
 
-#if ENABLED(NEOPIXEL_LED)
+#ifdef NEOPIXEL_LED
   #define LED_PWM                              PA8
   #ifndef NEOPIXEL_PIN
     #define NEOPIXEL_PIN                       PA8  // USED WIFI IO0/IO1/TX/RX PIN
@@ -238,7 +238,7 @@
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000  // 4.5 MHz /* 18 MHz (18000000) or 4.5MHz (450000) */
 //#define SDIO_CLOCK                      18000000  // 18 MHz (18000000)
-#if ENABLED(SDIO_SUPPORT)
+#ifdef SDIO_SUPPORT
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
