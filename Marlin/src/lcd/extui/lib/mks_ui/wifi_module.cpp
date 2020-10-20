@@ -299,7 +299,8 @@ void esp_port_begin(uint8_t interrupt) {
       WIFISERIAL.begin(WIFI_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for (uint8_t i=0;i<100;i++)WIFISERIAL.write(0x33); f
+      //for (uint8_t i=0;i<100;i++)WIFISERIAL.write(0x33);
+    #endif
   }
   else {
     #if ENABLED(USE_WIFI_FUNCTION)
@@ -308,7 +309,8 @@ void esp_port_begin(uint8_t interrupt) {
       WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
       uint32_t serial_connect_timeout = millis() + 1000UL;
         while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-      //for (uint16_t i=0;i<65535;i++);//WIFISERIAL.write(0x33); f
+      //for (uint16_t i=0;i<65535;i++);//WIFISERIAL.write(0x33);
+    #endif
     dma_init();
   }
 }
