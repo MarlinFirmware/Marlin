@@ -101,7 +101,7 @@ void GcodeSuite::M552() {
       default: break;
     }
   }
-  const bool nopar = !seenS && !seenP
+  const bool nopar = !seenS && !seenP;
   if (nopar || seenS) ETH0_report();
   if (nopar || seenP) M552_report();
 }
