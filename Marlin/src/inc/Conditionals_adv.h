@@ -501,3 +501,30 @@
   #define USING_SERIAL_8 1
 #endif
 #undef ANY_SERIAL_IS
+
+// Fallback Stepper Driver types
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #undef X2_DRIVER_TYPE
+#elif !defined(X2_DRIVER_TYPE)
+  #define X2_DRIVER_TYPE A4988
+#endif
+#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
+  #undef Y2_DRIVER_TYPE
+#elif !defined(Y2_DRIVER_TYPE)
+  #define Y2_DRIVER_TYPE A4988
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 2
+  #undef Z2_DRIVER_TYPE
+#elif !defined(Z2_DRIVER_TYPE)
+  #define Z2_DRIVER_TYPE A4988
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 3
+  #undef Z3_DRIVER_TYPE
+#elif !defined(Z3_DRIVER_TYPE)
+  #define Z3_DRIVER_TYPE A4988
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 4
+  #undef Z4_DRIVER_TYPE
+#elif !defined(Z4_DRIVER_TYPE)
+  #define Z4_DRIVER_TYPE A4988
+#endif
