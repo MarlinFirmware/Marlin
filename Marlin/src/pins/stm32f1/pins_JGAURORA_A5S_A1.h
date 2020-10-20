@@ -49,9 +49,6 @@
 //#define MARLIN_EEPROM_SIZE            0x1000UL  // 4KB
 //#define MARLIN_EEPROM_SIZE (EEPROM_START_ADDRESS + (EEPROM_PAGE_SIZE) * 2UL)
 
-//#define EEPROM_CHITCHAT
-//#define DEBUG_EEPROM_READWRITE
-
 //
 // Limit Switches
 //

@@ -28,10 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_MULTI_SERIAL
-  #include "queue.h"
-#endif
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 

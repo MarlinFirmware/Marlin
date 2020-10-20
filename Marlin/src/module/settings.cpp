@@ -2296,7 +2296,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && (DISABLED(EEPROM_BOOT_SILENT) || IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
     #endif
 
     EEPROM_FINISH();
