@@ -63,8 +63,9 @@ restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
-opt_enable MAGNETIC_PARKING_EXTRUDER
-exec_test $1 $2 "MAGNETIC_PARKING_EXTRUDER with LCD"
+opt_set SERIAL_PORT_2 -2
+opt_enable EEPROM_SETTINGS MAGNETIC_PARKING_EXTRUDER
+exec_test $1 $2 "Ethernet, EEPROM, Magnetic Parking Extruder, No LCD"
 
 #
 # Mixing Extruder

@@ -777,6 +777,9 @@
 #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
   #define HAS_USB_SERIAL 1
 #endif
+#if SERIAL_PORT_2 == -2
+  #define HAS_ETHERNET 1
+#endif
 
 // Fallback Stepper Driver types
 #ifndef X_DRIVER_TYPE
