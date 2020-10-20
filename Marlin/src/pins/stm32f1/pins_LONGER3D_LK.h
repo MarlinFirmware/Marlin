@@ -118,9 +118,6 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
-// Longer3D/Alfawise TFT (to set in Configuration.h)
-//#define LONGER_LK_TFT28
-
 // Buffer for Color UI
 #define TFT_BUFFER_SIZE                     3200
 
