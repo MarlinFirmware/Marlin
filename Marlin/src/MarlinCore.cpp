@@ -77,6 +77,10 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
+#if HAS_ETHERNET
+  #include "feature/ethernet.h"
+#endif
+
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #include "libs/BL24CXX.h"
 #endif
@@ -713,6 +717,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     HAL_idletask();
   #endif
 
+  // Check network connection
+  TERN_(HAS_ETHERNET, ethernet.check());
+
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     if (printJobOngoing()) recovery.outage();
@@ -968,7 +975,7 @@ void setup() {
   MYSERIAL0.begin(BAUDRATE);
   uint32_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #if HAS_MULTI_SERIAL
+  #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     MYSERIAL1.begin(BAUDRATE);
     serial_connect_timeout = millis() + 1000UL;
     while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
@@ -1089,6 +1096,10 @@ void setup() {
 
   SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
+
+  #if HAS_ETHERNET
+    SETUP_RUN(ethernet.init());
+  #endif
 
   #if HAS_TOUCH_XPT2046
     SETUP_RUN(touch.init());
