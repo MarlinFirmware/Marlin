@@ -186,7 +186,7 @@ void lv_draw_ready_print(void) {
     //lv_obj_t *label_print = lv_label_create(buttonPrint, NULL);
     //lv_obj_t *label_set = lv_label_create(buttonSet, NULL);
     lv_obj_t *label_tool = lv_label_create(buttonTool, NULL);
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       //lv_label_set_text(label_print, main_menu.print);
       //lv_obj_align(label_print, buttonPrint, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
 
@@ -279,7 +279,7 @@ void lv_draw_ready_print(void) {
     lv_obj_t *label_print = lv_label_create(buttonPrint, NULL);
     lv_btn_set_layout(buttonPrint, LV_LAYOUT_OFF);
 
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(label_print, main_menu.print);
       lv_obj_align(label_print, buttonPrint, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

@@ -209,7 +209,7 @@ void lv_draw_fan(void) {
   lv_obj_t *labelOff = lv_label_create(buttonOff, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, fan_menu.add);
     lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

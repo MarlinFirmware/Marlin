@@ -206,7 +206,7 @@ void lv_draw_home(void) {
   lv_obj_t *labelOffXY = lv_label_create(buttonOffXY, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelHomeAll, home_menu.home_all);
     lv_obj_align(labelHomeAll, buttonHomeAll, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

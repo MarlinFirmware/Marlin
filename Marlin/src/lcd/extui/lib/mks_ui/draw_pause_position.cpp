@@ -163,7 +163,7 @@ void lv_draw_pause_position(void) {
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);
     lv_label_set_text(labelXValue, public_buf_l);

@@ -222,7 +222,7 @@ void lv_draw_homing_sensitivity_settings(void) {
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), TERN(X_SENSORLESS, stepperX.homing_threshold(), 0));
     lv_label_set_text(labelXValue, public_buf_l);

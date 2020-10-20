@@ -284,7 +284,7 @@ void lv_draw_max_feedrate_settings(void) {
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
 
       lv_label_set_text(labelTurnPage, machine_menu.next);

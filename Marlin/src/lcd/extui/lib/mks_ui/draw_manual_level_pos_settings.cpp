@@ -384,7 +384,7 @@ void lv_draw_manual_level_pos_settings(void) {
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);

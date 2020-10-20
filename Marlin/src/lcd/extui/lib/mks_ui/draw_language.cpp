@@ -352,7 +352,7 @@ void lv_draw_language(void) {
 
   disp_language(gCfgItems.language, SELECTED);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_CN, language_menu.chinese_s);
     lv_obj_align(label_CN, buttonCN, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

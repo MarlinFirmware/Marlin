@@ -60,11 +60,9 @@ static lv_obj_t * buttonPause, *buttonOperat, *buttonStop;
 #define ID_STOP   2
 #define ID_OPTION 3
 
-uint8_t once_flag = 0;
+bool once_flag; // = false
+extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 extern uint32_t To_pre_view;
-extern uint8_t flash_preview_begin;
-extern uint8_t default_preview_flg;
-extern uint8_t gcode_preview_over;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
@@ -73,7 +71,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (gcode_preview_over != 1) {
+        if (!gcode_preview_over) {
           if (uiCfg.print_state == WORKING) {
             // #if ENABLED(PARK_HEAD_ON_PAUSE)
             // queue.inject_P(PSTR("M25 P\nM24"));
@@ -117,7 +115,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (gcode_preview_over != 1) {
+        if (!gcode_preview_over) {
           lv_clear_printing();
           lv_draw_dialog(DIALOG_TYPE_STOP);
         }
@@ -128,7 +126,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (gcode_preview_over != 1) {
+        if (!gcode_preview_over) {
           lv_clear_printing();
           lv_draw_operation();
         }
@@ -290,7 +288,7 @@ void lv_draw_printing(void) {
   labelStop   = lv_label_create(buttonStop, NULL);
   labelOperat = lv_label_create(buttonOperat, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPause, uiCfg.print_state == WORKING ? printing_menu.pause : printing_menu.resume);
     lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 20, 0);
 
@@ -378,7 +376,7 @@ void setProBarRate() {
   int rate;
   volatile long long rate_tmp_r;
 
-  if (gCfgItems.from_flash_pic != 1) {
+  if (!gCfgItems.from_flash_pic) {
     #if ENABLED(SDSUPPORT)
       rate_tmp_r = (long long)card.getIndex() * 100;
     #endif
@@ -405,15 +403,15 @@ void setProBarRate() {
       if (once_flag == 0) {
         stop_print_time();
 
-        flash_preview_begin = 0;
-        default_preview_flg = 0;
+        flash_preview_begin = false;
+        default_preview_flg = false;
         lv_clear_printing();
         lv_draw_dialog(DIALOG_TYPE_FINISH_PRINT);
 
-        once_flag = 1;
+        once_flag = true;
 
         #if HAS_SUICIDE
-          if (gCfgItems.finish_power_off == 1) {
+          if (gCfgItems.finish_power_off) {
             gcode.process_subcommands_now_P(PSTR("M1001"));
             queue.inject_P(PSTR("M81"));
             marlin_state = MF_RUNNING;

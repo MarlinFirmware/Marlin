@@ -236,7 +236,7 @@ void lv_draw_tool(void) {
   //lv_obj_t *label_More   = lv_label_create(buttonMore, NULL);
   lv_obj_t *label_Back     = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPreHeat, tool_menu.preheat);
     lv_obj_align(labelPreHeat, buttonPreHeat, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

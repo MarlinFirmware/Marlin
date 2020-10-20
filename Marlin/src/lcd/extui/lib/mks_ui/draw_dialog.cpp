@@ -58,8 +58,7 @@ static lv_obj_t * tempText1;
 static lv_obj_t * filament_bar;
 
 extern uint8_t sel_id;
-extern uint8_t once_flag;
-extern uint8_t gcode_preview_over;
+extern bool once_flag, gcode_preview_over;
 extern int upload_result ;
 extern uint32_t upload_time;
 extern uint32_t upload_size;
@@ -82,7 +81,7 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
       lv_draw_printing();
 
       #if ENABLED(SDSUPPORT)
-        if (gcode_preview_over != 1) {
+        if (!gcode_preview_over) {
           char *cur_name;
           cur_name = strrchr(list_file.file_name[sel_id], '/');
 
@@ -109,7 +108,7 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
             #if ENABLED(POWER_LOSS_RECOVERY)
               recovery.prepare();
             #endif
-            once_flag = 0;
+            once_flag = false;
           }
         }
       #endif

@@ -310,7 +310,7 @@ void lv_draw_tmc_current_settings(void) {
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       //#if AXIS_IS_TMC(E1)
         lv_label_set_text(labelTurnPage, machine_menu.next);

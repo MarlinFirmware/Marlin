@@ -232,7 +232,6 @@ void lv_draw_tmc_step_mode_settings(void) {
     lv_obj_t *buttonE1Text = NULL, *labelE1Text = NULL;
   //#endif
 
-
   labelXState   = NULL;
   buttonXState  = NULL;
   labelYState   = NULL;
@@ -493,7 +492,7 @@ void lv_draw_tmc_step_mode_settings(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       lv_label_set_text(labelXText, machine_menu.X_StepMode);
       lv_obj_align(labelXText, buttonXText, LV_ALIGN_IN_LEFT_MID, 0, 0);

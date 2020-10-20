@@ -201,7 +201,7 @@ void lv_draw_jerk_settings(void) {
     }
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[X_AXIS]);
     lv_label_set_text(labelXValue, public_buf_l);

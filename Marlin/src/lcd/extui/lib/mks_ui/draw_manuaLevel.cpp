@@ -253,7 +253,7 @@ void lv_draw_manualLevel(void) {
   lv_obj_t *label_Point5 = lv_label_create(buttonPoint5, NULL);
   lv_obj_t *label_Back   = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Point1, leveling_menu.position1);
     lv_obj_align(label_Point1, buttonPoint1, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
