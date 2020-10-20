@@ -892,7 +892,7 @@ char *creat_title_text() {
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
-    if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
+    if (gcode_preview_over) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
     #if HAS_BAK_VIEW_IN_FLASH
       if (flash_preview_begin) {
         flash_preview_begin = false;
@@ -969,7 +969,7 @@ void GUI_RefreshPage() {
       }
       if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
         printing_rate_update_flag = 0;
-        if (gcode_preview_over == 0) setProBarRate();
+        if (!gcode_preview_over) setProBarRate();
       }
       break;
 
