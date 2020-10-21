@@ -666,6 +666,7 @@
 //
 // Custom board (with custom PIO env)
 //
+
 #elif MB(CUSTOM)
   #include "pins_custom.h"                      //                                        env:custom
 
