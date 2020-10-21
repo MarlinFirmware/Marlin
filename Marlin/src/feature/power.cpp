@@ -119,10 +119,10 @@ void Power::power_on() {
 
 void Power::power_off() {
   if (powersupply_on) {
-  	PSU_PIN_OFF();
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
+  	PSU_PIN_OFF();
   }
 }
 
