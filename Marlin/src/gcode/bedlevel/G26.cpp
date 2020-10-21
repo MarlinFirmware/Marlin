@@ -136,7 +136,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint16_t);
+  void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
 #endif
 
 constexpr float g26_e_axis_feedrate = 0.025;

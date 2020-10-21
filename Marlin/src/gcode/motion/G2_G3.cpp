@@ -53,7 +53,7 @@ void plan_arc(
   const xyze_pos_t &cart,   // Destination position
   const ab_float_t &offset, // Center of rotation relative to current_position
   const bool clockwise,     // Clockwise?
-  const uint16_t circles    // Take the scenic route
+  const uint8_t circles     // Take the scenic route
 ) {
   #if ENABLED(CNC_WORKSPACE_PLANES)
     AxisEnum p_axis, q_axis, l_axis;
@@ -338,11 +338,11 @@ void GcodeSuite::G2_G3(const bool clockwise) {
 
       #if ENABLED(ARC_P_CIRCLES)
         // P indicates number of circles to do
-        const int16_t circles_to_do = parser.ushortval('P');
+        const int8_t circles_to_do = parser.byteval('P');
         if (!WITHIN(circles_to_do, 0, 100))
           SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
       #else
-        constexpr int8_t circles_to_do = 0;
+        constexpr uint8_t circles_to_do = 0;
       #endif
 
       // Send the arc to the planner
