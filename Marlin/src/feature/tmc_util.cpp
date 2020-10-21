@@ -648,7 +648,7 @@
 
   #if HAS_DRIVER(TMC2660)
     static void _tmc_parse_drv_status(TMC2660Stepper, const TMC_drv_status_enum) { }
-    static void _tmc_status(TMC2208Stepper &st, const TMC_debug_enum i) {
+    static void _tmc_status(TMC2660Stepper &st, const TMC_debug_enum i) {
       switch (i) {
         case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
