@@ -573,9 +573,6 @@ static void wifi_gcode_exec(uint8_t *cmd_line) {
     tmpStr = (uint8_t *)strchr((char *)cmd_line, '\n');
     if (tmpStr) *tmpStr = '\0';
 
-    tmpStr = (uint8_t *)strchr((char *)cmd_line, '\n');
-    if (tmpStr) *tmpStr = '\0';
-
     tmpStr = (uint8_t *)strchr((char *)cmd_line, '\r');
     if (tmpStr) *tmpStr = '\0';
 
