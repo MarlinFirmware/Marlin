@@ -219,17 +219,10 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #if !NUM_SERVOS                                 // Use servo connector if possible
-    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
-    #define SPINDLE_DIR_PIN                    5
-  #elif HAS_FREE_AUX2_PINS
-    #define SPINDLE_LASER_ENA_PIN             40  // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
-    #define SPINDLE_DIR_PIN                   65
-  #else
-    #error "No auto-assignable Spindle/Laser pins available."
-  #endif
+  //EXTEND PINS
+  #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+  #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
+  #define SPINDLE_DIR_PIN                    5
 #endif
 
 //
@@ -237,13 +230,13 @@
 //
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
-    #define TMC_SW_MOSI                       66
+    #define TMC_SW_MOSI                       51
   #endif
   #ifndef TMC_SW_MISO
-    #define TMC_SW_MISO                       44
+    #define TMC_SW_MISO                       50
   #endif
   #ifndef TMC_SW_SCK
-    #define TMC_SW_SCK                        64
+    #define TMC_SW_SCK                        53
   #endif
 #endif
 
@@ -251,13 +244,13 @@
 // Průša i3 MK2 Multiplexer Support
 //
 #ifndef E_MUX0_PIN
-  #define E_MUX0_PIN                          40  // Z_CS_PIN
+  #define E_MUX0_PIN                          29  // E2_STEP_PIN
 #endif
 #ifndef E_MUX1_PIN
-  #define E_MUX1_PIN                          42  // E0_CS_PIN
+  #define E_MUX1_PIN                          28  // E2_DIR_PIN
 #endif
 #ifndef E_MUX2_PIN
-  #define E_MUX2_PIN                          44  // E1_CS_PIN
+  #define E_MUX2_PIN                          39  // E2_ENABLE_PIN
 #endif
 
 //////////////////////////
