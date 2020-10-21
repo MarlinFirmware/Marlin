@@ -86,7 +86,11 @@ volatile int numPWMUsed = 0,
 
 #endif
 
-void HAL_init() { i2s_init(); }
+void HAL_init(void) {
+#if ENABLED(I2S_STEPPER_STREAM)
+    i2s_init();
+#endif
+}
 
 void HAL_init_board() {
 
