@@ -1416,11 +1416,12 @@
    *
    * Make sure this feature is supported by the Serial controller or it will disable
    * the encoder.
-  */
+   */
   //#define CHECK_ENCODER_ACTIVE_SIGNAL
-  #if defined(CHECK_ENCODER_ACTIVE_SIGNAL)
+  #if ENABLED(CHECK_ENCODER_ACTIVE_SIGNAL)
     #define BTN_ENC_EN LCD_PINS_D7
   #endif
+
   /**
    * Status (Info) Screen customizations
    * These options may affect code size and screen render time.
