@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 
-#include "../../lcd/ultralcd.h" // i2c-based BUZZ
+#include "../../lcd/marlinui.h" // i2c-based BUZZ
 #include "../../libs/buzzer.h"  // Buzzer, if possible
 
 /**

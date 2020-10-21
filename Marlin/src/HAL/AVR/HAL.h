@@ -25,7 +25,7 @@
 #include "watchdog.h"
 #include "math.h"
 
-#ifdef IS_AT90USB
+#ifdef USBCON
   #include <HardwareSerial.h>
 #else
   #define HardwareSerial_h // Hack to prevent HardwareSerial.h header inclusion
@@ -81,7 +81,7 @@ typedef int8_t pin_t;
 //extern uint8_t MCUSR;
 
 // Serial ports
-#ifdef IS_AT90USB
+#ifdef USBCON
   #define MYSERIAL0 TERN(BLUETOOTH, bluetoothSerial, Serial)
 #else
   #if !WITHIN(SERIAL_PORT, -1, 3)

@@ -138,7 +138,7 @@
    * http://chibidibidiwah.wdfiles.com/local--files/panel/smoothieboard2sd.jpg
    * http://smoothieware.org/panel
    */
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
     //  EXP1 Pins
     #define BEEPER_PIN                     P1_31  // EXP1 Pin 1
     #define BTN_ENC                        P1_30  // EXP1 Pin 2
@@ -169,7 +169,7 @@
  * Set from 0 - 127 with stop bit.
  * (Ex. 3F << 1 | 1)
  */
-#define DIGIPOTS_I2C_SCL                   P0_0
+#define DIGIPOTS_I2C_SCL                   P0_00
 #define DIGIPOTS_I2C_SDA_X                 P0_04
 #define DIGIPOTS_I2C_SDA_Y                 P0_10
 #define DIGIPOTS_I2C_SDA_Z                 P0_19

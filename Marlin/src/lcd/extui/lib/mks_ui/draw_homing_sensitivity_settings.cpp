@@ -19,18 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_LVGL_UI
+#if HAS_TFT_LVGL_UI && USE_SENSORLESS
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
 #include "../../../../module/probe.h"
-
-#if USE_SENSORLESS
 #include "../../../../module/stepper/indirection.h"
 #include "../../../../feature/tmc_util.h"
 
@@ -222,7 +219,7 @@ void lv_draw_homing_sensitivity_settings(void) {
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), TERN(X_SENSORLESS, stepperX.homing_threshold(), 0));
     lv_label_set_text(labelXValue, public_buf_l);
@@ -256,7 +253,5 @@ void lv_clear_homing_sensitivity_settings() {
   #endif
   lv_obj_del(scr);
 }
-
-#endif // USE_SENSORLESS
 
 #endif // HAS_TFT_LVGL_UI && USE_SENSORLESS

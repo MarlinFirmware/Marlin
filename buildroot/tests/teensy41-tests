@@ -57,14 +57,15 @@ exec_test $1 $2 "Sled Z Probe with Linear leveling"
 # exec_test $1 $2 "...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES"
 
 #
-# Test MAGNETIC_PARKING_EXTRUDER with LCD
+# Test MAGNETIC_PARKING_EXTRUDER with no LCD
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41
 opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
-opt_enable MAGNETIC_PARKING_EXTRUDER
-exec_test $1 $2 "MAGNETIC_PARKING_EXTRUDER with LCD"
+opt_set SERIAL_PORT_2 -2
+opt_enable EEPROM_SETTINGS MAGNETIC_PARKING_EXTRUDER
+exec_test $1 $2 "Ethernet, EEPROM, Magnetic Parking Extruder, No LCD"
 
 #
 # Mixing Extruder
@@ -113,11 +114,10 @@ exec_test $1 $2 "Teensy 4.0/4.1 COREXZ"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY41
-opt_enable Z_MULTI_ENDSTOPS
+opt_enable Z_MULTI_ENDSTOPS USE_XMAX_PLUG
 opt_set NUM_Z_STEPPER_DRIVERS 2
 pins_set ramps/RAMPS X_MAX_PIN -1
 opt_add Z2_MAX_PIN 2
-opt_enable USE_XMAX_PLUG
 exec_test $1 $2 "Dual Z with Dual Z endstops"
 
 # Clean up

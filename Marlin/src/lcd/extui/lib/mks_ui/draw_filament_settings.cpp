@@ -23,11 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -279,7 +278,7 @@ void lv_draw_filament_settings(void) {
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_length);

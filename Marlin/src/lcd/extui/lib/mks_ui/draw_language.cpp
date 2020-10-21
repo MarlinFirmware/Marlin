@@ -23,14 +23,14 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfig.h"
 #include <string.h>
 
 //static lv_obj_t *buttonMoveZ,*buttonTest,*buttonZ0,*buttonStop,*buttonReturn;
@@ -352,7 +352,7 @@ void lv_draw_language(void) {
 
   disp_language(gCfgItems.language, SELECTED);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_CN, language_menu.chinese_s);
     lv_obj_align(label_CN, buttonCN, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

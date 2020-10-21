@@ -23,14 +23,15 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-#include "lv_conf.h"
+#include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
+
 #include "../../../../sd/cardreader.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 extern lv_group_t*  g;
@@ -270,7 +271,7 @@ void lv_draw_print_file(void) {
   //lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   /*
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPageUp, tool_menu.preheat);
     lv_obj_align(labelPageUp, buttonPageUp, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
 
@@ -520,7 +521,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       j = 0;
       ignore_start = false;
     }
-    #if ENABLED(TFT_LVGL_UI_SPI)
+    #if HAS_TFT_LVGL_UI_SPI
       for (i = 0; i < 200;) {
         p_index = (uint16_t *)(&public_buf[i]);
 
@@ -529,7 +530,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         i += 2;
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
-    #else
+    #else // !HAS_TFT_LVGL_UI_SPI
       for (i = 0; i < 200;) {
         p_index = (uint16_t *)(&public_buf[i]);
         //Color = (*p_index >> 8);
@@ -537,7 +538,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         i += 2;
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
       }
-    #endif // TFT_LVGL_UI_SPI
+    #endif // !HAS_TFT_LVGL_UI_SPI
     memcpy(data_buf, public_buf, 200);
   #endif // SDSUPPORT
 }

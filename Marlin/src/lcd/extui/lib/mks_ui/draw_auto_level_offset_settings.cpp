@@ -23,12 +23,11 @@
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_BED_PROBE)
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/planner.h"
 #include "../../../../module/probe.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -172,7 +171,7 @@ void lv_draw_auto_level_offset_settings(void) {
     }
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.x, 0));
     lv_label_set_text(labelXValue, public_buf_l);

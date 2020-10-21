@@ -140,10 +140,7 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t now;
-    static millis_t time_to_hold;
-    static millis_t repeat_delay;
-    static millis_t touch_time;
+    static millis_t last_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
     static inline bool get_point(int16_t *x, int16_t *y);
@@ -164,7 +161,13 @@ class Touch {
     static void reset() { controls_count = 0; touch_time = -1; current_control = NULL; }
     static void clear() { controls_count = 0; }
     static void idle();
-    static bool is_clicked() { return touch_control_type == CLICK; }
+    static bool is_clicked() {
+      if (touch_control_type == CLICK) {
+        touch_control_type = NONE;
+        return true;
+      }
+      return false;
+    }
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
 

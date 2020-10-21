@@ -124,7 +124,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
@@ -166,4 +166,4 @@
 
   #endif
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL

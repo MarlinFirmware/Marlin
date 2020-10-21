@@ -111,7 +111,7 @@
 #include "../../module/motion.h"
 #include "../../module/tool_change.h"
 #include "../../module/temperature.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #define EXTRUSION_MULTIPLIER 1.0
 #define PRIME_LENGTH 10.0
@@ -136,7 +136,7 @@
 #define G26_ERR true
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(const xyze_pos_t &cart, const ab_float_t &offset, const uint8_t clockwise);
+  void plan_arc(const xyze_pos_t&, const ab_float_t&, const bool, const uint8_t);
 #endif
 
 constexpr float g26_e_axis_feedrate = 0.025;
@@ -783,7 +783,7 @@ void GcodeSuite::G26() {
 
         const feedRate_t old_feedrate = feedrate_mm_s;
         feedrate_mm_s = PLANNER_XY_FEEDRATE() * 0.1f;
-        plan_arc(endpoint, arc_offset, false);  // Draw a counter-clockwise arc
+        plan_arc(endpoint, arc_offset, false, 0);  // Draw a counter-clockwise arc
         feedrate_mm_s = old_feedrate;
         destination = current_position;
 

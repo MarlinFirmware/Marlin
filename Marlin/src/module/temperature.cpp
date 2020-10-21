@@ -34,7 +34,7 @@
 #include "planner.h"
 #include "../HAL/shared/Delay.h"
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../lcd/dwin/e3v2/dwin.h"
@@ -1032,8 +1032,14 @@ void Temperature::manage_heater() {
     if (!inited) return watchdog_refresh();
   #endif
 
-  if (TERN0(EMERGENCY_PARSER, emergency_parser.killed_by_M112))
-    kill(M112_KILL_STR, nullptr, true);
+  #if ENABLED(EMERGENCY_PARSER)
+    if (emergency_parser.killed_by_M112) kill(M112_KILL_STR, nullptr, true);
+
+    if (emergency_parser.quickstop_by_M410) {
+      emergency_parser.quickstop_by_M410 = false; // quickstop_stepper may call idle so clear this now!
+      quickstop_stepper();
+    }
+  #endif
 
   if (!raw_temps_ready) return;
 
