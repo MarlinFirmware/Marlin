@@ -23,11 +23,11 @@
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_CLASSIC_JERK)
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -201,7 +201,7 @@ void lv_draw_jerk_settings(void) {
     }
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[X_AXIS]);
     lv_label_set_text(labelXValue, public_buf_l);

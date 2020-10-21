@@ -23,13 +23,12 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
-#include "draw_ui.h"
+#include <lv_conf.h>
+#include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
 
-#include "../../../../../Configuration.h"
-#include "../../../../module/temperature.h"
+#include "draw_ui.h"
 
 extern lv_group_t * g;
 static lv_obj_t *scr, *wifi_name_text, *wifi_key_text, *wifi_state_text, *wifi_ip_text;
@@ -135,7 +134,7 @@ void lv_draw_wifi(void) {
     label_Reconnect = lv_label_create(buttonReconnect, NULL);
   }
 
-  if (gCfgItems.multiple_language !=0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
 

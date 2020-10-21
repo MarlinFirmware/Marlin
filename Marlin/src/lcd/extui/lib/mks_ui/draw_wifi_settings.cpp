@@ -23,13 +23,12 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
-#include "draw_ui.h"
+#include <lv_conf.h>
+#include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
 
-#include "../../../../../Configuration.h"
-#include "../../../../module/planner.h"
+#include "draw_ui.h"
 
 extern lv_group_t * g;
 static lv_obj_t *scr, *labelModelValue = NULL, *buttonModelValue = NULL, *labelCloudValue = NULL;
@@ -48,8 +47,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      lv_clear_wifi_settings();
-            draw_return_ui();
+        lv_clear_wifi_settings();
+        draw_return_ui();
       }
     break;
     case ID_WIFI_MODEL:
@@ -57,18 +56,18 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      if (gCfgItems.wifi_mode_sel == AP_MODEL) {
-        gCfgItems.wifi_mode_sel = STA_MODEL;
-        lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
-        update_spi_flash();
-      }
-      else{
-        gCfgItems.wifi_mode_sel = AP_MODEL;
-        lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
-        update_spi_flash();
-      }
+        if (gCfgItems.wifi_mode_sel == AP_MODEL) {
+          gCfgItems.wifi_mode_sel = STA_MODEL;
+          lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
+          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
+          update_spi_flash();
+        }
+        else {
+          gCfgItems.wifi_mode_sel = AP_MODEL;
+          lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
+          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
+          update_spi_flash();
+        }
       }
     break;
     case ID_WIFI_NAME:
@@ -76,9 +75,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      keyboard_value=wifiName;
-      lv_clear_wifi_settings();
-          lv_draw_keyboard();
+        keyboard_value = wifiName;
+        lv_clear_wifi_settings();
+        lv_draw_keyboard();
       }
     break;
     case ID_WIFI_PASSWORD:
@@ -87,8 +86,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
       keyboard_value=wifiPassWord;
-      lv_clear_wifi_settings();
-          lv_draw_keyboard();
+        lv_clear_wifi_settings();
+        lv_draw_keyboard();
       }
     break;
     case ID_WIFI_CLOUD:
@@ -115,8 +114,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      lv_clear_wifi_settings();
-          lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
+        lv_clear_wifi_settings();
+        lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
       }
     break;
   }
@@ -211,7 +210,7 @@ void lv_draw_wifi_settings(void) {
     lv_imgbtn_set_src(buttonCloudValue, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
     lv_imgbtn_set_src(buttonCloudValue, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
   }
-    lv_obj_set_event_cb_mks(buttonCloudValue, event_handler,ID_WIFI_CLOUD, NULL,0);
+  lv_obj_set_event_cb_mks(buttonCloudValue, event_handler,ID_WIFI_CLOUD, NULL,0);
   lv_imgbtn_set_style(buttonCloudValue, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonCloudValue, LV_BTN_STATE_REL, &tft_style_label_rel);
   lv_btn_set_layout(buttonCloudValue, LV_LAYOUT_OFF);
@@ -240,7 +239,7 @@ void lv_draw_wifi_settings(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language !=0) {
+  if (gCfgItems.multiple_language) {
     if (gCfgItems.wifi_mode_sel == AP_MODEL) {
       lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
@@ -295,5 +294,4 @@ void lv_clear_wifi_settings() {
 }
 
 #endif // USE_WIFI_FUNCTION
-
 #endif // HAS_TFT_LVGL_UI

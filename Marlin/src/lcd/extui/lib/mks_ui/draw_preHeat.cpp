@@ -23,15 +23,15 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 extern lv_group_t*  g;
@@ -275,7 +275,7 @@ void lv_draw_preHeat(void) {
   lv_obj_t *labelOff   = lv_label_create(buttonOff, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, preheat_menu.add);
     lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -312,7 +312,7 @@ void disp_temp_type() {
     if (uiCfg.curSprayerChoose == 1) {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
       lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
-      if (gCfgItems.multiple_language != 0) {
+      if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext2);
         lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
       }
@@ -320,7 +320,7 @@ void disp_temp_type() {
     else {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
       lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
-      if (gCfgItems.multiple_language != 0) {
+      if (gCfgItems.multiple_language) {
         lv_label_set_text(labelType, preheat_menu.ext1);
         lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
       }
@@ -330,7 +330,7 @@ void disp_temp_type() {
   else {
   lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_bed.bin");
       lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_bed.bin");
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.hotbed);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -375,7 +375,7 @@ void disp_step_heat() {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, "F:/bmp_step10_degree.bin");
   }
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.stepHeat == 1) {
       lv_label_set_text(labelStep, preheat_menu.step_1c);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

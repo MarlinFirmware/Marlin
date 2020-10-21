@@ -23,15 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/planner.h"
-#include "../../../../module/stepper/indirection.h"
-#include "../../../../feature/tmc_util.h"
-#include "../../../../gcode/gcode.h"
-#include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if BUTTONS_EXIST(EN1, EN2)
 
@@ -59,20 +54,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (gCfgItems.encoder_enable) {
-          gCfgItems.encoder_enable = false;
-          lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
-          lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
-          lv_label_set_text(labelEncoderState, machine_menu.disable);
-          update_spi_flash();
-        }
-        else {
-          gCfgItems.encoder_enable = true;
-          lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, "F:/bmp_enable.bin");
-          lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, "F:/bmp_enable.bin");
-          lv_label_set_text(labelEncoderState, machine_menu.enable);
-          update_spi_flash();
-        }
+        gCfgItems.encoder_enable ^= true;
+        lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
+        lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
+        lv_label_set_text(labelEncoderState, machine_menu.enable);
+        update_spi_flash();
       }
       break;
   }
@@ -110,14 +96,8 @@ void lv_draw_encoder_settings(void) {
 
   buttonEncoderState = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonEncoderState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V);
-  if (gCfgItems.encoder_enable) {
-    lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, "F:/bmp_enable.bin");
-    lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, "F:/bmp_enable.bin");
-  }
-  else {
-    lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, "F:/bmp_disable.bin");
-    lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, "F:/bmp_disable.bin");
-  }
+  lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
+  lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
 
   lv_obj_set_event_cb_mks(buttonEncoderState, event_handler, ID_ENCODER_STATE, NULL, 0);
 
@@ -140,14 +120,8 @@ void lv_draw_encoder_settings(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.encoder_enable) {
-    lv_label_set_text(labelEncoderState, machine_menu.enable);
-    lv_obj_align(labelEncoderState, buttonEncoderState, LV_ALIGN_CENTER, 0, 0);
-  }
-  else {
-    lv_label_set_text(labelEncoderState, machine_menu.disable);
-    lv_obj_align(labelEncoderState, buttonEncoderState, LV_ALIGN_CENTER, 0, 0);
-  }
+  lv_label_set_text(labelEncoderState, gCfgItems.encoder_enable ? machine_menu.enable : machine_menu.disable);
+  lv_obj_align(labelEncoderState, buttonEncoderState, LV_ALIGN_CENTER, 0, 0);
 
   lv_label_set_text(label_Back, common_menu.text_back);
   lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);

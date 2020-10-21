@@ -23,18 +23,18 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "SPI_TFT.h"
-
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
+
 #include "tft_lvgl_configuration.h"
-#include "mks_hardware_test.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
+#include "SPI_TFT.h"
+#include "mks_hardware_test.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 
