@@ -341,7 +341,7 @@
   #define DOGLCD
   #define IS_ULTIPANEL 1
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(TFT_LVGL_UI)
+#elif HAS_TFT_LVGL_UI
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
@@ -957,16 +957,16 @@
 // FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
 #if ENABLED(TFT_INTERFACE_FSMC)
   #define HAS_FSMC_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_FSMC_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_FSMC 1
   #endif
 #elif ENABLED(TFT_INTERFACE_SPI)
   #define HAS_SPI_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
+  #if TFT_SCALED_DOGLCD
     #define HAS_SPI_GRAPHICAL_TFT 1
-  #elif ENABLED(TFT_LVGL_UI)
+  #elif HAS_TFT_LVGL_UI
     #define HAS_TFT_LVGL_UI_SPI 1
   #endif
 #endif

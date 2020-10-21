@@ -28,20 +28,20 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/planner.h"
 #include "../../../../gcode/gcode.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -50,7 +50,6 @@
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../../../feature/pause.h"
 #endif
-#include "../../../../gcode/gcode.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;

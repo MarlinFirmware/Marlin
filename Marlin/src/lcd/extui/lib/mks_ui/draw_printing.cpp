@@ -23,23 +23,25 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
+#include "../../../../MarlinCore.h" // for marlin_state
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
+
 #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
   #include "../../../marlinui.h"
 #endif
@@ -288,7 +290,7 @@ void lv_draw_printing(void) {
   labelStop   = lv_label_create(buttonStop, NULL);
   labelOperat = lv_label_create(buttonOperat, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPause, uiCfg.print_state == WORKING ? printing_menu.pause : printing_menu.resume);
     lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 20, 0);
 
@@ -411,7 +413,7 @@ void setProBarRate() {
         once_flag = true;
 
         #if HAS_SUICIDE
-          if (gCfgItems.finish_power_off == 1) {
+          if (gCfgItems.finish_power_off) {
             gcode.process_subcommands_now_P(PSTR("M1001"));
             queue.inject_P(PSTR("M81"));
             marlin_state = MF_RUNNING;

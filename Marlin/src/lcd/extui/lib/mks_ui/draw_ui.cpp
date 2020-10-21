@@ -34,10 +34,11 @@
 
 #include <SPI.h>
 
-#include "../../../../MarlinCore.h"
+#include "../../../../MarlinCore.h" // for marlin_state
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -116,8 +117,8 @@ void gCfgItems_init() {
   gCfgItems.leveling_mode     = 0;
   gCfgItems.from_flash_pic    = false;
   gCfgItems.curFilesize       = 0;
-  gCfgItems.finish_power_off  = 0;
-  gCfgItems.pause_reprint     = 0;
+  gCfgItems.finish_power_off  = false;
+  gCfgItems.pause_reprint     = false;
   gCfgItems.pausePosX         = -1;
   gCfgItems.pausePosY         = -1;
   gCfgItems.pausePosZ         = 5;
@@ -405,7 +406,6 @@ void tft_style_init() {
   lv_bar_style_indic.body.main_color   = lv_color_hex3(0xADF);
   lv_bar_style_indic.body.grad_color   = lv_color_hex3(0xADF);
   lv_bar_style_indic.body.border.color = lv_color_hex3(0xADF);
-
 }
 
 #define MAX_TITLE_LEN 28

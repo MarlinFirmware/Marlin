@@ -23,6 +23,7 @@
 
 #if HAS_TFT_LVGL_UI
 
+#include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
@@ -238,7 +239,7 @@ void lv_draw_wifi_settings(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (gCfgItems.wifi_mode_sel == AP_MODEL) {
       lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);

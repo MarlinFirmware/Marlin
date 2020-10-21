@@ -23,16 +23,15 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -239,7 +238,7 @@ void lv_draw_change_speed(void) {
   labelStep             = lv_label_create(buttonStep, NULL);
   lv_obj_t *label_Back  = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, speed_menu.add);
     lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -281,7 +280,7 @@ void disp_speed_step() {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, "F:/bmp_step10_percent.bin");
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, "F:/bmp_step10_percent.bin");
   }
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.stepPrintSpeed == 1) {
       lv_label_set_text(labelStep, speed_menu.step_1percent);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -337,7 +336,7 @@ void disp_speed_type() {
   lv_obj_refresh_ext_draw_pad(buttonExt);
   lv_obj_refresh_ext_draw_pad(buttonMov);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelMov, speed_menu.move);
     lv_obj_align(labelMov, buttonMov, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
