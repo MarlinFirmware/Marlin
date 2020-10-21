@@ -33,6 +33,8 @@
 #include "../module/stepper/indirection.h"
 #include "../MarlinCore.h"
 
+#include "../gcode/gcode.h"
+
 #if BOTH(USE_CONTROLLER_FAN, AUTO_POWER_CONTROLLERFAN)
   #include "controllerfan.h"
 #endif
@@ -107,11 +109,19 @@ void Power::power_on() {
     safe_delay(PSU_POWERUP_DELAY);
     restore_stepper_drivers();
     TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
+    #ifdef PSU_POWERUP_GCODE
+      GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWERUP_GCODE));
+    #endif
   }
 }
 
 void Power::power_off() {
-  if (powersupply_on) PSU_PIN_OFF();
+  if (powersupply_on) {
+  	PSU_PIN_OFF();
+  	#ifdef PSU_POWEROFF_GCODE
+      GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
+    #endif
+  }
 }
 
 #endif // AUTO_POWER_CONTROL
