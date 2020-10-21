@@ -77,9 +77,6 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
 
-  float linear_travel = cart[l_axis] - start_L,
-        extruder_travel = cart.e - current_position.e;
-
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
   if (angular_travel < 0) angular_travel += RADIANS(360);
@@ -99,12 +96,15 @@ void plan_arc(
     #endif
   }
 
+  float linear_travel = cart[l_axis] - start_L,
+        extruder_travel = cart.e - current_position.e;
+
   // If circling around...
-  if (circles) {
+  if (ENABLED(ARC_P_CIRCLES) && circles) {
     const float total_angular = angular_travel + circles * RADIANS(360),  // Total rotation with all circles and remainder
               part_per_circle = RADIANS(360) / total_angular,             // Each circle's part of the total
-                 e_per_circle = extruder_travel * part_per_circle,        // E movement per circle
-                 l_per_circle = linear_travel * part_per_circle;          // L movement per circle
+                 l_per_circle = linear_travel * part_per_circle,          // L movement per circle
+                 e_per_circle = extruder_travel * part_per_circle;        // E movement per circle
     xyze_pos_t temp_position = current_position;                          // for plan_arc to compare to current_position
     for (uint16_t n = circles; n--;) {
       temp_position.e += e_per_circle;                                    // Destination E axis
