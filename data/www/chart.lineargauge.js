@@ -61,7 +61,7 @@
 	});
 
 	Chart.controllers.linearGauge = Chart.DatasetController.extend({
-		
+
 		dataElementType: Chart.elements.Gaugerect,
 
 		initialize: function() {
@@ -71,9 +71,9 @@
 			Chart.DatasetController.prototype.initialize.apply(me, arguments);
 
 			meta = me.getMeta();
-			
+
 		},
-		
+
 		linkScales: helpers.noop,
 
 		update: function(reset) {
@@ -93,7 +93,7 @@
 			var chart = me.chart;
 			var meta = me.getMeta();
 			var dataset = me.getDataset();
-			
+
 			var custom = rectangle.custom || {};
 			var rectangleOptions = chart.options.elements.rectangle;
 			var gaugeOptions = chart.options.elements.gaugerect;
@@ -118,7 +118,7 @@
 			me.updateElementGeometry(rectangle, index, reset);
 
 		},
-		
+
 		updateElementGeometry: function(rectangle, index, reset) {
 			var me = this;
 			var model = rectangle._model;
@@ -150,7 +150,7 @@
 			} else {
 				model.scaleValue = vscale.height / (vscale.options.range.endValue - vscale.options.range.startValue);
 			}
-			
+
 			if(typeof start.x === 'undefined' && typeof start.y === 'undefined'){
 				if(horizontal){
 					start.x = vpixels.base;
@@ -159,10 +159,10 @@
 					start.y = vpixels.base;
 					start.height = 0;
 				}
-			}	
-			
+			}
+
 		},
-		
+
 		calculateBarValuePixels: function(datasetIndex, index, horizontal) {
 			var me = this;
 			var chart = me.chart;
@@ -187,7 +187,7 @@
 				offset: offset
 			};
 		},
-		
+
 		draw: function() {
 			var me = this;
 			var chart = me.chart;
@@ -206,7 +206,7 @@
 
 			helpers.canvas.unclipArea(chart.ctx);
 		},
-		
+
 		setHoverStyle: function(rectangle) {
 			var dataset = this.chart.data.datasets[rectangle._datasetIndex];
 			var index = rectangle._index;
@@ -229,6 +229,6 @@
 			model.borderColor = custom.borderColor ? custom.borderColor : helpers.valueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor);
 			model.borderWidth = custom.borderWidth ? custom.borderWidth : helpers.valueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth);
 		}
-		
+
 	});
 }).call(this, Chart);

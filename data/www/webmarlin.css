@@ -1,4 +1,4 @@
-/* 
+/*
 Bootstrap Toggle: bootstrap4-toggle.css v3.6.1
 https://gitbrent.github.io/bootstrap4-toggle/
 */
@@ -9,8 +9,8 @@ E4d@box Marlin WUI
 */
 html, body { height: 100%; margin: 0; }
 
-@media all and (min-width: 500px) { 
-  #main-panel{ text-align: center; } 
+@media all and (min-width: 500px) {
+  #main-panel{ text-align: center; }
   #accordion-panels { width: 500px; height:100%; display: block;  margin-left: auto;  margin-right: auto;}
   .modal-popup { width:400px; }
 }
@@ -43,5 +43,3 @@ html, body { height: 100%; margin: 0; }
 .card-header-title { font-size: 10pt; font-weight: bold; }
 .card-header-description { font-size: 8pt; }
 .badge-description { font-size: 9pt; }
-
-
