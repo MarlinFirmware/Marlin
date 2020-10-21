@@ -522,8 +522,7 @@
 
 // If you want endstops to stay on (by default) even when not homing
 // enable this option. Override at any time with M120, M121.
-//UWE
-#define ENDSTOPS_ALWAYS_ON_DEFAULT
+//#define ENDSTOPS_ALWAYS_ON_DEFAULT
 
 // @section extras
 
@@ -659,7 +658,6 @@
 
 //#define HOMING_BACKOFF_POST_MM { 2, 2, 2 }  // (mm) Backoff from endstops after homing
 
-//UWE think about these options
 //#define QUICK_HOME                          // If G28 contains XY do a diagonal move first
 //#define HOME_Y_BEFORE_X                     // If G28 contains XY home Y before X
 //#define CODEPENDENT_XY_HOMING               // If X/Y can't home without homing Y/X first
@@ -1795,14 +1793,13 @@
 //
 #define ARC_SUPPORT                 // Disable this feature to save ~3226 bytes
 #if ENABLED(ARC_SUPPORT)
-//UWE 1mm -> 0.1mm to allow d=1mm G2/G3 moves
-  #define MM_PER_ARC_SEGMENT      0.1 // (mm) Length (or minimum length) of each arc segment
+  #define MM_PER_ARC_SEGMENT      1 // (mm) Length (or minimum length) of each arc segment
   //#define ARC_SEGMENTS_PER_R    1 // Max segment length, MM_PER = Min
   #define MIN_ARC_SEGMENTS       24 // Minimum number of segments in a complete circle
   //#define ARC_SEGMENTS_PER_SEC 50 // Use feedrate to choose segment length (with MM_PER_ARC_SEGMENT as the minimum)
   #define N_ARC_CORRECTION       25 // Number of interpolated segments between corrections
-  #define ARC_P_CIRCLES           // Enable the 'P' parameter to specify complete circles
-//  #define CNC_WORKSPACE_PLANES    // Allow G2/G3 to operate in XY, ZX, or YZ planes
+  //#define ARC_P_CIRCLES           // Enable the 'P' parameter to specify complete circles
+  //#define CNC_WORKSPACE_PLANES    // Allow G2/G3 to operate in XY, ZX, or YZ planes
   //#define SF_ARC_FIX              // Enable only if using SkeinForge with "Arc Point" fillet procedure
 #endif
 
