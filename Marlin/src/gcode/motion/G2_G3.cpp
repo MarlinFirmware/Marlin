@@ -76,7 +76,7 @@ void plan_arc(
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
-  
+
   float linear_travel = cart[l_axis] - start_L,
         extruder_travel = cart.e - current_position.e;
 
@@ -91,11 +91,8 @@ void plan_arc(
   #endif
   if (clockwise) angular_travel -= RADIANS(360);
 
-// Make a circle if the angular rotation is 0 and the target is current position
-//  if (angular_travel == 0 && current_position[p_axis] == cart[p_axis] && current_position[q_axis] == cart[q_axis]) {
-  if (   (abs(angular_travel)<0.01)
-      && (abs(current_position[p_axis] - cart[p_axis]) < 0.001)
-      && (abs(current_position[q_axis] - cart[q_axis]) < 0.001) ) {
+  // Make a circle if the angular rotation is 0 and the target is current position
+  if (NEAR_ZERO(angular_travel) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
     angular_travel = RADIANS(360);
     #ifdef MIN_ARC_SEGMENTS
       min_segments = MIN_ARC_SEGMENTS;
@@ -108,11 +105,11 @@ void plan_arc(
               part_per_circle = RADIANS(360) / total_angular,             // Each circle's part of the total
                  e_per_circle = extruder_travel * part_per_circle,        // E movement per circle
                  l_per_circle = linear_travel * part_per_circle;          // L movement per circle
-    xyze_pos_t temp_position = current_position;
+    xyze_pos_t temp_position = current_position;                          // for plan_arc to compare to current_position
     for (uint16_t n = circles; n--;) {
-      temp_position.e += e_per_circle;                                 // Destination E axis
-      temp_position[l_axis] += l_per_circle;                           // Destination L axis
-      plan_arc(temp_position, offset, clockwise, 0);                   // Plan a single whole circle
+      temp_position.e += e_per_circle;                                    // Destination E axis
+      temp_position[l_axis] += l_per_circle;                              // Destination L axis
+      plan_arc(temp_position, offset, clockwise, 0);                      // Plan a single whole circle
     }
     linear_travel = cart[l_axis] - current_position[l_axis];
     extruder_travel = cart.e - current_position.e;
