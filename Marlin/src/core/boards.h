@@ -109,6 +109,9 @@
 #define BOARD_COPYMASTER_3D           1153  // Copymaster 3D
 #define BOARD_ORTUR_4                 1154  // Ortur 4
 #define BOARD_TENLOG_D3_HERO          1155  // Tenlog D3 Hero IDEX printer
+#define BOARD_RAMPS_S_12_EEFB         1156  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_RAMPS_S_12_EEEB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
+#define BOARD_RAMPS_S_12_EFFB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
 
 //
 // RAMBo and derivatives
