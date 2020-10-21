@@ -63,12 +63,12 @@
 #elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif EITHER(DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE)
 
   #define IS_DWIN_MARLINUI 1
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -76,7 +76,7 @@
   #define IS_RRW_KEYPAD
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
   #define ADC_KEY_NUM 8
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
   // This helps to implement ADC_KEYPAD menus
   #define REVERSE_MENU_DIRECTION
@@ -98,7 +98,7 @@
   #define IS_U8GLIB_SSD1306
 
 #elif ENABLED(RADDS_DISPLAY)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define ENCODER_PULSES_PER_STEP 2
 
 #elif EITHER(ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
@@ -108,7 +108,7 @@
 #elif ANY(miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
   #define DOGLCD
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
   #if ENABLED(miniVIKI)
     #define U8GLIB_ST7565_64128N
@@ -123,19 +123,19 @@
 #elif ENABLED(OLED_PANEL_TINYBOY2)
 
   #define IS_U8GLIB_SSD1306
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif ENABLED(RA_CONTROL_PANEL)
 
   #define LCD_I2C_TYPE_PCA8574
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define DOGLCD
   #define U8GLIB_ST7920
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif ENABLED(CR10_STOCKDISPLAY)
 
@@ -179,7 +179,7 @@
 
   #define FYSETC_MINI_12864
   #define DOGLCD
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define LED_COLORS_REDUCE_GREEN
   #if ENABLED(PSU_CONTROL) && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -205,7 +205,7 @@
 
 #elif ENABLED(ULTI_CONTROLLER)
 
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define ENCODER_PULSES_PER_STEP 2
@@ -220,7 +220,7 @@
 #elif EITHER(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C)
 
   #define IS_TFTGLCD_PANEL 1
-  #define IS_ULTIPANEL                      // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
+  #define IS_ULTIPANEL 1                      // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
 
   #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
     #define LCD_PROGRESS_BAR
@@ -246,7 +246,7 @@
 #endif
 
 #if EITHER(MAKRPANEL, MINIPANEL)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define DOGLCD
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
@@ -258,7 +258,7 @@
 #endif
 
 #if ENABLED(OVERLORD_OLED)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define U8GLIB_SH1106
   /**
    * PCA9632 for buzzer and LEDs via i2c
@@ -302,13 +302,13 @@
 
 // Basic Ultipanel-like displays
 #if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, PANEL_ONE, U8GLIB_SH1106)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 #endif
 
 // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
 #if ENABLED(U8GLIB_SH1106_EINSTART)
   #define DOGLCD
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 #endif
 
 // Compatibility
@@ -350,7 +350,7 @@
 
 #if TFT_SCALED_DOGLCD
   #define DOGLCD
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
   #define DELAYED_BACKLIGHT_INIT
 #elif ENABLED(TFT_LVGL_UI)
   #define DELAYED_BACKLIGHT_INIT
@@ -359,7 +359,7 @@
 // Color UI
 #if ENABLED(TFT_COLOR_UI)
   #define HAS_GRAPHICAL_TFT 1
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 #endif
 
 /**
@@ -383,7 +383,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (optional)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
 #elif ENABLED(LCD_I2C_VIKI)
 
@@ -398,7 +398,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 
   #define ENCODER_FEEDRATE_DEADZONE 4
 
@@ -443,10 +443,10 @@
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 #elif ENABLED(SAV_3DLCD)
   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
-  #define IS_ULTIPANEL
+  #define IS_ULTIPANEL 1
 #endif
 
 #if ENABLED(IS_ULTIPANEL)
