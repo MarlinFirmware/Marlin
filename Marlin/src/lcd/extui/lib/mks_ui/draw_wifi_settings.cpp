@@ -23,7 +23,7 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
+#include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)

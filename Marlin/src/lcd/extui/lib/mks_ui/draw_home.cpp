@@ -26,12 +26,12 @@
 #include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_set.h"
-#include "lv_conf.h"
+#include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
 #include "../../../../gcode/queue.h"
 
 extern lv_group_t * g;

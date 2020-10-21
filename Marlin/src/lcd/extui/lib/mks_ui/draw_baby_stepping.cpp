@@ -23,8 +23,8 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../gcode/queue.h"

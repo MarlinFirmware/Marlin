@@ -25,8 +25,8 @@
 
 #include "SPI_TFT.h"
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 #include "mks_hardware_test.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"

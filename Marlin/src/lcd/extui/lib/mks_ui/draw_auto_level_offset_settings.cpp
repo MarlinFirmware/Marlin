@@ -23,8 +23,8 @@
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_BED_PROBE)
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"

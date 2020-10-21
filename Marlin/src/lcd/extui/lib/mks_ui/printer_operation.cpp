@@ -25,8 +25,8 @@
 
 #include "../../../../MarlinCore.h"
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"

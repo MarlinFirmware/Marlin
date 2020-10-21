@@ -23,8 +23,8 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"

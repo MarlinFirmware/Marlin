@@ -25,7 +25,7 @@
 
 #include "draw_ready_print.h"
 #include "draw_tool.h"
-#include "lv_conf.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
