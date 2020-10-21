@@ -106,18 +106,6 @@
   //#undef Z_MAX_PIN                              // Uncomment if using ZMAX connector (PE5)
 #endif
 
-/**
- * Note: Alfawise screens use various TFT controllers. Supported screens
- * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
- * init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
-
 #define TFT_RESET_PIN                       PC4   // pin 33
 #define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
@@ -129,9 +117,6 @@
 
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
-
-// Longer/Alfawise TFT
-#define LONGER_LK_TFT28
 
 // Buffer for Color UI
 #define TFT_BUFFER_SIZE                     3200

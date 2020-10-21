@@ -23,15 +23,14 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
-#include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -197,7 +196,7 @@ void lv_draw_filament_change(void) {
   labelType = lv_label_create(buttoType, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelIn, filament_menu.in);
     lv_obj_align(labelIn, buttonIn, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -228,7 +227,7 @@ void disp_filament_type() {
   if (uiCfg.curSprayerChoose == 1) {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext2);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -236,7 +235,7 @@ void disp_filament_type() {
   else {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext1);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }

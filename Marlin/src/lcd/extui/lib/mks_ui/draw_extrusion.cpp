@@ -23,16 +23,16 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 extern lv_group_t*  g;
@@ -235,7 +235,7 @@ void lv_draw_extrusion(void) {
   labelSpeed            = lv_label_create(buttonSpeed, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, extrude_menu.in);
     lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -274,7 +274,7 @@ void disp_ext_type() {
   if (uiCfg.curSprayerChoose == 1) {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, extrude_menu.ext2);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -282,7 +282,7 @@ void disp_ext_type() {
   else {
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
     lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
-    if (gCfgItems.multiple_language != 0) {
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, extrude_menu.ext1);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
@@ -303,7 +303,7 @@ void disp_ext_speed() {
     lv_imgbtn_set_src(buttonSpeed, LV_BTN_STATE_PR, "F:/bmp_speed_normal.bin");
   }
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.extruSpeed == 20) {
       lv_label_set_text(labelSpeed, extrude_menu.high);
       lv_obj_align(labelSpeed, buttonSpeed, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -377,7 +377,7 @@ void disp_ext_step() {
     lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, "F:/bmp_step10_mm.bin");
   }
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.extruStep == 1) {
       lv_label_set_text(labelStep, extrude_menu.step_1mm);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
