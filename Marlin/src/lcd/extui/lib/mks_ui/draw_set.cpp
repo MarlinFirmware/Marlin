@@ -23,7 +23,6 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_set.h"
 #include "draw_ui.h"
@@ -32,8 +31,11 @@
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "../../../../gcode/queue.h"
+
 #include "pic_manager.h"
+
+#include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 extern lv_group_t*  g;

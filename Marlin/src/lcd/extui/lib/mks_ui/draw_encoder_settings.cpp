@@ -26,12 +26,7 @@
 #include "draw_ui.h"
 #include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/planner.h"
-#include "../../../../module/stepper/indirection.h"
-#include "../../../../feature/tmc_util.h"
-#include "../../../../gcode/gcode.h"
-#include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if BUTTONS_EXIST(EN1, EN2)
 

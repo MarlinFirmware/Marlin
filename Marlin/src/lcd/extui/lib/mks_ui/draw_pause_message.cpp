@@ -30,8 +30,8 @@
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../feature/pause.h"
+#include "../../../../inc/MarlinConfig.h"
 
 void lv_draw_pause_message(const PauseMessage msg) {
   switch (msg) {

@@ -26,9 +26,9 @@
 #include "draw_ui.h"
 #include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if HAS_BED_PROBE
   #include "../../../../module/probe.h"
@@ -52,7 +52,7 @@ static float babystep_dist=0.01;
 static uint8_t has_adjust_z = 0;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
-  char baby_buf[30]={0};
+  char baby_buf[30] = { 0 };
   switch (obj->mks_obj_id) {
     case ID_BABY_STEP_X_P:
       if (event == LV_EVENT_CLICKED) {

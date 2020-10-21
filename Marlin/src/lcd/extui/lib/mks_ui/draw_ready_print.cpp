@@ -36,8 +36,8 @@
 
 #include <lvgl.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #include <stdio.h>
 

@@ -23,21 +23,19 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-
 #include "draw_ui.h"
 #include <lv_conf.h>
+
+#include "../../../../gcode/gcode.h"
 #include "../../../../module/temperature.h"
+#include "../../../../module/planner.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"
-#include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
-
-#include "../../../../gcode/gcode.h"
-#include "../../../../module/planner.h"
 
 extern uint32_t To_pre_view;
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;

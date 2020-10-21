@@ -26,8 +26,7 @@
 #include "draw_ui.h"
 #include <lv_conf.h>
 
-#include "../../../../../Configuration.h"
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;

@@ -30,8 +30,8 @@
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 extern lv_group_t*  g;

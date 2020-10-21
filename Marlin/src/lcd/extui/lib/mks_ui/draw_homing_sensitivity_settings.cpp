@@ -19,18 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfig.h"
 
-#if HAS_TFT_LVGL_UI
+#if HAS_TFT_LVGL_UI && USE_SENSORLESS
 
 #include "draw_ui.h"
 #include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
 #include "../../../../module/probe.h"
-
-#if USE_SENSORLESS
 #include "../../../../module/stepper/indirection.h"
 #include "../../../../feature/tmc_util.h"
 
@@ -256,7 +253,5 @@ void lv_clear_homing_sensitivity_settings() {
   #endif
   lv_obj_del(scr);
 }
-
-#endif // USE_SENSORLESS
 
 #endif // HAS_TFT_LVGL_UI && USE_SENSORLESS
