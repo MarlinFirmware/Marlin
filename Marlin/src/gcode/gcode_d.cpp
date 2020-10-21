@@ -25,8 +25,10 @@
 
   #include "gcode.h"
   #include "../module/settings.h"
+  #include "../module/temperature.h"
   #include "../libs/hex_print.h"
   #include "../HAL/shared/eeprom_if.h"
+  #include "../HAL/shared/Delay.h"
 
   /**
    * Dn: G-code for development and testing
@@ -84,50 +86,52 @@
         }
       } break;
 
-      case 3: { // D3 Read / Write EEPROM
-        uint8_t *pointer = parser.hex_adr_val('A');
-        uint16_t len = parser.ushortval('C', 1);
-        uintptr_t addr = (uintptr_t)pointer;
-        #ifndef MARLIN_EEPROM_SIZE
-          #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
-        #endif
-        NOMORE(addr, (size_t)(MARLIN_EEPROM_SIZE - 1));
-        NOMORE(len, MARLIN_EEPROM_SIZE - addr);
-        if (parser.seenval('X')) {
-          uint16_t val = parser.hex_val('X');
-          #if ENABLED(EEPROM_SETTINGS)
-            persistentStore.access_start();
-            while(len--) {
-              int pos = 0;
-              persistentStore.write_data(pos, (uint8_t *)&val, sizeof(val));
-            }
-            SERIAL_EOL();
-            persistentStore.access_finish();
-          #else
-            SERIAL_ECHOLN("NO EEPROM");
+      #if ENABLED(EEPROM_SETTINGS)
+        case 3: { // D3 Read / Write EEPROM
+          uint8_t *pointer = parser.hex_adr_val('A');
+          uint16_t len = parser.ushortval('C', 1);
+          uintptr_t addr = (uintptr_t)pointer;
+          #ifndef MARLIN_EEPROM_SIZE
+            #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
           #endif
-        }
-        else {
-          while (len--) {
-            // Read bytes from EEPROM
+          NOMORE(addr, (size_t)(MARLIN_EEPROM_SIZE - 1));
+          NOMORE(len, MARLIN_EEPROM_SIZE - addr);
+          if (parser.seenval('X')) {
+            uint16_t val = parser.hex_val('X');
             #if ENABLED(EEPROM_SETTINGS)
               persistentStore.access_start();
-              uint8_t val;
               while(len--) {
                 int pos = 0;
-                if (!persistentStore.read_data(pos, (uint8_t *)&val, sizeof(val))) {
-                  print_hex_byte(val);
-                }
+                persistentStore.write_data(pos, (uint8_t *)&val, sizeof(val));
               }
               SERIAL_EOL();
               persistentStore.access_finish();
             #else
-              SERIAL_ECHOLN("NO EEPROM");
+              SERIAL_ECHOLNPGM("NO EEPROM");
             #endif
           }
-          SERIAL_EOL();
-        }
-      } break;
+          else {
+            while (len--) {
+              // Read bytes from EEPROM
+              #if ENABLED(EEPROM_SETTINGS)
+                persistentStore.access_start();
+                uint8_t val;
+                while(len--) {
+                  int pos = 0;
+                  if (!persistentStore.read_data(pos, (uint8_t *)&val, sizeof(val))) {
+                    print_hex_byte(val);
+                  }
+                }
+                SERIAL_EOL();
+                persistentStore.access_finish();
+              #else
+                SERIAL_ECHOLNPGM("NO EEPROM");
+              #endif
+            }
+            SERIAL_EOL();
+          }
+        } break;
+      #endif
 
       case 4: { // D4 Read / Write PIN
         // const uint8_t pin = parser.byteval('P');
@@ -167,6 +171,20 @@
           SERIAL_EOL();
         }
       } break;
+
+      case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
+        SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
+        SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
+        thermalManager.disable_all_heaters();
+        delay(1000); // Allow time to print
+        DISABLE_ISRS();
+        // Use a low-level delay that does not rely on interrupts to function
+        // Do not spin forever, to avoid thermal risks if heaters are enabled and
+        // watchdog does not work.
+        DELAY_US(10000000);
+        ENABLE_ISRS();
+        SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
+      }
     }
   }
 

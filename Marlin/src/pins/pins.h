@@ -49,10 +49,12 @@
   #define IS_RAMPS_SF
 #endif
 
-#define HAS_FREE_AUX2_PINS !(BOTH(ULTRA_LCD, NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
+#if !(BOTH(IS_ULTRA_LCD, IS_NEWPANEL) && ANY(PANEL_ONE, VIKI2, miniVIKI, MINIPANEL, REPRAPWORLD_KEYPAD))
+  #define HAS_FREE_AUX2_PINS 1
+#endif
 
 // Test the target within the included pins file
-#ifdef __MARLIN_PREBUILD__
+#ifdef __MARLIN_DEPS__
   #define NOT_TARGET(V...) 0
 #else
   #define NOT_TARGET(V...) NONE(V)
@@ -579,7 +581,7 @@
 #elif MB(TEENSY31_32)
   #include "teensy3/pins_TEENSY31_32.h"         // TEENSY31_32                            env:teensy31
 #elif MB(TEENSY35_36)
-  #include "teensy3/pins_TEENSY35_36.h"         // TEENSY35_36                            env:teensy35
+  #include "teensy3/pins_TEENSY35_36.h"         // TEENSY35_36                            env:teensy35 env:teensy36
 
 //
 // STM32 ARM Cortex-M4F
@@ -634,6 +636,8 @@
   #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
+#elif MB(NUCLEO_F767ZI)
+  #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
 #elif MB(TEENSY41)
   #include "teensy4/pins_TEENSY41.h"            // Teensy-4.x                             env:teensy41
 #elif MB(T41U5XBB)

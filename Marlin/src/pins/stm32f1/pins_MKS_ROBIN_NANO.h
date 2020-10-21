@@ -171,6 +171,9 @@
 
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
+  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_SCK                        -1
+
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
@@ -178,9 +181,6 @@
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PD13
 
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
@@ -193,61 +193,12 @@
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
+
+  #define TFT_BUFFER_SIZE                  14400
 #endif
 
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  // Emulated DOGM
-  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              3
-  #endif
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH                        480
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_X
-    #define TFT_PIXEL_OFFSET_X                48
-  #endif
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                       320
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
-#elif ENABLED(TFT_320x240)                        // TFT32/28
-  #define TFT_RESET_PIN                     PC6
-  #define TFT_BACKLIGHT_PIN                 PD13
-
-  #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
-  #define FSMC_CS_PIN                       PD7
-  #define FSMC_RS_PIN                       PD11
-  #define FSMC_DMA_DEV                      DMA2
-  #define FSMC_DMA_CHANNEL               DMA_CH5
-
-  #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-
-  #define TFT_DRIVER                     ILI9341
-  #define TFT_BUFFER_SIZE                  14400
-
-  // YV for normal screen mounting
-  //#define ILI9341_ORIENTATION  ILI9341_MADCTL_MY | ILI9341_MADCTL_MV
-  // XV for 180° rotated screen mounting
-  #define ILI9341_ORIENTATION  ILI9341_MADCTL_MX | ILI9341_MADCTL_MV
-
-  #define ILI9341_COLOR_RGB
-
-#elif ENABLED(TFT_480x320)
-  #define TFT_DRIVER                     ILI9488
-  #define TFT_BUFFER_SIZE                  14400
-  #define ILI9488_ORIENTATION               ILI9488_MADCTL_MX | ILI9488_MADCTL_MV
-#endif
-
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_480x320)
+// XPT2046 Touch Screen calibration
+#if EITHER(HAS_TFT_LVGL_UI_FSMC, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          17880
   #endif
@@ -260,7 +211,7 @@
   #ifndef XPT2046_Y_OFFSET
    #define XPT2046_Y_OFFSET                  349
   #endif
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
+#elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          12149
   #endif
@@ -273,7 +224,7 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 256
   #endif
-#elif ENABLED(TFT_320x240)                        // TFT32/28
+#elif ENABLED(TFT_320x240)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -12246
   #endif

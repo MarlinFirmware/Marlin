@@ -319,7 +319,7 @@
           #define DOGLCD_A0                P1_00
         #endif
 
-        #if ENABLED(ULTIPANEL)
+        #if IS_ULTIPANEL
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22

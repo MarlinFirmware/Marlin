@@ -55,10 +55,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || ENABLED(SPI_GRAPHICAL_TFT))
+#if HAS_MARLINUI_U8GLIB && (PIN_EXISTS(FSMC_CS) || HAS_SPI_GRAPHICAL_TFT)
 
 #include "HAL_LCD_com_defines.h"
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 
 #include <string.h>
 
@@ -66,12 +66,7 @@
   #define HAS_LCD_IO 1
 #endif
 
-#if ENABLED(SPI_GRAPHICAL_TFT)
-  #include HAL_PATH(../../HAL, tft/tft_spi.h)
-#elif ENABLED(FSMC_GRAPHICAL_TFT)
-  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
-#endif
-
+#include "../tft_io/tft_io.h"
 TFT_IO tftio;
 
 #define WIDTH  LCD_PIXEL_WIDTH
@@ -132,298 +127,9 @@ TFT_IO tftio;
   #define TFT_BTOKMENU_COLOR COLOR_RED
 #endif
 
-static uint32_t lcd_id = 0;
-
-#define ST7789V_CASET       0x2A   /* Column address register */
-#define ST7789V_RASET       0x2B   /* Row address register */
-#define ST7789V_WRITE_RAM   0x2C   /* Write data to GRAM */
-
-
-/* Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X */
-#define ILI9328_HASET       0x20   /* Horizontal GRAM address register (0-255) */
-#define ILI9328_VASET       0x21   /* Vertical GRAM address register (0-511)*/
-#define ILI9328_WRITE_RAM   0x22   /* Write data to GRAM */
-
-#define ILI9328_HASTART     0x50   /* Horizontal address start position (0-255) */
-#define ILI9328_HAEND       0x51   /* Horizontal address end position (0-255) */
-#define ILI9328_VASTART     0x52   /* Vertical address start position (0-511) */
-#define ILI9328_VAEND       0x53   /* Vertical address end position (0-511) */
-
-static void setWindow_ili9328(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if HAS_LCD_IO
-    tftio.DataTransferBegin(DATASIZE_8BIT);
-    #define IO_REG_DATA(R,D) do { tftio.WriteReg(R); tftio.WriteData(D); }while(0)
-  #else
-    #define IO_REG_DATA(R,D) do { u8g_WriteByte(u8g, dev, R); u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&D); }while(0)
-  #endif
-
-  #if NONE(LCD_USE_DMA_FSMC, LCD_USE_DMA_SPI)
-    u8g_SetAddress(u8g, dev, 0);
-  #endif
-
-  IO_REG_DATA(ILI9328_HASTART, Ymin);
-  IO_REG_DATA(ILI9328_HAEND,   Ymax);
-  IO_REG_DATA(ILI9328_VASTART, Xmin);
-  IO_REG_DATA(ILI9328_VAEND,   Xmax);
-
-  IO_REG_DATA(ILI9328_HASET,   Ymin);
-  IO_REG_DATA(ILI9328_VASET,   Xmin);
-
-  #if HAS_LCD_IO
-    tftio.WriteReg(ILI9328_WRITE_RAM);
-    tftio.DataTransferEnd();
-  #else
-    u8g_WriteByte(u8g, dev, ILI9328_WRITE_RAM);
-    u8g_SetAddress(u8g, dev, 1);
-  #endif
+static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
+  tftio.set_window(Xmin, Ymin, Xmax, Ymax);
 }
-
-static void setWindow_st7789v(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
-  #if HAS_LCD_IO
-    tftio.DataTransferBegin(DATASIZE_8BIT);
-    tftio.WriteReg(ST7789V_CASET);
-    tftio.WriteData((Xmin >> 8) & 0xFF);
-    tftio.WriteData(Xmin & 0xFF);
-    tftio.WriteData((Xmax >> 8) & 0xFF);
-    tftio.WriteData(Xmax & 0xFF);
-
-    tftio.WriteReg(ST7789V_RASET);
-    tftio.WriteData((Ymin >> 8) & 0xFF);
-    tftio.WriteData(Ymin & 0xFF);
-    tftio.WriteData((Ymax >> 8) & 0xFF);
-    tftio.WriteData(Ymax & 0xFF);
-
-    tftio.WriteReg(ST7789V_WRITE_RAM);
-    tftio.DataTransferEnd();
-  #else
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_CASET); u8g_SetAddress(u8g, dev, 1);
-    u8g_WriteByte(u8g, dev, (Xmin >> 8) & 0xFF);
-    u8g_WriteByte(u8g, dev, Xmin & 0xFF);
-    u8g_WriteByte(u8g, dev, (Xmax >> 8) & 0xFF);
-    u8g_WriteByte(u8g, dev, Xmax & 0xFF);
-
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_RASET); u8g_SetAddress(u8g, dev, 1);
-    u8g_WriteByte(u8g, dev, (Ymin >> 8) & 0xFF);
-    u8g_WriteByte(u8g, dev, Ymin & 0xFF);
-    u8g_WriteByte(u8g, dev, (Ymax >> 8) & 0xFF);
-    u8g_WriteByte(u8g, dev, Ymax & 0xFF);
-
-    u8g_SetAddress(u8g, dev, 0); u8g_WriteByte(u8g, dev, ST7789V_WRITE_RAM); u8g_SetAddress(u8g, dev, 1);
-  #endif
-}
-
-static void setWindow_none(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {}
-void (*setWindow)(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) = setWindow_none;
-
-#define ESC_REG(x)      0xFFFF, 0x00FF & (uint16_t)x
-#define ESC_DELAY(x)    0xFFFF, 0x8000 | (x & 0x7FFF)
-#define ESC_END         0xFFFF, 0x7FFF
-#define ESC_FFFF        0xFFFF, 0xFFFF
-
-#if HAS_LCD_IO
-  void writeEscSequence(const uint16_t *sequence) {
-    uint16_t data;
-    for (;;) {
-      data = *sequence++;
-      if (data != 0xFFFF) {
-        tftio.WriteData(data);
-        continue;
-      }
-      data = *sequence++;
-      if (data == 0x7FFF) return;
-      if (data == 0xFFFF) {
-        tftio.WriteData(data);
-      } else if (data & 0x8000) {
-        delay(data & 0x7FFF);
-      } else if ((data & 0xFF00) == 0) {
-        tftio.WriteReg(data);
-      }
-    }
-  }
-  #define WRITE_ESC_SEQUENCE(V) writeEscSequence(V)
-  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence(V)
-#else
-  void writeEscSequence8(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
-    uint16_t data;
-    u8g_SetAddress(u8g, dev, 1);
-    for (;;) {
-      data = *sequence++;
-      if (data != 0xFFFF) {
-        u8g_WriteByte(u8g, dev, data & 0xFF);
-        continue;
-      }
-      data = *sequence++;
-      if (data == 0x7FFF) return;
-      if (data == 0xFFFF) {
-        u8g_WriteByte(u8g, dev, data & 0xFF);
-      } else if (data & 0x8000) {
-        delay(data & 0x7FFF);
-      } else if ((data & 0xFF00) == 0) {
-        u8g_SetAddress(u8g, dev, 0);
-        u8g_WriteByte(u8g, dev, data & 0xFF);
-        u8g_SetAddress(u8g, dev, 1);
-      }
-    }
-  }
-
-  #define WRITE_ESC_SEQUENCE(V) writeEscSequence8(u8g, dev, V)
-
-  void writeEscSequence16(u8g_t *u8g, u8g_dev_t *dev, const uint16_t *sequence) {
-    uint16_t data;
-    u8g_SetAddress(u8g, dev, 0);
-    for (;;) {
-      data = *sequence++;
-      if (data != 0xFFFF) {
-        u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&data);
-        continue;
-      }
-      data = *sequence++;
-      if (data == 0x7FFF) return;
-      if (data == 0xFFFF) {
-        u8g_WriteSequence(u8g, dev, 2, (uint8_t *)&data);
-      } else if (data & 0x8000) {
-        delay(data & 0x7FFF);
-      } else if ((data & 0xFF00) == 0) {
-        u8g_WriteByte(u8g, dev, data & 0xFF);
-      }
-    }
-    u8g_SetAddress(u8g, dev, 1);
-  }
-
-  #define WRITE_ESC_SEQUENCE16(V) writeEscSequence16(u8g, dev, V)
-#endif
-
-static const uint16_t st7789v_init[] = {
-  ESC_REG(0x0010), ESC_DELAY(10),
-  ESC_REG(0x0001), ESC_DELAY(200),
-  ESC_REG(0x0011), ESC_DELAY(120),
-  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x0060, 0x00A0),
-  ESC_REG(0x003A), 0x0055,
-  ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
-  ESC_REG(0x002B), 0x0000, 0x0000, 0x0000, 0x00EF,
-  ESC_REG(0x00B2), 0x000C, 0x000C, 0x0000, 0x0033, 0x0033,
-  ESC_REG(0x00B7), 0x0035,
-  ESC_REG(0x00BB), 0x001F,
-  ESC_REG(0x00C0), 0x002C,
-  ESC_REG(0x00C2), 0x0001, 0x00C3,
-  ESC_REG(0x00C4), 0x0020,
-  ESC_REG(0x00C6), 0x000F,
-  ESC_REG(0x00D0), 0x00A4, 0x00A1,
-  ESC_REG(0x0029),
-  ESC_REG(0x0011),
-  ESC_END
-};
-
-static const uint16_t ili9328_init[] = {
-  ESC_REG(0x0001), 0x0100,
-  ESC_REG(0x0002), 0x0400,
-  ESC_REG(0x0003), 0x1038,
-  ESC_REG(0x0004), 0x0000,
-  ESC_REG(0x0008), 0x0202,
-  ESC_REG(0x0009), 0x0000,
-  ESC_REG(0x000A), 0x0000,
-  ESC_REG(0x000C), 0x0000,
-  ESC_REG(0x000D), 0x0000,
-  ESC_REG(0x000F), 0x0000,
-  ESC_REG(0x0010), 0x0000,
-  ESC_REG(0x0011), 0x0007,
-  ESC_REG(0x0012), 0x0000,
-  ESC_REG(0x0013), 0x0000,
-  ESC_REG(0x0007), 0x0001,
-  ESC_DELAY(200),
-  ESC_REG(0x0010), 0x1690,
-  ESC_REG(0x0011), 0x0227,
-  ESC_DELAY(50),
-  ESC_REG(0x0012), 0x008C,
-  ESC_DELAY(50),
-  ESC_REG(0x0013), 0x1500,
-  ESC_REG(0x0029), 0x0004,
-  ESC_REG(0x002B), 0x000D,
-  ESC_DELAY(50),
-  ESC_REG(0x0050), 0x0000,
-  ESC_REG(0x0051), 0x00EF,
-  ESC_REG(0x0052), 0x0000,
-  ESC_REG(0x0053), 0x013F,
-  ESC_REG(0x0020), 0x0000,
-  ESC_REG(0x0021), 0x0000,
-  ESC_REG(0x0060), 0x2700,
-  ESC_REG(0x0061), 0x0001,
-  ESC_REG(0x006A), 0x0000,
-  ESC_REG(0x0080), 0x0000,
-  ESC_REG(0x0081), 0x0000,
-  ESC_REG(0x0082), 0x0000,
-  ESC_REG(0x0083), 0x0000,
-  ESC_REG(0x0084), 0x0000,
-  ESC_REG(0x0085), 0x0000,
-  ESC_REG(0x0090), 0x0010,
-  ESC_REG(0x0092), 0x0600,
-  ESC_REG(0x0007), 0x0133,
-  ESC_REG(0x0022),
-  ESC_END
-};
-
-static const uint16_t ili9341_init[] = {
-  ESC_REG(0x0010), ESC_DELAY(10),
-  ESC_REG(0x0001), ESC_DELAY(200),
-  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x0028, 0x00E8),
-  ESC_REG(0x003A), 0x0055,
-  ESC_REG(0x002A), 0x0000, 0x0000, 0x0001, 0x003F,
-  ESC_REG(0x002B), 0x0000, 0x0000, 0x0000, 0x00EF,
-  ESC_REG(0x00C5), 0x003E, 0x0028,
-  ESC_REG(0x00C7), 0x0086,
-  ESC_REG(0x00B1), 0x0000, 0x0018,
-  ESC_REG(0x00C0), 0x0023,
-  ESC_REG(0x00C1), 0x0010,
-  ESC_REG(0x0029),
-  ESC_REG(0x0011),
-  ESC_DELAY(100),
-  ESC_END
-};
-
-static const uint16_t ili9488_init[] = {
-  ESC_REG(0x00E0), 0x0000, 0x0007, 0x000F, 0x000D, 0x001B, 0x000A, 0x003C, 0x0078, 0x004A, 0x0007, 0x000E, 0x0009, 0x001B, 0x001E, 0x000F,
-  ESC_REG(0x00E1), 0x0000, 0x0022, 0x0024, 0x0006, 0x0012, 0x0007, 0x0036, 0x0047, 0x0047, 0x0006, 0x000A, 0x0007, 0x0030, 0x0037, 0x000F,
-  ESC_REG(0x00C0), 0x0010, 0x0010,
-  ESC_REG(0x00C1), 0x0041,
-  ESC_REG(0x00C5), 0x0000, 0x0022, 0x0080,
-  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x00A8, 0x0068),
-  ESC_REG(0x003A), 0x0055,
-  ESC_REG(0x00B0), 0x0000,
-  ESC_REG(0x00B1), 0x00B0, 0x0011,
-  ESC_REG(0x00B4), 0x0002,
-  ESC_REG(0x00B6), 0x0002, 0x0042,
-  ESC_REG(0x00B7), 0x00C6,
-  ESC_REG(0x00E9), 0x0000,
-  ESC_REG(0x00F0), 0x00A9, 0x0051, 0x002C, 0x0082,
-  ESC_REG(0x0029),
-  ESC_REG(0x0011),
-  ESC_DELAY(100),
-  ESC_END
-};
-
-static const uint16_t st7796_init[] = {
-  ESC_REG(0x0010), ESC_DELAY(120),
-  ESC_REG(0x0001), ESC_DELAY(120),
-  ESC_REG(0x0011), ESC_DELAY(120),
-  ESC_REG(0x00F0), 0x00C3,
-  ESC_REG(0x00F0), 0x0096,
-  ESC_REG(0x0036), TERN(GRAPHICAL_TFT_ROTATE_180, 0x00E8, 0x0028),
-  ESC_REG(0x003A), 0x0055,
-  ESC_REG(0x00B4), 0x0001,
-  ESC_REG(0x00B7), 0x00C6,
-  ESC_REG(0x00E8), 0x0040, 0x008A, 0x0000, 0x0000, 0x0029, 0x0019, 0x00A5, 0x0033,
-  ESC_REG(0x00C1), 0x0006,
-  ESC_REG(0x00C2), 0x00A7,
-  ESC_REG(0x00C5), 0x0018,
-  ESC_REG(0x00E0), 0x00F0, 0x0009, 0x000B, 0x0006, 0x0004, 0x0015, 0x002F, 0x0054, 0x0042, 0x003C, 0x0017, 0x0014, 0x0018, 0x001B,
-  ESC_REG(0x00E1), 0x00F0, 0x0009, 0x000B, 0x0006, 0x0004, 0x0003, 0x002D, 0x0043, 0x0042, 0x003B, 0x0016, 0x0014, 0x0017, 0x001B,
-  ESC_REG(0x00F0), 0x003C,
-  ESC_REG(0x00F0), 0x0069, ESC_DELAY(120),
-  ESC_REG(0x0029),
-  ESC_REG(0x0011),
-  ESC_DELAY(100),
-  ESC_END
-};
 
 #if HAS_TOUCH_XPT2046
 
@@ -640,43 +346,9 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
   switch (msg) {
     case U8G_DEV_MSG_INIT:
-      dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, &lcd_id);
-      tftio.DataTransferBegin(DATASIZE_8BIT);
-      switch (lcd_id & 0xFFFF) {
-        case 0x8552:   // ST7789V
-          WRITE_ESC_SEQUENCE(st7789v_init);
-          setWindow = setWindow_st7789v;
-          break;
-        case 0x9328:  // ILI9328
-          WRITE_ESC_SEQUENCE16(ili9328_init);
-          setWindow = setWindow_ili9328;
-          break;
-        case 0x9341:   // ILI9341
-          WRITE_ESC_SEQUENCE(ili9341_init);
-          setWindow = setWindow_st7789v;
-          break;
-        case 0x8066:   // Anycubic / TronXY TFTs (480x320)
-          WRITE_ESC_SEQUENCE(ili9488_init);
-          setWindow = setWindow_st7789v;
-          break;
-        case 0x7796:
-          WRITE_ESC_SEQUENCE(st7796_init);
-          setWindow = setWindow_st7789v;
-          break;
-        case 0x9488:
-          WRITE_ESC_SEQUENCE(ili9488_init);
-          setWindow = setWindow_st7789v;
-        case 0x0404:  // No connected display on FSMC
-          lcd_id = 0;
-          return 0;
-        case 0xFFFF:  // No connected display on SPI
-          lcd_id = 0;
-          return 0;
-        default:
-          setWindow = (lcd_id & 0xFF000000) ? setWindow_st7789v : setWindow_ili9328;
-          break;
-      }
-      tftio.DataTransferEnd();
+      dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, NULL);
+      tftio.Init();
+      tftio.InitTFT();
 
       if (preinit) {
         preinit = false;
@@ -771,14 +443,7 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
     case U8G_COM_MSG_STOP: break;
     case U8G_COM_MSG_INIT:
       u8g_SetPIOutput(u8g, U8G_PI_RESET);
-
       u8g_Delay(50);
-
-      tftio.Init();
-
-      if (arg_ptr) {
-        *((uint32_t *)arg_ptr) = tftio.GetID();
-      }
       isCommand = 0;
       break;
 
@@ -812,4 +477,4 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
 
 U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_tft_320x240_upscale_from_128x64_fn, U8G_COM_HAL_TFT_FN);
 
-#endif // HAS_MARLINUI_U8GLIB && FSMC_CS
+#endif // HAS_MARLINUI_U8GLIB && (FSMC_CS_PIN || HAS_SPI_GRAPHICAL_TFT)

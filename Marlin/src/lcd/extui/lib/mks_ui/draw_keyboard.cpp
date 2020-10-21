@@ -236,14 +236,14 @@ void lv_draw_keyboard() {
   lv_style_copy(&rel_style, &lv_style_btn_rel);
   rel_style.body.radius = 0;
   rel_style.body.border.width = 1;
-  rel_style.body.main_color = lv_color_make(0xa9, 0x62, 0x1d);
-  rel_style.body.grad_color = lv_color_make(0xa7, 0x59, 0x0e);
+  rel_style.body.main_color = lv_color_make(0xA9, 0x62, 0x1D);
+  rel_style.body.grad_color = lv_color_make(0xA7, 0x59, 0x0E);
 
   lv_style_copy(&pr_style, &lv_style_btn_pr);
   pr_style.body.radius = 0;
   pr_style.body.border.width = 1;
   pr_style.body.main_color = lv_color_make(0x72, 0x42, 0x15);
-  pr_style.body.grad_color = lv_color_make(0x6a, 0x3a, 0x0c);
+  pr_style.body.grad_color = lv_color_make(0x6A, 0x3A, 0x0C);
 
   /*Create a keyboard and apply the styles*/
   lv_obj_t *kb = lv_kb_create(scr, NULL);

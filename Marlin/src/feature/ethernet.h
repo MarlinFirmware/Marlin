@@ -21,10 +21,19 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+#ifdef __IMXRT1062__
+  #include <NativeEthernet.h>
 #endif
 
-#ifdef __cplusplus
-  } /* C-declarations for C++ */
-#endif
+// Teensy 4.1 uses internal MAC Address
+
+class MarlinEthernet {
+  public:
+    static bool hardware_enabled, have_telnet_client;
+    static IPAddress ip, myDns, gateway, subnet;
+    static EthernetClient telnetClient;
+    static void init();
+    static void check();
+};
+
+extern MarlinEthernet ethernet;

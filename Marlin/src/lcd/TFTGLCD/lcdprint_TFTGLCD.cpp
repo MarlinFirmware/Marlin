@@ -37,11 +37,11 @@
 
 #if IS_TFTGLCD_PANEL
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../MarlinCore.h"
 #include "../../libs/numtostr.h"
 
-#include "ultralcd_TFTGLCD.h"
+#include "marlinui_TFTGLCD.h"
 
 #include <string.h>
 
@@ -461,8 +461,8 @@ static const TFTGLCD_charmap_t g_TFTGLCD_charmap_device[] PROGMEM = {
 
     #ifdef CONVERT_TO_EXT_ASCII
       {IV('°'), 0x01, 0}, // 00B0, Marlin special: '°'  LCD_STR_DEGREE (0x09)
-      {IV('²'), 0x0e, 0}, // 0x32 if no special symbol in panel font
-      {IV('³'), 0x0f, 0}, // 0x33 if no special symbol in panel font
+      {IV('²'), 0x0E, 0}, // 0x32 if no special symbol in panel font
+      {IV('³'), 0x0F, 0}, // 0x33 if no special symbol in panel font
 
       // translate to cp866 codepage
       //first ASCII symbols in panel font must be replaced with Marlin special symbols

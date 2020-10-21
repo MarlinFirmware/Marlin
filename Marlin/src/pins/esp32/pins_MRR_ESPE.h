@@ -134,7 +134,7 @@
 
     #define BEEPER_PIN                       151
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     #define BEEPER_PIN                       151
 

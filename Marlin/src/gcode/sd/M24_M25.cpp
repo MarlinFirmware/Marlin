@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../feature/pause.h"

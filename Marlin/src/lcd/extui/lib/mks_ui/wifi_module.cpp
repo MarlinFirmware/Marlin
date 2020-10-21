@@ -33,7 +33,7 @@
 #include "../../../../module/temperature.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
-#include "../../../../lcd/ultralcd.h"
+#include "../../../../lcd/marlinui.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/planner.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -125,7 +125,7 @@ uint32_t  getWifiTickDiff(int32_t lastTick, int32_t  curTick) {
     return (curTick - lastTick) * TICK_CYCLE;
   }
   else {
-    return (0xffffffff - lastTick + curTick) * TICK_CYCLE;
+    return (0xFFFFFFFF - lastTick + curTick) * TICK_CYCLE;
   }
 }
 
@@ -334,8 +334,8 @@ void wifi_ret_ack() {}
 char buf_to_wifi[256];
 int index_to_wifi = 0;
 int package_to_wifi(WIFI_RET_TYPE type,char *buf, int len) {
-  char wifi_ret_head = 0xa5;
-  char wifi_ret_tail = 0xfc;
+  char wifi_ret_head = 0xA5;
+  char wifi_ret_tail = 0xFC;
 
   if (type == WIFI_PARA_SET) {
     int data_offset = 4;
@@ -356,8 +356,8 @@ int package_to_wifi(WIFI_RET_TYPE type,char *buf, int len) {
 
     buf_to_wifi[0] = wifi_ret_head;
     buf_to_wifi[1] = type;
-    buf_to_wifi[2] = index_to_wifi & 0xff;
-    buf_to_wifi[3] = (index_to_wifi >> 8) & 0xff;
+    buf_to_wifi[2] = index_to_wifi & 0xFF;
+    buf_to_wifi[3] = (index_to_wifi >> 8) & 0xFF;
 
     raw_send_to_wifi(buf_to_wifi, 5 + index_to_wifi);
 
@@ -392,8 +392,8 @@ int package_to_wifi(WIFI_RET_TYPE type,char *buf, int len) {
 
         buf_to_wifi[0] = wifi_ret_head;
         buf_to_wifi[1] = type;
-        buf_to_wifi[2] = index_to_wifi & 0xff;
-        buf_to_wifi[3] = (index_to_wifi >> 8) & 0xff;
+        buf_to_wifi[2] = index_to_wifi & 0xFF;
+        buf_to_wifi[3] = (index_to_wifi >> 8) & 0xFF;
         buf_to_wifi[4 + index_to_wifi] = wifi_ret_tail;
 
         raw_send_to_wifi(buf_to_wifi, 5 + index_to_wifi);
@@ -426,22 +426,22 @@ int package_to_wifi(WIFI_RET_TYPE type,char *buf, int len) {
     index_to_wifi = 0;
 
     if (gCfgItems.cloud_enable == true)
-      buf_to_wifi[data_offset] = 0x0a;
+      buf_to_wifi[data_offset] = 0x0A;
     else
       buf_to_wifi[data_offset] = 0x05;
 
     buf_to_wifi[data_offset + 1]  = urlLen;
     strncpy(&buf_to_wifi[data_offset + 2], (const char *)uiCfg.cloud_hostUrl, urlLen);
-    buf_to_wifi[data_offset + urlLen + 2]  = uiCfg.cloud_port & 0xff;
-    buf_to_wifi[data_offset + urlLen + 3]  = (uiCfg.cloud_port >> 8) & 0xff;
+    buf_to_wifi[data_offset + urlLen + 2]  = uiCfg.cloud_port & 0xFF;
+    buf_to_wifi[data_offset + urlLen + 3]  = (uiCfg.cloud_port >> 8) & 0xFF;
     buf_to_wifi[data_offset + urlLen + 4] = wifi_ret_tail;
 
     index_to_wifi = urlLen + 4;
 
     buf_to_wifi[0] = wifi_ret_head;
     buf_to_wifi[1] = type;
-    buf_to_wifi[2] = index_to_wifi & 0xff;
-    buf_to_wifi[3] = (index_to_wifi >> 8) & 0xff;
+    buf_to_wifi[2] = index_to_wifi & 0xFF;
+    buf_to_wifi[3] = (index_to_wifi >> 8) & 0xFF;
 
     raw_send_to_wifi(buf_to_wifi, 5 + index_to_wifi);
 
@@ -526,8 +526,8 @@ int write_to_file(char *buf, int len) {
   return 0;
 }
 
-#define ESP_PROTOC_HEAD (uint8_t)0xa5
-#define ESP_PROTOC_TAIL   (uint8_t)0xfc
+#define ESP_PROTOC_HEAD (uint8_t)0xA5
+#define ESP_PROTOC_TAIL   (uint8_t)0xFC
 
 #define ESP_TYPE_NET        (uint8_t)0x0
 #define ESP_TYPE_GCODE        (uint8_t)0x1
@@ -1282,22 +1282,22 @@ void utf8_2_unicode(uint8_t *source,uint8_t Len) {
     else if (char_byte_num == 0XC0 || char_byte_num == 0XD0) {
       //--2byte
 
-      u16_h = (((uint16_t)source[i] <<8) & 0x1f00) >> 2;
-      u16_l = ((uint16_t)source[i+1] & 0x003f);
+      u16_h = (((uint16_t)source[i] <<8) & 0x1F00) >> 2;
+      u16_l = ((uint16_t)source[i+1] & 0x003F);
       u16_value = (u16_h | u16_l);
-      FileName_unicode[char_i] = (uint8_t)((u16_value & 0xff00) >> 8);
-      FileName_unicode[char_i + 1] = (uint8_t)(u16_value & 0x00ff);
+      FileName_unicode[char_i] = (uint8_t)((u16_value & 0xFF00) >> 8);
+      FileName_unicode[char_i + 1] = (uint8_t)(u16_value & 0x00FF);
       i += 2;
       char_i += 2;
     }
     else if (char_byte_num == 0XE0) {
       //--3byte
-      u16_h = (((uint16_t)source[i] <<8 ) & 0x0f00) << 4;
-      u16_m = (((uint16_t)source[i+1] << 8) & 0x3f00) >> 2;
-      u16_l = ((uint16_t)source[i+2] & 0x003f);
+      u16_h = (((uint16_t)source[i] <<8 ) & 0x0F00) << 4;
+      u16_m = (((uint16_t)source[i+1] << 8) & 0x3F00) >> 2;
+      u16_l = ((uint16_t)source[i+2] & 0x003F);
       u16_value = (u16_h | u16_m | u16_l);
-      FileName_unicode[char_i] = (uint8_t)((u16_value & 0xff00) >> 8);
-      FileName_unicode[char_i + 1] = (uint8_t)(u16_value & 0x00ff);
+      FileName_unicode[char_i] = (uint8_t)((u16_value & 0xFF00) >> 8);
+      FileName_unicode[char_i + 1] = (uint8_t)(u16_value & 0x00FF);
       i += 3;
       char_i += 2;
     }
