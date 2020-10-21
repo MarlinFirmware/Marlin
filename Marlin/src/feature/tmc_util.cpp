@@ -554,13 +554,7 @@
         case TMC_PWM_SCALE: SERIAL_PRINT(st.PWM_SCALE(), DEC); break;
         case TMC_SGT: SERIAL_PRINT(st.sgt(), DEC); break;
         case TMC_STEALTHCHOP: serialprint_truefalse(st.en_pwm_mode()); break;
-        case TMC_INTERPOLATE:
-          {
-            CHOPCONF_t r{0};
-            r.sr = st.CHOPCONF();
-            serialprint_truefalse(r.intpol);
-          }
-          break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
@@ -596,13 +590,7 @@
             SERIAL_ECHOPGM("/256");
           }
           break;
-        case TMC_INTERPOLATE:
-          {
-            CHOPCONF_t r{0};
-            r.sr = st.CHOPCONF();
-            serialprint_truefalse(r.intpol);
-          }
-          break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
@@ -618,13 +606,7 @@
         case TMC_STEALTHCHOP: serialprint_truefalse(st.stealth()); break;
         case TMC_S2VSA: if (st.s2vsa()) SERIAL_CHAR('*'); break;
         case TMC_S2VSB: if (st.s2vsb()) SERIAL_CHAR('*'); break;
-        case TMC_INTERPOLATE:
-          {
-            CHOPCONF_t r{0};
-            r.sr = st.CHOPCONF();
-            serialprint_truefalse(r.intpol);
-          }
-          break;
+        case TMC_INTERPOLATE: serialprint_truefalse(st.intpol()); break;
         default: break;
       }
     }
