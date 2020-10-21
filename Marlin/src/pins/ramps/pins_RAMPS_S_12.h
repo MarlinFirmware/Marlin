@@ -23,8 +23,7 @@
 
 /**
  * Arduino Mega with RAMPS-S v1.2 by Sakul.cz pin assignments
- * Written by Michal Rábek
- * E-mail: rabek33@gmail.com
+ * Written by Michal Rábek <rabek33@gmail.com>
  *
  * Applies to the following boards:
  *
@@ -32,7 +31,7 @@
  *  BOARD_RAMPS_S_12_EEEB  Ramps S 1.2 (Hotend0, Hotend1, Hotend2, Bed)
  *  BOARD_RAMPS_S_12_EFFB  Ramps S 1.2 (Hotend, Fan0, Fan1, Bed)
  *
- *  Other pins_MYBOARD.h files may override these defaults
+ * Other pins_MYBOARD.h files may override these defaults
  */
 
 #ifdef TARGET_LPC1768
@@ -56,7 +55,7 @@
 // Servos
 //
 #ifndef SERVO0_PIN
-    #define SERVO0_PIN                        10
+  #define SERVO0_PIN                          10
 #endif
 #ifndef SERVO1_PIN
   #define SERVO1_PIN                          11
@@ -100,7 +99,14 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     5
+  #define Z_MIN_PROBE_PIN                      5
+#endif
+
+//
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      44  // RAMPS_S S3 on the servos connector
 #endif
 
 //
@@ -138,19 +144,15 @@
 #ifndef TEMP_0_PIN
   #define TEMP_0_PIN                          15  // Analog Input
 #endif
-
 #ifndef TEMP_1_PIN
   #define TEMP_1_PIN                          14  // Analog Input
 #endif
-
 #ifndef TEMP_2_PIN
   #define TEMP_2_PIN                          13  // Analog Input
 #endif
-
 #ifndef TEMP_3_PIN
   #define TEMP_3_PIN                          12  // Analog Input
 #endif
-
 #ifndef TEMP_BED_PIN
   #define TEMP_BED_PIN                        11  // Analog Input
 #endif
@@ -159,32 +161,29 @@
 // Heaters / Fans
 //
 #ifndef MOSFET_D_PIN
-  #define MOSFET_D_PIN                       -1
+  #define MOSFET_D_PIN                        -1
 #endif
-
 #ifndef RAMPS_S_HE_0
-  #define RAMPS_S_HE_0                        2
+  #define RAMPS_S_HE_0                         2
 #endif
-
 #ifndef RAMPS_S_HE_1
-  #define RAMPS_S_HE_1                        3
+  #define RAMPS_S_HE_1                         3
 #endif
-
 #ifndef RAMPS_S_HE_2
-  #define RAMPS_S_HE_2                        6
+  #define RAMPS_S_HE_2                         6
 #endif
 
-#define HEATER_BED_PIN                        9
+#define HEATER_BED_PIN                         9
 
 #define HEATER_0_PIN                RAMPS_S_HE_0
 
-#if ENABLED(IS_RAMPS_S_EEFB)                       // Hotend0, Hotend1, Fan, Bed
+#if MB(RAMPS_S_12_EEFB)                           // Hotend0, Hotend1, Fan, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
-  #define FAN_PIN                 RAMPS_S_HE_2
-#elif ENABLED(IS_RAMPS_S_EEEB)                     // Hotend0, Hotend1, Hotend2, Bed
+  #define FAN_PIN                   RAMPS_S_HE_2
+#elif MB(RAMPS_S_12_EEEB)                         // Hotend0, Hotend1, Hotend2, Bed
   #define HEATER_1_PIN              RAMPS_S_HE_1
   #define HEATER_2_PIN              RAMPS_S_HE_2
-#elif ENABLED(S_RAMPS_S_EFFB)                     // Hotend, Fan0, Fan1, Bed
+#elif MB(RAMPS_S_12_EFFB)                         // Hotend, Fan0, Fan1, Bed
   #define FAN_PIN                   RAMPS_S_HE_1
   #define FAN1_PIN                  RAMPS_S_HE_2
 #endif
@@ -195,16 +194,16 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 
+#ifndef KILL_PIN
+  #define KILL_PIN                            46
+#endif
+
 #ifndef FILWIDTH_PIN
   #define FILWIDTH_PIN                        60  // Analog Input on EXTEND
 #endif
 
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                       44 // RAMPS_S S3 on the servos connector
-#endif
-
 #ifndef PS_ON_PIN
-  #define PS_ON_PIN                           12 // RAMPS_S S2 on the servos connector
+  #define PS_ON_PIN                           12  // RAMPS_S S2 on the servos connector
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
@@ -219,10 +218,9 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  //EXTEND PINS
-  #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
-  #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
-  #define SPINDLE_DIR_PIN                    5
+  #define SPINDLE_LASER_ENA_PIN                4  // Pullup or pulldown!
+  #define SPINDLE_LASER_PWM_PIN                6  // Hardware PWM
+  #define SPINDLE_DIR_PIN                      5
 #endif
 
 //
@@ -260,25 +258,24 @@
 //
 // LCD Display output pins
 //
-#define BEEPER_PIN                    45
-#define LCD_PINS_RS                   19
-#define LCD_PINS_ENABLE               49
-#define LCD_PINS_D4                   18
-#define LCD_PINS_D5                   30
-#define LCD_PINS_D6                   41
-#define LCD_PINS_D7                   31
+#if HAS_WIRED_LCD
+  #define BEEPER_PIN                          45
+  #define LCD_PINS_RS                         19
+  #define LCD_PINS_ENABLE                     49
+  #define LCD_PINS_D4                         18
+  #define LCD_PINS_D5                         30
+  #define LCD_PINS_D6                         41
+  #define LCD_PINS_D7                         31
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN                     38
+  #endif
+#endif
 
 //
 // LCD Display input pins
 //
-#define BTN_EN1                       40
-#define BTN_EN2                       42
-
-#define BTN_ENC                       43
-#ifndef SD_DETECT_PIN
-  #define SD_DETECT_PIN               38
-#endif
-
-#ifndef KILL_PIN
-  #define KILL_PIN                    46
+#if IS_NEWPANEL
+  #define BTN_EN1                             40
+  #define BTN_EN2                             42
+  #define BTN_ENC                             43
 #endif
