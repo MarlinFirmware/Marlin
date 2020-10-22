@@ -53,7 +53,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_about(void) {
-  lv_obj_t *buttonBack, *label_Back;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ABOUT_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = ABOUT_UI;
@@ -66,22 +65,17 @@ void lv_draw_about(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  lv_obj_t *title = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonBack = lv_imgbtn_create(scr, NULL);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, NULL);
 
   #if 1
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_A_RETURN, NULL, 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
+    lv_imgbtn_use_label_style(buttonBack);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
     #endif
@@ -91,26 +85,20 @@ void lv_draw_about(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
   // Create a label on the image button
-  label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
 
-  //fw_version = lv_label_create(scr, NULL);
-  //lv_obj_set_style(fw_version, &tft_style_label_rel);
-  //lv_label_set_text(fw_version, SHORT_BUILD_VERSION);
+  //fw_version = lv_label_create(scr, SHORT_BUILD_VERSION);
   //lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER, 0, -60);
 
-  fw_type = lv_label_create(scr, NULL);
-  lv_obj_set_style(fw_type, &tft_style_label_rel);
-  lv_label_set_text(fw_type, "Firmware: Marlin " SHORT_BUILD_VERSION);
+  fw_type = lv_label_create(scr, "Firmware: Marlin " SHORT_BUILD_VERSION);
   lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
 
-  board = lv_label_create(scr, NULL);
-  lv_obj_set_style(board, &tft_style_label_rel);
-  lv_label_set_text(board, "Board: " BOARD_INFO_NAME);
+  board = lv_label_create(scr, "Board: " BOARD_INFO_NAME);
   lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, -60);
 }
 

@@ -137,14 +137,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.finish_power_off) {
           gCfgItems.finish_power_off = false;
-          lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, "F:/bmp_manual_off.bin");
-          lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, "F:/bmp_manual_off.bin");
+          lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_manual_off.bin");
           lv_label_set_text(label_PowerOff, printing_more_menu.manual);
         }
         else {
           gCfgItems.finish_power_off = true;
-          lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, "F:/bmp_auto_off.bin");
-          lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, "F:/bmp_auto_off.bin");
+          lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_auto_off.bin");
           lv_label_set_text(label_PowerOff, printing_more_menu.auto_close);
         }
         lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -185,10 +183,7 @@ void lv_draw_operation(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -208,35 +203,26 @@ void lv_draw_operation(void) {
   buttonBack       = lv_imgbtn_create(scr, NULL);
 
   lv_obj_set_event_cb_mks(buttonPreHeat, event_handler, ID_O_PRE_HEAT, NULL, 0);
-  lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_REL, "F:/bmp_temp.bin");
-  lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_PR, "F:/bmp_temp.bin");
-  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonPreHeat, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonPreHeat, "F:/bmp_temp.bin");
+  lv_imgbtn_use_label_style(buttonPreHeat);
 
   lv_obj_set_event_cb_mks(buttonFilament, event_handler, ID_O_FILAMENT, NULL, 0);
-  lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_REL, "F:/bmp_filamentchange.bin");
-  lv_imgbtn_set_src(buttonFilament, LV_BTN_STATE_PR, "F:/bmp_filamentchange.bin");
-  lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonFilament, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonFilament, "F:/bmp_filamentchange.bin");
+  lv_imgbtn_use_label_style(buttonFilament);
 
   #if 1
     lv_obj_set_event_cb_mks(buttonFan, event_handler, ID_O_FAN, NULL, 0);
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_REL, "F:/bmp_fan.bin");
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_PR, "F:/bmp_fan.bin");
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonFan, "F:/bmp_fan.bin");
+    lv_imgbtn_use_label_style(buttonFan);
 
     if (gCfgItems.finish_power_off) {
-      lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, "F:/bmp_auto_off.bin");
-      lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, "F:/bmp_auto_off.bin");
+      lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_auto_off.bin");
     }
     else {
-      lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_REL, "F:/bmp_manual_off.bin");
-      lv_imgbtn_set_src(buttonPowerOff, LV_BTN_STATE_PR, "F:/bmp_manual_off.bin");
+      lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_manual_off.bin");
     }
     lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, NULL, 0);
-    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPowerOff, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_use_label_style(buttonPowerOff);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -249,16 +235,12 @@ void lv_draw_operation(void) {
 
     if (uiCfg.print_state != WORKING) {
       lv_obj_set_event_cb_mks(buttonExtrusion, event_handler, ID_O_EXTRUCT, NULL, 0);
-      lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_REL, "F:/bmp_extrude_opr.bin");
-      lv_imgbtn_set_src(buttonExtrusion, LV_BTN_STATE_PR, "F:/bmp_extrude_opr.bin");
-      lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonExtrusion, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_set_src_both(buttonExtrusion, "F:/bmp_extrude_opr.bin");
+      lv_imgbtn_use_label_style(buttonExtrusion);
 
       lv_obj_set_event_cb_mks(buttonMove, event_handler, ID_O_MOV, NULL, 0);
-      lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_REL, "F:/bmp_move_opr.bin");
-      lv_imgbtn_set_src(buttonMove, LV_BTN_STATE_PR, "F:/bmp_move_opr.bin");
-      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonMove, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_set_src_both(buttonMove, "F:/bmp_move_opr.bin");
+      lv_imgbtn_use_label_style(buttonMove);
 
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) {
@@ -269,16 +251,12 @@ void lv_draw_operation(void) {
     }
     else {
       lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_O_SPEED, NULL, 0);
-      lv_imgbtn_set_src(buttonSpeed, LV_BTN_STATE_REL, "F:/bmp_speed.bin");
-      lv_imgbtn_set_src(buttonSpeed, LV_BTN_STATE_PR, "F:/bmp_speed.bin");
-      lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonSpeed, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed.bin");
+      lv_imgbtn_use_label_style(buttonSpeed);
 
       lv_obj_set_event_cb_mks(buttonBabyStep, event_handler, ID_O_BABY_STEP, NULL, 0);
-      lv_imgbtn_set_src(buttonBabyStep, LV_BTN_STATE_REL, "F:/bmp_mov.bin");
-      lv_imgbtn_set_src(buttonBabyStep, LV_BTN_STATE_PR, "F:/bmp_mov.bin");
-      lv_imgbtn_set_style(buttonBabyStep, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonBabyStep, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_set_src_both(buttonBabyStep, "F:/bmp_mov.bin");
+      lv_imgbtn_use_label_style(buttonBabyStep);
 
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) {
@@ -289,10 +267,8 @@ void lv_draw_operation(void) {
     }
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_O_RETURN, NULL, 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
+    lv_imgbtn_use_label_style(buttonBack);
   #endif // if 1
 
   #if HAS_ROTARY_ENCODER

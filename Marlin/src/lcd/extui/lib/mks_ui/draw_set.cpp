@@ -194,10 +194,7 @@ void lv_draw_set(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -218,63 +215,46 @@ void lv_draw_set(void) {
   buttonBack        = lv_imgbtn_create(scr, NULL);
 
   lv_obj_set_event_cb_mks(buttonEepromSet, event_handler, ID_S_EEPROM_SET, NULL, 0);
-  lv_imgbtn_set_src(buttonEepromSet, LV_BTN_STATE_REL, "F:/bmp_eeprom_settings.bin");
-  lv_imgbtn_set_src(buttonEepromSet, LV_BTN_STATE_PR, "F:/bmp_eeprom_settings.bin");
-  lv_imgbtn_set_style(buttonEepromSet, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonEepromSet, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonEepromSet, "F:/bmp_eeprom_settings.bin");
+  lv_imgbtn_use_label_style(buttonEepromSet);
 
   #if 1
     lv_obj_set_event_cb_mks(buttonFan, event_handler, ID_S_FAN, NULL, 0);
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_REL, "F:/bmp_fan.bin");
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_PR, "F:/bmp_fan.bin");
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonFan, "F:/bmp_fan.bin");
+    lv_imgbtn_use_label_style(buttonFan);
 
     lv_obj_set_event_cb_mks(buttonAbout, event_handler, ID_S_ABOUT, NULL, 0);
-    lv_imgbtn_set_src(buttonAbout, LV_BTN_STATE_REL, "F:/bmp_about.bin");
-    lv_imgbtn_set_src(buttonAbout, LV_BTN_STATE_PR, "F:/bmp_about.bin");
-    lv_imgbtn_set_style(buttonAbout, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonAbout, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonAbout, "F:/bmp_about.bin");
+    lv_imgbtn_use_label_style(buttonAbout);
 
     lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, NULL, 0);
 
     #if HAS_SUICIDE
-      lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_REL, "F:/bmp_manual_off.bin");
-      lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_PR, "F:/bmp_manual_off.bin");
+      lv_imgbtn_set_src_both(buMotorOff, "F:/bmp_manual_off.bin");
     #else
-      lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_REL, "F:/bmp_function1.bin");
-      lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_PR, "F:/bmp_function1.bin");
+      lv_imgbtn_set_src_both(buMotorOff, "F:/bmp_function1.bin");
     #endif
-    lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_use_label_style(buMotorOff);
 
     lv_obj_set_event_cb_mks(buttonMachinePara, event_handler, ID_S_MACHINE_PARA, NULL, 0);
-    lv_imgbtn_set_src(buttonMachinePara, LV_BTN_STATE_REL, "F:/bmp_machine_para.bin");
-    lv_imgbtn_set_src(buttonMachinePara, LV_BTN_STATE_PR, "F:/bmp_machine_para.bin");
-    lv_imgbtn_set_style(buttonMachinePara, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonMachinePara, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonMachinePara, "F:/bmp_machine_para.bin");
+    lv_imgbtn_use_label_style(buttonMachinePara);
 
     #if HAS_LANG_SELECT_SCREEN
       lv_obj_set_event_cb_mks(buttonLanguage, event_handler, ID_S_LANGUAGE, NULL, 0);
-      lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_REL, "F:/bmp_language.bin");
-      lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_PR, "F:/bmp_language.bin");
-      lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_set_src_both(buttonLanguage, "F:/bmp_language.bin");
+      lv_imgbtn_use_label_style(buttonLanguage);
     #endif
 
     #if ENABLED(USE_WIFI_FUNCTION)
-      lv_obj_set_event_cb_mks(buttonWifi, event_handler,ID_S_WIFI,NULL,0);
-      lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_REL, "F:/bmp_wifi.bin");
-      lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_PR, "F:/bmp_wifi.bin");
-      lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_obj_set_event_cb_mks(buttonWifi, event_handler,ID_S_WIFI,NULL, 0);
+      lv_imgbtn_set_src_both(buttonWifi, "F:/bmp_wifi.bin");
+      lv_imgbtn_use_label_style(buttonWifi);
     #endif
 
     lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_S_RETURN,NULL , 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
+    lv_imgbtn_use_label_style(buttonBack);
 
   #endif // if 1
 

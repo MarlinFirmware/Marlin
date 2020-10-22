@@ -127,10 +127,7 @@ void lv_draw_eeprom_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -139,18 +136,15 @@ void lv_draw_eeprom_settings(void) {
   lv_obj_set_size(buttonRevert, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
   //lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonRevert, event_handler, ID_EEPROM_REVERT, NULL, 0);
-  lv_btn_set_style(buttonRevert, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonRevert, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_use_label_style(buttonRevert);
   lv_btn_set_layout(buttonRevert, LV_LAYOUT_OFF);
   labelRevert = lv_label_create(buttonRevert, NULL);        /*Add a label to the button*/
 
   buttonRevertNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonRevertNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonRevertNarrow, event_handler, ID_EEPROM_REVERT_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonRevertNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonRevertNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonRevertNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonRevertNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonRevertNarrow, "F:/bmp_arrow.bin");
+  lv_imgbtn_use_label_style(buttonRevertNarrow);
   lv_btn_set_layout(buttonRevertNarrow, LV_LAYOUT_OFF);
 
   //line3 = lv_line_create(scr, NULL);
@@ -163,18 +157,15 @@ void lv_draw_eeprom_settings(void) {
   lv_obj_set_size(buttonStore, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
   //lv_obj_set_event_cb(buttonMotor, event_handler);
   lv_obj_set_event_cb_mks(buttonStore, event_handler, ID_EEPROM_STORE, NULL, 0);
-  lv_btn_set_style(buttonStore, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonStore, LV_BTN_STYLE_PR, &tft_style_label_pre);    /*Set the button's pressed style*/
+  lv_btn_use_label_style(buttonStore);
   lv_btn_set_layout(buttonStore, LV_LAYOUT_OFF);
   labelStore = lv_label_create(buttonStore, NULL);        /*Add a label to the button*/
 
   buttonStoreNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonStoreNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonStoreNarrow, event_handler, ID_EEPROM_STORE_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonStoreNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonStoreNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonStoreNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonStoreNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonStoreNarrow, "F:/bmp_arrow.bin");
+  lv_imgbtn_use_label_style(buttonStoreNarrow);
   lv_btn_set_layout(buttonStoreNarrow, LV_LAYOUT_OFF);
 
   line2 = lv_line_create(scr, NULL);
@@ -182,10 +173,8 @@ void lv_draw_eeprom_settings(void) {
 
   buttonBack = lv_imgbtn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_EEPROM_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
+  lv_imgbtn_use_label_style(buttonBack);
 
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);

@@ -1577,6 +1577,60 @@ void draw_return_ui() {
   }
 }
 
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src) {
+  lv_imgbtn_set_src(imgbtn, LV_BTN_STATE_REL, src);
+  lv_imgbtn_set_src(imgbtn, LV_BTN_STATE_PR,  src);
+}
+
+// Use label style for the image button
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn) {
+  lv_imgbtn_set_style(imgbtn, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_style(imgbtn, LV_BTN_STATE_PR,  &tft_style_label_pre);
+}
+
+// Use label style for the image button
+void lv_btn_use_label_style(lv_obj_t *btn) {
+  lv_btn_set_style(btn, LV_BTN_STYLE_REL, &tft_style_label_rel);
+  lv_btn_set_style(btn, LV_BTN_STYLE_PR,  &tft_style_label_pre);
+}
+
+// Use a single style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
+  lv_btn_set_style(btn, LV_BTN_STYLE_REL, style);
+  lv_btn_set_style(btn, LV_BTN_STYLE_PR,  style);
+}
+
+// Create a label with style
+lv_obj_t* lv_label_create(const lv_obj_t *par) {
+  lv_obj_t *label = lv_label_create(par, NULL);
+  lv_obj_set_style(label, &tft_style_label_rel);
+  return label;
+}
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(const lv_obj_t *par, const char *text) {
+  lv_obj_t *label = lv_label_create(par);
+  if (text) lv_label_set_text(label, text);
+  return label;
+}
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(const lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text) {
+  lv_obj_t *label = lv_label_create(par, text);
+  lv_obj_set_pos(label, x, y);
+  return label;
+}
+
+lv_obj_t* lv_btn_create(const lv_obj_t *par, const char *text, lv_event_cb_t cb, int id, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h) {
+  lv_obj_t *btn = lv_btn_create(par, NULL);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_set_size(btn, w, h);
+  lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+  lv_btn_set_style_both(btn, &style_para_value);
+  return btn;
+}
+
 #if ENABLED(SDSUPPORT)
 
   void sd_detection() {

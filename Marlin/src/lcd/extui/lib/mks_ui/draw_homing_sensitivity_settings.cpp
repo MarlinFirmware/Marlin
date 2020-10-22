@@ -98,13 +98,13 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_homing_sensitivity_settings(void) {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL;
-  lv_obj_t *labelXText = NULL, *buttonXValue = NULL, *labelXValue = NULL;
-  lv_obj_t *labelYText = NULL, *buttonYValue = NULL, *labelYValue = NULL;
-  lv_obj_t *labelZText = NULL, *buttonZValue = NULL, *labelZValue = NULL;
+  lv_obj_t *buttonXValue = NULL, *labelXValue = NULL;
+  lv_obj_t *buttonYValue = NULL, *labelYValue = NULL;
+  lv_obj_t *buttonZValue = NULL, *labelZValue = NULL;
   lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL;
   #if Z2_SENSORLESS
-    lv_obj_t *labelZ2Text = NULL, *buttonZ2Value = NULL, *labelZ2Value = NULL;
-    lv_obj_t * line4 = NULL;
+    lv_obj_t *buttonZ2Value = NULL, *labelZ2Value = NULL;
+    lv_obj_t *line4 = NULL;
   #endif
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != HOMING_SENSITIVITY_UI) {
     disp_state_stack._disp_index++;
@@ -118,24 +118,17 @@ void lv_draw_homing_sensitivity_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.HomingSensitivityConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.HomingSensitivityConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  labelXText = lv_label_create(scr, NULL);
-  lv_obj_set_style(labelXText, &tft_style_label_rel);
-  lv_obj_set_pos(labelXText, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-  lv_label_set_text(labelXText, machine_menu.X_Sensitivity);
+  (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.X_Sensitivity);
 
   buttonXValue = lv_btn_create(scr, NULL);
   lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
   lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
   lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_SENSITIVITY_X, NULL, 0);
-  lv_btn_set_style(buttonXValue, LV_BTN_STYLE_REL, &style_para_value);
-  lv_btn_set_style(buttonXValue, LV_BTN_STYLE_PR, &style_para_value);
+  lv_btn_set_style_both(buttonXValue, &style_para_value);
   labelXValue = lv_label_create(buttonXValue, NULL);
 
   #if HAS_ROTARY_ENCODER
@@ -145,17 +138,13 @@ void lv_draw_homing_sensitivity_settings(void) {
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
-  labelYText = lv_label_create(scr, NULL);
-  lv_obj_set_style(labelYText, &tft_style_label_rel);
-  lv_obj_set_pos(labelYText, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10);
-  lv_label_set_text(labelYText, machine_menu.Y_Sensitivity);
+  (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.Y_Sensitivity);
 
   buttonYValue = lv_btn_create(scr, NULL);
   lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2);
   lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
   lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_SENSITIVITY_Y, NULL, 0);
-  lv_btn_set_style(buttonYValue, LV_BTN_STYLE_REL, &style_para_value);
-  lv_btn_set_style(buttonYValue, LV_BTN_STYLE_PR, &style_para_value);
+  lv_btn_set_style_both(buttonYValue, &style_para_value);
   labelYValue = lv_label_create(buttonYValue, NULL);
 
   #if HAS_ROTARY_ENCODER
@@ -165,17 +154,13 @@ void lv_draw_homing_sensitivity_settings(void) {
   line2 = lv_line_create(scr, NULL);
   lv_ex_line(line2, line_points[1]);
 
-  labelZText = lv_label_create(scr, NULL);
-  lv_obj_set_style(labelZText, &tft_style_label_rel);
-  lv_obj_set_pos(labelZText, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10);
-  lv_label_set_text(labelZText, machine_menu.Z_Sensitivity);
+  (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.Z_Sensitivity);
 
   buttonZValue = lv_btn_create(scr, NULL);
   lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2);
   lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
   lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_SENSITIVITY_Z, NULL, 0);
-  lv_btn_set_style(buttonZValue, LV_BTN_STYLE_REL, &style_para_value);
-  lv_btn_set_style(buttonZValue, LV_BTN_STYLE_PR, &style_para_value);
+  lv_btn_set_style_both(buttonZValue, &style_para_value);
   labelZValue = lv_label_create(buttonZValue, NULL);
 
   #if HAS_ROTARY_ENCODER
@@ -186,17 +171,13 @@ void lv_draw_homing_sensitivity_settings(void) {
   lv_ex_line(line3, line_points[2]);
 
   #if Z2_SENSORLESS
-    labelZ2Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelZ2Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelZ2Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10);
-    lv_label_set_text(labelZ2Text, machine_menu.Z2_Sensitivity);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.Z2_Sensitivity);
 
     buttonZ2Value = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonZ2Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonZ2Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonZ2Value, event_handler, ID_SENSITIVITY_Z2, NULL, 0);
-    lv_btn_set_style(buttonZ2Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonZ2Value, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonZ2Value, &style_para_value);
     labelZ2Value = lv_label_create(buttonZ2Value, NULL);
 
     #if HAS_ROTARY_ENCODER
@@ -209,8 +190,7 @@ void lv_draw_homing_sensitivity_settings(void) {
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_SENSITIVITY_RETURN, NULL, 0);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
+  lv_btn_set_style_both(buttonBack, &style_para_back);
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
   label_Back = lv_label_create(buttonBack, NULL);

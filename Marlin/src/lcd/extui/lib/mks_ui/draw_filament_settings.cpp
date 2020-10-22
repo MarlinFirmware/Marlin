@@ -145,73 +145,54 @@ void lv_draw_filament_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.FilamentConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.FilamentConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (uiCfg.para_ui_page != 1) {
-    labelInLengthText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelInLengthText, &tft_style_label_rel);
-    lv_obj_set_pos(labelInLengthText, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelInLengthText, machine_menu.InLength);
+    labelInLengthText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.InLength);
 
     buttonInLengthValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonInLengthValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonInLengthValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonInLengthValue, event_handler, ID_FILAMENT_SET_IN_LENGTH, NULL, 0);
-    lv_btn_set_style(buttonInLengthValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonInLengthValue, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonInLengthValue, &style_para_value);
     labelInLengthValue = lv_label_create(buttonInLengthValue, NULL);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    labelInSpeedText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelInSpeedText, &tft_style_label_rel);
-    lv_obj_set_pos(labelInSpeedText, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10);
-    lv_label_set_text(labelInSpeedText, machine_menu.InSpeed);
+    labelInSpeedText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.InSpeed);
 
     buttonInSpeedValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonInSpeedValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonInSpeedValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonInSpeedValue, event_handler, ID_FILAMENT_SET_IN_SPEED, NULL, 0);
-    lv_btn_set_style(buttonInSpeedValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonInSpeedValue, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonInSpeedValue, &style_para_value);
     labelInSpeedValue = lv_label_create(buttonInSpeedValue, NULL);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    labelOutLengthText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelOutLengthText, &tft_style_label_rel);
-    lv_obj_set_pos(labelOutLengthText, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 6);
-    lv_label_set_text(labelOutLengthText, machine_menu.OutLength);
+    labelOutLengthText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 6, machine_menu.OutLength);
 
     buttonOutLengthValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonOutLengthValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonOutLengthValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonOutLengthValue, event_handler, ID_FILAMENT_SET_OUT_LENGTH, NULL, 0);
-    lv_btn_set_style(buttonOutLengthValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonOutLengthValue, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonOutLengthValue, &style_para_value);
     labelOutLengthValue = lv_label_create(buttonOutLengthValue, NULL);
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    labelOutSpeedText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelOutSpeedText, &tft_style_label_rel);
-    lv_obj_set_pos(labelOutSpeedText, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10);
-    lv_label_set_text(labelOutSpeedText, machine_menu.OutSpeed);
+    labelOutSpeedText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.OutSpeed);
 
     buttonOutSpeedValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonOutSpeedValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonOutSpeedValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonOutSpeedValue, event_handler, ID_FILAMENT_SET_OUT_SPEED, NULL, 0);
-    lv_btn_set_style(buttonOutSpeedValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonOutSpeedValue, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonOutSpeedValue, &style_para_value);
     labelOutSpeedValue = lv_label_create(buttonOutSpeedValue, NULL);
 
     line4 = lv_line_create(scr, NULL);
@@ -219,8 +200,7 @@ void lv_draw_filament_settings(void) {
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_FILAMENT_SET_DOWN, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -233,17 +213,13 @@ void lv_draw_filament_settings(void) {
     #endif
   }
   else {
-    labelTemperText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelTemperText, &tft_style_label_rel);
-    lv_obj_set_pos(labelTemperText, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelTemperText, machine_menu.FilamentTemperature);
+    labelTemperText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.FilamentTemperature);
 
     buttonTemperValue = lv_btn_create(scr, NULL);
     lv_obj_set_pos(buttonTemperValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
     lv_obj_set_size(buttonTemperValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
     lv_obj_set_event_cb_mks(buttonTemperValue, event_handler, ID_FILAMENT_SET_TEMP, NULL, 0);
-    lv_btn_set_style(buttonTemperValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonTemperValue, LV_BTN_STYLE_PR, &style_para_value);
+    lv_btn_set_style_both(buttonTemperValue, &style_para_value);
     labelTemperValue = lv_label_create(buttonTemperValue, NULL);
 
     line1 = lv_line_create(scr, NULL);
@@ -251,8 +227,7 @@ void lv_draw_filament_settings(void) {
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_FILAMENT_SET_UP, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -268,8 +243,7 @@ void lv_draw_filament_settings(void) {
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_FILAMENT_SET_RETURN, NULL, 0);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
+  lv_btn_set_style_both(buttonBack, &style_para_back);
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
   label_Back = lv_label_create(buttonBack, NULL);
@@ -280,22 +254,18 @@ void lv_draw_filament_settings(void) {
 
   if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_length);
       lv_label_set_text(labelInLengthValue, public_buf_l);
       lv_obj_align(labelInLengthValue, buttonInLengthValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_load_speed);
       lv_label_set_text(labelInSpeedValue, public_buf_l);
       lv_obj_align(labelInSpeedValue, buttonInSpeedValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_length);
       lv_label_set_text(labelOutLengthValue, public_buf_l);
       lv_obj_align(labelOutLengthValue, buttonOutLengthValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filamentchange_unload_speed);
       lv_label_set_text(labelOutSpeedValue, public_buf_l);
       lv_obj_align(labelOutSpeedValue, buttonOutSpeedValue, LV_ALIGN_CENTER, 0, 0);
@@ -304,7 +274,6 @@ void lv_draw_filament_settings(void) {
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
     }
     else {
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.filament_limit_temper);
       lv_label_set_text(labelTemperValue, public_buf_l);
       lv_obj_align(labelTemperValue, buttonTemperValue, LV_ALIGN_CENTER, 0, 0);

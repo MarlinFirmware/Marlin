@@ -52,11 +52,8 @@ void lv_draw_wifi_tips(void) {
   lv_obj_clean(scr);
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  text_tips = lv_label_create(scr, NULL);
-  lv_obj_set_style(text_tips, &tft_style_label_rel);
-
+  text_tips = lv_label_create(scr);
   wifi_name = lv_label_create(scr, NULL);
-  lv_obj_set_style(wifi_name, &tft_style_label_rel);
 
   if (wifi_tips_type == TIPS_TYPE_JOINING) {
     lv_label_set_text(text_tips, tips_menu.joining);

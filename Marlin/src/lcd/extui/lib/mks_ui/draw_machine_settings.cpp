@@ -132,10 +132,7 @@ void lv_draw_machine_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.MachineConfigTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.MachineConfigTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -144,18 +141,15 @@ void lv_draw_machine_settings(void) {
   lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          // Set its size
   //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonAcceleration, event_handler, ID_MACHINE_ACCELERATION, NULL, 0);
-  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_REL, &tft_style_label_rel); // Set the button's released style
-  lv_btn_set_style(buttonAcceleration, LV_BTN_STYLE_PR, &tft_style_label_pre);  // Set the button's pressed style
+  lv_btn_use_label_style(buttonAcceleration);
   lv_btn_set_layout(buttonAcceleration, LV_LAYOUT_OFF);
   labelAcceleration = lv_label_create(buttonAcceleration, NULL);                // Add a label to the button
 
   buttonAccelerationNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonAccelerationNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonAccelerationNarrow, event_handler, ID_MACHINE_ACCELERATION_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonAccelerationNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonAccelerationNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonAccelerationNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonAccelerationNarrow, "F:/bmp_arrow.bin");
+  lv_imgbtn_use_label_style(buttonAccelerationNarrow);
   lv_btn_set_layout(buttonAccelerationNarrow, LV_LAYOUT_OFF);
 
   line1 = lv_line_create(lv_scr_act(), NULL);
@@ -166,18 +160,15 @@ void lv_draw_machine_settings(void) {
   lv_obj_set_size(buttonMaxFeedrate, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           // Set its size
   //lv_obj_set_event_cb(buttonMachine, event_handler);
   lv_obj_set_event_cb_mks(buttonMaxFeedrate, event_handler, ID_MACHINE_FEEDRATE, NULL, 0);
-  lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_REL, &tft_style_label_rel);  // Set the button's released style
-  lv_btn_set_style(buttonMaxFeedrate, LV_BTN_STYLE_PR, &tft_style_label_pre);   // Set the button's pressed style
+  lv_btn_use_label_style(buttonMaxFeedrate);
   lv_btn_set_layout(buttonMaxFeedrate, LV_LAYOUT_OFF);
   labelMaxFeedrate = lv_label_create(buttonMaxFeedrate, NULL);                  // Add a label to the button
 
   buttonMaxFeedrateNarrow = lv_imgbtn_create(scr, NULL);
   lv_obj_set_pos(buttonMaxFeedrateNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
   lv_obj_set_event_cb_mks(buttonMaxFeedrateNarrow, event_handler, ID_MACHINE_FEEDRATE_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonMaxFeedrateNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonMaxFeedrateNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonMaxFeedrateNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonMaxFeedrateNarrow, "F:/bmp_arrow.bin");
+  lv_imgbtn_use_label_style(buttonMaxFeedrateNarrow);
   lv_btn_set_layout(buttonMaxFeedrateNarrow, LV_LAYOUT_OFF);
 
   line2 = lv_line_create(lv_scr_act(), NULL);
@@ -189,18 +180,15 @@ void lv_draw_machine_settings(void) {
     lv_obj_set_size(buttonJerk, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                // Set its size
     //lv_obj_set_event_cb(buttonMotor, event_handler);
     lv_obj_set_event_cb_mks(buttonJerk, event_handler, ID_MACHINE_JERK, NULL, 0);
-    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_REL, &tft_style_label_rel);       // Set the button's released style
-    lv_btn_set_style(buttonJerk, LV_BTN_STYLE_PR, &tft_style_label_pre);        // Set the button's pressed style
+    lv_btn_use_label_style(buttonJerk);
     lv_btn_set_layout(buttonJerk, LV_LAYOUT_OFF);
     labelJerk = lv_label_create(buttonJerk, NULL);                              // Add a label to the button
 
     buttonJerkNarrow = lv_imgbtn_create(scr, NULL);
     lv_obj_set_pos(buttonJerkNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);
     lv_obj_set_event_cb_mks(buttonJerkNarrow, event_handler, ID_MACHINE_JERK_ARROW, NULL, 0);
-    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-    lv_imgbtn_set_src(buttonJerkNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-    lv_imgbtn_set_style(buttonJerkNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonJerkNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+    lv_imgbtn_set_src_both(buttonJerkNarrow, "F:/bmp_arrow.bin");
+    lv_imgbtn_use_label_style(buttonJerkNarrow);
     lv_btn_set_layout(buttonJerkNarrow, LV_LAYOUT_OFF);
 
     line3 = lv_line_create(lv_scr_act(), NULL);
@@ -209,10 +197,8 @@ void lv_draw_machine_settings(void) {
 
   buttonBack = lv_imgbtn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MACHINE_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
+  lv_imgbtn_use_label_style(buttonBack);
 
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);

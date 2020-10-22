@@ -144,10 +144,7 @@ void lv_draw_filament_change(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -158,27 +155,20 @@ void lv_draw_filament_change(void) {
   buttonBack = lv_imgbtn_create(scr, NULL);
 
   lv_obj_set_event_cb_mks(buttonIn, event_handler, ID_FILAMNT_IN, NULL, 0);
-  lv_imgbtn_set_src(buttonIn, LV_BTN_STATE_REL, "F:/bmp_in.bin");
-  lv_imgbtn_set_src(buttonIn, LV_BTN_STATE_PR, "F:/bmp_in.bin");
-  lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonIn, "F:/bmp_in.bin");
+  lv_imgbtn_use_label_style(buttonIn);
   lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
 
   lv_obj_set_event_cb_mks(buttonOut, event_handler, ID_FILAMNT_OUT, NULL, 0);
-  lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_REL, "F:/bmp_out.bin");
-  lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_PR, "F:/bmp_out.bin");
-  lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonOut, "F:/bmp_out.bin");
+  lv_imgbtn_use_label_style(buttonOut);
 
   lv_obj_set_event_cb_mks(buttoType, event_handler, ID_FILAMNT_TYPE, NULL, 0);
-  lv_imgbtn_set_style(buttoType, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttoType, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_use_label_style(buttoType);
 
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_FILAMNT_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
+  lv_imgbtn_use_label_style(buttonBack);
 
   lv_obj_set_pos(buttonIn, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonOut, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
@@ -218,23 +208,20 @@ void lv_draw_filament_change(void) {
 
   disp_filament_type();
 
-  tempText1 = lv_label_create(scr, NULL);
-  lv_obj_set_style(tempText1, &tft_style_label_rel);
+  tempText1 = lv_label_create(scr);
   disp_filament_temp();
 }
 
 void disp_filament_type() {
   if (uiCfg.curSprayerChoose == 1) {
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
+    lv_imgbtn_set_src_both(buttoType, "F:/bmp_extru2.bin");
     if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext2);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
   }
   else {
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
+    lv_imgbtn_set_src_both(buttoType, "F:/bmp_extru1.bin");
     if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext1);
       lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

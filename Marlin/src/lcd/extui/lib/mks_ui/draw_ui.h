@@ -164,6 +164,27 @@
 
 #endif // ifdef TFT35
 
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
+
+// Set label styles for Released and Pressed
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
+
+// Set label styles for Released and Pressed
+void lv_btn_use_label_style(lv_obj_t *btn);
+
+// Set the same style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
+
+// Create a label with style
+lv_obj_t* lv_label_create(const lv_obj_t *par);
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(const lv_obj_t *par, const char *text);
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(const lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
+
 #ifdef __cplusplus
   extern "C" { /* C-declarations for C++ */
 #endif
