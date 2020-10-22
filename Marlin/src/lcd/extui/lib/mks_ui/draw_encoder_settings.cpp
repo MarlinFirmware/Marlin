@@ -87,27 +87,14 @@ void lv_draw_encoder_settings(void) {
 
   labelEncoderTips = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.EncoderConfText);
 
-  buttonEncoderState = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonEncoderState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V);
-  lv_imgbtn_set_src_both(buttonEncoderState, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-
-  lv_obj_set_event_cb_mks(buttonEncoderState, event_handler, ID_ENCODER_STATE, NULL, 0);
-
-  lv_imgbtn_use_label_style(buttonEncoderState);
-  lv_btn_set_layout(buttonEncoderState, LV_LAYOUT_OFF);
-  labelEncoderState = lv_label_create(buttonEncoderState, NULL);
+  buttonEncoderState = lv_imgbtn_create(scr, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V, event_handler, ID_ENCODER_STATE);
+  labelEncoderState = lv_label_create_empty(buttonEncoderState);
 
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_ENCODER_RETURN, NULL, 0);
-  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
-  lv_imgbtn_use_label_style(buttonBack);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_ENCODER_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   lv_label_set_text(labelEncoderState, gCfgItems.encoder_enable ? machine_menu.enable : machine_menu.disable);
   lv_obj_align(labelEncoderState, buttonEncoderState, LV_ALIGN_CENTER, 0, 0);

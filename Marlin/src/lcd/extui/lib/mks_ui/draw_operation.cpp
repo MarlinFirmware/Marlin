@@ -188,152 +188,66 @@ void lv_draw_operation(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  buttonPreHeat     = lv_imgbtn_create(scr, NULL);
-  buttonFilament    = lv_imgbtn_create(scr, NULL);
-  buttonFan         = lv_imgbtn_create(scr, NULL);
-  buttonPowerOff    = lv_imgbtn_create(scr, NULL);
+  buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_V, titleHeight, event_handler, ID_O_PRE_HEAT);
+  buttonFilament = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_O_FILAMENT);
+  buttonFan      = lv_imgbtn_create(scr, "F:/bmp_fan.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_O_FAN);
+  buttonPowerOff = lv_imgbtn_create(scr, gCfgItems.finish_power_off ? "F:/bmp_auto_off.bin" : "F:/bmp_manual_off.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_O_POWER_OFF);
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonPreHeat);
+      lv_group_add_obj(g, buttonFilament);
+      lv_group_add_obj(g, buttonFan);
+      lv_group_add_obj(g, buttonPowerOff);
+    }
+  #endif
+
   if (uiCfg.print_state != WORKING) {
-    buttonExtrusion = lv_imgbtn_create(scr, NULL);
-    buttonMove      = lv_imgbtn_create(scr, NULL);
-  }
-  else {
-    buttonSpeed    = lv_imgbtn_create(scr, NULL);
-    buttonBabyStep = lv_imgbtn_create(scr, NULL);
-  }
-  buttonBack       = lv_imgbtn_create(scr, NULL);
-
-  lv_obj_set_event_cb_mks(buttonPreHeat, event_handler, ID_O_PRE_HEAT, NULL, 0);
-  lv_imgbtn_set_src_both(buttonPreHeat, "F:/bmp_temp.bin");
-  lv_imgbtn_use_label_style(buttonPreHeat);
-
-  lv_obj_set_event_cb_mks(buttonFilament, event_handler, ID_O_FILAMENT, NULL, 0);
-  lv_imgbtn_set_src_both(buttonFilament, "F:/bmp_filamentchange.bin");
-  lv_imgbtn_use_label_style(buttonFilament);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonFan, event_handler, ID_O_FAN, NULL, 0);
-    lv_imgbtn_set_src_both(buttonFan, "F:/bmp_fan.bin");
-    lv_imgbtn_use_label_style(buttonFan);
-
-    if (gCfgItems.finish_power_off) {
-      lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_auto_off.bin");
-    }
-    else {
-      lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_manual_off.bin");
-    }
-    lv_obj_set_event_cb_mks(buttonPowerOff, event_handler, ID_O_POWER_OFF, NULL, 0);
-    lv_imgbtn_use_label_style(buttonPowerOff);
-
+    buttonExtrusion = lv_imgbtn_create(scr, "F:/bmp_extrude_opr.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_EXTRUCT);
+    buttonMove      = lv_imgbtn_create(scr, "F:/bmp_move_opr.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_MOV);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
-        lv_group_add_obj(g, buttonPreHeat);
-        lv_group_add_obj(g, buttonFilament);
-        lv_group_add_obj(g, buttonFan);
-        lv_group_add_obj(g, buttonPowerOff);
+        lv_group_add_obj(g, buttonExtrusion);
+        lv_group_add_obj(g, buttonMove);
       }
     #endif
+  }
+  else {
+    buttonSpeed    = lv_imgbtn_create(scr, "F:/bmp_speed.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_SPEED);
+    buttonBabyStep = lv_imgbtn_create(scr, "F:/bmp_mov.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_BABY_STEP);
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) {
+        lv_group_add_obj(g, buttonSpeed);
+        lv_group_add_obj(g, buttonBabyStep);
+      }
+    #endif
+  }
 
-    if (uiCfg.print_state != WORKING) {
-      lv_obj_set_event_cb_mks(buttonExtrusion, event_handler, ID_O_EXTRUCT, NULL, 0);
-      lv_imgbtn_set_src_both(buttonExtrusion, "F:/bmp_extrude_opr.bin");
-      lv_imgbtn_use_label_style(buttonExtrusion);
-
-      lv_obj_set_event_cb_mks(buttonMove, event_handler, ID_O_MOV, NULL, 0);
-      lv_imgbtn_set_src_both(buttonMove, "F:/bmp_move_opr.bin");
-      lv_imgbtn_use_label_style(buttonMove);
-
-      #if HAS_ROTARY_ENCODER
-        if (gCfgItems.encoder_enable) {
-          lv_group_add_obj(g, buttonExtrusion);
-          lv_group_add_obj(g, buttonMove);
-        }
-      #endif
-    }
-    else {
-      lv_obj_set_event_cb_mks(buttonSpeed, event_handler, ID_O_SPEED, NULL, 0);
-      lv_imgbtn_set_src_both(buttonSpeed, "F:/bmp_speed.bin");
-      lv_imgbtn_use_label_style(buttonSpeed);
-
-      lv_obj_set_event_cb_mks(buttonBabyStep, event_handler, ID_O_BABY_STEP, NULL, 0);
-      lv_imgbtn_set_src_both(buttonBabyStep, "F:/bmp_mov.bin");
-      lv_imgbtn_use_label_style(buttonBabyStep);
-
-      #if HAS_ROTARY_ENCODER
-        if (gCfgItems.encoder_enable) {
-          lv_group_add_obj(g, buttonSpeed);
-          lv_group_add_obj(g, buttonBabyStep);
-        }
-      #endif
-    }
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_O_RETURN, NULL, 0);
-    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
-    lv_imgbtn_use_label_style(buttonBack);
-  #endif // if 1
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_O_RETURN);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  lv_obj_set_pos(buttonPreHeat, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonFilament, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
-  lv_obj_set_pos(buttonFan, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
-  lv_obj_set_pos(buttonPowerOff, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-
-  if (uiCfg.print_state != WORKING) {
-    /*
-      lv_obj_set_pos(buttonFilament,INTERVAL_V,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-    } else {
-    */
-    lv_obj_set_pos(buttonExtrusion, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-    lv_obj_set_pos(buttonMove, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  }
-  else {
-    lv_obj_set_pos(buttonSpeed, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-    lv_obj_set_pos(buttonBabyStep, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  }
-
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonPreHeat, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonFan, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPowerOff, LV_LAYOUT_OFF);
+  labelPreHeat   = lv_label_create_empty(buttonPreHeat);
+  label_Filament = lv_label_create_empty(buttonFilament);
+  label_Fan      = lv_label_create_empty(buttonFan);
+  label_PowerOff = lv_label_create_empty(buttonPowerOff);
 
   if (uiCfg.print_state != WORKING) {
     /*
-      lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
+      label_Filament = lv_label_create_empty(buttonFilament);
     } else {
     */
-    lv_btn_set_layout(buttonExtrusion, LV_LAYOUT_OFF);
-    lv_btn_set_layout(buttonMove, LV_LAYOUT_OFF);
+    labelExtrusion = lv_label_create_empty(buttonExtrusion);
+    label_Move = lv_label_create_empty(buttonMove);
   }
   else {
-    lv_btn_set_layout(buttonSpeed, LV_LAYOUT_OFF);
-    lv_btn_set_layout(buttonBabyStep, LV_LAYOUT_OFF);
+    label_Speed = lv_label_create_empty(buttonSpeed);
+    label_BabyStep = lv_label_create_empty(buttonBabyStep);
   }
-
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  labelPreHeat   = lv_label_create(buttonPreHeat, NULL);
-  label_Filament = lv_label_create(buttonFilament, NULL);
-  label_Fan   = lv_label_create(buttonFan, NULL);
-  label_PowerOff = lv_label_create(buttonPowerOff, NULL);
-
-  if (uiCfg.print_state != WORKING) {
-    /*
-      label_Filament = lv_label_create(buttonFilament, NULL);
-    } else {
-    */
-    labelExtrusion = lv_label_create(buttonExtrusion, NULL);
-    label_Move = lv_label_create(buttonMove, NULL);
-  }
-  else {
-    label_Speed = lv_label_create(buttonSpeed, NULL);
-    label_BabyStep = lv_label_create(buttonBabyStep, NULL);
-  }
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(labelPreHeat, operation_menu.temp);

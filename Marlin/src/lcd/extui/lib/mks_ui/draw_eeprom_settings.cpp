@@ -111,9 +111,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_eeprom_settings(void) {
   lv_obj_t *buttonBack, *label_Back;
-  lv_obj_t *buttonStore,*labelStore,*buttonStoreNarrow;
+  lv_obj_t *buttonStore, *labelStore;
   //lv_obj_t *buttonRead,*labelRead,*buttonReadNarrow;
-  lv_obj_t *buttonRevert, *labelRevert, *buttonRevertNarrow;
+  lv_obj_t *buttonRevert, *labelRevert;
   lv_obj_t * line1, * line2; //* line3;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != EEPROM_SETTINGS_UI) {
     disp_state_stack._disp_index++;
@@ -138,14 +138,9 @@ void lv_draw_eeprom_settings(void) {
   lv_obj_set_event_cb_mks(buttonRevert, event_handler, ID_EEPROM_REVERT, NULL, 0);
   lv_btn_use_label_style(buttonRevert);
   lv_btn_set_layout(buttonRevert, LV_LAYOUT_OFF);
-  labelRevert = lv_label_create(buttonRevert, NULL);        /*Add a label to the button*/
+  labelRevert = lv_label_create_empty(buttonRevert);        /*Add a label to the button*/
 
-  buttonRevertNarrow = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonRevertNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonRevertNarrow, event_handler, ID_EEPROM_REVERT_ARROW, NULL, 0);
-  lv_imgbtn_set_src_both(buttonRevertNarrow, "F:/bmp_arrow.bin");
-  lv_imgbtn_use_label_style(buttonRevertNarrow);
-  lv_btn_set_layout(buttonRevertNarrow, LV_LAYOUT_OFF);
+  (void)lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V, event_handler, ID_EEPROM_REVERT_ARROW);
 
   //line3 = lv_line_create(scr, NULL);
   //lv_ex_line(line3,line_points[2]);
@@ -159,26 +154,15 @@ void lv_draw_eeprom_settings(void) {
   lv_obj_set_event_cb_mks(buttonStore, event_handler, ID_EEPROM_STORE, NULL, 0);
   lv_btn_use_label_style(buttonStore);
   lv_btn_set_layout(buttonStore, LV_LAYOUT_OFF);
-  labelStore = lv_label_create(buttonStore, NULL);        /*Add a label to the button*/
+  labelStore = lv_label_create_empty(buttonStore);        /*Add a label to the button*/
 
-  buttonStoreNarrow = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonStoreNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonStoreNarrow, event_handler, ID_EEPROM_STORE_ARROW, NULL, 0);
-  lv_imgbtn_set_src_both(buttonStoreNarrow, "F:/bmp_arrow.bin");
-  lv_imgbtn_use_label_style(buttonStoreNarrow);
-  lv_btn_set_layout(buttonStoreNarrow, LV_LAYOUT_OFF);
+  (void)lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V, event_handler, ID_EEPROM_STORE_ARROW);
 
   line2 = lv_line_create(scr, NULL);
   lv_ex_line(line2, line_points[1]);
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_EEPROM_RETURN, NULL, 0);
-  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
-  lv_imgbtn_use_label_style(buttonBack);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_EEPROM_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);

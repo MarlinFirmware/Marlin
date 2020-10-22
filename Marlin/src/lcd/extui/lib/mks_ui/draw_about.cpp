@@ -65,27 +65,18 @@ void lv_draw_about(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t *title = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, NULL);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_A_RETURN, NULL, 0);
-    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
-    lv_imgbtn_use_label_style(buttonBack);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
-    #endif
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_A_RETURN);
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
   // Create a label on the image button
-  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);

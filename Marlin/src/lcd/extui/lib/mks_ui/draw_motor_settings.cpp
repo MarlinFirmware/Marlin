@@ -180,42 +180,27 @@ void lv_draw_motor_settings(void) {
   lv_obj_set_event_cb_mks(buttonSteps, event_handler, ID_MOTOR_STEPS, NULL, 0);
   lv_btn_use_label_style(buttonSteps);
   lv_btn_set_layout(buttonSteps, LV_LAYOUT_OFF);
-  labelSteps = lv_label_create(buttonSteps, NULL);                        /*Add a label to the button*/
+  labelSteps = lv_label_create_empty(buttonSteps);                        /*Add a label to the button*/
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonSteps);
   #endif
 
-  buttonStepsNarrow = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonStepsNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonStepsNarrow, event_handler, ID_MOTOR_STEPS_ARROW, NULL, 0);
-  lv_imgbtn_set_src_both(buttonStepsNarrow, "F:/bmp_arrow.bin");
-  lv_imgbtn_use_label_style(buttonStepsNarrow);
-  lv_btn_set_layout(buttonStepsNarrow, LV_LAYOUT_OFF);
+  buttonStepsNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V, event_handler, ID_MOTOR_STEPS_ARROW);
 
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
   #if USE_SENSORLESS
-    buttonSensitivity = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonSensitivity, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
-    lv_obj_set_size(buttonSensitivity, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
+    buttonSensitivity = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_HOME_SENSE);
     //lv_obj_set_event_cb(buttonMachine, event_handler);
-    lv_obj_set_event_cb_mks(buttonSensitivity, event_handler, ID_HOME_SENSE, NULL, 0);
-    lv_btn_use_label_style(buttonSensitivity);
-    lv_btn_set_layout(buttonSensitivity, LV_LAYOUT_OFF);
-    labelSensitivity = lv_label_create(buttonSensitivity, NULL);                  /*Add a label to the button*/
+    labelSensitivity = lv_label_create_empty(buttonSensitivity);                  /*Add a label to the button*/
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonSensitivity);
     #endif
 
-    buttonSensitivityNarrow = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonSensitivityNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
-    lv_obj_set_event_cb_mks(buttonSensitivityNarrow, event_handler, ID_HOME_SENSE_ARROW, NULL, 0);
-    lv_imgbtn_set_src_both(buttonSensitivityNarrow, "F:/bmp_arrow.bin");
-    lv_imgbtn_use_label_style(buttonSensitivityNarrow);
-    lv_btn_set_layout(buttonSensitivityNarrow, LV_LAYOUT_OFF);
+    buttonSensitivityNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V, event_handler, ID_HOME_SENSE_ARROW);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
@@ -230,17 +215,13 @@ void lv_draw_motor_settings(void) {
     lv_obj_set_event_cb_mks(buttonTMCcurrent, event_handler, ID_MOTOR_TMC_CURRENT, NULL, 0);
     lv_btn_use_label_style(buttonTMCcurrent);
     lv_btn_set_layout(buttonTMCcurrent, LV_LAYOUT_OFF);
-    labelTMCcurrent = lv_label_create(buttonTMCcurrent, NULL);                  /*Add a label to the button*/
+    labelTMCcurrent = lv_label_create_empty(buttonTMCcurrent);                  /*Add a label to the button*/
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonTMCcurrent);
     #endif
 
-    buttonTMCcurrentNarrow = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonTMCcurrentNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 3, PARA_UI_POS_Y * 2) + PARA_UI_ARROW_V);
-    lv_obj_set_event_cb_mks(buttonTMCcurrentNarrow, event_handler, ID_MOTOR_TMC_CURRENT_ARROW, NULL, 0);
-    lv_imgbtn_set_src_both(buttonTMCcurrentNarrow, "F:/bmp_arrow.bin");
-    lv_imgbtn_use_label_style(buttonTMCcurrentNarrow);
-    lv_btn_set_layout(buttonTMCcurrentNarrow, LV_LAYOUT_OFF);
+    buttonTMCcurrentNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 3, PARA_UI_POS_Y * 2) + PARA_UI_ARROW_V, event_handler, ID_MOTOR_TMC_CURRENT_ARROW);
+
     #if USE_SENSORLESS
       line3 = lv_line_create(scr, NULL);
       lv_ex_line(line3, line_points[2]);
@@ -250,24 +231,14 @@ void lv_draw_motor_settings(void) {
     #endif
 
     #if HAS_STEALTHCHOP
-      buttonStepMode = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-      lv_obj_set_pos(buttonStepMode, PARA_UI_POS_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 4, PARA_UI_POS_Y * 3));
-      lv_obj_set_size(buttonStepMode, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          /*Set its size*/
-      lv_obj_set_event_cb_mks(buttonStepMode, event_handler, ID_MOTOR_STEP_MODE, NULL, 0);
-      lv_btn_use_label_style(buttonStepMode);
-      lv_btn_set_layout(buttonStepMode, LV_LAYOUT_OFF);
-      labelStepMode = lv_label_create(buttonStepMode, NULL);                    /*Add a label to the button*/
+      buttonStepMode = lv_btn_create(scr, NULL, PARA_UI_POS_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 4, PARA_UI_POS_Y * 3), PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_MOTOR_STEP_MODE);
+      labelStepMode = lv_label_create_empty(buttonStepMode);                    /*Add a label to the button*/
 
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonStepMode);
       #endif
 
-      buttonStepModeNarrow = lv_imgbtn_create(scr, NULL);
-      lv_obj_set_pos(buttonStepModeNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 4, PARA_UI_POS_Y * 3) + PARA_UI_ARROW_V);
-      lv_obj_set_event_cb_mks(buttonStepModeNarrow, event_handler, ID_MOTOR_STEP_MODE_ARROW, NULL, 0);
-      lv_imgbtn_set_src_both(buttonStepModeNarrow, "F:/bmp_arrow.bin");
-      lv_imgbtn_use_label_style(buttonStepModeNarrow);
-      lv_btn_set_layout(buttonStepModeNarrow, LV_LAYOUT_OFF);
+      buttonStepModeNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, TERN(USE_SENSORLESS, PARA_UI_POS_Y * 4, PARA_UI_POS_Y * 3) + PARA_UI_ARROW_V, event_handler, ID_MOTOR_STEP_MODE_ARROW);
 
       #if USE_SENSORLESS
         line4 = lv_line_create(scr, NULL);
@@ -281,13 +252,8 @@ void lv_draw_motor_settings(void) {
 
   #endif // HAS_TRINAMIC_CONFIG
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MOTOR_RETURN, NULL, 0);
-  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
-  lv_imgbtn_use_label_style(buttonBack);
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_MOTOR_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);

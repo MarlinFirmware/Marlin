@@ -137,62 +137,22 @@ void lv_draw_fan(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonAdd  = lv_imgbtn_create(scr, NULL);
-  buttonDec  = lv_imgbtn_create(scr, NULL);
-  buttonHigh = lv_imgbtn_create(scr, NULL);
-  buttonMid  = lv_imgbtn_create(scr, NULL);
-  buttonOff  = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
-
-  lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_F_ADD, NULL, 0);
-  lv_imgbtn_set_src_both(buttonAdd, "F:/bmp_Add.bin");
-  lv_imgbtn_use_label_style(buttonAdd);
+  buttonAdd  = lv_imgbtn_create(scr, "F:/bmp_Add.bin", INTERVAL_V, titleHeight, event_handler, ID_F_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
 
-  #if 1
-    lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_F_DEC, NULL, 0);
-    lv_imgbtn_set_src_both(buttonDec, "F:/bmp_Dec.bin");
-    lv_imgbtn_use_label_style(buttonDec);
-
-    lv_obj_set_event_cb_mks(buttonHigh, event_handler,ID_F_HIGH, NULL, 0);
-    lv_imgbtn_set_src_both(buttonHigh, "F:/bmp_speed255.bin");
-    lv_imgbtn_use_label_style(buttonHigh);
-
-    lv_obj_set_event_cb_mks(buttonMid, event_handler,ID_F_MID, NULL, 0);
-    lv_imgbtn_set_src_both(buttonMid, "F:/bmp_speed127.bin");
-    lv_imgbtn_use_label_style(buttonMid);
-
-    lv_obj_set_event_cb_mks(buttonOff, event_handler,ID_F_OFF, NULL, 0);
-    lv_imgbtn_set_src_both(buttonOff, "F:/bmp_speed0.bin");
-    lv_imgbtn_use_label_style(buttonOff);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_F_RETURN, NULL, 0);
-    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
-    lv_imgbtn_use_label_style(buttonBack);
-
-  #endif
-
-  lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonDec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonHigh, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonMid, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonOff, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+  buttonDec  = lv_imgbtn_create(scr, "F:/bmp_Dec.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_F_DEC);
+  buttonHigh = lv_imgbtn_create(scr, "F:/bmp_speed255.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_HIGH);
+  buttonMid  = lv_imgbtn_create(scr, "F:/bmp_speed127.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_MID);
+  buttonOff  = lv_imgbtn_create(scr, "F:/bmp_speed0.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_OFF);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_F_RETURN);
 
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonAdd, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonDec, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonHigh, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonMid, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonOff, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  lv_obj_t *labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t *labelDec = lv_label_create(buttonDec, NULL);
-  lv_obj_t *labelHigh = lv_label_create(buttonHigh, NULL);
-  lv_obj_t *labelMid = lv_label_create(buttonMid, NULL);
-  lv_obj_t *labelOff = lv_label_create(buttonOff, NULL);
-  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *labelAdd = lv_label_create_empty(buttonAdd);
+  lv_obj_t *labelDec = lv_label_create_empty(buttonDec);
+  lv_obj_t *labelHigh = lv_label_create_empty(buttonHigh);
+  lv_obj_t *labelMid = lv_label_create_empty(buttonMid);
+  lv_obj_t *labelOff = lv_label_create_empty(buttonOff);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, fan_menu.add);
@@ -224,7 +184,8 @@ void lv_draw_fan(void) {
     }
   #endif
 
-  fanText = lv_label_create(scr);
+  fanText = lv_label_create_empty(scr);
+  lv_obj_set_style(fanText, &tft_style_label_rel);
   disp_fan_value();
 }
 

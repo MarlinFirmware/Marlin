@@ -117,59 +117,38 @@ void lv_draw_jerk_settings(void) {
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.X_Jerk);
 
-  buttonXValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_JERK_X, NULL, 0);
-  lv_btn_set_style_both(buttonXValue, &style_para_value);
-  labelXValue = lv_label_create(buttonXValue, NULL);
+  buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_JERK_X);
+  labelXValue = lv_label_create_empty(buttonXValue);
 
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.Y_Jerk);
 
-  buttonYValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_JERK_Y, NULL, 0);
-  lv_btn_set_style_both(buttonYValue, &style_para_value);
-  labelYValue = lv_label_create(buttonYValue, NULL);
+  buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_JERK_Y);
+  labelYValue = lv_label_create_empty(buttonYValue);
 
   line2 = lv_line_create(scr, NULL);
   lv_ex_line(line2, line_points[1]);
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.Z_Jerk);
 
-  buttonZValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_JERK_Z, NULL, 0);
-  lv_btn_set_style_both(buttonZValue, &style_para_value);
-  labelZValue = lv_label_create(buttonZValue, NULL);
+  buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_JERK_Z);
+  labelZValue = lv_label_create_empty(buttonZValue);
 
   line3 = lv_line_create(scr, NULL);
   lv_ex_line(line3, line_points[2]);
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.E_Jerk);
 
-  buttonEValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonEValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonEValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonEValue, event_handler, ID_JERK_E, NULL, 0);
-  lv_btn_set_style_both(buttonEValue, &style_para_value);
-  labelEValue = lv_label_create(buttonEValue, NULL);
+  buttonEValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_JERK_E);
+  labelEValue = lv_label_create_empty(buttonEValue);
 
   line4 = lv_line_create(scr, NULL);
   lv_ex_line(line4, line_points[3]);
 
-  buttonBack = lv_btn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_JERK_RETURN, NULL, 0);
-  lv_btn_set_style_both(buttonBack, &style_para_back);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_btn_create_back(scr, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, event_handler, ID_JERK_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable == true) {

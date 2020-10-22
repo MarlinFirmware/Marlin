@@ -153,55 +153,37 @@ void lv_draw_step_settings(void) {
   if (uiCfg.para_ui_page != 1) {
     (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.X_Steps);
 
-    buttonXValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_STEP_X, NULL, 0);
-    lv_btn_set_style_both(buttonXValue, &style_para_value);
-    labelXValue = lv_label_create(buttonXValue, NULL);
+    buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_STEP_X);
+    labelXValue = lv_label_create_empty(buttonXValue);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
     (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.Y_Steps);
 
-    buttonYValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_STEP_Y, NULL, 0);
-    lv_btn_set_style_both(buttonYValue, &style_para_value);
-    labelYValue = lv_label_create(buttonYValue, NULL);
+    buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_STEP_Y);
+    labelYValue = lv_label_create_empty(buttonYValue);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
     (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.Z_Steps);
 
-    buttonZValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_STEP_Z, NULL, 0);
-    lv_btn_set_style_both(buttonZValue, &style_para_value);
-    labelZValue = lv_label_create(buttonZValue, NULL);
+    buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_STEP_Z);
+    labelZValue = lv_label_create_empty(buttonZValue);
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
     (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.E0_Steps);
 
-    buttonE0Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonE0Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonE0Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonE0Value, event_handler, ID_STEP_E0, NULL, 0);
-    lv_btn_set_style_both(buttonE0Value, &style_para_value);
-    labelE0Value = lv_label_create(buttonE0Value, NULL);
+    buttonE0Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_STEP_E0);
+    labelE0Value = lv_label_create_empty(buttonE0Value);
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
-    buttonTurnPage = lv_btn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_DOWN, NULL, 0);
-    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
+    buttonTurnPage = lv_btn_create(scr, event_handler, ID_STEP_DOWN);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -216,19 +198,13 @@ void lv_draw_step_settings(void) {
   else {
     (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.E1_Steps);
 
-    buttonE1Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonE1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_STEP_E1, NULL, 0);
-    lv_btn_set_style_both(buttonE1Value, &style_para_value);
-    labelE1Value = lv_label_create(buttonE1Value, NULL);
+    buttonE1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_STEP_E1);
+    labelE1Value = lv_label_create_empty(buttonE1Value);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonTurnPage = lv_btn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_UP, NULL, 0);
-    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
+    buttonTurnPage = lv_btn_create(scr, event_handler, ID_STEP_UP);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -240,14 +216,14 @@ void lv_draw_step_settings(void) {
 
   lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
   lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  labelTurnPage = lv_label_create_empty(buttonTurnPage);
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_btn_set_style_both(buttonBack, &style_para_back);
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_STEP_RETURN, NULL, 0);
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif

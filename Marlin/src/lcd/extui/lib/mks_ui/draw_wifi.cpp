@@ -90,21 +90,16 @@ void lv_draw_wifi(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-    //buttonCloud = lv_imgbtn_create(scr, NULL);
-    buttonReconnect = lv_imgbtn_create(scr, NULL);
-  }
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RETURN);
 
-  lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_W_RETURN, NULL, 0);
-  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
-  lv_imgbtn_use_label_style(buttonBack);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
+  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+    //buttonCloud = lv_imgbtn_create(scr, NULL);
+    buttonReconnect = lv_imgbtn_create(scr, NULL);
+  }
 
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
@@ -120,11 +115,11 @@ void lv_draw_wifi(void) {
     lv_btn_set_layout(buttonReconnect, LV_LAYOUT_OFF);
   }
 
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-    //label_Cloud = lv_label_create(buttonCloud, NULL);
-    label_Reconnect = lv_label_create(buttonReconnect, NULL);
+    //label_Cloud = lv_label_create_empty(buttonCloud);
+    label_Reconnect = lv_label_create_empty(buttonReconnect);
   }
 
   if (gCfgItems.multiple_language) {
@@ -140,10 +135,14 @@ void lv_draw_wifi(void) {
     }
   }
 
-  wifi_ip_text = lv_label_create(scr);
-  wifi_name_text = lv_label_create(scr);
-  wifi_key_text = lv_label_create(scr);
-  wifi_state_text = lv_label_create(scr);
+  wifi_ip_text = lv_label_create_empty(scr);
+  lv_obj_set_style(wifi_ip_text, &tft_style_label_rel);
+  wifi_name_text = lv_label_create_empty(scr);
+  lv_obj_set_style(wifi_name_text, &tft_style_label_rel);
+  wifi_key_text = lv_label_create_empty(scr);
+  lv_obj_set_style(wifi_key_text, &tft_style_label_rel);
+  wifi_state_text = lv_label_create_empty(scr);
+  lv_obj_set_style(wifi_state_text, &tft_style_label_rel);
 
   disp_wifi_state();
 }

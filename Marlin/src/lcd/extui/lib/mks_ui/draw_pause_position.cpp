@@ -106,46 +106,30 @@ void lv_draw_pause_position(void) {
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.xPos);
 
-  buttonXValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_btn_set_style_both(buttonXValue, &style_para_value);
-  lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_PAUSE_X, NULL, 0);
-  labelXValue = lv_label_create(buttonXValue, NULL);
+  buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_PAUSE_X);
+  labelXValue = lv_label_create_empty(buttonXValue);
 
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.yPos);
 
-  buttonYValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_PAUSE_Y, NULL, 0);
-  lv_btn_set_style_both(buttonYValue, &style_para_value);
-  labelYValue = lv_label_create(buttonYValue, NULL);
+  buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_PAUSE_Y);
+  labelYValue = lv_label_create_empty(buttonYValue);
 
   line2 = lv_line_create(scr, NULL);
   lv_ex_line(line2, line_points[1]);
 
   (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.zPos);
 
-  buttonZValue = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-  lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_PAUSE_Z, NULL, 0);
-  lv_btn_set_style_both(buttonZValue, &style_para_value);
-  labelZValue = lv_label_create(buttonZValue, NULL);
+  buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_PAUSE_Z);
+  labelZValue = lv_label_create_empty(buttonZValue);
 
   line3 = lv_line_create(scr, NULL);
   lv_ex_line(line3, line_points[2]);
 
-  buttonBack = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_PAUSE_RETURN, NULL, 0);
-  lv_btn_set_style_both(buttonBack, &style_para_back);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_btn_create_back(scr, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, event_handler, ID_PAUSE_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);

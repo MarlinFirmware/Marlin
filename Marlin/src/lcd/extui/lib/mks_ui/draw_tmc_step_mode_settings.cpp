@@ -248,27 +248,11 @@ void lv_draw_tmc_step_mode_settings(void) {
   #endif
 
   if (uiCfg.para_ui_page != 1) {
-    buttonXText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonXText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
-    lv_obj_set_size(buttonXText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonXText, event_handler);
-    lv_btn_use_label_style(buttonXText);
-    lv_btn_set_layout(buttonXText, LV_LAYOUT_OFF);
-    labelXText = lv_label_create(buttonXText, NULL);                        /*Add a label to the button*/
+    buttonXText = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+    labelXText = lv_label_create_empty(buttonXText);                        /*Add a label to the button*/
 
-    buttonXState = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonXState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V);
-    if (stealth_X) {
-      lv_imgbtn_set_src_both(buttonXState, "F:/bmp_enable.bin");
-    }
-    else {
-      lv_imgbtn_set_src_both(buttonXState, "F:/bmp_disable.bin");
-    }
-    lv_obj_set_event_cb_mks(buttonXState, event_handler, ID_TMC_MODE_X, NULL, 0);
-
-    lv_imgbtn_use_label_style(buttonXState);
-    lv_btn_set_layout(buttonXState, LV_LAYOUT_OFF);
-    labelXState = lv_label_create(buttonXState, NULL);
+    buttonXState = lv_imgbtn_create(scr, stealth_X ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_X);
+    labelXState = lv_label_create_empty(buttonXState);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonXState);
     #endif
@@ -276,22 +260,11 @@ void lv_draw_tmc_step_mode_settings(void) {
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonYText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonYText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
-    lv_obj_set_size(buttonYText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonYText, event_handler);
-    lv_btn_use_label_style(buttonYText);
-    lv_btn_set_layout(buttonYText, LV_LAYOUT_OFF);
-    labelYText = lv_label_create(buttonYText, NULL);                        /*Add a label to the button*/
+    buttonYText = lv_btn_create(scr, NULL, PARA_UI_POS_X, PARA_UI_POS_Y * 2, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+    labelYText = lv_label_create_empty(buttonYText);                        /*Add a label to the button*/
 
-    buttonYState = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonYState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_STATE_V);
-    lv_imgbtn_set_src_both(buttonYState, stealth_Y ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-    lv_obj_set_event_cb_mks(buttonYState, event_handler, ID_TMC_MODE_Y, NULL, 0);
-
-    lv_imgbtn_use_label_style(buttonYState);
-    lv_btn_set_layout(buttonYState, LV_LAYOUT_OFF);
-    labelYState = lv_label_create(buttonYState, NULL);
+    buttonYState = lv_imgbtn_create(scr, stealth_Y ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_Y);
+    labelYState = lv_label_create_empty(buttonYState);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonYState);
     #endif
@@ -299,21 +272,11 @@ void lv_draw_tmc_step_mode_settings(void) {
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonZText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonZText, PARA_UI_POS_X, PARA_UI_POS_Y * 3);          /*Set its position*/
-    lv_obj_set_size(buttonZText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonZText, event_handler);
-    lv_btn_use_label_style(buttonZText);
-    lv_btn_set_layout(buttonZText, LV_LAYOUT_OFF);
-    labelZText = lv_label_create(buttonZText, NULL);                        /*Add a label to the button*/
+    buttonZText = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+    labelZText = lv_label_create_empty(buttonZText);                        /*Add a label to the button*/
 
-    buttonZState = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonZState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_STATE_V);
-    lv_imgbtn_set_src_both(buttonZState, stealth_Z ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-    lv_obj_set_event_cb_mks(buttonZState, event_handler, ID_TMC_MODE_Z, NULL, 0);
-    lv_imgbtn_use_label_style(buttonZState);
-    lv_btn_set_layout(buttonZState, LV_LAYOUT_OFF);
-    labelZState = lv_label_create(buttonZState, NULL);
+    buttonZState = lv_imgbtn_create(scr, stealth_Z ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_Z);
+    labelZState = lv_label_create_empty(buttonZState);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonZState);
     #endif
@@ -321,34 +284,20 @@ void lv_draw_tmc_step_mode_settings(void) {
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonE0Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-    lv_obj_set_pos(buttonE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4);         /*Set its position*/
-    lv_obj_set_size(buttonE0Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
-    lv_obj_set_event_cb(buttonE0Text, event_handler);
-    lv_btn_use_label_style(buttonE0Text);
-    lv_btn_set_layout(buttonE0Text, LV_LAYOUT_OFF);
-    labelE0Text = lv_label_create(buttonE0Text, NULL);                      /*Add a label to the button*/
+    buttonE0Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+    labelE0Text = lv_label_create_empty(buttonE0Text);                      /*Add a label to the button*/
 
-    buttonE0State = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonE0State, PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_STATE_V);
-    lv_imgbtn_set_src_both(buttonE0State, stealth_E0 ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-    lv_obj_set_event_cb_mks(buttonE0State, event_handler, ID_TMC_MODE_E0, NULL, 0);
-    lv_imgbtn_use_label_style(buttonE0State);
-    lv_btn_set_layout(buttonE0State, LV_LAYOUT_OFF);
-    labelE0State = lv_label_create(buttonE0State, NULL);
+    buttonE0State = lv_imgbtn_create(scr, stealth_E0 ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_E0);
+    labelE0State = lv_label_create_empty(buttonE0State);
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonE0State);
     #endif
-
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
     //#if AXIS_HAS_STEALTHCHOP(E1)
-      buttonTurnPage = lv_imgbtn_create(scr, NULL);
-      lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_TMC_MODE_DOWN, NULL, 0);
-      lv_imgbtn_set_src_both(buttonTurnPage, "F:/bmp_back70x40.bin");
-      lv_imgbtn_use_label_style(buttonTurnPage);
+      buttonTurnPage = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", event_handler, ID_TMC_MODE_DOWN);
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonTurnPage);
       #endif
@@ -356,21 +305,11 @@ void lv_draw_tmc_step_mode_settings(void) {
   }
   else {
     //#if AXIS_HAS_STEALTHCHOP(E1)
-      buttonE1Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-      lv_obj_set_pos(buttonE1Text, PARA_UI_POS_X, PARA_UI_POS_Y);             /*Set its position*/
-      lv_obj_set_size(buttonE1Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
-      lv_obj_set_event_cb(buttonE1Text, event_handler);
-      lv_btn_use_label_style(buttonE1Text);
-      lv_btn_set_layout(buttonE1Text, LV_LAYOUT_OFF);
-      labelE1Text = lv_label_create(buttonE1Text, NULL);                      /*Add a label to the button*/
+      buttonE1Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+      labelE1Text = lv_label_create_empty(buttonE1Text);                      /*Add a label to the button*/
 
-      buttonE1State = lv_imgbtn_create(scr, NULL);
-      lv_obj_set_pos(buttonE1State, PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V);
-      lv_imgbtn_set_src_both(buttonE1State, stealth_E1 ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-      lv_obj_set_event_cb_mks(buttonE1State, event_handler, ID_TMC_MODE_E1, NULL, 0);
-      lv_imgbtn_use_label_style(buttonE1State);
-      lv_btn_set_layout(buttonE1State, LV_LAYOUT_OFF);
-      labelE1State = lv_label_create(buttonE1State, NULL);
+      buttonE1State = lv_imgbtn_create(scr, stealth_E1 ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_E1);
+      labelE1State = lv_label_create_empty(buttonE1State);
       #if HAS_ROTARY_ENCODER
         if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonE1State);
       #endif
@@ -378,29 +317,20 @@ void lv_draw_tmc_step_mode_settings(void) {
       line1 = lv_line_create(scr, NULL);
       lv_ex_line(line1, line_points[0]);
 
-      buttonTurnPage = lv_imgbtn_create(scr, NULL);
-      lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_TMC_MODE_UP, NULL, 0);
-      lv_imgbtn_set_src_both(buttonTurnPage, "F:/bmp_back70x40.bin");
-      lv_imgbtn_use_label_style(buttonTurnPage);
+      buttonTurnPage = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", event_handler, ID_TMC_MODE_UP);
     //#endif
   }
   //#if AXIS_HAS_STEALTHCHOP(E1)
     lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
     lv_btn_set_layout(buttonTurnPage, LV_LAYOUT_OFF);
-    labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+    labelTurnPage = lv_label_create_empty(buttonTurnPage);
   //#endif
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_TMC_MODE_RETURN, NULL, 0);
-  lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
-  lv_imgbtn_use_label_style(buttonBack);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_TMC_MODE_RETURN);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {

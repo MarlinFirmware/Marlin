@@ -126,69 +126,23 @@ void lv_draw_home(void) {
 
   // Create image buttons
   //buttonWifi     = lv_imgbtn_create(scr, NULL);
-  buttonHomeAll    = lv_imgbtn_create(scr, NULL);
-  buttonHomeX      = lv_imgbtn_create(scr, NULL);
   //buttonContinue = lv_imgbtn_create(scr, NULL);
-  buttonHomeY      = lv_imgbtn_create(scr, NULL);
-  buttonHomeZ      = lv_imgbtn_create(scr, NULL);
-  buttonOffAll     = lv_imgbtn_create(scr, NULL);
-  buttonOffXY      = lv_imgbtn_create(scr, NULL);
-  buttonBack       = lv_imgbtn_create(scr, NULL);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonHomeAll, event_handler,ID_H_ALL, NULL, 0);
-    lv_imgbtn_set_src_both(buttonHomeAll, "F:/bmp_zeroAll.bin");
-    lv_imgbtn_use_label_style(buttonHomeAll);
-
-    lv_obj_set_event_cb_mks(buttonHomeX, event_handler, ID_H_X, NULL, 0);
-    lv_imgbtn_set_src_both(buttonHomeX, "F:/bmp_zeroX.bin");
-    lv_imgbtn_use_label_style(buttonHomeX);
-
-    lv_obj_set_event_cb_mks(buttonHomeY, event_handler, ID_H_Y, NULL, 0);
-    lv_imgbtn_set_src_both(buttonHomeY, "F:/bmp_zeroY.bin");
-    lv_imgbtn_use_label_style(buttonHomeY);
-
-    lv_obj_set_event_cb_mks(buttonHomeZ, event_handler, ID_H_Z, NULL, 0);
-    lv_imgbtn_set_src_both(buttonHomeZ, "F:/bmp_zeroZ.bin");
-    lv_imgbtn_use_label_style(buttonHomeZ);
-
-    lv_obj_set_event_cb_mks(buttonOffAll, event_handler,ID_H_OFF_ALL, NULL, 0);
-    lv_imgbtn_set_src_both(buttonOffAll, "F:/bmp_function1.bin");
-    lv_imgbtn_use_label_style(buttonOffAll);
-
-    lv_obj_set_event_cb_mks(buttonOffXY, event_handler,ID_H_OFF_XY, NULL, 0);
-    lv_imgbtn_set_src_both(buttonOffXY, "F:/bmp_function1.bin");
-    lv_imgbtn_use_label_style(buttonOffXY);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_H_RETURN, NULL, 0);
-    lv_imgbtn_set_src_both(buttonBack, "F:/bmp_return.bin");
-    lv_imgbtn_use_label_style(buttonBack);
-  #endif
-
-  lv_obj_set_pos(buttonHomeAll, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonHomeX, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
-  lv_obj_set_pos(buttonHomeY, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
-  lv_obj_set_pos(buttonHomeZ, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonOffAll, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonOffXY, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+  buttonHomeAll = lv_imgbtn_create(scr, "F:/bmp_zeroAll.bin", INTERVAL_V, titleHeight, event_handler, ID_H_ALL);
+  buttonHomeX   = lv_imgbtn_create(scr, "F:/bmp_zeroX.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_H_X);
+  buttonHomeY   = lv_imgbtn_create(scr, "F:/bmp_zeroY.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_H_Y);
+  buttonHomeZ   = lv_imgbtn_create(scr, "F:/bmp_zeroZ.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_H_Z);
+  buttonOffAll  = lv_imgbtn_create(scr, "F:/bmp_function1.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_ALL);
+  buttonOffXY   = lv_imgbtn_create(scr, "F:/bmp_function1.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_XY);
+  buttonBack    = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_RETURN);
 
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonHomeAll, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonHomeX, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonHomeY, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonHomeZ, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonOffAll, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonOffXY, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  lv_obj_t *labelHomeAll = lv_label_create(buttonHomeAll, NULL);
-  lv_obj_t *labelHomeX = lv_label_create(buttonHomeX, NULL);
-  lv_obj_t *labelHomeY = lv_label_create(buttonHomeY, NULL);
-  lv_obj_t *labelHomeZ = lv_label_create(buttonHomeZ, NULL);
-  lv_obj_t *labelOffAll = lv_label_create(buttonOffAll, NULL);
-  lv_obj_t *labelOffXY = lv_label_create(buttonOffXY, NULL);
-  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
+  lv_obj_t *labelHomeAll = lv_label_create_empty(buttonHomeAll);
+  lv_obj_t *labelHomeX = lv_label_create_empty(buttonHomeX);
+  lv_obj_t *labelHomeY = lv_label_create_empty(buttonHomeY);
+  lv_obj_t *labelHomeZ = lv_label_create_empty(buttonHomeZ);
+  lv_obj_t *labelOffAll = lv_label_create_empty(buttonOffAll);
+  lv_obj_t *labelOffXY = lv_label_create_empty(buttonOffXY);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     lv_label_set_text(labelHomeAll, home_menu.home_all);
