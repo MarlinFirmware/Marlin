@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define CONFIG_EXAMPLES_DIR "delta/FLSUN/QQS-Pro"
+
 /**
  * Configuration.h
  *
@@ -60,6 +62,8 @@
 // config/examples/delta directory and customize for your machine.
 //
 
+#include "QQS_Config.h"
+
 //===========================================================================
 //============================= SCARA Printer ===============================
 //===========================================================================
@@ -69,8 +73,8 @@
 
 // @section info
 // Author info of this build printed to the host during boot and M115
-#define STRING_CONFIG_H_AUTHOR "(Foxies-CSTL, QQS-Pro)" // Who made the changes.
-//#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
+//#define STRING_CONFIG_H_AUTHOR "(Foxies-CSTL, QQS-Pro)" // Who made the changes.
+#define CUSTOM_VERSION_FILE Version.h // Path from the root directory (no quotes)
 
 /**
  * *** VENDORS PLEASE READ ***
@@ -84,14 +88,17 @@
  */
 
 // Show the Marlin bootscreen on startup. ** ENABLE FOR PRODUCTION **
-//#define SHOW_BOOTSCREEN
-
+#define SHOW_BOOTSCREEN
 
 // Show the bitmap in Marlin/_Bootscreen.h on startup.
-//#define SHOW_CUSTOM_BOOTSCREEN
+#ifdef TFT_CLASSIC_UI 
+  #define SHOW_CUSTOM_BOOTSCREEN  //TIPS
+#endif
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-//#define CUSTOM_STATUS_SCREEN_IMAGE
+#ifdef TFT_CLASSIC_UI 
+  #define CUSTOM_STATUS_SCREEN_IMAGE  //TIPS
+#endif
 
 // @section machine
 
@@ -103,15 +110,24 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT 3
+#if ANY(STOCK, QQS, QQS_TMC)
+    #define SERIAL_PORT 3
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#define SERIAL_PORT_2 1
-#define NUM_SERIAL 2
+    #define SERIAL_PORT_2 1
+    #if ENABLED(ESP_WIFI)
+      #define NUM_SERIAL 2  //MKS WIFI
+    #endif
+#endif
+
+#ifdef QQS_UART
+   #define SERIAL_PORT -1 //3
+   #define SERIAL_PORT_2 3  //-1  //Remove module ESP12 
+#endif
 
 /**
  * This setting determines the communication speed of the printer.
@@ -129,11 +145,33 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
+  #ifdef STOCK
+    #define MOTHERBOARD BOARD_MKS_ROBIN_MINI
+  #endif
+  #ifdef QQS
     #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif
+  #ifdef QQS_TMC
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif
+  #ifdef QQS_UART
+    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "FLSUN QQS-Pro"
+#ifdef STOCK
+  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S"
+#endif
+#ifdef QQS
+  #define CUSTOM_MACHINE_NAME "FLSUN QQS-Pro"
+#endif
+#ifdef QQS_TMC
+  #define CUSTOM_MACHINE_NAME "FLSUN QQS TMC"
+#endif
+#ifdef QQS_UART
+  #define CUSTOM_MACHINE_NAME "FLSUN QQS UART"
+#endif
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -492,11 +530,29 @@
 #define PID_K1 0.95      // Smoothing factor within any PID loop
 
 #if ENABLED(PIDTEMP)
-  #define PID_EDIT_MENU         // Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
-  #define PID_AUTOTUNE_MENU     // Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
+  //#define PID_EDIT_MENU         //Define on QQS_Config// Add PID editing to the "Advanced Settings" menu. (~700 bytes of PROGMEM)
+  //#define PID_AUTOTUNE_MENU     //Define on QQS_Config// Add PID auto-tuning to the "Advanced Settings" menu. (~250 bytes of PROGMEM)
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
+  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+
+  // Ultimaker
+  //#define DEFAULT_Kp 22.2
+  //#define DEFAULT_Ki 1.08
+  //#define DEFAULT_Kd 114
+
+  // MakerGear
+  //#define DEFAULT_Kp 7.0
+  //#define DEFAULT_Ki 0.1
+  //#define DEFAULT_Kd 12
+
+  // Mendel Parts V9 on 12V
+  //#define DEFAULT_Kp 63.0
+  //#define DEFAULT_Ki 2.25
+  //#define DEFAULT_Kd 440
+
+  // FLSUN QQ-S, 200 C with 100% part cooling
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
@@ -504,16 +560,18 @@
     #define DEFAULT_Ki_LIST {   3.38,   3.38 }
     #define DEFAULT_Kd_LIST {  58.69,  58.69 }
   #else
+    // FLSUN QQS-S
     //#define DEFAULT_Kp  28.16
     //#define DEFAULT_Ki   3.38
     //#define DEFAULT_Kd  58.69
-  // (measured after M106 S180 with M303 E0 S230 C8) Memo: M301 P23.24 I1.87 D72.35 (sonde11)
-  // FLSUN QQ-S, PET 235 C with 70% part cooling
-  //M301 P21.67 I1.25 D93.81 PLA
-  //M301 P21.6708 I1.2515 D93.8127 PET 
-    #define DEFAULT_Kp 21.6708
-    #define DEFAULT_Ki 1.2515
-    #define DEFAULT_Kd 93.8127
+
+    // FLSUN QQS-Pro, PET 235 C with 70% part cooling
+    //M301 P21.67 I1.25 D93.81        PLA
+    //M301 P21.6708 I1.2515 D93.8127  PET
+    // FIND YOUR OWN: measured after M106 S180 with M303 E0 S230 C8
+    #define DEFAULT_Kp 20.4763
+    #define DEFAULT_Ki 1.1105
+    #define DEFAULT_Kd 94.3881
   #endif
 #endif // PIDTEMP
 
@@ -556,10 +614,23 @@
   //#define DEFAULT_bedKi .023
   //#define DEFAULT_bedKd 305.4
 
-  // FLSUN QQS-Pro stock 1.6mm aluminium heater with 4mm lattice glass
-  #define DEFAULT_bedKp 73.94
-  #define DEFAULT_bedKi 14.41
-  #define DEFAULT_bedKd 252.92
+  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //from pidautotune
+  //#define DEFAULT_bedKp 97.1
+  //#define DEFAULT_bedKi 1.41
+  //#define DEFAULT_bedKd 1675.16
+
+  // FLSUN QQS-Pro 1.6mm aluminium heater with 4mm lattice glass
+  //#define DEFAULT_bedKp 82.98
+  //#define DEFAULT_bedKi 15.93
+  //#define DEFAULT_bedKd 288.25
+
+  // FIND YOUR OWN: "M303 E-1 S90 C8" to run autotune on the bed at 90 degrees for 8 cycles.
+  //M303 E-1 C8 S60 =>Memo M304 P56.7371 I9.8297 D218.3244
+  //M303 E-1 C8 S80 =>Memo M304 P82.9811 I15.957 D288.2487
+  #define DEFAULT_bedKp 82.9811
+  #define DEFAULT_bedKi 15.9257
+  #define DEFAULT_bedKd 288.2487
 
 #endif // PIDTEMPBED
 
@@ -754,16 +825,23 @@
  *          TMC26X,  TMC26X_STANDALONE,  TMC2660, TMC2660_STANDALONE,
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
- */
-#define X_DRIVER_TYPE TMC2208_STANDALONE
-#define Y_DRIVER_TYPE TMC2208_STANDALONE
-#define Z_DRIVER_TYPE TMC2208_STANDALONE
+*/
+#if ANY (QQS, STOCK)
+    #define DRIVER_AXES A4988
+    #ifndef DRIVER_EXT
+      #define DRIVER_EXT A4988
+    #endif
+#endif
+
+#define X_DRIVER_TYPE DRIVER_AXES
+#define Y_DRIVER_TYPE DRIVER_AXES
+#define Z_DRIVER_TYPE DRIVER_AXES
 //#define X2_DRIVER_TYPE A4988
 //#define Y2_DRIVER_TYPE A4988
 //#define Z2_DRIVER_TYPE A4988
 //#define Z3_DRIVER_TYPE A4988
 //#define Z4_DRIVER_TYPE A4988
-#define E0_DRIVER_TYPE A4988
+#define E0_DRIVER_TYPE DRIVER_EXT
 //#define E1_DRIVER_TYPE A4988
 //#define E2_DRIVER_TYPE A4988
 //#define E3_DRIVER_TYPE A4988
@@ -827,7 +905,14 @@
 
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 397 }  // default steps per unit
+#ifdef BMG
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 417 }  //415 default steps per unit
+#else 
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 396.1  }  //397 default steps per unit
+#endif
+
+//The next line below calculates the staps value and the 800 value is my E-Steps calculation (400 doubled for 32 steps, if 16 steps then its 400 for me, meaure this with Extrusion test)
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 800 }  // default steps per unit
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1207,14 +1292,22 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR true
-
+#if ANY(QQS, STOCK)
+  #define INVERT_X_DIR false
+  #define INVERT_Y_DIR false
+  #define INVERT_Z_DIR false
+  #define INVERT_E0_DIR true    // (T) 
+#endif
+#if EITHER(QQS_TMC, QQS_UART)
+  #define INVERT_X_DIR true
+  #define INVERT_Y_DIR true 
+  #define INVERT_Z_DIR true
+  #define INVERT_E0_DIR false  //(T) 
+#endif 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true //extruder TITAN 
+//#define INVERT_E0_DIR true  //(T)
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -1290,7 +1383,7 @@
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
-//#define FILAMENT_RUNOUT_SENSOR
+//#define FILAMENT_RUNOUT_SENSOR  //Define on QQS_Config
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
   #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -1305,7 +1398,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+  #define FILAMENT_RUNOUT_DISTANCE_MM 25
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -1355,8 +1448,8 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-//#define AUTO_BED_LEVELING_BILINEAR
-#define AUTO_BED_LEVELING_UBL
+//#define AUTO_BED_LEVELING_BILINEAR  //Define on QQS_Config
+//#define AUTO_BED_LEVELING_UBL       //Define on QQS_Config
 //#define MESH_BED_LEVELING
 
 /**
@@ -1435,8 +1528,9 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 1              // Set Mesh bounds as an inset region of the bed
-  #define GRID_MAX_POINTS_X 10      // Don't use more than 15 points per axis, implementation limited.
+  #define MESH_INSET 3              // Set Mesh bounds as an inset region of the bed
+  #define GRID_MAX_POINTS_X 11      // Don't use more than 15 points per axis, implementation limited.
+/// 10=53points, 13=90points, 15=110points
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
 
   #define UBL_MESH_EDIT_MOVES_Z     // Sophisticated users prefer no movement of nozzle
@@ -1485,7 +1579,8 @@
  * Commands to execute at the end of G29 probing.
  * Useful to retract or move the Z probe out of the way.
  */
-#define Z_PROBE_END_SCRIPT "G0 Z30 F12000\n G0 X0 Y0 Z30"
+#define Z_PROBE_END_SCRIPT "G28"
+//#define Z_PROBE_END_SCRIPT "G0 Z30 F12000\n G0 X0 Y0 Z30"
 
 // @section homing
 
@@ -1592,12 +1687,12 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-#define EEPROM_SETTINGS       // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
 #if ENABLED(EEPROM_SETTINGS)
-  #define EEPROM_AUTO_INIT    // OPT Init EEPROM automatically on any errors.
+  #define EEPROM_AUTO_INIT  // Init EEPROM automatically on any errors.
 #endif
 
 //
@@ -1626,7 +1721,7 @@
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 210
 #define PREHEAT_1_TEMP_BED     60
-#define PREHEAT_1_FAN_SPEED    90 // Value from 0 to 255
+#define PREHEAT_1_FAN_SPEED   200 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "TPU"
 #define PREHEAT_2_TEMP_HOTEND 230
@@ -2336,8 +2431,20 @@
 //=============================================================================
 
 /**
- * Specific TFT Model Presets. Enable one of the following options
- * or enable TFT_GENERIC and set sub-options.
+ * TFT Type - Select your Display type
+ *
+ * Available options are:
+ *   MKS_TS35_V2_0,
+ *   MKS_ROBIN_TFT24, MKS_ROBIN_TFT28, MKS_ROBIN_TFT32, MKS_ROBIN_TFT35,
+ *   MKS_ROBIN_TFT43, MKS_ROBIN_TFT_V1_1R
+ *   TFT_TRONXY_X5SA, ANYCUBIC_TFT35, LONGER_LK_TFT28
+ *   TFT_GENERIC
+ *
+ * For TFT_GENERIC, you need to configure these 3 options:
+ *   Driver:     TFT_DRIVER
+ *               Current Drivers are: AUTO, ST7735, ST7789, ST7796, R61505, ILI9328, ILI9341, ILI9488
+ *   Resolution: TFT_WIDTH and TFT_HEIGHT
+ *   Interface:  TFT_INTERFACE_FSMC or TFT_INTERFACE_SPI
  */
 
 //
@@ -2356,13 +2463,13 @@
 // 320x240, 2.8", FSMC Display From MKS
 // Normally used in MKS Robin Nano V1.2
 //
-//#define MKS_ROBIN_TFT28
+//#define MKS_ROBIN_TFT28 //Define on QQS_Config
 
 //
 // 320x240, 3.2", FSMC Display From MKS
 // Normally used in MKS Robin Nano V1.2
 //
-#define MKS_ROBIN_TFT32
+//#define MKS_ROBIN_TFT32 //Define on QQS_Config
 
 //
 // 480x320, 3.5", FSMC Display From MKS
@@ -2424,7 +2531,8 @@
  *   For LVGL_UI also copy the 'assets' folder from the build directory to the
  *   root of your SD card, together with the compiled firmware.
  */
-#define TFT_CLASSIC_UI
+//Define on QQS_Config
+//#define TFT_CLASSIC_UI
 //#define TFT_COLOR_UI
 //#define TFT_LVGL_UI
 
@@ -2448,9 +2556,16 @@
 //#define DWIN_CREALITY_LCD
 
 //
+// MarlinUI for Creality's DWIN display (and others)
+//
+//#define DWIN_MARLINUI_PORTRAIT
+//#define DWIN_MARLINUI_LANDSCAPE
+
+//
 // ADS7843/XPT2046 ADC Touchscreen such as ILI9341 2.8
 //
-#define TOUCH_SCREEN
+
+#define TOUCH_SCREEN  //Disable when using LVGL
 #if ENABLED(TOUCH_SCREEN)
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
@@ -2462,18 +2577,6 @@
   //#define XPT2046_X_OFFSET        -43
   //#define XPT2046_Y_OFFSET        257
 
-  // Define in pins QQS-Pro (M995)
-  //#define XPT2046_X_CALIBRATION 12218
-  //#define XPT2046_Y_CALIBRATION -8814
-  //#define XPT2046_X_OFFSET        -34
-  //#define XPT2046_Y_OFFSET        256
-
-  /* MKS Robin TFT v2.0 */
-  #define XPT2046_X_CALIBRATION  12013
-  #define XPT2046_Y_CALIBRATION  -8711
-  #define XPT2046_X_OFFSET         -32
-  #define XPT2046_Y_OFFSET         256
-  
 #endif
 
 //
@@ -2563,13 +2666,13 @@
 #endif
 
 // Support for Adafruit NeoPixel LED driver
-//#define NEOPIXEL_LED
+//#define NEOPIXEL_LED  //Define on QQS_Config
 #if ENABLED(NEOPIXEL_LED)
   #define NEOPIXEL_TYPE   NEO_GRB // NEO_GRBW / NEO_GRB - four/three channel driver type (defined in Adafruit_NeoPixel.h)
-  #define NEOPIXEL_PIN    LED_PWM       // LED driving pin
+  //#define NEOPIXEL_PIN    LED_PWM       // LED driving pin
   //#define NEOPIXEL2_TYPE NEOPIXEL_TYPE
-  //#define NEOPIXEL2_PIN    5
-  #define NEOPIXEL_PIXELS 12       // Number of LEDs in the strip. (Longest strip when NEOPIXEL2_SEPARATE is disabled.)
+  //#define NEOPIXEL2_PIN      5
+  #define NEOPIXEL_PIXELS     12   // Number of LEDs in the strip, larger of 2 strips if 2 neopixel strips are used
   #define NEOPIXEL_IS_SEQUENTIAL   // Sequential display for temperature change - LED by LED. Disable to change all LEDs at once.
   #define NEOPIXEL_BRIGHTNESS 255  // Initial brightness (0-255)
   #define NEOPIXEL_STARTUP_TEST  // Cycle through colors at startup
