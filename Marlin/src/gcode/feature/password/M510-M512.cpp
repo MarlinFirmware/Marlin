@@ -58,7 +58,7 @@ void GcodeSuite::M510() {
     if (password.is_set && parser.ulongval('P') != password.value) {
       SERIAL_ECHOLNPGM(STR_WRONG_PASSWORD);
       return;
-     }
+    }
 
     if (parser.seenval('S')) {
       password.value_entry = parser.ulongval('S');

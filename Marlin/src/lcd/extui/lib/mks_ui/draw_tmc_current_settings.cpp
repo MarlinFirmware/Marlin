@@ -23,13 +23,12 @@
 
 #if BOTH(HAS_TFT_LVGL_UI, HAS_TRINAMIC_CONFIG)
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/planner.h"
 #include "../../../../module/stepper/indirection.h"
 #include "../../../../feature/tmc_util.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -310,7 +309,7 @@ void lv_draw_tmc_current_settings(void) {
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       //#if AXIS_IS_TMC(E1)
         lv_label_set_text(labelTurnPage, machine_menu.next);

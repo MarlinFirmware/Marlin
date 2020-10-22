@@ -23,24 +23,22 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
+
+#include "../../../../gcode/gcode.h"
 #include "../../../../module/temperature.h"
+#include "../../../../module/planner.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"
-#include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
 #endif
 
-#include "../../../../gcode/gcode.h"
-#include "../../../../module/planner.h"
-
 extern uint32_t To_pre_view;
-extern uint8_t flash_preview_begin, default_preview_flg, gcode_preview_over;
+extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void printer_state_polling() {
   if (uiCfg.print_state == PAUSING) {
@@ -76,7 +74,7 @@ void printer_state_polling() {
         // #if ENABLED(POWER_LOSS_RECOVERY)
         //  if (recovery.enabled) recovery.save(true);
         // #endif
-        gCfgItems.pause_reprint = 1;
+        gCfgItems.pause_reprint = true;
         update_spi_flash();
       }
     #endif
@@ -105,7 +103,7 @@ void printer_state_polling() {
       uiCfg.print_state = WORKING;
       start_print_time();
 
-      gCfgItems.pause_reprint = 0;
+      gCfgItems.pause_reprint = false;
       update_spi_flash();
     }
   }
@@ -137,7 +135,7 @@ void printer_state_polling() {
         );
         gcode.process_subcommands_now(public_buf_m);
 
-        if ((gCfgItems.pause_reprint) == 1 && (gCfgItems.pausePosZ != (float)-1)) {
+        if (gCfgItems.pause_reprint && gCfgItems.pausePosZ != -1.0f) {
           gcode.process_subcommands_now_P(PSTR("G91"));
           ZERO(public_buf_l);
           sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
@@ -148,7 +146,7 @@ void printer_state_polling() {
       uiCfg.print_state = WORKING;
       start_print_time();
 
-      gCfgItems.pause_reprint = 0;
+      gCfgItems.pause_reprint = false;
       update_spi_flash();
     }
   #endif
@@ -240,10 +238,10 @@ void filament_check() {
     stop_print_time();
     uiCfg.print_state = PAUSING;
 
-    if (gCfgItems.from_flash_pic == 1)
-      flash_preview_begin = 1;
+    if (gCfgItems.from_flash_pic)
+      flash_preview_begin = true;
     else
-      default_preview_flg = 1;
+      default_preview_flg = true;
 
     lv_draw_printing();
   }

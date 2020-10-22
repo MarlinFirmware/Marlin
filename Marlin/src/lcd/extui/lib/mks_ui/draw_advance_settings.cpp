@@ -23,10 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -302,7 +302,7 @@ void lv_draw_advance_settings(void) {
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
   label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
 

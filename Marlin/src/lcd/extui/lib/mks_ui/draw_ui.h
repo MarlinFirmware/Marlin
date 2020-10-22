@@ -174,12 +174,12 @@ extern char public_buf_l[30];
 typedef struct {
   uint32_t spi_flash_flag;
   uint8_t disp_rotation_180;
-  uint8_t multiple_language;
+  bool multiple_language;
   uint8_t language;
   uint8_t leveling_mode;
-  uint8_t from_flash_pic;
-  uint8_t finish_power_off;
-  uint8_t pause_reprint;
+  bool from_flash_pic;
+  bool finish_power_off;
+  bool pause_reprint;
   uint8_t wifi_mode_sel;
   uint8_t fileSysType;
   uint8_t wifi_type;

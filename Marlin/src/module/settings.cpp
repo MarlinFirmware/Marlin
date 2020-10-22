@@ -150,7 +150,19 @@
   #include "../lcd/tft/touch.h"
 #endif
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
+
+#if HAS_ETHERNET
+  void ETH0_report();
+  void MAC_report();
+  void M552_report();
+  void M553_report();
+  void M554_report();
+#endif
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
@@ -429,6 +441,15 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
     touch_calibration_t touch_calibration;
+  #endif
+
+  // Ethernet settings
+  #if HAS_ETHERNET
+    bool ethernet_hardware_enabled;                     // M552 S
+    uint32_t ethernet_ip,                               // M552 P
+             ethernet_dns,
+             ethernet_gateway,                          // M553 P
+             ethernet_subnet;                           // M554 P
   #endif
 
 } SettingsData;
@@ -1384,7 +1405,26 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
-    // Validate CRC and Data Size
+    // Ethernet network info
+    //
+    #if HAS_ETHERNET
+    {
+      _FIELD_TEST(ethernet_hardware_enabled);
+      const bool ethernet_hardware_enabled = ethernet.hardware_enabled;
+      const uint32_t ethernet_ip      = ethernet.ip,
+                     ethernet_dns     = ethernet.myDns,
+                     ethernet_gateway = ethernet.gateway,
+                     ethernet_subnet  = ethernet.subnet;
+      EEPROM_WRITE(ethernet_hardware_enabled);
+      EEPROM_WRITE(ethernet_ip);
+      EEPROM_WRITE(ethernet_dns);
+      EEPROM_WRITE(ethernet_gateway);
+      EEPROM_WRITE(ethernet_subnet);
+    }
+    #endif
+
+    //
+    // Report final CRC and Data Size
     //
     if (!eeprom_error) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
@@ -2241,6 +2281,22 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(touch.calibration);
       #endif
 
+      //
+      // Ethernet network info
+      //
+      #if HAS_ETHERNET
+        _FIELD_TEST(ethernet_hardware_enabled);
+        uint32_t ethernet_ip, ethernet_dns, ethernet_gateway, ethernet_subnet;
+        EEPROM_READ(ethernet.hardware_enabled);
+        EEPROM_READ(ethernet_ip);      ethernet.ip      = ethernet_ip;
+        EEPROM_READ(ethernet_dns);     ethernet.myDns   = ethernet_dns;
+        EEPROM_READ(ethernet_gateway); ethernet.gateway = ethernet_gateway;
+        EEPROM_READ(ethernet_subnet);  ethernet.subnet  = ethernet_subnet;
+      #endif
+
+      //
+      // Validate Final Size and CRC
+      //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
@@ -2296,7 +2352,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && (DISABLED(EEPROM_BOOT_SILENT) || IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
     #endif
 
     EEPROM_FINISH();
@@ -3783,6 +3839,15 @@ void MarlinSettings::reset() {
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );
+    #endif
+
+    #if HAS_ETHERNET
+      CONFIG_ECHO_HEADING("Ethernet:");
+      if (!forReplay) { CONFIG_ECHO_START(); ETH0_report(); }
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
     #endif
   }
 

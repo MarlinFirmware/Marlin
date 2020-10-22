@@ -23,16 +23,17 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_set.h"
-#include "lv_conf.h"
+#include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
+
 #include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -206,7 +207,7 @@ void lv_draw_home(void) {
   lv_obj_t *labelOffXY = lv_label_create(buttonOffXY, NULL);
   lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelHomeAll, home_menu.home_all);
     lv_obj_align(labelHomeAll, buttonHomeAll, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
