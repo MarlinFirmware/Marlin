@@ -41,7 +41,7 @@
  */
 void GcodeSuite::M355() {
   bool didset = false;
-  if (parser.seenval('P')) {
+  if (parser.seenval('P') && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)) {
     didset = true;
     caselight.brightness = parser.value_byte();
   }
@@ -58,8 +58,11 @@ void GcodeSuite::M355() {
   if (!caselight.on)
     SERIAL_ECHOLNPGM(STR_OFF);
   else {
-    if (!PWM_PIN(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM(STR_ON);
-    else SERIAL_ECHOLN(int(caselight.brightness));
+    if (!PWM_PIN(CASE_LIGHT_PIN) || ENABLED(CASE_LIGHT_NO_BRIGHTNESS)) {
+      SERIAL_ECHOLNPGM(STR_ON);
+    } else {
+      SERIAL_ECHOLN(int(caselight.brightness));
+    }
   }
 }
 

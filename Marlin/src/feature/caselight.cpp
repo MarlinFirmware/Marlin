@@ -28,6 +28,12 @@
 
 CaseLight caselight;
 
+#if ENABLED(CASE_LIGHT_NO_BRIGHTNESS)
+  #ifndef CASE_LIGHT_DEFAULT_BRIGHTNESS
+    #define CASE_LIGHT_DEFAULT_BRIGHTNESS 0 //for use on pwm pin as non-pwm just set a default
+  #endif
+#endif
+
 uint8_t CaseLight::brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS;
 bool CaseLight::on = CASE_LIGHT_DEFAULT_ON;
 
