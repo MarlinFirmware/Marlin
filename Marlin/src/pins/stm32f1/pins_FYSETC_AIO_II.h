@@ -93,10 +93,10 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  MSerial1
-  #define Y_HARDWARE_SERIAL  MSerial1
-  #define Z_HARDWARE_SERIAL  MSerial1
-  #define E0_HARDWARE_SERIAL MSerial1
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
 
   // The 4xTMC2209 module doesn't have a serial multiplexer and
   // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
@@ -105,6 +105,9 @@
     #define SERIAL_MUL_PIN1                 PB13
     #define SERIAL_MUL_PIN2                 PB12
   #endif
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
 
 #endif
 
