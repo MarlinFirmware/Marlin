@@ -44,10 +44,6 @@
   #define HAS_SHIFT_ENCODER 1
 #endif
 
-#if ENABLED(CHECK_ENCODER_ACTIVE_SIGNAL) && PIN_EXISTS(ENC_EN)
-  #define HAS_ENCODER_ACTIVE_SIGNAL 1
-#endif
-
 // I2C buttons must be read in the main thread
 #if ANY(LCD_I2C_VIKI, LCD_I2C_PANELOLU2, IS_TFTGLCD_PANEL)
   #define HAS_SLOW_BUTTONS 1
