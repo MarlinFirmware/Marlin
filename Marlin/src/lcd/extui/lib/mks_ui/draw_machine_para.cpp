@@ -180,6 +180,7 @@ void lv_draw_machine_para(void) {
 
   buttonLevel = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_PARA_LEVEL);
   //lv_obj_set_event_cb(buttonMotor, event_handler);
+  lv_btn_use_label_style(buttonLevel);
   lv_btn_set_layout(buttonLevel, LV_LAYOUT_OFF);
   labelLevel = lv_label_create_empty(buttonLevel);                      /*Add a label to the button*/
 

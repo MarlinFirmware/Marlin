@@ -177,6 +177,7 @@ void lv_draw_level_settings(void) {
   #if HAS_BED_PROBE
 
     buttonZoffset = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_ZOFFSET);
+    lv_btn_use_label_style(buttonZoffset);
     lv_btn_set_layout(buttonZoffset, LV_LAYOUT_OFF);
     labelZoffset = lv_label_create_empty(buttonZoffset);                      /*Add a label to the button*/
 
