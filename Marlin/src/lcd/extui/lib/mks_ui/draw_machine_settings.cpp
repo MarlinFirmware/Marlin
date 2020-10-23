@@ -33,11 +33,8 @@ static lv_obj_t * scr;
 
 #define ID_MACHINE_RETURN             1
 #define ID_MACHINE_ACCELERATION       2
-#define ID_MACHINE_ACCELERATION_ARROW 3
-#define ID_MACHINE_FEEDRATE           4
-#define ID_MACHINE_FEEDRATE_ARROW     5
-#define ID_MACHINE_JERK               6
-#define ID_MACHINE_JERK_ARROW         7
+#define ID_MACHINE_FEEDRATE           3
+#define ID_MACHINE_JERK               4
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
@@ -59,25 +56,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         lv_draw_acceleration_settings();
       }
       break;
-    case ID_MACHINE_ACCELERATION_ARROW:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_settings();
-        lv_draw_acceleration_settings();
-      }
-      break;
     case ID_MACHINE_FEEDRATE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_settings();
-        lv_draw_max_feedrate_settings();
-      }
-      break;
-    case ID_MACHINE_FEEDRATE_ARROW:
       if (event == LV_EVENT_CLICKED) {
 
       }
@@ -96,30 +75,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
             lv_draw_jerk_settings();
           }
           break;
-        case ID_MACHINE_JERK_ARROW:
-          if (event == LV_EVENT_CLICKED) {
-
-          }
-          else if (event == LV_EVENT_RELEASED) {
-            lv_clear_machine_settings();
-            lv_draw_jerk_settings();
-          }
-          break;
       #endif
   }
 }
 
 void lv_draw_machine_settings(void) {
-  lv_obj_t *buttonBack, *label_Back;
-  lv_obj_t *buttonAcceleration, *labelAcceleration, *buttonAccelerationNarrow;
-  lv_obj_t *buttonMaxFeedrate, *labelMaxFeedrate, *buttonMaxFeedrateNarrow;
-  #if HAS_CLASSIC_JERK
-    lv_obj_t *buttonJerk, *labelJerk, *buttonJerkNarrow;
-  #endif
-  lv_obj_t * line1, * line2;
-  #if HAS_CLASSIC_JERK
-    lv_obj_t * line3;
-  #endif
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MACHINE_SETTINGS_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = MACHINE_SETTINGS_UI;
@@ -136,80 +96,12 @@ void lv_draw_machine_settings(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  buttonAcceleration = lv_btn_create(scr, NULL);                                // Add a button the current screen
-  lv_obj_set_pos(buttonAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y);             // Set its position
-  lv_obj_set_size(buttonAcceleration, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);          // Set its size
-  //lv_obj_set_event_cb(buttonMachine, event_handler);
-  lv_obj_set_event_cb_mks(buttonAcceleration, event_handler, ID_MACHINE_ACCELERATION, NULL, 0);
-  lv_btn_use_label_style(buttonAcceleration);
-  lv_btn_set_layout(buttonAcceleration, LV_LAYOUT_OFF);
-  labelAcceleration = lv_label_create_empty(buttonAcceleration);                // Add a label to the button
-
-  buttonAccelerationNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V, event_handler, ID_MACHINE_ACCELERATION_ARROW);
-
-  line1 = lv_line_create(lv_scr_act(), NULL);
-  lv_ex_line(line1, line_points[0]);
-
-  buttonMaxFeedrate = lv_btn_create(scr, NULL);                                 // Add a button the current screen
-  lv_obj_set_pos(buttonMaxFeedrate, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          // Set its position
-  lv_obj_set_size(buttonMaxFeedrate, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           // Set its size
-  //lv_obj_set_event_cb(buttonMachine, event_handler);
-  lv_obj_set_event_cb_mks(buttonMaxFeedrate, event_handler, ID_MACHINE_FEEDRATE, NULL, 0);
-  lv_btn_use_label_style(buttonMaxFeedrate);
-  lv_btn_set_layout(buttonMaxFeedrate, LV_LAYOUT_OFF);
-  labelMaxFeedrate = lv_label_create_empty(buttonMaxFeedrate);                  // Add a label to the button
-
-  buttonMaxFeedrateNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V, event_handler, ID_MACHINE_FEEDRATE_ARROW);
-
-  line2 = lv_line_create(lv_scr_act(), NULL);
-  lv_ex_line(line2, line_points[1]);
-
+  lv_screen_menu_item(scr, machine_menu.AccelerationConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MACHINE_ACCELERATION, 0);
+  lv_screen_menu_item(scr, machine_menu.MaxFeedRateConf, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_MACHINE_FEEDRATE, 1);
   #if HAS_CLASSIC_JERK
-    buttonJerk = lv_btn_create(scr, NULL);                                      // Add a button the current screen
-    lv_obj_set_pos(buttonJerk, PARA_UI_POS_X, PARA_UI_POS_Y * 3);               // Set its position
-    lv_obj_set_size(buttonJerk, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                // Set its size
-    //lv_obj_set_event_cb(buttonMotor, event_handler);
-    lv_obj_set_event_cb_mks(buttonJerk, event_handler, ID_MACHINE_JERK, NULL, 0);
-    lv_btn_use_label_style(buttonJerk);
-    lv_btn_set_layout(buttonJerk, LV_LAYOUT_OFF);
-    labelJerk = lv_label_create_empty(buttonJerk);                              // Add a label to the button
-
-    buttonJerkNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V, event_handler, ID_MACHINE_JERK_ARROW);
-
-    line3 = lv_line_create(lv_scr_act(), NULL);
-    lv_ex_line(line3, line_points[2]);
+    lv_screen_menu_item(scr, machine_menu.JerkConf, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_MACHINE_JERK, 2);
   #endif
-
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", event_handler, ID_MACHINE_RETURN);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
-
-    lv_label_set_text(labelAcceleration, machine_menu.AccelerationConf);
-    lv_obj_align(labelAcceleration, buttonAcceleration, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-    lv_label_set_text(labelMaxFeedrate, machine_menu.MaxFeedRateConf);
-    lv_obj_align(labelMaxFeedrate, buttonMaxFeedrate, LV_ALIGN_IN_LEFT_MID, 0, 0);
-    #if HAS_CLASSIC_JERK
-      lv_label_set_text(labelJerk, machine_menu.JerkConf);
-      lv_obj_align(labelJerk, buttonJerk, LV_ALIGN_IN_LEFT_MID, 0, 0);
-    #endif
-  }
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, buttonAcceleration);
-      lv_group_add_obj(g, buttonMaxFeedrate);
-      #if HAS_CLASSIC_JERK
-        lv_group_add_obj(g, buttonJerk);
-      #endif
-      lv_group_add_obj(g, buttonBack);
-    }
-  #endif
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X + 10, PARA_UI_BACL_POS_Y, event_handler, ID_MACHINE_RETURN, true);
 }
 
 void lv_clear_machine_settings() {
