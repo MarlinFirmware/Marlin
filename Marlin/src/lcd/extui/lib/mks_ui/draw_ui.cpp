@@ -1781,7 +1781,22 @@ lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t
   return btn;
 }
 
-// lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const char *editValue2);
+lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const int idEdit2, const char *editValue2) {
+  lv_obj_t* btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
+
+  lv_obj_t* btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X_2, y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, idEdit2);
+  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_label_set_text(labelValue, editValue2);
+  lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
+
+  btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
+  labelValue = lv_label_create_empty(btnValue);
+  lv_label_set_text(labelValue, editValue);
+  lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
+
+  return btn;
+}
+
 // lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
 
 
