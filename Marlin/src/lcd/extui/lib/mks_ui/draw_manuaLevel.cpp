@@ -23,14 +23,15 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-#include "lv_conf.h"
+#include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
+
 #include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -177,83 +178,28 @@ void lv_draw_manualLevel(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonPoint1 = lv_imgbtn_create(scr, NULL);
-  buttonPoint2 = lv_imgbtn_create(scr, NULL);
-  buttonPoint3 = lv_imgbtn_create(scr, NULL);
-  buttonPoint4 = lv_imgbtn_create(scr, NULL);
-  buttonPoint5 = lv_imgbtn_create(scr, NULL);
-  buttonBack   = lv_imgbtn_create(scr, NULL);
-
-  lv_obj_set_event_cb_mks(buttonPoint1, event_handler, ID_M_POINT1, NULL, 0);
-  lv_imgbtn_set_src(buttonPoint1, LV_BTN_STATE_REL, "F:/bmp_leveling1.bin");
-  lv_imgbtn_set_src(buttonPoint1, LV_BTN_STATE_PR, "F:/bmp_leveling1.bin");
-  lv_imgbtn_set_style(buttonPoint1, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonPoint1, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonPoint1 = lv_imgbtn_create(scr, "F:/bmp_leveling1.bin", INTERVAL_V, titleHeight, event_handler, ID_M_POINT1);
   lv_obj_clear_protect(buttonPoint1, LV_PROTECT_FOLLOW);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonPoint2, event_handler, ID_M_POINT2, NULL, 0);
-    lv_imgbtn_set_src(buttonPoint2, LV_BTN_STATE_REL, "F:/bmp_leveling2.bin");
-    lv_imgbtn_set_src(buttonPoint2, LV_BTN_STATE_PR, "F:/bmp_leveling2.bin");
-    lv_imgbtn_set_style(buttonPoint2, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPoint2, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonPoint3, event_handler, ID_M_POINT3, NULL, 0);
-    lv_imgbtn_set_src(buttonPoint3, LV_BTN_STATE_REL, "F:/bmp_leveling3.bin");
-    lv_imgbtn_set_src(buttonPoint3, LV_BTN_STATE_PR, "F:/bmp_leveling3.bin");
-    lv_imgbtn_set_style(buttonPoint3, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPoint3, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonPoint4, event_handler, ID_M_POINT4, NULL, 0);
-    lv_imgbtn_set_src(buttonPoint4, LV_BTN_STATE_REL, "F:/bmp_leveling4.bin");
-    lv_imgbtn_set_src(buttonPoint4, LV_BTN_STATE_PR, "F:/bmp_leveling4.bin");
-    lv_imgbtn_set_style(buttonPoint4, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPoint4, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonPoint5, event_handler, ID_M_POINT5, NULL, 0);
-    lv_imgbtn_set_src(buttonPoint5, LV_BTN_STATE_REL, "F:/bmp_leveling5.bin");
-    lv_imgbtn_set_src(buttonPoint5, LV_BTN_STATE_PR, "F:/bmp_leveling5.bin");
-    lv_imgbtn_set_style(buttonPoint5, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPoint5, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MANUAL_RETURN, NULL, 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  #endif
-
-  lv_obj_set_pos(buttonPoint1, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonPoint2, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
-  lv_obj_set_pos(buttonPoint3, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
-  lv_obj_set_pos(buttonPoint4, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonPoint5, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+  buttonPoint2 = lv_imgbtn_create(scr, "F:/bmp_leveling2.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_M_POINT2);
+  buttonPoint3 = lv_imgbtn_create(scr, "F:/bmp_leveling3.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_M_POINT3);
+  buttonPoint4 = lv_imgbtn_create(scr, "F:/bmp_leveling4.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_M_POINT4);
+  buttonPoint5 = lv_imgbtn_create(scr, "F:/bmp_leveling5.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_POINT5);
+  buttonBack   = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_MANUAL_RETURN);
 
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonPoint1, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPoint2, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPoint3, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPoint4, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPoint5, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
+  lv_obj_t *label_Point1 = lv_label_create_empty(buttonPoint1);
+  lv_obj_t *label_Point2 = lv_label_create_empty(buttonPoint2);
+  lv_obj_t *label_Point3 = lv_label_create_empty(buttonPoint3);
+  lv_obj_t *label_Point4 = lv_label_create_empty(buttonPoint4);
+  lv_obj_t *label_Point5 = lv_label_create_empty(buttonPoint5);
+  lv_obj_t *label_Back   = lv_label_create_empty(buttonBack);
 
-  lv_obj_t *label_Point1 = lv_label_create(buttonPoint1, NULL);
-  lv_obj_t *label_Point2 = lv_label_create(buttonPoint2, NULL);
-  lv_obj_t *label_Point3 = lv_label_create(buttonPoint3, NULL);
-  lv_obj_t *label_Point4 = lv_label_create(buttonPoint4, NULL);
-  lv_obj_t *label_Point5 = lv_label_create(buttonPoint5, NULL);
-  lv_obj_t *label_Back   = lv_label_create(buttonBack, NULL);
-
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Point1, leveling_menu.position1);
     lv_obj_align(label_Point1, buttonPoint1, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 

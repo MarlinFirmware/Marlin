@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * lcd/dogm/ultralcd_DOGM.h
+ * lcd/dogm/marlinui_DOGM.h
  */
 
 #include "../../inc/MarlinConfigPre.h"

@@ -23,13 +23,12 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
-#include "draw_ui.h"
+#include <lv_conf.h>
+#include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
 
-#include "../../../../../Configuration.h"
-#include "../../../../module/temperature.h"
+#include "draw_ui.h"
 
 static lv_obj_t * scr;
 
@@ -53,27 +52,22 @@ void lv_draw_wifi_tips(void) {
   lv_obj_clean(scr);
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  text_tips = lv_label_create(scr, NULL);
-  lv_obj_set_style(text_tips, &tft_style_label_rel);
+  wifi_name = lv_label_create(scr, (const char *)wifi_list.wifiName[wifi_list.nameIndex]);
+  lv_obj_align(wifi_name, NULL, LV_ALIGN_CENTER, 0, -20);
 
-  wifi_name = lv_label_create(scr, NULL);
-  lv_obj_set_style(wifi_name, &tft_style_label_rel);
-
+  text_tips = lv_label_create_empty(scr);
   if (wifi_tips_type == TIPS_TYPE_JOINING) {
     lv_label_set_text(text_tips, tips_menu.joining);
-    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER,0, -60);
+    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER, 0, -60);
   }
   else if (wifi_tips_type == TIPS_TYPE_TAILED_JOIN) {
     lv_label_set_text(text_tips, tips_menu.failedJoin);
-    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER,0, -60);
+    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER, 0, -60);
   }
   else if (wifi_tips_type == TIPS_TYPE_WIFI_CONECTED) {
     lv_label_set_text(text_tips, tips_menu.wifiConected);
-    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER,0, -60);
+    lv_obj_align(text_tips, NULL, LV_ALIGN_CENTER, 0, -60);
   }
-
-  lv_label_set_text(wifi_name, (const char *)wifi_list.wifiName[wifi_list.nameIndex]);
-  lv_obj_align(wifi_name, NULL, LV_ALIGN_CENTER,0, -20);
 
   tips_disp.timer = TIPS_TIMER_START;
   tips_disp.timer_count = 0;

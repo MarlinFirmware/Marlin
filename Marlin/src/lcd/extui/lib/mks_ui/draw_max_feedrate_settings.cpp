@@ -23,11 +23,11 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -128,12 +128,12 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_max_feedrate_settings(void) {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
-  lv_obj_t *labelXText = NULL, *buttonXValue = NULL, *labelXValue = NULL;
-  lv_obj_t *labelYText = NULL, *buttonYValue = NULL, *labelYValue = NULL;
-  lv_obj_t *labelZText = NULL, *buttonZValue = NULL, *labelZValue = NULL;
-  lv_obj_t *labelE0Text = NULL, *buttonE0Value = NULL, *labelE0Value = NULL;
-  lv_obj_t *labelE1Text = NULL, *buttonE1Value = NULL, *labelE1Value = NULL;
-  lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL, * line4 = NULL;
+  lv_obj_t *buttonXValue = NULL, *labelXValue = NULL;
+  lv_obj_t *buttonYValue = NULL, *labelYValue = NULL;
+  lv_obj_t *buttonZValue = NULL, *labelZValue = NULL;
+  lv_obj_t *buttonE0Value = NULL, *labelE0Value = NULL;
+  lv_obj_t *buttonE1Value = NULL, *labelE1Value = NULL;
+  lv_obj_t *line1 = NULL, *line2 = NULL, *line3 = NULL, *line4 = NULL;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MAXFEEDRATE_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = MAXFEEDRATE_UI;
@@ -146,86 +146,50 @@ void lv_draw_max_feedrate_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.MaxFeedRateConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.MaxFeedRateConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (uiCfg.para_ui_page != 1) {
-    labelXText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelXText, &tft_style_label_rel);
-    lv_obj_set_pos(labelXText, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelXText, machine_menu.XMaxFeedRate);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.XMaxFeedRate);
 
-    buttonXValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonXValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_FEED_X, NULL, 0);
-    lv_btn_set_style(buttonXValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonXValue, LV_BTN_STYLE_PR, &style_para_value);
+    buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_FEED_X);
     lv_btn_set_layout(buttonXValue, LV_LAYOUT_OFF);
-    labelXValue = lv_label_create(buttonXValue, NULL);
+    labelXValue = lv_label_create_empty(buttonXValue);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    labelYText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelYText, &tft_style_label_rel);
-    lv_obj_set_pos(labelYText, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10);
-    lv_label_set_text(labelYText, machine_menu.YMaxFeedRate);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.YMaxFeedRate);
 
-    buttonYValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonYValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_FEED_Y, NULL, 0);
-    lv_btn_set_style(buttonYValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonYValue, LV_BTN_STYLE_PR, &style_para_value);
+    buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_FEED_Y);
     lv_btn_set_layout(buttonYValue, LV_LAYOUT_OFF);
-    labelYValue = lv_label_create(buttonYValue, NULL);
+    labelYValue = lv_label_create_empty(buttonYValue);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    labelZText = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelZText, &tft_style_label_rel);
-    lv_obj_set_pos(labelZText, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10);
-    lv_label_set_text(labelZText, machine_menu.ZMaxFeedRate);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.ZMaxFeedRate);
 
-    buttonZValue = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonZValue, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_FEED_Z, NULL, 0);
-    lv_btn_set_style(buttonZValue, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonZValue, LV_BTN_STYLE_PR, &style_para_value);
+    buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_FEED_Z);
     lv_btn_set_layout(buttonZValue, LV_LAYOUT_OFF);
-    labelZValue = lv_label_create(buttonZValue, NULL);
+    labelZValue = lv_label_create_empty(buttonZValue);
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    labelE0Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelE0Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10);
-    lv_label_set_text(labelE0Text, machine_menu.E0MaxFeedRate);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.E0MaxFeedRate);
 
-    buttonE0Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonE0Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonE0Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonE0Value, event_handler, ID_FEED_E0, NULL, 0);
-    lv_btn_set_style(buttonE0Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonE0Value, LV_BTN_STYLE_PR, &style_para_value);
+    buttonE0Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_FEED_E0);
     lv_btn_set_layout(buttonE0Value, LV_LAYOUT_OFF);
-    labelE0Value = lv_label_create(buttonE0Value, NULL);
+    labelE0Value = lv_label_create_empty(buttonE0Value);
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_FEED_DOWN, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -238,19 +202,11 @@ void lv_draw_max_feedrate_settings(void) {
     #endif
   }
   else {
-    labelE1Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelE1Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelE1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelE1Text, machine_menu.E1MaxFeedRate);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.E1MaxFeedRate);
 
-    buttonE1Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonE1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_FEED_E1, NULL, 0);
-    lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_PR, &style_para_value);
+    buttonE1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_FEED_E1);
     lv_btn_set_layout(buttonE1Value, LV_LAYOUT_OFF);
-    labelE1Value = lv_label_create(buttonE1Value, NULL);
+    labelE1Value = lv_label_create_empty(buttonE1Value);
 
 
     line1 = lv_line_create(scr, NULL);
@@ -258,8 +214,7 @@ void lv_draw_max_feedrate_settings(void) {
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_FEED_UP, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -271,20 +226,19 @@ void lv_draw_max_feedrate_settings(void) {
 
   lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
   lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  labelTurnPage = lv_label_create_empty(buttonTurnPage);
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_FEED_RETURN, NULL, 0);
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
-  label_Back = lv_label_create(buttonBack, NULL);
+  lv_btn_set_style_both(buttonBack, &style_para_back);
+  label_Back = lv_label_create_empty(buttonBack);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
 
       lv_label_set_text(labelTurnPage, machine_menu.next);

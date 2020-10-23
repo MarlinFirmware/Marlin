@@ -34,10 +34,11 @@
 
 #include <SPI.h>
 
-#include "../../../../MarlinCore.h"
+#include "../../../../MarlinCore.h" // for marlin_state
 #include "../../../../sd/cardreader.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -57,15 +58,13 @@ num_key_value_state value;
 keyboard_value_state keyboard_value;
 
 uint32_t To_pre_view;
-uint8_t gcode_preview_over;
-uint8_t flash_preview_begin;
-uint8_t default_preview_flg;
+bool gcode_preview_over, flash_preview_begin, default_preview_flg;
 uint32_t size = 809;
 uint16_t row;
 uint8_t temperature_change_frequency;
 uint8_t printing_rate_update_flag;
 
-extern uint8_t once_flag;
+extern bool once_flag;
 extern uint8_t sel_id;
 extern uint8_t public_buf[512];
 extern uint8_t bmp_public_buf[17 * 1024];
@@ -116,10 +115,10 @@ void gCfgItems_init() {
     gCfgItems.language = LANG_PORTUGUESE;
   #endif
   gCfgItems.leveling_mode     = 0;
-  gCfgItems.from_flash_pic    = 0;
+  gCfgItems.from_flash_pic    = false;
   gCfgItems.curFilesize       = 0;
-  gCfgItems.finish_power_off  = 0;
-  gCfgItems.pause_reprint     = 0;
+  gCfgItems.finish_power_off  = false;
+  gCfgItems.pause_reprint     = false;
   gCfgItems.pausePosX         = -1;
   gCfgItems.pausePosY         = -1;
   gCfgItems.pausePosZ         = 5;
@@ -407,7 +406,6 @@ void tft_style_init() {
   lv_bar_style_indic.body.main_color   = lv_color_hex3(0xADF);
   lv_bar_style_indic.body.grad_color   = lv_color_hex3(0xADF);
   lv_bar_style_indic.body.border.color = lv_color_hex3(0xADF);
-
 }
 
 #define MAX_TITLE_LEN 28
@@ -609,14 +607,14 @@ char *creat_title_text() {
         pre_read_cnt = (uint32_t)p1 - (uint32_t)((uint32_t *)(&public_buf[0]));
 
         To_pre_view              = pre_read_cnt;
-        gcode_preview_over       = 1;
-        gCfgItems.from_flash_pic = 1;
+        gcode_preview_over       = true;
+        gCfgItems.from_flash_pic = true;
         update_spi_flash();
       }
       else {
-        gcode_preview_over       = 0;
-        default_preview_flg      = 1;
-        gCfgItems.from_flash_pic = 0;
+        gcode_preview_over       = false;
+        default_preview_flg      = true;
+        gCfgItems.from_flash_pic = false;
         update_spi_flash();
       }
       card.closefile();
@@ -681,8 +679,8 @@ char *creat_title_text() {
           size = 809;
           row  = 0;
 
-          gcode_preview_over = 0;
-          //flash_preview_begin = 1;
+          gcode_preview_over = false;
+          //flash_preview_begin = true;
 
           card.closefile();
 
@@ -696,7 +694,7 @@ char *creat_title_text() {
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
-              once_flag = 0;
+              once_flag = false;
             }
           }
           */
@@ -727,7 +725,7 @@ char *creat_title_text() {
             #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-            once_flag = 0;
+            once_flag = false;
           }
           return;
         }
@@ -813,8 +811,8 @@ char *creat_title_text() {
           size = 809;
           row  = 0;
 
-          gcode_preview_over = 0;
-          //flash_preview_begin = 1;
+          gcode_preview_over = false;
+          //flash_preview_begin = true;
 
           card.closefile();
 
@@ -828,7 +826,7 @@ char *creat_title_text() {
               //bakup_file_path((uint8_t *)curFileName, strlen(curFileName));
               srcfp = file;
               mksReprint.mks_printer_state = MKS_WORKING;
-              once_flag = 0;
+              once_flag = false;
             }
           }
           */
@@ -859,7 +857,7 @@ char *creat_title_text() {
             #endif
             card.startFileprint();
             TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
-            once_flag = 0;
+            once_flag = false;
           }
           return;
         }
@@ -894,17 +892,17 @@ char *creat_title_text() {
   }
 
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel) {
-    if (gcode_preview_over == 1) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
+    if (gcode_preview_over) gcode_preview(list_file.file_name[sel_id], xpos_pixel, ypos_pixel);
     #if HAS_BAK_VIEW_IN_FLASH
-      if (flash_preview_begin == 1) {
-        flash_preview_begin = 0;
+      if (flash_preview_begin) {
+        flash_preview_begin = false;
         Draw_default_preview(xpos_pixel, ypos_pixel, 1);
       }
     #endif
     #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
-      if (default_preview_flg == 1) {
+      if (default_preview_flg) {
         Draw_default_preview(xpos_pixel, ypos_pixel, 0);
-        default_preview_flg = 0;
+        default_preview_flg = false;
       }
     #endif
   }
@@ -971,7 +969,7 @@ void GUI_RefreshPage() {
       }
       if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
         printing_rate_update_flag = 0;
-        if (gcode_preview_over == 0) setProBarRate();
+        if (!gcode_preview_over) setProBarRate();
       }
       break;
 
@@ -1359,8 +1357,8 @@ void draw_return_ui() {
         lv_draw_print_file();
         break;
       case PRINTING_UI:
-        if (gCfgItems.from_flash_pic == 1) flash_preview_begin = 1;
-        else default_preview_flg = 1;
+        if (gCfgItems.from_flash_pic) flash_preview_begin = true;
+        else default_preview_flg = true;
         lv_draw_printing();
         break;
       case MOVE_MOTOR_UI:
@@ -1577,6 +1575,105 @@ void draw_return_ui() {
       default: break;
     }
   }
+}
+
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src) {
+  lv_imgbtn_set_src(imgbtn, LV_BTN_STATE_REL, src);
+  lv_imgbtn_set_src(imgbtn, LV_BTN_STATE_PR,  src);
+}
+
+// Use label style for the image button
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn) {
+  lv_imgbtn_set_style(imgbtn, LV_BTN_STATE_REL, &tft_style_label_rel);
+  lv_imgbtn_set_style(imgbtn, LV_BTN_STATE_PR,  &tft_style_label_pre);
+}
+
+// Use label style for the image button
+void lv_btn_use_label_style(lv_obj_t *btn) {
+  lv_btn_set_style(btn, LV_BTN_STYLE_REL, &tft_style_label_rel);
+  lv_btn_set_style(btn, LV_BTN_STYLE_PR,  &tft_style_label_pre);
+}
+
+// Use a single style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
+  lv_btn_set_style(btn, LV_BTN_STYLE_REL, style);
+  lv_btn_set_style(btn, LV_BTN_STYLE_PR,  style);
+}
+
+// Create an empty label
+lv_obj_t* lv_label_create_empty(lv_obj_t *par) {
+  return lv_label_create(par, (lv_obj_t*)NULL);
+}
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(lv_obj_t *par, const char *text) {
+  lv_obj_t *label = lv_label_create_empty(par);
+  if (text) lv_label_set_text(label, text);
+  return label;
+}
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text) {
+  lv_obj_t *label = lv_label_create(par, text);
+  lv_obj_set_pos(label, x, y);
+  return label;
+}
+
+// Create a button with callback, ID, and Style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style) {
+  lv_obj_t *btn = lv_btn_create(par, NULL);
+  if (id)
+    lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+  else
+    lv_obj_set_event_cb(btn, cb);
+  lv_btn_set_style_both(btn, style);
+  return btn;
+}
+
+// Create a button with callback and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id) {
+  return lv_btn_create(par, cb, id, &style_para_value);
+}
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id) {
+  lv_obj_t *btn = lv_btn_create(par, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_set_size(btn, w, h);
+  return btn;
+}
+
+// Create a button with callback and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id) {
+  return lv_btn_create(par, cb, id, &style_para_back);
+}
+// Create a button with position, size, callback, and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id) {
+  lv_obj_t *btn = lv_btn_create_back(par, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_set_size(btn, w, h);
+  return btn;
+}
+
+// Create an image button with image, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id) {
+  lv_obj_t *btn = lv_imgbtn_create(par, NULL);
+  if (img) lv_imgbtn_set_src_both(btn, img);
+  if (id)
+    lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+  else
+    lv_obj_set_event_cb(btn, cb);
+  lv_imgbtn_use_label_style(btn);
+  lv_btn_set_layout(btn, LV_LAYOUT_OFF);
+  return btn;
+}
+
+// Create an image button with image, position, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
+  lv_obj_t *btn = lv_imgbtn_create(par, img, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  return btn;
 }
 
 #if ENABLED(SDSUPPORT)

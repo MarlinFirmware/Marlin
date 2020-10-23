@@ -207,6 +207,12 @@
   #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
 #elif MB(MKS_GEN_L_V21)
   #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
+#elif MB(RAMPS_S_12_EEFB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MB(RAMPS_S_12_EEEB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MB(RAMPS_S_12_EFFB)
+  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -547,6 +553,8 @@
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V1_2.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_MINI_E3_V2_0)
   #include "stm32f1/pins_BTT_SKR_MINI_E3_V2_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
+#elif MB(BTT_SKR_MINI_MZ_V1_0)
+  #include "stm32f1/pins_BTT_SKR_MINI_MZ_V1_0.h"  // STM32F1                              env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(BTT_SKR_E3_DIP)
   #include "stm32f1/pins_BTT_SKR_E3_DIP.h"      // STM32F1                                env:STM32F103RE_btt env:STM32F103RE_btt_USB env:STM32F103RC_btt env:STM32F103RC_btt_512K env:STM32F103RC_btt_USB env:STM32F103RC_btt_512K_USB
 #elif MB(JGAURORA_A5S_A1)
@@ -573,6 +581,8 @@
   #include "stm32f1/pins_TRIGORILLA_PRO.h"      // STM32F1                                env:trigorilla_pro
 #elif MB(FLY_MINI)
   #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
+#elif MB(FLSUN_HISPEED)
+  #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeed
 
 //
 // ARM Cortex-M4F
@@ -581,7 +591,7 @@
 #elif MB(TEENSY31_32)
   #include "teensy3/pins_TEENSY31_32.h"         // TEENSY31_32                            env:teensy31
 #elif MB(TEENSY35_36)
-  #include "teensy3/pins_TEENSY35_36.h"         // TEENSY35_36                            env:teensy35
+  #include "teensy3/pins_TEENSY35_36.h"         // TEENSY35_36                            env:teensy35 env:teensy36
 
 //
 // STM32 ARM Cortex-M4F
@@ -666,6 +676,7 @@
 //
 // Custom board (with custom PIO env)
 //
+
 #elif MB(CUSTOM)
   #include "pins_custom.h"                      //                                        env:custom
 

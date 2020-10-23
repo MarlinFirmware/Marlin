@@ -23,7 +23,7 @@
 
 #include "touch.h"
 
-#include "../ultralcd.h"  // for ui methods
+#include "../marlinui.h"  // for ui methods
 #include "../menu/menu_item.h" // for touch_screen_calibration
 
 #include "../../module/temperature.h"
@@ -40,10 +40,10 @@ int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::last_touch_ms = 0;
-millis_t Touch::time_to_hold;
-millis_t Touch::repeat_delay;
-millis_t Touch::touch_time;
+millis_t Touch::last_touch_ms = 0,
+         Touch::time_to_hold,
+         Touch::repeat_delay,
+         Touch::touch_time;
 TouchControlType  Touch::touch_control_type = NONE;
 touch_calibration_t Touch::calibration;
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -189,12 +189,12 @@ void Touch::touch(touch_control_t *control) {
             }
 
             if (calibration_state == CALIBRATION_SUCCESS) {
-              SERIAL_ECHOLN("Touch screen calibration completed");
+              SERIAL_ECHOLNPGM("Touch screen calibration completed");
               SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_X ", calibration.x);
               SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
               SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
               SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
-              SERIAL_ECHO("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLN("TOUCH_LANDSCAPE"); else SERIAL_ECHOLN("TOUCH_PORTRAIT");
+              SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
             }
             break;
           default: break;

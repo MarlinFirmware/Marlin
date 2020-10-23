@@ -23,21 +23,20 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
-#include "../../../../gcode/queue.h"
 #include "../../../../gcode/gcode.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
-static lv_obj_t *buttoType;
+extern lv_group_t *g;
+static lv_obj_t *scr;
+static lv_obj_t *buttonType;
 static lv_obj_t *labelType;
-static lv_obj_t * tempText1;
+static lv_obj_t *tempText1;
 
 #define ID_FILAMNT_IN     1
 #define ID_FILAMNT_OUT    2
@@ -145,59 +144,25 @@ void lv_draw_filament_change(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonIn   = lv_imgbtn_create(scr, NULL);
-  buttonOut  = lv_imgbtn_create(scr, NULL);
-  buttoType  = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
-
-  lv_obj_set_event_cb_mks(buttonIn, event_handler, ID_FILAMNT_IN, NULL, 0);
-  lv_imgbtn_set_src(buttonIn, LV_BTN_STATE_REL, "F:/bmp_in.bin");
-  lv_imgbtn_set_src(buttonIn, LV_BTN_STATE_PR, "F:/bmp_in.bin");
-  lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonIn, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonIn = lv_imgbtn_create(scr, "F:/bmp_in.bin", INTERVAL_V, titleHeight, event_handler, ID_FILAMNT_IN);
   lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);
 
-  lv_obj_set_event_cb_mks(buttonOut, event_handler, ID_FILAMNT_OUT, NULL, 0);
-  lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_REL, "F:/bmp_out.bin");
-  lv_imgbtn_set_src(buttonOut, LV_BTN_STATE_PR, "F:/bmp_out.bin");
-  lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonOut, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  lv_obj_set_event_cb_mks(buttoType, event_handler, ID_FILAMNT_TYPE, NULL, 0);
-  lv_imgbtn_set_style(buttoType, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttoType, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_FILAMNT_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  lv_obj_set_pos(buttonIn, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonOut, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttoType, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
+  buttonOut = lv_imgbtn_create(scr, "F:/bmp_out.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_FILAMNT_OUT);
+  buttonType = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_TYPE);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FILAMNT_RETURN);
 
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonIn, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonOut, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttoType, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
+  lv_obj_t *labelIn  = lv_label_create_empty(buttonIn);
+  lv_obj_t *labelOut = lv_label_create_empty(buttonOut);
+  labelType = lv_label_create_empty(buttonType);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
-  lv_obj_t *labelIn  = lv_label_create(buttonIn, NULL);
-  lv_obj_t *labelOut = lv_label_create(buttonOut, NULL);
-  labelType = lv_label_create(buttoType, NULL);
-  lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
-
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelIn, filament_menu.in);
     lv_obj_align(labelIn, buttonIn, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -212,33 +177,31 @@ void lv_draw_filament_change(void) {
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonIn);
       lv_group_add_obj(g, buttonOut);
-      lv_group_add_obj(g, buttoType);
+      lv_group_add_obj(g, buttonType);
       lv_group_add_obj(g, buttonBack);
     }
   #endif
 
   disp_filament_type();
 
-  tempText1 = lv_label_create(scr, NULL);
+  tempText1 = lv_label_create_empty(scr);
   lv_obj_set_style(tempText1, &tft_style_label_rel);
   disp_filament_temp();
 }
 
 void disp_filament_type() {
   if (uiCfg.curSprayerChoose == 1) {
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru2.bin");
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru2.bin");
-    if (gCfgItems.multiple_language != 0) {
+    lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru2.bin");
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext2);
-      lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
   }
   else {
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_REL, "F:/bmp_extru1.bin");
-    lv_imgbtn_set_src(buttoType, LV_BTN_STATE_PR, "F:/bmp_extru1.bin");
-    if (gCfgItems.multiple_language != 0) {
+    lv_imgbtn_set_src_both(buttonType, "F:/bmp_extru1.bin");
+    if (gCfgItems.multiple_language) {
       lv_label_set_text(labelType, preheat_menu.ext1);
-      lv_obj_align(labelType, buttoType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      lv_obj_align(labelType, buttonType, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
   }
 }

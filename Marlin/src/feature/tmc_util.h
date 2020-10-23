@@ -22,7 +22,7 @@
 #pragma once
 
 #include "../inc/MarlinConfig.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if HAS_TRINAMIC_CONFIG
 
@@ -104,8 +104,8 @@ class TMCMarlin : public TMC, public TMCStorage<AXIS_LETTER, DRIVER_ID> {
 
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { this->en_pwm_mode(this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return this->en_pwm_mode(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop() { return this->en_pwm_mode(); }
+      inline bool get_stored_stealthChop() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -171,8 +171,8 @@ class TMCMarlin<TMC2208Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop() { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)
@@ -217,8 +217,8 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
 
     #if HAS_STEALTHCHOP
       inline void refresh_stepping_mode() { en_spreadCycle(!this->stored.stealthChop_enabled); }
-      inline bool get_stealthChop_status() { return !this->en_spreadCycle(); }
-      inline bool get_stored_stealthChop_status() { return this->stored.stealthChop_enabled; }
+      inline bool get_stealthChop() { return !this->en_spreadCycle(); }
+      inline bool get_stored_stealthChop() { return this->stored.stealthChop_enabled; }
     #endif
 
     #if ENABLED(HYBRID_THRESHOLD)

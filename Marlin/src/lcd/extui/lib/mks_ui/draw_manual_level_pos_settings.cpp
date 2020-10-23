@@ -23,11 +23,11 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -183,15 +183,15 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_manual_level_pos_settings(void) {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
-  lv_obj_t *labelPoint1Text = NULL, *buttonX1Value = NULL, *labelX1Value = NULL;
+  lv_obj_t *buttonX1Value = NULL, *labelX1Value = NULL;
   lv_obj_t *buttonY1Value = NULL, *labelY1Value = NULL;
-  lv_obj_t *labelPoint2Text = NULL, *buttonX2Value = NULL, *labelX2Value = NULL;
+  lv_obj_t *buttonX2Value = NULL, *labelX2Value = NULL;
   lv_obj_t *buttonY2Value = NULL, *labelY2Value = NULL;
-  lv_obj_t *labelPoint3Text = NULL, *buttonX3Value = NULL, *labelX3Value = NULL;
+  lv_obj_t *buttonX3Value = NULL, *labelX3Value = NULL;
   lv_obj_t *buttonY3Value = NULL, *labelY3Value = NULL;
-  lv_obj_t *labelPoint4Text = NULL, *buttonX4Value = NULL, *labelX4Value = NULL;
+  lv_obj_t *buttonX4Value = NULL, *labelX4Value = NULL;
   lv_obj_t *buttonY4Value = NULL, *labelY4Value = NULL;
-  lv_obj_t *labelPoint5Text = NULL, *buttonX5Value = NULL, *labelX5Value = NULL;
+  lv_obj_t *buttonX5Value = NULL, *labelX5Value = NULL;
   lv_obj_t *buttonY5Value = NULL, *labelY5Value = NULL;
   lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL, * line4 = NULL;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MANUAL_LEVELING_POSIGION_UI) {
@@ -206,114 +206,58 @@ void lv_draw_manual_level_pos_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.LevelingParaConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.LevelingParaConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (uiCfg.para_ui_page != 1) {
-    labelPoint1Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelPoint1Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelPoint1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelPoint1Text, leveling_menu.position1);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, leveling_menu.position1);
 
-    buttonX1Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonX1Value, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonX1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonX1Value, event_handler, ID_MANUAL_POS_X1, NULL, 0);
-    lv_btn_set_style(buttonX1Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonX1Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelX1Value = lv_label_create(buttonX1Value, NULL);
+    buttonX1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_X1);
+    labelX1Value = lv_label_create_empty(buttonX1Value);
 
-    buttonY1Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonY1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonY1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonY1Value, event_handler, ID_MANUAL_POS_Y1, NULL, 0);
-    lv_btn_set_style(buttonY1Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonY1Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelY1Value = lv_label_create(buttonY1Value, NULL);
+    buttonY1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_Y1);
+    labelY1Value = lv_label_create_empty(buttonY1Value);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    labelPoint2Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelPoint2Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelPoint2Text, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10);
-    lv_label_set_text(labelPoint2Text, leveling_menu.position2);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, leveling_menu.position2);
 
-    buttonX2Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonX2Value, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonX2Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonX2Value, event_handler, ID_MANUAL_POS_X2, NULL, 0);
-    lv_btn_set_style(buttonX2Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonX2Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelX2Value = lv_label_create(buttonX2Value, NULL);
+    buttonX2Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_X2);
+    labelX2Value = lv_label_create_empty(buttonX2Value);
 
-    buttonY2Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonY2Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonY2Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonY2Value, event_handler, ID_MANUAL_POS_Y2, NULL, 0);
-    lv_btn_set_style(buttonY2Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonY2Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelY2Value = lv_label_create(buttonY2Value, NULL);
+    buttonY2Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_Y2);
+    labelY2Value = lv_label_create_empty(buttonY2Value);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    labelPoint3Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelPoint3Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelPoint3Text, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10);
-    lv_label_set_text(labelPoint3Text, leveling_menu.position3);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, leveling_menu.position3);
 
-    buttonX3Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonX3Value, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonX3Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonX3Value, event_handler, ID_MANUAL_POS_X3, NULL, 0);
-    lv_btn_set_style(buttonX3Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonX3Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelX3Value = lv_label_create(buttonX3Value, NULL);
+    buttonX3Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_X3);
+    labelX3Value = lv_label_create_empty(buttonX3Value);
 
-    buttonY3Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonY3Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonY3Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonY3Value, event_handler, ID_MANUAL_POS_Y3, NULL, 0);
-    lv_btn_set_style(buttonY3Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonY3Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelY3Value = lv_label_create(buttonY3Value, NULL);
+    buttonY3Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_Y3);
+    labelY3Value = lv_label_create_empty(buttonY3Value);
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    labelPoint4Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelPoint4Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelPoint4Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10);
-    lv_label_set_text(labelPoint4Text, leveling_menu.position4);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, leveling_menu.position4);
 
-    buttonX4Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonX4Value, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonX4Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonX4Value, event_handler, ID_MANUAL_POS_X4, NULL, 0);
-    lv_btn_set_style(buttonX4Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonX4Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelX4Value = lv_label_create(buttonX4Value, NULL);
+    buttonX4Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_X4);
+    labelX4Value = lv_label_create_empty(buttonX4Value);
 
-    buttonY4Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonY4Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonY4Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonY4Value, event_handler, ID_MANUAL_POS_Y4, NULL, 0);
-    lv_btn_set_style(buttonY4Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonY4Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelY4Value = lv_label_create(buttonY4Value, NULL);
+    buttonY4Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_Y4);
+    labelY4Value = lv_label_create_empty(buttonY4Value);
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_MANUAL_POS_DOWN, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -330,34 +274,20 @@ void lv_draw_manual_level_pos_settings(void) {
     #endif
   }
   else {
-    labelPoint5Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelPoint5Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelPoint5Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelPoint5Text, leveling_menu.position5);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, leveling_menu.position5);
 
-    buttonX5Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonX5Value, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonX5Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonX5Value, event_handler, ID_MANUAL_POS_X5, NULL, 0);
-    lv_btn_set_style(buttonX5Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonX5Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelX5Value = lv_label_create(buttonX5Value, NULL);
+    buttonX5Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X_2, PARA_UI_POS_Y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_X5);
+    labelX5Value = lv_label_create_empty(buttonX5Value);
 
-    buttonY5Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonY5Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2);
-    lv_obj_set_size(buttonY5Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonY5Value, event_handler, ID_MANUAL_POS_Y5, NULL, 0);
-    lv_btn_set_style(buttonY5Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonY5Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelY5Value = lv_label_create(buttonY5Value, NULL);
+    buttonY5Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V_2, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_MANUAL_POS_Y5);
+    labelY5Value = lv_label_create_empty(buttonY5Value);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
     buttonTurnPage = lv_btn_create(scr, NULL);
     lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_MANUAL_POS_UP, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    lv_btn_set_style_both(buttonTurnPage, &style_para_back);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -370,21 +300,20 @@ void lv_draw_manual_level_pos_settings(void) {
 
   lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
   lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  labelTurnPage = lv_label_create_empty(buttonTurnPage);
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_MANUAL_POS_RETURN, NULL, 0);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
-  lv_btn_set_style(buttonBack, LV_BTN_STYLE_PR, &style_para_back);
+  lv_btn_set_style_both(buttonBack, &style_para_back);
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_obj_set_size(buttonBack, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
       ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);

@@ -23,10 +23,10 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfig.h"
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
@@ -133,10 +133,7 @@ void lv_draw_level_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.LevelingParaConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.LevelingParaConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -145,22 +142,15 @@ void lv_draw_level_settings(void) {
   lv_obj_set_pos(buttonPosition, PARA_UI_POS_X, PARA_UI_POS_Y);                /*Set its position*/
   lv_obj_set_size(buttonPosition, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);             /*Set its size*/
   lv_obj_set_event_cb_mks(buttonPosition, event_handler, ID_LEVEL_POSITION, NULL, 0);
-  lv_btn_set_style(buttonPosition, LV_BTN_STYLE_REL, &tft_style_label_rel);    /*Set the button's released style*/
-  lv_btn_set_style(buttonPosition, LV_BTN_STYLE_PR, &tft_style_label_pre);     /*Set the button's pressed style*/
+  lv_btn_use_label_style(buttonPosition);
   lv_btn_set_layout(buttonPosition, LV_LAYOUT_OFF);
-  labelPosition = lv_label_create(buttonPosition, NULL);                       /*Add a label to the button*/
+  labelPosition = lv_label_create_empty(buttonPosition);                       /*Add a label to the button*/
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonPosition);
   #endif
 
-  buttonPositionNarrow = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonPositionNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonPositionNarrow, event_handler, ID_LEVEL_POSITION_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonPositionNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonPositionNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonPositionNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonPositionNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonPositionNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y + PARA_UI_ARROW_V, event_handler, ID_LEVEL_POSITION_ARROW);
   lv_btn_set_layout(buttonPositionNarrow, LV_LAYOUT_OFF);
 
   line1 = lv_line_create(scr, NULL);
@@ -170,22 +160,15 @@ void lv_draw_level_settings(void) {
   lv_obj_set_pos(buttonCommand, PARA_UI_POS_X, PARA_UI_POS_Y * 2);
   lv_obj_set_size(buttonCommand, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);
   lv_obj_set_event_cb_mks(buttonCommand, event_handler, ID_LEVEL_COMMAND, NULL, 0);
-  lv_btn_set_style(buttonCommand, LV_BTN_STYLE_REL, &tft_style_label_rel);
-  lv_btn_set_style(buttonCommand, LV_BTN_STYLE_PR, &tft_style_label_pre);
+  lv_btn_use_label_style(buttonCommand);
   lv_btn_set_layout(buttonCommand, LV_LAYOUT_OFF);
-  labelCommand = lv_label_create(buttonCommand, NULL);
+  labelCommand = lv_label_create_empty(buttonCommand);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCommand);
   #endif
 
-  buttonCommandNarrow = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonCommandNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V);
-  lv_obj_set_event_cb_mks(buttonCommandNarrow, event_handler, ID_LEVEL_COMMAND_ARROW, NULL, 0);
-  lv_imgbtn_set_src(buttonCommandNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_src(buttonCommandNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-  lv_imgbtn_set_style(buttonCommandNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonCommandNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonCommandNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 2 + PARA_UI_ARROW_V, event_handler, ID_LEVEL_COMMAND_ARROW);
   lv_btn_set_layout(buttonCommandNarrow, LV_LAYOUT_OFF);
 
   line2 = lv_line_create(scr, NULL);
@@ -193,26 +176,15 @@ void lv_draw_level_settings(void) {
 
   #if HAS_BED_PROBE
 
-    buttonZoffset = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonZoffset, PARA_UI_POS_X, PARA_UI_POS_Y * 3);          /*Set its position*/
-    lv_obj_set_size(buttonZoffset, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);           /*Set its size*/
-    lv_obj_set_event_cb_mks(buttonZoffset, event_handler, ID_LEVEL_ZOFFSET, NULL, 0);
-    lv_btn_set_style(buttonZoffset, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonZoffset, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
+    buttonZoffset = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_ZOFFSET);
     lv_btn_set_layout(buttonZoffset, LV_LAYOUT_OFF);
-    labelZoffset = lv_label_create(buttonZoffset, NULL);                      /*Add a label to the button*/
+    labelZoffset = lv_label_create_empty(buttonZoffset);                      /*Add a label to the button*/
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonZoffset);
     #endif
 
-    buttonZoffsetNarrow = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonZoffsetNarrow, PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V);
-    lv_obj_set_event_cb_mks(buttonZoffsetNarrow, event_handler, ID_LEVEL_ZOFFSET_ARROW, NULL, 0);
-    lv_imgbtn_set_src(buttonZoffsetNarrow, LV_BTN_STATE_REL, "F:/bmp_arrow.bin");
-    lv_imgbtn_set_src(buttonZoffsetNarrow, LV_BTN_STATE_PR, "F:/bmp_arrow.bin");
-    lv_imgbtn_set_style(buttonZoffsetNarrow, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonZoffsetNarrow, LV_BTN_STATE_REL, &tft_style_label_rel);
+    buttonZoffsetNarrow = lv_imgbtn_create(scr, "F:/bmp_arrow.bin", PARA_UI_POS_X + PARA_UI_SIZE_X, PARA_UI_POS_Y * 3 + PARA_UI_ARROW_V, event_handler, ID_LEVEL_ZOFFSET_ARROW);
     lv_btn_set_layout(buttonZoffsetNarrow, LV_LAYOUT_OFF);
 
     line3 = lv_line_create(scr, NULL);
@@ -220,21 +192,16 @@ void lv_draw_level_settings(void) {
 
   #endif // HAS_BED_PROBE
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_LEVEL_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", event_handler, ID_LEVEL_RETURN);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
 
   lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  label_Back = lv_label_create_empty(buttonBack);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
 

@@ -237,7 +237,7 @@ class FilamentSensorBase {
         #if NUM_RUNOUT_SENSORS == 1
           UNUSED(extruder);
         #else
-          if ( !TERN0(DUAL_X_CARRIAGE, dxc_is_duplicating())
+          if ( !TERN0(DUAL_X_CARRIAGE, idex_is_duplicating())
             && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
           ) return TEST(runout_states, extruder); // A specific extruder ran out
         #endif

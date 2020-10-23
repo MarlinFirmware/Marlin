@@ -164,6 +164,48 @@
 
 #endif // ifdef TFT35
 
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
+
+// Set label styles for Released and Pressed
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
+
+// Set label styles for Released and Pressed
+void lv_btn_use_label_style(lv_obj_t *btn);
+
+// Set the same style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
+
+// Create an empty label
+lv_obj_t* lv_label_create_empty(lv_obj_t *par);
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
+
+// Create a button with callback, ID, and Style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style);
+
+// Create a button with callback and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id);
+
+// Create a button with callback and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id);
+
+// Create an image button with image, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id);
+
+// Create an image button with image, position, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
+
 #ifdef __cplusplus
   extern "C" { /* C-declarations for C++ */
 #endif
@@ -174,12 +216,12 @@ extern char public_buf_l[30];
 typedef struct {
   uint32_t spi_flash_flag;
   uint8_t disp_rotation_180;
-  uint8_t multiple_language;
+  bool multiple_language;
   uint8_t language;
   uint8_t leveling_mode;
-  uint8_t from_flash_pic;
-  uint8_t finish_power_off;
-  uint8_t pause_reprint;
+  bool from_flash_pic;
+  bool finish_power_off;
+  bool pause_reprint;
   uint8_t wifi_mode_sel;
   uint8_t fileSysType;
   uint8_t wifi_type;

@@ -78,10 +78,6 @@ extern xyz_pos_t cartes;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
-#if ENABLED(Z_SAFE_HOMING)
-  constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-#endif
-
 /**
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
@@ -384,8 +380,7 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
  * Duplication mode
  */
 #if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              mirrored_duplication_mode;          // Used in Dual X mode 3
+  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     extern uint8_t duplication_e_mask;
   #endif
@@ -404,23 +399,29 @@ bool homing_needed_error(uint8_t axis_bits=0x07);
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+  extern float inactive_extruder_x,               // Used in mode 0 & 1
                duplicate_extruder_x_offset;       // Used in mode 2 & 3
   extern xyz_pos_t raised_parked_position;        // Used in mode 1
   extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // Used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+  extern bool idex_mirrored_mode;                 // Used in mode 3
 
-  FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
+  FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
   float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
+  void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
+  void idex_set_mirrored_mode(const bool mirr);
+  void idex_set_parked(const bool park=true);
+
 #else
 
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+    FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
   FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
