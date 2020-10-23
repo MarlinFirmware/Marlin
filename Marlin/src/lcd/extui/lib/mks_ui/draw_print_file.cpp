@@ -266,9 +266,9 @@ void lv_draw_print_file(void) {
   #endif
   disp_gcode_icon(file_count);
 
-  //lv_obj_t *labelPageUp = lv_label_create(buttonPageUp, NULL);
-  //lv_obj_t *labelPageDown = lv_label_create(buttonPageDown, NULL);
-  //lv_obj_t *label_Back = lv_label_create(buttonBack, NULL);
+  //lv_obj_t *labelPageUp = lv_label_create_empty(buttonPageUp);
+  //lv_obj_t *labelPageDown = lv_label_create_empty(buttonPageDown);
+  //lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   /*
   if (gCfgItems.multiple_language) {
@@ -295,47 +295,16 @@ void disp_gcode_icon(uint8_t file_num) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  buttonPageUp   = lv_imgbtn_create(scr, NULL);
-  buttonPageDown = lv_imgbtn_create(scr, NULL);
-  buttonBack     = lv_imgbtn_create(scr, NULL);
-
-  lv_obj_set_event_cb_mks(buttonPageUp, event_handler, ID_P_UP, NULL, 0);
-  lv_imgbtn_set_src(buttonPageUp, LV_BTN_STATE_REL, "F:/bmp_pageUp.bin");
-  lv_imgbtn_set_src(buttonPageUp, LV_BTN_STATE_PR, "F:/bmp_pageUp.bin");
-  lv_imgbtn_set_style(buttonPageUp, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonPageUp, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonPageDown, event_handler, ID_P_DOWN, NULL, 0);
-    lv_imgbtn_set_src(buttonPageDown, LV_BTN_STATE_REL, "F:/bmp_pageDown.bin");
-    lv_imgbtn_set_src(buttonPageDown, LV_BTN_STATE_PR, "F:/bmp_pageDown.bin");
-    lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonPageDown, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_P_RETURN, NULL, 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back.bin");
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back.bin");
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  #endif
-
-  lv_obj_set_pos(buttonPageUp, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonPageDown, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H);
-  lv_obj_set_pos(buttonBack, OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL * 2 + INTERVAL_H * 2);
+  buttonPageUp   = lv_imgbtn_create(scr, "F:/bmp_pageUp.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_UP);
+  buttonPageDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_P_DOWN);
+  buttonBack     = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL * 2 + INTERVAL_H * 2, event_handler, ID_P_RETURN);
 
   // Create labels on the image buttons
-  lv_btn_set_layout(buttonPageUp, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonPageDown, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
   for (i = 0; i < FILE_BTN_CNT; i++) {
     /*
     if (seq) {
@@ -352,8 +321,7 @@ void disp_gcode_icon(uint8_t file_num) {
     #ifdef TFT35
       buttonGcode[i] = lv_imgbtn_create(scr, NULL);
 
-      lv_imgbtn_set_style(buttonGcode[i], LV_BTN_STATE_PR, &tft_style_label_pre);
-      lv_imgbtn_set_style(buttonGcode[i], LV_BTN_STATE_REL, &tft_style_label_rel);
+      lv_imgbtn_use_label_style(buttonGcode[i]);
       lv_obj_clear_protect(buttonGcode[i], LV_PROTECT_FOLLOW);
       lv_btn_set_layout(buttonGcode[i], LV_LAYOUT_OFF);
 
@@ -362,16 +330,13 @@ void disp_gcode_icon(uint8_t file_num) {
 
       if (list_file.IsFolder[i] == 1) {
         lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
-        lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, "F:/bmp_dir.bin");
-        lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, "F:/bmp_dir.bin");
+        lv_imgbtn_set_src_both(buttonGcode[i], "F:/bmp_dir.bin");
         if (i < 3)
           lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1), titleHeight);
         else
           lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1), BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-        labelPageUp[i] = lv_label_create(buttonGcode[i], NULL);
-        lv_obj_set_style(labelPageUp[i], &tft_style_label_rel);
-        lv_label_set_text(labelPageUp[i], public_buf_m);
+        labelPageUp[i] = lv_label_create(buttonGcode[i], public_buf_m);
         lv_obj_align(labelPageUp[i], buttonGcode[i], LV_ALIGN_IN_BOTTOM_MID, 0, -5);
       }
       else {
@@ -385,20 +350,16 @@ void disp_gcode_icon(uint8_t file_num) {
           char *temp = strstr(test_public_buf_l,".GCO");
           if (temp) { strcpy(temp,".bin"); }
           lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
-          lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, test_public_buf_l);
-          lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, test_public_buf_l);
+          lv_imgbtn_set_src_both(buttonGcode[i], test_public_buf_l);
           if (i < 3) {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, NULL);
             //lv_obj_set_event_cb(buttonText[i], event_handler);
 
-            lv_btn_set_style(buttonText[i], LV_BTN_STATE_PR, &tft_style_label_pre);
-            lv_btn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
-            //lv_obj_set_style(buttonText[i], &tft_style_label_pre);
-            //lv_obj_set_style(buttonText[i], &tft_style_label_rel);
+            lv_btn_use_label_style(buttonText[i]);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
+            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL, 0);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
@@ -407,33 +368,25 @@ void disp_gcode_icon(uint8_t file_num) {
             buttonText[i] = lv_btn_create(scr, NULL);
             //lv_obj_set_event_cb(buttonText[i], event_handler);
 
-            lv_btn_set_style(buttonText[i], LV_BTN_STATE_PR, &tft_style_label_pre);
-            lv_btn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
-
-            //lv_imgbtn_set_style(buttonText[i], LV_BTN_STATE_REL, &tft_style_label_rel);
+            lv_btn_use_label_style(buttonText[i]);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL,0);
+            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),NULL, 0);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1) + FILE_PRE_PIC_X_OFFSET, BTN_Y_PIXEL + INTERVAL_H + titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
-          labelPageUp[i] = lv_label_create(buttonText[i], NULL);
-          lv_obj_set_style(labelPageUp[i], &tft_style_label_rel);
-          lv_label_set_text(labelPageUp[i], public_buf_m);
+          labelPageUp[i] = lv_label_create(buttonText[i], public_buf_m);
           lv_obj_align(labelPageUp[i], buttonText[i], LV_ALIGN_IN_BOTTOM_MID, 0, 0);
         }
         else {
           lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
-          lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, "F:/bmp_file.bin");
-          lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, "F:/bmp_file.bin");
+          lv_imgbtn_set_src_both(buttonGcode[i], "F:/bmp_file.bin");
           if (i < 3)
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1), titleHeight);
           else
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1), BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
-          labelPageUp[i] = lv_label_create(buttonGcode[i], NULL);
-          lv_obj_set_style(labelPageUp[i], &tft_style_label_rel);
-          lv_label_set_text(labelPageUp[i], public_buf_m);
+          labelPageUp[i] = lv_label_create(buttonGcode[i], public_buf_m);
           lv_obj_align(labelPageUp[i], buttonGcode[i], LV_ALIGN_IN_BOTTOM_MID, 0, -5);
         }
       }
