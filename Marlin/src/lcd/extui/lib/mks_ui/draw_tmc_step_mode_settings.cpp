@@ -55,7 +55,7 @@ static lv_obj_t *buttonXState = NULL, *buttonYState = NULL, *buttonZState = NULL
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
-  auto toggle_chop = [&](auto stepper, auto button, auto label) {
+  auto toggle_chop = [&](auto &stepper, auto &button, auto &label) {
     const bool isena = stepper.toggle_stepping_mode();
     lv_imgbtn_set_src_both(button, isena ? "F:/bmp_disable.bin" : "F:/bmp_enable.bin");
     lv_label_set_text(label, isena ? machine_menu.disable : machine_menu.enable);
