@@ -729,17 +729,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Encoder active signal
- */
-#if ENABLED(CHECK_ENCODER_ACTIVE_SIGNAL)
-  #if DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #error "CHECK_ENCODER_ACTIVE_SIGNAL is only supported for REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER."
-  #elif !BUTTON_EXISTS(ENC_EN)
-    #error "CHECK_ENCODER_ACTIVE_SIGNAL requires BTN_ENC_EN."
-  #endif
-#endif
-
-/**
  * SD File Sorting
  */
 #if ENABLED(SDCARD_SORT_ALPHA)

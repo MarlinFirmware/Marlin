@@ -399,6 +399,11 @@
         #define LCD_PINS_D5                P1_21
         #define LCD_PINS_D6                P1_22
         #define LCD_PINS_D7                P1_23
+
+        #if ENABLED(U8GLIB_ST7920)
+          #define BTN_ENC_EN               LCD_PINS_D7 //To detect encoder enable signal from the controller
+        #endif
+
       #endif
 
     #endif // !FYSETC_MINI_12864
