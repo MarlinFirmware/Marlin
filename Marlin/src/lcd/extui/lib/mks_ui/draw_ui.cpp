@@ -1696,11 +1696,11 @@ lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text,
   return btn;
 }
 
-lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index) {
+lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow) {
   lv_obj_t *btn = lv_btn_create(par, NULL);   /*Add a button the current screen*/
   lv_obj_set_pos(btn, x, y);                         /*Set its position*/
   lv_obj_set_size(btn, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
-  lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+  if (id > -1) lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
   lv_btn_use_label_style(btn);
   lv_btn_set_layout(btn, LV_LAYOUT_OFF);
   lv_obj_t *label = lv_label_create_empty(btn);        /*Add a label to the button*/
@@ -1714,13 +1714,26 @@ lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_
     }
   #endif
 
-  (void)lv_imgbtn_create(par, "F:/bmp_arrow.bin", x + PARA_UI_SIZE_X, y + PARA_UI_ARROW_V, cb, id);
+  if (drawArrow) (void)lv_imgbtn_create(par, "F:/bmp_arrow.bin", x + PARA_UI_SIZE_X, y + PARA_UI_ARROW_V, cb, id);
 
   lv_obj_t *line1 = lv_line_create(par, NULL);
   lv_ex_line(line1, line_points[index]);
 
   return btn;
 }
+
+lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue) {
+  lv_obj_t* btn = lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
+  lv_obj_t* btnValue = lv_btn_create(par, PARA_UI_VALUE_POS_X, y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, cb, id);
+  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_label_set_text(labelValue, editValue);
+  lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
+  return btn;
+}
+
+// lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const char *editValue2);
+// lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
+
 
 #if ENABLED(SDSUPPORT)
 

@@ -160,16 +160,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_acceleration_settings(void) {
-  lv_obj_t *buttonBack = NULL, *label_Back = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
-  lv_obj_t *buttonPrintValue = NULL, *labelPrintValue = NULL;
-  lv_obj_t *buttonRetraValue = NULL, *labelRetraValue = NULL;
-  lv_obj_t *buttonTravelValue = NULL, *labelTravelValue = NULL;
-  lv_obj_t *buttonXValue = NULL, *labelXValue = NULL;
-  lv_obj_t *buttonYValue = NULL, *labelYValue = NULL;
-  lv_obj_t *buttonZValue = NULL, *labelZValue = NULL;
-  lv_obj_t *buttonE0Value = NULL, *labelE0Value = NULL;
-  lv_obj_t *buttonE1Value = NULL, *labelE1Value = NULL;
-  lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL, * line4 = NULL;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ACCELERATION_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = ACCELERATION_UI;
@@ -177,183 +167,52 @@ void lv_draw_acceleration_settings(void) {
   disp_state = ACCELERATION_UI;
 
   scr = lv_obj_create(NULL, NULL);
-
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
   lv_obj_clean(scr);
-
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.AccelerationConfTitle);
-
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (uiCfg.para_ui_page != 1) {
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.acceleration);
+    lv_screen_menu_item_1_edit(scr, machine_menu.PrintAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ACCE_PRINT, 0, public_buf_l);
 
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.PrintAcceleration);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.retract_acceleration);
+    lv_screen_menu_item_1_edit(scr, machine_menu.RetractAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_ACCE_RETRA, 1, public_buf_l);
 
-    buttonPrintValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_PRINT);
-    labelPrintValue = lv_label_create_empty(buttonPrintValue);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.travel_acceleration);
+    lv_screen_menu_item_1_edit(scr, machine_menu.TravelAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_ACCE_TRAVEL, 2, public_buf_l);
 
-    line1 = lv_line_create(scr, NULL);
-    lv_ex_line(line1, line_points[0]);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
+    lv_screen_menu_item_1_edit(scr, machine_menu.X_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_ACCE_X, 3, public_buf_l);
 
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.RetractAcceleration);
-
-    buttonRetraValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_RETRA);
-    labelRetraValue = lv_label_create_empty(buttonRetraValue);
-
-    line2 = lv_line_create(scr, NULL);
-    lv_ex_line(line2, line_points[1]);
-
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.TravelAcceleration);
-
-    buttonTravelValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_TRAVEL);
-    labelTravelValue = lv_label_create_empty(buttonTravelValue);
-
-    line3 = lv_line_create(scr, NULL);
-    lv_ex_line(line3, line_points[2]);
-
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.X_Acceleration);
-
-    buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_X);
-    labelXValue = lv_label_create_empty(buttonXValue);
-
-    line4 = lv_line_create(scr, NULL);
-    lv_ex_line(line4, line_points[3]);
-
-    buttonTurnPage = lv_btn_create_back(scr, event_handler, ID_ACCE_DOWN);
-
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) {
-        lv_group_add_obj(g, buttonPrintValue);
-        lv_group_add_obj(g, buttonRetraValue);
-        lv_group_add_obj(g, buttonTravelValue);
-        lv_group_add_obj(g, buttonXValue);
-        lv_group_add_obj(g, buttonTurnPage);
-      }
-    #endif
+    lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_ACCE_DOWN, true);
   }
   else {
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.Y_Acceleration);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
+    lv_screen_menu_item_1_edit(scr, machine_menu.Y_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ACCE_Y, 0, public_buf_l);
 
-    buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_Y);
-    labelYValue = lv_label_create_empty(buttonYValue);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
+    lv_screen_menu_item_1_edit(scr, machine_menu.Z_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_ACCE_Z, 1, public_buf_l);
 
-    line1 = lv_line_create(scr, NULL);
-    lv_ex_line(line1, line_points[0]);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
+    lv_screen_menu_item_1_edit(scr, machine_menu.E0_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_ACCE_E0, 2, public_buf_l);
 
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.Z_Acceleration);
+    ZERO(public_buf_l);
+    sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
+    lv_screen_menu_item_1_edit(scr, machine_menu.E1_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_ACCE_E1, 3, public_buf_l);
 
-    buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_Z);
-    labelZValue = lv_label_create_empty(buttonZValue);
-
-
-    line2 = lv_line_create(scr, NULL);
-    lv_ex_line(line2, line_points[1]);
-
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.E0_Acceleration);
-
-    buttonE0Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_E0);
-    labelE0Value = lv_label_create_empty(buttonE0Value);
-
-
-    line3 = lv_line_create(scr, NULL);
-    lv_ex_line(line3, line_points[2]);
-
-    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.E1_Acceleration);
-
-    buttonE1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_E1);
-    labelE1Value = lv_label_create_empty(buttonE1Value);
-
-    line4 = lv_line_create(scr, NULL);
-    lv_ex_line(line4, line_points[3]);
-
-    buttonTurnPage = lv_btn_create_back(scr, event_handler, ID_ACCE_UP);
-    //lv_imgbtn_set_src_both(buttonTurnPage, "F:/bmp_back70x40.bin");
-    //lv_imgbtn_use_label_style(buttonTurnPage);
-
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) {
-        lv_group_add_obj(g, buttonYValue);
-        lv_group_add_obj(g, buttonZValue);
-        lv_group_add_obj(g, buttonE0Value);
-        lv_group_add_obj(g, buttonE1Value);
-        lv_group_add_obj(g, buttonTurnPage);
-      }
-    #endif
+    lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_ACCE_UP, true);
   }
 
-  //lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
-  //lv_btn_set_layout(buttonTurnPage, LV_LAYOUT_OFF);
-  //labelTurnPage = lv_label_create_empty(buttonTurnPage);
-  lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
-  lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  labelTurnPage = lv_label_create_empty(buttonTurnPage);
-
-  buttonBack = lv_btn_create_back(scr, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, event_handler, ID_ACCE_RETURN);
-  //lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
-  //lv_imgbtn_use_label_style(buttonBack);
-  label_Back = lv_label_create_empty(buttonBack);
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
-  #endif
-
-  //lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  //lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  if (gCfgItems.multiple_language) {
-    if (uiCfg.para_ui_page != 1) {
-
-      lv_label_set_text(labelTurnPage, machine_menu.next);
-      lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.acceleration);
-      lv_label_set_text(labelPrintValue, public_buf_l);
-      lv_obj_align(labelPrintValue, buttonPrintValue, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.retract_acceleration);
-      lv_label_set_text(labelRetraValue, public_buf_l);
-      lv_obj_align(labelRetraValue, buttonRetraValue, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.travel_acceleration);
-      lv_label_set_text(labelTravelValue, public_buf_l);
-      lv_obj_align(labelTravelValue, buttonTravelValue, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
-      lv_label_set_text(labelXValue, public_buf_l);
-      lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
-    }
-    else {
-
-      lv_label_set_text(labelTurnPage, machine_menu.previous);
-      lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
-      lv_label_set_text(labelYValue, public_buf_l);
-      lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
-      lv_label_set_text(labelZValue, public_buf_l);
-      lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
-      lv_label_set_text(labelE0Value, public_buf_l);
-      lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
-
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
-      lv_label_set_text(labelE1Value, public_buf_l);
-      lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
-    }
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
-  }
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_ACCE_RETURN, true);
 }
 
 void lv_clear_acceleration_settings() {
