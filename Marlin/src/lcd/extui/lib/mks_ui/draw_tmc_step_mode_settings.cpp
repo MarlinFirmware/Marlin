@@ -232,19 +232,19 @@ void lv_draw_tmc_step_mode_settings(void) {
 
   bool stealth_X = false, stealth_Y = false, stealth_Z = false, stealth_E0 = false, stealth_E1 = false;
   #if AXIS_HAS_STEALTHCHOP(X)
-    stealth_X = stepperX.get_stealthChop_status();
+    stealth_X = stepperX.get_stealthChop();
   #endif
   #if AXIS_HAS_STEALTHCHOP(Y)
-    stealth_Y = stepperY.get_stealthChop_status();
+    stealth_Y = stepperY.get_stealthChop();
   #endif
   #if AXIS_HAS_STEALTHCHOP(Z)
-    stealth_Z = stepperZ.get_stealthChop_status();
+    stealth_Z = stepperZ.get_stealthChop();
   #endif
   #if AXIS_HAS_STEALTHCHOP(E0)
-    stealth_E0 = stepperE0.get_stealthChop_status();
+    stealth_E0 = stepperE0.get_stealthChop();
   #endif
   #if AXIS_HAS_STEALTHCHOP(E1)
-    stealth_E1 = stepperE1.get_stealthChop_status();
+    stealth_E1 = stepperE1.get_stealthChop();
   #endif
 
   if (uiCfg.para_ui_page != 1) {
