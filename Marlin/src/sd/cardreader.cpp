@@ -226,9 +226,9 @@ void CardReader::selectByName(SdFile dir, const char * const match) {
 // Recursive method to list all files within a folder
 //
 void CardReader::printListing(SdFile parent, const char * const prepend/*=nullptr*/
-#if ENABLED(LONG_FILENAME_MEDIA_LIST)
+  #if ENABLED(LONG_FILENAME_MEDIA_LIST)
     , const char * const lprepend/*=nullptr*/
-#endif
+  #endif
 ) {
   dir_t p;
   while (parent.readDir(&p, longFilename) > 0) {
@@ -255,7 +255,7 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
       strcat(path, "/");                              // 1 character
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-        if (flag.longlist_mode) {     
+        if (flag.longlist_mode) {
           strcpy(lpath, lprepend_is_empty ? "/" : lprepend); // root slash if prepend is empty
           strcat(lpath, longFilename);                      // FILENAME_LENGTH characters maximum
           strcat(lpath, "/");                              // 1 character
@@ -273,9 +273,9 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
         SERIAL_ECHOLNPAIR(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
       }
       printListing(child, path
-      #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-      , lpath
-      #endif
+        #if ENABLED(LONG_FILENAME_MEDIA_LIST)
+          , lpath
+        #endif
       );
       // close() is done automatically by destructor of SdFile
     }
@@ -285,12 +285,12 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       SERIAL_ECHO(filename);
       SERIAL_CHAR(' ');
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-        if (flag.longlist_mode) {     
+        if (flag.longlist_mode) {
           SERIAL_ECHO(p.fileSize);
           SERIAL_CHAR(' ');
           if (lprepend) SERIAL_ECHO(lprepend);
           SERIAL_ECHOLN(longFilename);
-        } else SERIAL_ECHOLN(p.fileSize); 
+        } else SERIAL_ECHOLN(p.fileSize);
       #else
         SERIAL_ECHOLN(p.fileSize);
       #endif
