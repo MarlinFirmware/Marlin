@@ -254,7 +254,7 @@ void disp_print_speed() {
   }
   else {
     lbl = speed_menu.move_speed;
-    val = planner.feedrate_percentage;
+    val = feedrate_percentage;
   }
   strcpy(public_buf_l, lbl);
   strcat_P(public_buf_l, PSTR(": "));

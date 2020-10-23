@@ -164,66 +164,6 @@
 
 #endif // ifdef TFT35
 
-// Set the same image for both Released and Pressed
-void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
-
-// Set label styles for Released and Pressed
-void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
-
-// Set label styles for Released and Pressed
-void lv_btn_use_label_style(lv_obj_t *btn);
-
-// Set the same style for both Released and Pressed
-void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
-
-// Create an empty label
-lv_obj_t* lv_label_create_empty(lv_obj_t *par);
-
-// Create a label with style and text
-lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
-
-// Create a label with style, position, and text
-lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
-
-// Create a button with callback, ID, and Style.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style=&style_para_value);
-
-// Create a button with callback and ID, with label style.
-lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
-
-// Create a button with callback and ID, with button style.
-lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
-
-// Create a button with position, size, callback, and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
-
-// Create a button with position, size, callback, and ID, with label style.
-lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
-
-// Create a button with position, size, callback, and ID, with button style.
-lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
-
-// Create a button with callback and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
-
-// Create a button with position, size, callback, and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
-
-// Create an image button with image, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id=0);
-
-// Create an image button with image, position, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id=0);
-
-// Create a big image button with a label, follow the LVGL UI standard.
-lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, bool centerLabel = false);
-
-// Create a menu item, follow the LVGL UI standard.
-lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow = true);
-lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue);
-// lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const char *editValue2);
-// lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
-
 #ifdef __cplusplus
   extern "C" { /* C-declarations for C++ */
 #endif
@@ -514,3 +454,63 @@ extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif
+
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
+
+// Set label styles for Released and Pressed
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
+
+// Set label styles for Released and Pressed
+void lv_btn_use_label_style(lv_obj_t *btn);
+
+// Set the same style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
+
+// Create an empty label
+lv_obj_t* lv_label_create_empty(lv_obj_t *par);
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
+
+// Create a button with callback, ID, and Style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style=&style_para_value);
+
+// Create a button with callback and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, position, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id=0);
+
+// Create a big image button with a label, follow the LVGL UI standard.
+lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, bool centerLabel = false);
+
+// Create a menu item, follow the LVGL UI standard.
+lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow = true);
+lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue);
+// lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const char *editValue2);
+// lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
