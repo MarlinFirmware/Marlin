@@ -27,9 +27,15 @@
   #include "leds/leds.h"
 #endif
 
+#if DISABLED(CASE_LIGHT_NO_BRIGHTNESS) || ENABLED(CASE_LIGHT_USE_NEOPIXEL)
+  #define CASELIGHT_USES_BRIGHTNESS 1
+#endif
+
 class CaseLight {
 public:
-  static uint8_t brightness;
+  #if CASELIGHT_USES_BRIGHTNESS
+    static uint8_t brightness;
+  #endif
   static bool on;
 
   static void update(const bool sflag);
