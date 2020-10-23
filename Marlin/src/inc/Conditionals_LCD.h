@@ -242,7 +242,9 @@
 #elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
   // RepRapDiscount LCD or Graphical LCD with rotary click encoder
-  #define IS_RRD_SC 1
+  #define LCD_HEIGHT 4
+  #define LCD_WIDTH  20
+  #define IS_RRD_SC  1
 
 #endif
 
