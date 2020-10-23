@@ -26,6 +26,51 @@
  * Defines that depend on advanced configuration.
  */
 
+#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+  #define SWITCHING_NOZZLE_TWO_SERVOS 1
+#endif
+
+// Determine NUM_SERVOS if none was supplied
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS 0
+  #if ANY(CHAMBER_VENT, HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+    #if NUM_SERVOS <= Z_PROBE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= CHAMBER_VENT_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (CHAMBER_VENT_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_TOOLHEAD_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_TOOLHEAD_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_NOZZLE_E1_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_NOZZLE_E1_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_SERVO_NR + 1)
+    #endif
+    #if NUM_SERVOS <= SWITCHING_EXTRUDER_E23_SERVO_NR
+      #undef NUM_SERVOS
+      #define NUM_SERVOS (SWITCHING_EXTRUDER_E23_SERVO_NR + 1)
+    #endif
+  #endif
+#endif
+
+// Convenience override for a BLTouch alone
+#if ENABLED(BLTOUCH) && NUM_SERVOS == 1
+  #undef SERVO_DELAY
+  #define SERVO_DELAY { 50 }
+#endif
+
 #if EXTRUDERS == 0
   #define NO_VOLUMETRICS
   #undef TEMP_SENSOR_0
@@ -54,6 +99,15 @@
   #undef THERMAL_PROTECTION_PERIOD
   #undef WATCH_TEMP_PERIOD
   #undef SHOW_TEMP_ADC_VALUES
+#endif
+
+#if TEMP_SENSOR_BED == 0
+  #undef THERMAL_PROTECTION_BED
+  #undef THERMAL_PROTECTION_BED_PERIOD
+#endif
+
+#if TEMP_SENSOR_CHAMBER == 0
+  #undef THERMAL_PROTECTION_CHAMBER
 #endif
 
 #if ENABLED(MIXING_EXTRUDER) && (ENABLED(RETRACT_SYNC_MIXING) || BOTH(FILAMENT_LOAD_UNLOAD_GCODES, FILAMENT_UNLOAD_ALL_EXTRUDERS))
@@ -94,7 +148,7 @@
 
 #if ANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
   #define HAS_GAMES 1
-  #if (1 < ENABLED(MARLIN_BRICKOUT) + ENABLED(MARLIN_INVADERS) + ENABLED(MARLIN_SNAKE) + ENABLED(MARLIN_MAZE))
+  #if MANY(MARLIN_BRICKOUT, MARLIN_INVADERS, MARLIN_SNAKE, MARLIN_MAZE)
     #define HAS_GAME_MENU 1
   #endif
 #endif
@@ -109,7 +163,7 @@
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   #define HAS_SOFTWARE_ENDSTOPS 1
 #endif
-#if ANY(EXTENSIBLE_UI, NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
+#if ANY(EXTENSIBLE_UI, IS_NEWPANEL, EMERGENCY_PARSER, HAS_ADC_BUTTONS, DWIN_CREALITY_LCD)
   #define HAS_RESUME_CONTINUE 1
 #endif
 
@@ -121,7 +175,16 @@
 #endif
 
 #if EITHER(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
-  #define HAS_I2C_DIGIPOT 1
+  #define HAS_MOTOR_CURRENT_I2C 1
+#endif
+
+#if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    #undef Z_STEPPER_ALIGN_AMP
+  #endif
+  #ifndef Z_STEPPER_ALIGN_AMP
+    #define Z_STEPPER_ALIGN_AMP 1.0
+  #endif
 #endif
 
 // Multiple Z steppers
@@ -129,11 +192,21 @@
   #define NUM_Z_STEPPER_DRIVERS 1
 #endif
 
-#if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-  #undef Z_STEPPER_ALIGN_AMP
+// Fallback Stepper Driver types that depend on Configuration_adv.h
+#if NONE(DUAL_X_CARRIAGE, X_DUAL_STEPPER_DRIVERS)
+  #undef X2_DRIVER_TYPE
 #endif
-#ifndef Z_STEPPER_ALIGN_AMP
-  #define Z_STEPPER_ALIGN_AMP 1.0
+#if DISABLED(Y_DUAL_STEPPER_DRIVERS)
+  #undef Y2_DRIVER_TYPE
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 2
+  #undef Z2_DRIVER_TYPE
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 3
+  #undef Z3_DRIVER_TYPE
+#endif
+#if NUM_Z_STEPPER_DRIVERS < 4
+  #undef Z4_DRIVER_TYPE
 #endif
 
 //
@@ -186,6 +259,9 @@
   #endif
   #ifndef ACTION_ON_CANCEL
     #define ACTION_ON_CANCEL  "cancel"
+  #endif
+  #ifndef ACTION_ON_START
+    #define ACTION_ON_START   "start"
   #endif
   #ifndef ACTION_ON_KILL
     #define ACTION_ON_KILL    "poweroff"
@@ -242,6 +318,28 @@
       #define LED_USER_PRESET_BRIGHTNESS NEOPIXEL_BRIGHTNESS
     #else
       #define LED_USER_PRESET_BRIGHTNESS 255
+    #endif
+  #endif
+#endif
+
+#if BOTH(LED_CONTROL_MENU, NEOPIXEL2_SEPARATE)
+  #ifndef LED2_USER_PRESET_RED
+    #define LED2_USER_PRESET_RED       255
+  #endif
+  #ifndef LED2_USER_PRESET_GREEN
+    #define LED2_USER_PRESET_GREEN     255
+  #endif
+  #ifndef LED2_USER_PRESET_BLUE
+    #define LED2_USER_PRESET_BLUE      255
+  #endif
+  #ifndef LED2_USER_PRESET_WHITE
+    #define LED2_USER_PRESET_WHITE     0
+  #endif
+  #ifndef LED2_USER_PRESET_BRIGHTNESS
+    #ifdef NEOPIXEL2_BRIGHTNESS
+      #define LED2_USER_PRESET_BRIGHTNESS NEOPIXEL2_BRIGHTNESS
+    #else
+      #define LED2_USER_PRESET_BRIGHTNESS 255
     #endif
   #endif
 #endif
@@ -388,3 +486,37 @@
 #if ANY(AUTO_BED_LEVELING_UBL, AUTO_BED_LEVELING_LINEAR, Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
   #define NEED_LSF 1
 #endif
+
+// Flag the indexed serial ports that are in use
+#define ANY_SERIAL_IS(N) (defined(SERIAL_PORT) && SERIAL_PORT == (N)) || (defined(SERIAL_PORT_2) && SERIAL_PORT_2 == (N)) || (defined(LCD_SERIAL_PORT) && LCD_SERIAL_PORT == (N))
+#if ANY_SERIAL_IS(-1)
+  #define USING_SERIAL_DEFAULT
+#endif
+#if ANY_SERIAL_IS(0)
+  #define USING_SERIAL_0 1
+#endif
+#if ANY_SERIAL_IS(1)
+  #define USING_SERIAL_1 1
+#endif
+#if ANY_SERIAL_IS(2)
+  #define USING_SERIAL_2 1
+#endif
+#if ANY_SERIAL_IS(3)
+  #define USING_SERIAL_3 1
+#endif
+#if ANY_SERIAL_IS(4)
+  #define USING_SERIAL_4 1
+#endif
+#if ANY_SERIAL_IS(5)
+  #define USING_SERIAL_5 1
+#endif
+#if ANY_SERIAL_IS(6)
+  #define USING_SERIAL_6 1
+#endif
+#if ANY_SERIAL_IS(7)
+  #define USING_SERIAL_7 1
+#endif
+#if ANY_SERIAL_IS(8)
+  #define USING_SERIAL_8 1
+#endif
+#undef ANY_SERIAL_IS

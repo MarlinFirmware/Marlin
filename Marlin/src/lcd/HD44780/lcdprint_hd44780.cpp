@@ -14,12 +14,12 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_CHARACTER_LCD
+#if HAS_MARLINUI_HD44780
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../MarlinCore.h"
 
-#include "ultralcd_HD44780.h"
+#include "marlinui_HD44780.h"
 
 #include <string.h>
 
@@ -982,7 +982,7 @@ int lcd_put_wchar_max(wchar_t c, pixel_len_t max_length) {
 
   if (max_length < 1) return 0;
 
-  // TODO: fix the '\\' that doesnt exist in the HD44870
+  // TODO: fix the '\\' that doesn't exist in the HD44870
   if (c < 128) {
     lcd.write((uint8_t)c);
     return 1;
@@ -1119,4 +1119,4 @@ int lcd_put_u8str_max_P(PGM_P utf8_str_P, pixel_len_t max_length) {
 
 #endif // DEBUG_LCDPRINT
 
-#endif // HAS_CHARACTER_LCD
+#endif // HAS_MARLINUI_HD44780

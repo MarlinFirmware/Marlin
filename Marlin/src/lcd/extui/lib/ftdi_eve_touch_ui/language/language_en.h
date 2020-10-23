@@ -57,8 +57,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AMAX_Y                   = u8"Amax Y";
   PROGMEM Language_Str MSG_AMAX_Z                   = u8"Amax Z";
   PROGMEM Language_Str MSG_AXIS_X                   = u8"X";
+  PROGMEM Language_Str MSG_AXIS_X2                  = u8"X2";
   PROGMEM Language_Str MSG_AXIS_Y                   = u8"Y";
+  PROGMEM Language_Str MSG_AXIS_Y2                  = u8"Y2";
   PROGMEM Language_Str MSG_AXIS_Z                   = u8"Z";
+  PROGMEM Language_Str MSG_AXIS_Z2                  = u8"Z2";
   PROGMEM Language_Str MSG_AXIS_E                   = u8"E";
   PROGMEM Language_Str MSG_AXIS_E1                  = u8"E1";
   PROGMEM Language_Str MSG_AXIS_E2                  = u8"E2";
@@ -91,9 +94,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_UNITS_STEP_MM            = u8"st/mm";
   PROGMEM Language_Str MSG_UNITS_PERCENT            = u8"%";
   PROGMEM Language_Str MSG_UNITS_C                  = DEGREE_SIGN u8"C";
-  PROGMEM Language_Str MSG_MATERIAL_PLA             = u8"PLA";
-  PROGMEM Language_Str MSG_MATERIAL_ABS             = u8"ABS";
-  PROGMEM Language_Str MSG_MATERIAL_HIGH_TEMP       = u8"High";
   PROGMEM Language_Str MSG_IDLE                     = u8"idle";
   PROGMEM Language_Str MSG_SET_MAXIMUM              = u8"Set Maximum";
   PROGMEM Language_Str MSG_PRINT_SPEED              = u8"Print Speed";
@@ -148,7 +148,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOUCH_CALIBRATION_PROMPT = u8"Touch the dots to calibrate";
   PROGMEM Language_Str MSG_AUTOLEVEL_X_AXIS         = u8"Level X Axis";
   PROGMEM Language_Str MSG_BED_MAPPING_DONE         = u8"Bed mapping finished";
-  PROGMEM Language_Str MSG_RESET_BLTOUCH            = u8"Reset BLTouch";
+  PROGMEM Language_Str MSG_BED_MAPPING_INCOMPLETE   = u8"Not all points probed";
+  PROGMEM Language_Str MSG_LEVELING                 = u8"Leveling";
+  PROGMEM Language_Str MSG_SHOW_MESH                = u8"Show Bed Mesh";
 
   #ifdef TOUCH_UI_LULZBOT_BIO
     PROGMEM Language_Str MSG_MOVE_TO_HOME           = u8"Move to Home";

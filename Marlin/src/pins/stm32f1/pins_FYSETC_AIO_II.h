@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -93,10 +93,10 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  Serial1
-  #define Y_HARDWARE_SERIAL  Serial1
-  #define Z_HARDWARE_SERIAL  Serial1
-  #define E0_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
 
   // The 4xTMC2209 module doesn't have a serial multiplexer and
   // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
@@ -105,6 +105,9 @@
     #define SERIAL_MUL_PIN1                 PB13
     #define SERIAL_MUL_PIN2                 PB12
   #endif
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
 
 #endif
 
@@ -139,11 +142,11 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #define DOGLCD_A0                       PA15
     #ifdef pins_v2_20190128
@@ -162,7 +165,7 @@
   // not connected to a pin
   #define SD_DETECT_PIN                     PC3
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // The encoder and click button
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11

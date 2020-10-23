@@ -23,20 +23,18 @@
 
 #if HAS_TFT_LVGL_UI
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
-
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
+
 #include "tft_lvgl_configuration.h"
-#include "mks_hardware_test.h"
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
+#include "SPI_TFT.h"
+#include "mks_hardware_test.h"
+#include "../../../../inc/MarlinConfig.h"
 
 static lv_obj_t * scr;
 
@@ -58,26 +56,20 @@ void lv_draw_error_message(PGM_P const msg) {
     lv_refr_now(lv_refr_get_disp_refreshing());
 
     if (msg) {
-      message = lv_label_create(scr, NULL);
-      lv_obj_set_style(message, &tft_style_label_rel);
-      lv_label_set_text(message, msg);
+      message = lv_label_create(scr, msg);
       lv_obj_align(message, NULL, LV_ALIGN_CENTER, 0, -50);
     }
 
-    kill_message = lv_label_create(scr, NULL);
-    lv_obj_set_style(kill_message, &tft_style_label_rel);
-    lv_label_set_text(kill_message, "PRINTER HALTED");
+    kill_message = lv_label_create(scr, "PRINTER HALTED");
     lv_obj_align(kill_message, NULL, LV_ALIGN_CENTER, 0, -10);
 
-    reset_tips = lv_label_create(scr, NULL);
-    lv_obj_set_style(reset_tips, &tft_style_label_rel);
-    lv_label_set_text(reset_tips, "Please Reset");
+    reset_tips = lv_label_create(scr, "Please Reset");
     lv_obj_align(reset_tips, NULL, LV_ALIGN_CENTER, 0, 30);
 
     lv_task_handler();
   #endif
 
-  TERN(TFT_LVGL_UI_SPI, SPI_TFT.LCD_clear, LCD_Clear)(0x0000);
+  SPI_TFT.LCD_clear(0x0000);
   if (msg) disp_string((TFT_WIDTH - strlen(msg) * 16) / 2, 100, msg, 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("PRINTER HALTED") * 16) / 2, 140, "PRINTER HALTED", 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("Please Reset") * 16) / 2, 180, "Please Reset", 0xFFFF, 0x0000);

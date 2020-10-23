@@ -27,7 +27,7 @@
  * Richard Smith <galorin@gmail.com>
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -105,11 +105,11 @@
 #define SUICIDE_PIN                           54  // Must be enabled at startup to keep power flowing
 #define KILL_PIN                              -1
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_A0                        5
@@ -130,7 +130,7 @@
     #define BTN_ENC                           19
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !NEWPANEL
+  #else                                           // !IS_NEWPANEL
 
     #define SHIFT_CLK                         38
     #define SHIFT_LD                          42
@@ -146,6 +146,6 @@
 
     #define SD_DETECT_PIN                     -1
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

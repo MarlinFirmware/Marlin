@@ -23,12 +23,13 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
+extern lv_group_t * g;
 static lv_obj_t * scr;
 
 #define ID_ACCE_RETURN  1
@@ -160,14 +161,14 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
 void lv_draw_acceleration_settings(void) {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
-  lv_obj_t *buttonPrintText = NULL, *labelPrintText = NULL, *buttonPrintValue = NULL, *labelPrintValue = NULL;
-  lv_obj_t *buttonRetraText = NULL, *labelRetraText = NULL, *buttonRetraValue = NULL, *labelRetraValue = NULL;
-  lv_obj_t *buttonTravelText = NULL, *labelTravelText = NULL, *buttonTravelValue = NULL, *labelTravelValue = NULL;
-  lv_obj_t *buttonXText = NULL, *labelXText = NULL, *buttonXValue = NULL, *labelXValue = NULL;
-  lv_obj_t *buttonYText = NULL, *labelYText = NULL, *buttonYValue = NULL, *labelYValue = NULL;
-  lv_obj_t *buttonZText = NULL, *labelZText = NULL, *buttonZValue = NULL, *labelZValue = NULL;
-  lv_obj_t *buttonE0Text = NULL, *labelE0Text = NULL, *buttonE0Value = NULL, *labelE0Value = NULL;
-  lv_obj_t *buttonE1Text = NULL, *labelE1Text = NULL, *buttonE1Value = NULL, *labelE1Value = NULL;
+  lv_obj_t *buttonPrintValue = NULL, *labelPrintValue = NULL;
+  lv_obj_t *buttonRetraValue = NULL, *labelRetraValue = NULL;
+  lv_obj_t *buttonTravelValue = NULL, *labelTravelValue = NULL;
+  lv_obj_t *buttonXValue = NULL, *labelXValue = NULL;
+  lv_obj_t *buttonYValue = NULL, *labelYValue = NULL;
+  lv_obj_t *buttonZValue = NULL, *labelZValue = NULL;
+  lv_obj_t *buttonE0Value = NULL, *labelE0Value = NULL;
+  lv_obj_t *buttonE1Value = NULL, *labelE1Value = NULL;
   lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL, * line4 = NULL;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ACCELERATION_UI) {
     disp_state_stack._disp_index++;
@@ -181,238 +182,126 @@ void lv_draw_acceleration_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.AccelerationConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.AccelerationConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  LV_IMG_DECLARE(bmp_para_back);
-  // LV_IMG_DECLARE(bmp_para_arrow);
-  LV_IMG_DECLARE(bmp_para_bank);
-
   if (uiCfg.para_ui_page != 1) {
-    buttonPrintText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonPrintText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
-    lv_obj_set_size(buttonPrintText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonPrintText, event_handler);
-    lv_btn_set_style(buttonPrintText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonPrintText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonPrintText, LV_LAYOUT_OFF);
-    labelPrintText = lv_label_create(buttonPrintText, NULL);                    /*Add a label to the button*/
 
-    buttonPrintValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonPrintValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonPrintValue, event_handler, ID_ACCE_PRINT, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonPrintValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonPrintValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonPrintValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonPrintValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonPrintValue, LV_LAYOUT_OFF);
-    labelPrintValue = lv_label_create(buttonPrintValue, NULL);
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.PrintAcceleration);
+
+    buttonPrintValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_PRINT);
+    labelPrintValue = lv_label_create_empty(buttonPrintValue);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonRetraText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonRetraText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
-    lv_obj_set_size(buttonRetraText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonRetraText, event_handler);
-    lv_btn_set_style(buttonRetraText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonRetraText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonRetraText, LV_LAYOUT_OFF);
-    labelRetraText = lv_label_create(buttonRetraText, NULL);                    /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.RetractAcceleration);
 
-    buttonRetraValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonRetraValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonRetraValue, event_handler, ID_ACCE_RETRA, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonRetraValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonRetraValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonRetraValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonRetraValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonRetraValue, LV_LAYOUT_OFF);
-    labelRetraValue = lv_label_create(buttonRetraValue, NULL);
+    buttonRetraValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_RETRA);
+    labelRetraValue = lv_label_create_empty(buttonRetraValue);
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonTravelText = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-    lv_obj_set_pos(buttonTravelText, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
-    lv_obj_set_size(buttonTravelText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
-    lv_obj_set_event_cb(buttonTravelText, event_handler);
-    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
-    lv_btn_set_style(buttonTravelText, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonTravelText, LV_LAYOUT_OFF);
-    labelTravelText = lv_label_create(buttonTravelText, NULL);                  /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.TravelAcceleration);
 
-    buttonTravelValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonTravelValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonTravelValue, event_handler, ID_ACCE_TRAVEL, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonTravelValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonTravelValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonTravelValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonTravelValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonTravelValue, LV_LAYOUT_OFF);
-    labelTravelValue = lv_label_create(buttonTravelValue, NULL);
+    buttonTravelValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_TRAVEL);
+    labelTravelValue = lv_label_create_empty(buttonTravelValue);
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonXText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonXText, PARA_UI_POS_X, PARA_UI_POS_Y * 4);          /*Set its position*/
-    lv_obj_set_size(buttonXText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonXText, event_handler);
-    lv_btn_set_style(buttonXText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonXText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonXText, LV_LAYOUT_OFF);
-    labelXText = lv_label_create(buttonXText, NULL);                        /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.X_Acceleration);
 
-    buttonXValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_ACCE_X, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonXValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonXValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonXValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonXValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonXValue, LV_LAYOUT_OFF);
-    labelXValue = lv_label_create(buttonXValue, NULL);
+    buttonXValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_X);
+    labelXValue = lv_label_create_empty(buttonXValue);
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
-    buttonTurnPage = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_ACCE_DOWN, "bmp_back70x40.bin", 0);
-    lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_REL, &bmp_para_back);
-    lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_PR, &bmp_para_back);
-    lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_REL, &tft_style_label_rel);
+    buttonTurnPage = lv_btn_create_back(scr, event_handler, ID_ACCE_DOWN);
+
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) {
+        lv_group_add_obj(g, buttonPrintValue);
+        lv_group_add_obj(g, buttonRetraValue);
+        lv_group_add_obj(g, buttonTravelValue);
+        lv_group_add_obj(g, buttonXValue);
+        lv_group_add_obj(g, buttonTurnPage);
+      }
+    #endif
   }
   else {
-    buttonYText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonYText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
-    lv_obj_set_size(buttonYText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonYText, event_handler);
-    lv_btn_set_style(buttonYText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonYText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonYText, LV_LAYOUT_OFF);
-    labelYText = lv_label_create(buttonYText, NULL);                        /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.Y_Acceleration);
 
-    buttonYValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_ACCE_Y, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonYValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonYValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonYValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonYValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonYValue, LV_LAYOUT_OFF);
-    labelYValue = lv_label_create(buttonYValue, NULL);
+    buttonYValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_Y);
+    labelYValue = lv_label_create_empty(buttonYValue);
 
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonZText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-    lv_obj_set_pos(buttonZText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
-    lv_obj_set_size(buttonZText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-    lv_obj_set_event_cb(buttonZText, event_handler);
-    lv_btn_set_style(buttonZText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-    lv_btn_set_style(buttonZText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonZText, LV_LAYOUT_OFF);
-    labelZText = lv_label_create(buttonZText, NULL);                        /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, machine_menu.Z_Acceleration);
 
-    buttonZValue = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_ACCE_Z, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonZValue, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonZValue, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonZValue, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonZValue, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonZValue, LV_LAYOUT_OFF);
-    labelZValue = lv_label_create(buttonZValue, NULL);
+    buttonZValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_Z);
+    labelZValue = lv_label_create_empty(buttonZValue);
+
 
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonE0Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-    lv_obj_set_pos(buttonE0Text, PARA_UI_POS_X, PARA_UI_POS_Y * 3);         /*Set its position*/
-    lv_obj_set_size(buttonE0Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
-    lv_obj_set_event_cb(buttonE0Text, event_handler);
-    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
-    lv_btn_set_style(buttonE0Text, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonE0Text, LV_LAYOUT_OFF);
-    labelE0Text = lv_label_create(buttonE0Text, NULL);                      /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, machine_menu.E0_Acceleration);
 
-    buttonE0Value = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonE0Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonE0Value, event_handler, ID_ACCE_E0, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonE0Value, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonE0Value, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonE0Value, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonE0Value, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonE0Value, LV_LAYOUT_OFF);
-    labelE0Value = lv_label_create(buttonE0Value, NULL);
+    buttonE0Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_E0);
+    labelE0Value = lv_label_create_empty(buttonE0Value);
+
 
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonE1Text = lv_btn_create(scr, NULL);                                /*Add a button the current screen*/
-    lv_obj_set_pos(buttonE1Text, PARA_UI_POS_X, PARA_UI_POS_Y * 4);         /*Set its position*/
-    lv_obj_set_size(buttonE1Text, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);    /*Set its size*/
-    lv_obj_set_event_cb(buttonE1Text, event_handler);
-    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_REL, &tft_style_label_rel); /*Set the button's released style*/
-    lv_btn_set_style(buttonE1Text, LV_BTN_STYLE_PR, &tft_style_label_pre);  /*Set the button's pressed style*/
-    lv_btn_set_layout(buttonE1Text, LV_LAYOUT_OFF);
-    labelE1Text = lv_label_create(buttonE1Text, NULL);                      /*Add a label to the button*/
+    (void)lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.E1_Acceleration);
 
-    buttonE1Value = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V);
-    lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_ACCE_E1, "bmp_value_blank.bin", 0);
-    lv_imgbtn_set_src(buttonE1Value, LV_BTN_STATE_REL, &bmp_para_bank);
-    lv_imgbtn_set_src(buttonE1Value, LV_BTN_STATE_PR, &bmp_para_bank);
-    lv_imgbtn_set_style(buttonE1Value, LV_BTN_STATE_PR, &style_para_value_pre);
-    lv_imgbtn_set_style(buttonE1Value, LV_BTN_STATE_REL, &style_para_value_rel);
-    lv_btn_set_layout(buttonE1Value, LV_LAYOUT_OFF);
-    labelE1Value = lv_label_create(buttonE1Value, NULL);
+    buttonE1Value = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_ACCE_E1);
+    labelE1Value = lv_label_create_empty(buttonE1Value);
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
 
-    buttonTurnPage = lv_imgbtn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_ACCE_UP, "bmp_back70x40.bin", 0);
-    lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_REL, &bmp_para_back);
-    lv_imgbtn_set_src(buttonTurnPage, LV_BTN_STATE_PR, &bmp_para_back);
-    lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonTurnPage, LV_BTN_STATE_REL, &tft_style_label_rel);
+    buttonTurnPage = lv_btn_create_back(scr, event_handler, ID_ACCE_UP);
+    //lv_imgbtn_set_src_both(buttonTurnPage, "F:/bmp_back70x40.bin");
+    //lv_imgbtn_use_label_style(buttonTurnPage);
+
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.encoder_enable) {
+        lv_group_add_obj(g, buttonYValue);
+        lv_group_add_obj(g, buttonZValue);
+        lv_group_add_obj(g, buttonE0Value);
+        lv_group_add_obj(g, buttonE1Value);
+        lv_group_add_obj(g, buttonTurnPage);
+      }
+    #endif
   }
 
+  //lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
+  //lv_btn_set_layout(buttonTurnPage, LV_LAYOUT_OFF);
+  //labelTurnPage = lv_label_create_empty(buttonTurnPage);
   lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
-  lv_btn_set_layout(buttonTurnPage, LV_LAYOUT_OFF);
-  labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
+  labelTurnPage = lv_label_create_empty(buttonTurnPage);
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_ACCE_RETURN, "bmp_back70x40.bin", 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_para_back);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_para_back);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
+  buttonBack = lv_btn_create_back(scr, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE, event_handler, ID_ACCE_RETURN);
+  //lv_imgbtn_set_src_both(buttonBack, "F:/bmp_back70x40.bin");
+  //lv_imgbtn_use_label_style(buttonBack);
+  label_Back = lv_label_create_empty(buttonBack);
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
+  #endif
 
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  //lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
+  //lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
-      lv_label_set_text(labelPrintText, machine_menu.PrintAcceleration);
-      lv_obj_align(labelPrintText, buttonPrintText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelRetraText, machine_menu.RetractAcceleration);
-      lv_obj_align(labelRetraText, buttonRetraText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelTravelText, machine_menu.TravelAcceleration);
-      lv_obj_align(labelTravelText, buttonTravelText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelXText, machine_menu.X_Acceleration);
-      lv_obj_align(labelXText, buttonXText, LV_ALIGN_IN_LEFT_MID, 0, 0);
 
       lv_label_set_text(labelTurnPage, machine_menu.next);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
@@ -438,17 +327,6 @@ void lv_draw_acceleration_settings(void) {
       lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
     }
     else {
-      lv_label_set_text(labelYText, machine_menu.Y_Acceleration);
-      lv_obj_align(labelYText, buttonYText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelZText, machine_menu.Z_Acceleration);
-      lv_obj_align(labelZText, buttonZText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelE0Text, machine_menu.E0_Acceleration);
-      lv_obj_align(labelE0Text, buttonE0Text, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-      lv_label_set_text(labelE1Text, machine_menu.E1_Acceleration);
-      lv_obj_align(labelE1Text, buttonE1Text, LV_ALIGN_IN_LEFT_MID, 0, 0);
 
       lv_label_set_text(labelTurnPage, machine_menu.previous);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
@@ -478,6 +356,11 @@ void lv_draw_acceleration_settings(void) {
   }
 }
 
-void lv_clear_acceleration_settings() { lv_obj_del(scr); }
+void lv_clear_acceleration_settings() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
+}
 
 #endif // HAS_TFT_LVGL_UI

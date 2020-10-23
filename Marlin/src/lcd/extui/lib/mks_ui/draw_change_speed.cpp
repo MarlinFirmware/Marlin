@@ -23,20 +23,20 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
 
-#include "../../../../MarlinCore.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
+extern lv_group_t * g;
 static lv_obj_t * scr;
-static lv_obj_t * labelStep, *buttonStep, *buttonMov, *buttonExt;
-static lv_obj_t * labelMov, *labelExt;
+static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
+static lv_obj_t *labelMov, *labelExt;
 static lv_obj_t * printSpeedText;
 
 #define ID_C_ADD    1
@@ -70,10 +70,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           //planner.flow_percentage[1] = planner.flow_percentage[0];
           //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
           planner.refresh_e_factor(0);
-          if (EXTRUDERS == 2) {
+          #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = planner.flow_percentage[0];
             planner.refresh_e_factor(1);
-          }
+          #endif
         }
         disp_print_speed();
       }
@@ -98,10 +98,10 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           //planner.flow_percentage[1] = planner.flow_percentage[0];
           //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
           planner.refresh_e_factor(0);
-          if (EXTRUDERS == 2) {
+          #if HAS_MULTI_EXTRUDER
             planner.flow_percentage[1] = planner.flow_percentage[0];
             planner.refresh_e_factor(1);
-          }
+          #endif
         }
         disp_print_speed();
       }
@@ -168,82 +168,27 @@ void lv_draw_change_speed(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  LV_IMG_DECLARE(bmp_pic);
+  // Create an Image button
+  buttonAdd  = lv_imgbtn_create(scr, "F:/bmp_Add.bin", INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
+  buttonDec  = lv_imgbtn_create(scr, "F:/bmp_Dec.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
+  buttonMov  = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
+  buttonExt  = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
+  buttonStep = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
 
-  /*Create an Image button*/
-  buttonAdd  = lv_imgbtn_create(scr, NULL);
-  buttonDec  = lv_imgbtn_create(scr, NULL);
-  buttonMov  = lv_imgbtn_create(scr, NULL);
-  buttonExt  = lv_imgbtn_create(scr, NULL);
-  buttonStep = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
+  // Create labels on the image buttons
+  lv_obj_t *labelAdd    = lv_label_create_empty(buttonAdd);
+  lv_obj_t *labelDec    = lv_label_create_empty(buttonDec);
+  labelMov              = lv_label_create_empty(buttonMov);
+  labelExt              = lv_label_create_empty(buttonExt);
+  labelStep             = lv_label_create_empty(buttonStep);
+  lv_obj_t *label_Back  = lv_label_create_empty(buttonBack);
 
-  lv_obj_set_event_cb_mks(buttonAdd, event_handler, ID_C_ADD, "bmp_Add.bin", 0);
-  lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_REL, &bmp_pic);
-  lv_imgbtn_set_src(buttonAdd, LV_BTN_STATE_PR, &bmp_pic);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonAdd, LV_BTN_STATE_REL, &tft_style_label_rel);
-  lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-
-  #if 1
-    lv_obj_set_event_cb_mks(buttonDec, event_handler, ID_C_DEC, "bmp_Dec.bin", 0);
-    lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonDec, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonDec, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_imgbtn_set_src(buttonMov, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonMov, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonMov, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonMov, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_imgbtn_set_src(buttonExt, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonExt, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonExt, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonExt, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonStep, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonStep, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_C_RETURN, "bmp_return.bin", 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-  #endif
-
-  lv_obj_set_pos(buttonAdd, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonDec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonMov, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonExt, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonStep, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-
-  /*Create a label on the Image button*/
-  lv_btn_set_layout(buttonAdd, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonDec, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonMov, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonExt, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonStep, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  lv_obj_t * labelAdd = lv_label_create(buttonAdd, NULL);
-  lv_obj_t * labelDec = lv_label_create(buttonDec, NULL);
-  labelMov  = lv_label_create(buttonMov, NULL);
-  labelExt  = lv_label_create(buttonExt, NULL);
-  labelStep = lv_label_create(buttonStep, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
-
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelAdd, speed_menu.add);
     lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -253,23 +198,34 @@ void lv_draw_change_speed(void) {
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonAdd);
+      lv_group_add_obj(g, buttonDec);
+      lv_group_add_obj(g, buttonMov);
+      lv_group_add_obj(g, buttonExt);
+      lv_group_add_obj(g, buttonStep);
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
+
   disp_speed_type();
   disp_speed_step();
 
-  printSpeedText = lv_label_create(scr, NULL);
+  printSpeedText = lv_label_create_empty(scr);
   lv_obj_set_style(printSpeedText, &tft_style_label_rel);
   disp_print_speed();
 }
 
 void disp_speed_step() {
   if (uiCfg.stepPrintSpeed == 1)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_step1_percent.bin", 0);
+    lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step1_percent.bin");
   else if (uiCfg.stepPrintSpeed == 5)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_step5_percent.bin", 0);
+    lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step5_percent.bin");
   else if (uiCfg.stepPrintSpeed == 10)
-    lv_obj_set_event_cb_mks(buttonStep, event_handler, ID_C_STEP, "bmp_step10_percent.bin", 0);
+    lv_imgbtn_set_src_both(buttonStep, "F:/bmp_step10_percent.bin");
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     if (uiCfg.stepPrintSpeed == 1) {
       lv_label_set_text(labelStep, speed_menu.step_1percent);
       lv_obj_align(labelStep, buttonStep, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -286,7 +242,7 @@ void disp_speed_step() {
 }
 
 void disp_print_speed() {
-  char buf[30] = {0};
+  char buf[30] = { 0 };
 
   public_buf_l[0] = '\0';
 
@@ -309,19 +265,19 @@ void disp_print_speed() {
 void disp_speed_type() {
   switch (speedType) {
     case 1:
-      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_extruct_sel.bin", 0);
-      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_changeSpeed.bin", 0);
+      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_changeSpeed.bin");
+      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_extruct_sel.bin");
       break;
 
     default:
-      lv_obj_set_event_cb_mks(buttonExt, event_handler, ID_C_EXT, "bmp_speed_extruct.bin", 0);
-      lv_obj_set_event_cb_mks(buttonMov, event_handler, ID_C_MOVE, "bmp_mov_sel.bin", 0);
+      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_sel.bin");
+      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_speed_extruct.bin");
       break;
   }
   lv_obj_refresh_ext_draw_pad(buttonExt);
   lv_obj_refresh_ext_draw_pad(buttonMov);
 
-  if (gCfgItems.multiple_language != 0) {
+  if (gCfgItems.multiple_language) {
     lv_label_set_text(labelMov, speed_menu.move);
     lv_obj_align(labelMov, buttonMov, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
@@ -330,6 +286,11 @@ void disp_speed_type() {
   }
 }
 
-void lv_clear_change_speed() { lv_obj_del(scr); }
+void lv_clear_change_speed() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
+}
 
 #endif // HAS_TFT_LVGL_UI

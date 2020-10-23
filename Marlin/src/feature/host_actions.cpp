@@ -62,6 +62,9 @@ void host_action(PGM_P const pstr, const bool eol) {
 #ifdef ACTION_ON_CANCEL
   void host_action_cancel() { host_action(PSTR(ACTION_ON_CANCEL)); }
 #endif
+#ifdef ACTION_ON_START
+  void host_action_start() { host_action(PSTR(ACTION_ON_START)); }
+#endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 
@@ -110,11 +113,19 @@ void host_action(PGM_P const pstr, const bool eol) {
   void host_action_prompt_button(PGM_P const pstr) { host_action_prompt_plus(PSTR("button"), pstr); }
   void host_action_prompt_end() { host_action_prompt(PSTR("end")); }
   void host_action_prompt_show() { host_action_prompt(PSTR("show")); }
-  void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1/*=nullptr*/, PGM_P const btn2/*=nullptr*/) {
-    host_action_prompt_begin(reason, pstr);
+
+  void _host_prompt_show(PGM_P const btn1/*=nullptr*/, PGM_P const btn2/*=nullptr*/) {
     if (btn1) host_action_prompt_button(btn1);
     if (btn2) host_action_prompt_button(btn2);
     host_action_prompt_show();
+  }
+  void host_prompt_do(const PromptReason reason, PGM_P const pstr, PGM_P const btn1/*=nullptr*/, PGM_P const btn2/*=nullptr*/) {
+    host_action_prompt_begin(reason, pstr);
+    _host_prompt_show(btn1, btn2);
+  }
+  void host_prompt_do(const PromptReason reason, PGM_P const pstr, const char extra_char, PGM_P const btn1/*=nullptr*/, PGM_P const btn2/*=nullptr*/) {
+    host_action_prompt_begin(reason, pstr, extra_char);
+    _host_prompt_show(btn1, btn2);
   }
 
   void filament_load_host_prompt() {

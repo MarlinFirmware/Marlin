@@ -112,11 +112,10 @@ exec_test $1 $2 "Teensy 3.5/3.6 COREXZ"
 #
 restore_configs
 opt_set MOTHERBOARD BOARD_TEENSY35_36
-opt_enable Z_MULTI_ENDSTOPS
 opt_set NUM_Z_STEPPER_DRIVERS 2
+opt_enable Z_MULTI_ENDSTOPS USE_XMAX_PLUG
 pins_set ramps/RAMPS X_MAX_PIN -1
 opt_add Z2_MAX_PIN 2
-opt_enable USE_XMAX_PLUG
 exec_test $1 $2 "Dual Z with Dual Z endstops"
 
 # Clean up

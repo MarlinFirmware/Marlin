@@ -45,9 +45,9 @@
   #include "../../feature/bltouch.h"
 #endif
 
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/dwin.h"
+  #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -118,7 +118,7 @@
     DEBUG_SECTION(log_G28, "home_z_safely", DEBUGGING(LEVELING));
 
     // Disallow Z homing if X or Y homing is needed
-    if (axis_unhomed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
+    if (homing_needed_error(_BV(X_AXIS) | _BV(Y_AXIS))) return;
 
     sync_plan_position();
 
@@ -126,7 +126,15 @@
      * Move the Z probe (or just the nozzle) to the safe homing point
      * (Z is already at the right height)
      */
-    destination.set(safe_homing_xy, current_position.z);
+    constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
+    #if HAS_HOME_OFFSET
+      xy_float_t okay_homing_xy = safe_homing_xy;
+      okay_homing_xy -= home_offset;
+    #else
+      constexpr xy_float_t okay_homing_xy = safe_homing_xy;
+    #endif
+
+    destination.set(okay_homing_xy, current_position.z);
 
     TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
 
@@ -134,8 +142,8 @@
 
       if (DEBUGGING(LEVELING)) DEBUG_POS("home_z_safely", destination);
 
-      // This causes the carriage on Dual X to unpark
-      TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
+      // Free the active extruder for movement
+      TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
 
       TERN_(SENSORLESS_HOMING, safe_delay(500)); // Short delay needed to settle
 
@@ -192,7 +200,6 @@
  *  X   Home to the X endstop
  *  Y   Home to the Y endstop
  *  Z   Home to the Z endstop
- *
  */
 void GcodeSuite::G28() {
   DEBUG_SECTION(log_G28, "G28", DEBUGGING(LEVELING));
@@ -223,8 +230,9 @@ void GcodeSuite::G28() {
     return;
   }
 
-  // Wait for planner moves to finish!
-  planner.synchronize();
+  planner.synchronize();          // Wait for planner moves to finish!
+
+  SET_SOFT_ENDSTOP_LOOSE(false);  // Reset a leftover 'loose' motion state
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
@@ -282,7 +290,7 @@ void GcodeSuite::G28() {
     tool_change(0, true);
   #endif
 
-  TERN_(HAS_DUPLICATION_MODE, extruder_duplication_enabled = false);
+  TERN_(HAS_DUPLICATION_MODE, set_duplication_enabled(false));
 
   remember_feedrate_scaling_off();
 
@@ -299,8 +307,8 @@ void GcodeSuite::G28() {
   #else // NOT DELTA
 
     const bool homeZ = parser.seen('Z'),
-               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(X_AXIS))),
-               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_need_homing(_BV(Y_AXIS))),
+               needX = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(X_AXIS))),
+               needY = homeZ && TERN0(Z_SAFE_HOMING, axes_should_home(_BV(Y_AXIS))),
                homeX = needX || parser.seen('X'), homeY = needY || parser.seen('Y'),
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
@@ -342,16 +350,14 @@ void GcodeSuite::G28() {
         homeaxis(X_AXIS);
 
         // Remember this extruder's position for later tool change
-        inactive_extruder_x_pos = current_position.x;
+        inactive_extruder_x = current_position.x;
 
         // Home the 1st (left) extruder
         active_extruder = 0;
         homeaxis(X_AXIS);
 
-        // Consider the active extruder to be parked
-        raised_parked_position = current_position;
-        delayed_move_time = 0;
-        active_extruder_parked = true;
+        // Consider the active extruder to be in its "parked" position
+        idex_set_parked();
 
       #else
 
@@ -392,7 +398,7 @@ void GcodeSuite::G28() {
    */
   #if ENABLED(DUAL_X_CARRIAGE)
 
-    if (dxc_is_duplicating()) {
+    if (idex_is_duplicating()) {
 
       TERN_(IMPROVE_HOMING_RELIABILITY, slow_homing = begin_slow_homing());
 
@@ -401,19 +407,17 @@ void GcodeSuite::G28() {
       homeaxis(X_AXIS);
 
       // Remember this extruder's position for later tool change
-      inactive_extruder_x_pos = current_position.x;
+      inactive_extruder_x = current_position.x;
 
       // Home the 1st (left) extruder
       active_extruder = 0;
       homeaxis(X_AXIS);
 
       // Consider the active extruder to be parked
-      raised_parked_position = current_position;
-      delayed_move_time = 0;
-      active_extruder_parked = true;
-      extruder_duplication_enabled = IDEX_saved_duplication_state;
-      dual_x_carriage_mode         = IDEX_saved_mode;
-      stepper.set_directions();
+      idex_set_parked();
+
+      dual_x_carriage_mode = IDEX_saved_mode;
+      set_duplication_enabled(IDEX_saved_duplication_state);
 
       TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
     }

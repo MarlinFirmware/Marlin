@@ -27,7 +27,7 @@
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 XPT2046 touchIO;
 
-#include "../../lcd/ultralcd.h" // For EN_C bit mask
+#include "../../lcd/marlinui.h" // For EN_C bit mask
 
 /**
  * Draw and Touch processing
@@ -74,7 +74,7 @@ TouchButtons touch;
 void TouchButtons::init() { touchIO.Init(); }
 
 uint8_t TouchButtons::read_buttons() {
-  #ifdef HAS_SPI_LCD
+  #ifdef HAS_WIRED_LCD
     int16_t x, y;
 
     if (!touchIO.getRawPoint(&x, &y)) return 0;
@@ -82,7 +82,7 @@ uint8_t TouchButtons::read_buttons() {
     x = uint16_t((uint32_t(x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
     y = uint16_t((uint32_t(y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
 
-    #if ENABLED(GRAPHICAL_TFT_ROTATE_180)
+    #if (TFT_ROTATION & TFT_ROTATE_180)
       x = TOUCH_SENSOR_WIDTH - x;
       y = TOUCH_SENSOR_HEIGHT - y;
     #endif
