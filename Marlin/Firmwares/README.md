@@ -9,9 +9,13 @@ __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
  Update Marlin-BugFix 20201022
+ 
   -Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+  
   -Fixed Deploy/Stow ZProbe
+  
   -Fixed for users using E3Dv6 hotend
+  
   -Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
 
 
