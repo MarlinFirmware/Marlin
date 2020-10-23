@@ -148,26 +148,22 @@ void lv_draw_wifi(void) {
 }
 
 void disp_wifi_state() {
-  memset(public_buf_m, 0, sizeof(public_buf_m));
   strcpy(public_buf_m,wifi_menu.ip);
   strcat(public_buf_m,ipPara.ip_addr);
   lv_label_set_text(wifi_ip_text, public_buf_m);
   lv_obj_align(wifi_ip_text, NULL, LV_ALIGN_CENTER, 0, -100);
 
-  memset(public_buf_m, 0, sizeof(public_buf_m));
   strcpy(public_buf_m,wifi_menu.wifi);
   strcat(public_buf_m,wifiPara.ap_name);
   lv_label_set_text(wifi_name_text, public_buf_m);
   lv_obj_align(wifi_name_text, NULL, LV_ALIGN_CENTER, 0, -70);
 
   if (wifiPara.mode == AP_MODEL) {
-    memset(public_buf_m, 0, sizeof(public_buf_m));
     strcpy(public_buf_m,wifi_menu.key);
     strcat(public_buf_m,wifiPara.keyCode);
     lv_label_set_text(wifi_key_text, public_buf_m);
     lv_obj_align(wifi_key_text, NULL, LV_ALIGN_CENTER, 0, -40);
 
-    memset(public_buf_m, 0, sizeof(public_buf_m));
     strcpy(public_buf_m,wifi_menu.state_ap);
     if (wifi_link_state == WIFI_CONNECTED)
       strcat(public_buf_m,wifi_menu.connected);

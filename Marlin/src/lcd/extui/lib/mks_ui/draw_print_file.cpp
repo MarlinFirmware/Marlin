@@ -74,38 +74,21 @@ uint8_t sel_id = 0;
         const uint16_t nr = SD_ORDER(i, fileCnt);
         card.getfilename_sorted(nr);
 
-        if (card.flag.filenameIsDir) {
-          //SERIAL_ECHOLN(card.longest_filename);
-          list_file.IsFolder[valid_name_cnt] = 1;
-        }
-        else {
-          //SERIAL_ECHOLN(card.longFilename);
-          list_file.IsFolder[valid_name_cnt] = 0;
-        }
+        list_file.IsFolder[valid_name_cnt] = card.flag.filenameIsDir;
+        strcpy(list_file.file_name[valid_name_cnt], list_file.curDirPath);
+        strcat_P(list_file.file_name[valid_name_cnt], PSTR("/"));
+        strcat(list_file.file_name[valid_name_cnt], card.filename);
+        strcpy(list_file.long_name[valid_name_cnt], card.longest_filename());
 
-        #if 1
-          //
-          memset(list_file.file_name[valid_name_cnt], 0, strlen(list_file.file_name[valid_name_cnt]));
-          strcpy(list_file.file_name[valid_name_cnt], list_file.curDirPath);
-          strcat_P(list_file.file_name[valid_name_cnt], PSTR("/"));
-          strcat(list_file.file_name[valid_name_cnt], card.filename);
-          //
-          memset(list_file.long_name[valid_name_cnt], 0, strlen(list_file.long_name[valid_name_cnt]));
-          if (card.longFilename[0] == 0)
-            strncpy(list_file.long_name[valid_name_cnt], card.filename, strlen(card.filename));
-          else
-            strncpy(list_file.long_name[valid_name_cnt], card.longFilename, strlen(card.longFilename));
-
-          valid_name_cnt++;
-          if (valid_name_cnt == 1)
-            dir_offset[curDirLever].cur_page_first_offset = list_file.Sd_file_offset;
-          if (valid_name_cnt >= FILE_NUM) {
-            dir_offset[curDirLever].cur_page_last_offset = list_file.Sd_file_offset;
-            list_file.Sd_file_offset++;
-            break;
-          }
+        valid_name_cnt++;
+        if (valid_name_cnt == 1)
+          dir_offset[curDirLever].cur_page_first_offset = list_file.Sd_file_offset;
+        if (valid_name_cnt >= FILE_NUM) {
+          dir_offset[curDirLever].cur_page_last_offset = list_file.Sd_file_offset;
           list_file.Sd_file_offset++;
-        #endif
+          break;
+        }
+        list_file.Sd_file_offset++;
       }
       list_file.Sd_file_cnt++;
     }
@@ -216,7 +199,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         }
         else if (event == LV_EVENT_RELEASED) {
           if (list_file.file_name[i][0] != 0) {
-            if (list_file.IsFolder[i] == 1) {
+            if (list_file.IsFolder[i]) {
               strcpy(list_file.curDirPath, list_file.file_name[i]);
               curDirLever++;
               list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
@@ -327,7 +310,7 @@ void disp_gcode_icon(uint8_t file_num) {
       ZERO(public_buf_m);
       cutFileName((char *)list_file.long_name[i], 16, 8, (char *)public_buf_m);
 
-      if (list_file.IsFolder[i] == 1) {
+      if (list_file.IsFolder[i]) {
         lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
         lv_imgbtn_set_src_both(buttonGcode[i], "F:/bmp_dir.bin");
         if (i < 3)

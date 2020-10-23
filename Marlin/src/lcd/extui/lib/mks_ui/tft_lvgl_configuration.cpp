@@ -99,7 +99,7 @@ void SysTick_Callback() {
       uiCfg.filament_unloading_time_cnt  = 0;
       uiCfg.filament_unloading_time_flg  = 0;
       uiCfg.filament_unloading_completed = 1;
-      uiCfg.filament_rate                = 100;
+      uiCfg.filament_rate = 100;
     }
   }
 }
@@ -215,15 +215,14 @@ void tft_lvgl_init() {
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
-  uint16_t i, width, height;
-
-  width = area->x2 - area->x1 + 1;
-  height = area->y2 - area->y1 + 1;
+  uint16_t width = area->x2 - area->x1 + 1,
+          height = area->y2 - area->y1 + 1;
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
-  for (i = 0; i < height; i++) {
+
+  for (uint16_t i = 0; i < height; i++)
     SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
-  }
+
   lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -360,10 +359,10 @@ uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   //cur_namefff = strrchr(path, '/');
   char name_buf[100];
-  strcpy(name_buf, "/");
-  strcat(name_buf, path);
+  *name_buf = '/';
+  strcpy(name_buf + 1, path);
   char *temp = strstr(name_buf, ".bin");
-  if (temp) { strcpy(temp, ".GCO"); }
+  if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
   if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;

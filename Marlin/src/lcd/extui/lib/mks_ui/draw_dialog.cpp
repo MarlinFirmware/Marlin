@@ -65,7 +65,7 @@ extern bool once_flag, gcode_preview_over;
 extern int upload_result ;
 extern uint32_t upload_time;
 extern uint32_t upload_size;
-extern uint8_t temperature_change_frequency;
+extern bool temps_update_flag;
 
 static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
   if (event == LV_EVENT_CLICKED) {
@@ -519,15 +519,9 @@ void lv_draw_dialog(uint8_t type) {
 
 void filament_sprayer_temp() {
   char buf[20] = {0};
+  sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
 
-  public_buf_l[0] = '\0';
-
-  if (uiCfg.curSprayerChoose < 1)
-    strcat(public_buf_l, preheat_menu.ext1);
-  else
-    strcat(public_buf_l, preheat_menu.ext2);
-  sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius,  (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
-
+  strcpy(public_buf_l, uiCfg.curSprayerChoose < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
   strcat_P(public_buf_l, PSTR(": "));
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText1, public_buf_l);
@@ -535,12 +529,13 @@ void filament_sprayer_temp() {
 }
 
 void filament_dialog_handle() {
-  if ((temperature_change_frequency == 1)
-      && ((uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT)
-      || (uiCfg.dialogType  == DIALOG_TYPE_FILAMENT_UNLOAD_HEAT))
+  if ((temps_update_flag)
+    && (   (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT)
+        || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOAD_HEAT)
+    )
   ) {
     filament_sprayer_temp();
-    temperature_change_frequency = 0;
+    temps_update_flag = false;
   }
   if (uiCfg.filament_heat_completed_load == 1) {
     uiCfg.filament_heat_completed_load = 0;

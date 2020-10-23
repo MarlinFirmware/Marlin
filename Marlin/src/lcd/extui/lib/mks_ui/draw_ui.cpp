@@ -61,7 +61,7 @@ uint32_t To_pre_view;
 bool gcode_preview_over, flash_preview_begin, default_preview_flg;
 uint32_t size = 809;
 uint16_t row;
-uint8_t temperature_change_frequency;
+bool temps_update_flag;
 uint8_t printing_rate_update_flag;
 
 extern bool once_flag;
@@ -948,30 +948,30 @@ void print_time_run() {
 }
 
 void GUI_RefreshPage() {
-  if ((systick_uptime_millis % 1000) == 0) temperature_change_frequency = 1;
-  if ((systick_uptime_millis % 3000) == 0) printing_rate_update_flag = 1;
+  if ((systick_uptime_millis % 1000) == 0) temps_update_flag = true;
+  if ((systick_uptime_millis % 3000) == 0) printing_rate_update_flag = true;
 
   switch (disp_state) {
     case MAIN_UI:
       //lv_draw_ready_print();
       break;
     case EXTRUSION_UI:
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_hotend_temp();
       }
       break;
     case PRE_HEAT_UI:
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_desire_temp();
       }
       break;
     case PRINT_READY_UI:
       /*
       if (gCfgItems.display_style == 2) {
-        if (temperature_change_frequency) {
-          temperature_change_frequency = 0;
+        if (temps_update_flag) {
+          temps_update_flag = false;
           disp_restro_state();
         }
       }
@@ -981,8 +981,8 @@ void GUI_RefreshPage() {
     case PRINT_FILE_UI: break;
 
     case PRINTING_UI:
-      if (temperature_change_frequency) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_ext_temp();
         disp_bed_temp();
         disp_fan_speed();
@@ -990,15 +990,15 @@ void GUI_RefreshPage() {
         disp_fan_Zpos();
       }
       if (printing_rate_update_flag || marlin_state == MF_SD_COMPLETE) {
-        printing_rate_update_flag = 0;
+        printing_rate_update_flag = false;
         if (!gcode_preview_over) setProBarRate();
       }
       break;
 
     case OPERATE_UI:
       /*
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_temp_operate();
       }
 
@@ -1008,16 +1008,16 @@ void GUI_RefreshPage() {
 
     case PAUSE_UI:
       /*
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_temp_pause();
       }
       */
       break;
 
     case FAN_UI:
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_fan_value();
       }
       break;
@@ -1025,14 +1025,12 @@ void GUI_RefreshPage() {
     case MOVE_MOTOR_UI:
       /*
       if (mksReprint.mks_printer_state == MKS_IDLE) {
-        if ((z_high_count==1)&&(temper_error_flg != 1)) {
+        if (z_high_count == 1 && temper_error_flg != 1) {
           z_high_count = 0;
-          {
-            memset((char *)gCfgItems.move_z_coordinate, ' ', sizeof(gCfgItems.move_z_coordinate));
-            GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
-            sprintf_P((char *)gCfgItems.move_z_coordinate, PSTR("Z: %.3f"), current_position[Z_AXIS]);
-            GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
-          }
+          memset((char *)gCfgItems.move_z_coordinate, ' ', sizeof(gCfgItems.move_z_coordinate));
+          GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
+          sprintf_P((char *)gCfgItems.move_z_coordinate, PSTR("Z: %.3f"), current_position[Z_AXIS]);
+          GUI_DispStringAt((const char *)gCfgItems.move_z_coordinate, 380, TITLE_YPOS);
         }
       }
       */
@@ -1040,9 +1038,9 @@ void GUI_RefreshPage() {
 
     #if ENABLED(USE_WIFI_FUNCTION)
       case WIFI_UI:
-        if (temperature_change_frequency == 1) {
+        if (temps_update_flag) {
           disp_wifi_state();
-          temperature_change_frequency = 0;
+          temps_update_flag = false;
         }
         break;
     #endif
@@ -1052,8 +1050,8 @@ void GUI_RefreshPage() {
       break;
 
     case FILAMENTCHANGE_UI:
-      if (temperature_change_frequency) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_filament_temp();
       }
       break;
@@ -1068,9 +1066,9 @@ void GUI_RefreshPage() {
       break;
     case WIFI_LIST_UI:
       #if ENABLED(USE_WIFI_FUNCTION)
-        if (printing_rate_update_flag == 1) {
+        if (printing_rate_update_flag) {
           disp_wifi_list();
-          printing_rate_update_flag = 0;
+          printing_rate_update_flag = false;
         }
       #endif
       break;
@@ -1125,8 +1123,8 @@ void GUI_RefreshPage() {
     #endif
 
     case BABY_STEP_UI:
-      if (temperature_change_frequency == 1) {
-        temperature_change_frequency = 0;
+      if (temps_update_flag) {
+        temps_update_flag = false;
         disp_z_offset_value();
       }
       break;

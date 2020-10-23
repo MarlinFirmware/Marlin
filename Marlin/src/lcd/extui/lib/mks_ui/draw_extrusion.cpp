@@ -50,7 +50,7 @@ static lv_obj_t *ExtruText;
 #define ID_E_SPEED  5
 #define ID_E_RETURN 6
 
-static int32_t extructAmount;
+static int32_t extrudeAmount;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
@@ -64,7 +64,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
           queue.enqueue_one_now(public_buf_l);
           queue.enqueue_now_P(PSTR("G90"));
-          extructAmount += uiCfg.extruStep;
+          extrudeAmount += uiCfg.extruStep;
           disp_extru_amount();
         }
       }
@@ -79,7 +79,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
           queue.enqueue_one_now(public_buf_l);
           queue.enqueue_now_P(PSTR("G90"));
-          extructAmount -= uiCfg.extruStep;
+          extrudeAmount -= uiCfg.extruStep;
           disp_extru_amount();
         }
       }
@@ -102,7 +102,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         else
           uiCfg.curSprayerChoose = 0;
 
-        extructAmount = 0;
+        extrudeAmount = 0;
         disp_hotend_temp();
         disp_ext_type();
         disp_extru_amount();
@@ -247,9 +247,8 @@ void disp_ext_speed() {
 
 void disp_hotend_temp() {
   char buf[20] = {0};
-  public_buf_l[0] = '\0';
-  strcat(public_buf_l, extrude_menu.temper_text);
   sprintf(buf, extrude_menu.temp_value, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
+  strcpy(public_buf_l, extrude_menu.temper_text);
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText, public_buf_l);
   lv_obj_align(tempText, NULL, LV_ALIGN_CENTER, 0, -50);
@@ -260,30 +259,14 @@ void disp_extru_amount() {
 
   public_buf_l[0] = '\0';
 
-  if (extructAmount < 999 && extructAmount > -99) {
-    sprintf(buf1, extrude_menu.count_value_mm, extructAmount);
-    if (uiCfg.curSprayerChoose < 1)
-      strcat(public_buf_l, extrude_menu.ext1);
-    else
-      strcat(public_buf_l, extrude_menu.ext2);
-    strcat(public_buf_l, buf1);
-  }
-  else if (extructAmount < 9999 && extructAmount > -999) {
-    sprintf(buf1, extrude_menu.count_value_cm, extructAmount / 10);
-    if (uiCfg.curSprayerChoose < 1)
-      strcat(public_buf_l, extrude_menu.ext1);
-    else
-      strcat(public_buf_l, extrude_menu.ext2);
-    strcat(public_buf_l, buf1);
-  }
-  else {
-    sprintf(buf1, extrude_menu.count_value_m, extructAmount / 1000);
-    if (uiCfg.curSprayerChoose < 1)
-      strcat(public_buf_l, extrude_menu.ext1);
-    else
-      strcat(public_buf_l, extrude_menu.ext2);
-    strcat(public_buf_l, buf1);
-  }
+  if (extrudeAmount < 999 && extrudeAmount > -99)
+    sprintf(buf1, extrude_menu.count_value_mm, extrudeAmount);
+  else if (extrudeAmount < 9999 && extrudeAmount > -999)
+    sprintf(buf1, extrude_menu.count_value_cm, extrudeAmount / 10);
+  else
+    sprintf(buf1, extrude_menu.count_value_m, extrudeAmount / 1000);
+  strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? extrude_menu.ext1 : extrude_menu.ext2);
+  strcat(public_buf_l, buf1);
 
   lv_label_set_text(ExtruText, public_buf_l);
   lv_obj_align(ExtruText, NULL, LV_ALIGN_CENTER, 0, -75);

@@ -46,7 +46,7 @@ static lv_obj_t * printSpeedText;
 #define ID_C_STEP   5
 #define ID_C_RETURN 6
 
-static uint8_t speedType;
+static bool editingFlowrate;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
@@ -55,13 +55,13 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (speedType == 0) {
+        if (!editingFlowrate) {
           if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
             feedrate_percentage += uiCfg.stepPrintSpeed;
           else
             feedrate_percentage = MAX_EXT_SPEED_PERCENT;
         }
-        else if (speedType == 1) {
+        else {
           if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
             planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
           else
@@ -83,13 +83,13 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        if (speedType == 0) {
+        if (!editingFlowrate) {
           if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
             feedrate_percentage -= uiCfg.stepPrintSpeed;
           else
             feedrate_percentage = MIN_EXT_SPEED_PERCENT;
         }
-        else if (speedType == 1) {
+        else {
           if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
             planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
           else
@@ -111,7 +111,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        speedType = 0;
+        editingFlowrate = false;
         disp_speed_type();
         disp_print_speed();
       }
@@ -121,7 +121,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         // nothing to do
       }
       else if (event == LV_EVENT_RELEASED) {
-        speedType = 1;
+        editingFlowrate = true;
         disp_speed_type();
         disp_print_speed();
       }
@@ -246,34 +246,27 @@ void disp_print_speed() {
 
   public_buf_l[0] = '\0';
 
-  if (speedType == 0) { // move
-    strcat(public_buf_l, speed_menu.move_speed);
-    strcat_P(public_buf_l, PSTR(": "));
-    sprintf_P(buf, PSTR("%d%%"), feedrate_percentage);
-    strcat(public_buf_l, buf);
+  int16_t val;
+  const char *lbl;
+  if (editingFlowrate) {
+    lbl = speed_menu.extrude_speed;
+    val = planner.flow_percentage[0];
   }
-  else if (speedType == 1) { // e1
-    strcat(public_buf_l, speed_menu.extrude_speed);
-    strcat_P(public_buf_l, PSTR(": "));
-    sprintf_P(buf, PSTR("%d%%"), planner.flow_percentage[0]);
-    strcat(public_buf_l, buf);
+  else {
+    lbl = speed_menu.move_speed;
+    val = planner.feedrate_percentage;
   }
+  strcpy(public_buf_l, lbl);
+  strcat_P(public_buf_l, PSTR(": "));
+  sprintf_P(buf, PSTR("%d%%"), val);
+  strcat(public_buf_l, buf);
   lv_label_set_text(printSpeedText, public_buf_l);
   lv_obj_align(printSpeedText, NULL, LV_ALIGN_CENTER, 0, -65);
 }
 
 void disp_speed_type() {
-  switch (speedType) {
-    case 1:
-      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_changeSpeed.bin");
-      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_extruct_sel.bin");
-      break;
-
-    default:
-      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_sel.bin");
-      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_speed_extruct.bin");
-      break;
-  }
+  lv_imgbtn_set_src_both(buttonMov, editingFlowrate ? "F:/bmp_mov_changeSpeed.bin" : "F:/bmp_mov_sel.bin");
+  lv_imgbtn_set_src_both(buttonExt, editingFlowrate ? "F:/bmp_extruct_sel.bin", "F:/bmp_speed_extruct.bin");
   lv_obj_refresh_ext_draw_pad(buttonExt);
   lv_obj_refresh_ext_draw_pad(buttonMov);
 

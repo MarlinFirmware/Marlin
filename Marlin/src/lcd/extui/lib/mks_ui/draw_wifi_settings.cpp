@@ -154,7 +154,7 @@ void lv_draw_wifi_settings(void) {
   labelModelValue = lv_label_create_empty(buttonModelValue);
 
   line1 = lv_line_create(scr, NULL);
-  lv_ex_line(line1,line_points[0]);
+  lv_ex_line(line1, line_points[0]);
 
   labelNameText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, NULL);
 
@@ -162,7 +162,7 @@ void lv_draw_wifi_settings(void) {
   labelNameValue = lv_label_create_empty(buttonNameValue);
 
   line2 = lv_line_create(scr, NULL);
-  lv_ex_line(line2,line_points[1]);
+  lv_ex_line(line2, line_points[1]);
 
   labelPassWordText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, NULL);
 
@@ -170,7 +170,7 @@ void lv_draw_wifi_settings(void) {
   labelPassWordValue = lv_label_create_empty(buttonPassWordValue);
 
   line3 = lv_line_create(scr, NULL);
-  lv_ex_line(line3,line_points[2]);
+  lv_ex_line(line3, line_points[2]);
 
   labelCloudText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.wifiCloud);
 
@@ -178,7 +178,7 @@ void lv_draw_wifi_settings(void) {
   labelCloudValue = lv_label_create_empty(buttonCloudValue);
 
   line4 = lv_line_create(scr, NULL);
-  lv_ex_line(line4,line_points[3]);
+  lv_ex_line(line4, line_points[3]);
 
   buttonConfig = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_WIFI_CONFIG);
   labelConfig = lv_label_create_empty(buttonConfig);
@@ -195,26 +195,24 @@ void lv_draw_wifi_settings(void) {
       lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
     }
-    memset(public_buf_m,0,sizeof(public_buf_m));
-    strcat(public_buf_m,machine_menu.wifiName);
-    strcat(public_buf_m,(const char *)uiCfg.wifi_name);
-    lv_label_set_text(labelNameText,public_buf_m);
+    strcat(public_buf_m, machine_menu.wifiName);
+    strcat(public_buf_m, (const char *)uiCfg.wifi_name);
+    lv_label_set_text(labelNameText, public_buf_m);
 
-    lv_label_set_text(labelNameValue,machine_menu.wifiEdit);
+    lv_label_set_text(labelNameValue, machine_menu.wifiEdit);
     lv_obj_align(labelNameValue, buttonNameValue, LV_ALIGN_CENTER, 0, 0);
 
-    memset(public_buf_m,0,sizeof(public_buf_m));
-    strcat(public_buf_m,machine_menu.wifiPassWord);
-    strcat(public_buf_m,(const char *)uiCfg.wifi_key);
-    lv_label_set_text(labelPassWordText,public_buf_m);
+    strcat(public_buf_m, machine_menu.wifiPassWord);
+    strcat(public_buf_m, (const char *)uiCfg.wifi_key);
+    lv_label_set_text(labelPassWordText, public_buf_m);
 
-    lv_label_set_text(labelPassWordValue,machine_menu.wifiEdit);
+    lv_label_set_text(labelPassWordValue, machine_menu.wifiEdit);
     lv_obj_align(labelPassWordValue, buttonPassWordValue, LV_ALIGN_CENTER, 0, 0);
 
     lv_label_set_text(labelCloudValue, gCfgItems.cloud_enable ? machine_menu.enable : machine_menu.disable);
     lv_obj_align(labelCloudValue, buttonCloudValue, LV_ALIGN_CENTER, 0, 0);
 
-    lv_label_set_text(labelConfig,machine_menu.wifiConfig);
+    lv_label_set_text(labelConfig, machine_menu.wifiConfig);
     lv_obj_align(labelConfig, buttonConfig, LV_ALIGN_CENTER, 0, 0);
 
     lv_label_set_text(label_Back, common_menu.text_back);
