@@ -54,10 +54,17 @@ static lv_obj_t *buttonXState = NULL, *buttonYState = NULL, *buttonZState = NULL
 //#endif
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
+
+  auto toggle_chop = [&](auto stepper, auto button, auto label) {
+    const bool isena = stepper.toggle_stepping_mode();
+    lv_imgbtn_set_src_both(button, isena ? "F:/bmp_disable.bin" : "F:/bmp_enable.bin");
+    lv_label_set_text(label, isena ? machine_menu.disable : machine_menu.enable);
+    TERN_(EEPROM_SETTINGS, (void)settings.save());
+  };
+
   switch (obj->mks_obj_id) {
     case ID_TMC_MODE_RETURN:
       if (event == LV_EVENT_CLICKED) {
-
       }
       else if (event == LV_EVENT_RELEASED) {
         uiCfg.para_ui_page = 0;
@@ -69,19 +76,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if AXIS_HAS_STEALTHCHOP(X)
       case ID_TMC_MODE_X:
         if (event == LV_EVENT_CLICKED) {
-
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperX.toggle_stepping_mode()) {
-            lv_imgbtn_set_src_both(buttonXState, "F:/bmp_enable.bin");
-            lv_label_set_text(labelXState, machine_menu.enable);
-          }
-          else {
-            lv_imgbtn_set_src_both(buttonXState, "F:/bmp_disable.bin");
-            lv_label_set_text(labelXState, machine_menu.disable);
-            //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
-          }
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
+          toggle_chop(stepperX, buttonXState, labelXState);
         }
         break;
     #endif // if AXIS_HAS_STEALTHCHOP(X)
@@ -89,19 +86,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if AXIS_HAS_STEALTHCHOP(Y)
       case ID_TMC_MODE_Y:
         if (event == LV_EVENT_CLICKED) {
-
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperY.toggle_stepping_mode()) {
-            lv_imgbtn_set_src_both(buttonYState, "F:/bmp_enable.bin");
-            lv_label_set_text(labelYState, machine_menu.enable);
-          }
-          else {
-            lv_imgbtn_set_src_both(buttonYState, "F:/bmp_disable.bin");
-            lv_label_set_text(labelYState, machine_menu.disable);
-            //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
-          }
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
+          toggle_chop(stepperY, buttonYState, labelYState);
         }
         break;
     #endif // if AXIS_HAS_STEALTHCHOP(Y)
@@ -109,19 +96,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if AXIS_HAS_STEALTHCHOP(Z)
       case ID_TMC_MODE_Z:
         if (event == LV_EVENT_CLICKED) {
-
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperZ.toggle_stepping_mode()) {
-            lv_imgbtn_set_src_both(buttonZState, "F:/bmp_enable.bin");
-            lv_label_set_text(labelZState, machine_menu.enable);
-          }
-          else {
-            lv_imgbtn_set_src_both(buttonZState, "F:/bmp_disable.bin");
-            lv_label_set_text(labelZState, machine_menu.disable);
-            //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
-          }
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
+          toggle_chop(stepperZ, buttonZState, labelZState);
         }
         break;
     #endif // if AXIS_HAS_STEALTHCHOP(Z)
@@ -129,19 +106,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if AXIS_HAS_STEALTHCHOP(E0)
       case ID_TMC_MODE_E0:
         if (event == LV_EVENT_CLICKED) {
-
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperE0.toggle_stepping_mode()) {
-            lv_imgbtn_set_src_both(buttonE0State, "F:/bmp_enable.bin");
-            lv_label_set_text(labelE0State, machine_menu.enable);
-          }
-          else {
-            lv_imgbtn_set_src_both(buttonE0State, "F:/bmp_disable.bin");
-            lv_label_set_text(labelE0State, machine_menu.disable);
-            //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
-          }
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
+          toggle_chop(stepperE0, buttonE0State, labelE0State);
         }
         break;
     #endif // if AXIS_HAS_STEALTHCHOP(E0)
@@ -149,25 +116,14 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
     #if AXIS_HAS_STEALTHCHOP(E1)
       case ID_TMC_MODE_E1:
         if (event == LV_EVENT_CLICKED) {
-
         }
         else if (event == LV_EVENT_RELEASED) {
-          if (stepperE1.toggle_stepping_mode()) {
-            lv_imgbtn_set_src_both(buttonE1State, "F:/bmp_enable.bin");
-            lv_label_set_text(labelE1State, machine_menu.enable);
-          }
-          else {
-            lv_imgbtn_set_src_both(buttonE1State, "F:/bmp_disable.bin");
-            lv_label_set_text(labelE1State, machine_menu.disable);
-            //lv_obj_align(labelXState, buttonE1State, LV_ALIGN_IN_LEFT_MID,0, 0);
-          }
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
+          toggle_chop(stepperE1, buttonE1State, labelE1State);
         }
         break;
     #endif // if AXIS_HAS_STEALTHCHOP(E1)
     case ID_TMC_MODE_UP:
       if (event == LV_EVENT_CLICKED) {
-
       }
       else if (event == LV_EVENT_RELEASED) {
         uiCfg.para_ui_page = 0;
@@ -177,7 +133,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       break;
     case ID_TMC_MODE_DOWN:
       if (event == LV_EVENT_CLICKED) {
-
       }
       else if (event == LV_EVENT_RELEASED) {
         uiCfg.para_ui_page = 1;
