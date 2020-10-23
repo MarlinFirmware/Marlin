@@ -188,9 +188,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_preHeat(void) {
-  lv_obj_t *buttonAdd, *buttonDec;
-  lv_obj_t *buttonOff, *buttonBack;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PRE_HEAT_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = PRE_HEAT_UI;
@@ -208,45 +205,24 @@ void lv_draw_preHeat(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  buttonAdd = lv_imgbtn_create(scr, "F:/bmp_Add.bin", INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
-  lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
-  buttonDec = lv_imgbtn_create(scr, "F:/bmp_Dec.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+  lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);
+  lv_big_button_create(scr, "F:/bmp_Dec.bin", preheat_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_DEC);
+
   buttonType = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_TYPE);
   buttonStep = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_STEP);
-  buttonOff = lv_imgbtn_create(scr, "F:/bmp_speed0.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_OFF);
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_RETURN);
-
-  // Create labels on the image buttons
-  lv_obj_t *labelAdd = lv_label_create_empty(buttonAdd);
-  lv_obj_t *labelDec = lv_label_create_empty(buttonDec);
-  labelType = lv_label_create_empty(buttonType);
-  labelStep = lv_label_create_empty(buttonStep);
-  lv_obj_t *labelOff   = lv_label_create_empty(buttonOff);
-  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(labelAdd, preheat_menu.add);
-    lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelDec, preheat_menu.dec);
-    lv_obj_align(labelDec, buttonDec, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelOff, preheat_menu.off);
-    lv_obj_align(labelOff, buttonOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, buttonAdd);
-      lv_group_add_obj(g, buttonDec);
       lv_group_add_obj(g, buttonType);
       lv_group_add_obj(g, buttonStep);
-      lv_group_add_obj(g, buttonOff);
-      lv_group_add_obj(g, buttonBack);
     }
   #endif
+
+  lv_big_button_create(scr, "F:/bmp_speed0.bin", preheat_menu.off, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_OFF);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_P_RETURN);
+
+  // Create labels on the image buttons
+  labelType = lv_label_create_empty(buttonType);
+  labelStep = lv_label_create_empty(buttonStep);
 
   disp_temp_type();
   disp_step_heat();
