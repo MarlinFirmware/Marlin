@@ -165,7 +165,6 @@
  *        R<temp> Wait for bed current temp to reach target temp. ** Wait for heating or cooling. **
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
  * M201 - Set max acceleration in units/s^2 for print moves: "M201 X<accel> Y<accel> Z<accel> E<accel>"
- * M202 - Set max acceleration in units/s^2 for travel moves: "M202 X<accel> Y<accel> Z<accel> E<accel>" ** UNUSED IN MARLIN! **
  * M203 - Set maximum feedrate: "M203 X<fr> Y<fr> Z<fr> E<fr>" in units/sec.
  * M204 - Set default acceleration in units/sec^2: P<printing> R<extruder_only> T<travel>
  * M205 - Set advanced settings. Current units apply:
@@ -647,11 +646,6 @@ private:
 
   static void M200();
   static void M201();
-
-  #if 0
-    static void M202(); // Not used for Sprinter/grbl gen6
-  #endif
-
   static void M203();
   static void M204();
   static void M205();

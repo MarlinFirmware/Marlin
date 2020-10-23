@@ -582,11 +582,6 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif
 
       case 201: M201(); break;                                    // M201: Set max acceleration for print moves (units/s^2)
-
-      #if 0
-        case 202: M202(); break;                                  // M202: Not used for Sprinter/grbl gen6
-      #endif
-
       case 203: M203(); break;                                    // M203: Set max feedrate (units/sec)
       case 204: M204(); break;                                    // M204: Set acceleration
       case 205: M205(); break;                                    // M205: Set advanced settings
