@@ -131,10 +131,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_tool(void) {
-  lv_obj_t *buttonPreHeat, *buttonExtrusion, *buttonMove, *buttonHome, *buttonLevel;
-  lv_obj_t *buttonFilament;
-  lv_obj_t *buttonBack;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != TOOL_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = TOOL_UI;
@@ -153,63 +149,15 @@ void lv_draw_tool(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  // Create image buttons
-  buttonPreHeat   = lv_imgbtn_create(scr, "F:/bmp_preHeat.bin", INTERVAL_V, titleHeight, event_handler, ID_T_PRE_HEAT);
-  buttonExtrusion = lv_imgbtn_create(scr, "F:/bmp_extruct.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_T_EXTRUCT);
-  buttonMove      = lv_imgbtn_create(scr, "F:/bmp_mov.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_T_MOV);
-  buttonHome      = lv_imgbtn_create(scr, "F:/bmp_zero.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_T_HOME);
-  buttonLevel     = lv_imgbtn_create(scr, "F:/bmp_leveling.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_LEVELING);
-  buttonFilament  = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin",BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight, event_handler,ID_T_FILAMENT);
-  //buttonMore    = lv_imgbtn_createx(scr, NULL);
-  //lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  buttonBack      = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_RETURN);
+  lv_big_button_create(scr, "F:/bmp_preHeat.bin", tool_menu.preheat, INTERVAL_V, titleHeight, event_handler, ID_T_PRE_HEAT);
+  lv_big_button_create(scr, "F:/bmp_extruct.bin", tool_menu.extrude, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_T_EXTRUCT);
 
-  // Create labels on the image buttons
-  lv_obj_t *labelPreHeat   = lv_label_create_empty(buttonPreHeat);
-  lv_obj_t *labelExtrusion = lv_label_create_empty(buttonExtrusion);
-  lv_obj_t *label_Move     = lv_label_create_empty(buttonMove);
-  lv_obj_t *label_Home     = lv_label_create_empty(buttonHome);
-  lv_obj_t *label_Level    = lv_label_create_empty(buttonLevel);
-  lv_obj_t *label_Filament = lv_label_create_empty(buttonFilament);
-  //lv_obj_t *label_More   = lv_label_create_empty(buttonMore);
-  lv_obj_t *label_Back     = lv_label_create_empty(buttonBack);
+  lv_big_button_create(scr, "F:/bmp_mov.bin", tool_menu.move, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_T_MOV);
+  lv_big_button_create(scr, "F:/bmp_zero.bin", tool_menu.home, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_T_HOME);
 
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(labelPreHeat, tool_menu.preheat);
-    lv_obj_align(labelPreHeat, buttonPreHeat, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelExtrusion, tool_menu.extrude);
-    lv_obj_align(labelExtrusion, buttonExtrusion, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Move, tool_menu.move);
-    lv_obj_align(label_Move, buttonMove, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Home, tool_menu.home);
-    lv_obj_align(label_Home, buttonHome, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Level, tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling));
-    lv_obj_align(label_Level, buttonLevel, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Filament, tool_menu.filament);
-    lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    //lv_label_set_text(label_More, tool_menu.more);
-    //lv_obj_align(label_More, buttonMore, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, buttonPreHeat);
-      lv_group_add_obj(g, buttonExtrusion);
-      lv_group_add_obj(g, buttonMove);
-      lv_group_add_obj(g, buttonHome);
-      lv_group_add_obj(g, buttonLevel);
-      lv_group_add_obj(g, buttonFilament);
-      lv_group_add_obj(g, buttonBack);
-    }
-  #endif
+  lv_big_button_create(scr, "F:/bmp_leveling.bin", tool_menu.TERN(AUTO_BED_LEVELING_BILINEAR, autoleveling, leveling), INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_LEVELING);
+  lv_big_button_create(scr, "F:/bmp_filamentchange.bin", tool_menu.filament, BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight, event_handler,ID_T_FILAMENT);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_T_RETURN);
 }
 
 void lv_clear_tool() {

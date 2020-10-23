@@ -135,7 +135,7 @@ void mks_disp_test() {
 
 void lv_draw_ready_print(void) {
   char buf[30] = {0};
-  lv_obj_t *buttonPrint, *buttonTool, *buttonSet;
+  lv_obj_t *buttonTool;
 
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
