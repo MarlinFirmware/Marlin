@@ -237,34 +237,9 @@ void lv_draw_ready_print(void) {
 
   }
   else {
-    // Create an Image button
-    buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", 20, 90, event_handler, ID_TOOL);
-    lv_obj_t *label_tool = lv_label_create_empty(buttonTool);
-
-    buttonSet = lv_imgbtn_create(scr, "F:/bmp_set.bin", 180, 90, event_handler, ID_SET);
-    lv_obj_t *label_set = lv_label_create_empty(buttonSet);
-
-    buttonPrint = lv_imgbtn_create(scr, "F:/bmp_printing.bin", 340, 90, event_handler, ID_PRINT);
-    lv_obj_t *label_print = lv_label_create_empty(buttonPrint);
-
-    if (gCfgItems.multiple_language) {
-      lv_label_set_text(label_print, main_menu.print);
-      lv_obj_align(label_print, buttonPrint, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-      lv_label_set_text(label_set, main_menu.set);
-      lv_obj_align(label_set, buttonSet, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-      lv_label_set_text(label_tool, main_menu.tool);
-      lv_obj_align(label_tool, buttonTool, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-    }
-
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonTool);
-        lv_group_add_obj(g, buttonSet);
-        lv_group_add_obj(g, buttonPrint);
-      }
-    #endif
+    lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
+    lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
+    lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
   }
 }
 

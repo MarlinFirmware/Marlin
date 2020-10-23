@@ -206,6 +206,9 @@ lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, con
 // Create an image button with image, position, callback, and ID. Use label style.
 lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
 
+// Create a big image button with a label, follow the LVGL UI standard.
+lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
+
 #ifdef __cplusplus
   extern "C" { /* C-declarations for C++ */
 #endif

@@ -68,6 +68,7 @@ extern bool once_flag;
 extern uint8_t sel_id;
 extern uint8_t public_buf[512];
 extern uint8_t bmp_public_buf[17 * 1024];
+extern lv_group_t * g;
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
@@ -1673,6 +1674,22 @@ lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, con
 lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
   lv_obj_t *btn = lv_imgbtn_create(par, img, cb, id);
   lv_obj_set_pos(btn, x, y);
+  return btn;
+}
+
+lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
+  lv_obj_t *btn = lv_imgbtn_create(par, img, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_t *label = lv_label_create_empty(btn);
+  if (gCfgItems.multiple_language) {
+    lv_label_set_text(label, text);
+    lv_obj_align(label, btn, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+  }
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable == true) {
+      lv_group_add_obj(g, btn);
+    }
+  #endif
   return btn;
 }
 
