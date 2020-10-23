@@ -219,18 +219,18 @@
     #define TFT_RESET_PIN                   PF6   // FSMC_RST
     #define TFT_BACKLIGHT_PIN               PG11
 
-  // MKS Robin TFT with ILI9328
-  #define TFT_ILI9328
-  #if ENABLED(TFT_ILI9328)
-    #define TFT_DRIVER                   ILI9328
-    #define TFT_BUFFER_SIZE                14400
-    #define ILI9328_COLOR_RGB
-  
-    // YV for normal screen mounting
-    //#define ILI9328_ORIENTATION  ILI9328_MADCTL_MY | ILI9328_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define ILI9328_ORIENTATION             ILI9328_MADCTL_MX | ILI9328_MADCTL_MV
-  #endif
+    // MKS Robin TFT with ILI9328
+    //#define TFT_ILI9328
+    #if ENABLED(TFT_ILI9328)
+      #define TFT_DRIVER                 ILI9328
+      #define TFT_BUFFER_SIZE              14400
+      #define ILI9328_COLOR_RGB
+
+      // YV for normal screen mounting
+      //#define ILI9328_ORIENTATION ILI9328_MADCTL_MY | ILI9328_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define ILI9328_ORIENTATION ILI9328_MADCTL_MX | ILI9328_MADCTL_MV
+    #endif
 
   // MKS Robin TFT with R61505
   //#define TFT_R61505
