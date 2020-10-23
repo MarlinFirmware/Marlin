@@ -252,6 +252,7 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       const bool prepend_is_empty = (!prepend || prepend[0] == '\0');
       const int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(dosFilename) + 1 + 1;
       char path[len];
+
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
         const bool lprepend_is_empty = (!lprepend || lprepend[0] == '\0');
         const int llen = (lprepend_is_empty ? 1 : strlen(lprepend)) + strlen(longFilename) + 1 + 1;
@@ -264,6 +265,7 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
       strcat(path, dosFilename);                      // FILENAME_LENGTH characters maximum
       strcat(path, "/");                              // 1 character
+
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
         if (flag.longlist_mode) {
           strcpy(lpath, lprepend_is_empty ? "/" : lprepend); // root slash if prepend is empty
@@ -272,8 +274,8 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
         }
       #endif
 
-      // SERIAL_ECHOLN(path);
-      // SERIAL_ECHOLN(lpath);
+      //SERIAL_ECHOLN(path);
+      //SERIAL_ECHOLN(lpath);
 
       // Get a new directory object using the full path
       // and dive recursively into it.
@@ -293,17 +295,15 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
       createFilename(filename, p);
       if (prepend) SERIAL_ECHO(prepend);
       SERIAL_ECHO(filename);
-      SERIAL_CHAR(' ');
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
         if (flag.longlist_mode) {
-          SERIAL_ECHO(p.fileSize);
           SERIAL_CHAR(' ');
           if (lprepend) SERIAL_ECHO(lprepend);
-          SERIAL_ECHOLN(longFilename);
-        } else SERIAL_ECHOLN(p.fileSize);
-      #else
-        SERIAL_ECHOLN(p.fileSize);
+          SERIAL_ECHO(longFilename);
+        }
       #endif
+      SERIAL_CHAR(' ');
+      SERIAL_ECHOLN(p.fileSize);
     }
   }
 }
@@ -315,9 +315,7 @@ void CardReader::ls() {
   if (flag.mounted) {
     root.rewind();
     printListing(root);
-    #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-      if (flag.longlist_mode) flag.longlist_mode = false;
-    #endif
+    TERN_(LONG_FILENAME_MEDIA_LIST, flag.longlist_mode = false);
   }
 }
 
