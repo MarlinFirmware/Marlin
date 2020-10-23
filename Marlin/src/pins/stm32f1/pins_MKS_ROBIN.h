@@ -239,18 +239,18 @@
     #define TFT_BUFFER_SIZE                14400
     #define R61505_COLOR_RGB
 
-    // YV for normal screen mounting
-    //#define R61505_ORIENTATION  R61505_MADCTL_MY | R61505_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define R61505_ORIENTATION              R61505_MADCTL_MX | R61505_MADCTL_MV
-  #endif
-  
-  // MKS Robin TFT with ST7789V
-  //#define ST7789V
-  #if ENABLED(ST7789V)
-    #define TFT_DRIVER                   ST7789V
-    #define TFT_BUFFER_SIZE                14400
-    #define ST7789V_COLOR_RGB
+      // YV for normal screen mounting
+      //#define R61505_ORIENTATION R61505_MADCTL_MY | R61505_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define R61505_ORIENTATION R61505_MADCTL_MX | R61505_MADCTL_MV
+    #endif
+
+    // MKS Robin TFT with ST7789V
+    //#define TFT_ST7789V
+    #if ENABLED(TFT_ST7789V)
+      #define TFT_DRIVER             TFT_ST7789V
+      #define TFT_BUFFER_SIZE              14400
+      #define ST7789V_COLOR_RGB
 
     // YV for normal screen mounting
     //#define ST7789V_ORIENTATION ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
