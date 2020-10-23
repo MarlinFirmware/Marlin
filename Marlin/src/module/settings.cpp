@@ -137,9 +137,8 @@
   void M710_report(const bool forReplay);
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+#if ENABLED(CASE_LIGHT_ENABLE)
   #include "../feature/caselight.h"
-  #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -422,9 +421,9 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // HAS_CASE_LIGHT_BRIGHTNESS
+  // CASELIGHT_USES_BRIGHTNESS
   //
-  #if HAS_CASE_LIGHT_BRIGHTNESS
+  #if CASELIGHT_USES_BRIGHTNESS
     uint8_t caselight_brightness;                        // M355 P
   #endif
 
@@ -503,7 +502,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.update_brightness());
+  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -1385,7 +1384,7 @@ void MarlinSettings::postprocess() {
     //
     // Case Light Brightness
     //
-    #if HAS_CASE_LIGHT_BRIGHTNESS
+    #if CASELIGHT_USES_BRIGHTNESS
       EEPROM_WRITE(caselight.brightness);
     #endif
 
@@ -2259,7 +2258,7 @@ void MarlinSettings::postprocess() {
       //
       // Case Light Brightness
       //
-      #if HAS_CASE_LIGHT_BRIGHTNESS
+      #if CASELIGHT_USES_BRIGHTNESS
         _FIELD_TEST(caselight_brightness);
         EEPROM_READ(caselight.brightness);
       #endif
@@ -2597,7 +2596,7 @@ void MarlinSettings::reset() {
   //
   // Case Light Brightness
   //
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // TOUCH_SCREEN_CALIBRATION
