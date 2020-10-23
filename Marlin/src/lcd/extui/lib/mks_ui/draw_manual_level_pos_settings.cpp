@@ -315,42 +315,34 @@ void lv_draw_manual_level_pos_settings(void) {
 
   if (gCfgItems.multiple_language) {
     if (uiCfg.para_ui_page != 1) {
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);
       lv_label_set_text(labelX1Value, public_buf_l);
       lv_obj_align(labelX1Value, buttonX1Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][1]);
       lv_label_set_text(labelY1Value, public_buf_l);
       lv_obj_align(labelY1Value, buttonY1Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[1][0]);
       lv_label_set_text(labelX2Value, public_buf_l);
       lv_obj_align(labelX2Value, buttonX2Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[1][1]);
       lv_label_set_text(labelY2Value, public_buf_l);
       lv_obj_align(labelY2Value, buttonY2Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[2][0]);
       lv_label_set_text(labelX3Value, public_buf_l);
       lv_obj_align(labelX3Value, buttonX3Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[2][1]);
       lv_label_set_text(labelY3Value, public_buf_l);
       lv_obj_align(labelY3Value, buttonY3Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[3][0]);
       lv_label_set_text(labelX4Value, public_buf_l);
       lv_obj_align(labelX4Value, buttonX4Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[3][1]);
       lv_label_set_text(labelY4Value, public_buf_l);
       lv_obj_align(labelY4Value, buttonY4Value, LV_ALIGN_CENTER, 0, 0);
@@ -359,12 +351,10 @@ void lv_draw_manual_level_pos_settings(void) {
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
     }
     else {
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[4][0]);
       lv_label_set_text(labelX5Value, public_buf_l);
       lv_obj_align(labelX5Value, buttonX5Value, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[4][1]);
       lv_label_set_text(labelY5Value, public_buf_l);
       lv_obj_align(labelY5Value, buttonY5Value, LV_ALIGN_CENTER, 0, 0);

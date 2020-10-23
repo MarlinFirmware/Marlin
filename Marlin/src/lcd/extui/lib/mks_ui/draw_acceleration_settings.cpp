@@ -174,38 +174,30 @@ void lv_draw_acceleration_settings(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (uiCfg.para_ui_page != 1) {
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.acceleration);
     lv_screen_menu_item_1_edit(scr, machine_menu.PrintAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ACCE_PRINT, 0, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.retract_acceleration);
     lv_screen_menu_item_1_edit(scr, machine_menu.RetractAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_ACCE_RETRA, 1, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.travel_acceleration);
     lv_screen_menu_item_1_edit(scr, machine_menu.TravelAcceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_ACCE_TRAVEL, 2, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[X_AXIS]);
     lv_screen_menu_item_1_edit(scr, machine_menu.X_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_ACCE_X, 3, public_buf_l);
 
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_ACCE_DOWN, true);
   }
   else {
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Y_AXIS]);
     lv_screen_menu_item_1_edit(scr, machine_menu.Y_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_ACCE_Y, 0, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[Z_AXIS]);
     lv_screen_menu_item_1_edit(scr, machine_menu.Z_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_ACCE_Z, 1, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS]);
     lv_screen_menu_item_1_edit(scr, machine_menu.E0_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_ACCE_E0, 2, public_buf_l);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), (int)planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(1)]);
     lv_screen_menu_item_1_edit(scr, machine_menu.E1_Acceleration, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_ACCE_E1, 3, public_buf_l);
 

@@ -520,8 +520,6 @@ void lv_draw_dialog(uint8_t type) {
         char buf[200];
         int _index = 0;
 
-        ZERO(buf);
-
         strcpy(buf, DIALOG_UPLOAD_FINISH_EN);
         _index = strlen(buf);
         buf[_index] = '\n';
@@ -549,7 +547,7 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
       }
     }
-  #endif //USE_WIFI_FUNCTION
+  #endif // USE_WIFI_FUNCTION
   else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);

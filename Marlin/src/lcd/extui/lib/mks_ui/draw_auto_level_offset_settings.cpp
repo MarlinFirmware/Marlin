@@ -140,17 +140,14 @@ void lv_draw_auto_level_offset_settings(void) {
   #endif
 
   if (gCfgItems.multiple_language) {
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.x, 0));
     lv_label_set_text(labelXValue, public_buf_l);
     lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.y, 0));
     lv_label_set_text(labelYValue, public_buf_l);
     lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), probe.offset.z);
     lv_label_set_text(labelZValue, public_buf_l);
     lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);

@@ -179,7 +179,6 @@ void disp_wifi_state() {
     lv_obj_align(wifi_state_text, NULL, LV_ALIGN_CENTER, 0, -10);
   }
   else {
-    ZERO(public_buf_m);
     strcpy(public_buf_m, wifi_menu.state_sta);
     if (wifi_link_state == WIFI_CONNECTED)
       strcat(public_buf_m, wifi_menu.connected);

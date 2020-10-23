@@ -217,8 +217,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         else if (event == LV_EVENT_RELEASED) {
           if (list_file.file_name[i][0] != 0) {
             if (list_file.IsFolder[i] == 1) {
-              ZERO(list_file.curDirPath);
-              strcpy(list_file.curDirPath,  list_file.file_name[i]);
+              strcpy(list_file.curDirPath, list_file.file_name[i]);
               curDirLever++;
               list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
               #if ENABLED(SDSUPPORT)
@@ -249,11 +248,11 @@ void lv_draw_print_file(void) {
   }
   disp_state = PRINT_FILE_UI;
 
-  curDirLever                     = 0;
+  curDirLever = 0;
   dir_offset[curDirLever].curPage = 0;
 
   list_file.Sd_file_offset = 0;
-  list_file.Sd_file_cnt    = 0;
+  list_file.Sd_file_cnt = 0;
 
   ZERO(dir_offset);
   ZERO(list_file.IsFolder);
@@ -326,7 +325,7 @@ void disp_gcode_icon(uint8_t file_num) {
       lv_btn_set_layout(buttonGcode[i], LV_LAYOUT_OFF);
 
       ZERO(public_buf_m);
-      cutFileName((char *)list_file.long_name[i], 16, 8,  (char *)public_buf_m);
+      cutFileName((char *)list_file.long_name[i], 16, 8, (char *)public_buf_m);
 
       if (list_file.IsFolder[i] == 1) {
         lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
@@ -344,11 +343,10 @@ void disp_gcode_icon(uint8_t file_num) {
 
           //lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), list_file.file_name[i], 1);
 
-          ZERO(test_public_buf_l);
-          strcat(test_public_buf_l,"S:");
-          strcat(test_public_buf_l,list_file.file_name[i]);
-          char *temp = strstr(test_public_buf_l,".GCO");
-          if (temp) { strcpy(temp,".bin"); }
+          strcpy(test_public_buf_l, "S:");
+          strcat(test_public_buf_l, list_file.file_name[i]);
+          char *temp = strstr(test_public_buf_l, ".GCO");
+          if (temp) strcpy(temp, ".bin");
           lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
           lv_imgbtn_set_src_both(buttonGcode[i], test_public_buf_l);
           if (i < 3) {
@@ -502,7 +500,7 @@ void lv_gcode_file_seek(uint32_t pos) {
   card.setIndex(pos);
 }
 
-void cutFileName(char *path, int len, int bytePerLine,  char *outStr) {
+void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
   #if _LFN_UNICODE
     TCHAR *tmpFile;
     TCHAR *strIndex1 = 0, *strIndex2 = 0, *beginIndex;

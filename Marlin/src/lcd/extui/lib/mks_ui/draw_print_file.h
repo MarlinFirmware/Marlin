@@ -55,7 +55,7 @@ extern void lv_draw_print_file(void);
 extern uint32_t lv_open_gcode_file(char *path);
 extern void lv_gcode_file_read(uint8_t *data_buf);
 extern void lv_close_gcode_file();
-extern void cutFileName(char *path, int len, int bytePerLine,  char *outStr);
+extern void cutFileName(char *path, int len, int bytePerLine, char *outStr);
 extern int ascii2dec_test(char *ascii);
 extern void lv_clear_print_file();
 extern void lv_gcode_file_seek(uint32_t pos);

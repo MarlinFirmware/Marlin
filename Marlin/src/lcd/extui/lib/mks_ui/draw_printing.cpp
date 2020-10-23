@@ -256,12 +256,10 @@ void lv_draw_printing(void) {
 }
 
 void disp_ext_temp() {
-  ZERO(public_buf_l);
   sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[0].celsius, (int)thermalManager.temp_hotend[0].target);
   lv_label_set_text(labelExt1, public_buf_l);
 
   #if HAS_MULTI_EXTRUDER
-    ZERO(public_buf_l);
     sprintf(public_buf_l, printing_menu.temp1, (int)thermalManager.temp_hotend[1].celsius, (int)thermalManager.temp_hotend[1].target);
     lv_label_set_text(labelExt2, public_buf_l);
   #endif
@@ -269,20 +267,17 @@ void disp_ext_temp() {
 
 void disp_bed_temp() {
   #if HAS_HEATED_BED
-    ZERO(public_buf_l);
     sprintf(public_buf_l, printing_menu.bed_temp, (int)thermalManager.temp_bed.celsius, (int)thermalManager.temp_bed.target);
     lv_label_set_text(labelBed, public_buf_l);
   #endif
 }
 
 void disp_fan_speed() {
-  ZERO(public_buf_l);
   sprintf_P(public_buf_l, PSTR("%3d"), thermalManager.fan_speed[0]);
   lv_label_set_text(labelFan, public_buf_l);
 }
 
 void disp_print_time() {
-  ZERO(public_buf_l);
   #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
     const uint32_t r = ui.get_remaining_time();
     sprintf_P(public_buf_l, PSTR("%02d:%02d R"), r / 3600, (r % 3600) / 60);
@@ -293,7 +288,6 @@ void disp_print_time() {
 }
 
 void disp_fan_Zpos() {
-  ZERO(public_buf_l);
   sprintf_P(public_buf_l, PSTR("%.3f"), current_position[Z_AXIS]);
   lv_label_set_text(labelZpos, public_buf_l);
 }
@@ -333,7 +327,6 @@ void setProBarRate() {
 
   if (disp_state == PRINTING_UI) {
     lv_bar_set_value(bar1, rate, LV_ANIM_ON);
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, "%d%%", rate);
     lv_label_set_text(bar1ValueText,public_buf_l);
     lv_obj_align(bar1ValueText, bar1, LV_ALIGN_CENTER, 0, 0);

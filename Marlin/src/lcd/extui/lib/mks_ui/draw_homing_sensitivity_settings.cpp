@@ -180,23 +180,19 @@ void lv_draw_homing_sensitivity_settings(void) {
   #endif
 
   if (gCfgItems.multiple_language) {
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), TERN(X_SENSORLESS, stepperX.homing_threshold(), 0));
     lv_label_set_text(labelXValue, public_buf_l);
     lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), TERN(Y_SENSORLESS, stepperY.homing_threshold(), 0));
     lv_label_set_text(labelYValue, public_buf_l);
     lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%d"), TERN(Z_SENSORLESS, stepperZ.homing_threshold(), 0));
     lv_label_set_text(labelZValue, public_buf_l);
     lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
 
     #if Z2_SENSORLESS
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%d"), TERN(Z2_SENSORLESS, stepperZ2.homing_threshold(), 0));
       lv_label_set_text(labelZ2Value, public_buf_l);
       lv_obj_align(labelZ2Value, buttonZ2Value, LV_ALIGN_CENTER, 0, 0);

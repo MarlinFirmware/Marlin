@@ -80,8 +80,6 @@ static void disp_key_value() {
     float milliamps;
   #endif
 
-  ZERO(public_buf_m);
-
   switch (value) {
     case PrintAcceleration:
       sprintf_P(public_buf_m, PSTR("%.1f"), planner.settings.acceleration);
@@ -289,7 +287,7 @@ static void disp_key_value() {
       #endif
       break;
   }
-  ZERO(key_value);
+
   strcpy(key_value, public_buf_m);
   cnt  = strlen(key_value);
   temp = strchr(key_value, '.');

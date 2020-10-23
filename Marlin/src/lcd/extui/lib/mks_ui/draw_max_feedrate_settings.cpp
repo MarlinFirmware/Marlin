@@ -244,22 +244,18 @@ void lv_draw_max_feedrate_settings(void) {
       lv_label_set_text(labelTurnPage, machine_menu.next);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[X_AXIS]);
       lv_label_set_text(labelXValue, public_buf_l);
       lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Y_AXIS]);
       lv_label_set_text(labelYValue, public_buf_l);
       lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[Z_AXIS]);
       lv_label_set_text(labelZValue, public_buf_l);
       lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS]);
       lv_label_set_text(labelE0Value, public_buf_l);
       lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
@@ -268,7 +264,6 @@ void lv_draw_max_feedrate_settings(void) {
       lv_label_set_text(labelTurnPage, machine_menu.previous);
       lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.max_feedrate_mm_s[E_AXIS_N(1)]);
       lv_label_set_text(labelE1Value, public_buf_l);
       lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
