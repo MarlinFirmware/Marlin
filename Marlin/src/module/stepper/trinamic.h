@@ -144,7 +144,7 @@ void reset_trinamic_drivers();
 #if HAS_X2_ENABLE && AXIS_IS_TMC(X2)
   extern TMC_CLASS(X2, X) stepperX2;
   #ifndef CHOPPER_TIMING_X2
-    #define CHOPPER_TIMING_X2 CHOPPER_TIMING_E
+    #define CHOPPER_TIMING_X2 CHOPPER_TIMING_X
   #endif
   static constexpr chopper_timing_t chopper_timing_X2 = CHOPPER_TIMING_X2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
@@ -161,7 +161,7 @@ void reset_trinamic_drivers();
 #if HAS_Y2_ENABLE && AXIS_IS_TMC(Y2)
   extern TMC_CLASS(Y2, Y) stepperY2;
   #ifndef CHOPPER_TIMING_Y2
-    #define CHOPPER_TIMING_Y2 CHOPPER_TIMING_E
+    #define CHOPPER_TIMING_Y2 CHOPPER_TIMING_Y
   #endif
   static constexpr chopper_timing_t chopper_timing_Y2 = CHOPPER_TIMING_Y2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
@@ -178,7 +178,7 @@ void reset_trinamic_drivers();
 #if HAS_Z2_ENABLE && AXIS_IS_TMC(Z2)
   extern TMC_CLASS(Z2, Z) stepperZ2;
   #ifndef CHOPPER_TIMING_Z2
-    #define CHOPPER_TIMING_Z2 CHOPPER_TIMING_E
+    #define CHOPPER_TIMING_Z2 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z2 = CHOPPER_TIMING_Z2;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE) && AXIS_IS_TMC(Z2)
@@ -195,7 +195,7 @@ void reset_trinamic_drivers();
 #if HAS_Z3_ENABLE && AXIS_IS_TMC(Z3)
   extern TMC_CLASS(Z3, Z) stepperZ3;
   #ifndef CHOPPER_TIMING_Z3
-    #define CHOPPER_TIMING_Z3 CHOPPER_TIMING_E
+    #define CHOPPER_TIMING_Z3 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z3 = CHOPPER_TIMING_Z3;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
@@ -212,7 +212,7 @@ void reset_trinamic_drivers();
 #if HAS_Z4_ENABLE && AXIS_IS_TMC(Z4)
   extern TMC_CLASS(Z4, Z) stepperZ4;
   #ifndef CHOPPER_TIMING_Z4
-    #define CHOPPER_TIMING_Z4 CHOPPER_TIMING_E
+    #define CHOPPER_TIMING_Z4 CHOPPER_TIMING_Z
   #endif
   static constexpr chopper_timing_t chopper_timing_Z4 = CHOPPER_TIMING_Z4;
   #if ENABLED(SOFTWARE_DRIVER_ENABLE)
