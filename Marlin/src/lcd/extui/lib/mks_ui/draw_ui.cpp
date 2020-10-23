@@ -283,6 +283,9 @@ lv_style_t style_para_back;
 
 lv_style_t lv_bar_style_indic;
 
+lv_style_t style_btn_pre;
+lv_style_t style_btn_rel;
+
 void tft_style_init() {
   lv_style_copy(&tft_style_scr, &lv_style_scr);
   tft_style_scr.body.main_color   = LV_COLOR_BACKGROUND;
@@ -399,6 +402,25 @@ void tft_style_init() {
   style_para_back.body.radius       = 3;
   style_para_back.text.color        = LV_COLOR_WHITE;
   style_para_back.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+
+  lv_style_copy(&style_btn_rel, &lv_style_plain);
+  style_btn_rel.body.border.color = lv_color_hex3(0x269);
+  style_btn_rel.body.border.width = 1;
+  style_btn_rel.body.main_color   = lv_color_hex3(0xADF);
+  style_btn_rel.body.grad_color   = lv_color_hex3(0x46B);
+  style_btn_rel.body.shadow.width = 4;
+  style_btn_rel.body.shadow.type  = LV_SHADOW_BOTTOM;
+  style_btn_rel.body.radius       = LV_RADIUS_CIRCLE;
+  style_btn_rel.text.color        = lv_color_hex3(0xDEF);
+  style_btn_rel.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
+
+  lv_style_copy(&style_btn_pr, &style_btn_rel);
+  style_btn_pr.body.border.color = lv_color_hex3(0x46B);
+  style_btn_pr.body.main_color   = lv_color_hex3(0x8BD);
+  style_btn_pr.body.grad_color   = lv_color_hex3(0x24A);
+  style_btn_pr.body.shadow.width = 2;
+  style_btn_pr.text.color        = lv_color_hex3(0xBCD);
+  style_btn_pr.text.font         = &TERN(HAS_SPI_FLASH_FONT, gb2312_puhui32, lv_font_roboto_22);
 
   lv_style_copy(&lv_bar_style_indic, &lv_style_pretty_color);
   lv_bar_style_indic.text.color        = lv_color_hex3(0xADF);
@@ -1589,10 +1611,16 @@ void lv_imgbtn_use_label_style(lv_obj_t *imgbtn) {
   lv_imgbtn_set_style(imgbtn, LV_BTN_STATE_PR,  &tft_style_label_pre);
 }
 
-// Use label style for the image button
+// Use label style for the button
 void lv_btn_use_label_style(lv_obj_t *btn) {
   lv_btn_set_style(btn, LV_BTN_STYLE_REL, &tft_style_label_rel);
   lv_btn_set_style(btn, LV_BTN_STYLE_PR,  &tft_style_label_pre);
+}
+
+// Use button style for the button
+void lv_btn_use_button_style(lv_obj_t *btn) {
+  lv_btn_set_style(btn, LV_BTN_STYLE_REL, &style_btn_rel);
+  lv_btn_set_style(btn, LV_BTN_STYLE_PR,  &style_btn_pr);
 }
 
 // Use a single style for both Released and Pressed
@@ -1621,7 +1649,7 @@ lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char 
 }
 
 // Create a button with callback, ID, and Style.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style) {
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/, lv_style_t *style/*=&style_para_value*/) {
   lv_obj_t *btn = lv_btn_create(par, NULL);
   if (id)
     lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
@@ -1631,25 +1659,50 @@ lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_
   return btn;
 }
 
-// Create a button with callback and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id) {
-  return lv_btn_create(par, cb, id, &style_para_value);
+// Create a button with callback and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/) {
+  lv_obj_t *btn = lv_btn_create(par, cb, id, NULL);
+  lv_btn_use_label_style(btn);
+  return btn;
+}
+
+// Create a button with callback and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/) {
+  lv_obj_t *btn = lv_btn_create(par, cb, id, NULL);
+  lv_btn_use_button_style(btn);
+  return btn;
 }
 
 // Create a button with position, size, callback, and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id) {
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
   lv_obj_t *btn = lv_btn_create(par, cb, id);
   lv_obj_set_pos(btn, x, y);
   lv_obj_set_size(btn, w, h);
   return btn;
 }
 
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
+  lv_obj_t *btn = lv_label_btn_create(par, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_set_size(btn, w, h);
+  return btn;
+}
+
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
+  lv_obj_t *btn = lv_button_btn_create(par, cb, id);
+  lv_obj_set_pos(btn, x, y);
+  lv_obj_set_size(btn, w, h);
+  return btn;
+}
+
 // Create a button with callback and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id) {
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/) {
   return lv_btn_create(par, cb, id, &style_para_back);
 }
 // Create a button with position, size, callback, and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id) {
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
   lv_obj_t *btn = lv_btn_create_back(par, cb, id);
   lv_obj_set_pos(btn, x, y);
   lv_obj_set_size(btn, w, h);
@@ -1657,7 +1710,7 @@ lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord
 }
 
 // Create an image button with image, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id) {
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id/*=0*/) {
   lv_obj_t *btn = lv_imgbtn_create(par, NULL);
   if (img) lv_imgbtn_set_src_both(btn, img);
   if (id)
@@ -1670,7 +1723,7 @@ lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, con
 }
 
 // Create an image button with image, position, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id) {
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id/*=0*/) {
   lv_obj_t *btn = lv_imgbtn_create(par, img, cb, id);
   lv_obj_set_pos(btn, x, y);
   return btn;

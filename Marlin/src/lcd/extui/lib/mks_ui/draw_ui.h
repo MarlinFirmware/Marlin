@@ -186,25 +186,34 @@ lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
 lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
 
 // Create a button with callback, ID, and Style.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style);
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style=&style_para_value);
 
-// Create a button with callback and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id);
+// Create a button with callback and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
 
 // Create a button with position, size, callback, and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id);
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
 
 // Create a button with callback and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id);
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
 
 // Create a button with position, size, callback, and ID. Style set to style_para_back.
-lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id);
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
 
 // Create an image button with image, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id);
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id=0);
 
 // Create an image button with image, position, callback, and ID. Use label style.
-lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id);
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id=0);
 
 // Create a big image button with a label, follow the LVGL UI standard.
 lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, bool centerLabel = false);
@@ -476,6 +485,8 @@ extern lv_style_t style_sel_text;
 extern lv_style_t style_para_value;
 extern lv_style_t style_para_back;
 extern lv_style_t lv_bar_style_indic;
+extern lv_style_t style_btn_pre;
+extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 

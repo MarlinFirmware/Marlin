@@ -124,12 +124,7 @@ void lv_draw_wifi_list(void) {
   buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
 
   for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
-    buttonWifiN[i] = lv_btn_create(scr, NULL);     /*Add a button the current screen*/
-    lv_obj_set_pos(buttonWifiN[i], 0, NAME_BTN_Y*i+10+titleHeight);                            /*Set its position*/
-    lv_obj_set_size(buttonWifiN[i], NAME_BTN_X, NAME_BTN_Y);                          /*Set its size*/
-    lv_obj_set_event_cb_mks(buttonWifiN[i], event_handler, (i+1), NULL, 0);
-    lv_btn_use_label_style(buttonWifiN[i]);
-    lv_btn_set_layout(buttonWifiN[i], LV_LAYOUT_OFF);
+    buttonWifiN[i] = lv_label_btn_create(scr, 0, NAME_BTN_Y * i + 10 + titleHeight, NAME_BTN_X, NAME_BTN_Y, event_handler, i + 1);
     labelWifiText[i] = lv_label_create_empty(buttonWifiN[i]);
     #if HAS_ROTARY_ENCODER
       uint8_t j = 0;

@@ -137,14 +137,8 @@ void lv_draw_level_settings(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-
-  buttonPosition = lv_btn_create(scr, NULL);                                   /*Add a button the current screen*/
-  lv_obj_set_pos(buttonPosition, PARA_UI_POS_X, PARA_UI_POS_Y);                /*Set its position*/
-  lv_obj_set_size(buttonPosition, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);             /*Set its size*/
-  lv_obj_set_event_cb_mks(buttonPosition, event_handler, ID_LEVEL_POSITION, NULL, 0);
-  lv_btn_use_label_style(buttonPosition);
-  lv_btn_set_layout(buttonPosition, LV_LAYOUT_OFF);
-  labelPosition = lv_label_create_empty(buttonPosition);                       /*Add a label to the button*/
+  buttonPosition = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_POSITION);
+  labelPosition = lv_label_create_empty(buttonPosition);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonPosition);
@@ -156,12 +150,7 @@ void lv_draw_level_settings(void) {
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
-  buttonCommand = lv_btn_create(scr, NULL);
-  lv_obj_set_pos(buttonCommand, PARA_UI_POS_X, PARA_UI_POS_Y * 2);
-  lv_obj_set_size(buttonCommand, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);
-  lv_obj_set_event_cb_mks(buttonCommand, event_handler, ID_LEVEL_COMMAND, NULL, 0);
-  lv_btn_use_label_style(buttonCommand);
-  lv_btn_set_layout(buttonCommand, LV_LAYOUT_OFF);
+  buttonCommand = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_COMMAND);
   labelCommand = lv_label_create_empty(buttonCommand);
 
   #if HAS_ROTARY_ENCODER
@@ -176,10 +165,8 @@ void lv_draw_level_settings(void) {
 
   #if HAS_BED_PROBE
 
-    buttonZoffset = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_ZOFFSET);
-    lv_btn_use_label_style(buttonZoffset);
-    lv_btn_set_layout(buttonZoffset, LV_LAYOUT_OFF);
-    labelZoffset = lv_label_create_empty(buttonZoffset);                      /*Add a label to the button*/
+    buttonZoffset = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_SIZE_X, PARA_UI_SIZE_Y, event_handler, ID_LEVEL_ZOFFSET);
+    labelZoffset = lv_label_create_empty(buttonZoffset);
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonZoffset);

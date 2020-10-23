@@ -203,9 +203,7 @@ void lv_draw_tmc_step_mode_settings(void) {
   #endif
 
   if (uiCfg.para_ui_page != 1) {
-    buttonXText = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
-    lv_btn_use_label_style(buttonXText);
-    lv_btn_set_layout(buttonXText, LV_LAYOUT_OFF);
+    buttonXText = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler);
     labelXText = lv_label_create_empty(buttonXText);                        /*Add a label to the button*/
 
     buttonXState = lv_imgbtn_create(scr, stealth_X ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_X);
@@ -217,9 +215,7 @@ void lv_draw_tmc_step_mode_settings(void) {
     line1 = lv_line_create(scr, NULL);
     lv_ex_line(line1, line_points[0]);
 
-    buttonYText = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
-    lv_btn_use_label_style(buttonYText);
-    lv_btn_set_layout(buttonYText, LV_LAYOUT_OFF);
+    buttonYText = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler);
     labelYText = lv_label_create_empty(buttonYText);                        /*Add a label to the button*/
 
     buttonYState = lv_imgbtn_create(scr, stealth_Y ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_Y);
@@ -231,9 +227,7 @@ void lv_draw_tmc_step_mode_settings(void) {
     line2 = lv_line_create(scr, NULL);
     lv_ex_line(line2, line_points[1]);
 
-    buttonZText = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
-    lv_btn_use_label_style(buttonZText);
-    lv_btn_set_layout(buttonZText, LV_LAYOUT_OFF);
+    buttonZText = lv_label_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler);
     labelZText = lv_label_create_empty(buttonZText);                        /*Add a label to the button*/
 
     buttonZState = lv_imgbtn_create(scr, stealth_Z ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_STATE_V, event_handler, ID_TMC_MODE_Z);
@@ -245,7 +239,7 @@ void lv_draw_tmc_step_mode_settings(void) {
     line3 = lv_line_create(scr, NULL);
     lv_ex_line(line3, line_points[2]);
 
-    buttonE0Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+    buttonE0Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler);
     lv_btn_use_label_style(buttonE0Text);
     lv_btn_set_layout(buttonE0Text, LV_LAYOUT_OFF);
     labelE0Text = lv_label_create_empty(buttonE0Text);                      /*Add a label to the button*/
@@ -268,7 +262,7 @@ void lv_draw_tmc_step_mode_settings(void) {
   }
   else {
     //#if AXIS_HAS_STEALTHCHOP(E1)
-      buttonE1Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler, 0);
+      buttonE1Text = lv_btn_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y, event_handler);
       lv_btn_use_label_style(buttonE1Text);
       lv_btn_set_layout(buttonE1Text, LV_LAYOUT_OFF);
       labelE1Text = lv_label_create_empty(buttonE1Text);                      /*Add a label to the button*/
