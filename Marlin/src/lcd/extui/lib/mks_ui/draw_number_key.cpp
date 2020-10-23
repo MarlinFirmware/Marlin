@@ -765,10 +765,7 @@ void lv_draw_number_key(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  //lv_obj_t * title = lv_label_create(scr, NULL);
-  //lv_obj_set_style(title, &tft_style_label_rel);
-  //lv_obj_set_pos(title,TITLE_XPOS,TITLE_YPOS);
-  //lv_label_set_text(title, creat_title_text());
+  //(void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -779,7 +776,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(buttonValue, LV_BTN_STYLE_REL, &style_num_text);     /*Set the button's released style*/
   lv_btn_set_style(buttonValue, LV_BTN_STYLE_PR, &style_num_text);      /*Set the button's pressed style*/
   //lv_btn_set_layout(buttonValue, LV_LAYOUT_OFF);
-  labelValue = lv_label_create(buttonValue, NULL);                      /*Add a label to the button*/
+  labelValue = lv_label_create_empty(buttonValue);                      /*Add a label to the button*/
 
   NumberKey_1 = lv_btn_create(scr, NULL);                               /*Add a button the current screen*/
   lv_obj_set_pos(NumberKey_1, 92, 90);                                  /*Set its position*/
@@ -788,7 +785,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_1, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_1, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_1, LV_LAYOUT_OFF);
-  labelKey_1 = lv_label_create(NumberKey_1, NULL);                      /*Add a label to the button*/
+  labelKey_1 = lv_label_create_empty(NumberKey_1);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_1, machine_menu.key_1);
   lv_obj_align(labelKey_1, NumberKey_1, LV_ALIGN_CENTER, 0, 0);
 
@@ -799,7 +796,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_2, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_2, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_2, LV_LAYOUT_OFF);
-  labelKey_2 = lv_label_create(NumberKey_2, NULL);                      /*Add a label to the button*/
+  labelKey_2 = lv_label_create_empty(NumberKey_2);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_2, machine_menu.key_2);
   lv_obj_align(labelKey_2, NumberKey_2, LV_ALIGN_CENTER, 0, 0);
 
@@ -810,7 +807,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_3, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_3, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_3, LV_LAYOUT_OFF);
-  labelKey_3 = lv_label_create(NumberKey_3, NULL);                      /*Add a label to the button*/
+  labelKey_3 = lv_label_create_empty(NumberKey_3);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_3, machine_menu.key_3);
   lv_obj_align(labelKey_3, NumberKey_3, LV_ALIGN_CENTER, 0, 0);
 
@@ -821,7 +818,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_4, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_4, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_4, LV_LAYOUT_OFF);
-  labelKey_4 = lv_label_create(NumberKey_4, NULL);                      /*Add a label to the button*/
+  labelKey_4 = lv_label_create_empty(NumberKey_4);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_4, machine_menu.key_4);
   lv_obj_align(labelKey_4, NumberKey_4, LV_ALIGN_CENTER, 0, 0);
 
@@ -832,7 +829,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_5, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_5, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_5, LV_LAYOUT_OFF);
-  labelKey_5 = lv_label_create(NumberKey_5, NULL);                      /*Add a label to the button*/
+  labelKey_5 = lv_label_create_empty(NumberKey_5);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_5, machine_menu.key_5);
   lv_obj_align(labelKey_5, NumberKey_5, LV_ALIGN_CENTER, 0, 0);
 
@@ -843,7 +840,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_6, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_6, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_6, LV_LAYOUT_OFF);
-  labelKey_6 = lv_label_create(NumberKey_6, NULL);                      /*Add a label to the button*/
+  labelKey_6 = lv_label_create_empty(NumberKey_6);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_6, machine_menu.key_6);
   lv_obj_align(labelKey_6, NumberKey_6, LV_ALIGN_CENTER, 0, 0);
 
@@ -854,7 +851,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_7, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_7, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_7, LV_LAYOUT_OFF);
-  labelKey_7 = lv_label_create(NumberKey_7, NULL);                      /*Add a label to the button*/
+  labelKey_7 = lv_label_create_empty(NumberKey_7);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_7, machine_menu.key_7);
   lv_obj_align(labelKey_7, NumberKey_7, LV_ALIGN_CENTER, 0, 0);
 
@@ -865,7 +862,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_8, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_8, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_8, LV_LAYOUT_OFF);
-  labelKey_8 = lv_label_create(NumberKey_8, NULL);                      /*Add a label to the button*/
+  labelKey_8 = lv_label_create_empty(NumberKey_8);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_8, machine_menu.key_8);
   lv_obj_align(labelKey_8, NumberKey_8, LV_ALIGN_CENTER, 0, 0);
 
@@ -876,7 +873,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_9, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_9, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_9, LV_LAYOUT_OFF);
-  labelKey_9 = lv_label_create(NumberKey_9, NULL);                      /*Add a label to the button*/
+  labelKey_9 = lv_label_create_empty(NumberKey_9);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_9, machine_menu.key_9);
   lv_obj_align(labelKey_9, NumberKey_9, LV_ALIGN_CENTER, 0, 0);
 
@@ -887,7 +884,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(NumberKey_0, LV_BTN_STYLE_REL, &style_num_key_pre);  /*Set the button's released style*/
   lv_btn_set_style(NumberKey_0, LV_BTN_STYLE_PR, &style_num_key_rel);   /*Set the button's pressed style*/
   //lv_btn_set_layout(NumberKey_0, LV_LAYOUT_OFF);
-  labelKey_0 = lv_label_create(NumberKey_0, NULL);                      /*Add a label to the button*/
+  labelKey_0 = lv_label_create_empty(NumberKey_0);                      /*Add a label to the button*/
   lv_label_set_text(labelKey_0, machine_menu.key_0);
   lv_obj_align(labelKey_0, NumberKey_0, LV_ALIGN_CENTER, 0, 0);
 
@@ -898,7 +895,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(KeyBack, LV_BTN_STYLE_REL, &style_num_key_pre);      /*Set the button's released style*/
   lv_btn_set_style(KeyBack, LV_BTN_STYLE_PR, &style_num_key_rel);       /*Set the button's pressed style*/
   //lv_btn_set_layout(KeyBack, LV_LAYOUT_OFF);
-  labelKeyBack = lv_label_create(KeyBack, NULL);                        /*Add a label to the button*/
+  labelKeyBack = lv_label_create_empty(KeyBack);                        /*Add a label to the button*/
   lv_label_set_text(labelKeyBack, machine_menu.key_back);
   lv_obj_align(labelKeyBack, KeyBack, LV_ALIGN_CENTER, 0, 0);
 
@@ -909,7 +906,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(KeyReset, LV_BTN_STYLE_REL, &style_num_key_pre);     /*Set the button's released style*/
   lv_btn_set_style(KeyReset, LV_BTN_STYLE_PR, &style_num_key_rel);      /*Set the button's pressed style*/
   //lv_btn_set_layout(KeyReset, LV_LAYOUT_OFF);
-  labelKeyReset = lv_label_create(KeyReset, NULL);                      /*Add a label to the button*/
+  labelKeyReset = lv_label_create_empty(KeyReset);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyReset, machine_menu.key_reset);
   lv_obj_align(labelKeyReset, KeyReset, LV_ALIGN_CENTER, 0, 0);
 
@@ -920,7 +917,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(KeyConfirm, LV_BTN_STYLE_REL, &style_num_key_pre);   /*Set the button's released style*/
   lv_btn_set_style(KeyConfirm, LV_BTN_STYLE_PR, &style_num_key_rel);    /*Set the button's pressed style*/
   //lv_btn_set_layout(KeyConfirm, LV_LAYOUT_OFF);
-  labelKeyConfirm = lv_label_create(KeyConfirm, NULL);                  /*Add a label to the button*/
+  labelKeyConfirm = lv_label_create_empty(KeyConfirm);                  /*Add a label to the button*/
   lv_label_set_text(labelKeyConfirm, machine_menu.key_confirm);
   lv_obj_align(labelKeyConfirm, KeyConfirm, LV_ALIGN_CENTER, 0, 0);
 
@@ -931,7 +928,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(KeyPoint, LV_BTN_STYLE_REL, &style_num_key_pre);     /*Set the button's released style*/
   lv_btn_set_style(KeyPoint, LV_BTN_STYLE_PR, &style_num_key_rel);      /*Set the button's pressed style*/
   //lv_btn_set_layout(KeyPoint, LV_LAYOUT_OFF);
-  labelKeyPoint = lv_label_create(KeyPoint, NULL);                      /*Add a label to the button*/
+  labelKeyPoint = lv_label_create_empty(KeyPoint);                      /*Add a label to the button*/
   lv_label_set_text(labelKeyPoint, machine_menu.key_point);
   lv_obj_align(labelKeyPoint, KeyPoint, LV_ALIGN_CENTER, 0, 0);
 
@@ -942,7 +939,7 @@ void lv_draw_number_key(void) {
   lv_btn_set_style(Minus, LV_BTN_STYLE_REL, &style_num_key_pre);        /*Set the button's released style*/
   lv_btn_set_style(Minus, LV_BTN_STYLE_PR, &style_num_key_rel);         /*Set the button's pressed style*/
   //lv_btn_set_layout(Minus, LV_LAYOUT_OFF);
-  labelMinus = lv_label_create(Minus, NULL);                            /*Add a label to the button*/
+  labelMinus = lv_label_create_empty(Minus);                            /*Add a label to the button*/
   lv_label_set_text(labelMinus, machine_menu.negative);
   lv_obj_align(labelMinus, Minus, LV_ALIGN_CENTER, 0, 0);
 

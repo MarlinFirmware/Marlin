@@ -55,8 +55,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         gCfgItems.encoder_enable ^= true;
-        lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-        lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
+        lv_imgbtn_set_src_both(buttonEncoderState, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
         lv_label_set_text(labelEncoderState, machine_menu.enable);
         update_spi_flash();
       }
@@ -82,43 +81,20 @@ void lv_draw_encoder_settings(void) {
   lv_scr_load(scr);
   lv_obj_clean(scr);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.EncoderConfTitle);
+  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.EncoderConfTitle);
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  labelEncoderTips = lv_label_create(scr, NULL);
-  lv_obj_set_style(labelEncoderTips, &tft_style_label_rel);
-  lv_obj_set_pos(labelEncoderTips, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-  lv_label_set_text(labelEncoderTips, machine_menu.EncoderConfText);
+  labelEncoderTips = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.EncoderConfText);
 
-  buttonEncoderState = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonEncoderState, PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V);
-  lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_REL, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-  lv_imgbtn_set_src(buttonEncoderState, LV_BTN_STATE_PR, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
-
-  lv_obj_set_event_cb_mks(buttonEncoderState, event_handler, ID_ENCODER_STATE, NULL, 0);
-
-  lv_imgbtn_set_style(buttonEncoderState, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonEncoderState, LV_BTN_STATE_REL, &tft_style_label_rel);
-  lv_btn_set_layout(buttonEncoderState, LV_LAYOUT_OFF);
-  labelEncoderState = lv_label_create(buttonEncoderState, NULL);
+  buttonEncoderState = lv_imgbtn_create(scr, gCfgItems.encoder_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y + PARA_UI_STATE_V, event_handler, ID_ENCODER_STATE);
+  labelEncoderState = lv_label_create_empty(buttonEncoderState);
 
   line1 = lv_line_create(scr, NULL);
   lv_ex_line(line1, line_points[0]);
 
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_ENCODER_RETURN, NULL, 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
+  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_ENCODER_RETURN);
+  label_Back = lv_label_create_empty(buttonBack);
 
   lv_label_set_text(labelEncoderState, gCfgItems.encoder_enable ? machine_menu.enable : machine_menu.disable);
   lv_obj_align(labelEncoderState, buttonEncoderState, LV_ALIGN_CENTER, 0, 0);
