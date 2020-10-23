@@ -212,7 +212,7 @@
     #define TFT_BACKLIGHT_PIN               PG11
 
     // MKS Robin TFT with ILI9328
-    #define TFT_ILI9328
+    //#define TFT_ILI9328
     #if ENABLED(TFT_ILI9328)
       #define TFT_DRIVER                 ILI9328
       #define TFT_BUFFER_SIZE              14400
