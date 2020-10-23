@@ -266,7 +266,7 @@ void disp_print_speed() {
 
 void disp_speed_type() {
   lv_imgbtn_set_src_both(buttonMov, editingFlowrate ? "F:/bmp_mov_changeSpeed.bin" : "F:/bmp_mov_sel.bin");
-  lv_imgbtn_set_src_both(buttonExt, editingFlowrate ? "F:/bmp_extruct_sel.bin", "F:/bmp_speed_extruct.bin");
+  lv_imgbtn_set_src_both(buttonExt, editingFlowrate ? "F:/bmp_extruct_sel.bin" : "F:/bmp_speed_extruct.bin");
   lv_obj_refresh_ext_draw_pad(buttonExt);
   lv_obj_refresh_ext_draw_pad(buttonMov);
 
