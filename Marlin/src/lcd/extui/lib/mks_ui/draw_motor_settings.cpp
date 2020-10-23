@@ -112,7 +112,8 @@ void lv_draw_motor_settings(void) {
   int index = 0;
   lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index++);
   #if USE_SENSORLESS
-    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index++);
+    lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index);
+    index++;
   #endif
   #if HAS_TRINAMIC_CONFIG
     lv_screen_menu_item(scr, machine_menu.TMCcurrentConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_MOTOR_TMC_CURRENT, index);
