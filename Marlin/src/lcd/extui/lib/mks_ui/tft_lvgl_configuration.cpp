@@ -199,7 +199,6 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      ZERO(public_buf_m);
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
 
@@ -310,10 +309,9 @@ extern uint8_t currentFlashPage;
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
-  if (strcasecmp(last_path_name,path) != 0) {
+  if (strcasecmp(last_path_name, path) != 0) {
     pic_read_base_addr = lv_get_pic_addr((uint8_t *)path);
-    ZERO(last_path_name);
-    strcpy(last_path_name,path);
+    strcpy(last_path_name, path);
   }
   else {
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -362,11 +360,10 @@ uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   //cur_namefff = strrchr(path, '/');
   char name_buf[100];
-  ZERO(name_buf);
-  strcat(name_buf,"/");
-  strcat(name_buf,path);
-  char *temp = strstr(name_buf,".bin");
-  if (temp) { strcpy(temp,".GCO"); }
+  strcpy(name_buf, "/");
+  strcat(name_buf, path);
+  char *temp = strstr(name_buf, ".bin");
+  if (temp) { strcpy(temp, ".GCO"); }
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
   if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;

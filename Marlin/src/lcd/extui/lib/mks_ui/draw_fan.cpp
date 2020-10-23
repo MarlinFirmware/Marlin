@@ -57,7 +57,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed + 1 <= 255) {
           fanSpeed++;
-          ZERO(public_buf_l);
           sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
           gcode.process_subcommands_now(public_buf_l);
         }
@@ -70,7 +69,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       else if (event == LV_EVENT_RELEASED) {
         if (fanSpeed > 0) {
           fanSpeed--;
-          ZERO(public_buf_l);
           sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
           gcode.process_subcommands_now(public_buf_l);
         }

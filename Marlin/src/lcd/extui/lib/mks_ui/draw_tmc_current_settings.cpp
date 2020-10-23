@@ -274,7 +274,6 @@ void lv_draw_tmc_current_settings(void) {
       #else
         milliamps = -1;
       #endif
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
       lv_label_set_text(labelXValue, public_buf_l);
       lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
@@ -284,7 +283,6 @@ void lv_draw_tmc_current_settings(void) {
       #else
         milliamps = -1;
       #endif
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
       lv_label_set_text(labelYValue, public_buf_l);
       lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
@@ -294,7 +292,6 @@ void lv_draw_tmc_current_settings(void) {
       #else
         milliamps = -1;
       #endif
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
       lv_label_set_text(labelZValue, public_buf_l);
       lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
@@ -304,7 +301,6 @@ void lv_draw_tmc_current_settings(void) {
       #else
         milliamps = -1;
       #endif
-      ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
       lv_label_set_text(labelE0Value, public_buf_l);
       lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
@@ -318,7 +314,6 @@ void lv_draw_tmc_current_settings(void) {
         #else
           milliamps = -1;
         #endif
-        ZERO(public_buf_l);
         sprintf_P(public_buf_l, PSTR("%.1f"), milliamps);
         lv_label_set_text(labelE1Value, public_buf_l);
         lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);

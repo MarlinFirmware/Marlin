@@ -161,22 +161,18 @@ void lv_draw_jerk_settings(void) {
   #endif
 
   if (gCfgItems.multiple_language) {
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[X_AXIS]);
     lv_label_set_text(labelXValue, public_buf_l);
     lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[Y_AXIS]);
     lv_label_set_text(labelYValue, public_buf_l);
     lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[Z_AXIS]);
     lv_label_set_text(labelZValue, public_buf_l);
     lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
 
-    ZERO(public_buf_l);
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[E_AXIS]);
     lv_label_set_text(labelEValue, public_buf_l);
     lv_obj_align(labelEValue, buttonEValue, LV_ALIGN_CENTER, 0, 0);

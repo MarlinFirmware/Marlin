@@ -422,7 +422,6 @@ void titleText_cat(char *str, int strSize, char *addPart) {
 
 char *getDispText(int index) {
 
-  ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
     case PRINT_READY_UI:

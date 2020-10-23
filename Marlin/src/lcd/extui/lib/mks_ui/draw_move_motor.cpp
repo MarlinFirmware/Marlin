@@ -55,7 +55,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_one_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 X%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
@@ -69,7 +68,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 X-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
@@ -83,7 +81,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 Y%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
@@ -97,7 +94,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 Y-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
@@ -111,7 +107,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 Z%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
@@ -125,7 +120,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
       }
       else if (event == LV_EVENT_RELEASED) {
         if (queue.length <= (BUFSIZE - 3)) {
-          ZERO(public_buf_l);
           queue.enqueue_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 Z-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
           queue.enqueue_one_now(public_buf_l);
