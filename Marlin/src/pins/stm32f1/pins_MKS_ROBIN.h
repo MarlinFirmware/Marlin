@@ -238,9 +238,9 @@
     #endif
 
     // MKS Robin TFT with ST7789V
-    //#define ST7789V
-    #if ENABLED(ST7789V)
-      #define TFT_DRIVER                 ST7789V
+    //#define TFT_ST7789V
+    #if ENABLED(TFT_ST7789V)
+      #define TFT_DRIVER             TFT_ST7789V
       #define TFT_BUFFER_SIZE              14400
       #define ST7789V_COLOR_RGB
 
