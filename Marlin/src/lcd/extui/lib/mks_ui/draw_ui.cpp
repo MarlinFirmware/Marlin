@@ -283,7 +283,7 @@ lv_style_t style_para_back;
 
 lv_style_t lv_bar_style_indic;
 
-lv_style_t style_btn_pre;
+lv_style_t style_btn_pr;
 lv_style_t style_btn_rel;
 
 void tft_style_init() {

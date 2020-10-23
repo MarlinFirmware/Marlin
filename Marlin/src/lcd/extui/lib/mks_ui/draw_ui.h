@@ -425,7 +425,7 @@ extern lv_style_t style_sel_text;
 extern lv_style_t style_para_value;
 extern lv_style_t style_para_back;
 extern lv_style_t lv_bar_style_indic;
-extern lv_style_t style_btn_pre;
+extern lv_style_t style_btn_pr;
 extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
