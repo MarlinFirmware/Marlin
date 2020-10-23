@@ -316,7 +316,7 @@ void CardReader::ls() {
     root.rewind();
     printListing(root);
     #if ENABLED(LONG_FILENAME_MEDIA_LIST)
-      if (card.flag.longlist_mode) card.flag.longlist_mode = false;
+      if (flag.longlist_mode) flag.longlist_mode = false;
     #endif
   }
 }
