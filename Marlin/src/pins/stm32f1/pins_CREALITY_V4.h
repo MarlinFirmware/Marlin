@@ -46,8 +46,8 @@
   // FLASH
   //#define FLASH_EEPROM_EMULATION
 
-  // I2C
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
+  // BL24C16
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   #if ENABLED(IIC_BL24CXX_EEPROM)
     #define IIC_EEPROM_SDA                  PA11
     #define IIC_EEPROM_SCL                  PA12

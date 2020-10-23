@@ -575,6 +575,8 @@
   #include "stm32f1/pins_CHITU3D_V6.h"          // STM32F1                                env:chitu_f103
 #elif MB(CREALITY_V4)
   #include "stm32f1/pins_CREALITY_V4.h"         // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_debug
+#elif MB(CREALITY_CR_6_SE)
+  #include "stm32f1/pins_CREALITY_CR_6_SE.h"    // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_debug
 #elif MB(CREALITY_V427)
   #include "stm32f1/pins_CREALITY_V427.h"       // STM32F1                                env:STM32F103RET6_creality env:STM32F103RET6_creality_debug
 #elif MB(TRIGORILLA_PRO)
