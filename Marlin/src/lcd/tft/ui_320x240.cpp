@@ -452,7 +452,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
-  if (string == NULL) line++;
+  if (!string) line++;
 
   menu_line(line++);
   tft_string.set(pref);

@@ -99,7 +99,7 @@ void XPT2046::Init() {
     #endif
   }
   else {
-    SPIx.Instance = NULL;
+    SPIx.Instance = nullptr;
     SET_INPUT(TOUCH_MISO_PIN);
     SET_OUTPUT(TOUCH_MOSI_PIN);
     SET_OUTPUT(TOUCH_SCK_PIN);

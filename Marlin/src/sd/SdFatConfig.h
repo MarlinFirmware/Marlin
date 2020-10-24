@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * SdFatConfig.h
+ * sd/SdFatConfig.h
+ *
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
  *

@@ -42,7 +42,7 @@ void TFT_String::set_font(const uint8_t *font) {
   font_header = (font_t *)font;
   uint32_t glyph;
 
-  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = NULL;
+  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
 
   DEBUG_ECHOLNPAIR("Format: ", font_header->Format);
   DEBUG_ECHOLNPAIR("BBXWidth: ", font_header->BBXWidth);

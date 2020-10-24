@@ -79,7 +79,7 @@ void CANVAS::AddText(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, ui
 
 void CANVAS::AddImage(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) {
   uint16_t *data = (uint16_t *)Images[image].data;
-  if (data == NULL) return;
+  if (!data) return;
 
   uint16_t image_width = Images[image].width,
            image_height = Images[image].height;

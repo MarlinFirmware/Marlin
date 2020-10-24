@@ -141,7 +141,7 @@
 // Pins for DOGM SPI LCD Support
 #define DOGLCD_A0                             26
 #define DOGLCD_CS                             24
-#define DOGLCD_MOSI                           -1
+#define DOGLCD_MOSI                           -1  // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                            -1
 
 #define BTN_EN1                               23

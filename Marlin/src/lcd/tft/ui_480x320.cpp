@@ -457,7 +457,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
-  if (string == NULL) line++;
+  if (!string) line++;
 
   menu_line(line++);
   tft_string.set(pref);
@@ -945,7 +945,7 @@ static void drawBtn(int x, int y, const char* label, int32_t data, MarlinImage i
   tft.add_image(0, 0, imgBtn52Rounded, bgColor, COLOR_BACKGROUND, COLOR_DARKGREY);
 
   // TODO: Make an add_text() taking a font arg
-  if (label != NULL) {
+  if (label) {
     tft_string.set(label);
     tft_string.trim();
     tft.add_text(tft_string.center(width), height / 2 - tft_string.font_height() / 2, bgColor, tft_string);

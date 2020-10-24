@@ -245,7 +245,7 @@ public:
   #endif
 
   // The code value pointer was set
-  FORCE_INLINE static bool has_value() { return value_ptr != nullptr; }
+  FORCE_INLINE static bool has_value() { return !!value_ptr; }
 
   // Seen a parameter with a value
   static inline bool seenval(const char c) { return seen(c) && has_value(); }

@@ -300,7 +300,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc0DMAProgram.startJob();
       }
@@ -337,7 +337,7 @@ uint16_t HAL_adc_result;
           DMA_ADDRESS_INCREMENT_STEP_SIZE_1,  // STEPSIZE
           DMA_STEPSEL_SRC                     // STEPSEL
         );
-        if (descriptor != nullptr)
+        if (descriptor)
           descriptor->BTCTRL.bit.EVOSEL = DMA_EVENT_OUTPUT_BEAT;
         adc1DMAProgram.startJob();
       }

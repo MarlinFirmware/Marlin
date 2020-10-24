@@ -30,19 +30,19 @@
 
 uint8_t TFT_Queue::queue[];
 uint8_t *TFT_Queue::end_of_queue = queue;
-uint8_t *TFT_Queue::current_task = NULL;
-uint8_t *TFT_Queue::last_task = NULL;
+uint8_t *TFT_Queue::current_task = nullptr;
+uint8_t *TFT_Queue::last_task = nullptr;
 
 void TFT_Queue::reset() {
   tft.abort();
 
   end_of_queue = queue;
-  current_task = NULL;
-  last_task = NULL;
+  current_task = nullptr;
+  last_task = nullptr;
 }
 
 void TFT_Queue::async() {
-  if (current_task == NULL) return;
+  if (!current_task) return;
   queueTask_t *task = (queueTask_t *)current_task;
 
   // Check IO busy status
@@ -63,7 +63,7 @@ void TFT_Queue::async() {
 }
 
 void TFT_Queue::finish_sketch() {
-  if (last_task == NULL) return;
+  if (!last_task) return;
   queueTask_t *task = (queueTask_t *)last_task;
 
   if (task->state == TASK_STATE_SKETCH) {
@@ -71,7 +71,7 @@ void TFT_Queue::finish_sketch() {
     task->nextTask = end_of_queue;
     task->state = TASK_STATE_READY;
 
-    if (current_task == NULL) current_task = (uint8_t *)task;
+    if (!current_task) current_task = (uint8_t *)task;
   }
 }
 
@@ -184,7 +184,7 @@ void TFT_Queue::fill(uint16_t x, uint16_t y, uint16_t width, uint16_t height, ui
   task->state = TASK_STATE_READY;
   task->type = TASK_FILL;
 
-  if (current_task == NULL) current_task = (uint8_t *)task;
+  if (!current_task) current_task = (uint8_t *)task;
 }
 
 void TFT_Queue::canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
@@ -195,7 +195,7 @@ void TFT_Queue::canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) 
 
   task->state = TASK_STATE_SKETCH;
   task->type = TASK_CANVAS;
-  task->nextTask = NULL;
+  task->nextTask = nullptr;
 
   end_of_queue += sizeof(queueTask_t);
   parametersCanvas_t *task_parameters = (parametersCanvas_t *)end_of_queue;
@@ -207,7 +207,7 @@ void TFT_Queue::canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) 
   task_parameters->height = height;
   task_parameters->count = 0;
 
-  if (current_task == NULL) current_task = (uint8_t *)task;
+  if (!current_task) current_task = (uint8_t *)task;
 }
 
 void TFT_Queue::set_background(uint16_t color) {

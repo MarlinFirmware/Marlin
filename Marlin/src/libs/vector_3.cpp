@@ -141,7 +141,7 @@ matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
 }
 
 void matrix_3x3::debug(PGM_P const title) {
-  if (title != nullptr) {
+  if (title) {
     serialprintPGM(title);
     SERIAL_EOL();
   }
