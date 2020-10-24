@@ -53,5 +53,17 @@ opt_disable TFT_INTERFACE_FSMC TFT_RES_320x240
 opt_enable TFT_INTERFACE_SPI TFT_RES_480x320
 exec_test $1 $2 "MKS Robin v2 nano New Color UI 480x320 SPI"
 
+#
+# MKS Robin v2 nano LVGL SPI + TMC
+# (Robin v2 nano has no FSMC interface)
+#
+use_example_configs Mks/Robin
+opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
+opt_disable TFT_INTERFACE_FSMC TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
+opt_enable TFT_INTERFACE_SPI TFT_LVGL_UI TFT_RES_480x320
+opt_set X_DRIVER_TYPE TMC2209
+opt_set Y_DRIVER_TYPE TMC2209
+exec_test $1 $2 "MKS Robin v2 nano LVGL SPI + TMC"
+
 # cleanup
 restore_configs

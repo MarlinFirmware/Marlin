@@ -43,44 +43,31 @@
 
 //static lv_obj_t *buttonPrint, *buttonTool, *buttonSet;
 extern lv_group_t*  g;
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 #if ENABLED(MKS_TEST)
   uint8_t curent_disp_ui = 0;
 #endif
 
-#define ID_TOOL   1
-#define ID_SET    2
-#define ID_PRINT  3
+enum {
+  ID_TOOL = 1,
+  ID_SET,
+  ID_PRINT
+};
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_TOOL:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-
-        lv_clear_ready_print();
-        lv_draw_tool();
-      }
+      lv_clear_ready_print();
+      lv_draw_tool();
       break;
     case ID_SET:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_ready_print();
-        lv_draw_set();
-      }
+      lv_clear_ready_print();
+      lv_draw_set();
       break;
     case ID_PRINT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_ready_print();
-        lv_draw_print_file();
-      }
+      lv_clear_ready_print();
+      lv_draw_print_file();
       break;
   }
 }
@@ -114,20 +101,16 @@ void mks_disp_test() {
   char buf[30] = {0};
   //lv_obj_t *label_tool2 = lv_label_create_empty(scr);
   //lv_obj_set_pos(label_tool, 20, 50);
-  ZERO(buf);
   sprintf_P(buf, PSTR("e1:%d"), (int)thermalManager.temp_hotend[0].celsius);
   lv_label_set_text(e1, buf);
   #if HAS_MULTI_HOTEND
-    ZERO(buf);
     sprintf_P(buf, PSTR("e2:%d"), (int)thermalManager.temp_hotend[1].celsius);
     lv_label_set_text(e2, buf);
   #endif
 
-  //ZERO(buf);
   //sprintf_P(buf, PSTR("e3:%d"), (int)thermalManager.temp_hotend[2].celsius);
   //lv_label_set_text(e3, buf);
   #if HAS_HEATED_BED
-    ZERO(buf);
     sprintf_P(buf, PSTR("bed:%d"), (int)thermalManager.temp_bed.celsius);
     lv_label_set_text(bed, buf);
   #endif
@@ -135,7 +118,7 @@ void mks_disp_test() {
 
 void lv_draw_ready_print(void) {
   char buf[30] = {0};
-  lv_obj_t *buttonPrint, *buttonTool, *buttonSet;
+  lv_obj_t *buttonTool;
 
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
@@ -143,11 +126,7 @@ void lv_draw_ready_print(void) {
 
   disp_state = PRINT_READY_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
   //lv_obj_set_hidden(scr, true);
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -155,12 +134,12 @@ void lv_draw_ready_print(void) {
     //(void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
     // Create image buttons
-    //buttonPrint = lv_imgbtn_create(scr, NULL);
+    //buttonPrint = lv_imgbtn_create(scr, nullptr);
     buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
 
     lv_obj_set_pos(buttonTool, 360, 180);
 
-    //buttonSet = lv_imgbtn_create(scr, NULL);
+    //buttonSet = lv_imgbtn_create(scr, nullptr);
     //lv_obj_set_pos(buttonSet, 180, 90);
     //lv_obj_set_pos(buttonPrint, 340, 90);
 
@@ -237,34 +216,9 @@ void lv_draw_ready_print(void) {
 
   }
   else {
-    // Create an Image button
-    buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", 20, 90, event_handler, ID_TOOL);
-    lv_obj_t *label_tool = lv_label_create_empty(buttonTool);
-
-    buttonSet = lv_imgbtn_create(scr, "F:/bmp_set.bin", 180, 90, event_handler, ID_SET);
-    lv_obj_t *label_set = lv_label_create_empty(buttonSet);
-
-    buttonPrint = lv_imgbtn_create(scr, "F:/bmp_printing.bin", 340, 90, event_handler, ID_PRINT);
-    lv_obj_t *label_print = lv_label_create_empty(buttonPrint);
-
-    if (gCfgItems.multiple_language) {
-      lv_label_set_text(label_print, main_menu.print);
-      lv_obj_align(label_print, buttonPrint, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-      lv_label_set_text(label_set, main_menu.set);
-      lv_obj_align(label_set, buttonSet, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-      lv_label_set_text(label_tool, main_menu.tool);
-      lv_obj_align(label_tool, buttonTool, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-    }
-
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable == true) {
-        lv_group_add_obj(g, buttonTool);
-        lv_group_add_obj(g, buttonSet);
-        lv_group_add_obj(g, buttonPrint);
-      }
-    #endif
+    lv_big_button_create(scr, "F:/bmp_tool.bin", main_menu.tool, 20, 90, event_handler, ID_TOOL);
+    lv_big_button_create(scr, "F:/bmp_set.bin", main_menu.set, 180, 90, event_handler, ID_SET);
+    lv_big_button_create(scr, "F:/bmp_printing.bin", main_menu.print, 340, 90, event_handler, ID_PRINT);
   }
 }
 

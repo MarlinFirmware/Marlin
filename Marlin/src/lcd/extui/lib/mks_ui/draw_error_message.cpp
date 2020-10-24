@@ -36,35 +36,31 @@
 #include "mks_hardware_test.h"
 #include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 
 void lv_draw_error_message(PGM_P const msg) {
   #if 0
-    static lv_obj_t * message = NULL, *kill_message = NULL, *reset_tips = NULL;
+    static lv_obj_t *message = nullptr, *kill_message = nullptr, *reset_tips = nullptr;
     if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ERROR_MESSAGE_UI) {
       disp_state_stack._disp_index++;
       disp_state_stack._disp_state[disp_state_stack._disp_index] = ERROR_MESSAGE_UI;
     }
     disp_state = ERROR_MESSAGE_UI;
 
-    scr = lv_obj_create(NULL, NULL);
-
-    lv_obj_set_style(scr, &tft_style_scr);
-    lv_scr_load(scr);
-    lv_obj_clean(scr);
+    scr = lv_screen_create();
 
     lv_refr_now(lv_refr_get_disp_refreshing());
 
     if (msg) {
       message = lv_label_create(scr, msg);
-      lv_obj_align(message, NULL, LV_ALIGN_CENTER, 0, -50);
+      lv_obj_align(message, nullptr, LV_ALIGN_CENTER, 0, -50);
     }
 
     kill_message = lv_label_create(scr, "PRINTER HALTED");
-    lv_obj_align(kill_message, NULL, LV_ALIGN_CENTER, 0, -10);
+    lv_obj_align(kill_message, nullptr, LV_ALIGN_CENTER, 0, -10);
 
     reset_tips = lv_label_create(scr, "Please Reset");
-    lv_obj_align(reset_tips, NULL, LV_ALIGN_CENTER, 0, 30);
+    lv_obj_align(reset_tips, nullptr, LV_ALIGN_CENTER, 0, 30);
 
     lv_task_handler();
   #endif
