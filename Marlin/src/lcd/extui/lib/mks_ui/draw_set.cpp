@@ -111,7 +111,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
             else {
               last_disp_state = SET_UI;
               lv_clear_set();
-              lv_draw_dialog(WIFI_ENABLE_TIPS);
+              lv_draw_dialog(DIALOG_WIFI_ENABLE_TIPS);
             }
           }
         }

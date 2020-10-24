@@ -144,8 +144,6 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 
             package_to_wifi(WIFI_PARA_SET, (char *)0, 0);
 
-            memset(public_buf_l,0,sizeof(public_buf_l));
-
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
             public_buf_l[2] = 0x01;

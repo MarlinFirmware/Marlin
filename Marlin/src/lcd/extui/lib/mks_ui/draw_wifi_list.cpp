@@ -123,7 +123,7 @@ void lv_draw_wifi_list(void) {
   wifi_list.currentWifipage = 1;
 
   if (wifi_link_state == WIFI_CONNECTED && wifiPara.mode == STA_MODEL) {
-    memset(wifi_list.wifiConnectedName, 0, sizeof(&wifi_list.wifiConnectedName));
+    ZERO(wifi_list.wifiConnectedName);
     memcpy(wifi_list.wifiConnectedName, wifiPara.ap_name, sizeof(wifi_list.wifiConnectedName));
   }
 
@@ -164,7 +164,7 @@ void disp_wifi_list(void) {
 }
 
 void wifi_scan_handle() {
-  if (uiCfg.dialogType != WIFI_ENABLE_TIPS || uiCfg.command_send != 1) return;
+  if (!DIALOG_IS(WIFI_ENABLE_TIPS) || uiCfg.command_send != 1) return;
   last_disp_state = DIALOG_UI;
   lv_clear_dialog();
   if (wifi_link_state == WIFI_CONNECTED && wifiPara.mode != AP_MODEL)

@@ -94,12 +94,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_wifi_settings(void) {
-  lv_obj_t *buttonBack = nullptr, *label_Back = nullptr, *buttonConfig = nullptr, *labelConfig = nullptr;
-  lv_obj_t *labelModelText = nullptr;
-  lv_obj_t *labelNameText = nullptr, *buttonNameValue = nullptr, *labelNameValue = nullptr;
-  lv_obj_t *labelPassWordText = nullptr, *buttonPassWordValue = nullptr, *labelPassWordValue = nullptr;
-  lv_obj_t *labelCloudText = nullptr, *buttonCloudValue = nullptr;
-  lv_obj_t *line1 = nullptr, *line2 = nullptr, *line3 = nullptr, *line4 = nullptr;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_SETTINGS_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_SETTINGS_UI;
@@ -112,44 +106,41 @@ void lv_draw_wifi_settings(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  labelModelText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
+  lv_obj_t *labelModelText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
 
   lv_obj_t *buttonModelValue = lv_imgbtn_create(scr, "F:/bmp_blank_sel.bin", PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, event_handler, ID_WIFI_MODEL);
   lv_btn_set_style_both(buttonModelValue, &style_para_value_pre);
   labelModelValue = lv_label_create_empty(buttonModelValue);
 
-  line1 = lv_line_create(scr, nullptr);
+  lv_obj_t *line1 = lv_line_create(scr, nullptr);
   lv_ex_line(line1, line_points[0]);
 
-  labelNameText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, nullptr);
+  lv_obj_t *labelNameText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 2 + 10, nullptr);
+  lv_obj_t *buttonNameValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_WIFI_NAME);
+  lv_obj_t *labelNameValue = lv_label_create_empty(buttonNameValue);
 
-  buttonNameValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_WIFI_NAME);
-  labelNameValue = lv_label_create_empty(buttonNameValue);
-
-  line2 = lv_line_create(scr, nullptr);
+  lv_obj_t *line2 = lv_line_create(scr, nullptr);
   lv_ex_line(line2, line_points[1]);
 
-  labelPassWordText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, nullptr);
+  lv_obj_t *labelPassWordText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 3 + 10, nullptr);
+  lv_obj_t *buttonPassWordValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_WIFI_PASSWORD);
+  lv_obj_t *labelPassWordValue = lv_label_create_empty(buttonPassWordValue);
 
-  buttonPassWordValue = lv_btn_create(scr, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE, event_handler, ID_WIFI_PASSWORD);
-  labelPassWordValue = lv_label_create_empty(buttonPassWordValue);
-
-  line3 = lv_line_create(scr, nullptr);
+  lv_obj_t *line3 = lv_line_create(scr, nullptr);
   lv_ex_line(line3, line_points[2]);
 
-  labelCloudText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.wifiCloud);
-
-  buttonCloudValue = lv_imgbtn_create(scr, gCfgItems.cloud_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_STATE_V, event_handler, ID_WIFI_CLOUD);
+  lv_obj_t *labelCloudText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.wifiCloud);
+  lv_obj_t *buttonCloudValue = lv_imgbtn_create(scr, gCfgItems.cloud_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_STATE_V, event_handler, ID_WIFI_CLOUD);
   labelCloudValue = lv_label_create_empty(buttonCloudValue);
 
-  line4 = lv_line_create(scr, nullptr);
+  lv_obj_t *line4 = lv_line_create(scr, nullptr);
   lv_ex_line(line4, line_points[3]);
 
-  buttonConfig = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_WIFI_CONFIG);
-  labelConfig = lv_label_create_empty(buttonConfig);
+  lv_obj_t *buttonConfig = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_WIFI_CONFIG);
+  lv_obj_t *labelConfig = lv_label_create_empty(buttonConfig);
 
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_WIFI_RETURN);
-  label_Back = lv_label_create_empty(buttonBack);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back70x40.bin", PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_WIFI_RETURN);
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
     if (gCfgItems.wifi_mode_sel == AP_MODEL) {

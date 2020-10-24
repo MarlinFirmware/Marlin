@@ -58,9 +58,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_wifi(void) {
-  lv_obj_t *buttonBack = nullptr, *label_Back = nullptr;
-  lv_obj_t *buttonCloud = nullptr, *label_Cloud = nullptr;
-  lv_obj_t *buttonReconnect = nullptr, *label_Reconnect=nullptr;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_UI;
@@ -74,18 +71,17 @@ void lv_draw_wifi(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RETURN);
-
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RETURN);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
   #endif
+  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
+
+  lv_obj_t *buttonReconnect = nullptr, *label_Reconnect = nullptr;
 
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-    //buttonCloud = lv_imgbtn_create(scr, nullptr);
+
     buttonReconnect = lv_imgbtn_create(scr, nullptr);
-  }
-
-  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
     lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, nullptr, 0);
     lv_imgbtn_set_src_both(buttonReconnect, "F:/bmp_wifi.bin");
@@ -97,12 +93,7 @@ void lv_draw_wifi(void) {
 
     lv_obj_set_pos(buttonReconnect, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
     lv_btn_set_layout(buttonReconnect, LV_LAYOUT_OFF);
-  }
 
-  label_Back = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-    //label_Cloud = lv_label_create_empty(buttonCloud);
     label_Reconnect = lv_label_create_empty(buttonReconnect);
   }
 
@@ -111,9 +102,6 @@ void lv_draw_wifi(void) {
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
     if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-      //lv_label_set_text(label_Cloud, common_menu.text_back);
-      //lv_obj_align(label_Cloud, buttonCloud, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
       lv_label_set_text(label_Reconnect, wifi_menu.reconnect);
       lv_obj_align(label_Reconnect, buttonReconnect, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
