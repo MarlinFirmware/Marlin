@@ -221,7 +221,8 @@ namespace Anycubic {
     switch (printer_state) {
       case AC_printer_probing: {
         // If probing completes ok save the mesh and park
-        if (strcmp_P(msg, MARLIN_msg_ready) == 0 ) {
+        // Ignore the custom machine name
+        if (strcmp_P(msg + strlen(CUSTOM_MACHINE_NAME), MARLIN_msg_ready) == 0 ) {
           injectCommands_P(PSTR("M500\nG27"));
           SendtoTFTLN(AC_msg_probing_complete);
           printer_state = AC_printer_idle;
