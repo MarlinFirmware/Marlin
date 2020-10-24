@@ -1341,7 +1341,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if !defined(STATUS_HEATERS_X) && ((HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN))
+  #if !defined(STATUS_HEATERS_X) && ((HAS_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN))
     #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
@@ -1367,13 +1367,17 @@
 #endif
 #if STATUS_LOGO_WIDTH
   #ifndef STATUS_LOGO_X
-    #define STATUS_LOGO_X 0
-  #endif
-  #ifndef STATUS_LOGO_Y
-    #define STATUS_LOGO_Y _MIN(0U, (20 - (STATUS_LOGO_HEIGHT)) / 2)
+    #ifndef STATUS_HEATERS_X
+      #define STATUS_LOGO_X 0
+    #else
+      #define STATUS_LOGO_X (STATUS_HEATERS_X - STATUS_LOGO_WIDTH - 1) / 2
+    #endif
   #endif
   #ifndef STATUS_LOGO_HEIGHT
     #define STATUS_LOGO_HEIGHT (sizeof(status_logo_bmp) / (STATUS_LOGO_BYTEWIDTH))
+  #endif
+  #ifndef STATUS_LOGO_Y
+    #define STATUS_LOGO_Y _MAX(0U, (14 - ( _MIN(28U, STATUS_LOGO_HEIGHT) / 2)))
   #endif
   static_assert(
     sizeof(status_logo_bmp) == (STATUS_LOGO_BYTEWIDTH) * (STATUS_LOGO_HEIGHT),
