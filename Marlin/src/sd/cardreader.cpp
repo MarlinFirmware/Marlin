@@ -268,9 +268,9 @@ void CardReader::printListing(SdFile parent, const char * const prepend/*=nullpt
 
       #if ENABLED(LONG_FILENAME_MEDIA_LIST)
         if (flag.longlist_mode) {
-          strcpy(lpath, lprepend_is_empty ? "/" : lprepend); // root slash if prepend is empty
-          strcat(lpath, longFilename);                      // FILENAME_LENGTH characters maximum
-          strcat(lpath, "/");                              // 1 character
+          strcpy(lpath, lprepend_is_empty ? "/" : lprepend);
+          strcat(lpath, longest_filename());
+          strcat(lpath, "/");
         }
       #endif
 
