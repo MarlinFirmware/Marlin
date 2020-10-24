@@ -33,7 +33,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 extern lv_group_t*  g;
 
 static lv_obj_t *buttonPageUp, *buttonPageDown, *buttonBack,
@@ -98,124 +98,105 @@ uint8_t sel_id = 0;
 
 #endif // SDSUPPORT
 
-uint8_t have_pre_pic(char *path) {
+bool have_pre_pic(char *path) {
   #if ENABLED(SDSUPPORT)
     char *ps1, *ps2, *cur_name = strrchr(path, '/');
-
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
     ps1 = strstr((char *)public_buf, ";simage:");
     card.read(public_buf, 512);
     ps2 = strstr((char *)public_buf, ";simage:");
-    if (ps1 || ps2) {
-      card.closefile();
-      return 1;
-    }
     card.closefile();
+    if (ps1 || ps2) return true;
   #endif
 
-  return 0;
+  return false;
 }
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   uint8_t i, file_count = 0;
   //switch (obj->mks_obj_id)
   //{
   if (obj->mks_obj_id == ID_P_UP) {
-    if (event == LV_EVENT_CLICKED) {
-    }
-    else if (event == LV_EVENT_RELEASED) {
-      if (dir_offset[curDirLever].curPage > 0) {
-        // 2015.05.19
-        list_file.Sd_file_cnt = 0;
+    if (dir_offset[curDirLever].curPage > 0) {
+      // 2015.05.19
+      list_file.Sd_file_cnt = 0;
 
-        if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
-          list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
+      if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
+        list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset - FILE_NUM;
 
-        #if ENABLED(SDSUPPORT)
-          file_count = search_file();
-        #endif
-        if (file_count != 0) {
-          dir_offset[curDirLever].curPage--;
-          lv_clear_print_file();
-          disp_gcode_icon(file_count);
-        }
+      #if ENABLED(SDSUPPORT)
+        file_count = search_file();
+      #endif
+      if (file_count != 0) {
+        dir_offset[curDirLever].curPage--;
+        lv_clear_print_file();
+        disp_gcode_icon(file_count);
       }
     }
   }
   else if (obj->mks_obj_id == ID_P_DOWN) {
-    if (event == LV_EVENT_CLICKED) {
-    }
-    else if (event == LV_EVENT_RELEASED) {
-      if (dir_offset[curDirLever].cur_page_last_offset > 0) {
-        list_file.Sd_file_cnt    = 0;
-        list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
-        #if ENABLED(SDSUPPORT)
-          file_count = search_file();
-        #endif
-        if (file_count != 0) {
-          dir_offset[curDirLever].curPage++;
-          lv_clear_print_file();
-          disp_gcode_icon(file_count);
-        }
-        if (file_count < FILE_NUM)
-          dir_offset[curDirLever].cur_page_last_offset = 0;
+    if (dir_offset[curDirLever].cur_page_last_offset > 0) {
+      list_file.Sd_file_cnt    = 0;
+      list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_last_offset + 1;
+      #if ENABLED(SDSUPPORT)
+        file_count = search_file();
+      #endif
+      if (file_count != 0) {
+        dir_offset[curDirLever].curPage++;
+        lv_clear_print_file();
+        disp_gcode_icon(file_count);
       }
+      if (file_count < FILE_NUM)
+        dir_offset[curDirLever].cur_page_last_offset = 0;
     }
   }
   else if (obj->mks_obj_id == ID_P_RETURN) {
-    if (event == LV_EVENT_CLICKED) {
-    }
-    else if (event == LV_EVENT_RELEASED) {
-      if (curDirLever > 0) {
-        int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
-        if (ch) {
-          *ch = 0;
-          #if ENABLED(SDSUPPORT)
-            card.cdup();
-          #endif
-          dir_offset[curDirLever].curPage               = 0;
-          dir_offset[curDirLever].cur_page_first_offset = 0;
-          dir_offset[curDirLever].cur_page_last_offset  = 0;
-          curDirLever--;
-          list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-          #if ENABLED(SDSUPPORT)
-            file_count = search_file();
-          #endif
-          lv_clear_print_file();
-          disp_gcode_icon(file_count);
-        }
-      }
-      else {
+    if (curDirLever > 0) {
+      int8_t *ch = (int8_t *)strrchr(list_file.curDirPath, '/');
+      if (ch) {
+        *ch = 0;
+        #if ENABLED(SDSUPPORT)
+          card.cdup();
+        #endif
+        dir_offset[curDirLever].curPage               = 0;
+        dir_offset[curDirLever].cur_page_first_offset = 0;
+        dir_offset[curDirLever].cur_page_last_offset  = 0;
+        curDirLever--;
+        list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
+        #if ENABLED(SDSUPPORT)
+          file_count = search_file();
+        #endif
         lv_clear_print_file();
-        lv_draw_ready_print();
+        disp_gcode_icon(file_count);
       }
+    }
+    else {
+      lv_clear_print_file();
+      lv_draw_ready_print();
     }
   }
   else {
     for (i = 0; i < FILE_BTN_CNT; i++) {
       if (obj->mks_obj_id == (i + 1)) {
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          if (list_file.file_name[i][0] != 0) {
-            if (list_file.IsFolder[i]) {
-              strcpy(list_file.curDirPath, list_file.file_name[i]);
-              curDirLever++;
-              list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-              #if ENABLED(SDSUPPORT)
-                file_count = search_file();
-              #endif
-              lv_clear_print_file();
-              disp_gcode_icon(file_count);
-            }
-            else {
-              sel_id = i;
-              lv_clear_print_file();
-              lv_draw_dialog(DIALOG_TYPE_PRINT_FILE);
-            }
-            break;
+        if (list_file.file_name[i][0] != 0) {
+          if (list_file.IsFolder[i]) {
+            strcpy(list_file.curDirPath, list_file.file_name[i]);
+            curDirLever++;
+            list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
+            #if ENABLED(SDSUPPORT)
+              file_count = search_file();
+            #endif
+            lv_clear_print_file();
+            disp_gcode_icon(file_count);
           }
+          else {
+            sel_id = i;
+            lv_clear_print_file();
+            lv_draw_dialog(DIALOG_TYPE_PRINT_FILE);
+          }
+          break;
         }
       }
     }

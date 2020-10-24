@@ -28,68 +28,45 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_MOTOR_RETURN            1
-#define ID_MOTOR_STEPS             2
-#define ID_MOTOR_TMC_CURRENT       3
-#define ID_MOTOR_STEP_MODE         4
-#define ID_HOME_SENSE              5
+#define ID_MOTOR_RETURN       1
+#define ID_MOTOR_STEPS        2
+#define ID_MOTOR_TMC_CURRENT  3
+#define ID_MOTOR_STEP_MODE    4
+#define ID_HOME_SENSE         5
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_MOTOR_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_motor_settings();
-        draw_return_ui();
-      }
+      lv_clear_motor_settings();
+      draw_return_ui();
       break;
     case ID_MOTOR_STEPS:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_motor_settings();
-        lv_draw_step_settings();
-      }
+      lv_clear_motor_settings();
+      lv_draw_step_settings();
       break;
     #if USE_SENSORLESS
-    case ID_HOME_SENSE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
+      case ID_HOME_SENSE:
         lv_clear_motor_settings();
         lv_draw_homing_sensitivity_settings();
-      }
-      break;
+        break;
     #endif
-      #if HAS_TRINAMIC_CONFIG
-        case ID_MOTOR_TMC_CURRENT:
-          if (event == LV_EVENT_CLICKED) {
 
-          }
-          else if (event == LV_EVENT_RELEASED) {
-            lv_clear_motor_settings();
-            lv_draw_tmc_current_settings();
-          }
+    #if HAS_TRINAMIC_CONFIG
+      case ID_MOTOR_TMC_CURRENT:
+        lv_clear_motor_settings();
+        lv_draw_tmc_current_settings();
+        break;
+      #if HAS_STEALTHCHOP
+        case ID_MOTOR_STEP_MODE:
+          lv_clear_motor_settings();
+          lv_draw_tmc_step_mode_settings();
           break;
-          #if HAS_STEALTHCHOP
-            case ID_MOTOR_STEP_MODE:
-              if (event == LV_EVENT_CLICKED) {
-
-              }
-              else if (event == LV_EVENT_RELEASED) {
-                lv_clear_motor_settings();
-                lv_draw_tmc_step_mode_settings();
-              }
-              break;
-          #endif
       #endif
+    #endif
   }
 }
 

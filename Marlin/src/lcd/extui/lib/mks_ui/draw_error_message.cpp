@@ -36,11 +36,11 @@
 #include "mks_hardware_test.h"
 #include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 
 void lv_draw_error_message(PGM_P const msg) {
   #if 0
-    static lv_obj_t * message = nullptr, *kill_message = nullptr, *reset_tips = nullptr;
+    static lv_obj_t *message = nullptr, *kill_message = nullptr, *reset_tips = nullptr;
     if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ERROR_MESSAGE_UI) {
       disp_state_stack._disp_index++;
       disp_state_stack._disp_state[disp_state_stack._disp_index] = ERROR_MESSAGE_UI;

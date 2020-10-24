@@ -34,8 +34,8 @@
 #include "../../../../module/temperature.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_T_PRE_HEAT   1
 #define ID_T_EXTRUCT    2
@@ -50,82 +50,48 @@ static lv_obj_t * scr;
   extern uint8_t curent_disp_ui;
 #endif
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_T_PRE_HEAT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_tool();
-        lv_draw_preHeat();
-      }
+      lv_clear_tool();
+      lv_draw_preHeat();
       break;
     case ID_T_EXTRUCT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_tool();
-        lv_draw_extrusion();
-      }
+      lv_clear_tool();
+      lv_draw_extrusion();
       break;
     case ID_T_MOV:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_tool();
-        lv_draw_move_motor();
-      }
+      lv_clear_tool();
+      lv_draw_move_motor();
       break;
     case ID_T_HOME:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_tool();
-        lv_draw_home();
-      }
+      lv_clear_tool();
+      lv_draw_home();
       break;
     case ID_T_LEVELING:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-          //queue.enqueue_one_P(PSTR("G28"));
-          //queue.enqueue_one_P(PSTR("G29"));
-          get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
-          public_buf_m[sizeof(public_buf_m)-1] = 0;
-          queue.inject_P(PSTR(public_buf_m));
-        #else
-          uiCfg.leveling_first_time = 1;
-          lv_clear_tool();
-          lv_draw_manualLevel();
-        #endif
-      }
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        //queue.enqueue_one_P(PSTR("G28"));
+        //queue.enqueue_one_P(PSTR("G29"));
+        get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
+        public_buf_m[sizeof(public_buf_m)-1] = 0;
+        queue.inject_P(PSTR(public_buf_m));
+      #else
+        uiCfg.leveling_first_time = 1;
+        lv_clear_tool();
+        lv_draw_manualLevel();
+      #endif
       break;
     case ID_T_FILAMENT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[uiCfg.curSprayerChoose].target;
-        lv_clear_tool();
-        lv_draw_filament_change();
-      }
+      uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[uiCfg.curSprayerChoose].target;
+      lv_clear_tool();
+      lv_draw_filament_change();
       break;
     case ID_T_MORE: break;
     case ID_T_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        TERN_(MKS_TEST, curent_disp_ui = 1);
-        lv_clear_tool();
-        lv_draw_ready_print();
-      }
+      TERN_(MKS_TEST, curent_disp_ui = 1);
+      lv_clear_tool();
+      lv_draw_ready_print();
       break;
   }
 }

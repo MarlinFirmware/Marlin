@@ -29,8 +29,8 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_FEED_RETURN  1
 #define ID_FEED_X       2
@@ -41,87 +41,48 @@ static lv_obj_t * scr;
 #define ID_FEED_DOWN    7
 #define ID_FEED_UP      8
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_FEED_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_max_feedrate_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_max_feedrate_settings();
+      draw_return_ui();
       break;
     case ID_FEED_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = XMaxFeedRate;
-        lv_clear_max_feedrate_settings();
-        lv_draw_number_key();
-      }
+      value = XMaxFeedRate;
+      lv_clear_max_feedrate_settings();
+      lv_draw_number_key();
       break;
     case ID_FEED_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = YMaxFeedRate;
-        lv_clear_max_feedrate_settings();
-        lv_draw_number_key();
-      }
+      value = YMaxFeedRate;
+      lv_clear_max_feedrate_settings();
+      lv_draw_number_key();
       break;
     case ID_FEED_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = ZMaxFeedRate;
-        lv_clear_max_feedrate_settings();
-        lv_draw_number_key();
-      }
+      value = ZMaxFeedRate;
+      lv_clear_max_feedrate_settings();
+      lv_draw_number_key();
       break;
     case ID_FEED_E0:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E0MaxFeedRate;
-        lv_clear_max_feedrate_settings();
-        lv_draw_number_key();
-      }
+      value = E0MaxFeedRate;
+      lv_clear_max_feedrate_settings();
+      lv_draw_number_key();
       break;
     case ID_FEED_E1:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E1MaxFeedRate;
-        lv_clear_max_feedrate_settings();
-        lv_draw_number_key();
-      }
+      value = E1MaxFeedRate;
+      lv_clear_max_feedrate_settings();
+      lv_draw_number_key();
       break;
     case ID_FEED_UP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_max_feedrate_settings();
-        lv_draw_max_feedrate_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_max_feedrate_settings();
+      lv_draw_max_feedrate_settings();
       break;
     case ID_FEED_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_max_feedrate_settings();
-        lv_draw_max_feedrate_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_max_feedrate_settings();
+      lv_draw_max_feedrate_settings();
       break;
   }
 }

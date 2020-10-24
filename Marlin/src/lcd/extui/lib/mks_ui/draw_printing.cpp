@@ -67,70 +67,51 @@ bool once_flag; // = false
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 extern uint32_t To_pre_view;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+  if (gcode_preview_over) return;
   switch (obj->mks_obj_id) {
     case ID_PAUSE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (uiCfg.print_state == WORKING) {
+        // #if ENABLED(PARK_HEAD_ON_PAUSE)
+        // queue.inject_P(PSTR("M25 P\nM24"));
+        #if ENABLED(SDSUPPORT)
+          // queue.inject_P(PSTR("M25\nG91\nG1 Z10\nG90"));
+          card.pauseSDPrint();
+          stop_print_time();
+          uiCfg.print_state = PAUSING;
+        #endif
+        lv_imgbtn_set_src_both(buttonPause, "F:/bmp_resume.bin");
+        lv_label_set_text(labelPause, printing_menu.resume);
+        lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (!gcode_preview_over) {
-          if (uiCfg.print_state == WORKING) {
-            // #if ENABLED(PARK_HEAD_ON_PAUSE)
-            // queue.inject_P(PSTR("M25 P\nM24"));
-            #if ENABLED(SDSUPPORT)
-              // queue.inject_P(PSTR("M25\nG91\nG1 Z10\nG90"));
-              card.pauseSDPrint();
-              stop_print_time();
-              uiCfg.print_state = PAUSING;
-            #endif
-            lv_imgbtn_set_src_both(buttonPause, "F:/bmp_resume.bin");
-            lv_label_set_text(labelPause, printing_menu.resume);
-            lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
-          }
-          else if (uiCfg.print_state == PAUSED) {
-            uiCfg.print_state = RESUMING;
-            lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
-            lv_label_set_text(labelPause, printing_menu.pause);
-            lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
-          }
-          #if ENABLED(POWER_LOSS_RECOVERY)
-            else if (uiCfg.print_state == REPRINTING) {
-              uiCfg.print_state = REPRINTED;
-              lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
-              lv_label_set_text(labelPause, printing_menu.pause);
-              lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
-              // recovery.resume();
-              print_time.minutes = recovery.info.print_job_elapsed / 60;
-              print_time.seconds = recovery.info.print_job_elapsed % 60;
-              print_time.hours   = print_time.minutes / 60;
-            }
-          #endif
+      else if (uiCfg.print_state == PAUSED) {
+        uiCfg.print_state = RESUMING;
+        lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
+        lv_label_set_text(labelPause, printing_menu.pause);
+        lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
+      }
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        else if (uiCfg.print_state == REPRINTING) {
+          uiCfg.print_state = REPRINTED;
+          lv_imgbtn_set_src_both(obj, "F:/bmp_pause.bin");
+          lv_label_set_text(labelPause, printing_menu.pause);
+          lv_obj_align(labelPause, buttonPause, LV_ALIGN_CENTER, 30, 0);
+          // recovery.resume();
+          print_time.minutes = recovery.info.print_job_elapsed / 60;
+          print_time.seconds = recovery.info.print_job_elapsed % 60;
+          print_time.hours   = print_time.minutes / 60;
         }
-      }
+      #endif
       break;
 
     case ID_STOP:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (!gcode_preview_over) {
-          lv_clear_printing();
-          lv_draw_dialog(DIALOG_TYPE_STOP);
-        }
-      }
+      lv_clear_printing();
+      lv_draw_dialog(DIALOG_TYPE_STOP);
       break;
     case ID_OPTION:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (!gcode_preview_over) {
-          lv_clear_printing();
-          lv_draw_operation();
-        }
-      }
+      lv_clear_printing();
+      lv_draw_operation();
       break;
   }
 }

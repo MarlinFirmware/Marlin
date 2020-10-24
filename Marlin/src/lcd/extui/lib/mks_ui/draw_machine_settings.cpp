@@ -28,54 +28,35 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_MACHINE_RETURN             1
-#define ID_MACHINE_ACCELERATION       2
-#define ID_MACHINE_FEEDRATE           3
-#define ID_MACHINE_JERK               4
+#define ID_MACHINE_RETURN       1
+#define ID_MACHINE_ACCELERATION 2
+#define ID_MACHINE_FEEDRATE     3
+#define ID_MACHINE_JERK         4
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_MACHINE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_settings();
-        draw_return_ui();
-      }
+      lv_clear_machine_settings();
+      draw_return_ui();
       break;
     case ID_MACHINE_ACCELERATION:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_settings();
-        lv_draw_acceleration_settings();
-      }
+      lv_clear_machine_settings();
+      lv_draw_acceleration_settings();
       break;
     case ID_MACHINE_FEEDRATE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_settings();
-        lv_draw_max_feedrate_settings();
-      }
+      lv_clear_machine_settings();
+      lv_draw_max_feedrate_settings();
       break;
-      #if HAS_CLASSIC_JERK
-        case ID_MACHINE_JERK:
-          if (event == LV_EVENT_CLICKED) {
-
-          }
-          else if (event == LV_EVENT_RELEASED) {
-            lv_clear_machine_settings();
-            lv_draw_jerk_settings();
-          }
-          break;
-      #endif
+    #if HAS_CLASSIC_JERK
+      case ID_MACHINE_JERK:
+        lv_clear_machine_settings();
+        lv_draw_jerk_settings();
+        break;
+    #endif
   }
 }
 

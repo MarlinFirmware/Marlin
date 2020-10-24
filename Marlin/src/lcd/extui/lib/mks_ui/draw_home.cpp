@@ -35,8 +35,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_H_ALL      1
 #define ID_H_X        2
@@ -46,57 +46,30 @@ static lv_obj_t * scr;
 #define ID_H_OFF_ALL  6
 #define ID_H_OFF_XY   7
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_H_ALL:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28"));
-      }
+      queue.inject_P(PSTR("G28"));
       break;
     case ID_H_X:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 X0"));
-      }
+      queue.inject_P(PSTR("G28 X0"));
       break;
     case ID_H_Y:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 Y0"));
-      }
+      queue.inject_P(PSTR("G28 Y0"));
       break;
     case ID_H_Z:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 Z0"));
-      }
+      queue.inject_P(PSTR("G28 Z0"));
       break;
     case ID_H_OFF_ALL:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("M84"));
-      }
+      queue.inject_P(PSTR("M84"));
       break;
     case ID_H_OFF_XY:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("M84 X Y"));
-      }
+      queue.inject_P(PSTR("M84 X Y"));
       break;
     case ID_H_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_home();
-        lv_draw_tool();
-      }
+      lv_clear_home();
+      lv_draw_tool();
       break;
   }
 }

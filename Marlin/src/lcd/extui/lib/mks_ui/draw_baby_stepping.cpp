@@ -38,10 +38,10 @@
   #include "../../../../module/probe.h"
 #endif
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-static lv_obj_t *labelV, *buttonV, * zOffsetText;
+static lv_obj_t *labelV, *buttonV, *zOffsetText;
 
 #define ID_BABY_STEP_X_P    1
 #define ID_BABY_STEP_X_N    2
@@ -55,96 +55,56 @@ static lv_obj_t *labelV, *buttonV, * zOffsetText;
 static float babystep_dist=0.01;
 static uint8_t has_adjust_z = 0;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   char baby_buf[30] = { 0 };
   switch (obj->mks_obj_id) {
     case ID_BABY_STEP_X_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 X%.3f"),babystep_dist);
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 X%.3f"), babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_X_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 X%.3f"),((float)0 - babystep_dist));
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 X%.3f"), -babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystep_dist);
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 Y%.3f"),((float)0 - babystep_dist));
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), -babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        sprintf_P(baby_buf, PSTR("M290 Z%.3f"),((float)0 - babystep_dist));
-        gcode.process_subcommands_now_P(PSTR(baby_buf));
-        has_adjust_z = 1;
-      }
+      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
+      gcode.process_subcommands_now_P(PSTR(baby_buf));
+      has_adjust_z = 1;
       break;
     case ID_BABY_STEP_DIST:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (abs((int)(100 * babystep_dist)) == 1)
-          babystep_dist = 0.05;
-        else if (abs((int)(100 * babystep_dist)) == 5)
-          babystep_dist = 0.1;
-        else
-          babystep_dist = 0.01;
-        disp_baby_step_dist();
-      }
-
+      if (abs((int)(100 * babystep_dist)) == 1)
+        babystep_dist = 0.05;
+      else if (abs((int)(100 * babystep_dist)) == 5)
+        babystep_dist = 0.1;
+      else
+        babystep_dist = 0.01;
+      disp_baby_step_dist();
       break;
     case ID_BABY_STEP_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (has_adjust_z == 1) {
+        TERN_(EEPROM_SETTINGS, (void)settings.save());
+        has_adjust_z = 0;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (has_adjust_z == 1) {
-          TERN_(EEPROM_SETTINGS, (void)settings.save());
-          has_adjust_z = 0;
-        }
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }
@@ -211,7 +171,7 @@ void disp_baby_step_dist() {
 
 void disp_z_offset_value() {
   char buf[20];
-  sprintf_P(buf, PSTR("offset Z: %.3f"), (double)TERN(HAS_BED_PROBE, probe.offset.z, 0));
+  sprintf_P(buf, PSTR("offset Z: %.3f"), (float)TERN(HAS_BED_PROBE, probe.offset.z, 0));
   lv_label_set_text(zOffsetText, buf);
 }
 

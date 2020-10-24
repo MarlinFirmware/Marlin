@@ -35,9 +35,9 @@
 #include "../../../../gcode/gcode.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
-static lv_obj_t * fanText;
+extern lv_group_t *g;
+static lv_obj_t *scr;
+static lv_obj_t *fanText;
 
 #define ID_F_ADD     1
 #define ID_F_DEC     2
@@ -48,65 +48,35 @@ static lv_obj_t * fanText;
 
 static uint8_t fanSpeed;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_F_ADD:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (fanSpeed + 1 <= 255) {
-          fanSpeed++;
-          sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
-          gcode.process_subcommands_now(public_buf_l);
-        }
+      if (fanSpeed + 1 <= 255) {
+        fanSpeed++;
+        sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
+        gcode.process_subcommands_now(public_buf_l);
       }
       break;
     case ID_F_DEC:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (fanSpeed > 0) {
+        fanSpeed--;
+        sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
+        gcode.process_subcommands_now(public_buf_l);
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (fanSpeed > 0) {
-          fanSpeed--;
-          sprintf_P(public_buf_l, PSTR("M106 S%d"), fanSpeed);
-          gcode.process_subcommands_now(public_buf_l);
-        }
-      }
-
       break;
     case ID_F_HIGH:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        gcode.process_subcommands_now_P(PSTR("M106 S255"));
-      }
+      gcode.process_subcommands_now_P(PSTR("M106 S255"));
       break;
     case ID_F_MID:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        gcode.process_subcommands_now_P(PSTR("M106 S127"));
-      }
+      gcode.process_subcommands_now_P(PSTR("M106 S127"));
       break;
     case ID_F_OFF:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        gcode.process_subcommands_now_P(PSTR("M107"));
-      }
+      gcode.process_subcommands_now_P(PSTR("M107"));
       break;
     case ID_F_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

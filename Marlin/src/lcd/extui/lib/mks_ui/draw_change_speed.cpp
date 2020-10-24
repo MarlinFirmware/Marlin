@@ -33,11 +33,11 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
 static lv_obj_t *labelMov, *labelExt;
-static lv_obj_t * printSpeedText;
+static lv_obj_t *printSpeedText;
 
 #define ID_C_ADD    1
 #define ID_C_DEC    2
@@ -48,106 +48,77 @@ static lv_obj_t * printSpeedText;
 
 static bool editingFlowrate;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_C_ADD:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (!editingFlowrate) {
+        if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
+          feedrate_percentage += uiCfg.stepPrintSpeed;
+        else
+          feedrate_percentage = MAX_EXT_SPEED_PERCENT;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (!editingFlowrate) {
-          if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-            feedrate_percentage += uiCfg.stepPrintSpeed;
-          else
-            feedrate_percentage = MAX_EXT_SPEED_PERCENT;
-        }
-        else {
-          if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-            planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
-          else
-            planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
-          //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
-          //planner.flow_percentage[1] = planner.flow_percentage[0];
-          //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
-          planner.refresh_e_factor(0);
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = planner.flow_percentage[0];
-            planner.refresh_e_factor(1);
-          #endif
-        }
-        disp_print_speed();
+      else {
+        if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
+          planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
+        else
+          planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
+        //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
+        //planner.flow_percentage[1] = planner.flow_percentage[0];
+        //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
+        planner.refresh_e_factor(0);
+        #if HAS_MULTI_EXTRUDER
+          planner.flow_percentage[1] = planner.flow_percentage[0];
+          planner.refresh_e_factor(1);
+        #endif
       }
+      disp_print_speed();
       break;
     case ID_C_DEC:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (!editingFlowrate) {
+        if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
+          feedrate_percentage -= uiCfg.stepPrintSpeed;
+        else
+          feedrate_percentage = MIN_EXT_SPEED_PERCENT;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (!editingFlowrate) {
-          if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-            feedrate_percentage -= uiCfg.stepPrintSpeed;
-          else
-            feedrate_percentage = MIN_EXT_SPEED_PERCENT;
-        }
-        else {
-          if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-            planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
-          else
-            planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
-          //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
-          //planner.flow_percentage[1] = planner.flow_percentage[0];
-          //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
-          planner.refresh_e_factor(0);
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = planner.flow_percentage[0];
-            planner.refresh_e_factor(1);
-          #endif
-        }
-        disp_print_speed();
+      else {
+        if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
+          planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
+        else
+          planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
+        //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
+        //planner.flow_percentage[1] = planner.flow_percentage[0];
+        //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
+        planner.refresh_e_factor(0);
+        #if HAS_MULTI_EXTRUDER
+          planner.flow_percentage[1] = planner.flow_percentage[0];
+          planner.refresh_e_factor(1);
+        #endif
       }
+      disp_print_speed();
       break;
     case ID_C_MOVE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        editingFlowrate = false;
-        disp_speed_type();
-        disp_print_speed();
-      }
+      editingFlowrate = false;
+      disp_speed_type();
+      disp_print_speed();
       break;
     case ID_C_EXT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        editingFlowrate = true;
-        disp_speed_type();
-        disp_print_speed();
-      }
+      editingFlowrate = true;
+      disp_speed_type();
+      disp_print_speed();
       break;
     case ID_C_STEP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.stepPrintSpeed == 1)
-          uiCfg.stepPrintSpeed = 5;
-        else if (uiCfg.stepPrintSpeed == 5)
-          uiCfg.stepPrintSpeed = 10;
-        else
-          uiCfg.stepPrintSpeed = 1;
-        disp_speed_step();
-      }
+      if (uiCfg.stepPrintSpeed == 1)
+        uiCfg.stepPrintSpeed = 5;
+      else if (uiCfg.stepPrintSpeed == 5)
+        uiCfg.stepPrintSpeed = 10;
+      else
+        uiCfg.stepPrintSpeed = 1;
+      disp_speed_step();
       break;
     case ID_C_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

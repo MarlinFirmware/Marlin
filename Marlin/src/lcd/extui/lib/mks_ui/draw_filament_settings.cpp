@@ -28,99 +28,60 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_FILAMENT_SET_RETURN      1
-#define ID_FILAMENT_SET_IN_LENGTH   2
-#define ID_FILAMENT_SET_IN_SPEED    3
-#define ID_FILAMENT_SET_OUT_LENGTH  4
-#define ID_FILAMENT_SET_OUT_SPEED   5
-#define ID_FILAMENT_SET_TEMP        6
-#define ID_FILAMENT_SET_DOWN        12
-#define ID_FILAMENT_SET_UP          13
+#define ID_FILAMENT_SET_RETURN     1
+#define ID_FILAMENT_SET_IN_LENGTH  2
+#define ID_FILAMENT_SET_IN_SPEED   3
+#define ID_FILAMENT_SET_OUT_LENGTH 4
+#define ID_FILAMENT_SET_OUT_SPEED  5
+#define ID_FILAMENT_SET_TEMP       6
+#define ID_FILAMENT_SET_DOWN      12
+#define ID_FILAMENT_SET_UP        13
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_FILAMENT_SET_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_filament_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_filament_settings();
+      draw_return_ui();
       break;
     case ID_FILAMENT_SET_IN_LENGTH:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = load_length;
-        lv_clear_filament_settings();
-        lv_draw_number_key();
-      }
+      value = load_length;
+      lv_clear_filament_settings();
+      lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_IN_SPEED:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = load_speed;
-        lv_clear_filament_settings();
-        lv_draw_number_key();
-      }
+      value = load_speed;
+      lv_clear_filament_settings();
+      lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_OUT_LENGTH:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = unload_length;
-        lv_clear_filament_settings();
-        lv_draw_number_key();
-      }
+      value = unload_length;
+      lv_clear_filament_settings();
+      lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_OUT_SPEED:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = unload_speed;
-        lv_clear_filament_settings();
-        lv_draw_number_key();
-      }
+      value = unload_speed;
+      lv_clear_filament_settings();
+      lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_TEMP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = filament_temp;
-        lv_clear_filament_settings();
-        lv_draw_number_key();
-      }
+      value = filament_temp;
+      lv_clear_filament_settings();
+      lv_draw_number_key();
       break;
     case ID_FILAMENT_SET_UP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_filament_settings();
-        lv_draw_filament_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_filament_settings();
+      lv_draw_filament_settings();
       break;
     case ID_FILAMENT_SET_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_filament_settings();
-        lv_draw_filament_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_filament_settings();
+      lv_draw_filament_settings();
       break;
   }
 }

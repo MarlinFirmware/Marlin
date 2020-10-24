@@ -33,12 +33,12 @@
 #include "../../../../module/temperature.h"
 #include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 extern lv_group_t*  g;
 static lv_obj_t *buttonType, *buttonStep;
 static lv_obj_t *labelType;
 static lv_obj_t *labelStep;
-static lv_obj_t * tempText1;
+static lv_obj_t *tempText1;
 
 #define ID_P_ADD    1
 #define ID_P_DEC    2
@@ -47,142 +47,110 @@ static lv_obj_t * tempText1;
 #define ID_P_OFF    5
 #define ID_P_RETURN 6
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_P_ADD:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.curTempType == 0) {
-          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target += uiCfg.stepHeat;
-          if (uiCfg.curSprayerChoose == 0) {
-            if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
-              thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-            }
+      if (uiCfg.curTempType == 0) {
+        thermalManager.temp_hotend[uiCfg.curSprayerChoose].target += uiCfg.stepHeat;
+        if (uiCfg.curSprayerChoose == 0) {
+          if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
+            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_0_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
           }
-          #if !defined(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
-            else if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
-              thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
-            }
-          #endif
-          thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
         }
-        #if HAS_HEATED_BED
-          else {
-            thermalManager.temp_bed.target += uiCfg.stepHeat;
-            if ((int)thermalManager.temp_bed.target > BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
-              thermalManager.temp_bed.target = (float)BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1);
-            }
-            thermalManager.start_watching_bed();
+        #if !defined(SINGLENOZZLE) && HAS_MULTI_EXTRUDER
+          else if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > (HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1))) {
+            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)HEATER_1_MAXTEMP - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1);
           }
         #endif
-        disp_desire_temp();
+        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
+      #if HAS_HEATED_BED
+        else {
+          thermalManager.temp_bed.target += uiCfg.stepHeat;
+          if ((int)thermalManager.temp_bed.target > BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
+            thermalManager.temp_bed.target = (float)BED_MAXTEMP - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1);
+          }
+          thermalManager.start_watching_bed();
+        }
+      #endif
+      disp_desire_temp();
       break;
     case ID_P_DEC:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.curTempType == 0) {
-          if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > uiCfg.stepHeat) {
-            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target -= uiCfg.stepHeat;
-          }
-          else {
-            thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)0;
-          }
-          thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
-        }
-        #if HAS_HEATED_BED
-          else {
-            if ((int)thermalManager.temp_bed.target > uiCfg.stepHeat) {
-              thermalManager.temp_bed.target -= uiCfg.stepHeat;
-            }
-            else {
-              thermalManager.temp_bed.target = (float)0;
-            }
-            thermalManager.start_watching_bed();
-          }
-        #endif
-        disp_desire_temp();
-      }
+      if (uiCfg.curTempType == 0) {
+        if ((int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target > uiCfg.stepHeat)
+          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target -= uiCfg.stepHeat;
+        else
+          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = 0;
 
+        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+      }
+      #if HAS_HEATED_BED
+        else {
+          if ((int)thermalManager.temp_bed.target > uiCfg.stepHeat)
+            thermalManager.temp_bed.target -= uiCfg.stepHeat;
+          else
+            thermalManager.temp_bed.target = 0;
+
+          thermalManager.start_watching_bed();
+        }
+      #endif
+      disp_desire_temp();
       break;
     case ID_P_TYPE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.curTempType == 0) {
-          if (ENABLED(HAS_MULTI_EXTRUDER)) {
-            if (uiCfg.curSprayerChoose == 0) {
-              uiCfg.curSprayerChoose = 1;
-            }
-            else if (uiCfg.curSprayerChoose == 1) {
-              if (TEMP_SENSOR_BED != 0) {
-                uiCfg.curTempType = 1;
-              }
-              else {
-                uiCfg.curTempType      = 0;
-                uiCfg.curSprayerChoose = 0;
-              }
-            }
+      if (uiCfg.curTempType == 0) {
+        if (ENABLED(HAS_MULTI_EXTRUDER)) {
+          if (uiCfg.curSprayerChoose == 0) {
+            uiCfg.curSprayerChoose = 1;
           }
-          else if (uiCfg.curSprayerChoose == 0) {
-            if (TEMP_SENSOR_BED != 0)
+          else if (uiCfg.curSprayerChoose == 1) {
+            if (TEMP_SENSOR_BED != 0) {
               uiCfg.curTempType = 1;
-            else
-              uiCfg.curTempType = 0;
+            }
+            else {
+              uiCfg.curTempType      = 0;
+              uiCfg.curSprayerChoose = 0;
+            }
           }
         }
-        else if (uiCfg.curTempType == 1) {
-          uiCfg.curSprayerChoose = 0;
-          uiCfg.curTempType      = 0;
+        else if (uiCfg.curSprayerChoose == 0) {
+          if (TEMP_SENSOR_BED != 0)
+            uiCfg.curTempType = 1;
+          else
+            uiCfg.curTempType = 0;
         }
-        disp_temp_type();
       }
+      else if (uiCfg.curTempType == 1) {
+        uiCfg.curSprayerChoose = 0;
+        uiCfg.curTempType      = 0;
+      }
+      disp_temp_type();
       break;
     case ID_P_STEP:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      switch (uiCfg.stepHeat) {
+        case  1: uiCfg.stepHeat =  5; break;
+        case  5: uiCfg.stepHeat = 10; break;
+        case 10: uiCfg.stepHeat =  1; break;
+        default: break;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        switch (uiCfg.stepHeat) {
-          case  1: uiCfg.stepHeat =  5; break;
-          case  5: uiCfg.stepHeat = 10; break;
-          case 10: uiCfg.stepHeat =  1; break;
-          default: break;
-        }
-        disp_step_heat();
-      }
+      disp_step_heat();
       break;
     case ID_P_OFF:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (uiCfg.curTempType == 0) {
+        thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = 0;
+        thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.curTempType == 0) {
-          thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = (float)0;
-          thermalManager.start_watching_hotend(uiCfg.curSprayerChoose);
+      #if HAS_HEATED_BED
+        else {
+          thermalManager.temp_bed.target = 0;
+          thermalManager.start_watching_bed();
         }
-        #if HAS_HEATED_BED
-          else {
-            thermalManager.temp_bed.target = (float)0;
-            thermalManager.start_watching_bed();
-          }
-        #endif
-        disp_desire_temp();
-      }
+      #endif
+      disp_desire_temp();
       break;
     case ID_P_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }
@@ -261,10 +229,7 @@ void disp_desire_temp() {
   public_buf_l[0] = '\0';
 
   if (uiCfg.curTempType == 0) {
-    if (uiCfg.curSprayerChoose < 1)
-      strcat(public_buf_l, preheat_menu.ext1);
-    else
-      strcat(public_buf_l, preheat_menu.ext2);
+    strcat(public_buf_l, uiCfg.curSprayerChoose < 1 ? preheat_menu.ext1 : preheat_menu.ext2);
     sprintf(buf, preheat_menu.value_state, (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius,  (int)thermalManager.temp_hotend[uiCfg.curSprayerChoose].target);
   }
   #if HAS_HEATED_BED

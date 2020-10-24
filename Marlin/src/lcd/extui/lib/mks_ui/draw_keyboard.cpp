@@ -28,8 +28,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define LV_KB_CTRL_BTN_FLAGS (LV_BTNM_CTRL_NO_REPEAT | LV_BTNM_CTRL_CLICK_TRIG)
 
@@ -72,7 +72,7 @@ static const lv_btnm_ctrl_t kb_ctrl_num_map[] = {
         1, 1, 1, 2,
         1, 1, 1, 1, 1};
 
-static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
+static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   //LV_ASSERT_OBJ(kb, LV_OBJX_NAME);
 
   if (event != LV_EVENT_VALUE_CHANGED) return;

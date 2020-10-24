@@ -29,154 +29,90 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_MANUAL_POS_RETURN   1
-#define ID_MANUAL_POS_X1       2
-#define ID_MANUAL_POS_Y1       3
-#define ID_MANUAL_POS_X2       4
-#define ID_MANUAL_POS_Y2       5
-#define ID_MANUAL_POS_X3       6
-#define ID_MANUAL_POS_Y3       7
-#define ID_MANUAL_POS_X4       8
-#define ID_MANUAL_POS_Y4       9
-#define ID_MANUAL_POS_X5       10
-#define ID_MANUAL_POS_Y5       11
-#define ID_MANUAL_POS_DOWN     12
-#define ID_MANUAL_POS_UP       13
+#define ID_MANUAL_POS_RETURN 1
+#define ID_MANUAL_POS_X1     2
+#define ID_MANUAL_POS_Y1     3
+#define ID_MANUAL_POS_X2     4
+#define ID_MANUAL_POS_Y2     5
+#define ID_MANUAL_POS_X3     6
+#define ID_MANUAL_POS_Y3     7
+#define ID_MANUAL_POS_X4     8
+#define ID_MANUAL_POS_Y4     9
+#define ID_MANUAL_POS_X5    10
+#define ID_MANUAL_POS_Y5    11
+#define ID_MANUAL_POS_DOWN  12
+#define ID_MANUAL_POS_UP    13
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_MANUAL_POS_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_manual_level_pos_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_manual_level_pos_settings();
+      draw_return_ui();
       break;
     case ID_MANUAL_POS_X1:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_x1;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_x1;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y1:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y1;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y1;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X2:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_x2;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_x2;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y2:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y2;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y2;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X3:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_x3;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_x3;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y3:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y3;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y3;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X4:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_x4;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_x4;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y4:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y4;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y4;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_X5:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y5;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y5;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_Y5:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = level_pos_y5;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_number_key();
-      }
+      value = level_pos_y5;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_number_key();
       break;
     case ID_MANUAL_POS_UP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_manual_level_pos_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_manual_level_pos_settings();
       break;
     case ID_MANUAL_POS_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_manual_level_pos_settings();
-        lv_draw_manual_level_pos_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_manual_level_pos_settings();
+      lv_draw_manual_level_pos_settings();
       break;
   }
 }

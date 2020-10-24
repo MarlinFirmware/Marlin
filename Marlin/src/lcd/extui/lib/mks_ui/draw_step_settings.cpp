@@ -29,8 +29,8 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_STEP_RETURN  1
 #define ID_STEP_X       2
@@ -41,87 +41,48 @@ static lv_obj_t * scr;
 #define ID_STEP_DOWN    7
 #define ID_STEP_UP      8
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_STEP_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_step_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_step_settings();
+      draw_return_ui();
       break;
     case ID_STEP_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = Xstep;
-        lv_clear_step_settings();
-        lv_draw_number_key();
-      }
+      value = Xstep;
+      lv_clear_step_settings();
+      lv_draw_number_key();
       break;
     case ID_STEP_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = Ystep;
-        lv_clear_step_settings();
-        lv_draw_number_key();
-      }
+      value = Ystep;
+      lv_clear_step_settings();
+      lv_draw_number_key();
       break;
     case ID_STEP_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = Zstep;
-        lv_clear_step_settings();
-        lv_draw_number_key();
-      }
+      value = Zstep;
+      lv_clear_step_settings();
+      lv_draw_number_key();
       break;
     case ID_STEP_E0:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E0step;
-        lv_clear_step_settings();
-        lv_draw_number_key();
-      }
+      value = E0step;
+      lv_clear_step_settings();
+      lv_draw_number_key();
       break;
     case ID_STEP_E1:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E1step;
-        lv_clear_step_settings();
-        lv_draw_number_key();
-      }
+      value = E1step;
+      lv_clear_step_settings();
+      lv_draw_number_key();
       break;
     case ID_STEP_UP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_step_settings();
-        lv_draw_step_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_step_settings();
+      lv_draw_step_settings();
       break;
     case ID_STEP_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_step_settings();
-        lv_draw_step_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_step_settings();
+      lv_draw_step_settings();
       break;
   }
 }

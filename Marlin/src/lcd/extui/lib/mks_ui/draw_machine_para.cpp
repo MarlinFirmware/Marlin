@@ -28,61 +28,37 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_PARA_RETURN        1
-#define ID_PARA_MACHINE       2
-#define ID_PARA_MOTOR         3
-#define ID_PARA_LEVEL         4
-#define ID_PARA_ADVANCE       5
+#define ID_PARA_RETURN  1
+#define ID_PARA_MACHINE 2
+#define ID_PARA_MOTOR   3
+#define ID_PARA_LEVEL   4
+#define ID_PARA_ADVANCE 5
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_PARA_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_para();
-        draw_return_ui();
-      }
+      lv_clear_machine_para();
+      draw_return_ui();
       break;
     case ID_PARA_MACHINE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_para();
-        lv_draw_machine_settings();
-      }
+      lv_clear_machine_para();
+      lv_draw_machine_settings();
       break;
     case ID_PARA_MOTOR:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_para();
-        lv_draw_motor_settings();
-      }
+      lv_clear_machine_para();
+      lv_draw_motor_settings();
       break;
     case ID_PARA_LEVEL:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_para();
-        lv_draw_level_settings();
-      }
+      lv_clear_machine_para();
+      lv_draw_level_settings();
       break;
     case ID_PARA_ADVANCE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_machine_para();
-        lv_draw_advance_settings();
-      }
+      lv_clear_machine_para();
+      lv_draw_advance_settings();
       break;
   }
 }

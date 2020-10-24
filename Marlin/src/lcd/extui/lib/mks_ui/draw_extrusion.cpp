@@ -52,105 +52,74 @@ static lv_obj_t *ExtruText;
 
 static int32_t extrudeAmount;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_E_ADD:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-          extrudeAmount += uiCfg.extruStep;
-          disp_extru_amount();
-        }
-      }
-      break;
-    case ID_E_DEC:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-          extrudeAmount -= uiCfg.extruStep;
-          disp_extru_amount();
-        }
-      }
-      break;
-    case ID_E_TYPE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (ENABLED(HAS_MULTI_EXTRUDER)) {
-          if (uiCfg.curSprayerChoose == 0) {
-            uiCfg.curSprayerChoose = 1;
-            queue.inject_P(PSTR("T1"));
-          }
-          else {
-            uiCfg.curSprayerChoose = 0;
-            queue.inject_P(PSTR("T0"));
-          }
-        }
-        else
-          uiCfg.curSprayerChoose = 0;
-
-        extrudeAmount = 0;
-        disp_hotend_temp();
-        disp_ext_type();
+      if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
+        extrudeAmount += uiCfg.extruStep;
         disp_extru_amount();
       }
       break;
-    case ID_E_STEP:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+    case ID_E_DEC:
+      if (thermalManager.temp_hotend[uiCfg.curSprayerChoose].celsius >= EXTRUDE_MINTEMP) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P((char *)public_buf_l, PSTR("G1 E%d F%d"), 0 - uiCfg.extruStep, 60 * uiCfg.extruSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
+        extrudeAmount -= uiCfg.extruStep;
+        disp_extru_amount();
       }
-      else if (event == LV_EVENT_RELEASED) {
-        switch (abs(uiCfg.extruStep)) {
-          case  1: uiCfg.extruStep = 5; break;
-          case  5: uiCfg.extruStep = 10; break;
-          case 10: uiCfg.extruStep = 1; break;
-          default: break;
+      break;
+    case ID_E_TYPE:
+      if (ENABLED(HAS_MULTI_EXTRUDER)) {
+        if (uiCfg.curSprayerChoose == 0) {
+          uiCfg.curSprayerChoose = 1;
+          queue.inject_P(PSTR("T1"));
         }
-        disp_ext_step();
+        else {
+          uiCfg.curSprayerChoose = 0;
+          queue.inject_P(PSTR("T0"));
+        }
       }
+      else
+        uiCfg.curSprayerChoose = 0;
+
+      extrudeAmount = 0;
+      disp_hotend_temp();
+      disp_ext_type();
+      disp_extru_amount();
+      break;
+    case ID_E_STEP:
+      switch (abs(uiCfg.extruStep)) {
+        case  1: uiCfg.extruStep = 5; break;
+        case  5: uiCfg.extruStep = 10; break;
+        case 10: uiCfg.extruStep = 1; break;
+        default: break;
+      }
+      disp_ext_step();
       break;
     case ID_E_SPEED:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      switch (uiCfg.extruSpeed) {
+        case  1: uiCfg.extruSpeed = 10; break;
+        case 10: uiCfg.extruSpeed = 20; break;
+        case 20: uiCfg.extruSpeed = 1; break;
+        default: break;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        switch (uiCfg.extruSpeed) {
-          case  1: uiCfg.extruSpeed = 10; break;
-          case 10: uiCfg.extruSpeed = 20; break;
-          case 20: uiCfg.extruSpeed = 1; break;
-          default: break;
-        }
-        disp_ext_speed();
-      }
+      disp_ext_speed();
       break;
     case ID_E_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }
 
 void lv_draw_extrusion(void) {
-  lv_obj_t *buttonAdd;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != EXTRUSION_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = EXTRUSION_UI;
@@ -164,7 +133,7 @@ void lv_draw_extrusion(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);
+  lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
   lv_big_button_create(scr, "F:/bmp_out.bin", extrude_menu.out, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_E_DEC);
 
@@ -183,9 +152,9 @@ void lv_draw_extrusion(void) {
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_RETURN);
 
   // Create labels on the image buttons
-  labelType             = lv_label_create_empty(buttonType);
-  labelStep             = lv_label_create_empty(buttonStep);
-  labelSpeed            = lv_label_create_empty(buttonSpeed);
+  labelType = lv_label_create_empty(buttonType);
+  labelStep = lv_label_create_empty(buttonStep);
+  labelSpeed = lv_label_create_empty(buttonSpeed);
 
   disp_ext_type();
   disp_ext_step();

@@ -33,8 +33,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_M_POINT1      1
 #define ID_M_POINT2      2
@@ -43,114 +43,74 @@ static lv_obj_t * scr;
 #define ID_M_POINT5      5
 #define ID_MANUAL_RETURN 6
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+
   switch (obj->mks_obj_id) {
     case ID_M_POINT1:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-
-        if (queue.length == 0) {
-          if (uiCfg.leveling_first_time) {
-            queue.enqueue_now_P(PSTR("G28"));
-            uiCfg.leveling_first_time = 0;
-          }
-
-          queue.enqueue_now_P(PSTR("G1 Z10"));
-
-          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[0][0], (int)gCfgItems.levelingPos[0][1]);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G1 Z0"));
+      if (queue.length == 0) {
+        if (uiCfg.leveling_first_time) {
+          queue.enqueue_now_P(PSTR("G28"));
+          uiCfg.leveling_first_time = 0;
         }
+        queue.enqueue_now_P(PSTR("G1 Z10"));
+        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[0][0], (int)gCfgItems.levelingPos[0][1]);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G1 Z0"));
       }
       break;
     case ID_M_POINT2:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length == 0) {
-          if (uiCfg.leveling_first_time) {
-            queue.enqueue_now_P(PSTR("G28"));
-            uiCfg.leveling_first_time = 0;
-          }
-
-          queue.enqueue_now_P(PSTR("G1 Z10"));
-
-          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[1][0], (int)gCfgItems.levelingPos[1][1]);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G1 Z0"));
+      if (queue.length == 0) {
+        if (uiCfg.leveling_first_time) {
+          queue.enqueue_now_P(PSTR("G28"));
+          uiCfg.leveling_first_time = 0;
         }
+        queue.enqueue_now_P(PSTR("G1 Z10"));
+        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[1][0], (int)gCfgItems.levelingPos[1][1]);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G1 Z0"));
       }
       break;
     case ID_M_POINT3:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length == 0) {
-          if (uiCfg.leveling_first_time) {
-            queue.enqueue_now_P(PSTR("G28"));
-            uiCfg.leveling_first_time = 0;
-          }
-
-          queue.enqueue_now_P(PSTR("G1 Z10"));
-
-          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[2][0], (int)gCfgItems.levelingPos[2][1]);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G1 Z0"));
+      if (queue.length == 0) {
+        if (uiCfg.leveling_first_time) {
+          queue.enqueue_now_P(PSTR("G28"));
+          uiCfg.leveling_first_time = 0;
         }
+        queue.enqueue_now_P(PSTR("G1 Z10"));
+        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[2][0], (int)gCfgItems.levelingPos[2][1]);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G1 Z0"));
       }
 
       break;
     case ID_M_POINT4:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length == 0) {
-          if (uiCfg.leveling_first_time) {
-            queue.enqueue_now_P(PSTR("G28"));
-            uiCfg.leveling_first_time = 0;
-          }
-
-          queue.enqueue_now_P(PSTR("G1 Z10"));
-
-          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[3][0], (int)gCfgItems.levelingPos[3][1]);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G1 Z0"));
+      if (queue.length == 0) {
+        if (uiCfg.leveling_first_time) {
+          queue.enqueue_now_P(PSTR("G28"));
+          uiCfg.leveling_first_time = 0;
         }
+        queue.enqueue_now_P(PSTR("G1 Z10"));
+        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[3][0], (int)gCfgItems.levelingPos[3][1]);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G1 Z0"));
       }
       break;
     case ID_M_POINT5:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length == 0) {
-          if (uiCfg.leveling_first_time) {
-            queue.enqueue_now_P(PSTR("G28"));
-            uiCfg.leveling_first_time = 0;
-          }
-
-          queue.enqueue_now_P(PSTR("G1 Z10"));
-
-          sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[4][0], (int)gCfgItems.levelingPos[4][1]);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G1 Z0"));
+      if (queue.length == 0) {
+        if (uiCfg.leveling_first_time) {
+          queue.enqueue_now_P(PSTR("G28"));
+          uiCfg.leveling_first_time = 0;
         }
+        queue.enqueue_now_P(PSTR("G1 Z10"));
+        sprintf_P(public_buf_l, PSTR("G1 X%d Y%d"), (int)gCfgItems.levelingPos[4][0], (int)gCfgItems.levelingPos[4][1]);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G1 Z0"));
       }
-
       break;
     case ID_MANUAL_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_manualLevel();
-        lv_draw_tool();
-      }
+      lv_clear_manualLevel();
+      lv_draw_tool();
       break;
   }
 }

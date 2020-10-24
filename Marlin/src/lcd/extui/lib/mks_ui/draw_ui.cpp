@@ -68,7 +68,7 @@ extern bool once_flag;
 extern uint8_t sel_id;
 extern uint8_t public_buf[512];
 extern uint8_t bmp_public_buf[17 * 1024];
-extern lv_group_t * g;
+extern lv_group_t *g;
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
 
@@ -1834,7 +1834,7 @@ void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
 
 #endif
 
-void lv_ex_line(lv_obj_t * line, lv_point_t *points) {
+void lv_ex_line(lv_obj_t *line, lv_point_t *points) {
   // Copy the previous line and apply the new style
   lv_line_set_points(line, points, 2);     // Set the points
   lv_line_set_style(line, LV_LINE_STYLE_MAIN, &style_line);

@@ -28,64 +28,39 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_ADVANCE_RETURN           1
-#define ID_PAUSE_POS                2
-#define ID_WIFI_PARA                3
-#define ID_FILAMENT_SETTINGS        4
-#define ID_ENCODER_SETTINGS         5
+#define ID_ADVANCE_RETURN     1
+#define ID_PAUSE_POS          2
+#define ID_WIFI_PARA          3
+#define ID_FILAMENT_SETTINGS  4
+#define ID_ENCODER_SETTINGS   5
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_ADVANCE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_advance_settings();
-        draw_return_ui();
-      }
+      lv_clear_advance_settings();
+      draw_return_ui();
       break;
     case ID_PAUSE_POS:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_advance_settings();
-        lv_draw_pause_position();
-      }
+      lv_clear_advance_settings();
+      lv_draw_pause_position();
       break;
     case ID_FILAMENT_SETTINGS:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_advance_settings();
-        lv_draw_filament_settings();
-      }
+      lv_clear_advance_settings();
+      lv_draw_filament_settings();
       break;
     #if ENABLED(USE_WIFI_FUNCTION)
       case ID_WIFI_PARA:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_advance_settings();
-        lv_draw_wifi_settings();
-      }
+      lv_clear_advance_settings();
+      lv_draw_wifi_settings();
       break;
     #endif
     #if HAS_ROTARY_ENCODER
       case ID_ENCODER_SETTINGS:
-        if (event == LV_EVENT_CLICKED) {
-
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          lv_clear_advance_settings();
-          lv_draw_encoder_settings();
-        }
+        lv_clear_advance_settings();
+        lv_draw_encoder_settings();
         break;
     #endif
   }

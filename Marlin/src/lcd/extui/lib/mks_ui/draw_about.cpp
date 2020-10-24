@@ -32,22 +32,18 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
-static lv_obj_t * fw_type, *board; //*fw_version;
+extern lv_group_t *g;
+static lv_obj_t *scr;
+static lv_obj_t *fw_type, *board; //*fw_version;
 
 #define ID_A_RETURN   1
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_A_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // do nothing
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }

@@ -34,8 +34,8 @@
   #include "../../../../module/settings.h"
 #endif
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_TMC_MODE_RETURN 1
 #define ID_TMC_MODE_X      2
@@ -52,7 +52,8 @@ static lv_obj_t *buttonXState = nullptr, *buttonYState = nullptr, *buttonZState 
   static lv_obj_t *buttonE1State = nullptr;
 //#endif
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
 
   auto toggle_chop = [&](auto &stepper, auto &button) {
     const bool isena = stepper.toggle_stepping_mode();
@@ -62,91 +63,52 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
   switch (obj->mks_obj_id) {
     case ID_TMC_MODE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_tmc_step_mode_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_tmc_step_mode_settings();
+      draw_return_ui();
       break;
 
     #if AXIS_HAS_STEALTHCHOP(X)
       case ID_TMC_MODE_X:
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          toggle_chop(stepperX, buttonXState);
-        }
+        toggle_chop(stepperX, buttonXState);
         break;
-    #endif // if AXIS_HAS_STEALTHCHOP(X)
-
+    #endif
     #if AXIS_HAS_STEALTHCHOP(Y)
       case ID_TMC_MODE_Y:
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          toggle_chop(stepperY, buttonYState);
-        }
+        toggle_chop(stepperY, buttonYState);
         break;
-    #endif // if AXIS_HAS_STEALTHCHOP(Y)
-
+    #endif
     #if AXIS_HAS_STEALTHCHOP(Z)
       case ID_TMC_MODE_Z:
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          toggle_chop(stepperZ, buttonZState);
-        }
+        toggle_chop(stepperZ, buttonZState);
         break;
-    #endif // if AXIS_HAS_STEALTHCHOP(Z)
-
+    #endif
     #if AXIS_HAS_STEALTHCHOP(E0)
       case ID_TMC_MODE_E0:
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          toggle_chop(stepperE0, buttonE0State);
-        }
+        toggle_chop(stepperE0, buttonE0State);
         break;
-    #endif // if AXIS_HAS_STEALTHCHOP(E0)
-
+    #endif
     #if AXIS_HAS_STEALTHCHOP(E1)
       case ID_TMC_MODE_E1:
-        if (event == LV_EVENT_CLICKED) {
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          toggle_chop(stepperE1, buttonE1State);
-        }
+        toggle_chop(stepperE1, buttonE1State);
         break;
-    #endif // if AXIS_HAS_STEALTHCHOP(E1)
+    #endif
+
     case ID_TMC_MODE_UP:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_tmc_step_mode_settings();
-        lv_draw_tmc_step_mode_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_tmc_step_mode_settings();
+      lv_draw_tmc_step_mode_settings();
       break;
     case ID_TMC_MODE_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_tmc_step_mode_settings();
-        lv_draw_tmc_step_mode_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_tmc_step_mode_settings();
+      lv_draw_tmc_step_mode_settings();
       break;
   }
 }
 
 void lv_draw_tmc_step_mode_settings(void) {
-  buttonXState  = nullptr;
-  buttonYState  = nullptr;
-  buttonZState  = nullptr;
-  buttonE0State = nullptr;
-  buttonE1State = nullptr;
+  buttonXState = buttonYState = buttonZState = buttonE0State = buttonE1State = nullptr;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != TMC_MODE_UI) {
     disp_state_stack._disp_index++;
@@ -177,18 +139,13 @@ void lv_draw_tmc_step_mode_settings(void) {
 
   if (uiCfg.para_ui_page != 1) {
     buttonXState = lv_screen_menu_item_onoff(scr, machine_menu.X_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_MODE_X, 0, stealth_X);
-
     buttonYState = lv_screen_menu_item_onoff(scr, machine_menu.Y_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_TMC_MODE_Y, 1, stealth_Y);
-
     buttonZState = lv_screen_menu_item_onoff(scr, machine_menu.Z_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_TMC_MODE_Z, 2, stealth_Z);
-
     buttonE0State = lv_screen_menu_item_onoff(scr, machine_menu.E0_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_TMC_MODE_E0, 2, stealth_E0);
-
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.next, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_MODE_DOWN, true);
   }
   else {
     buttonE1State = lv_screen_menu_item_onoff(scr, machine_menu.E1_StepMode, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_TMC_MODE_E1, 0, stealth_E1);
-
     lv_big_button_create(scr, "F:/bmp_back70x40.bin", machine_menu.previous, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y, event_handler, ID_TMC_MODE_UP, true);
   }
 

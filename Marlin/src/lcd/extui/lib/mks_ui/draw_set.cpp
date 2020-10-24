@@ -37,7 +37,7 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 extern lv_group_t*  g;
 
 #define ID_S_WIFI         1
@@ -50,87 +50,43 @@ extern lv_group_t*  g;
 #define ID_S_EEPROM_SET   8
 #define ID_S_RETURN       9
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   #if ENABLED(USE_WIFI_FUNCTION)
     char buf[6] = { 0 };
   #endif
   switch (obj->mks_obj_id) {
-
     case ID_S_FAN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_fan();
-      }
+      lv_clear_set();
+      lv_draw_fan();
       break;
     case ID_S_ABOUT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_about();
-      }
+      lv_clear_set();
+      lv_draw_about();
       break;
-    case ID_S_CONTINUE:
-
-      break;
+    case ID_S_CONTINUE: break;
     case ID_S_MOTOR_OFF:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if HAS_SUICIDE
-          suicide();
-        #else
-          queue.enqueue_now_P(PSTR("M84"));
-        #endif
-      }
+      TERN_(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
       break;
     case ID_S_LANGUAGE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_language();
-      }
+      lv_clear_set();
+      lv_draw_language();
       break;
     case ID_S_MACHINE_PARA:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_machine_para();
-      }
+      lv_clear_set();
+      lv_draw_machine_para();
       break;
     case ID_S_EEPROM_SET:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_eeprom_settings();
-      }
+      lv_clear_set();
+      lv_draw_eeprom_settings();
       break;
     case ID_S_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_set();
-        lv_draw_ready_print();
-      }
+      lv_clear_set();
+      lv_draw_ready_print();
       break;
+
     #if ENABLED(USE_WIFI_FUNCTION)
       case ID_S_WIFI:
-        if (event == LV_EVENT_CLICKED) {
-
-        }
-        else if (event == LV_EVENT_RELEASED) {
         if (gCfgItems.wifi_mode_sel == STA_MODEL) {
           if (wifi_link_state == WIFI_CONNECTED) {
             last_disp_state = SET_UI;
@@ -162,8 +118,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
           lv_clear_set();
           lv_draw_wifi();
         }
-      }
-      break;
+        break;
     #endif
   }
 }

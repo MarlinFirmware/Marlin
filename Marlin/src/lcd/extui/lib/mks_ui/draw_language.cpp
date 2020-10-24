@@ -33,8 +33,6 @@
 #include "../../../../inc/MarlinConfig.h"
 #include <string.h>
 
-//static lv_obj_t *buttonMoveZ,*buttonTest,*buttonZ0,*buttonStop,*buttonReturn;
-
 #define ID_CN       1
 #define ID_T_CN     2
 #define ID_EN       3
@@ -49,122 +47,82 @@
 
 static void disp_language(uint8_t language, uint8_t state);
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 static lv_obj_t *buttonCN, *buttonT_CN, *buttonEN, *buttonRU;
 static lv_obj_t *buttonES, *buttonFR, *buttonIT;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_CN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonCN, "F:/bmp_simplified_cn_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonCN);
-        gCfgItems.language = LANG_SIMPLE_CHINESE;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonCN, "F:/bmp_simplified_cn_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonCN);
+      gCfgItems.language = LANG_SIMPLE_CHINESE;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_T_CN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonT_CN, "F:/bmp_traditional_cn_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonT_CN);
-        gCfgItems.language = LANG_COMPLEX_CHINESE;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonT_CN, "F:/bmp_traditional_cn_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonT_CN);
+      gCfgItems.language = LANG_COMPLEX_CHINESE;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_EN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonEN, "F:/bmp_english_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonEN);
-        gCfgItems.language = LANG_ENGLISH;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonEN, "F:/bmp_english_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonEN);
+      gCfgItems.language = LANG_ENGLISH;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_RU:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonRU, "F:/bmp_russian_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonRU);
-        gCfgItems.language = LANG_RUSSIAN;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonRU, "F:/bmp_russian_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonRU);
+      gCfgItems.language = LANG_RUSSIAN;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_ES:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonES, "F:/bmp_spanish_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonES);
-        gCfgItems.language = LANG_SPANISH;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonES, "F:/bmp_spanish_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonES);
+      gCfgItems.language = LANG_SPANISH;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_FR:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonFR, "F:/bmp_french_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonFR);
-        gCfgItems.language = LANG_FRENCH;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonFR, "F:/bmp_french_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonFR);
+      gCfgItems.language = LANG_FRENCH;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_IT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        disp_language(gCfgItems.language, UNSELECTED);
-        lv_imgbtn_set_src_both(buttonIT, "F:/bmp_italy_sel.bin");
-        lv_obj_refresh_ext_draw_pad(buttonIT);
-        gCfgItems.language = LANG_ITALY;
-        update_spi_flash();
-        disp_language_init();
-      }
+      disp_language(gCfgItems.language, UNSELECTED);
+      lv_imgbtn_set_src_both(buttonIT, "F:/bmp_italy_sel.bin");
+      lv_obj_refresh_ext_draw_pad(buttonIT);
+      gCfgItems.language = LANG_ITALY;
+      update_spi_flash();
+      disp_language_init();
       break;
     case ID_L_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        buttonCN   = nullptr;
-        buttonT_CN = nullptr;
-        buttonEN   = nullptr;
-        buttonRU   = nullptr;
-        buttonES   = nullptr;
-        buttonFR   = nullptr;
-        buttonFR   = nullptr;
-        buttonIT   = nullptr;
-        lv_clear_language();
-        lv_draw_set();
-      }
+      buttonCN   = nullptr;
+      buttonT_CN = nullptr;
+      buttonEN   = nullptr;
+      buttonRU   = nullptr;
+      buttonES   = nullptr;
+      buttonFR   = nullptr;
+      buttonFR   = nullptr;
+      buttonIT   = nullptr;
+      lv_clear_language();
+      lv_draw_set();
       break;
-
   }
 }
 

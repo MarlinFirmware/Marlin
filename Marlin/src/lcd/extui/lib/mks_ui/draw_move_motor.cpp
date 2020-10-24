@@ -33,8 +33,8 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 static lv_obj_t *labelV, *buttonV;
 
@@ -47,115 +47,72 @@ static lv_obj_t *labelV, *buttonV;
 #define ID_M_STEP   7
 #define ID_M_RETURN 8
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_M_X_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_one_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 X%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_one_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_one_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 X%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_one_P(PSTR("G90"));
       }
       break;
     case ID_M_X_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 X-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 X-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
       }
       break;
     case ID_M_Y_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Y%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 Y%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
       }
       break;
     case ID_M_Y_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Y-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 Y-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
       }
       break;
     case ID_M_Z_P:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Z%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 Z%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
       }
       break;
     case ID_M_Z_N:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (queue.length <= (BUFSIZE - 3)) {
-          queue.enqueue_now_P(PSTR("G91"));
-          sprintf_P(public_buf_l, PSTR("G1 Z-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
-          queue.enqueue_one_now(public_buf_l);
-          queue.enqueue_now_P(PSTR("G90"));
-        }
+      if (queue.length <= (BUFSIZE - 3)) {
+        queue.enqueue_now_P(PSTR("G91"));
+        sprintf_P(public_buf_l, PSTR("G1 Z-%3.1f F%d"), uiCfg.move_dist, uiCfg.moveSpeed);
+        queue.enqueue_one_now(public_buf_l);
+        queue.enqueue_now_P(PSTR("G90"));
       }
       break;
     case ID_M_STEP:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (abs(10 * (int)uiCfg.move_dist) == 100)
-          uiCfg.move_dist = 0.1;
-        else
-          uiCfg.move_dist *= (float)10;
-
-        disp_move_dist();
-      }
-
+      if (abs(10 * (int)uiCfg.move_dist) == 100)
+        uiCfg.move_dist = 0.1;
+      else
+        uiCfg.move_dist *= (float)10;
+      disp_move_dist();
       break;
     case ID_M_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }
 
 void lv_draw_move_motor(void) {
-  lv_obj_t *buttonXI;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MOVE_MOTOR_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = MOVE_MOTOR_UI;
@@ -168,7 +125,7 @@ void lv_draw_move_motor(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  buttonXI = lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_M_X_P);
+  lv_obj_t *buttonXI = lv_big_button_create(scr, "F:/bmp_xAdd.bin", move_menu.x_add, INTERVAL_V, titleHeight, event_handler, ID_M_X_P);
   lv_obj_clear_protect(buttonXI, LV_PROTECT_FOLLOW);
   lv_big_button_create(scr, "F:/bmp_xDec.bin", move_menu.x_dec, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_X_N);
   lv_big_button_create(scr, "F:/bmp_yAdd.bin", move_menu.y_add, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_M_Y_P);

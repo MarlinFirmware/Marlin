@@ -30,33 +30,24 @@
 
 #if BUTTONS_EXIST(EN1, EN2)
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
-static lv_obj_t * buttonEncoderState = nullptr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
+static lv_obj_t *buttonEncoderState = nullptr;
 
 #define ID_ENCODER_RETURN 1
 #define ID_ENCODER_STATE 2
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_ENCODER_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_encoder_settings();
-        draw_return_ui();
-      }
+      lv_clear_encoder_settings();
+      draw_return_ui();
       break;
     case ID_ENCODER_STATE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        gCfgItems.encoder_enable ^= true;
-        lv_screen_menu_item_onoff_update(buttonEncoderState, gCfgItems.encoder_enable);
-        update_spi_flash();
-      }
+      gCfgItems.encoder_enable ^= true;
+      lv_screen_menu_item_onoff_update(buttonEncoderState, gCfgItems.encoder_enable);
+      update_spi_flash();
       break;
   }
 }

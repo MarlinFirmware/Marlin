@@ -55,189 +55,178 @@
   #include "../../../../feature/pause.h"
 #endif
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
-static lv_obj_t * tempText1;
-static lv_obj_t * filament_bar;
+extern lv_group_t *g;
+static lv_obj_t *scr, *tempText1, *filament_bar;
 
 extern uint8_t sel_id;
 extern bool once_flag, gcode_preview_over;
-extern int upload_result ;
+extern int upload_result;
 extern uint32_t upload_time;
 extern uint32_t upload_size;
 extern bool temps_update_flag;
 
-static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
-  if (event == LV_EVENT_CLICKED) {
-    // nothing to do
-  }
-  else if (event == LV_EVENT_RELEASED) {
-    if (uiCfg.dialogType == DIALOG_TYPE_PRINT_FILE) {
-      #if HAS_GCODE_PREVIEW
-        preview_gcode_prehandle(list_file.file_name[sel_id]);
-      #endif
-      reset_print_time();
-      start_print_time();
+static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+  if (uiCfg.dialogType == DIALOG_TYPE_PRINT_FILE) {
+    #if HAS_GCODE_PREVIEW
+      preview_gcode_prehandle(list_file.file_name[sel_id]);
+    #endif
+    reset_print_time();
+    start_print_time();
 
-      uiCfg.print_state = WORKING;
-      lv_clear_dialog();
-      lv_draw_printing();
+    uiCfg.print_state = WORKING;
+    lv_clear_dialog();
+    lv_draw_printing();
 
-      #if ENABLED(SDSUPPORT)
-        if (!gcode_preview_over) {
-          char *cur_name;
-          cur_name = strrchr(list_file.file_name[sel_id], '/');
+    #if ENABLED(SDSUPPORT)
+      if (!gcode_preview_over) {
+        char *cur_name;
+        cur_name = strrchr(list_file.file_name[sel_id], '/');
 
-          SdFile file, *curDir;
-          card.endFilePrint();
-          const char * const fname = card.diveToFile(true, curDir, cur_name);
-          if (!fname) return;
-          if (file.open(curDir, fname, O_READ)) {
-            gCfgItems.curFilesize = file.fileSize();
-            file.close();
-            update_spi_flash();
-          }
-          card.openFileRead(cur_name);
-          if (card.isFileOpen()) {
-            feedrate_percentage = 100;
-            //saved_feedrate_percentage = feedrate_percentage;
-            planner.flow_percentage[0] = 100;
-            planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
-            #if HAS_MULTI_EXTRUDER
-              planner.flow_percentage[1] = 100;
-              planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
-            #endif
-            card.startFileprint();
-            #if ENABLED(POWER_LOSS_RECOVERY)
-              recovery.prepare();
-            #endif
-            once_flag = false;
-          }
+        SdFile file, *curDir;
+        card.endFilePrint();
+        const char * const fname = card.diveToFile(true, curDir, cur_name);
+        if (!fname) return;
+        if (file.open(curDir, fname, O_READ)) {
+          gCfgItems.curFilesize = file.fileSize();
+          file.close();
+          update_spi_flash();
         }
-      #endif
-    }
-    else if (uiCfg.dialogType == DIALOG_TYPE_STOP) {
-      wait_for_heatup = false;
-      stop_print_time();
-      lv_clear_dialog();
-      lv_draw_ready_print();
-
-      #if ENABLED(SDSUPPORT)
-        //card.endFilePrint();
-        //wait_for_heatup = false;
-        uiCfg.print_state           = IDLE;
-        card.flag.abort_sd_printing = true;
-        //queue.clear();
-        //quickstop_stepper();
-        //print_job_timer.stop();
-        //thermalManager.disable_all_heaters();
-
-        //#if ENABLED(POWER_LOSS_RECOVERY)
-        //  recovery.purge();
-        //#endif
-        //queue.enqueue_now_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0"));
-        //queue.inject_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0\nM84\nM107"));
-      #endif
-    }
-    else if (uiCfg.dialogType == DIALOG_TYPE_FINISH_PRINT) {
-      clear_cur_ui();
-      lv_draw_ready_print();
-    }
-    #if ENABLED(ADVANCED_PAUSE_FEATURE)
-      else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_WAITING
-            || uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_INSERT
-            || uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_HEAT
-      ) {
-        wait_for_user = false;
-      }
-      else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
-        pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
-      }
-      else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_RESUME) {
-        clear_cur_ui();
-        draw_return_ui();
+        card.openFileRead(cur_name);
+        if (card.isFileOpen()) {
+          feedrate_percentage = 100;
+          //saved_feedrate_percentage = feedrate_percentage;
+          planner.flow_percentage[0] = 100;
+          planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
+          #if HAS_MULTI_EXTRUDER
+            planner.flow_percentage[1] = 100;
+            planner.e_factor[1]        = planner.flow_percentage[1] * 0.01f;
+          #endif
+          card.startFileprint();
+          #if ENABLED(POWER_LOSS_RECOVERY)
+            recovery.prepare();
+          #endif
+          once_flag = false;
+        }
       }
     #endif
-    else if (uiCfg.dialogType == DIALOG_STORE_EEPROM_TIPS) {
-      TERN_(EEPROM_SETTINGS, (void)settings.save());
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else if (uiCfg.dialogType == DIALOG_READ_EEPROM_TIPS) {
-      TERN_(EEPROM_SETTINGS, (void)settings.load());
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else if (uiCfg.dialogType == DIALOG_REVERT_EEPROM_TIPS) {
-      TERN_(EEPROM_SETTINGS, (void)settings.reset());
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else if (uiCfg.dialogType == DIALOG_WIFI_CONFIG_TIPS) {
-      uiCfg.configWifi = 1;
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED) {
-      uiCfg.filament_heat_completed_load = 1;
-    }
-    else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED) {
-      uiCfg.filament_heat_completed_unload = 1;
-    }
-    else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_COMPLETED
-          || uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOAD_COMPLETED
+  }
+  else if (uiCfg.dialogType == DIALOG_TYPE_STOP) {
+    wait_for_heatup = false;
+    stop_print_time();
+    lv_clear_dialog();
+    lv_draw_ready_print();
+
+    #if ENABLED(SDSUPPORT)
+      //card.endFilePrint();
+      //wait_for_heatup = false;
+      uiCfg.print_state           = IDLE;
+      card.flag.abort_sd_printing = true;
+      //queue.clear();
+      //quickstop_stepper();
+      //print_job_timer.stop();
+      //thermalManager.disable_all_heaters();
+
+      //#if ENABLED(POWER_LOSS_RECOVERY)
+      //  recovery.purge();
+      //#endif
+      //queue.enqueue_now_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0"));
+      //queue.inject_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0\nM84\nM107"));
+    #endif
+  }
+  else if (uiCfg.dialogType == DIALOG_TYPE_FINISH_PRINT) {
+    clear_cur_ui();
+    lv_draw_ready_print();
+  }
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_WAITING
+          || uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_INSERT
+          || uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_HEAT
     ) {
+      wait_for_user = false;
+    }
+    else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
+      pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
+    }
+    else if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_RESUME) {
       clear_cur_ui();
       draw_return_ui();
     }
+  #endif
+  else if (uiCfg.dialogType == DIALOG_STORE_EEPROM_TIPS) {
+    TERN_(EEPROM_SETTINGS, (void)settings.save());
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else if (uiCfg.dialogType == DIALOG_READ_EEPROM_TIPS) {
+    TERN_(EEPROM_SETTINGS, (void)settings.load());
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else if (uiCfg.dialogType == DIALOG_REVERT_EEPROM_TIPS) {
+    TERN_(EEPROM_SETTINGS, (void)settings.reset());
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else if (uiCfg.dialogType == DIALOG_WIFI_CONFIG_TIPS) {
+    uiCfg.configWifi = 1;
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED) {
+    uiCfg.filament_heat_completed_load = 1;
+  }
+  else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED) {
+    uiCfg.filament_heat_completed_unload = 1;
+  }
+  else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_COMPLETED
+        || uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOAD_COMPLETED
+  ) {
+    clear_cur_ui();
+    draw_return_ui();
   }
 }
 
-static void btn_cancel_event_cb(lv_obj_t * btn, lv_event_t event) {
-  if (event == LV_EVENT_CLICKED) {
-    // nothing to do
+static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+  if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
+    #if ENABLED(ADVANCED_PAUSE_FEATURE)
+      pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
+    #endif
   }
-  else if (event == LV_EVENT_RELEASED) {
-    if (uiCfg.dialogType == DIALOG_PAUSE_MESSAGE_OPTION) {
-      #if ENABLED(ADVANCED_PAUSE_FEATURE)
-        pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
-      #endif
-    }
-    else if ((uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT)
-          || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOAD_HEAT)
-          || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED)
-          || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)
-    ) {
-      thermalManager.temp_hotend[uiCfg.curSprayerChoose].target= uiCfg.desireSprayerTempBak;
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else if ((uiCfg.dialogType   == DIALOG_TYPE_FILAMENT_LOADING)
-       || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOADING)
-    ) {
-      queue.enqueue_one_P(PSTR("M410"));
-      uiCfg.filament_rate                = 0;
-      uiCfg.filament_loading_completed   = 0;
-      uiCfg.filament_unloading_completed = 0;
-      uiCfg.filament_loading_time_flg    = 0;
-      uiCfg.filament_loading_time_cnt    = 0;
-      uiCfg.filament_unloading_time_flg  = 0;
-      uiCfg.filament_unloading_time_cnt  = 0;
-      thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
-      clear_cur_ui();
-      draw_return_ui();
-    }
-    else {
-      clear_cur_ui();
-      draw_return_ui();
-    }
+  else if ((uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT)
+        || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOAD_HEAT)
+        || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_LOAD_COMPLETED)
+        || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_HEAT_UNLOAD_COMPLETED)
+  ) {
+    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target= uiCfg.desireSprayerTempBak;
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else if ((uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOADING)
+     || (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_UNLOADING)
+  ) {
+    queue.enqueue_one_P(PSTR("M410"));
+    uiCfg.filament_rate                = 0;
+    uiCfg.filament_loading_completed   = 0;
+    uiCfg.filament_unloading_completed = 0;
+    uiCfg.filament_loading_time_flg    = 0;
+    uiCfg.filament_loading_time_cnt    = 0;
+    uiCfg.filament_unloading_time_flg  = 0;
+    uiCfg.filament_unloading_time_cnt  = 0;
+    thermalManager.temp_hotend[uiCfg.curSprayerChoose].target = uiCfg.desireSprayerTempBak;
+    clear_cur_ui();
+    draw_return_ui();
+  }
+  else {
+    clear_cur_ui();
+    draw_return_ui();
   }
 }
 
 void lv_draw_dialog(uint8_t type) {
-
-  lv_obj_t * btnOk = nullptr;
-  lv_obj_t * btnCancel = nullptr;
+  lv_obj_t *btnOk = nullptr;
+  lv_obj_t *btnCancel = nullptr;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != DIALOG_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = DIALOG_UI;

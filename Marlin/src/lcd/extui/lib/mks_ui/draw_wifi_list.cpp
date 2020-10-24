@@ -39,61 +39,48 @@
 WIFI_LIST wifi_list;
 list_menu_def list_menu;
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 static lv_obj_t *buttonWifiN[NUMBER_OF_PAGE];
 static lv_obj_t *labelWifiText[NUMBER_OF_PAGE];
 static lv_obj_t *labelPageText;
 
-#define ID_WL_RETURN      11
-#define ID_WL_DOWN        12
+#define ID_WL_RETURN 11
+#define ID_WL_DOWN   12
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+
   if (obj->mks_obj_id == ID_WL_RETURN) {
-    if (event == LV_EVENT_CLICKED) {
-
-    }
-    else if (event == LV_EVENT_RELEASED) {
-      clear_cur_ui();
-      lv_draw_set();
-    }
+    clear_cur_ui();
+    lv_draw_set();
   }
   else if (obj->mks_obj_id == ID_WL_DOWN) {
-    if (event == LV_EVENT_CLICKED) {
-
-    }
-    else if (event == LV_EVENT_RELEASED) {
-      if (wifi_list.getNameNum > 0) {
-        if ((wifi_list.nameIndex + NUMBER_OF_PAGE) >= wifi_list.getNameNum) {
-          wifi_list.nameIndex = 0;
-          wifi_list.currentWifipage = 1;
-        }
-        else {
-          wifi_list.nameIndex += NUMBER_OF_PAGE;
-          wifi_list.currentWifipage++;
-        }
-        disp_wifi_list();
+    if (wifi_list.getNameNum > 0) {
+      if ((wifi_list.nameIndex + NUMBER_OF_PAGE) >= wifi_list.getNameNum) {
+        wifi_list.nameIndex = 0;
+        wifi_list.currentWifipage = 1;
       }
+      else {
+        wifi_list.nameIndex += NUMBER_OF_PAGE;
+        wifi_list.currentWifipage++;
+      }
+      disp_wifi_list();
     }
   }
   else {
     for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
       if (obj->mks_obj_id == i + 1) {
-        if (event == LV_EVENT_CLICKED) {
-
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          if (wifi_list.getNameNum != 0) {
-            const bool do_wifi = wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName, (const char *)wifi_list.wifiName[wifi_list.nameIndex + i]) == 0;
-            wifi_list.nameIndex += i;
-            last_disp_state = WIFI_LIST_UI;
-            lv_clear_wifi_list();
-            if (do_wifi)
-              lv_draw_wifi();
-            else {
-              keyboard_value = wifiConfig;
-              lv_draw_keyboard();
-            }
+        if (wifi_list.getNameNum != 0) {
+          const bool do_wifi = wifi_link_state == WIFI_CONNECTED && strcmp((const char *)wifi_list.wifiConnectedName, (const char *)wifi_list.wifiName[wifi_list.nameIndex + i]) == 0;
+          wifi_list.nameIndex += i;
+          last_disp_state = WIFI_LIST_UI;
+          lv_clear_wifi_list();
+          if (do_wifi)
+            lv_draw_wifi();
+          else {
+            keyboard_value = wifiConfig;
+            lv_draw_keyboard();
           }
         }
       }
@@ -102,8 +89,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_wifi_list(void) {
-  lv_obj_t *buttonBack = nullptr, *buttonDown = nullptr;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_LIST_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_LIST_UI;
@@ -116,8 +101,8 @@ void lv_draw_wifi_list(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
+  lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
+  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
 
   for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
     buttonWifiN[i] = lv_label_btn_create(scr, 0, NAME_BTN_Y * i + 10 + titleHeight, NAME_BTN_X, NAME_BTN_Y, event_handler, i + 1);
@@ -141,6 +126,7 @@ void lv_draw_wifi_list(void) {
     memset(wifi_list.wifiConnectedName, 0, sizeof(&wifi_list.wifiConnectedName));
     memcpy(wifi_list.wifiConnectedName, wifiPara.ap_name, sizeof(wifi_list.wifiConnectedName));
   }
+
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonDown);

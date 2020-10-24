@@ -31,8 +31,8 @@
 #include "../../../../module/stepper/indirection.h"
 #include "../../../../feature/tmc_util.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_SENSITIVITY_RETURN   1
 #define ID_SENSITIVITY_X        2
@@ -40,57 +40,33 @@ static lv_obj_t * scr;
 #define ID_SENSITIVITY_Z        4
 #define ID_SENSITIVITY_Z2       5
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_SENSITIVITY_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_homing_sensitivity_settings();
-        draw_return_ui();
-      }
+      lv_clear_homing_sensitivity_settings();
+      draw_return_ui();
       break;
     case ID_SENSITIVITY_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = x_sensitivity;
-        lv_clear_homing_sensitivity_settings();
-        lv_draw_number_key();
-      }
+      value = x_sensitivity;
+      lv_clear_homing_sensitivity_settings();
+      lv_draw_number_key();
       break;
     case ID_SENSITIVITY_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = y_sensitivity;
-        lv_clear_homing_sensitivity_settings();
-        lv_draw_number_key();
-      }
+      value = y_sensitivity;
+      lv_clear_homing_sensitivity_settings();
+      lv_draw_number_key();
       break;
     case ID_SENSITIVITY_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = z_sensitivity;
-        lv_clear_homing_sensitivity_settings();
-        lv_draw_number_key();
-      }
+      value = z_sensitivity;
+      lv_clear_homing_sensitivity_settings();
+      lv_draw_number_key();
       break;
     #if Z2_SENSORLESS
       case ID_SENSITIVITY_Z2:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = z2_sensitivity;
-        lv_clear_homing_sensitivity_settings();
-        lv_draw_number_key();
-      }
+      value = z2_sensitivity;
+      lv_clear_homing_sensitivity_settings();
+      lv_draw_number_key();
       break;
     #endif
   }

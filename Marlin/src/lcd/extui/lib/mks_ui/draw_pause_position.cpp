@@ -29,54 +29,35 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_PAUSE_RETURN 1
 #define ID_PAUSE_X      2
 #define ID_PAUSE_Y      3
 #define ID_PAUSE_Z      4
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_PAUSE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_pause_position();
-        draw_return_ui();
-      }
+      lv_clear_pause_position();
+      draw_return_ui();
       break;
     case ID_PAUSE_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_x;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_x;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
     case ID_PAUSE_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_y;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_y;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
     case ID_PAUSE_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_z;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_z;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
   }
 }

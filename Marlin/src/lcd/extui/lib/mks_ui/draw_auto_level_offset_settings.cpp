@@ -29,54 +29,35 @@
 #include "../../../../module/probe.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_OFFSET_RETURN   1
 #define ID_OFFSET_X        2
 #define ID_OFFSET_Y        3
 #define ID_OFFSET_Z        4
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_OFFSET_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_auto_level_offset_settings();
-        draw_return_ui();
-      }
+      lv_clear_auto_level_offset_settings();
+      draw_return_ui();
       break;
     case ID_OFFSET_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = x_offset;
-        lv_clear_auto_level_offset_settings();
-        lv_draw_number_key();
-      }
+      value = x_offset;
+      lv_clear_auto_level_offset_settings();
+      lv_draw_number_key();
       break;
     case ID_OFFSET_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = y_offset;
-        lv_clear_auto_level_offset_settings();
-        lv_draw_number_key();
-      }
+      value = y_offset;
+      lv_clear_auto_level_offset_settings();
+      lv_draw_number_key();
       break;
     case ID_OFFSET_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = z_offset;
-        lv_clear_auto_level_offset_settings();
-        lv_draw_number_key();
-      }
+      value = z_offset;
+      lv_clear_auto_level_offset_settings();
+      lv_draw_number_key();
       break;
   }
 }

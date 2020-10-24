@@ -28,8 +28,8 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_EEPROM_RETURN        1
 #define ID_EEPROM_STORE         2
@@ -39,45 +39,26 @@ static lv_obj_t * scr;
 #define ID_EEPROM_REVERT        6
 #define ID_EEPROM_REVERT_ARROW  7
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_EEPROM_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_eeprom_settings();
-        draw_return_ui();
-      }
+      lv_clear_eeprom_settings();
+      draw_return_ui();
       break;
     case ID_EEPROM_STORE:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_eeprom_settings();
-        lv_draw_dialog(DIALOG_STORE_EEPROM_TIPS);
-      }
+      lv_clear_eeprom_settings();
+      lv_draw_dialog(DIALOG_STORE_EEPROM_TIPS);
       break;
     #if 0
       case ID_EEPROM_READ:
-        if (event == LV_EVENT_CLICKED) {
-
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          lv_clear_eeprom_settings();
-          lv_draw_dialog(DIALOG_READ_EEPROM_TIPS);
-        }
+        lv_clear_eeprom_settings();
+        lv_draw_dialog(DIALOG_READ_EEPROM_TIPS);
         break;
     #endif
-
     case ID_EEPROM_REVERT:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_eeprom_settings();
-        lv_draw_dialog(DIALOG_REVERT_EEPROM_TIPS);
-      }
+      lv_clear_eeprom_settings();
+      lv_draw_dialog(DIALOG_REVERT_EEPROM_TIPS);
       break;
   }
 }

@@ -30,7 +30,7 @@
 
 #include "draw_ui.h"
 
-extern lv_group_t * g;
+extern lv_group_t *g;
 static lv_obj_t *scr, *labelModelValue = nullptr, *buttonModelValue = nullptr, *labelCloudValue = nullptr;
 
 #define ID_WIFI_RETURN    1
@@ -40,83 +40,54 @@ static lv_obj_t *scr, *labelModelValue = nullptr, *buttonModelValue = nullptr, *
 #define ID_WIFI_CLOUD     5
 #define ID_WIFI_CONFIG    6
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_WIFI_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_wifi_settings();
-        draw_return_ui();
-      }
-    break;
+      lv_clear_wifi_settings();
+      draw_return_ui();
+      break;
     case ID_WIFI_MODEL:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (gCfgItems.wifi_mode_sel == AP_MODEL) {
-          gCfgItems.wifi_mode_sel = STA_MODEL;
-          lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
-          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
-          update_spi_flash();
-        }
-        else {
-          gCfgItems.wifi_mode_sel = AP_MODEL;
-          lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
-          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
-          update_spi_flash();
-        }
-      }
-    break;
-    case ID_WIFI_NAME:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        keyboard_value = wifiName;
-        lv_clear_wifi_settings();
-        lv_draw_keyboard();
-      }
-    break;
-    case ID_WIFI_PASSWORD:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-      keyboard_value = wifiPassWord;
-        lv_clear_wifi_settings();
-        lv_draw_keyboard();
-      }
-    break;
-    case ID_WIFI_CLOUD:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (gCfgItems.cloud_enable) {
-          gCfgItems.cloud_enable = false;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_WIFI_CLOUD, "bmp_disable.bin", 0);
-          lv_label_set_text(labelCloudValue, machine_menu.disable);
-        }
-        else {
-          gCfgItems.cloud_enable = true;
-          lv_obj_set_event_cb_mks(obj, event_handler, ID_WIFI_CLOUD, "bmp_enable.bin", 0);
-          lv_label_set_text(labelCloudValue, machine_menu.enable);
-        }
+      if (gCfgItems.wifi_mode_sel == AP_MODEL) {
+        gCfgItems.wifi_mode_sel = STA_MODEL;
+        lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
+        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
         update_spi_flash();
       }
-    break;
+      else {
+        gCfgItems.wifi_mode_sel = AP_MODEL;
+        lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
+        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
+        update_spi_flash();
+      }
+      break;
+    case ID_WIFI_NAME:
+      keyboard_value = wifiName;
+      lv_clear_wifi_settings();
+      lv_draw_keyboard();
+      break;
+    case ID_WIFI_PASSWORD:
+      keyboard_value = wifiPassWord;
+      lv_clear_wifi_settings();
+      lv_draw_keyboard();
+      break;
+    case ID_WIFI_CLOUD:
+      if (gCfgItems.cloud_enable) {
+        gCfgItems.cloud_enable = false;
+        lv_obj_set_event_cb_mks(obj, event_handler, ID_WIFI_CLOUD, "bmp_disable.bin", 0);
+        lv_label_set_text(labelCloudValue, machine_menu.disable);
+      }
+      else {
+        gCfgItems.cloud_enable = true;
+        lv_obj_set_event_cb_mks(obj, event_handler, ID_WIFI_CLOUD, "bmp_enable.bin", 0);
+        lv_label_set_text(labelCloudValue, machine_menu.enable);
+      }
+      update_spi_flash();
+      break;
     case ID_WIFI_CONFIG:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_wifi_settings();
-        lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
-      }
-    break;
+      lv_clear_wifi_settings();
+      lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
+      break;
   }
 }
 
@@ -126,7 +97,7 @@ void lv_draw_wifi_settings(void) {
   lv_obj_t *labelNameText = nullptr, *buttonNameValue = nullptr, *labelNameValue = nullptr;
   lv_obj_t *labelPassWordText = nullptr, *buttonPassWordValue = nullptr, *labelPassWordValue = nullptr;
   lv_obj_t *labelCloudText = nullptr, *buttonCloudValue = nullptr;
-  lv_obj_t * line1 = nullptr, *line2 = nullptr, *line3 = nullptr, *line4 = nullptr;
+  lv_obj_t *line1 = nullptr, *line2 = nullptr, *line3 = nullptr, *line4 = nullptr;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_SETTINGS_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_SETTINGS_UI;

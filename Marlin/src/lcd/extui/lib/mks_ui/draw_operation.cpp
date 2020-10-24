@@ -35,8 +35,8 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_O_PRE_HEAT   1
 #define ID_O_EXTRUCT    2
@@ -53,111 +53,67 @@ static lv_obj_t *buttonPowerOff;
 
 extern feedRate_t feedrate_mm_s;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_O_PRE_HEAT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_preHeat();
-      }
+      lv_clear_operation();
+      lv_draw_preHeat();
       break;
     case ID_O_EXTRUCT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_extrusion();
-      }
+      lv_clear_operation();
+      lv_draw_extrusion();
       break;
     case ID_O_MOV:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_move_motor();
-      }
+      lv_clear_operation();
+      lv_draw_move_motor();
       break;
     case ID_O_FILAMENT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if HAS_MULTI_EXTRUDER
-          uiCfg.curSprayerChoose_bak = active_extruder;
+      #if HAS_MULTI_EXTRUDER
+        uiCfg.curSprayerChoose_bak = active_extruder;
+      #endif
+      if (uiCfg.print_state == WORKING) {
+        #if ENABLED(SDSUPPORT)
+          card.pauseSDPrint();
+          stop_print_time();
+          uiCfg.print_state = PAUSING;
         #endif
-        if (uiCfg.print_state == WORKING) {
-          #if ENABLED(SDSUPPORT)
-            card.pauseSDPrint();
-            stop_print_time();
-            uiCfg.print_state = PAUSING;
-          #endif
-        }
-        uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
-        uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[active_extruder].target;
-        lv_clear_operation();
-        lv_draw_filament_change();
       }
+      uiCfg.moveSpeed_bak = (uint16_t)feedrate_mm_s;
+      uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[active_extruder].target;
+      lv_clear_operation();
+      lv_draw_filament_change();
       break;
     case ID_O_FAN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_fan();
-      }
+      lv_clear_operation();
+      lv_draw_fan();
       break;
     case ID_O_SPEED:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_change_speed();
-      }
+      lv_clear_operation();
+      lv_draw_change_speed();
       break;
     case ID_O_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
     case ID_O_POWER_OFF:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (gCfgItems.finish_power_off) {
+        gCfgItems.finish_power_off = false;
+        lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_manual_off.bin");
+        lv_label_set_text(label_PowerOff, printing_more_menu.manual);
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (gCfgItems.finish_power_off) {
-          gCfgItems.finish_power_off = false;
-          lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_manual_off.bin");
-          lv_label_set_text(label_PowerOff, printing_more_menu.manual);
-        }
-        else {
-          gCfgItems.finish_power_off = true;
-          lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_auto_off.bin");
-          lv_label_set_text(label_PowerOff, printing_more_menu.auto_close);
-        }
-        lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-        lv_obj_refresh_ext_draw_pad(label_PowerOff);
-        update_spi_flash();
+      else {
+        gCfgItems.finish_power_off = true;
+        lv_imgbtn_set_src_both(buttonPowerOff, "F:/bmp_auto_off.bin");
+        lv_label_set_text(label_PowerOff, printing_more_menu.auto_close);
       }
+      lv_obj_align(label_PowerOff, buttonPowerOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      lv_obj_refresh_ext_draw_pad(label_PowerOff);
+      update_spi_flash();
       break;
     case ID_O_BABY_STEP:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_operation();
-        lv_draw_baby_stepping();
-      }
+      lv_clear_operation();
+      lv_draw_baby_stepping();
       break;
   }
 }

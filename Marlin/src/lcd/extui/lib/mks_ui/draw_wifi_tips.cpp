@@ -30,14 +30,14 @@
 
 #include "draw_ui.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
 
 TIPS_TYPE wifi_tips_type;
 TIPS_DISP tips_disp;
 tips_menu_def tips_menu;
 
 void lv_draw_wifi_tips(void) {
-  static lv_obj_t * text_tips,*wifi_name;
+  static lv_obj_t *text_tips,*wifi_name;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_TIPS_UI) {
     disp_state_stack._disp_index++;

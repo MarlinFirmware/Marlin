@@ -198,10 +198,10 @@ typedef struct {
 } CFG_ITMES;
 
 typedef struct {
-  uint8_t curTempType : 1,
-          curSprayerChoose : 3,
-          stepHeat : 4;
-  uint8_t leveling_first_time : 1,
+  uint8_t curTempType:1,
+          curSprayerChoose:3,
+          stepHeat:4;
+  uint8_t leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
           command_send:1,
@@ -449,7 +449,7 @@ extern void gCfg_to_spiFlah();
 extern void print_time_count();
 
 extern void LV_TASK_HANDLER();
-extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
+extern void lv_ex_line(lv_obj_t *line, lv_point_t *points);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */

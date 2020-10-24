@@ -28,53 +28,33 @@
 
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_LEVEL_RETURN           1
-#define ID_LEVEL_POSITION         2
-#define ID_LEVEL_COMMAND          3
-#define ID_LEVEL_ZOFFSET          4
+#define ID_LEVEL_RETURN   1
+#define ID_LEVEL_POSITION 2
+#define ID_LEVEL_COMMAND  3
+#define ID_LEVEL_ZOFFSET  4
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {
     case ID_LEVEL_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_level_settings();
-        draw_return_ui();
-      }
+      lv_clear_level_settings();
+      draw_return_ui();
       break;
     case ID_LEVEL_POSITION:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_level_settings();
-        lv_draw_manual_level_pos_settings();
-      }
+      lv_clear_level_settings();
+      lv_draw_manual_level_pos_settings();
       break;
     case ID_LEVEL_COMMAND:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        keyboard_value = gcodeCommand;
-        lv_clear_level_settings();
-        lv_draw_keyboard();
-      }
+      keyboard_value = gcodeCommand;
+      lv_clear_level_settings();
+      lv_draw_keyboard();
       break;
     #if HAS_BED_PROBE
       case ID_LEVEL_ZOFFSET:
-        if (event == LV_EVENT_CLICKED) {
-
-        }
-        else if (event == LV_EVENT_RELEASED) {
-          lv_clear_level_settings();
-          lv_draw_auto_level_offset_settings();
-        }
+        lv_clear_level_settings();
+        lv_draw_auto_level_offset_settings();
         break;
     #endif
   }

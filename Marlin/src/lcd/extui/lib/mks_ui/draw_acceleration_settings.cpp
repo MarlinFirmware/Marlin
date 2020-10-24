@@ -29,8 +29,8 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define ID_ACCE_RETURN  1
 #define ID_ACCE_PRINT   2
@@ -44,117 +44,63 @@ static lv_obj_t * scr;
 #define ID_ACCE_UP     10
 #define ID_ACCE_DOWN   11
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_ACCE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_acceleration_settings();
-        draw_return_ui();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_acceleration_settings();
+      draw_return_ui();
       break;
     case ID_ACCE_PRINT:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = PrintAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = PrintAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_RETRA:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = RetractAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = RetractAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_TRAVEL:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = TravelAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = TravelAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = XAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = XAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = YAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = YAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = ZAcceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = ZAcceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_E0:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E0Acceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = E0Acceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_E1:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = E1Acceleration;
-        lv_clear_acceleration_settings();
-        lv_draw_number_key();
-      }
+      value = E1Acceleration;
+      lv_clear_acceleration_settings();
+      lv_draw_number_key();
       break;
     case ID_ACCE_UP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 0;
-        lv_clear_acceleration_settings();
-        lv_draw_acceleration_settings();
-      }
+      uiCfg.para_ui_page = 0;
+      lv_clear_acceleration_settings();
+      lv_draw_acceleration_settings();
       break;
     case ID_ACCE_DOWN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        uiCfg.para_ui_page = 1;
-        lv_clear_acceleration_settings();
-        lv_draw_acceleration_settings();
-      }
+      uiCfg.para_ui_page = 1;
+      lv_clear_acceleration_settings();
+      lv_draw_acceleration_settings();
       break;
   }
 }
