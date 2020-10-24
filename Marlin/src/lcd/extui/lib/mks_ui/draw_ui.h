@@ -467,6 +467,9 @@ void lv_btn_use_label_style(lv_obj_t *btn);
 // Set the same style for both Released and Pressed
 void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
 
+// Create a screen
+lv_obj_t* lv_screen_create();
+
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par);
 

@@ -59,11 +59,7 @@ void lv_draw_about(void) {
   }
   disp_state = ABOUT_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -84,13 +80,13 @@ void lv_draw_about(void) {
   }
 
   //fw_version = lv_label_create(scr, SHORT_BUILD_VERSION);
-  //lv_obj_align(fw_version, NULL, LV_ALIGN_CENTER, 0, -60);
+  //lv_obj_align(fw_version, nullptr, LV_ALIGN_CENTER, 0, -60);
 
   fw_type = lv_label_create(scr, "Firmware: Marlin " SHORT_BUILD_VERSION);
-  lv_obj_align(fw_type, NULL, LV_ALIGN_CENTER, 0, -20);
+  lv_obj_align(fw_type, nullptr, LV_ALIGN_CENTER, 0, -20);
 
   board = lv_label_create(scr, "Board: " BOARD_INFO_NAME);
-  lv_obj_align(board, NULL, LV_ALIGN_CENTER, 0, -60);
+  lv_obj_align(board, nullptr, LV_ALIGN_CENTER, 0, -60);
 }
 
 void lv_clear_about() {

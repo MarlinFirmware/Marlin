@@ -159,10 +159,7 @@ void lv_draw_change_speed(void) {
   }
   disp_state = CHANGE_SPEED_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -171,9 +168,9 @@ void lv_draw_change_speed(void) {
   // Create an Image button
   lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
   lv_big_button_create(scr, "F:/bmp_Dec.bin", speed_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
-  buttonMov  = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
-  buttonExt  = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
-  buttonStep = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
+  buttonMov  = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
+  buttonExt  = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       lv_group_add_obj(g, buttonMov);
@@ -248,7 +245,7 @@ void disp_print_speed() {
   sprintf_P(buf, PSTR("%d%%"), val);
   strcat(public_buf_l, buf);
   lv_label_set_text(printSpeedText, public_buf_l);
-  lv_obj_align(printSpeedText, NULL, LV_ALIGN_CENTER, 0, -65);
+  lv_obj_align(printSpeedText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
 
 void disp_speed_type() {

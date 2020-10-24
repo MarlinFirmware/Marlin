@@ -123,11 +123,7 @@ void lv_draw_fan(void) {
   }
   disp_state = FAN_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -155,7 +151,7 @@ void disp_fan_value() {
   sprintf_P(buf1, PSTR("%3d"), thermalManager.fan_speed[0]);
   strcat(public_buf_l, buf1);
   lv_label_set_text(fanText, public_buf_l);
-  lv_obj_align(fanText, NULL, LV_ALIGN_CENTER, 0, -65);
+  lv_obj_align(fanText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
 
 void lv_clear_fan() {

@@ -137,13 +137,7 @@ void lv_draw_tool(void) {
   }
   disp_state = TOOL_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  //static lv_style_t tool_style;
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 

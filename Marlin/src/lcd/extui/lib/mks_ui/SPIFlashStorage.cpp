@@ -185,7 +185,7 @@ void SPIFlashStorage::loadPage(uint8_t* buffer) {
   // char fname[256];
   // snprintf(fname, sizeof(fname), "./pages/page-%03d.data", m_currentPage);
   // FILE *fp = fopen(fname, "rb");
-  // if (fp != NULL) {
+  // if (fp != nullptr) {
   //     fread(buffer, 1, SPI_FLASH_PageSize, fp);
   //     fclose(fp);
   // }

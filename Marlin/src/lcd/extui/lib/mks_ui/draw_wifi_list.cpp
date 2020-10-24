@@ -102,7 +102,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_wifi_list(void) {
-  lv_obj_t *buttonBack = NULL, *buttonDown = NULL;
+  lv_obj_t *buttonBack = nullptr, *buttonDown = nullptr;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_LIST_UI) {
     disp_state_stack._disp_index++;
@@ -110,11 +110,7 @@ void lv_draw_wifi_list(void) {
   }
   disp_state = WIFI_LIST_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -161,7 +157,7 @@ void disp_wifi_list(void) {
 
   sprintf((char *)tmpStr, list_menu.file_pages, wifi_list.currentWifipage, wifi_list.getPage);
   lv_label_set_text(labelPageText, (const char *)tmpStr);
-  lv_obj_align(labelPageText, NULL, LV_ALIGN_CENTER, 50, -100);
+  lv_obj_align(labelPageText, nullptr, LV_ALIGN_CENTER, 50, -100);
 
   for (i = 0; i < NUMBER_OF_PAGE; i++) {
     memset(tmpStr, 0, sizeof(tmpStr));

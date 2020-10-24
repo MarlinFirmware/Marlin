@@ -32,7 +32,7 @@
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
-static lv_obj_t * buttonEncoderState = NULL;
+static lv_obj_t * buttonEncoderState = nullptr;
 
 #define ID_ENCODER_RETURN 1
 #define ID_ENCODER_STATE 2
@@ -68,10 +68,7 @@ void lv_draw_encoder_settings(void) {
   }
   disp_state = ENCODER_SETTINGS_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.EncoderConfTitle);
   lv_refr_now(lv_refr_get_disp_refreshing());
 

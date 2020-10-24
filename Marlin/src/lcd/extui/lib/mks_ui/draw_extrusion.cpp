@@ -157,11 +157,7 @@ void lv_draw_extrusion(void) {
   }
   disp_state = EXTRUSION_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -172,9 +168,9 @@ void lv_draw_extrusion(void) {
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);
   lv_big_button_create(scr, "F:/bmp_out.bin", extrude_menu.out, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_E_DEC);
 
-  buttonType = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_TYPE);
-  buttonStep = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_STEP);
-  buttonSpeed = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_SPEED);
+  buttonType = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_TYPE);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_STEP);
+  buttonSpeed = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_E_SPEED);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
@@ -251,7 +247,7 @@ void disp_hotend_temp() {
   strcpy(public_buf_l, extrude_menu.temper_text);
   strcat(public_buf_l, buf);
   lv_label_set_text(tempText, public_buf_l);
-  lv_obj_align(tempText, NULL, LV_ALIGN_CENTER, 0, -50);
+  lv_obj_align(tempText, nullptr, LV_ALIGN_CENTER, 0, -50);
 }
 
 void disp_extru_amount() {
@@ -269,7 +265,7 @@ void disp_extru_amount() {
   strcat(public_buf_l, buf1);
 
   lv_label_set_text(ExtruText, public_buf_l);
-  lv_obj_align(ExtruText, NULL, LV_ALIGN_CENTER, 0, -75);
+  lv_obj_align(ExtruText, nullptr, LV_ALIGN_CENTER, 0, -75);
 }
 
 void disp_ext_step() {

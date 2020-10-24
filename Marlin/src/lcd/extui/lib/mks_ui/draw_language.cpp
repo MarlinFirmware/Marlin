@@ -152,14 +152,14 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-        buttonCN   = NULL;
-        buttonT_CN = NULL;
-        buttonEN   = NULL;
-        buttonRU   = NULL;
-        buttonES   = NULL;
-        buttonFR   = NULL;
-        buttonFR   = NULL;
-        buttonIT   = NULL;
+        buttonCN   = nullptr;
+        buttonT_CN = nullptr;
+        buttonEN   = nullptr;
+        buttonRU   = nullptr;
+        buttonES   = nullptr;
+        buttonFR   = nullptr;
+        buttonFR   = nullptr;
+        buttonIT   = nullptr;
         lv_clear_language();
         lv_draw_set();
       }
@@ -221,7 +221,7 @@ static void disp_language(uint8_t language, uint8_t state) {
 
   strcat_P(public_buf_l, PSTR(".bin"));
 
-  lv_obj_set_event_cb_mks(obj, event_handler, id, NULL, 0);
+  lv_obj_set_event_cb_mks(obj, event_handler, id, nullptr, 0);
   lv_imgbtn_set_src_both(obj, public_buf_l);
 
   if (state == UNSELECTED) lv_obj_refresh_ext_draw_pad(obj);
@@ -235,10 +235,7 @@ void lv_draw_language(void) {
   }
   disp_state = LANGUAGE_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 

@@ -1627,9 +1627,18 @@ void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
   lv_btn_set_style(btn, LV_BTN_STYLE_PR,  style);
 }
 
+// Create a screen
+lv_obj_t* lv_screen_create() {
+  scr = lv_obj_create(nullptr, nullptr);
+  lv_obj_set_style(scr, &tft_style_scr);
+  lv_scr_load(scr);
+  lv_obj_clean(scr);
+  return scr;
+}
+
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par) {
-  return lv_label_create(par, (lv_obj_t*)NULL);
+  return lv_label_create(par, (lv_obj_t*)nullptr);
 }
 
 // Create a label with style and text
@@ -1648,9 +1657,9 @@ lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char 
 
 // Create a button with callback, ID, and Style.
 lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/, lv_style_t *style/*=&style_para_value*/) {
-  lv_obj_t *btn = lv_btn_create(par, NULL);
+  lv_obj_t *btn = lv_btn_create(par, nullptr);
   if (id)
-    lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+    lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
   else
     lv_obj_set_event_cb(btn, cb);
   lv_btn_set_style_both(btn, style);
@@ -1659,14 +1668,14 @@ lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/, lv_
 
 // Create a button with callback and ID, with label style.
 lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/) {
-  lv_obj_t *btn = lv_btn_create(par, cb, id, NULL);
+  lv_obj_t *btn = lv_btn_create(par, cb, id, nullptr);
   lv_btn_use_label_style(btn);
   return btn;
 }
 
 // Create a button with callback and ID, with button style.
 lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/) {
-  lv_obj_t *btn = lv_btn_create(par, cb, id, NULL);
+  lv_obj_t *btn = lv_btn_create(par, cb, id, nullptr);
   lv_btn_use_button_style(btn);
   return btn;
 }
@@ -1709,10 +1718,10 @@ lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord
 
 // Create an image button with image, callback, and ID. Use label style.
 lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id/*=0*/) {
-  lv_obj_t *btn = lv_imgbtn_create(par, NULL);
+  lv_obj_t *btn = lv_imgbtn_create(par, nullptr);
   if (img) lv_imgbtn_set_src_both(btn, img);
   if (id)
-    lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+    lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
   else
     lv_obj_set_event_cb(btn, cb);
   lv_imgbtn_use_label_style(btn);
@@ -1747,10 +1756,10 @@ lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text,
 }
 
 lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow) {
-  lv_obj_t *btn = lv_btn_create(par, NULL);   /*Add a button the current screen*/
+  lv_obj_t *btn = lv_btn_create(par, nullptr);   /*Add a button the current screen*/
   lv_obj_set_pos(btn, x, y);                         /*Set its position*/
   lv_obj_set_size(btn, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
-  if (id > -1) lv_obj_set_event_cb_mks(btn, cb, id, NULL, 0);
+  if (id > -1) lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
   lv_btn_use_label_style(btn);
   lv_btn_set_layout(btn, LV_LAYOUT_OFF);
   lv_obj_t *label = lv_label_create_empty(btn);        /*Add a label to the button*/
@@ -1766,7 +1775,7 @@ lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_
 
   if (drawArrow) (void)lv_imgbtn_create(par, "F:/bmp_arrow.bin", x + PARA_UI_SIZE_X, y + PARA_UI_ARROW_V, cb, id);
 
-  lv_obj_t *line1 = lv_line_create(par, NULL);
+  lv_obj_t *line1 = lv_line_create(par, nullptr);
   lv_ex_line(line1, line_points[index]);
 
   return btn;
@@ -1829,7 +1838,7 @@ void lv_ex_line(lv_obj_t * line, lv_point_t *points) {
   // Copy the previous line and apply the new style
   lv_line_set_points(line, points, 2);     // Set the points
   lv_line_set_style(line, LV_LINE_STYLE_MAIN, &style_line);
-  lv_obj_align(line, NULL, LV_ALIGN_IN_TOP_MID, 0, 0);
+  lv_obj_align(line, nullptr, LV_ALIGN_IN_TOP_MID, 0, 0);
 }
 
 extern volatile uint32_t systick_uptime_millis;

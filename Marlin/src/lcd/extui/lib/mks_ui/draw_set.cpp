@@ -175,10 +175,7 @@ void lv_draw_set(void) {
   }
   disp_state = SET_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 

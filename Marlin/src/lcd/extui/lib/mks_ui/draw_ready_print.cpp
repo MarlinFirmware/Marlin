@@ -139,11 +139,7 @@ void lv_draw_ready_print(void) {
 
   disp_state = PRINT_READY_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
   //lv_obj_set_hidden(scr, true);
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -151,12 +147,12 @@ void lv_draw_ready_print(void) {
     //(void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
     // Create image buttons
-    //buttonPrint = lv_imgbtn_create(scr, NULL);
+    //buttonPrint = lv_imgbtn_create(scr, nullptr);
     buttonTool = lv_imgbtn_create(scr, "F:/bmp_tool.bin", event_handler, ID_TOOL);
 
     lv_obj_set_pos(buttonTool, 360, 180);
 
-    //buttonSet = lv_imgbtn_create(scr, NULL);
+    //buttonSet = lv_imgbtn_create(scr, nullptr);
     //lv_obj_set_pos(buttonSet, 180, 90);
     //lv_obj_set_pos(buttonPrint, 340, 90);
 

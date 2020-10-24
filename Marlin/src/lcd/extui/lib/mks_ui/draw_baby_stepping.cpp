@@ -156,11 +156,7 @@ void lv_draw_baby_stepping(void) {
   }
   disp_state = BABY_STEP_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
@@ -172,7 +168,7 @@ void lv_draw_baby_stepping(void) {
   lv_big_button_create(scr, "F:/bmp_yDec.bin", move_menu.y_dec, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_Y_N);
   lv_big_button_create(scr, "F:/bmp_zAdd.bin", move_menu.z_add, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_BABY_STEP_Z_P);
   lv_big_button_create(scr, "F:/bmp_zDec.bin", move_menu.z_dec, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_BABY_STEP_Z_N);
-  buttonV = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_BABY_STEP_DIST);
+  buttonV = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_BABY_STEP_DIST);
   labelV = lv_label_create_empty(buttonV);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
@@ -184,7 +180,7 @@ void lv_draw_baby_stepping(void) {
 
   disp_baby_step_dist();
 
-  zOffsetText = lv_label_create(scr, 290, TITLE_YPOS, NULL);
+  zOffsetText = lv_label_create(scr, 290, TITLE_YPOS, nullptr);
   disp_z_offset_value();
 }
 

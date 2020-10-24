@@ -46,10 +46,10 @@ static lv_obj_t * scr;
 #define ID_TMC_MODE_DOWN   7
 #define ID_TMC_MODE_UP     8
 
-static lv_obj_t *buttonXState = NULL, *buttonYState = NULL, *buttonZState = NULL, *buttonE0State = NULL;
+static lv_obj_t *buttonXState = nullptr, *buttonYState = nullptr, *buttonZState = nullptr, *buttonE0State = nullptr;
 
 //#if AXIS_HAS_STEALTHCHOP(E1)
-  static lv_obj_t *buttonE1State = NULL;
+  static lv_obj_t *buttonE1State = nullptr;
 //#endif
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
@@ -142,11 +142,11 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_tmc_step_mode_settings(void) {
-  buttonXState  = NULL;
-  buttonYState  = NULL;
-  buttonZState  = NULL;
-  buttonE0State = NULL;
-  buttonE1State = NULL;
+  buttonXState  = nullptr;
+  buttonYState  = nullptr;
+  buttonZState  = nullptr;
+  buttonE0State = nullptr;
+  buttonE1State = nullptr;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != TMC_MODE_UI) {
     disp_state_stack._disp_index++;
@@ -154,10 +154,7 @@ void lv_draw_tmc_step_mode_settings(void) {
   }
   disp_state = TMC_MODE_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.TmcStepModeConfTitle);
   lv_refr_now(lv_refr_get_disp_refreshing());
 

@@ -88,11 +88,7 @@ void lv_draw_auto_level_offset_settings(void) {
   }
   disp_state = NOZZLE_PROBE_OFFSET_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.OffsetConfTitle);
 

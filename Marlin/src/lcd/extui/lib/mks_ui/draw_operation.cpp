@@ -163,13 +163,13 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_operation(void) {
-  lv_obj_t *buttonPreHeat = NULL, *buttonExtrusion = NULL, *buttonSpeed = NULL;
-  lv_obj_t *buttonBack = NULL, *buttonFan = NULL;
-  lv_obj_t *labelPreHeat = NULL, *labelExtrusion = NULL;
-  lv_obj_t *label_Back = NULL, *label_Speed = NULL, *label_Fan = NULL;
-  lv_obj_t *buttonMove = NULL, *label_Move = NULL;
-  lv_obj_t *buttonBabyStep = NULL, *label_BabyStep = NULL;
-  lv_obj_t *buttonFilament = NULL, *label_Filament = NULL;
+  lv_obj_t *buttonExtrusion = nullptr, *buttonSpeed = nullptr,
+           *buttonBack = nullptr,
+           *labelPreHeat = nullptr, *labelExtrusion = nullptr,
+           *label_Back = nullptr, *label_Speed = nullptr, *label_Fan = nullptr,
+           *buttonMove = nullptr, *label_Move = nullptr,
+           *buttonBabyStep = nullptr, *label_BabyStep = nullptr,
+           *label_Filament = nullptr;
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != OPERATE_UI) {
     disp_state_stack._disp_index++;
@@ -177,20 +177,16 @@ void lv_draw_operation(void) {
   }
   disp_state = OPERATE_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_V, titleHeight, event_handler, ID_O_PRE_HEAT);
-  buttonFilament = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_O_FILAMENT);
-  buttonFan      = lv_imgbtn_create(scr, "F:/bmp_fan.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_O_FAN);
+  lv_obj_t *buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_V, titleHeight, event_handler, ID_O_PRE_HEAT);
+  lv_obj_t *buttonFilament = lv_imgbtn_create(scr, "F:/bmp_filamentchange.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_O_FILAMENT);
+  lv_obj_t *buttonFan      = lv_imgbtn_create(scr, "F:/bmp_fan.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_O_FAN);
   buttonPowerOff = lv_imgbtn_create(scr, gCfgItems.finish_power_off ? "F:/bmp_auto_off.bin" : "F:/bmp_manual_off.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_O_POWER_OFF);
 
   #if HAS_ROTARY_ENCODER

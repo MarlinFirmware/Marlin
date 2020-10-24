@@ -142,44 +142,38 @@ void lv_draw_printing(void) {
 
   disp_state = PRINTING_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  // static lv_style_t tool_style;
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  lv_obj_t *buttonExt1 = lv_img_create(scr, NULL);
+  lv_obj_t *buttonExt1 = lv_img_create(scr, nullptr);
   lv_img_set_src(buttonExt1, "F:/bmp_ext1_state.bin");
   lv_obj_set_pos(buttonExt1, 205, 136);
 
   #if HAS_MULTI_EXTRUDER
-    lv_obj_t *buttonExt2 = lv_img_create(scr, NULL);
+    lv_obj_t *buttonExt2 = lv_img_create(scr, nullptr);
     lv_img_set_src(buttonExt2, "F:/bmp_ext2_state.bin");
     lv_obj_set_pos(buttonExt2, 350, 136);
   #endif
 
   #if HAS_HEATED_BED
-    lv_obj_t *buttonBedstate = lv_img_create(scr, NULL);
+    lv_obj_t *buttonBedstate = lv_img_create(scr, nullptr);
     lv_img_set_src(buttonBedstate, "F:/bmp_bed_state.bin");
     lv_obj_set_pos(buttonBedstate, 205, 186);
   #endif
 
-  lv_obj_t *buttonFanstate = lv_img_create(scr, NULL);
+  lv_obj_t *buttonFanstate = lv_img_create(scr, nullptr);
   lv_img_set_src(buttonFanstate, "F:/bmp_fan_state.bin");
   lv_obj_set_pos(buttonFanstate, 350, 186);
 
-  lv_obj_t *buttonTime = lv_img_create(scr, NULL);
+  lv_obj_t *buttonTime = lv_img_create(scr, nullptr);
   lv_img_set_src(buttonTime, "F:/bmp_time_state.bin");
   lv_obj_set_pos(buttonTime, 205, 86);
 
-  lv_obj_t *buttonZpos = lv_img_create(scr, NULL);
+  lv_obj_t *buttonZpos = lv_img_create(scr, nullptr);
   lv_img_set_src(buttonZpos, "F:/bmp_zpos_state.bin");
   lv_obj_set_pos(buttonZpos, 350, 86);
 
@@ -209,19 +203,19 @@ void lv_draw_printing(void) {
   //lv_btn_set_layout(buttonTime, LV_LAYOUT_OFF);
   //lv_btn_set_layout(buttonZpos, LV_LAYOUT_OFF);
 
-  labelExt1 = lv_label_create(scr, 250, 146, NULL);
+  labelExt1 = lv_label_create(scr, 250, 146, nullptr);
 
   #if HAS_MULTI_EXTRUDER
-    labelExt2 = lv_label_create(scr, 395, 146, NULL);
+    labelExt2 = lv_label_create(scr, 395, 146, nullptr);
   #endif
 
   #if HAS_HEATED_BED
-    labelBed = lv_label_create(scr, 250, 196, NULL);
+    labelBed = lv_label_create(scr, 250, 196, nullptr);
   #endif
 
-  labelFan = lv_label_create(scr, 395, 196, NULL);
-  labelTime = lv_label_create(scr, 250, 96, NULL);
-  labelZpos = lv_label_create(scr, 395, 96, NULL);
+  labelFan = lv_label_create(scr, 395, 196, nullptr);
+  labelTime = lv_label_create(scr, 250, 96, nullptr);
+  labelZpos = lv_label_create(scr, 395, 96, nullptr);
 
   labelPause  = lv_label_create_empty(buttonPause);
   labelStop   = lv_label_create_empty(buttonStop);
@@ -238,7 +232,7 @@ void lv_draw_printing(void) {
     lv_obj_align(labelOperat, buttonOperat, LV_ALIGN_CENTER, 20, 0);
   }
 
-  bar1 = lv_bar_create(scr, NULL);
+  bar1 = lv_bar_create(scr, nullptr);
   lv_obj_set_pos(bar1, 205, 36);
   lv_obj_set_size(bar1, 270, 40);
   lv_bar_set_style(bar1, LV_BAR_STYLE_INDIC, &lv_bar_style_indic);
