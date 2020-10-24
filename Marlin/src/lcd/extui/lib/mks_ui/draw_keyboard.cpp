@@ -134,10 +134,10 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             draw_return_ui();
             break;
           case wifiConfig:
-            memset((void *)uiCfg.wifi_name, 0, sizeof(uiCfg.wifi_name));
+            ZERO(uiCfg.wifi_name);
             memcpy((void *)uiCfg.wifi_name, wifi_list.wifiName[wifi_list.nameIndex], 32);
 
-            memset((void *)uiCfg.wifi_key, 0, sizeof(uiCfg.wifi_key));
+            ZERO(uiCfg.wifi_key);
             memcpy((void *)uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_key));
 
             gCfgItems.wifi_mode_sel = STA_MODEL;

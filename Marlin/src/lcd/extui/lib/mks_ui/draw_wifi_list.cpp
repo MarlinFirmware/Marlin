@@ -146,7 +146,7 @@ void disp_wifi_list(void) {
   lv_obj_align(labelPageText, nullptr, LV_ALIGN_CENTER, 50, -100);
 
   for (i = 0; i < NUMBER_OF_PAGE; i++) {
-    memset(tmpStr, 0, sizeof(tmpStr));
+    ZERO(tmpStr);
 
     j = wifi_list.nameIndex + i;
     if (j >= wifi_list.getNameNum) {
