@@ -1633,16 +1633,24 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
   lv_obj_clean(scr);
+
+  // breadcrumbs
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != newScreenType) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = newScreenType;
   }
   disp_state = newScreenType;
-  if (title == nullptr)
-    (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-  else if (title[0] != '\0')
-    (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
   lv_refr_now(lv_refr_get_disp_refreshing());
+
+  // title
+  lv_obj_t *titleLabel = nullptr;
+  if (title == nullptr)
+    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
+  else if (title[0] != '\0')
+    titleLabel = lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
+  if (titleLabel != nullptr)
+    lv_obj_set_style(titleLabel, &tft_style_label_rel);
+
   return scr;
 }
 
