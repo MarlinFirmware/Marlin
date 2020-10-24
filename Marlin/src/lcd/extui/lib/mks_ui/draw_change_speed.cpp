@@ -33,179 +33,136 @@
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
 static lv_obj_t *labelMov, *labelExt;
-static lv_obj_t * printSpeedText;
+static lv_obj_t *printSpeedText;
 
-#define ID_C_ADD    1
-#define ID_C_DEC    2
-#define ID_C_MOVE   3
-#define ID_C_EXT    4
-#define ID_C_STEP   5
-#define ID_C_RETURN 6
+enum {
+  ID_C_ADD = 1,
+  ID_C_DEC,
+  ID_C_MOVE,
+  ID_C_EXT,
+  ID_C_STEP,
+  ID_C_RETURN
+};
 
-static uint8_t speedType;
+static bool editingFlowrate;
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_C_ADD:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (!editingFlowrate) {
+        if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
+          feedrate_percentage += uiCfg.stepPrintSpeed;
+        else
+          feedrate_percentage = MAX_EXT_SPEED_PERCENT;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (speedType == 0) {
-          if (feedrate_percentage < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-            feedrate_percentage += uiCfg.stepPrintSpeed;
-          else
-            feedrate_percentage = MAX_EXT_SPEED_PERCENT;
-        }
-        else if (speedType == 1) {
-          if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
-            planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
-          else
-            planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
-          //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
-          //planner.flow_percentage[1] = planner.flow_percentage[0];
-          //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
-          planner.refresh_e_factor(0);
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = planner.flow_percentage[0];
-            planner.refresh_e_factor(1);
-          #endif
-        }
-        disp_print_speed();
+      else {
+        if (planner.flow_percentage[0] < MAX_EXT_SPEED_PERCENT - uiCfg.stepPrintSpeed)
+          planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
+        else
+          planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
+        //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
+        //planner.flow_percentage[1] = planner.flow_percentage[0];
+        //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
+        planner.refresh_e_factor(0);
+        #if HAS_MULTI_EXTRUDER
+          planner.flow_percentage[1] = planner.flow_percentage[0];
+          planner.refresh_e_factor(1);
+        #endif
       }
+      disp_print_speed();
       break;
     case ID_C_DEC:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
+      if (!editingFlowrate) {
+        if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
+          feedrate_percentage -= uiCfg.stepPrintSpeed;
+        else
+          feedrate_percentage = MIN_EXT_SPEED_PERCENT;
       }
-      else if (event == LV_EVENT_RELEASED) {
-        if (speedType == 0) {
-          if (feedrate_percentage > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-            feedrate_percentage -= uiCfg.stepPrintSpeed;
-          else
-            feedrate_percentage = MIN_EXT_SPEED_PERCENT;
-        }
-        else if (speedType == 1) {
-          if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
-            planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
-          else
-            planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
-          //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
-          //planner.flow_percentage[1] = planner.flow_percentage[0];
-          //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
-          planner.refresh_e_factor(0);
-          #if HAS_MULTI_EXTRUDER
-            planner.flow_percentage[1] = planner.flow_percentage[0];
-            planner.refresh_e_factor(1);
-          #endif
-        }
-        disp_print_speed();
+      else {
+        if (planner.flow_percentage[0] > MIN_EXT_SPEED_PERCENT + uiCfg.stepPrintSpeed)
+          planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
+        else
+          planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
+        //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
+        //planner.flow_percentage[1] = planner.flow_percentage[0];
+        //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
+        planner.refresh_e_factor(0);
+        #if HAS_MULTI_EXTRUDER
+          planner.flow_percentage[1] = planner.flow_percentage[0];
+          planner.refresh_e_factor(1);
+        #endif
       }
+      disp_print_speed();
       break;
     case ID_C_MOVE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        speedType = 0;
-        disp_speed_type();
-        disp_print_speed();
-      }
+      editingFlowrate = false;
+      disp_speed_type();
+      disp_print_speed();
       break;
     case ID_C_EXT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        speedType = 1;
-        disp_speed_type();
-        disp_print_speed();
-      }
+      editingFlowrate = true;
+      disp_speed_type();
+      disp_print_speed();
       break;
     case ID_C_STEP:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        if (uiCfg.stepPrintSpeed == 1)
-          uiCfg.stepPrintSpeed = 5;
-        else if (uiCfg.stepPrintSpeed == 5)
-          uiCfg.stepPrintSpeed = 10;
-        else
-          uiCfg.stepPrintSpeed = 1;
-        disp_speed_step();
-      }
+      if (uiCfg.stepPrintSpeed == 1)
+        uiCfg.stepPrintSpeed = 5;
+      else if (uiCfg.stepPrintSpeed == 5)
+        uiCfg.stepPrintSpeed = 10;
+      else
+        uiCfg.stepPrintSpeed = 1;
+      disp_speed_step();
       break;
     case ID_C_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        clear_cur_ui();
-        draw_return_ui();
-      }
+      clear_cur_ui();
+      draw_return_ui();
       break;
   }
 }
 
 void lv_draw_change_speed(void) {
-  lv_obj_t *buttonAdd, *buttonDec;
-  lv_obj_t *buttonBack;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != CHANGE_SPEED_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = CHANGE_SPEED_UI;
   }
   disp_state = CHANGE_SPEED_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create an Image button
-  buttonAdd  = lv_imgbtn_create(scr, "F:/bmp_Add.bin", INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
-  buttonDec  = lv_imgbtn_create(scr, "F:/bmp_Dec.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
-  buttonMov  = lv_imgbtn_create(scr, NULL, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
-  buttonExt  = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
-  buttonStep = lv_imgbtn_create(scr, NULL, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
-  buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
-
-  // Create labels on the image buttons
-  lv_obj_t *labelAdd    = lv_label_create_empty(buttonAdd);
-  lv_obj_t *labelDec    = lv_label_create_empty(buttonDec);
-  labelMov              = lv_label_create_empty(buttonMov);
-  labelExt              = lv_label_create_empty(buttonExt);
-  labelStep             = lv_label_create_empty(buttonStep);
-  lv_obj_t *label_Back  = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(labelAdd, speed_menu.add);
-    lv_obj_align(labelAdd, buttonAdd, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelDec, speed_menu.dec);
-    lv_obj_align(labelDec, buttonDec, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
+  lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
+  lv_big_button_create(scr, "F:/bmp_Dec.bin", speed_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
+  buttonMov  = lv_imgbtn_create(scr, nullptr, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_MOVE);
+  buttonExt  = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_EXT);
+  buttonStep = lv_imgbtn_create(scr, nullptr, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_STEP);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, buttonAdd);
-      lv_group_add_obj(g, buttonDec);
       lv_group_add_obj(g, buttonMov);
       lv_group_add_obj(g, buttonExt);
       lv_group_add_obj(g, buttonStep);
-      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
+
+  // Create labels on the image buttons
+  labelMov              = lv_label_create_empty(buttonMov);
+  labelExt              = lv_label_create_empty(buttonExt);
+  labelStep             = lv_label_create_empty(buttonStep);
+
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) {
+      lv_group_add_obj(g, buttonMov);
+      lv_group_add_obj(g, buttonExt);
+      lv_group_add_obj(g, buttonStep);
     }
   #endif
 
@@ -246,34 +203,27 @@ void disp_print_speed() {
 
   public_buf_l[0] = '\0';
 
-  if (speedType == 0) { // move
-    strcat(public_buf_l, speed_menu.move_speed);
-    strcat_P(public_buf_l, PSTR(": "));
-    sprintf_P(buf, PSTR("%d%%"), feedrate_percentage);
-    strcat(public_buf_l, buf);
+  int16_t val;
+  const char *lbl;
+  if (editingFlowrate) {
+    lbl = speed_menu.extrude_speed;
+    val = planner.flow_percentage[0];
   }
-  else if (speedType == 1) { // e1
-    strcat(public_buf_l, speed_menu.extrude_speed);
-    strcat_P(public_buf_l, PSTR(": "));
-    sprintf_P(buf, PSTR("%d%%"), planner.flow_percentage[0]);
-    strcat(public_buf_l, buf);
+  else {
+    lbl = speed_menu.move_speed;
+    val = feedrate_percentage;
   }
+  strcpy(public_buf_l, lbl);
+  strcat_P(public_buf_l, PSTR(": "));
+  sprintf_P(buf, PSTR("%d%%"), val);
+  strcat(public_buf_l, buf);
   lv_label_set_text(printSpeedText, public_buf_l);
-  lv_obj_align(printSpeedText, NULL, LV_ALIGN_CENTER, 0, -65);
+  lv_obj_align(printSpeedText, nullptr, LV_ALIGN_CENTER, 0, -65);
 }
 
 void disp_speed_type() {
-  switch (speedType) {
-    case 1:
-      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_changeSpeed.bin");
-      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_extruct_sel.bin");
-      break;
-
-    default:
-      lv_imgbtn_set_src_both(buttonMov, "F:/bmp_mov_sel.bin");
-      lv_imgbtn_set_src_both(buttonExt, "F:/bmp_speed_extruct.bin");
-      break;
-  }
+  lv_imgbtn_set_src_both(buttonMov, editingFlowrate ? "F:/bmp_mov_changeSpeed.bin" : "F:/bmp_mov_sel.bin");
+  lv_imgbtn_set_src_both(buttonExt, editingFlowrate ? "F:/bmp_extruct_sel.bin" : "F:/bmp_speed_extruct.bin");
   lv_obj_refresh_ext_draw_pad(buttonExt);
   lv_obj_refresh_ext_draw_pad(buttonMov);
 

@@ -35,149 +35,67 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_H_ALL      1
-#define ID_H_X        2
-#define ID_H_Y        3
-#define ID_H_Z        4
-#define ID_H_RETURN   5
-#define ID_H_OFF_ALL  6
-#define ID_H_OFF_XY   7
+enum {
+  ID_H_ALL = 1,
+  ID_H_X,
+  ID_H_Y,
+  ID_H_Z,
+  ID_H_RETURN,
+  ID_H_OFF_ALL,
+  ID_H_OFF_XY
+};
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_H_ALL:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28"));
-      }
+      queue.inject_P(PSTR("G28"));
       break;
     case ID_H_X:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 X0"));
-      }
+      queue.inject_P(PSTR("G28 X0"));
       break;
     case ID_H_Y:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 Y0"));
-      }
+      queue.inject_P(PSTR("G28 Y0"));
       break;
     case ID_H_Z:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("G28 Z0"));
-      }
+      queue.inject_P(PSTR("G28 Z0"));
       break;
     case ID_H_OFF_ALL:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("M84"));
-      }
+      queue.inject_P(PSTR("M84"));
       break;
     case ID_H_OFF_XY:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        queue.inject_P(PSTR("M84 X Y"));
-      }
+      queue.inject_P(PSTR("M84 X Y"));
       break;
     case ID_H_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_home();
-        lv_draw_tool();
-      }
+      lv_clear_home();
+      lv_draw_tool();
       break;
   }
 }
 
 void lv_draw_home(void) {
-  lv_obj_t *buttonHomeAll, *buttonHomeX, *buttonHomeY, *buttonHomeZ;
-  lv_obj_t *buttonBack;
-  lv_obj_t *buttonOffAll, *buttonOffXY;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ZERO_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = ZERO_UI;
   }
   disp_state = ZERO_UI;
 
-  scr = lv_obj_create(NULL, NULL);
-
-  //static lv_style_t tool_style;
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  scr = lv_screen_create();
 
   (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  // Create image buttons
-  //buttonWifi     = lv_imgbtn_create(scr, NULL);
-  //buttonContinue = lv_imgbtn_create(scr, NULL);
-  buttonHomeAll = lv_imgbtn_create(scr, "F:/bmp_zeroAll.bin", INTERVAL_V, titleHeight, event_handler, ID_H_ALL);
-  buttonHomeX   = lv_imgbtn_create(scr, "F:/bmp_zeroX.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_H_X);
-  buttonHomeY   = lv_imgbtn_create(scr, "F:/bmp_zeroY.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_H_Y);
-  buttonHomeZ   = lv_imgbtn_create(scr, "F:/bmp_zeroZ.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_H_Z);
-  buttonOffAll  = lv_imgbtn_create(scr, "F:/bmp_function1.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_ALL);
-  buttonOffXY   = lv_imgbtn_create(scr, "F:/bmp_function1.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_XY);
-  buttonBack    = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_RETURN);
-
-  // Create labels on the image buttons
-  lv_obj_t *labelHomeAll = lv_label_create_empty(buttonHomeAll);
-  lv_obj_t *labelHomeX = lv_label_create_empty(buttonHomeX);
-  lv_obj_t *labelHomeY = lv_label_create_empty(buttonHomeY);
-  lv_obj_t *labelHomeZ = lv_label_create_empty(buttonHomeZ);
-  lv_obj_t *labelOffAll = lv_label_create_empty(buttonOffAll);
-  lv_obj_t *labelOffXY = lv_label_create_empty(buttonOffXY);
-  lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
-
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(labelHomeAll, home_menu.home_all);
-    lv_obj_align(labelHomeAll, buttonHomeAll, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelHomeX, home_menu.home_x);
-    lv_obj_align(labelHomeX, buttonHomeX, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelHomeY, home_menu.home_y);
-    lv_obj_align(labelHomeY, buttonHomeY, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelHomeZ, home_menu.home_z);
-    lv_obj_align(labelHomeZ, buttonHomeZ, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelOffAll, set_menu.motoroff);
-    lv_obj_align(labelOffAll, buttonOffAll, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelOffXY, set_menu.motoroffXY);
-    lv_obj_align(labelOffXY, buttonOffXY, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
-
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, buttonHomeAll);
-      lv_group_add_obj(g, buttonHomeX);
-      lv_group_add_obj(g, buttonHomeY);
-      lv_group_add_obj(g, buttonHomeZ);
-      lv_group_add_obj(g, buttonOffAll);
-      lv_group_add_obj(g, buttonOffXY);
-      lv_group_add_obj(g, buttonBack);
-    }
-  #endif
+  lv_big_button_create(scr, "F:/bmp_zeroAll.bin", home_menu.home_all, INTERVAL_V, titleHeight, event_handler, ID_H_ALL);
+  lv_big_button_create(scr, "F:/bmp_zeroX.bin", home_menu.home_x, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_H_X);
+  lv_big_button_create(scr, "F:/bmp_zeroY.bin", home_menu.home_y, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_H_Y);
+  lv_big_button_create(scr, "F:/bmp_zeroZ.bin", home_menu.home_z, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_H_Z);
+  lv_big_button_create(scr, "F:/bmp_function1.bin", set_menu.motoroff, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_ALL);
+  lv_big_button_create(scr, "F:/bmp_function1.bin", set_menu.motoroffXY, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_OFF_XY);
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_H_RETURN);
 }
 
 void lv_clear_home() {
