@@ -122,18 +122,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_extrusion(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != EXTRUSION_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = EXTRUSION_UI;
-  }
-  disp_state = EXTRUSION_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(EXTRUSION_UI);
   // Create image buttons
   lv_obj_t *buttonAdd = lv_big_button_create(scr, "F:/bmp_in.bin", extrude_menu.in, INTERVAL_V, titleHeight, event_handler, ID_E_ADD);
   lv_obj_clear_protect(buttonAdd, LV_PROTECT_FOLLOW);

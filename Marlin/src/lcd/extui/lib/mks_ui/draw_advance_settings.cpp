@@ -40,6 +40,7 @@ enum {
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_ADVANCE_RETURN:
       lv_clear_advance_settings();
@@ -69,17 +70,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_advance_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ADVANCED_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = ADVANCED_UI;
-  }
-  disp_state = ADVANCED_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.AdvancedConfTitle);
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(ADVANCED_UI, machine_menu.AdvancedConfTitle);
 
   int index = 0;
   lv_screen_menu_item(scr, machine_menu.PausePosition, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_POS, index++);

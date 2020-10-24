@@ -77,18 +77,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_home(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ZERO_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = ZERO_UI;
-  }
-  disp_state = ZERO_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(ZERO_UI);
   lv_big_button_create(scr, "F:/bmp_zeroAll.bin", home_menu.home_all, INTERVAL_V, titleHeight, event_handler, ID_H_ALL);
   lv_big_button_create(scr, "F:/bmp_zeroX.bin", home_menu.home_x, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_H_X);
   lv_big_button_create(scr, "F:/bmp_zeroY.bin", home_menu.home_y, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_H_Y);

@@ -71,15 +71,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_jerk_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != JERK_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = JERK_UI;
-  }
-  disp_state = JERK_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.JerkConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(JERK_UI, machine_menu.JerkConfTitle);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), planner.max_jerk[X_AXIS]);
   lv_screen_menu_item_1_edit(scr, machine_menu.X_Jerk, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_JERK_X, 0, public_buf_l);

@@ -41,15 +41,8 @@ static lv_obj_t *scr;
 void lv_draw_error_message(PGM_P const msg) {
   #if 0
     static lv_obj_t *message = nullptr, *kill_message = nullptr, *reset_tips = nullptr;
-    if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ERROR_MESSAGE_UI) {
-      disp_state_stack._disp_index++;
-      disp_state_stack._disp_state[disp_state_stack._disp_index] = ERROR_MESSAGE_UI;
-    }
-    disp_state = ERROR_MESSAGE_UI;
 
-    scr = lv_screen_create();
-
-    lv_refr_now(lv_refr_get_disp_refreshing());
+    scr = lv_screen_create(ERROR_MESSAGE_UI, "");
 
     if (msg) {
       message = lv_label_create(scr, msg);

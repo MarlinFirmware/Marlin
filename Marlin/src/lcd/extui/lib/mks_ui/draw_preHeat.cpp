@@ -158,17 +158,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_preHeat(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PRE_HEAT_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = PRE_HEAT_UI;
-  }
-  disp_state = PRE_HEAT_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(PRE_HEAT_UI);
 
   // Create image buttons
   lv_big_button_create(scr, "F:/bmp_Add.bin", preheat_menu.add, INTERVAL_V, titleHeight, event_handler, ID_P_ADD);

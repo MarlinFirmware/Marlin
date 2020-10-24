@@ -122,13 +122,8 @@ void lv_draw_ready_print(void) {
 
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
-  disp_state_stack._disp_state[disp_state_stack._disp_index] = PRINT_READY_UI;
-
-  disp_state = PRINT_READY_UI;
-
-  scr = lv_screen_create();
+  scr = lv_screen_create(PRINT_READY_UI, "");
   //lv_obj_set_hidden(scr, true);
-  lv_refr_now(lv_refr_get_disp_refreshing());
 
   if (mks_test_flag == 0x1E) {
     //(void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());

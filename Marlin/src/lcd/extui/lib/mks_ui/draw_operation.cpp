@@ -129,17 +129,7 @@ void lv_draw_operation(void) {
            *buttonBabyStep = nullptr, *label_BabyStep = nullptr,
            *label_Filament = nullptr;
 
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != OPERATE_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = OPERATE_UI;
-  }
-  disp_state = OPERATE_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(OPERATE_UI);
 
   // Create image buttons
   lv_obj_t *buttonPreHeat  = lv_imgbtn_create(scr, "F:/bmp_temp.bin", INTERVAL_V, titleHeight, event_handler, ID_O_PRE_HEAT);

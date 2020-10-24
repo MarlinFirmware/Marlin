@@ -188,19 +188,7 @@ static void disp_language(uint8_t language, uint8_t state) {
 }
 
 void lv_draw_language(void) {
-
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != LANGUAGE_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = LANGUAGE_UI;
-  }
-  disp_state = LANGUAGE_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(LANGUAGE_UI);
   // Create image buttons
   buttonCN = lv_big_button_create(scr, "F:/bmp_simplified_cn.bin", language_menu.chinese_s, INTERVAL_V, titleHeight, event_handler, ID_CN);
   lv_obj_clear_protect(buttonCN, LV_PROTECT_FOLLOW);
@@ -211,7 +199,6 @@ void lv_draw_language(void) {
   buttonFR = lv_big_button_create(scr, "F:/bmp_french.bin", language_menu.french, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_FR);
   buttonIT = lv_big_button_create(scr, "F:/bmp_italy.bin", language_menu.italy, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_IT);
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_L_RETURN);
-
   disp_language(gCfgItems.language, SELECTED);
 }
 

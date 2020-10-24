@@ -252,10 +252,7 @@ static char test_public_buf_l[40];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(MAIN_UI, "");
 
   // Create image buttons
   buttonPageUp   = lv_imgbtn_create(scr, "F:/bmp_pageUp.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_UP);

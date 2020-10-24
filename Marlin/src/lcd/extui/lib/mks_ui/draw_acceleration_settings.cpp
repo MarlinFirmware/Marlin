@@ -108,16 +108,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_acceleration_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != ACCELERATION_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = ACCELERATION_UI;
-  }
-  disp_state = ACCELERATION_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.AccelerationConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(ACCELERATION_UI, machine_menu.AccelerationConfTitle);
 
   if (uiCfg.para_ui_page != 1) {
     sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.acceleration);

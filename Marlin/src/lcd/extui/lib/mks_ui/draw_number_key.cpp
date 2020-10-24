@@ -662,17 +662,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_number_key(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != NUMBER_KEY_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = NUMBER_KEY_UI;
-  }
-  disp_state = NUMBER_KEY_UI;
-
-  scr = lv_screen_create();
-
-  //(void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(NUMBER_KEY_UI, "");
 
   buttonValue = lv_btn_create(scr, 92, 40, 296, 40, event_handler, ID_NUM_KEY1, &style_num_text);
   labelValue = lv_label_create_empty(buttonValue);

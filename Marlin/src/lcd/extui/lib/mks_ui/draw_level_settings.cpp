@@ -39,6 +39,7 @@ enum {
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_LEVEL_RETURN:
       lv_clear_level_settings();
@@ -63,16 +64,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_level_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != LEVELING_PARA_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = LEVELING_PARA_UI;
-  }
-  disp_state = LEVELING_PARA_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.LevelingParaConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(LEVELING_PARA_UI, machine_menu.LevelingParaConfTitle);
   lv_screen_menu_item(scr, machine_menu.LevelingManuPosConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_LEVEL_POSITION, 0);
   lv_screen_menu_item(scr, machine_menu.LevelingAutoCommandConf, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_LEVEL_COMMAND, 1);
   #if HAS_BED_PROBE

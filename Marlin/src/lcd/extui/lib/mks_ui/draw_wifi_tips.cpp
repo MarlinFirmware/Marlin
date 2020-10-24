@@ -39,14 +39,7 @@ tips_menu_def tips_menu;
 void lv_draw_wifi_tips(void) {
   static lv_obj_t *text_tips,*wifi_name;
 
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_TIPS_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_TIPS_UI;
-  }
-  disp_state = WIFI_TIPS_UI;
-
-  scr = lv_screen_create();
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(WIFI_TIPS_UI, "");
 
   wifi_name = lv_label_create(scr, (const char *)wifi_list.wifiName[wifi_list.nameIndex]);
   lv_obj_align(wifi_name, nullptr, LV_ALIGN_CENTER, 0, -20);

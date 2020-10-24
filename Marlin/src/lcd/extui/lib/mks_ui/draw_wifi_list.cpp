@@ -89,17 +89,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_wifi_list(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != WIFI_LIST_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = WIFI_LIST_UI;
-  }
-  disp_state = WIFI_LIST_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(WIFI_LIST_UI);
 
   lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
   lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
