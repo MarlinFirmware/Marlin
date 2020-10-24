@@ -118,16 +118,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_manualLevel(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != LEVELING_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = LEVELING_UI;
-  }
-  disp_state = LEVELING_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(LEVELING_UI);
   // Create an Image button
   lv_obj_t *buttonPoint1 = lv_big_button_create(scr, "F:/bmp_leveling1.bin", leveling_menu.position1, INTERVAL_V, titleHeight, event_handler, ID_M_POINT1);
   lv_obj_clear_protect(buttonPoint1, LV_PROTECT_FOLLOW);

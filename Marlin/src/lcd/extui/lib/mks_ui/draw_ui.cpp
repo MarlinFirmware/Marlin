@@ -1628,11 +1628,21 @@ void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
 }
 
 // Create a screen
-lv_obj_t* lv_screen_create() {
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
   lv_obj_t *scr = lv_obj_create(nullptr, nullptr);
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
   lv_obj_clean(scr);
+  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != newScreenType) {
+    disp_state_stack._disp_index++;
+    disp_state_stack._disp_state[disp_state_stack._disp_index] = newScreenType;
+  }
+  disp_state = newScreenType;
+  if (title == nullptr)
+    (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
+  else if (title[0] != '\0')
+    (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, title);
+  lv_refr_now(lv_refr_get_disp_refreshing());
   return scr;
 }
 
