@@ -66,17 +66,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_eeprom_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != EEPROM_SETTINGS_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = EEPROM_SETTINGS_UI;
-  }
-  disp_state = EEPROM_SETTINGS_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(EEPROM_SETTINGS_UI);
   lv_screen_menu_item(scr, eeprom_menu.revert, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_EEPROM_REVERT, 0);
   lv_screen_menu_item(scr, eeprom_menu.store, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_EEPROM_STORE, 1);
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_EEPROM_RETURN, true);

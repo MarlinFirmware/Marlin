@@ -84,7 +84,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   if (lv_btnm_get_btn_ctrl(kb, btn_id, LV_BTNM_CTRL_NO_REPEAT) && event == LV_EVENT_LONG_PRESSED_REPEAT) return;
 
   const char * txt = lv_btnm_get_active_btn_text(kb);
-  if (txt == nullptr) return;
+  if (!txt) return;
 
   // Do the corresponding action according to the text of the button
   if (strcmp(txt, "abc") == 0) {
@@ -169,14 +169,13 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
         default: break;
       }
     }
-    else {
-      lv_kb_set_ta(kb, nullptr); /*De-assign the text area to hide it cursor if needed*/
-    }
+    else
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide it cursor if needed
   return;
   }
 
   /*Add the characters to the text area if set*/
-  if (ext->ta == nullptr) return;
+  if (!ext->ta) return;
 
   if (strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
     lv_ta_add_char(ext->ta, '\n');
@@ -213,15 +212,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != KEY_BOARD_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = KEY_BOARD_UI;
-  }
-  disp_state = KEY_BOARD_UI;
-
-  scr = lv_screen_create();
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(KEY_BOARD_UI, "");
 
   /*Create styles for the keyboard*/
   static lv_style_t rel_style, pr_style;

@@ -75,15 +75,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_homing_sensitivity_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != HOMING_SENSITIVITY_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = HOMING_SENSITIVITY_UI;
-  }
-  disp_state = HOMING_SENSITIVITY_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.HomingSensitivityConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(HOMING_SENSITIVITY_UI, machine_menu.HomingSensitivityConfTitle);
 
   sprintf_P(public_buf_l, PSTR("%d"), TERN(X_SENSORLESS, stepperX.homing_threshold(), 0));
   lv_screen_menu_item_1_edit(scr, machine_menu.X_Sensitivity, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_SENSITIVITY_X, 0, public_buf_l);

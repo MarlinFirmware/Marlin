@@ -73,19 +73,9 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_motor_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MOTOR_SETTINGS_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = MOTOR_SETTINGS_UI;
-  }
-  disp_state = MOTOR_SETTINGS_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.MotorConfTitle);
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
   int index = 0;
+
+  scr = lv_screen_create(MOTOR_SETTINGS_UI, machine_menu.MotorConfTitle);
   lv_screen_menu_item(scr, machine_menu.StepsConf, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_MOTOR_STEPS, index++);
   #if USE_SENSORLESS
     lv_screen_menu_item(scr, machine_menu.HomingSensitivityConf, PARA_UI_POS_X, PARA_UI_POS_Y * (index + 1), event_handler, ID_HOME_SENSE, index);

@@ -121,15 +121,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_manual_level_pos_settings(void) {
   char buf2[50];
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MANUAL_LEVELING_POSIGION_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = MANUAL_LEVELING_POSIGION_UI;
-  }
-  disp_state = MANUAL_LEVELING_POSIGION_UI;
 
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.LevelingParaConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(MANUAL_LEVELING_POSIGION_UI, machine_menu.LevelingParaConfTitle);
 
   if (uiCfg.para_ui_page != 1) {
     sprintf_P(public_buf_l, PSTR("%d"), gCfgItems.levelingPos[0][0]);

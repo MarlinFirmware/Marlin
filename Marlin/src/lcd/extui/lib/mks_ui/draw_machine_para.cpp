@@ -66,17 +66,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_machine_para(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != MACHINE_PARA_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = MACHINE_PARA_UI;
-  }
-  disp_state = MACHINE_PARA_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(MACHINE_PARA_UI);
   lv_screen_menu_item(scr, MachinePara_menu.MachineSetting, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PARA_MACHINE, 0);
   lv_screen_menu_item(scr, MachinePara_menu.MotorSetting, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PARA_MOTOR, 1);
   lv_screen_menu_item(scr, MachinePara_menu.leveling, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PARA_LEVEL, 2);

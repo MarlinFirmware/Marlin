@@ -65,15 +65,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_pause_position(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PAUSE_POS_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = PAUSE_POS_UI;
-  }
-  disp_state = PAUSE_POS_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.PausePosText);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);
   lv_screen_menu_item_1_edit(scr, machine_menu.xPos, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_X, 0, public_buf_l);
