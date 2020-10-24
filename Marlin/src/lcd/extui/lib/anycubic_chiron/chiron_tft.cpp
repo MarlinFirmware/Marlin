@@ -221,12 +221,8 @@ namespace Anycubic {
     switch (printer_state) {
       case AC_printer_probing: {
         // If probing completes ok save the mesh and park
-<<<<<<< HEAD
         // Ignore the custom machine name
         if (strcmp_P(msg + strlen(CUSTOM_MACHINE_NAME), MARLIN_msg_ready) == 0 ) {
-=======
-        if (strcmp_P(msg, MARLIN_msg_ready) == 0 ) {
->>>>>>> b6401ae4fee6d14c748c91d2f1164d24d54bff01
           injectCommands_P(PSTR("M500\nG27"));
           SendtoTFTLN(AC_msg_probing_complete);
           printer_state = AC_printer_idle;
@@ -299,11 +295,7 @@ namespace Anycubic {
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
     if (str != nullptr) {
       #if ACDEBUG(AC_SOME)
-<<<<<<< HEAD
         SERIAL_ECHOPGM("> ");
-=======
-        SERIAL_ECHO("> ");
->>>>>>> b6401ae4fee6d14c748c91d2f1164d24d54bff01
       #endif
       SendtoTFT(str);
       #if ACDEBUG(AC_SOME)
