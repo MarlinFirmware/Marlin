@@ -88,7 +88,7 @@
 
 #define MARLIN_msg_start_probing       PSTR("Probing Point 1/25")
 #define MARLIN_msg_probing_failed      PSTR("Probing Failed")
-#define MARLIN_msg_ready               PSTR("3D Printer Ready.")
+#define MARLIN_msg_ready               PSTR(" Ready.")
 #define MARLIN_msg_print_paused        PSTR("Print Paused")
 #define MARLIN_msg_print_aborted       PSTR("Print Aborted")
 #define MARLIN_msg_extruder_heating    PSTR("E Heating...")
