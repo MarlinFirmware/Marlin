@@ -1797,7 +1797,19 @@ lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t
   return btn;
 }
 
-// lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
+lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue) {
+  lv_screen_menu_item(par, text, x, y, cb, -1, index, false);
+  lv_obj_t* btnValue = lv_imgbtn_create(par, curValue ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, y + PARA_UI_STATE_V, cb, id);
+  lv_obj_t* labelValue = lv_label_create_empty(btnValue);
+  lv_label_set_text(labelValue, curValue ? machine_menu.enable : machine_menu.disable);
+  lv_obj_align(labelValue, btnValue, LV_ALIGN_CENTER, 0, 0);
+  return btnValue;
+}
+
+void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue) {
+  lv_imgbtn_set_src_both(btn, curValue ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin");
+  lv_label_set_text((lv_obj_t*)btn->child_ll.head, curValue ? machine_menu.enable : machine_menu.disable);
+}
 
 
 #if ENABLED(SDSUPPORT)
