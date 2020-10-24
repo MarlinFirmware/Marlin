@@ -1629,7 +1629,7 @@ void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style) {
 
 // Create a screen
 lv_obj_t* lv_screen_create() {
-  scr = lv_obj_create(nullptr, nullptr);
+  lv_obj_t *scr = lv_obj_create(nullptr, nullptr);
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
   lv_obj_clean(scr);
