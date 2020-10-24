@@ -35,14 +35,9 @@ void tmc_say_stealth_status(TMC &st) {
   serialprintPGM(st.get_stealthChop() ? PSTR("stealthChop") : PSTR("spreadCycle"));
   SERIAL_EOL();
 }
-template<typename TMC>
-void tmc_set_stealthChop(TMC &st, const bool enable) {
-  st.stored.stealthChop_enabled = enable;
-  st.refresh_stepping_mode();
-}
 
 static void set_stealth_status(const bool enable, const int8_t target_extruder) {
-  #define TMC_SET_STEALTH(Q) tmc_set_stealthChop(stepper##Q, enable)
+  #define TMC_SET_STEALTH(Q) stepper##Q.set_stealthChop(enable)
 
   #if    AXIS_HAS_STEALTHCHOP(X)  || AXIS_HAS_STEALTHCHOP(X2) \
       || AXIS_HAS_STEALTHCHOP(Y)  || AXIS_HAS_STEALTHCHOP(Y2) \

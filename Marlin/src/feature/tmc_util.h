@@ -222,7 +222,7 @@ class TMCMarlin<TMC2209Stepper, AXIS_LETTER, DRIVER_ID, AXIS_ID> : public TMC220
     #if HAS_STEALTHCHOP
       inline bool get_stealthChop()                { return !this->en_spreadCycle(); }
       inline bool get_stored_stealthChop()         { return this->stored.stealthChop_enabled; }
-      inline void refresh_stepping_mode()          { this->en_spreadCycle(!this->stored.stealthChop_enabled); }
+      inline void refresh_stepping_mode()          { this->en_spreadCycle((!this->stored.stealthChop_enabled) ^ this->spread_en()); } // If SPREAD_EN is HIGH the outcome is reversed
       inline void set_stealthChop(const bool stch) { this->stored.stealthChop_enabled = stch; refresh_stepping_mode(); }
       inline bool toggle_stepping_mode()           { set_stealthChop(!this->stored.stealthChop_enabled); return get_stealthChop(); }
     #endif

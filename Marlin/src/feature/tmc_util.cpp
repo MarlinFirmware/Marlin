@@ -485,6 +485,7 @@
     TMC_PWM_OFS_AUTO,
     TMC_PWM_GRAD_AUTO,
     TMC_VSENSE,
+    TMC_SPREAD_EN,
     TMC_STEALTHCHOP,
     TMC_MICROSTEPS,
     TMC_TSTEP,
@@ -617,6 +618,7 @@
         switch (i) {
           case TMC_SGT:       SERIAL_PRINT(st.SGTHRS(), DEC); break;
           case TMC_UART_ADDR: SERIAL_PRINT(st.get_address(), DEC); break;
+          case TMC_SPREAD_EN: serialprint_truefalse(st.spread_en()); break;
           default:
             TMC2208Stepper *parent = &st;
             _tmc_status(*parent, i);
@@ -909,6 +911,9 @@
     TMC_REPORT("PWM scale",          TMC_PWM_SCALE);
     #if HAS_DRIVER(TMC2130) || HAS_DRIVER(TMC2224) || HAS_DRIVER(TMC2660) || HAS_TMC220x
       TMC_REPORT("vsense\t",         TMC_VSENSE);
+    #endif
+    #if HAS_DRIVER(TMC2209)
+      TMC_REPORT("spread_en\t",      TMC_SPREAD_EN);
     #endif
     TMC_REPORT("stealthChop",        TMC_STEALTHCHOP);
     TMC_REPORT("msteps\t",           TMC_MICROSTEPS);

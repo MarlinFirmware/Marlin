@@ -186,7 +186,10 @@ void menu_tmc_current() {
 
 #if HAS_STEALTHCHOP
 
-  #define TMC_EDIT_STEP_MODE(ST, STR) EDIT_ITEM_P(bool, PSTR(STR), &stepper##ST.stored.stealthChop_enabled, []{ stepper##ST.refresh_stepping_mode(); })
+  #define TMC_EDIT_STEP_MODE(ST, STR) do{ \
+    editable.state = stepper##ST.get_stored_stealthChop(); \
+    EDIT_ITEM_P(bool, PSTR(STR), &editable.state, []{ (void)stepper##ST.toggle_stepping_mode(); }); \
+  }while(0)
 
   void menu_tmc_step_mode() {
     START_MENU();

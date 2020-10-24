@@ -2081,7 +2081,7 @@ void MarlinSettings::postprocess() {
 
         #if HAS_TRINAMIC_CONFIG
 
-          #define SET_STEPPING_MODE(ST) stepper##ST.stored.stealthChop_enabled = tmc_stealth_enabled.ST; stepper##ST.refresh_stepping_mode();
+          #define SET_STEPPING_MODE(ST) stepper##ST.set_stealthChop(tmc_stealth_enabled.ST)
           if (!validating) {
             #if AXIS_HAS_STEALTHCHOP(X)
               SET_STEPPING_MODE(X);
