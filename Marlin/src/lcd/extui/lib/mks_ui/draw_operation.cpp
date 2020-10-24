@@ -38,15 +38,17 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_O_PRE_HEAT   1
-#define ID_O_EXTRUCT    2
-#define ID_O_MOV        3
-#define ID_O_FILAMENT   4
-#define ID_O_SPEED      5
-#define ID_O_RETURN     6
-#define ID_O_FAN        7
-#define ID_O_POWER_OFF  8
-#define ID_O_BABY_STEP  9
+enum {
+  ID_O_PRE_HEAT = 1,
+  ID_O_EXTRUCT,
+  ID_O_MOV,
+  ID_O_FILAMENT,
+  ID_O_SPEED,
+  ID_O_RETURN,
+  ID_O_FAN,
+  ID_O_POWER_OFF,
+  ID_O_BABY_STEP
+};
 
 static lv_obj_t *label_PowerOff;
 static lv_obj_t *buttonPowerOff;

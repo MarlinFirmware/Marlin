@@ -31,10 +31,12 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_LEVEL_RETURN   1
-#define ID_LEVEL_POSITION 2
-#define ID_LEVEL_COMMAND  3
-#define ID_LEVEL_ZOFFSET  4
+enum {
+  ID_LEVEL_RETURN = 1,
+  ID_LEVEL_POSITION,
+  ID_LEVEL_COMMAND,
+  ID_LEVEL_ZOFFSET
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {

@@ -31,14 +31,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_FILAMENT_SET_RETURN     1
-#define ID_FILAMENT_SET_IN_LENGTH  2
-#define ID_FILAMENT_SET_IN_SPEED   3
-#define ID_FILAMENT_SET_OUT_LENGTH 4
-#define ID_FILAMENT_SET_OUT_SPEED  5
-#define ID_FILAMENT_SET_TEMP       6
-#define ID_FILAMENT_SET_DOWN      12
-#define ID_FILAMENT_SET_UP        13
+enum {
+  ID_FILAMENT_SET_RETURN = 1,
+  ID_FILAMENT_SET_IN_LENGTH,
+  ID_FILAMENT_SET_IN_SPEED,
+  ID_FILAMENT_SET_OUT_LENGTH,
+  ID_FILAMENT_SET_OUT_SPEED,
+  ID_FILAMENT_SET_TEMP,
+  ID_FILAMENT_SET_DOWN,
+  ID_FILAMENT_SET_UP
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

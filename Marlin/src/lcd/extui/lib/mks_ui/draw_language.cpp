@@ -33,14 +33,16 @@
 #include "../../../../inc/MarlinConfig.h"
 #include <string.h>
 
-#define ID_CN       1
-#define ID_T_CN     2
-#define ID_EN       3
-#define ID_RU       4
-#define ID_ES       5
-#define ID_FR       6
-#define ID_IT       7
-#define ID_L_RETURN 8
+enum {
+  ID_CN = 1,
+  ID_T_CN,
+  ID_EN,
+  ID_RU,
+  ID_ES,
+  ID_FR,
+  ID_IT,
+  ID_L_RETURN
+};
 
 #define SELECTED    1
 #define UNSELECTED  0

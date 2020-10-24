@@ -31,11 +31,13 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_ADVANCE_RETURN     1
-#define ID_PAUSE_POS          2
-#define ID_WIFI_PARA          3
-#define ID_FILAMENT_SETTINGS  4
-#define ID_ENCODER_SETTINGS   5
+enum {
+  ID_ADVANCE_RETURN = 1,
+  ID_PAUSE_POS,
+  ID_WIFI_PARA,
+  ID_FILAMENT_SETTINGS,
+  ID_ENCODER_SETTINGS
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   switch (obj->mks_obj_id) {

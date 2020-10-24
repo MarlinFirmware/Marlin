@@ -32,17 +32,19 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_ACCE_RETURN  1
-#define ID_ACCE_PRINT   2
-#define ID_ACCE_RETRA   3
-#define ID_ACCE_TRAVEL  4
-#define ID_ACCE_X       5
-#define ID_ACCE_Y       6
-#define ID_ACCE_Z       7
-#define ID_ACCE_E0      8
-#define ID_ACCE_E1      9
-#define ID_ACCE_UP     10
-#define ID_ACCE_DOWN   11
+enum {
+  ID_ACCE_RETURN = 1,
+  ID_ACCE_PRINT,
+  ID_ACCE_RETRA,
+  ID_ACCE_TRAVEL,
+  ID_ACCE_X,
+  ID_ACCE_Y,
+  ID_ACCE_Z,
+  ID_ACCE_E0,
+  ID_ACCE_E1,
+  ID_ACCE_UP,
+  ID_ACCE_DOWN
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

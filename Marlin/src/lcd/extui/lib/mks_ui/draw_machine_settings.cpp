@@ -31,10 +31,12 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_MACHINE_RETURN       1
-#define ID_MACHINE_ACCELERATION 2
-#define ID_MACHINE_FEEDRATE     3
-#define ID_MACHINE_JERK         4
+enum {
+  ID_MACHINE_RETURN = 1,
+  ID_MACHINE_ACCELERATION,
+  ID_MACHINE_FEEDRATE,
+  ID_MACHINE_JERK
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

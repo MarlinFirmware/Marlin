@@ -33,12 +33,14 @@
 extern lv_group_t *g;
 static lv_obj_t *scr, *labelModelValue = nullptr, *buttonModelValue = nullptr, *labelCloudValue = nullptr;
 
-#define ID_WIFI_RETURN    1
-#define ID_WIFI_MODEL     2
-#define ID_WIFI_NAME      3
-#define ID_WIFI_PASSWORD  4
-#define ID_WIFI_CLOUD     5
-#define ID_WIFI_CONFIG    6
+enum {
+  ID_WIFI_RETURN = 1,
+  ID_WIFI_MODEL,
+  ID_WIFI_NAME,
+  ID_WIFI_PASSWORD,
+  ID_WIFI_CLOUD,
+  ID_WIFI_CONFIG
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

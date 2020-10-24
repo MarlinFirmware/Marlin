@@ -58,21 +58,23 @@ static char key_value[11] = { 0 };
 static uint8_t cnt = 0;
 static bool point_flag = true;
 
-#define ID_NUM_KEY1      1
-#define ID_NUM_KEY2      2
-#define ID_NUM_KEY3      3
-#define ID_NUM_KEY4      4
-#define ID_NUM_KEY5      5
-#define ID_NUM_KEY6      6
-#define ID_NUM_KEY7      7
-#define ID_NUM_KEY8      8
-#define ID_NUM_KEY9      9
-#define ID_NUM_KEY0     10
-#define ID_NUM_BACK     11
-#define ID_NUM_RESET    12
-#define ID_NUM_CONFIRM  13
-#define ID_NUM_POINT    14
-#define ID_NUM_NEGATIVE 15
+enum {
+  ID_NUM_KEY1 = 1,
+  ID_NUM_KEY2,
+  ID_NUM_KEY3,
+  ID_NUM_KEY4,
+  ID_NUM_KEY5,
+  ID_NUM_KEY6,
+  ID_NUM_KEY7,
+  ID_NUM_KEY8,
+  ID_NUM_KEY9,
+  ID_NUM_KEY0,
+  ID_NUM_BACK,
+  ID_NUM_RESET,
+  ID_NUM_CONFIRM,
+  ID_NUM_POINT,
+  ID_NUM_NEGATIVE
+};
 
 static void disp_key_value() {
   char *temp;

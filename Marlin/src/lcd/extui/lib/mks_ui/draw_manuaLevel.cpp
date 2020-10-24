@@ -36,12 +36,14 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_M_POINT1      1
-#define ID_M_POINT2      2
-#define ID_M_POINT3      3
-#define ID_M_POINT4      4
-#define ID_M_POINT5      5
-#define ID_MANUAL_RETURN 6
+enum {
+  ID_M_POINT1 = 1,
+  ID_M_POINT2,
+  ID_M_POINT3,
+  ID_M_POINT4,
+  ID_M_POINT5,
+  ID_MANUAL_RETURN
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

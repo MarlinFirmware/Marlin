@@ -31,13 +31,15 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_EEPROM_RETURN        1
-#define ID_EEPROM_STORE         2
-#define ID_EEPROM_STORE_ARROW   3
-#define ID_EEPROM_READ          4
-#define ID_EEPROM_READ_ARROW    5
-#define ID_EEPROM_REVERT        6
-#define ID_EEPROM_REVERT_ARROW  7
+enum {
+  ID_EEPROM_RETURN = 1,
+  ID_EEPROM_STORE,
+  ID_EEPROM_STORE_ARROW,
+  ID_EEPROM_READ,
+  ID_EEPROM_READ_ARROW,
+  ID_EEPROM_REVERT,
+  ID_EEPROM_REVERT_ARROW
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

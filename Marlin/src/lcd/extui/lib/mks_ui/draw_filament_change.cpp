@@ -38,10 +38,12 @@ static lv_obj_t *buttonType;
 static lv_obj_t *labelType;
 static lv_obj_t *tempText1;
 
-#define ID_FILAMNT_IN     1
-#define ID_FILAMNT_OUT    2
-#define ID_FILAMNT_TYPE   3
-#define ID_FILAMNT_RETURN 4
+enum {
+  ID_FILAMNT_IN = 1,
+  ID_FILAMNT_OUT,
+  ID_FILAMNT_TYPE,
+  ID_FILAMNT_RETURN
+};
 
 extern feedRate_t feedrate_mm_s;
 

@@ -32,14 +32,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_STEP_RETURN  1
-#define ID_STEP_X       2
-#define ID_STEP_Y       3
-#define ID_STEP_Z       4
-#define ID_STEP_E0      5
-#define ID_STEP_E1      6
-#define ID_STEP_DOWN    7
-#define ID_STEP_UP      8
+enum {
+  ID_STEP_RETURN = 1,
+  ID_STEP_X,
+  ID_STEP_Y,
+  ID_STEP_Z,
+  ID_STEP_E0,
+  ID_STEP_E1,
+  ID_STEP_DOWN,
+  ID_STEP_UP
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

@@ -31,11 +31,13 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_MOTOR_RETURN       1
-#define ID_MOTOR_STEPS        2
-#define ID_MOTOR_TMC_CURRENT  3
-#define ID_MOTOR_STEP_MODE    4
-#define ID_HOME_SENSE         5
+enum {
+  ID_MOTOR_RETURN = 1,
+  ID_MOTOR_STEPS,
+  ID_MOTOR_TMC_CURRENT,
+  ID_MOTOR_STEP_MODE,
+  ID_HOME_SENSE
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

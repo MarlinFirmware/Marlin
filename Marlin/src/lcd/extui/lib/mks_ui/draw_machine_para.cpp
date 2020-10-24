@@ -31,11 +31,13 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_PARA_RETURN  1
-#define ID_PARA_MACHINE 2
-#define ID_PARA_MOTOR   3
-#define ID_PARA_LEVEL   4
-#define ID_PARA_ADVANCE 5
+enum {
+  ID_PARA_RETURN = 1,
+  ID_PARA_MACHINE,
+  ID_PARA_MOTOR,
+  ID_PARA_LEVEL,
+  ID_PARA_ADVANCE
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

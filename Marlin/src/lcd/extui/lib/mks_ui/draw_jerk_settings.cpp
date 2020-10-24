@@ -32,11 +32,13 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_JERK_RETURN  1
-#define ID_JERK_X       2
-#define ID_JERK_Y       3
-#define ID_JERK_Z       4
-#define ID_JERK_E       5
+enum {
+  ID_JERK_RETURN = 1,
+  ID_JERK_X,
+  ID_JERK_Y,
+  ID_JERK_Z,
+  ID_JERK_E
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

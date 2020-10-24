@@ -48,9 +48,11 @@ static lv_obj_t *scr;
   uint8_t curent_disp_ui = 0;
 #endif
 
-#define ID_TOOL   1
-#define ID_SET    2
-#define ID_PRINT  3
+enum {
+  ID_TOOL = 1,
+  ID_SET,
+  ID_PRINT
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

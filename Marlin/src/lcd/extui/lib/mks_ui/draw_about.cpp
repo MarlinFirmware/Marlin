@@ -36,7 +36,7 @@ extern lv_group_t *g;
 static lv_obj_t *scr;
 static lv_obj_t *fw_type, *board; //*fw_version;
 
-#define ID_A_RETURN   1
+enum { ID_A_RETURN = 1 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

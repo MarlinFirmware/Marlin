@@ -33,14 +33,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_TMC_CURRENT_RETURN 1
-#define ID_TMC_CURRENT_X      2
-#define ID_TMC_CURRENT_Y      3
-#define ID_TMC_CURRENT_Z      4
-#define ID_TMC_CURRENT_E0     5
-#define ID_TMC_CURRENT_E1     6
-#define ID_TMC_CURRENT_DOWN   7
-#define ID_TMC_CURRENT_UP     8
+enum {
+  ID_TMC_CURRENT_RETURN = 1,
+  ID_TMC_CURRENT_X,
+  ID_TMC_CURRENT_Y,
+  ID_TMC_CURRENT_Z,
+  ID_TMC_CURRENT_E0,
+  ID_TMC_CURRENT_E1,
+  ID_TMC_CURRENT_DOWN,
+  ID_TMC_CURRENT_UP
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

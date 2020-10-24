@@ -32,14 +32,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_FEED_RETURN  1
-#define ID_FEED_X       2
-#define ID_FEED_Y       3
-#define ID_FEED_Z       4
-#define ID_FEED_E0      5
-#define ID_FEED_E1      6
-#define ID_FEED_DOWN    7
-#define ID_FEED_UP      8
+enum {
+  ID_FEED_RETURN = 1,
+  ID_FEED_X,
+  ID_FEED_Y,
+  ID_FEED_Z,
+  ID_FEED_E0,
+  ID_FEED_E1,
+  ID_FEED_DOWN,
+  ID_FEED_UP
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

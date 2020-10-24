@@ -39,9 +39,11 @@ extern lv_group_t*  g;
 static lv_obj_t *buttonPageUp, *buttonPageDown, *buttonBack,
                 *buttonGcode[FILE_BTN_CNT], *labelPageUp[FILE_BTN_CNT], *buttonText[FILE_BTN_CNT];
 
-#define ID_P_UP     7
-#define ID_P_DOWN   8
-#define ID_P_RETURN 9
+enum {
+  ID_P_UP = 7,
+  ID_P_DOWN,
+  ID_P_RETURN
+};
 
 int8_t curDirLever = 0;
 LIST_FILE list_file;

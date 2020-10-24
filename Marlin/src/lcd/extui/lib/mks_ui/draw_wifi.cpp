@@ -33,9 +33,11 @@
 extern lv_group_t *g;
 static lv_obj_t *scr, *wifi_name_text, *wifi_key_text, *wifi_state_text, *wifi_ip_text;
 
-#define ID_W_RETURN     1
-#define ID_W_CLOUD      2
-#define ID_W_RECONNECT  3
+enum {
+  ID_W_RETURN = 1,
+  ID_W_CLOUD,
+  ID_W_RECONNECT
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

@@ -40,15 +40,17 @@
 static lv_obj_t *scr;
 extern lv_group_t*  g;
 
-#define ID_S_WIFI         1
-#define ID_S_FAN          2
-#define ID_S_ABOUT        3
-#define ID_S_CONTINUE     4
-#define ID_S_MOTOR_OFF    5
-#define ID_S_LANGUAGE     6
-#define ID_S_MACHINE_PARA 7
-#define ID_S_EEPROM_SET   8
-#define ID_S_RETURN       9
+enum {
+  ID_S_WIFI = 1,
+  ID_S_FAN,
+  ID_S_ABOUT,
+  ID_S_CONTINUE,
+  ID_S_MOTOR_OFF,
+  ID_S_LANGUAGE,
+  ID_S_MACHINE_PARA,
+  ID_S_EEPROM_SET,
+  ID_S_RETURN
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

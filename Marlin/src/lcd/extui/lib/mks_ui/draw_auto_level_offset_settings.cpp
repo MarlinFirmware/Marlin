@@ -32,10 +32,12 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_OFFSET_RETURN   1
-#define ID_OFFSET_X        2
-#define ID_OFFSET_Y        3
-#define ID_OFFSET_Z        4
+enum {
+  ID_OFFSET_RETURN = 1,
+  ID_OFFSET_X,
+  ID_OFFSET_Y,
+  ID_OFFSET_Z
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

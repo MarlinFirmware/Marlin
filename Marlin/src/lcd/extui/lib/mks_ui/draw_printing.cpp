@@ -59,9 +59,11 @@ TERN_(HAS_MULTI_EXTRUDER, static lv_obj_t *labelExt2);
   static lv_obj_t* labelBed;
 #endif
 
-#define ID_PAUSE  1
-#define ID_STOP   2
-#define ID_OPTION 3
+enum {
+  ID_PAUSE = 1,
+  ID_STOP,
+  ID_OPTION
+};
 
 bool once_flag; // = false
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;

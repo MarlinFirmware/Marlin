@@ -37,14 +37,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_TMC_MODE_RETURN 1
-#define ID_TMC_MODE_X      2
-#define ID_TMC_MODE_Y      3
-#define ID_TMC_MODE_Z      4
-#define ID_TMC_MODE_E0     5
-#define ID_TMC_MODE_E1     6
-#define ID_TMC_MODE_DOWN   7
-#define ID_TMC_MODE_UP     8
+enum {
+  ID_TMC_MODE_RETURN = 1,
+  ID_TMC_MODE_X,
+  ID_TMC_MODE_Y,
+  ID_TMC_MODE_Z,
+  ID_TMC_MODE_E0,
+  ID_TMC_MODE_E1,
+  ID_TMC_MODE_DOWN,
+  ID_TMC_MODE_UP
+};
 
 static lv_obj_t *buttonXState = nullptr, *buttonYState = nullptr, *buttonZState = nullptr, *buttonE0State = nullptr;
 

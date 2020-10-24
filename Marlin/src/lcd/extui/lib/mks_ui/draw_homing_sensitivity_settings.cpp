@@ -34,11 +34,13 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_SENSITIVITY_RETURN   1
-#define ID_SENSITIVITY_X        2
-#define ID_SENSITIVITY_Y        3
-#define ID_SENSITIVITY_Z        4
-#define ID_SENSITIVITY_Z2       5
+enum {
+  ID_SENSITIVITY_RETURN = 1,
+  ID_SENSITIVITY_X,
+  ID_SENSITIVITY_Y,
+  ID_SENSITIVITY_Z,
+  ID_SENSITIVITY_Z2
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

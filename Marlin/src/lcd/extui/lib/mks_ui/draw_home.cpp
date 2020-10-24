@@ -38,13 +38,15 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_H_ALL      1
-#define ID_H_X        2
-#define ID_H_Y        3
-#define ID_H_Z        4
-#define ID_H_RETURN   5
-#define ID_H_OFF_ALL  6
-#define ID_H_OFF_XY   7
+enum {
+  ID_H_ALL = 1,
+  ID_H_X,
+  ID_H_Y,
+  ID_H_Z,
+  ID_H_RETURN,
+  ID_H_OFF_ALL,
+  ID_H_OFF_XY
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

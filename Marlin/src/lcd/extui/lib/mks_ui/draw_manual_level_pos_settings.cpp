@@ -32,19 +32,21 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_MANUAL_POS_RETURN 1
-#define ID_MANUAL_POS_X1     2
-#define ID_MANUAL_POS_Y1     3
-#define ID_MANUAL_POS_X2     4
-#define ID_MANUAL_POS_Y2     5
-#define ID_MANUAL_POS_X3     6
-#define ID_MANUAL_POS_Y3     7
-#define ID_MANUAL_POS_X4     8
-#define ID_MANUAL_POS_Y4     9
-#define ID_MANUAL_POS_X5    10
-#define ID_MANUAL_POS_Y5    11
-#define ID_MANUAL_POS_DOWN  12
-#define ID_MANUAL_POS_UP    13
+enum {
+  ID_MANUAL_POS_RETURN = 1,
+  ID_MANUAL_POS_X1,
+  ID_MANUAL_POS_Y1,
+  ID_MANUAL_POS_X2,
+  ID_MANUAL_POS_Y2,
+  ID_MANUAL_POS_X3,
+  ID_MANUAL_POS_Y3,
+  ID_MANUAL_POS_X4,
+  ID_MANUAL_POS_Y4,
+  ID_MANUAL_POS_X5,
+  ID_MANUAL_POS_Y5,
+  ID_MANUAL_POS_DOWN,
+  ID_MANUAL_POS_UP
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

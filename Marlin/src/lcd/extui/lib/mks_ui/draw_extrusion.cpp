@@ -43,12 +43,14 @@ static lv_obj_t *labelSpeed;
 static lv_obj_t *tempText;
 static lv_obj_t *ExtruText;
 
-#define ID_E_ADD    1
-#define ID_E_DEC    2
-#define ID_E_TYPE   3
-#define ID_E_STEP   4
-#define ID_E_SPEED  5
-#define ID_E_RETURN 6
+enum {
+  ID_E_ADD = 1,
+  ID_E_DEC,
+  ID_E_TYPE,
+  ID_E_STEP,
+  ID_E_SPEED,
+  ID_E_RETURN
+};
 
 static int32_t extrudeAmount;
 

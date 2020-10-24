@@ -39,12 +39,14 @@ static lv_obj_t *labelStep, *buttonStep, *buttonMov, *buttonExt;
 static lv_obj_t *labelMov, *labelExt;
 static lv_obj_t *printSpeedText;
 
-#define ID_C_ADD    1
-#define ID_C_DEC    2
-#define ID_C_MOVE   3
-#define ID_C_EXT    4
-#define ID_C_STEP   5
-#define ID_C_RETURN 6
+enum {
+  ID_C_ADD = 1,
+  ID_C_DEC,
+  ID_C_MOVE,
+  ID_C_EXT,
+  ID_C_STEP,
+  ID_C_RETURN
+};
 
 static bool editingFlowrate;
 

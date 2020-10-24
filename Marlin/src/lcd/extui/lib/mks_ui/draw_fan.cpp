@@ -39,12 +39,14 @@ extern lv_group_t *g;
 static lv_obj_t *scr;
 static lv_obj_t *fanText;
 
-#define ID_F_ADD     1
-#define ID_F_DEC     2
-#define ID_F_HIGH    3
-#define ID_F_MID     4
-#define ID_F_OFF     5
-#define ID_F_RETURN  6
+enum {
+  ID_F_ADD = 1,
+  ID_F_DEC,
+  ID_F_HIGH,
+  ID_F_MID,
+  ID_F_OFF,
+  ID_F_RETURN
+};
 
 static uint8_t fanSpeed;
 

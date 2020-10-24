@@ -40,12 +40,14 @@ static lv_obj_t *labelType;
 static lv_obj_t *labelStep;
 static lv_obj_t *tempText1;
 
-#define ID_P_ADD    1
-#define ID_P_DEC    2
-#define ID_P_TYPE   3
-#define ID_P_STEP   4
-#define ID_P_OFF    5
-#define ID_P_RETURN 6
+enum {
+  ID_P_ADD = 1,
+  ID_P_DEC,
+  ID_P_TYPE,
+  ID_P_STEP,
+  ID_P_OFF,
+  ID_P_RETURN
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

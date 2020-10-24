@@ -43,14 +43,16 @@ static lv_obj_t *scr;
 
 static lv_obj_t *labelV, *buttonV, *zOffsetText;
 
-#define ID_BABY_STEP_X_P    1
-#define ID_BABY_STEP_X_N    2
-#define ID_BABY_STEP_Y_P    3
-#define ID_BABY_STEP_Y_N    4
-#define ID_BABY_STEP_Z_P    5
-#define ID_BABY_STEP_Z_N    6
-#define ID_BABY_STEP_DIST   7
-#define ID_BABY_STEP_RETURN 8
+enum {
+  ID_BABY_STEP_X_P = 1,
+  ID_BABY_STEP_X_N,
+  ID_BABY_STEP_Y_P,
+  ID_BABY_STEP_Y_N,
+  ID_BABY_STEP_Z_P,
+  ID_BABY_STEP_Z_N,
+  ID_BABY_STEP_DIST,
+  ID_BABY_STEP_RETURN
+};
 
 static float babystep_dist=0.01;
 static uint8_t has_adjust_z = 0;

@@ -38,14 +38,16 @@ static lv_obj_t *scr;
 
 static lv_obj_t *labelV, *buttonV;
 
-#define ID_M_X_P    1
-#define ID_M_X_N    2
-#define ID_M_Y_P    3
-#define ID_M_Y_N    4
-#define ID_M_Z_P    5
-#define ID_M_Z_N    6
-#define ID_M_STEP   7
-#define ID_M_RETURN 8
+enum {
+  ID_M_X_P = 1,
+  ID_M_X_N,
+  ID_M_Y_P,
+  ID_M_Y_N,
+  ID_M_Z_P,
+  ID_M_Z_N,
+  ID_M_STEP,
+  ID_M_RETURN
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

@@ -34,8 +34,10 @@ extern lv_group_t *g;
 static lv_obj_t *scr;
 static lv_obj_t *buttonEncoderState = nullptr;
 
-#define ID_ENCODER_RETURN 1
-#define ID_ENCODER_STATE 2
+enum {
+  ID_ENCODER_RETURN = 1,
+  ID_ENCODER_STATE
+};
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;

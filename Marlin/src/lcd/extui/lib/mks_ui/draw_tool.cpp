@@ -37,14 +37,16 @@
 extern lv_group_t *g;
 static lv_obj_t *scr;
 
-#define ID_T_PRE_HEAT   1
-#define ID_T_EXTRUCT    2
-#define ID_T_MOV        3
-#define ID_T_HOME       4
-#define ID_T_LEVELING   5
-#define ID_T_FILAMENT   6
-#define ID_T_MORE       7
-#define ID_T_RETURN     8
+enum {
+  ID_T_PRE_HEAT = 1,
+  ID_T_EXTRUCT,
+  ID_T_MOV,
+  ID_T_HOME,
+  ID_T_LEVELING,
+  ID_T_FILAMENT,
+  ID_T_MORE,
+  ID_T_RETURN
+};
 
 #if ENABLED(MKS_TEST)
   extern uint8_t curent_disp_ui;
