@@ -488,6 +488,9 @@ lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
 // Create a button with callback and ID, with button style.
 lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
 
+// Create a button with position, size, callback, ID, and style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id, lv_style_t *style);
+
 // Create a button with position, size, callback, and ID. Style set to style_para_value.
 lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
 

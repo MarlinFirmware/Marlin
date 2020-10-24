@@ -68,7 +68,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       break;
     case ID_S_CONTINUE: break;
     case ID_S_MOTOR_OFF:
-      TERN_(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
+      TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
       break;
     case ID_S_LANGUAGE:
       lv_clear_set();

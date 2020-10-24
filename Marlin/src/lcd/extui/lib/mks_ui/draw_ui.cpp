@@ -1680,11 +1680,17 @@ lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0
   return btn;
 }
 
-// Create a button with position, size, callback, and ID. Style set to style_para_value.
-lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
-  lv_obj_t *btn = lv_btn_create(par, cb, id);
+// Create a button with position, size, callback, ID, and style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id, lv_style_t *style) {
+  lv_obj_t *btn = lv_btn_create(par, cb, id, style);
   lv_obj_set_pos(btn, x, y);
   lv_obj_set_size(btn, w, h);
+  return btn;
+}
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id/*=0*/) {
+  lv_obj_t *btn = lv_btn_create(par, x, y, w, h, cb, id, &style_para_value);
   return btn;
 }
 
@@ -1748,9 +1754,8 @@ lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text,
       lv_obj_align(label, btn, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
   #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable == true) {
+    if (gCfgItems.encoder_enable == true)
       lv_group_add_obj(g, btn);
-    }
   #endif
   return btn;
 }

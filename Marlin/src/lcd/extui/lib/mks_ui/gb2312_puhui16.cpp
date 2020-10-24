@@ -81,7 +81,7 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
     memcpy(&__g_xbf_hd, p, sizeof(x_header_t));
   }
   if (unicode_letter > __g_xbf_hd.max || unicode_letter < __g_xbf_hd.min)
-    return nullptr;
+    return false;
   uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd.min) * 4;
   uint32_t *p_pos = (uint32_t *)__user_font_getdata(unicode_offset, 4);
   if (p_pos[0] != 0) {

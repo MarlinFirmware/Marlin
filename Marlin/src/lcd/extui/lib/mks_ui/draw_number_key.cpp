@@ -662,15 +662,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_number_key(void) {
-  lv_obj_t *NumberKey_1 = nullptr, *NumberKey_2 = nullptr, *NumberKey_3 = nullptr, *NumberKey_4 = nullptr, *NumberKey_5 = nullptr,
-           *NumberKey_6 = nullptr, *NumberKey_7 = nullptr, *NumberKey_8 = nullptr, *NumberKey_9 = nullptr, *NumberKey_0 = nullptr,
-           *KeyPoint = nullptr, *KeyConfirm = nullptr, *KeyReset = nullptr, *KeyBack = nullptr,
-           *Minus = nullptr,
-           *labelKey_1 = nullptr, *labelKey_2 = nullptr, *labelKey_3 = nullptr, *labelKey_4 = nullptr, *labelKey_5 = nullptr,
-           *labelKey_6 = nullptr, *labelKey_7 = nullptr, *labelKey_8 = nullptr, *labelKey_9 = nullptr, *labelKey_0 = nullptr,
-           *labelKeyPoint = nullptr, *labelKeyConfirm = nullptr, *labelKeyReset = nullptr, *labelKeyBack = nullptr,
-           *labelMinus = nullptr;
-
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != NUMBER_KEY_UI) {
     disp_state_stack._disp_index++;
     disp_state_stack._disp_state[disp_state_stack._disp_index] = NUMBER_KEY_UI;
@@ -683,130 +674,81 @@ void lv_draw_number_key(void) {
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
-  buttonValue = lv_btn_create(scr, event_handler, ID_NUM_KEY1, &style_num_text);
-  lv_obj_set_pos(buttonValue, 92, 40);
-  lv_obj_set_size(buttonValue, 296, 40);
-  //lv_btn_set_layout(buttonValue, LV_LAYOUT_OFF);
+  buttonValue = lv_btn_create(scr, 92, 40, 296, 40, event_handler, ID_NUM_KEY1, &style_num_text);
   labelValue = lv_label_create_empty(buttonValue);
 
-  NumberKey_1 = lv_btn_create(scr, event_handler, ID_NUM_KEY1, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_1, 92, 90);
-  lv_obj_set_size(NumberKey_1, 68, 40);
-  //lv_btn_set_layout(NumberKey_1, LV_LAYOUT_OFF);
-  labelKey_1 = lv_label_create_empty(NumberKey_1);
+  lv_obj_t *NumberKey_1 = lv_btn_create(scr, 92, 90, 68, 40, event_handler, ID_NUM_KEY1, &style_num_key_pre);
+  lv_obj_t *labelKey_1 = lv_label_create_empty(NumberKey_1);
   lv_label_set_text(labelKey_1, machine_menu.key_1);
   lv_obj_align(labelKey_1, NumberKey_1, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_2 = lv_btn_create(scr, event_handler, ID_NUM_KEY2, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_2, 168, 90);
-  lv_obj_set_size(NumberKey_2, 68, 40);
-  //lv_btn_set_layout(NumberKey_2, LV_LAYOUT_OFF);
-  labelKey_2 = lv_label_create_empty(NumberKey_2);
+  lv_obj_t *NumberKey_2 = lv_btn_create(scr, 168, 90, 68, 40, event_handler, ID_NUM_KEY2, &style_num_key_pre);
+  lv_obj_t *labelKey_2 = lv_label_create_empty(NumberKey_2);
   lv_label_set_text(labelKey_2, machine_menu.key_2);
   lv_obj_align(labelKey_2, NumberKey_2, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_3 = lv_btn_create(scr, event_handler, ID_NUM_KEY3, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_3, 244, 90);
-  lv_obj_set_size(NumberKey_3, 68, 40);
-  //lv_btn_set_layout(NumberKey_3, LV_LAYOUT_OFF);
-  labelKey_3 = lv_label_create_empty(NumberKey_3);
+  lv_obj_t *NumberKey_3 = lv_btn_create(scr, 244, 90, 68, 40, event_handler, ID_NUM_KEY3, &style_num_key_pre);
+  lv_obj_t *labelKey_3 = lv_label_create_empty(NumberKey_3);
   lv_label_set_text(labelKey_3, machine_menu.key_3);
   lv_obj_align(labelKey_3, NumberKey_3, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_4 = lv_btn_create(scr, event_handler, ID_NUM_KEY4, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_4, 92, 140);
-  lv_obj_set_size(NumberKey_4, 68, 40);
-  //lv_btn_set_layout(NumberKey_4, LV_LAYOUT_OFF);
-  labelKey_4 = lv_label_create_empty(NumberKey_4);
+  lv_obj_t *NumberKey_4 = lv_btn_create(scr, 92, 140, 68, 40, event_handler, ID_NUM_KEY4, &style_num_key_pre);
+  lv_obj_t *labelKey_4 = lv_label_create_empty(NumberKey_4);
   lv_label_set_text(labelKey_4, machine_menu.key_4);
   lv_obj_align(labelKey_4, NumberKey_4, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_5 = lv_btn_create(scr, event_handler, ID_NUM_KEY5, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_5, 168, 140);
-  lv_obj_set_size(NumberKey_5, 68, 40);
-  //lv_btn_set_layout(NumberKey_5, LV_LAYOUT_OFF);
-  labelKey_5 = lv_label_create_empty(NumberKey_5);
+  lv_obj_t *NumberKey_5 = lv_btn_create(scr, 168, 140, 68, 40, event_handler, ID_NUM_KEY5, &style_num_key_pre);
+  lv_obj_t *labelKey_5 = lv_label_create_empty(NumberKey_5);
   lv_label_set_text(labelKey_5, machine_menu.key_5);
   lv_obj_align(labelKey_5, NumberKey_5, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_6 = lv_btn_create(scr, event_handler, ID_NUM_KEY6, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_6, 244, 140);
-  lv_obj_set_size(NumberKey_6, 68, 40);
-  //lv_btn_set_layout(NumberKey_6, LV_LAYOUT_OFF);
-  labelKey_6 = lv_label_create_empty(NumberKey_6);
+  lv_obj_t *NumberKey_6 = lv_btn_create(scr, 244, 140, 68, 40, event_handler, ID_NUM_KEY6, &style_num_key_pre);
+  lv_obj_t *labelKey_6 = lv_label_create_empty(NumberKey_6);
   lv_label_set_text(labelKey_6, machine_menu.key_6);
   lv_obj_align(labelKey_6, NumberKey_6, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_7 = lv_btn_create(scr, event_handler, ID_NUM_KEY7, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_7, 92, 190);
-  lv_obj_set_size(NumberKey_7, 68, 40);
-  //lv_btn_set_layout(NumberKey_7, LV_LAYOUT_OFF);
-  labelKey_7 = lv_label_create_empty(NumberKey_7);
+  lv_obj_t *NumberKey_7 = lv_btn_create(scr, 92, 190, 68, 40, event_handler, ID_NUM_KEY7, &style_num_key_pre);
+  lv_obj_t *labelKey_7 = lv_label_create_empty(NumberKey_7);
   lv_label_set_text(labelKey_7, machine_menu.key_7);
   lv_obj_align(labelKey_7, NumberKey_7, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_8 = lv_btn_create(scr, event_handler, ID_NUM_KEY8, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_8, 168, 190);
-  lv_obj_set_size(NumberKey_8, 68, 40);
-  //lv_btn_set_layout(NumberKey_8, LV_LAYOUT_OFF);
-  labelKey_8 = lv_label_create_empty(NumberKey_8);
+  lv_obj_t *NumberKey_8 = lv_btn_create(scr, 168, 190, 68, 40, event_handler, ID_NUM_KEY8, &style_num_key_pre);
+  lv_obj_t *labelKey_8 = lv_label_create_empty(NumberKey_8);
   lv_label_set_text(labelKey_8, machine_menu.key_8);
   lv_obj_align(labelKey_8, NumberKey_8, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_9 = lv_btn_create(scr, event_handler, ID_NUM_KEY9, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_9, 244, 190);
-  lv_obj_set_size(NumberKey_9, 68, 40);
-  //lv_btn_set_layout(NumberKey_9, LV_LAYOUT_OFF);
-  labelKey_9 = lv_label_create_empty(NumberKey_9);
+  lv_obj_t *NumberKey_9 = lv_btn_create(scr, 244, 190, 68, 40, event_handler, ID_NUM_KEY9, &style_num_key_pre);
+  lv_obj_t *labelKey_9 = lv_label_create_empty(NumberKey_9);
   lv_label_set_text(labelKey_9, machine_menu.key_9);
   lv_obj_align(labelKey_9, NumberKey_9, LV_ALIGN_CENTER, 0, 0);
 
-  NumberKey_0 = lv_btn_create(scr, event_handler, ID_NUM_KEY0, &style_num_key_pre);
-  lv_obj_set_pos(NumberKey_0, 92, 240);
-  lv_obj_set_size(NumberKey_0, 68, 40);
-  //lv_btn_set_layout(NumberKey_0, LV_LAYOUT_OFF);
-  labelKey_0 = lv_label_create_empty(NumberKey_0);
+  lv_obj_t *NumberKey_0 = lv_btn_create(scr, 92, 240, 68, 40, event_handler, ID_NUM_KEY0, &style_num_key_pre);
+  lv_obj_t *labelKey_0 = lv_label_create_empty(NumberKey_0);
   lv_label_set_text(labelKey_0, machine_menu.key_0);
   lv_obj_align(labelKey_0, NumberKey_0, LV_ALIGN_CENTER, 0, 0);
 
-  KeyBack = lv_btn_create(scr, event_handler, ID_NUM_BACK, &style_num_key_pre);
-  lv_obj_set_pos(KeyBack, 320, 90);
-  lv_obj_set_size(KeyBack, 68, 40);
-  //lv_btn_set_layout(KeyBack, LV_LAYOUT_OFF);
-  labelKeyBack = lv_label_create_empty(KeyBack);
+  lv_obj_t *KeyBack = lv_btn_create(scr, 320, 90, 68, 40, event_handler, ID_NUM_BACK, &style_num_key_pre);
+  lv_obj_t *labelKeyBack = lv_label_create_empty(KeyBack);
   lv_label_set_text(labelKeyBack, machine_menu.key_back);
   lv_obj_align(labelKeyBack, KeyBack, LV_ALIGN_CENTER, 0, 0);
 
-  KeyReset = lv_btn_create(scr, event_handler, ID_NUM_RESET, &style_num_key_pre);
-  lv_obj_set_pos(KeyReset, 320, 140);
-  lv_obj_set_size(KeyReset, 68, 40);
-  //lv_btn_set_layout(KeyReset, LV_LAYOUT_OFF);
-  labelKeyReset = lv_label_create_empty(KeyReset);
+  lv_obj_t *KeyReset = lv_btn_create(scr, 320, 140, 68, 40, event_handler, ID_NUM_RESET, &style_num_key_pre);
+  lv_obj_t *labelKeyReset = lv_label_create_empty(KeyReset);
   lv_label_set_text(labelKeyReset, machine_menu.key_reset);
   lv_obj_align(labelKeyReset, KeyReset, LV_ALIGN_CENTER, 0, 0);
 
-  KeyConfirm = lv_btn_create(scr, event_handler, ID_NUM_CONFIRM, &style_num_key_pre);
-  lv_obj_set_pos(KeyConfirm, 320, 190);
-  lv_obj_set_size(KeyConfirm, 68, 90);
-  //lv_btn_set_layout(KeyConfirm, LV_LAYOUT_OFF);
-  labelKeyConfirm = lv_label_create_empty(KeyConfirm);
+  lv_obj_t *KeyConfirm = lv_btn_create(scr, 320, 190, 68, 90, event_handler, ID_NUM_CONFIRM, &style_num_key_pre);
+  lv_obj_t *labelKeyConfirm = lv_label_create_empty(KeyConfirm);
   lv_label_set_text(labelKeyConfirm, machine_menu.key_confirm);
   lv_obj_align(labelKeyConfirm, KeyConfirm, LV_ALIGN_CENTER, 0, 0);
 
-  KeyPoint = lv_btn_create(scr, nullptr);
-  lv_obj_set_event_cb_mks(KeyPoint, event_handler, ID_NUM_POINT, &style_num_key_pre);
-  lv_obj_set_pos(KeyPoint, 244, 240);
-  lv_obj_set_size(KeyPoint, 68, 40);
-  //lv_btn_set_layout(KeyPoint, LV_LAYOUT_OFF);
-  labelKeyPoint = lv_label_create_empty(KeyPoint);
+  lv_obj_t *KeyPoint = lv_btn_create(scr, 244, 240, 68, 40, event_handler, ID_NUM_POINT, &style_num_key_pre);
+  lv_obj_t *labelKeyPoint = lv_label_create_empty(KeyPoint);
   lv_label_set_text(labelKeyPoint, machine_menu.key_point);
   lv_obj_align(labelKeyPoint, KeyPoint, LV_ALIGN_CENTER, 0, 0);
 
-  Minus = lv_btn_create(scr, event_handler, ID_NUM_NEGATIVE, &style_num_key_pre);
-  lv_obj_set_pos(Minus, 168, 240);
-  lv_obj_set_size(Minus, 68, 40);
-  //lv_btn_set_layout(Minus, LV_LAYOUT_OFF);
-  labelMinus = lv_label_create_empty(Minus);
+  lv_obj_t *Minus = lv_btn_create(scr, 168, 240, 68, 40, event_handler, ID_NUM_NEGATIVE, &style_num_key_pre);
+  lv_obj_t *labelMinus = lv_label_create_empty(Minus);
   lv_label_set_text(labelMinus, machine_menu.negative);
   lv_obj_align(labelMinus, Minus, LV_ALIGN_CENTER, 0, 0);
 

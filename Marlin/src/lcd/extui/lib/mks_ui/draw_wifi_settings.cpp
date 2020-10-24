@@ -114,12 +114,8 @@ void lv_draw_wifi_settings(void) {
 
   labelModelText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
 
-  buttonModelValue = lv_imgbtn_create(scr, nullptr);
-  lv_imgbtn_set_src_both(buttonModelValue, "F:/bmp_blank_sel.bin");
-  lv_obj_set_pos(buttonModelValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-  lv_obj_set_event_cb_mks(buttonModelValue, event_handler, ID_WIFI_MODEL, nullptr, 0);
+  lv_obj_t *buttonModelValue = lv_imgbtn_create(scr, "F:/bmp_blank_sel.bin", PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, event_handler, ID_WIFI_MODEL);
   lv_btn_set_style_both(buttonModelValue, &style_para_value_pre);
-  lv_btn_set_layout(buttonModelValue, LV_LAYOUT_OFF);
   labelModelValue = lv_label_create_empty(buttonModelValue);
 
   line1 = lv_line_create(scr, nullptr);
