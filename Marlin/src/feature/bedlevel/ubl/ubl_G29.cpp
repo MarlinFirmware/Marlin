@@ -997,6 +997,10 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);     // Display the current point
 
+        #if IS_TFTGLCD_PANEL
+          ui.ubl_plot(lpos.x, lpos.y);   // update plot screen
+        #endif
+
         ui.refresh();
 
         float new_z = z_values[lpos.x][lpos.y];

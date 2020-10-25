@@ -25,7 +25,7 @@
  * MKS SGen pin assignments
  */
 
-#ifndef MCU_LPC1769
+#if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -163,7 +163,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -207,20 +207,20 @@
 //
 #define HEATER_BED_PIN                     P2_05
 #define HEATER_0_PIN                       P2_07
-#if HOTENDS == 1
-  #ifndef FAN1_PIN
-    #define FAN1_PIN                       P2_06
-  #endif
-#else
+#if HAS_MULTI_HOTEND
   #ifndef HEATER_1_PIN
     #define HEATER_1_PIN                   P2_06
   #endif
+#else
+  #ifndef FAN2_PIN
+    #define FAN2_PIN                       P2_06  // HE1 for FAN3
+  #endif
 #endif
 #ifndef FAN_PIN
-  #define FAN_PIN                          P2_04
+  #define FAN_PIN                          P2_04  // FAN1
 #endif
-#ifndef FAN2_PIN
-  #define FAN2_PIN                         P1_04
+#ifndef FAN1_PIN
+  #define FAN1_PIN                         P1_04  // FAN2
 #endif
 
 //
@@ -241,11 +241,21 @@
  *                -----                                            -----
  *                EXP1                                             EXP2
  */
-#if HAS_SPI_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_25
+  #endif
+
+  #define SD_DETECT_PIN                    P0_27
+
+#elif HAS_WIRED_LCD
+
   #define BEEPER_PIN                       P1_31
   #define BTN_ENC                          P1_30
 
   #if ENABLED(CR10_STOCKDISPLAY)
+
     #define LCD_PINS_RS                    P1_00
 
     #define BTN_EN1                        P0_18
@@ -327,7 +337,7 @@
 
   #endif // !CR10_STOCKDISPLAY
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD

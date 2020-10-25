@@ -33,7 +33,6 @@
  * ALSO: Variables in the Store and Retrieve sections must be in the same order.
  *       If a feature is disabled, some data must still be written that, when read,
  *       either sets a Sane Default, or results in No Change to the existing value.
- *
  */
 
 // Change EEPROM version if the structure changes
@@ -115,7 +114,7 @@
   extern float other_extruder_advance_K[EXTRUDERS];
 #endif
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "tool_change.h"
   void M217_report(const bool eeprom);
 #endif
@@ -388,7 +387,7 @@ typedef struct SettingsDataStruct {
   //
   // Tool-change settings
   //
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     toolchange_settings_t toolchange_settings;          // M217 S P R
   #endif
 
@@ -1320,7 +1319,7 @@ void MarlinSettings::postprocess() {
     // Multiple Extruders
     //
 
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       _FIELD_TEST(toolchange_settings);
       EEPROM_WRITE(toolchange_settings);
     #endif
@@ -1804,10 +1803,11 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-
         int16_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
-        TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
+        if (!validating) {
+          TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
+        }
       }
 
       //
@@ -2167,7 +2167,7 @@ void MarlinSettings::postprocess() {
       //
       // Tool-change settings
       //
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         _FIELD_TEST(toolchange_settings);
         EEPROM_READ(toolchange_settings);
       #endif
@@ -2488,7 +2488,7 @@ void MarlinSettings::reset() {
   // Tool-change Settings
   //
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
       toolchange_settings.swap_length     = TOOLCHANGE_FS_LENGTH;
       toolchange_settings.extra_resume    = TOOLCHANGE_FS_EXTRA_RESUME_LENGTH;
@@ -3719,7 +3719,7 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       CONFIG_ECHO_HEADING("Tool-changing:");
       CONFIG_ECHO_START();
       M217_report(true);

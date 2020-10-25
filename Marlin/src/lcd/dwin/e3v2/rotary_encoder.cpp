@@ -194,7 +194,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     unsigned char temp_Counter;
     for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
       LED_DataArray[temp_Counter] = 0;
-      switch(RGB_Scale) {
+      switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*7/10) << 16 | luminance*5/10; break;
         case RGB_SCALE_R10_G7_B4: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*7/10) << 16 | luminance*4/10; break;
         case RGB_SCALE_R10_G8_B7: LED_DataArray[temp_Counter] = (luminance*10/10) << 8 | (luminance*8/10) << 16 | luminance*7/10; break;
@@ -213,7 +213,7 @@ ENCODER_DiffState Encoder_ReceiveAnalyze(void) {
     bool LED_R_Flag = 0, LED_G_Flag = 0, LED_B_Flag = 0;
 
     for (temp_Counter = 0; temp_Counter < LED_NUM; temp_Counter++) {
-      switch(RGB_Scale) {
+      switch (RGB_Scale) {
         case RGB_SCALE_R10_G7_B5: {
           LED_R_Data[temp_Counter] = luminance*10/10;
           LED_G_Data[temp_Counter] = luminance*7/10;

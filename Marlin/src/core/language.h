@@ -303,7 +303,7 @@
 #define LCD_STR_C STR_C
 #define LCD_STR_E STR_E
 
-#if HAS_CHARACTER_LCD
+#if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
   // Custom characters defined in the first 8 characters of the LCD
   #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!
@@ -348,7 +348,6 @@
  * However, internal to Marlin E0/T0 is the first tool, and
  * most board silkscreens say "E0." Zero-based labels will
  * make these indexes consistent but this defies expectation.
- *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
   #define LCD_FIRST_TOOL 0
