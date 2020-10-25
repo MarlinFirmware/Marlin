@@ -33,7 +33,7 @@
 #define ST7735_MADCTL_RGB         0x00
 #define ST7735_MADCTL_MH          0x04 // Horizontal Refresh Order
 
-#define ST7735_ORIENTATION_UP     0x00							                	// 128x160 ; Cable on the upper side
+#define ST7735_ORIENTATION_UP     0x00                                // 128x160 ; Cable on the upper side
 #define ST7735_ORIENTATION_RIGHT  ST7735_MADCTL_MV | ST7735_MADCTL_MY // 160x128 ; Cable on the right side
 #define ST7735_ORIENTATION_LEFT   ST7735_MADCTL_MV | ST7735_MADCTL_MX // 160x128 ; Cable on the left side
 #define ST7735_ORIENTATION_DOWN   ST7735_MADCTL_MX | ST7735_MADCTL_MY // 128x160 ; Cable on the lower side
@@ -71,7 +71,7 @@
 #define ST7735_IDMOFF             0x38 // Idle Mode Off
 #define ST7735_IDMON              0x39 // Idle Mode On
 #define ST7735_COLMOD             0x3A // Interface Pixel Format
-#define ST7735_RDID1              0xDA //	Read ID1 Value
+#define ST7735_RDID1              0xDA // Read ID1 Value
 #define ST7735_RDID2              0xDB // Read ID2 Value
 #define ST7735_RDID3              0xDC // Read ID3 Value
 

@@ -35,27 +35,29 @@ using namespace ExtUI;
 using namespace Theme;
 
 #ifdef TOUCH_UI_PORTRAIT
-  #define GRID_ROWS 9
+  #define GRID_ROWS 10
   #define GRID_COLS 2
   #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
   #define LEVEL_BED_POS      BTN_POS(1,2), BTN_SIZE(2,1)
   #define LEVEL_AXIS_POS     BTN_POS(1,3), BTN_SIZE(2,1)
-  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
+  #define Z_AUTO_ALIGN_POS   BTN_POS(1,4), BTN_SIZE(2,1)
+  #define SHOW_MESH_POS      BTN_POS(1,5), BTN_SIZE(2,1)
+  #define BLTOUCH_TITLE_POS  BTN_POS(1,7), BTN_SIZE(2,1)
+  #define BLTOUCH_RESET_POS  BTN_POS(1,8), BTN_SIZE(1,1)
+  #define BLTOUCH_TEST_POS   BTN_POS(2,8), BTN_SIZE(1,1)
+  #define BACK_POS           BTN_POS(1,10), BTN_SIZE(2,1)
+#else
+  #define GRID_ROWS 8
+  #define GRID_COLS 2
+  #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
+  #define LEVEL_BED_POS      BTN_POS(1,2), BTN_SIZE(2,1)
+  #define LEVEL_AXIS_POS     BTN_POS(1,3), BTN_SIZE(2,1)
+  #define Z_AUTO_ALIGN_POS   BTN_POS(1,4), BTN_SIZE(2,1)
+  #define SHOW_MESH_POS      BTN_POS(1,5), BTN_SIZE(2,1)
   #define BLTOUCH_TITLE_POS  BTN_POS(1,6), BTN_SIZE(2,1)
   #define BLTOUCH_RESET_POS  BTN_POS(1,7), BTN_SIZE(1,1)
   #define BLTOUCH_TEST_POS   BTN_POS(2,7), BTN_SIZE(1,1)
-  #define BACK_POS           BTN_POS(1,9), BTN_SIZE(2,1)
-#else
-  #define GRID_ROWS 7
-  #define GRID_COLS 2
-  #define TITLE_POS          BTN_POS(1,1), BTN_SIZE(2,1)
-  #define LEVEL_BED_POS      BTN_POS(1,2), BTN_SIZE(2,1)
-  #define LEVEL_AXIS_POS     BTN_POS(1,3), BTN_SIZE(2,1)
-  #define SHOW_MESH_POS      BTN_POS(1,4), BTN_SIZE(2,1)
-  #define BLTOUCH_TITLE_POS  BTN_POS(1,5), BTN_SIZE(2,1)
-  #define BLTOUCH_RESET_POS  BTN_POS(1,6), BTN_SIZE(1,1)
-  #define BLTOUCH_TEST_POS   BTN_POS(2,6), BTN_SIZE(1,1)
-  #define BACK_POS           BTN_POS(1,7), BTN_SIZE(2,1)
+  #define BACK_POS           BTN_POS(1,8), BTN_SIZE(2,1)
 #endif
 
 void LevelingMenu::onRedraw(draw_mode_t what) {
@@ -78,12 +80,14 @@ void LevelingMenu::onRedraw(draw_mode_t what) {
          #endif
         )
        .tag(3).button(LEVEL_AXIS_POS, GET_TEXT_F(MSG_AUTOLEVEL_X_AXIS))
+       .enabled(ENABLED(Z_STEPPER_AUTO_ALIGN))
+       .tag(4).button(Z_AUTO_ALIGN_POS, GET_TEXT_F(MSG_AUTO_Z_ALIGN))
        .enabled(ENABLED(HAS_MESH))
-       .tag(4).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH));
+       .tag(5).button(SHOW_MESH_POS, GET_TEXT_F(MSG_SHOW_MESH));
     #if ENABLED(BLTOUCH)
       cmd.text(BLTOUCH_TITLE_POS, GET_TEXT_F(MSG_BLTOUCH))
-         .tag(5).button(BLTOUCH_RESET_POS, GET_TEXT_F(MSG_BLTOUCH_RESET))
-         .tag(6).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST));
+         .tag(6).button(BLTOUCH_RESET_POS, GET_TEXT_F(MSG_BLTOUCH_RESET))
+         .tag(7).button(BLTOUCH_TEST_POS,  GET_TEXT_F(MSG_BLTOUCH_SELFTEST));
     #endif
     cmd.colors(action_btn)
        .tag(1).button(BACK_POS, GET_TEXT_F(MSG_BACK));
@@ -103,12 +107,15 @@ bool LevelingMenu::onTouchEnd(uint8_t tag) {
     #ifdef AXIS_LEVELING_COMMANDS
     case 3: SpinnerDialogBox::enqueueAndWait_P(F(AXIS_LEVELING_COMMANDS)); break;
     #endif
+    #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+    case 4: SpinnerDialogBox::enqueueAndWait_P(F("G34")); break;
+    #endif
     #if HAS_MESH
-    case 4: GOTO_SCREEN(BedMeshScreen); break;
+    case 5: GOTO_SCREEN(BedMeshScreen); break;
     #endif
     #if ENABLED(BLTOUCH)
-    case 5: injectCommands_P(PSTR("M280 P0 S60")); break;
-    case 6: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
+    case 6: injectCommands_P(PSTR("M280 P0 S60")); break;
+    case 7: SpinnerDialogBox::enqueueAndWait_P(F("M280 P0 S90\nG4 P100\nM280 P0 S120")); break;
     #endif
     default: return false;
   }
