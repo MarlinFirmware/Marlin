@@ -977,19 +977,19 @@ void RTSSHOW::RTS_HandleData()
       }
       else if(recdat.data[0] == 2)
       {
-        if (WITHIN((probe.offset.z + 0.05), -0.52, 0.52))
+        if (WITHIN((probe.offset.z + 0.01), -0.52, 0.52))
         {
-          babystep.add_mm(Z_AXIS, 0.05);
-          probe.offset.z = (probe.offset.z + 0.05);
+          babystep.add_mm(Z_AXIS, 0.01);
+          probe.offset.z = (probe.offset.z + 0.01);
         }
         RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       }
       else if(recdat.data[0] == 3)
       {
-        if (WITHIN((probe.offset.z - 0.05), -0.52, 0.52))
+        if (WITHIN((probe.offset.z - 0.01), -0.52, 0.52))
         {
-          babystep.add_mm(Z_AXIS, -0.05);
-          probe.offset.z = (probe.offset.z - 0.05);
+          babystep.add_mm(Z_AXIS, -0.01);
+          probe.offset.z = (probe.offset.z - 0.01);
         }
         RTS_SndData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
       }
