@@ -138,7 +138,7 @@
   #define LCD_PINS_D7                      P1_28
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-    #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
   #endif
 
 #endif
