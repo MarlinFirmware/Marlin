@@ -117,7 +117,7 @@
       #define BTN_EN1                         40
       #define BTN_EN2                         42
     #elif ENABLED(FYSETC_MINI_12864)
-      //Disconnect 1,2 of EXP2, otherwise future firmware upload won't work.
+      // Disconnect EXP2-1 and EXP2-2, otherwise future firmware upload won't work.
       #define DOGLCD_A0                       20
       #define DOGLCD_CS                       17
 
