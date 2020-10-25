@@ -639,7 +639,7 @@ bool CardReader::fileExists(const char * const path) {
     selectByName(*diveDir, fname);
     diveDir->close();
   }
-  return fname != nullptr;
+  return !!fname;
 }
 
 //
@@ -684,7 +684,7 @@ void CardReader::write_command(char * const buf) {
   char* end = buf + strlen(buf) - 1;
 
   file.writeError = false;
-  if ((npos = strchr(buf, 'N')) != nullptr) {
+  if ((npos = strchr(buf, 'N'))) {
     begin = strchr(npos, ' ') + 1;
     end = strchr(npos, '*') - 1;
   }

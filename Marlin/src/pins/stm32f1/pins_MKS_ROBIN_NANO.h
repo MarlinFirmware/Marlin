@@ -171,7 +171,7 @@
 
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
   #define FSMC_CS_PIN                       PD7   // NE4

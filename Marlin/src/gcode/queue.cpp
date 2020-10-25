@@ -180,7 +180,7 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
  * Return 'true' if any commands were processed.
  */
 bool GCodeQueue::process_injected_command_P() {
-  if (injected_commands_P == nullptr) return false;
+  if (!injected_commands_P) return false;
 
   char c;
   size_t i = 0;
@@ -480,7 +480,7 @@ void GCodeQueue::get_serial_commands() {
 
         if (npos) {
 
-          bool M110 = strstr_P(command, PSTR("M110")) != nullptr;
+          const bool M110 = !!strstr_P(command, PSTR("M110"));
 
           if (M110) {
             char* n2pos = strchr(command + 4, 'N');
