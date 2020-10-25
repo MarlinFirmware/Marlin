@@ -400,7 +400,7 @@
         #define LCD_PINS_D6                P1_22
         #define LCD_PINS_D7                P1_23
 
-        #if ENABLED(U8GLIB_ST7920)
+        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
           #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
         #endif
 
