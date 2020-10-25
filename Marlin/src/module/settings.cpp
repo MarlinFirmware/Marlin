@@ -153,6 +153,10 @@
   #include "../feature/ethernet.h"
 #endif
 
+#if ENABLED(TOGGLE_BUZZER_MENU)
+  #include "../libs/buzzer.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -451,6 +455,12 @@ typedef struct SettingsDataStruct {
              ethernet_subnet;                           // M554 P
   #endif
 
+  //
+  // Buzzer enable/disable
+  //
+  #if ENABLED(TOGGLE_BUZZER_MENU)
+    bool buzzer_enabled;
+  #endif
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1423,6 +1433,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Buzzer enable/disable
+    //
+    #if ENABLED(TOGGLE_BUZZER_MENU)
+      EEPROM_WRITE(buzzer_enabled);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -2294,6 +2311,14 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Buzzer enable/disable
+      //
+      #if ENABLED(TOGGLE_BUZZER_MENU)
+        _FIELD_TEST(buzzer_enabled);
+        EEPROM_READ(buzzer_enabled);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
@@ -2602,6 +2627,14 @@ void MarlinSettings::reset() {
   // TOUCH_SCREEN_CALIBRATION
   //
   TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
+
+  //
+  // Buzzer enable/disable
+  //
+  #if ENABLED(TOGGLE_BUZZER_MENU)
+     buzzer_enabled = true;
+  #endif
+
 
   //
   // Magnetic Parking Extruder
