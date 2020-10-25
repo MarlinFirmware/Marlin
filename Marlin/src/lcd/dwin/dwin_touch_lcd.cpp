@@ -99,6 +99,8 @@ void DWINTouch_bedlevel_finish_callback() {
   {
      waitway = 0;
   }
+
+  settings.save();
 }
 
 void DWINTouch_autohome_callback() {
