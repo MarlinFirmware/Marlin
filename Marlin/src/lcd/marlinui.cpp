@@ -337,6 +337,10 @@ void MarlinUI::init() {
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
+    #if BUTTON_EXISTS(ENC_EN)
+      SET_INPUT_PULLUP(BTN_ENC_EN);
+    #endif
+
     #if BUTTON_EXISTS(BACK)
       SET_INPUT_PULLUP(BTN_BACK);
     #endif
@@ -957,7 +961,10 @@ void MarlinUI::update() {
 
           #endif // ENCODER_RATE_MULTIPLIER
 
-          encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+          // Update position only when ENC_EN is HIGH
+          if (TERN1(BTN_ENC_EN, !BUTTON_PRESSED(ENC_EN)))
+            encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+
           encoderDiff = 0;
         }
 
@@ -1175,7 +1182,8 @@ void MarlinUI::update() {
             if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
           #endif
           #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+            // Update button only when ENC_EN is HIGH
+            if (TERN1(BTN_ENC_EN, !BUTTON_PRESSED(ENC_EN)) && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
           #endif
           #if BUTTON_EXISTS(BACK)
             if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
