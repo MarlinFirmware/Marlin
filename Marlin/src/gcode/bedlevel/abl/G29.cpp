@@ -361,32 +361,24 @@ G29_TYPE GcodeSuite::G29() {
 
       if (parser.seen('H')) {
         const int16_t size = (int16_t)parser.value_linear_units();
-        probe_position_lf.set(
-          _MAX(X_CENTER - size / 2, x_min),
-          _MAX(Y_CENTER - size / 2, y_min)
-        );
-        probe_position_rb.set(
-          _MIN(probe_position_lf.x + size, x_max),
-          _MIN(probe_position_lf.y + size, y_max)
-        );
+        probe_position_lf.set(_MAX((X_CENTER) - size / 2, x_min), _MAX((Y_CENTER) - size / 2, y_min));
+        probe_position_rb.set(_MIN(probe_position_lf.x + size, x_max), _MIN(probe_position_lf.y + size, y_max));
       }
       else {
-        probe_position_lf.set(
-          parser.seenval('L') ? RAW_X_POSITION(parser.value_linear_units()) : x_min,
-          parser.seenval('F') ? RAW_Y_POSITION(parser.value_linear_units()) : y_min
-        );
-        probe_position_rb.set(
-          parser.seenval('R') ? RAW_X_POSITION(parser.value_linear_units()) : x_max,
-          parser.seenval('B') ? RAW_Y_POSITION(parser.value_linear_units()) : y_max
-        );
+        probe_position_lf.set(parser.linearval('L', x_min), parser.linearval('F', y_min));
+        probe_position_rb.set(parser.linearval('R', x_max), parser.linearval('B', y_max));
       }
 
       if (!probe.good_bounds(probe_position_lf, probe_position_rb)) {
+        if (DEBUGGING(LEVELING)) {
+          DEBUG_ECHOLNPAIR("G29 L", probe_position_lf.x, " R", probe_position_rb.x,
+                              " F", probe_position_lf.y, " B", probe_position_rb.y);
+        }
         SERIAL_ECHOLNPGM("? (L,R,F,B) out of bounds.");
         G29_RETURN(false);
       }
 
-      // probe at the points of a lattice grid
+      // Probe at the points of a lattice grid
       gridSpacing.set((probe_position_rb.x - probe_position_lf.x) / (abl_grid_points.x - 1),
                       (probe_position_rb.y - probe_position_lf.y) / (abl_grid_points.y - 1));
 

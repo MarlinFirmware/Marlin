@@ -62,7 +62,7 @@ static const uint8_t * __user_font_get_bitmap(const lv_font_t * font, uint32_t u
     memcpy(&__g_xbf_hd, p, sizeof(x_header_t));
   }
   if (unicode_letter > __g_xbf_hd.max || unicode_letter < __g_xbf_hd.min)
-    return NULL;
+    return nullptr;
   uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd.min) * 4;
   uint32_t *p_pos = (uint32_t *)__user_font_getdata(unicode_offset, 4);
   if (p_pos[0] != 0) {
@@ -72,7 +72,7 @@ static const uint8_t * __user_font_get_bitmap(const lv_font_t * font, uint32_t u
     //return __user_font_getdata(pos+2, gdsc->box_w*__g_xbf_hd.bpp/8);
     return __user_font_getdata(pos + 2, sizeof(__g_font_buf));
   }
-  return NULL;
+  return nullptr;
 }
 
 static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_t * dsc_out, uint32_t unicode_letter, uint32_t unicode_letter_next) {
@@ -81,7 +81,7 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
     memcpy(&__g_xbf_hd, p, sizeof(x_header_t));
   }
   if (unicode_letter > __g_xbf_hd.max || unicode_letter < __g_xbf_hd.min)
-    return NULL;
+    return false;
   uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd.min) * 4;
   uint32_t *p_pos = (uint32_t *)__user_font_getdata(unicode_offset, 4);
   if (p_pos[0] != 0) {

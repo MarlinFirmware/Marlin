@@ -754,8 +754,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 511: M511(); break;                                // M511: Unlock Printer
         #endif
         #if ENABLED(PASSWORD_CHANGE_GCODE)
-          case 512: M512(); break;
-        #endif                                                    // M512: Set/Change/Remove Password
+          case 512: M512(); break;                                // M512: Set/Change/Remove Password
+        #endif
       #endif
 
       #if ENABLED(SDSUPPORT)
@@ -764,6 +764,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
+      #endif
+
+      #if HAS_ETHERNET
+        case 552: M552(); break;                                  // M552: Set IP address
+        case 553: M553(); break;                                  // M553: Set gateway
+        case 554: M554(); break;                                  // M554: Set netmask
       #endif
 
       #if ENABLED(BAUD_RATE_GCODE)
