@@ -45,6 +45,10 @@
   #endif
 #endif
 
+#if ENABLED(TOGGLE_BUZZER_MENU)
+  #include "../../libs/buzzer.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -331,6 +335,16 @@ void menu_advanced_settings();
 
 #endif
 
+#if ENABLED(TOGGLE_BUZZER_MENU)
+  void disable_buzzer() {
+      buzzer_enabled = false;
+  }
+  void enable_buzzer() {
+      buzzer_enabled = true;
+      ui.chirp();
+  }
+#endif
+
 void menu_configuration() {
   const bool busy = printer_busy();
 
@@ -410,6 +424,14 @@ void menu_configuration() {
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     LOOP_L_N(m, PREHEAT_COUNT)
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
+  #endif
+
+  #if ENABLED(TOGGLE_BUZZER_MENU)
+    if (buzzer_enabled) {
+        ACTION_ITEM(MSG_DISABLE_BUZZER, disable_buzzer);
+    } else {
+        ACTION_ITEM(MSG_ENABLE_BUZZER, enable_buzzer);
+    }
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

@@ -659,6 +659,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
+  PROGMEM Language_Str MSG_ENABLE_BUZZER                   = _UxGT("Enable buzzer");
+  PROGMEM Language_Str MSG_DISABLE_BUZZER                  = _UxGT("Disable buzzer");
 }
 
 #if FAN_COUNT == 1
