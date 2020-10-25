@@ -39,6 +39,7 @@ jobs:
         - esp32
         - linux_native
         - mega2560
+        - at90usb1286_dfu
         - teensy31
         - teensy35
         - teensy41
@@ -95,7 +96,6 @@ jobs:
 
         # Non-working environment tests
         #- at90usb1286_cdc
-        #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
 
