@@ -59,10 +59,10 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
   bool dguslcd_local_debug; // = false;
 #endif
 
-#define dgusserial DGUS_SERIAL
+#define dgusserial LCD_SERIAL
 
 void DGUSDisplay::InitDisplay() {
-  dgusserial.begin(DGUS_BAUDRATE);
+  dgusserial.begin(LCD_BAUDRATE);
 
   if (true
     #if ENABLED(POWER_LOSS_RECOVERY)
@@ -245,7 +245,7 @@ void DGUSDisplay::ProcessRx() {
   }
 }
 
-size_t DGUSDisplay::GetFreeTxBuffer() { return DGUS_SERIAL_GET_TX_BUFFER_FREE(); }
+size_t DGUSDisplay::GetFreeTxBuffer() { return SERIAL_GET_TX_BUFFER_FREE(); }
 
 void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
   dgusserial.write(DGUS_HEADER1);
