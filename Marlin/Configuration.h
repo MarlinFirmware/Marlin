@@ -1819,6 +1819,12 @@
 //#define SPEAKER
 
 //
+// Enable/disable menu item
+// Add enable/disable menu item in Configuration menu
+//
+//#define TOGGLE_BUZZER_MENU
+
+//
 // The duration and frequency for the UI feedback sound.
 // Set these to 0 to disable audio feedback in the LCD menus.
 //
