@@ -117,6 +117,7 @@ void tft_lvgl_init() {
   disp_language_init();
 
   //init tft first!
+  watchdog_refresh();
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
