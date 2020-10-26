@@ -179,6 +179,8 @@ void DGUSCrealityDisplay_HandleReturnKeyEvent(DGUS_VP_Variable &var, void *val_p
         map->Handler(var, *static_cast<unsigned short*>(val_ptr));
         return;
     }
+
+    map++;
   }
 }
 
