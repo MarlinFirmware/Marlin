@@ -116,7 +116,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
       for (uint8_t s = 0; s < E_STEPPERS; s++) {
         if (thermalManager.targetTooColdToExtrude(s))
-          SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
+          SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex - 1); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
             char cmd[12];
