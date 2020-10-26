@@ -37,7 +37,10 @@
 //
 // LED
 //
-#define LED_PIN                            P1_18
+#define LED_PIN                             P1_18 //50
+#define LED2_PIN                            P1_20 //52
+#define LED3_PIN                            P1_19 //53
+#define LED4_PIN                            P1_21 //55
 
 //
 // Servos
