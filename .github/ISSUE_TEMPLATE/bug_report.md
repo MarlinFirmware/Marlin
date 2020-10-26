@@ -9,11 +9,19 @@ assignees: ''
 
 <!--
 
-Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
+Please follow the instructions below. Failure to do so may result in your issue being closed.
 
-Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use one of the support links at https://github.com/MarlinFirmware/Marlin/issues/new/choose
+Instructions:
 
-Before filing an issue be sure to test the "bugfix" branches to see whether the issue has been resolved.
+1. Fill out every section of the template below.
+
+2. Always attach configuration files, even if you think they are not needed.
+
+3. Only proceed if actually reporting a bug. If you need support help please refer to one of the support links at https://github.com/MarlinFirmware/Marlin/issues/new/choose
+
+4. Test with the bugfix-2.0.x branch prior to reporting an issue.
+
+5. Read and understand Marlin's Code of Conduct. By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
 
 -->
 
@@ -23,7 +31,8 @@ Before filing an issue be sure to test the "bugfix" branches to see whether the 
 
 ### My Configurations
 
-**Required:** Please include a ZIP file containing your `Configuration.h` and `Configuration_adv.h` files.
+**Required:** Please include a ZIP file containing `Configuration.h`, `Configuration_adv.h`.
+Other frequently modified files include `platformio.ini` and board pins files.
 
 ### Steps to Reproduce
 
@@ -40,4 +49,4 @@ Before filing an issue be sure to test the "bugfix" branches to see whether the 
 #### Additional Information
 
 * Provide pictures or links to videos that clearly demonstrate the issue.
-* See [How Can I Contribute](#how-can-i-contribute) for additional guidelines.
+* See [Contributing to Marlin](https://github.com/MarlinFirmware/Marlin/blob/2.0.x/.github/contributing.md) for additional guidelines.
