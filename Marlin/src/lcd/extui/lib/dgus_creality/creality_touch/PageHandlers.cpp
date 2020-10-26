@@ -152,6 +152,34 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     }
 }
 
+void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    // There are actually no buttons to handle here: all buttons navigate to other screens (like confirmation screens)
+}
+
+void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_RESUMEPRINTKEY:
+            ExtUI::resumePrint();
+            break;
+    }
+}
+
+void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP){
+        case VP_BUTTON_PAUSEPRINTKEY:
+            switch (buttonValue) {
+                case 2: 
+                    ExtUI::pausePrint();
+                    break;
+
+                case 3:
+                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+                    break;
+            }
+            break;
+    }
+}
+
 // Register the page handlers
 #define PAGE_HANDLER(SCRID, HDLRPTR) { .ScreenID=SCRID, .Handler=HDLRPTR },
 const struct PageHandler PageHandlers[] PROGMEM = {
@@ -162,6 +190,11 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
+
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PRINT_RUNNING, PrintRunningMenuHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PRINT_PAUSED, PrintPausedMenuHandler)
+
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_DIALOG_PAUSE, PrintPauseDialogHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PREPARE, PrepareMenuHandler)
 

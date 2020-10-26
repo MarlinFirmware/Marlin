@@ -308,12 +308,14 @@ constexpr uint16_t VP_BED_PID_D = 0x3714;
 // Buttons defined by Creality - Don't worry if you're confused by the naming, so am I
 constexpr uint16_t VP_BUTTON_MAINENTERKEY = 0x1002;
 constexpr uint16_t VP_BUTTON_ADJUSTENTERKEY = 0x1004;
+constexpr uint16_t VP_BUTTON_PAUSEPRINTKEY = 0x100A;
 constexpr uint16_t VP_BUTTON_TEMPCONTROL = 0x1030;
 constexpr uint16_t VP_BUTTON_COOLDOWN = 0x1032;
 constexpr uint16_t VP_BUTTON_PREPAREENTERKEY = 0x103E;
 
 constexpr uint16_t VP_BUTTON_SELECTFILEKEY = 0x20D3;
 constexpr uint16_t VP_BUTTON_STARTPRINTKEY = 0x20D2;
+constexpr uint16_t VP_BUTTON_RESUMEPRINTKEY = 0x100C;
 
 // Additional stuff defined by Creality
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
