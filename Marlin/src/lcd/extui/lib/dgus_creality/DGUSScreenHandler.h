@@ -80,6 +80,8 @@ public:
   #endif
   #if HAS_BED_PROBE
     // Hook for "Change probe offset z"
+    static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
+
     static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
   #endif
   #if ENABLED(BABYSTEPPING)

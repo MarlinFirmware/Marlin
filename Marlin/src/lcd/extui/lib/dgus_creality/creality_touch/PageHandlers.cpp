@@ -122,6 +122,36 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     }
 }
 
+void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_ADJUSTENTERKEY:
+            switch (buttonValue) {
+                case 3:
+                    if (thermalManager.fan_speed[0] == 0) {
+                        thermalManager.fan_speed[0] = 255;
+                    } else {
+                        thermalManager.fan_speed[0] = 0;
+                    }
+                break;
+
+                case 4:
+                    // Switch LED ON/OFF
+                    if(LEDStatus == false)
+                    {
+                        WRITE(LED_CONTROL_PIN, LOW);
+                        LEDStatus = false;
+                    }
+                    else
+                    {
+                        // Turn off the LED
+                        WRITE(LED_CONTROL_PIN, LOW);
+                        LEDStatus = true;
+                    }
+                break;
+            }            
+    }
+}
+
 // Register the page handlers
 #define PAGE_HANDLER(SCRID, HDLRPTR) { .ScreenID=SCRID, .Handler=HDLRPTR },
 const struct PageHandler PageHandlers[] PROGMEM = {
@@ -130,6 +160,8 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
+    
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PREPARE, PrepareMenuHandler)
 

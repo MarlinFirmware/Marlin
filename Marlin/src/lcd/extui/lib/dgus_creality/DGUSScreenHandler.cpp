@@ -417,6 +417,14 @@ void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) 
   if (ramcopy.set_by_display_handler) ramcopy.set_by_display_handler(ramcopy, val_ptr);
 }
 
+void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr) {
+  if (current_screen != DGUSLCD_SCREEN_TUNING) {
+    HandleLiveAdjustZ(var, val_ptr);
+  } else {
+    HandleProbeOffsetZChanged(var, val_ptr);
+  }
+}
+
 const uint16_t* DGUSLCD_FindScreenVPMapList(uint8_t screen) {
   const uint16_t *ret;
   const struct VPMapping *map = VPMap;
