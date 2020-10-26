@@ -26,17 +26,11 @@ enum DGUSLCD_Screens : uint8_t {
 
   DGUSLCD_SCREEN_MAIN = 28,
 
-  DGUSLCD_SCREEN_CONFIRM = 0, // TODO: remove references to this
+  DGUSLCD_SCREEN_CONFIRM = 66, // TODO: remove references to this
   DGUSLCD_SCREEN_STATUS = 0, // TODO: remove references to this
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 0, // TODO: remove references to this
-  DGUSLCD_SCREEN_SDPRINTTUNE = 0, // TODO: remove references to this
-  DGUSLCD_SCREEN_SDFILELIST = 0, // TODO: remove references to this
-
-  DGUSLCD_SCREEN_SDFILELIST_1 = 29,   // DWINTouchPage::FILE_SELECTION_P1
-  DGUSLCD_SCREEN_SDFILELIST_2 = 30,   // DWINTouchPage::FILE_SELECTION_P2
-  DGUSLCD_SCREEN_SDFILELIST_3 = 31,   // DWINTouchPage::FILE_SELECTION_P3
-  DGUSLCD_SCREEN_SDFILELIST_4 = 32,   // DWINTouchPage::FILE_SELECTION_P4
-  DGUSLCD_SCREEN_SDFILELIST_5 = 33,   // DWINTouchPage::FILE_SELECTION_P5
+  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 37 , // TODO: remove references to this
+  DGUSLCD_SCREEN_SDPRINTTUNE = 41, // TODO: remove references to this
+  DGUSLCD_SCREEN_SDFILELIST = 65, // TODO: remove references to this
 
   DGUSLCD_SCREEN_FILAMENTRUNOUT1 = 34, // DWINTouchPage::ERR_FILAMENTRUNOUT_HOTEND_COLD
   DGUSLCD_SCREEN_FILAMENTRUNOUT2 = 35, // DWINTouchPage::ERR_FILAMENTRUNOUT_FILAMENT_LOADED
@@ -101,20 +95,20 @@ constexpr uint16_t VP_MSGSTR1 = 0x2010;
 constexpr uint8_t VP_MSGSTR1_LEN = 0x20;  // might be more place for it...
 constexpr uint16_t VP_MSGSTR2 = 0x2030;
 constexpr uint8_t VP_MSGSTR2_LEN = 0x40;
-constexpr uint16_t VP_MSGSTR3 = 0x1180;
-// constexpr uint8_t VP_MSGSTR3_LEN = 0x20;
-constexpr uint16_t VP_MSGSTR4 = 0x11C0;
+constexpr uint16_t VP_MSGSTR3 = 0x2070;
+constexpr uint8_t VP_MSGSTR3_LEN = 0x40;
+//constexpr uint16_t VP_MSGSTR4 = 0x11C0;
 // constexpr uint8_t VP_MSGSTR4_LEN = 0x20;
 
 // // Screenchange request for screens that only make sense when printer is idle.
 // // e.g movement is only allowed if printer is not printing.
 // // Marlin must confirm by setting the screen manually.
 // constexpr uint16_t VP_SCREENCHANGE_ASK = 0x2000;
-// constexpr uint16_t VP_SCREENCHANGE = 0x2001;   // Key-Return button to new menu pressed. Data contains target screen in low byte and info in high byte.
+constexpr uint16_t VP_SCREENCHANGE = 0x219f;   // Key-Return button to new menu pressed. Data contains target screen in low byte and info in high byte.
 // constexpr uint16_t VP_TEMP_ALL_OFF = 0x2002;   // Turn all heaters off. Value arbitrary ;)=
 // constexpr uint16_t VP_SCREENCHANGE_WHENSD = 0x2003; // "Print" Button touched -- go only there if there is an SD Card.
 
-constexpr uint16_t VP_CONFIRMED = 0x20A0; // OK on confirm screen.
+constexpr uint16_t VP_CONFIRMED = 0x219E; // OK on confirm screen.
 
 // // Buttons on the SD-Card File listing.
 // constexpr uint16_t VP_SD_ScrollEvent = 0x2020; // Data: 0 for "up a directory", numbers are the amount to scroll, e.g -1 one up, 1 one down
@@ -241,35 +235,17 @@ constexpr uint16_t VP_ZPos = 0x1026;  // 4 Byte Fixed point number; format xxx.y
 // constexpr uint16_t VP_EPos = 0x3120;  // 4 Byte Fixed point number; format xxx.yy
 
 // // SDCard File Listing
-constexpr uint16_t VP_SD_FileName_LEN = 16; // LEN is shared for all entries. (TODO: this might be 20)
-constexpr uint16_t VP_SD_FileName_CNT = 20; // LEN is shared for all entries. (TODO: this might be 20)
-constexpr uint16_t DGUS_SD_FILESPERSCREEN = 4; // FIXME move that info to the display and read it from there.
-constexpr uint16_t VP_SD_FileName0 = 0x200A;
-constexpr uint16_t VP_SD_FileName1 = 0x2014;
-constexpr uint16_t VP_SD_FileName2 = 0x201E;
-constexpr uint16_t VP_SD_FileName3 = 0x2028;
-
-constexpr uint16_t VP_SD_FileName4 = 0x2032;
-constexpr uint16_t VP_SD_FileName5 = 0x203C;
-constexpr uint16_t VP_SD_FileName6 = 0x2046;
-constexpr uint16_t VP_SD_FileName7 = 0x2050;
-
-constexpr uint16_t VP_SD_FileName8 = 0x205A;
-constexpr uint16_t VP_SD_FileName9 = 0x2064;
-constexpr uint16_t VP_SD_FileName10 = 0x206E;
-constexpr uint16_t VP_SD_FileName11 = 0x2078;
-
-constexpr uint16_t VP_SD_FileName12 = 0x2082;
-constexpr uint16_t VP_SD_FileName13 = 0x208C;
-constexpr uint16_t VP_SD_FileName14 = 0x2096;
-constexpr uint16_t VP_SD_FileName15 = 0x20A0;
-
-constexpr uint16_t VP_SD_FileName16 = 0x20AA;
-constexpr uint16_t VP_SD_FileName17 = 0x20B4;
-constexpr uint16_t VP_SD_FileName18 = 0x20BE;
-constexpr uint16_t VP_SD_FileName19 = 0x20C8;
-
-constexpr uint16_t VP_SD_SelectionMarker_FileName0 = 0x1221;
+constexpr uint16_t VP_SD_ScrollEvent = 0x20D4; // Data: 0 for "up a directory", numbers are the amount to scroll, e.g -1 one up, 1 one down
+constexpr uint16_t VP_SD_FileSelected = 0x20D3; // Number of file field selected.
+constexpr uint16_t VP_SD_FileName_LEN = 21; // LEN is shared for all entries.
+constexpr uint16_t VP_SD_FileName_CNT = 6; // LEN is shared for all entries.
+constexpr uint16_t DGUS_SD_FILESPERSCREEN = VP_SD_FileName_CNT; // FIXME move that info to the display and read it from there.
+constexpr uint16_t VP_SD_FileName0 = 0x20D5;
+constexpr uint16_t VP_SD_FileName1 = VP_SD_FileName0 + VP_SD_FileName_LEN;
+constexpr uint16_t VP_SD_FileName2 = VP_SD_FileName1 + VP_SD_FileName_LEN;
+constexpr uint16_t VP_SD_FileName3 = VP_SD_FileName2 + VP_SD_FileName_LEN;
+constexpr uint16_t VP_SD_FileName4 = VP_SD_FileName3 + VP_SD_FileName_LEN;
+constexpr uint16_t VP_SD_FileName5 = VP_SD_FileName4 + VP_SD_FileName_LEN;
 
 constexpr uint16_t VP_SD_Print_ProbeOffsetZ = 0x32A0; //
 constexpr uint16_t VP_SD_Print_Filename = 0x32C0; //

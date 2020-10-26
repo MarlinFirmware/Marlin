@@ -20,7 +20,7 @@
 void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (buttonValue) {
         case 1: // "Print"
-            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_1);
+            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST);
 
             // TODO: update SD card info
             break;
@@ -106,20 +106,6 @@ void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     }
 }
 
-void FileHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    // The buttonValue is the index of the file to pick
-    if (var.VP == VP_BUTTON_SELECTFILEKEY) {
-        uint16_t printIndex = buttonValue - 1 /* 1 based in touch screen firmware */;
-        DGUSScreenHandler::DGUSLCD_SD_StartPrint(var, &printIndex);
-
-        return;
-    }
-
-    if (var.VP == VP_BUTTON_STARTPRINTKEY) {
-        DGUSScreenHandler::DGUSLCD_SD_StartPrint(var, nullptr);
-    }
-}
-
 // Register the page handlers
 #define PAGE_HANDLER(SCRID, HDLRPTR) { .ScreenID=SCRID, .Handler=HDLRPTR },
 const struct PageHandler PageHandlers[] PROGMEM = {
@@ -128,13 +114,6 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
-
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_1, FileHandler)
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_2, FileHandler)
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_3, FileHandler)
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_4, FileHandler)
-    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST_5, FileHandler)
-
 
     // Terminating
     PAGE_HANDLER(static_cast<DGUSLCD_Screens>(0) ,0)
