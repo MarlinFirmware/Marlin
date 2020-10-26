@@ -130,6 +130,8 @@ public:
     static void SDCardError();
   #endif
 
+  static void FilamentRunout();
+
   // OK Button the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
 

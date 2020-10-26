@@ -411,6 +411,10 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
 #endif // SDSUPPORT
 
+void DGUSScreenHandler::FilamentRunout() {
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_FILAMENTRUNOUT1);
+}
+
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {
   DGUS_VP_Variable ramcopy;
   if (!populate_VPVar(ConfirmVP, &ramcopy)) return;

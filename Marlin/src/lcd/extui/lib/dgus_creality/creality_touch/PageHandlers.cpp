@@ -82,11 +82,7 @@ void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
                 case 3:
-                    if (thermalManager.fan_speed[0] == 0) {
-                        thermalManager.fan_speed[0] = 255;
-                    } else {
-                        thermalManager.fan_speed[0] = 0;
-                    }
+                    DGUSScreenHandler::HandleFanControl(var, &buttonValue);
                 break;
             }
 
@@ -98,12 +94,11 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_PREPAREENTERKEY:
             // Disable steppers
-            queue.enqueue_now_P(PSTR("M84"));
+            DGUSScreenHandler::HandleMotorLockUnlock(var, &buttonValue);
         break;
 
         case VP_BUTTON_COOLDOWN:
-            thermalManager.setTargetHotend(0, 0);
-            thermalManager.setTargetBed(0);
+            DGUSScreenHandler::HandleAllHeatersOff(var, &buttonValue);
             break;
         
         case VP_BUTTON_TEMPCONTROL:
@@ -127,22 +122,15 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
                 case 3:
-                    if (thermalManager.fan_speed[0] == 0) {
-                        thermalManager.fan_speed[0] = 255;
-                    } else {
-                        thermalManager.fan_speed[0] = 0;
-                    }
+                    DGUSScreenHandler::HandleFanControl(var, &buttonValue);
                 break;
 
                 case 4:
                     // Switch LED ON/OFF
-                    if(LEDStatus == false)
-                    {
+                    if(LEDStatus == false) {
                         WRITE(LED_CONTROL_PIN, LOW);
                         LEDStatus = false;
-                    }
-                    else
-                    {
+                    } else {
                         // Turn off the LED
                         WRITE(LED_CONTROL_PIN, LOW);
                         LEDStatus = true;
@@ -160,6 +148,7 @@ void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_RESUMEPRINTKEY:
             ExtUI::resumePrint();
+            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
             break;
     }
 }
@@ -170,6 +159,7 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
             switch (buttonValue) {
                 case 2: 
                     ExtUI::pausePrint();
+                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
                     break;
 
                 case 3:
@@ -177,6 +167,37 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
                     break;
             }
             break;
+    }
+}
+
+void FilamentRunoutHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP){
+        case VP_BUTTON_RESUMEPRINTKEY:
+            ExtUI::resumePrint();
+            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+        break;
+
+        case VP_BUTTON_STOPPRINTKEY:
+            ExtUI::stopPrint();
+            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_MAIN);
+        break;
+    }
+}
+
+void StopConfirmScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP){
+        case VP_BUTTON_STOPPRINTKEY:
+            switch (buttonValue) {
+                case 2:
+                    ExtUI::stopPrint();
+                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_MAIN);
+                break;
+
+                case 3:
+                    dgusdisplay.RequestScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
+                break;
+            }
+        break;
     }
 }
 
@@ -190,6 +211,10 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
+    
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_FILAMENTRUNOUT1, FilamentRunoutHandler)
+
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_DIALOG_STOP, StopConfirmScreenHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PRINT_RUNNING, PrintRunningMenuHandler)
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PRINT_PAUSED, PrintPausedMenuHandler)

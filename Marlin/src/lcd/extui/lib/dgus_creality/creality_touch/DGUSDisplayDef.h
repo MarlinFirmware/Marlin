@@ -318,6 +318,7 @@ constexpr uint16_t VP_BUTTON_PREPAREENTERKEY = 0x103E;
 
 constexpr uint16_t VP_BUTTON_SELECTFILEKEY = 0x20D3;
 constexpr uint16_t VP_BUTTON_STARTPRINTKEY = 0x20D2;
+constexpr uint16_t VP_BUTTON_STOPPRINTKEY = 0x1008;
 constexpr uint16_t VP_BUTTON_RESUMEPRINTKEY = 0x100C;
 
 // Additional stuff defined by Creality
