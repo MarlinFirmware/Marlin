@@ -44,6 +44,8 @@
 #endif
 using namespace ExtUI;
 
+bool LEDStatus = 0;
+
 const char MarlinVersion[] PROGMEM = SHORT_BUILD_VERSION;
 
 // ----- Which variables to auto-update on which screens
