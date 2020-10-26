@@ -208,11 +208,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_print_file(void) {
   //uint8_t i;
   uint8_t file_count;
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PRINT_FILE_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = PRINT_FILE_UI;
-  }
-  disp_state = PRINT_FILE_UI;
 
   curDirLever = 0;
   dir_offset[curDirLever].curPage = 0;
@@ -252,7 +247,7 @@ static char test_public_buf_l[40];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
-  scr = lv_screen_create(MAIN_UI, "");
+  scr = lv_screen_create(PRINT_FILE_UI, "");
 
   // Create image buttons
   buttonPageUp   = lv_imgbtn_create(scr, "F:/bmp_pageUp.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_P_UP);
