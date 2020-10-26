@@ -208,6 +208,7 @@
    Enclosure Controls
 */
 //#define EnclosureLight // Uses 5vdc LED's hooked to D12
+//#define PowerShutoffKit // 5vdc relay to interupt all heater power on D12, assumes NO relay.
 //#define EnclosureTempSensor // Uses PT100 Probe hooked to A12, only partially implemented upstream
 //#define EnclosureHeater //Planned to use A11 to control heater upstream, and repurpose the unused y max as the fan output. Not yet fully implemented upstream
 
@@ -306,6 +307,10 @@
   #if NONE(ABL_NCSW, ABL_EZABL, ABL_BLTOUCH)
     #define ABL_BLTOUCH
   #endif
+#endif
+
+#if BOTH(PowerShutoffKit, EnclosureLight)
+  #undef EnclosureLight
 #endif
 
 #if ENABLED(SKRMiniE3V2)
@@ -776,13 +781,18 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#if ENABLED(MachineCR2020)
+#if EITHER(MachineCR2020, PowerShutoffKit)
   #define PSU_CONTROL
 #endif
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
-  #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
+  #if ENABLED(PowerShutoffKit)
+    #define PS_ON_PIN 12
+    #define PSU_ACTIVE_STATE HIGH
+  #else
+    #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
+  #endif
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
   //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
