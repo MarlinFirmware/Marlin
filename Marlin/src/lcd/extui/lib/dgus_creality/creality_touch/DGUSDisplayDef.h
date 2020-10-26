@@ -248,7 +248,7 @@ constexpr uint16_t VP_SD_FileName4 = VP_SD_FileName3 + VP_SD_FileName_LEN;
 constexpr uint16_t VP_SD_FileName5 = VP_SD_FileName4 + VP_SD_FileName_LEN;
 
 constexpr uint16_t VP_SD_Print_ProbeOffsetZ = 0x32A0; //
-constexpr uint16_t VP_SD_Print_Filename = 0x32C0; //
+constexpr uint16_t VP_SD_Print_Filename = 0x2000; //
 
 constexpr uint16_t VP_ICON_OVERLAY_CLEAR = 10;
 constexpr uint16_t VP_ICON_OVERLAY_SELECTED = 6;
@@ -296,6 +296,7 @@ constexpr uint16_t VP_BED_PID_D = 0x3714;
 // constexpr uint16_t VP_WAITING_STATUS = 0x3800;
 
 // // SPs for certain variables...
+
 // // located at 0x5000 and up
 // // Not used yet!
 // // This can be used e.g to make controls / data display invisible

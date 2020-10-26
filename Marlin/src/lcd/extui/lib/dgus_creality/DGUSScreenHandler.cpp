@@ -328,16 +328,14 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     if (touched_nr > filelist.count()) return;
     if (!filelist.seek(touched_nr)) return;
     if (filelist.isDir()) {
-      filelist.changeDir(filelist.filename());
+      filelist.changeDir(filelist.shortFilename());
       top_file = 0;
       ForceCompleteUpdate();
       return;
     }
 
-    #if ENABLED(DGUS_PRINT_FILENAME)
-      // Send print filename
-      dgusdisplay.WriteVariable(VP_SD_Print_Filename, filelist.filename(), VP_SD_FileName_LEN, true);
-    #endif
+    // Send print filename
+    dgusdisplay.WriteVariable(VP_SD_Print_Filename, filelist.filename(), VP_SD_FileName_LEN, true);
 
     // Setup Confirmation screen
     file_to_print = touched_nr;
