@@ -198,7 +198,7 @@ inline float home_bump_mm(const AxisEnum axis) {
   extern soft_endstops_t soft_endstop;
   #define apply_motion_limits(V)        NOOP
   #define update_software_endstops(...) NOOP
-  #define SET_SOFT_ENDSTOP_LOOSE()      NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 

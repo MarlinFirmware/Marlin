@@ -38,7 +38,12 @@
 
 void GcodeSuite::G34() {
 
+<<<<<<< HEAD
   if (homing_needed()) return;
+=======
+  // Home before the alignment procedure
+  if (!all_axes_known()) home_all_axes();
+>>>>>>> upstream/2.0.x
 
   SET_SOFT_ENDSTOP_LOOSE(true);
   TEMPORARY_BED_LEVELING_STATE(false);
