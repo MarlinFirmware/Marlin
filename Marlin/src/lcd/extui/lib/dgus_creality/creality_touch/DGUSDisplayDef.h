@@ -309,6 +309,7 @@ constexpr uint16_t VP_BED_PID_D = 0x3714;
 constexpr uint16_t VP_BUTTON_MAINENTERKEY = 0x1002;
 constexpr uint16_t VP_BUTTON_ADJUSTENTERKEY = 0x1004;
 constexpr uint16_t VP_BUTTON_TEMPCONTROL = 0x1030;
+constexpr uint16_t VP_BUTTON_COOLDOWN = 0x1032;
 constexpr uint16_t VP_BUTTON_PREPAREENTERKEY = 0x103E;
 
 constexpr uint16_t VP_BUTTON_SELECTFILEKEY = 0x20D3;

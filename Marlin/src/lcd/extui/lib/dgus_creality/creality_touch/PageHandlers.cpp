@@ -7,6 +7,7 @@
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
+#include "../../../../../module/settings.h"
 
 #include "../../../../ultralcd.h"
 #include "../../../ui_api.h"
@@ -49,7 +50,8 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                     break;
 
                 case 7: // Reset to factory settings
-                    // TODO: Reset
+                    settings.reset();
+                    settings.save();
                     break;
 
                 case 9: // Back button
@@ -62,13 +64,13 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             // Switch LED ON/OFF
             if(LEDStatus == false)
             {
-                digitalWrite(LED_CONTROL_PIN, LOW);
+                WRITE(LED_CONTROL_PIN, LOW);
                 LEDStatus = false;
             }
             else
             {
                 // Turn off the LED
-                digitalWrite(LED_CONTROL_PIN, LOW);
+                WRITE(LED_CONTROL_PIN, LOW);
                 LEDStatus = true;
             }
             break;
@@ -89,15 +91,29 @@ void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             }
 
             break;
+    }
+}
 
+void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_PREPAREENTERKEY:
+            // Disable steppers
+            queue.enqueue_now_P(PSTR("M84"));
+        break;
+
+        case VP_BUTTON_COOLDOWN:
+            thermalManager.setTargetHotend(0, 0);
+            thermalManager.setTargetBed(0);
+            break;
+        
         case VP_BUTTON_TEMPCONTROL:
             switch (buttonValue) {
-                case 3:
+                case 5:
                     thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                     thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
                     break;
 
-                case 4:
+                case 6:
                     thermalManager.setTargetHotend(ui.material_preset[1].hotend_temp, 0);
                     thermalManager.setTargetBed(ui.material_preset[1].bed_temp);
                     break;
@@ -114,6 +130,8 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
 
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
+
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_PREPARE, PrepareMenuHandler)
 
     // Terminating
     PAGE_HANDLER(static_cast<DGUSLCD_Screens>(0) ,0)
