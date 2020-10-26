@@ -559,9 +559,9 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if ENABLED(FIX_MOUNTED_PROBE)
     if((0 == READ(OPTO_SWITCH_PIN)) && (is_homing_z == true))
     {
-      digitalWrite(COM_PIN, HIGH);
+      WRITE(COM_PIN, HIGH);
       delay(200);
-      digitalWrite(COM_PIN, LOW);
+      WRITE(COM_PIN, LOW);
       delay(200);
       is_homing_z = false;
     }
@@ -708,7 +708,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     if(0 == READ(OPTO_SWITCH_PIN))
     {
       delay(100);
-      WRITE(COM_PIN, 0);
+      WRITE(COM_PIN, LOW);
       delay(200);
     }
   #endif

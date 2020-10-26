@@ -755,9 +755,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     {
       endstops.enable_z_probe(true);
       delay(100);
-      WRITE(COM_PIN, 0);
+      WRITE(COM_PIN, LOW);
       delay(200);
-      WRITE(COM_PIN, 1);
+      WRITE(COM_PIN, HIGH);
     }
   #endif
 
@@ -1098,6 +1098,12 @@ void setup() {
       SETUP_RUN(ui.show_bootscreen());
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
+  #endif
+
+  #ifdef FIX_MOUNTED_PROBE
+    OUT_WRITE(COM_PIN, HIGH);
+    SET_INPUT(OPTO_SWITCH_PIN);
+    OUT_WRITE(LED_CONTROL_PIN, LOW);
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)
