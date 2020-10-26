@@ -183,7 +183,7 @@ constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 // constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = VP_MSGSTR2; // TODO: implement M117
+constexpr uint16_t VP_M117 = 0x21a6; // TODO: implement M117
 // constexpr uint8_t VP_M117_LEN = 0x20;
 
 // // Temperatures.
@@ -218,7 +218,7 @@ constexpr uint16_t VP_Flowrate_E0 = 0x3090; // 2 Byte Integer
 constexpr uint16_t VP_Feedrate_Percentage = 0x1006; // 2 Byte Integer (0..100) - PRINT_SPEED_RATE_VP
 // constexpr uint16_t VP_PrintProgress_Percentage = 0x3104; // 2 Byte Integer (0..100)
 
-constexpr uint16_t VP_PrintTime = 0x3106;
+constexpr uint16_t VP_PrintTime = 0x21a0;
 // constexpr uint16_t VP_PrintTime_LEN = 10;
 
 // constexpr uint16_t VP_PrintAccTime = 0x3160;
@@ -304,6 +304,9 @@ constexpr uint16_t VP_BED_PID_D = 0x3714;
 // constexpr uint16_t SP_T_E1_Is = 0x5020;
 // constexpr uint16_t SP_T_Bed_Is = 0x5030;
 // constexpr uint16_t SP_T_Bed_Set = 0x5040;
+
+// Power loss recovery
+constexpr uint16_t VP_POWER_LOSS_RECOVERY = 0x105F;
 
 // Buttons defined by Creality - Don't worry if you're confused by the naming, so am I
 constexpr uint16_t VP_BUTTON_MAINENTERKEY = 0x1002;
