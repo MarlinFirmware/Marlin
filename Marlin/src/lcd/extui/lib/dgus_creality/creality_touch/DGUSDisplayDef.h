@@ -183,8 +183,8 @@ constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 // constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = 0x21a6; // TODO: implement M117
-// constexpr uint8_t VP_M117_LEN = 0x20;
+constexpr uint16_t VP_M117 = 0x21A6; // TODO: implement M117
+constexpr uint8_t VP_M117_LEN = 0x20;
 
 // // Temperatures.
 constexpr uint16_t VP_T_E0_Is = 0x1036;  // 4 Byte Integer - HEAD_CURRENT_TEMP_VP
@@ -204,7 +204,7 @@ constexpr uint16_t VP_T_E0_Set = 0x1034; // 2 Byte Integer - HEAD_SET_TEMP_VP
 // //constexpr uint16_t VP_T_E5_Is = 0x3078;  // 4 Byte Integer
 // //constexpr uint16_t VP_T_E5_Set = 0x307A; // 2 Byte Integer
 
-constexpr uint16_t VP_T_Bed_Is = 0x1034;  // 4 Byte Integer - BED_SET_TEMP_VP
+constexpr uint16_t VP_T_Bed_Is = 0x103c;  // 4 Byte Integer - BED_SET_TEMP_VP
 constexpr uint16_t VP_T_Bed_Set = 0x103A; // 2 Byte Integer - BED_CURRENT_TEMP_VP
 
 constexpr uint16_t VP_Flowrate_E0 = 0x3090; // 2 Byte Integer

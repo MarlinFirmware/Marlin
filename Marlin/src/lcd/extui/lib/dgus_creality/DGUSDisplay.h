@@ -21,6 +21,8 @@
  */
 #pragma once
 
+#define DEBUG_DGUSLCD
+
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
 #include "../../../../inc/MarlinConfigPre.h"

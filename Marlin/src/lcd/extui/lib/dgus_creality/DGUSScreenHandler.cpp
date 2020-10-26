@@ -22,6 +22,8 @@
 
 #include "../../../../inc/MarlinConfigPre.h"
 
+#define DEBUG_ECHOLNPAIR SERIAL_ECHOLNPAIR
+
 #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
 
 #include "DGUSScreenHandler.h"
@@ -95,7 +97,7 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
 
   ConfirmVP = VP;
   sendinfoscreen(line1, line2, line3, line4, l1, l2, l3, l4);
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM, true);
 }
 
 void DGUSScreenHandler::setstatusmessage(const char *msg) {
@@ -274,7 +276,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     // default action executed when there is a SD card, but not printing
     if (ExtUI::isMediaInserted() && !ExtUI::isPrintingFromMedia()) {
       ScreenChangeHook(var, val_ptr);
-      dgusdisplay.RequestScreen(current_screen);
+      GotoScreen(current_screen);
       return;
     }
 
@@ -325,6 +327,9 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
   void DGUSScreenHandler::DGUSLCD_SD_FileSelected(DGUS_VP_Variable &var, void *val_ptr) {
     uint16_t touched_nr = (int16_t)swap16(*(uint16_t*)val_ptr) + top_file;
+
+    SERIAL_ECHOLNPAIR("Selected file: ", touched_nr);
+
     if (touched_nr > filelist.count()) return;
     if (!filelist.seek(touched_nr)) return;
     if (filelist.isDir()) {
@@ -339,7 +344,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 
     // Setup Confirmation screen
     file_to_print = touched_nr;
-    HandleUserConfirmationPopUp(VP_SD_FileSelectConfirm, nullptr, PSTR("Print file"), filelist.filename(), PSTR("from SD Card?"), true, true, false, true);
+    HandleUserConfirmationPopUp(VP_SD_FileSelectConfirm, PSTR("Print file"), filelist.filename(), PSTR("from SD Card?"), nullptr, true, false, true, true);
   }
 
   void DGUSScreenHandler::DGUSLCD_SD_StartPrint(DGUS_VP_Variable &var, void *val_ptr) {
@@ -453,7 +458,7 @@ const DGUS_VP_Variable* DGUSLCD_FindVPVar(const uint16_t vp) {
 void DGUSScreenHandler::ScreenChangeHookIfIdle(DGUS_VP_Variable &var, void *val_ptr) {
   if (!ExtUI::isPrinting()) {
     ScreenChangeHook(var, val_ptr);
-    dgusdisplay.RequestScreen(current_screen);
+    GotoScreen(current_screen);
   }
 }
 
@@ -465,9 +470,14 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   // meaning "return to previous screen"
   DGUSLCD_Screens target = (DGUSLCD_Screens)tmp[1];
 
-  if (target == DGUSLCD_SCREEN_POPUP) {
+  SERIAL_ECHOLNPAIR("Current screen:", current_screen);
+  SERIAL_ECHOLNPAIR("Cancel target:", target);
+
+  if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM) {
     // special handling for popup is to return to previous menu
     if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
+    if (current_screen == DGUSLCD_SCREEN_CONFIRM && confirm_action_cb) confirm_action_cb();
+
     PopToOldScreen();
     return;
   }
@@ -1058,7 +1068,7 @@ void DGUSScreenHandler::PopToOldScreen() {
 }
 
 void DGUSScreenHandler::UpdateScreenVPData() {
-  DEBUG_ECHOPAIR(" UpdateScreenVPData Screen: ", current_screen);
+  //DEBUG_ECHOPAIR(" UpdateScreenVPData Screen: ", current_screen);
 
   const uint16_t *VPList = DGUSLCD_FindScreenVPMapList(current_screen);
   if (!VPList) {
@@ -1073,10 +1083,10 @@ void DGUSScreenHandler::UpdateScreenVPData() {
   bool sent_one = false;
   do {
     uint16_t VP = pgm_read_word(VPList);
-    DEBUG_ECHOPAIR(" VP: ", VP);
+    //DEBUG_ECHOPAIR(" VP: ", VP);
     if (!VP) {
       update_ptr = 0;
-      DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
+      //DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
       ScreenComplete = true;
       return;  // Screen completed.
     }

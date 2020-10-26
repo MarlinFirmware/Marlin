@@ -78,7 +78,7 @@ void DGUSDisplay::InitDisplay() {
     );
 }
 
-void DGUSDisplay::ReadVariable(uint16_t adr) {
+void DGUSDisplay::ReadControlRegister(uint16_t adr) {
   WriteHeader(adr, DGUS_CMD_READVAR, sizeof(u_int8_t));
 
   // Specify to read one byte
@@ -200,7 +200,7 @@ void DGUSDisplay::ProcessRx() {
         DEBUG_ECHOPGM(" # ");
         // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
         if (command == DGUS_CMD_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
-          DEBUG_ECHOLNPGM(">");
+          //DEBUG_ECHOLNPGM(">");
           rx_datagram_state = DGUS_IDLE;
           break;
         }
@@ -288,7 +288,7 @@ bool DGUSDisplay::no_reentrance = false;
 #define sw_barrier() asm volatile("": : :"memory");
 
 bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
-  // DEBUG_ECHOPAIR("populate_VPVar ", VP);
+  //DEBUG_ECHOPAIR("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
   // DEBUG_ECHOLNPAIR(" pvp ", (uint16_t )pvp);
   if (!pvp) return false;

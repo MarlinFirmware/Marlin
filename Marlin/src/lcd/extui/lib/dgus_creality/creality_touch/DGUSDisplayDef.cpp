@@ -155,6 +155,8 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 
 const uint16_t VPList_PrintScreen[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  VP_M117,
+
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
   #endif
@@ -167,6 +169,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
     VP_PrintProgress_Percentage,
   #endif
+
 
 
   0x0000
@@ -231,6 +234,10 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_DIALOG_PAUSE, VPList_None },
   { DGUSLCD_SCREEN_DIALOG_STOP, VPList_None },
 
+  { DGUSLCD_SCREEN_CONFIRM, VPList_None },
+  { DGUSLCD_SCREEN_POPUP, VPList_None },
+
+
   { 0 , nullptr } // List is terminated with an nullptr as table entry.
 };
 
@@ -289,6 +296,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER_STR(VP_SD_FileName3,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
   VPHELPER_STR(VP_SD_FileName4,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
   VPHELPER_STR(VP_SD_FileName5,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
+
+  // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr
+  { .VP = VP_M117, .memadr = nullptr, .size = VP_M117_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
+
 
   VPHELPER(0, 0, 0, 0)  // must be last entry.
 };
