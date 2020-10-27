@@ -80,7 +80,7 @@ private:
 
   static void filament_runout();
 
-  #if ENABLED(PRUSA_MMU2_S_MODE)
+  #if HAS_PRUSA_MMU2S
     static bool mmu2s_triggered;
     static void check_filament();
     static bool can_load();

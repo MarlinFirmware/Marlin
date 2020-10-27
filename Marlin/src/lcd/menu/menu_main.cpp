@@ -46,7 +46,7 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(PRUSA_MMU2)
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
 

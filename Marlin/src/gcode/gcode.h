@@ -181,7 +181,7 @@
  * M217 - Set filament swap parameters: "M217 S<length> P<feedrate> R<feedrate>". (Requires SINGLENOZZLE)
  * M218 - Set/get a tool offset: "M218 T<index> X<offset> Y<offset>". (Requires 2 or more extruders)
  * M220 - Set Feedrate Percentage: "M220 S<percent>" (i.e., "FR" on the LCD)
- *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires PRUSA_MMU2)
+ *        Use "M220 B" to back up the Feedrate Percentage and "M220 R" to restore it. (Requires MMU_MODEL=PRUSA_MMU2/PRUSA_MMU2S/SMUFF_EMU_MMU2/SMUFF_EMU_MMU2S)
  * M221 - Set Flow Percentage: "M221 S<percent>"
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>" (Requires DIRECT_PIN_CONTROL)
  * M240 - Trigger a camera to take a photograph. (Requires PHOTO_GCODE)
@@ -735,7 +735,9 @@ private:
     static void M402();
   #endif
 
-  TERN_(PRUSA_MMU2, static void M403());
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+    static void M403();
+  #endif
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static void M404();

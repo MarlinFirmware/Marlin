@@ -699,7 +699,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if ENABLED(PRUSA_MMU2)
+      #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
         case 403: M403(); break;
       #endif
 

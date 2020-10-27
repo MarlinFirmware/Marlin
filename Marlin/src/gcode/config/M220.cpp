@@ -31,13 +31,13 @@
  *
  * Report the current speed percentage factor if no parameter is specified
  *
- * With PRUSA_MMU2...
+ * With MMU_MODEL=PRUSA_MMU2/PRUSA_MMU2S/SMUFF_EMU_MMU2/SMUFF_EMU_MMU2S...
  *   B : Flag to back up the current factor
  *   R : Flag to restore the last-saved factor
  */
 void GcodeSuite::M220() {
 
-  #if ENABLED(PRUSA_MMU2)
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
     static int16_t backup_feedrate_percentage = 100;
     if (parser.seen('B')) backup_feedrate_percentage = feedrate_percentage;
     if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;

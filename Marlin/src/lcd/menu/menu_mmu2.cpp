@@ -24,7 +24,7 @@
 
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
-#include "../../feature/mmu2/mmu2.h"
+#include "../../feature/mmu/mmu2.h"
 #include "menu_mmu2.h"
 #include "menu_item.h"
 

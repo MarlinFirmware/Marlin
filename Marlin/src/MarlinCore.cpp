@@ -213,8 +213,8 @@
   #include "feature/controllerfan.h"
 #endif
 
-#if ENABLED(PRUSA_MMU2)
-  #include "feature/mmu2/mmu2.h"
+#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #include "feature/mmu/mmu2.h"
 #endif
 
 #if HAS_L64XX
@@ -772,7 +772,9 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #endif
 
   // Update the Průša MMU2
-  TERN_(PRUSA_MMU2, mmu2.mmu_loop());
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+    mmu2.mmu_loop();
+  #endif
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
@@ -1179,8 +1181,8 @@ void setup() {
     SETUP_RUN(caselight.update_brightness());
   #endif
 
-  #if ENABLED(MK2_MULTIPLEXER)
-    SETUP_LOG("MK2_MULTIPLEXER");
+  #if HAS_PRUSA_MMU1
+    SETUP_LOG("PRUSA MMU1 MULTIPLEXER");
     SET_OUTPUT(E_MUX0_PIN);
     SET_OUTPUT(E_MUX1_PIN);
     SET_OUTPUT(E_MUX2_PIN);
@@ -1260,7 +1262,7 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
-  #if ENABLED(PRUSA_MMU2)
+  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
     SETUP_RUN(mmu2.init());
   #endif
 

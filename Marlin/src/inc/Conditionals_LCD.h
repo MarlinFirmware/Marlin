@@ -496,6 +496,23 @@
 #endif
 
 /**
+ *  Multi-Material-Unit supported models
+ */
+#ifdef MMU_MODEL
+  #define HAS_MMU 1
+  #if MMU_MODEL == PRUSA_MMU1
+    #define HAS_PRUSA_MMU1 1
+  #elif MMU_MODEL == PRUSA_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2
+    #define HAS_PRUSA_MMU2 1
+  #elif MMU_MODEL == PRUSA_MMU2S || MMU_MODEL == SMUFF_EMU_MMU2S
+    #define HAS_PRUSA_MMU2S 1
+  #endif
+  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
+    #define HAS_SMUFF 1
+  #endif
+#endif
+
+/**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
  *
@@ -512,8 +529,6 @@
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
-  #undef MK2_MULTIPLEXER
-  #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
 #elif EXTRUDERS > 1
   #define HAS_MULTI_EXTRUDER 1
@@ -539,17 +554,17 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif ENABLED(PRUSA_MMU2)
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
   #define E_STEPPERS 1
 #endif
 
-// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
-#if EITHER(MK2_MULTIPLEXER, SWITCHING_NOZZLE)
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
-#if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+#if HAS_MMU
   #define SINGLENOZZLE
 #endif
 
