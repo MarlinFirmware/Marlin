@@ -36,6 +36,7 @@ jobs:
         # Base Environments
 
         - DUE
+        - DUE_archim
         - esp32
         - linux_native
         - mega2560
