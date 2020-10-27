@@ -92,7 +92,7 @@ enum DGUSLCD_Screens : uint8_t {
 
 #define VP_STARTPROGRESSBAR           0x1000
 
-// // Storage space for the Killscreen messages. 0x1100 - 0x1200 . Reused for the popup.
+// // Storage space for the Killscreen messages. Reused for the popup.
 constexpr uint16_t VP_MSGSTR1 = 0x2010;
 constexpr uint8_t VP_MSGSTR1_LEN = 0x20;  // might be more place for it...
 constexpr uint16_t VP_MSGSTR2 = 0x2030;
@@ -326,6 +326,7 @@ constexpr uint16_t VP_BUTTON_RESUMEPRINTKEY = 0x100C;
 
 // Additional stuff defined by Creality
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
+constexpr uint16_t VP_STEPPERS = 0x1200;
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;

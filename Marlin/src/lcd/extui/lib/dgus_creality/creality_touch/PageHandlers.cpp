@@ -19,26 +19,7 @@
 // Definitions of page handlers
 
 void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    /*switch (buttonValue) {
-        case 1: // "Print"
-            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST);
-
-            card.cdroot();
-            ScreenHandler.SDCardInserted();
-            break;
-
-        case 2: // "Prepare"
-            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_PREPARE);
-            break;
-
-        case 3: // "Control"
-            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL);
-            break;
-
-        case 4: // "Level"
-            DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_ZOFFSET_LEVEL);
-            break;
-    }*/
+    // Nothing
 }
 
 void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
@@ -62,18 +43,7 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             break;
 
         case VP_BUTTON_ADJUSTENTERKEY:
-            // Switch LED ON/OFF
-            if(LEDStatus == false)
-            {
-                WRITE(LED_CONTROL_PIN, LOW);
-                LEDStatus = false;
-            }
-            else
-            {
-                // Turn off the LED
-                WRITE(LED_CONTROL_PIN, LOW);
-                LEDStatus = true;
-            }
+            ScreenHandler.HandleLEDToggle();
             break;
     }
 }
@@ -127,15 +97,7 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 break;
 
                 case 4:
-                    // Switch LED ON/OFF
-                    if(LEDStatus == false) {
-                        WRITE(LED_CONTROL_PIN, LOW);
-                        LEDStatus = false;
-                    } else {
-                        // Turn off the LED
-                        WRITE(LED_CONTROL_PIN, LOW);
-                        LEDStatus = true;
-                    }
+                    ScreenHandler.HandleLEDToggle();
                 break;
             }            
     }

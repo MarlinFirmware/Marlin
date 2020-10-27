@@ -130,6 +130,10 @@ public:
     static void SDCardError();
   #endif
 
+  static void HandleLEDToggle();
+
+  static void HandleStepperState(bool is_enabled);
+
   static void FilamentRunout();
 
   // OK Button the Confirm screen.
@@ -192,6 +196,16 @@ public:
     }
   }
 
+  // Send an icon to the display, depending on whether it is true or false
+  template<unsigned int value_if_true, unsigned int value_if_false>
+  static void DGUSLCD_SendIconValue(DGUS_VP_Variable &var) {
+    if (var.memadr) {
+      bool value = *(bool *)var.memadr;
+      uint16_t valueToSend = value ? value_if_true : value_if_false;
+      dgusdisplay.WriteVariable(var.VP, valueToSend);
+    }
+  }
+
   /// Send a float value to the display.
   /// Display will get a 2-byte integer scaled to the number of digits:
   /// Tell the display the number of digits and it cheats by displaying a dot between...
@@ -236,3 +250,4 @@ private:
 };
 
 extern DGUSScreenHandler ScreenHandler;
+extern bool are_steppers_enabled;

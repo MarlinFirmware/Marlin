@@ -150,5 +150,13 @@ namespace ExtUI {
     }
   #endif
 
+  void onSteppersDisabled() {
+    ScreenHandler.HandleStepperState(false);
+  }
+
+  void onSteppersEnabled() {
+    ScreenHandler.HandleStepperState(true);
+  }
+
 }
 #endif // HAS_DGUS_LCD

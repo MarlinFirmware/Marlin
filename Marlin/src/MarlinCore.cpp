@@ -353,6 +353,8 @@ void enable_all_steppers() {
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
   enable_e_steppers();
+
+  ExtUI::onSteppersEnabled();
 }
 
 void disable_e_steppers() {
@@ -372,6 +374,8 @@ void disable_all_steppers() {
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
   disable_e_steppers();
+
+  ExtUI::onSteppersDisabled();
 }
 
 #if ENABLED(G29_RETRY_AND_RECOVER)
@@ -1104,7 +1108,6 @@ void setup() {
     SERIAL_ECHOLN("Initializing COM PIN");
     OUT_WRITE(COM_PIN, HIGH);
     SET_INPUT(OPTO_SWITCH_PIN);
-    OUT_WRITE(LED_CONTROL_PIN, LOW);
   #endif
 
   #if BOTH(SDSUPPORT, SDCARD_EEPROM_EMULATION)

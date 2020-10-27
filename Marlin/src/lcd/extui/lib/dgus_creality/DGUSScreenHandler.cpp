@@ -40,6 +40,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../libs/duration_t.h"
 #include "../../../../module/printcounter.h"
+#include "../../../../feature/caselight.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -62,7 +63,6 @@ DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS];
 uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
-bool LEDStatus = 0;
 
 //DGUSDisplay dgusdisplay;
 UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
@@ -873,66 +873,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   *(int16_t*)var.memadr = *(int16_t*)var.memadr > 0 ? 0 : preheat_temp;
 }
 
-#if ENABLED(DGUS_PREHEAT_UI)
-
-  void DGUSScreenHandler::HandlePreheat(DGUS_VP_Variable &var, void *val_ptr) {
-    DEBUG_ECHOLNPGM("HandlePreheat");
-
-    uint8_t e_temp = 0;
-    TERN_(HAS_HEATED_BED, uint8_t bed_temp = 0);
-    const uint16_t preheat_option = swap16(*(uint16_t*)val_ptr);
-    switch (preheat_option) {
-      default:
-      case 0: // Preheat PLA
-        #if defined(PREHEAT_1_TEMP_HOTEND) && defined(PREHEAT_1_TEMP_BED)
-          e_temp = PREHEAT_1_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_1_TEMP_BED);
-        #endif
-        break;
-      case 1: // Preheat ABS
-        #if defined(PREHEAT_2_TEMP_HOTEND) && defined(PREHEAT_2_TEMP_BED)
-          e_temp = PREHEAT_2_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_2_TEMP_BED);
-        #endif
-        break;
-      case 2: // Preheat PET
-        #if defined(PREHEAT_3_TEMP_HOTEND) && defined(PREHEAT_3_TEMP_BED)
-          e_temp = PREHEAT_3_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_3_TEMP_BED);
-        #endif
-        break;
-      case 3: // Preheat FLEX
-        #if defined(PREHEAT_4_TEMP_HOTEND) && defined(PREHEAT_4_TEMP_BED)
-          e_temp = PREHEAT_4_TEMP_HOTEND;
-          TERN_(HAS_HEATED_BED, bed_temp = PREHEAT_4_TEMP_BED);
-        #endif
-        break;
-      case 7: break; // Custom preheat
-      case 9: break; // Cool down
-    }
-
-    switch (var.VP) {
-      default: return;
-      #if HOTENDS >= 1
-        case VP_E0_BED_PREHEAT:
-          thermalManager.setTargetHotend(e_temp, 0);
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
-          break;
-      #endif
-      #if HOTENDS >= 2
-        case VP_E1_BED_PREHEAT:
-          thermalManager.setTargetHotend(e_temp, 1);
-          TERN_(HAS_HEATED_BED, thermalManager.setTargetBed(bed_temp));
-        break;
-      #endif
-    }
-
-    // Go to the preheat screen to show the heating progress
-    GotoScreen(DGUSLCD_SCREEN_PREHEAT);
-  }
-
-#endif
-
 #if ENABLED(DGUS_FILAMENT_LOADUNLOAD)
 
   typedef struct  {
@@ -1048,6 +988,18 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   }
 #endif
 
+bool are_steppers_enabled = true;
+void DGUSScreenHandler::HandleStepperState(bool is_enabled) {
+  are_steppers_enabled = is_enabled;
+}
+
+void DGUSScreenHandler::HandleLEDToggle() {
+  bool newState = !caselight.on;
+
+  caselight.on = newState;
+  caselight.update(newState);
+}
+
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
   DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
 
@@ -1152,7 +1104,7 @@ bool DGUSScreenHandler::loop() {
   if (dgusdisplay.isInitialized) {
     static bool booted = false;
     if (!booted) {
-      int16_t percentage = static_cast<int16_t>((float) ms / (float)BOOTSCREEN_TIMEOUT);
+      int16_t percentage = static_cast<int16_t>(((float) ms / (float)BOOTSCREEN_TIMEOUT) * 100);
       if (percentage > 100) percentage = 100;
 
       dgusdisplay.WriteVariable(VP_STARTPROGRESSBAR, percentage);
