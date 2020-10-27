@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Build tests for DUE (Atmel SAM3X8E ARM Cortex-M3)
+#
+
+# exit on first failure
+set -e
+
+#
+# Test Archim 1
+#
+use_example_configs UltiMachine/Archim1
+exec_test $1 $2 "Archim 1 base configuration"
+
+#
+# Test Archim 2
+#
+use_example_configs UltiMachine/Archim2
+exec_test $1 $2 "Archim 2 base configuration"
+
+restore_configs
