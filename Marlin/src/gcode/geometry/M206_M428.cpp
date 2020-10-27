@@ -26,6 +26,9 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
 #include "../../lcd/ultralcd.h"
 #include "../../libs/buzzer.h"
 

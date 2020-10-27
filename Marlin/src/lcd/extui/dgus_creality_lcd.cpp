@@ -58,7 +58,10 @@ namespace ExtUI {
   void onMediaError()    { TERN_(SDSUPPORT, ScreenHandler.SDCardError()); }
   void onMediaRemoved()  { TERN_(SDSUPPORT, ScreenHandler.SDCardRemoved()); }
 
-  void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
+  void onPlayTone(const uint16_t frequency, const uint16_t duration) {
+    ScreenHandler.Buzzer(frequency, duration);
+  }
+
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
   void onPrintTimerStopped() {}
@@ -91,6 +94,10 @@ namespace ExtUI {
 
   void onHomingComplete() {
     ScreenHandler.OnHomingComplete();
+  }
+
+  void onPrintFinished() {
+    ScreenHandler.OnPrintFinished();
   }
   
   void onStoreSettings(char *buff) {

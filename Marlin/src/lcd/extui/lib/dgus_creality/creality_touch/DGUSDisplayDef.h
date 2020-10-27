@@ -218,7 +218,9 @@ constexpr uint16_t VP_Flowrate_E0 = 0x3090; // 2 Byte Integer
 // //constexpr uint16_t VP_Fan3_Percentage = 0x33A6;  // 2 Byte Integer (0..100)
 
 constexpr uint16_t VP_Feedrate_Percentage = 0x1006; // 2 Byte Integer (0..100) - PRINT_SPEED_RATE_VP
-// constexpr uint16_t VP_PrintProgress_Percentage = 0x3104; // 2 Byte Integer (0..100)
+constexpr uint16_t VP_PrintProgress_Percentage = 0x1016; // 2 Byte Integer (0..100)
+
+constexpr uint16_t VP_PrintTimeProgressBar = 0x100E;
 
 constexpr uint16_t VP_PrintTime = 0x21a0;
 constexpr uint16_t VP_PrintTime_LEN = 6;

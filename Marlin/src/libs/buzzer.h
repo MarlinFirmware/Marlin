@@ -117,8 +117,13 @@
 
 #elif HAS_BUZZER
 
-  // Buzz indirectly via the MarlinUI instance
-  #define BUZZ(d,f) ui.buzz(d,f)
+  #if ENABLED(DGUS_LCD_UI_CREALITY_TOUCH)
+    // Let extensible UI handle it
+    #define BUZZ(d,f) ExtUI::onPlayTone(f, d)
+  #else
+    // Buzz indirectly via the MarlinUI instance
+    #define BUZZ(d,f) ui.buzz(d,f)
+  #endif
 
 #else
 

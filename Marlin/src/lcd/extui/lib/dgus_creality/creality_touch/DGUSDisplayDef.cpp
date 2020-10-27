@@ -183,9 +183,9 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
+
+  VP_PrintProgress_Percentage,
+  VP_PrintTimeProgressBar,
 
   VP_BUTTON_RESUMEPRINTKEY,
   VP_BUTTON_PAUSEPRINTKEY,
@@ -203,9 +203,6 @@ const uint16_t VPList_Leveling[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
 
   VP_MESH_LEVEL_TEMP,
   VP_MESH_LEVEL_STATUS,
@@ -224,9 +221,6 @@ const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
 
   VP_BUTTON_BEDLEVELKEY,
   VP_BUTTON_ADJUSTENTERKEY,
@@ -250,9 +244,6 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
 
   VP_LED_TOGGLE,
   VP_BUTTON_ADJUSTENTERKEY,
@@ -275,9 +266,6 @@ const uint16_t VPList_Prepare[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
 
   VP_STEPPERS,
   VP_BUTTON_PREPAREENTERKEY,
@@ -379,6 +367,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Feedrate
   VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
+
+  VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
+  VPHELPER(VP_PrintTimeProgressBar, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
 
   // Position Data
   //VPHELPER(VP_XPos, &current_position.x, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),

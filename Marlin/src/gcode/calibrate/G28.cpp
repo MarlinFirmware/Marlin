@@ -26,7 +26,6 @@
 
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
-#include "../../module/temperature.h"
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -212,21 +211,6 @@ void GcodeSuite::G28() {
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
   
   is_homing = true;
-
-  #if ALL(AUTOLEVEL_NEEDS_PREHEATING, FIX_MOUNTED_PROBE)
-    {
-      uint16_t hotendTemperature = AUTOLEVEL_PREHEAT_NOZZLE_TEMP;
-      uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
-      SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
-      SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
-
-      thermalManager.setTargetHotend(hotendTemperature, 0);
-      thermalManager.setTargetBed(bedTemperature);
-
-      thermalManager.wait_for_hotend(0);
-      thermalManager.wait_for_bed_heating();
-    }
-  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;

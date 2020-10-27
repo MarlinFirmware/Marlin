@@ -418,12 +418,25 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
 #endif // SDSUPPORT
 
 void DGUSScreenHandler::FilamentRunout() {
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_FILAMENTRUNOUT1);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_FILAMENTRUNOUT1);
 }
 
 void DGUSScreenHandler::OnFactoryReset() {
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
 }
+
+#if HAS_BUZZER
+void DGUSScreenHandler::Buzzer(const uint16_t frequency, const uint16_t duration) {
+  // Frequency is fixed - duration is not but in 8 ms steps
+  const uint8_t durationUnits = static_cast<uint8_t>(duration / 8);
+
+  SERIAL_ECHOLNPAIR("Invoking buzzer with units: ", durationUnits);
+  const unsigned char buzzerCommand[] = { 0x00, durationUnits, 0x40 /*Volume*/, 0x02 };
+
+  // WAE_Music_Play_Set
+  dgusdisplay.WriteVariable(0xA0, buzzerCommand, sizeof(buzzerCommand));
+}
+#endif
 
 void DGUSScreenHandler::OnHomingStart() {
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME, false);
@@ -431,6 +444,10 @@ void DGUSScreenHandler::OnHomingStart() {
 
 void DGUSScreenHandler::OnHomingComplete() {
   ScreenHandler.PopToOldScreen();
+}
+
+void DGUSScreenHandler::OnPrintFinished() {
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_FINISH);
 }
 
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {

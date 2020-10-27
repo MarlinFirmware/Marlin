@@ -26,6 +26,9 @@
 
 #include "../gcode.h"
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
 #include "../../lcd/ultralcd.h" // i2c-based BUZZ
 #include "../../libs/buzzer.h"  // Buzzer, if possible
 

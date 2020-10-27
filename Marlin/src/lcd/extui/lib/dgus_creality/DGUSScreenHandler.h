@@ -142,8 +142,13 @@ public:
 
   static void OnFactoryReset();
 
+#if HAS_BUZZER
+  static void Buzzer(const uint16_t frequency, const uint16_t duration);
+#endif
+
   static void OnHomingStart();
   static void OnHomingComplete();
+  static void OnPrintFinished();
 
   // OK Button the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
