@@ -149,6 +149,7 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
     VP_PrintProgress_Percentage,
   #endif
 
+  VP_PrintTime,
 
   0x0000
 };
@@ -156,6 +157,8 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
 const uint16_t VPList_PrintScreen[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded. */
   VP_M117,
+
+  VP_PrintTime,
 
   #if HOTENDS >= 1
     VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
@@ -276,6 +279,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, &ScreenHandler.HandlePowerLossRecovery, nullptr),
   #endif
 
+  VPHELPER_STR(VP_PrintTime, nullptr, VP_PrintTime_LEN, nullptr, ScreenHandler.DGUSLCD_SendPrintTimeToDisplay ),
   VPHELPER(VP_SCREENCHANGE, nullptr, ScreenHandler.ScreenChangeHook, nullptr),
   VPHELPER(VP_CONFIRMED, nullptr, ScreenHandler.ScreenConfirmedOK, nullptr),
 
@@ -290,6 +294,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // File listing
   VPHELPER(VP_SD_ScrollEvent, nullptr, ScreenHandler.DGUSLCD_SD_ScrollFilelist, nullptr),
   VPHELPER(VP_SD_FileSelected, nullptr, ScreenHandler.DGUSLCD_SD_FileSelected, nullptr),
+  VPHELPER(VP_SD_FileSelectConfirm, nullptr, ScreenHandler.DGUSLCD_SD_StartPrint, nullptr),
   VPHELPER_STR(VP_SD_FileName0,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
   VPHELPER_STR(VP_SD_FileName1,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
   VPHELPER_STR(VP_SD_FileName2,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
@@ -300,6 +305,11 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr
   { .VP = VP_M117, .memadr = nullptr, .size = VP_M117_LEN, .set_by_display_handler = nullptr, .send_to_display_handler =&ScreenHandler.DGUSLCD_SendStringToDisplay },
 
+ // Messages for the User, shared by the popup and the kill screen. They cant be autouploaded as we do not buffer content.
+  { .VP = VP_MSGSTR1, .memadr = nullptr, .size = VP_MSGSTR1_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = &ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
+  { .VP = VP_MSGSTR2, .memadr = nullptr, .size = VP_MSGSTR2_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = &ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
+  { .VP = VP_MSGSTR3, .memadr = nullptr, .size = VP_MSGSTR3_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = &ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
+  //{ .VP = VP_MSGSTR4, .memadr = nullptr, .size = VP_MSGSTR4_LEN, .set_by_display_handler = nullptr, .send_to_display_handler = &ScreenHandler.DGUSLCD_SendStringToDisplayPGM },
 
   VPHELPER(0, 0, 0, 0)  // must be last entry.
 };

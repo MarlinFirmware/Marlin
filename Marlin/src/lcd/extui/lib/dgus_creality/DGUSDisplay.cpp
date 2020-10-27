@@ -78,7 +78,7 @@ void DGUSDisplay::InitDisplay() {
     );
 }
 
-void DGUSDisplay::ReadControlRegister(uint16_t adr) {
+void DGUSDisplay::ReadVariable(uint16_t adr) {
   WriteHeader(adr, DGUS_CMD_READVAR, sizeof(u_int8_t));
 
   // Specify to read one byte
@@ -215,7 +215,7 @@ void DGUSDisplay::ProcessRx() {
         if (command == DGUS_CMD_READVAR) {
           const uint16_t vp = tmp[0] << 8 | tmp[1];
 
-          if (vp == 0x12 /*PIC_Now*/) {
+          if (vp == 0x14 /*PIC_Now*/) {
             const uint16_t screen_id = tmp[3] << 8 | tmp[4];
 
             if (current_screen_update_callback != nullptr) {

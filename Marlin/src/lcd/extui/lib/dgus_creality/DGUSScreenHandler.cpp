@@ -62,6 +62,7 @@ DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS];
 uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
+bool LEDStatus = 0;
 
 //DGUSDisplay dgusdisplay;
 UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
@@ -1061,13 +1062,26 @@ void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
 }
 
 void DGUSScreenHandler::PopToOldScreen() {
-  DEBUG_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
+  SERIAL_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
   GotoScreen(past_screens[0], true);
   memmove(&past_screens[0], &past_screens[1], sizeof(past_screens) - 1);
   past_screens[sizeof(past_screens) - 1] = DGUSLCD_SCREEN_MAIN;
 }
 
+void DGUSScreenHandler::updateCurrentScreen(DGUSLCD_Screens current) {
+  if (current_screen != current) {
+    SERIAL_ECHOPAIR("Screen updated at display side: Was ", current_screen);
+    SERIAL_ECHOLNPAIR(", is now: ", current);
+
+    UpdateNewScreen(current, current != DGUSLCD_SCREEN_POPUP && current != DGUSLCD_SCREEN_CONFIRM);
+  }
+}
+
 void DGUSScreenHandler::UpdateScreenVPData() {
+  if (!dgusdisplay.isInitialized) {
+    return;
+  }
+
   //DEBUG_ECHOPAIR(" UpdateScreenVPData Screen: ", current_screen);
 
   const uint16_t *VPList = DGUSLCD_FindScreenVPMapList(current_screen);
@@ -1116,6 +1130,7 @@ void DGUSScreenHandler::UpdateScreenVPData() {
 }
 
 void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool ispopup) {
+  SERIAL_ECHOLNPAIR("Issuing command to go to screen: ", screen);
   dgusdisplay.RequestScreen(screen);
   UpdateNewScreen(screen, ispopup);
 }
@@ -1131,18 +1146,29 @@ bool DGUSScreenHandler::loop() {
     UpdateScreenVPData();
     
     // Read which screen is currently triggered - navigation at display side may occur
-    dgusdisplay.ReadCurrentScreen();
+    if (dgusdisplay.isInitialized) dgusdisplay.ReadCurrentScreen();
   }
 
-  #if ENABLED(SHOW_BOOTSCREEN)
+  if (dgusdisplay.isInitialized) {
     static bool booted = false;
-    if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid()))
+    if (!booted) {
+      int16_t percentage = static_cast<int16_t>((float) ms / (float)BOOTSCREEN_TIMEOUT);
+      if (percentage > 100) percentage = 100;
+
+      dgusdisplay.WriteVariable(VP_STARTPROGRESSBAR, percentage);
+    }
+
+    if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid())) {
       booted = true;
+      SERIAL_ECHOLN("Power loss recovery...");
+    }
+
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {
       booted = true;
       GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
-  #endif
+  }
+    
   return IsScreenComplete();
 }
 

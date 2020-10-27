@@ -90,6 +90,8 @@ enum DGUSLCD_Screens : uint8_t {
 // constexpr uint16_t VP_UI_VERSION_PATCH = 0x1002;  // Patch -- fixed which do not change functionality.
 // constexpr uint16_t VP_UI_FLAVOUR       = 0x1010;  // lets reserve 16 bytes here to determine if UI is suitable for this Marlin. tbd.
 
+#define VP_STARTPROGRESSBAR           0x1000
+
 // // Storage space for the Killscreen messages. 0x1100 - 0x1200 . Reused for the popup.
 constexpr uint16_t VP_MSGSTR1 = 0x2010;
 constexpr uint8_t VP_MSGSTR1_LEN = 0x20;  // might be more place for it...
@@ -183,7 +185,7 @@ constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 // constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = 0x21A6; // TODO: implement M117
+constexpr uint16_t VP_M117 = 0x21A6 + 3 /*Text Variable Pointer. First three VP must be reserved. Text after the 3rd VP and ended with 0x00 or 0x0F. */; // TODO: implement M117
 constexpr uint8_t VP_M117_LEN = 0x20;
 
 // // Temperatures.
@@ -219,7 +221,7 @@ constexpr uint16_t VP_Feedrate_Percentage = 0x1006; // 2 Byte Integer (0..100) -
 // constexpr uint16_t VP_PrintProgress_Percentage = 0x3104; // 2 Byte Integer (0..100)
 
 constexpr uint16_t VP_PrintTime = 0x21a0;
-// constexpr uint16_t VP_PrintTime_LEN = 10;
+constexpr uint16_t VP_PrintTime_LEN = 6;
 
 // constexpr uint16_t VP_PrintAccTime = 0x3160;
 // constexpr uint16_t VP_PrintAccTime_LEN = 32;

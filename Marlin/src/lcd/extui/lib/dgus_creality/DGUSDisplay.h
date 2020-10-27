@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#define DEBUG_DGUSLCD
+//#define DEBUG_DGUSLCD
 
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 

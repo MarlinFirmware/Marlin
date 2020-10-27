@@ -212,10 +212,7 @@ public:
 
   static inline DGUSLCD_Screens getCurrentScreen() { return current_screen; }
 
-  static void updateCurrentScreen(DGUSLCD_Screens current) { 
-    SERIAL_ECHOLNPAIR("Current screen updated:", current_screen);
-    current_screen = current; 
-  }
+  static void updateCurrentScreen(DGUSLCD_Screens current);
 
   static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
 

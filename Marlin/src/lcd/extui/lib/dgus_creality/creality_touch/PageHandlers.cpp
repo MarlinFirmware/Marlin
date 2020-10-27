@@ -19,11 +19,12 @@
 // Definitions of page handlers
 
 void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
-    switch (buttonValue) {
+    /*switch (buttonValue) {
         case 1: // "Print"
             DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_SDFILELIST);
 
-            // TODO: update SD card info
+            card.cdroot();
+            ScreenHandler.SDCardInserted();
             break;
 
         case 2: // "Prepare"
@@ -37,7 +38,7 @@ void MainMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case 4: // "Level"
             DGUSScreenHandler::GotoScreen(DGUSLCD_Screens::DGUSLCD_SCREEN_ZOFFSET_LEVEL);
             break;
-    }
+    }*/
 }
 
 void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
@@ -148,7 +149,7 @@ void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_RESUMEPRINTKEY:
             ExtUI::resumePrint();
-            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
             break;
     }
 }
@@ -159,11 +160,11 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
             switch (buttonValue) {
                 case 2: 
                     ExtUI::pausePrint();
-                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
                     break;
 
                 case 3:
-                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
                     break;
             }
             break;
@@ -174,12 +175,12 @@ void FilamentRunoutHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP){
         case VP_BUTTON_RESUMEPRINTKEY:
             ExtUI::resumePrint();
-            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
         break;
 
         case VP_BUTTON_STOPPRINTKEY:
             ExtUI::stopPrint();
-            dgusdisplay.RequestScreen(DGUSLCD_SCREEN_MAIN);
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
         break;
     }
 }
@@ -190,11 +191,11 @@ void StopConfirmScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue)
             switch (buttonValue) {
                 case 2:
                     ExtUI::stopPrint();
-                    dgusdisplay.RequestScreen(DGUSLCD_SCREEN_MAIN);
+                    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
                 break;
 
                 case 3:
-                    dgusdisplay.RequestScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
+                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
                 break;
             }
         break;
