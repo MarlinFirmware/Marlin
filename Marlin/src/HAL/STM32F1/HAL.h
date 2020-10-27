@@ -124,7 +124,7 @@ void HAL_idletask();
 #endif
 
 #ifndef digitalPinHasPWM
-  #define digitalPinHasPWM(P) (PIN_MAP[P].timer_device != nullptr)
+  #define digitalPinHasPWM(P) !!PIN_MAP[P].timer_device
   #define NO_COMPILE_TIME_PWM
 #endif
 

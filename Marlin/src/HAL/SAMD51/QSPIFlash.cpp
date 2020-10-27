@@ -35,10 +35,10 @@ uint8_t QSPIFlash::_buf[SFLASH_SECTOR_SIZE];
 uint32_t QSPIFlash::_addr = INVALID_ADDR;
 
 void QSPIFlash::begin() {
-  if (_flashBase != nullptr) return;
+  if (_flashBase) return;
 
   _flashBase = new Adafruit_SPIFlashBase(new Adafruit_FlashTransport_QSPI());
-  _flashBase->begin(NULL);
+  _flashBase->begin(nullptr);
 }
 
 size_t QSPIFlash::size() {

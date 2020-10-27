@@ -40,6 +40,7 @@
 #include "../../../../sd/cardreader.h"
 #include "../../../../libs/numtostr.h"
 #include "../../../../MarlinCore.h"
+
 namespace Anycubic {
 
   printer_state_t  ChironTFT::printer_state;
@@ -87,7 +88,7 @@ namespace Anycubic {
 
     // Enable levelling and Disable end stops during print
     // as Z home places nozzle above the bed so we need to allow it past the end stops
-    injectCommands_P(AC_cmnd_enable_levelling); //M211 S0\n"));
+    injectCommands_P(AC_cmnd_enable_levelling);
 
     // Startup tunes are defined in Tunes.h
     //PlayTune(BEEPER_PIN, Anycubic_PowerOn, 1);
@@ -179,7 +180,7 @@ namespace Anycubic {
     #endif
     switch (printer_state) {
       case AC_printer_pausing: {
-        if ( (strcmp_P(msg, MARLIN_msg_print_paused) == 0 ) || (strcmp_P(msg, MARLIN_msg_nozzle_parked) == 0 ) ) {
+        if (strcmp_P(msg, MARLIN_msg_print_paused) == 0 || strcmp_P(msg, MARLIN_msg_nozzle_parked) == 0) {
           SendtoTFTLN(AC_msg_paused); // enable continue button
           printer_state = AC_printer_paused;
         }
@@ -189,18 +190,18 @@ namespace Anycubic {
       case AC_printer_printing:
       case AC_printer_paused: {
         // Heater timout, send acknowledgement
-        if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0 ) {
+        if (strcmp_P(msg, MARLIN_msg_heater_timeout) == 0) {
           pause_state = AC_paused_heater_timed_out;
           SendtoTFTLN(AC_msg_paused); // enable continue button
           PlayTune(BEEPER_PIN,Heater_Timedout,1);
         }
         // Reheat finished, send acknowledgement
-        else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0 ) {
+        else if (strcmp_P(msg, MARLIN_msg_reheat_done) == 0) {
           pause_state = AC_paused_idle;
           SendtoTFTLN(AC_msg_paused); // enable continue button
         }
         // Filament Purging, send acknowledgement enter run mode
-        else if (strcmp_P(msg, MARLIN_msg_filament_purging) == 0 ) {
+        else if (strcmp_P(msg, MARLIN_msg_filament_purging) == 0) {
           pause_state = AC_paused_purging_filament;
           SendtoTFTLN(AC_msg_paused); // enable continue button
         }
@@ -221,14 +222,15 @@ namespace Anycubic {
     switch (printer_state) {
       case AC_printer_probing: {
         // If probing completes ok save the mesh and park
-        if (strcmp_P(msg, MARLIN_msg_ready) == 0 ) {
+        // Ignore the custom machine name
+        if (strcmp_P(msg + strlen(CUSTOM_MACHINE_NAME), MARLIN_msg_ready) == 0) {
           injectCommands_P(PSTR("M500\nG27"));
           SendtoTFTLN(AC_msg_probing_complete);
           printer_state = AC_printer_idle;
           msg_matched = true;
         }
         // If probing fails dont save the mesh raise the probe above the bad point
-        if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0 ) {
+        if (strcmp_P(msg, MARLIN_msg_probing_failed) == 0) {
           PlayTune(BEEPER_PIN, BeepBeepBeeep, 1);
           injectCommands_P(PSTR("G1 Z50 F500"));
           SendtoTFTLN(AC_msg_probing_complete);
@@ -238,14 +240,14 @@ namespace Anycubic {
       } break;
 
       case AC_printer_printing: {
-        if (strcmp_P(msg, MARLIN_msg_reheating) == 0 ) {
+        if (strcmp_P(msg, MARLIN_msg_reheating) == 0) {
           SendtoTFTLN(AC_msg_paused); // enable continue button
           msg_matched = true;
          }
       } break;
 
       case AC_printer_pausing: {
-        if (strcmp_P(msg, MARLIN_msg_print_paused) == 0 ) {
+        if (strcmp_P(msg, MARLIN_msg_print_paused) == 0) {
           SendtoTFTLN(AC_msg_paused);
           printer_state = AC_printer_paused;
           pause_state = AC_paused_idle;
@@ -254,7 +256,7 @@ namespace Anycubic {
       } break;
 
       case AC_printer_stopping: {
-        if (strcmp_P(msg, MARLIN_msg_print_aborted) == 0 ) {
+        if (strcmp_P(msg, MARLIN_msg_print_aborted) == 0) {
           SendtoTFTLN(AC_msg_stop);
           printer_state = AC_printer_idle;
           msg_matched = true;
@@ -289,10 +291,10 @@ namespace Anycubic {
       serialprintPGM(str);
     #endif
     while (const char c = pgm_read_byte(str++)) TFTSer.print(c);
-    }
+  }
 
   void ChironTFT::SendtoTFTLN(PGM_P str = nullptr) {
-    if (str != nullptr) {
+    if (str) {
       #if ACDEBUG(AC_SOME)
         SERIAL_ECHOPGM("> ");
       #endif
@@ -300,22 +302,22 @@ namespace Anycubic {
       #if ACDEBUG(AC_SOME)
         SERIAL_EOL();
       #endif
-   }
-   TFTSer.println("");
+    }
+    TFTSer.println("");
   }
 
   bool ChironTFT::ReadTFTCommand() {
     bool command_ready = false;
-    while( (TFTSer.available() > 0) && (command_len < MAX_CMND_LEN) ) {
+    while(TFTSer.available() > 0 && command_len < MAX_CMND_LEN) {
       panel_command[command_len] = TFTSer.read();
-      if(panel_command[command_len] == '\n') {
+      if (panel_command[command_len] == '\n') {
         command_ready = true;
         break;
       }
       command_len++;
     }
 
-    if(command_ready) {
+    if (command_ready) {
       panel_command[command_len] = 0x00;
       #if ACDEBUG(AC_ALL)
         SERIAL_ECHOLNPAIR("< ", panel_command);
@@ -333,56 +335,45 @@ namespace Anycubic {
   }
 
   int8_t ChironTFT::Findcmndpos(const char * buff, char q) {
-    bool found = false;
     int8_t pos = 0;
-    do {
-      if (buff[pos] == q) {
-        found = true;
-        break;
-      }
-      pos ++;
-    } while(pos < MAX_CMND_LEN);
-    if (found) return pos;
+    do { if (buff[pos] == q) return pos; } while(++pos < MAX_CMND_LEN);
     return -1;
   }
 
   void ChironTFT::CheckHeaters() {
-    uint8_t faultDuration = 0; float temp = 0;
+    uint8_t faultDuration = 0;
+    float temp = 0;
 
     // if the hotend temp is abnormal, confirm state before signalling panel
     temp = getActualTemp_celsius(E0);
-    if ( (temp <= HEATER_0_MINTEMP) || (temp >= HEATER_0_MAXTEMP) ) {
-      do {
-        faultDuration ++;
-        if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
-          SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
-          SERIAL_ECHOLNPAIR("Extruder temp abnormal! : ", temp);
-          break;
-        }
-        delay_ms(500);
-        temp = getActualTemp_celsius(E0);
-      } while ((temp <= HEATER_0_MINTEMP) || (temp >= HEATER_0_MAXTEMP) );
+    while (!WITHIN(temp, HEATER_0_MINTEMP, HEATER_0_MAXTEMP)) {
+      faultDuration++;
+      if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
+        SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
+        SERIAL_ECHOLNPAIR("Extruder temp abnormal! : ", temp);
+        break;
+      }
+      delay_ms(500);
+      temp = getActualTemp_celsius(E0);
     }
 
-    // if the hotbed temp is abnormal, confirm state before signalling panel
+    // If the hotbed temp is abnormal, confirm state before signaling panel
     faultDuration = 0;
     temp = getActualTemp_celsius(BED);
-    if ( (temp <= BED_MINTEMP) || (temp >= BED_MAXTEMP) ) {
-      do {
-        faultDuration ++;
-        if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
-          SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
-          SERIAL_ECHOLNPAIR_P("Bed temp abnormal! : ", temp);
+    while (!WITHIN(temp, BED_MINTEMP, BED_MAXTEMP)) {
+      faultDuration++;
+      if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
+        SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
+        SERIAL_ECHOLNPAIR_P("Bed temp abnormal! : ", temp);
         break;
-        }
-        delay_ms(500);
-        temp = getActualTemp_celsius(E0);
-      } while ((temp <= BED_MINTEMP) || (temp >= BED_MAXTEMP) );
+      }
+      delay_ms(500);
+      temp = getActualTemp_celsius(E0);
     }
 
     // Update panel with hotend heater status
     if (hotend_state != AC_heater_temp_reached) {
-      if ( WITHIN( getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -1, 1 ) ) {
+      if (WITHIN(getActualTemp_celsius(E0) - getTargetTemp_celsius(E0), -1, 1)) {
         SendtoTFTLN(AC_msg_nozzle_heating_done);
         hotend_state = AC_heater_temp_reached;
       }
@@ -390,7 +381,7 @@ namespace Anycubic {
 
     // Update panel with bed heater status
     if (hotbed_state != AC_heater_temp_reached) {
-      if ( WITHIN( getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5 ) ) {
+      if (WITHIN(getActualTemp_celsius(BED) - getTargetTemp_celsius(BED), -0.5, 0.5)) {
         SendtoTFTLN(AC_msg_bed_heating_done);
         hotbed_state = AC_heater_temp_reached;
       }
@@ -398,7 +389,7 @@ namespace Anycubic {
   }
 
   void ChironTFT::SendFileList(int8_t startindex) {
-    // respond to panel request for 4 files starting at index
+    // Respond to panel request for 4 files starting at index
     #if ACDEBUG(AC_INFO)
       SERIAL_ECHOLNPAIR("## SendFileList ## ", startindex);
     #endif
@@ -408,8 +399,8 @@ namespace Anycubic {
   }
 
   void ChironTFT::SelectFile() {
-    strncpy(selectedfile,panel_command+4,command_len-4);
-    selectedfile[command_len-5] = '\0';
+    strncpy(selectedfile, panel_command + 4, command_len - 4);
+    selectedfile[command_len - 5] = '\0';
     #if ACDEBUG(AC_FILE)
       SERIAL_ECHOLNPAIR_F(" Selected File: ",selectedfile);
     #endif
@@ -493,7 +484,6 @@ namespace Anycubic {
         if (isPrintingFromMedia()) {
           SendtoTFT(PSTR("A6V "));
           TFTSer.println(ui8tostr2(getProgress_percent()));
-
         }
         else
           SendtoTFTLN(PSTR("A6V ---"));
@@ -552,7 +542,7 @@ namespace Anycubic {
         }
         else {
           if (printer_state == AC_printer_resuming_from_power_outage)
-            injectCommands_P(PSTR("M1000 C\n")); // Cancel recovery
+            injectCommands_P(PSTR("M1000 C")); // Cancel recovery
           SendtoTFTLN(AC_msg_stop);
           printer_state = AC_printer_idle;
         }
@@ -569,7 +559,7 @@ namespace Anycubic {
       case 14: { // A14 Start Printing
         // Allows printer to restart the job if we dont want to recover
         if (printer_state == AC_printer_resuming_from_power_outage) {
-          injectCommands_P(PSTR("M1000 C\n")); // Cancel recovery
+          injectCommands_P(PSTR("M1000 C")); // Cancel recovery
           printer_state = AC_printer_idle;
         }
         #if ACDebugLevel >= 1
@@ -587,8 +577,7 @@ namespace Anycubic {
         if (printer_state == AC_printer_resuming_from_power_outage)
           // Need to home here to restore the Z position
           injectCommands_P(AC_cmnd_power_loss_recovery);
-
-          injectCommands_P(PSTR("M1000\n"));  // home and start recovery
+          injectCommands_P(PSTR("M1000"));  // home and start recovery
         break;
 
       case 16: { // A16 Set HotEnd temp  A17 S170
@@ -631,10 +620,10 @@ namespace Anycubic {
       case 21:   // A21 Home Axis  A21 X
         if (!isPrinting()) {
           switch ((char)panel_command[4]) {
-            case 'X': injectCommands_P(PSTR("G28 X\n")); break;
-            case 'Y': injectCommands_P(PSTR("G28 Y\n")); break;
-            case 'Z': injectCommands_P(PSTR("G28 Z\n")); break;
-            case 'C': injectCommands_P(PSTR("G28\n")); break;
+            case 'X': injectCommands_P(PSTR("G28 X")); break;
+            case 'Y': injectCommands_P(PSTR("G28 Y")); break;
+            case 'Z': injectCommands_P(PSTR("G28 Z")); break;
+            case 'C': injectCommands_P(PSTR("G28")); break;
           }
         }
         break;
@@ -729,7 +718,7 @@ namespace Anycubic {
           // If the same meshpoint is selected twice in a row, move the head to that ready for adjustment
           if ((selectedmeshpoint.x == pos.x) && (selectedmeshpoint.y == pos.y)) {
             if (!isPositionKnown())
-              injectCommands_P(PSTR("G28\n")); // home
+              injectCommands_P(PSTR("G28")); // home
 
             if (isPositionKnown()) {
               #if ACDEBUG(AC_INFO)
@@ -769,17 +758,15 @@ namespace Anycubic {
         switch (panel_command[3]) {
           case 'C':   // Restore and apply original offsets
             if (!isPrinting()) {
-              injectCommands_P(PSTR("M501\nM420 S1\n"));
-              selectedmeshpoint.x = 99;
-              selectedmeshpoint.y = 99;
+              injectCommands_P(PSTR("M501\nM420 S1"));
+              selectedmeshpoint.x = selectedmeshpoint.y = 99;
             }
           break;
           case 'D':   // Save Z Offset tables and restore levelling state
             if (!isPrinting()) {
               setAxisPosition_mm(1.0,Z);
-              injectCommands_P(PSTR("M500\n"));
-              selectedmeshpoint.x = 99;
-              selectedmeshpoint.y = 99;
+              injectCommands_P(PSTR("M500"));
+              selectedmeshpoint.x = selectedmeshpoint.y = 99;
             }
           break;
           case 'G':   // Get current offset
@@ -790,8 +777,7 @@ namespace Anycubic {
               TFTSer.println(live_Zoffset);
             else {
               TFTSer.println(getZOffset_mm());
-              selectedmeshpoint.x = 99;
-              selectedmeshpoint.y = 99;
+              selectedmeshpoint.x = selectedmeshpoint.y = 99;
             }
           break;
           case 'S': { // Set offset (adjusts all points by value)
@@ -859,8 +845,7 @@ namespace Anycubic {
       case 34: {  // A34 Adjust single mesh point A34 C/S X1 Y1 V123
         if (panel_command[3] == 'C') { // Restore original offsets
           injectCommands_P(PSTR("M501\nM420 S1"));
-          selectedmeshpoint.x = 99;
-          selectedmeshpoint.y = 99;
+          selectedmeshpoint.x = selectedmeshpoint.y = 99;
           //printer_state = AC_printer_idle;
         }
         else {
@@ -876,9 +861,10 @@ namespace Anycubic {
           #endif
           // Update Meshpoint
           setMeshPoint(pos,newval);
-          if ( (printer_state == AC_printer_idle) || (printer_state == AC_printer_probing) ) {//!isPrinting()) {
-            // if we are at the current mesh point indicated on the panel Move Z pos +/- 0.05mm ( The panel changes the mesh value by +/- 0.05mm on each button press)
-            if ((selectedmeshpoint.x == pos.x) && (selectedmeshpoint.y == pos.y)) {
+          if (printer_state == AC_printer_idle || printer_state == AC_printer_probing /*!isPrinting()*/) {
+            // if we are at the current mesh point indicated on the panel Move Z pos +/- 0.05mm
+            // (The panel changes the mesh value by +/- 0.05mm on each button press)
+            if (selectedmeshpoint.x == pos.x && selectedmeshpoint.y == pos.y) {
               setSoftEndstopState(false);
               float currZpos = getAxisPosition_mm(Z);
               #if ACDEBUG(AC_INFO)

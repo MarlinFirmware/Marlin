@@ -181,7 +181,7 @@
         // Use a low-level delay that does not rely on interrupts to function
         // Do not spin forever, to avoid thermal risks if heaters are enabled and
         // watchdog does not work.
-        DELAY_US(10000000);
+        for (int i = 10000; i--;) DELAY_US(1000UL);
         ENABLE_ISRS();
         SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
       }

@@ -23,7 +23,7 @@
 
 #define CPU_32_BIT
 
-#define F_CPU 100000000
+#define F_CPU 100000000UL
 #define SystemCoreClock F_CPU
 #include <iostream>
 #include <stdint.h>

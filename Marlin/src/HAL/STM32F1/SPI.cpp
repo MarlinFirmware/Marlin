@@ -656,7 +656,7 @@ static const spi_pins* dev_to_spi_pins(spi_dev *dev) {
     #if BOARD_NR_SPI >= 3
       case RCC_SPI3: return board_spi_pins + 2;
     #endif
-    default: return NULL;
+    default: return nullptr;
   }
 }
 
