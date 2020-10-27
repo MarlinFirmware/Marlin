@@ -41,6 +41,10 @@
   #include "../../../module/temperature.h"
 #endif
 
+#if ENABLED(AUTOLEVEL_NEEDS_PREHEATING)
+  #include "../../../module/temperature.h"
+#endif
+
 #if HAS_DISPLAY
   #include "../../../lcd/ultralcd.h"
 #endif
@@ -176,6 +180,23 @@ G29_TYPE GcodeSuite::G29() {
     if (DEBUGGING(LEVELING)) log_machine_info();
     marlin_debug_flags = old_debug_flags;
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
+  #endif
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+
+  #if ENABLED(AUTOLEVEL_NEEDS_PREHEATING)
+    {
+      uint16_t hotendTemperature = AUTOLEVEL_PREHEAT_NOZZLE_TEMP;
+      uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
+      SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
+      SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
+
+      thermalManager.setTargetHotend(hotendTemperature, 0);
+      thermalManager.setTargetBed(bedTemperature);
+
+      thermalManager.wait_for_hotend(0);
+      thermalManager.wait_for_bed_heating();
+    }
   #endif
 
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
@@ -677,6 +698,7 @@ G29_TYPE GcodeSuite::G29() {
           #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
             z_values[meshCount.x][meshCount.y] = measured_z + zoffset;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(meshCount, z_values[meshCount.x][meshCount.y]));
+            TERN_(EXTENSIBLE_UI, ExtUI::onMeshCallback(meshCount, z_values[meshCount.x][meshCount.y]));
           #endif
 
           abl_should_enable = false;

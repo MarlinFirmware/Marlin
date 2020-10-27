@@ -54,6 +54,12 @@ const uint16_t VPList_None[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_DialogStop[] PROGMEM = {
+  VP_BUTTON_STOPPRINTKEY,
+
+  0x0000
+};
+
 const uint16_t VPList_Main[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded. */
   #if HOTENDS >= 1
@@ -112,6 +118,8 @@ const uint16_t VPList_Control[] PROGMEM = {
   #endif
 
   VP_LED_TOGGLE,
+  VP_BUTTON_PREPAREENTERKEY,
+  VP_BUTTON_ADJUSTENTERKEY,
 
   0x0000
 };
@@ -132,6 +140,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
   #endif
 
   VP_LED_TOGGLE,
+  VP_BUTTON_ADJUSTENTERKEY,
 
   0x0000
 };
@@ -152,6 +161,9 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   #endif
 
   VP_PrintTime,
+
+  VP_BUTTON_RESUMEPRINTKEY,
+  VP_BUTTON_STOPPRINTKEY,
 
   0x0000
 };
@@ -175,7 +187,50 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
     VP_PrintProgress_Percentage,
   #endif
 
+  VP_BUTTON_RESUMEPRINTKEY,
+  VP_BUTTON_PAUSEPRINTKEY,
 
+  0x0000
+};
+
+const uint16_t VPList_Leveling[] PROGMEM = {
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    VP_PrintProgress_Percentage,
+  #endif
+
+  VP_MESH_LEVEL_TEMP,
+  VP_MESH_LEVEL_STATUS,
+  VP_BUTTON_BEDLEVELKEY,
+
+  0x0000
+};
+
+const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
+    VP_PrintProgress_Percentage,
+  #endif
+
+  VP_BUTTON_BEDLEVELKEY,
+  VP_BUTTON_ADJUSTENTERKEY,
+  VP_BUTTON_MAINENTERKEY,
 
   0x0000
 };
@@ -200,6 +255,7 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   #endif
 
   VP_LED_TOGGLE,
+  VP_BUTTON_ADJUSTENTERKEY,
 
   0x0000
 };
@@ -224,6 +280,9 @@ const uint16_t VPList_Prepare[] PROGMEM = {
   #endif
 
   VP_STEPPERS,
+  VP_BUTTON_PREPAREENTERKEY,
+  VP_BUTTON_COOLDOWN,
+  VP_BUTTON_TEMPCONTROL,
 
   0x0000
 };
@@ -274,8 +333,8 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_TEMP_ABS, VPList_PrintScreen },
 
   { DGUSLCD_SCREEN_INFO, VPList_PrintScreen },
-  { DGUSLCD_SCREEN_ZOFFSET_LEVEL, VPList_PrintScreen },
-  { DGUSLCD_SCREEN_LEVELING, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_ZOFFSET_LEVEL, VPList_ZOffsetLevel },
+  { DGUSLCD_SCREEN_LEVELING, VPList_Leveling },
 
   { DGUSLCD_SCREEN_POWER_LOSS, VPList_None },
   { DGUSLCD_SCREEN_THERMAL_RUNAWAY, VPList_None },
@@ -285,7 +344,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_AUTOHOME, VPList_None },
 
   { DGUSLCD_SCREEN_DIALOG_PAUSE, VPList_None },
-  { DGUSLCD_SCREEN_DIALOG_STOP, VPList_None },
+  { DGUSLCD_SCREEN_DIALOG_STOP, VPList_DialogStop },
 
   { DGUSLCD_SCREEN_CONFIRM, VPList_None },
   { DGUSLCD_SCREEN_POPUP, VPList_None },
@@ -315,6 +374,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     VPHELPER(VP_T_Bed_Set, &thermalManager.temp_bed.target, ScreenHandler.HandleTemperatureChanged, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
   #endif
 
+  VPHELPER(VP_MESH_LEVEL_TEMP, &thermalManager.temp_hotend[0].target, nullptr, &ScreenHandler.DGUSLCD_SendWordValueToDisplay),
+  VPHELPER(VP_MESH_LEVEL_STATUS, nullptr, nullptr, nullptr),
+
   // Feedrate
   VPHELPER(VP_Feedrate_Percentage, &feedrate_percentage, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
 
@@ -323,7 +385,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   //VPHELPER(VP_YPos, &current_position.y, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
   //VPHELPER(VP_YPos, &current_position.y, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
 
-  VPHELPER(VP_ZPos, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),
+  VPHELPER(VP_ZPos, &probe.offset.z, ScreenHandler.HandleZoffsetChange, ScreenHandler.DGUSLCD_SendFloatAsIntValueToDisplay<2>),
+
+  VPHELPER(VP_FAN_TOGGLE, &thermalManager.fan_speed[0], ScreenHandler.HandleFanControl, ScreenHandler.DGUSLCD_SendFanStatusToDisplay),
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     VPHELPER(VP_POWER_LOSS_RECOVERY, nullptr, &ScreenHandler.HandlePowerLossRecovery, nullptr),
@@ -342,6 +406,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_BUTTON_PAUSEPRINTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_COOLDOWN, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_TEMPCONTROL, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
+  VPHELPER(VP_BUTTON_BEDLEVELKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
 
   // File listing
   VPHELPER(VP_SD_ScrollEvent, nullptr, ScreenHandler.DGUSLCD_SD_ScrollFilelist, nullptr),
@@ -355,7 +420,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER_STR(VP_SD_FileName5,  nullptr, VP_SD_FileName_LEN, nullptr, ScreenHandler.DGUSLCD_SD_SendFilename ),
 
   // Icons
-  VPHELPER(VP_STEPPERS, &are_steppers_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON,ICON_TOGGLE_OFF>)),
+  VPHELPER(VP_STEPPERS, &are_steppers_enabled, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_OFF, ICON_TOGGLE_ON>)),
   VPHELPER(VP_LED_TOGGLE, &caselight.on, nullptr, (ScreenHandler.DGUSLCD_SendIconValue<ICON_TOGGLE_ON,ICON_TOGGLE_OFF>)),
 
   // M117 LCD String (We don't need the string in memory but "just" push it to the display on demand, hence the nullptr

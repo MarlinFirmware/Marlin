@@ -35,6 +35,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
+#include "../../../../module/settings.h"
 #include "../../../../gcode/queue.h"
 #include "../../../../module/planner.h"
 #include "../../../../sd/cardreader.h"
@@ -63,6 +64,7 @@ DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS];
 uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
+uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
 
 //DGUSDisplay dgusdisplay;
 UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
@@ -237,8 +239,8 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
     if (var.memadr) {
       DEBUG_ECHOPAIR(" DGUSLCD_SendFanStatusToDisplay ", var.VP);
       DEBUG_ECHOLNPAIR(" data ", *(uint8_t *)var.memadr);
-      uint16_t data_to_send = 0;
-      if (*(uint8_t *) var.memadr) data_to_send = 1;
+      uint16_t data_to_send = ICON_TOGGLE_OFF;
+      if (*(uint8_t *) var.memadr) data_to_send = ICON_TOGGLE_ON;
       dgusdisplay.WriteVariable(var.VP, data_to_send);
     }
   }
@@ -419,6 +421,18 @@ void DGUSScreenHandler::FilamentRunout() {
     ScreenHandler.GotoScreen(DGUSLCD_SCREEN_FILAMENTRUNOUT1);
 }
 
+void DGUSScreenHandler::OnFactoryReset() {
+    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
+}
+
+void DGUSScreenHandler::OnHomingStart() {
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME, false);
+}
+
+void DGUSScreenHandler::OnHomingComplete() {
+  ScreenHandler.PopToOldScreen();
+}
+
 void DGUSScreenHandler::ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr) {
   DGUS_VP_Variable ramcopy;
   if (!populate_VPVar(ConfirmVP, &ramcopy)) return;
@@ -430,6 +444,38 @@ void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr
     HandleLiveAdjustZ(var, val_ptr);
   } else {
     HandleProbeOffsetZChanged(var, val_ptr);
+  }
+}
+
+void DGUSScreenHandler::OnMeshLevelingStart() {
+  GotoScreen(DGUSLCD_SCREEN_LEVELING);
+
+  MeshLevelIndex = 0;
+
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(1));
+  ForceCompleteUpdate();
+}
+
+void DGUSScreenHandler::OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos) {
+  MeshLevelIndex++;
+
+  SERIAL_ECHOLNPAIR("Mesh level index: ", MeshLevelIndex);
+
+  // Update icon
+  dgusdisplay.WriteVariable(VP_MESH_LEVEL_STATUS, static_cast<uint16_t>(MeshLevelIndex + 1));
+  ForceCompleteUpdate();
+
+  if (MeshLevelIndex + 1 == GRID_MAX_POINTS) {
+    // Done
+    thermalManager.disable_all_heaters();
+
+    settings.save();
+
+    delay(1000);
+
+    GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL);
+  } else {
+    // We've already updated the icon, so nothing left
   }
 }
 
@@ -834,7 +880,7 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
     DEBUG_ECHOLNPGM("HandleLiveAdjustZ");
 
     int16_t flag = swap16(*(uint16_t*)val_ptr);
-    int16_t steps = flag ? -20 : 20;
+    int16_t steps = flag ? -5 : 5;
     ExtUI::smartAdjustAxis_steps(steps, ExtUI::axis_t::Z, true);
     ScreenHandler.ForceCompleteUpdate();
     return;
@@ -990,7 +1036,10 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
 
 bool are_steppers_enabled = true;
 void DGUSScreenHandler::HandleStepperState(bool is_enabled) {
+  bool steppers_were_enabled = are_steppers_enabled;
   are_steppers_enabled = is_enabled;
+
+  if (steppers_were_enabled != are_steppers_enabled) ForceCompleteUpdate();
 }
 
 void DGUSScreenHandler::HandleLEDToggle() {
@@ -998,6 +1047,8 @@ void DGUSScreenHandler::HandleLEDToggle() {
 
   caselight.on = newState;
   caselight.update(newState);
+
+  ForceCompleteUpdate();
 }
 
 void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {

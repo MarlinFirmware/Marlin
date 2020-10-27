@@ -40,6 +40,8 @@ extern const char NUL_STR[];
 namespace ExtUI {
 
   void onStartup() {
+    delay(250); // Attempt to fix possible handshake error
+
     dgusdisplay.InitDisplay();
     ScreenHandler.UpdateScreenVPData();
   }
@@ -79,7 +81,17 @@ namespace ExtUI {
 
   void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }
 
-  void onFactoryReset() {}
+  void onFactoryReset() {
+    ScreenHandler.OnFactoryReset();
+  }
+
+   void onHomingStart() {
+    ScreenHandler.OnHomingStart();
+  }
+
+  void onHomingComplete() {
+    ScreenHandler.OnHomingComplete();
+  }
   
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
@@ -112,12 +124,27 @@ namespace ExtUI {
   }
 
   #if HAS_MESH
+    void onMeshLevelingStart() {
+      ScreenHandler.OnMeshLevelingStart();
+    }
+
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      // Called when any mesh points are updated
     }
 
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
-      // Called to indicate a special condition
+    }
+
+    void onMeshCallback(const int8_t xpos, const int8_t ypos, const float zval) {
+      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos);
+    }
+
+    void onMeshCallback(const int8_t xpos, const int8_t ypos, const ExtUI::probe_state_t state) {
+      // Only called for UBL
+      if (state == MESH_START) {
+        ScreenHandler.OnMeshLevelingStart();
+      }
+
+      ScreenHandler.OnMeshLevelingUpdate(xpos, ypos);
     }
   #endif
 

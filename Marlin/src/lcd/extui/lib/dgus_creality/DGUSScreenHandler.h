@@ -83,6 +83,10 @@ public:
     static void HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr);
 
     static void HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr);
+
+    static void OnMeshLevelingStart();
+
+    static void OnMeshLevelingUpdate(const int8_t xpos, const int8_t ypos);
   #endif
   #if ENABLED(BABYSTEPPING)
     // Hook for live z adjust action
@@ -135,6 +139,11 @@ public:
   static void HandleStepperState(bool is_enabled);
 
   static void FilamentRunout();
+
+  static void OnFactoryReset();
+
+  static void OnHomingStart();
+  static void OnHomingComplete();
 
   // OK Button the Confirm screen.
   static void ScreenConfirmedOK(DGUS_VP_Variable &var, void *val_ptr);
@@ -240,6 +249,8 @@ private:
   static bool ScreenComplete;   ///< All VPs sent to screen?
 
   static uint16_t ConfirmVP;    ///< context for confirm screen (VP that will be emulated-sent on "OK").
+
+  static uint8_t MeshLevelIndex;
 
   #if ENABLED(SDSUPPORT)
     static int16_t top_file;    ///< file on top of file chooser

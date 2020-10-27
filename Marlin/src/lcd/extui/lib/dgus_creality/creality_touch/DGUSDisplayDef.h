@@ -323,10 +323,14 @@ constexpr uint16_t VP_BUTTON_SELECTFILEKEY = 0x20D3;
 constexpr uint16_t VP_BUTTON_STARTPRINTKEY = 0x20D2;
 constexpr uint16_t VP_BUTTON_STOPPRINTKEY = 0x1008;
 constexpr uint16_t VP_BUTTON_RESUMEPRINTKEY = 0x100C;
+constexpr uint16_t VP_BUTTON_BEDLEVELKEY = 0x1044;
 
 // Additional stuff defined by Creality
+constexpr uint16_t VP_FAN_TOGGLE = 0x101E;
 constexpr uint16_t VP_LED_TOGGLE = 0x101F;
 constexpr uint16_t VP_STEPPERS = 0x1200;
+constexpr uint16_t VP_MESH_LEVEL_TEMP = 0x108A;
+constexpr uint16_t VP_MESH_LEVEL_STATUS = 0x108D;
 
 // Icons
 constexpr uint16_t ICON_TOGGLE_ON = 1;

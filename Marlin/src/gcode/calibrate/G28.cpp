@@ -26,6 +26,7 @@
 
 #include "../../module/stepper.h"
 #include "../../module/endstops.h"
+#include "../../module/temperature.h"
 
 #if HAS_MULTI_HOTEND
   #include "../../module/tool_change.h"
@@ -48,6 +49,10 @@
 #include "../../lcd/ultralcd.h"
 #if ENABLED(DWIN_CREALITY_LCD)
   #include "../../lcd/dwin/e3v2/dwin.h"
+#endif
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
 #endif
 
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
@@ -203,8 +208,25 @@ void GcodeSuite::G28() {
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
   
   is_homing = true;
+
+  #if ALL(AUTOLEVEL_NEEDS_PREHEATING, FIX_MOUNTED_PROBE)
+    {
+      uint16_t hotendTemperature = AUTOLEVEL_PREHEAT_NOZZLE_TEMP;
+      uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
+      SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
+      SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
+
+      thermalManager.setTargetHotend(hotendTemperature, 0);
+      thermalManager.setTargetBed(bedTemperature);
+
+      thermalManager.wait_for_hotend(0);
+      thermalManager.wait_for_bed_heating();
+    }
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -466,6 +488,8 @@ void GcodeSuite::G28() {
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
 
   TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   is_homing_z = false;
 

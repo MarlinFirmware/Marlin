@@ -890,6 +890,16 @@
 //#define NOZZLE_AS_PROBE
 
 /**
+ * Auto-leveling needs preheating
+ */
+#define AUTOLEVEL_NEEDS_PREHEATING
+
+#if ENABLED(AUTOLEVEL_NEEDS_PREHEATING)
+  #define AUTOLEVEL_PREHEAT_NOZZLE_TEMP 120
+  #define AUTOLEVEL_PREHEAT_BED_TEMP 50
+#endif
+
+/**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
  */
 //#define Z_PROBE_SERVO_NR 0       // Defaults to SERVO 0 connector.

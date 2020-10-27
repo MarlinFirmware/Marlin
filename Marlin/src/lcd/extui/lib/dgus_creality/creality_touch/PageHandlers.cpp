@@ -48,6 +48,49 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     }
 }
 
+void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_BEDLEVELKEY:
+            switch (buttonValue) {
+                case 1:
+                    if (ExtUI::isAxisPositionKnown(ExtUI::axis_t::X) && ExtUI::isAxisPositionKnown(ExtUI::axis_t::Y)) {
+                        ExtUI::injectCommands_P("G28 Z");
+                    } else {
+                        ExtUI::injectCommands_P("G28");
+                    }
+                break;
+
+                case 2:
+                    // Increase Z-offset
+                    ExtUI::smartAdjustAxis_steps(5, ExtUI::axis_t::Z, true);;
+                    ScreenHandler.ForceCompleteUpdate();
+                    break;
+
+                case 3:
+                    // Decrease Z-offset
+                    ExtUI::smartAdjustAxis_steps(-5, ExtUI::axis_t::Z, true);;
+                    ScreenHandler.ForceCompleteUpdate();
+                    break;
+            }
+
+            break;
+
+        case VP_BUTTON_MAINENTERKEY:
+            // Go to leveling screen
+            ExtUI::injectCommands_P("G28\nG29");
+            break;
+    }
+}
+
+void LevelingHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP) {
+        case VP_BUTTON_BEDLEVELKEY:
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_ZOFFSET_LEVEL);
+
+            break;
+    }
+}
+
 void TempMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_ADJUSTENTERKEY:
@@ -171,6 +214,9 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_CONTROL, ControlMenuHandler)
 
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_ZOFFSET_LEVEL, LevelingModeHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_LEVELING, LevelingHandler)
+    
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
@@ -197,7 +243,13 @@ void DGUSCrealityDisplay_HandleReturnKeyEvent(DGUS_VP_Variable &var, void *val_p
 
   while ((ret = (uint16_t*) pgm_read_ptr(&(map->Handler)))) {
     if ((map->ScreenID) == current_screen) {
-        map->Handler(var, *static_cast<unsigned short*>(val_ptr));
+        unsigned short button_value = *static_cast<unsigned short*>(val_ptr);
+        button_value = (button_value & 0xffU) << 8U | (button_value >> 8U);
+
+        SERIAL_ECHOPAIR("Invoking handler for screen ", current_screen);
+        SERIAL_ECHOLNPAIR("with VP=", var.VP, " value=", button_value);
+
+        map->Handler(var, button_value);
         return;
     }
 
