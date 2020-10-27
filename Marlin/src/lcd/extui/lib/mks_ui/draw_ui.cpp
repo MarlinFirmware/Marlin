@@ -1640,7 +1640,6 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
     disp_state_stack._disp_state[disp_state_stack._disp_index] = newScreenType;
   }
   disp_state = newScreenType;
-  lv_refr_now(lv_refr_get_disp_refreshing());
 
   // title
   lv_obj_t *titleLabel = nullptr;
@@ -1651,18 +1650,22 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
   if (titleLabel)
     lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
+  lv_refr_now(lv_refr_get_disp_refreshing());
+
   return scr;
 }
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par) {
-  return lv_label_create(par, (lv_obj_t*)nullptr);
+  lv_obj_t *label = lv_label_create(par, (lv_obj_t*)nullptr);
+  return label;
 }
 
 // Create a label with style and text
 lv_obj_t* lv_label_create(lv_obj_t *par, const char *text) {
   lv_obj_t *label = lv_label_create_empty(par);
   if (text) lv_label_set_text(label, text);
+  lv_obj_set_style(label, &tft_style_label_rel);
   return label;
 }
 
