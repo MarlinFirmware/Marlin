@@ -185,7 +185,7 @@ constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 // constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
 
 // // Place for status messages.
-constexpr uint16_t VP_M117 = 0x21A6 + 3 /*Text Variable Pointer. First three VP must be reserved. Text after the 3rd VP and ended with 0x00 or 0x0F. */; // TODO: implement M117
+constexpr uint16_t VP_M117 = 0x21B3;
 constexpr uint8_t VP_M117_LEN = 0x20;
 
 // // Temperatures.

@@ -135,6 +135,10 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_ADJUSTENTERKEY:
             switch (buttonValue) {
+                case 2:
+                    ScreenHandler.GotoScreen(ExtUI::isPrintingFromMediaPaused() ? DGUSLCD_SCREEN_PRINT_PAUSED : DGUSLCD_SCREEN_PRINT_RUNNING);
+                    break;
+
                 case 3:
                     DGUSScreenHandler::HandleFanControl(var, &buttonValue);
                 break;
@@ -142,7 +146,7 @@ void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 case 4:
                     ScreenHandler.HandleLEDToggle();
                 break;
-            }            
+            }         
     }
 }
 

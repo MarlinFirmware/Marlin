@@ -64,6 +64,12 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
 void DGUSDisplay::InitDisplay() {
   dgusserial.begin(LCD_BAUDRATE);
 
+  delay(500); // Attempt to fix possible handshake error
+
+  ResetDisplay();
+
+  delay(500); // Attempt to fix possible handshake error
+
   if (true
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid()
@@ -76,6 +82,12 @@ void DGUSDisplay::InitDisplay() {
         DGUSLCD_SCREEN_MAIN
       #endif
     );
+}
+
+void DGUSDisplay::ResetDisplay() {
+  SERIAL_ECHOLN("ResetDisplay");
+  const unsigned char resetCommand[] = { 0x55, 0xAA, 0x5A, 0xA5 };
+  WriteVariable(0x04, resetCommand, sizeof(resetCommand));
 }
 
 void DGUSDisplay::ReadVariable(uint16_t adr) {

@@ -40,8 +40,6 @@ extern const char NUL_STR[];
 namespace ExtUI {
 
   void onStartup() {
-    delay(250); // Attempt to fix possible handshake error
-
     dgusdisplay.InitDisplay();
     ScreenHandler.UpdateScreenVPData();
   }

@@ -54,6 +54,7 @@ public:
   DGUSDisplay() = default;
 
   static void InitDisplay();
+  static void ResetDisplay();
 
   // Variable access.
   static void WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr=false);
