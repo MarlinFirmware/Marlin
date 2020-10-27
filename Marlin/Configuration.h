@@ -135,7 +135,6 @@
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-//#define CUSTOM_MACHINE_NAME "3D Printer"
 #define CUSTOM_MACHINE_NAME "ISO Cube"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
