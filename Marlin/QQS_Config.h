@@ -15,7 +15,7 @@
 /*------Drivers-(1 CHOICE)-----*/
 //#define STOCK                      //(S) 4xA4988 with Robin_mini Board
 #define QQS                          //(S) 4xA4988
-//#define QQS_TMC                    //(8) 4xTMC220x For 2208 or 2209
+//#define QQS_TMC                    //(8) 4xTMC220x_STANDALONE For 2208 or 2209
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)
