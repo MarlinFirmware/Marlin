@@ -35,6 +35,9 @@ opt_add TEMP_CHAMBER_PIN 6
 opt_set HEATER_CHAMBER_PIN 45
 exec_test $1 $2 "RAMPS4DUE_EFB with ABL (Bilinear), ExtUI, S-Curve, many options."
 
+#
+# RADDS with BLTouch, ABL(B), 3 x Z auto-align
+#
 restore_configs
 opt_set MOTHERBOARD BOARD_RADDS
 opt_enable USE_XMAX_PLUG USE_YMAX_PLUG ENDSTOPPULLUPS BLTOUCH AUTO_BED_LEVELING_BILINEAR \
@@ -60,3 +63,15 @@ opt_set EXTRUDERS 2
 opt_set NUM_SERVOS 1
 opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER BEEP_ON_FEEDRATE_CHANGE POWER_LOSS_RECOVERY
 exec_test $1 $2 "RAMPS4DUE_EEF with SWITCHING_EXTRUDER, POWER_LOSS_RECOVERY"
+
+#
+# Test Archim 1
+#
+use_example_configs UltiMachine/Archim1
+exec_test $1 $2 "Archim 1 base configuration"
+
+#
+# Test Archim 2
+#
+use_example_configs UltiMachine/Archim2
+exec_test $1 $2 "Archim 2 base configuration"
