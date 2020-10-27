@@ -45,6 +45,7 @@
 #include "core/utility.h"
 #include "module/motion.h"
 #include "module/planner.h"
+#include "module/probe.h"
 #include "module/endstops.h"
 #include "module/temperature.h"
 #include "module/settings.h"
@@ -746,19 +747,18 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN(DWIN_CREALITY_LCD, DWIN_Update(), ui.update());
 
   #if ENABLED(FIX_MOUNTED_PROBE)
-    if((IS_SD_PRINTING() == true) && is_homing == false) //  printing and no homing
-    {
-      endstops.enable_z_probe(false);
+    static bool optoSwitch;
+    if (optoSwitch != READ(OPTO_SWITCH_PIN)) {
+      optoSwitch = READ(OPTO_SWITCH_PIN);
+      SERIAL_ECHOLNPAIR("Opto switch says: ", optoSwitch);
     }
 
-    if((0 == READ(OPTO_SWITCH_PIN)) && (is_homing == true))
-    {
-      endstops.enable_z_probe(true);
-      delay(100);
-      WRITE(COM_PIN, LOW);
-      delay(200);
-      WRITE(COM_PIN, HIGH);
+    if (is_homing_z) {
+      bool is_in_probing_zone = READ(OPTO_SWITCH_PIN) == 0;
+      endstops.enable_z_probe(is_in_probing_zone);
     }
+
+    
   #endif
 
   // Run i2c Position Encoders
@@ -1101,6 +1101,7 @@ void setup() {
   #endif
 
   #ifdef FIX_MOUNTED_PROBE
+    SERIAL_ECHOLN("Initializing COM PIN");
     OUT_WRITE(COM_PIN, HIGH);
     SET_INPUT(OPTO_SWITCH_PIN);
     OUT_WRITE(LED_CONTROL_PIN, LOW);

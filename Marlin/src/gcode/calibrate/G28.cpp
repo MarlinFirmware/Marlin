@@ -467,6 +467,8 @@ void GcodeSuite::G28() {
 
   TERN_(FIX_MOUNTED_PROBE, endstops.enable_z_probe(false));
 
+  is_homing_z = false;
+
   report_current_position();
 
   if (ENABLED(NANODLP_Z_SYNC) && (doZ || ENABLED(NANODLP_ALL_AXIS)))

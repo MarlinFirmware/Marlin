@@ -559,6 +559,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if ENABLED(FIX_MOUNTED_PROBE)
     if((0 == READ(OPTO_SWITCH_PIN)) && (is_homing_z == true))
     {
+      SERIAL_ECHOLN("FIX_MOUNTED_PROBE: Considering homing complete");
       WRITE(COM_PIN, HIGH);
       delay(200);
       WRITE(COM_PIN, LOW);
@@ -707,6 +708,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   #ifdef FIX_MOUNTED_PROBE
     if(0 == READ(OPTO_SWITCH_PIN))
     {
+      SERIAL_ECHOLN("FIX_MOUNTED_PROBE: Setting COM_PIN low");
       delay(100);
       WRITE(COM_PIN, LOW);
       delay(200);
@@ -727,6 +729,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   }
 
   #ifdef FIX_MOUNTED_PROBE
+    SERIAL_ECHOLN("FIX_MOUNTED_PROBE: Setting COM_PIN high");
     WRITE(COM_PIN, 1);
   #endif
 
