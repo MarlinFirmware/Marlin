@@ -145,25 +145,25 @@ public:
       return TERN(IS_KINEMATIC,
         (X_CENTER) - probe_radius(),
         _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.x);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float max_x() {
       return TERN(IS_KINEMATIC,
         (X_CENTER) + probe_radius(),
         _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.x);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float min_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) - probe_radius(),
         _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.y);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
     static inline float max_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) + probe_radius(),
         _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
-      ) - TERN0(NOZZLE_AS_PROBE, home_offset.y);
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
 
     #if NEEDS_THREE_PROBE_POINTS
