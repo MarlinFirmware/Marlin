@@ -147,6 +147,9 @@
 #if defined(BTN_EN2) && BTN_EN2 >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_EN2)
 #endif
+#if defined(BTN_ENC_EN) && BTN_ENC_EN >= 0
+  REPORT_NAME_DIGITAL(__LINE__, BTN_ENC_EN)
+#endif
 #if defined(BTN_ENC) && BTN_ENC >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_ENC)
 #endif

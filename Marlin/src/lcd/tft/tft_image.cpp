@@ -23,7 +23,7 @@
 #include "tft_image.h"
 #include <stddef.h>
 
-const tImage NoLogo                 = { (void *)NULL, 0, 0, NOCOLORS };
+const tImage NoLogo                 = { nullptr, 0, 0, NOCOLORS };
 
 const tImage MarlinLogo112x38x1     = { (void *)marlin_logo_112x38x1, 112, 38, GREYSCALE1 };
 const tImage MarlinLogo228x255x2    = { (void *)marlin_logo_228x255x2, 228, 255, GREYSCALE2 };
