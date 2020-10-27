@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -34,7 +34,6 @@
  * 1) added pointer to a current Arduino IDE extension
  * 2) added support for M3, M4 & M5 spindle control commands
  * 3) added case light pin definition
- *
  */
 
 /**
@@ -52,10 +51,9 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__, __AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644', 'ATmega644P', or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
@@ -104,7 +102,10 @@
 //
 #define SDSS                                  31  // SCL pin of I2C header || CS Pin for SD Card support
 #define PS_ON_PIN                             19
-#define CASE_LIGHT_PIN                        15  // Hardware PWM
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      15  // Hardware PWM
+#endif
 
 // A pin for debugging
 #define DEBUG_PIN                             -1

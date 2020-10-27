@@ -10,10 +10,10 @@
  * (at your option) any later version.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#ifdef USE_USB_COMPOSITE
+#if defined(__STM32F1__) && defined(USE_USB_COMPOSITE)
 
 #include "msc_sd.h"
 #include "SPI.h"
@@ -21,11 +21,11 @@
 #define PRODUCT_ID 0x29
 
 USBMassStorage MarlinMSC;
-USBCompositeSerial MarlinCompositeSerial;
+MarlinUSBCompositeSerial MarlinCompositeSerial;
 
 #include "../../inc/MarlinConfig.h"
 
-#ifdef HAS_ONBOARD_SD
+#if SD_CONNECTION_IS(ONBOARD)
 
   #include "onboard_sd.h"
 
@@ -38,6 +38,17 @@ USBCompositeSerial MarlinCompositeSerial;
 
 #endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  void (*real_rx_callback)(void);
+
+  void my_rx_callback(void) {
+    real_rx_callback();
+    int len = MarlinCompositeSerial.available();
+    while (len-- > 0) // >0 because available() may return a negative value
+      emergency_parser.update(MarlinCompositeSerial.emergency_state, MarlinCompositeSerial.peek());
+  }
+#endif
+
 void MSC_SD_init() {
   USBComposite.setProductId(PRODUCT_ID);
   // Just set MarlinCompositeSerial enabled to true
@@ -47,7 +58,7 @@ void MSC_SD_init() {
   USBComposite.end();
   USBComposite.clear();
   // Set api and register mass storage
-  #ifdef HAS_ONBOARD_SD
+  #if SD_CONNECTION_IS(ONBOARD)
     uint32_t cardSize;
     if (disk_initialize(0) == RES_OK) {
       if (disk_ioctl(0, GET_SECTOR_COUNT, (void *)(&cardSize)) == RES_OK) {
@@ -59,6 +70,11 @@ void MSC_SD_init() {
   // Register composite Serial
   MarlinCompositeSerial.registerComponent();
   USBComposite.begin();
+  #if ENABLED(EMERGENCY_PARSER)
+    //rx is usbSerialPart.endpoints[2]
+    real_rx_callback = usbSerialPart.endpoints[2].callback;
+    usbSerialPart.endpoints[2].callback = my_rx_callback;
+  #endif
 }
 
-#endif // USE_USB_COMPOSITE
+#endif // __STM32F1__ && USE_USB_COMPOSITE

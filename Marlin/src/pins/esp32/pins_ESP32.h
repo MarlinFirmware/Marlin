@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Espressif ESP32 (Tensilica Xtensa LX6) pin assignments
  */
 
-#ifndef ARDUINO_ARCH_ESP32
+#if NOT_TARGET(ARDUINO_ARCH_ESP32)
   "Oops! Select an ESP32 board in 'Tools > Board.'"
 #endif
 

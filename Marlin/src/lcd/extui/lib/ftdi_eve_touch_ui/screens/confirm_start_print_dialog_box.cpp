@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -30,11 +30,6 @@
 using namespace FTDI;
 using namespace Theme;
 using namespace ExtUI;
-
-void ConfirmStartPrintDialogBox::onEntry() {
-  BaseScreen::onEntry();
-  sound.play(twinkle, PLAY_ASYNCHRONOUS);
-}
 
 void ConfirmStartPrintDialogBox::onRedraw(draw_mode_t) {
   const char *filename = getLongFilename();

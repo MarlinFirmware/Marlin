@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -48,7 +48,6 @@
  * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
  * attached()            - Return true if a servo is attached.
  * detach()              - Stop an attached servo from pulsing its i/o pin.
- *
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -150,9 +149,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

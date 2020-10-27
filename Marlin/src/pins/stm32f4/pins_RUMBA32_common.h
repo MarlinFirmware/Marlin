@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,20 +25,29 @@
  * Common pin assignments for all RUMBA32 boards
  */
 
-#ifndef STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "RUMBA32 boards support up to 3 hotends / E-steppers."
 #endif
 
-#define RUMBA32_V1_0
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-//#define I2C_EEPROM
-#ifdef E2END
-  #undef E2END
-#endif
-#define E2END 0xFFF                               // 4KB
+// Use soft PWM for fans - PWM is not working properly when paired with STM32 Arduino Core v1.7.0
+// This can be removed when Core version is updated and PWM behaviour is fixed.
+#define FAN_SOFT_PWM
+
+//
+// Configure Timers
+// TIM6 is used for TONE
+// TIM7 is used for SERVO
+// TIMER_SERIAL defaults to TIM7 and must be overridden in the platformio.h file if SERVO will also be used.
+//              This will be difficult to solve from the Arduino IDE, without modifying the RUMBA32 variant
+//              included with the STM32 framework.
+
+#define STEP_TIMER 10
+#define TEMP_TIMER 14
+#define HAL_TIMER_RATE                     F_CPU
 
 //
 // Limit Switches
@@ -83,6 +92,18 @@
 #define E2_ENABLE_PIN                       PD0
 #define E2_CS_PIN                           PD1
 
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef TMC_SW_MOSI
+    #define TMC_SW_MOSI                     PA7
+  #endif
+  #ifndef TMC_SW_MISO
+    #define TMC_SW_MISO                     PA6
+  #endif
+  #ifndef TMC_SW_SCK
+    #define TMC_SW_SCK                      PA5
+  #endif
+#endif
+
 //
 // Temperature Sensors
 //
@@ -104,7 +125,7 @@
 #define FAN1_PIN                            PA8
 
 //
-// I2C
+// SPI
 //
 #define SCK_PIN                             PA5
 #define MISO_PIN                            PA6
@@ -125,7 +146,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BTN_EN1                           PB2
   #define BTN_EN2                           PB1
@@ -140,10 +161,23 @@
     #define DOGLCD_A0                       PE14
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if IS_ULTIPANEL
     #define LCD_PINS_D5                     PE13
     #define LCD_PINS_D6                     PE14
     #define LCD_PINS_D7                     PE15
+  #endif
+
+  // Alter timing for graphical display
+  #if HAS_MARLINUI_U8GLIB
+    #ifndef BOARD_ST7920_DELAY_1
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_2
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(48)
+    #endif
+    #ifndef BOARD_ST7920_DELAY_3
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
+    #endif
   #endif
 
 #endif

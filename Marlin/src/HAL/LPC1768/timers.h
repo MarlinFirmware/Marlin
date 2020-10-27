@@ -15,13 +15,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- *
  * HAL For LPC1768
  */
 
@@ -61,10 +60,18 @@ typedef uint32_t hal_timer_t;
 
 #define HAL_TIMER_RATE         ((F_CPU) / 4)  // frequency of timers peripherals
 
-#define STEP_TIMER_NUM 0  // Timer Index for Stepper
-#define TEMP_TIMER_NUM 1  // Timer Index for Temperature
-#define PULSE_TIMER_NUM STEP_TIMER_NUM
-#define PWM_TIMER_NUM 3   // Timer Index for PWM
+#ifndef STEP_TIMER_NUM
+  #define STEP_TIMER_NUM        0  // Timer Index for Stepper
+#endif
+#ifndef PULSE_TIMER_NUM
+  #define PULSE_TIMER_NUM       STEP_TIMER_NUM
+#endif
+#ifndef TEMP_TIMER_NUM
+  #define TEMP_TIMER_NUM        1  // Timer Index for Temperature
+#endif
+#ifndef PWM_TIMER_NUM
+  #define PWM_TIMER_NUM         3  // Timer Index for PWM
+#endif
 
 #define TEMP_TIMER_RATE        1000000
 #define TEMP_TIMER_FREQUENCY   1000 // temperature interrupt frequency
@@ -84,12 +91,16 @@ typedef uint32_t hal_timer_t;
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-#define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(STEP_TIMER_NUM)
-#define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
+#ifndef HAL_STEP_TIMER_ISR
+  #define HAL_STEP_TIMER_ISR() _HAL_TIMER_ISR(STEP_TIMER_NUM)
+#endif
+#ifndef HAL_TEMP_TIMER_ISR
+  #define HAL_TEMP_TIMER_ISR() _HAL_TIMER_ISR(TEMP_TIMER_NUM)
+#endif
 
 // Timer references by index
-#define STEP_TIMER _HAL_TIMER(STEP_TIMER_NUM)
-#define TEMP_TIMER _HAL_TIMER(TEMP_TIMER_NUM)
+#define STEP_TIMER_PTR _HAL_TIMER(STEP_TIMER_NUM)
+#define TEMP_TIMER_PTR _HAL_TIMER(TEMP_TIMER_NUM)
 
 // ------------------------
 // Public functions
@@ -99,23 +110,23 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
   switch (timer_num) {
-    case 0: STEP_TIMER->MR0 = compare; break; // Stepper Timer Match Register 0
-    case 1: TEMP_TIMER->MR0 = compare; break; //    Temp Timer Match Register 0
+    case 0: STEP_TIMER_PTR->MR0 = compare; break; // Stepper Timer Match Register 0
+    case 1: TEMP_TIMER_PTR->MR0 = compare; break; //    Temp Timer Match Register 0
   }
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return STEP_TIMER->MR0; // Stepper Timer Match Register 0
-    case 1: return TEMP_TIMER->MR0; //    Temp Timer Match Register 0
+    case 0: return STEP_TIMER_PTR->MR0; // Stepper Timer Match Register 0
+    case 1: return TEMP_TIMER_PTR->MR0; //    Temp Timer Match Register 0
   }
   return 0;
 }
 
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: return STEP_TIMER->TC; // Stepper Timer Count
-    case 1: return TEMP_TIMER->TC; //    Temp Timer Count
+    case 0: return STEP_TIMER_PTR->TC; // Stepper Timer Count
+    case 1: return TEMP_TIMER_PTR->TC; //    Temp Timer Count
   }
   return 0;
 }
@@ -154,8 +165,8 @@ FORCE_INLINE static bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
 
 FORCE_INLINE static void HAL_timer_isr_prologue(const uint8_t timer_num) {
   switch (timer_num) {
-    case 0: SBI(STEP_TIMER->IR, SBIT_CNTEN); break;
-    case 1: SBI(TEMP_TIMER->IR, SBIT_CNTEN); break;
+    case 0: SBI(STEP_TIMER_PTR->IR, SBIT_CNTEN); break;
+    case 1: SBI(TEMP_TIMER_PTR->IR, SBIT_CNTEN); break;
   }
 }
 

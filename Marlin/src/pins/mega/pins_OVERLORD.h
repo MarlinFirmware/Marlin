@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Dreammaker Overlord v1.1 pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Overlord Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20
   #define LCD_PINS_D5                         21
@@ -132,7 +132,7 @@
   #endif
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_ENC                             16  // Enter Pin
   #define BTN_UP                              19  // Button UP Pin
   #define BTN_DWN                             17  // Button DOWN Pin

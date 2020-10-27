@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,7 +42,7 @@ FWRetract fwretract; // Single instance - this calls the constructor
 
 // private:
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   bool FWRetract::retracted_swap[EXTRUDERS];          // Which extruders are swap-retracted
 #endif
 
@@ -60,9 +60,7 @@ float FWRetract::current_retract[EXTRUDERS],          // Retract value used by p
       FWRetract::current_hop;
 
 void FWRetract::reset() {
-  #if ENABLED(FWRETRACT_AUTORETRACT)
-    autoretract_enabled = false;
-  #endif
+  TERN_(FWRETRACT_AUTORETRACT, autoretract_enabled = false);
   settings.retract_length = RETRACT_LENGTH;
   settings.retract_feedrate_mm_s = RETRACT_FEEDRATE;
   settings.retract_zraise = RETRACT_ZRAISE;
@@ -75,9 +73,7 @@ void FWRetract::reset() {
 
   LOOP_L_N(i, EXTRUDERS) {
     retracted[i] = false;
-    #if EXTRUDERS > 1
-      retracted_swap[i] = false;
-    #endif
+    TERN_(HAS_MULTI_EXTRUDER, retracted_swap[i] = false);
     current_retract[i] = 0.0;
   }
 }
@@ -94,15 +90,15 @@ void FWRetract::reset() {
  *       included in the G-code. Use M207 Z0 to to prevent double hop.
  */
 void FWRetract::retract(const bool retracting
-  #if EXTRUDERS > 1
-    , bool swapping /* =false */
+  #if HAS_MULTI_EXTRUDER
+    , bool swapping/*=false*/
   #endif
 ) {
   // Prevent two retracts or recovers in a row
   if (retracted[active_extruder] == retracting) return;
 
   // Prevent two swap-retract or recovers in a row
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     // Allow G10 S1 only after G11
     if (swapping && retracted_swap[active_extruder] == retracting) return;
     // G11 priority to recover the long retract if activated
@@ -119,7 +115,7 @@ void FWRetract::retract(const bool retracting
     );
     LOOP_L_N(i, EXTRUDERS) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }
@@ -128,12 +124,8 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("current_hop ", current_hop);
   //*/
 
-  const float base_retract = (
-                (swapping ? settings.swap_retract_length : settings.retract_length)
-                #if ENABLED(RETRACT_SYNC_MIXING)
-                  * (MIXING_STEPPERS)
-                #endif
-              );
+  const float base_retract = TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
+                * (swapping ? settings.swap_retract_length : settings.retract_length);
 
   // The current position will be the destination for E and Z moves
   destination = current_position;
@@ -148,10 +140,7 @@ void FWRetract::retract(const bool retracting
     // Retract by moving from a faux E position back to the current E position
     current_retract[active_extruder] = base_retract;
     prepare_internal_move_to_destination(                 // set current to destination
-      settings.retract_feedrate_mm_s
-      #if ENABLED(RETRACT_SYNC_MIXING)
-        * (MIXING_STEPPERS)
-      #endif
+      settings.retract_feedrate_mm_s * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
     );
 
     // Is a Z hop set, and has the hop not yet been done?
@@ -177,23 +166,19 @@ void FWRetract::retract(const bool retracting
 
     current_retract[active_extruder] = 0;
 
-    const feedRate_t fr_mm_s = (
+    // Recover E, set_current_to_destination
+    prepare_internal_move_to_destination(
       (swapping ? settings.swap_retract_recover_feedrate_mm_s : settings.retract_recover_feedrate_mm_s)
-      #if ENABLED(RETRACT_SYNC_MIXING)
-        * (MIXING_STEPPERS)
-      #endif
+      * TERN1(RETRACT_SYNC_MIXING, (MIXING_STEPPERS))
     );
-    prepare_internal_move_to_destination(fr_mm_s);        // Recover E, set_current_to_destination
   }
 
-  #if ENABLED(RETRACT_SYNC_MIXING)
-    mixer.T(old_mixing_tool);                             // Restore original mixing tool
-  #endif
+  TERN_(RETRACT_SYNC_MIXING, mixer.T(old_mixing_tool));   // Restore original mixing tool
 
   retracted[active_extruder] = retracting;                // Active extruder now retracted / recovered
 
   // If swap retract/recover update the retracted_swap flag too
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     if (swapping) retracted_swap[active_extruder] = retracting;
   #endif
 
@@ -203,7 +188,7 @@ void FWRetract::retract(const bool retracting
     SERIAL_ECHOLNPAIR("active_extruder ", active_extruder);
     LOOP_L_N(i, EXTRUDERS) {
       SERIAL_ECHOLNPAIR("retracted[", i, "] ", retracted[i]);
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         SERIAL_ECHOLNPAIR("retracted_swap[", i, "] ", retracted_swap[i]);
       #endif
     }

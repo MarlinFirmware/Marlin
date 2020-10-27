@@ -16,15 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-#include "../gcode.h"
-#include "../../MarlinCore.h" // for pin_is_protected
 #include "../../inc/MarlinConfig.h"
 
-#if FAN_COUNT > 0
+#if ENABLED(DIRECT_PIN_CONTROL)
+
+#include "../gcode.h"
+#include "../../MarlinCore.h" // for pin_is_protected
+
+#if HAS_FAN
   #include "../../module/temperature.h"
 #endif
 
@@ -56,15 +59,14 @@ void GcodeSuite::M42() {
       #ifdef INPUT_PULLDOWN
         case 3: pinMode(pin, INPUT_PULLDOWN); break;
       #endif
-      default: SERIAL_ECHOLNPGM("Invalid Pin Mode");
+      default: SERIAL_ECHOLNPGM("Invalid Pin Mode"); return;
     }
-    return;
   }
 
   if (!parser.seenval('S')) return;
   const byte pin_status = parser.value_byte();
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     switch (pin) {
       #if HAS_FAN0
         case FAN0_PIN: thermalManager.fan_speed[0] = pin_status; return;
@@ -97,3 +99,5 @@ void GcodeSuite::M42() {
   extDigitalWrite(pin, pin_status);
   analogWrite(pin, pin_status);
 }
+
+#endif // DIRECT_PIN_CONTROL

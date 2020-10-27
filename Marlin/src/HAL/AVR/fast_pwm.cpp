@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __AVR__
@@ -185,8 +185,8 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
         res_temp_phase_correct = rtf / 2;
       }
 
-      LIMIT(res_temp_fast, 1u, size);
-      LIMIT(res_temp_phase_correct, 1u, size);
+      LIMIT(res_temp_fast, 1U, size);
+      LIMIT(res_temp_phase_correct, 1U, size);
       // Calculate frequencies of test prescaler and resolution values
       const int f_temp_fast = (F_CPU) / (prescaler[i] * (1 + res_temp_fast)),
                 f_temp_phase_correct = (F_CPU) / (2 * prescaler[i] * res_temp_phase_correct),
@@ -274,7 +274,7 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
     else
       top = *timer.ICRn; // top = ICRn
 
-    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top / v_size)); // Scale 8/16-bit v to top value
+    _SET_OCRnQ(timer.OCRnQ, timer.q, v * float(top) / float(v_size)); // Scale 8/16-bit v to top value
   }
 }
 

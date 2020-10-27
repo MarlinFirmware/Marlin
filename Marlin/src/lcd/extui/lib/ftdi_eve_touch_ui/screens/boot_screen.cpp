@@ -18,7 +18,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -32,7 +32,7 @@
 
 #ifdef SHOW_CUSTOM_BOOTSCREEN
   #ifdef TOUCH_UI_PORTRAIT
-    #include "../theme/_bootscreen_portrait.h"
+    #include "../theme/bootscreen_logo_portrait.h"
   #else
     #include "../theme/_bootscreen_landscape.h"
   #endif
@@ -68,10 +68,10 @@ void BootScreen::onIdle() {
     InterfaceSettingsScreen::failSafeSettings();
 
     StatusScreen::loadBitmaps();
+    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
     GOTO_SCREEN(TouchCalibrationScreen);
     current_screen.forget();
     PUSH_SCREEN(StatusScreen);
-    StatusScreen::setStatusMessage(GET_TEXT_F(WELCOME_MSG));
   } else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();

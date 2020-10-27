@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * MKS Robin Lite 3 (STM32F103RCT6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin Lite3 supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -96,7 +96,7 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC1
   #define BTN_ENC                           PC3
@@ -115,14 +115,16 @@
     #define DOGLCD_SCK                      PB13
     #define DOGLCD_MOSI                     PB15
 
-    // Required for MKS_MINI_12864 with this board
-    #define MKS_LCD12864B
-    #undef SHOW_BOOTSCREEN
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS                    PB11
+    #endif
 
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PA6
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
@@ -130,7 +132,7 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card
@@ -142,12 +144,12 @@
 #define MOSI_PIN                            PB15
 #define SS_PIN                              PA15
 
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2     DELAY_NS(125)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(125)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
 #endif

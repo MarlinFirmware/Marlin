@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -37,7 +37,7 @@
  *   https://github.com/ultimachine/Archim/wiki
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Archim' in 'Tools > Board.'"
 #endif
 
@@ -46,6 +46,7 @@
 //
 // Timers
 //
+// These are already defined in DUE, so must be undefined first
 #define STEP_TIMER_NUM                         3
 #define HAL_STEP_TIMER_ISR()  void TC3_Handler()
 
@@ -180,7 +181,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                          23  // D24 PA15_CTS1
   #define LCD_PINS_RS                         17  // D17 PA12_RXD1
   #define LCD_PINS_ENABLE                     24  // D23 PA14_RTS1
@@ -191,10 +192,10 @@
 
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // Buttons on AUX-2
     #define BTN_EN1                           60  // D60 PA3_TIOB1
     #define BTN_EN2                           13  // D13 PB27_TIOB0
     #define BTN_ENC                           16  // D16 PA13_TXD1
-  #endif // NEWPANEL
-#endif // HAS_SPI_LCD
+  #endif // IS_NEWPANEL
+#endif // HAS_WIRED_LCD

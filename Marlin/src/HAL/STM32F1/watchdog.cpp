@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -52,7 +52,9 @@ void watchdogSetup() {
  * @details The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and 625 reload value (counts down to 0)
  */
 void watchdog_init() {
-  //iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+  #if DISABLED(DISABLE_WATCHDOG_INIT)
+    iwdg_init(IWDG_PRE_256, STM32F1_WD_RELOAD);
+  #endif
 }
 
 #endif // USE_WATCHDOG

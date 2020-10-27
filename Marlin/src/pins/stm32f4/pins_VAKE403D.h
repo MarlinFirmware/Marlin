@@ -16,23 +16,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "STM32F4 supports up to 2 hotends / E-steppers."
 #endif
 
 #define DEFAULT_MACHINE_NAME "STM32F446VET6"
-#define BOARD_NAME           "STM32F4 VAkE"
+#define BOARD_INFO_NAME      "STM32F4 VAkE"
 
 //#define I2C_EEPROM
-
-#define E2END 0xFFF                               // EEPROM end address (4kB)
+#define MARLIN_EEPROM_SIZE                0x1000  // 4KB
 
 //
 // Servos
@@ -135,7 +134,9 @@
 #define FAN1_PIN                            PB5   // PA0
 #define FAN2_PIN                            PB4   // PA1
 
-#define ORIG_E0_AUTO_FAN_PIN                PD13  // Use this by NOT overriding E0_AUTO_FAN_PIN
+#ifndef E0_AUTO_FAN_PIN
+  #define E0_AUTO_FAN_PIN                   PD13
+#endif
 
 //
 // Misc. Functions
@@ -146,7 +147,7 @@
 //#define NEOPIXEL_PIN                      PF13
 
 //
-// Prusa i3 MK2 Multi Material Multiplexer Support
+// Průša i3 MK2 Multi Material Multiplexer Support
 //
 //#define E_MUX0_PIN                        PG3
 //#define E_MUX1_PIN                        PG4
@@ -164,7 +165,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(SDSUPPORT)
     #define SDSS                            PB6   // CS for SD card in LCD
   #endif
@@ -183,12 +184,12 @@
 //
 // ST7920 Delays
 //
-#ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1            DELAY_NS(96)
+#ifndef BOARD_ST7920_DELAY_1
+  #define BOARD_ST7920_DELAY_1      DELAY_NS(96)
 #endif
-#ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2            DELAY_NS(48)
+#ifndef BOARD_ST7920_DELAY_2
+  #define BOARD_ST7920_DELAY_2      DELAY_NS(48)
 #endif
-#ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3           DELAY_NS(715)
+#ifndef BOARD_ST7920_DELAY_3
+  #define BOARD_ST7920_DELAY_3     DELAY_NS(715)
 #endif

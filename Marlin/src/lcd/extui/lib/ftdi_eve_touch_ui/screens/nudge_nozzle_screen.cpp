@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -33,7 +33,7 @@ using namespace ExtUI;
 
 void NudgeNozzleScreen::onEntry() {
   screen_data.NudgeNozzleScreen.show_offsets = false;
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     screen_data.NudgeNozzleScreen.link_nozzles = true;
   #endif
   screen_data.NudgeNozzleScreen.rel.reset();
@@ -52,11 +52,11 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   #endif
   w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
   w.increments();
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
-  #if EXTRUDERS > 1 || HAS_BED_PROBE
+  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
     w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
@@ -72,7 +72,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
         w.text_field(0, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), str);
       #endif
 
-      #if HOTENDS > 1
+      #if HAS_MULTI_HOTEND
         format_position(str, getNozzleOffset_mm(X, E1), getNozzleOffset_mm(Y, E1), getNozzleOffset_mm(Z, E1));
         w.text_field(0, GET_TEXT_F(MSG_OFFSETS_MENU), str);
       #endif
@@ -82,7 +82,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
 
 bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
   const float inc = getIncrement();
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     const bool link = screen_data.NudgeNozzleScreen.link_nozzles;
   #else
     constexpr bool link = true;
@@ -95,13 +95,13 @@ bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
     case 5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzleScreen.rel.y += steps; break;
     case 6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzleScreen.rel.z -= steps; break;
     case 7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzleScreen.rel.z += steps; break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
       case 8: screen_data.NudgeNozzleScreen.link_nozzles = !link; break;
     #endif
     case 9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
     default: return false;
   }
-  #if EXTRUDERS > 1 || HAS_BED_PROBE
+  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
     SaveSettingsDialogBox::settingsChanged();
   #endif
   return true;

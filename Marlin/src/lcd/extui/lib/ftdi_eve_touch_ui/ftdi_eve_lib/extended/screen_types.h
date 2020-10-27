@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -144,8 +144,8 @@ class UIScreen {
     static bool onTouchEnd(uint8_t)    {return true;}
 };
 
-#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw);
-#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw);
+#define PUSH_SCREEN(screen)   current_screen.push(screen::onRedraw)
+#define GOTO_SCREEN(screen)   current_screen.goTo(screen::onRedraw)
 #define GOTO_PREVIOUS()       current_screen.goBack();
 #define AT_SCREEN(screen)     (current_screen.getType() == current_screen.lookupScreen(screen::onRedraw))
 #define IS_PARENT_SCREEN(screen) (current_screen.peek() == current_screen.lookupScreen(screen::onRedraw))
@@ -173,10 +173,21 @@ class UncachedScreen {
 template<uint8_t DL_SLOT,uint32_t DL_SIZE = 0>
 class CachedScreen {
   protected:
+    static void gfxError() {
+      using namespace FTDI;
+      CommandProcessor cmd;
+      cmd.cmd(CMD_DLSTART)
+         .cmd(CLEAR(true,true,true))
+         .font(30)
+         .text(0, 0, display_width, display_height, F("GFX MEM FULL"));
+    }
+
     static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
         SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
+        gfxError(); // Try to cache a shorter error message instead.
+        dlcache.store(DL_SIZE);
         return false;
       }
       return true;
@@ -209,7 +220,8 @@ class CachedScreen {
 
       if (dlcache.has_data()) {
         dlcache.append();
-      } else {
+      }
+      else {
         #ifdef TOUCH_UI_USE_UTF8
           load_utf8_bitmaps(cmd);
         #endif

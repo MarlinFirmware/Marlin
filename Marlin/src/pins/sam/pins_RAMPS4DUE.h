@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,11 +39,12 @@
  *       A15 | NC
  */
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME "RAMPS4DUE"
+
 #define IS_RAMPS4DUE
 
 //

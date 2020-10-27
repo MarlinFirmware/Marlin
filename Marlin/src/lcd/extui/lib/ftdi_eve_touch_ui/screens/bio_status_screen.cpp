@@ -18,7 +18,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -29,7 +29,9 @@
 
 #include "../ftdi_eve_lib/extras/poly_ui.h"
 
-#ifdef TOUCH_UI_PORTRAIT
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  #include "cocoa_press_ui.h"
+#elif ENABLED(TOUCH_UI_PORTRAIT)
   #include "bio_printer_ui_portrait.h"
 #else
   #include "bio_printer_ui_landscape.h"
@@ -100,7 +102,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       // heating zones, but has no bed temperature
 
       cmd.cmd(COLOR_RGB(bg_text_enabled));
-      cmd.font(font_medium);
+      cmd.font(font_xsmall);
 
       ui.bounds(POLY(h0_label), x, y, h, v);
       cmd.text(x, y, h, v, GET_TEXT_F(MSG_ZONE_1));
@@ -198,16 +200,14 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
 
 void StatusScreen::draw_syringe(draw_mode_t what) {
   int16_t x, y, h, v;
-  #ifdef E_MAX_POS
-    const float fill_level = 1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_MAX_POS));
-  #else
-    const float fill_level = 0.75;
-  #endif
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
+  const float fill_level = (
+    #ifdef E_MAX_POS
+      1.0 - min(1.0, max(0.0, getAxisPosition_mm(E0) / E_MAX_POS))
+    #else
+      0.75
     #endif
   );
+  const bool e_homed = TERN0(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0));
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -223,7 +223,7 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
     ui.color(syringe_rgb);
     ui.fill(POLY(syringe_outline));
 
-    ui.color(fill_rgb);
+    ui.color(fluid_rgb);
     ui.bounds(POLY(syringe_fluid), x, y, h, v);
     cmd.cmd(SAVE_CONTEXT());
     cmd.cmd(SCISSOR_XY(x,y + v * (1.0 - fill_level)));
@@ -237,12 +237,8 @@ void StatusScreen::draw_syringe(draw_mode_t what) {
 }
 
 void StatusScreen::draw_arrows(draw_mode_t what) {
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
-    #endif
-  );
-  const bool z_homed = isAxisPositionKnown(Z);
+  const bool e_homed = TERN1(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0)),
+             z_homed = isAxisPositionKnown(Z);
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
@@ -251,23 +247,25 @@ void StatusScreen::draw_arrows(draw_mode_t what) {
   ui.button_stroke(stroke_rgb, 28);
   ui.button_shadow(shadow_rgb, shadow_depth);
 
+  constexpr uint8_t style = TERN(TOUCH_UI_COCOA_PRESS, PolyUI::FILL | PolyUI::SHADOW, PolyUI::REGULAR);
+
   if ((what & BACKGROUND) || jog_xy) {
-    ui.button(1, POLY(x_neg));
-    ui.button(2, POLY(x_pos));
-    ui.button(3, POLY(y_neg));
-    ui.button(4, POLY(y_pos));
+    ui.button(1, POLY(x_neg), style);
+    ui.button(2, POLY(x_pos), style);
+    ui.button(3, POLY(y_neg), style);
+    ui.button(4, POLY(y_pos), style);
   }
 
   if ((what & BACKGROUND) || z_homed) {
-    ui.button(5, POLY(z_neg));
-    ui.button(6, POLY(z_pos));
+    ui.button(5, POLY(z_neg), style);
+    ui.button(6, POLY(z_pos), style);
   }
 
   if ((what & BACKGROUND) || e_homed) {
     #if DISABLED(TOUCH_UI_COCOA_PRESS)
-      ui.button(7, POLY(e_neg));
+      ui.button(7, POLY(e_neg), style);
     #endif
-    ui.button(8, POLY(e_pos));
+    ui.button(8, POLY(e_pos), style);
   }
 }
 
@@ -299,24 +297,21 @@ void StatusScreen::draw_fine_motion(draw_mode_t what) {
 }
 
 void StatusScreen::draw_overlay_icons(draw_mode_t what) {
-  const bool e_homed = (true
-    #if ENABLED(TOUCH_UI_LULZBOT_BIO)
-      && isAxisPositionKnown(E0)
-    #endif
-  );
-  const bool z_homed = isAxisPositionKnown(Z);
+  const bool e_homed = TERN1(TOUCH_UI_LULZBOT_BIO, isAxisPositionKnown(E0)),
+             z_homed = isAxisPositionKnown(Z);
 
   CommandProcessor cmd;
   PolyUI ui(cmd, what);
 
   if (what & FOREGROUND) {
-    ui.button_fill  (fill_rgb);
+    ui.button_fill  (TERN(TOUCH_UI_COCOA_PRESS, stroke_rgb, fill_rgb));
     ui.button_stroke(stroke_rgb, 28);
     ui.button_shadow(shadow_rgb, shadow_depth);
 
-    if (!jog_xy)  ui.button(12, POLY(padlock));
-    if (!e_homed) ui.button(13, POLY(home_e));
-    if (!z_homed) ui.button(14, POLY(home_z));
+    constexpr uint8_t style = TERN(TOUCH_UI_COCOA_PRESS, PolyUI::FILL | PolyUI::SHADOW, PolyUI::REGULAR);
+    if (!jog_xy)  ui.button(12, POLY(padlock), style);
+    if (!e_homed) ui.button(13, POLY(home_e), style);
+    if (!z_homed) ui.button(14, POLY(home_z), style);
   }
 }
 

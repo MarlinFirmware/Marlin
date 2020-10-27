@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && HAS_TRINAMIC_CONFIG
+#if BOTH(TOUCH_UI_FTDI_EVE, HAS_TRINAMIC_CONFIG)
 
 #include "screens.h"
 
@@ -35,20 +35,41 @@ void StepperCurrentScreen::onRedraw(draw_mode_t what) {
   w.precision(0);
   w.units(GET_TEXT_F(MSG_UNITS_MILLIAMP));
   w.heading(                     GET_TEXT_F(MSG_TMC_CURRENT));
-  w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisCurrent_mA(X) );
-  w.color(y_axis)  .adjuster( 4, GET_TEXT_F(MSG_AXIS_Y),  getAxisCurrent_mA(Y) );
-  w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) );
-  #if EXTRUDERS == 1
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E),  getAxisCurrent_mA(E0) );
-  #elif EXTRUDERS > 1
-    w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AXIS_E1), getAxisCurrent_mA(E0) );
-    w.color(e_axis).adjuster(10, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1) );
-    #if EXTRUDERS > 2
-    w.color(e_axis).adjuster(12, GET_TEXT_F(MSG_AXIS_E3), getAxisCurrent_mA(E2) );
+  #if AXIS_IS_TMC(X)
+    w.color(x_axis)  .adjuster( 2, GET_TEXT_F(MSG_AXIS_X),  getAxisCurrent_mA(X) );
+  #endif
+  #if AXIS_IS_TMC(X2)
+    w.color(x_axis)  .adjuster( 4, GET_TEXT_F(MSG_AXIS_X2),  getAxisCurrent_mA(X2) );
+  #endif
+  #if AXIS_IS_TMC(Y)
+    w.color(y_axis)  .adjuster( 6, GET_TEXT_F(MSG_AXIS_Y),  getAxisCurrent_mA(Y) );
+  #endif
+  #if AXIS_IS_TMC(Y2)
+    w.color(x_axis)  .adjuster( 8, GET_TEXT_F(MSG_AXIS_Y2),  getAxisCurrent_mA(Y2) );
+  #endif
+  #if AXIS_IS_TMC(Z)
+    w.color(z_axis)  .adjuster(10, GET_TEXT_F(MSG_AXIS_Z),  getAxisCurrent_mA(Z) );
+  #endif
+  #if AXIS_IS_TMC(Z2)
+    w.color(z_axis)  .adjuster(12, GET_TEXT_F(MSG_AXIS_Z2), getAxisCurrent_mA(Z2) );
+  #endif
+  #if AXIS_IS_TMC(E0)
+    w.color(e_axis)  .adjuster(14, GET_TEXT_F(
+    #if EXTRUDERS == 1
+      MSG_AXIS_E
+    #else
+      MSG_AXIS_E1
     #endif
-    #if EXTRUDERS > 3
-    w.color(e_axis).adjuster(14, GET_TEXT_F(MSG_AXIS_E4), getAxisCurrent_mA(E3) );
-    #endif
+    ),  getAxisCurrent_mA(E0) );
+  #endif
+  #if AXIS_IS_TMC(E1)
+    w.color(e_axis).adjuster(16, GET_TEXT_F(MSG_AXIS_E2), getAxisCurrent_mA(E1) );
+  #endif
+  #if AXIS_IS_TMC(E2)
+    w.color(e_axis).adjuster(18, GET_TEXT_F(MSG_AXIS_E3), getAxisCurrent_mA(E2) );
+  #endif
+  #if AXIS_IS_TMC(E3)
+    w.color(e_axis).adjuster(20, GET_TEXT_F(MSG_AXIS_E4), getAxisCurrent_mA(E3) );
   #endif
   w.increments();
 }
@@ -56,25 +77,45 @@ void StepperCurrentScreen::onRedraw(draw_mode_t what) {
 bool StepperCurrentScreen::onTouchHeld(uint8_t tag) {
   const float increment = getIncrement();
   switch (tag) {
-    case  2: UI_DECREMENT(AxisCurrent_mA, X ); break;
-    case  3: UI_INCREMENT(AxisCurrent_mA, X ); break;
-    case  4: UI_DECREMENT(AxisCurrent_mA, Y ); break;
-    case  5: UI_INCREMENT(AxisCurrent_mA, Y ); break;
-    case  6: UI_DECREMENT(AxisCurrent_mA, Z ); break;
-    case  7: UI_INCREMENT(AxisCurrent_mA, Z ); break;
-    case  8: UI_DECREMENT(AxisCurrent_mA, E0); break;
-    case  9: UI_INCREMENT(AxisCurrent_mA, E0); break;
-    #if EXTRUDERS > 1
-    case 10: UI_DECREMENT(AxisCurrent_mA, E1); break;
-    case 11: UI_INCREMENT(AxisCurrent_mA, E1); break;
+    #if AXIS_IS_TMC(X)
+      case  2: UI_DECREMENT(AxisCurrent_mA, X ); break;
+      case  3: UI_INCREMENT(AxisCurrent_mA, X ); break;
     #endif
-    #if EXTRUDERS > 2
-    case 12: UI_DECREMENT(AxisCurrent_mA, E2); break;
-    case 13: UI_INCREMENT(AxisCurrent_mA, E2); break;
+    #if AXIS_IS_TMC(X2)
+      case  4: UI_DECREMENT(AxisCurrent_mA, X2 ); break;
+      case  5: UI_INCREMENT(AxisCurrent_mA, X2 ); break;
     #endif
-    #if EXTRUDERS > 3
-    case 14: UI_DECREMENT(AxisCurrent_mA, E3); break;
-    case 15: UI_INCREMENT(AxisCurrent_mA, E3); break;
+    #if AXIS_IS_TMC(Y)
+      case  6: UI_DECREMENT(AxisCurrent_mA, Y ); break;
+      case  7: UI_INCREMENT(AxisCurrent_mA, Y ); break;
+    #endif
+    #if AXIS_IS_TMC(Y2)
+      case  8: UI_DECREMENT(AxisCurrent_mA, Y2 ); break;
+      case  9: UI_INCREMENT(AxisCurrent_mA, Y2 ); break;
+    #endif
+    #if AXIS_IS_TMC(Z)
+      case 10: UI_DECREMENT(AxisCurrent_mA, Z ); break;
+      case 11: UI_INCREMENT(AxisCurrent_mA, Z ); break;
+    #endif
+    #if AXIS_IS_TMC(Z2)
+      case 12: UI_DECREMENT(AxisCurrent_mA, Z2 ); break;
+      case 13: UI_INCREMENT(AxisCurrent_mA, Z2 ); break;
+    #endif
+    #if AXIS_IS_TMC(E0)
+      case 14: UI_DECREMENT(AxisCurrent_mA, E0); break;
+      case 15: UI_INCREMENT(AxisCurrent_mA, E0); break;
+    #endif
+    #if AXIS_IS_TMC(E1)
+      case 16: UI_DECREMENT(AxisCurrent_mA, E1); break;
+      case 17: UI_INCREMENT(AxisCurrent_mA, E1); break;
+    #endif
+    #if AXIS_IS_TMC(E2)
+      case 18: UI_DECREMENT(AxisCurrent_mA, E2); break;
+      case 19: UI_INCREMENT(AxisCurrent_mA, E2); break;
+    #endif
+    #if AXIS_IS_TMC(E3)
+      case 20: UI_DECREMENT(AxisCurrent_mA, E3); break;
+      case 21: UI_INCREMENT(AxisCurrent_mA, E3); break;
     #endif
     default:
       return false;

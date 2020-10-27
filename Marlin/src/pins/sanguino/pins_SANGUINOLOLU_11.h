@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,6 @@
  * 1) added pointer to a current Arduino IDE extension
  * 2) added support for M3, M4 & M5 spindle control commands
  * 3) added case light pin definition
- *
  */
 
 /**
@@ -49,10 +48,9 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
@@ -138,7 +136,7 @@
   #define LCD_BACKLIGHT_PIN                   17  // LCD backlight LED
 #endif
 
-#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)// try to use IO Header
+#if NONE(SPINDLE_FEATURE, LASER_FEATURE) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
   #define CASE_LIGHT_PIN                       4  // Hardware PWM  - see if IO Header is available
 #endif
 
@@ -154,11 +152,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define SD_DETECT_PIN                       -1
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #if ENABLED(LCD_FOR_MELZI)
 
@@ -166,9 +164,15 @@
       #define LCD_PINS_ENABLE                 16
       #define LCD_PINS_D4                     11
 
-      #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-      #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+      #ifndef BOARD_ST7920_DELAY_1
+        #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_2
+        #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+      #endif
+      #ifndef BOARD_ST7920_DELAY_3
+        #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+      #endif
 
     #elif ENABLED(U8GLIB_ST7920)                  // SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
@@ -180,6 +184,19 @@
         // Marlin so this can be used for BEEPER_PIN. You can use this pin
         // with M42 instead of BEEPER_PIN.
         #define BEEPER_PIN                    27
+
+        #if IS_RRD_FG_SC
+          #ifndef BOARD_ST7920_DELAY_1
+            #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+          #endif
+          #ifndef BOARD_ST7920_DELAY_2
+            #define BOARD_ST7920_DELAY_2 DELAY_NS(188)
+          #endif
+          #ifndef BOARD_ST7920_DELAY_3
+            #define BOARD_ST7920_DELAY_3 DELAY_NS(0)
+          #endif
+        #endif
+
       #else                                       // Sanguinololu >=1.3
         #define LCD_PINS_RS                    4
         #define LCD_PINS_ENABLE               17
@@ -266,18 +283,18 @@
 
   #endif
 
-  #if ENABLED(NEWPANEL) && !defined(BTN_EN1)
+  #if IS_NEWPANEL && !defined(BTN_EN1)
     #define BTN_EN1                           11
     #define BTN_EN2                           10
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER
-  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(ULTRA_LCD, NEWPANEL)// try to use IO Header
+  #if !MB(AZTEEG_X1) && ENABLED(SANGUINOLOLU_V_1_2) && !BOTH(IS_ULTRA_LCD, IS_NEWPANEL) // try to use IO Header
 
     #define SPINDLE_LASER_ENA_PIN             10  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM

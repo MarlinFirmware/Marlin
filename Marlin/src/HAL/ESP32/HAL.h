@@ -14,12 +14,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
 /**
- * Description: HAL for Espressif ESP32 WiFi
+ * HAL for Espressif ESP32 WiFi
  */
 
 #define CPU_32_BIT
@@ -33,8 +34,6 @@
 #include "fastio.h"
 #include "watchdog.h"
 #include "i2s.h"
-
-#include "timers.h"
 
 #if ENABLED(WIFISUPPORT)
   #include "WebSocketSerial.h"
@@ -60,9 +59,6 @@ extern portMUX_TYPE spinlock;
   #else
     #define MYSERIAL1 webSocketSerial
   #endif
-  #define NUM_SERIAL 2
-#else
-  #define NUM_SERIAL 1
 #endif
 
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
@@ -100,6 +96,8 @@ void HAL_clear_reset_source();
 // reset reason
 uint8_t HAL_get_reset_source();
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 void _delay_ms(int delay);
 
 #pragma GCC diagnostic push
@@ -109,19 +107,14 @@ int freeMemory();
 
 void analogWrite(pin_t pin, int value);
 
-// EEPROM
-void eeprom_write_byte(uint8_t *pos, unsigned char value);
-uint8_t eeprom_read_byte(uint8_t *pos);
-void eeprom_read_block (void *__dst, const void *__src, size_t __n);
-void eeprom_update_block (const void *__src, void *__dst, size_t __n);
-
 // ADC
 #define HAL_ANALOG_SELECT(pin)
 
 void HAL_adc_init();
 
-#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_ADC_VREF         3.3
 #define HAL_ADC_RESOLUTION  10
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
 #define HAL_READ_ADC()      HAL_adc_result
 #define HAL_ADC_READY()     true
 
@@ -164,14 +157,14 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
   if (stop >= start) {
     // no overflow, so only loop while in between start and stop:
-    // 0x00000000 -----------------start****stop-- 0xffffffff
+    // 0x00000000 -----------------start****stop-- 0xFFFFFFFF
     while (ccount >= start && ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }
   }
   else {
     // stop did overflow, so only loop while outside of stop and start:
-    // 0x00000000 **stop-------------------start** 0xffffffff
+    // 0x00000000 **stop-------------------start** 0xFFFFFFFF
     while (ccount >= start || ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }

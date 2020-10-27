@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -57,21 +57,22 @@ void safe_delay(millis_t ms) {
 
   void log_machine_info() {
     SERIAL_ECHOLNPGM("Machine Type: "
-      TERN(DELTA, "Delta", "")
-      TERN(IS_SCARA, "SCARA", "")
-      TERN(IS_CORE, "Core", "")
-      TERN(IS_CARTESIAN, "Cartesian", "")
+      TERN_(DELTA,         "Delta")
+      TERN_(IS_SCARA,      "SCARA")
+      TERN_(IS_CORE,       "Core")
+      TERN_(MARKFORGED_XY, "MarkForged")
+      TERN_(IS_CARTESIAN,  "Cartesian")
     );
 
     SERIAL_ECHOLNPGM("Probe: "
-      TERN(PROBE_MANUALLY, "PROBE_MANUALLY", "")
-      TERN(NOZZLE_AS_PROBE, "NOZZLE_AS_PROBE", "")
-      TERN(FIX_MOUNTED_PROBE, "FIX_MOUNTED_PROBE", "")
-      TERN(HAS_Z_SERVO_PROBE, TERN(BLTOUCH, "BLTOUCH", "SERVO PROBE"), "")
-      TERN(TOUCH_MI_PROBE, "TOUCH_MI_PROBE", "")
-      TERN(Z_PROBE_SLED, "Z_PROBE_SLED", "")
-      TERN(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY", "")
-      TERN(SOLENOID_PROBE, "SOLENOID_PROBE", "")
+      TERN_(PROBE_MANUALLY, "PROBE_MANUALLY")
+      TERN_(NOZZLE_AS_PROBE, "NOZZLE_AS_PROBE")
+      TERN_(FIX_MOUNTED_PROBE, "FIX_MOUNTED_PROBE")
+      TERN_(HAS_Z_SERVO_PROBE, TERN(BLTOUCH, "BLTOUCH", "SERVO PROBE"))
+      TERN_(TOUCH_MI_PROBE, "TOUCH_MI_PROBE")
+      TERN_(Z_PROBE_SLED, "Z_PROBE_SLED")
+      TERN_(Z_PROBE_ALLEN_KEY, "Z_PROBE_ALLEN_KEY")
+      TERN_(SOLENOID_PROBE, "SOLENOID_PROBE")
       TERN(PROBE_SELECTED, "", "NONE")
     );
 
@@ -108,10 +109,10 @@ void safe_delay(millis_t ms) {
 
     #if HAS_ABL_OR_UBL
       SERIAL_ECHOPGM("Auto Bed Leveling: "
-        TERN(AUTO_BED_LEVELING_LINEAR, "LINEAR", "")
-        TERN(AUTO_BED_LEVELING_BILINEAR, "BILINEAR", "")
-        TERN(AUTO_BED_LEVELING_3POINT, "3POINT", "")
-        TERN(AUTO_BED_LEVELING_UBL, "UBL", "")
+        TERN_(AUTO_BED_LEVELING_LINEAR, "LINEAR")
+        TERN_(AUTO_BED_LEVELING_BILINEAR, "BILINEAR")
+        TERN_(AUTO_BED_LEVELING_3POINT, "3POINT")
+        TERN_(AUTO_BED_LEVELING_UBL, "UBL")
       );
 
       if (planner.leveling_active) {
@@ -123,10 +124,10 @@ void safe_delay(millis_t ms) {
         #if ABL_PLANAR
           SERIAL_ECHOPGM("ABL Adjustment X");
           LOOP_XYZ(a) {
-            float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
+            const float v = planner.get_axis_position_mm(AxisEnum(a)) - current_position[a];
             SERIAL_CHAR(' ', XYZ_CHAR(a));
             if (v > 0) SERIAL_CHAR('+');
-            SERIAL_ECHO(v);
+            SERIAL_DECIMAL(v);
           }
         #else
           #if ENABLED(AUTO_BED_LEVELING_UBL)

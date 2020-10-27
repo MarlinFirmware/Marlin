@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,8 +25,7 @@
  * Catalan
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 namespace Language_ca {
   using namespace Language_en; // Inherit undefined strings from English
@@ -54,23 +53,25 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Ajusta decalatge");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Decalatge aplicat");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Estableix origen");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Llit");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Conf.");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Preescalfa ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Preescalfa ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" End ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Llit");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Preheat ") PREHEAT_2_LABEL _UxGT(" Conf.");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preescalfa ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preescalfa ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" End ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Tot");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Llit");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Preescalfa ") PREHEAT_1_LABEL _UxGT(" Conf.");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Preescalfa $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Preescalfa $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Preescalfa $ End");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Preescalfa $ End ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Preescalfa $ Tot");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Preescalfa $ Llit");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Preescalfa $ Conf.");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Refreda");
-  PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Switch power on");
-  PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Switch power off");
+
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrudeix");
   PROGMEM Language_Str MSG_RETRACT                         = _UxGT("Retreu");
   PROGMEM Language_Str MSG_MOVE_AXIS                       = _UxGT("Mou eixos");
@@ -98,11 +99,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Flux");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Flux ~");
   PROGMEM Language_Str MSG_VTRAV_MIN                       = _UxGT("VViatge min");
-  PROGMEM Language_Str MSG_AMAX_A                          = _UxGT("Accel. max ") LCD_STR_A;
-  PROGMEM Language_Str MSG_AMAX_B                          = _UxGT("Accel. max ") LCD_STR_B;
-  PROGMEM Language_Str MSG_AMAX_C                          = _UxGT("Accel. max ") LCD_STR_C;
-  PROGMEM Language_Str MSG_AMAX_E                          = _UxGT("Accel. max ") LCD_STR_E;
-  PROGMEM Language_Str MSG_AMAX_EN                         = _UxGT("Accel. max *");
+
   PROGMEM Language_Str MSG_A_RETRACT                       = _UxGT("Accel. retracc");
   PROGMEM Language_Str MSG_A_TRAVEL                        = _UxGT("Accel. Viatge");
   PROGMEM Language_Str MSG_STEPS_PER_MM                    = _UxGT("Passos/mm");
@@ -161,7 +158,6 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("THERMAL RUNAWAY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: TEMP MAXIMA");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: TEMP MINIMA");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY primer");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PARADA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reinicieu");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -204,14 +200,10 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Font alimentacio");
 
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Força motor");
-  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
-  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
-  PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("DAC EEPROM Write");
+
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Repren impressió");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora incorrecta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora incorrecta");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

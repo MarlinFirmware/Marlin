@@ -14,10 +14,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
 #ifdef __PLAT_LINUX__
 
 extern void setup();
@@ -108,7 +107,7 @@ int main() {
   std::thread write_serial (write_serial_thread);
   std::thread read_serial (read_serial_thread);
 
-  #if NUM_SERIAL > 0
+  #ifdef MYSERIAL0
     MYSERIAL0.begin(BAUDRATE);
     SERIAL_ECHOLNPGM("x86_64 Initialized");
     SERIAL_FLUSHTX();

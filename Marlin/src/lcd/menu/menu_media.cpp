@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,9 +26,9 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(SDSUPPORT)
+#if BOTH(HAS_LCD_MENU, SDSUPPORT)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../sd/cardreader.h"
 
 void lcd_sd_updir() {
@@ -47,13 +47,9 @@ void lcd_sd_updir() {
     if (sd_encoder_position == 0xFFFF) return;
     goto_screen(menu_media, sd_encoder_position, sd_top_line, sd_items);
     sd_encoder_position = 0xFFFF;
-
     defer_status_screen();
-
-    //#if HAS_GRAPHICAL_LCD
-    //  update();
-    //#endif
   }
+
 #endif
 
 inline void sdcard_start_selected_file() {
@@ -103,9 +99,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
       encoderTopLine = 0;
       ui.encoderPosition = 2 * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
-      #if HAS_GRAPHICAL_LCD
-        ui.drawing_screen = false;
-      #endif
+      TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
       ui.refresh();
     }
 };
@@ -113,7 +107,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
 void menu_media() {
   ui.encoder_direction_menus();
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     static uint16_t fileCnt;
     if (ui.first_page) fileCnt = card.get_num_Files();
   #else
@@ -132,22 +126,14 @@ void menu_media() {
 
   if (ui.should_draw()) for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuLineNr == _thisItemNr) {
-      const uint16_t nr =
-        #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
-          fileCnt - 1 -
-        #endif
-      i;
-
-      card.getfilename_sorted(nr);
-
+      card.getfilename_sorted(SD_ORDER(i, fileCnt));
       if (card.flag.filenameIsDir)
         MENU_ITEM(sdfolder, MSG_MEDIA_MENU, card);
       else
         MENU_ITEM(sdfile, MSG_MEDIA_MENU, card);
     }
-    else {
+    else
       SKIP_ITEM();
-    }
   }
   END_MENU();
 }

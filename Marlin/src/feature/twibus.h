@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -46,9 +46,8 @@ typedef void (*twiRequestFunc_t)();
  * for the host to interpret.
  *
  *  For more information see
- *    - http://marlinfw.org/docs/gcode/M260.html
- *    - http://marlinfw.org/docs/gcode/M261.html
- *
+ *    - https://marlinfw.org/docs/gcode/M260.html
+ *    - https://marlinfw.org/docs/gcode/M261.html
  */
 class TWIBus {
   private:
