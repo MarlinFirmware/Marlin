@@ -11,40 +11,47 @@ assignees: ''
 
 Please follow the instructions below. Failure to do so may result in your issue being closed.
 
-Instructions:
+### Before Reporting a Bug
+
+1. Test with the `bugfix-2.0.x` branch to see whether the issue still exists.
+
+2. Get troubleshooting help from the Marlin community to confirm it's a bug and not just a configuration error. Links at https://github.com/MarlinFirmware/Marlin/issues/new/choose
+
+### Instructions
 
 1. Fill out every section of the template below.
 
-2. Always attach configuration files, even if you think they are not needed.
+2. Always attach configuration files, regardless of whether you think they are involved.
 
-3. Only proceed if actually reporting a bug. If you need support help please refer to one of the support links at https://github.com/MarlinFirmware/Marlin/issues/new/choose
-
-4. Test with the bugfix-2.0.x branch prior to reporting an issue.
-
-5. Read and understand Marlin's Code of Conduct. By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
+3. Read and understand Marlin's Code of Conduct. By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
 
 -->
 
 ### Bug Description
 
-<!-- Description of the bug -->
+<!-- Describe the bug in this section. (You can remove this invisible comment.) -->
 
-### My Configurations
+### Configuration Files
 
-**Required:** Please include a ZIP file containing `Configuration.h`, `Configuration_adv.h`.
-Other frequently modified files include `platformio.ini` and board pins files.
+**Required:** Include a ZIP file containing `Configuration.h` and `Configuration_adv.h`.
+
+If you've made any other modifications describe them in detail here.
 
 ### Steps to Reproduce
 
-<!-- Please describe the steps needed to reproduce the issue -->
+<!-- Describe the steps needed to reproduce the issue. (You can remove this invisible comment.) -->
 
 1. [First Step]
 2. [Second Step]
 3. [and so on...]
 
-**Expected behavior:** [What you expect to happen]
+**Expected behavior:**
 
-**Actual behavior:** [What actually happens]
+<!-- Describe what you expected to happen here. (You can remove this invisible comment.) -->
+
+**Actual behavior:**
+
+<!-- Describe what actually happens here. (You can remove this invisible comment.) -->
 
 #### Additional Information
 
