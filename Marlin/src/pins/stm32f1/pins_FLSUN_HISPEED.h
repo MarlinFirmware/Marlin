@@ -109,6 +109,15 @@
 //
 // Drivers
 //
+/*
+ * For TMC220x in UART mode and serial use,
+ * add #define SOFTWARE_SERIAL in you Configuration.h
+ * For TMC220x in UART mode and hardware use, 
+ * add #define HARDWARE_SERIAL in you Configuration.h 
+ * and position the jumpers in this way.
+ * |= close
+ * := open
+ */
 #if HAS_TMC220x
 
   #if ENABLED(HARDWARE_SERIAL)  /*  TMC2209 */
