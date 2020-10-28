@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#if HAS_PRUSA_MMU2
 
 #include "mmu2.h"
 #include "../../lcd/menu/menu_mmu2.h"
@@ -162,7 +162,7 @@ uint8_t MMU2::get_current_tool() {
   return extruder == MMU2_NO_TOOL ? -1 : extruder;
 }
 
-#if HAS_PRUSA_MMU2S || ENABLED(MMU_EXTRUDER_SENSOR)
+#if EITHER(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR)
   #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE)
 #endif
 
@@ -681,7 +681,7 @@ static void mmu2_not_responding() {
     mmu_idl_sens = 0;
   }
 
-#else // !HAS_PRUSA_MMU2S && DISABLED(MMU_EXTRUDER_SENSOR)
+#else // !HAS_PRUSA_MMU2S && !MMU_EXTRUDER_SENSOR
 
   /**
    * Handle tool change
@@ -1064,4 +1064,4 @@ void MMU2::filament_runout() {
 
 #endif // HAS_LCD_MENU && MMU2_MENUS
 
-#endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#endif // HAS_PRUSA_MMU2

@@ -511,6 +511,7 @@
   #elif MMU_MODEL % 10 == PRUSA_MMU2
     #define HAS_PRUSA_MMU2 1
   #elif MMU_MODEL % 10 == PRUSA_MMU2S
+    #define HAS_PRUSA_MMU2 1
     #define HAS_PRUSA_MMU2S 1
   #endif
   #if MMU_MODEL >= SMUFF_EMU_MMU2
@@ -566,7 +567,7 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#elif HAS_PRUSA_MMU2
   #define E_STEPPERS 1
 #endif
 

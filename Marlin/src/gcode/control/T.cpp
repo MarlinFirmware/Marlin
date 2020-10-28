@@ -27,7 +27,7 @@
   #include "../../module/motion.h"
 #endif
 
-#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#if HAS_PRUSA_MMU2
   #include "../../feature/mmu/mmu2.h"
 #endif
 
@@ -54,7 +54,7 @@ void GcodeSuite::T(const int8_t tool_index) {
   // Count this command as movement / activity
   reset_stepper_timeout();
 
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2
     if (parser.string_arg) {
       mmu2.tool_change(parser.string_arg);   // Special commands T?/Tx/Tc
       return;

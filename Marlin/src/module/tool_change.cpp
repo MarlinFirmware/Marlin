@@ -87,7 +87,7 @@
 
 #if HAS_PRUSA_MMU1
   #include "../feature/mmu/mmu.h"
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#elif HAS_PRUSA_MMU2
   #include "../feature/mmu/mmu2.h"
 #endif
 
@@ -861,7 +861,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       mixer.T(new_tool);
     #endif
 
-  #elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
 

@@ -735,7 +735,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2
     static void M403();
   #endif
 

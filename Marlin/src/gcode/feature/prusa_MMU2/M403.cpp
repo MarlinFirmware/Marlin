@@ -22,7 +22,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#if HAS_PRUSA_MMU2
 
 #include "../../gcode.h"
 #include "../../../feature/mmu/mmu2.h"
@@ -46,4 +46,4 @@ void GcodeSuite::M403() {
     SERIAL_ECHO_MSG("M403 - bad arguments.");
 }
 
-#endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#endif // HAS_PRUSA_MMU2

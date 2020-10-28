@@ -2963,7 +2963,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  */
 #if HAS_SMUFF && EXTRUDERS > 15
   #error "Too many extruders for SMUFF_EMU_MMU2(S). (15 maximum)."
-#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#elif HAS_PRUSA_MMU2
   #if EXTRUDERS != 5
     #error "PRUSA_MMU2 / PRUSA_MMU2S requires EXTRUDERS = 5."
   #elif DISABLED(NOZZLE_PARK_FEATURE)

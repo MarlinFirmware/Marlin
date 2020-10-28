@@ -213,7 +213,7 @@
   #include "feature/controllerfan.h"
 #endif
 
-#if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+#if HAS_PRUSA_MMU2
   #include "feature/mmu/mmu2.h"
 #endif
 
@@ -772,7 +772,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #endif
 
   // Update the Průša MMU2
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2
     mmu2.mmu_loop();
   #endif
 
@@ -1262,7 +1262,7 @@ void setup() {
     SETUP_RUN(test_tmc_connection(true, true, true, true));
   #endif
 
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
 

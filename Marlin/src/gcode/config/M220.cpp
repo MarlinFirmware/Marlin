@@ -37,7 +37,7 @@
  */
 void GcodeSuite::M220() {
 
-  #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2
     static int16_t backup_feedrate_percentage = 100;
     if (parser.seen('B')) backup_feedrate_percentage = feedrate_percentage;
     if (parser.seen('R')) feedrate_percentage = backup_feedrate_percentage;
