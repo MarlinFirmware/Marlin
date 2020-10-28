@@ -501,19 +501,19 @@
 #define PRUSA_MMU1      1
 #define PRUSA_MMU2      2
 #define PRUSA_MMU2S     3
-#define SMUFF_EMU_MMU2  4
-#define SMUFF_EMU_MMU2S 5
+#define SMUFF_EMU_MMU2  12
+#define SMUFF_EMU_MMU2S 13
 
 #ifdef MMU_MODEL
   #define HAS_MMU 1
   #if MMU_MODEL == PRUSA_MMU1
     #define HAS_PRUSA_MMU1 1
-  #elif MMU_MODEL == PRUSA_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2
+  #elif MMU_MODEL % 10 == PRUSA_MMU2
     #define HAS_PRUSA_MMU2 1
-  #elif MMU_MODEL == PRUSA_MMU2S || MMU_MODEL == SMUFF_EMU_MMU2S
+  #elif MMU_MODEL % 10 == PRUSA_MMU2S
     #define HAS_PRUSA_MMU2S 1
   #endif
-  #if MMU_MODEL == SMUFF_EMU_MMU2 || MMU_MODEL == SMUFF_EMU_MMU2S
+  #if MMU_MODEL >= SMUFF_EMU_MMU2
     #define HAS_SMUFF 1
   #endif
 #endif

@@ -3506,15 +3506,16 @@
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
 #endif
 
-#if MMU_MODEL == PRUSA_MMU1
+/**
+ * Průša Multi-Material Unit (MMU) multiplexer
+ * Enable in Configuration.h
+ *
+ * These devices allow a single stepper driver on the board to drive
+ * two to eight stepper motors, one at a time, in a manner suitable
+ * for extruders.
+ */
+#if HAS_PRUSA_MMU1
   /**
-   * Průša Multi-Material-Unit multiplexed
-   * Enable in Configuration.h
-   *
-   * This device allows one stepper driver on a control board to drive
-   * two to eight stepper motors, one at a time, in a manner suitable
-   * for extruders.
-   *
    * This option only allows the multiplexer to switch on tool-change.
    * Additional options to configure custom E moves are pending.
    *
@@ -3524,12 +3525,7 @@
   //#define E_MUX0_PIN 40  // Always Required
   //#define E_MUX1_PIN 42  // Needed for 3 to 8 inputs
   //#define E_MUX2_PIN 44  // Needed for 5 to 8 inputs
-#elif MMU_MODEL == PRUSA_MMU2 || MMU_MODEL == PRUSA_MMU2S
-  /**
-   * Průša Multi-Material-Unit v2
-   * Enable in Configuration.h
-   */
-
+#elif HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
   // Serial port used for communication with MMU2.
   // For AVR enable the UART port used for the MMU. (e.g., mmuSerial)
   // For 32-bit boards check your HAL for available serial ports. (e.g., Serial2)
@@ -3577,7 +3573,7 @@
    * This mode requires a MK3S extruder with a sensor at the extruder idler, like the MMU2S.
    * See https://help.prusa3d.com/en/guide/3b-mk3s-mk2-5s-extruder-upgrade_41560, step 11
    */
-  #if MMU_MODEL == PRUSA_MMU2S
+  #if HAS_PRUSA_MMU2S
     #define MMU2_C0_RETRY   5             // Number of retries (total time = timeout*retries)
 
     #define MMU2_CAN_LOAD_FEEDRATE 800    // (mm/min)
@@ -3615,7 +3611,7 @@
 
   //#define MMU2_DEBUG  // Write debug info to serial output
 
-#endif // MMU_MODEL == PRUSA_MMU2 || MMU_MODEL == PRUSA_MMU2S
+#endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU2S
 
 /**
  * Advanced Print Counter settings
