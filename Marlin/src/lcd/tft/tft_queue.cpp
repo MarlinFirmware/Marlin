@@ -208,13 +208,13 @@ void TFT_Queue::set_background(uint16_t color) {
 }
 
 #define QUEUE_SAFETY_FREE_SPACE 100
+
 void TFT_Queue::handle_queue_overflow(uint16_t sizeNeeded) {
-  if(((uint32_t)end_of_queue + sizeNeeded + QUEUE_SAFETY_FREE_SPACE) - (uint32_t)queue >= QUEUE_SIZE) {
+  if (uint32_t(end_of_queue) + sizeNeeded + (QUEUE_SAFETY_FREE_SPACE) - uint32_t(queue) >= QUEUE_SIZE) {
     end_of_queue = queue;
     ((parametersCanvasText_t *)last_parameter)->nextParameter = end_of_queue;
   }
 }
-#undef QUEUE_SAFETY_FREE_SPACE
 
 void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, uint8_t *string, uint16_t maxWidth) {
   handle_queue_overflow(sizeof(parametersCanvasText_t) + maxWidth);
