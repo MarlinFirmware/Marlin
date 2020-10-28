@@ -264,7 +264,7 @@ uint16_t SPIClass::transfer16(const uint16_t data) {
 
 void SPIClass::end() {
   // SSP_Cmd(_currentSetting->spi_d, DISABLE);  // stop device or SSP_DeInit?
-  SSP_DeInit(_currentSetting->spi_d);
+  // SSP_DeInit(_currentSetting->spi_d);
 }
 
 void SPIClass::send(uint8_t data) {
