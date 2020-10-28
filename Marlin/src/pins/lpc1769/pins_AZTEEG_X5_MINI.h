@@ -38,6 +38,9 @@
 // LED
 //
 #define LED_PIN                            P1_18
+#define LED2_PIN                           P1_20
+#define LED3_PIN                           P1_19
+#define LED4_PIN                           P1_21
 
 //
 // Servos
@@ -79,14 +82,13 @@
 #define E0_ENABLE_PIN                      P0_04
 
 //
-// DIGIPOT slave addresses
+// DIGIPOT slave addresses (7-bit unshifted)
 //
 #ifndef DIGIPOT_I2C_ADDRESS_A
-  #define DIGIPOT_I2C_ADDRESS_A             0x2C  // unshifted slave address for first DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_A             0x2C
 #endif
-
 #ifndef DIGIPOT_I2C_ADDRESS_B
-  #define DIGIPOT_I2C_ADDRESS_B             0x2E  // unshifted slave address for second DIGIPOT
+  #define DIGIPOT_I2C_ADDRESS_B             0x2E
 #endif
 
 //
