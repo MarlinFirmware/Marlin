@@ -33,6 +33,7 @@
 
 /* QQS Stock have a clone TITAN EXtruder,
 * also if you have another try this.
+* (T=397)/(B=417)/(b=141)
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
 //#define BMG                        //(B) Uncomment to change Extruder step.
@@ -42,8 +43,8 @@
 //#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
 
 /*--- Choice UI TFT ----*/
-#define TFT_CLASSIC_UI             //(F) UI STANDARD 
-//#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+//#define TFT_CLASSIC_UI             //(F) UI STANDARD 
+#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
