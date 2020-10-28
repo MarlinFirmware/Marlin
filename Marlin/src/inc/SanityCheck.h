@@ -875,6 +875,31 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Multi-Material-Unit requirements
+ */
+#if HAS_PRUSA_MMU2
+  #if EXTRUDERS != 5
+    #undef SINGLENOZZLE
+    #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "PRUSA_MMU2(S) requires NOZZLE_PARK_FEATURE. Enable it to continue."
+  #elif ENABLED(HAS_PRUSA_MMU2S) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif HAS_PRUSA_MMU2S && !HAS_LCD_MENU
+    #error "PRUSA_MMU2S requires an LCD supporting MarlinUI to be enabled."
+  #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
+    #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI to be enabled."
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / SMUFF_EMU_MMU2(S).");
+  #endif
+#endif
+#if HAS_SMUFF && EXTRUDERS > 15
+  #error "Too many extruders for SMUFF_EMU_MMU2(S). (15 maximum)."
+#endif
+
+/**
  * Options only for EXTRUDERS > 1
  */
 #if HAS_MULTI_EXTRUDER
@@ -2955,23 +2980,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PHOTO_SWITCH_MS is required with CHDK_PIN. Please update your Configuration_adv.h."
   #elif defined(PHOTO_RETRACT_MM)
     static_assert(PHOTO_RETRACT_MM + 0 >= 0, "PHOTO_RETRACT_MM must be >= 0.");
-  #endif
-#endif
-
-/**
- * Multi-Material-Unit requirements
- */
-#if HAS_SMUFF && EXTRUDERS > 15
-  #error "Too many extruders for SMUFF_EMU_MMU2(S). (15 maximum)."
-#elif HAS_PRUSA_MMU2
-  #if EXTRUDERS != 5
-    #error "PRUSA_MMU2 / PRUSA_MMU2S requires EXTRUDERS = 5."
-  #elif DISABLED(NOZZLE_PARK_FEATURE)
-    #error "PRUSA_MMU2 / PRUSA_MMU2S requires NOZZLE_PARK_FEATURE. Enable it to continue."
-  #elif EITHER(HAS_PRUSA_MMU2S, MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "PRUSA_MMU2S or MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
-    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / SMUFF_EMU_MMU2(S).");
   #endif
 #endif
 
