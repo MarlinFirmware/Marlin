@@ -292,6 +292,12 @@ public:
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
 
+  #if ENABLED(SOUND_MENU_ITEM)
+    static bool buzzer_enabled; // Initialized by settings.load()
+  #else
+    static constexpr bool buzzer_enabled = true;
+  #endif
+
   #if HAS_BUZZER
     static void buzz(const long duration, const uint16_t freq);
   #endif

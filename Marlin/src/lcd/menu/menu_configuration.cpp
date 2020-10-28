@@ -45,6 +45,10 @@
   #endif
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../../libs/buzzer.h"
+#endif
+
 #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
 
 void menu_advanced_settings();
@@ -410,6 +414,10 @@ void menu_configuration() {
   #if PREHEAT_COUNT && DISABLED(SLIM_LCD_MENUS)
     LOOP_L_N(m, PREHEAT_COUNT)
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
+  #endif
+
+  #if ENABLED(SOUND_MENU_ITEM)
+    EDIT_ITEM(bool, MSG_SOUND, &ui.buzzer_enabled, []{ ui.chirp(); });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)

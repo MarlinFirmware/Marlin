@@ -289,6 +289,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
 // Duration in ms, freq in Hz
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
+  if (!buzzer_enabled) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(BUZZER);
