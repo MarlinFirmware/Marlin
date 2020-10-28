@@ -26,6 +26,7 @@
 
 #include "buzzer.h"
 #include "../module/temperature.h"
+#include "../lcd/marlinui.h"
 
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
@@ -34,9 +35,6 @@
 Buzzer::state_t Buzzer::state;
 CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
 Buzzer buzzer;
-#if ENABLED(TOGGLE_BUZZER_MENU)
-  bool buzzer_enabled = true;
-#endif
 
 /**
  * @brief Add a tone to the queue
@@ -47,9 +45,7 @@ Buzzer buzzer;
  * @param frequency Frequency of the tone in hertz
  */
 void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-    if (!buzzer_enabled) return;
-  #endif
+  if (!ui.buzzer_enabled) return;
   while (buffer.isFull()) {
     tick();
     thermalManager.manage_heater();
@@ -59,9 +55,7 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
 }
 
 void Buzzer::tick() {
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-    if (!buzzer_enabled) return;
-  #endif
+  if (!ui.buzzer_enabled) return;
   const millis_t now = millis();
 
   if (!state.endtime) {

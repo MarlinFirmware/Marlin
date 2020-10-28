@@ -3233,18 +3233,5 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 #undef _BAD_DRIVER
 
-/**
- * Sanity check for toggle buzzer menu item
- */
-#if ENABLED(TOGGLE_BUZZER_MENU)
-  #if DISABLED(HAS_BUZZER)
-    #error "TOGGLE_BUZZER_MENU enabled without having a buzzer."
-  #endif
-
-  #if DISABLED(HAS_LCD_MENU)
-    #error "TOGGLE_BUZZER_MENU enabled without having a LCD menu."
-  #endif
-#endif
-
 // Misc. Cleanup
 #undef _TEST_PWM

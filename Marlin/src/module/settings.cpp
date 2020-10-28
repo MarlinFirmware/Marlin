@@ -153,7 +153,7 @@
   #include "../feature/ethernet.h"
 #endif
 
-#if ENABLED(TOGGLE_BUZZER_MENU)
+#if ENABLED(SOUND_MENU_ITEM)
   #include "../libs/buzzer.h"
 #endif
 
@@ -458,7 +458,7 @@ typedef struct SettingsDataStruct {
   //
   // Buzzer enable/disable
   //
-  #if ENABLED(TOGGLE_BUZZER_MENU)
+  #if ENABLED(SOUND_MENU_ITEM)
     bool buzzer_enabled;
   #endif
 } SettingsData;
@@ -1435,8 +1435,8 @@ void MarlinSettings::postprocess() {
     //
     // Buzzer enable/disable
     //
-    #if ENABLED(TOGGLE_BUZZER_MENU)
-      EEPROM_WRITE(buzzer_enabled);
+    #if ENABLED(SOUND_MENU_ITEM)
+      EEPROM_WRITE(ui.buzzer_enabled);
     #endif
 
     //
@@ -2313,9 +2313,9 @@ void MarlinSettings::postprocess() {
       //
       // Buzzer enable/disable
       //
-      #if ENABLED(TOGGLE_BUZZER_MENU)
+      #if ENABLED(SOUND_MENU_ITEM)
         _FIELD_TEST(buzzer_enabled);
-        EEPROM_READ(buzzer_enabled);
+        EEPROM_READ(ui.buzzer_enabled);
       #endif
 
       //
@@ -2631,10 +2631,7 @@ void MarlinSettings::reset() {
   //
   // Buzzer enable/disable
   //
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-     buzzer_enabled = true;
-  #endif
-
+  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
 
   //
   // Magnetic Parking Extruder

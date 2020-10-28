@@ -23,10 +23,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if ENABLED(TOGGLE_BUZZER_MENU)
-  extern bool buzzer_enabled;
-#endif
-
 #if USE_BEEPER
 
   #include "circularqueue.h"
@@ -117,20 +113,12 @@
   extern Buzzer buzzer;
 
   // Buzz directly via the BEEPER pin tone queue
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-    #define BUZZ(d,f) if (buzzer_enabled) buzzer.tone(d, f)
-  #else
-    #define BUZZ(d,f) buzzer.tone(d, f)
-  #endif
+  #define BUZZ(d,f) buzzer.tone(d, f)
 
 #elif HAS_BUZZER
 
   // Buzz indirectly via the MarlinUI instance
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-    #define BUZZ(d,f) if (buzzer_enabled) ui.buzz(d,f)
-  #else
-    #define BUZZ(d,f) ui.buzz(d,f)
-  #endif
+  #define BUZZ(d,f) ui.buzz(d,f)
 
 #else
 

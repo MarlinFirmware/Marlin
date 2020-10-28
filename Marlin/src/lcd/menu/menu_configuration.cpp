@@ -45,7 +45,7 @@
   #endif
 #endif
 
-#if ENABLED(TOGGLE_BUZZER_MENU)
+#if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
 
@@ -335,16 +335,6 @@ void menu_advanced_settings();
 
 #endif
 
-#if ENABLED(TOGGLE_BUZZER_MENU)
-  void disable_buzzer() {
-      buzzer_enabled = false;
-  }
-  void enable_buzzer() {
-      buzzer_enabled = true;
-      ui.chirp();
-  }
-#endif
-
 void menu_configuration() {
   const bool busy = printer_busy();
 
@@ -426,12 +416,8 @@ void menu_configuration() {
       SUBMENU_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M_SETTINGS, _menu_configuration_preheat_settings);
   #endif
 
-  #if ENABLED(TOGGLE_BUZZER_MENU)
-    if (buzzer_enabled) {
-        ACTION_ITEM(MSG_DISABLE_BUZZER, disable_buzzer);
-    } else {
-        ACTION_ITEM(MSG_ENABLE_BUZZER, enable_buzzer);
-    }
+  #if ENABLED(SOUND_MENU_ITEM)
+    EDIT_ITEM(bool, MSG_SOUND, &ui.buzzer_enabled, []{ ui.chirp(); });
   #endif
 
   #if ENABLED(EEPROM_SETTINGS)
