@@ -234,7 +234,7 @@ def load_marlin_features():
 	build_flags = env.ParseFlagsExtended(build_flags)
 
 	cxx = search_compiler()
-	cmd = [cxx]
+	cmd = ['"' + cxx + '"']
 
 	# Build flags from board.json
 	#if 'BOARD' in env:
