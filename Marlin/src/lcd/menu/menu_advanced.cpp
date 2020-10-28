@@ -72,7 +72,7 @@ void menu_backlash();
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
     EDIT_DAC_PERCENT(E);
-    ACTION_ITEM(MSG_DAC_EEPROM_WRITE, dac_commit_eeprom);
+    ACTION_ITEM(MSG_DAC_EEPROM_WRITE, stepper_dac.commit_eeprom);
     END_MENU();
   }
 

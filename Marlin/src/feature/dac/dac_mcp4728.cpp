@@ -124,7 +124,7 @@ uint8_t MCP4728::getDrvPct(const uint8_t channel) { return uint8_t(100.0 * dac_v
  * DAC Values array and calls fastwrite to update the DAC.
  */
 void MCP4728::setDrvPct(xyze_uint8_t &pct) {
-  dac_values *= 0.01 * pct * (DAC_STEPPER_MAX);
+  dac_values *= pct.asFloat() * 0.01f * (DAC_STEPPER_MAX);
   fastWrite();
 }
 
