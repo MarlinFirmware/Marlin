@@ -3507,12 +3507,11 @@
 #endif
 
 /**
- * Průša Multi-Material Unit (MMU) multiplexer
+ * Průša Multi-Material Unit (MMU)
  * Enable in Configuration.h
  *
  * These devices allow a single stepper driver on the board to drive
- * two to eight stepper motors, one at a time, in a manner suitable
- * for extruders.
+ * multi-material feeders with any number of stepper motors.
  */
 #if HAS_PRUSA_MMU1
   /**
