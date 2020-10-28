@@ -895,8 +895,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / SMUFF_EMU_MMU2(S).");
   #endif
 #endif
-#if HAS_SMUFF && EXTRUDERS > 15
-  #error "Too many extruders for SMUFF_EMU_MMU2(S). (15 maximum)."
+#if HAS_SMUFF && EXTRUDERS > 12
+  #error "Too many extruders for SMUFF_EMU_MMU2(S). (12 maximum)."
 #endif
 
 /**
