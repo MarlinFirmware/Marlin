@@ -2505,11 +2505,11 @@
 /**
  * Buzzer/Speaker
  */
-#if PIN_EXISTS(BEEPER) || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+#if PIN_EXISTS(BEEPER)
+  #define USE_BEEPER 1
+#endif
+#if USE_BEEPER || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
-  #if PIN_EXISTS(BEEPER)
-    #define USE_BEEPER 1
-  #endif
 #endif
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -2528,8 +2528,12 @@
   #endif
 #endif
 
-#if HAS_BUZZER && LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
-  #define HAS_CHIRP 1
+#if HAS_BUZZER
+  #if LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
+    #define HAS_CHIRP 1
+  #endif
+#else
+  #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
 #endif
 
 /**
