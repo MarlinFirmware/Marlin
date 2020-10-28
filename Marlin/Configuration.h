@@ -827,13 +827,6 @@
  *          TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
  * :['A4988', 'A5984', 'DRV8825', 'LV8729', 'L6470', 'L6474', 'POWERSTEP01', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
  */
-#if ANY (QQS, STOCK)
-    #define DRIVER_AXES A4988
-    #ifndef DRIVER_EXT
-      #define DRIVER_EXT A4988
-    #endif
-#endif
-
 #define X_DRIVER_TYPE DRIVER_AXES
 #define Y_DRIVER_TYPE DRIVER_AXES
 #define Z_DRIVER_TYPE DRIVER_AXES
@@ -1296,13 +1289,21 @@
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR false
-  #define INVERT_E0_DIR true    // (T) 
+  #ifdef INV_EXT
+  #define INVERT_E0_DIR false
+  #else
+  #define INVERT_E0_DIR true
+  #endif
 #endif
 #if EITHER(QQS_TMC, QQS_UART)
   #define INVERT_X_DIR true
   #define INVERT_Y_DIR true 
   #define INVERT_Z_DIR true
-  #define INVERT_E0_DIR false  //(T) 
+  #ifdef INV_EXT
+  #define INVERT_E0_DIR true
+  #else
+  #define INVERT_E0_DIR false
+  #endif
 #endif 
 // @section extruder
 
