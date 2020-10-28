@@ -121,7 +121,7 @@ char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
     #endif
   ;
 
-#endif // MMU2_MENUS
+#endif
 
 MMU2::MMU2() {
   rx_buffer[0] = '\0';
@@ -755,7 +755,7 @@ static void mmu2_not_responding() {
       set_runout_valid(true);
 
     #endif
-    }
+  }
 
 #endif // HAS_PRUSA_MMU2S
 
