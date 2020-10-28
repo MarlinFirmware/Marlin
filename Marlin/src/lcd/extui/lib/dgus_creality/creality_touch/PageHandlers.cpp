@@ -213,6 +213,21 @@ void StopConfirmScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue)
     }
 }
 
+void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    switch (var.VP){
+        case VP_BUTTON_PREPAREENTERKEY:
+            // Save button, save settings and go back
+            settings.save();
+            ScreenHandler.GotoScreen(DGUSLCD_SCREEN_TEMP);
+        break;
+
+        case VP_BUTTON_COOLDOWN:
+            // Back button, discard settings
+            settings.load();
+            break;
+    }
+}
+
 // Register the page handlers
 #define PAGE_HANDLER(SCRID, HDLRPTR) { .ScreenID=SCRID, .Handler=HDLRPTR },
 const struct PageHandler PageHandlers[] PROGMEM = {
@@ -224,6 +239,8 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_LEVELING, LevelingHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP, TempMenuHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP_PLA, PreheatSettingsScreenHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP_ABS, PreheatSettingsScreenHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
     

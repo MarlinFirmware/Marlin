@@ -146,6 +146,44 @@ const uint16_t VPList_Temp[] PROGMEM = {
   0x0000
 };
 
+
+const uint16_t VPList_PreheatPLASettings[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+
+  VP_PREHEAT_PLA_HOTEND_TEMP,
+  VP_PREHEAT_PLA_BED_TEMP,
+
+  0x0000
+};
+
+const uint16_t VPList_PreheatABSSettings[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+
+  VP_PREHEAT_ABS_HOTEND_TEMP,
+  VP_PREHEAT_ABS_BED_TEMP,
+
+  0x0000
+};
+
+
 const uint16_t VPList_PrintPausingError[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded. */
   #if HOTENDS >= 1
@@ -344,8 +382,8 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_CONTROL, VPList_Control },
 
   { DGUSLCD_SCREEN_TEMP, VPList_Temp },
-  { DGUSLCD_SCREEN_TEMP_PLA, VPList_PrintScreen },
-  { DGUSLCD_SCREEN_TEMP_ABS, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_TEMP_PLA, VPList_PreheatPLASettings },
+  { DGUSLCD_SCREEN_TEMP_ABS, VPList_PreheatABSSettings },
 
   { DGUSLCD_SCREEN_INFO, VPList_PrintScreen },
   { DGUSLCD_SCREEN_ZOFFSET_LEVEL, VPList_ZOffsetLevel },
@@ -397,6 +435,17 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
   VPHELPER(VP_PrintTimeProgressBar, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
+
+  // Preheat settings
+  #ifdef PREHEAT_1_LABEL
+  VPHELPER(VP_PREHEAT_PLA_HOTEND_TEMP, &ui.material_preset[0].hotend_temp, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
+  VPHELPER(VP_PREHEAT_PLA_BED_TEMP, &ui.material_preset[0].bed_temp, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
+  #endif
+
+  #ifdef PREHEAT_2_LABEL
+  VPHELPER(VP_PREHEAT_ABS_HOTEND_TEMP, &ui.material_preset[1].hotend_temp, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
+  VPHELPER(VP_PREHEAT_ABS_BED_TEMP, &ui.material_preset[1].bed_temp, ScreenHandler.DGUSLCD_SetValueDirectly<int16_t>, &ScreenHandler.DGUSLCD_SendWordValueToDisplay ),
+  #endif
 
   // About info
   VPHELPER(VP_MARLIN_VERSION, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
