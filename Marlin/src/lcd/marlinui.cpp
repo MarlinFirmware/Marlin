@@ -79,7 +79,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if EITHER(PCA9632_BUZZER, USE_BEEPER)
-  #include "../libs/buzzer.h" // for BUZZ()
+  #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
