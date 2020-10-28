@@ -195,10 +195,9 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-  #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
-    VP_PrintProgress_Percentage,
-  #endif
 
+  VP_PrintProgress_Percentage,
+  VP_PrintTimeProgressBar,
   VP_PrintTime,
 
   VP_BUTTON_RESUMEPRINTKEY,
@@ -225,6 +224,7 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
 
   VP_PrintProgress_Percentage,
   VP_PrintTimeProgressBar,
+  VP_PrintTime,
 
   VP_BUTTON_RESUMEPRINTKEY,
   VP_BUTTON_PAUSEPRINTKEY,
