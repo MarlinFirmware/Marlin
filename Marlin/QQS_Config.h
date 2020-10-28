@@ -1,47 +1,55 @@
-//===========================================================================
-//=================== FLSun QQS - DELTA Printer =============================
-//================= With pins_FLSUN_HiSPEED.h BOARD =========================
-//===========================================================================
-// For a Delta printer start with one of the configuration files in the
-// config/examples/delta directory and customize for your machine.
-//
-// TIPS:
-// For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
-// For NeoPixel use library : https://github.com/Foxies-CSTL/Nano-NeoPixel-Lib/archive/master.zip
-// and active it into "env:flsun_hispeed"
-// And commented error in SanityCheck.h for pass error check.
-// For 2209 change TMC2208 by TMC2209
-//========= Hardware ==========
+/*==========================================================================
+*=================== FLSun QQS - DELTA Printer =============================
+*================= With pins_FLSUN_HiSPEED.h BOARD =========================
+*===========================================================================
+*
+* For a Delta printer start with one of the configuration files in the
+* config/examples/delta/FLSUN/ directory and customize for your machine.
+*
+* TIPS:
+* -For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
+* 
+* -For NeoPixel use library : https://github.com/Foxies-CSTL/Nano-NeoPixel-Lib/archive/master.zip,
+* and active it into the part of platformio.ini "env:flsun_hispeed",
+* and commented error in SanityCheck.h for pass error check.
+*
+* -For 2209 change TMC2208 by TMC2209 at the bottom file.
+*/
+
+//========= Hardware ==========//
 /*------Drivers-(1 CHOICE)-----*/
-//#define STOCK                      //(S) 4xA4988 with Robin_mini Board
-#define QQS                          //(S) 4xA4988
-//#define QQS_TMC                    //(8) 4xTMC220x_STANDALONE For 2208 or 2209
+#define QQS                        //(S) For 4xA4988(green color)
+//#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)
 //#define QQS_UART9                  //(U9) 4xTMC2209 (Remove module ESP12)
 
-/*------- Choice Other driver for EXTRUDER-------
+/*------- Choice Other driver for EXTRUDER-------//
 * Options: 
 * LV8729/A4988/TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209 
 */
 //#define DRIVER_EXT TMC2208_STANDALONE
 
+/* QQS Stock have a clone TITAN EXtruder,
+* also if you have another try this.
+*/
+//#define INV_EXT                    //(T) Uncommment to reverse direction.
+//#define BMG                        //(B) Uncomment to change Extruder step.
+
 /*-------Screen Mks_Robin_TFT_v2---(FSMC)-----*/
-#define MKS_ROBIN_TFT28
-//#define TFT_ROTATION TFT_NO_ROTATION
+#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
+//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
 
 /*--- Choice UI TFT ----*/
-//#define TFT_CLASSIC_UI      //(F) UI STANDARD 
-#define TFT_COLOR_UI             //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
-//#define TFT_LVGL_UI      //(I) UI MKS  => (Bug)
+#define TFT_CLASSIC_UI             //(F) UI STANDARD 
+//#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
-//#define ESP3D_WIFISUPPORT          //(W)
-//#define BMG                        //(B) Extruder
-//#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
+/*For LedStrip which need an external power source on Vcc pin.*/
+//#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 //Many options for Modules: 
 #define POWER_LOSS_RECOVERY        //NC LVGL pb SD
@@ -52,14 +60,14 @@
 
 //============= End_Hardware ===============//
 
-//Choice menu: (OPT)
+//Choice add menu: (OPT)
 //#define DELTA_CALIBRATION_MENU     //auto for CLASSIC and COLOR (NC LVGL)
-#define SOFT_ENDSTOPS_MENU_ITEM      // for CLASSIC and COLOR
+#define SOFT_ENDSTOPS_MENU_ITEM      // for UI CLASSIC and UI COLOR
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
-#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe
+#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe.
 #define LCD_INFO_MENU              // Informations printer.
-//#define LED_CONTROL_MENU           // For LedStrip
+//#define LED_CONTROL_MENU           // To control LedStrip.
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
@@ -67,12 +75,22 @@
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define BINARY_FILE_TRANSFER       // Bin transfert
+//#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 
+/* OPTION no validate */
 //#define USE_CONTROLLER_FAN         //BOARD FAN
 //EXTRUDER_AUTO_FAN   //
+
 //
 //==================Part for Driver defintions=============//
+//Set for A4988 
+#if ANY (QQS, STOCK)
+    #define DRIVER_AXES A4988
+    #ifndef DRIVER_EXT
+      #define DRIVER_EXT A4988
+    #endif
+#endif
+
 //For set 2209 change TMC2208 by TMC2209 
 #ifdef QQS_TMC
     #define DRIVER_AXES TMC2208_STANDALONE
