@@ -3821,7 +3821,7 @@ void MarlinSettings::reset() {
     #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
       // Values sent over i2c are not stored.
       // Indexes map directly to drivers, not axes.
-    #elif HAS_MOTOR_CURRENT_DAC                                // DAC-based has 4 values, for X Y Z E
+    #elif ENABLED(HAS_MOTOR_CURRENT_DAC)                                // DAC-based has 4 values, for X Y Z E
       // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 
