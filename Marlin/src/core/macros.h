@@ -516,12 +516,3 @@
 #define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
 #define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
 #define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))
-
-//
-// Multi-Material-Unit models
-//
-#define PRUSA_MMU1      1
-#define PRUSA_MMU2      2
-#define PRUSA_MMU2S     3
-#define SMUFF_EMU_MMU2  4
-#define SMUFF_EMU_MMU2S 5
