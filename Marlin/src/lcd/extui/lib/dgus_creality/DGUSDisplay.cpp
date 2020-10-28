@@ -175,19 +175,19 @@ void DGUSDisplay::ProcessRx() {
 
       case DGUS_IDLE: // Waiting for the first header byte
         receivedbyte = dgusserial.read();
-        //DEBUG_ECHOPAIR("< ",x);
+        //DEBUGLCDCOMM_ECHOPAIR("< ",receivedbyte);
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
         break;
 
       case DGUS_HEADER1_SEEN: // Waiting for the second header byte
         receivedbyte = dgusserial.read();
-        //DEBUG_ECHOPAIR(" ",x);
+        //DEBUGLCDCOMM_ECHOPAIR(" ", receivedbyte);
         rx_datagram_state = (DGUS_HEADER2 == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
         break;
 
       case DGUS_HEADER2_SEEN: // Waiting for the length byte
         rx_datagram_len = dgusserial.read();
-        DEBUG_ECHOPAIR(" (", rx_datagram_len, ") ");
+        //DEBUGLCDCOMM_ECHOPAIR(" (", rx_datagram_len, ") ");
 
         // Telegram min len is 3 (command and one word of payload)
         rx_datagram_state = WITHIN(rx_datagram_len, 3, DGUS_RX_BUFFER_SIZE) ? DGUS_WAIT_TELEGRAM : DGUS_IDLE;
@@ -199,17 +199,17 @@ void DGUSDisplay::ProcessRx() {
         Initialized = true; // We've talked to it, so we defined it as initialized.
         uint8_t command = dgusserial.read();
 
-        DEBUG_ECHOPAIR("# ", command);
+       // DEBUGLCDCOMM_ECHOPAIR("# ", command);
 
         uint8_t readlen = rx_datagram_len - 1;  // command is part of len.
         unsigned char tmp[rx_datagram_len - 1];
         unsigned char *ptmp = tmp;
         while (readlen--) {
           receivedbyte = dgusserial.read();
-          DEBUG_ECHOPAIR(" ", receivedbyte);
+          //DEBUGLCDCOMM_ECHOPAIR(" ", receivedbyte);
           *ptmp++ = receivedbyte;
         }
-        DEBUG_ECHOPGM(" # ");
+        //DEBUGLCDCOMM_ECHOPGM(" # ");
         // mostly we'll get this: 5A A5 03 82 4F 4B -- ACK on 0x82, so discard it.
         if (command == DGUS_CMD_WRITEVAR && 'O' == tmp[0] && 'K' == tmp[1]) {
           //DEBUG_ECHOLNPGM(">");
@@ -237,6 +237,7 @@ void DGUSDisplay::ProcessRx() {
             //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
             //DEBUG_ECHOPAIR(" vp=", vp, " dlen=", dlen);
             DGUS_VP_Variable ramcopy;
+            DEBUG_ECHOLNPAIR("VP received: ", vp , " - val ", tmp[3]);
             if (populate_VPVar(vp, &ramcopy)) {
               if (ramcopy.set_by_display_handler)
                 ramcopy.set_by_display_handler(ramcopy, &tmp[3]);
@@ -245,6 +246,9 @@ void DGUSDisplay::ProcessRx() {
             }
             else
               DEBUG_ECHOLNPAIR(" VPVar not found:", vp);
+
+            // Always ask for a screen update so we can send a screen update earlier, this prevents a flash of unstyled screen
+            ReadCurrentScreen();
           }
 
           rx_datagram_state = DGUS_IDLE;
@@ -300,7 +304,7 @@ bool DGUSDisplay::no_reentrance = false;
 #define sw_barrier() asm volatile("": : :"memory");
 
 bool populate_VPVar(const uint16_t VP, DGUS_VP_Variable * const ramcopy) {
-  //DEBUG_ECHOPAIR("populate_VPVar ", VP);
+  //DEBUG_ECHOLNPAIR("populate_VPVar ", VP);
   const DGUS_VP_Variable *pvp = DGUSLCD_FindVPVar(VP);
   // DEBUG_ECHOLNPAIR(" pvp ", (uint16_t )pvp);
   if (!pvp) return false;

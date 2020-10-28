@@ -99,6 +99,7 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
   }
 
   ConfirmVP = VP;
+  ScreenHandler.SetupConfirmAction(nullptr);
   sendinfoscreen(line1, line2, line3, line4, l1, l2, l3, l4);
   ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM, true);
 }
@@ -319,10 +320,15 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
       }
       DEBUG_ECHOPAIR("new topfile adjusted:", top_file);
     }
-    else if (!filelist.isAtRootDir()) {
-      filelist.upDir();
-      top_file = 0;
-      ForceCompleteUpdate();
+    else {
+      if (!filelist.isAtRootDir()) {
+        filelist.upDir();
+        top_file = 0;
+        ForceCompleteUpdate();
+      } else {
+        // Navigate back to home
+        GotoScreen(DGUSLCD_SCREEN_MAIN);
+      }
     }
 
     if (old_top != top_file) ForceCompleteUpdate();
@@ -397,7 +403,7 @@ void DGUSScreenHandler::DGUSLCD_SendHeaterStatusToDisplay(DGUS_VP_Variable &var)
     top_file = 0;
     filelist.refresh();
     auto cs = ScreenHandler.getCurrentScreen();
-    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_STATUS)
+    if (cs == DGUSLCD_SCREEN_MAIN || cs == DGUSLCD_SCREEN_CONTROL)
       ScreenHandler.GotoScreen(DGUSLCD_SCREEN_SDFILELIST);
   }
 
@@ -538,11 +544,10 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   SERIAL_ECHOLNPAIR("Cancel target:", target);
 
   if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM) {
-    // special handling for popup is to return to previous menu
+    PopToOldScreen();
+
     if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
     if (current_screen == DGUSLCD_SCREEN_CONFIRM && confirm_action_cb) confirm_action_cb();
-
-    PopToOldScreen();
     return;
   }
 
@@ -751,7 +756,7 @@ void DGUSScreenHandler::HandleMotorLockUnlock(DGUS_VP_Variable &var, void *val_p
     }
     else {
       recovery.cancel();
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_STATUS);
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_MAIN);
     }
   }
 

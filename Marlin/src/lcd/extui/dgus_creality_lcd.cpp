@@ -47,8 +47,18 @@ namespace ExtUI {
   void onIdle() { ScreenHandler.loop(); }
 
   void onPrinterKilled(PGM_P const error, PGM_P const component) {
-    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, NUL_STR, GET_TEXT(MSG_PLEASE_RESET), true, true, true, true);
-    ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
+    ScreenHandler.sendinfoscreen(GET_TEXT(MSG_HALTED), error, GET_TEXT(MSG_PLEASE_RESET), NUL_STR, true, true, true, true);
+
+    if (strcmp_P(error, GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(error, GET_TEXT(MSG_THERMAL_RUNAWAY)) == 0)     {
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMAL_RUNAWAY);
+    } else if (strcmp_P(error, GET_TEXT(MSG_HEATING_FAILED_LCD)) == 0) {
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_HEATING_FAILED);
+    }else if (strcmp_P(error, GET_TEXT(MSG_ERR_MINTEMP)) == 0) {
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_THERMISTOR_ERROR);
+    } else {
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_KILL);
+    }
+
     while (!ScreenHandler.loop());  // Wait while anything is left to be sent
   }
 
@@ -70,11 +80,13 @@ namespace ExtUI {
 
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      ScreenHandler.sendinfoscreen(PSTR("Please confirm."), msg, msg, nullptr, true, true, false, true);
+      DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
+
+      ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, nullptr, true, true, false, true);
       ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);
-      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
+      if (ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_POPUP) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
-    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP ) {
+    else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
       ScreenHandler.SetupConfirmAction(nullptr);
       ScreenHandler.PopToOldScreen();
     }

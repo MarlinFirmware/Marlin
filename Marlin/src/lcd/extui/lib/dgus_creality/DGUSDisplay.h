@@ -21,7 +21,9 @@
  */
 #pragma once
 
-//#define DEBUG_DGUSLCD
+#define DEBUG_DGUSLCD
+//#define DEBUG_DGUSLCD_OUTGOING_COMM
+
 
 /* DGUS implementation written by coldtobi in 2019 for Marlin */
 
@@ -37,6 +39,15 @@ enum DGUSLCD_Screens : uint8_t;
 
 #define DEBUG_OUT ENABLED(DEBUG_DGUSLCD)
 #include "../../../../core/debug_out.h"
+
+#if DEBUG_DGUSLCD_COMM
+  #define DEBUGLCDCOMM_ECHOPAIR DEBUG_ECHOPAIR
+  #define DEBUGLCDCOMM_ECHOPGM DEBUG_ECHOPGM
+#else
+  #define DEBUGLCDCOMM_ECHOPAIR NOOP
+  #define DEBUGLCDCOMM_ECHOPGM NOOP
+#endif
+
 
 typedef enum : uint8_t {
   DGUS_IDLE,           //< waiting for DGUS_HEADER1.

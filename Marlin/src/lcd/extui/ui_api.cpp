@@ -966,6 +966,7 @@ namespace ExtUI {
   }
 
   void setUserConfirmed() {
+    SERIAL_ECHOLN("User has confirmed");
     TERN_(HAS_RESUME_CONTINUE, wait_for_user = false);
   }
 

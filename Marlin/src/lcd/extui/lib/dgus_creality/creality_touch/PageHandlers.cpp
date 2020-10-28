@@ -108,11 +108,11 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_PREPAREENTERKEY:
             // Disable steppers
-            DGUSScreenHandler::HandleMotorLockUnlock(var, &buttonValue);
+            ScreenHandler.HandleMotorLockUnlock(var, &buttonValue);
         break;
 
         case VP_BUTTON_COOLDOWN:
-            DGUSScreenHandler::HandleAllHeatersOff(var, &buttonValue);
+            ScreenHandler.HandleAllHeatersOff(var, &buttonValue);
             break;
         
         case VP_BUTTON_TEMPCONTROL:
@@ -120,6 +120,7 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
                 case 5:
                     thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
                     thermalManager.setTargetBed(ui.material_preset[0].bed_temp);
+
                     break;
 
                 case 6:
@@ -129,6 +130,8 @@ void PrepareMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
             }
             break;
     }
+
+    ScreenHandler.ForceCompleteUpdate();
 }
 
 void TuneMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {

@@ -120,6 +120,7 @@ const uint16_t VPList_Control[] PROGMEM = {
   VP_LED_TOGGLE,
   VP_BUTTON_PREPAREENTERKEY,
   VP_BUTTON_ADJUSTENTERKEY,
+  VP_BUTTON_TEMPCONTROL,
 
   0x0000
 };
@@ -247,6 +248,8 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
 
   VP_LED_TOGGLE,
   VP_BUTTON_ADJUSTENTERKEY,
+  VP_FAN_TOGGLE,
+
 
   0x0000
 };
@@ -393,6 +396,8 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   VPHELPER(VP_BUTTON_ADJUSTENTERKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_PREPAREENTERKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_RESUMEPRINTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
+  VPHELPER(VP_BUTTON_SELECTFILEKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
+  VPHELPER(VP_BUTTON_STARTPRINTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_STOPPRINTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_PAUSEPRINTKEY, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),
   VPHELPER(VP_BUTTON_COOLDOWN, nullptr, DGUSCrealityDisplay_HandleReturnKeyEvent, nullptr),

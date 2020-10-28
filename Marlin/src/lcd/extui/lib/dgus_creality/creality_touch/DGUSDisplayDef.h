@@ -26,11 +26,10 @@ enum DGUSLCD_Screens : uint8_t {
 
   DGUSLCD_SCREEN_MAIN = 28,
 
-  DGUSLCD_SCREEN_CONFIRM = 66, // TODO: remove references to this
-  DGUSLCD_SCREEN_STATUS = 0, // TODO: remove references to this
-  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 37 , // TODO: remove references to this
-  DGUSLCD_SCREEN_SDPRINTTUNE = 41, // TODO: remove references to this
-  DGUSLCD_SCREEN_SDFILELIST = 65, // TODO: remove references to this
+  DGUSLCD_SCREEN_CONFIRM = 66, 
+  DGUSLCD_SCREEN_SDPRINTMANIPULATION = 37 ,
+  DGUSLCD_SCREEN_SDPRINTTUNE = 41,
+  DGUSLCD_SCREEN_SDFILELIST = 67, 
 
   DGUSLCD_SCREEN_FILAMENTRUNOUT1 = 34, // DWINTouchPage::ERR_FILAMENTRUNOUT_HOTEND_COLD
   DGUSLCD_SCREEN_FILAMENTRUNOUT2 = 35, // DWINTouchPage::ERR_FILAMENTRUNOUT_FILAMENT_LOADED
@@ -240,7 +239,7 @@ constexpr uint16_t VP_ZPos = 0x1026;  // 4 Byte Fixed point number; format xxx.y
 
 // // SDCard File Listing
 constexpr uint16_t VP_SD_ScrollEvent = 0x20D4; // Data: 0 for "up a directory", numbers are the amount to scroll, e.g -1 one up, 1 one down
-constexpr uint16_t VP_SD_FileSelected = 0x20D3; // Number of file field selected.
+constexpr uint16_t VP_SD_FileSelected = 0x2200; // Number of file field selected.
 constexpr uint16_t VP_SD_FileName_LEN = 21; // LEN is shared for all entries.
 constexpr uint16_t VP_SD_FileName_CNT = 6; // LEN is shared for all entries.
 constexpr uint16_t DGUS_SD_FILESPERSCREEN = VP_SD_FileName_CNT; // FIXME move that info to the display and read it from there.
