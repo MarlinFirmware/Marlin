@@ -31,7 +31,7 @@
  *
  * Report the current speed percentage factor if no parameter is specified
  *
- * With MMU_MODEL=PRUSA_MMU2/PRUSA_MMU2S/SMUFF_EMU_MMU2/SMUFF_EMU_MMU2S...
+ * With MMU_MODEL=PRUSA_MMU2(S)/SMUFF_EMU_MMU2(S)...
  *   B : Flag to back up the current factor
  *   R : Flag to restore the last-saved factor
  */
