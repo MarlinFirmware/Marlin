@@ -1299,10 +1299,10 @@
   #define INVERT_E0_DIR true    // (T) 
 #endif
 #if EITHER(QQS_TMC, QQS_UART)
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false 
-  #define INVERT_Z_DIR false
-  #define INVERT_E0_DIR true  //(T) 
+  #define INVERT_X_DIR true
+  #define INVERT_Y_DIR true 
+  #define INVERT_Z_DIR true
+  #define INVERT_E0_DIR false  //(T) 
 #endif 
 // @section extruder
 
