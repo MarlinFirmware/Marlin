@@ -112,7 +112,7 @@
 /*
  * For TMC220x in UART mode and serial use,
  * add #define SOFTWARE_SERIAL in you Configuration.h
- * For TMC220x in UART mode and hardware use, 
+ * For TMC2209 in UART mode and hardware use, 
  * add #define HARDWARE_SERIAL in you Configuration.h 
  * and position the jumpers in this way.
  * |= close
