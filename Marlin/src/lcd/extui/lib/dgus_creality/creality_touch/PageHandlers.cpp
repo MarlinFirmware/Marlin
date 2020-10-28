@@ -27,8 +27,7 @@ void ControlMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case VP_BUTTON_PREPAREENTERKEY: 
             switch(buttonValue) {
                 case 5: // About
-                    // TODO: update website 
-                    // TODO: PageSwitch is set at DWIN side - should switch to about menu automatically
+                    // Automatically handled
                     break;
 
                 case 7: // Reset to factory settings

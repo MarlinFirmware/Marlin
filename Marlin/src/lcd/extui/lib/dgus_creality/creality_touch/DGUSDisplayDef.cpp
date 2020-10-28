@@ -278,6 +278,28 @@ const uint16_t VPList_Prepare[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_Info[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  VP_M117,
+
+  VP_PrintTime,
+
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+
+  VP_PRINTER_BEDSIZE,
+  VP_MARLIN_VERSION,
+
+  0x0000
+};
+
 // Toggle button handler
 void DGUSCrealityDisplay_HandleToggleButton(DGUS_VP_Variable &var, void *val_ptr) {
   switch (*(uint16_t*)var.memadr) {
@@ -311,6 +333,8 @@ const struct VPMapping VPMap[] PROGMEM = {
 
   { DGUSLCD_SCREEN_TUNING, VPList_TuneScreen },
   { DGUSLCD_SCREEN_PREPARE, VPList_Prepare },
+
+  { DGUSLCD_SCREEN_INFO, VPList_Info },
 
   { DGUSLCD_SCREEN_MOVE1MM, VPList_PrintScreen },
   { DGUSLCD_SCREEN_MOVE10MM, VPList_PrintScreen },
@@ -373,6 +397,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   VPHELPER(VP_PrintProgress_Percentage, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
   VPHELPER(VP_PrintTimeProgressBar, nullptr, nullptr, ScreenHandler.DGUSLCD_SendPrintProgressToDisplay),
+
+  // About info
+  VPHELPER(VP_MARLIN_VERSION, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
+  VPHELPER(VP_PRINTER_BEDSIZE_LEN, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
 
   // Position Data
   //VPHELPER(VP_XPos, &current_position.x, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),

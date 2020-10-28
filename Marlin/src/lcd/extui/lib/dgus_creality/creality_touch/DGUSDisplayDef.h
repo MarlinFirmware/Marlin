@@ -180,8 +180,10 @@ constexpr uint16_t VP_PID_AUTOTUNE_E0 = 0x2410;
 constexpr uint16_t VP_PID_AUTOTUNE_BED = 0x2420;
 
 // // Firmware version on the boot screen.
-// constexpr uint16_t VP_MARLIN_VERSION = 0x3000;
-// constexpr uint8_t VP_MARLIN_VERSION_LEN = 16;   // there is more space on the display, if needed.
+constexpr uint16_t VP_PRINTER_BEDSIZE = 0x1074;
+constexpr uint16_t VP_PRINTER_BEDSIZE_LEN = 20;
+constexpr uint16_t VP_MARLIN_VERSION = 0x106a;
+constexpr uint8_t VP_MARLIN_VERSION_LEN = 20;   // there is more space on the display, if needed.
 
 // // Place for status messages.
 constexpr uint16_t VP_M117 = 0x21B3;

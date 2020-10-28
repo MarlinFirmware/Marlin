@@ -160,6 +160,20 @@ void DGUSScreenHandler::DGUSLCD_SendPrintTimeToDisplay(DGUS_VP_Variable &var) {
   dgusdisplay.WriteVariable(VP_PrintTime, buf, var.size, true);
 }
 
+void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var) {
+  const char* fwVersion = PSTR(SOFTVERSION);
+
+  dgusdisplay.WriteVariablePGM(var.VP, fwVersion, strlen(fwVersion), true);
+}
+
+void DGUSScreenHandler::DGUSLCD_SendAboutPrintSize(DGUS_VP_Variable &var) {
+  char PRINTSIZE[VP_PRINTER_BEDSIZE_LEN] = {0};
+  sprintf(PRINTSIZE,"%d X %d X %d",MAC_LENGTH, MAC_WIDTH, MAC_HEIGHT);
+
+  dgusdisplay.WriteVariablePGM(var.VP, &PRINTSIZE, sizeof(PRINTSIZE), true);
+}
+
+
 // Send an uint8_t between 0 and 100 to a variable scale to 0..255
 void DGUSScreenHandler::DGUSLCD_PercentageToUint8(DGUS_VP_Variable &var, void *val_ptr) {
   if (var.memadr) {
