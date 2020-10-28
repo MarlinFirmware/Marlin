@@ -159,19 +159,16 @@
 
 /**
  * Multi-Material Unit
+ * Set to one of these predefined models:
  *
- * Supported unit models:
- *   PRUSA_MMU1: Průša MMU1 (This is the multiplexer version)
- *   PRUSA_MMU2: Průša MMU2
- *   PRUSA_MMU2S Průša MMU2S (This mode requires a MK3S extruder with a sensor at the extruder idler)
- *   SMUFF_EMU_MMU2: Christian Gegg SMUFF (Průša MMU2 emulation mode)
- *   SMUFF_EMU_MMU2S: Christian Gegg SMUFF (Průša MMU2S emulation mode)
+ *   PRUSA_MMU1      : Průša MMU1 (The "multiplexer" version)
+ *   PRUSA_MMU2      : Průša MMU2
+ *   PRUSA_MMU2S     : Průša MMU2S (Requires MK3S extruder with motion sensor, EXTRUDERS = 5)
+ *   SMUFF_EMU_MMU2  : Christian Gegg SMUFF (Průša MMU2 emulation mode)
+ *   SMUFF_EMU_MMU2S : Christian Gegg SMUFF (Průša MMU2S emulation mode)
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
- * MMU2 requires EXTRUDERS = 5
- * SMUFF supports EXTRUDERS = up to 15 but these are limited to 8 because of Marlin limit
- *
- * For additional configuration see Configuration_adv.h
+ * See additional options in Configuration_adv.h.
  */
 //#define MMU_MODEL PRUSA_MMU2
 
