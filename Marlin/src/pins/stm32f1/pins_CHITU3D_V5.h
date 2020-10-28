@@ -94,7 +94,7 @@
 //
 #define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 #define FAN_PIN                             PG13  // FAN
-#define FAN_PIN_2                           PG14
+#define FAN2_PIN                            PG14
 
 //
 // Misc
@@ -152,9 +152,6 @@
   // Color UI
   #define TFT_DRIVER                     ILI9488
   #define TFT_BUFFER_SIZE                  14400
-#elif ENABLED(TFT_CLASSIC_UI)
-  // Emulated DOGM
-  #define GRAPHICAL_TFT_UPSCALE                3
 #endif
 
 // XPT2046 Touch Screen calibration

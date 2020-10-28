@@ -206,11 +206,11 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_return.bin",
 
   #if ENABLED(USE_WIFI_FUNCTION)
-    //wifi screen
+    // wifi screen
     "bmp_wifi.bin",
   #endif
 
-  //babystep screen
+  // babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin"
@@ -488,6 +488,7 @@ uint8_t public_buf[512];
   }
 
   void UpdateAssets() {
+    if (!card.isMounted()) return;
     SdFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 

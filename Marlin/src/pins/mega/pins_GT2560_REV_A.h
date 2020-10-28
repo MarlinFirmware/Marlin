@@ -109,13 +109,27 @@
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_A0                        5
       #define DOGLCD_CS                       21
       #define BTN_EN1                         40
       #define BTN_EN2                         42
+    #elif ENABLED(FYSETC_MINI_12864)
+      // Disconnect EXP2-1 and EXP2-2, otherwise future firmware upload won't work.
+      #define DOGLCD_A0                       20
+      #define DOGLCD_CS                       17
+
+      #define NEOPIXEL_PIN                    21
+      #define BTN_EN1                         42
+      #define BTN_EN2                         40
+
+      #define LCD_RESET_PIN                   16
+
+      #define DEFAULT_LCD_CONTRAST           220
+
+      #define LCD_BACKLIGHT_PIN               -1
     #else
       #define LCD_PINS_RS                     20
       #define LCD_PINS_ENABLE                 17
@@ -130,7 +144,7 @@
     #define BTN_ENC                           19
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !NEWPANEL
+  #else                                           // !IS_NEWPANEL
 
     #define SHIFT_CLK                         38
     #define SHIFT_LD                          42
@@ -146,6 +160,6 @@
 
     #define SD_DETECT_PIN                     -1
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif // HAS_WIRED_LCD

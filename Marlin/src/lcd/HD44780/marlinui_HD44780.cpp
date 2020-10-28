@@ -25,14 +25,14 @@
 #if HAS_MARLINUI_HD44780
 
 /**
- * ultralcd_HD44780.cpp
+ * marlinui_HD44780.cpp
  *
  * LCD display implementations for Hitachi HD44780.
  * These are the most common LCD character displays.
  */
 
-#include "ultralcd_HD44780.h"
-#include "../ultralcd.h"
+#include "marlinui_HD44780.h"
+#include "../marlinui.h"
 #include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
@@ -113,6 +113,7 @@ static void createChar_P(const char c, const byte * const ptr) {
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    if (!buzzer_enabled) return;
     lcd.buzz(duration, freq);
   }
 #endif
@@ -1036,7 +1037,7 @@ void MarlinUI::draw_status_screen() {
   void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const value/*=nullptr*/) {
     ui.encoder_direction_normal();
     uint8_t n = lcd_put_u8str_ind_P(0, 1, pstr, itemIndex, itemString, LCD_WIDTH - 1);
-    if (value != nullptr) {
+    if (value) {
       lcd_put_wchar(':'); n--;
       const uint8_t len = utf8_strlen(value) + 1;   // Plus one for a leading space
       const lcd_uint_t valrow = n < len ? 2 : 1;    // Value on the next row if it won't fit

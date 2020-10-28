@@ -31,7 +31,7 @@
 #endif
 
 // All displays share the MarlinUI class
-#include "ultralcd.h"
+#include "marlinui.h"
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -74,12 +74,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  bool MarlinUI::buzzer_enabled = true;
+#endif
+
 #if EITHER(PCA9632_BUZZER, USE_BEEPER)
   #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    if (!buzzer_enabled) return;
     #if ENABLED(PCA9632_BUZZER)
       PCA9632_buzz(duration, freq);
     #elif USE_BEEPER
@@ -117,7 +122,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #if HAS_WIRED_LCD
 
 #if HAS_MARLINUI_U8GLIB
-  #include "dogm/ultralcd_DOGM.h"
+  #include "dogm/marlinui_DOGM.h"
 #endif
 
 #include "lcdprint.h"
@@ -337,6 +342,10 @@ void MarlinUI::init() {
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
+    #if BUTTON_EXISTS(ENC_EN)
+      SET_INPUT_PULLUP(BTN_ENC_EN);
+    #endif
+
     #if BUTTON_EXISTS(BACK)
       SET_INPUT_PULLUP(BTN_BACK);
     #endif
@@ -400,7 +409,7 @@ bool MarlinUI::get_blink() {
 ///////////// Keypad Handling //////////////
 ////////////////////////////////////////////
 
-#if BOTH(REPRAPWORLD_KEYPAD, HAS_ENCODER_ACTION)
+#if IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
   volatile uint8_t MarlinUI::keypad_buttons;
 
@@ -432,7 +441,7 @@ bool MarlinUI::get_blink() {
         #if HAS_ENCODER_ACTION
           refresh(LCDVIEW_REDRAW_NOW);
           #if HAS_LCD_MENU
-            if (encoderDirection == -(ENCODERBASE)) { // ADC_KEYPAD forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
+            if (encoderDirection == -(ENCODERBASE)) { // HAS_ADC_BUTTONS forces REVERSE_MENU_DIRECTION, so this indicates menu navigation
                    if (RRK(EN_KEYPAD_UP))     encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_DOWN))   encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
               else if (RRK(EN_KEYPAD_LEFT))   { MenuItem_back::action(); quick_feedback(); }
@@ -497,12 +506,12 @@ bool MarlinUI::get_blink() {
         return true;
       }
 
-    #endif // !ADC_KEYPAD
+    #endif // !HAS_ADC_BUTTONS
 
     return false;
   }
 
-#endif // REPRAPWORLD_KEYPAD
+#endif // IS_RRW_KEYPAD && HAS_ENCODER_ACTION
 
 /**
  * Status Screen
@@ -804,6 +813,14 @@ millis_t next_lcd_update_ms;
   millis_t MarlinUI::return_to_status_ms = 0;
 #endif
 
+inline bool can_encode() {
+  #if BUTTON_EXISTS(ENC_EN)
+    return !BUTTON_PRESSED(ENC_EN);  // Update position only when ENC_EN is HIGH
+  #else
+    return true;
+  #endif
+}
+
 void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
@@ -957,7 +974,8 @@ void MarlinUI::update() {
 
           #endif // ENCODER_RATE_MULTIPLIER
 
-          encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+          if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+
           encoderDiff = 0;
         }
 
@@ -1175,7 +1193,7 @@ void MarlinUI::update() {
             if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
           #endif
           #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+            if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
           #endif
           #if BUTTON_EXISTS(BACK)
             if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
@@ -1477,10 +1495,6 @@ void MarlinUI::update() {
 
     set_status_P(msg, -1);
   }
-
-  #if ENABLED(SDSUPPORT)
-    extern bool wait_for_user, wait_for_heatup;
-  #endif
 
   void MarlinUI::abort_print() {
     #if ENABLED(SDSUPPORT)

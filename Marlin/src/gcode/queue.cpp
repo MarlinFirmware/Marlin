@@ -29,7 +29,7 @@ GCodeQueue queue;
 
 #include "gcode.h"
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../sd/cardreader.h"
 #include "../module/planner.h"
 #include "../module/temperature.h"
@@ -37,6 +37,10 @@ GCodeQueue queue;
 
 #if ENABLED(PRINTER_EVENT_LEDS)
   #include "../feature/leds/printer_event_leds.h"
+#endif
+
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
 #endif
 
 #if ENABLED(BINARY_FILE_TRANSFER)
@@ -176,7 +180,7 @@ bool GCodeQueue::enqueue_one(const char* cmd) {
  * Return 'true' if any commands were processed.
  */
 bool GCodeQueue::process_injected_command_P() {
-  if (injected_commands_P == nullptr) return false;
+  if (!injected_commands_P) return false;
 
   char c;
   size_t i = 0;
@@ -312,15 +316,24 @@ void GCodeQueue::flush_and_request_resend() {
 }
 
 inline bool serial_data_available() {
-  return MYSERIAL0.available() || TERN0(HAS_MULTI_SERIAL, MYSERIAL1.available());
+  byte data_available = 0;
+  if (MYSERIAL0.available()) data_available++;
+  #ifdef SERIAL_PORT_2
+    const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
+    if (port2_open && MYSERIAL1.available()) data_available++;
+  #endif
+  return data_available > 0;
 }
 
 inline int read_serial(const uint8_t index) {
   switch (index) {
     case 0: return MYSERIAL0.read();
-    #if HAS_MULTI_SERIAL
-      case 1: return MYSERIAL1.read();
-    #endif
+    case 1: {
+      #if HAS_MULTI_SERIAL
+        const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client);
+        if (port2_open) return MYSERIAL1.read();
+      #endif
+    }
     default: return -1;
   }
 }
@@ -467,7 +480,7 @@ void GCodeQueue::get_serial_commands() {
 
         if (npos) {
 
-          bool M110 = strstr_P(command, PSTR("M110")) != nullptr;
+          const bool M110 = !!strstr_P(command, PSTR("M110"));
 
           if (M110) {
             char* n2pos = strchr(command + 4, 'N');

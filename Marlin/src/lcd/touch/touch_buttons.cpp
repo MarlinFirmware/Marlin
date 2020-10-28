@@ -27,7 +27,7 @@
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 XPT2046 touchIO;
 
-#include "../../lcd/ultralcd.h" // For EN_C bit mask
+#include "../../lcd/marlinui.h" // For EN_C bit mask
 
 /**
  * Draw and Touch processing

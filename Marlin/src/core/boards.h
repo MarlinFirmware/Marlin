@@ -109,6 +109,9 @@
 #define BOARD_COPYMASTER_3D           1153  // Copymaster 3D
 #define BOARD_ORTUR_4                 1154  // Ortur 4
 #define BOARD_TENLOG_D3_HERO          1155  // Tenlog D3 Hero IDEX printer
+#define BOARD_RAMPS_S_12_EEFB         1156  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
+#define BOARD_RAMPS_S_12_EEEB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
+#define BOARD_RAMPS_S_12_EFFB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
 
 //
 // RAMBo and derivatives
@@ -308,19 +311,21 @@
 #define BOARD_BTT_SKR_MINI_E3_V1_0    4022  // BigTreeTech SKR Mini E3 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V1_2    4023  // BigTreeTech SKR Mini E3 V1.2 (STM32F103RC)
 #define BOARD_BTT_SKR_MINI_E3_V2_0    4024  // BigTreeTech SKR Mini E3 V2.0 (STM32F103RC)
-#define BOARD_BTT_SKR_E3_DIP          4025  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
-#define BOARD_JGAURORA_A5S_A1         4026  // JGAurora A5S A1 (STM32F103ZET6)
-#define BOARD_FYSETC_AIO_II           4027  // FYSETC AIO_II
-#define BOARD_FYSETC_CHEETAH          4028  // FYSETC Cheetah
-#define BOARD_FYSETC_CHEETAH_V12      4029  // FYSETC Cheetah V1.2
-#define BOARD_LONGER3D_LK             4030  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
-#define BOARD_CCROBOT_MEEB_3DP        4031  // ccrobot-online.com MEEB_3DP (STM32F103RC)
-#define BOARD_CHITU3D_V5              4032  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CHITU3D_V6              4033  // Chitu3D TronXY X5SA V5 Board
-#define BOARD_CREALITY_V4             4034  // Creality v4.x (STM32F103RE)
-#define BOARD_CREALITY_V427           4035  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4036  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4037  // FLY MINI (STM32F103RCT6)
+#define BOARD_BTT_SKR_MINI_MZ_V1_0    4025  // BigTreeTech SKR Mini MZ V1.0 (STM32F103RC)
+#define BOARD_BTT_SKR_E3_DIP          4026  // BigTreeTech SKR E3 DIP V1.0 (STM32F103RC / STM32F103RE)
+#define BOARD_JGAURORA_A5S_A1         4027  // JGAurora A5S A1 (STM32F103ZET6)
+#define BOARD_FYSETC_AIO_II           4028  // FYSETC AIO_II
+#define BOARD_FYSETC_CHEETAH          4029  // FYSETC Cheetah
+#define BOARD_FYSETC_CHEETAH_V12      4030  // FYSETC Cheetah V1.2
+#define BOARD_LONGER3D_LK             4031  // Alfawise U20/U20+/U30 (Longer3D LK1/2) / STM32F103VET6
+#define BOARD_CCROBOT_MEEB_3DP        4032  // ccrobot-online.com MEEB_3DP (STM32F103RC)
+#define BOARD_CHITU3D_V5              4033  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CHITU3D_V6              4034  // Chitu3D TronXY X5SA V5 Board
+#define BOARD_CREALITY_V4             4035  // Creality v4.x (STM32F103RE)
+#define BOARD_CREALITY_V427           4036  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4037  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4038  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4039  // FLSUN HiSpeedV1 (STM32F103VET6)
 
 //
 // ARM Cortex-M4F

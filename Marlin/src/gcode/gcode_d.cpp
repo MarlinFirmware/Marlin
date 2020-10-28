@@ -107,7 +107,7 @@
               SERIAL_EOL();
               persistentStore.access_finish();
             #else
-              SERIAL_ECHOLN("NO EEPROM");
+              SERIAL_ECHOLNPGM("NO EEPROM");
             #endif
           }
           else {
@@ -125,13 +125,13 @@
                 SERIAL_EOL();
                 persistentStore.access_finish();
               #else
-                SERIAL_ECHOLN("NO EEPROM");
+                SERIAL_ECHOLNPGM("NO EEPROM");
               #endif
             }
             SERIAL_EOL();
           }
         } break;
-      #endif      
+      #endif
 
       case 4: { // D4 Read / Write PIN
         // const uint8_t pin = parser.byteval('P');
@@ -173,17 +173,17 @@
       } break;
 
       case 100: { // D100 Disable heaters and attempt a hard hang (Watchdog Test)
-        SERIAL_ECHOLN("Disabling heaters and attempting to trigger Watchdog");
-        SERIAL_ECHOLN("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
+        SERIAL_ECHOLNPGM("Disabling heaters and attempting to trigger Watchdog");
+        SERIAL_ECHOLNPGM("(USE_WATCHDOG " TERN(USE_WATCHDOG, "ENABLED", "DISABLED") ")");
         thermalManager.disable_all_heaters();
         delay(1000); // Allow time to print
         DISABLE_ISRS();
         // Use a low-level delay that does not rely on interrupts to function
         // Do not spin forever, to avoid thermal risks if heaters are enabled and
         // watchdog does not work.
-        DELAY_US(10000000);
+        for (int i = 10000; i--;) DELAY_US(1000UL);
         ENABLE_ISRS();
-        SERIAL_ECHOLN("FAILURE: Watchdog did not trigger board reset.");
+        SERIAL_ECHOLNPGM("FAILURE: Watchdog did not trigger board reset.");
       }
     }
   }

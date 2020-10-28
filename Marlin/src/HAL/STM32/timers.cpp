@@ -109,7 +109,7 @@
 // Private Variables
 // ------------------------
 
-HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { NULL };
+HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { nullptr };
 
 // ------------------------
 // Public functions

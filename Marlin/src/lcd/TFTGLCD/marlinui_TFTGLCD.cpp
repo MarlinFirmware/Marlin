@@ -25,10 +25,10 @@
 #if IS_TFTGLCD_PANEL
 
 /**
- * ultralcd_TFTGLCD.cpp
+ * marlinui_TFTGLCD.cpp
  *
  * Implementation of the LCD display routines for a TFT GLCD displays with external controller.
- * This display looks as a REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER but has good text font
+ * This display looks like a REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER but has good text font
  * and supports color output.
  */
 
@@ -42,8 +42,8 @@
   #include <Wire.h>
 #endif
 
-#include "ultralcd_TFTGLCD.h"
-#include "../ultralcd.h"
+#include "marlinui_TFTGLCD.h"
+#include "../marlinui.h"
 #include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
@@ -289,6 +289,7 @@ uint8_t MarlinUI::read_slow_buttons(void) {
 // Duration in ms, freq in Hz
 void MarlinUI::buzz(const long duration, const uint16_t freq) {
   if (!PanelDetected) return;
+  if (!buzzer_enabled) return;
   #if ENABLED(TFTGLCD_PANEL_SPI)
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(BUZZER);
@@ -863,7 +864,7 @@ void MarlinUI::draw_status_screen() {
     lcd.setCursor(0, MIDDLE_Y);
     lcd.write(COLOR_EDIT);
     lcd_put_u8str_P(pstr);
-    if (value != nullptr) {
+    if (value) {
       lcd.write(':');
       lcd.setCursor((LCD_WIDTH - 1) - (utf8_strlen(value) + 1), MIDDLE_Y);  // Right-justified, padded by spaces
       lcd.write(' ');     // Overwrite char if value gets shorter

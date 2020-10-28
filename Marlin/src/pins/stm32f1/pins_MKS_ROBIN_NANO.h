@@ -171,7 +171,7 @@
 
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
   #define DOGLCD_SCK                        -1
 
   #define FSMC_CS_PIN                       PD7   // NE4
@@ -198,7 +198,7 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_480x320)
+#if EITHER(HAS_TFT_LVGL_UI_FSMC, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          17880
   #endif

@@ -30,7 +30,7 @@
  *
  * Basic settings can be found in Configuration.h
  */
-#define CONFIGURATION_ADV_H_VERSION 020007
+#define CONFIGURATION_ADV_H_VERSION 020008
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -1048,10 +1048,10 @@
 
 // @section lcd
 
-#if EITHER(ULTIPANEL, EXTENSIBLE_UI)
+#if EITHER(IS_ULTIPANEL, EXTENSIBLE_UI)
   #define MANUAL_FEEDRATE { 50*60, 50*60, 4*60, 2*60 } // (mm/min) Feedrates for manual moves along X, Y, Z, E from panel
   #define SHORT_MANUAL_Z_MOVE 0.025 // (mm) Smallest manual Z move (< 0.1mm)
-  #if ENABLED(ULTIPANEL)
+  #if IS_ULTIPANEL
     #define MANUAL_E_MOVES_RELATIVE // Display extruder move distance rather than "position"
     #define ULTIPANEL_FEEDMULTIPLY  // Encoder sets the feedrate multiplier on the Status Screen
   #endif
@@ -1089,6 +1089,9 @@
 
   // BACK menu items keep the highlight at the top
   //#define TURBO_BACK_MENU_ITEM
+
+  // Add a mute option to the LCD menu
+  //#define SOUND_MENU_ITEM
 
   /**
    * LED Control Menu
@@ -2259,7 +2262,12 @@
 #if HAS_TRINAMIC_CONFIG
 
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
-  #define INTERPOLATE       false  // Interpolate X/Y/Z_MICROSTEPS to 256
+
+  /**
+   * Interpolate microsteps to 256
+   * Override for each driver with <driver>_INTERPOLATE settings below
+   */
+  #define INTERPOLATE      true
 
   #if AXIS_IS_TMC(X)
     #define X_CURRENT       1000        // (mA) RMS current. Multiply by 1.414 for peak current.
@@ -2267,6 +2275,7 @@
     #define X_MICROSTEPS     128    // 0..256
     #define X_RSENSE          0.075
     #define X_CHAIN_POS      -1    // <=0 : Not chained. 1 : MCU MOSI connected. 2 : Next in chain, ...
+    //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
   #endif
 
   #if AXIS_IS_TMC(X2)
@@ -2275,6 +2284,7 @@
     #define X2_MICROSTEPS    16
     #define X2_RSENSE         0.11
     #define X2_CHAIN_POS     -1
+    //#define X2_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(Y)
@@ -2283,6 +2293,7 @@
     #define Y_MICROSTEPS     128
     #define Y_RSENSE          0.075
     #define Y_CHAIN_POS      -1
+    //#define Y_INTERPOLATE  true
   #endif
 
   #if AXIS_IS_TMC(Y2)
@@ -2291,6 +2302,7 @@
     #define Y2_MICROSTEPS    16
     #define Y2_RSENSE         0.11
     #define Y2_CHAIN_POS     -1
+    //#define Y2_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(Z)
@@ -2299,6 +2311,7 @@
     #define Z_MICROSTEPS     256
     #define Z_RSENSE          0.075
     #define Z_CHAIN_POS      -1
+    //#define Z_INTERPOLATE  true
   #endif
 
   #if AXIS_IS_TMC(Z2)
@@ -2307,6 +2320,7 @@
     #define Z2_MICROSTEPS    256
     #define Z2_RSENSE         0.075
     #define Z2_CHAIN_POS     -1
+    //#define Z2_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(Z3)
@@ -2315,6 +2329,7 @@
     #define Z3_MICROSTEPS    256
     #define Z3_RSENSE         0.075
     #define Z3_CHAIN_POS     -1
+    //#define Z3_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(Z4)
@@ -2323,6 +2338,7 @@
     #define Z4_MICROSTEPS    16
     #define Z4_RSENSE         0.11
     #define Z4_CHAIN_POS     -1
+    //#define Z4_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E0)
@@ -2330,6 +2346,7 @@
     #define E0_MICROSTEPS    64
     #define E0_RSENSE         0.075
     #define E0_CHAIN_POS     -1
+    //#define E0_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E1)
@@ -2337,6 +2354,7 @@
     #define E1_MICROSTEPS    2
     #define E1_RSENSE         0.075
     #define E1_CHAIN_POS     -1
+    //#define E1_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E2)
@@ -2344,6 +2362,7 @@
     #define E2_MICROSTEPS    64
     #define E2_RSENSE         0.075
     #define E2_CHAIN_POS     -1
+    //#define E2_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E3)
@@ -2351,6 +2370,7 @@
     #define E3_MICROSTEPS    16
     #define E3_RSENSE         0.11
     #define E3_CHAIN_POS     -1
+    //#define E3_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E4)
@@ -2358,6 +2378,7 @@
     #define E4_MICROSTEPS    16
     #define E4_RSENSE         0.11
     #define E4_CHAIN_POS     -1
+    //#define E4_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E5)
@@ -2365,6 +2386,7 @@
     #define E5_MICROSTEPS    16
     #define E5_RSENSE         0.11
     #define E5_CHAIN_POS     -1
+    //#define E5_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E6)
@@ -2372,6 +2394,7 @@
     #define E6_MICROSTEPS    16
     #define E6_RSENSE         0.11
     #define E6_CHAIN_POS     -1
+    //#define E6_INTERPOLATE true
   #endif
 
   #if AXIS_IS_TMC(E7)
@@ -2379,6 +2402,7 @@
     #define E7_MICROSTEPS    16
     #define E7_RSENSE         0.11
     #define E7_CHAIN_POS     -1
+    //#define E7_INTERPOLATE true
   #endif
 
   /**
@@ -2469,10 +2493,26 @@
    * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
    *
-   * Define you own with
+   * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
    */
   #define CHOPPER_TIMING CHOPPER_DEFAULT_24V
+  //#define CHOPPER_TIMING_X  CHOPPER_DEFAULT_12V   // For X Axes (override below)
+  //#define CHOPPER_TIMING_X2 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_Y  CHOPPER_DEFAULT_12V   // For Y Axes (override below)
+  //#define CHOPPER_TIMING_Y2 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_Z  CHOPPER_DEFAULT_12V   // For Z Axes (override below)
+  //#define CHOPPER_TIMING_Z2 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_Z3 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_Z4 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E  CHOPPER_DEFAULT_12V   // For Extruders (override below)
+  //#define CHOPPER_TIMING_E1 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E2 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E3 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E4 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E5 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E6 CHOPPER_DEFAULT_12V
+  //#define CHOPPER_TIMING_E7 CHOPPER_DEFAULT_12V
 
   /**
    * Monitor Trinamic drivers
@@ -2956,7 +2996,7 @@
      * This allows the laser to keep in perfect sync with the planner and removes
      * the powerup/down delay since lasers require negligible time.
      */
-    #define LASER_POWER_INLINE
+    //#define LASER_POWER_INLINE
 
     #if ENABLED(LASER_POWER_INLINE)
       /**
@@ -3439,6 +3479,13 @@
 #if ENABLED(NANODLP_Z_SYNC)
   //#define NANODLP_ALL_AXIS  // Enables "Z_move_comp" output on any axis move.
                               // Default behavior is limited to Z axis only.
+#endif
+
+/**
+ * Ethernet. Use M552 to enable and set the IP address.
+ */
+#if HAS_ETHERNET
+  #define MAC_ADDRESS { 0xDE, 0xAD, 0xBE, 0xEF, 0xF0, 0x0D }  // A MAC address unique to your network
 #endif
 
 /**
