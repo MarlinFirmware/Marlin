@@ -36,7 +36,7 @@
  */
 
 #if HAS_SMUFF
-  #define MAX_EXTRUDERS 15
+  #define MAX_EXTRUDERS 12
 #else
   #define MAX_EXTRUDERS 8
 #endif
