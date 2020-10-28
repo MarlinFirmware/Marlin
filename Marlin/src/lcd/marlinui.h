@@ -293,7 +293,7 @@ public:
   }
 
   #if ENABLED(SOUND_MENU_ITEM)
-    static bool buzzer_enabled;
+    static bool buzzer_enabled; // Initialized by settings.load()
   #else
     static constexpr bool buzzer_enabled = true;
   #endif

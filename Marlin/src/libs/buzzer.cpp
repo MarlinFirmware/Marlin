@@ -65,12 +65,11 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(EXTENSIBLE_UI)
+      #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
         CRITICAL_SECTION_START();
         ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END();
-      #endif
-      #if ENABLED(SPEAKER) && (DISABLED(EXTENSIBLE_UI) || ENABLED(EXTUI_LOCAL_BEEPER))
+      #elif ENABLED(SPEAKER)
         CRITICAL_SECTION_START();
         ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
         CRITICAL_SECTION_END();
