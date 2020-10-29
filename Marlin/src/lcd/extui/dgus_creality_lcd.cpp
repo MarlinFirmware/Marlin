@@ -82,7 +82,7 @@ namespace ExtUI {
     if (msg) {
       DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
 
-      ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, nullptr, true, true, false, true);
+      ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, NUL_STR, true, true, false, true);
       ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);
       if (ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_POPUP) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }

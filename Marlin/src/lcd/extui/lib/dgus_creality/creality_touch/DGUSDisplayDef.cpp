@@ -125,6 +125,22 @@ const uint16_t VPList_Control[] PROGMEM = {
   0x0000
 };
 
+const uint16_t VPList_Feed[] PROGMEM = {
+  /* VP_M117, for completeness, but it cannot be auto-uploaded. */
+  #if HOTENDS >= 1
+    VP_T_E0_Is, VP_T_E0_Set,// VP_E0_STATUS,
+  #endif
+  #if HAS_HEATED_BED
+    VP_T_Bed_Is, VP_T_Bed_Set,// VP_BED_STATUS,
+  #endif
+  /*VP_XPos, VP_YPos,*/ VP_ZPos,
+  //VP_Fan0_Percentage,
+  VP_Feedrate_Percentage,
+
+
+  0x0000
+};
+
 const uint16_t VPList_Temp[] PROGMEM = {
   /* VP_M117, for completeness, but it cannot be auto-uploaded. */
   #if HOTENDS >= 1
@@ -378,7 +394,7 @@ const struct VPMapping VPMap[] PROGMEM = {
   { DGUSLCD_SCREEN_MOVE10MM, VPList_PrintScreen },
   { DGUSLCD_SCREEN_MOVE01MM, VPList_PrintScreen },
 
-  { DGUSLCD_SCREEN_FEED, VPList_PrintScreen },
+  { DGUSLCD_SCREEN_FEED, VPList_Feed },
   { DGUSLCD_SCREEN_CONTROL, VPList_Control },
 
   { DGUSLCD_SCREEN_TEMP, VPList_Temp },

@@ -555,7 +555,7 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   SERIAL_ECHOLNPAIR("Current screen:", current_screen);
   SERIAL_ECHOLNPAIR("Cancel target:", target);
 
-  if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM) {
+  if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM || target == 255 /*Buggy DWIN screen sometimes just returns 255*/) {
     PopToOldScreen();
 
     if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
