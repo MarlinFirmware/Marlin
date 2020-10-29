@@ -1233,9 +1233,9 @@ void Temperature::manage_heater() {
           #ifndef MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             #define MIN_COOLING_SLOPE_DEG_CHAMBER_VENT 1.5
           #endif
-          if( (temp_chamber.celsius - temp_chamber.target >= HIGH_EXCESS_HEAT_LIMIT) && !flag_chamber_excess_heat) {
-          // open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds
-          // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
+          if (!flag_chamber_excess_heat && temp_chamber.celsius - temp_chamber.target >= HIGH_EXCESS_HEAT_LIMIT) {
+            // Open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds if the
+            // temperature didn't drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
             if (next_cool_check_ms_2 == 0 || ELAPSED(ms, next_cool_check_ms_2)) {
               if (old_temp - temp_chamber.celsius < float(MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)) flag_chamber_excess_heat = true; //the bed is heating the chamber too much
               next_cool_check_ms_2 = ms + 1000UL * MIN_COOLING_SLOPE_TIME_CHAMBER_VENT;
