@@ -64,12 +64,12 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
 void DGUSDisplay::InitDisplay() {
   dgusserial.begin(LCD_BAUDRATE);
 
+  /*delay(500); // Attempt to fix possible handshake error
+
+  ResetDisplay(); // Reset for firmware update
+
   delay(500); // Attempt to fix possible handshake error
-
-  ResetDisplay();
-
-  delay(500); // Attempt to fix possible handshake error
-
+*/
   if (true
     #if ENABLED(POWER_LOSS_RECOVERY)
       && !recovery.valid()
@@ -230,8 +230,18 @@ void DGUSDisplay::ProcessRx() {
           if (vp == 0x14 /*PIC_Now*/) {
             const uint16_t screen_id = tmp[3] << 8 | tmp[4];
 
-            if (current_screen_update_callback != nullptr) {
-              current_screen_update_callback(static_cast<DGUSLCD_Screens>(screen_id));
+            // In the code below DGUSLCD_SCREEN_BOOT acts as a sentinel
+            if (displayRequest != DGUSLCD_SCREEN_BOOT && screen_id != displayRequest) {
+              // A display was requested. If the screen didn't yet switch to that display, we won't give that value back, otherwise the code gets confused.
+              // The DWIN display always honours the PIC_SET requests from the firmware, so we don't need to worry about it not getting back.
+              DEBUG_ECHOPAIR(" Got a response on the current screen :", screen_id);
+              DEBUG_ECHOLNPAIR(" - however, we've requested screen ", displayRequest);
+            } else {
+              displayRequest = DGUSLCD_SCREEN_BOOT;
+
+              if (current_screen_update_callback != nullptr) {
+                current_screen_update_callback(static_cast<DGUSLCD_Screens>(screen_id));
+              }
             }
           } else {
             //const uint8_t dlen = tmp[2] << 1;  // Convert to Bytes. (Display works with words)
@@ -286,6 +296,8 @@ void DGUSDisplay::loop() {
 }
 
 void DGUSDisplay::RequestScreen(DGUSLCD_Screens screen) {
+  displayRequest = screen;
+
   DEBUG_ECHOLNPAIR("GotoScreen ", screen);
   const unsigned char gotoscreen[] = { 0x5A, 0x01, (unsigned char) (screen >> 8U), (unsigned char) (screen & 0xFFU) };
   WriteVariable(0x84, gotoscreen, sizeof(gotoscreen));
@@ -299,6 +311,7 @@ rx_datagram_state_t DGUSDisplay::rx_datagram_state = DGUS_IDLE;
 uint8_t DGUSDisplay::rx_datagram_len = 0;
 bool DGUSDisplay::Initialized = false;
 bool DGUSDisplay::no_reentrance = false;
+DGUSLCD_Screens DGUSDisplay::displayRequest = DGUSLCD_SCREEN_BOOT;
 
 // A SW memory barrier, to ensure GCC does not overoptimize loops
 #define sw_barrier() asm volatile("": : :"memory");

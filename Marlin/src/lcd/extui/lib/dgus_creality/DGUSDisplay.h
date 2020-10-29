@@ -123,6 +123,8 @@ private:
   static rx_datagram_state_t rx_datagram_state;
   static uint8_t rx_datagram_len;
   static bool Initialized, no_reentrance;
+  
+  static DGUSLCD_Screens displayRequest;
 };
 
 #define GET_VARIABLE(f, t, V...) (&DGUSDisplay::GetVariable<decltype(t), f, t, ##V>)

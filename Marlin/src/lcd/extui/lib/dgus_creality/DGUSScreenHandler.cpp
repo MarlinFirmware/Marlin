@@ -57,10 +57,8 @@ uint16_t DGUSScreenHandler::ConfirmVP;
 
 void (*DGUSScreenHandler::confirm_action_cb)() = nullptr;
 
-//DGUSScreenHandler ScreenHandler;
-
 DGUSLCD_Screens DGUSScreenHandler::current_screen;
-DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS];
+DGUSLCD_Screens DGUSScreenHandler::past_screens[NUM_PAST_SCREENS] = {DGUSLCD_SCREEN_MAIN};
 uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
@@ -101,7 +99,7 @@ void DGUSScreenHandler::HandleUserConfirmationPopUp(uint16_t VP, const char* lin
   ConfirmVP = VP;
   ScreenHandler.SetupConfirmAction(nullptr);
   sendinfoscreen(line1, line2, line3, line4, l1, l2, l3, l4);
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM, true);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_CONFIRM);
 }
 
 void DGUSScreenHandler::setstatusmessage(const char *msg) {
@@ -168,7 +166,7 @@ void DGUSScreenHandler::DGUSLCD_SendAboutFirmwareVersion(DGUS_VP_Variable &var) 
 
 void DGUSScreenHandler::DGUSLCD_SendAboutPrintSize(DGUS_VP_Variable &var) {
   char PRINTSIZE[VP_PRINTER_BEDSIZE_LEN] = {0};
-  sprintf(PRINTSIZE,"%d X %d X %d",MAC_LENGTH, MAC_WIDTH, MAC_HEIGHT);
+  sprintf(PRINTSIZE,"%dx%dx%d",MAC_LENGTH, MAC_WIDTH, MAC_HEIGHT);
 
   dgusdisplay.WriteVariablePGM(var.VP, &PRINTSIZE, sizeof(PRINTSIZE), true);
 }
@@ -459,7 +457,7 @@ void DGUSScreenHandler::Buzzer(const uint16_t frequency, const uint16_t duration
 #endif
 
 void DGUSScreenHandler::OnHomingStart() {
-  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME, false);
+  ScreenHandler.GotoScreen(DGUSLCD_SCREEN_AUTOHOME);
 }
 
 void DGUSScreenHandler::OnHomingComplete() {
@@ -1087,10 +1085,11 @@ void DGUSScreenHandler::HandleLEDToggle() {
   ForceCompleteUpdate();
 }
 
-void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
+void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_current_screen) {
   DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
 
-  if (!popup) {
+  if (save_current_screen && current_screen != DGUSLCD_SCREEN_POPUP && current_screen != DGUSLCD_SCREEN_CONFIRM) {
+    DEBUG_ECHOLNPAIR("SetNewScreen: ", newscreen);
     memmove(&past_screens[1], &past_screens[0], sizeof(past_screens) - 1);
     past_screens[0] = current_screen;
   }
@@ -1102,7 +1101,7 @@ void DGUSScreenHandler::UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup) {
 
 void DGUSScreenHandler::PopToOldScreen() {
   SERIAL_ECHOLNPAIR("PopToOldScreen s=", past_screens[0]);
-  GotoScreen(past_screens[0], true);
+  GotoScreen(past_screens[0], false);
   memmove(&past_screens[0], &past_screens[1], sizeof(past_screens) - 1);
   past_screens[sizeof(past_screens) - 1] = DGUSLCD_SCREEN_MAIN;
 }

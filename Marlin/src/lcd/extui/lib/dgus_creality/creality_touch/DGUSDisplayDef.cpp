@@ -140,7 +140,7 @@ const uint16_t VPList_Temp[] PROGMEM = {
     VP_PrintProgress_Percentage,
   #endif
 
-  VP_LED_TOGGLE,
+  VP_FAN_TOGGLE,
   VP_BUTTON_ADJUSTENTERKEY,
 
   0x0000
@@ -449,7 +449,7 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // About info
   VPHELPER(VP_MARLIN_VERSION, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutFirmwareVersion),
-  VPHELPER(VP_PRINTER_BEDSIZE_LEN, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
+  VPHELPER(VP_PRINTER_BEDSIZE, nullptr, nullptr, ScreenHandler.DGUSLCD_SendAboutPrintSize),
 
   // Position Data
   //VPHELPER(VP_XPos, &current_position.x, nullptr, ScreenHandler.DGUSLCD_SendFloatAsLongValueToDisplay<2>),

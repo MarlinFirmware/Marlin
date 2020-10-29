@@ -156,13 +156,13 @@ public:
   // Update data after went to new screen (by display or by GotoScreen)
   // remember: store the last-displayed screen, so it can get returned to.
   // (e.g for pop up messages)
-  static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool popup=false);
+  static void UpdateNewScreen(DGUSLCD_Screens newscreen, bool save_current_screen=true);
 
   // Recall the remembered screen.
   static void PopToOldScreen();
 
   // Make the display show the screen and update all VPs in it.
-  static void GotoScreen(DGUSLCD_Screens screen, bool ispopup = false);
+  static void GotoScreen(DGUSLCD_Screens screen, bool save_current_screen = true);
 
   static void UpdateScreenVPData();
 
