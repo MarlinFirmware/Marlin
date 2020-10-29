@@ -109,3 +109,13 @@ Once reconnected to the module's web page, you must load the two files "index.ht
 and "preferences.json" to have the user interface.
 
 Enjoy....🙃
+
+## Support my work
+
+This QQS-Pro porting project for the Marlin firmware was only possible thanks to its supporters, you can participate via
+<br/><br/>
+[![paypal.me](doc/icons/paypal_50px.png)](https://www.paypal.me/Foxies40)<br/>[paypal.me/Foxies40](https://www.paypal.me/Foxies40)
+<br/><br/>
+ You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
+
+Massive thank you in advance :heart:
