@@ -327,7 +327,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
-      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
@@ -823,11 +823,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
+      #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
-        #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
+        #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
-          #if ENABLED(DAC_STEPPER_CURRENT)
+          #if ENABLED(HAS_MOTOR_CURRENT_DAC)
             case 909: M909(); break;                              // M909: Print digipot/DAC current value
             case 910: M910(); break;                              // M910: Commit digipot/DAC value to external EEPROM
           #endif
