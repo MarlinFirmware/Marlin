@@ -133,7 +133,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
       PGM_P const msg = GET_TEXT(MSG_FILAMENTCHANGE_E);
       LOOP_L_N(s, E_STEPPERS) {
         if (thermalManager.targetTooColdToExtrude(s))
-          SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex - 1); });
+          SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
             PGM_P const cmdpstr = PSTR("M600 B0 T%i");

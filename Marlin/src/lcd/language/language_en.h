@@ -30,9 +30,9 @@
  * Substitutions are applied for the following characters when used
  * in menu items that call lcd_put_u8str_ind_P with an index:
  *
- *   = displays  '0'....'9' for index 0-9
- *   ~ displays 'E0'...'E8' for index 0-8
- *   * displays 'E1'...'E9' for index 0-8 by default (See LCD_FIRST_TOOL)
+ *   = displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays 'E0'...'E10' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  */
 
 #define en 1234
