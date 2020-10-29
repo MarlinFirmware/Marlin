@@ -261,7 +261,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[pos], eeprom_buffered_read_byte(pos));
     if (writing) *value = c;
