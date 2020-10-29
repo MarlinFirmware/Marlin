@@ -8,6 +8,7 @@
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
 #include "../../../../../feature/pause.h"
+#include "../../../../../feature/runout.h"
 #include "../../../../../module/settings.h"
 
 #include "../../../../ultralcd.h"
@@ -160,6 +161,7 @@ void PrintRunningMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
 void PrintPausedMenuHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     switch (var.VP) {
         case VP_BUTTON_RESUMEPRINTKEY:
+            runout.reset();
             ExtUI::resumePrint();
             ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_RUNNING);
             break;
