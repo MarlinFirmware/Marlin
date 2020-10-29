@@ -25,10 +25,6 @@
  * Test STM32F1-specific configuration values for errors at compile-time.
  */
 
-#if ENABLED(FAST_PWM_FAN) || SPINDLE_LASER_FREQUENCY
-  #error "Features requiring Hardware PWM (FAST_PWM_FAN, SPINDLE_LASER_FREQUENCY) are not yet supported on STM32F1."
-#endif
-
 #if !defined(HAVE_SW_SERIAL) && HAS_TMC_SW_SERIAL
   #warning "With TMC2208/9 consider using SoftwareSerialM with HAVE_SW_SERIAL and appropriate SS_TIMER."
   #error "Missing SoftwareSerial implementation."
