@@ -50,7 +50,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
   int32_t prescaler = (HAL_TIMER_RATE) / (preload + 1) / f_desired - 1;
   if (prescaler > 65535) {                      // For low frequencies increase prescaler
     prescaler = 65535;
-    preload = (HAL_TIMER_RATE) / 65536 / f_desired - 1;
+    preload = (HAL_TIMER_RATE) / (prescaler + 1) / f_desired - 1;
   }
   if (prescaler < 0) return;                    // Too high frequency
   timer_set_reload(timer, preload);
