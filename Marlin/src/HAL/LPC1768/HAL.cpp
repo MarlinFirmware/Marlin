@@ -39,7 +39,7 @@ extern "C" {
   void u8g_Delay(uint16_t val)       { delay(val); }
 }
 
-//************************//
+//************************
 
 // return free heap space
 int freeMemory() {
@@ -52,9 +52,9 @@ int freeMemory() {
   return result;
 }
 
-// scan command line for code
-//   return index into pin map array if found and the pin is valid.
-//   return dval if not found or not a valid pin.
+// Scan command line for code
+//  Return index into pin map array if found and the pin is valid.
+//  Return dval if not found or not a valid pin.
 int16_t PARSED_PIN_INDEX(const char code, const int16_t dval) {
   const uint16_t val = (uint16_t)parser.intval(code, -1), port = val / 100, pin = val % 100;
   const  int16_t ind = (port < ((NUM_DIGITAL_PINS) >> 5) && pin < 32) ? ((port << 5) | pin) : -2;
@@ -81,12 +81,11 @@ uint8_t HAL_get_reset_source(void) {
 #include "../../sd/cardreader.h"
 
 DRESULT disk_read (
-	BYTE drv,		/* Physical drive number (0) */
-	BYTE *buff,		/* Pointer to the data buffer to store read data */
-	DWORD sector,	/* Start sector number (LBA) */
-	UINT count		/* Number of sectors to read (1..128) */
-)
-{
+  BYTE drv,     // Physical drive number (0)
+  BYTE *buff,   // Pointer to the data buffer to store read data
+  DWORD sector, // Start sector number (LBA)
+  UINT count    // Number of sectors to read (1..128)
+) {
   auto sd2card = card.getSd2Card();
   if (count == 1) {
     sd2card.readBlock(sector, buff);
@@ -102,41 +101,34 @@ DRESULT disk_read (
   return RES_OK;
 }
 
-DSTATUS disk_status (
-	BYTE drv		/* Physical drive number (0) */
-)
-{
+DSTATUS disk_status(BYTE drv) {    // Physical drive number (0)
   return 0;
 }
 
-DSTATUS disk_initialize (
-	BYTE drv		/* Physical drive number (0) */
-) {
-  //if already mounted, its already initialized!
-  if (card.isMounted()) {
-    return RES_OK;
-  }
-
-  auto sd2card = card.getSd2Card();
-  if (!sd2card.init(SPI_SPEED, SDSS)
-    #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
-      && !sd2card.init(SPI_SPEED, LCD_SDSS)
-    #endif
-  ) {
-    return RES_ERROR;
+DSTATUS disk_initialize(BYTE drv) {    // Physical drive number (0)
+  // If already mounted, it's already initialized!
+  if (!card.isMounted()) {
+    auto sd2card = card.getSd2Card();
+    if (!sd2card.init(SPI_SPEED, SDSS)
+      #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
+        && !sd2card.init(SPI_SPEED, LCD_SDSS)
+      #endif
+    ) {
+      return RES_ERROR;
+    }
   }
 
   return RES_OK;
 }
 
 #if _DISKIO_WRITE
-  DRESULT disk_write (
-    BYTE drv,			/* Physical drive number (0) */
-    const BYTE *buff,	/* Ponter to the data to write */
-    DWORD sector,		/* Start sector number (LBA) */
-    UINT count			/* Number of sectors to write (1..128) */
-  )
-  {
+
+  DRESULT disk_write(
+    BYTE drv,         // Physical drive number (0)
+    const BYTE *buff, // Ponter to the data to write
+    DWORD sector,     // Start sector number (LBA)
+    UINT count        // Number of sectors to write (1..128)
+  ) {
     auto sd2card = card.getSd2Card();
     if (count == 1) {
       sd2card.writeBlock(sector, buff);
@@ -152,35 +144,35 @@ DSTATUS disk_initialize (
     sd2card.writeStop();
     return RES_OK;
   }
+
 #endif // _DISKIO_WRITE
 
 #if _DISKIO_IOCTL
 
-DRESULT disk_ioctl (
-	BYTE drv,		/* Physical drive number (0) */
-	BYTE cmd,		/* Control command code */
-	void *buff		/* Pointer to the conrtol data */
-)
-{
-  DWORD *dp, st, ed;
+  DRESULT disk_ioctl(
+    BYTE drv,   // Physical drive number (0)
+    BYTE cmd,   // Control command code
+    void *buff  // Pointer to the conrtol data
+  ) {
+    DWORD *dp, st, ed;
 
-  auto sd2card = card.getSd2Card();
-  switch (cmd) {
-	  case CTRL_SYNC:			/* Wait for end of internal write process of the drive */
-    break;
-    case GET_SECTOR_COUNT:	/* Get drive capacity in unit of sector (DWORD) */
-      *(int32_t*)buff = sd2card.cardSize();
-    break;
-    case GET_BLOCK_SIZE:	/* Get erase block size in unit of sector (DWORD) */
-    break;
-    case CTRL_TRIM:		/* Erase a block of sectors (used when _USE_TRIM in ffconf.h is 1) */
-      dp = (DWORD*)buff; st = dp[0]; ed = dp[1];				/* Load sector block */
-      sd2card.erase(st, ed);
-    break;
+    auto sd2card = card.getSd2Card();
+    switch (cmd) {
+      case CTRL_SYNC:         // Wait for end of internal write process of the drive
+      break;
+      case GET_SECTOR_COUNT:  // Get drive capacity in unit of sector (DWORD)
+        *(int32_t*)buff = sd2card.cardSize();
+      break;
+      case GET_BLOCK_SIZE:    // Get erase block size in unit of sector (DWORD)
+      break;
+      case CTRL_TRIM:         // Erase a block of sectors (used when _USE_TRIM in ffconf.h is 1)
+        dp = (DWORD*)buff; st = dp[0]; ed = dp[1];        // Load sector block
+        sd2card.erase(st, ed);
+      break;
+    }
+
+    return RES_OK;
   }
-
-  return RES_OK;
-}
 
 #endif // _DISKIO_IOCTL
 
