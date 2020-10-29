@@ -55,8 +55,6 @@ const uint16_t VPList_None[] PROGMEM = {
 };
 
 const uint16_t VPList_DialogStop[] PROGMEM = {
-  VP_BUTTON_STOPPRINTKEY,
-
   0x0000
 };
 
@@ -118,9 +116,6 @@ const uint16_t VPList_Control[] PROGMEM = {
   #endif
 
   VP_LED_TOGGLE,
-  VP_BUTTON_PREPAREENTERKEY,
-  VP_BUTTON_ADJUSTENTERKEY,
-  VP_BUTTON_TEMPCONTROL,
 
   0x0000
 };
@@ -157,7 +152,6 @@ const uint16_t VPList_Temp[] PROGMEM = {
   #endif
 
   VP_FAN_TOGGLE,
-  VP_BUTTON_ADJUSTENTERKEY,
 
   0x0000
 };
@@ -216,9 +210,6 @@ const uint16_t VPList_PrintPausingError[] PROGMEM = {
   VP_PrintTimeProgressBar,
   VP_PrintTime,
 
-  VP_BUTTON_RESUMEPRINTKEY,
-  VP_BUTTON_STOPPRINTKEY,
-
   0x0000
 };
 
@@ -242,9 +233,6 @@ const uint16_t VPList_PrintScreen[] PROGMEM = {
   VP_PrintTimeProgressBar,
   VP_PrintTime,
 
-  VP_BUTTON_RESUMEPRINTKEY,
-  VP_BUTTON_PAUSEPRINTKEY,
-
   0x0000
 };
 
@@ -261,7 +249,6 @@ const uint16_t VPList_Leveling[] PROGMEM = {
 
   VP_MESH_LEVEL_TEMP,
   VP_MESH_LEVEL_STATUS,
-  VP_BUTTON_BEDLEVELKEY,
 
   0x0000
 };
@@ -276,10 +263,6 @@ const uint16_t VPList_ZOffsetLevel[] PROGMEM = {
   /*VP_XPos, VP_YPos,*/ VP_ZPos,
   //VP_Fan0_Percentage,
   VP_Feedrate_Percentage,
-
-  VP_BUTTON_BEDLEVELKEY,
-  VP_BUTTON_ADJUSTENTERKEY,
-  VP_BUTTON_MAINENTERKEY,
 
   0x0000
 };
@@ -301,7 +284,6 @@ const uint16_t VPList_TuneScreen[] PROGMEM = {
   VP_Feedrate_Percentage,
 
   VP_LED_TOGGLE,
-  VP_BUTTON_ADJUSTENTERKEY,
   VP_FAN_TOGGLE,
 
 
@@ -325,9 +307,6 @@ const uint16_t VPList_Prepare[] PROGMEM = {
   VP_Feedrate_Percentage,
 
   VP_STEPPERS,
-  VP_BUTTON_PREPAREENTERKEY,
-  VP_BUTTON_COOLDOWN,
-  VP_BUTTON_TEMPCONTROL,
 
   0x0000
 };

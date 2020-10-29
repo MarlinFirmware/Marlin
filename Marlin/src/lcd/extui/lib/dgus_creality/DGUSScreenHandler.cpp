@@ -1155,10 +1155,10 @@ void DGUSScreenHandler::UpdateScreenVPData() {
   bool sent_one = false;
   do {
     uint16_t VP = pgm_read_word(VPList);
-    //DEBUG_ECHOPAIR(" VP: ", VP);
+    DEBUG_ECHOPAIR(" VP: ", VP);
     if (!VP) {
       update_ptr = 0;
-      //DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
+      DEBUG_ECHOLNPGM(" UpdateScreenVPData done");
       ScreenComplete = true;
       return;  // Screen completed.
     }
@@ -1171,13 +1171,13 @@ void DGUSScreenHandler::UpdateScreenVPData() {
       // Send the VP to the display, but try to avoid overrunning the Tx Buffer.
       // But send at least one VP, to avoid getting stalled.
       if (rcpy.send_to_display_handler && (!sent_one || expected_tx <= dgusdisplay.GetFreeTxBuffer())) {
-        //DEBUG_ECHOPAIR(" calling handler for ", rcpy.VP);
+        DEBUG_ECHOPAIR(" calling handler for ", rcpy.VP);
         sent_one = true;
         rcpy.send_to_display_handler(rcpy);
       }
       else {
-        //auto x=dgusdisplay.GetFreeTxBuffer();
-        //DEBUG_ECHOLNPAIR(" tx almost full: ", x);
+        auto x = dgusdisplay.GetFreeTxBuffer();
+        DEBUG_ECHOLNPAIR(" tx almost full: ", x);
         //DEBUG_ECHOPAIR(" update_ptr ", update_ptr);
         ScreenComplete = false;
         return;  // please call again!
