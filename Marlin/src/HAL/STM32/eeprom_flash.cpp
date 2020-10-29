@@ -28,15 +28,6 @@
 
 #include "../shared/eeprom_api.h"
 
-#if HAS_SERVOS
-  #include "Servo.h"
-  #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
-  #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
-#else
-  #define PAUSE_SERVO_OUTPUT()
-  #define RESUME_SERVO_OUTPUT()
-#endif
-
 /**
  * The STM32 HAL supports chips that deal with "pages" and some with "sectors" and some that
  * even have multiple "banks" of flash.
