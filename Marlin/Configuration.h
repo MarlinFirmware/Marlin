@@ -517,7 +517,7 @@
 #define HEATER_5_MAXTEMP 275
 #define HEATER_6_MAXTEMP 275
 #define HEATER_7_MAXTEMP 275
-#define BED_MAXTEMP      150
+#define BED_MAXTEMP      120
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -536,43 +536,25 @@
   //#define PID_PARAMS_PER_HOTEND // Uses separate PID parameters for each extruder (useful for mismatched extruders)
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
 
-  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-
-  // Ultimaker
-  //#define DEFAULT_Kp 22.2
-  //#define DEFAULT_Ki 1.08
-  //#define DEFAULT_Kd 114
-
-  // MakerGear
-  //#define DEFAULT_Kp 7.0
-  //#define DEFAULT_Ki 0.1
-  //#define DEFAULT_Kd 12
-
-  // Mendel Parts V9 on 12V
-  //#define DEFAULT_Kp 63.0
-  //#define DEFAULT_Ki 2.25
-  //#define DEFAULT_Kd 440
-
-  // FLSUN QQ-S, 200 C with 100% part cooling
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
-    #define DEFAULT_Kp_LIST {  22.20,  22.20 }
-    #define DEFAULT_Ki_LIST {   1.08,   1.08 }
-    #define DEFAULT_Kd_LIST { 114.00, 114.00 }
+    #define DEFAULT_Kp_LIST {  28.16,  28.16 }
+    #define DEFAULT_Ki_LIST {   3.38,   3.38 }
+    #define DEFAULT_Kd_LIST {  58.69,  58.69 }
   #else
-    // FLSUN QQS-S
-    //#define DEFAULT_Kp  28.16
-    //#define DEFAULT_Ki   3.38
-    //#define DEFAULT_Kd  58.69
+    // FLSUN QQ-S, 200 C with 100% part cooling
+    #define DEFAULT_Kp  28.16
+    #define DEFAULT_Ki   3.38
+    #define DEFAULT_Kd  58.69
 
     // FLSUN QQS-Pro, PET 235 C with 70% part cooling
     //M301 P21.67 I1.25 D93.81        PLA
     //M301 P21.6708 I1.2515 D93.8127  PET
     // FIND YOUR OWN: measured after M106 S180 with M303 E0 S230 C8
-    #define DEFAULT_Kp 20.4763
-    #define DEFAULT_Ki 1.1105
-    #define DEFAULT_Kd 94.3881
+    //#define DEFAULT_Kp
+    //#define DEFAULT_Ki
+    //#define DEFAULT_Kd
   #endif
 #endif // PIDTEMP
 
@@ -622,18 +604,16 @@
   //#define DEFAULT_bedKd 1675.16
 
   // FLSUN QQS-Pro 1.6mm aluminium heater with 4mm lattice glass
-  //#define DEFAULT_bedKp 82.98
-  //#define DEFAULT_bedKi 15.93
-  //#define DEFAULT_bedKd 288.25
+  #define DEFAULT_bedKp 325.10
+  #define DEFAULT_bedKi 63.35
+  #define DEFAULT_bedKd 417.10
 
-  // FIND YOUR OWN: "M303 E-1 S90 C8" to run autotune on the bed at 90 degrees for 8 cycles.
-  //M303 E-1 C8 S60 =>Memo M304 P56.7371 I9.8297 D218.3244
-  //M303 E-1 C8 S80 =>Memo M304 P82.9811 I15.957 D288.2487
-  #define DEFAULT_bedKp 82.9811
-  #define DEFAULT_bedKi 15.9257
-  #define DEFAULT_bedKd 288.2487
+  // FIND YOUR OWN: "M303 E-1 S60 C8" to run autotune on the bed at 60 degrees for 8 cycles.
+  //M303 E-1 C8 S60 =>Memo M304 P61.05 I11.27 D218.99
+  //#define DEFAULT_bedKp 61.05
+  //#define DEFAULT_bedKi 11.72
+  //#define DEFAULT_bedKd 211.99
 
-  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
 #if EITHER(PIDTEMP, PIDTEMPBED)
