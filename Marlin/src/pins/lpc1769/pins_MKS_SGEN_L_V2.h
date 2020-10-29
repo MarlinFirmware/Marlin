@@ -251,7 +251,7 @@
  *                _____                                            _____
  * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
  * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
- * (LCD_D4) 0.15 | · ·| 0.17 (LCD_D5)            (BTN_EN2)   3.26 | · ·|  0.9 (SD_MOSI)
+ * (LCD_D4) 0.15 | · · | 0.17 (LCD_D5)            (BTN_EN2)  3.26 | · · | 0.9 (SD_MOSI)
  * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
  *           GND | · · | 5V                                   GND | · · | NC
  *                -----                                            -----
@@ -298,6 +298,56 @@
       #define LCD_PINS_RS                  P1_00
       #define LCD_PINS_D7                  P1_22
       #define KILL_PIN                     -1     // NC
+
+    #elif HAS_SPI_TFT                             // Config for Classic UI (emulated DOGM) and Color UI
+      #define TFT_CS_PIN                   P1_00
+      #define TFT_A0_PIN                   P1_22
+      #define TFT_DC_PIN                   P1_22
+      #define TFT_MISO_PIN                 P0_08
+      #define TFT_BACKLIGHT_PIN            P0_18
+      #define TFT_RESET_PIN                P0_16
+
+      #define LCD_USE_DMA_SPI
+
+      #define TOUCH_INT_PIN                P0_17
+      #define TOUCH_CS_PIN                 P0_15
+      #define TOUCH_BUTTONS_HW_SPI
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      2
+
+      // Disable any LCD related PINs config
+      #define LCD_PINS_ENABLE              -1
+      #define LCD_PINS_RS                  -1
+
+      // XPT2046 Touch Screen calibration
+      #if ENABLED(TFT_CLASSIC_UI)
+        #ifndef XPT2046_X_CALIBRATION
+          #define XPT2046_X_CALIBRATION   -11386
+        #endif
+        #ifndef XPT2046_Y_CALIBRATION
+          #define XPT2046_Y_CALIBRATION     8684
+        #endif
+        #ifndef XPT2046_X_OFFSET
+          #define XPT2046_X_OFFSET           689
+        #endif
+        #ifndef XPT2046_Y_OFFSET
+          #define XPT2046_Y_OFFSET          -273
+        #endif
+      #elif ENABLED(TFT_COLOR_UI)
+        #ifndef XPT2046_X_CALIBRATION
+          #define XPT2046_X_CALIBRATION   -17089
+        #endif
+        #ifndef XPT2046_Y_CALIBRATION
+          #define XPT2046_Y_CALIBRATION    11424
+        #endif
+        #ifndef XPT2046_X_OFFSET
+          #define XPT2046_X_OFFSET          1044
+        #endif
+        #ifndef XPT2046_Y_OFFSET
+          #define XPT2046_Y_OFFSET          -365
+        #endif
+
+        #define TFT_BUFFER_SIZE             2400
+      #endif
 
     #else                                         // !MKS_12864OLED_SSD1306
 
