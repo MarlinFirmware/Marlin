@@ -78,16 +78,29 @@ namespace ExtUI {
     ScreenHandler.FilamentRunout();
   }
 
+  void onUserConfirmed() {
+    SERIAL_ECHOLN("User confirmation invoked");
+    
+    ScreenHandler.SetupConfirmAction(nullptr);
+    ExtUI::setUserConfirmed();
+  }
+
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      DEBUG_ECHOLNPAIR("User confirmation requested: ", msg);
+      SERIAL_ECHOLNPAIR("User confirmation requested: ", msg);
+
+      ScreenHandler.setstatusmessagePGM(msg);
+      ScreenHandler.SetupConfirmAction(onUserConfirmed);
+
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
 
       ScreenHandler.sendinfoscreen(PSTR("Confirmation required"), msg, NUL_STR, NUL_STR, true, true, false, true);
-      ScreenHandler.SetupConfirmAction(ExtUI::setUserConfirmed);
-      if (ScreenHandler.getCurrentScreen() != DGUSLCD_SCREEN_POPUP) ScreenHandler.GotoScreen(DGUSLCD_SCREEN_POPUP);
     }
     else if (ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_POPUP) {
-      ScreenHandler.SetupConfirmAction(nullptr);
+      SERIAL_ECHOLNPAIR("User confirmation canceled");
+
+      //ScreenHandler.SetupConfirmAction(nullptr);
+      ScreenHandler.setstatusmessagePGM(nullptr);
       ScreenHandler.PopToOldScreen();
     }
   }

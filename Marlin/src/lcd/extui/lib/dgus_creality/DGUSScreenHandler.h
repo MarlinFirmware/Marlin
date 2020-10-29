@@ -72,6 +72,9 @@ public:
   static void HandleSettings(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMChanged(DGUS_VP_Variable &var, void *val_ptr);
   static void HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, void *val_ptr);
+
+  static void HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr);
+
   #if HAS_PID_HEATING
     // Hook for "Change this temperature PID para"
     static void HandleTemperaturePIDChanged(DGUS_VP_Variable &var, void *val_ptr);
@@ -247,6 +250,9 @@ public:
 
   static inline void SetupConfirmAction( void (*f)()) { confirm_action_cb = f; }
 
+  static float feed_amount;
+  static bool are_steppers_enabled;
+
 private:
   static DGUSLCD_Screens current_screen;  ///< currently on screen
   static constexpr uint8_t NUM_PAST_SCREENS = 4;
@@ -269,4 +275,3 @@ private:
 };
 
 extern DGUSScreenHandler ScreenHandler;
-extern bool are_steppers_enabled;

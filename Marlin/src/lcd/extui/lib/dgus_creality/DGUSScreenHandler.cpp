@@ -63,6 +63,8 @@ uint8_t DGUSScreenHandler::update_ptr;
 uint16_t DGUSScreenHandler::skipVP;
 bool DGUSScreenHandler::ScreenComplete;
 uint8_t DGUSScreenHandler::MeshLevelIndex = -1;
+bool DGUSScreenHandler::are_steppers_enabled = true;
+float DGUSScreenHandler::feed_amount = true;
 
 //DGUSDisplay dgusdisplay;
 UPDATE_CURRENT_SCREEN_CALLBACK DGUSDisplay::current_screen_update_callback = &DGUSScreenHandler::updateCurrentScreen;
@@ -482,6 +484,8 @@ void DGUSScreenHandler::HandleZoffsetChange(DGUS_VP_Variable &var, void *val_ptr
   }
 }
 
+
+
 void DGUSScreenHandler::OnMeshLevelingStart() {
   GotoScreen(DGUSLCD_SCREEN_LEVELING);
 
@@ -555,11 +559,15 @@ void DGUSScreenHandler::ScreenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   SERIAL_ECHOLNPAIR("Current screen:", current_screen);
   SERIAL_ECHOLNPAIR("Cancel target:", target);
 
-  if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM || target == 255 /*Buggy DWIN screen sometimes just returns 255*/) {
+  if (confirm_action_cb && current_screen == DGUSLCD_SCREEN_POPUP) {
+    DEBUG_ECHOLN("Executing confirmation action");
+    confirm_action_cb();
     PopToOldScreen();
+    return;
+  }
 
-    if (current_screen == DGUSLCD_SCREEN_POPUP && confirm_action_cb) confirm_action_cb();
-    if (current_screen == DGUSLCD_SCREEN_CONFIRM && confirm_action_cb) confirm_action_cb();
+  if (target == DGUSLCD_SCREEN_POPUP || target == DGUSLCD_SCREEN_CONFIRM || target == 0 || target == 255 /*Buggy DWIN screen sometimes just returns 255*/) {
+    PopToOldScreen();
     return;
   }
 
@@ -898,6 +906,19 @@ void DGUSScreenHandler::HandleStepPerMMExtruderChanged(DGUS_VP_Variable &var, vo
   }
 #endif
 
+void DGUSScreenHandler::HandleFeedAmountChanged(DGUS_VP_Variable &var, void *val_ptr) {
+    int16_t movevalue = swap16(*(uint16_t*)val_ptr);
+    float target = movevalue * 0.01f;
+
+    DEBUG_ECHOLNPAIR("HandleFeedAmountChanged ", target);
+    
+
+    *(float *)var.memadr = target;
+
+    ScreenHandler.skipVP = var.VP; // don't overwrite value the next update time as the display might autoincrement in parallel
+    return;
+  }
+
 #if HAS_BED_PROBE
   void DGUSScreenHandler::HandleProbeOffsetZChanged(DGUS_VP_Variable &var, void *val_ptr) {
     DEBUG_ECHOLNPGM("HandleProbeOffsetZChanged");
@@ -1068,7 +1089,6 @@ void DGUSScreenHandler::HandleHeaterControl(DGUS_VP_Variable &var, void *val_ptr
   }
 #endif
 
-bool are_steppers_enabled = true;
 void DGUSScreenHandler::HandleStepperState(bool is_enabled) {
   bool steppers_were_enabled = are_steppers_enabled;
   are_steppers_enabled = is_enabled;
@@ -1116,7 +1136,7 @@ void DGUSScreenHandler::updateCurrentScreen(DGUSLCD_Screens current) {
 }
 
 void DGUSScreenHandler::UpdateScreenVPData() {
-  if (!dgusdisplay.isInitialized) {
+  if (!dgusdisplay.isInitialized()) {
     return;
   }
 
@@ -1167,10 +1187,10 @@ void DGUSScreenHandler::UpdateScreenVPData() {
   } while (++update_ptr, ++VPList, true);
 }
 
-void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool ispopup) {
+void DGUSScreenHandler::GotoScreen(DGUSLCD_Screens screen, bool save_current_screen) {
   SERIAL_ECHOLNPAIR("Issuing command to go to screen: ", screen);
   dgusdisplay.RequestScreen(screen);
-  UpdateNewScreen(screen, ispopup);
+  UpdateNewScreen(screen, save_current_screen);
 }
 
 bool DGUSScreenHandler::loop() {
@@ -1179,15 +1199,22 @@ bool DGUSScreenHandler::loop() {
   const millis_t ms = millis();
   static millis_t next_event_ms = 0;
 
+  if (wait_for_user && current_screen != DGUSLCD_SCREEN_POPUP) {
+    // In some occassions the display needs more time to handle a screen change, for instance,
+    // with ADVANCED_PAUSE_FEATURE, the calls to ExtUI::onUserConfirmRequired are quite fast
+    DEBUG_ECHOLN("Nudging the display to update the current screen...");
+    GotoScreen(current_screen, true);
+  }
+
   if (!IsScreenComplete() || ELAPSED(ms, next_event_ms)) {
     next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
     UpdateScreenVPData();
     
     // Read which screen is currently triggered - navigation at display side may occur
-    if (dgusdisplay.isInitialized) dgusdisplay.ReadCurrentScreen();
+    if (dgusdisplay.isInitialized()) dgusdisplay.ReadCurrentScreen();
   }
 
-  if (dgusdisplay.isInitialized) {
+  if (dgusdisplay.isInitialized()) {
     static bool booted = false;
     if (!booted) {
       int16_t percentage = static_cast<int16_t>(((float) ms / (float)BOOTSCREEN_TIMEOUT) * 100);
@@ -1198,7 +1225,7 @@ bool DGUSScreenHandler::loop() {
 
     if (!booted && TERN0(POWER_LOSS_RECOVERY, recovery.valid())) {
       booted = true;
-      SERIAL_ECHOLN("Power loss recovery...");
+      DEBUG_ECHOLN("Power loss recovery...");
     }
 
     if (!booted && ELAPSED(ms, BOOTSCREEN_TIMEOUT)) {

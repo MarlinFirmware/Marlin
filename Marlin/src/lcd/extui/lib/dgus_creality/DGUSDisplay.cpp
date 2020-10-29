@@ -231,10 +231,13 @@ void DGUSDisplay::ProcessRx() {
             const uint16_t screen_id = tmp[3] << 8 | tmp[4];
 
             // In the code below DGUSLCD_SCREEN_BOOT acts as a sentinel
-            if (displayRequest != DGUSLCD_SCREEN_BOOT && screen_id != displayRequest) {
+            if (screen_id == 255) {
+              // DGUS OS sometimes randomly sends 255 back as an answer. Possible buffer overrun?
+              ReadCurrentScreen(); // Request again
+            } else if (displayRequest != DGUSLCD_SCREEN_BOOT && screen_id != displayRequest) {
               // A display was requested. If the screen didn't yet switch to that display, we won't give that value back, otherwise the code gets confused.
-              // The DWIN display always honours the PIC_SET requests from the firmware, so we don't need to worry about it not getting back.
-              DEBUG_ECHOPAIR(" Got a response on the current screen :", screen_id);
+              // The DWIN display mostly honours the PIC_SET requests from the firmware, so after a while we may want to nudge it to the correct screen
+              DEBUG_ECHOPAIR(" Got a response on the current screen: ", screen_id);
               DEBUG_ECHOLNPAIR(" - however, we've requested screen ", displayRequest);
             } else {
               displayRequest = DGUSLCD_SCREEN_BOOT;

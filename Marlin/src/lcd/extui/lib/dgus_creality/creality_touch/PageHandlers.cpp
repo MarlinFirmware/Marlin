@@ -7,6 +7,7 @@
 #include "../../../../../module/temperature.h"
 #include "../../../../../module/motion.h"
 #include "../../../../../module/planner.h"
+#include "../../../../../feature/pause.h"
 #include "../../../../../module/settings.h"
 
 #include "../../../../ultralcd.h"
@@ -228,6 +229,54 @@ void PreheatSettingsScreenHandler(DGUS_VP_Variable &var, unsigned short buttonVa
     }
 }
 
+void FeedHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
+    if (var.VP != VP_BUTTON_HEATLOADSTARTKEY) return;
+
+    switch (buttonValue) {
+        case 1:
+            if (ExtUI::getActualTemp_celsius(ExtUI::H0) < PREHEAT_1_TEMP_HOTEND) {
+                ExtUI::setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, ExtUI::H0);
+
+                thermalManager.wait_for_hotend(0);
+            }
+
+            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
+
+            load_filament(
+                FILAMENT_CHANGE_SLOW_LOAD_LENGTH,
+                FILAMENT_CHANGE_FAST_LOAD_LENGTH,
+                ScreenHandler.feed_amount,
+                FILAMENT_CHANGE_ALERT_BEEPS,
+                false,
+                thermalManager.still_heating(0),
+                PAUSE_MODE_LOAD_FILAMENT
+            );
+            
+            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
+        break;
+
+        case 2:
+            if (ExtUI::getActualTemp_celsius(ExtUI::H0) < PREHEAT_1_TEMP_HOTEND) {
+                ExtUI::setTargetTemp_celsius(PREHEAT_1_TEMP_HOTEND, ExtUI::H0);
+                
+                thermalManager.wait_for_hotend(0);
+            }
+
+            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(10));
+
+            unload_filament(
+                ScreenHandler.feed_amount,
+                false,
+                PAUSE_MODE_UNLOAD_FILAMENT
+            );
+
+            dgusdisplay.WriteVariable(VP_FEED_PROGRESS, static_cast<int16_t>(0));
+        break;
+    }
+
+    ScreenHandler.ForceCompleteUpdate();
+}
+
 // Register the page handlers
 #define PAGE_HANDLER(SCRID, HDLRPTR) { .ScreenID=SCRID, .Handler=HDLRPTR },
 const struct PageHandler PageHandlers[] PROGMEM = {
@@ -243,6 +292,7 @@ const struct PageHandler PageHandlers[] PROGMEM = {
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TEMP_ABS, PreheatSettingsScreenHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_TUNING, TuneMenuHandler)
+    PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_FEED, FeedHandler)
     
     PAGE_HANDLER(DGUSLCD_Screens::DGUSLCD_SCREEN_FILAMENTRUNOUT1, FilamentRunoutHandler)
 
