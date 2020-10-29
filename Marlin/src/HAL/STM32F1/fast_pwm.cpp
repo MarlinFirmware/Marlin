@@ -60,52 +60,5 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size /*=25
     uint16_t max_val = timer->regs.bas->ARR;
     pwmWrite(pin, invert ? v_size - max_val * v / v_size : max_val * v / v_size);
 }
-
-/* May be used for invoking HAL_timer_start
-
-uint8_t get_timer_num_by_dev(timer_dev* dev){
-    #if STM32_HAVE_TIMER(1)
-    if(dev == &timer1) return 1;
-    #endif
-    #if STM32_HAVE_TIMER(2)
-    if(dev == &timer2) return 2;
-    #endif
-    #if STM32_HAVE_TIMER(3)
-    if(dev == &timer3) return 3;
-    #endif
-    #if STM32_HAVE_TIMER(4)
-    if(dev == &timer4) return 4;
-    #endif
-    #if STM32_HAVE_TIMER(5)
-    if(dev == &timer5) return 5;
-    #endif
-    #if STM32_HAVE_TIMER(6)
-    if(dev == &timer6) return 6;
-    #endif
-    #if STM32_HAVE_TIMER(7)
-    if(dev == &timer7) return 7;
-    #endif
-    #if STM32_HAVE_TIMER(8)
-    if(dev == &timer8) return 8;
-    #endif
-    #if STM32_HAVE_TIMER(9)
-    if(dev == &timer9) return 9;
-    #endif
-    #if STM32_HAVE_TIMER(10)
-    if(dev == &timer10) return 10;
-    #endif
-    #if STM32_HAVE_TIMER(11)
-    if(dev == &timer11) return 11;
-    #endif
-    #if STM32_HAVE_TIMER(12)
-    if(dev == &timer12) return 12;
-    #endif
-    #if STM32_HAVE_TIMER(13)
-    if(dev == &timer13) return 13;
-    #endif
-    #if STM32_HAVE_TIMER(14)
-    if(dev == &timer14) return 14;
-    #endif
-}*/
 #endif // NEEDS_HARDWARE_PWM
 #endif // __STM32F1__
