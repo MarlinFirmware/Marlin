@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -140,13 +140,13 @@ void BrickoutGame::game_screen() {
 
   // Draw bricks
   if (PAGE_CONTAINS(BRICK_TOP, BRICK_BOT)) {
-    for (uint8_t y = 0; y < BRICK_ROWS; ++y) {
+    LOOP_L_N(y, BRICK_ROWS) {
       const uint8_t yy = y * BRICK_H + BRICK_TOP;
       if (PAGE_CONTAINS(yy, yy + BRICK_H - 1)) {
-        for (uint8_t x = 0; x < BRICK_COLS; ++x) {
+        LOOP_L_N(x, BRICK_COLS) {
           if (TEST(bdat.bricks[y], x)) {
             const uint8_t xx = x * BRICK_W;
-            for (uint8_t v = 0; v < BRICK_H - 1; ++v)
+            LOOP_L_N(v, BRICK_H - 1)
               if (PAGE_CONTAINS(yy + v, yy + v))
                 u8g.drawHLine(xx, yy + v, BRICK_W - 1);
           }

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -62,7 +62,7 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#ifndef __AVR_AT90USB1286__
+#if NOT_TARGET(__AVR_AT90USB1286__)
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
@@ -73,56 +73,56 @@
 //
 // Servos
 //
-#define SERVO0_PIN         39   // F1  In teensy's pin definition for pinMode (in servo.cpp)
+#define SERVO0_PIN                            39  // F1  In teensy's pin definition for pinMode (in servo.cpp)
 
 //
 // Limit Switches
 //
-#define X_STOP_PIN         25   // B5
-#define Y_STOP_PIN         26   // B6
-//#define Z_STOP_PIN         27   // B7
-#define Z_STOP_PIN         36   // E4 For inductive sensor.
-//#define E_STOP_PIN         36   // E4
+#define X_STOP_PIN                            25  // B5
+#define Y_STOP_PIN                            26  // B6
+//#define Z_STOP_PIN                          27  // B7
+#define Z_STOP_PIN                            36  // E4 For inductive sensor.
+//#define E_STOP_PIN                          36  // E4
 
 //
 // Steppers
 //
-#define X_STEP_PIN         28   // A0
-#define X_DIR_PIN          29   // A1
-#define X_ENABLE_PIN       19   // E7
+#define X_STEP_PIN                            28  // A0
+#define X_DIR_PIN                             29  // A1
+#define X_ENABLE_PIN                          19  // E7
 
-#define Y_STEP_PIN         30   // A2
-#define Y_DIR_PIN          31   // A3
-#define Y_ENABLE_PIN       18   // E6
+#define Y_STEP_PIN                            30  // A2
+#define Y_DIR_PIN                             31  // A3
+#define Y_ENABLE_PIN                          18  // E6
 
-#define Z_STEP_PIN         32   // A4
-#define Z_DIR_PIN          33   // A5
-#define Z_ENABLE_PIN       17   // C7
+#define Z_STEP_PIN                            32  // A4
+#define Z_DIR_PIN                             33  // A5
+#define Z_ENABLE_PIN                          17  // C7
 
-#define E0_STEP_PIN        34   // A6
-#define E0_DIR_PIN         35   // A7
-#define E0_ENABLE_PIN      13   // C3
+#define E0_STEP_PIN                           34  // A6
+#define E0_DIR_PIN                            35  // A7
+#define E0_ENABLE_PIN                         13  // C3
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // F7  Analog Input (Extruder)
-#define TEMP_BED_PIN        6   // F6  Analog Input (Bed)
+#define TEMP_0_PIN                             7  // F7  Analog Input (Extruder)
+#define TEMP_BED_PIN                           6  // F6  Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       15   // C5 PWM3B - Extruder
-#define HEATER_BED_PIN     14   // C4 PWM3C - Bed
+#define HEATER_0_PIN                          15  // C5 PWM3B - Extruder
+#define HEATER_BED_PIN                        14  // C4 PWM3C - Bed
 
 #ifndef FAN_PIN
-  #define FAN_PIN          16   // C6 PWM3A
+  #define FAN_PIN                             16  // C6 PWM3A
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               20   // B0
+#define SDSS                                  20  // B0
 
 // Extension header pin mapping
 // ----------------------------
@@ -133,53 +133,53 @@
 //  PWM-D24         A4 (An), IO
 //  5V              GND
 //  12V             GND
-#define EXT_AUX_SCL_D0      0   // D0  PWM0B
-#define EXT_AUX_SDA_D1      1   // D1
-#define EXT_AUX_RX1_D2      2   // D2
-#define EXT_AUX_TX1_D3      3   // D3
-#define EXT_AUX_PWM_D24    24   // B4  PWM2A
-#define EXT_AUX_A0          0   // F0  Analog Input
-#define EXT_AUX_A0_IO      38   // F0  Digital IO
-#define EXT_AUX_A1          1   // F1  Analog Input
-#define EXT_AUX_A1_IO      39   // F1  Digital IO
-#define EXT_AUX_A2          2   // F2  Analog Input
-#define EXT_AUX_A2_IO      40   // F2  Digital IO
-#define EXT_AUX_A3          3   // F3  Analog Input
-#define EXT_AUX_A3_IO      41   // F3  Digital IO
-#define EXT_AUX_A4          4   // F4  Analog Input
-#define EXT_AUX_A4_IO      42   // F4  Digital IO
+#define EXT_AUX_SCL_D0                         0  // D0  PWM0B
+#define EXT_AUX_SDA_D1                         1  // D1
+#define EXT_AUX_RX1_D2                         2  // D2
+#define EXT_AUX_TX1_D3                         3  // D3
+#define EXT_AUX_PWM_D24                       24  // B4  PWM2A
+#define EXT_AUX_A0                             0  // F0  Analog Input
+#define EXT_AUX_A0_IO                         38  // F0  Digital IO
+#define EXT_AUX_A1                             1  // F1  Analog Input
+#define EXT_AUX_A1_IO                         39  // F1  Digital IO
+#define EXT_AUX_A2                             2  // F2  Analog Input
+#define EXT_AUX_A2_IO                         40  // F2  Digital IO
+#define EXT_AUX_A3                             3  // F3  Analog Input
+#define EXT_AUX_A3_IO                         41  // F3  Digital IO
+#define EXT_AUX_A4                             4  // F4  Analog Input
+#define EXT_AUX_A4_IO                         42  // F4  Digital IO
 
 //
 // LCD / Controller
 //
-#define BEEPER_PIN         -1
-#define LCD_PINS_RS        -1
-#define LCD_PINS_ENABLE    -1
+#define BEEPER_PIN                            -1
+#define LCD_PINS_RS                           -1
+#define LCD_PINS_ENABLE                       -1
 
 #if ENABLED(SAV_3DLCD)
   // For LCD SHIFT register LCD
-  #define SR_DATA_PIN      EXT_AUX_SDA_D1
-  #define SR_CLK_PIN       EXT_AUX_SCL_D0
+  #define SR_DATA_PIN             EXT_AUX_SDA_D1
+  #define SR_CLK_PIN              EXT_AUX_SCL_D0
 #endif
 
 #if EITHER(SAV_3DLCD, SAV_3DGLCD)
 
-  #define BTN_EN1          EXT_AUX_A1_IO
-  #define BTN_EN2          EXT_AUX_A0_IO
-  #define BTN_ENC          EXT_AUX_PWM_D24
+  #define BTN_EN1                  EXT_AUX_A1_IO
+  #define BTN_EN2                  EXT_AUX_A0_IO
+  #define BTN_ENC                EXT_AUX_PWM_D24
 
-  #define KILL_PIN         EXT_AUX_A2_IO
-  #define HOME_PIN         EXT_AUX_A4_IO
+  #define KILL_PIN                 EXT_AUX_A2_IO
+  #define HOME_PIN                 EXT_AUX_A4_IO
 
-#else // Use the expansion header for spindle control
+#else                                             // Use the expansion header for spindle control
 
   //
   // M3/M4/M5 - Spindle/Laser Control
   //
-  #define SPINDLE_LASER_PWM_PIN    24   // B4  PWM2A
-  #define SPINDLE_LASER_ENA_PIN    39   // F1  Pin should have a pullup!
-  #define SPINDLE_DIR_PIN          40   // F2
+  #define SPINDLE_LASER_PWM_PIN               24  // B4  PWM2A
+  #define SPINDLE_LASER_ENA_PIN               39  // F1  Pin should have a pullup!
+  #define SPINDLE_DIR_PIN                     40  // F2
 
-  #define CASE_LIGHT_PIN            0   // D0  PWM0B
+  #define CASE_LIGHT_PIN                       0  // D0  PWM0B
 
 #endif

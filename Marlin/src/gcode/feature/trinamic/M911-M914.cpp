@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_TRINAMIC
+#if HAS_TRINAMIC_CONFIG
 
 #include "../../gcode.h"
 #include "../../../feature/tmc_util.h"
@@ -37,8 +37,8 @@
 
   #define M91x_SOME_X (M91x_USE(X) || M91x_USE(X2))
   #define M91x_SOME_Y (M91x_USE(Y) || M91x_USE(Y2))
-  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3))
-  #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5))
+  #define M91x_SOME_Z (M91x_USE(Z) || M91x_USE(Z2) || M91x_USE(Z3) || M91x_USE(Z4))
+  #define M91x_SOME_E (M91x_USE_E(0) || M91x_USE_E(1) || M91x_USE_E(2) || M91x_USE_E(3) || M91x_USE_E(4) || M91x_USE_E(5) || M91x_USE_E(6) || M91x_USE_E(7))
 
   #if !M91x_SOME_X && !M91x_SOME_Y && !M91x_SOME_Z && !M91x_SOME_E
     #error "MONITOR_DRIVER_STATUS requires at least one TMC2130, 2160, 2208, 2209, 2660, 5130, or 5160."
@@ -70,6 +70,9 @@
     #if M91x_USE(Z3)
       tmc_report_otpw(stepperZ3);
     #endif
+    #if M91x_USE(Z4)
+      tmc_report_otpw(stepperZ4);
+    #endif
     #if M91x_USE_E(0)
       tmc_report_otpw(stepperE0);
     #endif
@@ -88,11 +91,17 @@
     #if M91x_USE_E(5)
       tmc_report_otpw(stepperE5);
     #endif
+    #if M91x_USE_E(6)
+      tmc_report_otpw(stepperE6);
+    #endif
+    #if M91x_USE_E(7)
+      tmc_report_otpw(stepperE7);
+    #endif
   }
 
   /**
    * M912: Clear TMC stepper driver overtemperature pre-warn flag held by the library
-   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3 and E[index].
+   *       Specify one or more axes with X, Y, Z, X1, Y1, Z1, X2, Y2, Z2, Z3, Z4 and E[index].
    *       If no axes are given, clear all.
    *
    * Examples:
@@ -160,6 +169,9 @@
       #if M91x_USE(Z3)
         if (hasNone || zval == 3 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ3);
       #endif
+      #if M91x_USE(Z4)
+        if (hasNone || zval == 4 || (hasZ && zval < 0)) tmc_clear_otpw(stepperZ4);
+      #endif
     #endif
 
     #if M91x_SOME_E
@@ -182,6 +194,12 @@
       #if M91x_USE_E(5)
         if (hasNone || eval == 5 || (hasE && eval < 0)) tmc_clear_otpw(stepperE5);
       #endif
+      #if M91x_USE_E(6)
+        if (hasNone || eval == 6 || (hasE && eval < 0)) tmc_clear_otpw(stepperE6);
+      #endif
+      #if M91x_USE_E(7)
+        if (hasNone || eval == 7 || (hasE && eval < 0)) tmc_clear_otpw(stepperE7);
+      #endif
     #endif
   }
 
@@ -198,7 +216,7 @@
     #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
-    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3)
+    #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
       const uint8_t index = parser.byteval('I');
     #endif
     LOOP_XYZE(i) if (int32_t value = parser.longval(axis_codes[i])) {
@@ -230,6 +248,9 @@
           #if AXIS_HAS_STEALTHCHOP(Z3)
             if (index == 0 || index == 3) TMC_SET_PWMTHRS(Z,Z3);
           #endif
+          #if AXIS_HAS_STEALTHCHOP(Z4)
+            if (index == 0 || index == 4) TMC_SET_PWMTHRS(Z,Z4);
+          #endif
           break;
         case E_AXIS: {
           #if E_STEPPERS
@@ -253,6 +274,12 @@
               #endif
               #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
                 case 5: TMC_SET_PWMTHRS_E(5); break;
+              #endif
+              #if E_STEPPERS > 6 && AXIS_HAS_STEALTHCHOP(E6)
+                case 6: TMC_SET_PWMTHRS_E(6); break;
+              #endif
+              #if E_STEPPERS > 7 && AXIS_HAS_STEALTHCHOP(E7)
+                case 7: TMC_SET_PWMTHRS_E(7); break;
               #endif
             }
           #endif // E_STEPPERS
@@ -282,6 +309,9 @@
       #if AXIS_HAS_STEALTHCHOP(Z3)
         TMC_SAY_PWMTHRS(Z,Z3);
       #endif
+      #if AXIS_HAS_STEALTHCHOP(Z4)
+        TMC_SAY_PWMTHRS(Z,Z4);
+      #endif
       #if E_STEPPERS && AXIS_HAS_STEALTHCHOP(E0)
         TMC_SAY_PWMTHRS_E(0);
       #endif
@@ -300,6 +330,12 @@
       #if E_STEPPERS > 5 && AXIS_HAS_STEALTHCHOP(E5)
         TMC_SAY_PWMTHRS_E(5);
       #endif
+      #if E_STEPPERS > 6 && AXIS_HAS_STEALTHCHOP(E6)
+        TMC_SAY_PWMTHRS_E(6);
+      #endif
+      #if E_STEPPERS > 7 && AXIS_HAS_STEALTHCHOP(E7)
+        TMC_SAY_PWMTHRS_E(7);
+      #endif
     }
   }
 #endif // HYBRID_THRESHOLD
@@ -312,7 +348,7 @@
 
     bool report = true;
     const uint8_t index = parser.byteval('I');
-    LOOP_XYZ(i) if (parser.seen(axis_codes[i])) {
+    LOOP_XYZ(i) if (parser.seen(XYZ_CHAR(i))) {
       const int16_t value = parser.value_int();
       report = false;
       switch (i) {
@@ -347,6 +383,9 @@
             #if AXIS_HAS_STALLGUARD(Z3)
               if (index == 0 || index == 3) stepperZ3.homing_threshold(value);
             #endif
+            #if AXIS_HAS_STALLGUARD(Z4)
+              if (index == 0 || index == 4) stepperZ4.homing_threshold(value);
+            #endif
             break;
         #endif
       }
@@ -379,9 +418,12 @@
         #if AXIS_HAS_STALLGUARD(Z3)
           tmc_print_sgt(stepperZ3);
         #endif
+        #if AXIS_HAS_STALLGUARD(Z4)
+          tmc_print_sgt(stepperZ4);
+        #endif
       #endif
     }
   }
 #endif // USE_SENSORLESS
 
-#endif // HAS_TRINAMIC
+#endif // HAS_TRINAMIC_CONFIG

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,9 +46,7 @@ void mpe_settings_init() {
   mpe_settings.parking_xpos[0]      = pex[0];                         // M951 L
   mpe_settings.parking_xpos[1]      = pex[1];                         // M951 R
   mpe_settings.grab_distance        = PARKING_EXTRUDER_GRAB_DISTANCE; // M951 I
-  #if HAS_HOME_OFFSET
-    set_home_offset(X_AXIS, mpe_settings.grab_distance * -1);
-  #endif
+  TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, mpe_settings.grab_distance * -1));
   mpe_settings.slow_feedrate        = MMM_TO_MMS(MPE_SLOW_SPEED);     // M951 J
   mpe_settings.fast_feedrate        = MMM_TO_MMS(MPE_FAST_SPEED);     // M951 H
   mpe_settings.travel_distance      = MPE_TRAVEL_DISTANCE;            // M951 D
@@ -61,9 +59,7 @@ void GcodeSuite::M951() {
   if (parser.seenval('R')) mpe_settings.parking_xpos[1] = parser.value_linear_units();
   if (parser.seenval('I')) {
     mpe_settings.grab_distance = parser.value_linear_units();
-    #if HAS_HOME_OFFSET
-      set_home_offset(X_AXIS, mpe_settings.grab_distance * -1);
-    #endif
+    TERN_(HAS_HOME_OFFSET, set_home_offset(X_AXIS, mpe_settings.grab_distance * -1));
   }
   if (parser.seenval('J')) mpe_settings.slow_feedrate       = MMM_TO_MMS(parser.value_linear_units());
   if (parser.seenval('H')) mpe_settings.fast_feedrate       = MMM_TO_MMS(parser.value_linear_units());

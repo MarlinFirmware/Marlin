@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
 
 //#define MIXER_NORMALIZER_DEBUG
 
-#ifndef __AVR__ // || DUAL_MIXING_EXTRUDER
+#ifndef __AVR__ // || HAS_DUAL_MIXING
   // Use 16-bit (or fastest) data for the integer mix factors
   typedef uint_fast16_t mixer_comp_t;
   typedef uint_fast16_t mixer_accu_t;
@@ -48,29 +48,23 @@ typedef int8_t mixer_perc_t;
 #endif
 
 enum MixTool {
-  FIRST_USER_VIRTUAL_TOOL = 0,
-  LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1,
-  NR_USER_VIRTUAL_TOOLS,
-  MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS,
-  #if ENABLED(RETRACT_SYNC_MIXING)
-    MIXER_AUTORETRACT_TOOL,
+    FIRST_USER_VIRTUAL_TOOL = 0
+  , LAST_USER_VIRTUAL_TOOL = MIXING_VIRTUAL_TOOLS - 1
+  , NR_USER_VIRTUAL_TOOLS
+  , MIXER_DIRECT_SET_TOOL = NR_USER_VIRTUAL_TOOLS
+  #if HAS_MIXER_SYNC_CHANNEL
+    , MIXER_AUTORETRACT_TOOL
   #endif
-  NR_MIXING_VIRTUAL_TOOLS
+  , NR_MIXING_VIRTUAL_TOOLS
 };
 
-#if ENABLED(RETRACT_SYNC_MIXING)
-  #define MAX_VTOOLS 254
-#else
-  #define MAX_VTOOLS 255
-#endif
+#define MAX_VTOOLS TERN(HAS_MIXER_SYNC_CHANNEL, 254, 255)
 static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must be <= " STRINGIFY(MAX_VTOOLS) "!");
-
-#define MIXER_STEPPER_LOOP(VAR) \
-  for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #define MIXER_BLOCK_FIELD       mixer_comp_t b_color[MIXING_STEPPERS]
 #define MIXER_POPULATE_BLOCK()  mixer.populate_block(block->b_color)
 #define MIXER_STEPPER_SETUP()   mixer.stepper_setup(current_block->b_color)
+#define MIXER_STEPPER_LOOP(VAR) for (uint_fast8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++)
 
 #if ENABLED(GRADIENT_MIX)
 
@@ -81,9 +75,7 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
     int8_t start_vtool, end_vtool;        // Start and end virtual tools
     mixer_perc_t start_mix[MIXING_STEPPERS],   // Start and end mixes from those tools
                  end_mix[MIXING_STEPPERS];
-    #if ENABLED(GRADIENT_VTOOL)
-      int8_t vtool_index;                 // Use this virtual tool number as index
-    #endif
+    TERN_(GRADIENT_VTOOL, int8_t vtool_index); // Use this virtual tool number as index
   } gradient_t;
 
 #endif
@@ -112,12 +104,8 @@ class Mixer {
 
   FORCE_INLINE static void T(const uint_fast8_t c) {
     selected_vtool = c;
-    #if ENABLED(GRADIENT_VTOOL)
-      refresh_gradient();
-    #endif
-    #if DUAL_MIXING_EXTRUDER
-      update_mix_from_vtool();
-    #endif
+    TERN_(GRADIENT_VTOOL, refresh_gradient());
+    TERN_(HAS_DUAL_MIXING, update_mix_from_vtool());
   }
 
   // Used when dealing with blocks
@@ -135,7 +123,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
-  #if DUAL_MIXING_EXTRUDER || ENABLED(GRADIENT_MIX)
+  #if EITHER(HAS_DUAL_MIXING, GRADIENT_MIX)
 
     static mixer_perc_t mix[MIXING_STEPPERS];  // Scratch array for the Mix in proportion to 100
 
@@ -173,21 +161,19 @@ class Mixer {
       #endif
     }
 
-  #endif // DUAL_MIXING_EXTRUDER || GRADIENT_MIX
+  #endif // HAS_DUAL_MIXING || GRADIENT_MIX
 
-  #if DUAL_MIXING_EXTRUDER
+  #if HAS_DUAL_MIXING
 
     // Update the virtual tool from an edited mix
     static inline void update_vtool_from_mix() {
       copy_mix_to_color(color[selected_vtool]);
-      #if ENABLED(GRADIENT_MIX)
-        refresh_gradient();
-      #endif
+      TERN_(GRADIENT_MIX, refresh_gradient());
       // MIXER_STEPPER_LOOP(i) collector[i] = mix[i];
       // normalize();
     }
 
-  #endif // DUAL_MIXING_EXTRUDER
+  #endif // HAS_DUAL_MIXING
 
   #if ENABLED(GRADIENT_MIX)
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,7 +25,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32)
+#if !defined(U8G_HAL_LINKS) && ANY(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32)
 
 #include "../../inc/MarlinConfig.h"
 
@@ -34,18 +34,29 @@
 #include "ultralcd_st7920_u8glib_rrd_AVR.h"
 
 #ifndef ST7920_DELAY_1
-  #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+  #ifdef BOARD_ST7920_DELAY_1
+    #define ST7920_DELAY_1 BOARD_ST7920_DELAY_1
+  #else
+    #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+  #endif
 #endif
 #ifndef ST7920_DELAY_2
-  #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+  #ifdef BOARD_ST7920_DELAY_2
+    #define ST7920_DELAY_2 BOARD_ST7920_DELAY_2
+  #else
+    #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+  #endif
 #endif
 #ifndef ST7920_DELAY_3
-  #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+  #ifdef BOARD_ST7920_DELAY_3
+    #define ST7920_DELAY_3 BOARD_ST7920_DELAY_3
+  #else
+    #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+  #endif
 #endif
 
 // Optimize this code with -O3
 #pragma GCC optimize (3)
-
 
 #ifdef ARDUINO_ARCH_STM32F1
   #define ST7920_DAT(V) !!((V) & 0x80)
@@ -154,4 +165,4 @@ u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_rrd_st7920_128x64_fn, &u8
 #endif
 
 #endif // U8GLIB_ST7920
-#endif // __AVR__ && !U8G_HAL_LINKS
+#endif // !U8G_HAL_LINKS && (__AVR__ || ARDUINO_ARCH_STM32 || ARDUINO_ARCH_ESP32)

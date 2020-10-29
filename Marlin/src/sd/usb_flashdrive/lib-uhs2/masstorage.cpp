@@ -19,7 +19,7 @@
  * -------------------
  *
  * Circuits At Home, LTD
- * Web      :  http://www.circuitsathome.com
+ * Web      :  https://www.circuitsathome.com
  * e-mail   :  support@circuitsathome.com
  */
 
@@ -250,10 +250,10 @@ bLastUsbError(0) {
  */
 uint8_t BulkOnly::ConfigureDevice(uint8_t parent, uint8_t port, bool lowspeed) {
 
-  const uint8_t constBufSize = sizeof (USB_DEVICE_DESCRIPTOR);
+  const uint8_t constBufSize = sizeof (USB_FD_DEVICE_DESCRIPTOR);
 
   uint8_t buf[constBufSize];
-  USB_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_DEVICE_DESCRIPTOR*>(buf);
+  USB_FD_DEVICE_DESCRIPTOR * udd = reinterpret_cast<USB_FD_DEVICE_DESCRIPTOR*>(buf);
   uint8_t rcode;
   UsbDevice *p = nullptr;
   EpInfo *oldep_ptr = nullptr;
@@ -439,7 +439,7 @@ uint8_t BulkOnly::Init(uint8_t parent __attribute__((unused)), uint8_t port __at
         printf(" standards.\r\n");
       #endif
 
-      uint8_t tries = 0xf0;
+      uint8_t tries = 0xF0;
       while ((rcode = TestUnitReady(lun))) {
         if (rcode == 0x08) break; // break on no media, this is OK to do.
         // try to lock media and spin up
@@ -529,7 +529,7 @@ uint8_t BulkOnly::Init(uint8_t parent __attribute__((unused)), uint8_t port __at
  * @param proto
  * @param pep
  */
-void BulkOnly::EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto __attribute__((unused)), const USB_ENDPOINT_DESCRIPTOR * pep) {
+void BulkOnly::EndpointXtract(uint8_t conf, uint8_t iface, uint8_t alt, uint8_t proto __attribute__((unused)), const USB_FD_ENDPOINT_DESCRIPTOR * pep) {
   ErrorMessage<uint8_t> (PSTR("Conf.Val"), conf);
   ErrorMessage<uint8_t> (PSTR("Iface Num"), iface);
   ErrorMessage<uint8_t> (PSTR("Alt.Set"), alt);
@@ -765,7 +765,7 @@ uint8_t BulkOnly::Page3F(uint8_t lun) {
         #ifdef SKIP_WRITE_PROTECT
           return 0;
         #endif
-        uint8_t rc = ModeSense6(lun, 0, 0x3f, 0, 192, buf);
+        uint8_t rc = ModeSense6(lun, 0, 0x3F, 0, 192, buf);
         if (!rc) {
                 WriteOk[lun] = ((buf[2] & 0x80) == 0);
                 Notify(PSTR("Mode Sense: "), 0x80);
@@ -828,7 +828,6 @@ uint8_t BulkOnly::ClearEpHalt(uint8_t index) {
 
 /**
  * For driver use only.
- *
  */
 void BulkOnly::Reset() {
         while (pUsb->ctrlReq(bAddress, 0, bmREQ_MASSOUT, MASS_REQ_BOMSR, 0, 0, bIface, 0, 0, nullptr, nullptr) == 0x01) delay(6);
@@ -1163,10 +1162,9 @@ uint8_t BulkOnly::HandleSCSIError(uint8_t status) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *
  * @param ep_ptr
  */
-void BulkOnly::PrintEndpointDescriptor(const USB_ENDPOINT_DESCRIPTOR * ep_ptr) {
+void BulkOnly::PrintEndpointDescriptor(const USB_FD_ENDPOINT_DESCRIPTOR * ep_ptr) {
   Notify(PSTR("Endpoint descriptor:"), 0x80);
   Notify(PSTR("\r\nLength:\t\t"), 0x80);
   D_PrintHex<uint8_t> (ep_ptr->bLength, 0x80);
@@ -1205,10 +1203,10 @@ uint8_t BulkOnly::Read(uint8_t lun __attribute__((unused)), uint32_t addr __attr
 
     cbw.CBWCB[0] = SCSI_CMD_READ_10;
     cbw.CBWCB[8] = blocks;
-    cbw.CBWCB[2] = ((addr >> 24) & 0xff);
-    cbw.CBWCB[3] = ((addr >> 16) & 0xff);
-    cbw.CBWCB[4] = ((addr >> 8) & 0xff);
-    cbw.CBWCB[5] = (addr & 0xff);
+    cbw.CBWCB[2] = ((addr >> 24) & 0xFF);
+    cbw.CBWCB[3] = ((addr >> 16) & 0xFF);
+    cbw.CBWCB[4] = ((addr >> 8) & 0xFF);
+    cbw.CBWCB[5] = (addr & 0xFF);
 
     return HandleSCSIError(Transaction(&cbw, bsize, prs, 1));
   #else

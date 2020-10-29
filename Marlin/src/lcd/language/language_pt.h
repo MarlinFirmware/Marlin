@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,8 +26,7 @@
  * UTF-8 for Graphical Display
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
  #define DISPLAY_CHARSET_ISO10646_1
@@ -54,20 +53,23 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Definir desvio");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets aplicados");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Definir origem");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Definições ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL _UxGT(" Bico");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Pre-aquecer ") PREHEAT_2_LABEL _UxGT(" Bico ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Pre-aq. ") PREHEAT_2_LABEL _UxGT(" Tudo");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Pre-aq. ") PREHEAT_2_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Definições ") PREHEAT_2_LABEL;
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Pre-aquecer ") PREHEAT_1_LABEL _UxGT(" Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" Tudo");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Pre-aq. ") PREHEAT_1_LABEL _UxGT(" ") LCD_STR_THERMOMETER _UxGT("Base");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Definições ") PREHEAT_1_LABEL;
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Pre-aquecer $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Pre-aquecer $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Pre-aquecer $ Bico");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Pre-aquecer $ Bico ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Pre-aq. $ Tudo");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Pre-aq. $ ") LCD_STR_THERMOMETER _UxGT("Base");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Definições $");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Arrefecer");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Ligar");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Desligar");
@@ -89,7 +91,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_NOZZLE_N                        = " " LCD_STR_THERMOMETER _UxGT(" Bico ~");
   PROGMEM Language_Str MSG_BED                             = " " LCD_STR_THERMOMETER _UxGT(" Base");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Vel. ventoinha");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventoinha =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Vel. ventoinha ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Fluxo");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Fluxo ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Controlo");
@@ -107,15 +109,15 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm3");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E em mm³");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Diam.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Diam. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Guardar na memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Carregar da memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Rest. de emergen.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Rest. de emergen.");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH _UxGT(" Recarregar");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Monitorizar");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Monitorizar");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Preparar");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Afinar");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausar impressão");
@@ -136,10 +138,10 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT(" DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Troca DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT(" DesRet  V");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" AutoRetr.");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar filamento *");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Inici. cartão SD");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inici. cartão SD");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Trocar cartão SD");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Sensor fora/base");
   PROGMEM Language_Str MSG_ZPROBE_ZOFFSET                  = _UxGT("Desvio Z");
@@ -147,8 +149,6 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: T Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: T Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: T Base Máxima");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: T Base Mínima");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Aquecendo...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Aquecendo base...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibração Delta");
@@ -159,5 +159,5 @@ namespace Language_pt {
 
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Fim de curso");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Impressora Incorreta");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
 }

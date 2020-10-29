@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,10 +36,7 @@ void handle_status_leds() {
   static millis_t next_status_led_update_ms = 0;
   if (ELAPSED(millis(), next_status_led_update_ms)) {
     next_status_led_update_ms += 500; // Update every 0.5s
-    float max_temp = 0.0;
-    #if HAS_HEATED_BED
-      max_temp = _MAX(thermalManager.degTargetBed(), thermalManager.degBed());
-    #endif
+    float max_temp = TERN0(HAS_HEATED_BED, _MAX(thermalManager.degTargetBed(), thermalManager.degBed()));
     HOTEND_LOOP()
       max_temp = _MAX(max_temp, thermalManager.degHotend(e), thermalManager.degTargetHotend(e));
     const int8_t new_red = (max_temp > 55.0) ? HIGH : (max_temp < 54.0 || old_red < 0) ? LOW : old_red;

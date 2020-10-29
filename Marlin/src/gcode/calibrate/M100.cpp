@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,9 +26,9 @@
 
 #include "../gcode.h"
 #include "../queue.h"
-#include "../../libs/hex_print_routines.h"
+#include "../../libs/hex_print.h"
 
-#include "../../Marlin.h" // for idle()
+#include "../../MarlinCore.h" // for idle()
 
 /**
  * M100 Free Memory Watcher
@@ -51,7 +51,7 @@
  * Also, there are two support functions that can be called from a developer's C code.
  *
  *    uint16_t check_for_free_memory_corruption(PGM_P const free_memory_start);
- *    void M100_dump_routine(PGM_P const title, char *start, char *end);
+ *    void M100_dump_routine(PGM_P const title, const char * const start, const char * const end);
  *
  * Initial version by Roxy-3D
  */
@@ -60,7 +60,7 @@
 
 #define TEST_BYTE ((char) 0xE5)
 
-#if defined(__AVR__) || IS_32BIT_TEENSY
+#if EITHER(__AVR__, IS_32BIT_TEENSY)
 
   extern char __bss_end;
   char *end_bss = &__bss_end,
@@ -116,12 +116,17 @@
 // Utility functions
 //
 
-// Location of a variable on its stack frame. Returns a value above
-// the stack (once the function returns to the caller).
-char* top_of_stack() {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-local-addr"
+
+// Location of a variable in its stack frame.
+// The returned address will be above the stack (after it returns).
+char *top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
 }
+
+#pragma GCC diagnostic pop
 
 // Count the number of test bytes at the specified location.
 inline int32_t count_test_bytes(const char * const start_free_memory) {
@@ -151,21 +156,21 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     // Start and end the dump on a nice 16 byte boundary
     // (even though the values are not 16-byte aligned).
     //
-    start_free_memory = (char*)((ptr_int_t)((uint32_t)start_free_memory & 0xFFFFFFF0)); // Align to 16-byte boundary
-    end_free_memory  = (char*)((ptr_int_t)((uint32_t)end_free_memory  | 0x0000000F)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
+    start_free_memory = (char*)(uintptr_t(uint32_t(start_free_memory) & ~0xFUL)); // Align to 16-byte boundary
+    end_free_memory   = (char*)(uintptr_t(uint32_t(end_free_memory)   |  0xFUL)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
 
     // Dump command main loop
     while (start_free_memory < end_free_memory) {
       print_hex_address(start_free_memory);             // Print the address
       SERIAL_CHAR(':');
-      for (uint8_t i = 0; i < 16; i++) {  // and 16 data bytes
+      LOOP_L_N(i, 16) {  // and 16 data bytes
         if (i == 8) SERIAL_CHAR('-');
         print_hex_byte(start_free_memory[i]);
         SERIAL_CHAR(' ');
       }
       serial_delay(25);
       SERIAL_CHAR('|');                   // Point out non test bytes
-      for (uint8_t i = 0; i < 16; i++) {
+      LOOP_L_N(i, 16) {
         char ccc = (char)start_free_memory[i]; // cast to char before automatically casting to char on assignment, in case the compiler is broken
         ccc = (ccc == TEST_BYTE) ? ' ' : '?';
         SERIAL_CHAR(ccc);
@@ -177,15 +182,16 @@ inline int32_t count_test_bytes(const char * const start_free_memory) {
     }
   }
 
-  void M100_dump_routine(PGM_P const title, char *start, char *end) {
+  void M100_dump_routine(PGM_P const title, const char * const start, const char * const end) {
     serialprintPGM(title);
     SERIAL_EOL();
     //
     // Round the start and end locations to produce full lines of output
     //
-    start = (char*)((ptr_int_t)((uint32_t)start & 0xFFFFFFF0)); // Align to 16-byte boundary
-    end   = (char*)((ptr_int_t)((uint32_t)end   | 0x0000000F)); // Align end_free_memory to the 15th byte (at or above end_free_memory)
-    dump_free_memory(start, end);
+    dump_free_memory(
+      (char*)(uintptr_t(uint32_t(start) & ~0xFUL)), // Align to 16-byte boundary
+      (char*)(uintptr_t(uint32_t(end)   |  0xFUL))  // Align end_free_memory to the 15th byte (at or above end_free_memory)
+    );
   }
 
 #endif // M100_FREE_MEMORY_DUMPER
@@ -211,7 +217,7 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     //   idle();
     serial_delay(20);
     #if ENABLED(M100_FREE_MEMORY_DUMPER)
-      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (char*)0x1B80, (char*)0x21FF);
+      M100_dump_routine(PSTR("   Memory corruption detected with end_free_memory<Heap\n"), (const char*)0x1B80, (const char*)0x21FF);
     #endif
   }
 
@@ -237,12 +243,12 @@ inline int check_for_free_memory_corruption(PGM_P const title) {
     SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
 
   if (block_cnt == 0)       // Make sure the special case of no free blocks shows up as an
-    block_cnt = -1;         // error to the calling code!
+    block_cnt = -1;         //  error to the calling code!
 
   SERIAL_ECHOPGM(" return=");
   if (block_cnt == 1) {
-    SERIAL_CHAR('0');       // if the block_cnt is 1, nothing has broken up the free memory
-    SERIAL_EOL();             // area and it is appropriate to say 'no corruption'.
+    SERIAL_CHAR('0');       // If the block_cnt is 1, nothing has broken up the free memory
+    SERIAL_EOL();           //  area and it is appropriate to say 'no corruption'.
     return 0;
   }
   SERIAL_ECHOLNPGM("true");

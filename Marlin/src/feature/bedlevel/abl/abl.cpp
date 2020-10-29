@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,10 +32,10 @@
 #include "../../../core/debug_out.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
-xy_int_t bilinear_grid_spacing, bilinear_start;
+xy_pos_t bilinear_grid_spacing, bilinear_start;
 xy_float_t bilinear_grid_factor;
 bed_mesh_t z_values;
 
@@ -43,6 +43,7 @@ bed_mesh_t z_values;
  * Extrapolate a single point from its neighbors
  */
 static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t xdir, const int8_t ydir) {
+  if (!isnan(z_values[x][y])) return;
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOPGM("Extrapolate [");
     if (x < 10) DEBUG_CHAR(' ');
@@ -53,10 +54,6 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
     DEBUG_ECHO((int)y);
     DEBUG_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
     DEBUG_ECHOLNPGM("]");
-  }
-  if (!isnan(z_values[x][y])) {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(" (done)");
-    return;  // Don't overwrite good values.
   }
 
   // Get X neighbors, Y neighbors, and XY neighbors
@@ -77,9 +74,7 @@ static void extrapolate_one_point(const uint8_t x, const uint8_t y, const int8_t
 
   // Take the average instead of the median
   z_values[x][y] = (a + b + c) / 3.0;
-  #if ENABLED(EXTENSIBLE_UI)
-    ExtUI::onMeshUpdate(x, y, z_values[x][y]);
-  #endif
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
 
   // Median is robust (ignores outliers).
   // z_values[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
@@ -118,8 +113,8 @@ void extrapolate_unprobed_bed_level() {
                       ylen = ctry1;
   #endif
 
-  for (uint8_t xo = 0; xo <= xlen; xo++)
-    for (uint8_t yo = 0; yo <= ylen; yo++) {
+  LOOP_LE_N(xo, xlen)
+    LOOP_LE_N(yo, ylen) {
       uint8_t x2 = ctrx2 + xo, y2 = ctry2 + yo;
       #ifndef HALF_IN_X
         const uint8_t x1 = ctrx1 - xo;
@@ -153,7 +148,7 @@ void print_bilinear_leveling_grid() {
   #define ABL_TEMP_POINTS_X (GRID_MAX_POINTS_X + 2)
   #define ABL_TEMP_POINTS_Y (GRID_MAX_POINTS_Y + 2)
   float z_values_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-  xy_int_t bilinear_grid_spacing_virt;
+  xy_pos_t bilinear_grid_spacing_virt;
   xy_float_t bilinear_grid_factor_virt;
 
   void print_bilinear_leveling_grid_virt() {
@@ -212,8 +207,8 @@ void print_bilinear_leveling_grid() {
 
   static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
     float row[4], column[4];
-    for (uint8_t i = 0; i < 4; i++) {
-      for (uint8_t j = 0; j < 4; j++) {
+    LOOP_L_N(i, 4) {
+      LOOP_L_N(j, 4) {
         column[j] = bed_level_virt_coord(i + x - 1, j + y - 1);
       }
       row[i] = bed_level_virt_cmr(column, 1, ty);
@@ -224,11 +219,11 @@ void print_bilinear_leveling_grid() {
   void bed_level_virt_interpolate() {
     bilinear_grid_spacing_virt = bilinear_grid_spacing / (BILINEAR_SUBDIVISIONS);
     bilinear_grid_factor_virt = bilinear_grid_spacing_virt.reciprocal();
-    for (uint8_t y = 0; y < GRID_MAX_POINTS_Y; y++)
-      for (uint8_t x = 0; x < GRID_MAX_POINTS_X; x++)
-        for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
-          for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
-            if ((ty && y == GRID_MAX_POINTS_Y - 1) || (tx && x == GRID_MAX_POINTS_X - 1))
+    LOOP_L_N(y, GRID_MAX_POINTS_Y)
+      LOOP_L_N(x, GRID_MAX_POINTS_X)
+        LOOP_L_N(ty, BILINEAR_SUBDIVISIONS)
+          LOOP_L_N(tx, BILINEAR_SUBDIVISIONS) {
+            if ((ty && y == (GRID_MAX_POINTS_Y) - 1) || (tx && x == (GRID_MAX_POINTS_X) - 1))
               continue;
             z_values_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
               bed_level_virt_2cmr(
@@ -244,9 +239,7 @@ void print_bilinear_leveling_grid() {
 // Refresh after other values have been updated
 void refresh_bed_level() {
   bilinear_grid_factor = bilinear_grid_spacing.reciprocal();
-  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    bed_level_virt_interpolate();
-  #endif
+  TERN_(ABL_BILINEAR_SUBDIVISION, bed_level_virt_interpolate());
 }
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)

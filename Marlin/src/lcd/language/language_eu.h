@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,8 +25,7 @@
  * Basque-Euskera
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -58,20 +57,23 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Etxe. offset eza.");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsetak ezarrita");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Hasiera ipini");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Berotu ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Berotu ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Berotu ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Berotu ") PREHEAT_2_LABEL _UxGT(" Amaia");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Berotu ") PREHEAT_2_LABEL _UxGT(" Amaia ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Berotu ") PREHEAT_2_LABEL _UxGT(" Guztia");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Berotu ") PREHEAT_2_LABEL _UxGT(" Ohea");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Berotu ") PREHEAT_2_LABEL _UxGT(" Ezarp.");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Berotu ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Berotu ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Amaia ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Guztia");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ohea");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Ezarp.");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Berotu $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Berotu $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Berotu $ Amaia");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Berotu $ Amaia ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Berotu $ Guztia");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Berotu $ Ohea");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Berotu $ Ezarp.");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Hoztu");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Energia piztu");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Energia itzali");
@@ -98,13 +100,13 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_UBL_MESH_EDIT                   = _UxGT("Sarea editatu");
   PROGMEM Language_Str MSG_UBL_DONE_EDITING_MESH           = _UxGT("Sarea editatzea eginda");
   PROGMEM Language_Str MSG_UBL_BUILD_MESH_MENU             = _UxGT("Sarea sortu");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M1               = PREHEAT_1_LABEL _UxGT(" sarea sortu");
-  PROGMEM Language_Str MSG_UBL_BUILD_MESH_M2               = PREHEAT_2_LABEL _UxGT(" sarea sortu");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_UBL_BUILD_MESH_M              = _UxGT("$ sarea sortu");
+    PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M           = _UxGT("$ sarea balioetsi");
+  #endif
   PROGMEM Language_Str MSG_UBL_BUILD_COLD_MESH             = _UxGT("Sare hotza sortu");
   PROGMEM Language_Str MSG_UBL_MESH_HEIGHT_ADJUST          = _UxGT("Sarearen altuera doitu");
   PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_MENU          = _UxGT("Sarea balioetsi");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M1            = PREHEAT_1_LABEL _UxGT(" sarea balioetsi");
-  PROGMEM Language_Str MSG_UBL_VALIDATE_MESH_M2            = PREHEAT_2_LABEL _UxGT(" sarea balioetsi");
   PROGMEM Language_Str MSG_UBL_CONTINUE_MESH               = _UxGT("Ohe sarea balioetsi");
   PROGMEM Language_Str MSG_UBL_MESH_LEVELING               = _UxGT("Sare berdinketa");
   PROGMEM Language_Str MSG_UBL_3POINT_MESH_LEVELING        = _UxGT("3 puntuko berdinketa");
@@ -147,9 +149,9 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("Pita ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("Ohea");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("Haizagailu abiadura");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Haizagailu abiadura =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("Haizagailu abiadura ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("Haiz.gehig. abiadura");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Haiz.gehig. abiadura =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("Haiz.gehig. abiadura ~");
   PROGMEM Language_Str MSG_FLOW                            = _UxGT("Fluxua");
   PROGMEM Language_Str MSG_FLOW_N                          = _UxGT("Fluxua ~");
   PROGMEM Language_Str MSG_CONTROL                         = _UxGT("Kontrola");
@@ -187,10 +189,10 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrastea");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Gorde memoria");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Kargatu memoria");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("Larri. berriz.");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("Larri. berriz.");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM-a hasieratu");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("Berriz kargatu");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("Pantaila info");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Pantaila info");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("Prestatu");
   PROGMEM Language_Str MSG_TUNE                            = _UxGT("Doitu");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausatu inprimak.");
@@ -221,7 +223,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Harizpia deskargatu");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Harizpia deskargatu *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Erabat deskargatu");
-  PROGMEM Language_Str MSG_INIT_MEDIA                      = _UxGT("Hasieratu SD-a");
+  PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Hasieratu SD-a");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Aldatu txartela");
   PROGMEM Language_Str MSG_ZPROBE_OUT                      = _UxGT("Z zunda kanpora");
   PROGMEM Language_Str MSG_SKEW_FACTOR                     = _UxGT("Okertze faktorea");
@@ -241,9 +243,6 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("TENP. KONTROL EZA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: Tenp Maximoa");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: Tenp Minimoa");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: Ohe Tenp Max");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: Ohe Tenp Min");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Etxera XY lehenengo");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("INPRIMA. GELDIRIK");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Berrabia. Mesedez");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -276,8 +275,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_INFO_BAUDRATE                   = _UxGT("Baudioak");
   PROGMEM Language_Str MSG_INFO_PROTOCOL                   = _UxGT("Protokoloa");
   PROGMEM Language_Str MSG_CASE_LIGHT                      = _UxGT("Kabina Argia");
-  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS
-  = ;
+  PROGMEM Language_Str MSG_CASE_LIGHT_BRIGHTNESS           = _UxGT("Argiaren Distira");
   #if LCD_WIDTH >= 20
     PROGMEM Language_Str MSG_INFO_PRINT_COUNT              = _UxGT("Inprim. Zenbaketa");
     PROGMEM Language_Str MSG_INFO_COMPLETED_PRINTS         = _UxGT("Burututa");
@@ -295,7 +293,10 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_INFO_MAX_TEMP                   = _UxGT("Tenp. Maximoa");
   PROGMEM Language_Str MSG_INFO_PSU                        = _UxGT("Elikadura-iturria");
   PROGMEM Language_Str MSG_DRIVE_STRENGTH                  = _UxGT("Driver-aren potentzia");
-  PROGMEM Language_Str MSG_DAC_PERCENT                     = _UxGT("Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_X                   = _UxGT("X Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Y                   = _UxGT("Y Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_Z                   = _UxGT("Z Driver %");
+  PROGMEM Language_Str MSG_DAC_PERCENT_E                   = _UxGT("E Driver %");
   PROGMEM Language_Str MSG_DAC_EEPROM_WRITE                = _UxGT("Idatzi DAC EEPROM");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_PAUSE    = _UxGT("HARIZPIA ALDATU");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_HEADER_LOAD     = _UxGT("HARIZPIA KARGATU");
@@ -303,11 +304,10 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_HEADER   = _UxGT("ALDAKETA AUKERAK:");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_OPTION_RESUME   = _UxGT("Inprima. jarraitu");
   PROGMEM Language_Str MSG_FILAMENT_CHANGE_NOZZLE          = _UxGT("  Pita: ");
-  PROGMEM Language_Str MSG_LCD_HOMING_FAILED               = _UxGT("Hasi. huts egin du");
+  PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Hasi. huts egin du");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Neurketak huts egin du");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: hotzegi");
 
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("Inprimagailu okerra");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Inprimagailu okerra");
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display

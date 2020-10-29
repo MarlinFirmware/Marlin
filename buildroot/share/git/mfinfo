@@ -7,7 +7,7 @@
 #   - Remote (upstream) Org name (MarlinFirmware)
 #   - Remote (origin) Org name (your Github username)
 #   - Repo Name (Marlin, MarlinDocumentation)
-#   - PR Target branch (bugfix-1.1.x, bugfix-2.0.x, etc.)
+#   - PR Target branch (bugfix-1.1.x, bugfix-2.0.x, dev-2.1.x, etc.)
 #   - Branch Arg (the branch argument or current branch)
 #   - Current Branch
 #
@@ -42,19 +42,20 @@ while [[ $# -gt 0 ]]; do
 
   case "$opt" in
     -*|--*) MORE="$MORE$opt " ; [[ $EQUALS == 1 ]] && MORE="$MORE=$val" ;;
-       1|2) INDEX=$opt ;;
+     1|2|3) INDEX=$opt ;;
          *) BRANCH="$opt" ;;
   esac
 
 done
 
 case "$REPO" in
-  Marlin              ) TARG=bugfix-1.1.x ; [[ $INDEX == 2 ]] && TARG=bugfix-2.0.x ;;
+  Marlin              ) TARG=bugfix-2.0.x ; [[ $INDEX == 1 ]] && TARG=bugfix-1.1.x ; [[ $INDEX == 3 ]] && TARG=dev-2.1.x ;;
+  Configurations      ) TARG=import-2.0.x ;;
   MarlinDocumentation ) TARG=master ;;
 esac
 
-[[ $BRANCH =~ ^[0-9]$ ]] && USAGE=1
+[[ $BRANCH =~ ^[123]$ ]] && USAGE=1
 
-[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2] [branch]" 1>&2 ; exit 1 ; }
+[[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2|3] [branch]" 1>&2 ; exit 1 ; }
 
 echo "$ORG $FORK $REPO $TARG $BRANCH $CURR $MORE"

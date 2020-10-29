@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,8 +25,7 @@
  * Korean
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 namespace Language_ko_KR {
   using namespace Language_en; // Inherit undefined strings from English
@@ -55,14 +54,17 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_LEVEL_BED_WAITING               = _UxGT("누르면 시작합니다");
   PROGMEM Language_Str MSG_LEVEL_BED_NEXT_POINT            = _UxGT("다음 Point");
   PROGMEM Language_Str MSG_LEVEL_BED_DONE                  = _UxGT("레벨링 완료!");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("예열하기 - ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("예열하기 - ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("예열하기 - ") PREHEAT_2_LABEL _UxGT(" 노즐 ~");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("예열하기 - ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("예열하기 - ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("예열하기 - ") PREHEAT_1_LABEL _UxGT(" 노즐 ~");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("예열하기 - $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("예열하기 - $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("예열하기 - $ 노즐");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("예열하기 - $ 노즐 ~");
+  #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Custom 예열");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("식히기");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("스위치 전원 켜기");
@@ -77,17 +79,17 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_NOZZLE_N                        = _UxGT("노즐 ~");
   PROGMEM Language_Str MSG_BED                             = _UxGT("베드");
   PROGMEM Language_Str MSG_FAN_SPEED                       = _UxGT("펜 속도");
-  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("펜 속도 =");
+  PROGMEM Language_Str MSG_FAN_SPEED_N                     = _UxGT("펜 속도 ~");
   PROGMEM Language_Str MSG_EXTRA_FAN_SPEED                 = _UxGT("엑스트라 펜 속도");
-  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("엑스트라 펜 속도 =");
+  PROGMEM Language_Str MSG_EXTRA_FAN_SPEED_N               = _UxGT("엑스트라 펜 속도 ~");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("온도");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("동작");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("설정 저장하기");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("설정 읽어오기");
-  PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = _UxGT("설정 되돌리기");
+  PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = _UxGT("설정 되돌리기");
   PROGMEM Language_Str MSG_INIT_EEPROM                     = _UxGT("EEPROM 초기화");
   PROGMEM Language_Str MSG_REFRESH                         = LCD_STR_REFRESH  _UxGT("새로고침");
-  PROGMEM Language_Str MSG_WATCH                           = _UxGT("처음으로");
+  PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("처음으로");
   PROGMEM Language_Str MSG_PREPARE                         = _UxGT("준비하기");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("일시정지");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("재시작");
@@ -100,5 +102,5 @@ namespace Language_ko_KR {
   PROGMEM Language_Str MSG_PRINT_ABORTED                   = _UxGT("취소됨");
   PROGMEM Language_Str MSG_KILLED                          = _UxGT("죽음. ");
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("멈춤. ");
-  PROGMEM Language_Str MSG_EXPECTED_PRINTER                = _UxGT("잘못된 프린터");
+  PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("잘못된 프린터");
 }

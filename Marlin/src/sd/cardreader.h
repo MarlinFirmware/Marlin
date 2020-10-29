@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,16 +16,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfig.h"
 
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #if ENABLED(SDSUPPORT)
 
-#define SD_RESORT BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+#if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
+  #define SD_RESORT 1
+#endif
+
+#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+  #define SD_ORDER(N,C) ((C) - 1 - (N))
+#else
+  #define SD_ORDER(N,C) N
+#endif
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
 #define MAXDIRNAMELENGTH   8       // DOS folder name size
@@ -55,7 +65,7 @@ public:
 
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t transfer_port_index;
     #else
       static constexpr int8_t transfer_port_index = 0;
@@ -73,6 +83,9 @@ public:
   static inline bool isMounted() { return flag.mounted; }
   static void ls();
 
+  // Handle media insert/remove
+  static void manage_media();
+
   // SD Card Logging
   static void openLogFile(char * const path);
   static void write_command(char * const buf);
@@ -83,8 +96,10 @@ public:
   static void checkautostart();
 
   // Basic file ops
-  static void openFile(char * const path, const bool read, const bool subcall=false);
+  static void openFileRead(char * const path, const uint8_t subcall=0);
+  static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
+  static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
@@ -105,15 +120,11 @@ public:
 
   // Print job
   static void openAndPrintFile(const char *name);   // (working directory)
-  static void printingHasFinished();
+  static void fileHasFinished();
   static void getAbsFilename(char *dst);
-  static void startFileprint();
   static void printFilename();
-  static void stopSDPrint(
-    #if SD_RESORT
-      const bool re_sort=false
-    #endif
-  );
+  static void startFileprint();
+  static void endFilePrint(TERN_(SD_RESORT, const bool re_sort=false));
   static void report_status();
   static inline void pauseSDPrint() { flag.sdprinting = false; }
   static inline bool isPaused() { return isFileOpen() && !flag.sdprinting; }
@@ -124,7 +135,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(SdFile*& curDir, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -146,6 +157,7 @@ public:
 
   static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline uint32_t getIndex() { return sdpos; }
+  static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
   static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
@@ -158,9 +170,7 @@ public:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status();
     static inline void set_auto_report_interval(uint8_t v) {
-      #if NUM_SERIAL > 1
-        auto_report_port = serial_port_index;
-      #endif
+      TERN_(HAS_MULTI_SERIAL, auto_report_port = serial_port_index);
       NOMORE(v, 60);
       auto_report_sd_interval = v;
       next_sd_report_ms = millis() + 1000UL * v;
@@ -252,7 +262,7 @@ private:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t auto_report_port;
     #endif
   #endif
@@ -274,11 +284,7 @@ private:
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #define IS_SD_INSERTED() Sd2Card::isInserted()
 #elif PIN_EXISTS(SD_DETECT)
-  #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED()  READ(SD_DETECT_PIN)
-  #else
-    #define IS_SD_INSERTED() !READ(SD_DETECT_PIN)
-  #endif
+  #define IS_SD_INSERTED() (READ(SD_DETECT_PIN) == SD_DETECT_STATE)
 #else
   // No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED() true
