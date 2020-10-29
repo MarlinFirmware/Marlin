@@ -86,7 +86,7 @@ Caption:
 
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
-## For the Wifi Module (MKS_Wifi):
+ ## For the Wifi Module (MKS_Wifi):
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
 2) Flash original firmware + Custum mkswifi 
@@ -94,7 +94,7 @@ Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.
 4) Flash Marlin 
 to run the update of Mks_Wifi or You also can do by web page of the AP (192.168.4.1).
 
-### Initial Configuration after the flash.
+ ### Initial Configuration after the flash.
 1. Open device web page on the AP connected device
 Accept Captive portal redirect or
 2 Open a web browser and navigate to http://192.168.4.1
@@ -110,12 +110,12 @@ and "preferences.json" to have the user interface.
 
 Enjoy....🙃
 
-## Support my work
+ ## Support my work
 
-This QQS-Pro porting project for the Marlin firmware was only possible thanks to its supporters, you can participate via
-<br/><br/>
-[![paypal.me](doc/icons/paypal_50px.png)](https://www.paypal.me/Foxies40)<br/>[paypal.me/Foxies40](https://www.paypal.me/Foxies40)
-<br/><br/>
- You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
+  This QQS-Pro porting project for the Marlin firmware was only possible thanks to its supporters, you can participate via
+ <br/><br/>
+  [![paypal.me](docs/icons/paypal_50px.png)](https://www.paypal.me/Foxies40)<br/>[paypal.me/Foxies40](https://www.paypal.me/Foxies40)
+ <br/><br/>
+  You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
-Massive thank you in advance :heart:
+ Massive thank you in advance :heart:
