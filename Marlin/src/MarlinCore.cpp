@@ -713,9 +713,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
 
   // Run HAL idle tasks
-  #ifdef HAL_IDLETASK
-    HAL_idletask();
-  #endif
+  TERN_(HAL_IDLETASK, HAL_idletask());
 
   // Check network connection
   TERN_(HAS_ETHERNET, ethernet.check());
@@ -772,9 +770,7 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   #endif
 
   // Update the Průša MMU2
-  #if HAS_PRUSA_MMU2
-    mmu2.mmu_loop();
-  #endif
+  TERN_(HAS_PRUSA_MMU2, mmu2.mmu_loop());
 
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
@@ -782,9 +778,8 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
 
-  #if HAS_TFT_LVGL_UI
-    LV_TASK_HANDLER();
-  #endif
+  // Update the LVGL interface
+  TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
 }
 
 /**
@@ -1182,7 +1177,7 @@ void setup() {
   #endif
 
   #if HAS_PRUSA_MMU1
-    SETUP_LOG("PRUSA MMU1 MULTIPLEXER");
+    SETUP_LOG("Prusa MMU1");
     SET_OUTPUT(E_MUX0_PIN);
     SET_OUTPUT(E_MUX1_PIN);
     SET_OUTPUT(E_MUX2_PIN);

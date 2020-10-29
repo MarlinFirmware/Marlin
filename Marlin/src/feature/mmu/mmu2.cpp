@@ -537,32 +537,38 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char* special) {
-
-    #if ENABLED(MMU2_MENUS)
       if (!enabled) return;
 
       set_runout_valid(false);
 
       switch (*special) {
         case '?': {
-          uint8_t index = mmu2_choose_filament();
-          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-          load_filament_to_nozzle(index);
+          #if ENABLED(MMU2_MENUS)
+            const uint8_t index = mmu2_choose_filament();
+            while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+            load_filament_to_nozzle(index);
+          #else
+            BUZZ(400, 40);
+          #endif
         } break;
 
         case 'x': {
-          planner.synchronize();
-          uint8_t index = mmu2_choose_filament();
-          DISABLE_AXIS_E0();
-          command(MMU_CMD_T0 + index);
-          manage_response(true, true);
+          #if ENABLED(MMU2_MENUS)
+            planner.synchronize();
+            const uint8_t index = mmu2_choose_filament();
+            DISABLE_AXIS_E0();
+            command(MMU_CMD_T0 + index);
+            manage_response(true, true);
 
-          if (load_to_gears()) {
-            mmu_loop();
-            ENABLE_AXIS_E0();
-            extruder = index;
-            active_extruder = 0;
-          }
+            if (load_to_gears()) {
+              mmu_loop();
+              ENABLE_AXIS_E0();
+              extruder = index;
+              active_extruder = 0;
+            }
+          #else
+            BUZZ(400, 40);
+          #endif
         } break;
 
         case 'c': {
@@ -572,8 +578,6 @@ static void mmu2_not_responding() {
       }
 
       set_runout_valid(true);
-
-    #endif // MMU2_MENUS
   }
 
 #elif ENABLED(MMU_EXTRUDER_SENSOR)
@@ -621,22 +625,25 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char* special) {
-    #if ENABLED(MMU2_MENUS)
+    if (!enabled) return;
 
-      if (!enabled) return;
+    set_runout_valid(false);
 
-      set_runout_valid(false);
-
-      switch (*special) {
-        case '?': {
-          DEBUG_ECHOLNPGM("case ?\n");
+    switch (*special) {
+      case '?': {
+        DEBUG_ECHOLNPGM("case ?\n");
+        #if ENABLED(MMU2_MENUS)
           uint8_t index = mmu2_choose_filament();
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           load_filament_to_nozzle(index);
-        } break;
+        #else
+          BUZZ(400, 40);
+        #endif
+      } break;
 
-        case 'x': {
-          DEBUG_ECHOLNPGM("case x\n");
+      case 'x': {
+        DEBUG_ECHOLNPGM("case x\n");
+        #if ENABLED(MMU2_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
           DISABLE_AXIS_E0();
@@ -649,18 +656,19 @@ static void mmu2_not_responding() {
           ENABLE_AXIS_E0();
           extruder = index;
           active_extruder = 0;
-        } break;
+        #else
+          BUZZ(400, 40);
+        #endif
+      } break;
 
-        case 'c': {
-          DEBUG_ECHOLNPGM("case c\n");
-          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-          execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
-        } break;
-      }
+      case 'c': {
+        DEBUG_ECHOLNPGM("case c\n");
+        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+        execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+      } break;
+    }
 
-      set_runout_valid(true);
-
-    #endif // MMU2_MENUS
+    set_runout_valid(true);
   }
 
   void MMU2::mmu_continue_loading() {
@@ -712,22 +720,25 @@ static void mmu2_not_responding() {
    * Tc Load to nozzle after filament was prepared by Tx and extruder nozzle is already heated.
    */
   void MMU2::tool_change(const char* special) {
-    #if ENABLED(MMU2_MENUS)
+    if (!enabled) return;
 
-      if (!enabled) return;
+    set_runout_valid(false);
 
-      set_runout_valid(false);
-
-      switch (*special) {
-        case '?': {
-          DEBUG_ECHOLNPGM("case ?\n");
+    switch (*special) {
+      case '?': {
+        DEBUG_ECHOLNPGM("case ?\n");
+        #if ENABLED(MMU2_MENUS)
           uint8_t index = mmu2_choose_filament();
           while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
           load_filament_to_nozzle(index);
-        } break;
+        #else
+          BUZZ(400, 40);
+        #endif
+      } break;
 
-        case 'x': {
-          DEBUG_ECHOLNPGM("case x\n");
+      case 'x': {
+        DEBUG_ECHOLNPGM("case x\n");
+        #if ENABLED(MMU2_MENUS)
           planner.synchronize();
           uint8_t index = mmu2_choose_filament();
           DISABLE_AXIS_E0();
@@ -739,18 +750,19 @@ static void mmu2_not_responding() {
           ENABLE_AXIS_E0();
           extruder = index;
           active_extruder = 0;
-        } break;
+        #else
+          BUZZ(400, 40);
+        #endif
+      } break;
 
-        case 'c': {
-          DEBUG_ECHOLNPGM("case c\n");
-          while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
-          execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
-        } break;
-      }
+      case 'c': {
+        DEBUG_ECHOLNPGM("case c\n");
+        while (!thermalManager.wait_for_hotend(active_extruder, false)) safe_delay(100);
+        execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+      } break;
+    }
 
-      set_runout_valid(true);
-
-    #endif
+    set_runout_valid(true);
   }
 
 #endif // HAS_PRUSA_MMU2S
