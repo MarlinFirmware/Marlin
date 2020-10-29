@@ -71,7 +71,14 @@ namespace ExtUI {
   }
 
   void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
+
+  void onPrintTimerPaused() {
+    // Handle M28 Pause SD print - But only if we're not waiting on a user
+    if (ExtUI::isPrintingFromMediaPaused() && ScreenHandler.getCurrentScreen() == DGUSLCD_SCREEN_PRINT_RUNNING) {
+      ScreenHandler.GotoScreen(DGUSLCD_SCREEN_PRINT_PAUSED);
+    }
+  }
+
   void onPrintTimerStopped() {}
 
   void onFilamentRunout(const extruder_t extruder) {
