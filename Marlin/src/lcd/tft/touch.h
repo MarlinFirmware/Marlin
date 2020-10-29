@@ -164,6 +164,7 @@ class Touch {
     static bool is_clicked() {
       if (touch_control_type == CLICK) {
         touch_control_type = NONE;
+        touch_time = 0;
         return true;
       }
       return false;
