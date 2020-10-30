@@ -2452,7 +2452,7 @@
    *
    * Set *_SERIAL_TX_PIN and *_SERIAL_RX_PIN to match for all drivers
    * on the same serial port, either here or in your board's pins file.
-   *
+   */
   #define  X_SLAVE_ADDRESS 0
   #define  Y_SLAVE_ADDRESS 0
   #define  Z_SLAVE_ADDRESS 0
@@ -2469,7 +2469,7 @@
   #define E5_SLAVE_ADDRESS 0
   #define E6_SLAVE_ADDRESS 0
   #define E7_SLAVE_ADDRESS 0
-  */
+  
   /**
    * Software enable
    *
