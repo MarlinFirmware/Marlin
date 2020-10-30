@@ -39,8 +39,8 @@
 //#define BMG                        //(B) Uncomment to change Extruder step.
 
 /*-------Screen Mks_Robin_TFT_v2---(FSMC)-----*/
-#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
-//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
+//#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
+#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
