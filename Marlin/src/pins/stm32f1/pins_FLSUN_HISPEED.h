@@ -109,59 +109,39 @@
 //
 // Drivers
 //
-/*
- * For TMC220x in UART mode and serial use,
- * add #define SOFTWARE_SERIAL in you Configuration.h
- * For TMC2209 in UART mode and hardware use, 
- * add #define HARDWARE_SERIAL in you Configuration.h 
- * and position the jumpers in this way.
- * |= close
- * := open
+/**
+ * This board has no hard-wired UART pins for TMC drivers.
+ * Several wiring options are provided below, defaulting to
+ * to the most compatible.
  */
 #if HAS_TMC220x
+  // SoftwareSerial with one pin per driver
+  // Compatible with TMC2208 and TMC2209 drivers
+  #define X_SERIAL_TX_PIN                   PA10  // RXD1
+  #define X_SERIAL_RX_PIN                   PA10  // RXD1
+  #define Y_SERIAL_TX_PIN                   PA9   // TXD1
+  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+  #define Z_SERIAL_TX_PIN                   PC7   // IO1
+  #define Z_SERIAL_RX_PIN                   PC7   // IO1
+  #define TMC_BAUD_RATE                   19200
 
-  #if ENABLED(HARDWARE_SERIAL)  /*  TMC2209 */
-    #define X_SLAVE_ADDRESS                    3  // |  |  :
-    #define Y_SLAVE_ADDRESS                    2  // :  |  :
-    #define Z_SLAVE_ADDRESS                    1  // |  :  :
-    //#define E0_SLAVE_ADDRESS                 0  // :  :  :
+  // HardwareSerial with one pins for four drivers
+  // Compatible with TMC2209. Provides best performance.
+  // Requires SLAVE_ADDRESS definitions in Configuration_adv.h
+  // and proper jumper configuration. Uses one I/O pins
+  // like PA10/PA9/PC7/PA8 only.
+  // position the jumpers in this way:  |= close and := open.
+  // ex:
+  //#define  X_SLAVE_ADDRESS 3    // |  |  :
+  //#define  Y_SLAVE_ADDRESS 2    // :  |  :
+  //#define  Z_SLAVE_ADDRESS 1    // |  :  :
+  // For E 0 by default whatever the mode used but remove all jumpers.
 
-    #define X_SERIAL_TX_PIN                 PA9   // TXD1
-    #define X_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Y_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Y_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Z_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Z_SERIAL_RX_PIN                 PA9   // TXD1
-
-  #elif ENABLED(SOFTWARE_SERIAL)  /*  TMC220x   */
-    /**
-     * TMC2208 stepper UART-configurable by PDN_UART pin
-     * Software serial
-     */
-    #define X_SLAVE_ADDRESS                    0
-    #define Y_SLAVE_ADDRESS                    0
-    #define Z_SLAVE_ADDRESS                    0
-
-    #define X_SERIAL_TX_PIN                 PA10  // RXD1
-    #define X_SERIAL_RX_PIN                 PA10  // RXD1
-
-    #define Y_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Y_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Z_SERIAL_TX_PIN                 PC7   // IO1
-    #define Z_SERIAL_RX_PIN                 PC7   // IO1
-
-  #endif
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
 #else
-
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
   #define MOTOR_CURRENT_PWM_Z_PIN           PA7   // VREF4 CONTROL Z
-  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
     #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
@@ -195,11 +175,11 @@
 
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
-  #define TMC_BAUD_RATE                    19200
+  #define TMC_BAUD_RATE                   19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_E_PIN           PB0   // VREF1 CONTROL E
-  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
    #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
@@ -218,12 +198,11 @@
 #define HEATER_BED_PIN                      PA0   // HEATER_BED-WKUP
 
 #define FAN_PIN                             PB1   // E_FAN
-//#define CONTROLLER_FAN_PIN                PD6   // BOARD FAN
 
 //
 // Misc. Functions
 //
-//#define POWER_LOSS_PIN                    PA1   // PW_SO
+//#define POWER_LOSS_PIN                      PA1   // PW_SO
 #if ENABLED(BACKUP_POWER_SUPPLY)
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
 #endif
@@ -234,29 +213,29 @@
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
   #define KILL_PIN_INVERTING                true  //
-  //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
+  //#define PS_ON_PIN                         PA3   // PW_CN /PW_OFF
 #endif
 
 #define MT_DET_1_PIN                        PA4   // MT_DET
 #define MT_DET_2_PIN                        PE6   // FALA_CRTL
-#define MT_DET_PIN_INVERTING               false
+#define MT_DET_PIN_INVERTING                false
 
 //
 // LED / NEOPixel
 //
-//#define LED_PIN                           PB2   // BOOT1
+//#define LED_PIN                             PB2   // BOOT1
 
 #if ENABLED(NEOPIXEL_LED)
   #define LED_PWM                           PA8
   #ifndef NEOPIXEL_PIN
-    #define NEOPIXEL_PIN                 LED_PWM  // USED WIFI IO0/IO1/TX/RX PIN
+    #define NEOPIXEL_PIN                LED_PWM  // USED WIFI IO0/IO1/TX/RX PIN
   #endif
 #endif
 
 //Others test.
-//#define SERVO0_PIN                        PA5   // WIFI CRTL
-//#define GPIO_CLEAR                        PA8   // IO0
-//#define GPIO_SET                          PA5
+//#define SERVO0_PIN                          PA5   // WIFI CRTL
+//#define GPIO_CLEAR                          PA8   // IO0
+//#define GPIO_SET                            PA5
 
 //
 // SD Card
@@ -336,13 +315,13 @@
   #define TFT_BUFFER_SIZE                  14400
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12218
+    #define XPT2046_X_CALIBRATION          12013
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8814
+    #define XPT2046_Y_CALIBRATION          -8711
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
+    #define XPT2046_X_OFFSET                 -32
   #endif
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 256
@@ -350,13 +329,13 @@
 
 #elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12149
+    #define XPT2046_X_CALIBRATION          12013
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8746
+    #define XPT2046_Y_CALIBRATION          -8711
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
+    #define XPT2046_X_OFFSET                 -32
   #endif
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 256
