@@ -80,7 +80,7 @@ void spiInit(uint8_t spiRate) {
    * STM32F1 has 3 SPI ports, SPI1 in APB2, SPI2/SPI3 in APB1
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
-  #if STM32F1_SPI_DEVICE == 1
+  #if SPI_DEVICE == 1
     #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
   #else
     #define SPI_CLOCK_MAX SPI_CLOCK_DIV2
@@ -95,7 +95,7 @@ void spiInit(uint8_t spiRate) {
     case SPI_SPEED_6:       clock = SPI_CLOCK_DIV64; break;
     default:                clock = SPI_CLOCK_DIV2;  // Default from the SPI library
   }
-  SPI.setModule(STM32F1_SPI_DEVICE);
+  SPI.setModule(SPI_DEVICE);
   SPI.begin();
   SPI.setClockDivider(clock);
   SPI.setBitOrder(MSBFIRST);

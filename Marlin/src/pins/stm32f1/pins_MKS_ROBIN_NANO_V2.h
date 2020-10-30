@@ -55,7 +55,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-#define STM32F1_SPI_DEVICE                     2
+#define SPI_DEVICE                             2
 
 //
 // Limit Switches

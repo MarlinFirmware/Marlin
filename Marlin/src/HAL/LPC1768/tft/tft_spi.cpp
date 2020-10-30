@@ -66,7 +66,7 @@ void TFT_SPI::Init() {
    * so the minimum prescale of SPI1 is DIV4, SPI2/SPI3 is DIV2
    */
   #if 0
-    #if STM32F1_SPI_DEVICE == 1
+    #if SPI_DEVICE == 1
      #define SPI_CLOCK_MAX SPI_CLOCK_DIV4
     #else
      #define SPI_CLOCK_MAX SPI_CLOCK_DIV2

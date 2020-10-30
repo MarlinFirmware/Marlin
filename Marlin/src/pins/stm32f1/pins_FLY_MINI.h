@@ -132,7 +132,7 @@
 //
 // LCD / Controller
 //
-#define STM32F1_SPI_DEVICE                     2
+#define SPI_DEVICE                             2
 #define SS_PIN                              PB12
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14

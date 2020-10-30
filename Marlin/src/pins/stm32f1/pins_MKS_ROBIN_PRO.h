@@ -41,7 +41,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-#define STM32F1_SPI_DEVICE                     2
+#define SPI_DEVICE                             2
 
 //
 // Servos
@@ -190,7 +190,6 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define STM32F1_SPI_DEVICE                   2
   #define SD_DETECT_PIN                     PG3
   #define SCK_PIN                           PB13
   #define MISO_PIN                          PB14

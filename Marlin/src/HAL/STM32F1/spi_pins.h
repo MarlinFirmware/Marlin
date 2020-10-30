@@ -49,6 +49,6 @@
 #undef SDSS
 #define SDSS       SS_PIN
 
-#ifndef STM32F1_SPI_DEVICE
-  #define STM32F1_SPI_DEVICE 1
+#ifndef SPI_DEVICE
+  #define SPI_DEVICE 1
 #endif

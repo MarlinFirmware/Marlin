@@ -139,7 +139,7 @@
 //
 // SPI
 //
-#define STM32F1_SPI_DEVICE                     2
+#define SPI_DEVICE                             2
 #define SCK_PIN                             PB13
 #define MISO_PIN                            P1B4
 #define MOSI_PIN                            P1B5

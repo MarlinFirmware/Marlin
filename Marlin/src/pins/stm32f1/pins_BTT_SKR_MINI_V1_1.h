@@ -210,7 +210,7 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define STM32F1_SPI_DEVICE                   3
+  #define SPI_DEVICE                           3
   #define SD_DETECT_PIN                     PB9
   #define SCK_PIN                           PB3
   #define MISO_PIN                          PB4

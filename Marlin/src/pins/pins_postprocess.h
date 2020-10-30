@@ -871,6 +871,9 @@
   #undef ST7920_DELAY_1
   #undef ST7920_DELAY_2
   #undef ST7920_DELAY_3
+  #undef BOARD_ST7920_DELAY_1
+  #undef BOARD_ST7920_DELAY_2
+  #undef BOARD_ST7920_DELAY_3
 #endif
 
 #undef HAS_FREE_AUX2_PINS
