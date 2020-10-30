@@ -173,7 +173,7 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define STM32F1_SPI_DEVICE                     2
 
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2 ok

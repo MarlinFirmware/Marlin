@@ -49,10 +49,6 @@
 #undef SDSS
 #define SDSS       SS_PIN
 
-#if ENABLED(ENABLE_SPI3)
-  #define SPI_DEVICE 3
-#elif ENABLED(ENABLE_SPI2)
-  #define SPI_DEVICE 2
-#else
-  #define SPI_DEVICE 1
+#ifndef STM32F1_SPI_DEVICE
+  #define STM32F1_SPI_DEVICE 1
 #endif

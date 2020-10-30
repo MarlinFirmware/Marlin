@@ -48,7 +48,7 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
-#define ENABLE_SPI2
+#define STM32F1_SPI_DEVICE                     2
 
 //
 // Limit Switches
