@@ -23,13 +23,13 @@
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)
-//#define QQS_UART9                  //(U9) 4xTMC2209 (Remove module ESP12)
+//#define QQS_UART9                  //(U9) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------//
 * Options: 
 * LV8729/A4988/TMC2208_STANDALONE/TMC2209_STANDALONE/TMC2208/TMC2209 
 */
-//#define DRIVER_EXT TMC2208_STANDALONE
+//#define DRIVER_EXT A4988
 
 /* QQS Stock have a clone TITAN EXtruder,
 * also if you have another try this.
@@ -39,8 +39,16 @@
 //#define BMG                        //(B) Uncomment to change Extruder step.
 
 /*-------Screen Mks_Robin_TFT_v2---(FSMC)-----*/
-//#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
-#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
+#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
+//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
+//#define MKS_ROBIN_TFT_V1_1R
+//#define MKS_ROBIN_TFT24
+//#define TFT_GENERIC
+#if ENABLED(TFT_GENERIC)
+  #define TFT_DRIVER AUTO
+  #define TFT_INTERFACE_FSMC
+  #define TFT_RES_320x240
+#endif
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
@@ -101,21 +109,22 @@
 #endif
 
 // Set Software Serial UART for TMC 2208 / TMC 2209
-//#define TMC_SOFTWARE_SERIAL
 #ifdef QQS_UARTx
     #define QQS_UART
-    #define SOFTWARE_SERIAL
     #define DRIVER_AXES TMC2208
     #ifndef DRIVER_EXT
       #define DRIVER_EXT TMC2208
     #endif
 #endif
 
-// Set Hardware Serial UART only TMC 2209
-//#define TMC_HARDWARE_SERIAL
+// Note:
+// HardwareSerial with one pins for four drivers
+// Compatible with TMC2209. Provides best performance.
+// Requires SLAVE_ADDRESS definitions in Configuration_adv.h
+// and proper jumper configuration. Uses I/O pins
+// like PA10/PA9/PC7/PA8 only.
 #ifdef QQS_UART9
     #define QQS_UART
-    #define HARDWARE_SERIAL
     #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
       #define DRIVER_EXT TMC2209
