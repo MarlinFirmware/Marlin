@@ -115,8 +115,7 @@
  * For TMC2209 in UART mode and hardware use, 
  * add #define HARDWARE_SERIAL in you Configuration.h 
  * and position the jumpers in this way.
- * |= close
- * := open
+ * |= close and := open
  */
 #if HAS_TMC220x
 
@@ -336,13 +335,13 @@
   #define TFT_BUFFER_SIZE                  14400
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12218
+    #define XPT2046_X_CALIBRATION          12013
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8814
+    #define XPT2046_Y_CALIBRATION          -8711
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
+    #define XPT2046_X_OFFSET                 -32
   #endif
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 256
@@ -350,13 +349,13 @@
 
 #elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12149
+    #define XPT2046_X_CALIBRATION          12013
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8746
+    #define XPT2046_Y_CALIBRATION          -8711
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
+    #define XPT2046_X_OFFSET                 -32
   #endif
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 256
