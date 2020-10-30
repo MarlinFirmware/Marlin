@@ -33,6 +33,7 @@
 #define X_STOP_PIN                            2
 #define Y_STOP_PIN                            3
 #define Z_STOP_PIN                           15
+
 #define FIL_RUNOUT_PIN                       39
 #if EXTRUDERS > 1
   #define FIL_RUNOUT2_PIN                    14
@@ -41,9 +42,11 @@
 //
 // LCD delays
 //
-#define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-#define BOARD_ST7920_DELAY_2 DELAY_NS(250)
-#define BOARD_ST7920_DELAY_3 DELAY_NS(250)
+#if HAS_MARLINUI_U8GLIB
+  #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+  #define BOARD_ST7920_DELAY_2 DELAY_NS(250)
+  #define BOARD_ST7920_DELAY_3 DELAY_NS(250)
+#endif
 
 //
 // DAC steppers
