@@ -18,8 +18,8 @@
 
 //========= Hardware ==========//
 /*------Drivers-(1 CHOICE)-----*/
-//#define QQS                        //(S) For 4xA4988(green color)
-#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
+#define QQS                        //(S) For 4xA4988(green color)
+//#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)

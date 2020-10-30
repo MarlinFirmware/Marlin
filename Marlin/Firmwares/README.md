@@ -8,6 +8,16 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20201030
+
+  -Last correction for Black screen in UI Color
+
+  -Correction thermal protection hysterisis.
+
+  -Remove part for TMC2209 UART HardwareSerial
+  
+  - Add comments into definition_pins file.
+
  Update Marlin-BugFix 20201022
  
   -Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
