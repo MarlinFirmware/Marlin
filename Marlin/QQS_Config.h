@@ -18,8 +18,8 @@
 
 //========= Hardware ==========//
 /*------Drivers-(1 CHOICE)-----*/
-#define QQS                        //(S) For 4xA4988(green color)
-//#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
+//#define QQS                        //(S) For 4xA4988(green color)
+#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)
@@ -38,17 +38,12 @@
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
 //#define BMG                        //(B) Uncomment to change Extruder step.
 
-/*-------Screen Mks_Robin_TFT_v2---(FSMC)-----*/
+/*-------Driver TFT Color--(1 CHOICE)-----*/
 #define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
 //#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
 //#define MKS_ROBIN_TFT_V1_1R
 //#define MKS_ROBIN_TFT24
 //#define TFT_GENERIC
-#if ENABLED(TFT_GENERIC)
-  #define TFT_DRIVER AUTO
-  #define TFT_INTERFACE_FSMC
-  #define TFT_RES_320x240
-#endif
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
@@ -92,6 +87,14 @@
 
 //
 //==================Part for Driver defintions=============//
+
+//TFT Type For TFT_GENERIC
+#if ENABLED(TFT_GENERIC)
+  #define TFT_DRIVER AUTO
+  #define TFT_INTERFACE_FSMC
+  #define TFT_RES_320x240
+#endif
+
 //Set for A4988 
 #if ANY (QQS, STOCK)
     #define DRIVER_AXES A4988
