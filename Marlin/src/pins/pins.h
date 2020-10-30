@@ -179,8 +179,8 @@
   #include "ramps/pins_RAMPS_ENDER_4.h"         // ATmega2560                             env:mega2560
 #elif MB(RAMPS_CREALITY)
   #include "ramps/pins_RAMPS_CREALITY.h"        // ATmega2560                             env:mega2560
-#elif MB(RAMPS_DAGOMA)
-  #include "ramps/pins_RAMPS_DAGOMA.h"          // ATmega2560                             env:mega2560
+#elif MB(DAGOMA_F5)
+  #include "ramps/pins_DAGOMA_F5.h"             // ATmega2560                             env:mega2560
 #elif MB(FYSETC_F6_13)
   #include "ramps/pins_FYSETC_F6_13.h"          // ATmega2560                             env:FYSETC_F6_13
 #elif MB(FYSETC_F6_14)
@@ -713,6 +713,7 @@
   #define BOARD_BIGTREE_SKR_E3_DIP      -1017
   #define BOARD_RUMBA32                 -1018
   #define BOARD_RUMBA32_AUS3D           -1019
+  #define BOARD_RAMPS_DAGOMA            -1020
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -756,6 +757,8 @@
     #error "BOARD_RUMBA32 is now BOARD_RUMBA32_MKS or BOARD_RUMBA32_V1_0. Please update your configuration."
   #elif MB(RUMBA32_AUS3D)
     #error "BOARD_RUMBA32_AUS3D is now BOARD_RUMBA32_V1_0. Please update your configuration."
+  #elif MB(RAMPS_DAGOMA)
+    #error "BOARD_RAMPS_DAGOMA is now BOARD_DAGOMA_F5. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -780,6 +783,7 @@
   #undef BOARD_BIGTREE_SKR_E3_DIP
   #undef BOARD_RUMBA32
   #undef BOARD_RUMBA32_AUS3D
+  #undef BOARD_RAMPS_DAGOMA
 
 #endif
 
