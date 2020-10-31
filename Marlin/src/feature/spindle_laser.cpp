@@ -52,7 +52,7 @@ void SpindleLaser::init() {
   #if ENABLED(SPINDLE_SERVO)
     MOVE_SERVO(SPINDLE_SERVO_NR, SPINDLE_SERVO_MIN);
   #else
-    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);      // Init spindle to off
+    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
   #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
     OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);         // Init rotation to clockwise (M3)
