@@ -1170,6 +1170,11 @@
  * Filament Runout Sensors
  * Mechanical or opto endstops are used to check for the presence of filament.
  *
+ * IMPORTANT: Runout will only trigger if and only if one of this criteria are met:
+ *  1. You are printing from SD that Marlin is accessing (not from a serial TFT SD)
+ *  2. Your GCode have M75 - Start Print Job Timer
+ *  3. PRINTJOB_TIMER_AUTOSTART is enabled and your GCode have M109 or M191 (wait for temp)
+ *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
  */
