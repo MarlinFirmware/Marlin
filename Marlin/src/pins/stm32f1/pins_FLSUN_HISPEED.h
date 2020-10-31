@@ -171,11 +171,11 @@
 #if AXIS_DRIVER_TYPE(E0,TMC2208)||AXIS_DRIVER_TYPE(E0,TMC2209)
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
-  #define TMC_BAUD_RATE                   19200
+  #define TMC_BAUD_RATE                    19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_E_PIN           PB0   // VREF1 CONTROL E
-  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
    #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
