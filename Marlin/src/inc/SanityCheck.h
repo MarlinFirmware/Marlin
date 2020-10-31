@@ -1965,6 +1965,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 // Z homing direction and plug usage flags
 #if Z_HOME_DIR < 0 && NONE(USE_ZMIN_PLUG, HOMING_Z_WITH_PROBE)
   #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+#elif BOTH(USE_ZMAX_PLUG, HOMING_Z_WITH_PROBE)
+  #error "DISABLE_USE_ZMAX_PLUG when homing with the probe."
 #elif Z_HOME_DIR > 0 && ENABLED(USE_PROBE_FOR_Z_HOMING)
   #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
