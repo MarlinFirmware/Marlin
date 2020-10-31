@@ -39,24 +39,27 @@
 #ifndef SPEED_POWER_INTERCEPT
   #define SPEED_POWER_INTERCEPT 0
 #endif
-#define SPEED_POWER_FLOOR TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0)
 
 // #define _MAP(N,S1,S2,D1,D2) ((N)*_MAX((D2)-(D1),0)/_MAX((S2)-(S1),1)+(D1))
 
 class SpindleLaser {
 public:
   static constexpr float
-    min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN))),
+    min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN)),
     max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
 
   static const inline uint8_t pct_to_ocr(const float pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
-  // cpower = configured values (ie SPEED_POWER_MAX)
-  static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) { // configured value to pct
-    return unitPower ? round(100.0f * (cpwr - (SPEED_POWER_FLOOR)) / (SPEED_POWER_MAX - (SPEED_POWER_FLOOR))) : 0;
+  // cpower = configured values (e.g., SPEED_POWER_MAX)
+
+  // Convert configured power range to a percentage
+  static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
+    constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0),
+                              power_range = SPEED_POWER_MAX - power_floor;
+    return unitPower ? round(100.0f * (cpwr - power_floor) / power_range) : 0;
   }
 
-  // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
+  // Convert a cpower (e.g., SPEED_POWER_STARTUP) to unit power (upwr, upower),
   // which can be PWM, Percent, or RPM (rel/abs).
   static const inline cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
     const cutter_power_t upwr = (
