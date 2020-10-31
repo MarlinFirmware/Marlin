@@ -53,7 +53,7 @@ public:
 
   // cpower = configured values (ie SPEED_POWER_MAX)
   static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) { // configured value to pct
-    return unitPower ? round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
+    return unitPower ? round(100 * float(cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
   }
 
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
