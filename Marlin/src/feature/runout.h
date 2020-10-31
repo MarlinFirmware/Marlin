@@ -173,9 +173,50 @@ class FilamentSensorBase {
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
       return poll_runout_pins()
-        #if FIL_RUNOUT_STATE == LOW
-          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
-        #endif
+        #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+          #if FIL_RUNOUT1_STATE == LOW
+            ^ uint8_t(_BV(1 - 1))
+          #endif
+          #if NUM_RUNOUT_SENSORS > 1
+            #if FIL_RUNOUT2_STATE == LOW
+              ^ uint8_t(_BV(2 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 2
+            #if FIL_RUNOUT3_STATE == LOW
+              ^ uint8_t(_BV(3 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 3
+            #if FIL_RUNOUT4_STATE == LOW
+              ^ uint8_t(_BV(4 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 4
+            #if FIL_RUNOUT5_STATE == LOW
+              ^ uint8_t(_BV(5 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 5
+            #if FIL_RUNOUT6_STATE == LOW
+              ^ uint8_t(_BV(6 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 6
+            #if FIL_RUNOUT7_STATE == LOW
+              ^ uint8_t(_BV(7 - 1))
+            #endif
+          #endif
+          #if NUM_RUNOUT_SENSORS > 7
+            #if FIL_RUNOUT8_STATE == LOW
+              ^ uint8_t(_BV(8 - 1))
+            #endif
+          #endif
+        #else // !ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+          #if FIL_RUNOUT_STATE == LOW
+            ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
+          #endif
+        #endif // ENABLED(DISTINCT_FIL_RUNOUT_STATES)
       ;
     }
 };

@@ -831,6 +831,46 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
+  #if DISABLED(DISTINCT_FIL_RUNOUT_STATES)
+    #ifdef FIL_RUNOUT1_STATE
+      #warning "You have defined FIL_RUNOUT1_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+    #endif
+    #if NUM_RUNOUT_SENSORS > 1
+      #ifdef FIL_RUNOUT2_STATE
+        #warning "You have defined FIL_RUNOUT2_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 2
+      #ifdef FIL_RUNOUT3_STATE
+        #warning "You have defined FIL_RUNOUT3_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 3
+      #ifdef FIL_RUNOUT4_STATE
+        #warning "You have defined FIL_RUNOUT4_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 4
+      #ifdef FIL_RUNOUT5_STATE
+        #warning "You have defined FIL_RUNOUT5_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 5
+      #ifdef FIL_RUNOUT6_STATE
+        #warning "You have defined FIL_RUNOUT6_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 6
+      #ifdef FIL_RUNOUT7_STATE
+        #warning "You have defined FIL_RUNOUT7_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 7
+      #ifdef FIL_RUNOUT8_STATE
+        #warning "You have defined FIL_RUNOUT8_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+  #endif // DISABLED(DISTINCT_FIL_RUNOUT_STATES)
 #endif
 
 /**
