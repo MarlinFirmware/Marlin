@@ -284,16 +284,16 @@
       #endif
     #elif ENABLED(TFT_COLOR_UI)
       #ifndef XPT2046_X_CALIBRATION
-        #define XPT2046_X_CALIBRATION     -17089
+        #define XPT2046_X_CALIBRATION     -16741
       #endif
       #ifndef XPT2046_Y_CALIBRATION
-        #define XPT2046_Y_CALIBRATION      11424
+        #define XPT2046_Y_CALIBRATION      11258
       #endif
       #ifndef XPT2046_X_OFFSET
-        #define XPT2046_X_OFFSET            1044
+        #define XPT2046_X_OFFSET            1024
       #endif
       #ifndef XPT2046_Y_OFFSET
-        #define XPT2046_Y_OFFSET            -365
+        #define XPT2046_Y_OFFSET            -367
       #endif
 
       #define TFT_BUFFER_SIZE               2400
