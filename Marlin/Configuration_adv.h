@@ -2943,8 +2943,7 @@
 
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
-  #define SPINDLE_SERVO
-  
+  //#define SPINDLE_SERVO         // A servo used to control the spindle angle
   #ifdef SPINDLE_SERVO
     #define SPINDLE_SERVO_ID 0    // ID of servo used for spindle control
     #define SPINDLE_SERVO_MIN 10  // Minimum angle for servo spindle
@@ -2958,7 +2957,6 @@
    *  - SERVO   (S0 - S180)
    */
   #define CUTTER_POWER_UNIT PWM255
-  
 
   /**
    * Relative Cutter Power
