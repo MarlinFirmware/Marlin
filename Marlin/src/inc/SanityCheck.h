@@ -831,46 +831,85 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
-  #if DISABLED(DISTINCT_FIL_RUNOUT_STATES)
-    #ifdef FIL_RUNOUT1_STATE
-      #warning "You have defined FIL_RUNOUT1_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+  #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+    #if BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
+      #error "Enable only one of FIL_RUNOUT1_PULLUP or FIL_RUNOUT1_PULLDOWN."
     #endif
     #if NUM_RUNOUT_SENSORS > 1
-      #ifdef FIL_RUNOUT2_STATE
-        #warning "You have defined FIL_RUNOUT2_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT2_PULLUP or FIL_RUNOUT2_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 2
-      #ifdef FIL_RUNOUT3_STATE
-        #warning "You have defined FIL_RUNOUT3_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT3_PULLUP or FIL_RUNOUT3_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 3
-      #ifdef FIL_RUNOUT4_STATE
-        #warning "You have defined FIL_RUNOUT4_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT4_PULLUP or FIL_RUNOUT4_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 4
-      #ifdef FIL_RUNOUT5_STATE
-        #warning "You have defined FIL_RUNOUT5_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT5_PULLUP or FIL_RUNOUT5_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 5
-      #ifdef FIL_RUNOUT6_STATE
-        #warning "You have defined FIL_RUNOUT6_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT6_PULLUP or FIL_RUNOUT6_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 6
-      #ifdef FIL_RUNOUT7_STATE
-        #warning "You have defined FIL_RUNOUT7_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT7_PULLUP or FIL_RUNOUT7_PULLDOWN."
       #endif
     #endif
     #if NUM_RUNOUT_SENSORS > 7
-      #ifdef FIL_RUNOUT8_STATE
-        #warning "You have defined FIL_RUNOUT8_STATE but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #if BOTH(FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
+        #error "Enable only one of FIL_RUNOUT8_PULLUP or FIL_RUNOUT8_PULLDOWN."
       #endif
     #endif
-  #endif // DISABLED(DISTINCT_FIL_RUNOUT_STATES)
+  #else // !ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+    #if MANY(defined(FIL_RUNOUT1_STATE), FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
+      #warning "You have defined FIL_RUNOUT1_STATE/FIL_RUNOUT1_PULLUP/FIL_RUNOUT1_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+    #endif
+    #if NUM_RUNOUT_SENSORS > 1
+      #if MANY(defined(FIL_RUNOUT2_STATE), FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT2_STATE/FIL_RUNOUT2_PULLUP/FIL_RUNOUT2_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 2
+      #if MANY(defined(FIL_RUNOUT3_STATE), FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT3_STATE/FIL_RUNOUT3_PULLUP/FIL_RUNOUT3_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 3
+      #if MANY(defined(FIL_RUNOUT4_STATE), FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT4_STATE/FIL_RUNOUT4_PULLUP/FIL_RUNOUT4_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 4
+      #if MANY(defined(FIL_RUNOUT5_STATE), FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT5_STATE/FIL_RUNOUT5_PULLUP/FIL_RUNOUT5_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 5
+      #if MANY(defined(FIL_RUNOUT6_STATE), FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT6_STATE/FIL_RUNOUT6_PULLUP/FIL_RUNOUT6_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 6
+      #if MANY(defined(FIL_RUNOUT7_STATE), FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT7_STATE/FIL_RUNOUT7_PULLUP/FIL_RUNOUT7_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+    #if NUM_RUNOUT_SENSORS > 7
+      #if MANY(defined(FIL_RUNOUT8_STATE), FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
+        #warning "You have defined FIL_RUNOUT8_STATE/FIL_RUNOUT8_PULLUP/FIL_RUNOUT8_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
+      #endif
+    #endif
+  #endif // ENABLED(DISTINCT_FIL_RUNOUT_STATES)
 #endif
 
 /**

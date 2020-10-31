@@ -1176,26 +1176,50 @@
 //#define FILAMENT_RUNOUT_SENSOR
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
-  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN, and optionally a FIL_RUNOUT#_STATE, for each.
+  #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN, and optionally a FIL_RUNOUT#_STATE/FIL_RUNOUT#_PULLUP/FIL_RUNOUT#_PULLDOWN, for each.
   #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
   #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
   //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
   /**
    * With this option each sensor can have a separate state than the first one.
    * To override the state for a sensor, up to NUM_RUNOUT_SENSORS, set
-   * FIL_RUNOUT#_STATE, otherwise FIL_RUNOUT_STATE will be used.
+   * FIL_RUNOUT#_STATE, otherwise FIL_RUNOUT_STATE will be used. Similarly with
+   * FIL_RUNOUT#_PULLUP and FIL_RUNOUT#_PULLDOWN.
    */
   //#define DISTINCT_FIL_RUNOUT_STATES
   #ifdef DISTINCT_FIL_RUNOUT_STATES
     //#define FIL_RUNOUT1_STATE LOW
+    //#define FIL_RUNOUT1_PULLUP
+    //#define FIL_RUNOUT1_PULLDOWN
+
     //#define FIL_RUNOUT2_STATE LOW
+    //#define FIL_RUNOUT2_PULLUP
+    //#define FIL_RUNOUT2_PULLDOWN
+
     //#define FIL_RUNOUT3_STATE LOW
+    //#define FIL_RUNOUT3_PULLUP
+    //#define FIL_RUNOUT3_PULLDOWN
+
     //#define FIL_RUNOUT4_STATE LOW
+    //#define FIL_RUNOUT4_PULLUP
+    //#define FIL_RUNOUT4_PULLDOWN
+
     //#define FIL_RUNOUT5_STATE LOW
+    //#define FIL_RUNOUT5_PULLUP
+    //#define FIL_RUNOUT5_PULLDOWN
+
     //#define FIL_RUNOUT6_STATE LOW
+    //#define FIL_RUNOUT6_PULLUP
+    //#define FIL_RUNOUT6_PULLDOWN
+
     //#define FIL_RUNOUT7_STATE LOW
+    //#define FIL_RUNOUT7_PULLUP
+    //#define FIL_RUNOUT7_PULLDOWN
+
     //#define FIL_RUNOUT8_STATE LOW
-  #endif
+    //#define FIL_RUNOUT8_PULLUP
+    //#define FIL_RUNOUT8_PULLDOWN
+  #endif // DISTINCT_FIL_RUNOUT_STATES
 
   // Set one or more commands to execute on filament runout.
   // (After 'M412 H' Marlin will ask the host to handle the process.)
