@@ -2945,7 +2945,7 @@
 
   //#define SPINDLE_SERVO         // A servo converting an angle to spindle power
   #ifdef SPINDLE_SERVO
-    #define SPINDLE_SERVO_NR 0    // ID of servo used for spindle control
+    #define SPINDLE_SERVO_NR   0  // Index of servo used for spindle control
     #define SPINDLE_SERVO_MIN 10  // Minimum angle for servo spindle
   #endif
 

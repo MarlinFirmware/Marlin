@@ -58,7 +58,7 @@ public:
   }
 
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
-  // which can be PWM, Percent, or RPM (rel/abs).
+  // which can be PWM, Percent, Servo angle, or RPM (rel/abs).
   static const inline cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
     const cutter_power_t upwr = (
       #if ENABLED(SPINDLE_FEATURE)
@@ -67,7 +67,7 @@ public:
           cpwr                            // to RPM
         #elif CUTTER_UNIT_IS(PERCENT)     // to PCT
           cpwr_to_pct(cpwr)
-        #elif CUTTER_UNIT_IS(SERVO)       // to SERVO
+        #elif CUTTER_UNIT_IS(SERVO)       // to SERVO angle
           PCT_TO_SERVO(cpwr_to_pct(cpwr))
         #else                             // to PWM
           PCT_TO_PWM(cpwr_to_pct(cpwr))
