@@ -109,81 +109,59 @@
 //
 // Drivers
 //
-/*
- * For TMC220x in UART mode and serial use,
- * add #define SOFTWARE_SERIAL in you Configuration.h
- * For TMC2209 in UART mode and hardware use, 
- * add #define HARDWARE_SERIAL in you Configuration.h 
- * and position the jumpers in this way.
- * |= close and := open
+/**
+ * This board has no hard-wired UART pins for TMC drivers.
+ * Several wiring options are provided below, defaulting to
+ * to the most compatible.
  */
 #if HAS_TMC220x
+  // SoftwareSerial with one pin per driver
+  // Compatible with TMC2208 and TMC2209 drivers
+  #define X_SERIAL_TX_PIN                   PA10  // RXD1
+  #define X_SERIAL_RX_PIN                   PA10  // RXD1
+  #define Y_SERIAL_TX_PIN                   PA9   // TXD1
+  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+  #define Z_SERIAL_TX_PIN                   PC7   // IO1
+  #define Z_SERIAL_RX_PIN                   PC7   // IO1
+  #define TMC_BAUD_RATE                   19200
 
-  #if ENABLED(HARDWARE_SERIAL)  /*  TMC2209 */
-    #define X_SLAVE_ADDRESS                    3  // |  |  :
-    #define Y_SLAVE_ADDRESS                    2  // :  |  :
-    #define Z_SLAVE_ADDRESS                    1  // |  :  :
-    //#define E0_SLAVE_ADDRESS                 0  // :  :  :
-
-    #define X_SERIAL_TX_PIN                 PA9   // TXD1
-    #define X_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Y_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Y_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Z_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Z_SERIAL_RX_PIN                 PA9   // TXD1
-
-  #elif ENABLED(SOFTWARE_SERIAL)  /*  TMC220x   */
-    /**
-     * TMC2208 stepper UART-configurable by PDN_UART pin
-     * Software serial
-     */
-    #define X_SLAVE_ADDRESS                    0
-    #define Y_SLAVE_ADDRESS                    0
-    #define Z_SLAVE_ADDRESS                    0
-
-    #define X_SERIAL_TX_PIN                 PA10  // RXD1
-    #define X_SERIAL_RX_PIN                 PA10  // RXD1
-
-    #define Y_SERIAL_TX_PIN                 PA9   // TXD1
-    #define Y_SERIAL_RX_PIN                 PA9   // TXD1
-
-    #define Z_SERIAL_TX_PIN                 PC7   // IO1
-    #define Z_SERIAL_RX_PIN                 PC7   // IO1
-
-  #endif
-  // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  // HardwareSerial with one pins for four drivers
+  // Compatible with TMC2209. Provides best performance.
+  // Requires SLAVE_ADDRESS definitions in Configuration_adv.h
+  // and proper jumper configuration. Uses one I/O pins
+  // like PA10/PA9/PC7/PA8 only.
+  // position the jumpers in this way:  |= close and := open.
+  // ex:
+  //#define  X_SLAVE_ADDRESS 3    // |  |  :
+  //#define  Y_SLAVE_ADDRESS 2    // :  |  :
+  //#define  Z_SLAVE_ADDRESS 1    // |  :  :
+  // For E 0 by default whatever the mode used but remove all jumpers.  
+  
 #else
-
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
   #define MOTOR_CURRENT_PWM_Z_PIN           PA7   // VREF4 CONTROL Z
-  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
     #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
 
-  /**
-   * src: MKS Robin_Mini V2
-   *           __ESP(M1)__           -J1-
-   *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
-   *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
-   *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
-   *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
-   *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()   // Must be high for module to run
-   *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
-   *        RX| 21 | | nc |
-   *        TX| 22 | | 01 |RST
-   *            ￣￣ AE￣￣
-   *
-   */
-  #ifdef ESP_WIFI
-    #define WIFI_IO0_PIN                    PA8   // PC13 MKS ESP WIFI IO0 PIN
-    #define WIFI_IO1_PIN                    PC7   // MKS ESP WIFI IO1 PIN
-    #define WIFI_RESET_PIN                  PA5   // MKS ESP WIFI RESET PIN
-  #endif
+/**
+ * src: MKS Robin_Mini V2
+ *           __ESP(M1)__           -J1-
+ *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
+ *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
+ *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()   // Must be high for module to run
+ *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
+ *        RX| 21 | | nc |
+ *        TX| 22 | | 01 |RST
+ *            ￣￣ AE￣￣
+ */
+  #define WIFI_IO0_PIN                      PA8   // PC13 MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
 #endif
 
 //
@@ -217,7 +195,6 @@
 #define HEATER_BED_PIN                      PA0   // HEATER_BED-WKUP
 
 #define FAN_PIN                             PB1   // E_FAN
-//#define CONTROLLER_FAN_PIN                PD6   // BOARD FAN
 
 //
 // Misc. Functions
