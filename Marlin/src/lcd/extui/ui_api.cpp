@@ -972,7 +972,11 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false)) || print_job_timer.isRunning() || print_job_timer.isPaused();
+  }
+
+  bool isPrintingPaused() {
+    return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
   bool isMediaInserted() {
