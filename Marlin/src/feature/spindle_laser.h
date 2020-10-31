@@ -35,6 +35,7 @@
 #endif
 
 #define PCT_TO_PWM(X) ((X) * 255 / 100)
+#define PCT_TO_SERVO(X) ((X) * 180 / 100)
 
 #ifndef SPEED_POWER_INTERCEPT
   #define SPEED_POWER_INTERCEPT 0
@@ -56,6 +57,7 @@ public:
     return unitPower ? round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
   }
 
+
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
   // which can be PWM, Percent, or RPM (rel/abs).
   static const inline cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
@@ -66,6 +68,8 @@ public:
           cpwr                            // to RPM
         #elif CUTTER_UNIT_IS(PERCENT)     // to PCT
           cpwr_to_pct(cpwr)
+        #elif CUTTER_UNIT_IS(SERVO)       // to SERVO
+          PCT_TO_SERVO(cpwr_to_pct(cpwr))
         #else                             // to PWM
           PCT_TO_PWM(cpwr_to_pct(cpwr))
         #endif
