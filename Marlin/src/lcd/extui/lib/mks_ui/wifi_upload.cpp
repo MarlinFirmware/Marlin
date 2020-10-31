@@ -533,12 +533,8 @@ EspUploadResult flashFinish(signed char reboot) {
 
 // Compute the checksum of a block of data
 uint16_t checksum(const uint8_t *data, uint16_t dataLen, uint16_t cksum) {
-  if (data != nullptr) {
-    while (dataLen--) {
-      cksum ^= (uint16_t)*data++;
-    }
-  }
-  return(cksum);
+  if (data) while (dataLen--) cksum ^= (uint16_t)*data++;
+  return cksum;
 }
 
 EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {

@@ -112,18 +112,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_filament_change(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != FILAMENTCHANGE_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = FILAMENTCHANGE_UI;
-  }
-  disp_state = FILAMENTCHANGE_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(FILAMENTCHANGE_UI);
   // Create an Image button
   lv_obj_t *buttonIn = lv_big_button_create(scr, "F:/bmp_in.bin", filament_menu.in, INTERVAL_V, titleHeight, event_handler, ID_FILAMNT_IN);
   lv_obj_clear_protect(buttonIn, LV_PROTECT_FOLLOW);

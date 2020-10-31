@@ -211,21 +211,10 @@ static void btn_cancel_event_cb(lv_obj_t *btn, lv_event_t event) {
 
 void lv_draw_dialog(uint8_t type) {
   lv_obj_t *btnOk = nullptr, *btnCancel = nullptr;
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != DIALOG_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = DIALOG_UI;
-  }
-  disp_state = DIALOG_UI;
-
   uiCfg.dialogType = type;
+  scr = lv_screen_create(DIALOG_UI);
 
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
-  lv_obj_t *labelDialog = lv_label_create_empty(scr);
+  lv_obj_t *labelDialog = lv_label_create(scr, "");
 
   if (DIALOG_IS(TYPE_FINISH_PRINT, PAUSE_MESSAGE_RESUME)) {
       btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);

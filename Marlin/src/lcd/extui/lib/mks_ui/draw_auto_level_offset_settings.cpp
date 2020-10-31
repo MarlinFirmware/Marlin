@@ -65,17 +65,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_auto_level_offset_settings(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != NOZZLE_PROBE_OFFSET_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = NOZZLE_PROBE_OFFSET_UI;
-  }
-  disp_state = NOZZLE_PROBE_OFFSET_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.OffsetConfTitle);
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(NOZZLE_PROBE_OFFSET_UI, machine_menu.OffsetConfTitle);
 
   sprintf_P(public_buf_l, PSTR("%.1f"), TERN(HAS_PROBE_XY_OFFSET, probe.offset.x, 0));
   lv_screen_menu_item_1_edit(scr, machine_menu.Xoffset, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_OFFSET_X, 0, public_buf_l);

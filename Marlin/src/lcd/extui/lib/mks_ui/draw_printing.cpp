@@ -121,15 +121,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_printing(void) {
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
-  disp_state_stack._disp_state[disp_state_stack._disp_index] = PRINTING_UI;
-
-  disp_state = PRINTING_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(PRINTING_UI);
 
   // Create image buttons
   lv_obj_t *buttonExt1 = lv_img_create(scr, nullptr);

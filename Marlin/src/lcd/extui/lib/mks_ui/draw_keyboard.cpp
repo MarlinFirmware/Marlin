@@ -84,7 +84,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   if (lv_btnm_get_btn_ctrl(kb, btn_id, LV_BTNM_CTRL_NO_REPEAT) && event == LV_EVENT_LONG_PRESSED_REPEAT) return;
 
   const char * txt = lv_btnm_get_active_btn_text(kb);
-  if (txt == nullptr) return;
+  if (!txt) return;
 
   // Do the corresponding action according to the text of the button
   if (strcmp(txt, "abc") == 0) {
@@ -110,7 +110,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
       draw_return_ui();
     }
     else {
-      lv_kb_set_ta(kb, nullptr); /*De-assign the text area  to hide it cursor if needed*/
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area  to hide it cursor if needed
       lv_obj_del(kb);
       return;
     }
@@ -169,14 +169,13 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
         default: break;
       }
     }
-    else {
-      lv_kb_set_ta(kb, nullptr); /*De-assign the text area to hide it cursor if needed*/
-    }
+    else
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide it cursor if needed
   return;
   }
 
-  /*Add the characters to the text area if set*/
-  if (ext->ta == nullptr) return;
+  // Add the characters to the text area if set
+  if (!ext->ta) return;
 
   if (strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
     lv_ta_add_char(ext->ta, '\n');
@@ -213,17 +212,9 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != KEY_BOARD_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = KEY_BOARD_UI;
-  }
-  disp_state = KEY_BOARD_UI;
+  scr = lv_screen_create(KEY_BOARD_UI, "");
 
-  scr = lv_screen_create();
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
-  /*Create styles for the keyboard*/
+  // Create styles for the keyboard
   static lv_style_t rel_style, pr_style;
 
   lv_style_copy(&rel_style, &lv_style_btn_rel);
@@ -238,7 +229,7 @@ void lv_draw_keyboard() {
   pr_style.body.main_color = lv_color_make(0x72, 0x42, 0x15);
   pr_style.body.grad_color = lv_color_make(0x6A, 0x3A, 0x0C);
 
-  /*Create a keyboard and apply the styles*/
+  // Create a keyboard and apply the styles
   lv_obj_t *kb = lv_kb_create(scr, nullptr);
   lv_obj_set_event_cb(kb, lv_kb_event_cb);
   lv_kb_set_cursor_manage(kb, true);
@@ -252,7 +243,7 @@ void lv_draw_keyboard() {
     }
   #endif
 
-  /*Create a text area. The keyboard will write here*/
+  // Create a text area. The keyboard will write here
   lv_obj_t *ta = lv_ta_create(scr, nullptr);
   lv_obj_align(ta, nullptr, LV_ALIGN_IN_TOP_MID, 0, 10);
   if (keyboard_value == gcodeCommand) {
@@ -264,7 +255,7 @@ void lv_draw_keyboard() {
     lv_ta_set_text(ta, "");
   }
 
-  /*Assign the text area to the keyboard*/
+  // Assign the text area to the keyboard
   lv_kb_set_ta(kb, ta);
 }
 

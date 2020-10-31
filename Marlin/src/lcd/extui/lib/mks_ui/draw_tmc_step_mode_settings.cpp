@@ -112,15 +112,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_tmc_step_mode_settings(void) {
   buttonXState = buttonYState = buttonZState = buttonE0State = buttonE1State = nullptr;
 
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != TMC_MODE_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = TMC_MODE_UI;
-  }
-  disp_state = TMC_MODE_UI;
-
-  scr = lv_screen_create();
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, machine_menu.TmcStepModeConfTitle);
-  lv_refr_now(lv_refr_get_disp_refreshing());
+  scr = lv_screen_create(TMC_MODE_UI, machine_menu.TmcStepModeConfTitle);
 
   bool stealth_X = false, stealth_Y = false, stealth_Z = false, stealth_E0 = false, stealth_E1 = false;
   #if AXIS_HAS_STEALTHCHOP(X)

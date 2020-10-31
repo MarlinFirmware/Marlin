@@ -143,7 +143,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return bytes_written != size;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   if (!eeprom_file_open) return true;
   UINT bytes_read = 0;
   FRESULT s;

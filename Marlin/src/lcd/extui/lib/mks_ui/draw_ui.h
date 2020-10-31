@@ -86,7 +86,7 @@
   #include "draw_wifi_tips.h"
 #endif
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 #define FILE_SYS_USB  0
 #define FILE_SYS_SD 1
 
@@ -468,7 +468,7 @@ void lv_btn_use_label_style(lv_obj_t *btn);
 void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
 
 // Create a screen
-lv_obj_t* lv_screen_create();
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par);

@@ -126,18 +126,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_change_speed(void) {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != CHANGE_SPEED_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = CHANGE_SPEED_UI;
-  }
-  disp_state = CHANGE_SPEED_UI;
-
-  scr = lv_screen_create();
-
-  (void)lv_label_create(scr, TITLE_XPOS, TITLE_YPOS, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
+  scr = lv_screen_create(CHANGE_SPEED_UI);
   // Create an Image button
   lv_big_button_create(scr, "F:/bmp_Add.bin", speed_menu.add, INTERVAL_V, titleHeight, event_handler, ID_C_ADD);
   lv_big_button_create(scr, "F:/bmp_Dec.bin", speed_menu.dec, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_C_DEC);
