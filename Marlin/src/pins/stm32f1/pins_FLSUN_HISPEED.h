@@ -147,24 +147,22 @@
   #endif
 
   /**
-   * src: MKS Robin_Mini V2
-   *           __ESP(M1)__           -J1-
-   *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
-   *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
-   *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
-   *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
-   *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()   // Must be high for module to run
-   *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
-   *        RX| 21 | | nc |
-   *        TX| 22 | | 01 |RST
-   *            ￣￣ AE￣￣
-   *
-   */
-  #ifdef ESP_WIFI
-    #define WIFI_IO0_PIN                    PA8   // PC13 MKS ESP WIFI IO0 PIN
-    #define WIFI_IO1_PIN                    PC7   // MKS ESP WIFI IO1 PIN
-    #define WIFI_RESET_PIN                  PA5   // MKS ESP WIFI RESET PIN
-  #endif
+  * src: MKS Robin_Mini V2
+  *           __ESP(M1)__           -J1-
+  *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
+  *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
+  *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+  *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+  *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()   // Must be high for module to run
+  *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
+  *        RX| 21 | | nc |
+  *        TX| 22 | | 01 |RST
+  *            ￣￣ AE￣￣
+  */
+  #define WIFI_IO0_PIN                    PA8   // PC13 MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                    PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                  PA5   // MKS ESP WIFI RESET PIN
+  
 #endif
 
 //
