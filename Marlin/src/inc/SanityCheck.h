@@ -3008,7 +3008,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #ifndef CUTTER_POWER_UNIT
     #error "CUTTER_POWER_UNIT is required with a spindle or laser. Please update your Configuration_adv.h."
   #elif !CUTTER_UNIT_IS(PWM255) && !CUTTER_UNIT_IS(PERCENT) && !CUTTER_UNIT_IS(RPM) && !CUTTER_UNIT_IS(SERVO)
-    #error "CUTTER_POWER_UNIT must be PWM255, PERCENT, or RPM. Please update your Configuration_adv.h."
+    #error "CUTTER_POWER_UNIT must be PWM255, PERCENT, RPM, or SERVO. Please update your Configuration_adv.h."
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
