@@ -57,7 +57,6 @@ public:
     return unitPower ? round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
   }
 
-
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
   // which can be PWM, Percent, or RPM (rel/abs).
   static const inline cutter_power_t cpwr_to_upwr(const cutter_cpower_t cpwr) { // STARTUP power to Unit power
