@@ -1999,8 +1999,8 @@
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
 #endif
-#ifndef HAS_PAUSE_SERVO_OUTPUT
-  #define HAS_PAUSE_SERVO_OUTPUT 0
+#if HAS_SERVOS && defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
+  #define HAS_PAUSE_SERVO_OUTPUT 1
 #endif
 
 // Sensors

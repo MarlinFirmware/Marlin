@@ -113,7 +113,6 @@ typedef int16_t pin_t;
 #define HAL_SERVO_LIB libServo
 #define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
 #define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
-#define HAS_PAUSE_SERVO_OUTPUT HAS_SERVOS
 
 // ------------------------
 // Public Variables

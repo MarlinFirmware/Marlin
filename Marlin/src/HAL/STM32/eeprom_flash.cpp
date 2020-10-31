@@ -163,11 +163,11 @@ bool PersistentStore::access_finish() {
         current_slot = EEPROM_SLOTS - 1;
         UNLOCK_FLASH();
 
-        PAUSE_SERVO_OUTPUT();
+        TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
         DISABLE_ISRS();
         status = HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError);
         ENABLE_ISRS();
-        RESUME_SERVO_OUTPUT();
+        TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
         if (status != HAL_OK) {
           DEBUG_ECHOLNPAIR("HAL_FLASHEx_Erase=", status);
           DEBUG_ECHOLNPAIR("GetError=", HAL_FLASH_GetError());
