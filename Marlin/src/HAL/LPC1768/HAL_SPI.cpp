@@ -358,7 +358,7 @@ void SPIClass::updateSettings() {
   //SSP_DeInit(_currentSetting->spi_d); //todo: need force de init?!
 
   // divide PCLK by 2 for SSP0
-  CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+  // CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
 
   SSP_CFG_Type HW_SPI_init; // data structure to hold init values
   SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode
