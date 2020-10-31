@@ -95,8 +95,6 @@ void Touch::idle() {
       }
     #endif
 
-    SERIAL_ECHOLNPAIR("X: ", _x, ", Y: ", _y);
-
     #if LCD_TIMEOUT_TO_STATUS
       ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
     #endif
