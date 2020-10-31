@@ -141,7 +141,7 @@
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
   #define MOTOR_CURRENT_PWM_Z_PIN           PA7   // VREF4 CONTROL Z
-  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
     #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
