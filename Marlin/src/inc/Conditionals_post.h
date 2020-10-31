@@ -1999,7 +1999,7 @@
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
 #endif
-#if !HAS_SERVOS || !defined(HAS_PAUSE_SERVO_OUTPUT)
+#ifndef HAS_PAUSE_SERVO_OUTPUT
   #define HAS_PAUSE_SERVO_OUTPUT 0
 #endif
 

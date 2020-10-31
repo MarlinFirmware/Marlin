@@ -218,11 +218,11 @@ bool PersistentStore::access_finish() {
       // Interrupts during this time can have unpredictable results, such as killing Servo
       // output. Servo output still glitches with interrupts disabled, but recovers after the
       // erase.
-      PAUSE_SERVO_OUTPUT();
+      TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
       DISABLE_ISRS();
       eeprom_buffer_flush();
       ENABLE_ISRS();
-      RESUME_SERVO_OUTPUT();
+      TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
 
       eeprom_data_written = false;
     #endif
