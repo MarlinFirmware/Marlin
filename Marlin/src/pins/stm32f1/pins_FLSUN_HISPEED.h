@@ -148,18 +148,19 @@
 
 /**
  * src: MKS Robin_Mini V2
- *           __ESP(M1)__           -J1-
- *       GND| 15 | | 08 |+3v3      (22)=>RXD1(PA10)  //
- *          | 16 | | 07 |MOSI      (21)=>TXD1(PA9)   // active low, probably OK to leave floating
- *       IO2| 17 | | 06 |MISO      (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO0| 18 | | 05 |CLK       (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO1| 19 | | 03 |EN        (03)=>WIFI_EN()   // Must be high for module to run
- *          | nc | | nc |          (01)=>WIFI_CTRL(PA5)
+ *           __ESP(M1)__       -J1-
+ *       GND| 15 | | 08 |+3v3  (22)=>RXD1(PA10)  //
+ *          | 16 | | 07 |MOSI  (21)=>TXD1(PA9)   // active low, probably OK to leave floating
+ *       IO2| 17 | | 06 |MISO  (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO0| 18 | | 05 |CLK   (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
+ *       IO1| 19 | | 03 |EN    (03)=>WIFI_EN()   // Must be high for module to run
+ *          | nc | | nc |      (01)=>WIFI_CTRL(PA5)
  *        RX| 21 | | nc |
  *        TX| 22 | | 01 |RST
  *            ￣￣ AE￣￣
  */
-  #define WIFI_IO0_PIN                      PA8   // PC13 MKS ESP WIFI IO0 PIN
+  //Module ESP-WIFI
+  #define WIFI_IO0_PIN                      PA8   // MKS ESP WIFI IO0 PIN
   #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
 #endif
@@ -168,15 +169,13 @@
 // EXTRUDER
 //
 #if AXIS_DRIVER_TYPE(E0,TMC2208)||AXIS_DRIVER_TYPE(E0,TMC2209)
-  #define E0_SLAVE_ADDRESS                     0
-
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
-  #define TMC_BAUD_RATE                    19200
+  #define TMC_BAUD_RATE                   19200
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_E_PIN           PB0   // VREF1 CONTROL E
-  #define MOTOR_CURRENT_PWM_RANGE           1500  // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
+  #define MOTOR_CURRENT_PWM_RANGE          1500   // (255 * (1000mA / 65535)) * 257 = 1000 is equal 1.6v Vref in turn equal 1Amp
   #ifndef DEFAULT_PWM_MOTOR_CURRENT
    #define DEFAULT_PWM_MOTOR_CURRENT { 800, 800, 800 }
   #endif
@@ -339,8 +338,8 @@
   #endif
 
   #define TFT_MARLINUI_COLOR              0xFFFF  // White
-  #define TFT_BTARROWS_COLOR              0xDEE6  // 11011 110111 00110 Yellow
-  #define TFT_BTOKMENU_COLOR              0x145F  // 00010 100010 11111 Cyan
+  #define TFT_BTARROWS_COLOR              0xDEE6  // Yellow
+  #define TFT_BTOKMENU_COLOR              0x145F  // Cyan
 #endif
 
 #if NEED_TOUCH_PINS
