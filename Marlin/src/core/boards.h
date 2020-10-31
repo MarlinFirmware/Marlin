@@ -92,7 +92,7 @@
 #define BOARD_TRIGORILLA_14_11        1136  //   ... Rev 1.1 (new servo pin order)
 #define BOARD_RAMPS_ENDER_4           1137  // Creality: Ender-4, CR-8
 #define BOARD_RAMPS_CREALITY          1138  // Creality: CR10S, CR20, CR-X
-#define BOARD_RAMPS_DAGOMA            1139  // Dagoma F5
+#define BOARD_DAGOMA_F5               1139  // Dagoma F5
 #define BOARD_FYSETC_F6_13            1140  // FYSETC F6 1.3
 #define BOARD_FYSETC_F6_14            1141  // FYSETC F6 1.4
 #define BOARD_DUPLICATOR_I3_PLUS      1142  // Wanhao Duplicator i3 Plus
