@@ -1,6 +1,6 @@
 #
 # close-stale.yml
-# Close open issues after a period of inactivity
+# Close open issues and pull requests after a period of inactivity
 #
 
 name: Close Stale Issues
@@ -21,7 +21,9 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: 'This issue has had no activity in the last 30 days. Please add a reply if you want to keep this issue active, otherwise it will be automatically closed within 7 days.'
+        stale-pr-message: 'This pull request has had no activity in the last 30 days. Please add a reply to keep this request active, otherwise it will be automatically closed within 7 days.'
         days-before-stale: 30
         days-before-close: 7
         stale-issue-label: 'stale-closing-soon'
+        stale-pr-label: 'stale-closing-soon'
         exempt-issue-labels: 'T: Feature Request'
