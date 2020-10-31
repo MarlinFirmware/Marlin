@@ -46,14 +46,14 @@
 class SpindleLaser {
 public:
   static constexpr float
-    min_pct = round(TERN(CUTTER_POWER_RELATIVE, 0, (100 * float(SPEED_POWER_MIN) / TERN(SPINDLE_FEATURE, float(SPEED_POWER_MAX), 100)))),
-    max_pct = round(TERN(SPINDLE_FEATURE, 100, float(SPEED_POWER_MAX)));
+    min_pct = TERN(CUTTER_POWER_RELATIVE, 0, TERN(SPINDLE_FEATURE, round(100.0f * (SPEED_POWER_MIN) / (SPEED_POWER_MAX)), SPEED_POWER_MIN))),
+    max_pct = TERN(SPINDLE_FEATURE, 100, SPEED_POWER_MAX);
 
   static const inline uint8_t pct_to_ocr(const float pct) { return uint8_t(PCT_TO_PWM(pct)); }
 
   // cpower = configured values (ie SPEED_POWER_MAX)
   static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) { // configured value to pct
-    return unitPower ? round(100 * (cpwr - SPEED_POWER_FLOOR) / (SPEED_POWER_MAX - SPEED_POWER_FLOOR)) : 0;
+    return unitPower ? round(100.0f * (cpwr - (SPEED_POWER_FLOOR)) / (SPEED_POWER_MAX - (SPEED_POWER_FLOOR))) : 0;
   }
 
   // Convert a configured value (cpower)(ie SPEED_POWER_STARTUP) to unit power (upwr, upower),
