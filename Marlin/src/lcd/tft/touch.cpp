@@ -61,7 +61,7 @@ void Touch::init() {
   enable();
 }
 
-void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data) {
+void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data) {
   if (controls_count == MAX_CONTROLS) return;
 
   controls[controls_count].type = type;
@@ -94,6 +94,8 @@ void Touch::idle() {
         return;
       }
     #endif
+
+    SERIAL_ECHOLNPAIR("X: ", _x, ", Y: ", _y);
 
     #if LCD_TIMEOUT_TO_STATUS
       ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
@@ -306,7 +308,7 @@ bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
 }
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
   uint16_t width = Images[image].width;
   uint16_t height = Images[image].height;
   tft.canvas(x, y, width, height);
