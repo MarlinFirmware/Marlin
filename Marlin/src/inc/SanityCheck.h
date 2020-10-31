@@ -3130,6 +3130,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #undef _PIN_CONFLICT
 #endif
 
+#if ENABLED(SPINDLE_SERVO) && NUM_SERVOS<1
+  #error "SPINDLE_SERVO requires at least one servo enabled by NUM_SERVOS in configuration.h."
+#endif
+
 #if !HAS_MARLINUI_U8GLIB
   #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
     #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."

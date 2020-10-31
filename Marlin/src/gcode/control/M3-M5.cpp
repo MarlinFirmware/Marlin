@@ -27,6 +27,9 @@
 #include "../gcode.h"
 #include "../../feature/spindle_laser.h"
 #include "../../module/stepper.h"
+#if ENABLED(SPINDLE_SERVO)
+  #include "../../module/servo.h"
+#endif
 
 /**
  * Laser:
@@ -78,6 +81,10 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     return cutter.unitPower;
   };
 
+  #if ENABLED(SPINDLE_SERVO)
+    servo[SPINDLE_SERVO_ID].move(get_s_power());
+  #endif
+
   #if ENABLED(LASER_POWER_INLINE)
     if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
       // Laser power in inline mode
@@ -126,6 +133,11 @@ void GcodeSuite::M5() {
     // Non-inline, standard case
     cutter.inline_disable(); // Prevent future blocks re-setting the power
   #endif
+
+  #if ENABLED(SPINDLE_SERVO)
+    servo[SPINDLE_SERVO_ID].move(parser.intval('S', SPINDLE_SERVO_MIN));
+  #endif
+
   planner.synchronize();
   cutter.set_enabled(false);
   cutter.menuPower = cutter.unitPower;

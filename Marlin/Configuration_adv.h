@@ -2896,6 +2896,8 @@
  */
 //#define SPINDLE_FEATURE
 //#define LASER_FEATURE
+
+
 #if EITHER(SPINDLE_FEATURE, LASER_FEATURE)
   #define SPINDLE_LASER_ACTIVE_STATE    LOW    // Set to "HIGH" if the on/off function is active HIGH
   #define SPINDLE_LASER_PWM             true   // Set to "true" if your controller supports setting the speed/power
@@ -2903,6 +2905,8 @@
 
   #define SPINDLE_LASER_FREQUENCY       2500   // (Hz) Spindle/laser frequency (only on supported HALs: AVR and LPC)
 
+
+  //#define SPINDLE_SERVO // If you are using RC ESC to drive spindle motor. Remember to enable servos and disable SPINDLE_LASER_FREQUENCY
   /**
    * Speed / Power can be set ('M3 S') and displayed in terms of:
    *  - PWM255  (S0 - S255)
@@ -3025,6 +3029,11 @@
 
     #endif
   #endif
+#endif
+
+#ifdef SPINDLE_SERVO
+  #define SPINDLE_SERVO_ID 0
+  #define SPINDLE_SERVO_MIN 10
 #endif
 
 /**
