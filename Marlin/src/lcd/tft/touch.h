@@ -158,13 +158,12 @@ class Touch {
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = -1; current_control = NULL; }
+    static void reset() { controls_count = 0; touch_time = 0; current_control = NULL; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {
       if (touch_control_type == CLICK) {
         touch_control_type = NONE;
-        touch_time = 0;
         return true;
       }
       return false;
