@@ -68,26 +68,19 @@
 #endif
 
 #ifdef STM32F0xx
-  #define MCU_TIMER_RATE (F_CPU)      // Frequency of timer peripherals
   #define MCU_STEP_TIMER 16
   #define MCU_TEMP_TIMER 17
 #elif defined(STM32F1xx)
-  #define MCU_TIMER_RATE (F_CPU)
   #define MCU_STEP_TIMER  4
   #define MCU_TEMP_TIMER  2
 #elif defined(STM32F401xC) || defined(STM32F401xE)
-  #define MCU_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  9
   #define MCU_TEMP_TIMER 10
 #elif defined(STM32F4xx) || defined(STM32F7xx)
-  #define MCU_TIMER_RATE (F_CPU / 2)
   #define MCU_STEP_TIMER  6           // STM32F401 has no TIM6, TIM7, or TIM8
   #define MCU_TEMP_TIMER 14           // TIM7 is consumed by Software Serial if used.
 #endif
 
-#ifndef HAL_TIMER_RATE
-  #define HAL_TIMER_RATE MCU_TIMER_RATE
-#endif
 #ifndef STEP_TIMER
   #define STEP_TIMER MCU_STEP_TIMER
 #endif
@@ -115,6 +108,13 @@ HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { nullptr };
 // Public functions
 // ------------------------
 
+uint32_t GetStepperTimerClkFreq() {
+  // Timer input clocks vary between devices, and in some cases between timers on the same device.
+  // Retrieve at runtime to ensure device compatibility. Cache result to avoid repeated overhead.
+  static uint32_t clkfreq = timer_instance[STEP_TIMER_NUM]->getTimerClkFreq();
+  return clkfreq;
+}
+
 // frequency is in Hertz
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   if (!HAL_timer_initialized(timer_num)) {
@@ -136,7 +136,7 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
          */
 
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
-        timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
+        timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), GetStepperTimerClkFreq() / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
         break;
       case TEMP_TIMER_NUM: // TEMP TIMER - any available 16bit timer
         timer_instance[timer_num] = new HardwareTimer(TEMP_TIMER_DEV);
