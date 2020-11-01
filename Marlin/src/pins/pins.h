@@ -133,6 +133,8 @@
   #include "ramps/pins_BIQU_KFB_2.h"            // ATmega2560                             env:mega2560
 #elif MB(ZRIB_V20)
   #include "ramps/pins_ZRIB_V20.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (MKS_GEN_13)
+#elif MB(ZRIB_V52)
+  #include "ramps/pins_ZRIB_V52.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (MKS_GEN_13)
 #elif MB(FELIX2)
   #include "ramps/pins_FELIX2.h"                // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RIGIDBOARD)
