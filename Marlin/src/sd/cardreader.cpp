@@ -57,8 +57,6 @@
 #include "../core/debug_out.h"
 #include "../libs/hex_print.h"
 
-#include <strings.h> // Suppress VSCode warnings about 'strcasecmp'
-
 // public:
 
 card_flags_t CardReader::flag;
