@@ -36,7 +36,6 @@ static void spi_init(spi_t *obj, uint32_t speed, spi_mode_e mode, uint8_t msb, u
 void MarlinSPI::setClockDivider(uint8_t _div) {
   _speed = spi_getClkFreq(&_spi);// / _div;
   _clockDivider = _div;
-  _div = 10;
 }
 
 void MarlinSPI::begin(void) {
