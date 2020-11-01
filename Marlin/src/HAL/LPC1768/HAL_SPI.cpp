@@ -201,6 +201,19 @@ SPIClass::SPIClass(uint8_t device) {
   GPDMA_Init();
 }
 
+SPIClass::SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel) {
+  #if BOARD_NR_SPI >= 2
+    if (mosi == BOARD_SPI1_MOSI_PIN) {
+      SPIClass(1);
+    }
+  #endif
+  #if BOARD_NR_SPI >= 2
+    else if (mosi == BOARD_SPI2_MOSI_PIN) {
+      SPIClass(2);
+    }
+  #endif
+}
+
 void SPIClass::begin() {
   // Init the SPI pins in the first begin call
   if ((_currentSetting->spi_d == LPC_SSP0 && spiInitialised[0] == false) ||
