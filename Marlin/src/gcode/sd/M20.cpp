@@ -33,7 +33,7 @@
 void GcodeSuite::M20() {
   if (card.flag.mounted) {
     card.ls(
-      parser.boolval('S', TERN1(M20_REPORT_DOS_FILENAMES)),
+      parser.boolval('S', DISABLED(M20_DEFER_DOS_FILENAMES)),
       parser.boolval('L', ENABLED(M20_REPORT_LONG_FILENAMES))
     );
     if (DISABLED(LONG_FILENAME_HOST_SUPPORT) && parser.boolval('L'))
