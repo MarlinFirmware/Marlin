@@ -13,6 +13,7 @@ help:
 	@echo "                       tests, but some of them are broken: use "
 	@echo "                       tests-all-* instead to run only the ones that "
 	@echo "                       run on GitHub CI"
+	@echo "  ONLY_TEST            Limit tests to only those that contain"
 	@echo "  VERBOSE_PLATFORMIO   If you want the full PIO output, set any value"
 	@echo "  GIT_RESET_HARD       Used by CI: reset all local changes. WARNING:"
 	@echo "                       THIS WILL UNDO ANY CHANGES YOU'VE MADE!"
@@ -29,12 +30,12 @@ tests-single-local:
 	chmod +x buildroot/tests/*
 	export PATH=./buildroot/bin/:./buildroot/tests/:${PATH} \
 	  && export VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) \
-	  && run_tests . $(TEST_TARGET)
+	  && run_tests . $(TEST_TARGET) "$(ONLY_TEST)"
 .PHONY: tests-single-local
 
 tests-single-local-docker:
 	@if ! test -n "$(TEST_TARGET)" ; then echo "***ERROR*** Set TEST_TARGET=<your-module> or use make tests-all-local-docker" ; return 1; fi
-	docker-compose run --rm marlin $(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD)
+	docker-compose run --rm marlin $(MAKE) tests-single-local TEST_TARGET=$(TEST_TARGET) VERBOSE_PLATFORMIO=$(VERBOSE_PLATFORMIO) GIT_RESET_HARD=$(GIT_RESET_HARD) ONLY_TEST="$(ONLY_TEST)"
 .PHONY: tests-single-local-docker
 
 tests-all-local:

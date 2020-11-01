@@ -10,6 +10,13 @@ set -e
 
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
+  # Check to see if we should skip tests
+  if [[ -n "$4" ]] ; then
+    if [[ ! "$3" =~ $4 ]] ; then
+      printf "\033[1;33mSkipped\033[0m\n"
+      return 0
+    fi
+  fi
   if [[ -z "$VERBOSE_PLATFORMIO" ]] ; then
     silent="--silent"
   else
@@ -47,7 +54,7 @@ if [[ $2 = "ALL" ]]; then
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
-  $2-tests $1 $2
+  $2-tests $1 $2 "$3"
   if [[ $GIT_RESET_HARD == "true" ]]; then
     git reset --hard HEAD
   else
