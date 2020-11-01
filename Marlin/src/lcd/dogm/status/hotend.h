@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Status Screen Hotends bitmaps
+// lcd/dogm/status/hotend.h - Status Screen Hotends bitmaps
 //
 
 #define STATUS_HOTEND1_WIDTH  16

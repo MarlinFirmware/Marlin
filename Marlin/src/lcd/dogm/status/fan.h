@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Fan bitmaps
+// lcd/dogm/status/fan.h - Status Screen Fan bitmaps
 //
 
 #undef STATUS_FAN_WIDTH

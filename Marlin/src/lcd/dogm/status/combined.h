@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Status Screen Combined Heater bitmaps
+// lcd/dogm/status/combined.h - Status Screen Combined Heater bitmaps
 //
 
 #undef STATUS_HOTEND_ANIM

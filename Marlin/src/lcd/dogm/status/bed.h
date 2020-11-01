@@ -22,8 +22,9 @@
 #pragma once
 
 //
-// Default Status Screen Bed bitmaps
+// lcd/dogm/status/bed.h - Status Screen Bed bitmaps
 //
+
 #if ENABLED(STATUS_ALT_BED_BITMAP)
 
   #define STATUS_BED_ANIM

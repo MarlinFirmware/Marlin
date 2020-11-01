@@ -22,7 +22,7 @@
 #pragma once
 
 //
-// Laser / Spindle bitmaps
+// lcd/dogm/status/cutter.h - Status Screen Laser / Spindle bitmaps
 //
 
 #define STATUS_CUTTER_WIDTH 24

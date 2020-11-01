@@ -21,6 +21,10 @@
  */
 #pragma once
 
+//
+// lcd/dogm/status/chamber.h - Status Screen Chamber bitmaps
+//
+
 #define STATUS_CHAMBER_WIDTH 21
 #if STATUS_HEATERS_WIDTH
   #if ENABLED(STATUS_COMBINE_HEATERS)
