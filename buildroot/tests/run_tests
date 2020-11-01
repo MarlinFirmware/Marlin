@@ -10,11 +10,20 @@ set -e
 
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
-  if platformio run --project-dir $1 -e $2 --silent; then
+  if [[ -z "$VERBOSE_PLATFORMIO" ]] ; then
+    silent="--silent"
+  else
+    silent=""
+  fi
+  if platformio run --project-dir $1 -e $2 $silent; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0
   else
-    git reset --hard HEAD
+    if [[ -n $GIT_RESET_HARD ]]; then
+      git reset --hard HEAD
+    else
+      restore_configs
+    fi
     printf "\033[0;31mFailed!\033[0m\n"
     return 1
   fi
@@ -30,12 +39,19 @@ if [[ $2 = "ALL" ]]; then
     testenv=$(basename $f | cut -d"-" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
-    $f $1 $testenv
-    git reset --hard HEAD
+    if [[ $GIT_RESET_HARD == "true" ]]; then
+      git reset --hard HEAD
+    else
+      restore_configs
+    fi
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
   $2-tests $1 $2
-  git reset --hard HEAD
+  if [[ $GIT_RESET_HARD == "true" ]]; then
+    git reset --hard HEAD
+  else
+    restore_configs
+  fi
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"
