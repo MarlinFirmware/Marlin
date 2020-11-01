@@ -81,7 +81,9 @@ void HAL_init() {
 
   SetTimerInterruptPriorities();
 
-  TERN_(EMERGENCY_PARSER, USB_Hook_init());
+  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+    USB_Hook_init();
+  #endif
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
