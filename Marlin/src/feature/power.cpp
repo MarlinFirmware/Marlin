@@ -111,6 +111,7 @@ void Power::power_on() {
 }
 
 void Power::power_off() {
+  safe_delay(SEC_TO_MS(POWER_OFF_TIMEOUT));
   if (powersupply_on) PSU_PIN_OFF();
 }
 

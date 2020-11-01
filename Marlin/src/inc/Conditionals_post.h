@@ -420,6 +420,10 @@
   #define PSU_POWERUP_DELAY 250
 #endif
 
+#if !defined(POWER_OFF_TIMEOUT) && ENABLED(PSU_CONTROL)
+  #define POWER_OFF_TIMEOUT 0
+#endif
+
 /**
  * Temp Sensor defines
  */
