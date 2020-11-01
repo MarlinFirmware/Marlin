@@ -1015,7 +1015,7 @@ void Planner::reverse_pass() {
     // Perform the reverse pass
     block_t *current = &block_buffer[block_index];
 
-    // Only consider non sync blocks
+    // Only consider non sync-and-page blocks
     if (!(current->flag & BLOCK_MASK_SYNC) && !IS_PAGE(current)) {
       reverse_pass_kernel(current, next);
       next = current;
@@ -1110,7 +1110,7 @@ void Planner::forward_pass() {
     // Perform the forward pass
     block = &block_buffer[block_index];
 
-    // Skip SYNC blocks
+    // Skip SYNC and page blocks
     if (!(block->flag & BLOCK_MASK_SYNC) && !IS_PAGE(block)) {
       // If there's no previous block or the previous block is not
       // BUSY (thus, modifiable) run the forward_pass_kernel. Otherwise,
@@ -1160,7 +1160,7 @@ void Planner::recalculate_trapezoids() {
 
     next = &block_buffer[block_index];
 
-    // Skip sync blocks
+    // Skip sync and page blocks
     if (!(next->flag & BLOCK_MASK_SYNC) && !IS_PAGE(next)) {
       next_entry_speed = SQRT(next->entry_speed_sqr);
 
@@ -1274,7 +1274,9 @@ void Planner::recalculate() {
 
 #endif // AUTOTEMP
 
-#define HAS_TAIL_FAN_SPEED (HAS_FAN && DISABLED(LASER_SYNCHRONOUS_M106_M107))
+#if FAN_COUNT && DISABLED(LASER_SYNCHRONOUS_M106_M107)
+  #define HAS_TAIL_FAN_SPEED 1
+#endif
 
 /**
  * Apply fan speeds
@@ -2666,6 +2668,7 @@ void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_
   memset(block, 0, sizeof(block_t));
 
   block->flag = sync_flag;
+
   block->position = position;
 
   #if BOTH(HAS_FAN, LASER_SYNCHRONOUS_M106_M107)
