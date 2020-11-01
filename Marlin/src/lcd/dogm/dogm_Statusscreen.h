@@ -1368,7 +1368,7 @@
 #if STATUS_LOGO_WIDTH
   #ifndef STATUS_LOGO_X
     #ifdef STATUS_HEATERS_X
-      #define STATUS_LOGO_X (STATUS_HEATERS_X - STATUS_LOGO_WIDTH - 1) / 2
+      #define STATUS_LOGO_X (STATUS_HEATERS_X - (STATUS_LOGO_WIDTH) - 1) / 2
     #else
       #define STATUS_LOGO_X 0
     #endif
