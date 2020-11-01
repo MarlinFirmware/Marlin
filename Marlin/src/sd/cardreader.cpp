@@ -236,25 +236,23 @@ void CardReader::selectByName(SdFile dir, const char * const match, const bool d
           #if ENABLED(DEBUG_CARDREADER)
             //debug = true;
             if (debug) {
-              DEBUG_ECHOLNPGM(" ");
-              DEBUG_ECHOPGM(" DEBUG -SelectByName- LONG FileName: ");
-              DEBUG_ECHO(longFilename);
-              DEBUG_ECHOPGM("-- Created FileName: ");
-              DEBUG_ECHO(filename);
-              DEBUG_ECHOPGM(" -- Search Term: ");
-              DEBUG_ECHO(match);
-              DEBUG_ECHOLNPGM(" -- Match Success: TRUE");
+              DEBUG_ECHOLNPAIR("\n"
+                " DEBUG -SelectByName- LONG FileName: ", longFilename,
+                "-- Created FileName: ", filename,
+                " -- Search Term: ", match,
+                " -- Match Success: TRUE"
+              );
             }
           #endif
 
-          //This is a workaround if the filename IS the actual longfilename. This avoids reporting incorrect filenames such as "CURVE_~1.GCO" turning into "firmware.bin"
+          // Workaround for a DOS8.3 name identical to long name.
           if (strncasecmp(filename, longFilename, 3) != 0) {
-            #if ENABLED(DEBUG_CARDREADER)
-              //debug = true;
-              if (debug) DEBUG_ECHOLNPAIR("DEBUG: MisMatch Found! Returning LongFileName as FileName");
-              if (debug) DEBUG_ECHOLNPAIR("DEBUG: filename = ", filename);
-              if (debug) DEBUG_ECHOLNPAIR("DEBUG: longFilename = ", longFilename);
-            #endif
+            //debug = true;
+            if (TERN0(DEBUG_CARDREADER, debug)) {
+              DEBUG_ECHOLNPAIR("DEBUG: Mismatch! Copying filename to longFilename");
+              DEBUG_ECHOLNPAIR("DEBUG: filename = ", filename);
+              DEBUG_ECHOLNPAIR("DEBUG: longFilename = ", longFilename);
+            }
             strcpy(longFilename, filename);
           }
           return;
@@ -262,8 +260,7 @@ void CardReader::selectByName(SdFile dir, const char * const match, const bool d
         else {
           // Match Not Found -> Wipe out the filenames to avoid returning a path to a different file
           //if (debug) DEBUG_ECHOLNPGM("FALSE");
-          strcpy(filename, "");
-          strcpy(longFilename, "");
+          filename[0] = longFilename[0] = '\0';
         }
       #else
         if (strcasecmp(match, filename) == 0) {
@@ -474,26 +471,16 @@ void CardReader::printListing(SdFile parent, const bool print_dos_names, const b
 void CardReader::ls(const bool print_dos_names, const bool print_long_names) {
   if (flag.mounted) {
     #if ENABLED(M20_REPORT_DIRECTORY_NAMES)
-      SERIAL_ECHOLNPGM("Begin Directory Listing");
       root.rewind();
+      SERIAL_ECHOLNPGM(STR_BEGIN_DIR_LIST);
       card.printDirListing(root, print_dos_names, print_long_names);
-      SERIAL_ECHOLNPGM("End Directory Listing");
+      SERIAL_ECHOLNPGM(STR_END_DIR_LIST);
       SERIAL_ECHOLNPGM(" ");
     #endif
-    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
     root.rewind();
+    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
     printListing(root, print_dos_names, print_long_names);
     SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
-  }
-}
-
-//
-// List all files on the SD card
-//
-void CardReader::ls() {
-  if (flag.mounted) {
-    root.rewind();
-    printListing(root);
   }
 }
 

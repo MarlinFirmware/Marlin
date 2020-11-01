@@ -121,6 +121,8 @@
 #define STR_NO_MEDIA                        "No media"
 #define STR_BEGIN_FILE_LIST                 "Begin file list"
 #define STR_END_FILE_LIST                   "End file list"
+#define STR_BEGIN_DIR_LIST                  "Begin dir list"
+#define STR_END_DIR_LIST                    "End dir list"
 #define STR_INVALID_EXTRUDER                "Invalid extruder"
 #define STR_INVALID_E_STEPPER               "Invalid E stepper"
 #define STR_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
