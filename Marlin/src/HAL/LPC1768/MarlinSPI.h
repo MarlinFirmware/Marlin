@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,26 +21,25 @@
  */
 #pragma once
 
-/**
- * Define SPI Pins: SCK, MISO, MOSI, SS
- */
-#ifndef SCK_PIN
-  #define SCK_PIN   PIN_SPI_SCK
-#endif
-#ifndef MISO_PIN
-  #define MISO_PIN  PIN_SPI_MISO
-#endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN  PIN_SPI_MOSI
-#endif
-#ifndef SS_PIN
-  #define SS_PIN    PIN_SPI_SS
-#endif
+#include <SPI.h>
 
-#if ENABLED(ENABLE_SPI3)
-  #define SPI_DEVICE 3
-#elif ENABLED(ENABLE_SPI2)
-  #define SPI_DEVICE 2
-#else
-  #define SPI_DEVICE 1
-#endif
+/**
+ * Marlin currently needs 3 SPI class
+ *
+ * SPIClass:
+ *   This class normally is provide by the frameworks and have semi default interface.
+ *   We need this, because some libs reference it globally.
+ *
+ * SPISettings:
+ *  Hold spi configs for the SPIClass. Same problem about: lib may reference it globally.
+ *
+ * MarlinSPI:
+ *   As those two classes are often provided by frameworks, we cannot alter it, to add some
+ * useful methods for marlin.
+ *
+ * This is the reason, we need MarlinSPI. It provide the default SPIClass interface, plus some
+ * marlin goods (easy inteface for SPI DMA transfer)
+ *
+ */
+
+using MarlinSPI = SPIClass;
