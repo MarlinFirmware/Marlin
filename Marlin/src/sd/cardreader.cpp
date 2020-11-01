@@ -175,7 +175,7 @@ char *createFilename(char * const buffer, const dir_t &p) {
 bool CardReader::is_dir_or_gcode(const dir_t &p) {
   //uint8_t pn0 = p.name[0];
 
-  if ((p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
+  if ( (p.attributes & DIR_ATT_HIDDEN)                  // Hidden by attribute
     // When readDir() > 0 these must be false:
     //|| pn0 == DIR_NAME_FREE || pn0 == DIR_NAME_DELETED  // Clear or Deleted entry
     //|| pn0 == '.' || longFilename[0] == '.'             // Hidden file
@@ -261,17 +261,17 @@ void CardReader::selectByName(SdFile dir, const char * const match, const bool d
         }
         else {
           // Match Not Found -> Wipe out the filenames to avoid returning a path to a different file
-          //if (debug) DEBUG_ECHOLN("FALSE");
+          //if (debug) DEBUG_ECHOLNPGM("FALSE");
           strcpy(filename, "");
           strcpy(longFilename, "");
         }
       #else
         if (strcasecmp(match, filename) == 0) {
-          if (debug) DEBUG_ECHOLN(" DEBUG SelectByName - MatchFound");
+          if (debug) DEBUG_ECHOLNPGM(" DEBUG SelectByName - MatchFound");
           return;
         }
         else if (debug)
-          DEBUG_ECHOLN("FALSE");
+          DEBUG_ECHOLNPGM("FALSE");
       #endif
     }
   }
@@ -954,7 +954,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
   DEBUG_ECHOLNPAIR("diveToFile: path = '", path, "'");
 
   if (path[0] == '/') {               // Starting at the root directory?
-    DEBUG_ECHOLN("Starting from ROOT");
+    DEBUG_ECHOLNPGM("Starting from ROOT");
     diveDir = &root;
     diveDir->rewind();                // Redundant rewind, but no harm
     item_name_adr++;
@@ -962,7 +962,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile*& diveDir, cons
     if (update_cwd) workDirDepth = 0; // The cwd can be updated for the benefit of sub-programs
   }
   else
-    DEBUG_ECHOLN("Starting from WorkingDirectory");
+    DEBUG_ECHOLNPGM("Starting from WorkingDirectory");
     diveDir = &workDir;               // Dive from workDir (as set by the UI)
 
   startDir = diveDir;
