@@ -85,9 +85,9 @@ enum TouchControlType : uint16_t {
 
 typedef void (*screenFunc_t)();
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
 inline void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled); }
-inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (int32_t)screen, image, is_enabled, color_enabled, color_disabled); }
+inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled); }
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
@@ -95,7 +95,7 @@ typedef struct __attribute__((__packed__)) {
   uint16_t y;
   uint16_t width;
   uint16_t height;
-  int32_t data;
+  intptr_t data;
 } touch_control_t;
 
 typedef struct __attribute__((__packed__)) {
@@ -158,7 +158,7 @@ class Touch {
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = -1; current_control = NULL; }
+    static void reset() { controls_count = 0; touch_time = 0; current_control = NULL; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {
@@ -171,7 +171,7 @@ class Touch {
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
 
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data = 0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
 
     static touch_calibration_t calibration;
     static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
