@@ -81,7 +81,7 @@ public:
   static void mount();
   static void release();
   static inline bool isMounted() { return flag.mounted; }
-  static void ls();
+  static void ls(boolean ReturnDOSFileNames,boolean ReturnLongFileNames);
 
   // Handle media insert/remove
   static void manage_media();
@@ -104,7 +104,7 @@ public:
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
   #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-    static void printLongPath(char * const path);   // Used by M33
+    static void printLongPath(char * const path, boolean PrintLineReturn);   // Used by M33
   #endif
 
   // Working Directory for SD card menu
@@ -135,7 +135,7 @@ public:
   static inline uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
 
   // Helper for open and remove
-  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool echo=false);
+  static const char* diveToFile(const bool update_cwd, SdFile*& curDir, const char * const path, const bool NewFile=false);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void presort();
@@ -273,8 +273,9 @@ private:
   static bool is_dir_or_gcode(const dir_t &p);
   static int countItems(SdFile dir);
   static void selectByIndex(SdFile dir, const uint8_t index);
-  static void selectByName(SdFile dir, const char * const match);
-  static void printListing(SdFile parent, const char * const prepend=nullptr);
+  static void selectByName(SdFile dir, const char * const match, boolean debug=false);
+  static void printListing(SdFile parent, boolean ReturnDOSFileNames, boolean ReturnLongFileNames, const char * const prepend=nullptr);
+  static void printDirListing(SdFile parent, boolean ReturnDOSFileNames, boolean ReturnLongFileNames, const char * const prepend=nullptr);
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     static void flush_presort();

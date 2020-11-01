@@ -1256,6 +1256,15 @@
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 
+  //M20 Configuration
+  //#define M20_Reports_Directory_Names // Enable this to report each directory on the SD card in addition to any GCODE files
+  #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+    //LONG_FILENAME_HOST_SUPPORT allows M20 to return LONG or DOS8.3 filenames to the host. Default setting can be setup here. -> If both are disabled, M20 defaults to the DOS names
+    //If both are enabled, then M20 will report back this format for each item:     [DOS8.3 Name] --> [Long_FileName]  [Size in bytes]
+    #define M20_Reports_DOS_FileNames 
+    //#define M20_Reports_LONG_FileNames
+  #endif
+  
   // Enable this option to scroll long filenames in the SD card menu
   //#define SCROLL_LONG_FILENAMES
 

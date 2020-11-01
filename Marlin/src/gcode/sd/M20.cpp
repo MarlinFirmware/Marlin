@@ -32,9 +32,36 @@
  */
 void GcodeSuite::M20() {
   if (card.flag.mounted) {
-    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
-    card.ls();
-    SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
+    if ( parser.seen('S' ) and parser.seen('L' ) ) {
+        card.ls(TRUE,TRUE);
+    
+    } else if ( parser.seen('S' ) ) {
+        card.ls(TRUE,FALSE); // Request Short (default DSoc 8,3) filenames if user used 'M20 S'
+    
+    } else if ( parser.seen('L' ) ) {
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
+          card.ls(FALSE,TRUE); // Request Short (default DSoc 8,3) filenames if user used 'M20 S'
+        #else
+          SERIAL_ECHOLNPGM("ERROR: Long_FileName_Host_Support Not Enabled!");
+        #endif
+    
+    } else {
+        #if ENABLED(LONG_FILENAME_HOST_SUPPORT) 
+    
+          #if ( ENABLED(M20_Reports_LONG_FileNames) and ENABLED(M20_Reports_DOS_FileNames) )
+            card.ls(TRUE,TRUE);
+
+          #elif ENABLED(M20_Reports_LONG_FileNames)  
+            card.ls(FALSE,TRUE);
+
+          #elif ENABLED(M20_Reports_DOS_FileNames) 
+            card.ls(TRUE,FALSE);
+          #endif
+
+        #else
+          card.ls(TRUE,FALSE);
+        #endif
+    } 
   }
   else
     SERIAL_ECHO_MSG(STR_NO_MEDIA);
