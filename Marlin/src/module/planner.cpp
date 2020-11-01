@@ -2656,7 +2656,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
  * or in case of LASER_SYNCHRONOUS_M106_M107 the fan PWM
  */
 void Planner::buffer_sync_block(TERN_(LASER_SYNCHRONOUS_M106_M107, uint8_t sync_flag)) {
-  TERN_(LASER_SYNCHRONOUS_M106_M107,,constexpr uint8_t sync_flag = BLOCK_FLAG_SYNC_POSITION);
+  TERN(LASER_SYNCHRONOUS_M106_M107,,constexpr uint8_t sync_flag = BLOCK_FLAG_SYNC_POSITION);
 
   // Wait for the next available block
   uint8_t next_buffer_head;
