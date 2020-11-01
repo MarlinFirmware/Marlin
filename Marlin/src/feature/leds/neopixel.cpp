@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,14 +30,15 @@
 
 #include "neopixel.h"
 
-#if ENABLED(NEOPIXEL_STARTUP_TEST)
+#if EITHER(NEOPIXEL_STARTUP_TEST, NEOPIXEL2_STARTUP_TEST)
   #include "../../core/utility.h"
 #endif
 
 Marlin_NeoPixel neo;
+int8_t Marlin_NeoPixel::neoindex;
 
 Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIXEL_TYPE + NEO_KHZ800)
-  #if MULTIPLE_NEOPIXEL_TYPES
+  #if CONJOINED_NEOPIXEL
     , Marlin_NeoPixel::adaneo2(NEOPIXEL_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE + NEO_KHZ800)
   #endif
 ;
@@ -52,14 +53,20 @@ Adafruit_NeoPixel Marlin_NeoPixel::adaneo1(NEOPIXEL_PIXELS, NEOPIXEL_PIN, NEOPIX
 #endif
 
 void Marlin_NeoPixel::set_color(const uint32_t color) {
-  for (uint16_t i = 0; i < pixels(); ++i) {
-    #ifdef NEOPIXEL_BKGD_LED_INDEX
-      if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {
-        set_color_background();
-        continue;
-      }
-    #endif
-    set_pixel_color(i, color);
+  if (neoindex >= 0) {
+    set_pixel_color(neoindex, color);
+    neoindex = -1;
+  }
+  else {
+    for (uint16_t i = 0; i < pixels(); ++i) {
+      #ifdef NEOPIXEL_BKGD_LED_INDEX
+        if (i == NEOPIXEL_BKGD_LED_INDEX && color != 0x000000) {
+          set_color_background();
+          continue;
+        }
+      #endif
+      set_pixel_color(i, color);
+    }
   }
   show();
 }
@@ -71,19 +78,18 @@ void Marlin_NeoPixel::set_color_startup(const uint32_t color) {
 }
 
 void Marlin_NeoPixel::init() {
-  SET_OUTPUT(NEOPIXEL_PIN);
-  set_brightness(NEOPIXEL_BRIGHTNESS); // 0 - 255 range
+  neoindex = -1;                       // -1 .. NEOPIXEL_PIXELS-1 range
+  set_brightness(NEOPIXEL_BRIGHTNESS); //  0 .. 255 range
   begin();
   show();  // initialize to all off
 
   #if ENABLED(NEOPIXEL_STARTUP_TEST)
-    safe_delay(1000);
     set_color_startup(adaneo1.Color(255, 0, 0, 0));  // red
-    safe_delay(1000);
+    safe_delay(500);
     set_color_startup(adaneo1.Color(0, 255, 0, 0));  // green
-    safe_delay(1000);
+    safe_delay(500);
     set_color_startup(adaneo1.Color(0, 0, 255, 0));  // blue
-    safe_delay(1000);
+    safe_delay(500);
   #endif
 
   #ifdef NEOPIXEL_BKGD_LED_INDEX
@@ -113,5 +119,54 @@ bool Marlin_NeoPixel::set_led_color(const uint8_t r, const uint8_t g, const uint
   #endif
 }
 #endif
+
+#if ENABLED(NEOPIXEL2_SEPARATE)
+
+  Marlin_NeoPixel2 neo2;
+
+  int8_t Marlin_NeoPixel2::neoindex;
+  Adafruit_NeoPixel Marlin_NeoPixel2::adaneo(NEOPIXEL2_PIXELS, NEOPIXEL2_PIN, NEOPIXEL2_TYPE);
+
+  void Marlin_NeoPixel2::set_color(const uint32_t color) {
+    if (neoindex >= 0) {
+      set_pixel_color(neoindex, color);
+      neoindex = -1;
+    }
+    else {
+      for (uint16_t i = 0; i < pixels(); ++i)
+        set_pixel_color(i, color);
+    }
+    show();
+  }
+
+  void Marlin_NeoPixel2::set_color_startup(const uint32_t color) {
+    for (uint16_t i = 0; i < pixels(); ++i)
+      set_pixel_color(i, color);
+    show();
+  }
+
+  void Marlin_NeoPixel2::init() {
+    neoindex = -1;                        // -1 .. NEOPIXEL2_PIXELS-1 range
+    set_brightness(NEOPIXEL2_BRIGHTNESS); //  0 .. 255 range
+    begin();
+    show();  // initialize to all off
+
+    #if ENABLED(NEOPIXEL2_STARTUP_TEST)
+      set_color_startup(adaneo.Color(255, 0, 0, 0));  // red
+      safe_delay(500);
+      set_color_startup(adaneo.Color(0, 255, 0, 0));  // green
+      safe_delay(500);
+      set_color_startup(adaneo.Color(0, 0, 255, 0));  // blue
+      safe_delay(500);
+    #endif
+
+    #if ENABLED(NEO2_USER_PRESET_STARTUP)
+      set_color(adaneo.Color(NEO2_USER_PRESET_RED, NEO2_USER_PRESET_GREEN, NEO2_USER_PRESET_BLUE, NEO2_USER_PRESET_WHITE));
+    #else
+      set_color(adaneo.Color(0, 0, 0, 0));
+    #endif
+  }
+
+#endif // NEOPIXEL2_SEPARATE
 
 #endif // NEOPIXEL_LED

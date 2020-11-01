@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -26,7 +26,9 @@
 #if ENABLED(EMERGENCY_PARSER)
 
 #include "../../feature/e_parser.h"
+
 EmergencyParser::State emergency_state;
+
 bool CDC_RecvCallback(const char buffer) {
   emergency_parser.update(emergency_state, buffer);
   return true;

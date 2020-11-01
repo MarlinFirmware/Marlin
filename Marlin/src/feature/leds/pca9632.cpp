@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -120,7 +120,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void pca9632_set_led_color(const LEDColor &color) {
+void PCA9632_set_led_color(const LEDColor &color) {
   Wire.begin();
   if (!PCA_init) {
     PCA_init = 1;
@@ -138,7 +138,7 @@ void pca9632_set_led_color(const LEDColor &color) {
 
 #if ENABLED(PCA9632_BUZZER)
 
-  void pca9632_buzz(const long, const uint16_t) {
+  void PCA9632_buzz(const long, const uint16_t) {
     uint8_t data[] = PCA9632_BUZZER_DATA;
     Wire.beginTransmission(I2C_ADDRESS(PCA9632_ADDRESS));
     Wire.write(data, sizeof(data));

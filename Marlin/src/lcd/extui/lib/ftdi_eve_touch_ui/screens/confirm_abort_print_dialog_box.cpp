@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -25,6 +25,8 @@
 #if ENABLED(TOUCH_UI_FTDI_EVE)
 
 #include "screens.h"
+
+#include "../../../../../feature/host_actions.h"
 
 using namespace ExtUI;
 
@@ -37,7 +39,11 @@ bool ConfirmAbortPrintDialogBox::onTouchEnd(uint8_t tag) {
   switch (tag) {
     case 1:
       GOTO_PREVIOUS();
-      stopPrint();
+      if (ExtUI::isPrintingFromMedia())
+         ExtUI::stopPrint();
+      #ifdef ACTION_ON_CANCEL
+        else host_action_cancel();
+      #endif
       return true;
     default:
       return DialogBoxBaseClass::onTouchEnd(tag);

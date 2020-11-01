@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,9 +31,13 @@
  * M20: List SD card to serial output
  */
 void GcodeSuite::M20() {
-  SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
-  card.ls();
-  SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
+  if (card.flag.mounted) {
+    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
+    card.ls();
+    SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
+  }
+  else
+    SERIAL_ECHO_MSG(STR_NO_MEDIA);
 }
 
 #endif // SDSUPPORT

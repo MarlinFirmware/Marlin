@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -55,20 +54,23 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Zet home offsets");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("H offset toegep.");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Nulpunt instellen");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = PREHEAT_1_LABEL _UxGT(" verw. conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = PREHEAT_2_LABEL _UxGT(" voorverwarmen");
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = PREHEAT_2_LABEL _UxGT(" voorverw. ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = PREHEAT_2_LABEL _UxGT(" voorverw. Einde");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = PREHEAT_2_LABEL _UxGT(" voorverw. Einde ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = PREHEAT_2_LABEL _UxGT(" voorverw. aan");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = PREHEAT_2_LABEL _UxGT(" voorverw. Bed");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = PREHEAT_2_LABEL _UxGT(" verw. conf");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = PREHEAT_1_LABEL _UxGT(" voorverwarmen");
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = PREHEAT_1_LABEL _UxGT(" voorverw. ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = PREHEAT_1_LABEL _UxGT(" voorverw. Einde");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = PREHEAT_1_LABEL _UxGT(" voorverw. Einde ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = PREHEAT_1_LABEL _UxGT(" voorverw. aan");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = PREHEAT_1_LABEL _UxGT(" voorverw. Bed");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = PREHEAT_1_LABEL _UxGT(" verw. conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("$ voorverwarmen");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("$ voorverw. ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("$ voorverw. Einde");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("$ voorverw. Einde ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("$ voorverw. aan");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("$ voorverw. Bed");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("$ verw. conf");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Afkoelen");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Stroom aan");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Stroom uit");
@@ -139,10 +141,10 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Ruil Retract mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Retract  F");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Ruil UnRet mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  F");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoRetr.");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Ruil Unretr. mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretr. FR");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Verv. Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Verv. Filament *");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Init. SD kaart");
@@ -161,9 +163,6 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("Therm. wegloop");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: Max. temp");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: Min. temp");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: Max.tmp bed");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: Min.tmp bed");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY Eerst");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("PRINTER GESTOPT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Reset A.U.B.");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); //  One character only. Keep English standard

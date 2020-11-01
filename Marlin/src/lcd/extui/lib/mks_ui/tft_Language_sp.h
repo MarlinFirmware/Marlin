@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -98,6 +98,8 @@
 #define MOTOR_OFF_TEXT_SP       "Apagar motor"
 #define MOTOR_OFF_XY_TEXT_SP    "Off-XY"
 #define SHUTDOWN_TEXT_SP        "Apagar"
+#define MACHINE_PARA_SP         "Config"
+#define EEPROM_SETTINGS_SP      "Eeprom Set"
 
 #define U_DISK_TEXT_SP              "PENDRIVE"
 #define SD_CARD_TEXT_SP             "SD"
@@ -204,10 +206,6 @@
 #define STEP_5PERCENT_SP            "5%"
 #define STEP_10PERCENT_SP           "10%"
 
-#define ZOFFSET_SP                  "Z Offset"
-#define ZOFFSET_INC_SP              "Más"
-#define ZOFFSET_DEC_SP              "Menos"
-
 #define TITLE_READYPRINT_SP         "Inicio"
 #define TITLE_PREHEAT_SP            "Precalentar"
 #define TITLE_MOVE_SP               "Mover"
@@ -231,7 +229,6 @@
 #define TITLE_CLOUD_TEXT_SP         "Cloud"
 #define TITLE_DIALOG_CONFIRM_SP     "Confirmar"
 #define TITLE_FILESYS_SP            "Puerto"
-#define TITLE_ZOFFSET_SP            "Z Offset"
 
 #define AUTO_SHUTDOWN_SP            "Auto"
 #define MANUAL_SHUTDOWN_SP          "manual"
@@ -245,9 +242,9 @@
 #define DIALOG_PRINT_MODEL_SP       "¿Está seguro?"
 #define DIALOG_CANCEL_PRINT_SP      "¿Está seguro que desea detener la impresión?"
 
-#define DIALOG_RETRY_SP               "Reintentar"
-#define DIALOG_STOP_SP                "Stop"
-#define DIALOG_REPRINT_FROM_BREAKPOINT_SP   "Reprint from breakpoint?"
+#define DIALOG_RETRY_SP             "Reintentar"
+#define DIALOG_STOP_SP              "Stop"
+#define DIALOG_REPRINT_FROM_BREAKPOINT_SP "Reprint from breakpoint?"
 //#define DIALOG_UNBIND_PRINTER_SP    "Unbind the printer?"
 #define DIALOG_ERROR_TIPS1_SP         "Error:archivo no encontrado, \npor favor insertar SD o disco USB."
 #define DIALOG_ERROR_TIPS2_SP         "error:transacción fallida, \nconfigurar  baudrate del \ndisplay para la placa base!"
@@ -260,20 +257,28 @@
 #define DIALOG_REPRINT_SP             "Print again"
 #define DIALOG_WIFI_ENABLE_TIPS_SP    "The wifi module is being configured,\nplease wait a moment....."
 
-#define PRINTING_SP                 "Imprimiendo"
-#define PRINTING_AJUSTES_SP         "Ajustes"
-#define PRINTING_PAUSAR_SP          "Pausar"
+#define PRINTING_SP               "Imprimiendo"
+#define PRINTING_AJUSTES_SP       "Ajustes"
+#define PRINTING_PAUSAR_SP        "Pausar"
 
-#define MESSEGE_PAUSING_SP          "Aparcando..."
-#define MESSEGE_CHANGING_SP         "Esperando para iniciar el cambio de filamento"
-#define MESSEGE_UNLOAD_SP           "Espere para liberar el filamento"
-#define MESSEGE_WAITING_SP          "Pulsar el botón para reanudar impresión"
-#define MESSEGE_INSERT_SP           "Inserte el filamento y pulse el botón para continuar..."
-#define MESSEGE_LOAD_SP             "Espere para purgar el filamento"
-#define MESSEGE_PURGE_SP            "Espere para purgar el filamento"
-#define MESSEGE_RESUME_SP           "Esperando impresora para reanudar..."
-#define MESSEGE_HEAT_SP             "Pulse el botón para calentar la boquilla"
-#define MESSEGE_HEATING_SP          "Calentando boquilla Espere por favor..."
-#define MESSEGE_OPTION_SP           "¿Purgar más o continuar con la impresión?"
-#define MESSEGE_PURGE_MORE_SP       "Purga"
-#define MESSEGE_CONTINUE_PRINT_SP   "Impresión"
+#define MESSAGE_PAUSING_SP        "Aparcando..."
+#define MESSAGE_CHANGING_SP       "Esperando para iniciar el cambio de filamento"
+#define MESSAGE_UNLOAD_SP         "Espere para liberar el filamento"
+#define MESSAGE_WAITING_SP        "Pulsar el botón para reanudar impresión"
+#define MESSAGE_INSERT_SP         "Inserte el filamento y pulse el botón para continuar..."
+#define MESSAGE_LOAD_SP           "Espere para purgar el filamento"
+#define MESSAGE_PURGE_SP          "Espere para purgar el filamento"
+#define MESSAGE_RESUME_SP         "Esperando impresora para reanudar..."
+#define MESSAGE_HEAT_SP           "Pulse el botón para calentar la boquilla"
+#define MESSAGE_HEATING_SP        "Calentando boquilla Espere por favor..."
+#define MESSAGE_OPTION_SP         "¿Purgar más o continuar con la impresión?"
+#define MESSAGE_PURGE_MORE_SP     "Purga"
+#define MESSAGE_CONTINUE_PRINT_SP "Impresión"
+#define EEPROM_SETTINGS_TITLE_SP  "Configuraciones EEPROM"
+#define EEPROM_SETTINGS_STORE_SP  "Guardar configuración en EEPROM"
+#define EEPROM_SETTINGS_READ_SP   "Leer la configuración de EEPROM"
+#define EEPROM_SETTINGS_REVERT_SP "Revert settings to factory defaults"
+
+#define EEPROM_STORE_TIPS_SP  "¿Guardar ajustes en EEPROM?"
+#define EEPROM_READ_TIPS_SP   "Leer la configuración de EEPROM?"
+#define EEPROM_REVERT_TIPS_SP "Revert settings to factory defaults?"

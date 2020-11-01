@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,6 +25,10 @@
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
+#endif
+
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
 #endif
 
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
@@ -42,8 +46,16 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-
-  SERIAL_ECHOLNPGM(STR_M115_REPORT);
+  SERIAL_ECHOLNPGM(
+    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
+    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
+    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
+    "MACHINE_TYPE:" MACHINE_NAME " "
+    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #ifdef MACHINE_UUID
+      "UUID:" MACHINE_UUID
+    #endif
+  );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
@@ -77,6 +89,9 @@ void GcodeSuite::M115() {
     // AUTOLEVEL (G29)
     cap_line(PSTR("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
+    // RUNOUT (M412, M600)
+    cap_line(PSTR("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
+
     // Z_PROBE (G30)
     cap_line(PSTR("Z_PROBE"), ENABLED(HAS_BED_PROBE));
 
@@ -89,10 +104,9 @@ void GcodeSuite::M115() {
     // SOFTWARE_POWER (M80, M81)
     cap_line(PSTR("SOFTWARE_POWER"), ENABLED(PSU_CONTROL));
 
-    // CASE LIGHTS (M355)
-    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(HAS_CASE_LIGHT));
-
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(HAS_CASE_LIGHT, PWM_PIN(CASE_LIGHT_PIN)));
+    // TOGGLE_LIGHTS (M355)
+    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN)))));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
@@ -114,6 +128,9 @@ void GcodeSuite::M115() {
 
     // MOTION_MODES (M80-M89)
     cap_line(PSTR("MOTION_MODES"), ENABLED(GCODE_MOTION_MODES));
+
+    // ARC_SUPPORT (G2-G3)
+    cap_line(PSTR("ARCS"), ENABLED(ARC_SUPPORT));
 
     // BABYSTEPPING (M290)
     cap_line(PSTR("BABYSTEPPING"), ENABLED(BABYSTEPPING));

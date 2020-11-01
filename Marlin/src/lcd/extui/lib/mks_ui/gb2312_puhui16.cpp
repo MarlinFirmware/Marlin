@@ -16,16 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-#include "lvgl.h"
 #include "pic_manager.h"
+#include <lvgl.h>
+
+#include "../../../../inc/MarlinConfig.h"
+
+#if HAS_SPI_FLASH_FONT
 
 typedef struct {
   uint16_t min;
@@ -44,10 +47,10 @@ typedef struct {
 } glyph_dsc_t;
 
 static x_header_t __g_xbf_hd = { .min = 0, .max = 0, .bpp = 0 };
-static uint8_t __g_font_buf[75];
+static uint8_t __g_font_buf[63];
 
 static uint8_t *__user_font_getdata(int offset, int size) {
-  //memset(__g_font_buf,0,sizeof(__g_font_buf));
+  //ZERO(__g_font_buf);
   get_spi_flash_data((char *)__g_font_buf, offset, size);
   return __g_font_buf;
   //return &buf_test[offset];
@@ -59,7 +62,7 @@ static const uint8_t * __user_font_get_bitmap(const lv_font_t * font, uint32_t u
     memcpy(&__g_xbf_hd, p, sizeof(x_header_t));
   }
   if (unicode_letter > __g_xbf_hd.max || unicode_letter < __g_xbf_hd.min)
-    return NULL;
+    return nullptr;
   uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd.min) * 4;
   uint32_t *p_pos = (uint32_t *)__user_font_getdata(unicode_offset, 4);
   if (p_pos[0] != 0) {
@@ -69,7 +72,7 @@ static const uint8_t * __user_font_get_bitmap(const lv_font_t * font, uint32_t u
     //return __user_font_getdata(pos+2, gdsc->box_w*__g_xbf_hd.bpp/8);
     return __user_font_getdata(pos + 2, sizeof(__g_font_buf));
   }
-  return NULL;
+  return nullptr;
 }
 
 static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_t * dsc_out, uint32_t unicode_letter, uint32_t unicode_letter_next) {
@@ -78,7 +81,7 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
     memcpy(&__g_xbf_hd, p, sizeof(x_header_t));
   }
   if (unicode_letter > __g_xbf_hd.max || unicode_letter < __g_xbf_hd.min)
-    return NULL;
+    return false;
   uint32_t unicode_offset = sizeof(x_header_t) + (unicode_letter - __g_xbf_hd.min) * 4;
   uint32_t *p_pos = (uint32_t *)__user_font_getdata(unicode_offset, 4);
   if (p_pos[0] != 0) {
@@ -104,8 +107,9 @@ lv_font_t gb2312_puhui32;
 void init_gb2312_font() {
   gb2312_puhui32.get_glyph_bitmap = __user_font_get_bitmap;
   gb2312_puhui32.get_glyph_dsc = __user_font_get_glyph_dsc;
-  gb2312_puhui32.line_height = 25;
+  gb2312_puhui32.line_height = 21;
   gb2312_puhui32.base_line = 0;
 }
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // HAS_SPI_FLASH_FONT
+#endif // HAS_TFT_LVGL_UI

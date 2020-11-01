@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // Unknown thermistor for the Zonestar P802M hot bed. Adjusted By Nerseth
 // These were the shipped settings from Zonestar in original firmware: P802M_8_Repetier_V1.6_Zonestar.zip
-const short temptable_502[][2] PROGMEM = {
+const temp_entry_t temptable_502[] PROGMEM = {
    { OV(  56.0 / 4), 300 },
    { OV( 187.0 / 4), 250 },
    { OV( 615.0 / 4), 190 },

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,12 +30,12 @@
 #include "../../../module/temperature.h"
 #include "../../../feature/pause.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   #include "../../../module/tool_change.h"
 #endif
 
 #if HAS_LCD_MENU
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
 #endif
 
 #if ENABLED(PRUSA_MMU2)
@@ -61,7 +61,7 @@ void GcodeSuite::M701() {
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
     // Don't raise Z if the machine isn't homed
-    if (axes_need_homing()) park_point.z = 0;
+    if (axes_should_home()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -86,7 +86,7 @@ void GcodeSuite::M701() {
   // Show initial "wait for load" message
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_LOAD, PAUSE_MODE_LOAD_FILAMENT, target_extruder));
 
-  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
+  #if HAS_MULTI_EXTRUDER && DISABLED(PRUSA_MMU2)
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
@@ -121,7 +121,7 @@ void GcodeSuite::M701() {
   if (park_point.z > 0)
     do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
-  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
+  #if HAS_MULTI_EXTRUDER && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, false);
@@ -149,7 +149,7 @@ void GcodeSuite::M702() {
 
   #if ENABLED(NO_MOTION_BEFORE_HOMING)
     // Don't raise Z if the machine isn't homed
-    if (axes_need_homing()) park_point.z = 0;
+    if (axes_should_home()) park_point.z = 0;
   #endif
 
   #if ENABLED(MIXING_EXTRUDER)
@@ -186,7 +186,7 @@ void GcodeSuite::M702() {
   // Show initial "wait for unload" message
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_UNLOAD, PAUSE_MODE_UNLOAD_FILAMENT, target_extruder));
 
-  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
+  #if HAS_MULTI_EXTRUDER && DISABLED(PRUSA_MMU2)
     // Change toolhead if specified
     uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder)
@@ -201,7 +201,7 @@ void GcodeSuite::M702() {
   #if ENABLED(PRUSA_MMU2)
     mmu2.unload();
   #else
-    #if EXTRUDERS > 1 && ENABLED(FILAMENT_UNLOAD_ALL_EXTRUDERS)
+    #if BOTH(HAS_MULTI_EXTRUDER, FILAMENT_UNLOAD_ALL_EXTRUDERS)
       if (!parser.seenval('T')) {
         HOTEND_LOOP() {
           if (e != active_extruder) tool_change(e, false);
@@ -227,7 +227,7 @@ void GcodeSuite::M702() {
   if (park_point.z > 0)
     do_blocking_move_to_z(_MAX(current_position.z - park_point.z, 0), feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
-  #if EXTRUDERS > 1 && DISABLED(PRUSA_MMU2)
+  #if HAS_MULTI_EXTRUDER && DISABLED(PRUSA_MMU2)
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, false);

@@ -1,4 +1,26 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * @file    lcdprint.h
  * @brief   LCD print api
  * @author  Yunhui Fu (yhfudev@gmail.com)
@@ -12,15 +34,74 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
+
   #include "dogm/u8g_fontutf8.h"
   typedef u8g_uint_t lcd_uint_t;
+  typedef u8g_int_t lcd_int_t;
+
+  // Only Western languages support big / small fonts
+  #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
+    #undef USE_BIG_EDIT_FONT
+    #undef USE_SMALL_INFOFONT
+  #endif
+
+  #define MENU_FONT_NAME    ISO10646_1_5x7
+  #define MENU_FONT_WIDTH    6
+  #define MENU_FONT_ASCENT  10
+  #define MENU_FONT_DESCENT  2
+  #define MENU_FONT_HEIGHT  (MENU_FONT_ASCENT + MENU_FONT_DESCENT)
+
+  #if ENABLED(USE_BIG_EDIT_FONT)
+    #define EDIT_FONT_NAME    u8g_font_9x18
+    #define EDIT_FONT_WIDTH    9
+    #define EDIT_FONT_ASCENT  10
+    #define EDIT_FONT_DESCENT  3
+  #else
+    #define EDIT_FONT_NAME    MENU_FONT_NAME
+    #define EDIT_FONT_WIDTH   MENU_FONT_WIDTH
+    #define EDIT_FONT_ASCENT  MENU_FONT_ASCENT
+    #define EDIT_FONT_DESCENT MENU_FONT_DESCENT
+  #endif
+  #define EDIT_FONT_HEIGHT (EDIT_FONT_ASCENT + EDIT_FONT_DESCENT)
+
+  // Get the Ascent, Descent, and total Height for the Info Screen font
+  #if ENABLED(USE_SMALL_INFOFONT)
+    extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
+    #define INFO_FONT_ASCENT 7
+  #else
+    #define INFO_FONT_ASCENT 8
+  #endif
+  #define INFO_FONT_DESCENT 2
+  #define INFO_FONT_HEIGHT (INFO_FONT_ASCENT + INFO_FONT_DESCENT)
+  #define INFO_FONT_WIDTH   6
+
+  #define SETCURSOR(col, row)    lcd_moveto((col) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
+  #define SETCURSOR_RJ(len, row) lcd_moveto(LCD_PIXEL_WIDTH - (len) * (MENU_FONT_WIDTH), ((row) + 1) * (MENU_FONT_HEIGHT))
+
 #else
+
   #define _UxGT(a) a
   typedef uint8_t lcd_uint_t;
+  typedef int8_t lcd_int_t;
+
+  #define MENU_FONT_WIDTH   1
+  #define MENU_FONT_HEIGHT  1
+  #define EDIT_FONT_WIDTH   1
+  #define EDIT_FONT_HEIGHT  1
+  #define INFO_FONT_WIDTH   1
+  #define INFO_FONT_HEIGHT  1
+  #define LCD_PIXEL_WIDTH   LCD_WIDTH
+  #define LCD_PIXEL_HEIGHT  LCD_HEIGHT
+
+  #define SETCURSOR(col, row)    lcd_moveto(col, row)
+  #define SETCURSOR_RJ(len, row) SETCURSOR(LCD_WIDTH - (len), row)
+
 #endif
 
-#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+#define SETCURSOR_X(col)    SETCURSOR(col, _lcdLineNr)
+#define SETCURSOR_X_RJ(len) SETCURSOR_RJ(len, _lcdLineNr)
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 int lcd_glyph_height();
 
@@ -71,10 +152,10 @@ inline int lcd_put_u8str_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P con
   return lcd_put_u8str_P(pstr);
 }
 
-lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, const lcd_uint_t maxlen=LCD_WIDTH);
-inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr, const int8_t ind, const lcd_uint_t maxlen=LCD_WIDTH) {
+lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH);
+inline lcd_uint_t lcd_put_u8str_ind_P(const lcd_uint_t col, const lcd_uint_t row, PGM_P const pstr, const int8_t ind, PGM_P const inStr=nullptr, const lcd_uint_t maxlen=LCD_WIDTH) {
   lcd_moveto(col, row);
-  return lcd_put_u8str_ind_P(pstr, ind, maxlen);
+  return lcd_put_u8str_ind_P(pstr, ind, inStr, maxlen);
 }
 
 inline int lcd_put_u8str(const char* str) { return lcd_put_u8str_max(str, PIXEL_LEN_NOLIMIT); }

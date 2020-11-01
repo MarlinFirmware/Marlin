@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
 
 #include "../module/temperature.h"
 #include "../module/motion.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 extern HotendIdleProtection hotend_idle;
 
@@ -43,7 +43,7 @@ millis_t HotendIdleProtection::next_protect_ms = 0;
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
   bool do_prot = false;
   HOTEND_LOOP() {
-    if (thermalManager.degHotendNear(e, HOTEND_IDLE_MIN_TRIGGER)) {
+    if (thermalManager.degHotend(e) >= HOTEND_IDLE_MIN_TRIGGER) {
       do_prot = true; break;
     }
   }

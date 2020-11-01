@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
 
-#include "menu.h"
+#include "menu_item.h"
 
 #include "../../feature/backlash.h"
 
@@ -50,4 +50,4 @@ void menu_backlash() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_COMPENSATION
+#endif // HAS_LCD_MENU && BACKLASH_GCODE

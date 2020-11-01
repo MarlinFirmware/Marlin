@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -46,15 +46,24 @@ Nozzle nozzle;
 
     // Move to the starting point
     #if ENABLED(NOZZLE_CLEAN_NO_Z)
-      do_blocking_move_to_xy(start);
+      #if ENABLED(NOZZLE_CLEAN_NO_Y)
+        do_blocking_move_to_x(start.x);
+      #else
+        do_blocking_move_to_xy(start);
+      #endif
     #else
       do_blocking_move_to(start);
     #endif
 
     // Start the stroke pattern
     LOOP_L_N(i, strokes >> 1) {
-      do_blocking_move_to_xy(end);
-      do_blocking_move_to_xy(start);
+      #if ENABLED(NOZZLE_CLEAN_NO_Y)
+        do_blocking_move_to_x(end.x);
+        do_blocking_move_to_x(start.x);
+      #else
+        do_blocking_move_to_xy(end);
+        do_blocking_move_to_xy(start);
+      #endif
     }
 
     TERN_(NOZZLE_CLEAN_GOBACK, do_blocking_move_to(oldpos));
@@ -152,7 +161,7 @@ Nozzle nozzle;
         LIMIT(   end[arrPos].A, soft_endstop.min.A, soft_endstop.max.A); \
       }while(0)
 
-      if (soft_endstops_enabled) {
+      if (soft_endstop.enabled()) {
 
         LIMIT_AXIS(x);
         LIMIT_AXIS(y);

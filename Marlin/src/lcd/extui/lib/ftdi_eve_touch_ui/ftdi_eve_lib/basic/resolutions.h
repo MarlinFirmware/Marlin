@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -32,7 +32,6 @@
  *     Selecting an LCD Display
  *     Version 2.1
  *     Issue Date: 2017-11-14
- *
  */
 #define COMPUTE_REGS_FROM_DATASHEET \
     constexpr uint16_t Hoffset              = thfp + thb - 1; \
@@ -61,12 +60,12 @@
     constexpr uint16_t Hoffset             =   70;
     constexpr uint16_t Hcycle              =  408;
 
-    constexpr uint32_t default_transform_a =  0x000054ad;
-    constexpr uint32_t default_transform_b =  0xffffff52;
-    constexpr uint32_t default_transform_c =  0xfff7f6e4;
+    constexpr uint32_t default_transform_a =  0x000054AD;
+    constexpr uint32_t default_transform_b =  0xFFFFFF52;
+    constexpr uint32_t default_transform_c =  0xFFF7F6E4;
     constexpr uint32_t default_transform_d =  0x00000065;
-    constexpr uint32_t default_transform_e =  0xffffbe3b;
-    constexpr uint32_t default_transform_f =  0x00f68e75;
+    constexpr uint32_t default_transform_e =  0xFFFFBE3B;
+    constexpr uint32_t default_transform_f =  0x00F68E75;
   }
 
 #elif defined(TOUCH_UI_480x272)

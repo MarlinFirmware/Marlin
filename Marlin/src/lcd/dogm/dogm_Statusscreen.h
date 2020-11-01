@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,7 +29,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 
 #define BW(N) ((N + 7) / 8)
 
@@ -860,8 +860,6 @@
   #define STATUS_CHAMBER_WIDTH 0
 #endif
 
-#define BED_OR_CHAMBER_OR_FAN (BED_OR_CHAMBER || HAS_FAN0)
-
 // Can also be overridden in Configuration_adv.h
 // If you can afford it, try the 3-frame fan animation!
 // Don't compile in the fan animation with no fan
@@ -1343,7 +1341,7 @@
     #undef STATUS_LOGO_WIDTH
   #endif
 
-  #if (HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN)
+  #if !defined(STATUS_HEATERS_X) && ((HAS_MULTI_HOTEND && STATUS_LOGO_WIDTH && BED_OR_CHAMBER_OR_FAN) || (HOTENDS >= 3 && !BED_OR_CHAMBER_OR_FAN))
     #define _STATUS_HEATERS_X(H,S,N) ((LCD_PIXEL_WIDTH - (H * (S + N)) - (_EXTRA_WIDTH) + (STATUS_LOGO_WIDTH)) / 2)
     #if STATUS_HOTEND1_WIDTH
       #if HOTENDS > 2
@@ -1372,7 +1370,7 @@
     #define STATUS_LOGO_X 0
   #endif
   #ifndef STATUS_LOGO_Y
-    #define STATUS_LOGO_Y _MIN(0U, (10 - (STATUS_LOGO_HEIGHT) / 2))
+    #define STATUS_LOGO_Y _MIN(0U, (20 - (STATUS_LOGO_HEIGHT)) / 2)
   #endif
   #ifndef STATUS_LOGO_HEIGHT
     #define STATUS_LOGO_HEIGHT (sizeof(status_logo_bmp) / (STATUS_LOGO_BYTEWIDTH))

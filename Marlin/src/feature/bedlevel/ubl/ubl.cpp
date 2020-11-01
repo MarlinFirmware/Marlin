@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,7 +31,7 @@
   #include "../../../MarlinCore.h"
   #include "../../../gcode/gcode.h"
 
-  #include "../../../module/configuration_store.h"
+  #include "../../../module/settings.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
   #include "../../../module/probe.h"
@@ -48,7 +48,7 @@
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG("  G29 I99");
+    SERIAL_ECHO_MSG("  G29 I999");
     GRID_LOOP(x, y)
       if (!isnan(z_values[x][y])) {
         SERIAL_ECHO_START();
@@ -84,11 +84,7 @@
     _GRIDPOS(Y, 12), _GRIDPOS(Y, 13), _GRIDPOS(Y, 14), _GRIDPOS(Y, 15)
   );
 
-  #if HAS_LCD_MENU
-    bool unified_bed_leveling::lcd_map_control = false;
-  #endif
-
-  volatile int unified_bed_leveling::encoder_diff;
+  volatile int16_t unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
     reset();
@@ -206,7 +202,7 @@
         if (human) SERIAL_CHAR(is_current ? ']' : ' ');
 
         SERIAL_FLUSHTX();
-        idle();
+        idle_no_sleep();
       }
       if (!lcd) SERIAL_EOL();
 

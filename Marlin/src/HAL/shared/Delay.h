@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -36,7 +36,7 @@
   #if __CORTEX_M == 7
 
     // Cortex-M3 through M7 can use the cycle counter of the DWT unit
-    // http://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
+    // https://www.anthonyvh.com/2017/05/18/cortex_m-cycle_counter/
 
     FORCE_INLINE static void enableCycleCounter() {
       CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -155,7 +155,7 @@
 #endif
 
 // Delay in nanoseconds
-#define DELAY_NS(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) / 1000UL )
+#define DELAY_NS(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL) / 1000UL)
 
 // Delay in microseconds
-#define DELAY_US(x) DELAY_CYCLES( (x) * (F_CPU / 1000000UL) )
+#define DELAY_US(x) DELAY_CYCLES((x) * ((F_CPU) / 1000000UL))

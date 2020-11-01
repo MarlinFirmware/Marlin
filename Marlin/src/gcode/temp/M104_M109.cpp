@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -34,7 +34,7 @@
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #include "../../MarlinCore.h" // for startOrResumeJob, etc.
 
@@ -50,7 +50,12 @@
 #endif
 
 /**
- * M104: Set hot end temperature
+ * M104: Set Hotend Temperature target and return immediately
+ *
+ * Parameters:
+ *  I<preset> : Material Preset index (if material presets are defined)
+ *  T<index>  : Tool index. If omitted, applies to the active tool
+ *  S<target> : The target temperature in current units
  */
 void GcodeSuite::M104() {
 
@@ -63,8 +68,25 @@ void GcodeSuite::M104() {
     if (target_extruder < 0) return;
   #endif
 
-  if (parser.seenval('S')) {
-    const int16_t temp = parser.value_celsius();
+  bool got_temp = false;
+  int16_t temp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
+    }
+  #endif
+
+  // If no 'I' get the temperature from 'S'
+  if (!got_temp) {
+    got_temp = parser.seenval('S');
+    if (got_temp) temp = parser.value_celsius();
+  }
+
+  if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
@@ -72,7 +94,7 @@ void GcodeSuite::M104() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && target_extruder == 0)
+      if (idex_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -91,10 +113,25 @@ void GcodeSuite::M104() {
 }
 
 /**
- * M109: Sxxx Wait for hotend(s) to reach temperature. Waits only when heating.
- *       Rxxx Wait for hotend(s) to reach temperature. Waits when heating and cooling.
+ * M109: Set Hotend Temperature target and wait
  *
- * With PRINTJOB_TIMER_AUTOSTART also start the job timer on heating and stop it if turned off.
+ * Parameters
+ *  I<preset> : Material Preset index (if material presets are defined)
+ *  T<index>  : Tool index. If omitted, applies to the active tool
+ *  S<target> : The target temperature in current units. Wait for heating only.
+ *  R<target> : The target temperature in current units. Wait for heating and cooling.
+ *
+ * With AUTOTEMP...
+ *  F<factor> : Autotemp Scaling Factor. Set non-zero to enable Auto-temp.
+ *  S<min>    : Minimum temperature, in current units.
+ *  B<max>    : Maximum temperature, in current units.
+ *
+ * Examples
+ *  M109 S100 : Set target to 100°. Wait until the hotend is at or above 100°.
+ *  M109 R150 : Set target to 150°. Wait until the hotend gets close to 150°.
+ *
+ * With PRINTJOB_TIMER_AUTOSTART turning on heaters will start the print job timer
+ *  (used by printingIsActive, etc.) and turning off heaters will stop the timer.
  */
 void GcodeSuite::M109() {
 
@@ -107,10 +144,27 @@ void GcodeSuite::M109() {
     if (target_extruder < 0) return;
   #endif
 
-  const bool no_wait_for_cooling = parser.seenval('S'),
-             set_temp = no_wait_for_cooling || parser.seenval('R');
-  if (set_temp) {
-    const int16_t temp = parser.value_celsius();
+  bool got_temp = false;
+  int16_t temp = 0;
+
+  // Accept 'I' if temperature presets are defined
+  #if PREHEAT_COUNT
+    got_temp = parser.seenval('I');
+    if (got_temp) {
+      const uint8_t index = parser.value_byte();
+      temp = ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].hotend_temp;
+    }
+  #endif
+
+  // Get the temperature from 'S' or 'R'
+  bool no_wait_for_cooling = false;
+  if (!got_temp) {
+    no_wait_for_cooling = parser.seenval('S');
+    got_temp = no_wait_for_cooling || parser.seenval('R');
+    if (got_temp) temp = int16_t(parser.value_celsius());
+  }
+
+  if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       singlenozzle_temp[target_extruder] = temp;
       if (target_extruder != active_extruder) return;
@@ -118,7 +172,7 @@ void GcodeSuite::M109() {
     thermalManager.setTargetHotend(temp, target_extruder);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (dxc_is_duplicating() && target_extruder == 0)
+      if (idex_is_duplicating() && target_extruder == 0)
         thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
     #endif
 
@@ -139,7 +193,7 @@ void GcodeSuite::M109() {
 
   TERN_(AUTOTEMP, planner.autotemp_M104_M109());
 
-  if (set_temp)
+  if (got_temp)
     (void)thermalManager.wait_for_hotend(target_extruder, no_wait_for_cooling);
 }
 

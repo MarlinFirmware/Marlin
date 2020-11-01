@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -51,7 +51,7 @@
 #define IS_INPUT(IO)            (_GET_MODE(IO) == GPIO_INPUT_FLOATING || _GET_MODE(IO) == GPIO_INPUT_ANALOG || _GET_MODE(IO) == GPIO_INPUT_PU || _GET_MODE(IO) == GPIO_INPUT_PD)
 #define IS_OUTPUT(IO)           (_GET_MODE(IO) == GPIO_OUTPUT_PP || _GET_MODE(IO) == GPIO_OUTPUT_OD)
 
-#define PWM_PIN(IO)             (PIN_MAP[IO].timer_device != nullptr)
+#define PWM_PIN(IO)             !!PIN_MAP[IO].timer_device
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)      digitalRead(IO)

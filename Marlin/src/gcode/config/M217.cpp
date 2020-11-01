@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
@@ -39,9 +39,9 @@ void M217_report(const bool eeprom=false) {
 
   #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
     serialprintPGM(eeprom ? PSTR("  M217") : PSTR("Toolchange:"));
-    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length),
-                    " B", LINEAR_UNIT(toolchange_settings.extra_resume));
-    SERIAL_ECHOPAIR_P(SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
+    SERIAL_ECHOPAIR(" S", LINEAR_UNIT(toolchange_settings.swap_length));
+    SERIAL_ECHOPAIR_P(SP_B_STR, LINEAR_UNIT(toolchange_settings.extra_resume),
+                      SP_E_STR, LINEAR_UNIT(toolchange_settings.extra_prime),
                       SP_P_STR, LINEAR_UNIT(toolchange_settings.prime_speed));
     SERIAL_ECHOPAIR(" R", LINEAR_UNIT(toolchange_settings.retract_speed),
                     " U", LINEAR_UNIT(toolchange_settings.unretract_speed),
@@ -49,7 +49,7 @@ void M217_report(const bool eeprom=false) {
                     " G", toolchange_settings.fan_time);
 
     #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOPAIR(" N", int(migration.automode));
+      SERIAL_ECHOPAIR(" A", int(migration.automode));
       SERIAL_ECHOPAIR(" L", LINEAR_UNIT(migration.last));
     #endif
 
@@ -170,4 +170,4 @@ void GcodeSuite::M217() {
   M217_report();
 }
 
-#endif // EXTRUDERS > 1
+#endif // HAS_MULTI_EXTRUDER

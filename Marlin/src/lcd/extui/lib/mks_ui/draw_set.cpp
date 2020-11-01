@@ -16,243 +16,136 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_LITTLE_VGL_UI)
+#if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
 #include "draw_ready_print.h"
 #include "draw_set.h"
-#include "lv_conf.h"
+#include "draw_ui.h"
+#include <lv_conf.h>
 //#include "../lvgl/src/lv_objx/lv_imgbtn.h"
 //#include "../lvgl/src/lv_objx/lv_img.h"
 //#include "../lvgl/src/lv_core/lv_disp.h"
 //#include "../lvgl/src/lv_core/lv_refr.h"
-#include "draw_ui.h"
+
+#include "pic_manager.h"
+
 #include "../../../../gcode/queue.h"
+#include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+static lv_obj_t *scr;
+extern lv_group_t*  g;
 
-#define ID_S_WIFI       1
-#define ID_S_FAN        2
-#define ID_S_ABOUT      3
-#define ID_S_CONTINUE   4
-#define ID_S_MOTOR_OFF  5
-#define ID_S_LANGUAGE   6
-#define ID_S_RETURN     7
+enum {
+  ID_S_WIFI = 1,
+  ID_S_FAN,
+  ID_S_ABOUT,
+  ID_S_CONTINUE,
+  ID_S_MOTOR_OFF,
+  ID_S_LANGUAGE,
+  ID_S_MACHINE_PARA,
+  ID_S_EEPROM_SET,
+  ID_S_RETURN
+};
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
+  #if ENABLED(USE_WIFI_FUNCTION)
+    char buf[6] = { 0 };
+  #endif
   switch (obj->mks_obj_id) {
-    case ID_S_WIFI:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-      }
-      break;
     case ID_S_FAN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_obj_del(scr);
-        lv_draw_fan();
-      }
+      lv_clear_set();
+      lv_draw_fan();
       break;
     case ID_S_ABOUT:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_obj_del(scr);
-        lv_draw_about();
-      }
+      lv_clear_set();
+      lv_draw_about();
       break;
-    case ID_S_CONTINUE:
-
-      break;
+    case ID_S_CONTINUE: break;
     case ID_S_MOTOR_OFF:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if HAS_SUICIDE
-          suicide();
-        #else
-          queue.enqueue_one_now(PSTR("M84"));
-        #endif
-      }
+      TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
       break;
     case ID_S_LANGUAGE:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_obj_del(scr);
-        lv_draw_language();
-      }
+      lv_clear_set();
+      lv_draw_language();
+      break;
+    case ID_S_MACHINE_PARA:
+      lv_clear_set();
+      lv_draw_machine_para();
+      break;
+    case ID_S_EEPROM_SET:
+      lv_clear_set();
+      lv_draw_eeprom_settings();
       break;
     case ID_S_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-        // nothing to do
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_obj_del(scr);
-        lv_draw_ready_print();
-      }
+      lv_clear_set();
+      lv_draw_ready_print();
       break;
 
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case ID_S_WIFI:
+        if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+          if (wifi_link_state == WIFI_CONNECTED) {
+            last_disp_state = SET_UI;
+            lv_clear_set();
+            lv_draw_wifi();
+          }
+          else {
+            if (uiCfg.command_send == 1) {
+              buf[0] = 0xA5;
+              buf[1] = 0x07;
+              buf[2] = 0x00;
+              buf[3] = 0x00;
+              buf[4] = 0xFC;
+              raw_send_to_wifi(buf, 5);
+
+              last_disp_state = SET_UI;
+              lv_clear_set();
+              lv_draw_wifi_list();
+            }
+            else {
+              last_disp_state = SET_UI;
+              lv_clear_set();
+              lv_draw_dialog(DIALOG_WIFI_ENABLE_TIPS);
+            }
+          }
+        }
+        else {
+          last_disp_state = SET_UI;
+          lv_clear_set();
+          lv_draw_wifi();
+        }
+        break;
+    #endif
   }
 }
 
 void lv_draw_set(void) {
-  lv_obj_t *buttonFan, *buttonAbout;
-  lv_obj_t *buMotorOff, *buttonLanguage, *buttonBack;
-
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != SET_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = SET_UI;
-  }
-  disp_state = SET_UI;
-
-  scr = lv_obj_create(NULL, NULL);
-
-  //static lv_style_t tool_style;
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
-
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_lable_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
-  LV_IMG_DECLARE(bmp_pic);
-
-  /*Create an Image button*/
-  //buttonWifi = lv_imgbtn_create(scr, NULL);
-  buttonFan = lv_imgbtn_create(scr, NULL);
-  buttonAbout = lv_imgbtn_create(scr, NULL);
-  //buttonContinue = lv_imgbtn_create(scr, NULL);
-  buMotorOff = lv_imgbtn_create(scr, NULL);
-  buttonLanguage = lv_imgbtn_create(scr, NULL);
-  buttonBack = lv_imgbtn_create(scr, NULL);
-
-
-  //lv_obj_set_event_cb_mks(buttonWifi, event_handler,ID_S_WIFI,"bmp_Wifi.bin",0);
-  //lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_REL, &bmp_pic);
-  //lv_imgbtn_set_src(buttonWifi, LV_BTN_STATE_PR, &bmp_pic);
-  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_PR, &tft_style_lable_pre);
-  //lv_imgbtn_set_style(buttonWifi, LV_BTN_STATE_REL, &tft_style_lable_rel);
-  //lv_obj_clear_protect(buttonWifi, LV_PROTECT_FOLLOW);
-  #if 1
-    lv_obj_set_event_cb_mks(buttonFan, event_handler, ID_S_FAN, "bmp_Fan.bin", 0);
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonFan, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonFan, LV_BTN_STATE_REL, &tft_style_lable_rel);
-
-    lv_obj_set_event_cb_mks(buttonAbout, event_handler, ID_S_ABOUT, "bmp_About.bin", 0);
-    lv_imgbtn_set_src(buttonAbout, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonAbout, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonAbout, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonAbout, LV_BTN_STATE_REL, &tft_style_lable_rel);
-
-    //lv_obj_set_event_cb_mks(buttonContinue, event_handler,ID_S_CONTINUE,"bmp_Breakpoint.bin",0);
-    //lv_imgbtn_set_src(buttonContinue, LV_BTN_STATE_REL, &bmp_pic);
-    //lv_imgbtn_set_src(buttonContinue, LV_BTN_STATE_PR, &bmp_pic);
-    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    //lv_imgbtn_set_style(buttonContinue, LV_BTN_STATE_REL, &tft_style_lable_rel);
-    #if HAS_SUICIDE
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Mamual.bin", 0);
-    #else
-      lv_obj_set_event_cb_mks(buMotorOff, event_handler, ID_S_MOTOR_OFF, "bmp_Motor_off.bin", 0);
-    #endif
-    lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buMotorOff, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buMotorOff, LV_BTN_STATE_REL, &tft_style_lable_rel);
-
-    lv_obj_set_event_cb_mks(buttonLanguage, event_handler, ID_S_LANGUAGE, "bmp_Language.bin", 0);
-    lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonLanguage, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonLanguage, LV_BTN_STATE_REL, &tft_style_lable_rel);
-
-    lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_S_RETURN, "bmp_Return.bin", 0);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_pic);
-    lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_pic);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_lable_pre);
-    lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_lable_rel);
+  scr = lv_screen_create(SET_UI);
+  lv_big_button_create(scr, "F:/bmp_eeprom_settings.bin", set_menu.eepromSet, INTERVAL_V, titleHeight, event_handler, ID_S_EEPROM_SET);
+  lv_big_button_create(scr, "F:/bmp_fan.bin", set_menu.fan, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_S_FAN);
+  lv_big_button_create(scr, "F:/bmp_about.bin", set_menu.about, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_S_ABOUT);
+  lv_big_button_create(scr, ENABLED(HAS_SUICIDE) ? "F:/bmp_manual_off.bin" : "F:/bmp_function1.bin", set_menu.TERN(HAS_SUICIDE, shutdown, motoroff), BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_S_MOTOR_OFF);
+  lv_big_button_create(scr, "F:/bmp_machine_para.bin", set_menu.machine_para, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_MACHINE_PARA);
+  #if HAS_LANG_SELECT_SCREEN
+    lv_big_button_create(scr, "F:/bmp_language.bin", set_menu.language, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_LANGUAGE);
   #endif
-
-  /*lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
-  lv_obj_set_pos(buttonFan,BTN_X_PIXEL+INTERVAL_V*2,titleHeight);
-  lv_obj_set_pos(buttonAbout,BTN_X_PIXEL*2+INTERVAL_V*3,titleHeight);
-  lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
-  lv_obj_set_pos(buMotorOff,INTERVAL_V,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  lv_obj_set_pos(buttonLanguage,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);*/
-
-  //lv_obj_set_pos(buttonWifi,INTERVAL_V,titleHeight);
-  lv_obj_set_pos(buttonFan, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
-  lv_obj_set_pos(buttonAbout, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
-  //lv_obj_set_pos(buttonContinue,BTN_X_PIXEL*3+INTERVAL_V*4,titleHeight);
-  lv_obj_set_pos(buMotorOff, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
-  lv_obj_set_pos(buttonLanguage, INTERVAL_V, titleHeight);
-  lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4,  BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-
-  /*Create a label on the Image button*/
-  //lv_btn_set_layout(buttonWifi, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonFan, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonAbout, LV_LAYOUT_OFF);
-  //lv_btn_set_layout(buttonContinue, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buMotorOff, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonLanguage, LV_LAYOUT_OFF);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  //lv_obj_t * labelWifi= lv_label_create(buttonWifi, NULL);
-  lv_obj_t * labelFan = lv_label_create(buttonFan, NULL);
-  lv_obj_t * label_About = lv_label_create(buttonAbout, NULL);
-  //lv_obj_t * label_Continue = lv_label_create(buttonContinue, NULL);
-  lv_obj_t * label_MotorOff = lv_label_create(buMotorOff, NULL);
-  lv_obj_t * label_Language = lv_label_create(buttonLanguage, NULL);
-  lv_obj_t * label_Back = lv_label_create(buttonBack, NULL);
-
-
-  if (gCfgItems.multiple_language != 0) {
-    //lv_label_set_text(labelWifi, set_menu.wifi);
-    //lv_obj_align(labelWifi, buttonWifi, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelFan, set_menu.fan);
-    lv_obj_align(labelFan, buttonFan, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_About, set_menu.about);
-    lv_obj_align(label_About, buttonAbout, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    //lv_label_set_text(label_Continue, set_menu.breakpoint);
-    //lv_obj_align(label_Continue, buttonContinue, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-    #if HAS_SUICIDE
-      lv_label_set_text(label_MotorOff, set_menu.shutdown);
-    #else
-      lv_label_set_text(label_MotorOff, set_menu.motoroff);
-    #endif
-    lv_obj_align(label_MotorOff, buMotorOff, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Language, set_menu.language);
-    lv_obj_align(label_Language, buttonLanguage, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-  }
+  #if ENABLED(USE_WIFI_FUNCTION)
+    lv_big_button_create(scr, "F:/bmp_wifi.bin", set_menu.wifi, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_WIFI);
+  #endif
+  lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_RETURN);
 }
 
-void lv_clear_set() { lv_obj_del(scr); }
+void lv_clear_set() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
+}
 
-#endif // TFT_LITTLE_VGL_UI
+#endif // HAS_TFT_LVGL_UI

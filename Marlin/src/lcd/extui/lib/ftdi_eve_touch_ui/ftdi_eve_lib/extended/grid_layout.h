@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #pragma once
@@ -74,12 +74,12 @@
 #define DRAW_LAYOUT_GRID \
   { \
     cmd.cmd(LINE_WIDTH(4)); \
-    for(int i = 1; i <= GRID_COLS; i++) { \
+    for (int i = 1; i <= GRID_COLS; i++) { \
       cmd.cmd(BEGIN(LINES)); \
       cmd.cmd(VERTEX2F(GRID_X(i) *16, 0             *16)); \
       cmd.cmd(VERTEX2F(GRID_X(i) *16, FTDI::display_height *16)); \
     } \
-    for(int i = 1; i < GRID_ROWS; i++) { \
+    for (int i = 1; i < GRID_ROWS; i++) { \
       cmd.cmd(BEGIN(LINES)); \
       cmd.cmd(VERTEX2F(0                       *16, GRID_Y(i) *16)); \
       cmd.cmd(VERTEX2F(FTDI::display_width     *16, GRID_Y(i) *16)); \

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,7 +24,9 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
 
-#if EXTRUDERS > 1
+//#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
+
+#if HAS_MULTI_EXTRUDER
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)
@@ -59,7 +61,7 @@
     } migration_settings_t;
     constexpr migration_settings_t migration_defaults = { 0, 0, false, false };
     extern migration_settings_t migration;
-    void extruder_migration();
+    bool extruder_migration();
   #endif
 #endif
 

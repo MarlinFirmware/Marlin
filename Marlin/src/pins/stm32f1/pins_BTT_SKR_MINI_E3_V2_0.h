@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,9 +30,11 @@
   #undef NO_EEPROM_SELECTED
 #endif
 
-#include "pins_BTT_SKR_MINI_E3.h"
+#include "pins_BTT_SKR_MINI_E3_common.h"
 
-#define BOARD_INFO_NAME "BTT SKR Mini E3 V2.0"
+#ifndef BOARD_INFO_NAME
+  #define BOARD_INFO_NAME "BTT SKR Mini E3 V2.0"
+#endif
 
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
@@ -52,8 +54,8 @@
  * Hardware serial communication ports.
  */
 #if HAS_TMC_UART
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
+  #define X_HARDWARE_SERIAL  MSerial4
+  #define Y_HARDWARE_SERIAL  MSerial4
+  #define Z_HARDWARE_SERIAL  MSerial4
+  #define E0_HARDWARE_SERIAL MSerial4
 #endif

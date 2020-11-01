@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
@@ -41,7 +41,7 @@ void MaxVelocityScreen::onRedraw(draw_mode_t what) {
   w.color(z_axis)    .adjuster(  6, GET_TEXT_F(MSG_VMAX_Z), getAxisMaxFeedrate_mm_s(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
     w.color(e_axis)  .adjuster(  8, GET_TEXT_F(MSG_VMAX_E), getAxisMaxFeedrate_mm_s(E0) );
-  #elif EXTRUDERS > 1
+  #elif HAS_MULTI_EXTRUDER
     w.heading(GET_TEXT_F(MSG_VMAX_E));
     w.color(e_axis)  .adjuster(  8, F(LCD_STR_E0), getAxisMaxFeedrate_mm_s(E0) );
     w.color(e_axis)  .adjuster( 10, F(LCD_STR_E1), getAxisMaxFeedrate_mm_s(E1) );

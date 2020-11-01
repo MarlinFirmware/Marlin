@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -47,6 +47,24 @@
 #endif
 
 void event_filament_runout();
+
+template<class RESPONSE_T, class SENSOR_T>
+class TFilamentMonitor;
+class FilamentSensorEncoder;
+class FilamentSensorSwitch;
+class RunoutResponseDelayed;
+class RunoutResponseDebounced;
+
+/********************************* TEMPLATE SPECIALIZATION *********************************/
+
+typedef TFilamentMonitor<
+          TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
+          TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
+        > FilamentMonitor;
+
+extern FilamentMonitor runout;
+
+/*******************************************************************************************/
 
 class FilamentMonitorBase {
   public:
@@ -121,7 +139,13 @@ class TFilamentMonitor : public FilamentMonitorBase {
 
 class FilamentSensorBase {
   protected:
-    static void filament_present(const uint8_t extruder);
+    /**
+     * Called by FilamentSensorSwitch::run when filament is detected.
+     * Called by FilamentSensorEncoder::block_completed when motion is detected.
+     */
+    static inline void filament_present(const uint8_t extruder) {
+      runout.filament_present(extruder); // ...which calls response.filament_present(extruder)
+    }
 
   public:
     static inline void setup() {
@@ -148,7 +172,11 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return poll_runout_pins() ^ uint8_t(TERN(FIL_RUNOUT_INVERTING, 0, _BV(NUM_RUNOUT_SENSORS) - 1));
+      return poll_runout_pins()
+        #if FIL_RUNOUT_STATE == LOW
+          ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
+        #endif
+      ;
     }
 };
 
@@ -209,7 +237,7 @@ class FilamentSensorBase {
         #if NUM_RUNOUT_SENSORS == 1
           UNUSED(extruder);
         #else
-          if ( !TERN0(DUAL_X_CARRIAGE, dxc_is_duplicating())
+          if ( !TERN0(DUAL_X_CARRIAGE, idex_is_duplicating())
             && !TERN0(MULTI_NOZZLE_DUPLICATION, extruder_duplication_enabled)
           ) return TEST(runout_states, extruder); // A specific extruder ran out
         #endif
@@ -307,12 +335,3 @@ class FilamentSensorBase {
   };
 
 #endif // !HAS_FILAMENT_RUNOUT_DISTANCE
-
-/********************************* TEMPLATE SPECIALIZATION *********************************/
-
-typedef TFilamentMonitor<
-          TERN(HAS_FILAMENT_RUNOUT_DISTANCE, RunoutResponseDelayed, RunoutResponseDebounced),
-          TERN(FILAMENT_MOTION_SENSOR, FilamentSensorEncoder, FilamentSensorSwitch)
-        > FilamentMonitor;
-
-extern FilamentMonitor runout;
