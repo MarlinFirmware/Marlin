@@ -33,11 +33,3 @@
 #ifndef SS_PIN
   #define SS_PIN    PIN_SPI_SS
 #endif
-
-#if ENABLED(ENABLE_SPI3)
-  #define SPI_DEVICE 3
-#elif ENABLED(ENABLE_SPI2)
-  #define SPI_DEVICE 2
-#else
-  #define SPI_DEVICE 1
-#endif
