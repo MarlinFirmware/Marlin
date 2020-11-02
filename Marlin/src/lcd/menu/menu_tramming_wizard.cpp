@@ -29,53 +29,24 @@
 #if ENABLED(ASSISTED_TRAMMING_WIZARD)
 
 #include "menu_item.h"
-#include "menu_addon.h"
+
+#include "../../feature/tramming.h"
 
 #include "../../module/motion.h"
-#include "../../module/planner.h"
 #include "../../module/probe.h"
-
-#if HAS_LEVELING
-  #include "../../feature/bedlevel/bedlevel.h"
-#endif
+#include "../../gcode/queue.h"
 
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
-constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;//getting tramming points xy coords
-
-#define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
-float z_measured[G35_PROBE_COUNT] = { 0 };
-int selected_point = 0;
-
-static PGMSTR(point_name_1, TRAMMING_POINT_NAME_1);
-static PGMSTR(point_name_2, TRAMMING_POINT_NAME_2);
-static PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
-#ifdef TRAMMING_POINT_NAME_4
-  static PGMSTR(point_name_4, TRAMMING_POINT_NAME_4);
-  #ifdef TRAMMING_POINT_NAME_5
-    static PGMSTR(point_name_5, TRAMMING_POINT_NAME_5);
-  #endif
-#endif
-
-static PGM_P const tramming_point_name[] PROGMEM = {
-  point_name_1, point_name_2, point_name_3
-  #ifdef TRAMMING_POINT_NAME_4
-    , point_name_4
-    #ifdef TRAMMING_POINT_NAME_5
-      , point_name_5
-    #endif
-  #endif
-};
-
-bool probe_single_point(){
+bool probe_single_point() {
   const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[selected_point], PROBE_PT_RAISE, 0, true);
-  DEBUG_ECHOLNPAIR("Result:", z_probed_height, "mm");
+  DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[selected_point] = z_probed_height;
   return !isnan(z_probed_height);
 }
 
-void single_probe_screen(int point) {
+void _menu_single_probe(const uint8_t point) {
   selected_point = point;
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", point);
   START_MENU();
@@ -90,15 +61,14 @@ void tramming_wizard_menu() {
   START_MENU();
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
   STATIC_ITEM(MSG_SELECT_ORIGIN);
-
   // A Menu Item for each point
-  SUBMENU_P(tramming_point_name[0], []{ single_probe_screen(0); });   // Probe P1 - Goto Probing screen
-  SUBMENU_P(tramming_point_name[1], []{ single_probe_screen(1); });   // Probe P2
-  SUBMENU_P(tramming_point_name[2], []{ single_probe_screen(2); });   // Probe P3
+  SUBMENU_P(tramming_point_name[0], []{ _menu_single_probe(0); });   // Probe P1 - Goto Probing screen
+  SUBMENU_P(tramming_point_name[1], []{ _menu_single_probe(1); });   // Probe P2
+  SUBMENU_P(tramming_point_name[2], []{ _menu_single_probe(2); });   // Probe P3
   #ifdef TRAMMING_POINT_NAME_4
-    SUBMENU_P(tramming_point_name[3], []{ single_probe_screen(3); }); // Probe P4, only on core if defined
+    SUBMENU_P(tramming_point_name[3], []{ _menu_single_probe(3); }); // Probe P4, only on core if defined
     #ifdef TRAMMING_POINT_NAME_5
-      SUBMENU(tramming_point_name[4], []{ single_probe_screen(4); });
+      SUBMENU(tramming_point_name[4], []{ _menu_single_probe(4); });
     #endif
   #endif
   ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen_no_defer(); });
