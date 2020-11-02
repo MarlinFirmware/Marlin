@@ -56,7 +56,7 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define ENABLE_SPI2
+#define STM32F1_SPI_DEVICE                     2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
@@ -106,14 +106,15 @@
 #define E0_STEP_PIN                         PD6   // E0_STEP
 #define E0_DIR_PIN                          PD3   // E0_DIR
 
-//
-// Drivers
-//
 /**
- * This board has no hard-wired UART pins for TMC drivers.
+ * FLSUN Hi-Speed has no hard-wired UART pins for TMC drivers.
  * Several wiring options are provided below, defaulting to
  * to the most compatible.
  */
+
+//
+// Drivers
+//
 #if HAS_TMC220x
   // SoftwareSerial with one pin per driver
   // Compatible with TMC2208 and TMC2209 drivers
@@ -125,18 +126,18 @@
   #define Z_SERIAL_RX_PIN                   PC7   // IO1
   #define TMC_BAUD_RATE                   19200
 
-  // HardwareSerial with one pins for four drivers
-  // Compatible with TMC2209. Provides best performance.
-  // Requires SLAVE_ADDRESS definitions in Configuration_adv.h
-  // and proper jumper configuration. Uses one I/O pins
-  // like PA10/PA9/PC7/PA8 only.
-  // position the jumpers in this way:  |= close and := open.
-  // ex:
-  //#define  X_SLAVE_ADDRESS 3    // |  |  :
-  //#define  Y_SLAVE_ADDRESS 2    // :  |  :
-  //#define  Z_SLAVE_ADDRESS 1    // |  :  :
-  // For E 0 by default whatever the mode used but remove all jumpers.  
-  
+  /**
+   * HardwareSerial with one pin for four drivers.
+   * Compatible with TMC2209. Provides best performance.
+   * Requires SLAVE_ADDRESS definitions in Configuration_adv.h and proper
+   * jumper configuration. Uses only one I/O pin like PA10/PA9/PC7/PA8.
+   * Install the jumpers in the following way, for example:
+   */
+   //#define  X_SLAVE_ADDRESS  3   // *  *  .   JP0, JP1
+   //#define  Y_SLAVE_ADDRESS  2   // .  *  .   JP1
+   //#define  Z_SLAVE_ADDRESS  1   // *  .  .   JP0
+   //#define E0_SLAVE_ADDRESS  0   // .  .  .
+
 #else
   // Motor current PWM pins
   #define MOTOR_CURRENT_PWM_XY_PIN          PA6   // VREF2/3 CONTROL XY
@@ -147,17 +148,18 @@
   #endif
 
 /**
- * src: MKS Robin_Mini V2
- *           __ESP(M1)__       -J1-
- *       GND| 15 | | 08 |+3v3  (22)=>RXD1(PA10)  //
- *          | 16 | | 07 |MOSI  (21)=>TXD1(PA9)   // active low, probably OK to leave floating
- *       IO2| 17 | | 06 |MISO  (19)=>IO1(PC7)    // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO0| 18 | | 05 |CLK   (18)=>IO0(PA8)    // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *       IO1| 19 | | 03 |EN    (03)=>WIFI_EN()   // Must be high for module to run
- *          | nc | | nc |      (01)=>WIFI_CTRL(PA5)
- *        RX| 21 | | nc |
- *        TX| 22 | | 01 |RST
- *            ￣￣ AE￣￣
+ * MKS Robin_Mini V2
+ *
+ *      __ESP(M1)__       -J1-
+ *  GND| 15 | | 08 |+3v3  (22)  RXD1      (PA10)
+ *     | 16 | | 07 |MOSI  (21)  TXD1      (PA9)   Active LOW, probably OK to leave floating
+ *  IO2| 17 | | 06 |MISO  (19)  IO1       (PC7)   Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *  IO0| 18 | | 05 |CLK   (18)  IO0       (PA8)   Must be HIGH (ESP3D software configures this with a pullup so OK to leave as floating)
+ *  IO1| 19 | | 03 |EN    (03)  WIFI_EN           Must be HIGH for module to run
+ *     | nc | | nc |      (01)  WIFI_CTRL (PA5)
+ *   RX| 21 | | nc |
+ *   TX| 22 | | 01 |RST
+ *       ￣￣ AE￣￣
  */
   //Module ESP-WIFI
   #define WIFI_IO0_PIN                      PA8   // MKS ESP WIFI IO0 PIN
@@ -168,7 +170,7 @@
 //
 // EXTRUDER
 //
-#if AXIS_DRIVER_TYPE(E0,TMC2208)||AXIS_DRIVER_TYPE(E0,TMC2209)
+#if AXIS_DRIVER_TYPE_E0(TMC2208) || AXIS_DRIVER_TYPE_E0(TMC2209)
   #define E0_SERIAL_TX_PIN                  PA8   // IO0
   #define E0_SERIAL_RX_PIN                  PA8   // IO0
   #define TMC_BAUD_RATE                   19200
@@ -182,7 +184,7 @@
 #endif
 
 //
-// Temperature Sensors(THM)
+// Temperature Sensors (THM)
 //
 #define TEMP_0_PIN                          PC1   // TEMP_E0
 #define TEMP_BED_PIN                        PC0   // TEMP_BED
