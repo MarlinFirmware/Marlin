@@ -735,9 +735,7 @@ private:
     static void M402();
   #endif
 
-  #if HAS_PRUSA_MMU2
-    static void M403();
-  #endif
+  TERN_(HAS_PRUSA_MMU2, static void M403());
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static void M404();
