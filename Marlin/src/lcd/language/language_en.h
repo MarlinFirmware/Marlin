@@ -667,6 +667,8 @@ namespace Language_en {
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
   PROGMEM Language_Str MSG_TRAM_WIZARD                     = _UxGT("Tramming Wizard");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Select Origin");
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Last value ");
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
 }
 

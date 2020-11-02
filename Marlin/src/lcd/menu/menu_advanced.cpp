@@ -559,7 +559,7 @@ void menu_advanced_settings() {
     #endif
 
   #endif // !SLIM_LCD_MENUS
-	SUBMENU(MSG_TRAM_WIZARD, goto_tramming_wizard);
+
   // M92 - Steps Per mm
   if (!is_busy)
     SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
