@@ -26,16 +26,6 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// Kinematics
-#if ENABLED(MORGAN_SCARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ENABLED(DELTA)
-  #define IS_KINEMATIC 1
-#else
-  #define IS_CARTESIAN 1
-#endif
-
 // MKS_LCD12864 is a variant of MKS_MINI_12864
 #if ENABLED(MKS_LCD12864)
   #define MKS_MINI_12864
@@ -886,6 +876,55 @@
 // Slim menu optimizations
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
+#endif
+
+/**
+ * CoreXY, CoreXZ, and CoreYZ - and their reverse
+ */
+#if EITHER(COREXY, COREYX)
+  #define CORE_IS_XY 1
+#endif
+#if EITHER(COREXZ, COREZX)
+  #define CORE_IS_XZ 1
+#endif
+#if EITHER(COREYZ, COREZY)
+  #define CORE_IS_YZ 1
+#endif
+#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+  #define IS_CORE 1
+#endif
+#if IS_CORE
+  #if CORE_IS_XY
+    #define CORE_AXIS_1 A_AXIS
+    #define CORE_AXIS_2 B_AXIS
+    #define NORMAL_AXIS Z_AXIS
+  #elif CORE_IS_XZ
+    #define CORE_AXIS_1 A_AXIS
+    #define NORMAL_AXIS Y_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #elif CORE_IS_YZ
+    #define NORMAL_AXIS X_AXIS
+    #define CORE_AXIS_1 B_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #endif
+  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
+#elif ENABLED(MARKFORGED_XY)
+  // Markforged kinematics
+  #define CORE_AXIS_1 A_AXIS
+  #define CORE_AXIS_2 B_AXIS
+  #define NORMAL_AXIS Z_AXIS
+#endif
+
+#if ENABLED(MORGAN_SCARA)
+  #define IS_SCARA 1
+  #define IS_KINEMATIC 1
+#elif ENABLED(DELTA)
+  #define IS_KINEMATIC 1
+#else
+  #define IS_CARTESIAN 1
+  #if !IS_CORE
+    #define IS_FULL_CARTESIAN 1
+  #endif
 #endif
 
 // This flag indicates some kind of jerk storage is needed
