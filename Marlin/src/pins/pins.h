@@ -425,7 +425,9 @@
   #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"    // LPC1769                                env:LPC1769
 #elif MB(FLY_CDY)
   #include "lpc1769/pins_FLY_CDY.h"             // LPC1769                                env:LPC1769
-
+#elif MB(FLSUN_HISPEED)
+  #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeed
+  
 //
 // Due (ATSAM) boards
 //
