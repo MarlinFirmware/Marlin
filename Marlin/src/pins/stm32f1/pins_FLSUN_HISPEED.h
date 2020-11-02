@@ -56,7 +56,7 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define SPI_DEVICE                             2
+#define STM32F1_SPI_DEVICE                     2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
