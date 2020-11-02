@@ -231,6 +231,8 @@ PGMSTR(G28_STR, "G28");
 PGMSTR(M21_STR, "M21");
 PGMSTR(M23_STR, "M23 %s");
 PGMSTR(M24_STR, "M24");
+PGMSTR(M80_STR, "M80");
+PGMSTR(M81_STR, "M81");
 PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
 PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
 PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
@@ -288,6 +290,13 @@ void setup_powerhold() {
     OUT_WRITE(SUICIDE_PIN, !SUICIDE_PIN_INVERTING);
   #endif
   #if ENABLED(PSU_CONTROL)
+    #if PSU_EXT_PIN
+      #if PSU_EXT_PIN_STATE
+        SET_INPUT_PULLDOWN(PSU_EXT_PIN);
+      #else
+        SET_INPUT_PULLUP(PSU_EXT_PIN);
+      #endif
+    #endif
     powersupply_on = ENABLED(PSU_DEFAULT_OFF);
     if (ENABLED(PSU_DEFAULT_OFF)) PSU_OFF(); else PSU_ON();
   #endif
@@ -561,6 +570,21 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
       SERIAL_ERROR_MSG(STR_KILL_BUTTON);
       kill();
     }
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    #if PSU_EXT_PIN
+      // Handle a standalone PSU_EXT button
+      constexpr millis_t PSU_EXT_DEBOUNCE_DELAY = 750UL;
+      static millis_t next_psu_ext_key_ms; // = 0
+      if (!IS_SD_PRINTING() && psu_ext_state()) {
+        const millis_t ms = millis();
+        if (ELAPSED(ms, next_psu_ext_key_ms)) {
+          next_psu_ext_key_ms = ms + PSU_EXT_DEBOUNCE_DELAY;
+          powersupply_on ? queue.enqueue_now_P(M81_STR) : queue.enqueue_now_P(M80_STR);
+        }
+      }
+    #endif
   #endif
 
   #if HAS_HOME
@@ -1293,6 +1317,11 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  #if ENABLED(PSU_CONTROL)
+    if (!powersupply_on) 
+      LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
   #endif
 
   #if ENABLED(PASSWORD_ON_STARTUP)

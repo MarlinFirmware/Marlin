@@ -261,6 +261,11 @@
   #define PS_ON_PIN                           12
 #endif
 
+// External pin to control PSU state
+#ifndef PSU_EXT_PIN
+  #define PSU_EXT_PIN                         58
+#endif
+
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
   #if NUM_SERVOS <= 1                             // Prefer the servo connector
     #define CASE_LIGHT_PIN                     6  // Hardware PWM

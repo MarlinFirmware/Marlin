@@ -98,6 +98,12 @@ extern bool wait_for_heatup;
     #define PSU_ON()  PSU_PIN_ON()
     #define PSU_OFF() PSU_PIN_OFF()
   #endif
+  #if PSU_EXT_PIN
+    #ifndef PSU_EXT_PIN_STATE
+      #define PSU_EXT_PIN_STATE LOW
+    #endif
+    inline bool psu_ext_state() { return READ(PSU_EXT_PIN) == PSU_EXT_PIN_STATE; }
+  #endif
 #endif
 
 bool pin_is_protected(const pin_t pin);
