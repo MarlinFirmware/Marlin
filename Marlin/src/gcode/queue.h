@@ -28,6 +28,66 @@
 
 #include "../inc/MarlinConfig.h"
 
+
+#define PS_NORMAL 0
+#define PS_EOL    1
+#define PS_QUOTED 2
+#define PS_PAREN  3
+#define PS_ESC    4
+
+inline void process_stream_char(const char c, uint8_t &sis, char (&buff)[MAX_CMD_SIZE], int &ind) {
+
+  if (sis == PS_EOL) return;    // EOL comment or overflow
+
+  #if ENABLED(PAREN_COMMENTS)
+    else if (sis == PS_PAREN) { // Inline comment
+      if (c == ')') sis = PS_NORMAL;
+      return;
+    }
+  #endif
+
+  else if (sis >= PS_ESC)       // End escaped char
+    sis -= PS_ESC;
+
+  else if (c == '\\') {         // Start escaped char
+    sis += PS_ESC;
+    if (sis == PS_ESC) return;  // Keep if quoting
+  }
+
+  #if ENABLED(GCODE_QUOTED_STRINGS)
+
+    else if (sis == PS_QUOTED) {
+      if (c == '"') sis = PS_NORMAL; // End quoted string
+    }
+    else if (c == '"')          // Start quoted string
+      sis = PS_QUOTED;
+
+  #endif
+
+  else if (c == ';') {          // Start end-of-line comment
+    sis = PS_EOL;
+    return;
+  }
+
+  #if ENABLED(PAREN_COMMENTS)
+    else if (c == '(') {        // Start inline comment
+      sis = PS_PAREN;
+      return;
+    }
+  #endif
+
+  // Backspace erases previous characters
+  if (c == 0x08) {
+    if (ind) buff[--ind] = '\0';
+  }
+  else {
+    buff[ind++] = c;
+    if (ind >= MAX_CMD_SIZE - 1)
+      sis = PS_EOL;             // Skip the rest on overflow
+  }
+}
+
+
 class GCodeQueue {
 public:
   /**

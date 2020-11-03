@@ -81,8 +81,21 @@ Proposed patches should be submitted as a Pull Request against the ([bugfix-2.1.
 - Whenever you add new features, be sure to add tests to `buildroot/tests` and then run your tests locally, if possible.
   - It's optional: Running all the tests on Windows might take a long time, and they will run anyway on GitHub.
   - If you're running the tests on Linux (or on WSL with the code on a Linux volume) the speed is much faster.
-  - You can use `make tests-all-local` or `make tests-single-local TEST_TARGET=...`.
-  - If you prefer Docker you can use `make tests-all-local-docker` or `make tests-all-local-docker TEST_TARGET=...`.
+  - You can use:
+    - All: `make tests-config-all-local`
+    - Only one: `make tests-config-single-local TEST_TARGET=...`
+    - If you prefer Docker you can use:
+      - All: `make tests-config-all-local-docker`
+      - Single: `make tests-config-all-local-docker TEST_TARGET=...`
+  - To run all unit test suites use:
+    - Directly: `platformio run -t test-marlin`
+    - With make: `make tests-code-all-local`
+    - With Docker & make: `maker tests-code-all-local-docker`
+  - To run a single unit test suite use:
+    - Directly: `platformio run -t marlin_<test-suite-name>`
+    - With make: `make tests-code-single-local TEST_TARGET=<test-suite-name>`
+    - With Docker & make: `maker tests-code-single-local-docker  TEST_TARGET=<test-suite-name>`
+- If possible, write some new tests. See [the test documentation](test)
 
 ## Marlin Support
 
