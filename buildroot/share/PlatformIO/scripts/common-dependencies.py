@@ -223,6 +223,58 @@ def search_compiler():
 	return filepath
 
 #
+# Get a list of all Marlin available configs
+#
+MARLIN_CONFIG_OPTIONS_PATH_CACHE = os.path.join(ENV_BUILD_PATH, ".marlin_config_options")
+def get_all_marlin_config_options():
+	if 'MARLIN_CONFIG_OPTIONS' in env:
+		return
+
+	if not 'SAVE_CONFIG_INSIDE_FIRMWARE' in env['MARLIN_FEATURES']:
+		return
+
+	if os.path.exists(MARLIN_CONFIG_OPTIONS_PATH_CACHE) and False:
+		with open(MARLIN_CONFIG_OPTIONS_PATH_CACHE, "r") as file:
+			env['MARLIN_CONFIG_OPTIONS'] = eval(file.readline())
+			return
+
+	marin_config_options = []
+	def get_defines(filename):
+		with open(filename, 'rt') as f:
+			for line in f.readlines():
+				matches = re.search(r'#define\s+(.*?)\s', line)
+				if not matches:
+					continue
+				marin_config_options.append(matches[1])
+
+	get_defines("Marlin/Configuration.h")
+	get_defines("Marlin/Configuration_adv.h")
+	with open(MARLIN_CONFIG_OPTIONS_PATH_CACHE, 'w+') as f:
+		f.write(str(marin_config_options))
+	env['MARLIN_CONFIG_OPTIONS'] = marin_config_options
+
+#
+# Generate a .cpp file with a global variable, containing all users configurations
+#
+def generate_cache_config_cpp():
+	if not 'SAVE_CONFIG_INSIDE_FIRMWARE' in env['MARLIN_FEATURES']:
+		return
+	header = 'const char config_options[] = "'
+	content = ''
+	for option in env['MARLIN_CONFIG_OPTIONS']:
+		if not option in env['MARLIN_FEATURES']:
+			continue
+		option_compressed = option #re.sub(r'[AEIOU_]', '', option)
+		if env['MARLIN_FEATURES'][option] == "":
+			content += option_compressed + "\\\n"
+		else:
+			content += option_compressed + "=" + env['MARLIN_FEATURES'][option].replace('"','\\"') + "\\\n"
+	content = header + content + '";\n'
+	with open('Marlin/src/configs.cpp', 'wt') as f:
+		f.write(content)
+
+
+#
 # Use the compiler to get a list of all enabled features
 #
 def load_marlin_features():
@@ -286,3 +338,6 @@ env.AddMethod(MarlinFeatureIsEnabled)
 #
 apply_features_config()
 force_ignore_unused_libs()
+
+get_all_marlin_config_options()
+generate_cache_config_cpp()
