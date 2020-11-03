@@ -21,7 +21,7 @@
  */
 
 //
-// Calibrate Probe offset menu.
+// Bed Tramming Wizard
 //
 
 #include "../../inc/MarlinConfigPre.h"
