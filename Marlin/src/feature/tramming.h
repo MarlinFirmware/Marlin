@@ -29,7 +29,7 @@
 constexpr xy_pos_t screws_tilt_adjust_pos[] = TRAMMING_POINT_XY;
 
 #define G35_PROBE_COUNT COUNT(screws_tilt_adjust_pos)
-static_assert(G35_PROBE_COUNT > 2, "TRAMMING_POINT_XY requires at least 3 XY positions.");
+static_assert(G35_PROBE_COUNT >= 3, "TRAMMING_POINT_XY requires at least 3 XY positions.");
 
 extern const char point_name_1[], point_name_2[], point_name_3[]
   #ifdef TRAMMING_POINT_NAME_4
@@ -39,5 +39,21 @@ extern const char point_name_1[], point_name_2[], point_name_3[]
     #endif
   #endif
 ;
+
+#define _NR_TRAM_NAMES 2
+#ifdef TRAMMING_POINT_NAME_3
+  #undef _NR_TRAM_NAMES
+  #define _NR_TRAM_NAMES 3
+  #ifdef TRAMMING_POINT_NAME_4
+    #undef _NR_TRAM_NAMES
+    #define _NR_TRAM_NAMES 4
+    #ifdef TRAMMING_POINT_NAME_5
+      #undef _NR_TRAM_NAMES
+      #define _NR_TRAM_NAMES 5
+    #endif
+  #endif
+#endif
+static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_NAME_s for all TRAMMING_POINT_XY entries.");
+#undef _NR_TRAM_NAMES
 
 extern PGM_P const tramming_point_name[];

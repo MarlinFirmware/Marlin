@@ -64,16 +64,11 @@ void tramming_wizard_menu() {
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
   START_MENU();
   STATIC_ITEM(MSG_SELECT_ORIGIN);
-  // A Menu Item for each point
-  SUBMENU_P(tramming_point_name[0], []{ _menu_single_probe(0); });   // Probe P1 - Goto Probing screen
-  SUBMENU_P(tramming_point_name[1], []{ _menu_single_probe(1); });   // Probe P2
-  SUBMENU_P(tramming_point_name[2], []{ _menu_single_probe(2); });   // Probe P3
-  #ifdef TRAMMING_POINT_NAME_4
-    SUBMENU_P(tramming_point_name[3], []{ _menu_single_probe(3); }); // Probe P4, only on core if defined
-    #ifdef TRAMMING_POINT_NAME_5
-      SUBMENU(tramming_point_name[4], []{ _menu_single_probe(4); });
-    #endif
-  #endif
+
+  // Draw a menu item for each tramming point
+  LOOP_L_N(i, G35_PROBE_COUNT)
+    SUBMENU_N_P(i, tramming_point_name[i], []{ _menu_single_probe(MenuItemBase::itemIndex); });
+
   ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen_no_defer(); });
   END_MENU();
 }
