@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(ASSISTED_TRAMMING_WIZARD)
+#if BOTH(HAS_LCD_MENU, ASSISTED_TRAMMING_WIZARD)
 
 #include "menu_item.h"
 
@@ -39,15 +39,18 @@
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 
+float z_measured[G35_PROBE_COUNT] = { 0 };
+static uint8_t tram_index = 0;
+
 bool probe_single_point() {
-  const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[selected_point], PROBE_PT_RAISE, 0, true);
+  const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[tram_index], PROBE_PT_RAISE, 0, true);
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
-  z_measured[selected_point] = z_probed_height;
+  z_measured[tram_index] = z_probed_height;
   return !isnan(z_probed_height);
 }
 
 void _menu_single_probe(const uint8_t point) {
-  selected_point = point;
+  tram_index = point;
   DEBUG_ECHOLNPAIR("Screen: single probe screen Arg:", point);
   START_MENU();
   STATIC_ITEM(MSG_LEVEL_CORNERS, SS_LEFT);
@@ -58,8 +61,8 @@ void _menu_single_probe(const uint8_t point) {
 }
 
 void tramming_wizard_menu() {
-  START_MENU();
   DEBUG_ECHOLNPAIR("Screen: tramming_wizard_menu");
+  START_MENU();
   STATIC_ITEM(MSG_SELECT_ORIGIN);
   // A Menu Item for each point
   SUBMENU_P(tramming_point_name[0], []{ _menu_single_probe(0); });   // Probe P1 - Goto Probing screen
@@ -78,7 +81,7 @@ void tramming_wizard_menu() {
 // Init the wizard and enter the submenu
 void goto_tramming_wizard() {
   DEBUG_ECHOLNPAIR("Screen: goto_tramming_wizard", 1);
-  selected_point = 0;
+  tram_index = 0;
   ui.defer_status_screen();
   //probe_single_point(); // Probe first point to get differences
 
@@ -92,4 +95,4 @@ void goto_tramming_wizard() {
   });
 }
 
-#endif // ASSISTED_TRAMMING_WIZARD
+#endif // HAS_LCD_MENU && ASSISTED_TRAMMING_WIZARD
