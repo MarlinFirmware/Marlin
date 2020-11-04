@@ -54,7 +54,20 @@ if [[ $2 = "ALL" ]]; then
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
-  $2-tests $1 $2 "$3"
+  test_name="$3"
+  # If the test name is 1 or 2 digits, treat it as an index
+  if [[ "$test_name" =~ ^[0-9][0-9]?$ ]] ; then
+    # Find the test name that corresponds to that index
+    test_name="$(cat buildroot/tests/$2-tests | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
+    if [[ -z "$test_name" ]] ; then
+      # Fail if none matches
+      printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2-tests\n"
+      exit 1
+    else
+      printf "\033[0;32mMatching test \033[0m#$3\033[0;32m: '\033[0m$test_name\033[0;32m'\n"
+    fi
+  fi
+  $2-tests $1 $2 "$test_name"
   if [[ $GIT_RESET_HARD == "true" ]]; then
     git reset --hard HEAD
   else
