@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -70,14 +70,12 @@ void plan_arc(
   ab_float_t rvec = -offset;
 
   const float radius = HYPOT(rvec.a, rvec.b),
-              #if ENABLED(AUTO_BED_LEVELING_UBL)
-                start_L  = current_position[l_axis],
-              #endif
               center_P = current_position[p_axis] - rvec.a,
               center_Q = current_position[q_axis] - rvec.b,
               rt_X = cart[p_axis] - center_P,
               rt_Y = cart[q_axis] - center_Q,
-              linear_travel = cart[l_axis] - current_position[l_axis],
+              start_L = current_position[l_axis],
+              linear_travel = cart[l_axis] - start_L,
               extruder_travel = cart.e - current_position.e;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
@@ -103,8 +101,22 @@ void plan_arc(
               mm_of_travel = linear_travel ? HYPOT(flat_mm, linear_travel) : ABS(flat_mm);
   if (mm_of_travel < 0.001f) return;
 
-  uint16_t segments = FLOOR(mm_of_travel / (MM_PER_ARC_SEGMENT));
-  NOLESS(segments, min_segments);
+  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
+
+  // Start with a nominal segment length
+  float seg_length = (
+    #ifdef ARC_SEGMENTS_PER_R
+      constrain(MM_PER_ARC_SEGMENT * radius, MM_PER_ARC_SEGMENT, ARC_SEGMENTS_PER_R)
+    #elif ARC_SEGMENTS_PER_SEC
+      _MAX(scaled_fr_mm_s * RECIPROCAL(ARC_SEGMENTS_PER_SEC), MM_PER_ARC_SEGMENT)
+    #else
+      MM_PER_ARC_SEGMENT
+    #endif
+  );
+  // Divide total travel by nominal segment length
+  uint16_t segments = FLOOR(mm_of_travel / seg_length);
+  NOLESS(segments, min_segments);         // At least some segments
+  seg_length = mm_of_travel / segments;
 
   /**
    * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
@@ -137,8 +149,9 @@ void plan_arc(
   const float theta_per_segment = angular_travel / segments,
               linear_per_segment = linear_travel / segments,
               extruder_per_segment = extruder_travel / segments,
-              sin_T = theta_per_segment,
-              cos_T = 1 - 0.5f * sq(theta_per_segment); // Small angle approximation
+              sq_theta_per_segment = sq(theta_per_segment),
+              sin_T = theta_per_segment - sq_theta_per_segment*theta_per_segment/6,
+              cos_T = 1 - 0.5f * sq_theta_per_segment; // Small angle approximation
 
   // Initialize the linear axis
   raw[l_axis] = current_position[l_axis];
@@ -146,10 +159,8 @@ void plan_arc(
   // Initialize the extruder axis
   raw.e = current_position.e;
 
-  const feedRate_t scaled_fr_mm_s = MMS_SCALED(feedrate_mm_s);
-
   #if ENABLED(SCARA_FEEDRATE_SCALING)
-    const float inv_duration = scaled_fr_mm_s / MM_PER_ARC_SEGMENT;
+    const float inv_duration = scaled_fr_mm_s / seg_length;
   #endif
 
   millis_t next_idle_ms = millis() + 200UL;
@@ -206,19 +217,16 @@ void plan_arc(
       planner.apply_leveling(raw);
     #endif
 
-    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+    if (!planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
       #if ENABLED(SCARA_FEEDRATE_SCALING)
         , inv_duration
       #endif
-    ))
-      break;
+    )) break;
   }
 
   // Ensure last segment arrives at target location.
   raw = cart;
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
 
   apply_motion_limits(raw);
 
@@ -226,16 +234,15 @@ void plan_arc(
     planner.apply_leveling(raw);
   #endif
 
-  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, MM_PER_ARC_SEGMENT
+  planner.buffer_line(raw, scaled_fr_mm_s, active_extruder, 0
     #if ENABLED(SCARA_FEEDRATE_SCALING)
       , inv_duration
     #endif
   );
 
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-    raw[l_axis] = start_L;
-  #endif
+  TERN_(AUTO_BED_LEVELING_UBL, raw[l_axis] = start_L);
   current_position = raw;
+
 } // plan_arc
 
 /**
@@ -273,11 +280,9 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       relative_mode = true;
     #endif
 
-    get_destination_from_command();
+    get_destination_from_command();   // Get X Y Z E F (and set cutter power)
 
-    #if ENABLED(SF_ARC_FIX)
-      relative_mode = relative_mode_backup;
-    #endif
+    TERN_(SF_ARC_FIX, relative_mode = relative_mode_backup);
 
     ab_float_t arc_offset = { 0, 0 };
     if (parser.seenval('R')) {
@@ -317,7 +322,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
         // P indicates number of circles to do
         int8_t circles_to_do = parser.byteval('P');
         if (!WITHIN(circles_to_do, 0, 100))
-          SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+          SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
 
         while (circles_to_do--)
           plan_arc(current_position, arc_offset, clockwise);
@@ -328,7 +333,7 @@ void GcodeSuite::G2_G3(const bool clockwise) {
       reset_stepper_timeout();
     }
     else
-      SERIAL_ERROR_MSG(MSG_ERR_ARC_ARGS);
+      SERIAL_ERROR_MSG(STR_ERR_ARC_ARGS);
   }
 }
 

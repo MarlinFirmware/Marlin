@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,7 +33,7 @@
 
 #include "SdVolume.h"
 
-#include "../Marlin.h"
+#include "../MarlinCore.h"
 
 #if !USE_MULTIPLE_CARDS
   // raw block cache
@@ -46,6 +46,8 @@
 
 // find a contiguous group of clusters
 bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   // start of group
   uint32_t bgnCluster;
   // end of group
@@ -117,18 +119,20 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
 }
 
 bool SdVolume::cacheFlush() {
-  if (cacheDirty_) {
-    if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data))
-      return false;
-
-    // mirror FAT tables
-    if (cacheMirrorBlock_) {
-      if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data))
+  #if DISABLED(SDCARD_READONLY)
+    if (cacheDirty_) {
+      if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data))
         return false;
-      cacheMirrorBlock_ = 0;
+
+      // mirror FAT tables
+      if (cacheMirrorBlock_) {
+        if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data))
+          return false;
+        cacheMirrorBlock_ = 0;
+      }
+      cacheDirty_ = 0;
     }
-    cacheDirty_ = 0;
-  }
+  #endif
   return true;
 }
 
@@ -190,6 +194,8 @@ bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
 
 // Store a FAT entry
 bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
+  if (ENABLED(SDCARD_READONLY)) return false;
+
   uint32_t lba;
   // error if reserved cluster
   if (cluster < 2) return false;
@@ -291,6 +297,16 @@ int32_t SdVolume::freeClusterCount() {
       for (uint16_t i = 0; i < n; i++)
         if (cacheBuffer_.fat32[i] == 0) free++;
     }
+    #ifdef ESP32
+      // Needed to reset the idle task watchdog timer on ESP32 as reading the complete FAT may easily
+      // block for 10+ seconds. yield() is insufficient since it blocks lower prio tasks (e.g., idle).
+      static millis_t nextTaskTime = 0;
+      const millis_t ms = millis();
+      if (ELAPSED(ms, nextTaskTime)) {
+        vTaskDelay(1);            // delay 1 tick (Minimum. Usually 10 or 1 ms depending on skdconfig.h)
+        nextTaskTime = ms + 1000; // tickle the task manager again in 1 second
+      }
+    #endif // ESP32
   }
   return free;
 }

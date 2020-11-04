@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,8 +25,7 @@
  * TEST
  *
  * LCD Menu Messages
- * See also http://marlinfw.org/docs/development/lcd_language.html
- *
+ * See also https://marlinfw.org/docs/development/lcd_language.html
  */
 
 // Select ONE of the following Mappers.
@@ -122,7 +121,7 @@ namespace Language_test {
   #if ENABLED(DISPLAYTEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("Display test");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("Display test");
     PROGMEM Language_Str MSG_PREPARE                         = STRG_OKTAL_b;
     PROGMEM Language_Str MSG_CONTROL                         = STRG_OKTAL_c;
   #endif
@@ -130,7 +129,7 @@ namespace Language_test {
   #if ENABLED(WEST)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -149,7 +148,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
@@ -167,7 +166,7 @@ namespace Language_test {
   #if ENABLED(CYRIL)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -186,7 +185,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";
@@ -203,7 +202,7 @@ namespace Language_test {
   #if ENABLED(KANA)
     PROGMEM Language_Str WELCOME_MSG                         = _UxGT("Language TEST");
 
-    PROGMEM Language_Str MSG_WATCH                           = _UxGT("\001\002\003\004\005\006\007\010\011");
+    PROGMEM Language_Str MSG_INFO_SCREEN                     = _UxGT("\001\002\003\004\005\006\007\010\011");
     PROGMEM Language_Str MSG_PREPARE                         = _UxGT("UTF8");
     PROGMEM Language_Str MSG_CONTROL                         = _UxGT("ASCII");
 
@@ -222,7 +221,7 @@ namespace Language_test {
     PROGMEM Language_Str MSG_MOTION                          = STRG_OKTAL_4;
     PROGMEM Language_Str MSG_FILAMENT                        = STRG_OKTAL_5;
     PROGMEM Language_Str MSG_CONTRAST                        = STRG_OKTAL_6;
-    PROGMEM Language_Str MSG_RESTORE_FAILSAFE                = STRG_OKTAL_7;
+    PROGMEM Language_Str MSG_RESTORE_DEFAULTS                = STRG_OKTAL_7;
 
     PROGMEM Language_Str MSG_NOZZLE                          = STRG_OKTAL_8;
     PROGMEM Language_Str MSG_NOZZLE_N                        = STRG_OKTAL_8 " ~";

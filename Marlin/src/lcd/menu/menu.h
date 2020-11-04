@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,10 +29,6 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
-#if HOTENDS
-  constexpr int16_t heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP, HEATER_4_MAXTEMP, HEATER_5_MAXTEMP);
-#endif
-
 void scroll_screen(const uint8_t limit, const bool is_menu);
 bool printer_busy();
 
@@ -43,8 +39,14 @@ typedef void (*selectFunc_t)();
 #define SS_INVERT  0x02
 #define SS_DEFAULT SS_CENTER
 
-#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
+#endif
+
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET) && Z_PROBE_OFFSET_RANGE_MIN >= -9 && Z_PROBE_OFFSET_RANGE_MAX <= 9
+  #define BABYSTEP_TO_STR(N) ftostr43sign(N)
+#elif ENABLED(BABYSTEPPING)
+  #define BABYSTEP_TO_STR(N) ftostr53sign(N)
 #endif
 
 ////////////////////////////////////////////
@@ -53,12 +55,14 @@ typedef void (*selectFunc_t)();
 
 class MenuItemBase {
   public:
-    // An index to interject in the item label and for
-    // use by the action
-    static uint8_t itemIndex;
+    // Index to interject in the item label and/or for use by its action.
+    static int8_t itemIndex;
+
+    // An optional pointer for use in display or by the action
+    static PGM_P itemString;
 
     // Store the index of the item ahead of use by indexed items
-    FORCE_INLINE static void init(const uint8_t ind) { itemIndex = ind; }
+    FORCE_INLINE static void init(const int8_t ind=0, PGM_P const pstr=nullptr) { itemIndex = ind; itemString = pstr; }
 
     // Draw an item either selected (pre_char) or not (space) with post_char
     static void _draw(const bool sel, const uint8_t row, PGM_P const pstr, const char pre_char, const char post_char);
@@ -69,13 +73,24 @@ class MenuItemBase {
     }
 };
 
+// STATIC_ITEM(LABEL,...)
 class MenuItem_static : public MenuItemBase {
   public:
-    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const valstr=nullptr);
+    static void draw(const uint8_t row, PGM_P const pstr, const uint8_t style=SS_DEFAULT, const char * const vstr=nullptr);
 };
 
-// CONFIRM_ITEM(LABEL,Y,N,FY,FN,V...),
-// YESNO_ITEM(LABEL,FY,FN,V...)
+// BACK_ITEM(LABEL)
+class MenuItem_back : public MenuItemBase {
+  public:
+    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
+      _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
+    }
+    // Back Item action goes back one step in history
+    FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
+};
+
+// CONFIRM_ITEM(LABEL,Y,N,FY,FN,...),
+// YESNO_ITEM(LABEL,FY,FN,...)
 class MenuItem_confirm : public MenuItemBase {
   public:
     FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
@@ -110,60 +125,6 @@ class MenuItem_confirm : public MenuItemBase {
       select_screen(GET_TEXT(MSG_YES), GET_TEXT(MSG_NO), yesFunc, noFunc, pref, string, suff);
     }
 };
-
-// BACK_ITEM(LABEL)
-class MenuItem_back : public MenuItemBase {
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr) {
-      _draw(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0]);
-    }
-    // Back Item action goes back one step in history
-    FORCE_INLINE static void action(PGM_P const=nullptr) { ui.go_back(); }
-};
-
-// SUBMENU(LABEL, screen_handler)
-class MenuItem_submenu : public MenuItemBase {
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0]);
-    }
-    static inline void action(PGM_P const, const screenFunc_t func) { ui.save_previous_screen(); ui.goto_screen(func); }
-};
-
-// Any menu item that invokes an immediate action
-class MenuItem_button : public MenuItemBase {
-  public:
-    // Button-y Items are selectable lines with no other indicator
-    static inline void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', ' ');
-    }
-};
-
-// GCODES_ITEM(LABEL, GCODES)
-class MenuItem_gcode : public MenuItem_button {
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, ...) {
-      _draw(sel, row, pstr, '>', ' ');
-    }
-    static void action(PGM_P const, const char * const pgcode);
-    static inline void action(PGM_P const pstr, const uint8_t, const char * const pgcode) { action(pstr, pgcode); }
-};
-
-// ACTION_ITEM(LABEL, FUNC)
-class MenuItem_function : public MenuItem_button {
-  public:
-    //static inline void action(PGM_P const, const uint8_t, const menuAction_t func) { (*func)(); };
-    static inline void action(PGM_P const, const menuAction_t func) { (*func)(); };
-};
-
-#if ENABLED(SDSUPPORT)
-  class CardReader;
-  class MenuItem_sdbase {
-    public:
-      // Implemented for HD44780 and DOGM
-      static void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
-  };
-#endif
 
 ////////////////////////////////////////////
 ///////////// Edit Menu Items //////////////
@@ -211,7 +172,7 @@ class MenuEditItemBase : public MenuItemBase {
   public:
     // Implemented for HD44780 and DOGM
     // Draw the current item at specified row with edit data
-    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const data, const bool pgm=false);
+    static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const char* const inStr, const bool pgm=false);
 
     // Implemented for HD44780 and DOGM
     // This low-level method is good to draw from anywhere
@@ -221,281 +182,14 @@ class MenuEditItemBase : public MenuItemBase {
     static inline void draw_edit_screen(const char* const value) { draw_edit_screen(editLabel, value); }
 };
 
-// Template for specific Menu Edit Item Types
-template<typename NAME>
-class TMenuEditItem : MenuEditItemBase {
-  private:
-    typedef typename NAME::type_t type_t;
-    static inline float unscale(const float value)    { return value * (1.0f / NAME::scale);  }
-    static inline float scale(const float value)      { return value * NAME::scale;           }
-    static void load(void *ptr, const int32_t value)  { *((type_t*)ptr) = unscale(value);     }
-    static const char* to_string(const int32_t value) { return NAME::strfunc(unscale(value)); }
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t * const data, ...) {
-      MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(*(data)));
-    }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, type_t (*pget)(), ...) {
-      MenuEditItemBase::draw(sel, row, pstr, NAME::strfunc(pget()));
-    }
-    // Edit screen for this type of item
-    static void edit_screen() { MenuEditItemBase::edit_screen(to_string, load); }
-    static void action(
-      PGM_P const pstr,                     // Edit label
-      type_t * const ptr,                   // Value pointer
-      const type_t minValue,                // Value range
-      const type_t maxValue,
-      const screenFunc_t callback=nullptr,  // Value update callback
-      const bool live=false                 // Callback during editing
-    ) {
-      // Make sure minv and maxv fit within int32_t
-      const int32_t minv = _MAX(scale(minValue), INT32_MIN),
-                    maxv = _MIN(scale(maxValue), INT32_MAX);
-      goto_edit_screen(pstr, ptr, minv, maxv - minv, scale(*ptr) - minv,
-        edit_screen, callback, live);
-    }
-};
-
-// Provide a set of Edit Item Types which encompass a primitive
-// type, a string function, and a scale factor for edit and display.
-// These items call the Edit Item draw method passing the prepared string.
-#define DEFINE_MENU_EDIT_ITEM_TYPE(TYPE, NAME, STRFUNC, SCALE) \
-  struct MenuEditItemInfo_##NAME { \
-    typedef TYPE type_t; \
-    static constexpr float scale = SCALE; \
-    static inline const char* strfunc(const float value) { return STRFUNC((TYPE)value); } \
-  }; \
-  typedef TMenuEditItem<MenuEditItemInfo_##NAME> MenuItem_##NAME
-
-//                         TYPE      NAME         STRFUNC       SCALE
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  percent,     ui8tostr4pct, 100.0/255);   // 100%       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int3,        i16tostr3,       1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int16_t,  int4,        i16tostr4sign,   1     );   // 1234, -123 right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(int8_t,   int8,        i8tostr3,        1     );   // 123, -12   right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint8_t,  uint8,       ui8tostr3,       1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_3,    ui16tostr3,      1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_4,    ui16tostr4,      0.1   );   // 1234       right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint16_t, uint16_5,    ui16tostr5,      0.01  );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float3,      ftostr3,         1     );   // 123        right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52,     ftostr42_52,   100     );   // _2.34, 12.34, -2.34 or 123.45, -23.45
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float43,     ftostr43sign, 1000     );   // 1.234
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5,      ftostr5rj,       1     );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float5_25,   ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51,     ftostr51rj,     10     );   // 1234.5     right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float41sign, ftostr41sign,   10     );   // +123.4
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float51sign, ftostr51sign,   10     );   // +1234.5
-DEFINE_MENU_EDIT_ITEM_TYPE(float,    float52sign, ftostr52sign,  100     );   // +123.45
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5,       ftostr5rj,       0.01f );   // 12345      right-justified
-DEFINE_MENU_EDIT_ITEM_TYPE(uint32_t, long5_25,    ftostr5rj,       0.04f );   // 12345      right-justified (25 increment)
-
-class MenuItem_bool : public MenuEditItemBase {
-  public:
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, const bool onoff) {
-      MenuEditItemBase::draw(sel, row, pstr, onoff ? GET_TEXT(MSG_LCD_ON) : GET_TEXT(MSG_LCD_OFF), true);
-    }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, bool * const data, ...) {
-      draw(sel, row, pstr, *data);
-    }
-    FORCE_INLINE static void draw(const bool sel, const uint8_t row, PGM_P const pstr, PGM_P const, bool (*pget)(), ...) {
-      draw(sel, row, pstr, pget());
-    }
-    static void action(PGM_P const pstr, bool * const ptr, const screenFunc_t callbackFunc=nullptr);
-};
-
-////////////////////////////////////////////
-//////////// Menu System Macros ////////////
-////////////////////////////////////////////
-
-/**
- * SCREEN_OR_MENU_LOOP generates init code for a screen or menu
- *
- *   encoderTopLine is the top menu line to display
- *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
- *   _menuLineNr is the menu item to draw and process
- *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
- */
-#define SCREEN_OR_MENU_LOOP(IS_MENU)                \
-  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU); \
-  int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-  bool _skipStatic = IS_MENU;                       \
-  for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
-    _thisItemNr = 0
-
-/**
- * START_SCREEN  Opening code for a screen having only static items.
- *               Do simplified scrolling of the entire screen.
- *
- * START_MENU    Opening code for a screen with menu items.
- *               Scroll as-needed to keep the selected line in view.
- */
-#define START_SCREEN() SCREEN_OR_MENU_LOOP(false)
-#define START_MENU() SCREEN_OR_MENU_LOOP(true)
-#define NEXT_ITEM() (++_thisItemNr)
-#define SKIP_ITEM() NEXT_ITEM()
-#define END_SCREEN() } screen_items = _thisItemNr
-#define END_MENU() END_SCREEN(); UNUSED(_skipStatic)
-
-#if ENABLED(ENCODER_RATE_MULTIPLIER)
-  #define ENCODER_RATE_MULTIPLY(F) (ui.encoderRateMultiplierEnabled = F)
-  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER) do{ if (USE_MULTIPLIER) ui.enable_encoder_multiplier(true); }while(0)
-  //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
-#else
-  #define ENCODER_RATE_MULTIPLY(F) NOOP
-  #define _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER)
+#if ENABLED(SDSUPPORT)
+  class CardReader;
+  class MenuItem_sdbase {
+    public:
+      // Implemented for HD44780 and DOGM
+      static void draw(const bool sel, const uint8_t row, PGM_P const pstr, CardReader &theCard, const bool isDir);
+  };
 #endif
-
-/**
- * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
- *
- *   MenuItem_<type>::draw(sel, row, label, arg3...)
- *   MenuItem_<type>::action(arg3...)
- *
- * Examples:
- *   BACK_ITEM(MSG_WATCH)
- *     MenuItem_back::action(plabel, ...)
- *     MenuItem_back::draw(sel, row, plabel, ...)
- *
- *   ACTION_ITEM(MSG_PAUSE_PRINT, lcd_sdcard_pause)
- *     MenuItem_function::action(plabel, lcd_sdcard_pause)
- *     MenuItem_function::draw(sel, row, plabel, lcd_sdcard_pause)
- *
- *   EDIT_ITEM(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::action(plabel, &feedrate_percentage, 10, 999)
- *     MenuItem_int3::draw(sel, row, plabel, &feedrate_percentage, 10, 999)
- */
-
-#define _MENU_INNER_P(TYPE, USE_MULTIPLIER, PLABEL, V...) do { \
-  PGM_P const plabel = PLABEL;                                \
-  if (encoderLine == _thisItemNr && ui.use_click()) {         \
-    _MENU_ITEM_MULTIPLIER_CHECK(USE_MULTIPLIER);              \
-    MenuItem_##TYPE::action(plabel, ##V);                     \
-    if (ui.screen_changed) return;                            \
-  }                                                           \
-  if (ui.should_draw())                                       \
-    MenuItem_##TYPE::draw                                     \
-      (encoderLine == _thisItemNr, _lcdLineNr, plabel, ##V);  \
-}while(0)
-
-#define _MENU_ITEM_P(TYPE, V...) do { \
-  _skipStatic = false;                \
-  if (_menuLineNr == _thisItemNr)     \
-    _MENU_INNER_P(TYPE, ##V);         \
-  NEXT_ITEM();                        \
-}while(0)
-
-// Indexed items set a global index value
-#define _MENU_ITEM_N_P(TYPE, N, V...) do{ \
-  _skipStatic = false;                    \
-  if (_menuLineNr == _thisItemNr) {       \
-    MenuItemBase::init(N);                \
-    _MENU_INNER_P(TYPE, ##V);             \
-  }                                       \
-  NEXT_ITEM();                            \
-}while(0)
-
-// STATIC_ITEM draws a styled string with no highlight.
-// Parameters: label [, style [, char *value] ]
-
-#define STATIC_ITEM_INNER_P(PLABEL, V...) do{           \
-  if (_skipStatic && encoderLine <= _thisItemNr) {      \
-    ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
-    ++encoderLine;                                      \
-  }                                                     \
-  if (ui.should_draw())                                 \
-    MenuItem_static::draw(_lcdLineNr, PLABEL, ##V);     \
-} while(0)
-
-#define STATIC_ITEM_P(PLABEL, V...) do{ \
-  if (_menuLineNr == _thisItemNr)       \
-    STATIC_ITEM_INNER_P(PLABEL, ##V);   \
-  NEXT_ITEM();                          \
-} while(0)
-
-#define STATIC_ITEM_N_P(PLABEL, N, V...) do{ \
-  if (_menuLineNr == _thisItemNr) {          \
-    MenuItemBase::init(N);                   \
-    STATIC_ITEM_INNER_P(PLABEL, ##V);        \
-  }                                          \
-  NEXT_ITEM();                               \
-}while(0)
-
-#define STATIC_ITEM(LABEL,      V...) STATIC_ITEM_P(  GET_TEXT(LABEL), ##V)
-#define STATIC_ITEM_N(LABEL, N, V...) STATIC_ITEM_N_P(GET_TEXT(LABEL), ##V)
-
-#define MENU_ITEM_P(TYPE, PLABEL, V...)              _MENU_ITEM_P(TYPE, false, PLABEL, ##V)
-#define MENU_ITEM(TYPE, LABEL, V...)                  MENU_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
-
-#define MENU_ITEM_N_P(TYPE, N, PLABEL, V...)       _MENU_ITEM_N_P(TYPE, N, false, PLABEL, ##V)
-#define MENU_ITEM_N(TYPE, N, LABEL, V...)           MENU_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-
-#define BACK_ITEM(LABEL)                                MENU_ITEM(back, LABEL)
-
-#define ACTION_ITEM_P(PLABEL, ACTION)                 MENU_ITEM_P(function, PLABEL, ACTION)
-#define ACTION_ITEM(LABEL, ACTION)                  ACTION_ITEM_P(GET_TEXT(LABEL),  ACTION)
-
-#define ACTION_ITEM_N_P(N, PLABEL, ACTION)          MENU_ITEM_N_P(function, N, PLABEL, ACTION)
-#define ACTION_ITEM_N(N, LABEL, ACTION)           ACTION_ITEM_N_P(N, GET_TEXT(LABEL), ACTION)
-
-#define GCODES_ITEM_P(PLABEL, GCODES)                 MENU_ITEM_P(gcode, PLABEL, GCODES)
-#define GCODES_ITEM(LABEL, GCODES)                  GCODES_ITEM_P(GET_TEXT(LABEL), GCODES)
-
-#define GCODES_ITEM_N_P(N, PLABEL, GCODES)          MENU_ITEM_N_P(gcode, N, PLABEL, GCODES)
-#define GCODES_ITEM_N(N, LABEL, GCODES)           GCODES_ITEM_N_P(N, GET_TEXT(LABEL), GCODES)
-
-#define SUBMENU_P(PLABEL, DEST)                       MENU_ITEM_P(submenu, PLABEL, DEST)
-#define SUBMENU(LABEL, DEST)                            SUBMENU_P(GET_TEXT(LABEL), DEST)
-
-#define SUBMENU_N_P(N, PLABEL, DEST)                MENU_ITEM_N_P(submenu, N, PLABEL, DEST)
-#define SUBMENU_N(N, LABEL, DEST)                     SUBMENU_N_P(N, GET_TEXT(LABEL), DEST)
-
-#define EDIT_ITEM_P(TYPE, PLABEL, V...)               MENU_ITEM_P(TYPE, PLABEL, ##V)
-#define EDIT_ITEM(TYPE, LABEL, V...)                  EDIT_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
-
-#define EDIT_ITEM_N_P(TYPE, N, PLABEL, V...)        MENU_ITEM_N_P(TYPE, N, PLABEL, ##V)
-#define EDIT_ITEM_N(TYPE, N, LABEL, V...)           EDIT_ITEM_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-
-#define EDIT_ITEM_FAST_P(TYPE, PLABEL, V...)         _MENU_ITEM_P(TYPE, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST(TYPE, LABEL, V...)        EDIT_ITEM_FAST_P(TYPE, GET_TEXT(LABEL), ##V)
-
-#define EDIT_ITEM_FAST_N_P(TYPE, N, PLABEL, V...)  _MENU_ITEM_N_P(TYPE, N, true, PLABEL, ##V)
-#define EDIT_ITEM_FAST_N(TYPE, N, LABEL, V...) EDIT_ITEM_FAST_N_P(TYPE, N, GET_TEXT(LABEL), ##V)
-
-#define _CONFIRM_ITEM_INNER_P(PLABEL, V...) do {              \
-  if (encoderLine == _thisItemNr && ui.use_click()) {         \
-    ui.goto_screen([]{MenuItem_confirm::select_screen(V);});  \
-    return;                                                   \
-  }                                                           \
-  if (ui.should_draw()) MenuItem_confirm::draw                \
-    (encoderLine == _thisItemNr, _lcdLineNr, PLABEL, ##V);    \
-}while(0)
-
-#define _CONFIRM_ITEM_P(PLABEL, V...) do {  \
-  _skipStatic = false;                      \
-  if (_menuLineNr == _thisItemNr)           \
-    _CONFIRM_ITEM_INNER_P(PLABEL, ##V);     \
-  NEXT_ITEM();                              \
-}while(0)
-
-// Indexed items set a global index value
-#define _CONFIRM_ITEM_N_P(N, V...) do{  \
-  _skipStatic = false;                  \
-  if (_menuLineNr == _thisItemNr) {     \
-    MenuItemBase::init(N);              \
-    _CONFIRM_ITEM_INNER_P(TYPE, ##V);   \
-  }                                     \
-  NEXT_ITEM();                          \
-}while(0)
-
-#define CONFIRM_ITEM_P(PLABEL,A,B,V...) _CONFIRM_ITEM_P(PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM(LABEL, V...)        CONFIRM_ITEM_P(GET_TEXT(LABEL), ##V)
-
-#define YESNO_ITEM_P(PLABEL, V...)      _CONFIRM_ITEM_P(PLABEL, ##V)
-#define YESNO_ITEM(LABEL, V...)            YESNO_ITEM_P(GET_TEXT(LABEL), ##V)
-
-#define CONFIRM_ITEM_N_P(N,PLABEL,A,B,V...) _CONFIRM_ITEM_N_P(N, PLABEL, GET_TEXT(A), GET_TEXT(B), ##V)
-#define CONFIRM_ITEM_N(N,LABEL, V...)        CONFIRM_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
-
-#define YESNO_ITEM_N_P(N,PLABEL, V...)      _CONFIRM_ITEM_N_P(N, PLABEL, ##V)
-#define YESNO_ITEM_N(N,LABEL, V...)            YESNO_ITEM_N_P(N, GET_TEXT(LABEL), ##V)
 
 ////////////////////////////////////////////
 /////////////// Menu Screens ///////////////
@@ -506,15 +200,6 @@ void menu_move();
 
 #if ENABLED(SDSUPPORT)
   void menu_media();
-#endif
-
-// First Fan Speed title in "Tune" and "Control>Temperature" menus
-#if FAN_COUNT > 0 && HAS_FAN0
-  #if FAN_COUNT > 1
-    #define FAN_SPEED_1_SUFFIX " 1"
-  #else
-    #define FAN_SPEED_1_SUFFIX ""
-  #endif
 #endif
 
 ////////////////////////////////////////////
@@ -530,17 +215,12 @@ void _lcd_draw_homing();
   void line_to_z(const float &z);
 #endif
 
-#if ANY(AUTO_BED_LEVELING_UBL, PID_AUTOTUNE_MENU, ADVANCED_PAUSE_FEATURE)
-  void lcd_enqueue_one_now(const char * const cmd);
-  void lcd_enqueue_one_now_P(PGM_P const cmd);
-#endif
-
-#if HAS_GRAPHICAL_LCD && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
+#if HAS_MARLINUI_U8GLIB && EITHER(BABYSTEP_ZPROBE_GFX_OVERLAY, MESH_EDIT_GFX_OVERLAY)
   void _lcd_zoffset_overlay_gfx(const float zvalue);
 #endif
 
-#if ENABLED(LEVEL_BED_CORNERS)
-  void _lcd_level_bed_corners();
+#if ENABLED(PROBE_OFFSET_WIZARD)
+  void goto_probe_offset_wizard();
 #endif
 
 #if ENABLED(LCD_BED_LEVELING) || (HAS_LEVELING && DISABLED(SLIM_LCD_MENUS))
@@ -553,13 +233,19 @@ void _lcd_draw_homing();
   #else
     void lcd_babystep_z();
   #endif
+
+  #if ENABLED(BABYSTEP_MILLIMETER_UNITS)
+    #define BABYSTEP_SIZE_X int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[X_AXIS])
+    #define BABYSTEP_SIZE_Y int32_t((BABYSTEP_MULTIPLICATOR_XY) * planner.settings.axis_steps_per_mm[Y_AXIS])
+    #define BABYSTEP_SIZE_Z int32_t((BABYSTEP_MULTIPLICATOR_Z)  * planner.settings.axis_steps_per_mm[Z_AXIS])
+  #else
+    #define BABYSTEP_SIZE_X BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Y BABYSTEP_MULTIPLICATOR_XY
+    #define BABYSTEP_SIZE_Z BABYSTEP_MULTIPLICATOR_Z
+  #endif
+
 #endif
 
-#if ENABLED(EEPROM_SETTINGS)
-  void lcd_store_settings();
-  void lcd_load_settings();
-#endif
-
-#if ENABLED(POWER_LOSS_RECOVERY)
-  void menu_job_recovery();
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  void touch_screen_calibration();
 #endif

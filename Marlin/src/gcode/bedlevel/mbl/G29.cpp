@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,7 +39,7 @@
 #include "../../../module/stepper.h"
 
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 // Save 130 bytes with non-duplication of PSTR
@@ -57,14 +57,10 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
- *
  */
 void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
-  #if HAS_SOFTWARE_ENDSTOPS
-    static bool saved_soft_endstops_state;
-  #endif
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
@@ -88,7 +84,7 @@ void GcodeSuite::G29() {
     case MeshStart:
       mbl.reset();
       mbl_probe_index = 0;
-      if (!ui.wait_for_bl_move) {
+      if (!ui.wait_for_move) {
         queue.inject_P(PSTR("G28\nG29 S2"));
         return;
       }
@@ -101,28 +97,19 @@ void GcodeSuite::G29() {
       }
       // For each G29 S2...
       if (mbl_probe_index == 0) {
-        #if HAS_SOFTWARE_ENDSTOPS
-          // For the initial G29 S2 save software endstop state
-          saved_soft_endstops_state = soft_endstops_enabled;
-        #endif
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        #if HAS_SOFTWARE_ENDSTOPS
-          soft_endstops_enabled = saved_soft_endstops_state;
-        #endif
+        SET_SOFT_ENDSTOP_LOOSE(false);
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
-        #if HAS_SOFTWARE_ENDSTOPS
-          // Disable software endstops to allow manual adjustment
-          // If G29 is not completed, they will not be re-enabled
-          soft_endstops_enabled = false;
-        #endif
-
+        // Disable software endstops to allow manual adjustment
+        // If G29 is left hanging without completion they won't be re-enabled!
+        SET_SOFT_ENDSTOP_LOOSE(true);
         mbl.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }
@@ -147,9 +134,7 @@ void GcodeSuite::G29() {
           planner.synchronize();
         #endif
 
-        #if ENABLED(LCD_BED_LEVELING)
-          ui.wait_for_bl_move = false;
-        #endif
+        TERN_(LCD_BED_LEVELING, ui.wait_for_move = false);
       }
       break;
 
@@ -178,9 +163,7 @@ void GcodeSuite::G29() {
 
       if (parser.seenval('Z')) {
         mbl.z_values[ix][iy] = parser.value_linear_units();
-        #if ENABLED(EXTENSIBLE_UI)
-          ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]);
-        #endif
+        TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(ix, iy, mbl.z_values[ix][iy]));
       }
       else
         return echo_not_entered('Z');

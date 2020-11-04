@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,38 +26,51 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
 #include "lcdprint.h"
-#include "../core/language.h"
 
 /**
  * lcd_put_u8str_ind_P
  * Print a string with an index substituted within it
  */
-lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const uint8_t ind, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
+lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const inStr/*=nullptr*/, const lcd_uint_t maxlen/*=LCD_WIDTH*/) {
   uint8_t *p = (uint8_t*)pstr;
-  lcd_uint_t n = maxlen;
-  for (; n; n--) {
+  int8_t n = maxlen;
+  while (n > 0) {
     wchar_t ch;
     p = get_utf8_value_cb(p, read_byte_rom, &ch);
     if (!ch) break;
     if (ch == '=' || ch == '~' || ch == '*') {
-      if (ch == '*') { lcd_put_wchar('E'); n--; }
-      // lcd_put_int(ind); n--; if (ind >= 10) n--;
-      // if (ind >= 0)
-        {
-          lcd_put_wchar(ind + ((ch == '=') ? '0' : LCD_FIRST_TOOL));
-          n--;
+      if (ind >= 0) {
+        if (ch == '*') { lcd_put_wchar('E'); n--; }
+        if (n) {
+          int8_t inum = ind + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+          if (inum >= 10) {
+            lcd_put_wchar('0' + (inum / 10)); n--;
+            inum %= 10;
+          }
+          if (n) { lcd_put_wchar('0' + inum); n--; }
         }
-      // else if (ind == -1) { PGM_P const b = GET_TEXT(MSG_BED); lcd_put_u8str_P(b); n -= utf8_strlen_P(b); }
-      // else if (ind == -2) { PGM_P const c = GET_TEXT(MSG_CHAMBER); lcd_put_u8str_P(c); n -= utf8_strlen_P(c); }
-      if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n);
-      break;
+      }
+      else {
+        PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
+        n -= lcd_put_u8str_max_P(b, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+      }
+      if (n) {
+        n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+        break;
+      }
     }
-    lcd_put_wchar(ch);
+    else if (ch == '$' && inStr) {
+      n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+    }
+    else {
+      lcd_put_wchar(ch);
+      n--;
+    }
   }
   return n;
 }
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

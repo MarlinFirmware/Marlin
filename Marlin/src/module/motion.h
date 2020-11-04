@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,10 +30,6 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_BED_PROBE
-  #include "probe.h"
-#endif
-
 #if IS_SCARA
   #include "scara.h"
 #endif
@@ -41,28 +37,29 @@
 // Axis homed and known-position states
 extern uint8_t axis_homed, axis_known_position;
 constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
+FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
-FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
-FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
+FORCE_INLINE void set_all_homed() { axis_homed = axis_known_position = xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
-  return !(
-    #if ENABLED(HOME_AFTER_DEACTIVATE)
-      all_axes_known()
-    #else
-      all_axes_homed()
-    #endif
-  );
+  return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
 }
 
 // Error margin to work around float imprecision
-constexpr float slop = 0.0001;
+constexpr float fslop = 0.0001;
 
 extern bool relative_mode;
 
 extern xyze_pos_t current_position,  // High-level current tool position
                   destination;       // Destination for a move
+
+// G60/G61 Position Save and Return
+#if SAVED_POSITIONS
+  extern uint8_t saved_slots[(SAVED_POSITIONS + 7) >> 3];
+  extern xyz_pos_t stored_position[SAVED_POSITIONS];
+#endif
 
 // Scratch space for a cartesian result
 extern xyz_pos_t cartes;
@@ -101,7 +98,7 @@ extern feedRate_t feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
 // The active extruder (tool). Set with T<extruder> command.
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   extern uint8_t active_extruder;
 #else
   constexpr uint8_t active_extruder = 0;
@@ -111,24 +108,35 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-FORCE_INLINE float pgm_read_any(const float *p) { return pgm_read_float(p); }
-FORCE_INLINE signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+#ifdef __IMXRT1062__
+  #define DEFS_PROGMEM
+#else
+  #define DEFS_PROGMEM PROGMEM
+#endif
+
+inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
-  extern const XYZval<T> NAME##_P; \
-  FORCE_INLINE T NAME(AxisEnum axis) { return pgm_read_any(&NAME##_P[axis]); }
-
+  inline T NAME(const AxisEnum axis) { \
+    static const XYZval<T> NAME##_P DEFS_PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    return pgm_read_any(&NAME##_P[axis]); \
+  }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_DEFS(signed char, home_dir, HOME_DIR);
+XYZ_DEFS(int8_t, home_dir, HOME_DIR);
+
+inline float home_bump_mm(const AxisEnum axis) {
+  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+  return pgm_read_any(&home_bump_mm_P[axis]);
+}
 
 #if HAS_WORKSPACE_OFFSET
   void update_workspace_offset(const AxisEnum axis);
 #else
-  #define update_workspace_offset(x) NOOP
+  inline void update_workspace_offset(const AxisEnum) {}
 #endif
 
 #if HAS_HOTEND_OFFSET
@@ -140,26 +148,63 @@ XYZ_DEFS(signed char, home_dir, HOME_DIR);
   constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
-typedef struct { xyz_pos_t min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
-  extern axis_limits_t soft_endstop;
+
+  typedef struct {
+    bool _enabled, _loose;
+    bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      amin = -100000; amax = 100000; // "No limits"
+      #if HAS_SOFTWARE_ENDSTOPS
+        if (enabled()) switch (axis) {
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
+          case Y_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+            break;
+          case Z_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+          default: break;
+        }
+      #endif
+    }
+  } soft_endstops_t;
+
+  extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
-#else
-  constexpr bool soft_endstops_enabled = false;
-  //constexpr axis_limits_t soft_endstop = {
-  //  { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-  //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
-  #define apply_motion_limits(V)    NOOP
-  #define update_software_endstops(...) NOOP
-#endif
+  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
 
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool enabled() { return false; }
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      // No limits
+      amin = current_position[axis] - 1000;
+      amax = current_position[axis] + 1000;
+    }
+  } soft_endstops_t;
+  extern soft_endstops_t soft_endstop;
+  #define apply_motion_limits(V)        NOOP
+  #define update_software_endstops(...) NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
+
+void report_real_position();
 void report_current_position();
+void report_current_position_projected();
 
 void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
@@ -179,7 +224,11 @@ void sync_plan_position_e();
  */
 void line_to_current_position(const feedRate_t &fr_mm_s=feedrate_mm_s);
 
-void prepare_move_to_destination();
+#if EXTRUDERS
+  void unscaled_e_move(const float &length, const feedRate_t &fr_mm_s);
+#endif
+
+void prepare_line_to_destination();
 
 void _internal_move_to_destination(const feedRate_t &fr_mm_s=0.0f
   #if IS_KINEMATIC
@@ -224,24 +273,22 @@ void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
+void do_z_clearance(const float &zclear, const bool z_known=true, const bool raise_on_unknown=true, const bool lower_allowed=false);
+
 //
 // Homing
 //
-
-uint8_t axes_need_homing(uint8_t axis_bits=0x07);
-bool axis_unhomed_error(uint8_t axis_bits=0x07);
+void homeaxis(const AxisEnum axis);
+void set_axis_is_at_home(const AxisEnum axis);
+void set_axis_never_homed(const AxisEnum axis);
+uint8_t axes_should_home(uint8_t axis_bits=0x07);
+bool homing_needed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
 #else
   #define MOTION_CONDITIONS IsRunning()
 #endif
-
-void set_axis_is_at_home(const AxisEnum axis);
-
-void set_axis_is_not_at_home(const AxisEnum axis);
-
-void homeaxis(const AxisEnum axis);
 
 /**
  * Workspace offsets
@@ -291,6 +338,7 @@ void homeaxis(const AxisEnum axis);
  */
 
 #if IS_KINEMATIC // (DELTA or SCARA)
+
   #if HAS_SCARA_OFFSET
     extern abc_pos_t scara_home_offset; // A and B angular offsets, Z mm offset
   #endif
@@ -298,7 +346,7 @@ void homeaxis(const AxisEnum axis);
   // Return true if the given point is within the printable area
   inline bool position_is_reachable(const float &rx, const float &ry, const float inset=0) {
     #if ENABLED(DELTA)
-      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + slop);
+      return HYPOT2(rx, ry) <= sq(DELTA_PRINTABLE_RADIUS - inset + fslop);
     #elif IS_SCARA
       const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
       return (
@@ -314,52 +362,23 @@ void homeaxis(const AxisEnum axis);
     return position_is_reachable(pos.x, pos.y, inset);
   }
 
-  #if HAS_BED_PROBE
-    // Return true if the both nozzle and the probe can reach the given point.
-    // Note: This won't work on SCARA since the probe offset rotates with the arm.
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
-             && position_is_reachable(rx, ry, ABS(MIN_PROBE_EDGE));
-    }
-  #endif
-
 #else // CARTESIAN
 
   // Return true if the given position is within the machine bounds.
   inline bool position_is_reachable(const float &rx, const float &ry) {
-    if (!WITHIN(ry, Y_MIN_POS - slop, Y_MAX_POS + slop)) return false;
+    if (!WITHIN(ry, Y_MIN_POS - fslop, Y_MAX_POS + fslop)) return false;
     #if ENABLED(DUAL_X_CARRIAGE)
       if (active_extruder)
-        return WITHIN(rx, X2_MIN_POS - slop, X2_MAX_POS + slop);
+        return WITHIN(rx, X2_MIN_POS - fslop, X2_MAX_POS + fslop);
       else
-        return WITHIN(rx, X1_MIN_POS - slop, X1_MAX_POS + slop);
+        return WITHIN(rx, X1_MIN_POS - fslop, X1_MAX_POS + fslop);
     #else
-      return WITHIN(rx, X_MIN_POS - slop, X_MAX_POS + slop);
+      return WITHIN(rx, X_MIN_POS - fslop, X_MAX_POS + fslop);
     #endif
   }
   inline bool position_is_reachable(const xy_pos_t &pos) { return position_is_reachable(pos.x, pos.y); }
 
-  #if HAS_BED_PROBE
-    /**
-     * Return whether the given position is within the bed, and whether the nozzle
-     * can reach the position required to put the probe at the given position.
-     *
-     * Example: For a probe offset of -10,+10, then for the probe to reach 0,0 the
-     *          nozzle must be be able to reach +10,-10.
-     */
-    inline bool position_is_reachable_by_probe(const float &rx, const float &ry) {
-      return position_is_reachable(rx - probe_offset.x, ry - probe_offset.y)
-          && WITHIN(rx, probe_min_x() - slop, probe_max_x() + slop)
-          && WITHIN(ry, probe_min_y() - slop, probe_max_y() + slop);
-    }
-  #endif
-
 #endif // CARTESIAN
-
-#if !HAS_BED_PROBE
-  FORCE_INLINE bool position_is_reachable_by_probe(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
-#endif
-FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return position_is_reachable_by_probe(pos.x, pos.y); }
 
 /**
  * Duplication mode
@@ -394,18 +413,26 @@ FORCE_INLINE bool position_is_reachable_by_probe(const xy_pos_t &pos) { return p
 
   FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
-  float x_home_pos(const int extruder);
+  float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
-#elif ENABLED(MULTI_NOZZLE_DUPLICATION)
+#else
 
-  enum DualXMode : char {
-    DXC_DUPLICATION_MODE = 2
-  };
+  #if ENABLED(MULTI_NOZZLE_DUPLICATION)
+    enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+  #endif
+
+  FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
 
 #endif
 
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
+#endif
+
+#if USE_SENSORLESS
+  struct sensorless_t;
+  sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
+  void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -45,7 +45,7 @@ enum PauseMode : char {
 };
 
 enum PauseMessage : char {
-  PAUSE_MESSAGE_PAUSING,
+  PAUSE_MESSAGE_PARKING,
   PAUSE_MESSAGE_CHANGING,
   PAUSE_MESSAGE_WAITING,
   PAUSE_MESSAGE_UNLOAD,
@@ -59,14 +59,15 @@ enum PauseMessage : char {
   PAUSE_MESSAGE_HEATING
 };
 
-enum PauseMenuResponse : char {
-  PAUSE_RESPONSE_WAIT_FOR,
-  PAUSE_RESPONSE_EXTRUDE_MORE,
-  PAUSE_RESPONSE_RESUME_PRINT
-};
-
-extern PauseMode pause_mode;
-extern PauseMenuResponse pause_menu_response;
+#if HAS_LCD_MENU
+  enum PauseMenuResponse : char {
+    PAUSE_RESPONSE_WAIT_FOR,
+    PAUSE_RESPONSE_EXTRUDE_MORE,
+    PAUSE_RESPONSE_RESUME_PRINT
+  };
+  extern PauseMenuResponse pause_menu_response;
+  extern PauseMode pause_mode;
+#endif
 
 extern fil_change_settings_t fc_settings[EXTRUDERS];
 
@@ -76,19 +77,19 @@ extern uint8_t did_pause_print;
   #define DXC_PARAMS , const int8_t DXC_ext=-1
   #define DXC_ARGS   , const int8_t DXC_ext
   #define DXC_PASS   , DXC_ext
+  #define DXC_SAY    , " dxc:", int(DXC_ext)
 #else
   #define DXC_PARAMS
   #define DXC_ARGS
   #define DXC_PASS
+  #define DXC_SAY
 #endif
-
-void do_pause_e_move(const float &length, const feedRate_t &fr_mm_s);
 
 bool pause_print(const float &retract, const xyz_pos_t &park_point, const float &unload_length=0, const bool show_lcd=false DXC_PARAMS);
 
 void wait_for_confirmation(const bool is_reload=false, const int8_t max_beep_count=0 DXC_PARAMS);
 
-void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0 DXC_PARAMS);
+void resume_print(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=ADVANCED_PAUSE_PURGE_LENGTH, const int8_t max_beep_count=0, int16_t targetTemp=0 DXC_PARAMS);
 
 bool load_filament(const float &slow_load_length=0, const float &fast_load_length=0, const float &extrude_length=0, const int8_t max_beep_count=0, const bool show_lcd=false,
                           const bool pause_for_user=false, const PauseMode mode=PAUSE_MODE_PAUSE_PRINT DXC_PARAMS);

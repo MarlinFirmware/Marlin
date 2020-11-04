@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,9 +25,12 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "../../gcode.h"
-#include "../../../feature/power_loss_recovery.h"
+#include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extui/ui_api.h"
+#endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 #include "../../../core/debug_out.h"
@@ -38,11 +41,15 @@ inline void plr_error(PGM_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
     serialprintPGM(prefix);
-    DEBUG_ECHOLNPGM(" Power-Loss Recovery Data");
+    DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);
   #endif
 }
+
+#if HAS_LCD_MENU
+  void lcd_power_loss_recovery_cancel();
+#endif
 
 /**
  * M1000: Resume from power-loss (undocumented)
@@ -55,9 +62,21 @@ void GcodeSuite::M1000() {
     if (parser.seen('S')) {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
+      #elif ENABLED(DWIN_CREALITY_LCD)
+        recovery.dwin_flag = true;
+      #elif ENABLED(EXTENSIBLE_UI)
+        ExtUI::onPowerLossResume();
       #else
         SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif
+    }
+    else if (parser.seen('C')) {
+      #if HAS_LCD_MENU
+        lcd_power_loss_recovery_cancel();
+      #else
+        recovery.cancel();
+      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     }
     else
       recovery.resume();

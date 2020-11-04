@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 /* What follows is a modified version of the MAX3421e originally defined in
@@ -90,7 +90,7 @@ uint8_t* MAX3421e::bytesRd(uint8_t reg, uint8_t nbytes, uint8_t* data_p) {
 
 // GPIN pins are in high nybbles of IOPINS1, IOPINS2
 uint8_t MAX3421e::gpioRd() {
-  return (regRd(rIOPINS2) & 0xf0) | // pins 4-7, clean lower nybble
+  return (regRd(rIOPINS2) & 0xF0) | // pins 4-7, clean lower nybble
          (regRd(rIOPINS1)   >> 4);  // shift low bits and OR with upper from previous operation.
 }
 

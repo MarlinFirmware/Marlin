@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -39,7 +39,7 @@
 
 /**
  * mostly from Microsoft document fatgen103.doc
- * http://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
+ * https://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
  */
 
 uint8_t const BOOTSIG0 = 0x55,          // Value for byte 510 of boot block or MBR
@@ -128,7 +128,6 @@ typedef struct masterBootRecord mbr_t;
  * \struct fat_boot
  *
  * \brief Boot sector for a FAT12/FAT16 volume.
- *
  */
 struct fat_boot {
   /**
@@ -409,7 +408,6 @@ uint32_t const FSINFO_LEAD_SIG   = 0x41615252,  // 'AaRR' Lead signature for a F
  * \struct fat32_fsinfo
  *
  * \brief FSINFO sector for a FAT32 volume.
- *
  */
 struct fat32_fsinfo {
   uint32_t  leadSignature;    // must be 0x52, 0x52, 0x61, 0x41 'RRaA'

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -65,8 +65,8 @@
 /**
  * Teensy++ 2.0 Breadboard pin assignments (AT90USB1286)
  * Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
- * http://www.pjrc.com/teensy/teensyduino.html
- * See http://reprap.org/wiki/Printrboard for more info
+ * https://www.pjrc.com/teensy/teensyduino.html
+ * See https://reprap.org/wiki/Printrboard for more info
  *
  * CLI build: HARDWARE_MOTHERBOARD=84 make
  *
@@ -107,7 +107,7 @@
  *       E DIR   35 a7  a3 31 Y DIR
  */
 
-#ifndef __AVR_AT90USB1286__
+#if NOT_TARGET(__AVR_AT90USB1286__)
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
@@ -116,70 +116,73 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN          2   // D2
-#define Y_STOP_PIN          3   // D3
-#define Z_STOP_PIN          4   // D4
+#define X_STOP_PIN                             2  // D2
+#define Y_STOP_PIN                             3  // D3
+#define Z_STOP_PIN                             4  // D4
 
 //
 // Steppers
 //
-#define X_STEP_PIN         28   // A0 Marlin
-#define X_DIR_PIN          29   // A1 Marlin
-#define X_ENABLE_PIN       26   // B6
+#define X_STEP_PIN                            28  // A0 Marlin
+#define X_DIR_PIN                             29  // A1 Marlin
+#define X_ENABLE_PIN                          26  // B6
 
-#define Y_STEP_PIN         30   // A2 Marlin
-#define Y_DIR_PIN          31   // A3
-#define Y_ENABLE_PIN       26   // B6 Shared w/x
+#define Y_STEP_PIN                            30  // A2 Marlin
+#define Y_DIR_PIN                             31  // A3
+#define Y_ENABLE_PIN                          26  // B6 Shared w/x
 
-#define Z_STEP_PIN         32   // A4
-#define Z_DIR_PIN          33   // A5
-#define Z_ENABLE_PIN       26   // B6 Shared w/x
+#define Z_STEP_PIN                            32  // A4
+#define Z_DIR_PIN                             33  // A5
+#define Z_ENABLE_PIN                          26  // B6 Shared w/x
 
-#define E0_STEP_PIN        34   // A6
-#define E0_DIR_PIN         35   // A7
-#define E0_ENABLE_PIN      26   // B6 Shared w/x
+#define E0_STEP_PIN                           34  // A6
+#define E0_DIR_PIN                            35  // A7
+#define E0_ENABLE_PIN                         26  // B6 Shared w/x
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // F7 Analog Input (Extruder)
-#define TEMP_BED_PIN        6   // F6 Analog Input (Bed)
+#define TEMP_0_PIN                             7  // F7 Analog Input (Extruder)
+#define TEMP_BED_PIN                           6  // F6 Analog Input (Bed)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN       15   // C5 PWM3B  Extruder
-#define HEATER_BED_PIN     14   // C4 PWM3C
+#define HEATER_0_PIN                          15  // C5 PWM3B  Extruder
+#define HEATER_BED_PIN                        14  // C4 PWM3C
 #ifndef FAN_PIN
-  #define FAN_PIN          16   // C6 PWM3A  Fan
+  #define FAN_PIN                             16  // C6 PWM3A  Fan
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               20   // B0
-#define LED_PIN             6   // D6
-#define PS_ON_PIN          27   // B7
-#define CASE_LIGHT_PIN      1   // D1 PWM2B  MUST BE HARDWARE PWM
+#define SDSS                                  20  // B0
+#define LED_PIN                                6  // D6
+#define PS_ON_PIN                             27  // B7
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                       1  // D1 PWM2B  MUST BE HARDWARE PWM
+#endif
 
 //
 // LCD / Controller
 //
 #if ENABLED(ULTIPANEL)
-  #define LCD_PINS_RS       8   // E0
-  #define LCD_PINS_ENABLE   9   // E1
-  #define LCD_PINS_D4      10   // C0
-  #define LCD_PINS_D5      11   // C1
-  #define LCD_PINS_D6      12   // C2
-  #define LCD_PINS_D7      13   // C3
-  #define BTN_EN1          38   // F0
-  #define BTN_EN2          39   // F1
-  #define BTN_ENC          40   // F2
+  #define LCD_PINS_RS                          8  // E0
+  #define LCD_PINS_ENABLE                      9  // E1
+  #define LCD_PINS_D4                         10  // C0
+  #define LCD_PINS_D5                         11  // C1
+  #define LCD_PINS_D6                         12  // C2
+  #define LCD_PINS_D7                         13  // C3
+  #define BTN_EN1                             38  // F0
+  #define BTN_EN2                             39  // F1
+  #define BTN_ENC                             40  // F2
 #endif
 
 //
 // M3/M4/M5 - Spindle/Laser Control
 //
-#define SPINDLE_LASER_ENA_PIN     5   // D5  Pin should have a pullup!
-#define SPINDLE_LASER_PWM_PIN     0   // D0 PWM0B   MUST BE HARDWARE PWM
-#define SPINDLE_DIR_PIN           7   // D7
+#define SPINDLE_LASER_ENA_PIN                  5  // D5  Pin should have a pullup!
+#define SPINDLE_LASER_PWM_PIN                  0  // D0 PWM0B   MUST BE HARDWARE PWM
+#define SPINDLE_DIR_PIN                        7  // D7

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,10 +28,10 @@
 #define BOARD_INFO_NAME      "Formbot Raptor2"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#define FAN_PIN             6
+#define FAN_PIN                                6
 
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN   22
+  #define FIL_RUNOUT_PIN                      22
 #endif
 
 #include "pins_FORMBOT_RAPTOR.h"
@@ -42,22 +42,22 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !PIN_EXISTS(SPINDLE_LASER_ENA)
-  #if !NUM_SERVOS                       // Try to use servo connector first
-    #define SPINDLE_LASER_ENA_PIN     6 // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN     4 // Hardware PWM
-    #define SPINDLE_DIR_PIN           5
-  #elif !GREEDY_PANEL                   // Try to use AUX2
-    #define SPINDLE_LASER_ENA_PIN     4 // Pullup or pulldown!
-    #define SPINDLE_LASER_PWM_PIN    44 // Hardware PWM
-    #define SPINDLE_DIR_PIN          65
+  #if !NUM_SERVOS                                 // Try to use servo connector first
+    #define SPINDLE_LASER_ENA_PIN              6  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN              4  // Hardware PWM
+    #define SPINDLE_DIR_PIN                    5
+  #elif !GREEDY_PANEL                             // Try to use AUX2
+    #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
+    #define SPINDLE_LASER_PWM_PIN             44  // Hardware PWM
+    #define SPINDLE_DIR_PIN                   65
   #endif
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !PIN_EXISTS(CASE_LIGHT)
-  #if NUM_SERVOS <= 1                   // Try to use servo connector first
-    #define CASE_LIGHT_PIN  6           // Hardware PWM
-  #elif !GREEDY_PANEL                   // Try to use AUX2
-    #define CASE_LIGHT_PIN 44           // Hardware PWM
+  #if NUM_SERVOS <= 1                             // Try to use servo connector first
+    #define CASE_LIGHT_PIN                     6  // Hardware PWM
+  #elif !GREEDY_PANEL                             // Try to use AUX2
+    #define CASE_LIGHT_PIN                    44  // Hardware PWM
   #endif
 #endif
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,10 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+#if !defined(__has_include)
+  #define __has_include(...) 1
+#endif
 
 #define ABCE 4
 #define XYZE 4
@@ -29,12 +33,23 @@
 
 #define _AXIS(A) (A##_AXIS)
 
-#define _XMIN_ 100
-#define _YMIN_ 200
-#define _ZMIN_ 300
-#define _XMAX_ 101
-#define _YMAX_ 201
-#define _ZMAX_ 301
+#define _XMIN_   100
+#define _YMIN_   200
+#define _ZMIN_   300
+#define _XMAX_   101
+#define _YMAX_   201
+#define _ZMAX_   301
+#define _XDIAG_  102
+#define _YDIAG_  202
+#define _ZDIAG_  302
+#define _E0DIAG_ 400
+#define _E1DIAG_ 401
+#define _E2DIAG_ 402
+#define _E3DIAG_ 403
+#define _E4DIAG_ 404
+#define _E5DIAG_ 405
+#define _E6DIAG_ 406
+#define _E7DIAG_ 407
 
 #define _FORCE_INLINE_ __attribute__((__always_inline__)) __inline__
 #define  FORCE_INLINE  __attribute__((always_inline)) inline
@@ -61,13 +76,6 @@
 // Nanoseconds per cycle
 #define NANOSECONDS_PER_CYCLE (1000000000.0 / F_CPU)
 
-// Macros to make sprintf_P read from PROGMEM (AVR extension)
-#ifdef __AVR__
-  #define S_FMT "%S"
-#else
-  #define S_FMT "%s"
-#endif
-
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -89,12 +97,15 @@
   #define CBI(A,B) (A &= ~(1 << (B)))
 #endif
 
+#define TBI(N,B) (N ^= _BV(B))
+
 #define _BV32(b) (1UL << (b))
 #define TEST32(n,b) !!((n)&_BV32(b))
 #define SBI32(n,b) (n |= _BV32(b))
 #define CBI32(n,b) (n &= ~_BV32(b))
+#define TBI32(N,B) (N ^= _BV32(B))
 
-#define cu(x)      ((x)*(x)*(x))
+#define cu(x)      ({__typeof__(x) _x = (x); (_x)*(_x)*(_x);})
 #define RADIANS(d) ((d)*float(M_PI)/180.0f)
 #define DEGREES(r) ((r)*180.0f/float(M_PI))
 #define HYPOT2(x,y) (sq(x)+sq(y))
@@ -102,7 +113,7 @@
 #define CIRCLE_AREA(R) (float(M_PI) * sq(float(R)))
 #define CIRCLE_CIRC(R) (2 * float(M_PI) * float(R))
 
-#define SIGN(a) ((a>0)-(a<0))
+#define SIGN(a) ({__typeof__(a) _a = (a); (_a>0)-(_a<0);})
 #define IS_POWER_OF_2(x) ((x) && !((x) & ((x) - 1)))
 
 // Macros to constrain values
@@ -122,8 +133,6 @@
 
 #else
 
-  // Using GCC extensions, but Travis GCC version does not like it and gives
-  //  "error: statement-expressions are not allowed outside functions nor in template-argument lists"
   #define NOLESS(v, n) \
     do{ \
       __typeof__(n) _n = (n); \
@@ -166,17 +175,25 @@
 // Macros to support option testing
 #define _CAT(a,V...) a##V
 #define CAT(a,V...) _CAT(a,V)
-#define SWITCH_ENABLED_false 0
-#define SWITCH_ENABLED_true  1
-#define SWITCH_ENABLED_0     0
-#define SWITCH_ENABLED_1     1
-#define SWITCH_ENABLED_0x0   0
-#define SWITCH_ENABLED_0x1   1
-#define SWITCH_ENABLED_      1
-#define _ENA_1(O)           _CAT(SWITCH_ENABLED_, O)
-#define _DIS_1(O)           !_ENA_1(O)
+
+#define _ISENA_     ~,1
+#define _ISENA_1    ~,1
+#define _ISENA_0x1  ~,1
+#define _ISENA_true ~,1
+#define _ISENA(V...)        IS_PROBE(V)
+
+#define _ENA_1(O)           _ISENA(CAT(_IS,CAT(ENA_, O)))
+#define _DIS_1(O)           NOT(_ENA_1(O))
 #define ENABLED(V...)       DO(ENA,&&,V)
 #define DISABLED(V...)      DO(DIS,&&,V)
+
+#define TERN(O,A,B)         _TERN(_ENA_1(O),B,A)    // OPTION converted to '0' or '1'
+#define TERN0(O,A)          _TERN(_ENA_1(O),0,A)    // OPTION converted to A or '0'
+#define TERN1(O,A)          _TERN(_ENA_1(O),1,A)    // OPTION converted to A or '1'
+#define TERN_(O,A)          _TERN(_ENA_1(O),,A)     // OPTION converted to A or '<nul>'
+#define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
+#define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
+#define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
 
 #define ANY(V...)          !DISABLED(V)
 #define NONE(V...)          DISABLED(V)
@@ -185,17 +202,20 @@
 #define EITHER(V1,V2)       ANY(V1,V2)
 
 // Macros to support pins/buttons exist testing
-#define _PINEX_1(PN)        (defined(PN##_PIN) && PN##_PIN >= 0)
-#define PIN_EXISTS(V...)    DO(PINEX,&&,V)
+#define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
+#define _PINEX_1            PIN_EXISTS
+#define PINS_EXIST(V...)    DO(PINEX,&&,V)
 #define ANY_PIN(V...)       DO(PINEX,||,V)
 
-#define _BTNEX_1(BN)        (defined(BTN_##BN) && BTN_##BN >= 0)
-#define BUTTON_EXISTS(V...) DO(BTNEX,&&,V)
+#define BUTTON_EXISTS(BN)   (defined(BTN_##BN) && BTN_##BN >= 0)
+#define _BTNEX_1            BUTTON_EXISTS
+#define BUTTONS_EXIST(V...) DO(BTNEX,&&,V)
 #define ANY_BUTTON(V...)    DO(BTNEX,||,V)
 
 #define WITHIN(N,L,H)       ((N) >= (L) && (N) <= (H))
 #define NUMERIC(a)          WITHIN(a, '0', '9')
 #define DECIMAL(a)          (NUMERIC(a) || a == '.')
+#define HEXCHR(a)           (NUMERIC(a) ? (a) - '0' : WITHIN(a, 'a', 'f') ? ((a) - 'a' + 10)  : WITHIN(a, 'A', 'F') ? ((a) - 'A' + 10) : -1)
 #define NUMERIC_SIGNED(a)   (NUMERIC(a) || (a) == '-' || (a) == '+')
 #define DECIMAL_SIGNED(a)   (DECIMAL(a) || (a) == '-' || (a) == '+')
 #define COUNT(a)            (sizeof(a)/sizeof(*a))
@@ -230,6 +250,11 @@
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
 
+#define LOOP_S_LE_N(VAR, S, N) for (uint8_t VAR=(S); VAR<=(N); VAR++)
+#define LOOP_S_L_N(VAR, S, N) for (uint8_t VAR=(S); VAR<(N); VAR++)
+#define LOOP_LE_N(VAR, N) LOOP_S_LE_N(VAR, 0, N)
+#define LOOP_L_N(VAR, N) LOOP_S_L_N(VAR, 0, N)
+
 #define NOOP (void(0))
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
@@ -246,7 +271,7 @@
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0 : (1 / float(x)))
-#define FIXFLOAT(f) (f + (f < 0 ? -0.00005f : 0.00005f))
+#define FIXFLOAT(f)  ({__typeof__(f) _f = (f); _f + (_f < 0 ? -0.0000005f : 0.0000005f);})
 
 //
 // Maths macros that can be overridden by HAL
@@ -261,12 +286,6 @@
 #define LROUND(x)   lroundf(x)
 #define FMOD(x, y)  fmodf(x, y)
 #define HYPOT(x,y)  SQRT(HYPOT2(x,y))
-
-#ifdef TARGET_LPC1768
-  #define I2C_ADDRESS(A) ((A) << 1)
-#else
-  #define I2C_ADDRESS(A) A
-#endif
 
 // Use NUM_ARGS(__VA_ARGS__) to get the number of variadic arguments
 #define _NUM_ARGS(_,Z,Y,X,W,V,U,T,S,R,Q,P,O,N,M,L,K,J,I,H,G,F,E,D,C,B,A,OUT,...) OUT
@@ -324,15 +343,22 @@
 #endif
 
 // Macros for adding
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
+#define INC_0   1
+#define INC_1   2
+#define INC_2   3
+#define INC_3   4
+#define INC_4   5
+#define INC_5   6
+#define INC_6   7
+#define INC_7   8
+#define INC_8   9
+#define INC_9  10
+#define INC_10 11
+#define INC_11 12
+#define INC_12 13
+#define INC_13 14
+#define INC_14 15
+#define INC_15 16
 #define INCREMENT_(n) INC_##n
 #define INCREMENT(n) INCREMENT_(n)
 
@@ -349,16 +375,22 @@
 #define ADD10(N) ADD5(ADD5(N))
 
 // Macros for subtracting
-#define DEC_0 0
-#define DEC_1 0
-#define DEC_2 1
-#define DEC_3 2
-#define DEC_4 3
-#define DEC_5 4
-#define DEC_6 5
-#define DEC_7 6
-#define DEC_8 7
-#define DEC_9 8
+#define DEC_0   0
+#define DEC_1   0
+#define DEC_2   1
+#define DEC_3   2
+#define DEC_4   3
+#define DEC_5   4
+#define DEC_6   5
+#define DEC_7   6
+#define DEC_8   7
+#define DEC_9   8
+#define DEC_10  9
+#define DEC_11 10
+#define DEC_12 11
+#define DEC_13 12
+#define DEC_14 13
+#define DEC_15 14
 #define DECREMENT_(n) DEC_##n
 #define DECREMENT(n) DECREMENT_(n)
 
@@ -377,8 +409,9 @@
 //
 // Primitives supporting precompiler REPEAT
 //
-#define FIRST(a,...)    a
-#define SECOND(a,b,...) b
+#define FIRST(a,...)     a
+#define SECOND(a,b,...)  b
+#define THIRD(a,b,c,...) c
 
 // Defer expansion
 #define EMPTY()
@@ -419,6 +452,12 @@
 #define HAS_ARGS(V...) _BOOL(FIRST(_END_OF_ARGUMENTS_ V)())
 #define _END_OF_ARGUMENTS_() 0
 
+
+// Simple Inline IF Macros, friendly to use in other macro definitions
+#define IF(O, A, B) ((O) ? (A) : (B))
+#define IF_0(O, A) IF(O, A, 0)
+#define IF_1(O, A) IF(O, A, 1)
+
 //
 // REPEAT core macros. Recurse N times with ascending I.
 //
@@ -446,3 +485,32 @@
 // Repeat a macro passing 0...N-1 plus additional arguments.
 #define REPEAT2_S(S,N,OP,V...)  EVAL(_REPEAT2(S,SUB##S(N),OP,V))
 #define REPEAT2(N,OP,V...)      REPEAT2_S(0,N,OP,V)
+
+// Use RREPEAT macros with REPEAT macros for nesting
+#define _RREPEAT(_RPT_I,_RPT_N,_RPT_OP)                           \
+  _RPT_OP(_RPT_I)                                                 \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP) )    \
+    ( /* Do nothing */ )
+#define __RREPEAT() _RREPEAT
+#define _RREPEAT2(_RPT_I,_RPT_N,_RPT_OP,V...)                     \
+  _RPT_OP(_RPT_I,V)                                               \
+  IF_ELSE(SUB1(_RPT_N))                                           \
+    ( DEFER2(__RREPEAT2)()(ADD1(_RPT_I),SUB1(_RPT_N),_RPT_OP,V) ) \
+    ( /* Do nothing */ )
+#define __RREPEAT2() _RREPEAT2
+#define RREPEAT_S(S,N,OP)        EVAL1024(_RREPEAT(S,SUB##S(N),OP))
+#define RREPEAT(N,OP)            RREPEAT_S(0,N,OP)
+#define RREPEAT2_S(S,N,OP,V...)  EVAL1024(_RREPEAT2(S,SUB##S(N),OP,V))
+#define RREPEAT2(N,OP,V...)      RREPEAT2_S(0,N,OP,V)
+
+// See https://github.com/swansontec/map-macro
+#define MAP_OUT
+#define MAP_END(...)
+#define MAP_GET_END() 0, MAP_END
+#define MAP_NEXT0(test, next, ...) next MAP_OUT
+#define MAP_NEXT1(test, next) MAP_NEXT0 (test, next, 0)
+#define MAP_NEXT(test, next)  MAP_NEXT1 (MAP_GET_END test, next)
+#define MAP0(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP1) (f, peek, __VA_ARGS__)
+#define MAP1(f, x, peek, ...) f(x) MAP_NEXT (peek, MAP0) (f, peek, __VA_ARGS__)
+#define MAP(f, ...) EVAL512 (MAP1 (f, __VA_ARGS__, (), 0))

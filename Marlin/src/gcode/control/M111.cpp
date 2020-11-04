@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,28 +28,25 @@
 void GcodeSuite::M111() {
   if (parser.seen('S')) marlin_debug_flags = parser.byteval('S');
 
-  static const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO,
-                    str_debug_2[] PROGMEM = MSG_DEBUG_INFO,
-                    str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS,
-                    str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN,
-                    str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION
-                    #if ENABLED(DEBUG_LEVELING_FEATURE)
-                      , str_debug_lvl[] PROGMEM = MSG_DEBUG_LEVELING
-                    #endif
-                    ;
+  static PGMSTR(str_debug_1, STR_DEBUG_ECHO);
+  static PGMSTR(str_debug_2, STR_DEBUG_INFO);
+  static PGMSTR(str_debug_4, STR_DEBUG_ERRORS);
+  static PGMSTR(str_debug_8, STR_DEBUG_DRYRUN);
+  static PGMSTR(str_debug_16, STR_DEBUG_COMMUNICATION);
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    static PGMSTR(str_debug_lvl, STR_DEBUG_LEVELING);
+  #endif
 
   static PGM_P const debug_strings[] PROGMEM = {
-    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      , str_debug_lvl
-    #endif
+    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
+    TERN_(DEBUG_LEVELING_FEATURE, str_debug_lvl)
   };
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPGM(MSG_DEBUG_PREFIX);
+  SERIAL_ECHOPGM(STR_DEBUG_PREFIX);
   if (marlin_debug_flags) {
     uint8_t comma = 0;
-    for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
+    LOOP_L_N(i, COUNT(debug_strings)) {
       if (TEST(marlin_debug_flags, i)) {
         if (comma++) SERIAL_CHAR(',');
         serialprintPGM((char*)pgm_read_ptr(&debug_strings[i]));
@@ -57,8 +54,8 @@ void GcodeSuite::M111() {
     }
   }
   else {
-    SERIAL_ECHOPGM(MSG_DEBUG_OFF);
-    #if !defined(__AVR__) || !defined(USBCON)
+    SERIAL_ECHOPGM(STR_DEBUG_OFF);
+    #if !IS_AT90USB
       #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
         SERIAL_ECHOPAIR("\nBuffer Overruns: ", MYSERIAL0.buffer_overruns());
       #endif
@@ -74,7 +71,7 @@ void GcodeSuite::M111() {
       #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
         SERIAL_ECHOPAIR("\nMax RX Queue Size: ", MYSERIAL0.rxMaxEnqueued());
       #endif
-    #endif //  !defined(__AVR__) || !defined(USBCON)
+    #endif // !IS_AT90USB
   }
   SERIAL_EOL();
 }

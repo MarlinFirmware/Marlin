@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,7 +55,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include "HAL_LCD_com_defines.h"
 
@@ -112,13 +112,14 @@ static const uint8_t u8g_dev_uc1701_mini12864_HAL_init_seq[] PROGMEM = {
   U8G_ESC_CS(1),              // enable chip
   UC1701_ALL_PIX(0),          // normal display
   U8G_ESC_CS(0),              // disable chip
+  U8G_ESC_DLY(150),           // delay 150 ms before sending any data
   U8G_ESC_END                 // end of sequence
 };
 
 static const uint8_t u8g_dev_uc1701_mini12864_HAL_data_start[] PROGMEM = {
   U8G_ESC_ADR(0),             // instruction mode
   U8G_ESC_CS(1),              // enable chip
-  #if ENABLED(MKS_MINI_12864)
+  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, FYSETC_MINI_12864)
     UC1701_START_LINE(0),     // set display start line to 0
     UC1701_ADC_REVERSE(0),    // ADC set to reverse
     UC1701_OUT_MODE(1),       // common output mode
@@ -209,4 +210,4 @@ u8g_pb_t u8g_dev_uc1701_mini12864_HAL_2x_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_sw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_SW_SPI_FN };
 u8g_dev_t u8g_dev_uc1701_mini12864_HAL_2x_hw_spi = { u8g_dev_uc1701_mini12864_HAL_2x_fn, &u8g_dev_uc1701_mini12864_HAL_2x_pb, U8G_COM_HAL_HW_SPI_FN };
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB

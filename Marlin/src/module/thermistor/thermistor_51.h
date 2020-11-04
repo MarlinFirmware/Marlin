@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
 // Verified by linagee.
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: Twice the resolution and better linearity from 150C to 200C
-const short temptable_51[][2] PROGMEM = {
+const temp_entry_t temptable_51[] PROGMEM = {
   { OV(   1), 350 },
   { OV( 190), 250 }, // top rating 250C
   { OV( 203), 245 },

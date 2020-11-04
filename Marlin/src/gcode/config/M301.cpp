@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,6 +29,8 @@
 
 /**
  * M301: Set PID parameters P I D (and optionally C, L)
+ *
+ *   E[extruder] Default: 0
  *
  *   P[float] Kp term
  *   I[float] Ki term (unscaled)
@@ -65,10 +67,11 @@ void GcodeSuite::M301() {
     #endif
 
     thermalManager.updatePID();
+
     SERIAL_ECHO_START();
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
-    #endif // PID_PARAMS_PER_HOTEND
+    #endif
     SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e),
                     " i:", unscalePID_i(PID_PARAM(Ki, e)),
                     " d:", unscalePID_d(PID_PARAM(Kd, e)));
@@ -82,7 +85,7 @@ void GcodeSuite::M301() {
     SERIAL_EOL();
   }
   else
-    SERIAL_ERROR_MSG(MSG_INVALID_EXTRUDER);
+    SERIAL_ERROR_MSG(STR_INVALID_EXTRUDER);
 }
 
 #endif // PIDTEMP

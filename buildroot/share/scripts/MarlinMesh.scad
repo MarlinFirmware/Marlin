@@ -10,17 +10,13 @@
  *                                      *
  \**************************************/
 
-//$t = 0.15; // comment out during animation
+$t = 0.15; // comment out during animation!
+X = 0; Y = 1;
+L = 0; R = 1; F = 2; B = 3;
 
 //
-// Mesh info and points
+// Sample Mesh - Replace with your own
 //
-
-mesh_width    = 200;   // X Size in mm of the probed area
-mesh_height   = 200;   // Y Size...
-zprobe_offset = 0;     // Added to the points
-NAN           = 0;     // Z to use for un-measured points
-
 measured_z = [
   [ -1.20, -1.13, -1.09, -1.03, -1.19 ],
   [ -1.16, -1.25, -1.27, -1.25, -1.08 ],
@@ -28,6 +24,28 @@ measured_z = [
   [ -1.09, -1.20, -1.26, -1.21, -1.18 ],
   [ -1.13, -0.99, -1.03, -1.06, -1.32 ]
 ];
+
+//
+// An offset to add to all points in the mesh
+//
+zadjust     = 0;
+
+//
+// Mesh characteristics
+//
+bed_size = [ 200, 200 ];
+
+mesh_inset  = [ 10, 10, 10, 10 ]; // L, F, R, B
+
+mesh_bounds = [
+  [ mesh_inset[L], mesh_inset[F] ],
+  [ bed_size[X] - mesh_inset[R], bed_size[Y] - mesh_inset[B] ]
+];
+
+mesh_size = mesh_bounds[1] - mesh_bounds[0];
+
+                      // NOTE: Marlin meshes already subtract the probe offset
+NAN         = 0;      // Z to use for un-measured points
 
 //
 // Geometry
@@ -45,6 +63,7 @@ alternation   = 2;     // direction change modulus (try it)
 
 show_plane    = true;
 show_labels   = true;
+show_coords   = true;
 arrow_length  = 5;
 
 label_font_lg = "Arial";
@@ -62,8 +81,8 @@ mean_value = (big_z + lil_z) / 2.0;
 mesh_points_y = len(measured_z);
 mesh_points_x = len(measured_z[0]);
 
-xspace = mesh_width / (mesh_points_x - 1);
-yspace = mesh_height / (mesh_points_y - 1);
+xspace = mesh_size[X] / (mesh_points_x - 1);
+yspace = mesh_size[Y] / (mesh_points_y - 1);
 
 // At $t=0 and $t=1 scale will be 100%
 z_scale_factor = min_z_scale + (($t > 0.5) ? 1.0 - $t : $t) * (max_z_scale - min_z_scale) * 2;
@@ -72,6 +91,8 @@ z_scale_factor = min_z_scale + (($t > 0.5) ? 1.0 - $t : $t) * (max_z_scale - min
 // Min and max recursive functions for 1D and 2D arrays
 // Return the smallest or largest value in the array
 //
+function some_1D(b,i) = (i<len(b)-1) ? (b[i] && some_1D(b,i+1)) : b[i] != 0;
+function some_2D(a,j) = (j<len(a)-1) ? some_2D(a,j+1) : some_1D(a[j], 0);
 function min_1D(b,i) = (i<len(b)-1) ? min(b[i], min_1D(b,i+1)) : b[i];
 function min_2D(a,j) = (j<len(a)-1) ? min_2D(a,j+1) : min_1D(a[j], 0);
 function max_1D(b,i) = (i<len(b)-1) ? max(b[i], max_1D(b,i+1)) : b[i];
@@ -98,36 +119,59 @@ function pos(x,y,z) = [x * xspace, y * yspace, z_scale_factor * (z - mean_value)
 //
 module point_markers(show_home=true) {
   // Mark the home position 0,0
-  color([0,0,0,0.25]) translate([1,1]) cylinder(r=1, h=z_scale_factor, center=true);
+  if (show_home)
+    translate([1,1]) color([0,0,0,0.25])
+      cylinder(r=1, h=z_scale_factor, center=true);
 
   for (x=[0:mesh_points_x-1], y=[0:mesh_points_y-1]) {
-    z = measured_z[y][x];
+    z = measured_z[y][x] - zadjust;
     down = z < mean_value;
-    translate(pos(x, y, z)) {
+    xyz = pos(x, y, z);
+    translate([ xyz[0], xyz[1] ]) {
 
-      // Label each point with the Z
-      if (show_labels) {
-        v = z - mean_value;
-
-        color(abs(v) < 0.1 ? [0,0.5,0] : [0.25,0,0])
-        translate([0,0,down?-10:10]) {
-
+      // Show the XY as well as the Z!
+      if (show_coords) {
+        color("black")
+        translate([0,0,0.5]) {
           $fn=8;
-          rotate([90,0])
-            text(str(z), 6, label_font_lg, halign="center", valign="center");
-
-          translate([0,0,down?-6:6]) rotate([90,0])
-            text(str(down ? "" : "+", v), 3, label_font_sm, halign="center", valign="center");
+          rotate([0,0]) {
+            posx = floor(mesh_bounds[0][X] + x * xspace);
+            posy = floor(mesh_bounds[0][Y] + y * yspace);
+            text(str(posx, ",", posy), 2, label_font_sm, halign="center", valign="center");
+          }
         }
       }
 
-      // Show an arrow pointing up or down
-      rotate([0, down ? 180 : 0]) translate([0,0,-1])
-        cylinder(
-          r1=0.5,
-          r2=0.1,
-          h=arrow_length, $fn=12, center=1
-        );
+      translate([ 0, 0, xyz[2] ]) {
+        // Label each point with the Z
+        v = z - mean_value;
+        if (show_labels) {
+
+          color(abs(v) < 0.1 ? [0,0.5,0] : [0.25,0,0])
+          translate([0,0,down?-10:10]) {
+
+            $fn=8;
+            rotate([90,0])
+              text(str(z), 6, label_font_lg, halign="center", valign="center");
+
+            if (v)
+              translate([0,0,down?-6:6]) rotate([90,0])
+                text(str(down || !v ? "" : "+", v), 3, label_font_sm, halign="center", valign="center");
+          }
+        }
+
+        // Show an arrow pointing up or down
+        if (v) {
+          rotate([0, down ? 180 : 0]) translate([0,0,-1])
+            cylinder(
+              r1=0.5,
+              r2=0.1,
+              h=arrow_length, $fn=12, center=1
+            );
+        }
+        else
+          color([1,0,1,0.4]) sphere(r=1.0, $fn=20, center=1);
+      }
     }
   }
 }
@@ -161,7 +205,7 @@ module tesselated_square(s, alt=false) {
  * The simplest mesh display
  */
 module simple_mesh(show_plane=show_plane) {
-  if (show_plane) color(plane_color) cube([mesh_width, mesh_height, thickness]);
+  if (show_plane) color(plane_color) cube([mesh_size[X], mesh_size[Y], thickness]);
   color(mesh_color)
     for (x=[0:mesh_points_x-2], y=[0:mesh_points_y-2])
       tesselated_square(grid_square(x, y));
@@ -171,30 +215,34 @@ module simple_mesh(show_plane=show_plane) {
  * Subdivide the mesh into smaller squares.
  */
 module bilinear_mesh(show_plane=show_plane,tesselation=tesselation) {
-  if (show_plane) color(plane_color) translate([-5,-5]) cube([mesh_width+10, mesh_height+10, thickness]);
-  tesselation = tesselation % 4;
-  color(mesh_color)
-  for (x=[0:mesh_points_x-2], y=[0:mesh_points_y-2]) {
-    square = grid_square(x, y);
-    if (tesselation < 1) {
-      tesselated_square(square,(x%alternation)-(y%alternation));
-    }
-    else {
-      subdiv_4 = subdivided_square(square);
-      if (tesselation < 2) {
-        for (i=[0:3]) tesselated_square(subdiv_4[i],i%alternation);
+  if (show_plane) color(plane_color) translate([-5,-5]) cube([mesh_size[X]+10, mesh_size[Y]+10, thickness]);
+
+  if (some_2D(measured_z, 0)) {
+
+    tesselation = tesselation % 4;
+    color(mesh_color)
+    for (x=[0:mesh_points_x-2], y=[0:mesh_points_y-2]) {
+      square = grid_square(x, y);
+      if (tesselation < 1) {
+        tesselated_square(square,(x%alternation)-(y%alternation));
       }
       else {
-        for (i=[0:3]) {
-          subdiv_16 = subdivided_square(subdiv_4[i]);
-          if (tesselation < 3) {
-            for (j=[0:3]) tesselated_square(subdiv_16[j],j%alternation);
-          }
-          else {
-            for (j=[0:3]) {
-              subdiv_64 = subdivided_square(subdiv_16[j]);
-              if (tesselation < 4) {
-                for (k=[0:3]) tesselated_square(subdiv_64[k]);
+        subdiv_4 = subdivided_square(square);
+        if (tesselation < 2) {
+          for (i=[0:3]) tesselated_square(subdiv_4[i],i%alternation);
+        }
+        else {
+          for (i=[0:3]) {
+            subdiv_16 = subdivided_square(subdiv_4[i]);
+            if (tesselation < 3) {
+              for (j=[0:3]) tesselated_square(subdiv_16[j],j%alternation);
+            }
+            else {
+              for (j=[0:3]) {
+                subdiv_64 = subdivided_square(subdiv_16[j]);
+                if (tesselation < 4) {
+                  for (k=[0:3]) tesselated_square(subdiv_64[k]);
+                }
               }
             }
           }
@@ -249,7 +297,7 @@ function subdivided_square(a) = [
 
 //================================================ Run the plan
 
-translate([-mesh_width / 2, -mesh_height / 2]) {
+translate([-mesh_size[X] / 2, -mesh_size[Y] / 2]) {
   $fn = 12;
   point_markers();
   bilinear_mesh();

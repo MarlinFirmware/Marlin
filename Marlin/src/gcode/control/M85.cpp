@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,18 +16,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for max_inactive_time
 
 /**
  * M85: Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
  */
 void GcodeSuite::M85() {
 
-  if (parser.seen('S')) max_inactive_time = parser.value_millis_from_seconds();
+  if (parser.seen('S')) {
+    reset_stepper_timeout();
+    max_inactive_time = parser.value_millis_from_seconds();
+  }
 
 }

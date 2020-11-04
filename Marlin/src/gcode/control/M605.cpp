@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -92,8 +92,10 @@
         case DXC_AUTO_PARK_MODE:
           break;
         case DXC_DUPLICATION_MODE:
-          if (parser.seen('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), X2_MIN_POS - x_home_pos(0));
+          // Set the X offset, but no less than the safety gap
+          if (parser.seen('X')) duplicate_extruder_x_offset = _MAX(parser.value_linear_units(), (X2_MIN_POS) - (X1_MIN_POS));
           if (parser.seen('R')) duplicate_extruder_temp_offset = parser.value_celsius_diff();
+          // Always switch back to tool 0
           if (active_extruder != 0) tool_change(0);
           break;
         default:
@@ -137,8 +139,8 @@
         DEBUG_EOL();
 
         HOTEND_LOOP() {
-          DEBUG_ECHOPAIR(" T", int(e));
-          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", int(e), "].", axis_codes[a] | 0x20, "=", hotend_offset[e][a]);
+          DEBUG_ECHOPAIR_P(SP_T_STR, int(e));
+          LOOP_XYZ(a) DEBUG_ECHOPAIR("  hotend_offset[", int(e), "].", XYZ_CHAR(a) | 0x20, "=", hotend_offset[e][a]);
           DEBUG_EOL();
         }
         DEBUG_EOL();
@@ -167,7 +169,7 @@
       extruder_duplication_enabled = ena && (duplication_e_mask >= 3);
     }
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_DUPLICATION_MODE);
+    SERIAL_ECHOPGM(STR_DUPLICATION_MODE);
     serialprint_onoff(extruder_duplication_enabled);
     if (ena) {
       SERIAL_ECHOPGM(" ( ");
