@@ -3004,6 +3004,14 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "AUTO_POWER_CONTROL requires PSU_CONTROL."
 #endif
 
+#if POWER_OFF_TIMEOUT > 0
+  #if DISABLED(AUTO_POWER_CONTROL)
+    #error "POWER_OFF_TIMEOUT requires AUTO_POWER_CONTROL"
+  #endif
+#elif POWER_OFF_TIMEOUT < 0
+  #error "POWER_OFF_TIMEOUT must be greater or equal 0"
+#endif
+
 #if HAS_CUTTER
   #ifndef CUTTER_POWER_UNIT
     #error "CUTTER_POWER_UNIT is required with a spindle or laser. Please update your Configuration_adv.h."
