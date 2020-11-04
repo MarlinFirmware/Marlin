@@ -33,6 +33,13 @@
 #include <libmaple/iwdg.h>
 #include "watchdog.h"
 
+/**
+ *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and
+ *  625 reload value (counts down to 0)
+ *  use 1250 for 8 seconds
+ */
+#define STM32F1_WD_RELOAD TERN(WATCHDOG_DURATION_8S, 1250, 625) // 4 or 8 second timeout
+
 void HAL_watchdog_refresh() {
   #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
     TOGGLE(LED_PIN);  // heartbeat indicator
