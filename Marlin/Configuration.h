@@ -338,8 +338,6 @@
   //#define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
   //#define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
 
-  //#define POWER_OFF_TIMEOUT 30    // (s) Delay for the shutoff of the PSU; for example used to let a cooling-fan run after print is finished
-
   //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
   #if ENABLED(AUTO_POWER_CONTROL)
     #define AUTO_POWER_FANS         // Turn on PSU if fans need power
@@ -349,6 +347,7 @@
     //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU over this temperature
     //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
     #define POWER_TIMEOUT 30
+    //#define POWER_OFF_TIMEOUT 30    // (s) Delay for the shutoff of the PSU; for example used to let a cooling-fan run after print is finished
   #endif
 #endif
 
