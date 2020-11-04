@@ -2098,6 +2098,8 @@
 // different pins/wiring (see pins_ANET_10.h).
 //
 //#define ANET_FULL_GRAPHICS_LCD
+// If your board is using the different pins/wiring, also uncomment this flag to enable that wiring
+//#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
 
 //
 // AZSMZ 12864 LCD with SD
