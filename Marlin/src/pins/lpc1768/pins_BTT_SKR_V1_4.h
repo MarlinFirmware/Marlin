@@ -234,7 +234,29 @@
  */
 #if HAS_WIRED_LCD
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
+    #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_4.h' for details. Comment out this line to continue."
 
+   /**
+    * 1. Cut the tab off the LCD connector so it can be plugged into the "EXP1" connector the other way.
+    * 2. Swap the LCD's +5V (Pin2) and GND (Pin1) wires. (This is the critical part!)
+    * 3. Rewire the CLK Signal (LCD Pin9) to LCD Pin7. (LCD Pin9 remains open because this pin is open drain.)
+    * 4. A wire is needed to connect the Reset switch at J3 (LCD Pin7) to EXP2 (Pin3) on the board.
+    *
+    * !!! If you are unsure, ask for help! Your motherboard may be damaged in some circumstances !!!
+    *
+    * The ANET_FULL_GRAPHICS_LCD connector plug:
+    *
+    *                  BEFORE                          AFTER
+    *                  _____                           _____
+    *           GND 1 | 1 2 |  2 5V              5V 1 | 1 2 |  2 GND
+    *            CS 3 | 3 4 |  4 BTN_EN2         CS 3 | 3 4 |  4 BTN_EN2
+    *           SID 5 | 5 6    6 BTN_EN1        SID 5 | 5 6    6 BTN_EN1
+    *          open 7 | 7 8 |  8 BTN_ENC        CLK 7 | 7 8 |  8 BTN_ENC
+    *           CLK 9 | 9 10| 10 Beeper        open 9 | 9 10| 10 Beeper
+    *                  -----                           -----
+    *                   LCD                             LCD
+    */
+    
     #define LCD_PINS_RS                    P1_23
 
     #define BTN_EN1                        P1_20
