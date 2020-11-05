@@ -177,6 +177,8 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
