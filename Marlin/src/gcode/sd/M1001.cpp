@@ -96,6 +96,8 @@ void GcodeSuite::M1001() {
     queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());
+
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());
 }

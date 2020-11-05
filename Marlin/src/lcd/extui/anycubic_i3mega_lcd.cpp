@@ -52,6 +52,11 @@ namespace ExtUI {
   void onFilamentRunout(const extruder_t extruder)   { AnycubicTFT.OnFilamentRunout(); }
   void onUserConfirmRequired(const char * const msg) { AnycubicTFT.OnUserConfirmRequired(msg); }
   void onStatusChanged(const char * const msg) {}
+
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
+
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
@@ -84,9 +89,14 @@ namespace ExtUI {
     // whether successful or not.
   }
 
-  void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-    // Called when any mesh points are updated
-  }
+  #if HAS_MESH
+
+    void onMeshLevelingStart() {}
+
+    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
+      // Called when any mesh points are updated
+    }
+  #endif
 
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {
@@ -99,6 +109,9 @@ namespace ExtUI {
       // Called for temperature PID tuning result
     }
   #endif
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // ANYCUBIC_LCD_I3MEGA

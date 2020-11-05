@@ -76,7 +76,12 @@ namespace ExtUI {
 
   void onStatusChanged(const char * const msg) { ScreenHandler.setstatusmessage(msg); }
 
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
+
   void onFactoryReset() {}
+
   void onStoreSettings(char *buff) {
     // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
     // permanent data to be stored, it can write up to eeprom_data_size bytes
@@ -108,6 +113,8 @@ namespace ExtUI {
   }
 
   #if HAS_MESH
+    void onMeshLevelingStart() {}
+
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
     }
@@ -146,5 +153,8 @@ namespace ExtUI {
     }
   #endif
 
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
+
 #endif // HAS_DGUS_LCD

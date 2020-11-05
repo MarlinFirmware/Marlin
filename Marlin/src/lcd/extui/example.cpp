@@ -47,9 +47,9 @@ namespace ExtUI {
   }
   void onIdle() {}
   void onPrinterKilled(PGM_P const error, PGM_P const component) {}
-  void onMediaInserted() {};
-  void onMediaError() {};
-  void onMediaRemoved() {};
+  void onMediaInserted() {}
+  void onMediaError() {}
+  void onMediaRemoved() {}
   void onPlayTone(const uint16_t frequency, const uint16_t duration) {}
   void onPrintTimerStarted() {}
   void onPrintTimerPaused() {}
@@ -57,6 +57,11 @@ namespace ExtUI {
   void onFilamentRunout(const extruder_t extruder) {}
   void onUserConfirmRequired(const char * const msg) {}
   void onStatusChanged(const char * const msg) {}
+
+  void onHomingStart() {}
+  void onHomingComplete() {}
+  void onPrintFinished() {}
+
   void onFactoryReset() {}
 
   void onStoreSettings(char *buff) {
@@ -90,6 +95,8 @@ namespace ExtUI {
   }
 
   #if HAS_MESH
+    void onMeshLevelingStart() {}
+
     void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
       // Called when any mesh points are updated
     }
@@ -110,6 +117,9 @@ namespace ExtUI {
       // Called for temperature PID tuning result
     }
   #endif
+
+  void onSteppersDisabled() {}
+  void onSteppersEnabled()  {}
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI
