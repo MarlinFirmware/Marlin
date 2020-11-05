@@ -128,6 +128,7 @@
     #define KILL_PIN_STATE                  true  // Enable MKSPWC PIN STATE
   #endif
 
+  #define FIL_RUNOUT_PIN                    PA4   // LVGL UI FILAMENT RUNOUT1 PIN
   #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
   #define MT_DET_2_PIN                      PE6   // LVGL UI FILAMENT RUNOUT2 PIN
   #define MT_DET_PIN_INVERTING             false  // LVGL UI filament RUNOUT PIN STATE
@@ -136,13 +137,14 @@
   #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
   #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
 #else
-  //#define POWER_LOSS_PIN                  PA2   // PW_DET
+  //#define POWER_LOSS_PIN                  PA2   // PW_DET - CAUTION!!!! Used for BLTRIG
   //#define PS_ON_PIN                       PB2   // PW_OFF
   #define FIL_RUNOUT_PIN                    PA4
   #define FIL_RUNOUT2_PIN                   PE6
 #endif
 
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH support
+#define BLTRIG                              PA2   // BLTouch Trigger
 
 //#define LED_PIN                           PB2
 
@@ -194,11 +196,11 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 
-  #define TFT_BUFFER_SIZE                  14400
+  #define TFT_BUFFER_SIZE                  4800
 #endif
 
 // XPT2046 Touch Screen calibration
-#if ANY(HAS_TFT_LVGL_UI_FSMC, TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_480x320)
+#if EITHER(HAS_TFT_LVGL_UI_FSMC, TFT_480x320)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          17880
   #endif
@@ -211,7 +213,20 @@
   #ifndef XPT2046_Y_OFFSET
    #define XPT2046_Y_OFFSET                  349
   #endif
-#elif EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_320x240)
+#elif ENABLED(TFT_CLASSIC_UI)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          12149
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          -8746
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -35
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 256
+  #endif
+#elif ENABLED(TFT_320x240)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -12246
   #endif
@@ -233,4 +248,37 @@
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
+#endif
+
+//#define MKS_WIFI
+
+#ifdef MKS_WIFI
+ #undef PLATFORM_M997_SUPPORT
+
+ #define MKS_WIFI_IO0                       PA8
+ #define MKS_WIFI_IO4                       PC7
+ #define MKS_WIFI_IO_RST                    PA5
+#endif
+
+#if HAS_TMC220x
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   */
+  //
+  // Software serial
+  //
+  #define X_SERIAL_TX_PIN                   PA6
+  #define X_SERIAL_RX_PIN                   PA1
+
+  #define Y_SERIAL_TX_PIN                   PA6
+  #define Y_SERIAL_RX_PIN                   PA1
+
+  #define Z_SERIAL_TX_PIN                   PA6
+  #define Z_SERIAL_RX_PIN                   PA1
+
+  #define E0_SERIAL_TX_PIN                  PA6
+  #define E0_SERIAL_RX_PIN                  PA1
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE 19200
 #endif

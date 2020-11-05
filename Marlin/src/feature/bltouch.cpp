@@ -93,7 +93,7 @@ void BLTouch::clear() {
 bool BLTouch::triggered() {
   return (
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING
+      READ(BLTRIG) != Z_MIN_ENDSTOP_INVERTING
     #else
       READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING
     #endif

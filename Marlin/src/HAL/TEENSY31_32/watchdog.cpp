@@ -27,11 +27,9 @@
 
 #include "watchdog.h"
 
-#define WDT_TIMEOUT_MS TERN(WATCHDOG_DURATION_8S, 8000, 4000) // 4 or 8 second timeout
-
 void watchdog_init() {
   WDOG_TOVALH = 0;
-  WDOG_TOVALL = WDT_TIMEOUT_MS;
+  WDOG_TOVALL = 4000;
   WDOG_STCTRLH = WDOG_STCTRLH_WDOGEN;
 }
 

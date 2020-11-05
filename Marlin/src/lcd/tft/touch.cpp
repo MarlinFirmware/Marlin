@@ -18,7 +18,7 @@
  */
 
 #include "../../inc/MarlinConfig.h"
-
+#define TOUCH_SCREEN
 #if ENABLED(TOUCH_SCREEN)
 
 #include "touch.h"

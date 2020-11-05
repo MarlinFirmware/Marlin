@@ -28,8 +28,6 @@
 #include <lpc17xx_wdt.h>
 #include "watchdog.h"
 
-#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
-
 void watchdog_init() {
   #if ENABLED(WATCHDOG_RESET_MANUAL)
     // We enable the watchdog timer, but only for the interrupt.
@@ -54,7 +52,7 @@ void watchdog_init() {
   #else
     WDT_Init(WDT_CLKSRC_IRC, WDT_MODE_RESET);
   #endif
-  WDT_Start(WDT_TIMEOUT_US);
+  WDT_Start(WDT_TIMEOUT);
 }
 
 void HAL_watchdog_refresh() {
