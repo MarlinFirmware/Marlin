@@ -30,9 +30,7 @@
 #if ENABLED(SPI_EEPROM)
 
 #include "eeprom_if.h"
-#define SPI_EEPROM
-#define SPI_CHAN_EEPROM1                       2
-#define SPI_EEPROM1_CS                        25  // PD0
+
 void eeprom_init() {}
 
 #if ENABLED(USE_SHARED_EEPROM)
