@@ -256,7 +256,7 @@
     *                  -----                           -----
     *                   LCD                             LCD
     */
-    
+
     #define LCD_PINS_RS                    P1_23
 
     #define BTN_EN1                        P1_20
