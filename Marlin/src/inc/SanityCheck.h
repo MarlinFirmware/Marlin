@@ -1382,9 +1382,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Unified Bed Leveling
    */
 
-  // Hide PROBE_MANUALLY from the rest of the code
-  #undef PROBE_MANUALLY
-
   #if IS_SCARA
     #error "AUTO_BED_LEVELING_UBL does not yet support SCARA printers."
   #elif DISABLED(EEPROM_SETTINGS)
@@ -1410,13 +1407,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #elif ENABLED(MESH_BED_LEVELING)
 
-  // Hide PROBE_MANUALLY from the rest of the code
-  #undef PROBE_MANUALLY
-
-  /**
-   * Mesh Bed Leveling
-   */
-
+  // Mesh Bed Leveling
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING is not compatible with DELTA printers."
   #elif GRID_MAX_POINTS_X > 9 || GRID_MAX_POINTS_Y > 9
