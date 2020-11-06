@@ -443,7 +443,7 @@ typedef struct SettingsDataStruct {
   // TOUCH_SCREEN_CALIBRATION
   //
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    touch_calibration_t touch_calibration;
+    touch_calibration_t touch_calibration_data;
   #endif
 
   // Ethernet settings
@@ -1410,7 +1410,7 @@ void MarlinSettings::postprocess() {
     // TOUCH_SCREEN_CALIBRATION
     //
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      EEPROM_WRITE(touch.calibration);
+      EEPROM_WRITE(touch_calibration.calibration);
     #endif
 
     //
@@ -2293,8 +2293,8 @@ void MarlinSettings::postprocess() {
       // TOUCH_SCREEN_CALIBRATION
       //
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        _FIELD_TEST(touch.calibration);
-        EEPROM_READ(touch.calibration);
+        _FIELD_TEST(touch_calibration_data);
+        EEPROM_READ(touch_calibration.calibration);
       #endif
 
       //
