@@ -730,7 +730,10 @@ void idle(TERN_(ADVANCED_PAUSE_FEATURE, bool no_stepper_sleep/*=false*/)) {
     if (endstops.tmc_spi_homing.any
       && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period))
     ) LOOP_L_N(i, 4) // Read SGT 4 times per idle loop
-        if (endstops.tmc_spi_homing_check()) break;
+        if (endstops.tmc_spi_homing_check()) {
+          TERN_(ENDSTOP_INTERRUPTS_FEATURE, endstops.update());
+          break;
+        }
   #endif
 
   // Handle SD Card insert / remove
