@@ -32,22 +32,6 @@
 #define TOUCH_LANDSCAPE         1
 #define TOUCH_PORTRAIT          2
 
-#if !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
-  #if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET)
-    #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
-    #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
-    #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
-    #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
-    #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
-  #else
-    #define TOUCH_CALIBRATION_X  0
-    #define TOUCH_CALIBRATION_Y  0
-    #define TOUCH_OFFSET_X       0
-    #define TOUCH_OFFSET_Y       0
-    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
-  #endif
-#endif
-
 #ifndef TOUCH_ORIENTATION
   #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
 #endif
