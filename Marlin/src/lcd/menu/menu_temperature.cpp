@@ -63,15 +63,14 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
-    #if HAS_HEATED_BED
-      inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
-    #endif
+    void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
   #endif
   #if HAS_HEATED_BED
     inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
   #endif
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
+    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
     #define PREHEAT_ITEMS(M,E) do{ \
@@ -85,10 +84,6 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
     #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_S(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_end(M, MenuItemBase::itemIndex); })
 
   #endif
-
-  void do_preheat_end_m() {
-    _preheat_end(editable.int8, 0);
-  }
 
   #if HAS_MULTI_HOTEND || HAS_HEATED_BED
 
