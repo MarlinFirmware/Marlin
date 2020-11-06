@@ -1002,7 +1002,6 @@
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #undef TOUCH_SCREEN_CALIBRATION
   #if !HAS_TFT_LVGL_UI
     #define HAS_TOUCH_XPT2046 1
   #endif
