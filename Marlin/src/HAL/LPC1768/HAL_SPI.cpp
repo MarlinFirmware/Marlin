@@ -263,8 +263,9 @@ uint16_t SPIClass::transfer16(const uint16_t data) {
 }
 
 void SPIClass::end() {
-  // SSP_Cmd(_currentSetting->spi_d, DISABLE);  // stop device or SSP_DeInit?
-  SSP_DeInit(_currentSetting->spi_d);
+  // Neither is needed for Marlin
+  //SSP_Cmd(_currentSetting->spi_d, DISABLE);
+  //SSP_DeInit(_currentSetting->spi_d);
 }
 
 void SPIClass::send(uint8_t data) {
@@ -356,8 +357,8 @@ void SPIClass::setDataSize(uint32_t ds) {
 void SPIClass::updateSettings() {
   //SSP_DeInit(_currentSetting->spi_d); //todo: need force de init?!
 
-  // divide PCLK by 2 for SSP0
-  CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
+  // Divide PCLK by 2 for SSP0
+  //CLKPWR_SetPCLKDiv(_currentSetting->spi_d == LPC_SSP0 ? CLKPWR_PCLKSEL_SSP0 : CLKPWR_PCLKSEL_SSP1, CLKPWR_PCLKSEL_CCLK_DIV_2);
 
   SSP_CFG_Type HW_SPI_init; // data structure to hold init values
   SSP_ConfigStructInit(&HW_SPI_init);  // set values for SPI mode

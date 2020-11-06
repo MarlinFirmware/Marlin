@@ -21,12 +21,12 @@
  */
 
 #if __GNUC__ > 8
-  // The NXP platform updated GCC from 7.2.1 to 9.2.1
-  // and this new warning apparently can be ignored.
   #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
 #endif
 
 /**
+ * sd/SdBaseFile.cpp
+ *
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
  *

@@ -43,6 +43,8 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX UINT16_MAX
 
+#define NUM_HARDWARE_TIMERS 2
+
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
 #endif
@@ -57,7 +59,8 @@
 
 // TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
-#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
+extern uint32_t GetStepperTimerClkFreq();
+#define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_RATE STEPPER_TIMER_RATE

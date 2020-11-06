@@ -103,7 +103,7 @@
 //
 #define CONTROLLER_FAN_PIN                  PD6   // BOARD FAN
 #define FAN_PIN                             PG13  // FAN
-#define FAN_PIN_2                           PG14
+#define FAN2_PIN                            PG14
 
 //
 // Misc
@@ -170,7 +170,7 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI, TFT_COLOR_UI)
+#if ANY(TFT_LVGL_UI, TFT_COLOR_UI, TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17181
   #endif
@@ -183,24 +183,11 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                  -9
   #endif
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -12316
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8981
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 340
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
-  #endif
 #endif
 
 // SPI1(PA7)=LCD & SPI3(PB5)=STUFF, are not available
 // so SPI2 is required.
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14
 #define MOSI_PIN                            PB15

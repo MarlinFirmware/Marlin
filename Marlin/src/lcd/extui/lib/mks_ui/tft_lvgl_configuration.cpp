@@ -43,7 +43,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
+#include HAL_PATH(../../../../HAL, tft/xpt2046.h)
 #include "../../../marlinui.h"
 XPT2046 touch;
 
@@ -99,7 +99,7 @@ void SysTick_Callback() {
       uiCfg.filament_unloading_time_cnt  = 0;
       uiCfg.filament_unloading_time_flg  = 0;
       uiCfg.filament_unloading_completed = 1;
-      uiCfg.filament_rate                = 100;
+      uiCfg.filament_rate = 100;
     }
   }
 }
@@ -116,24 +116,27 @@ void tft_lvgl_init() {
   ui_cfg_init();
   disp_language_init();
 
-  //init tft first!
+  watchdog_refresh();     // LVGL init takes time
+
+  // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
+  watchdog_refresh();     // LVGL init takes time
+
   //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
-    watchdog_refresh();
     UpdateAssets();
+    watchdog_refresh();   // LVGL init takes time
   #endif
 
-  watchdog_refresh();
   mks_test_get();
 
   touch.Init();
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, NULL, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -189,9 +192,11 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
+      ready = false;
       if (gCfgItems.from_flash_pic)
         flash_preview_begin = true;
       else
@@ -199,32 +204,28 @@ void tft_lvgl_init() {
 
       uiCfg.print_state = REPRINTING;
 
-      ZERO(public_buf_m);
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
-
       strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
       lv_draw_printing();
     }
-    else
   #endif
-    lv_draw_ready_print();
+
+  if (ready) lv_draw_ready_print();
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
-  uint16_t i, width, height;
-
-  width = area->x2 - area->x1 + 1;
-  height = area->y2 - area->y1 + 1;
+  uint16_t width = area->x2 - area->x1 + 1,
+          height = area->y2 - area->y1 + 1;
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
-  for (i = 0; i < height; i++) {
+
+  for (uint16_t i = 0; i < height; i++)
     SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
-  }
+
   lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -310,10 +311,9 @@ extern uint8_t currentFlashPage;
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
-  if (strcasecmp(last_path_name,path) != 0) {
+  if (strcasecmp(last_path_name, path) != 0) {
     pic_read_base_addr = lv_get_pic_addr((uint8_t *)path);
-    ZERO(last_path_name);
-    strcpy(last_path_name,path);
+    strcpy(last_path_name, path);
   }
   else {
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -362,11 +362,10 @@ uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   //cur_namefff = strrchr(path, '/');
   char name_buf[100];
-  ZERO(name_buf);
-  strcat(name_buf,"/");
-  strcat(name_buf,path);
-  char *temp = strstr(name_buf,".bin");
-  if (temp) { strcpy(temp,".GCO"); }
+  *name_buf = '/';
+  strcpy(name_buf + 1, path);
+  char *temp = strstr(name_buf, ".bin");
+  if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
   if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;

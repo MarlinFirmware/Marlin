@@ -365,6 +365,9 @@ class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
 };
 
 class TuneMenu : public BaseScreen, public CachedScreen<TUNE_SCREEN_CACHE> {
+  private:
+    static void pausePrint();
+    static void resumePrint();
   public:
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);

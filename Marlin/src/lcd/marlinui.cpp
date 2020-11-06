@@ -74,12 +74,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  bool MarlinUI::buzzer_enabled = true;
+#endif
+
 #if EITHER(PCA9632_BUZZER, USE_BEEPER)
   #include "../libs/buzzer.h" // for BUZZ() macro
   #if ENABLED(PCA9632_BUZZER)
     #include "../feature/leds/pca9632.h"
   #endif
   void MarlinUI::buzz(const long duration, const uint16_t freq) {
+    if (!buzzer_enabled) return;
     #if ENABLED(PCA9632_BUZZER)
       PCA9632_buzz(duration, freq);
     #elif USE_BEEPER
@@ -335,6 +340,10 @@ void MarlinUI::init() {
     #endif
     #if BUTTON_EXISTS(ENC)
       SET_INPUT_PULLUP(BTN_ENC);
+    #endif
+
+    #if BUTTON_EXISTS(ENC_EN)
+      SET_INPUT_PULLUP(BTN_ENC_EN);
     #endif
 
     #if BUTTON_EXISTS(BACK)
@@ -804,6 +813,14 @@ millis_t next_lcd_update_ms;
   millis_t MarlinUI::return_to_status_ms = 0;
 #endif
 
+inline bool can_encode() {
+  #if BUTTON_EXISTS(ENC_EN)
+    return !BUTTON_PRESSED(ENC_EN);  // Update position only when ENC_EN is HIGH
+  #else
+    return true;
+  #endif
+}
+
 void MarlinUI::update() {
 
   static uint16_t max_display_update_time = 0;
@@ -957,7 +974,8 @@ void MarlinUI::update() {
 
           #endif // ENCODER_RATE_MULTIPLIER
 
-          encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+          if (can_encode()) encoderPosition += (encoderDiff * encoderMultiplier) / epps;
+
           encoderDiff = 0;
         }
 
@@ -1175,7 +1193,7 @@ void MarlinUI::update() {
             if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
           #endif
           #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+            if (can_encode() && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
           #endif
           #if BUTTON_EXISTS(BACK)
             if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
