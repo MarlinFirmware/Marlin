@@ -19,7 +19,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if HAS_TOUCH_XPT2046
+#if HAS_TOUCH_BUTTONS
 
 #include "touch_buttons.h"
 #include "../scaled_tft.h"
@@ -87,4 +87,4 @@ uint8_t TouchButtons::read_buttons() {
   return 0;
 }
 
-#endif // HAS_TOUCH_XPT2046
+#endif // HAS_TOUCH_BUTTONS
