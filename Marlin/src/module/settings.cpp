@@ -146,7 +146,7 @@
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../lcd/tft/touch.h"
+  #include "../lcd/tft_io/touch_calibration.h"
 #endif
 
 #if HAS_ETHERNET
@@ -2626,7 +2626,7 @@ void MarlinSettings::reset() {
   //
   // TOUCH_SCREEN_CALIBRATION
   //
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
 
   //
   // Buzzer enable/disable

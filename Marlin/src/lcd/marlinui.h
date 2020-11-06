@@ -684,7 +684,7 @@ public:
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    static void touch_calibration();
+    static void touch_calibration_screen();
   #endif
 
   #if HAS_GRAPHICAL_TFT
