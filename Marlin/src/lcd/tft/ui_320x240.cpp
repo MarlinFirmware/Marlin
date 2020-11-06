@@ -584,15 +584,15 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // AUTO_BED_LEVELING_UBL
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  void MarlinUI::touch_calibration() {
+  void MarlinUI::touch_calibration_screen() {
     static uint16_t x, y;
 
-    calibrationState calibration_stage = touch.get_calibration_state();
+    calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
     if (calibration_stage == CALIBRATION_NONE) {
       defer_status_screen(true);
       clear_lcd();
-      calibration_stage = touch.calibration_start();
+      calibration_stage = touch_calibration.calibration_start();
     }
     else {
       tft.canvas(x - 15, y - 15, 31, 31);
@@ -604,10 +604,10 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       switch (calibration_stage) {
-        case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
-        case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
-        case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
-        case CALIBRATION_POINT_4: x = TFT_WIDTH  - 21; y = TFT_HEIGHT - 21; tft_string.set("Bottom Right"); break;
+        case CALIBRATION_TOP_LEFT: tft_string.set("Top Left"); break;
+        case CALIBRATION_BOTTOM_LEFT: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
+        case CALIBRATION_TOP_RIGHT: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
+        case CALIBRATION_BOTTOM_RIGHT: x = TFT_WIDTH  - 21; y = TFT_HEIGHT - 21; tft_string.set("Bottom Right"); break;
         default: break;
       }
 
@@ -621,7 +621,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
     else {
       tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? "Calibration Completed" : "Calibration Failed");
       defer_status_screen(false);
-      touch.calibration_end();
+      touch_calibration.calibration_end();
       touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     }
 
