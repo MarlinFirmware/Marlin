@@ -48,6 +48,10 @@
   #endif
 #endif
 
+#ifndef TOUCH_ORIENTATION
+  #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+#endif
+
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
 
 typedef struct __attribute__((__packed__)) {

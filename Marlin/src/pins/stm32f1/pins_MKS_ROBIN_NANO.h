@@ -199,30 +199,30 @@
 
 // XPT2046 Touch Screen calibration
 #if ANY(HAS_TFT_LVGL_UI_FSMC, TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_480x320)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          17880
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X          17880
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION         -12234
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y         -12234
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -45
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                 -45
   #endif
-  #ifndef XPT2046_Y_OFFSET
-   #define XPT2046_Y_OFFSET                  349
+  #ifndef TOUCH_OFFSET_Y
+   #define TOUCH_OFFSET_Y                  349
   #endif
 #elif EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_320x240)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -12246
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X         -12246
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           9453
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y           9453
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 360
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                 360
   #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -22
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                 -22
   #endif
 #endif
 

@@ -241,8 +241,8 @@ static bool get_point(int16_t *x, int16_t *y) {
   bool is_touched = touch.getRawPoint(x, y);
 
   if (is_touched) {
-    *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-    *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
+    *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+    *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
   }
 
   #if (TFT_ROTATION & TFT_ROTATE_180)
