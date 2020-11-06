@@ -42,12 +42,10 @@
 //
 // Disable I2S stepper stream
 //
-#ifdef I2S_STEPPER_STREAM
-  #undef I2S_STEPPER_STREAM
-#endif
-#define I2S_WS                                -1
-#define I2S_BCK                               -1
-#define I2S_DATA                              -1
+#undef I2S_STEPPER_STREAM
+#undef I2S_WS
+#undef I2S_BCK
+#undef I2S_DATA
 
 //
 // Limit Switches

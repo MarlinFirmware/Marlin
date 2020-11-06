@@ -44,7 +44,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   for (size_t i = 0; i < size; i++) {
     uint8_t c = EEPROM.read(pos++);
     if (writing) value[i] = c;

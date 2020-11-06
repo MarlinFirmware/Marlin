@@ -38,7 +38,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   }
 
     #ifdef TOUCH_UI_PORTRAIT
-      #if EITHER(CASE_LIGHT_ENABLE, SENSORLESS_HOMING)
+      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
         #define GRID_ROWS 8

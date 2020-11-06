@@ -36,9 +36,9 @@
 #include "endstops.h"
 
 #include "../gcode/gcode.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers, wait_for_user
+#include "../MarlinCore.h" // for stop(), disable_e_steppers
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"

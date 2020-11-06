@@ -22,28 +22,19 @@
 #pragma once
 
 #ifdef SKR_HAS_LPC1769
-  #ifndef MCU_LPC1769
+  #if NOT_TARGET(MCU_LPC1769)
     #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
   #endif
-#elif !defined(MCU_LPC1768)
+#elif NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Steppers
 //
-#ifndef E0_STEP_PIN
-  #define E0_STEP_PIN                      P2_13
-#endif
-#ifndef E0_DIR_PIN
-  #define E0_DIR_PIN                       P0_11
-#endif
-#ifndef E0_ENABLE_PIN
-  #define E0_ENABLE_PIN                    P2_12
-#endif  
 #ifndef E1_STEP_PIN
   #define E1_STEP_PIN                      P0_01
 #endif
@@ -70,7 +61,7 @@
 
 #if HOTENDS == 1
   #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN            TEMP_0_PIN
+    #define TEMP_PROBE_PIN            TEMP_1_PIN
   #elif TEMP_SENSOR_CHAMBER
     #define TEMP_CHAMBER_PIN          TEMP_1_PIN
   #endif
@@ -84,7 +75,11 @@
 #endif
 #if HOTENDS == 1
   #ifndef FAN1_PIN
-    #define FAN1_PIN                       P2_04  
+    #define FAN1_PIN                       P2_04
+  #endif
+#else
+  #ifndef HEATER_1_PIN
+    #define HEATER_1_PIN                   P2_04
   #endif
 #endif
 #ifndef FAN_PIN
@@ -97,7 +92,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
   #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
 #endif
 

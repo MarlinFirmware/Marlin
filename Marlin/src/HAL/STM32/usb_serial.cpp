@@ -21,7 +21,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
 
 #include "usb_serial.h"
 #include "../../feature/e_parser.h"

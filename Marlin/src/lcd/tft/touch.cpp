@@ -23,7 +23,7 @@
 
 #include "touch.h"
 
-#include "../ultralcd.h"  // for ui methods
+#include "../marlinui.h"  // for ui methods
 #include "../menu/menu_item.h" // for touch_screen_calibration
 
 #include "../../module/temperature.h"
@@ -35,28 +35,33 @@
 
 #include "tft.h"
 
+bool Touch::enabled = true;
 int16_t Touch::x, Touch::y;
 touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 uint16_t Touch::controls_count;
-millis_t Touch::now = 0;
-millis_t Touch::time_to_hold;
-millis_t Touch::repeat_delay;
-millis_t Touch::touch_time;
+millis_t Touch::last_touch_ms = 0,
+         Touch::time_to_hold,
+         Touch::repeat_delay,
+         Touch::touch_time;
 TouchControlType  Touch::touch_control_type = NONE;
 touch_calibration_t Touch::calibration;
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   calibrationState Touch::calibration_state = CALIBRATION_NONE;
   touch_calibration_point_t Touch::calibration_points[4];
 #endif
+#if HAS_RESUME_CONTINUE
+  extern bool wait_for_user;
+#endif
 
 void Touch::init() {
   calibration_reset();
   reset();
   io.Init();
+  enable();
 }
 
-void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data) {
+void Touch::add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data) {
   if (controls_count == MAX_CONTROLS) return;
 
   controls[controls_count].type = type;
@@ -72,24 +77,38 @@ void Touch::idle() {
   uint16_t i;
   int16_t _x, _y;
 
-  if (now == millis()) return;
-  now = millis();
+  if (!enabled) return;
+
+  // Return if Touch::idle is called within the same millisecond
+  const millis_t now = millis();
+  if (last_touch_ms == now) return;
+  last_touch_ms = now;
 
   if (get_point(&_x, &_y)) {
+    #if HAS_RESUME_CONTINUE
+      // UI is waiting for a click anywhere?
+      if (wait_for_user) {
+        touch_control_type = CLICK;
+        ui.lcd_clicked = true;
+        if (ui.external_control) wait_for_user = false;
+        return;
+      }
+    #endif
+
     #if LCD_TIMEOUT_TO_STATUS
-      ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
+      ui.return_to_status_ms = last_touch_ms + LCD_TIMEOUT_TO_STATUS;
     #endif
 
     if (touch_time) {
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        if (touch_control_type == NONE && ELAPSED(now, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+        if (touch_control_type == NONE && ELAPSED(last_touch_ms, touch_time + TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
           ui.goto_screen(touch_screen_calibration);
       #endif
       return;
     }
 
-    if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
-    if (PENDING(now, time_to_hold)) return;
+    if (time_to_hold == 0) time_to_hold = last_touch_ms + MINIMUM_HOLD_TIME;
+    if (PENDING(last_touch_ms, time_to_hold)) return;
 
     if (x != 0 && y != 0) {
       if (current_control) {
@@ -100,9 +119,8 @@ void Touch::idle() {
           NOMORE(y, current_control->y + current_control->height);
           touch(current_control);
         }
-        else {
-          current_control = NULL;
-        }
+        else
+          current_control = nullptr;
       }
       else {
         for (i = 0; i < controls_count; i++) {
@@ -114,15 +132,15 @@ void Touch::idle() {
         }
       }
 
-      if (current_control == NULL)
-        touch_time = now;
+      if (!current_control)
+        touch_time = last_touch_ms;
     }
     x = _x;
     y = _y;
   }
   else {
     x = y = 0;
-    current_control = NULL;
+    current_control = nullptr;
     touch_time = 0;
     touch_control_type = NONE;
     time_to_hold = 0;
@@ -170,12 +188,12 @@ void Touch::touch(touch_control_t *control) {
             }
 
             if (calibration_state == CALIBRATION_SUCCESS) {
-              SERIAL_ECHOLN("Touch screen calibration completed");
+              SERIAL_ECHOLNPGM("Touch screen calibration completed");
               SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_X ", calibration.x);
               SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
               SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
               SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
-              SERIAL_ECHO("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLN("TOUCH_LANDSCAPE"); else SERIAL_ECHOLN("TOUCH_PORTRAIT");
+              SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
             }
             break;
           default: break;
@@ -253,6 +271,13 @@ void Touch::touch(touch_control_t *control) {
       case UBL: hold(control, UBL_REPEAT_DELAY); ui.encoderPosition += control->data; break;
     #endif
 
+    case MOVE_AXIS:
+      ui.goto_screen((screenFunc_t)ui.move_axis_screen);
+      break;
+
+    // TODO: TOUCH could receive data to pass to the callback
+    case BUTTON: ((screenFunc_t)control->data)(); break;
+
     default: break;
   }
 }
@@ -261,7 +286,7 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
   current_control = control;
   if (delay) {
     repeat_delay = delay > MIN_REPEAT_DELAY ? delay : MIN_REPEAT_DELAY;
-    time_to_hold = now + repeat_delay;
+    time_to_hold = last_touch_ms + repeat_delay;
   }
   ui.refresh();
 }
@@ -281,7 +306,7 @@ bool MarlinUI::touch_pressed() {
   return touch.is_clicked();
 }
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled, uint16_t color_enabled, uint16_t color_disabled) {
   uint16_t width = Images[image].width;
   uint16_t height = Images[image].height;
   tft.canvas(x, y, width, height);

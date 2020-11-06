@@ -47,7 +47,7 @@
 
 #include "status_screen_lite_ST7920.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../fontutils.h"
 #include "../lcdprint.h"
 #include "../../libs/duration_t.h"

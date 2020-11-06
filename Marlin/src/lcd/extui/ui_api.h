@@ -297,6 +297,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
+  bool isPrintingPaused();
 
   void printFile(const char *filename);
   void stopPrint();

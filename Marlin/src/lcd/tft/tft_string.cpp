@@ -42,7 +42,7 @@ void TFT_String::set_font(const uint8_t *font) {
   font_header = (font_t *)font;
   uint32_t glyph;
 
-  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = NULL;
+  for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
 
   DEBUG_ECHOLNPAIR("Format: ", font_header->Format);
   DEBUG_ECHOLNPAIR("BBXWidth: ", font_header->BBXWidth);
@@ -111,6 +111,17 @@ void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
       continue;
     }
 
+    add_character(ch);
+  }
+  eol();
+}
+
+void TFT_String::add(uint8_t *string) {
+  wchar_t wchar;
+  while (*string) {
+    string = get_utf8_value_cb(string, read_byte, &wchar);
+    if (wchar > 255) wchar |= 0x0080;
+    uint8_t ch = uint8_t(wchar & 0x00FF);
     add_character(ch);
   }
   eol();

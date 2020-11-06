@@ -34,7 +34,6 @@
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
-#define ENABLE_SPI2
 
 //
 // Limit Switches
@@ -103,7 +102,7 @@
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PC1
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   -1
       #define LCD_PINS_D6                   -1
       #define LCD_PINS_D7                   -1
@@ -135,8 +134,12 @@
 //
 // SD Card
 //
-#define ENABLE_SPI2
 #define SD_DETECT_PIN                       PC10
+
+//
+// SPI
+//
+#define SPI_DEVICE                             2
 #define SCK_PIN                             PB13
 #define MISO_PIN                            P1B4
 #define MOSI_PIN                            P1B5

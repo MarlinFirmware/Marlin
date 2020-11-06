@@ -22,11 +22,8 @@
 #pragma once
 
 /**
- * \file
- * \brief FAT file structures
- */
-
-/**
+ * sd/SdFatStructs.h
+ *
  * Arduino SdFat Library
  * Copyright (c) 2009 by William Greiman
  *

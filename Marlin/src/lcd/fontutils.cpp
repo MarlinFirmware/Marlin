@@ -9,8 +9,8 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_SPI_LCD
-  #include "ultralcd.h"
+#if HAS_WIRED_LCD
+  #include "marlinui.h"
   #include "../MarlinCore.h"
 #endif
 

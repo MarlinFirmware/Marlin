@@ -11,9 +11,9 @@
 
 #if HAS_GRAPHICAL_LCD
 
-#include "ultralcd_DOGM.h"
+#include "marlinui_DOGM.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../MarlinCore.h"
 
 #include "../fontutils.h"

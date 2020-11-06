@@ -30,8 +30,8 @@
 #if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
 
 #include "dogm_Statusscreen.h"
-#include "ultralcd_DOGM.h"
-#include "../ultralcd.h"
+#include "marlinui_DOGM.h"
+#include "../marlinui.h"
 #include "../lcdprint.h"
 #include "../../libs/numtostr.h"
 
@@ -104,6 +104,9 @@
 
 #if DO_DRAW_HOTENDS
   #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+#endif
+
+#if EITHER(DO_DRAW_BED, DO_DRAW_HOTENDS)
   #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 #endif
 
@@ -758,7 +761,7 @@ void MarlinUI::draw_status_screen() {
 
         // Two-component mix / gradient instead of XY
 
-        char mixer_messages[12];
+        char mixer_messages[15];
         PGM_P mix_label;
         #if ENABLED(GRADIENT_MIX)
           if (mixer.gradient.enabled) {

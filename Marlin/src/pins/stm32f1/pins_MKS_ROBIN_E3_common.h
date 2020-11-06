@@ -157,7 +157,7 @@
   #else
 
     #define LCD_PINS_D4                     PA6
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
@@ -170,7 +170,7 @@
 //
 // SD Card
 //
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 #define SD_DETECT_PIN                       PC10
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14

@@ -52,12 +52,10 @@
 //
 #undef I2S_STEPPER_STREAM
 #define I2S_STEPPER_STREAM
-
-#undef LIN_ADVANCE                                // Currently, I2S stream does not work with linear advance
-
 #define I2S_WS                                26
 #define I2S_BCK                               25
 #define I2S_DATA                              27
+#undef LIN_ADVANCE                                // Currently, I2S stream does not work with linear advance
 
 //
 // Steppers
@@ -134,7 +132,7 @@
 
     #define BEEPER_PIN                       151
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     #define BEEPER_PIN                       151
 
