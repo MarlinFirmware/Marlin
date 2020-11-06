@@ -48,6 +48,7 @@
 
 #if SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
+  #define STM32_HAS_USB_SERIAL 1    
 #elif WITHIN(SERIAL_PORT, 1, 6)
   #define MYSERIAL0 MSERIAL(SERIAL_PORT)
 #else
@@ -57,6 +58,7 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
+    #define STM32_HAS_USB_SERIAL 1    
   #elif WITHIN(SERIAL_PORT_2, 1, 6)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
@@ -67,6 +69,7 @@
 #ifdef LCD_SERIAL_PORT
   #if LCD_SERIAL_PORT == -1
     #define LCD_SERIAL SerialUSB
+    #define STM32_HAS_USB_SERIAL 1    
   #elif WITHIN(LCD_SERIAL_PORT, 1, 6)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else

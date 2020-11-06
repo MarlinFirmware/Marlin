@@ -31,6 +31,8 @@
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #elif HAS_FSMC_TFT
   #error "MKS Robin nano v2 doesn't support FSMC-based TFT displays."
+#elif STM32_HAS_USB_SERIAL
+  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to 1 for the onboard USB port."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"

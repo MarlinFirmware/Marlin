@@ -32,7 +32,10 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "JGAurora 32-bit board only supports 1 hotend / E-stepper. Comment out this line to continue."
+#elif STM32_HAS_USB_SERIAL
+  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to 1 for the onboard USB port."
 #endif
+
 #define BOARD_INFO_NAME "JGAurora A5S A1 board"
 
 #ifndef STM32_XL_DENSITY
