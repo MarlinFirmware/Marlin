@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
   #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
@@ -53,7 +53,7 @@ typedef struct __attribute__((__packed__)) {
   int16_t raw_y;
 } touch_calibration_point_t;
 
-enum calibrationState : uint8_t {
+enum calibrationState {
   CALIBRATION_TOP_LEFT = 0x00,
   CALIBRATION_BOTTOM_LEFT,
   CALIBRATION_TOP_RIGHT,
@@ -68,26 +68,15 @@ public:
   static calibrationState calibration_state;
   static touch_calibration_point_t calibration_points[4];
 
-  static bool validate_precision(int32_t a, int32_t b) { return (a > b ? (100 * b) / a :  (100 * a) / b) > TOUCH_SCREEN_CALIBRATION_PRECISION; }
+  static bool validate_precision(int32_t a, int32_t b);
   static bool validate_precision_x(uint8_t a, uint8_t b) { return validate_precision(calibration_points[a].raw_x, calibration_points[b].raw_x); }
   static bool validate_precision_y(uint8_t a, uint8_t b) { return validate_precision(calibration_points[a].raw_y, calibration_points[b].raw_y); }
+  static void validate_calibration();
 
   static touch_calibration_t calibration;
   static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
 
-  static calibrationState calibration_start() {
-    calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE};
-    calibration_state = CALIBRATION_TOP_LEFT;
-    calibration_points[CALIBRATION_TOP_LEFT].x = 20;
-    calibration_points[CALIBRATION_TOP_LEFT].y = 20;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].x = 20;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].y = TFT_HEIGHT - 21;
-    calibration_points[CALIBRATION_TOP_RIGHT].x = TFT_WIDTH - 21;
-    calibration_points[CALIBRATION_TOP_RIGHT].y = 20;
-    calibration_points[CALIBRATION_BOTTOM_RIGHT].x = TFT_WIDTH - 21;
-    calibration_points[CALIBRATION_BOTTOM_RIGHT].y = TFT_HEIGHT - 21;
-    return calibration_state;
-  }
+  static calibrationState calibration_start();
   static void calibration_end() { calibration_state = CALIBRATION_NONE; }
   static calibrationState get_calibration_state() { return calibration_state; }
 
