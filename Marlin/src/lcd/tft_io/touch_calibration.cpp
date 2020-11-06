@@ -44,7 +44,7 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
     case CALIBRATION_TOP_LEFT: calibration_state = CALIBRATION_BOTTOM_LEFT; break;
     case CALIBRATION_BOTTOM_LEFT: calibration_state = CALIBRATION_TOP_RIGHT; break;
     case CALIBRATION_TOP_RIGHT: calibration_state = CALIBRATION_BOTTOM_RIGHT; break;
-    case CALIBRATION_BOTTOM_RIGHT:
+    case CALIBRATION_BOTTOM_RIGHT: {
       if (validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3)) {
         calibration_state = CALIBRATION_SUCCESS;
         calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_x + calibration_points[2].raw_x - calibration_points[1].raw_x - calibration_points[0].raw_x);
@@ -74,7 +74,7 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
         SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
         SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
       }
-      break;
+    break; }
     default: break;
   }
 
