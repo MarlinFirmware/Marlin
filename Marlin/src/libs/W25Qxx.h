@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,6 +20,10 @@
  *
  */
 #pragma once
+
+//#ifdef __cplusplus
+//extern "C" { /* C-declarations for C++ */
+//#endif
 
 #include <stdint.h>
 
@@ -67,4 +71,6 @@ public:
   static void SPI_FLASH_BufferRead(uint8_t* pBuffer, uint32_t ReadAddr, uint16_t NumByteToRead);
 };
 
-extern W25QXXFlash W25QXX;
+//#ifdef __cplusplus
+//} /* C-declarations for C++ */
+//#endif

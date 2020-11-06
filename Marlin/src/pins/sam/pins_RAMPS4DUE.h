@@ -39,7 +39,7 @@
  *       A15 | NC
  */
 
-#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
+#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 

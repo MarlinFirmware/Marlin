@@ -27,7 +27,7 @@
  * Supports 4 stepper drivers, heated bed, single hotend.
  */
 
-#if NOT_TARGET(ARDUINO_ARCH_ESP32)
+#ifndef ARDUINO_ARCH_ESP32
   #error "Oops! Select an ESP32 board in 'Tools > Board.'"
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "MRR ESPA only supports one E Stepper. Comment out this line to continue."

@@ -31,8 +31,8 @@
 
 #define MACHINE_PARA_TITLE_T_CN         "機器參數"
 #define MACHINE_TYPE_CNOFIG_T_CN        "機器設置"
+#define TEMPERATURE_CONFIG_T_CN         "溫度設置"
 #define MOTOR_CONFIG_T_CN               "電機設置"
-#define MACHINE_LEVELING_CONFIG_T_CN    "調平設置"
 #define ADVANCE_CONFIG_T_CN             "高級設置"
 
 #define MACHINE_CONFIG_TITLE_T_CN       "機器參數>機器配置"
@@ -41,6 +41,7 @@
 #define MACHINE_HOMEDIR_T_CN            "歸零方向"
 #define MACHINE_ENDSTOP_TYPE_T_CN       "限位開關類型"
 #define MACHINE_FILAMENT_CONFIG_T_CN    "換料設置"
+#define MACHINE_LEVELING_CONFIG_T_CN    "調平設置"
 
 #define MACHINE_TYPE_CONFIG_TITLE_T_CN  "機器參數>機型選擇"
 #define MACHINE_TYPE_XYZ_T_CN           "XYZ機型"
@@ -76,17 +77,17 @@
 #define ENDSTOP_CLOSED_T_CN             "常閉"
 
 #define FILAMENT_CONF_TITLE_T_CN        "換料設置"
+#define FILAMENT_IN_TEMPERATURE_T_CN    "進料溫度"
 #define FILAMENT_IN_LENGTH_T_CN         "進料長度"
 #define FILAMENT_IN_SPEED_T_CN          "進料速度"
-#define FILAMENT_TEMPERATURE_T_CN       "換料溫度"
+#define FILAMENT_OUT_TEMPERATURE_T_CN   "退料溫度"
 #define FILAMENT_OUT_LENGTH_T_CN        "退料長度"
 #define FILAMENT_OUT_SPEED_T_CN         "退料速度"
 
-#define LEVELING_CONF_TITLE_T_CN        "機器參數>調平設置"
+#define LEVELING_CONF_TITLE_T_CN        "調平設置"
 #define LEVELING_PARA_CONF_T_CN         "調平設置"
-#define LEVELING_MANUAL_POS_T_CN        "手動調平坐標設置"
-#define LEVELING_AUTO_COMMAND_T_CN      "自動調平指令設置"
-#define LEVELING_AUTO_ZOFFSET_T_CN      "擠出頭與調平開關偏移設置"
+#define LEVELING_DELTA_T_CN             "delta機型設置"
+#define LEVELING_XYZ_T_CN               "手動調平坐標設置"
 
 #define LEVELING_PARA_CONF_TITLE_T_CN   "調平參數"
 #define AUTO_LEVELING_ENABLE_T_CN       "自動調平"
@@ -145,7 +146,6 @@
 #define TMC_STEP_MODE_T_CN              "TMC 驅動模式設置"
 #define MOTORDIRCONF_T_CN               "電機方向設置"
 #define HOMEFEEDRATECONF_T_CN           "歸零速度設置"
-#define HOMING_SENSITIVITY_CONF_T_CN    "無限位回零靈敏度調節"
 
 #define MAXFEEDRATE_CONF_TITLE_T_CN     "機器參數>最大速度"
 #define X_MAXFEEDRATE_T_CN              "X軸最大速度"
@@ -211,8 +211,6 @@
 #define HAVE_UPS_T_CN                   "機器配備UPS電壓"
 #define Z2_AND_Z2ENDSTOP_CONF_T_CN      "雙z軸雙限位功能設置"
 #define ENABLE_PINS_CONF_T_CN           "電機使能腳電平設置"
-#define WIFI_SETTINGS_T_CN              "Wi-Fi參數設置"
-#define ENCODER_SETTINGS_T_CN           "旋鈕設置"
 
 #define Z2_AND_Z2ENDSTOP_CONF_TITLE_T_CN  "雙z軸雙限位設置"
 #define Z2_ENABLE_T_CN                    "啟用Z2軸"
@@ -225,32 +223,10 @@
 #define Z_ENABLE_PINS_INVERT_T_CN       "Z軸電機使能電平"
 #define E_ENABLE_PINS_INVERT_T_CN       "E軸電機使能電平"
 
-#define PAUSE_POSITION_T_CN         "打印暫停位置設置"
-#define PAUSE_POSITION_X_T_CN       "X軸暫停位置(絕對位置,-1無效)"
-#define PAUSE_POSITION_Y_T_CN       "Y軸暫停位置(絕對位置,-1無效)"
-#define PAUSE_POSITION_Z_T_CN       "Z軸暫停位置(相對位置,-1無效)"
-#define WIFI_SETTINGS_TITLE_T_CN    "機器參數>Wi-Fi設置"
-#define WIFI_SETTINGS_MODE_T_CN     "Wi-Fi 模式"
-#define WIFI_SETTINGS_NAME_T_CN     "Wi-Fi 名稱: "
-#define WIFI_SETTINGS_PASSWORD_T_CN "Wi-Fi 密碼: "
-#define WIFI_SETTINGS_CLOUD_T_CN    "是否使用雲服務?"
-#define WIFI_SETTINGS_CONFIG_T_CN   "配置"
-#define WIFI_SETTINGS_EDIT_T_CN     "編輯"
-#define WIFI_CONFIG_TIPS_T_CN       "進行Wi-Fi配置?"
-
-#define OFFSET_TITLE_T_CN               "機器參數>偏移設置"
-#define OFFSET_X_T_CN                   "X軸與調平開關偏移"
-#define OFFSET_Y_T_CN                   "Y軸與調平開關偏移"
-#define OFFSET_Z_T_CN                   "Z軸與調平開關偏移"
-
-#define HOMING_SENSITIVITY_CONF_TITLE_T_CN      "機器參數>靈敏度調節"
-#define X_SENSITIVITY_T_CN                      "X軸靈敏度"
-#define Y_SENSITIVITY_T_CN                      "Y軸靈敏度"
-#define Z_SENSITIVITY_T_CN                      "Z軸靈敏度"
-#define Z2_SENSITIVITY_T_CN                     "Z2軸靈敏度"
-
-#define ENCODER_CONF_TITLE_T_CN                 "機器參數>旋鈕設置"
-#define ENCODER_CONF_TEXT_T_CN                  "是否使用旋鈕功能?"
+#define PAUSE_POSITION_T_CN             "打印暫停位置設置"
+#define PAUSE_POSITION_X_T_CN           "X軸暫停位置(絕對位置,-1無效)"
+#define PAUSE_POSITION_Y_T_CN           "Y軸暫停位置(絕對位置,-1無效)"
+#define PAUSE_POSITION_Z_T_CN           "Z軸暫停位置(相對位置,-1無效)"
 
 #define TOOL_TEXT_T_CN                  "工具"
 #define PREHEAT_TEXT_T_CN               "預熱"
@@ -422,6 +398,10 @@
 #define STEP_5PERCENT_T_CN            "5%%"
 #define STEP_10PERCENT_T_CN           "10%%"
 
+#define ZOFFSET_T_CN                  "Z Offset"
+#define ZOFFSET_INC_T_CN              "增加"
+#define ZOFFSET_DEC_T_CN              "減少"
+
 #define TITLE_READYPRINT_T_CN         "準備打印"
 #define TITLE_PREHEAT_T_CN            "預熱"
 #define TITLE_MOVE_T_CN               "移動"
@@ -444,6 +424,7 @@
 #define TITLE_CLOUD_TEXT_T_CN         "雲服務"
 #define TITLE_DIALOG_CONFIRM_T_CN     "確認"
 #define TITLE_FILESYS_T_CN            "文件系統"
+#define TITLE_ZOFFSET_T_CN            "Z Offset"
 
 #define AUTO_SHUTDOWN_T_CN            "自動關機"
 #define MANUAL_SHUTDOWN_T_CN          "手動關機"

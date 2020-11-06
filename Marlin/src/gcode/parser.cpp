@@ -147,15 +147,22 @@ void GCodeParser::parse(char *p) {
     starpos[1] = '\0';
   }
 
-  #if ANY(MARLIN_DEV_MODE, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-    #define SIGNED_CODENUM 1
+  #if ENABLED(GCODE_MOTION_MODES)
+    #if ENABLED(ARC_SUPPORT)
+      #define GTOP 3
+    #else
+      #define GTOP 1
+    #endif
   #endif
 
   // Bail if the letter is not G, M, or T
   // (or a valid parameter for the current motion mode)
   switch (letter) {
 
-    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
+    case 'G': case 'M': case 'T':
+    #if ENABLED(CANCEL_OBJECTS)
+      case 'O':
+    #endif
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -171,33 +178,22 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
+      if (!NUMERIC(*p)) return;
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      {
-        #if ENABLED(SIGNED_CODENUM)
-          int sign = 1; // Allow for a negative code like D-1 or T-1
-          if (*p == '-') { sign = -1; ++p; }
-        #endif
-
-        // Get the code number - integer digits only
-        codenum = 0;
-
-        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
-
-        // Apply the sign, if any
-        TERN_(SIGNED_CODENUM, codenum *= sign);
-      }
+      // Get the code number - integer digits only
+      codenum = 0;
+      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
 
       // Allow for decimal point in command
       #if ENABLED(USE_GCODE_SUBCODES)
         if (*p == '.') {
           p++;
           while (NUMERIC(*p))
-            subcode = subcode * 10 + *p++ - '0';
+          subcode *= 10, subcode += *p++ - '0';
         }
       #endif
 
@@ -205,8 +201,11 @@ void GCodeParser::parse(char *p) {
       while (*p == ' ') p++;
 
       #if ENABLED(GCODE_MOTION_MODES)
-        if (letter == 'G'
-          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || codenum == 5 || TERN0(G38_PROBE_TARGET, codenum == 38))
+        if (letter == 'G' && (codenum <= GTOP || codenum == 5
+                                #if ENABLED(G38_PROBE_TARGET)
+                                  || codenum == 38
+                                #endif
+                             )
         ) {
           motion_mode_codenum = codenum;
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
@@ -217,12 +216,12 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I' ... 'J': case 'R':
+        case 'I': case 'J': case 'R':
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P' ... 'Q':
+      case 'P': case 'Q':
         if (motion_mode_codenum != 5) return;
-      case 'X' ... 'Z': case 'E' ... 'F':
+      case 'X': case 'Y': case 'Z': case 'E': case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
@@ -248,7 +247,7 @@ void GCodeParser::parse(char *p) {
     #if ENABLED(EXPECTED_PRINTER_CHECK)
       case 16:
     #endif
-    case 23: case 28: case 30: case 117 ... 118: case 928:
+    case 23: case 28: case 30: case 117: case 118: case 928:
       string_arg = unescape_string(p);
       return;
     default: break;

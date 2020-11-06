@@ -33,7 +33,7 @@ using namespace ExtUI;
 
 void NudgeNozzleScreen::onEntry() {
   screen_data.NudgeNozzleScreen.show_offsets = false;
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     screen_data.NudgeNozzleScreen.link_nozzles = true;
   #endif
   screen_data.NudgeNozzleScreen.rel.reset();
@@ -52,11 +52,11 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
   #endif
   w.color(z_axis).adjuster(6, GET_TEXT_F(MSG_AXIS_Z), screen_data.NudgeNozzleScreen.rel.z / getAxisSteps_per_mm(Z));
   w.increments();
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     w.toggle(8, GET_TEXT_F(MSG_ADJUST_BOTH_NOZZLES), screen_data.NudgeNozzleScreen.link_nozzles);
   #endif
 
-  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
+  #if EXTRUDERS > 1 || HAS_BED_PROBE
     w.toggle(9, GET_TEXT_F(MSG_SHOW_OFFSETS), screen_data.NudgeNozzleScreen.show_offsets);
 
     if (screen_data.NudgeNozzleScreen.show_offsets) {
@@ -82,7 +82,7 @@ void NudgeNozzleScreen::onRedraw(draw_mode_t what) {
 
 bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
   const float inc = getIncrement();
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     const bool link = screen_data.NudgeNozzleScreen.link_nozzles;
   #else
     constexpr bool link = true;
@@ -95,13 +95,13 @@ bool NudgeNozzleScreen::onTouchHeld(uint8_t tag) {
     case 5: steps = mmToWholeSteps(inc, Y); smartAdjustAxis_steps( steps, Y, link); screen_data.NudgeNozzleScreen.rel.y += steps; break;
     case 6: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps(-steps, Z, link); screen_data.NudgeNozzleScreen.rel.z -= steps; break;
     case 7: steps = mmToWholeSteps(inc, Z); smartAdjustAxis_steps( steps, Z, link); screen_data.NudgeNozzleScreen.rel.z += steps; break;
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
       case 8: screen_data.NudgeNozzleScreen.link_nozzles = !link; break;
     #endif
     case 9: screen_data.NudgeNozzleScreen.show_offsets = !screen_data.NudgeNozzleScreen.show_offsets; break;
     default: return false;
   }
-  #if HAS_MULTI_EXTRUDER || HAS_BED_PROBE
+  #if EXTRUDERS > 1 || HAS_BED_PROBE
     SaveSettingsDialogBox::settingsChanged();
   #endif
   return true;

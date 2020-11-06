@@ -115,7 +115,9 @@ void plan_arc(
   );
   // Divide total travel by nominal segment length
   uint16_t segments = FLOOR(mm_of_travel / seg_length);
-  NOLESS(segments, min_segments);         // At least some segments
+  if (segments < min_segments) {            // Too few segments?
+    segments = min_segments;                // More segments
+  }
   seg_length = mm_of_travel / segments;
 
   /**

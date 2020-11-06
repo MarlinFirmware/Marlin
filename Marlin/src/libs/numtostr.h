@@ -26,9 +26,6 @@
 // Convert a full-range unsigned 8bit int to a percentage
 const char* ui8tostr4pctrj(const uint8_t i);
 
-// Convert uint8_t to string with 12 format
-const char* ui8tostr2(const uint8_t x);
-
 // Convert uint8_t to string with 123 format
 const char* ui8tostr3rj(const uint8_t i);
 

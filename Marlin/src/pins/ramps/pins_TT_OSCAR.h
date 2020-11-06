@@ -20,7 +20,7 @@
  *
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
+#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -271,7 +271,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
 
   //
   // LCD Display output pins

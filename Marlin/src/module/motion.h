@@ -98,7 +98,7 @@ extern feedRate_t feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
 // The active extruder (tool). Set with T<extruder> command.
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
   extern uint8_t active_extruder;
 #else
   constexpr uint8_t active_extruder = 0;
@@ -108,28 +108,22 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-#ifdef __IMXRT1062__
-  #define DEFS_PROGMEM
-#else
-  #define DEFS_PROGMEM PROGMEM
-#endif
-
-inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
-inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
+inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
+inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
-    static const XYZval<T> NAME##_P DEFS_PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
     return pgm_read_any(&NAME##_P[axis]); \
   }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(int8_t, home_dir, HOME_DIR);
+XYZ_DEFS(signed char, home_dir, HOME_DIR);
 
 inline float home_bump_mm(const AxisEnum axis) {
-  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
+  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
   return pgm_read_any(&home_bump_mm_P[axis]);
 }
 
@@ -148,59 +142,26 @@ inline float home_bump_mm(const AxisEnum axis) {
   constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
+typedef struct { xyz_pos_t min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
-
-  typedef struct {
-    bool _enabled, _loose;
-    bool enabled() { return _enabled && !_loose; }
-
-    xyz_pos_t min, max;
-    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
-      amin = -100000; amax = 100000; // "No limits"
-      #if HAS_SOFTWARE_ENDSTOPS
-        if (enabled()) switch (axis) {
-          case X_AXIS:
-            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
-            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
-            break;
-          case Y_AXIS:
-            TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
-            TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
-            break;
-          case Z_AXIS:
-            TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
-            TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
-          default: break;
-        }
-      #endif
-    }
-  } soft_endstops_t;
-
-  extern soft_endstops_t soft_endstop;
+  extern bool soft_endstops_enabled;
+  extern axis_limits_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
-  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
-
-#else // !HAS_SOFTWARE_ENDSTOPS
-
-  typedef struct {
-    bool enabled() { return false; }
-    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
-      // No limits
-      amin = current_position[axis] - 1000;
-      amax = current_position[axis] + 1000;
-    }
-  } soft_endstops_t;
-  extern soft_endstops_t soft_endstop;
-  #define apply_motion_limits(V)        NOOP
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
+#else
+  constexpr bool soft_endstops_enabled = false;
+  //constexpr axis_limits_t soft_endstop = {
+  //  { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+  //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
+  #define apply_motion_limits(V)    NOOP
   #define update_software_endstops(...) NOOP
-  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
-
-#endif // !HAS_SOFTWARE_ENDSTOPS
+  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
+#endif
 
 void report_real_position();
 void report_current_position();

@@ -176,7 +176,11 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     char bed_str[20];
     char fan_str[20];
 
-    sprintf_P(fan_str, PSTR("%-3d %%"), int8_t(getActualFan_percent(FAN0)));
+    sprintf_P(
+      fan_str,
+      PSTR("%-3d %%"),
+      int8_t(getActualFan_percent(FAN0))
+    );
 
     if (isHeaterIdle(BED))
       format_temp_and_idle(bed_str, getActualTemp_celsius(BED));
@@ -189,13 +193,16 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
       format_temp_and_temp(e0_str, getActualTemp_celsius(H0), getTargetTemp_celsius(H0));
 
 
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS == 2
       if (isHeaterIdle(H1))
         format_temp_and_idle(e1_str, getActualTemp_celsius(H1));
       else
         format_temp_and_temp(e1_str, getActualTemp_celsius(H1), getTargetTemp_celsius(H1));
     #else
-      strcpy_P(e1_str, PSTR("-"));
+      strcpy_P(
+        e1_str,
+        PSTR("-")
+      );
     #endif
 
     cmd.tag(5)
@@ -369,9 +376,7 @@ bool StatusScreen::onTouchEnd(uint8_t tag) {
   using namespace ExtUI;
 
   switch (tag) {
-    #if ENABLED(SDSUPPORT)
-      case 3: GOTO_SCREEN(FilesScreen); break;
-    #endif
+    case 3: GOTO_SCREEN(FilesScreen); break;
     case 4:
       if (isPrinting()) {
         GOTO_SCREEN(TuneMenu);

@@ -25,7 +25,7 @@
  * RADDS
  */
 
-#if NOT_TARGET(__SAM3X8E__)
+#ifndef __SAM3X8E__
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -36,7 +36,7 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
+  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
 #endif
 
 //
@@ -226,7 +226,7 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
@@ -266,7 +266,7 @@
     #define SDSS                              10
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_U8GLIB_I2C_OLED
+  #elif HAS_SSD1306_OLED_I2C
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52
@@ -287,7 +287,7 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD
 
 #ifndef SDSS
   #define SDSS                                 4

@@ -26,7 +26,6 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// Kinematics
 #if ENABLED(MORGAN_SCARA)
   #define IS_SCARA 1
   #define IS_KINEMATIC 1
@@ -36,26 +35,10 @@
   #define IS_CARTESIAN 1
 #endif
 
-// MKS_LCD12864 is a variant of MKS_MINI_12864
 #if ENABLED(MKS_LCD12864)
   #define MKS_MINI_12864
 #endif
 
-/**
- * General Flags that may be set below by specific LCDs
- *
- *  DOGLCD                : Run a Graphical LCD through U8GLib (with MarlinUI)
- *  IS_ULTIPANEL          : Define LCD_PINS_D5/6/7 for direct-connected "Ultipanel" LCDs
- *  IS_ULTRA_LCD          : Ultra LCD, not necessarily Ultipanel. Used most often with NEWPANEL.
- *  IS_RRD_SC             : Common RRD Smart Controller digital interface pins
- *  IS_RRD_FG_SC          : Common RRD Full Graphical Smart Controller digital interface pins
- *  U8GLIB_ST7920         : Most common DOGM display SPI interface, supporting a "lightweight" display mode.
- *  U8GLIB_SH1106         : SH1106 OLED with I2C interface via U8GLib
- *  IS_U8GLIB_SSD1306     : SSD1306 OLED with I2C interface via U8GLib
- *  U8GLIB_SSD1309        : SSD1309 OLED with I2C interface via U8GLib
- *  U8GLIB_ST7565_64128N  : ST7565 128x64 LCD with SPI interface via U8GLib
- *  U8GLIB_LM6059_AF      : LM6059 with Hardware SPI via U8GLib
- */
 #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
   #define MINIPANEL
@@ -63,12 +46,7 @@
 #elif ENABLED(CARTESIO_UI)
 
   #define DOGLCD
-  #define IS_ULTIPANEL 1
-
-#elif EITHER(DWIN_MARLINUI_PORTRAIT, DWIN_MARLINUI_LANDSCAPE)
-
-  #define IS_DWIN_MARLINUI 1
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
 #elif ENABLED(ZONESTAR_LCD)
 
@@ -76,7 +54,7 @@
   #define IS_RRW_KEYPAD
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
   #define ADC_KEY_NUM 8
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
   // This helps to implement ADC_KEYPAD menus
   #define REVERSE_MENU_DIRECTION
@@ -98,7 +76,7 @@
   #define IS_U8GLIB_SSD1306
 
 #elif ENABLED(RADDS_DISPLAY)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define ENCODER_PULSES_PER_STEP 2
 
 #elif EITHER(ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
@@ -107,8 +85,9 @@
 
 #elif ANY(miniVIKI, VIKI2, ELB_FULL_GRAPHIC_CONTROLLER, AZSMZ_12864)
 
+  #define IS_ULTRA_LCD
   #define DOGLCD
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
   #if ENABLED(miniVIKI)
     #define U8GLIB_ST7565_64128N
@@ -123,19 +102,19 @@
 #elif ENABLED(OLED_PANEL_TINYBOY2)
 
   #define IS_U8GLIB_SSD1306
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
 #elif ENABLED(RA_CONTROL_PANEL)
 
   #define LCD_I2C_TYPE_PCA8574
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #define DOGLCD
   #define U8GLIB_ST7920
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
 #elif ENABLED(CR10_STOCKDISPLAY)
 
@@ -179,7 +158,7 @@
 
   #define FYSETC_MINI_12864
   #define DOGLCD
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define LED_COLORS_REDUCE_GREEN
   #if ENABLED(PSU_CONTROL) && EITHER(FYSETC_MINI_12864_2_0, FYSETC_MINI_12864_2_1)
     #define LED_BACKLIGHT_TIMEOUT 10000
@@ -205,7 +184,7 @@
 
 #elif ENABLED(ULTI_CONTROLLER)
 
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define U8GLIB_SSD1309
   #define LCD_RESET_PIN LCD_PINS_D6 //  This controller need a reset pin
   #define ENCODER_PULSES_PER_STEP 2
@@ -217,28 +196,6 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
 
-#elif EITHER(TFTGLCD_PANEL_SPI, TFTGLCD_PANEL_I2C)
-
-  #define IS_TFTGLCD_PANEL 1
-  #define IS_ULTIPANEL 1                      // Note that IS_ULTIPANEL leads to HAS_WIRED_LCD
-
-  #if ENABLED(SDSUPPORT) && DISABLED(LCD_PROGRESS_BAR)
-    #define LCD_PROGRESS_BAR
-  #endif
-  #if ENABLED(TFTGLCD_PANEL_I2C)
-    #define LCD_I2C_ADDRESS           0x27  // Must be equal to panel's I2C slave addres
-  #endif
-  #define LCD_USE_I2C_BUZZER                // Enable buzzer on LCD, used for both I2C and SPI buses (LiquidTWI2 not required)
-  #define STD_ENCODER_PULSES_PER_STEP 2
-  #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
-  #define LCD_WIDTH                   20    // 20 or 24 chars in line
-  #define LCD_HEIGHT                  10    // Character lines
-  #define LCD_CONTRAST_MIN            127
-  #define LCD_CONTRAST_MAX            255
-  #define DEFAULT_LCD_CONTRAST        250
-  #define CONVERT_TO_EXT_ASCII        // Use extended 128-255 symbols from ASCII table.
-                                      // At this time present conversion only for cyrillic - bg, ru and uk languages.
-                                      // First 7 ASCII symbols in panel font must be replaced with Marlin's special symbols.
 #endif
 
 #if ENABLED(IS_RRD_FG_SC)
@@ -246,7 +203,7 @@
 #endif
 
 #if EITHER(MAKRPANEL, MINIPANEL)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define DOGLCD
   #if ENABLED(MAKRPANEL)
     #define U8GLIB_ST7565_64128N
@@ -258,7 +215,7 @@
 #endif
 
 #if ENABLED(OVERLORD_OLED)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define U8GLIB_SH1106
   /**
    * PCA9632 for buzzer and LEDs via i2c
@@ -277,9 +234,9 @@
 
 // 128x64 I2C OLED LCDs - SSD1306/SSD1309/SH1106
 #if ANY(U8GLIB_SSD1306, U8GLIB_SSD1309, U8GLIB_SH1106)
-  #define HAS_U8GLIB_I2C_OLED 1
+  #define HAS_SSD1306_OLED_I2C 1
 #endif
-#if HAS_U8GLIB_I2C_OLED
+#if HAS_SSD1306_OLED_I2C
   #define IS_ULTRA_LCD
   #define DOGLCD
 #endif
@@ -302,64 +259,53 @@
 
 // Basic Ultipanel-like displays
 #if ANY(ULTIMAKERCONTROLLER, REPRAP_DISCOUNT_SMART_CONTROLLER, G3D_PANEL, RIGIDBOT_PANEL, PANEL_ONE, U8GLIB_SH1106)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 #endif
 
 // Einstart OLED has Cardinal nav via pins defined in pins_EINSTART-S.h
 #if ENABLED(U8GLIB_SH1106_EINSTART)
   #define DOGLCD
-  #define IS_ULTIPANEL 1
-#endif
-
-// Compatibility
-#if ENABLED(FSMC_GRAPHICAL_TFT)
-  #define TFT_CLASSIC_UI
-  #define TFT_INTERFACE_FSMC
-  #define TFT_GENERIC
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-  #define TFT_CLASSIC_UI
-  #define TFT_INTERFACE_SPI
-  #define TFT_GENERIC
-#elif EITHER(TFT_320x240, TFT_480x320)
-  #define TFT_COLOR_UI
-  #define TFT_INTERFACE_FSMC
-  #define TFT_GENERIC
-#elif EITHER(TFT_320x240_SPI, TFT_480x320_SPI)
-  #define TFT_COLOR_UI
-  #define TFT_INTERFACE_SPI
-  #define TFT_GENERIC
-#elif ENABLED(TFT_LVGL_UI_FSMC)
-  #define TFT_LVGL_UI
-  #define TFT_INTERFACE_FSMC
-  #define TFT_GENERIC
-#elif ENABLED(TFT_LVGL_UI_SPI)
-  #define TFT_LVGL_UI
-  #define TFT_INTERFACE_SPI
-  #define TFT_GENERIC
+  #define IS_ULTIPANEL
 #endif
 
 // FSMC/SPI TFT Panels (LVGL)
-#if ENABLED(TFT_LVGL_UI)
+#if EITHER(TFT_LVGL_UI_SPI, TFT_LVGL_UI_FSMC)
   #define HAS_TFT_LVGL_UI 1
 #endif
 
 // FSMC/SPI TFT Panels
-#if ENABLED(TFT_CLASSIC_UI)
+#if EITHER(FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT)
   #define TFT_SCALED_DOGLCD 1
 #endif
 
 #if TFT_SCALED_DOGLCD
   #define DOGLCD
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
   #define DELAYED_BACKLIGHT_INIT
-#elif ENABLED(TFT_LVGL_UI)
+#elif ENABLED(TFT_LVGL_UI_SPI)
   #define DELAYED_BACKLIGHT_INIT
 #endif
 
+// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
+#if ANY(TFT_320x240, TFT_480x320, TFT_LVGL_UI_FSMC, FSMC_GRAPHICAL_TFT)
+  #define HAS_FSMC_TFT 1
+#elif ANY(TFT_320x240_SPI, TFT_480x320_SPI, TFT_LVGL_UI_SPI, SPI_GRAPHICAL_TFT)
+  #define HAS_SPI_TFT 1
+#endif
+
 // Color UI
-#if ENABLED(TFT_COLOR_UI)
+#if ANY(TFT_320x240, TFT_480x320, TFT_320x240_SPI, TFT_480x320_SPI)
   #define HAS_GRAPHICAL_TFT 1
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
+#endif
+
+// Fewer lines with touch buttons on-screen
+#if EITHER(TFT_320x240, TFT_320x240_SPI)
+  #define HAS_UI_320x240 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
+#elif EITHER(TFT_480x320, TFT_480x320_SPI)
+  #define HAS_UI_480x320 1
+  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
 #endif
 
 /**
@@ -383,7 +329,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (optional)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
 #elif ENABLED(LCD_I2C_VIKI)
 
@@ -398,7 +344,7 @@
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER   // Enable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 
   #define ENCODER_FEEDRATE_DEADZONE 4
 
@@ -443,10 +389,10 @@
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #if ENABLED(FF_INTERFACEBOARD)
   #define SR_LCD_3W_NL    // Non latching 3 wire shift register
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 #elif ENABLED(SAV_3DLCD)
   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
-  #define IS_ULTIPANEL 1
+  #define IS_ULTIPANEL
 #endif
 
 #if ENABLED(IS_ULTIPANEL)
@@ -456,6 +402,7 @@
   #define IS_ULTRA_LCD
   #define NEWPANEL
 #endif
+
 #if ENABLED(IS_ULTRA_LCD)
   #define ULTRA_LCD
 #endif
@@ -489,13 +436,11 @@
 #endif
 
 #if ENABLED(ULTRA_LCD)
-  #define HAS_WIRED_LCD 1
+  #define HAS_SPI_LCD 1
   #if ENABLED(DOGLCD)
-    #define HAS_MARLINUI_U8GLIB 1
-  #elif IS_TFTGLCD_PANEL
-    // Neither DOGM nor HD44780. Fully customized interface.
+    #define HAS_GRAPHICAL_LCD 1
   #elif DISABLED(HAS_GRAPHICAL_TFT)
-    #define HAS_MARLINUI_HD44780 1
+    #define HAS_CHARACTER_LCD 1
   #endif
 #endif
 
@@ -506,7 +451,7 @@
   #define HAS_ADC_BUTTONS 1
 #endif
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
   #ifndef LCD_PIXEL_WIDTH
     #define LCD_PIXEL_WIDTH 128
   #endif
@@ -523,6 +468,7 @@
  *  HOTENDS      - Number of hotends, whether connected or separate
  *  E_STEPPERS   - Number of actual E stepper motors
  *  E_MANUAL     - Number of E steppers for LCD move options
+ *
  */
 
 #if EXTRUDERS == 0
@@ -535,8 +481,6 @@
   #undef MK2_MULTIPLEXER
   #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
-#elif EXTRUDERS > 1
-  #define HAS_MULTI_EXTRUDER 1
 #endif
 
 #if ENABLED(SWITCHING_EXTRUDER)   // One stepper for every two EXTRUDERS
@@ -614,6 +558,10 @@
   #define DO_SWITCH_EXTRUDER 1
 #endif
 
+#ifdef SWITCHING_NOZZLE_E1_SERVO_NR
+  #define SWITCHING_NOZZLE_TWO_SERVOS 1
+#endif
+
 /**
  * Default hotend offsets, if not defined
  */
@@ -664,7 +612,14 @@
   #ifndef Z_PROBE_SERVO_NR
     #define Z_PROBE_SERVO_NR 0
   #endif
+  #ifndef NUM_SERVOS
+    #define NUM_SERVOS (Z_PROBE_SERVO_NR + 1)
+  #endif
   #undef DEACTIVATE_SERVOS_AFTER_MOVE
+  #if NUM_SERVOS == 1
+    #undef SERVO_DELAY
+    #define SERVO_DELAY { 50 }
+  #endif
 
   // Always disable probe pin inverting for BLTouch
   #undef Z_MIN_PROBE_ENDSTOP_INVERTING
@@ -675,10 +630,14 @@
   #endif
 #endif
 
+#ifndef NUM_SERVOS
+  #define NUM_SERVOS 0
+#endif
+
 /**
  * Set a flag for a servo probe (or BLTouch)
  */
-#ifdef Z_PROBE_SERVO_NR
+#if defined(Z_PROBE_SERVO_NR) && Z_PROBE_SERVO_NR >= 0
   #define HAS_Z_SERVO_PROBE 1
 #endif
 #if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
@@ -822,127 +781,7 @@
   #define EXTRUDE_MINTEMP 170
 #endif
 
-/**
- * TFT Displays
- *
- * Configure parameters for TFT displays:
- *  - TFT_DEFAULT_ORIENTATION
- *  - TFT_DRIVER
- *  - TFT_WIDTH
- *  - TFT_HEIGHT
- *  - TFT_INTERFACE_(SPI|FSMC)
- *  - TFT_COLOR
- *  - GRAPHICAL_TFT_UPSCALE
- */
-#if ENABLED(MKS_TS35_V2_0)
-  // Most common: ST7796
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY)
-  #define TFT_WIDTH  480
-  #define TFT_HEIGHT 320
-  #define TFT_INTERFACE_SPI
-  #define GRAPHICAL_TFT_UPSCALE 3
-#elif ENABLED(MKS_ROBIN_TFT24)
-  // Most common: ST7789
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif ENABLED(MKS_ROBIN_TFT28)
-  // Most common: ST7789
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif ENABLED(MKS_ROBIN_TFT32)
-  // Most common: ST7789
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_Y)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif ENABLED(MKS_ROBIN_TFT35)
-  // Most common: ILI9488
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-  #define TFT_WIDTH  480
-  #define TFT_HEIGHT 320
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 3
-#elif ENABLED(MKS_ROBIN_TFT43)
-  #define TFT_DEFAULT_ORIENTATION 0
-  #define TFT_DRIVER SSD1963
-  #define TFT_WIDTH  480
-  #define TFT_HEIGHT 272
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif ENABLED(MKS_ROBIN_TFT_V1_1R)
-  // ILI9328 or R61505
-  #define TFT_DEFAULT_ORIENTATION (TFT_INVERT_X | TFT_INVERT_Y | TFT_EXCHANGE_XY)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif EITHER(TFT_TRONXY_X5SA, ANYCUBIC_TFT35)
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-  #define TFT_DRIVER ILI9488
-  #define TFT_WIDTH  480
-  #define TFT_HEIGHT 320
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 3
-#elif ENABLED(LONGER_LK_TFT28)
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-  #define TFT_WIDTH  320
-  #define TFT_HEIGHT 240
-  #define TFT_INTERFACE_FSMC
-  #define GRAPHICAL_TFT_UPSCALE 2
-#elif ENABLED(TFT_GENERIC)
-  #define TFT_DEFAULT_ORIENTATION (TFT_EXCHANGE_XY | TFT_INVERT_X | TFT_INVERT_Y)
-#endif
-
-// FSMC/SPI TFT Panels using standard HAL/tft/tft_(fsmc|spi).h
-#if ENABLED(TFT_INTERFACE_FSMC)
-  #define HAS_FSMC_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
-    #define FSMC_GRAPHICAL_TFT
-  #elif ENABLED(TFT_LVGL_UI)
-    #define TFT_LVGL_UI_FSMC
-  #endif
-#elif ENABLED(TFT_INTERFACE_SPI)
-  #define HAS_SPI_TFT 1
-  #if ENABLED(TFT_CLASSIC_UI)
-    #define SPI_GRAPHICAL_TFT
-  #elif ENABLED(TFT_LVGL_UI)
-    #define TFT_LVGL_UI_SPI
-  #endif
-#endif
-
-#if ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 240
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_320x240_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_320x240
-  #endif
-#elif ENABLED(TFT_COLOR_UI) && TFT_HEIGHT == 320
-  #if ENABLED(TFT_INTERFACE_SPI)
-    #define TFT_480x320_SPI
-  #elif ENABLED(TFT_INTERFACE_FSMC)
-    #define TFT_480x320
-  #endif
-#endif
-
-// Fewer lines with touch buttons on-screen
-#if EITHER(TFT_320x240, TFT_320x240_SPI)
-  #define HAS_UI_320x240 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
-#elif EITHER(TFT_480x320, TFT_480x320_SPI)
-  #define HAS_UI_480x320 1
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
-#endif
-
-// This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
-#if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
-  #undef TOUCH_SCREEN
-  #undef TOUCH_SCREEN_CALIBRATION
-  #define HAS_TOUCH_XPT2046 1
+// This flag indicates if Neopixel pins are shared or separated
+#if EITHER(MULTIPLE_NEOPIXEL_TYPES, NEOPIXEL2_INSERIES)
+  #define CONJOINED_NEOPIXEL 1
 #endif

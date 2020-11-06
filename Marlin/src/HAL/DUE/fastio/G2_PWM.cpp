@@ -154,7 +154,7 @@ void Stepper::digipot_init() {
   NVIC_SetPriority(PWM_IRQn, NVIC_EncodePriority(0, 10, 0));  // normal priority for PWM module (can stand some jitter on the Vref signals)
 }
 
-void Stepper::set_digipot_current(const uint8_t driver, const int16_t current) {
+void Stepper::digipot_current(const uint8_t driver, const int16_t current) {
 
   if (!(PWM->PWM_CH_NUM[0].PWM_CPRD == PWM_PERIOD_US)) digipot_init();  // Init PWM system if needed
 

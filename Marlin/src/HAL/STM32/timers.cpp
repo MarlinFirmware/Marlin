@@ -110,6 +110,7 @@
 // ------------------------
 
 HardwareTimer *timer_instance[NUM_HARDWARE_TIMERS] = { NULL };
+bool timer_enabled[NUM_HARDWARE_TIMERS] = { false };
 
 // ------------------------
 // Public functions
@@ -134,7 +135,6 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
          * which changes the prescaler when an IRQ frequency change is needed
          * (for example when steppers are turned on)
          */
-
         timer_instance[timer_num]->setPrescaleFactor(STEPPER_TIMER_PRESCALE); //the -1 is done internally
         timer_instance[timer_num]->setOverflow(_MIN(hal_timer_t(HAL_TIMER_TYPE_MAX), (HAL_TIMER_RATE) / (STEPPER_TIMER_PRESCALE) /* /frequency */), TICK_FORMAT);
         break;
@@ -145,13 +145,15 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
         break;
     }
 
-    // Disable preload. Leaving it default-enabled can cause the timer to stop if it happens
-    // to exit the ISR after the start time for the next interrupt has already passed.
-    timer_instance[timer_num]->setPreloadEnable(false);
-
     HAL_timer_enable_interrupt(timer_num);
 
-    // Start the timer.
+    /*
+     * Initializes (and unfortunately starts) the timer.
+     * This is needed to set correct IRQ priority at the moment but causes
+     * no harm since every call to HAL_timer_start() is actually followed by
+     * a call to HAL_timer_enable_interrupt() which means that there isn't
+     * a case in which you want the timer to run without a callback.
+     */
     timer_instance[timer_num]->resume(); // First call to resume() MUST follow the attachInterrupt()
 
     // This is fixed in Arduino_Core_STM32 1.8.
@@ -159,122 +161,52 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
     // timer_instance[timer_num]->setInterruptPriority
     switch (timer_num) {
       case STEP_TIMER_NUM:
-        timer_instance[timer_num]->setInterruptPriority(STEP_TIMER_IRQ_PRIO, 0);
+        HAL_NVIC_SetPriority(STEP_TIMER_IRQ_NAME, STEP_TIMER_IRQ_PRIO, 0);
         break;
       case TEMP_TIMER_NUM:
-        timer_instance[timer_num]->setInterruptPriority(TEMP_TIMER_IRQ_PRIO, 0);
+        HAL_NVIC_SetPriority(TEMP_TIMER_IRQ_NAME, TEMP_TIMER_IRQ_PRIO, 0);
         break;
     }
   }
 }
 
 void HAL_timer_enable_interrupt(const uint8_t timer_num) {
-  if (HAL_timer_initialized(timer_num) && !timer_instance[timer_num]->hasInterrupt()) {
+  if (HAL_timer_initialized(timer_num) && !timer_enabled[timer_num]) {
+    timer_enabled[timer_num] = true;
     switch (timer_num) {
       case STEP_TIMER_NUM:
-        timer_instance[timer_num]->attachInterrupt(Step_Handler);
-        break;
-      case TEMP_TIMER_NUM:
-        timer_instance[timer_num]->attachInterrupt(Temp_Handler);
-        break;
+      timer_instance[timer_num]->attachInterrupt(Step_Handler);
+      break;
+    case TEMP_TIMER_NUM:
+      timer_instance[timer_num]->attachInterrupt(Temp_Handler);
+      break;
     }
   }
 }
 
 void HAL_timer_disable_interrupt(const uint8_t timer_num) {
-  if (HAL_timer_initialized(timer_num)) timer_instance[timer_num]->detachInterrupt();
+  if (HAL_timer_interrupt_enabled(timer_num)) {
+    timer_instance[timer_num]->detachInterrupt();
+    timer_enabled[timer_num] = false;
+  }
 }
 
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
-  return HAL_timer_initialized(timer_num) && timer_instance[timer_num]->hasInterrupt();
+  return HAL_timer_initialized(timer_num) && timer_enabled[timer_num];
+}
+
+// Only for use within the HAL
+TIM_TypeDef * HAL_timer_device(const uint8_t timer_num) {
+  switch (timer_num) {
+    case STEP_TIMER_NUM: return STEP_TIMER_DEV;
+    case TEMP_TIMER_NUM: return TEMP_TIMER_DEV;
+  }
+  return nullptr;
 }
 
 void SetTimerInterruptPriorities() {
   TERN_(HAS_TMC_SW_SERIAL, SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0));
   TERN_(HAS_SERVOS, libServo::setInterruptPriority(SERVO_TIMER_IRQ_PRIO, 0));
 }
-
-// This is a terrible hack to replicate the behavior used in the framework's SoftwareSerial.cpp
-// to choose a serial timer. It will select TIM7 on most boards used by Marlin, but this is more
-// resiliant to new MCUs which may not have a TIM7. Best practice is to explicitly specify
-// TIMER_SERIAL to avoid relying on framework selections which may not be predictable.
-#if !defined(TIMER_SERIAL)
-  #if defined (TIM18_BASE)
-    #define TIMER_SERIAL TIM18
-  #elif defined (TIM7_BASE)
-    #define TIMER_SERIAL TIM7
-  #elif defined (TIM6_BASE)
-    #define TIMER_SERIAL TIM6
-  #elif defined (TIM22_BASE)
-    #define TIMER_SERIAL TIM22
-  #elif defined (TIM21_BASE)
-    #define TIMER_SERIAL TIM21
-  #elif defined (TIM17_BASE)
-    #define TIMER_SERIAL TIM17
-  #elif defined (TIM16_BASE)
-    #define TIMER_SERIAL TIM16
-  #elif defined (TIM15_BASE)
-    #define TIMER_SERIAL TIM15
-  #elif defined (TIM14_BASE)
-    #define TIMER_SERIAL TIM14
-  #elif defined (TIM13_BASE)
-    #define TIMER_SERIAL TIM13
-  #elif defined (TIM11_BASE)
-    #define TIMER_SERIAL TIM11
-  #elif defined (TIM10_BASE)
-    #define TIMER_SERIAL TIM10
-  #elif defined (TIM12_BASE)
-    #define TIMER_SERIAL TIM12
-  #elif defined (TIM19_BASE)
-    #define TIMER_SERIAL TIM19
-  #elif defined (TIM9_BASE)
-    #define TIMER_SERIAL TIM9
-  #elif defined (TIM5_BASE)
-    #define TIMER_SERIAL TIM5
-  #elif defined (TIM4_BASE)
-    #define TIMER_SERIAL TIM4
-  #elif defined (TIM3_BASE)
-    #define TIMER_SERIAL TIM3
-  #elif defined (TIM2_BASE)
-    #define TIMER_SERIAL TIM2
-  #elif defined (TIM20_BASE)
-    #define TIMER_SERIAL TIM20
-  #elif defined (TIM8_BASE)
-    #define TIMER_SERIAL TIM8
-  #elif defined (TIM1_BASE)
-    #define TIMER_SERIAL TIM1
-  #else
-    #error No suitable timer found for SoftwareSerial, define TIMER_SERIAL in variant.h
-  #endif
-#endif
-
-// Place all timers used into an array, then recursively check for duplicates during compilation.
-// This does not currently account for timers used for PWM, such as for fans.
-// Timers are actually pointers. Convert to integers to simplify constexpr logic.
-static constexpr uintptr_t timers_in_use[] = {
-  uintptr_t(TEMP_TIMER_DEV),  // Override in pins file
-  uintptr_t(STEP_TIMER_DEV),  // Override in pins file
-  #if HAS_TMC_SW_SERIAL
-    uintptr_t(TIMER_SERIAL),  // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if ENABLED(SPEAKER)
-    uintptr_t(TIMER_TONE),    // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  #if HAS_SERVOS
-    uintptr_t(TIMER_SERVO),   // Set in variant.h, or as a define in platformio.h if not present in variant.h
-  #endif
-  };
-
-static constexpr bool verify_no_duplicate_timers() {
-  LOOP_L_N(i, COUNT(timers_in_use))
-    LOOP_S_L_N(j, i + 1, COUNT(timers_in_use))
-      if (timers_in_use[i] == timers_in_use[j]) return false;
-  return true;
-}
-
-// If this assertion fails at compile time, review the timers_in_use array. If default_envs is
-// defined properly in platformio.ini, VS Code can evaluate the array when hovering over it,
-// making it easy to identify the conflicting timers.
-static_assert(verify_no_duplicate_timers(), "One or more timer conflict detected");
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

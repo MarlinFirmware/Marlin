@@ -33,6 +33,7 @@
 #include "../../../core/debug_out.h"
 
 /**
+ *
  * M906: report or set KVAL_HOLD which sets the maximum effective voltage provided by the
  *       PWMs to the steppers
  *
@@ -55,6 +56,7 @@
  *
  * L6470 is used in the STEP-CLOCK mode.  KVAL_HOLD is the only KVAL_xxx
  * that affects the effective voltage seen by the stepper.
+ *
  */
 
 /**

@@ -36,7 +36,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
 
@@ -870,7 +870,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool) invalid_extruder_error(new_tool);
     return;
 
-  #elif HAS_MULTI_EXTRUDER
+  #else // EXTRUDERS > 1
 
     planner.synchronize();
 
@@ -1017,10 +1017,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          #if HAS_SOFTWARE_ENDSTOPS
+            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
+          #else
+            constexpr float maxz = Z_MAX_POS;
+          #endif
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
-          const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
           if (newz > maxz) return;
 
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
@@ -1193,7 +1197,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // HAS_MULTI_EXTRUDER
+  #endif // EXTRUDERS > 1
 }
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

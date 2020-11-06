@@ -43,13 +43,8 @@
 #endif
 
 #ifndef TFT_PIXEL_OFFSET_X
-  #if GRAPHICAL_TFT_UPSCALE == 2
-    #define TFT_PIXEL_OFFSET_X 32
-  #else
-    #define TFT_PIXEL_OFFSET_X 48
-  #endif
+  #define TFT_PIXEL_OFFSET_X 48
 #endif
 #ifndef TFT_PIXEL_OFFSET_Y
-  // 32 is better for both 320x240 and 480x320
-  #define TFT_PIXEL_OFFSET_Y 32
+  #define TFT_PIXEL_OFFSET_Y 48
 #endif

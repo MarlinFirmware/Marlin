@@ -48,12 +48,14 @@
  *       PWM (D 13) PD5 19|        |22  PC0 (D 16) SCL
  *       PWM (D 14) PD6 20|        |21  PD7 (D 15) PWM
  *                        +--------+
+ *
  */
 
 /**
  * Rev B    26 DEC 2016
  *
  * added pointer to a current Arduino IDE extension
+ *
  */
 
 /**
@@ -71,9 +73,10 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
+ *
  */
 
-#if NOT_TARGET(__AVR_ATmega644__)
+#ifndef __AVR_ATmega644__
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and ATmega644 in 'Tools > Processor.'"
 #endif
 

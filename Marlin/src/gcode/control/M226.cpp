@@ -20,10 +20,6 @@
  *
  */
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(DIRECT_PIN_CONTROL)
-
 #include "../gcode.h"
 #include "../../MarlinCore.h" // for pin_is_protected and idle()
 #include "../../module/stepper.h"
@@ -54,5 +50,3 @@ void GcodeSuite::M226() {
     } // pin_state -1 0 1 && pin > -1
   } // parser.seen('P')
 }
-
-#endif // DIRECT_PIN_CONTROL

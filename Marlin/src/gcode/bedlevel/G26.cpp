@@ -359,7 +359,7 @@ inline bool turn_on_heaters() {
   #if HAS_HEATED_BED
 
     if (g26_bed_temp > 25) {
-      #if HAS_WIRED_LCD
+      #if HAS_SPI_LCD
         ui.set_status_P(GET_TEXT(MSG_G26_HEATING_BED), 99);
         ui.quick_feedback();
         TERN_(HAS_LCD_MENU, ui.capture());
@@ -378,7 +378,7 @@ inline bool turn_on_heaters() {
   #endif // HAS_HEATED_BED
 
   // Start heating the active nozzle
-  #if HAS_WIRED_LCD
+  #if HAS_SPI_LCD
     ui.set_status_P(GET_TEXT(MSG_G26_HEATING_NOZZLE), 99);
     ui.quick_feedback();
   #endif
@@ -391,7 +391,7 @@ inline bool turn_on_heaters() {
     #endif
   )) return G26_ERR;
 
-  #if HAS_WIRED_LCD
+  #if HAS_SPI_LCD
     ui.reset_status();
     ui.quick_feedback();
   #endif
@@ -446,7 +446,7 @@ inline bool prime_nozzle() {
     else
   #endif
   {
-    #if HAS_WIRED_LCD
+    #if HAS_SPI_LCD
       ui.set_status_P(GET_TEXT(MSG_G26_FIXED_LENGTH), 99);
       ui.quick_feedback();
     #endif
@@ -511,9 +511,11 @@ void GcodeSuite::G26() {
        g26_keep_heaters_on       = parser.boolval('K');
 
   // Accept 'I' if temperature presets are defined
-  #if PREHEAT_COUNT
-    const uint8_t preset_index = parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0;
-  #endif
+  const uint8_t preset_index = (0
+    #if PREHEAT_COUNT
+      + (parser.seenval('I') ? _MIN(parser.value_byte(), PREHEAT_COUNT - 1) + 1 : 0)
+    #endif
+  );
 
   #if HAS_HEATED_BED
 

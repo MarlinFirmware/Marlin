@@ -40,7 +40,7 @@ void StepsScreen::onRedraw(draw_mode_t what) {
   w.color(z_axis)     .adjuster( 6, GET_TEXT_F(MSG_AXIS_Z),  getAxisSteps_per_mm(Z) );
   #if EXTRUDERS == 1 || DISABLED(DISTINCT_E_FACTORS)
     w.color(e_axis)   .adjuster( 8, GET_TEXT_F(MSG_AXIS_E),  getAxisSteps_per_mm(E0) );
-  #elif HAS_MULTI_EXTRUDER
+  #elif EXTRUDERS > 1
     w.color(e_axis)   .adjuster( 8, GET_TEXT_F(MSG_AXIS_E1), getAxisSteps_per_mm(E0) );
     w.color(e_axis)   .adjuster(10, GET_TEXT_F(MSG_AXIS_E2), getAxisSteps_per_mm(E1) );
     #if EXTRUDERS > 2
@@ -64,7 +64,7 @@ bool StepsScreen::onTouchHeld(uint8_t tag) {
     case  7: UI_INCREMENT(AxisSteps_per_mm, Z);  break;
     case  8: UI_DECREMENT(AxisSteps_per_mm, E0); break;
     case  9: UI_INCREMENT(AxisSteps_per_mm, E0); break;
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
     case 10: UI_DECREMENT(AxisSteps_per_mm, E1); break;
     case 11: UI_INCREMENT(AxisSteps_per_mm, E1); break;
     #endif

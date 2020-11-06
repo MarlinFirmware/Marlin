@@ -29,7 +29,7 @@
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
 
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
   #include "../../../module/tool_change.h"
 #endif
 
@@ -39,6 +39,7 @@
  *  T[toolhead] - Select extruder to configure, active extruder if not specified
  *  U[distance] - Retract distance for removal, for the specified extruder
  *  L[distance] - Extrude distance for insertion, for the specified extruder
+ *
  */
 void GcodeSuite::M603() {
 

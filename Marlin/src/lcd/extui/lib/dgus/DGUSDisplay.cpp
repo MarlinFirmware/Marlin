@@ -59,13 +59,23 @@ constexpr uint8_t DGUS_CMD_READVAR = 0x83;
   bool dguslcd_local_debug; // = false;
 #endif
 
+#define dgusserial DGUS_SERIAL
+
 void DGUSDisplay::InitDisplay() {
-  #ifndef LCD_BAUDRATE
-    #define LCD_BAUDRATE 115200
-  #endif
-  LCD_SERIAL.begin(LCD_BAUDRATE);
-  if (TERN1(POWER_LOSS_RECOVERY, !recovery.valid()))
-    RequestScreen(TERN(SHOW_BOOTSCREEN, DGUSLCD_SCREEN_BOOT, DGUSLCD_SCREEN_MAIN));
+  dgusserial.begin(DGUS_BAUDRATE);
+
+  if (true
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      && !recovery.valid()
+    #endif
+  )
+    RequestScreen(
+      #if ENABLED(SHOW_BOOTSCREEN)
+        DGUSLCD_SCREEN_BOOT
+      #else
+        DGUSLCD_SCREEN_MAIN
+      #endif
+    );
 }
 
 void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t valueslen, bool isstr) {
@@ -79,7 +89,7 @@ void DGUSDisplay::WriteVariable(uint16_t adr, const void* values, uint8_t values
       strend = true;
       x = ' ';
     }
-    LCD_SERIAL.write(x);
+    dgusserial.write(x);
   }
 }
 
@@ -123,41 +133,41 @@ void DGUSDisplay::WriteVariablePGM(uint16_t adr, const void* values, uint8_t val
       strend = true;
       x = ' ';
     }
-    LCD_SERIAL.write(x);
+    dgusserial.write(x);
   }
 }
 
 void DGUSDisplay::ProcessRx() {
 
-  #if ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS)
-    if (!LCD_SERIAL.available() && LCD_SERIAL.buffer_overruns()) {
+  #if ENABLED(DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS)
+    if (!dgusserial.available() && dgusserial.buffer_overruns()) {
       // Overrun, but reset the flag only when the buffer is empty
       // We want to extract as many as valid datagrams possible...
       DEBUG_ECHOPGM("OVFL");
       rx_datagram_state = DGUS_IDLE;
-      //LCD_SERIAL.reset_rx_overun();
-      LCD_SERIAL.flush();
+      //dgusserial.reset_rx_overun();
+      dgusserial.flush();
     }
   #endif
 
   uint8_t receivedbyte;
-  while (LCD_SERIAL.available()) {
+  while (dgusserial.available()) {
     switch (rx_datagram_state) {
 
       case DGUS_IDLE: // Waiting for the first header byte
-        receivedbyte = LCD_SERIAL.read();
+        receivedbyte = dgusserial.read();
         //DEBUG_ECHOPAIR("< ",x);
         if (DGUS_HEADER1 == receivedbyte) rx_datagram_state = DGUS_HEADER1_SEEN;
         break;
 
       case DGUS_HEADER1_SEEN: // Waiting for the second header byte
-        receivedbyte = LCD_SERIAL.read();
+        receivedbyte = dgusserial.read();
         //DEBUG_ECHOPAIR(" ",x);
         rx_datagram_state = (DGUS_HEADER2 == receivedbyte) ? DGUS_HEADER2_SEEN : DGUS_IDLE;
         break;
 
       case DGUS_HEADER2_SEEN: // Waiting for the length byte
-        rx_datagram_len = LCD_SERIAL.read();
+        rx_datagram_len = dgusserial.read();
         DEBUG_ECHOPAIR(" (", rx_datagram_len, ") ");
 
         // Telegram min len is 3 (command and one word of payload)
@@ -165,10 +175,10 @@ void DGUSDisplay::ProcessRx() {
         break;
 
       case DGUS_WAIT_TELEGRAM: // wait for complete datagram to arrive.
-        if (LCD_SERIAL.available() < rx_datagram_len) return;
+        if (dgusserial.available() < rx_datagram_len) return;
 
         Initialized = true; // We've talked to it, so we defined it as initialized.
-        uint8_t command = LCD_SERIAL.read();
+        uint8_t command = dgusserial.read();
 
         DEBUG_ECHOPAIR("# ", command);
 
@@ -176,7 +186,7 @@ void DGUSDisplay::ProcessRx() {
         unsigned char tmp[rx_datagram_len - 1];
         unsigned char *ptmp = tmp;
         while (readlen--) {
-          receivedbyte = LCD_SERIAL.read();
+          receivedbyte = dgusserial.read();
           DEBUG_ECHOPAIR(" ", receivedbyte);
           *ptmp++ = receivedbyte;
         }
@@ -219,19 +229,19 @@ void DGUSDisplay::ProcessRx() {
   }
 }
 
-size_t DGUSDisplay::GetFreeTxBuffer() { return SERIAL_GET_TX_BUFFER_FREE(); }
+size_t DGUSDisplay::GetFreeTxBuffer() { return DGUS_SERIAL_GET_TX_BUFFER_FREE(); }
 
 void DGUSDisplay::WriteHeader(uint16_t adr, uint8_t cmd, uint8_t payloadlen) {
-  LCD_SERIAL.write(DGUS_HEADER1);
-  LCD_SERIAL.write(DGUS_HEADER2);
-  LCD_SERIAL.write(payloadlen + 3);
-  LCD_SERIAL.write(cmd);
-  LCD_SERIAL.write(adr >> 8);
-  LCD_SERIAL.write(adr & 0xFF);
+  dgusserial.write(DGUS_HEADER1);
+  dgusserial.write(DGUS_HEADER2);
+  dgusserial.write(payloadlen + 3);
+  dgusserial.write(cmd);
+  dgusserial.write(adr >> 8);
+  dgusserial.write(adr & 0xFF);
 }
 
 void DGUSDisplay::WritePGM(const char str[], uint8_t len) {
-  while (len--) LCD_SERIAL.write(pgm_read_byte(str++));
+  while (len--) dgusserial.write(pgm_read_byte(str++));
 }
 
 void DGUSDisplay::loop() {

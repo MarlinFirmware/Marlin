@@ -206,6 +206,10 @@
 #define STEP_5PERCENT_SP            "5%"
 #define STEP_10PERCENT_SP           "10%"
 
+#define ZOFFSET_SP                  "Z Offset"
+#define ZOFFSET_INC_SP              "Más"
+#define ZOFFSET_DEC_SP              "Menos"
+
 #define TITLE_READYPRINT_SP         "Inicio"
 #define TITLE_PREHEAT_SP            "Precalentar"
 #define TITLE_MOVE_SP               "Mover"
@@ -229,6 +233,7 @@
 #define TITLE_CLOUD_TEXT_SP         "Cloud"
 #define TITLE_DIALOG_CONFIRM_SP     "Confirmar"
 #define TITLE_FILESYS_SP            "Puerto"
+#define TITLE_ZOFFSET_SP            "Z Offset"
 
 #define AUTO_SHUTDOWN_SP            "Auto"
 #define MANUAL_SHUTDOWN_SP          "manual"

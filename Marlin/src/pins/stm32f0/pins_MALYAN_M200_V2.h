@@ -22,7 +22,7 @@
 
 #pragma once
 
-#if NOT_TARGET(STM32F0xx)
+#ifndef STM32F0xx
   #error "Oops! Select an STM32F0 board in your IDE."
 #endif
 

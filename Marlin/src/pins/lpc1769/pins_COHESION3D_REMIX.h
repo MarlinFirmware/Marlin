@@ -25,7 +25,7 @@
  * Cohesion3D ReMix pin assignments
  */
 
-#if NOT_TARGET(MCU_LPC1769)
+#ifndef MCU_LPC1769
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -206,7 +206,7 @@
     #define NEOPIXEL_PIN                   P1_16  // EXP1-6  =>  Ethernet pin  6 (top row, 3 from left)
   #endif
 
-#elif HAS_WIRED_LCD
+#elif HAS_SPI_LCD
 
   #define BEEPER_PIN                       P1_31  // EXP1-1
   //#define SD_DETECT_PIN                  P0_27  // EXP2-7
@@ -222,7 +222,7 @@
 
   #define KILL_PIN                         P2_11  // EXP2-10
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support

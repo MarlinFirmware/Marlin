@@ -7,7 +7,6 @@
 set -e
 
 use_example_configs Mks/Robin_Pro
-opt_enable EMERGENCY_PARSER
 opt_set SDCARD_CONNECTION LCD
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130

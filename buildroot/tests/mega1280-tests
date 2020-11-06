@@ -52,8 +52,16 @@ exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBR
 # Delta Config (generic) + ABL bilinear + BLTOUCH
 use_example_configs delta/generic
 opt_set LCD_LANGUAGE cz
+opt_set X_DRIVER_TYPE L6470
+opt_set Y_DRIVER_TYPE L6470
+opt_set Z_DRIVER_TYPE L6470
+opt_add L6470_CHAIN_SCK_PIN  53
+opt_add L6470_CHAIN_MISO_PIN 49
+opt_add L6470_CHAIN_MOSI_PIN 40
+opt_add L6470_CHAIN_SS_PIN   42
+opt_add "ENABLE_RESET_L64XX_CHIPS(V) NOOP"
 opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH
-exec_test $1 $2 "DELTA | RRD LCD | ABL Bilinear | BLTOUCH"
+exec_test $1 $2 "DELTA | L6470 | RRD LCD | ABL Bilinear | BLTOUCH"
 
 # clean up
 restore_configs

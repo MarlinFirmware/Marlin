@@ -15,12 +15,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 #pragma once
 
 /**
- * HAL for Espressif ESP32 WiFi
+ * Description: HAL for Espressif ESP32 WiFi
  */
 
 #define CPU_32_BIT
@@ -59,6 +58,9 @@ extern portMUX_TYPE spinlock;
   #else
     #define MYSERIAL1 webSocketSerial
   #endif
+  #define NUM_SERIAL 2
+#else
+  #define NUM_SERIAL 1
 #endif
 
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&spinlock)
@@ -95,8 +97,6 @@ void HAL_clear_reset_source();
 
 // reset reason
 uint8_t HAL_get_reset_source();
-
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 void _delay_ms(int delay);
 
@@ -157,14 +157,14 @@ FORCE_INLINE static void DELAY_CYCLES(uint32_t x) {
 
   if (stop >= start) {
     // no overflow, so only loop while in between start and stop:
-    // 0x00000000 -----------------start****stop-- 0xFFFFFFFF
+    // 0x00000000 -----------------start****stop-- 0xffffffff
     while (ccount >= start && ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }
   }
   else {
     // stop did overflow, so only loop while outside of stop and start:
-    // 0x00000000 **stop-------------------start** 0xFFFFFFFF
+    // 0x00000000 **stop-------------------start** 0xffffffff
     while (ccount >= start || ccount < stop) {
       __asm__ __volatile__ ( "rsr     %0, ccount" : "=a" (ccount) );
     }

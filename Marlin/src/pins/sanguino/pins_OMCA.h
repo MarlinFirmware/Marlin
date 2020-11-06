@@ -56,6 +56,7 @@
  * Rev B    26 DEC 2016
  *
  * added pointer to a current Arduino IDE extension
+ *
  */
 
 /**
@@ -73,9 +74,10 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
+ *
  */
 
-#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__)
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' or 'ATmega644P' in 'Tools > Processor.'"
 #endif
 

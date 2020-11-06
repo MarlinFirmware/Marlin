@@ -37,6 +37,7 @@
 #include "../../../core/debug_out.h"
 
 /**
+ *
  * M916: increase KVAL_HOLD until get thermal warning
  *       NOTE - on L6474 it is TVAL that is used
  *
@@ -61,6 +62,7 @@
  *
  * D - time (in seconds) to run each setting of KVAL_HOLD/TVAL
  *     optional - defaults to zero (runs each setting once)
+ *
  */
 
 /**
@@ -185,6 +187,7 @@ void GcodeSuite::M916() {
 }
 
 /**
+ *
  * M917: Find minimum current thresholds
  *
  *   Decrease OCD current until overcurrent error
@@ -211,6 +214,7 @@ void GcodeSuite::M916() {
  *
  * K - value for KVAL_HOLD (0 - 255) (ignored for L6474)
  *     optional - will report current value from driver if not specified
+ *
  */
 void GcodeSuite::M917() {
 
@@ -518,6 +522,7 @@ void GcodeSuite::M917() {
 }
 
 /**
+ *
  * M918: increase speed until error or max feedrate achieved (as shown in configuration.h))
  *
  * J - select which driver(s) to monitor on multi-driver axis
@@ -538,6 +543,7 @@ void GcodeSuite::M917() {
  *
  * M - value for microsteps (1 - 128) (optional)
  *     optional - will report current value from driver if not specified
+ *
  */
 void GcodeSuite::M918() {
 

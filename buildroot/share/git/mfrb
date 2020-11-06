@@ -23,5 +23,8 @@ done
 
 [[ $USAGE == 1 ]] && { echo "usage: `basename $0` [1|2|3]" 1>&2 ; exit 1 ; }
 
-[[ $QUICK ]] || git fetch upstream
-git rebase upstream/$TARG && git rebase -i upstream/$TARG
+# If the branch isn't currently the PR target
+if [[ $TARG != $CURR ]]; then
+  [[ $QUICK ]] || git fetch upstream
+  git rebase upstream/$TARG && git rebase -i upstream/$TARG
+fi

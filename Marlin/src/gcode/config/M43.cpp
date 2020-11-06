@@ -46,10 +46,6 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
-#if HAS_RESUME_CONTINUE
-  #include "../../lcd/ultralcd.h"
-#endif
-
 #ifndef GET_PIN_MAP_PIN_M43
   #define GET_PIN_MAP_PIN_M43(Q) GET_PIN_MAP_PIN(Q)
 #endif
@@ -366,10 +362,7 @@ void GcodeSuite::M43() {
         }
       }
 
-      #if HAS_RESUME_CONTINUE
-        ui.update();
-        if (!wait_for_user) break;
-      #endif
+      if (TERN0(HAS_RESUME_CONTINUE, !wait_for_user)) break;
 
       safe_delay(200);
     }

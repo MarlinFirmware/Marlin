@@ -132,9 +132,11 @@ static SPISettings spiConfig;
    * @details Only configures SS pin since stm32duino creates and initialize the SPI object
    */
   void spiBegin() {
-    #if PIN_EXISTS(SS)
-      OUT_WRITE(SS_PIN, HIGH);
+    #if !PIN_EXISTS(SS)
+      #error "SS_PIN not defined!"
     #endif
+
+    OUT_WRITE(SS_PIN, HIGH);
   }
 
   // Configure SPI for specified SPI speed
@@ -171,7 +173,9 @@ static SPISettings spiConfig;
    * @details
    */
   uint8_t spiRec() {
+    SPI.beginTransaction(spiConfig);
     uint8_t returnByte = SPI.transfer(0xFF);
+    SPI.endTransaction();
     return returnByte;
   }
 
@@ -187,7 +191,9 @@ static SPISettings spiConfig;
   void spiRead(uint8_t* buf, uint16_t nbyte) {
     if (nbyte == 0) return;
     memset(buf, 0xFF, nbyte);
+    SPI.beginTransaction(spiConfig);
     SPI.transfer(buf, nbyte);
+    SPI.endTransaction();
   }
 
   /**
@@ -198,7 +204,9 @@ static SPISettings spiConfig;
    * @details
    */
   void spiSend(uint8_t b) {
+    SPI.beginTransaction(spiConfig);
     SPI.transfer(b);
+    SPI.endTransaction();
   }
 
   /**
@@ -211,8 +219,10 @@ static SPISettings spiConfig;
    */
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
     uint8_t rxBuf[512];
+    SPI.beginTransaction(spiConfig);
     SPI.transfer(token);
     SPI.transfer((uint8_t*)buf, &rxBuf, 512);
+    SPI.endTransaction();
   }
 
 #endif // SOFTWARE_SPI

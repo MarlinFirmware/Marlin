@@ -1,5 +1,6 @@
 # Marlin fonts
 
+
 ## Author and license
 The original author of the following font files is [A. Hardtung](https://github.com/AnHardt).
 
@@ -17,5 +18,6 @@ https://creativecommons.org/publicdomain/zero/1.0/
 
 Additional changes to the original font files distributed with Marlin are copyrighted under the terms of the [GPLv3](https://www.gnu.org/licenses/gpl-3.0.txt) license.
 
+
 ## Documentation
-For detailed information about adding new fonts to Marlin [see this article](https://marlinfw.org/docs/development/fonts.html).
+For detailed information about [adding new fonts](https://www.marlinfw.org/docs/development/fonts.html) to Marlin visit our documentation website.

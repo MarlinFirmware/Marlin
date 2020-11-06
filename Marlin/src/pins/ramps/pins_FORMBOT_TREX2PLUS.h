@@ -25,7 +25,7 @@
  * Formbot pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
+#ifndef __AVR_ATmega2560__
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Formbot supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -197,7 +197,7 @@
   #define LCD_PINS_D7                         29
 #endif
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(200)
   #endif

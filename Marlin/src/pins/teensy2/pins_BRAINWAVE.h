@@ -68,7 +68,7 @@
  *    4. The programmer is no longer needed. Remove it.
  */
 
-#if NOT_TARGET(__AVR_AT90USB646__)
+#ifndef __AVR_AT90USB646__
   #error "Oops! Select 'AT90USB646_TEENSYPP' in 'Tools > Board.'"
 #endif
 

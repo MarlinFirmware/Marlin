@@ -165,6 +165,7 @@ static void Init_dyn_SWI() {
 }
 
 /**
+ *
  * @param klass class that extends dyn_SWI
  * @return 0 on queue full, else returns queue position (ones based)
  */
@@ -218,6 +219,7 @@ static void Init_dyn_SWI() {
 }
 
 /**
+ *
  * @param klass class that extends dyn_SWI
  * @return 0 on queue full, else returns queue position (ones based)
  */

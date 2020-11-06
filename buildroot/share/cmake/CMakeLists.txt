@@ -47,8 +47,8 @@ set(CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/marlin-cma
 #  cmake .. -DARDUINO_SDK_PATH="/path/to/arduino-1.x.x"              #
 #====================================================================#
 #set(ARDUINO_SDK_PATH ${CMAKE_CURRENT_LIST_DIR}/arduino-1.6.8)
-#set(ARDUINO_SDK_PATH /Applications/Arduino.app/Contents/Java)
-#set(ARDUINO_SDK_PATH $HOME/ArduinoAddons/Arduino_1.6.x)
+#set(ARDUINO_SDK_PATH /home/tom/git/BigBox-Dual-Marlin/ArduinoAddons/Arduino_1.6.x)
+#set(ARDUINO_SDK_PATH  /home/tom/test/arduino-1.6.11)
 #====================================================================#
 #  Set included cmake files                                          #
 #====================================================================#
@@ -96,8 +96,8 @@ setup_motherboard(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/../../../Marlin)
 #  Include Marlin.ino to compile libs not included in *.cpp files    #
 #====================================================================#
 
-file(GLOB_RECURSE SOURCES "../../../Marlin/*.cpp")
-set(${PROJECT_NAME}_SRCS "${SOURCES};../../../Marlin/Marlin.ino")
+file(GLOB SOURCES "../../../src/*.cpp")
+set(${PROJECT_NAME}_SRCS "${SOURCES};../../../src/Marlin.ino")
 
 #====================================================================#
 #  Define the port for uploading code to the Arduino                 #

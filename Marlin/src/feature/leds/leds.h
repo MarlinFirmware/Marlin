@@ -240,7 +240,7 @@ extern LEDLights leds;
       static inline void set_violet()   { set_color(LEDColorViolet()); }
     #endif
 
-    #if ENABLED(NEOPIXEL2_SEPARATE)
+    #if ENABLED(LED_CONTROL_MENU)
       static LEDColor color; // last non-off color
       static bool lights_on; // the last set color was "on"
       static void toggle();  // swap "off" with color

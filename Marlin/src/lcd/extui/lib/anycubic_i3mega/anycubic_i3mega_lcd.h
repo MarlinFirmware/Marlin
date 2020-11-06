@@ -23,6 +23,12 @@
 #include "../../../../inc/MarlinConfigPre.h"
 #include "../../../../sd/SdFatConfig.h"   // for the FILENAME_LENGTH macro
 
+char *itostr2(const uint8_t &x);
+#ifndef ULTRA_LCD
+  char *itostr3(const int);
+  char *ftostr32(const float &);
+#endif
+
 #define TFTBUFSIZE 4
 #define TFT_MAX_CMD_SIZE 96
 

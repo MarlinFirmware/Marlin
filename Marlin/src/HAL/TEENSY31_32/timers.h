@@ -22,7 +22,8 @@
 #pragma once
 
 /**
- * HAL Timers for Teensy 3.2 (MK20DX256)
+ * Description: HAL for
+ * Teensy3.2 (__MK20DX256__)
  */
 
 #include <stdint.h>

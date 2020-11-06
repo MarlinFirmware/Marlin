@@ -6,6 +6,7 @@
  *
  * To test:
  * gcc -DAJK_TEST_MACRO_LOGIC -E macro_logic.h
+ *
  */
 
 #ifndef MACRO_LOGIC_H

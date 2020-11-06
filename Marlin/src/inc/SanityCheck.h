@@ -422,7 +422,7 @@
 #elif defined(CHAMBER_HEATER_PIN)
   #error "CHAMBER_HEATER_PIN is now HEATER_CHAMBER_PIN. Please update your configuration and/or pins."
 #elif defined(TMC_Z_CALIBRATION)
-  #error "TMC_Z_CALIBRATION has been deprecated in favor of MECHANICAL_GANTRY_CALIBRATION. Please update your configuration."
+  #error "TMC_Z_CALIBRATION has been deprecated in favor of Z_STEPPER_AUTO_ALIGN. Please update your configuration."
 #elif defined(Z_MIN_PROBE_ENDSTOP)
   #error "Z_MIN_PROBE_ENDSTOP is no longer required. Please remove it from Configuration.h."
 #elif defined(DUAL_NOZZLE_DUPLICATION_MODE)
@@ -447,6 +447,8 @@
   #error "POWER_SUPPLY is now obsolete. Please remove it from Configuration.h."
 #elif defined(MKS_ROBIN_TFT)
   #error "MKS_ROBIN_TFT is now FSMC_GRAPHICAL_TFT. Please update your configuration."
+#elif defined(TFT_LVGL_UI)
+  #error "TFT_LVGL_UI is now TFT_LVGL_UI_FSMC. Please update your configuration."
 #elif defined(SDPOWER)
   #error "SDPOWER is now SDPOWER_PIN. Please update your configuration and/or pins."
 #elif defined(STRING_SPLASH_LINE1) || defined(STRING_SPLASH_LINE2)
@@ -475,18 +477,6 @@
   #error "HOME_USING_SPREADCYCLE is now obsolete. Please remove it from Configuration_adv.h."
 #elif defined(DGUS_LCD)
   #error "DGUS_LCD is now DGUS_LCD_UI_(ORIGIN|FYSETC|HIPRECY). Please update your configuration."
-#elif defined(DGUS_SERIAL_PORT)
-  #error "DGUS_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
-#elif defined(DGUS_BAUDRATE)
-  #error "DGUS_BAUDRATE is now LCD_BAUDRATE. Please update your configuration."
-#elif defined(DGUS_STATS_RX_BUFFER_OVERRUNS)
-  #error "DGUS_STATS_RX_BUFFER_OVERRUNS is now STATS_RX_BUFFER_OVERRUNS. Please update your configuration."
-#elif defined(DGUS_SERIAL_PORT)
-  #error "DGUS_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
-#elif defined(ANYCUBIC_LCD_SERIAL_PORT)
-  #error "ANYCUBIC_LCD_SERIAL_PORT is now LCD_SERIAL_PORT. Please update your configuration."
-#elif defined(INTERNAL_SERIAL_PORT)
-  #error "INTERNAL_SERIAL_PORT is now MMU2_SERIAL_PORT. Please update your configuration."
 #elif defined(X_DUAL_ENDSTOPS_ADJUSTMENT)
   #error "X_DUAL_ENDSTOPS_ADJUSTMENT is now X2_ENDSTOP_ADJUSTMENT. Please update Configuration_adv.h."
 #elif defined(Y_DUAL_ENDSTOPS_ADJUSTMENT)
@@ -533,8 +523,6 @@
   #error "ANYCUBIC_TFT_MODEL is now ANYCUBIC_LCD_I3MEGA. Please update your Configuration.h."
 #elif defined(EVENT_GCODE_SD_STOP)
   #error "EVENT_GCODE_SD_STOP is now EVENT_GCODE_SD_ABORT. Please update your Configuration.h."
-#elif defined(GRAPHICAL_TFT_ROTATE_180)
-  #error "GRAPHICAL_TFT_ROTATE_180 is now TFT_ROTATION set to TFT_ROTATE_180. Please update your Configuration.h."
 #elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
     #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH. Please update your Configuration.h."
@@ -582,7 +570,7 @@
 /**
  * Serial
  */
-#if !IS_AT90USB
+#if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
   #elif RX_BUFFER_SIZE && (RX_BUFFER_SIZE < 2 || !IS_POWER_OF_2(RX_BUFFER_SIZE))
@@ -594,10 +582,12 @@
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-#ifndef SERIAL_PORT
-  #error "SERIAL_PORT must be defined in Configuration.h"
-#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
-  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
+#if SERIAL_PORT > 7
+  #error "Set SERIAL_PORT to the port on your board. Usually this is 0."
+#endif
+
+#if defined(SERIAL_PORT_2) && NUM_SERIAL < 2
+  #error "SERIAL_PORT_2 is not supported for your MOTHERBOARD. Disable it to continue."
 #endif
 
 /**
@@ -680,7 +670,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * LCD Info Screen Style
  */
 #if LCD_INFO_SCREEN_STYLE > 0
-  #if HAS_MARLINUI_U8GLIB || LCD_WIDTH < 20 || LCD_HEIGHT < 4
+  #if HAS_GRAPHICAL_LCD || LCD_WIDTH < 20 || LCD_HEIGHT < 4
     #error "Alternative LCD_INFO_SCREEN_STYLE requires 20x4 Character LCD."
   #elif LCD_INFO_SCREEN_STYLE > 1
     #error "LCD_INFO_SCREEN_STYLE only has options 0 and 1 at this time."
@@ -693,17 +683,17 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(LCD_PROGRESS_BAR)
   #if NONE(SDSUPPORT, LCD_SET_PROGRESS_MANUALLY)
     #error "LCD_PROGRESS_BAR requires SDSUPPORT or LCD_SET_PROGRESS_MANUALLY."
-  #elif NONE(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
-    #error "LCD_PROGRESS_BAR only applies to HD44780 character LCD and TFTGLCD_PANEL_(SPI|I2C)."
-  #elif HAS_MARLINUI_U8GLIB
+  #elif !HAS_CHARACTER_LCD
+    #error "LCD_PROGRESS_BAR requires a character LCD."
+  #elif HAS_GRAPHICAL_LCD
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
   #elif ENABLED(FILAMENT_LCD_DISPLAY)
     #error "LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both."
   #elif PROGRESS_MSG_EXPIRE < 0
     #error "PROGRESS_MSG_EXPIRE must be greater than or equal to 0."
   #endif
-#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_MARLINUI_U8GLIB, HAS_GRAPHICAL_TFT, HAS_MARLINUI_HD44780, EXTENSIBLE_UI)
-  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Character LCD, Graphical LCD, TFT, or EXTENSIBLE_UI."
+#elif ENABLED(LCD_SET_PROGRESS_MANUALLY) && NONE(HAS_GRAPHICAL_LCD, HAS_GRAPHICAL_TFT, EXTENSIBLE_UI)
+  #error "LCD_SET_PROGRESS_MANUALLY requires LCD_PROGRESS_BAR, Graphical LCD, TFT, or EXTENSIBLE_UI."
 #endif
 
 #if !HAS_LCD_MENU && ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
@@ -713,9 +703,9 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Custom Boot and Status screens
  */
-#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE)
+#if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(HAS_GRAPHICAL_LCD, TOUCH_UI_FTDI_EVE)
   #error "SHOW_CUSTOM_BOOTSCREEN requires Graphical LCD or TOUCH_UI_FTDI_EVE."
-#elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_MARLINUI_U8GLIB
+#elif ENABLED(CUSTOM_STATUS_SCREEN_IMAGE) && !HAS_GRAPHICAL_LCD
   #error "CUSTOM_STATUS_SCREEN_IMAGE requires a Graphical LCD."
 #endif
 
@@ -774,15 +764,13 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #if ENABLED(BABYSTEPPING)
   #if ENABLED(SCARA)
     #error "BABYSTEPPING is not implemented for SCARA yet."
-  #elif BOTH(MARKFORGED_XY, BABYSTEP_XY)
-    #error "BABYSTEPPING only implemented for Z axis on MarkForged."
   #elif BOTH(DELTA, BABYSTEP_XY)
     #error "BABYSTEPPING only implemented for Z axis on deltabots."
   #elif BOTH(BABYSTEP_ZPROBE_OFFSET, MESH_BED_LEVELING)
     #error "MESH_BED_LEVELING and BABYSTEP_ZPROBE_OFFSET is not a valid combination"
   #elif ENABLED(BABYSTEP_ZPROBE_OFFSET) && !HAS_BED_PROBE
     #error "BABYSTEP_ZPROBE_OFFSET requires a probe."
-  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !HAS_MARLINUI_U8GLIB
+  #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && !HAS_GRAPHICAL_LCD
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a Graphical LCD."
   #elif ENABLED(BABYSTEP_ZPROBE_GFX_OVERLAY) && DISABLED(BABYSTEP_ZPROBE_OFFSET)
     #error "BABYSTEP_ZPROBE_GFX_OVERLAY requires a BABYSTEP_ZPROBE_OFFSET."
@@ -799,8 +787,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #if ENABLED(BABYSTEP_XY)
       static_assert(BABYSTEP_MULTIPLICATOR_XY <= 0.25f, "BABYSTEP_MULTIPLICATOR_XY must be less than or equal to 0.25mm.");
     #endif
-  #elif ENABLED(BABYSTEP_DISPLAY_TOTAL) && ANY(TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI)
-    #error "New Color UI (TFT_320x240, TFT_320x240_SPI, TFT_480x320, TFT_480x320_SPI) does not support BABYSTEP_DISPLAY_TOTAL yet."
   #endif
 #endif
 
@@ -875,7 +861,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Options only for EXTRUDERS > 1
  */
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
 
   #if EXTRUDERS > 8
     #error "Marlin supports a maximum of 8 EXTRUDERS."
@@ -997,7 +983,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Mixing Extruder requirements
  */
 #if ENABLED(MIXING_EXTRUDER)
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     #error "For MIXING_EXTRUDER set MIXING_STEPPERS > 1 instead of EXTRUDERS > 1."
   #elif MIXING_STEPPERS < 2
     #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
@@ -1143,7 +1129,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 /**
  * Required LCD language
  */
-#if HAS_MARLINUI_HD44780 && !defined(DISPLAY_CHARSET_HD44780)
+#if HAS_CHARACTER_LCD && !defined(DISPLAY_CHARSET_HD44780)
   #error "You must set DISPLAY_CHARSET_HD44780 to JAPANESE, WESTERN or CYRILLIC for your LCD controller."
 #endif
 
@@ -1169,9 +1155,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   + ENABLED(COREYZ) \
   + ENABLED(COREYX) \
   + ENABLED(COREZX) \
-  + ENABLED(COREZY) \
-  + ENABLED(MARKFORGED_XY)
-  #error "Please enable only one of DELTA, MORGAN_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, COREZY, or MARKFORGED_XY."
+  + ENABLED(COREZY)
+  #error "Please enable only one of DELTA, MORGAN_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
 #endif
 
 /**
@@ -1249,10 +1234,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * NUM_SERVOS is required for a Z servo probe
    */
   #if HAS_Z_SERVO_PROBE
-    #if !NUM_SERVOS
-      #error "NUM_SERVOS is required for a Z servo probe (Z_PROBE_SERVO_NR)."
-    #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
-      #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
+    #ifndef NUM_SERVOS
+      #error "You must set NUM_SERVOS for a Z servo probe (Z_PROBE_SERVO_NR)."
     #elif Z_PROBE_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
       #error "SERVO0_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
@@ -1261,6 +1244,8 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
       #error "SERVO2_PIN must be defined for your servo or BLTOUCH probe."
     #elif Z_PROBE_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
       #error "SERVO3_PIN must be defined for your servo or BLTOUCH probe."
+    #elif Z_PROBE_SERVO_NR >= NUM_SERVOS
+      #error "Z_PROBE_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
@@ -1465,7 +1450,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #endif
 #endif
 
-#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !BOTH(AUTO_BED_LEVELING_UBL, HAS_MARLINUI_U8GLIB)
+#if ENABLED(MESH_EDIT_GFX_OVERLAY) && !BOTH(AUTO_BED_LEVELING_UBL, HAS_GRAPHICAL_LCD)
   #error "MESH_EDIT_GFX_OVERLAY requires AUTO_BED_LEVELING_UBL and a Graphical LCD."
 #endif
 
@@ -1591,8 +1576,8 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS < 2
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
-    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, COREZX, or MARKFORGED_XY."
+  #elif CORE_IS_XY || CORE_IS_XZ
+    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, or COREZX."
   #elif !GOOD_AXIS_PINS(X2)
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
   #elif !HAS_X_MAX
@@ -1807,30 +1792,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_CHAMBER requires TEMP_CHAMBER_PIN. Please add it to your configuration."
 #endif
 
-#if ENABLED(CHAMBER_FAN) && !(defined(CHAMBER_FAN_MODE) && WITHIN(CHAMBER_FAN_MODE, 0, 2))
-  #error "CHAMBER_FAN_MODE must be between 0 and 2. Please update your Configuration_adv.h."
-#endif
-
-#if ENABLED(CHAMBER_VENT)
-  #ifndef CHAMBER_VENT_SERVO_NR
-    #error "CHAMBER_VENT_SERVO_NR is required for CHAMBER SERVO. Update your Configuration_adv.h."
-  #elif !NUM_SERVOS
-    #error "NUM_SERVOS is required for a Heated Chamber vent servo (CHAMBER_VENT_SERVO_NR)."
-  #elif CHAMBER_VENT_SERVO_NR >= NUM_SERVOS
-    #error "CHAMBER_VENT_SERVO_NR must be smaller than NUM_SERVOS."
-  #elif HAS_Z_SERVO_PROBE && CHAMBER_VENT_SERVO_NR == Z_PROBE_SERVO_NR
-    #error "CHAMBER SERVO is already used by BLTOUCH. Please change."
-  #elif CHAMBER_VENT_SERVO_NR == 0 && !PIN_EXISTS(SERVO0)
-    #error "SERVO0_PIN must be defined for your Heated Chamber vent servo."
-  #elif CHAMBER_VENT_SERVO_NR == 1 && !PIN_EXISTS(SERVO1)
-    #error "SERVO1_PIN must be defined for your Heated Chamber vent servo."
-  #elif CHAMBER_VENT_SERVO_NR == 2 && !PIN_EXISTS(SERVO2)
-    #error "SERVO2_PIN must be defined for your Heated Chamber vent servo."
-  #elif CHAMBER_VENT_SERVO_NR == 3 && !PIN_EXISTS(SERVO3)
-    #error "SERVO3_PIN must be defined for your Heated Chamber vent servo."
-  #endif
-#endif
-
 #if TEMP_SENSOR_PROBE
   #if !PIN_EXISTS(TEMP_PROBE)
     #error "TEMP_SENSOR_PROBE requires TEMP_PROBE_PIN. Please add it to your configuration."
@@ -1843,10 +1804,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
-#endif
-
-#if ENABLED(MAX6675_IS_MAX31865) && (!defined(MAX31865_SENSOR_OHMS) || !defined(MAX31865_CALIBRATION_OHMS))
-  #error "MAX31865_SENSOR_OHMS and MAX31865_CALIBRATION_OHMS must be set in Configuration.h when using a MAX31865 temperature sensor."
 #endif
 
 /**
@@ -2108,9 +2065,9 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Emergency Command Parser
+ * emergency-command parser
  */
-#if BOTH(IS_AT90USB, EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) && defined(__AVR__) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
 #endif
 
@@ -2159,19 +2116,17 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #if !(_RGB_TEST && PIN_EXISTS(RGB_LED_W))
     #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #endif
-#endif
-#undef _RGB_TEST
-
-// NeoPixel requirements
-#if ENABLED(NEOPIXEL_LED)
-  #if !PIN_EXISTS(NEOPIXEL) || NEOPIXEL_PIXELS == 0
+#elif ENABLED(NEOPIXEL_LED)
+  #if !(PIN_EXISTS(NEOPIXEL) && NEOPIXEL_PIXELS > 0)
     #error "NEOPIXEL_LED requires NEOPIXEL_PIN and NEOPIXEL_PIXELS."
-  #elif ENABLED(NEOPIXEL2_SEPARATE) && !(defined(NEOPIXEL2_TYPE) && PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
-    #error "NEOPIXEL2_SEPARATE requires NEOPIXEL2_TYPE, NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
-  #elif ENABLED(NEO2_COLOR_PRESETS) && DISABLED(NEOPIXEL2_SEPARATE)
-    #error "NEO2_COLOR_PRESETS requires NEOPIXEL2_SEPARATE to be enabled."
+  #endif
+  #elif ENABLED(NEOPIXEL2_SEPARATE)
+   #if !(PIN_EXISTS(NEOPIXEL2) && NEOPIXEL2_PIXELS > 0)
+    #error "NEOPIXEL2 requires NEOPIXEL2_PIN and NEOPIXEL2_PIXELS."
   #endif
 #endif
+
+#undef _RGB_TEST
 
 #if DISABLED(NO_COMPILE_TIME_PWM)
   #define _TEST_PWM(P) PWM_PIN(P)
@@ -2220,16 +2175,16 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
- * Make sure features that need to write to the SD card can
+ * Make sure features that need to write to the SD card are
+ * disabled unless write support is enabled.
  */
-#if ENABLED(SDCARD_READONLY) && ANY(POWER_LOSS_RECOVERY, BINARY_FILE_TRANSFER, SDCARD_EEPROM_EMULATION)
-  #undef SDCARD_READONLY
+#if ENABLED(SDCARD_READONLY)
   #if ENABLED(POWER_LOSS_RECOVERY)
-    #warning "Either disable SDCARD_READONLY or disable POWER_LOSS_RECOVERY."
+    #error "POWER_LOSS_RECOVERY is incompatible with SDCARD_READONLY."
   #elif ENABLED(BINARY_FILE_TRANSFER)
-    #warning "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
+    #error "BINARY_FILE_TRANSFER is incompatible with SDCARD_READONLY."
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
-    #warning "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
+    #error "SDCARD_EEPROM_EMULATION is incompatible with SDCARD_READONLY."
   #endif
 #endif
 
@@ -2302,9 +2257,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   + ENABLED(TFT_LVGL_UI_FSMC) \
   + ENABLED(TFT_LVGL_UI_SPI) \
   + ENABLED(ANYCUBIC_LCD_I3MEGA) \
-  + ENABLED(ANYCUBIC_LCD_CHIRON) \
-  + ENABLED(TFTGLCD_PANEL_SPI) \
-  + ENABLED(TFTGLCD_PANEL_I2C)
+  + ENABLED(ANYCUBIC_LCD_CHIRON)
   #error "Please select only one LCD controller option."
 #endif
 
@@ -2318,25 +2271,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 
 #if 1 < ENABLED(LCD_SCREEN_ROT_0) + ENABLED(LCD_SCREEN_ROT_90) + ENABLED(LCD_SCREEN_ROT_180) + ENABLED(LCD_SCREEN_ROT_270)
   #error "Please enable only one LCD_SCREEN_ROT_* option: 0, 90, 180, or 270."
-#endif
-
-/**
- * Serial displays require a dedicated serial port
- */
-#ifdef LCD_SERIAL_PORT
-  #if LCD_SERIAL_PORT == SERIAL_PORT
-    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT. Please update your configuration."
-  #elif defined(SERIAL_PORT_2) && LCD_SERIAL_PORT == SERIAL_PORT_2
-    #error "LCD_SERIAL_PORT cannot be the same as SERIAL_PORT_2. Please update your configuration."
-  #endif
-#else
-  #if HAS_DGUS_LCD
-    #error "The DGUS LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-    #error "The ANYCUBIC LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
-  #elif ENABLED(MALYAN_LCD)
-    #error "MALYAN_LCD requires LCD_SERIAL_PORT to be defined in Configuration.h"
-  #endif
 #endif
 
 /**
@@ -2599,8 +2533,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "CoreXZ requires both X and Z to use sensorless homing if either one does."
 #elif CORE_IS_YZ && Y_SENSORLESS != Z_SENSORLESS && !HOMING_Z_WITH_PROBE
   #error "CoreYZ requires both Y and Z to use sensorless homing if either one does."
-#elif ENABLED(MARKFORGED_XY) && X_SENSORLESS != Y_SENSORLESS
-  #error "MARKFORGED_XY requires both X and Y to use sensorless homing if either one does."
 #endif
 
 // Other TMC feature requirements
@@ -2671,7 +2603,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Digipot requirement
  */
-#if HAS_MOTOR_CURRENT_I2C
+#if HAS_I2C_DIGIPOT
   #if BOTH(DIGIPOT_MCP4018, DIGIPOT_MCP4451)
     #error "Enable only one of DIGIPOT_MCP4018 or DIGIPOT_MCP4451."
   #elif !MB(MKS_SBASE) \
@@ -2790,25 +2722,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && NUM_Z_STEPPER_DRIVERS < 3
     #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
   #endif
-#endif
-
-#if ENABLED(MECHANICAL_GANTRY_CALIBRATION)
-  #if NONE(HAS_MOTOR_CURRENT_DAC, HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC, HAS_TRINAMIC_CONFIG, HAS_MOTOR_CURRENT_PWM)
-    #error "It is highly recommended to have adjustable current drivers to prevent damage. Disable this line to continue anyway."
-  #elif !defined(GANTRY_CALIBRATION_CURRENT)
-    #error "MECHANICAL_GANTRY_CALIBRATION Requires GANTRY_CALIBRATION_CURRENT to be set."
-  #elif !defined(GANTRY_CALIBRATION_EXTRA_HEIGHT)
-    #error "MECHANICAL_GANTRY_CALIBRATION Requires GANTRY_CALIBRATION_EXTRA_HEIGHT to be set."
-  #elif !defined(GANTRY_CALIBRATION_FEEDRATE)
-    #error "MECHANICAL_GANTRY_CALIBRATION Requires GANTRY_CALIBRATION_FEEDRATE to be set."
-  #endif
-  #if defined(GANTRY_CALIBRATION_SAFE_POSITION) && !defined(GANTRY_CALIBRATION_XY_PARK_FEEDRATE)
-    #error "GANTRY_CALIBRATION_SAFE_POSITION Requires GANTRY_CALIBRATION_XY_PARK_FEEDRATE to be set."
-  #endif
-#endif
-
-#if BOTH(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
-  #error "You cannot use Z_STEPPER_AUTO_ALIGN and MECHANICAL_GANTRY_CALIBRATION at the same time."
 #endif
 
 #if ENABLED(PRINTCOUNTER) && DISABLED(EEPROM_SETTINGS)
@@ -2935,10 +2848,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "BACKLASH_COMPENSATION requires BACKLASH_DISTANCE_MM."
   #elif !defined(BACKLASH_CORRECTION)
     #error "BACKLASH_COMPENSATION requires BACKLASH_CORRECTION."
-  #elif ENABLED(MARKFORGED_XY)
-    constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
-    static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
-                  "BACKLASH_COMPENSATION can only apply to " STRINGIFY(NORMAL_AXIS) " on a MarkForged system.");
   #elif IS_CORE
     constexpr float backlash_arr[] = BACKLASH_DISTANCE_MM;
     static_assert(!backlash_arr[CORE_AXIS_1] && !backlash_arr[CORE_AXIS_2],
@@ -3130,9 +3039,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #undef _PIN_CONFLICT
 #endif
 
-#if !HAS_MARLINUI_U8GLIB
+#if !HAS_GRAPHICAL_LCD
   #if ENABLED(PRINT_PROGRESS_SHOW_DECIMALS)
     #error "PRINT_PROGRESS_SHOW_DECIMALS currently requires a Graphical LCD."
+  #elif ENABLED(SHOW_REMAINING_TIME)
+    #error "SHOW_REMAINING_TIME currently requires a Graphical LCD."
   #endif
 #endif
 
@@ -3182,7 +3093,7 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Sanity check for WIFI
  */
 #if EITHER(ESP3D_WIFISUPPORT, WIFISUPPORT) && DISABLED(ARDUINO_ARCH_ESP32)
-  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 MOTHERBOARD."
+  #error "ESP3D_WIFISUPPORT or WIFISUPPORT requires an ESP32 controller."
 #endif
 
 /**

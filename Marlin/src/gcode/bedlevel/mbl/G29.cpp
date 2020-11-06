@@ -57,10 +57,12 @@ inline void echo_not_entered(const char c) { SERIAL_CHAR(c); SERIAL_ECHOLNPGM(" 
  *  S3 In Jn Zn.nn  Manually modify a single point
  *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
  *  S5              Reset and disable mesh
+ *
  */
 void GcodeSuite::G29() {
 
   static int mbl_probe_index = -1;
+  TERN_(HAS_SOFTWARE_ENDSTOPS, static bool saved_soft_endstops_state);
 
   MeshLevelingState state = (MeshLevelingState)parser.byteval('S', (int8_t)MeshReport);
   if (!WITHIN(state, 0, 5)) {
@@ -97,19 +99,26 @@ void GcodeSuite::G29() {
       }
       // For each G29 S2...
       if (mbl_probe_index == 0) {
+        #if HAS_SOFTWARE_ENDSTOPS
+          // For the initial G29 S2 save software endstop state
+          saved_soft_endstops_state = soft_endstops_enabled;
+        #endif
         // Move close to the bed before the first point
         do_blocking_move_to_z(0);
       }
       else {
         // Save Z for the previous mesh position
         mbl.set_zigzag_z(mbl_probe_index - 1, current_position.z);
-        SET_SOFT_ENDSTOP_LOOSE(false);
+        TERN_(HAS_SOFTWARE_ENDSTOPS, soft_endstops_enabled = saved_soft_endstops_state);
       }
       // If there's another point to sample, move there with optional lift.
       if (mbl_probe_index < GRID_MAX_POINTS) {
-        // Disable software endstops to allow manual adjustment
-        // If G29 is left hanging without completion they won't be re-enabled!
-        SET_SOFT_ENDSTOP_LOOSE(true);
+        #if HAS_SOFTWARE_ENDSTOPS
+          // Disable software endstops to allow manual adjustment
+          // If G29 is not completed, they will not be re-enabled
+          soft_endstops_enabled = false;
+        #endif
+
         mbl.zigzag(mbl_probe_index++, ix, iy);
         _manual_goto_xy({ mbl.index_to_xpos[ix], mbl.index_to_ypos[iy] });
       }

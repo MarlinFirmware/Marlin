@@ -25,7 +25,7 @@
  * MegaTronics pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
+#ifndef __AVR_ATmega2560__
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -124,7 +124,7 @@
 
   #define SD_DETECT_PIN                       -1  // RAMPS doesn't use this
 
-#endif // ULTRA_LCD && NEWPANEL
+#endif // HAS_SPI_LCD && NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control

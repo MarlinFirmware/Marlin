@@ -54,8 +54,11 @@ dialog_menu_def              dialog_menu;
 language_menu_def            language_menu;
 print_file_dialog_menu_def   print_file_dialog_menu;
 filesys_menu_def             filesys_menu;
+zoffset_menu_def             zoffset_menu;
 tool_menu_def                tool_menu;
 MachinePara_menu_def         MachinePara_menu;
+MachineSettings_menu_def     MachineSettings_menu;
+TemperatureSettings_menu_def TemperatureSettings_menu;
 pause_msg_def                pause_msg_menu;
 eeprom_def                   eeprom_menu;
 
@@ -64,8 +67,8 @@ void machine_setting_disp() {
   if (gCfgItems.language == LANG_SIMPLE_CHINESE) {
     MachinePara_menu.title              = MACHINE_PARA_TITLE_CN;
     MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_CN;
+    MachinePara_menu.TemperatureSetting = TEMPERATURE_CONFIG_CN;
     MachinePara_menu.MotorSetting       = MOTOR_CONFIG_CN;
-    MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_CN;
     MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_CN;
 
     machine_menu.default_value = DEFAULT_CN;
@@ -78,6 +81,7 @@ void machine_setting_disp() {
     machine_menu.HomeDir            = MACHINE_HOMEDIR_CN;
     machine_menu.EndStopType        = MACHINE_ENDSTOP_TYPE_CN;
     machine_menu.FilamentConf       = MACHINE_FILAMENT_CONFIG_CN;
+    machine_menu.LevelingConf       = MACHINE_LEVELING_CONFIG_CN;
 
     machine_menu.MachineTypeConfTitle = MACHINE_TYPE_CONFIG_TITLE_CN;
     machine_menu.xyz                  = MACHINE_TYPE_XYZ_CN;
@@ -112,18 +116,18 @@ void machine_setting_disp() {
     machine_menu.opened           = ENDSTOP_OPENED_CN;
     machine_menu.closed           = ENDSTOP_CLOSED_CN;
 
-    machine_menu.FilamentConfTitle   = FILAMENT_CONF_TITLE_CN;
-    machine_menu.InLength            = FILAMENT_IN_LENGTH_CN;
-    machine_menu.InSpeed             = FILAMENT_IN_SPEED_CN;
-    machine_menu.FilamentTemperature = FILAMENT_TEMPERATURE_CN;
-    machine_menu.OutLength           = FILAMENT_OUT_LENGTH_CN;
-    machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_CN;
+    machine_menu.FilamentConfTitle = FILAMENT_CONF_TITLE_CN;
+    machine_menu.InTemperature     = FILAMENT_IN_TEMPERATURE_CN;
+    machine_menu.InLength          = FILAMENT_IN_LENGTH_CN;
+    machine_menu.InSpeed           = FILAMENT_IN_SPEED_CN;
+    machine_menu.OutTemperature    = FILAMENT_OUT_TEMPERATURE_CN;
+    machine_menu.OutLength         = FILAMENT_OUT_LENGTH_CN;
+    machine_menu.OutSpeed          = FILAMENT_OUT_SPEED_CN;
 
-    machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_CN;
-    machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_CN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_CN;
-    machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_CN;
-    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_CN;
+    machine_menu.LevelingParaConfTitle = LEVELING_CONF_TITLE_CN;
+    machine_menu.LevelingParaConf      = LEVELING_PARA_CONF_CN;
+    machine_menu.DeltaLevelConf        = LEVELING_DELTA_CN;
+    machine_menu.XYZLevelconf          = LEVELING_XYZ_CN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_CN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_CN;
@@ -173,19 +177,16 @@ void machine_setting_disp() {
     machine_menu.HotbedMinTemperature = HOTBED_MIN_TEMPERATURE_CN;
     machine_menu.HotbedMaxTemperature = HOTBED_MAX_TEMPERATURE_CN;
 
-    machine_menu.MotorConfTitle        = MOTOR_CONF_TITLE_CN;
-    machine_menu.MaxFeedRateConf       = MAXFEEDRATE_CONF_CN;
-    machine_menu.AccelerationConf      = ACCELERATION_CONF_CN;
-    machine_menu.JerkConf              = JERKCONF_CN;
-    machine_menu.StepsConf             = STEPSCONF_CN;
-    machine_menu.TMCcurrentConf        = TMC_CURRENT_CN;
-    machine_menu.TMCStepModeConf       = TMC_STEP_MODE_CN;
-    machine_menu.MotorDirConf          = MOTORDIRCONF_CN;
-    machine_menu.HomeFeedRateConf      = HOMEFEEDRATECONF_CN;
-    machine_menu.PausePosition         = PAUSE_POSITION_CN;
-    machine_menu.WifiSettings          = WIFI_SETTINGS_CN;
-    machine_menu.HomingSensitivityConf = HOMING_SENSITIVITY_CONF_CN;
-    machine_menu.EncoderSettings         = ENCODER_SETTINGS_CN;
+    machine_menu.MotorConfTitle   = MOTOR_CONF_TITLE_CN;
+    machine_menu.MaxFeedRateConf  = MAXFEEDRATE_CONF_CN;
+    machine_menu.AccelerationConf = ACCELERATION_CONF_CN;
+    machine_menu.JerkConf         = JERKCONF_CN;
+    machine_menu.StepsConf        = STEPSCONF_CN;
+    machine_menu.TMCcurrentConf   = TMC_CURRENT_CN;
+    machine_menu.TMCStepModeConf  = TMC_STEP_MODE_CN;
+    machine_menu.MotorDirConf     = MOTORDIRCONF_CN;
+    machine_menu.HomeFeedRateConf = HOMEFEEDRATECONF_CN;
+    machine_menu.PausePosition    = PAUSE_POSITION_CN;
 
     machine_menu.MaxFeedRateConfTitle = MAXFEEDRATE_CONF_TITLE_CN;
     machine_menu.XMaxFeedRate         = X_MAXFEEDRATE_CN;
@@ -267,38 +268,16 @@ void machine_setting_disp() {
     machine_menu.key_reset   = KEY_REST_CN;
     machine_menu.key_confirm = KEY_CONFIRM_CN;
 
-    machine_menu.PausePosText   = PAUSE_POSITION_CN;
-    machine_menu.xPos           = PAUSE_POSITION_X_CN;
-    machine_menu.yPos           = PAUSE_POSITION_Y_CN;
-    machine_menu.zPos           = PAUSE_POSITION_Z_CN;
-    machine_menu.WifiConfTitle  = WIFI_SETTINGS_TITLE_CN;
-    machine_menu.wifiMode       = WIFI_SETTINGS_MODE_CN;
-    machine_menu.wifiName       = WIFI_SETTINGS_NAME_CN;
-    machine_menu.wifiPassWord   = WIFI_SETTINGS_PASSWORD_CN;
-    machine_menu.wifiCloud      = WIFI_SETTINGS_CLOUD_CN;
-    machine_menu.wifiConfig     = WIFI_SETTINGS_CONFIG_CN;
-    machine_menu.wifiEdit       = WIFI_SETTINGS_EDIT_CN;
-    machine_menu.wifiConfigTips = WIFI_CONFIG_TIPS_CN;
-
-    machine_menu.OffsetConfTitle = OFFSET_TITLE_CN;
-    machine_menu.Xoffset         = OFFSET_X_CN;
-    machine_menu.Yoffset         = OFFSET_Y_CN;
-    machine_menu.Zoffset         = OFFSET_Z_CN;
-
-    machine_menu.HomingSensitivityConfTitle = HOMING_SENSITIVITY_CONF_TITLE_CN;
-    machine_menu.X_Sensitivity              = X_SENSITIVITY_CN;
-    machine_menu.Y_Sensitivity              = Y_SENSITIVITY_CN;
-    machine_menu.Z_Sensitivity              = Z_SENSITIVITY_CN;
-    machine_menu.Z2_Sensitivity             = Z2_SENSITIVITY_CN;
-
-    machine_menu.EncoderConfTitle = ENCODER_CONF_TITLE_CN;
-    machine_menu.EncoderConfText              = ENCODER_CONF_TEXT_CN;
+    machine_menu.PausePosText = PAUSE_POSITION_CN;
+    machine_menu.xPos         = PAUSE_POSITION_X_CN;
+    machine_menu.yPos         = PAUSE_POSITION_Y_CN;
+    machine_menu.zPos         = PAUSE_POSITION_Z_CN;
   }
   else if (gCfgItems.language == LANG_COMPLEX_CHINESE) {
     MachinePara_menu.title              = MACHINE_PARA_TITLE_T_CN;
     MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_T_CN;
+    MachinePara_menu.TemperatureSetting = TEMPERATURE_CONFIG_T_CN;
     MachinePara_menu.MotorSetting       = MOTOR_CONFIG_T_CN;
-    MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_T_CN;
     MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_T_CN;
 
     machine_menu.default_value = DEFAULT_T_CN;
@@ -311,6 +290,7 @@ void machine_setting_disp() {
     machine_menu.HomeDir            = MACHINE_HOMEDIR_T_CN;
     machine_menu.EndStopType        = MACHINE_ENDSTOP_TYPE_T_CN;
     machine_menu.FilamentConf       = MACHINE_FILAMENT_CONFIG_T_CN;
+    machine_menu.LevelingConf       = MACHINE_LEVELING_CONFIG_T_CN;
 
     machine_menu.MachineTypeConfTitle = MACHINE_TYPE_CONFIG_TITLE_T_CN;
     machine_menu.xyz                  = MACHINE_TYPE_XYZ_T_CN;
@@ -345,18 +325,18 @@ void machine_setting_disp() {
     machine_menu.opened           = ENDSTOP_OPENED_T_CN;
     machine_menu.closed           = ENDSTOP_CLOSED_T_CN;
 
-    machine_menu.FilamentConfTitle   = FILAMENT_CONF_TITLE_T_CN;
-    machine_menu.InLength            = FILAMENT_IN_LENGTH_T_CN;
-    machine_menu.InSpeed             = FILAMENT_IN_SPEED_T_CN;
-    machine_menu.FilamentTemperature = FILAMENT_TEMPERATURE_T_CN;
-    machine_menu.OutLength           = FILAMENT_OUT_LENGTH_T_CN;
-    machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_T_CN;
+    machine_menu.FilamentConfTitle = FILAMENT_CONF_TITLE_T_CN;
+    machine_menu.InTemperature     = FILAMENT_IN_TEMPERATURE_T_CN;
+    machine_menu.InLength          = FILAMENT_IN_LENGTH_T_CN;
+    machine_menu.InSpeed           = FILAMENT_IN_SPEED_T_CN;
+    machine_menu.OutTemperature    = FILAMENT_OUT_TEMPERATURE_T_CN;
+    machine_menu.OutLength         = FILAMENT_OUT_LENGTH_T_CN;
+    machine_menu.OutSpeed          = FILAMENT_OUT_SPEED_T_CN;
 
-    machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_T_CN;
-    machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_T_CN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_T_CN;
-    machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_T_CN;
-    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_T_CN;
+    machine_menu.LevelingParaConfTitle = LEVELING_CONF_TITLE_T_CN;
+    machine_menu.LevelingParaConf      = LEVELING_PARA_CONF_T_CN;
+    machine_menu.DeltaLevelConf        = LEVELING_DELTA_T_CN;
+    machine_menu.XYZLevelconf          = LEVELING_XYZ_T_CN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_T_CN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_T_CN;
@@ -406,19 +386,16 @@ void machine_setting_disp() {
     machine_menu.HotbedMinTemperature = HOTBED_MIN_TEMPERATURE_T_CN;
     machine_menu.HotbedMaxTemperature = HOTBED_MAX_TEMPERATURE_T_CN;
 
-    machine_menu.MotorConfTitle        = MOTOR_CONF_TITLE_T_CN;
-    machine_menu.MaxFeedRateConf       = MAXFEEDRATE_CONF_T_CN;
-    machine_menu.AccelerationConf      = ACCELERATION_CONF_T_CN;
-    machine_menu.JerkConf              = JERKCONF_T_CN;
-    machine_menu.StepsConf             = STEPSCONF_T_CN;
-    machine_menu.TMCcurrentConf        = TMC_CURRENT_T_CN;
-    machine_menu.TMCStepModeConf       = TMC_STEP_MODE_T_CN;
-    machine_menu.MotorDirConf          = MOTORDIRCONF_T_CN;
-    machine_menu.HomeFeedRateConf      = HOMEFEEDRATECONF_T_CN;
-    machine_menu.PausePosition         = PAUSE_POSITION_T_CN;
-    machine_menu.WifiSettings          = WIFI_SETTINGS_T_CN;
-    machine_menu.HomingSensitivityConf = HOMING_SENSITIVITY_CONF_T_CN;
-    machine_menu.EncoderSettings         = ENCODER_SETTINGS_T_CN;
+    machine_menu.MotorConfTitle   = MOTOR_CONF_TITLE_T_CN;
+    machine_menu.MaxFeedRateConf  = MAXFEEDRATE_CONF_T_CN;
+    machine_menu.AccelerationConf = ACCELERATION_CONF_T_CN;
+    machine_menu.JerkConf         = JERKCONF_T_CN;
+    machine_menu.StepsConf        = STEPSCONF_T_CN;
+    machine_menu.TMCcurrentConf   = TMC_CURRENT_T_CN;
+    machine_menu.TMCStepModeConf  = TMC_STEP_MODE_T_CN;
+    machine_menu.MotorDirConf     = MOTORDIRCONF_T_CN;
+    machine_menu.HomeFeedRateConf = HOMEFEEDRATECONF_T_CN;
+    machine_menu.PausePosition    = PAUSE_POSITION_T_CN;
 
     machine_menu.MaxFeedRateConfTitle = MAXFEEDRATE_CONF_TITLE_T_CN;
     machine_menu.XMaxFeedRate         = X_MAXFEEDRATE_T_CN;
@@ -507,34 +484,12 @@ void machine_setting_disp() {
     machine_menu.yPos         = PAUSE_POSITION_Y_T_CN;
     machine_menu.zPos         = PAUSE_POSITION_Z_T_CN;
 
-    machine_menu.WifiConfTitle  = WIFI_SETTINGS_TITLE_T_CN;
-    machine_menu.wifiMode       = WIFI_SETTINGS_MODE_T_CN;
-    machine_menu.wifiName       = WIFI_SETTINGS_NAME_T_CN;
-    machine_menu.wifiPassWord   = WIFI_SETTINGS_PASSWORD_T_CN;
-    machine_menu.wifiCloud      = WIFI_SETTINGS_CLOUD_T_CN;
-    machine_menu.wifiConfig     = WIFI_SETTINGS_CONFIG_T_CN;
-    machine_menu.wifiEdit       = WIFI_SETTINGS_EDIT_T_CN;
-    machine_menu.wifiConfigTips = WIFI_CONFIG_TIPS_T_CN;
-
-    machine_menu.OffsetConfTitle = OFFSET_TITLE_T_CN;
-    machine_menu.Xoffset         = OFFSET_X_T_CN;
-    machine_menu.Yoffset         = OFFSET_Y_T_CN;
-    machine_menu.Zoffset         = OFFSET_Z_T_CN;
-
-    machine_menu.HomingSensitivityConfTitle = HOMING_SENSITIVITY_CONF_TITLE_T_CN;
-    machine_menu.X_Sensitivity              = X_SENSITIVITY_T_CN;
-    machine_menu.Y_Sensitivity              = Y_SENSITIVITY_T_CN;
-    machine_menu.Z_Sensitivity              = Z_SENSITIVITY_T_CN;
-    machine_menu.Z2_Sensitivity             = Z2_SENSITIVITY_T_CN;
-
-    machine_menu.EncoderConfTitle = ENCODER_CONF_TITLE_T_CN;
-    machine_menu.EncoderConfText              = ENCODER_CONF_TEXT_T_CN;
   }
   else {
     MachinePara_menu.title              = MACHINE_PARA_TITLE_EN;
     MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_EN;
+    MachinePara_menu.TemperatureSetting = TEMPERATURE_CONFIG_EN;
     MachinePara_menu.MotorSetting       = MOTOR_CONFIG_EN;
-    MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_EN;
     MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_EN;
 
     machine_menu.default_value = DEFAULT_EN;
@@ -547,6 +502,7 @@ void machine_setting_disp() {
     machine_menu.HomeDir            = MACHINE_HOMEDIR_EN;
     machine_menu.EndStopType        = MACHINE_ENDSTOP_TYPE_EN;
     machine_menu.FilamentConf       = MACHINE_FILAMENT_CONFIG_EN;
+    machine_menu.LevelingConf       = MACHINE_LEVELING_CONFIG_EN;
 
     machine_menu.MachineTypeConfTitle = MACHINE_TYPE_CONFIG_TITLE_EN;
     machine_menu.xyz                  = MACHINE_TYPE_XYZ_EN;
@@ -581,18 +537,18 @@ void machine_setting_disp() {
     machine_menu.opened           = ENDSTOP_OPENED_EN;
     machine_menu.closed           = ENDSTOP_CLOSED_EN;
 
-    machine_menu.FilamentConfTitle   = FILAMENT_CONF_TITLE_EN;
-    machine_menu.InLength            = FILAMENT_IN_LENGTH_EN;
-    machine_menu.InSpeed             = FILAMENT_IN_SPEED_EN;
-    machine_menu.FilamentTemperature = FILAMENT_TEMPERATURE_EN;
-    machine_menu.OutLength           = FILAMENT_OUT_LENGTH_EN;
-    machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_EN;
+    machine_menu.FilamentConfTitle = FILAMENT_CONF_TITLE_EN;
+    machine_menu.InTemperature     = FILAMENT_IN_TEMPERATURE_EN;
+    machine_menu.InLength          = FILAMENT_IN_LENGTH_EN;
+    machine_menu.InSpeed           = FILAMENT_IN_SPEED_EN;
+    machine_menu.OutTemperature    = FILAMENT_OUT_TEMPERATURE_EN;
+    machine_menu.OutLength         = FILAMENT_OUT_LENGTH_EN;
+    machine_menu.OutSpeed          = FILAMENT_OUT_SPEED_EN;
 
-    machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_EN;
-    machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_EN;
-    machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_EN;
-    machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_EN;
-    machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_EN;
+    machine_menu.LevelingParaConfTitle = LEVELING_CONF_TITLE_EN;
+    machine_menu.LevelingParaConf      = LEVELING_PARA_CONF_EN;
+    machine_menu.DeltaLevelConf        = LEVELING_DELTA_EN;
+    machine_menu.XYZLevelconf          = LEVELING_XYZ_EN;
 
     machine_menu.LevelingSubConfTitle = LEVELING_PARA_CONF_TITLE_EN;
     machine_menu.AutoLevelEnable      = AUTO_LEVELING_ENABLE_EN;
@@ -642,19 +598,16 @@ void machine_setting_disp() {
     machine_menu.HotbedMinTemperature = HOTBED_MIN_TEMPERATURE_EN;
     machine_menu.HotbedMaxTemperature = HOTBED_MAX_TEMPERATURE_EN;
 
-    machine_menu.MotorConfTitle        = MOTOR_CONF_TITLE_EN;
-    machine_menu.MaxFeedRateConf       = MAXFEEDRATE_CONF_EN;
-    machine_menu.AccelerationConf      = ACCELERATION_CONF_EN;
-    machine_menu.JerkConf              = JERKCONF_EN;
-    machine_menu.StepsConf             = STEPSCONF_EN;
-    machine_menu.TMCcurrentConf        = TMC_CURRENT_EN;
-    machine_menu.TMCStepModeConf       = TMC_STEP_MODE_EN;
-    machine_menu.MotorDirConf          = MOTORDIRCONF_EN;
-    machine_menu.HomeFeedRateConf      = HOMEFEEDRATECONF_EN;
-    machine_menu.PausePosition         = PAUSE_POSITION_EN;
-    machine_menu.WifiSettings          = WIFI_SETTINGS_EN;
-    machine_menu.HomingSensitivityConf = HOMING_SENSITIVITY_CONF_EN;
-    machine_menu.EncoderSettings         = ENCODER_SETTINGS_EN;
+    machine_menu.MotorConfTitle   = MOTOR_CONF_TITLE_EN;
+    machine_menu.MaxFeedRateConf  = MAXFEEDRATE_CONF_EN;
+    machine_menu.AccelerationConf = ACCELERATION_CONF_EN;
+    machine_menu.JerkConf         = JERKCONF_EN;
+    machine_menu.StepsConf        = STEPSCONF_EN;
+    machine_menu.TMCcurrentConf   = TMC_CURRENT_EN;
+    machine_menu.TMCStepModeConf  = TMC_STEP_MODE_EN;
+    machine_menu.MotorDirConf     = MOTORDIRCONF_EN;
+    machine_menu.HomeFeedRateConf = HOMEFEEDRATECONF_EN;
+    machine_menu.PausePosition    = PAUSE_POSITION_EN;
 
     machine_menu.MaxFeedRateConfTitle = MAXFEEDRATE_CONF_TITLE_EN;
     machine_menu.XMaxFeedRate         = X_MAXFEEDRATE_EN;
@@ -739,32 +692,10 @@ void machine_setting_disp() {
     machine_menu.high_level = MOTOR_EN_HIGH_LEVEL_EN;
     machine_menu.low_level  = MOTOR_EN_LOW_LEVEL_EN;
 
-    machine_menu.PausePosText   = PAUSE_POSITION_EN;
-    machine_menu.xPos           = PAUSE_POSITION_X_EN;
-    machine_menu.yPos           = PAUSE_POSITION_Y_EN;
-    machine_menu.zPos           = PAUSE_POSITION_Z_EN;
-    machine_menu.WifiConfTitle  = WIFI_SETTINGS_TITLE_EN;
-    machine_menu.wifiMode       = WIFI_SETTINGS_MODE_EN;
-    machine_menu.wifiName       = WIFI_SETTINGS_NAME_EN;
-    machine_menu.wifiPassWord   = WIFI_SETTINGS_PASSWORD_EN;
-    machine_menu.wifiCloud      = WIFI_SETTINGS_CLOUD_EN;
-    machine_menu.wifiConfig     = WIFI_SETTINGS_CONFIG_EN;
-    machine_menu.wifiEdit       = WIFI_SETTINGS_EDIT_EN;
-    machine_menu.wifiConfigTips = WIFI_CONFIG_TIPS_EN;
-
-    machine_menu.OffsetConfTitle = OFFSET_TITLE_EN;
-    machine_menu.Xoffset         = OFFSET_X_EN;
-    machine_menu.Yoffset         = OFFSET_Y_EN;
-    machine_menu.Zoffset         = OFFSET_Z_EN;
-
-    machine_menu.HomingSensitivityConfTitle = HOMING_SENSITIVITY_CONF_TITLE_EN;
-    machine_menu.X_Sensitivity              = X_SENSITIVITY_EN;
-    machine_menu.Y_Sensitivity              = Y_SENSITIVITY_EN;
-    machine_menu.Z_Sensitivity              = Z_SENSITIVITY_EN;
-    machine_menu.Z2_Sensitivity             = Z2_SENSITIVITY_EN;
-
-    machine_menu.EncoderConfTitle = ENCODER_CONF_TITLE_EN;
-    machine_menu.EncoderConfText              = ENCODER_CONF_TEXT_EN;
+    machine_menu.PausePosText = PAUSE_POSITION_EN;
+    machine_menu.xPos         = PAUSE_POSITION_X_EN;
+    machine_menu.yPos         = PAUSE_POSITION_Y_EN;
+    machine_menu.zPos         = PAUSE_POSITION_Z_EN;
   }
 }
 
@@ -840,6 +771,10 @@ void disp_language_init() {
 
   filament_menu.stat_temp = TEXT_VALUE;
 
+  zoffset_menu.step001 = ZOFFSET_STEP001;
+  zoffset_menu.step01  = ZOFFSET_STEP01;
+  zoffset_menu.step1   = ZOFFSET_STEP1;
+
   machine_menu.key_0     = KEYBOARD_KEY0_EN;
   machine_menu.key_1     = KEYBOARD_KEY1_EN;
   machine_menu.key_2     = KEYBOARD_KEY2_EN;
@@ -853,15 +788,22 @@ void disp_language_init() {
   machine_menu.key_point = KEYBOARD_KEY_POINT_EN;
   machine_menu.negative  = KEYBOARD_KEY_NEGATIVE_EN;
   // wifi-list
-  #if ENABLED(USE_WIFI_FUNCTION)
-    list_menu.title        = TEXT_WIFI_MENU_TITLE_EN;
-    list_menu.file_pages   = FILE_PAGES_EN;
-
+  #if 0
+    list_menu.title      = TEXT_WIFI_MENU_TITLE_EN;
+    list_menu.file_pages = FILE_PAGES_EN;
+    // keyboard
+    keyboard_menu.apply    = MANUAL_IP_APPLY_EN;
+    keyboard_menu.password = TEXT_WIFI_PASSWORD_EN;
+    keyboard_menu.space    = TEXT_WIFI_SAPCE_EN;
+    keyboard_menu.letter   = TEXT_WIFI_LETTER_EN;
+    keyboard_menu.digital  = TEXT_WIFI_DIGITAL_EN;
+    keyboard_menu.symbol   = TEXT_WIFI_SYMBOL_EN;
     // tips
+    tips_menu.pointBold    = TEXT_WIFI_POINT_BOLD_EN;
     tips_menu.joining      = TEXT_WIFI_JOINING_EN;
     tips_menu.failedJoin   = TEXT_WIFI_FAILED_JOIN_EN;
     tips_menu.wifiConected = TEXT_WIFI_WIFI_CONECTED_EN;
-  #endif  //USE_WIFI_FUNCTION
+  #endif
   machine_setting_disp();
 
   operation_menu.babystep = TEXT_BABY_STEP_EN;
@@ -962,6 +904,7 @@ void disp_language_init() {
       filesys_menu.usb_sys = U_DISK_TEXT_CN;
       //
       more_menu.title   = TITLE_MORE_CN;
+      more_menu.zoffset = ZOFFSET_CN;
       // WIFI
       wifi_menu.title = WIFI_TEXT;
       // wifi_menu.key = WIFI_KEY_TEXT_CN;
@@ -1073,6 +1016,11 @@ void disp_language_init() {
       print_file_dialog_menu.reprint          = DIALOG_REPRINT_CN;
       print_file_dialog_menu.wifi_enable_tips = DIALOG_WIFI_ENABLE_TIPS_CN;
 
+      // ZOFFSET
+      zoffset_menu.title = TITLE_ZOFFSET_CN;
+      zoffset_menu.inc   = ZOFFSET_INC_CN;
+      zoffset_menu.dec   = ZOFFSET_DEC_CN;
+
       pause_msg_menu.pausing       = MESSAGE_PAUSING_CN;
       pause_msg_menu.changing      = MESSAGE_CHANGING_CN;
       pause_msg_menu.unload        = MESSAGE_UNLOAD_CN;
@@ -1144,6 +1092,7 @@ void disp_language_init() {
             preheat_menu.step_10c     = TEXT_10C_T_CN;
             //
             move_menu.title   = MOVE_TEXT_T_CN;
+            more_menu.zoffset = ZOFFSET_T_CN;
             //
             home_menu.title    = TITLE_HOME_T_CN;
             home_menu.stopmove = HOME_STOPMOVE_T_CN;
@@ -1300,6 +1249,10 @@ void disp_language_init() {
             print_file_dialog_menu.print_time          = DIALOG_PRINT_TIME_T_CN;
             print_file_dialog_menu.reprint             = DIALOG_REPRINT_T_CN;
             print_file_dialog_menu.wifi_enable_tips    = DIALOG_WIFI_ENABLE_TIPS_T_CN;
+            // ZOFFSET
+            zoffset_menu.title = TITLE_ZOFFSET_T_CN;
+            zoffset_menu.inc   = ZOFFSET_INC_T_CN;
+            zoffset_menu.dec   = ZOFFSET_DEC_T_CN;
 
             pause_msg_menu.pausing       = MESSAGE_PAUSING_T_CN;
             pause_msg_menu.changing      = MESSAGE_CHANGING_T_CN;
@@ -1406,6 +1359,7 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_EN;
             set_menu.eepromSet    = EEPROM_SETTINGS_EN;
             more_menu.title       = TITLE_MORE_EN;
+            more_menu.zoffset     = ZOFFSET_EN;
             //
             filesys_menu.title   = TITLE_FILESYS_EN;
             filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
@@ -1515,6 +1469,10 @@ void disp_language_init() {
             print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_EN;
             print_file_dialog_menu.reprint               = DIALOG_REPRINT_EN;
             print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_EN;
+            // ZOFFSET
+            zoffset_menu.title = TITLE_ZOFFSET_EN;
+            zoffset_menu.inc   = ZOFFSET_INC_EN;
+            zoffset_menu.dec   = ZOFFSET_DEC_EN;
 
             pause_msg_menu.pausing       = MESSAGE_PAUSING_EN;
             pause_msg_menu.changing      = MESSAGE_CHANGING_EN;
@@ -1621,6 +1579,7 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_RU;
             set_menu.eepromSet    = EEPROM_SETTINGS_RU;
             more_menu.title       = TITLE_MORE_RU;
+            more_menu.zoffset     = ZOFFSET_RU;
             //
             filesys_menu.title   = TITLE_FILESYS_RU;
             filesys_menu.sd_sys  = SD_CARD_TEXT_RU;
@@ -1730,6 +1689,10 @@ void disp_language_init() {
             print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_RU;
             print_file_dialog_menu.reprint               = DIALOG_REPRINT_RU;
             print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_RU;
+            // ZOFFSET
+            zoffset_menu.title = TITLE_ZOFFSET_RU;
+            zoffset_menu.inc   = ZOFFSET_INC_RU;
+            zoffset_menu.dec   = ZOFFSET_DEC_RU;
 
             pause_msg_menu.pausing       = MESSAGE_PAUSING_RU;
             pause_msg_menu.changing      = MESSAGE_CHANGING_RU;
@@ -1840,6 +1803,7 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_SP;
             set_menu.eepromSet    = EEPROM_SETTINGS_SP;
             more_menu.title       = TITLE_MORE_SP;
+            more_menu.zoffset     = ZOFFSET_SP;
             //
             filesys_menu.title   = TITLE_FILESYS_SP;
             filesys_menu.sd_sys  = SD_CARD_TEXT_SP;
@@ -1950,6 +1914,10 @@ void disp_language_init() {
             print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_SP;
             print_file_dialog_menu.reprint               = DIALOG_REPRINT_SP;
             print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_SP;
+            // ZOFFSET
+            zoffset_menu.title = TITLE_ZOFFSET_SP;
+            zoffset_menu.inc   = ZOFFSET_INC_SP;
+            zoffset_menu.dec   = ZOFFSET_DEC_SP;
 
             pause_msg_menu.pausing       = MESSAGE_PAUSING_SP;
             pause_msg_menu.changing      = MESSAGE_CHANGING_SP;
@@ -2057,6 +2025,7 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_FR;
           set_menu.eepromSet    = EEPROM_SETTINGS_FR;
           more_menu.title       = TITLE_MORE_FR;
+          more_menu.zoffset     = ZOFFSET_FR;
           //
           filesys_menu.title          = TITLE_FILESYS_FR;
           filesys_menu.sd_sys         = SD_CARD_TEXT_FR;
@@ -2168,6 +2137,10 @@ void disp_language_init() {
           print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_FR;
           print_file_dialog_menu.reprint               = DIALOG_REPRINT_FR;
           print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_FR;
+          // ZOFFSET
+          zoffset_menu.title = TITLE_ZOFFSET_FR;
+          zoffset_menu.inc   = ZOFFSET_INC_FR;
+          zoffset_menu.dec   = ZOFFSET_DEC_FR;
 
           pause_msg_menu.pausing       = MESSAGE_PAUSING_FR;
           pause_msg_menu.changing      = MESSAGE_CHANGING_FR;
@@ -2276,6 +2249,7 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_IT;
           set_menu.eepromSet    = EEPROM_SETTINGS_IT;
           more_menu.title       = TITLE_MORE_IT;
+          more_menu.zoffset     = ZOFFSET_IT;
           //
           filesys_menu.title   = TITLE_FILESYS_IT;
           filesys_menu.sd_sys  = SD_CARD_TEXT_IT;
@@ -2384,6 +2358,10 @@ void disp_language_init() {
           print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_IT;
           print_file_dialog_menu.reprint               = DIALOG_REPRINT_IT;
           print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_IT;
+          // ZOFFSET
+          zoffset_menu.title = TITLE_ZOFFSET_IT;
+          zoffset_menu.inc   = ZOFFSET_INC_IT;
+          zoffset_menu.dec   = ZOFFSET_DEC_IT;
 
           pause_msg_menu.pausing       = MESSAGE_PAUSING_IT;
           pause_msg_menu.changing      = MESSAGE_CHANGING_IT;
@@ -2494,6 +2472,7 @@ void disp_language_init() {
       set_menu.eepromSet    = EEPROM_SETTINGS_EN;
       //
       more_menu.title   = TITLE_MORE_EN;
+      more_menu.zoffset = ZOFFSET_EN;
       //
       filesys_menu.title   = TITLE_FILESYS_EN;
       filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
@@ -2603,6 +2582,10 @@ void disp_language_init() {
       print_file_dialog_menu.print_time            = DIALOG_PRINT_TIME_EN;
       print_file_dialog_menu.reprint               = DIALOG_REPRINT_EN;
       print_file_dialog_menu.wifi_enable_tips      = DIALOG_WIFI_ENABLE_TIPS_EN;
+      // ZOFFSET
+      zoffset_menu.title = TITLE_ZOFFSET_EN;
+      zoffset_menu.inc   = ZOFFSET_INC_EN;
+      zoffset_menu.dec   = ZOFFSET_DEC_EN;
 
       pause_msg_menu.pausing       = MESSAGE_PAUSING_EN;
       pause_msg_menu.changing      = MESSAGE_CHANGING_EN;

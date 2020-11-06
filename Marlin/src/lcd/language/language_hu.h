@@ -29,6 +29,7 @@
  * A Magyar fordítást készítette: AntoszHUN
  *
  *
+ *
  */
 
 namespace Language_hu {
@@ -375,7 +376,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Ugrás mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Visszah.helyre mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Csere.Visszah.helyre mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVisszah.");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Visszahúzás Távolság");
@@ -438,12 +439,18 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Teljes");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Végállás megszakítva!");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Fütés hiba!");
+  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Ágy fütés hiba!");
+  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Kamra fütés hiba!");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Hiba: SZÜKSÉGTELEN HÖFOK");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("FÜTÉS KIMARADÁS");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ÁGY FÜTÉS KIMARADÁS");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("KAMRA FÜTÉS KIMARADÁS");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Hiba: MAX Höfok");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Hiba: MIN Höfok");
+  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Hiba: MAX ÁGY HÖFOK");
+  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Hiba: MIN ÁGY HÖFOK");
+  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Hiba: MAX KAMRA HÖFOK");
+  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Hiba: MIN KAMRA HÖFOK");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("A NYOMTATÓ LEFAGYOTT");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Indítsd újra!");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("n"); // Csak egy karakter
@@ -523,6 +530,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Túlfutás Táv. mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Tájolási hiba");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Szondázás hiba");
+  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Túl hideg");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("SZÁLVÁLASZTÁS");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -623,8 +631,8 @@ namespace Language_hu {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

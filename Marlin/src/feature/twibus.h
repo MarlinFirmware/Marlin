@@ -48,6 +48,7 @@ typedef void (*twiRequestFunc_t)();
  *  For more information see
  *    - https://marlinfw.org/docs/gcode/M260.html
  *    - https://marlinfw.org/docs/gcode/M261.html
+ *
  */
 class TWIBus {
   private:

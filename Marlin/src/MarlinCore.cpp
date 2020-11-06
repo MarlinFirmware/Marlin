@@ -72,9 +72,9 @@
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "lcd/dwin/e3v2/dwin.h"
+  #include "lcd/dwin/dwin.h"
   #include "lcd/dwin/dwin_lcd.h"
-  #include "lcd/dwin/e3v2/rotary_encoder.h"
+  #include "lcd/dwin/rotary_encoder.h"
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -97,7 +97,7 @@
   #include "feature/closedloop.h"
 #endif
 
-#if HAS_MOTOR_CURRENT_I2C
+#if HAS_I2C_DIGIPOT
   #include "feature/digipot/digipot.h"
 #endif
 
@@ -125,7 +125,7 @@
   #include "module/servo.h"
 #endif
 
-#if ENABLED(HAS_MOTOR_CURRENT_DAC)
+#if ENABLED(DAC_STEPPER_CURRENT)
   #include "feature/dac/stepper_dac.h"
 #endif
 
@@ -796,10 +796,6 @@ void kill(PGM_P const lcd_error/*=nullptr*/, PGM_P const lcd_component/*=nullptr
     UNUSED(lcd_component);
   #endif
 
-  #if HAS_TFT_LVGL_UI
-    lv_draw_error_message(lcd_error);
-  #endif
-
   #ifdef ACTION_ON_KILL
     host_action_kill();
   #endif
@@ -867,57 +863,6 @@ void stop() {
   }
 }
 
-inline void tmc_standby_setup() {
-  #if PIN_EXISTS(X_STDBY)
-    SET_INPUT_PULLDOWN(X_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(X2_STDBY)
-    SET_INPUT_PULLDOWN(X2_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Y_STDBY)
-    SET_INPUT_PULLDOWN(Y_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Y2_STDBY)
-    SET_INPUT_PULLDOWN(Y2_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Z_STDBY)
-    SET_INPUT_PULLDOWN(Z_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Z2_STDBY)
-    SET_INPUT_PULLDOWN(Z2_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Z3_STDBY)
-    SET_INPUT_PULLDOWN(Z3_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(Z4_STDBY)
-    SET_INPUT_PULLDOWN(Z4_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E0_STDBY)
-    SET_INPUT_PULLDOWN(E0_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E1_STDBY)
-    SET_INPUT_PULLDOWN(E1_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E2_STDBY)
-    SET_INPUT_PULLDOWN(E2_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E3_STDBY)
-    SET_INPUT_PULLDOWN(E3_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E4_STDBY)
-    SET_INPUT_PULLDOWN(E4_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E5_STDBY)
-    SET_INPUT_PULLDOWN(E5_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E6_STDBY)
-    SET_INPUT_PULLDOWN(E6_STDBY_PIN);
-  #endif
-  #if PIN_EXISTS(E7_STDBY)
-    SET_INPUT_PULLDOWN(E7_STDBY_PIN);
-  #endif
-}
-
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -938,8 +883,6 @@ inline void tmc_standby_setup() {
  *    • Max7219
  */
 void setup() {
-
-  tmc_standby_setup();  // TMC Low Power Standby pins must be set early or they're not usable
 
   #if ENABLED(MARLIN_DEV_MODE)
     auto log_current_ms = [&](PGM_P const msg) {
@@ -965,21 +908,16 @@ void setup() {
     #endif
   #endif
 
-  MYSERIAL0.begin(BAUDRATE);
-  uint32_t serial_connect_timeout = millis() + 1000UL;
-  while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #if HAS_MULTI_SERIAL
-    MYSERIAL1.begin(BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
-  #endif
-  SERIAL_ECHO_MSG("start");
-
-  #if BOTH(HAS_TFT_LVGL_UI, USE_WIFI_FUNCTION)
-    mks_esp_wifi_init();
-    WIFISERIAL.begin(WIFI_BAUDRATE);
-    serial_connect_timeout = millis() + 1000UL;
-    while (/*!WIFISERIAL && */PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  #if NUM_SERIAL > 0
+    MYSERIAL0.begin(BAUDRATE);
+    uint32_t serial_connect_timeout = millis() + 1000UL;
+    while (!MYSERIAL0 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #if HAS_MULTI_SERIAL
+      MYSERIAL1.begin(BAUDRATE);
+      serial_connect_timeout = millis() + 1000UL;
+      while (!MYSERIAL1 && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+    #endif
+    SERIAL_ECHO_MSG("start");
   #endif
 
   SETUP_RUN(HAL_init());
@@ -1039,19 +977,18 @@ void setup() {
   SERIAL_CHAR(' ');
   SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
   SERIAL_EOL();
+
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
     SERIAL_ECHO_MSG(
-      " Last Updated: " STRING_DISTRIBUTION_DATE
-      " | Author: " STRING_CONFIG_H_AUTHOR
+      STR_CONFIGURATION_VER
+      STRING_DISTRIBUTION_DATE
+      STR_AUTHOR STRING_CONFIG_H_AUTHOR
     );
+    SERIAL_ECHO_MSG("Compiled: " __DATE__);
   #endif
-  SERIAL_ECHO_MSG("Compiled: " __DATE__);
-  SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  // Init buzzer pin(s)
-  #if USE_BEEPER
-    SETUP_RUN(buzzer.init());
-  #endif
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLNPAIR(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, (int)sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Set up LEDs early
   #if HAS_COLOR_LEDS
@@ -1077,7 +1014,7 @@ void setup() {
     DWIN_UpdateLCD();     // Show bootscreen (first image)
   #else
     SETUP_RUN(ui.init());
-    #if HAS_WIRED_LCD && ENABLED(SHOW_BOOTSCREEN)
+    #if HAS_SPI_LCD && ENABLED(SHOW_BOOTSCREEN)
       SETUP_RUN(ui.show_bootscreen());
     #endif
     SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
@@ -1137,12 +1074,12 @@ void setup() {
     SETUP_RUN(enableStepperDrivers());
   #endif
 
-  #if HAS_MOTOR_CURRENT_I2C
-    SETUP_RUN(digipot_i2c.init());
+  #if HAS_I2C_DIGIPOT
+    SETUP_RUN(digipot_i2c_init());
   #endif
 
-  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
-    SETUP_RUN(stepper_dac.init());
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    SETUP_RUN(dac_init());
   #endif
 
   #if EITHER(Z_PROBE_SLED, SOLENOID_PROBE) && HAS_SOLENOID_1

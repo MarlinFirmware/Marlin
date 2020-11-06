@@ -47,5 +47,4 @@
   #include "sound_list.h"
   #include "polygon.h"
   #include "text_box.h"
-  #include "text_ellipsis.h"
 #endif

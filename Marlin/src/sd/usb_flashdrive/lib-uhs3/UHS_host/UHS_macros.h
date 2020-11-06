@@ -343,16 +343,16 @@ e-mail   :  support@circuitsathome.com
 #define UHS_UINT8_BYTE7(__usi__)  (((uint8_t *)&(__usi__))[7])
 #else
 // Note: The cast alone to uint8_t is actually enough.
-// GCC throws out the "& 0xFF", and the size is no different.
+// GCC throws out the "& 0xff", and the size is no different.
 // Some compilers need it.
-#define UHS_UINT8_BYTE0(__usi__)  ((uint8_t)((__usi__) & 0xFF ))
-#define UHS_UINT8_BYTE1(__usi__)  ((uint8_t)(((__usi__) >> 8) & 0xFF))
-#define UHS_UINT8_BYTE2(__usi__)  ((uint8_t)(((__usi__) >> 16) & 0xFF))
-#define UHS_UINT8_BYTE3(__usi__)  ((uint8_t)(((__usi__) >> 24) & 0xFF))
-#define UHS_UINT8_BYTE4(__usi__)  ((uint8_t)(((__usi__) >> 32) & 0xFF))
-#define UHS_UINT8_BYTE5(__usi__)  ((uint8_t)(((__usi__) >> 40) & 0xFF))
-#define UHS_UINT8_BYTE6(__usi__)  ((uint8_t)(((__usi__) >> 48) & 0xFF))
-#define UHS_UINT8_BYTE7(__usi__)  ((uint8_t)(((__usi__) >> 56) & 0xFF))
+#define UHS_UINT8_BYTE0(__usi__)  ((uint8_t)((__usi__) & 0xff ))
+#define UHS_UINT8_BYTE1(__usi__)  ((uint8_t)(((__usi__) >> 8) & 0xff))
+#define UHS_UINT8_BYTE2(__usi__)  ((uint8_t)(((__usi__) >> 16) & 0xff))
+#define UHS_UINT8_BYTE3(__usi__)  ((uint8_t)(((__usi__) >> 24) & 0xff))
+#define UHS_UINT8_BYTE4(__usi__)  ((uint8_t)(((__usi__) >> 32) & 0xff))
+#define UHS_UINT8_BYTE5(__usi__)  ((uint8_t)(((__usi__) >> 40) & 0xff))
+#define UHS_UINT8_BYTE6(__usi__)  ((uint8_t)(((__usi__) >> 48) & 0xff))
+#define UHS_UINT8_BYTE7(__usi__)  ((uint8_t)(((__usi__) >> 56) & 0xff))
 #endif
 #define UHS_UINT16_SET_BYTE1(__usi__)  ((uint16_t)(__usi__) << 8)
 #define UHS_UINT32_SET_BYTE1(__usi__)  ((uint32_t)(__usi__) << 8)

@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
 
 #include "lcdprint.h"
 
@@ -57,10 +57,7 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
         n -= lcd_put_u8str_max_P(b, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
       }
-      if (n) {
-        n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
-        break;
-      }
+      if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
     }
     else if (ch == '$' && inStr) {
       n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
@@ -73,4 +70,4 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
   return n;
 }
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD

@@ -581,12 +581,13 @@ void GcodeSuite::G425() {
     GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_PRE));
   #endif
 
+  TEMPORARY_SOFT_ENDSTOP_STATE(false);
+  TEMPORARY_BED_LEVELING_STATE(false);
+
   if (homing_needed_error()) return;
 
-  TEMPORARY_BED_LEVELING_STATE(false);
-  SET_SOFT_ENDSTOP_LOOSE(true);
-
   measurements_t m;
+
   float uncertainty = parser.seenval('U') ? parser.value_float() : CALIBRATION_MEASUREMENT_UNCERTAIN;
 
   if (parser.seen('B'))
@@ -610,8 +611,6 @@ void GcodeSuite::G425() {
   #endif
   else
     calibrate_all();
-
-  SET_SOFT_ENDSTOP_LOOSE(false);
 
   #ifdef CALIBRATION_SCRIPT_POST
     GcodeSuite::process_subcommands_now_P(PSTR(CALIBRATION_SCRIPT_POST));

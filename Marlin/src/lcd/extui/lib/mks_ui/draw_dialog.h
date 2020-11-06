@@ -22,7 +22,7 @@
 #pragma once
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+extern "C" { /* C-declarations for C++ */
 #endif
 
 #define DIALOG_TYPE_STOP                             0
@@ -69,8 +69,6 @@
 #define DIALOG_READ_EEPROM_TIPS                     33
 #define DIALOG_REVERT_EEPROM_TIPS                   34
 
-#define DIALOG_WIFI_CONFIG_TIPS                     35
-#define DIALOG_TRANSFER_NO_DEVICE                   36
 #define BTN_OK_X      100
 #define BTN_OK_Y      180
 #define BTN_CANCEL_X  280
@@ -78,11 +76,8 @@
 
 extern void lv_draw_dialog(uint8_t type);
 extern void lv_clear_dialog();
-extern void filament_sprayer_temp();
-extern void filament_dialog_handle();
-extern void lv_filament_setbar();
 
 //extern void disp_temp_ready_print();
 #ifdef __cplusplus
-  } /* C-declarations for C++ */
+} /* C-declarations for C++ */
 #endif

@@ -23,7 +23,7 @@
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if EITHER(HAS_MULTI_EXTRUDER, DEBUG_LEVELING_FEATURE)
+#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
   #include "../../module/motion.h"
 #endif
 
@@ -46,7 +46,7 @@
  *   Tx   Same as T?, but nozzle doesn't have to be preheated. Tc requires a preheated nozzle to finish filament load.
  *   Tc   Load to nozzle after filament was prepared by Tc and nozzle is already heated.
  */
-void GcodeSuite::T(const int8_t tool_index) {
+void GcodeSuite::T(const uint8_t tool_index) {
 
   DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("...(", tool_index, ")");

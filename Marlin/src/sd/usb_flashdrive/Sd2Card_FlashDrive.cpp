@@ -94,7 +94,9 @@ static_assert(USB_INTR_PIN != -1, "USB_INTR_PIN must be defined");
 
 #include "Sd2Card_FlashDrive.h"
 
-#include "../../lcd/ultralcd.h"
+#if HAS_DISPLAY
+  #include "../../lcd/ultralcd.h"
+#endif
 
 static enum {
   UNINITIALIZED,
@@ -114,7 +116,9 @@ bool Sd2Card::usbStartup() {
     SERIAL_ECHOPGM("Starting USB host...");
     if (!UHS_START) {
       SERIAL_ECHOLNPGM(" failed.");
-      LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
+      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+        LCD_MESSAGEPGM(MSG_MEDIA_USB_FAILED);
+      #endif
       return false;
     }
 
@@ -209,7 +213,9 @@ void Sd2Card::idle() {
           #if USB_DEBUG >= 1
             SERIAL_ECHOLNPGM("Waiting for media");
           #endif
-          LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
+          #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+            LCD_MESSAGEPGM(MSG_MEDIA_WAITING);
+          #endif
           GOTO_STATE_AFTER_DELAY(state, 2000);
         }
         break;
@@ -223,9 +229,11 @@ void Sd2Card::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("USB device removed");
       #endif
-      if (state != MEDIA_READY)
-        LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+        if (state != MEDIA_READY)
+          LCD_MESSAGEPGM(MSG_MEDIA_USB_REMOVED);
+      #endif
+      GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
     }
 
     else if (state > WAIT_FOR_LUN && !bulk.LUNIsGood(0)) {
@@ -233,13 +241,17 @@ void Sd2Card::idle() {
       #if USB_DEBUG >= 1
         SERIAL_ECHOLNPGM("Media removed");
       #endif
-      LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
-      GOTO_STATE_AFTER_DELAY(WAIT_FOR_DEVICE, 0);
+      #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+        LCD_MESSAGEPGM(MSG_MEDIA_REMOVED);
+      #endif
+      GOTO_STATE_AFTER_DELAY( WAIT_FOR_DEVICE, 0 );
     }
 
     else if (task_state == UHS_STATE(ERROR)) {
-      LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
-      GOTO_STATE_AFTER_DELAY(MEDIA_ERROR, 0);
+        #if EITHER(ULTRA_LCD, EXTENSIBLE_UI)
+          LCD_MESSAGEPGM(MSG_MEDIA_READ_ERROR);
+        #endif
+        GOTO_STATE_AFTER_DELAY( MEDIA_ERROR, 0 );
     }
   }
 }

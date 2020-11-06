@@ -26,6 +26,7 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
  */
 
 #define DISPLAY_CHARSET_ISO10646_GREEK
@@ -160,9 +161,9 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("Εναλλαγή ανάσυρσης μμ");
   PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("Ανάσυρση V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Μεταπήδηση μμ");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Unretr. mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S Unretr. mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("UnRet mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("S UnRet mm");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet  V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("Αυτόματη ανάσυρση");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Αλλαγή νήματος");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Αλλαγή νήματος *");
@@ -181,6 +182,8 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ΔΙΑΦΥΓΗ ΘΕΡΜΟΤΗΤΑΣ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ");
+  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ");
+  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Θερμαίνεται…");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Θέρμανση κλίνης…");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Βαθμονόμηση Delta");

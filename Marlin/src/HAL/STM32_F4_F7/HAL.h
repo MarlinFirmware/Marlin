@@ -46,16 +46,24 @@
 // Serial override
 //extern HalSerial usb_serial;
 
-#define _MSERIAL(X) SerialUART##X
-#define MSERIAL(X) _MSERIAL(X)
-#define SerialUART0 Serial1
-
 #if defined(STM32F4) && SERIAL_PORT == 0
   #error "SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
 #elif SERIAL_PORT == -1
   #define MYSERIAL0 SerialUSB
-#elif WITHIN(SERIAL_PORT, 0, 6)
-  #define MYSERIAL0 MSERIAL(SERIAL_PORT)
+#elif SERIAL_PORT == 0
+  #define MYSERIAL0 Serial1
+#elif SERIAL_PORT == 1
+  #define MYSERIAL0 SerialUART1
+#elif SERIAL_PORT == 2
+  #define MYSERIAL0 SerialUART2
+#elif SERIAL_PORT == 3
+  #define MYSERIAL0 SerialUART3
+#elif SERIAL_PORT == 4
+  #define MYSERIAL0 SerialUART4
+#elif SERIAL_PORT == 5
+  #define MYSERIAL0 SerialUART5
+#elif SERIAL_PORT == 6
+  #define MYSERIAL0 SerialUART6
 #else
   #error "SERIAL_PORT must be from -1 to 6. Please update your configuration."
 #endif
@@ -63,24 +71,57 @@
 #ifdef SERIAL_PORT_2
   #if defined(STM32F4) && SERIAL_PORT_2 == 0
     #error "SERIAL_PORT_2 cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif SERIAL_PORT_2 == SERIAL_PORT
+    #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
   #elif SERIAL_PORT_2 == -1
     #define MYSERIAL1 SerialUSB
-  #elif WITHIN(SERIAL_PORT_2, 0, 6)
-    #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
+  #elif SERIAL_PORT_2 == 0
+    #define MYSERIAL1 Serial1
+  #elif SERIAL_PORT_2 == 1
+    #define MYSERIAL1 SerialUART1
+  #elif SERIAL_PORT_2 == 2
+    #define MYSERIAL1 SerialUART2
+  #elif SERIAL_PORT_2 == 3
+    #define MYSERIAL1 SerialUART3
+  #elif SERIAL_PORT_2 == 4
+    #define MYSERIAL1 SerialUART4
+  #elif SERIAL_PORT_2 == 5
+    #define MYSERIAL1 SerialUART5
+  #elif SERIAL_PORT_2 == 6
+    #define MYSERIAL1 SerialUART6
   #else
     #error "SERIAL_PORT_2 must be from -1 to 6. Please update your configuration."
   #endif
+  #define NUM_SERIAL 2
+#else
+  #define NUM_SERIAL 1
 #endif
 
-#ifdef LCD_SERIAL_PORT
-  #if defined(STM32F4) && LCD_SERIAL_PORT == 0
-    #error "LCD_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
-  #elif LCD_SERIAL_PORT == -1
-    #define LCD_SERIAL SerialUSB
-  #elif WITHIN(LCD_SERIAL_PORT, 0, 6)
-    #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+#ifdef DGUS_SERIAL_PORT
+  #if defined(STM32F4) && DGUS_SERIAL_PORT == 0
+    #error "DGUS_SERIAL_PORT cannot be 0. (Port 0 does not exist.) Please update your configuration."
+  #elif DGUS_SERIAL_PORT == SERIAL_PORT
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
+  #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
+    #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
+  #elif DGUS_SERIAL_PORT == -1
+    #define DGUS_SERIAL SerialUSB
+  #elif DGUS_SERIAL_PORT == 0
+    #define DGUS_SERIAL Serial1
+  #elif DGUS_SERIAL_PORT == 1
+    #define DGUS_SERIAL SerialUART1
+  #elif DGUS_SERIAL_PORT == 2
+    #define DGUS_SERIAL SerialUART2
+  #elif DGUS_SERIAL_PORT == 3
+    #define DGUS_SERIAL SerialUART3
+  #elif DGUS_SERIAL_PORT == 4
+    #define DGUS_SERIAL SerialUART4
+  #elif DGUS_SERIAL_PORT == 5
+    #define DGUS_SERIAL SerialUART5
+  #elif DGUS_SERIAL_PORT == 6
+    #define DGUS_SERIAL SerialUART6
   #else
-    #error "LCD_SERIAL_PORT must be from -1 to 6. Please update your configuration."
+    #error "DGUS_SERIAL_PORT must be from -1 to 6. Please update your configuration."
   #endif
 #endif
 
@@ -141,8 +182,6 @@ void HAL_clear_reset_source();
 
 // Reset reason
 uint8_t HAL_get_reset_source();
-
-inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 void _delay_ms(const int delay);
 

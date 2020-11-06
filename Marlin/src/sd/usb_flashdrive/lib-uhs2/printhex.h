@@ -34,7 +34,7 @@ template <class T>
 void PrintHex(T val, int lvl) {
   int num_nibbles = sizeof (T) * 2;
   do {
-    char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0F);
+    char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0f);
     if (v > 57) v += 7;
     E_Notifyc(v, lvl);
   } while (--num_nibbles);
@@ -50,7 +50,7 @@ template <class T>
 void SerialPrintHex(T val) {
   int num_nibbles = sizeof (T) * 2;
   do {
-    char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0F);
+    char v = 48 + (((val >> (num_nibbles - 1) * 4)) & 0x0f);
     if (v > 57) v += 7;
     USB_HOST_SERIAL.print(v);
   } while (--num_nibbles);

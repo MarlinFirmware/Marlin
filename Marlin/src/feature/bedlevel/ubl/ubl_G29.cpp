@@ -736,7 +736,6 @@
       uint8_t count = GRID_MAX_POINTS;
 
       mesh_index_pair best;
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_START));
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
@@ -775,8 +774,6 @@
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
       } while (best.pos.x >= 0 && --count);
-
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_FINISH));
 
       // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
       TERN_(HAS_LCD_MENU, ui.release());
@@ -997,10 +994,6 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);     // Display the current point
 
-        #if IS_TFTGLCD_PANEL
-          ui.ubl_plot(lpos.x, lpos.y);   // update plot screen
-        #endif
-
         ui.refresh();
 
         float new_z = z_values[lpos.x][lpos.y];
@@ -1009,16 +1002,12 @@
 
         lcd_mesh_edit_setup(new_z);
 
-        SET_SOFT_ENDSTOP_LOOSE(true);
-
         do {
           idle();
           new_z = lcd_mesh_edit();
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
-
-        SET_SOFT_ENDSTOP_LOOSE(false);
 
         if (!lcd_map_control) ui.return_to_status();        // Just editing a single point? Return to status
 

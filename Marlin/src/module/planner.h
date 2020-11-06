@@ -164,7 +164,7 @@ typedef struct block_t {
   };
   uint32_t step_event_count;                // The number of step events required to complete this block
 
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     uint8_t extruder;                       // The extruder to move (if E move)
   #else
     static constexpr uint8_t extruder = 0;
@@ -218,7 +218,7 @@ typedef struct block_t {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  #if HAS_WIRED_LCD
+  #if HAS_SPI_LCD
     uint32_t segment_time_us;
   #endif
 
@@ -438,7 +438,7 @@ class Planner {
       static uint8_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
-    #if HAS_WIRED_LCD
+    #if HAS_SPI_LCD
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
@@ -871,7 +871,7 @@ class Planner {
         block_buffer_tail = next_block_index(block_buffer_tail);
     }
 
-    #if HAS_WIRED_LCD
+    #if HAS_SPI_LCD
       static uint16_t block_buffer_runtime();
       static void clear_block_buffer_runtime();
     #endif

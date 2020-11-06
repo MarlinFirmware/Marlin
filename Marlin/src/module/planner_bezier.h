@@ -25,6 +25,7 @@
  * planner_bezier.h
  *
  * Compute and buffer movement commands for Bézier curves
+ *
  */
 
 #include "../core/types.h"

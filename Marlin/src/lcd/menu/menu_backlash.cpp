@@ -50,4 +50,4 @@ void menu_backlash() {
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_GCODE
+#endif // HAS_LCD_MENU && BACKLASH_COMPENSATION

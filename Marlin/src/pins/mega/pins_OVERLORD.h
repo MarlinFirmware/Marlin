@@ -25,7 +25,7 @@
  * Dreammaker Overlord v1.1 pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
+#ifndef __AVR_ATmega2560__
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Overlord Controller supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20
   #define LCD_PINS_D5                         21

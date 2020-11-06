@@ -54,33 +54,9 @@
 
   #endif
 
-  #if ENABLED(NEO2_COLOR_PRESETS)
-
-    void menu_leds2_presets() {
-      START_MENU();
-      #if LCD_HEIGHT > 2
-        STATIC_ITEM(MSG_NEO2_PRESETS, SS_DEFAULT|SS_INVERT);
-      #endif
-      BACK_ITEM(MSG_LED_CONTROL);
-      ACTION_ITEM(MSG_SET_LEDS_WHITE,  leds2.set_white);
-      ACTION_ITEM(MSG_SET_LEDS_RED,    leds2.set_red);
-      ACTION_ITEM(MSG_SET_LEDS_ORANGE, leds2.set_orange);
-      ACTION_ITEM(MSG_SET_LEDS_YELLOW, leds2.set_yellow);
-      ACTION_ITEM(MSG_SET_LEDS_GREEN,  leds2.set_green);
-      ACTION_ITEM(MSG_SET_LEDS_BLUE,   leds2.set_blue);
-      ACTION_ITEM(MSG_SET_LEDS_INDIGO, leds2.set_indigo);
-      ACTION_ITEM(MSG_SET_LEDS_VIOLET, leds2.set_violet);
-      END_MENU();
-    }
-
-  #endif
-
   void menu_led_custom() {
     START_MENU();
     BACK_ITEM(MSG_LED_CONTROL);
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      STATIC_ITEM_N(MSG_LED_CHANNEL_N, 1, SS_DEFAULT|SS_INVERT);
-    #endif
     EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds.color.r, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds.color.g, 0, 255, leds.update, true);
     EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds.color.b, 0, 255, leds.update, true);
@@ -89,14 +65,6 @@
       #if ENABLED(NEOPIXEL_LED)
         EDIT_ITEM(uint8, MSG_LED_BRIGHTNESS, &leds.color.i, 0, 255, leds.update, true);
       #endif
-    #endif
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      STATIC_ITEM_N(MSG_LED_CHANNEL_N, 2, SS_DEFAULT|SS_INVERT);
-      EDIT_ITEM(uint8, MSG_INTENSITY_R, &leds2.color.r, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_G, &leds2.color.g, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_B, &leds2.color.b, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_INTENSITY_W, &leds2.color.w, 0, 255, leds2.update, true);
-      EDIT_ITEM(uint8, MSG_NEO2_BRIGHTNESS, &leds2.color.i, 0, 255, leds2.update, true);
     #endif
     END_MENU();
   }
@@ -121,19 +89,11 @@ void menu_led() {
   BACK_ITEM(MSG_MAIN);
 
   #if ENABLED(LED_CONTROL_MENU)
-    editable.state = leds.lights_on;
-    EDIT_ITEM(bool, MSG_LEDS, &editable.state, leds.toggle);
+    bool led_on = leds.lights_on;
+    EDIT_ITEM(bool, MSG_LEDS, &led_on, leds.toggle);
     ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds.set_default);
-    #if ENABLED(NEOPIXEL2_SEPARATE)
-      editable.state = leds2.lights_on;
-      EDIT_ITEM(bool, MSG_LEDS2, &editable.state, leds2.toggle);
-      ACTION_ITEM(MSG_SET_LEDS_DEFAULT, leds2.set_default);
-    #endif
     #if ENABLED(LED_COLOR_PRESETS)
       SUBMENU(MSG_LED_PRESETS, menu_led_presets);
-    #endif
-    #if ENABLED(NEO2_COLOR_PRESETS)
-      SUBMENU(MSG_NEO2_PRESETS, menu_leds2_presets);
     #endif
     SUBMENU(MSG_CUSTOM_LEDS, menu_led_custom);
   #endif

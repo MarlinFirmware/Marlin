@@ -26,7 +26,7 @@
 
 #include "QSPIFlash.h"
 
-#define INVALID_ADDR    0xFFFFFFFF
+#define INVALID_ADDR    0xffffffff
 #define SECTOR_OF(a)    (a & ~(SFLASH_SECTOR_SIZE - 1))
 #define OFFSET_OF(a)    (a & (SFLASH_SECTOR_SIZE - 1))
 

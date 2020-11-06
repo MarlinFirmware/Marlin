@@ -23,7 +23,9 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "SPI_TFT.h"
+#if ENABLED(TFT_LVGL_UI_SPI)
+  #include "SPI_TFT.h"
+#endif
 
 #include "lv_conf.h"
 #include "draw_ui.h"
@@ -75,7 +77,7 @@ void lv_draw_error_message(PGM_P const msg) {
     lv_task_handler();
   #endif
 
-  SPI_TFT.LCD_clear(0x0000);
+  TERN(TFT_LVGL_UI_SPI, SPI_TFT.LCD_clear, LCD_Clear)(0x0000);
   if (msg) disp_string((TFT_WIDTH - strlen(msg) * 16) / 2, 100, msg, 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("PRINTER HALTED") * 16) / 2, 140, "PRINTER HALTED", 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("Please Reset") * 16) / 2, 180, "Please Reset", 0xFFFF, 0x0000);

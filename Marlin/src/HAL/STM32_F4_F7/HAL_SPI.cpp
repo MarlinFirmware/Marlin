@@ -72,7 +72,7 @@ static SPISettings spiConfig;
  */
 void spiBegin() {
   #if !defined(SS_PIN) || SS_PIN < 0
-    #error "SS_PIN not defined!"
+    #error SS_PIN not defined!
   #endif
 
   OUT_WRITE(SS_PIN, HIGH);

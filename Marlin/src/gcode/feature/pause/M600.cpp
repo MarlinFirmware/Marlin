@@ -29,7 +29,7 @@
 #include "../../../module/motion.h"
 #include "../../../module/printcounter.h"
 
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
   #include "../../../module/tool_change.h"
 #endif
 
@@ -43,10 +43,6 @@
 
 #if ENABLED(MIXING_EXTRUDER)
   #include "../../../feature/mixing.h"
-#endif
-
-#if HAS_FILAMENT_SENSOR
-  #include "../../../feature/runout.h"
 #endif
 
 /**
@@ -105,7 +101,7 @@ void GcodeSuite::M600() {
     if (!all_axes_known()) home_all_axes();
   #endif
 
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     // Change toolhead if specified
     const uint8_t active_extruder_before_filament_change = active_extruder;
     if (active_extruder != target_extruder && TERN1(DUAL_X_CARRIAGE, !dxc_is_duplicating()))
@@ -163,7 +159,7 @@ void GcodeSuite::M600() {
     #endif
   }
 
-  #if HAS_MULTI_EXTRUDER
+  #if EXTRUDERS > 1
     // Restore toolhead if it was changed
     if (active_extruder_before_filament_change != active_extruder)
       tool_change(active_extruder_before_filament_change, false);

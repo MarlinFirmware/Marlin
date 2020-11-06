@@ -34,6 +34,7 @@
  *
  * Sending "M999 S1" will resume printing without flushing the
  * existing command buffer.
+ *
  */
 void GcodeSuite::M999() {
   marlin_state = MF_RUNNING;

@@ -21,7 +21,9 @@
 #pragma once
 
 /**
- * HAL Timers for Arduino Due and compatible (SAM3X8E)
+ * HAL for Arduino Due and compatible (SAM3X8E)
+ *
+ * For ARDUINO_ARCH_SAM
  */
 
 #include <stdint.h>

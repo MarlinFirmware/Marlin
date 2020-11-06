@@ -31,13 +31,9 @@
  * M20: List SD card to serial output
  */
 void GcodeSuite::M20() {
-  if (card.flag.mounted) {
-    SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
-    card.ls();
-    SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
-  }
-  else
-    SERIAL_ECHO_MSG(STR_NO_MEDIA);
+  SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
+  card.ls();
+  SERIAL_ECHOLNPGM(STR_END_FILE_LIST);
 }
 
 #endif // SDSUPPORT

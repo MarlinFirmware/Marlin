@@ -23,10 +23,9 @@
 
 /**
  * ReprapWorld ULTRATRONICS v1.0
- * https://reprapworld.com/documentation/datasheet_ultratronics10_05.pdf
  */
 
-#if NOT_TARGET(ARDUINO_ARCH_SAM)
+#ifndef ARDUINO_ARCH_SAM
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -146,10 +145,6 @@
 #define SPI_EEPROM1_CS                        -1
 #define SPI_EEPROM2_CS                        -1
 #define SPI_FLASH_CS                          -1
-
-#define SCK_PIN                               76
-#define MISO_PIN                              74
-#define MOSI_PIN                              75
 
 // SPI for Max6675 or Max31855 Thermocouple
 #define MAX6675_SS_PIN                        65

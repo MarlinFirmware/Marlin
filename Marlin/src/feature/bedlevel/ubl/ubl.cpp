@@ -48,7 +48,7 @@
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG("  G29 I999");
+    SERIAL_ECHO_MSG("  G29 I99");
     GRID_LOOP(x, y)
       if (!isnan(z_values[x][y])) {
         SERIAL_ECHO_START();

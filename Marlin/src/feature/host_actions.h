@@ -44,9 +44,6 @@ void host_action(PGM_P const pstr, const bool eol=true);
 #ifdef ACTION_ON_CANCEL
   void host_action_cancel();
 #endif
-#ifdef ACTION_ON_START
-  void host_action_start();
-#endif
 
 #if ENABLED(HOST_PROMPT_SUPPORT)
 

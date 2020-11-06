@@ -22,12 +22,15 @@
  * Structures for 2560 family boards that use more than 70 pins
  */
 
-#if MB(BQ_ZUM_MEGA_3D, MINIRAMBO, SCOOVO_X9H, TRIGORILLA_14)
-  #undef NUM_DIGITAL_PINS
+#undef NUM_DIGITAL_PINS
+#if MB(BQ_ZUM_MEGA_3D)
   #define NUM_DIGITAL_PINS            85
 #elif MB(MIGHTYBOARD_REVE)
-  #undef NUM_DIGITAL_PINS
   #define NUM_DIGITAL_PINS            80
+#elif MB(MINIRAMBO)
+  #define NUM_DIGITAL_PINS            85
+#elif MB(SCOOVO_X9H)
+  #define NUM_DIGITAL_PINS            85
 #endif
 
 #define PA 1

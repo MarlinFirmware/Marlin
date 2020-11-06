@@ -25,7 +25,7 @@
  * Mini-RAMBo pin assignments
  */
 
-#if NOT_TARGET(__AVR_ATmega2560__)
+#ifndef __AVR_ATmega2560__
   #error "Oops! Select 'RAMBo' in 'Tools > Board' or the Mega2560 environment in PlatformIO."
 #endif
 
@@ -141,7 +141,7 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
 
   #if !MB(MINIRAMBO_10A)
     #define KILL_PIN                          32
@@ -189,4 +189,4 @@
 
   #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
 
-#endif // HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
+#endif // HAS_SPI_LCD

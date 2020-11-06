@@ -24,7 +24,7 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
 
-#if HAS_MULTI_EXTRUDER
+#if EXTRUDERS > 1
 
   typedef struct {
     #if ENABLED(TOOLCHANGE_FILAMENT_SWAP)

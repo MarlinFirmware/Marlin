@@ -63,11 +63,11 @@
  *   4. The programmer is no longer needed. Remove it.
  */
 
-#if NOT_TARGET(__AVR_AT90USB1286__)
+#ifndef __AVR_AT90USB1286__
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
+#ifndef USBCON
   #error "USBCON should be defined by the platform for this board."
 #endif
 
@@ -143,7 +143,7 @@
 #endif // NO_EXTRUDRBOARD
 
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
-#define HAS_MOTOR_CURRENT_DAC
+#define DAC_STEPPER_CURRENT
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
 #ifndef DAC_MOTOR_CURRENT_DEFAULT
@@ -158,7 +158,7 @@
 #define DAC_STEPPER_MAX                      3520
 #define DAC_STEPPER_VREF                       1  // internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN                       0
-#define DAC_OR_ADDRESS                      0x00
+#define DAC_OR_ADDRESS 0x00
 
 //
 // Temperature Sensors
@@ -201,7 +201,7 @@
 //
 //#define USE_INTERNAL_SD
 
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
   #define LCD_PINS_D4                          7  // D7       JP11-8

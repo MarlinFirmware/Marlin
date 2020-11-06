@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
+#if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
 
 #include "dogm_Statusscreen.h"
 #include "ultralcd_DOGM.h"
@@ -178,17 +178,17 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 #if DO_DRAW_HOTENDS
 
   // Draw hotend bitmap with current and target temperatures
-  FORCE_INLINE void _draw_hotend_status(const heater_id_t heater_id, const bool blink) {
+  FORCE_INLINE void _draw_hotend_status(const heater_ind_t heater, const bool blink) {
     #if !HEATER_IDLE_HANDLER
       UNUSED(blink);
     #endif
 
-    const bool isHeat = HOTEND_ALT(heater_id);
+    const bool isHeat = HOTEND_ALT(heater);
 
-    const uint8_t tx = STATUS_HOTEND_TEXT_X(heater_id);
+    const uint8_t tx = STATUS_HOTEND_TEXT_X(heater);
 
-    const float temp = thermalManager.degHotend(heater_id),
-              target = thermalManager.degTargetHotend(heater_id);
+    const float temp = thermalManager.degHotend(heater),
+              target = thermalManager.degTargetHotend(heater);
 
     #if DISABLED(STATUS_HOTEND_ANIM)
       #define STATIC_HOTEND true
@@ -237,24 +237,24 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
       #if ANIM_HOTEND
         // Draw hotend bitmap, either whole or split by the heating percent
-        const uint8_t hx = STATUS_HOTEND_X(heater_id),
-                      bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
+        const uint8_t hx = STATUS_HOTEND_X(heater),
+                      bw = STATUS_HOTEND_BYTEWIDTH(heater);
         #if ENABLED(STATUS_HEAT_PERCENT)
           if (isHeat && tall <= BAR_TALL) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater_id, false));
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater_id, true) + ph * bw);
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(heater, false));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(heater, true) + ph * bw);
           }
           else
         #endif
-            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater_id, isHeat));
+            u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, STATUS_HEATERS_HEIGHT, HOTEND_BITMAP(heater, isHeat));
       #endif
 
     } // PAGE_CONTAINS
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
-        const bool dodraw = (blink || !thermalManager.heater_idle[heater_id].timed_out);
+        const bool dodraw = (blink || !thermalManager.hotend_idle[heater].timed_out);
       #else
         constexpr bool dodraw = true;
       #endif
@@ -327,7 +327,7 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 
     if (PAGE_UNDER(7)) {
       #if HEATER_IDLE_HANDLER
-        const bool dodraw = (blink || !thermalManager.heater_idle[thermalManager.IDLE_INDEX_BED].timed_out);
+        const bool dodraw = (blink || !thermalManager.bed_idle.timed_out);
       #else
         constexpr bool dodraw = true;
       #endif
@@ -597,7 +597,7 @@ void MarlinUI::draw_status_screen() {
     // Extruders
     #if DO_DRAW_HOTENDS
       LOOP_L_N(e, MAX_HOTEND_DRAW)
-        _draw_hotend_status((heater_id_t)e, blink);
+        _draw_hotend_status((heater_ind_t)e, blink);
     #endif
 
     // Laser / Spindle
@@ -758,7 +758,7 @@ void MarlinUI::draw_status_screen() {
 
         // Two-component mix / gradient instead of XY
 
-        char mixer_messages[15];
+        char mixer_messages[12];
         PGM_P mix_label;
         #if ENABLED(GRADIENT_MIX)
           if (mixer.gradient.enabled) {
@@ -913,4 +913,4 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
-#endif // HAS_MARLINUI_U8GLIB && !LIGHTWEIGHT_UI
+#endif // HAS_GRAPHICAL_LCD && !LIGHTWEIGHT_UI

@@ -86,7 +86,7 @@ int RingBuffer::read() {
 ring_buffer_pos_t RingBuffer::read(uint8_t *buffer) {
    ring_buffer_pos_t len = available();
 
-  for (ring_buffer_pos_t i = 0; read_index != write_index; i++) {
+  for(ring_buffer_pos_t i = 0; read_index != write_index; i++) {
     buffer[i] = data[read_index];
     read_index = NEXT_INDEX(read_index, size);
   }
@@ -139,8 +139,9 @@ size_t WebSocketSerial::write(const uint8_t c) {
 
 size_t WebSocketSerial::write(const uint8_t* buffer, size_t size) {
   size_t written = 0;
-  for (size_t i = 0; i < size; i++)
+  for(size_t i = 0; i < size; i++) {
     written += write(buffer[i]);
+  }
   return written;
 }
 

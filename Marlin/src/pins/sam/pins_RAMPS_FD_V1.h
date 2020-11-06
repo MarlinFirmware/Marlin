@@ -28,7 +28,7 @@
  * Use 4k7 thermistor tables
  */
 
-#if NOT_TARGET(__SAM3X8E__)
+#ifndef __SAM3X8E__
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -139,7 +139,7 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
   // ramps-fd lcd adaptor
 
   #define BEEPER_PIN                          37
@@ -203,7 +203,7 @@
     #define DOGLCD_MISO                       74  // MISO_PIN
   #endif
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD
 
 #if HAS_TMC_UART
   /**

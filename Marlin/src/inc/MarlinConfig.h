@@ -27,31 +27,21 @@
 
 #include "MarlinConfigPre.h"
 
-#ifndef __MARLIN_DEPS__
-  #include "../HAL/HAL.h"
-#endif
+#include "../HAL/HAL.h"
 
 #include "../pins/pins.h"
-
-#ifndef __MARLIN_DEPS__
-  #include HAL_PATH(../HAL, timers.h)
-  #include HAL_PATH(../HAL, spi_pins.h)
-#endif
+#include HAL_PATH(../HAL, timers.h)
+#include HAL_PATH(../HAL, spi_pins.h)
 
 #include "Conditionals_post.h"
+#include HAL_PATH(../HAL, inc/Conditionals_post.h)
 
-#ifndef __MARLIN_DEPS__
+#include "../core/types.h"  // Ahead of sanity-checks
 
-  #include HAL_PATH(../HAL, inc/Conditionals_post.h)
+#include "SanityCheck.h"
+#include HAL_PATH(../HAL, inc/SanityCheck.h)
 
-  #include "../core/types.h"  // Ahead of sanity-checks
-
-  #include "SanityCheck.h"
-  #include HAL_PATH(../HAL, inc/SanityCheck.h)
-
-  // Include all core headers
-  #include "../core/language.h"
-  #include "../core/utility.h"
-  #include "../core/serial.h"
-
-#endif
+// Include all core headers
+#include "../core/language.h"
+#include "../core/utility.h"
+#include "../core/serial.h"

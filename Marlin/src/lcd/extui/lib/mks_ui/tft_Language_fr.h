@@ -208,6 +208,10 @@
 #define STEP_5PERCENT_FR              "5%"
 #define STEP_10PERCENT_FR             "10%"
 
+#define ZOFFSET_FR                    "Z Offset"
+#define ZOFFSET_INC_FR                "Ajouter"
+#define ZOFFSET_DEC_FR                "Réduire"
+
 #define TITLE_READYPRINT_FR           "Prête"
 #define TITLE_PREHEAT_FR              "Préchauffe"
 #define TITLE_MOVE_FR                 "Déplace"
@@ -230,6 +234,7 @@
 #define TITLE_CLOUD_TEXT_FR           "Cloud"
 #define TITLE_DIALOG_CONFIRM_FR       "Confirm"
 #define TITLE_FILESYS_FR              "FileSys"
+#define TITLE_ZOFFSET_FR              "Z Offset"
 
 #define DIALOG_CLOSE_MACHINE_FR       "Closing machine......"
 

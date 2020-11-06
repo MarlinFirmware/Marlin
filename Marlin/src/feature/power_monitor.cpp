@@ -44,7 +44,7 @@ uint8_t PowerMonitor::display_item;
 
 PowerMonitor power_monitor; // Single instance - this calls the constructor
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
 
   #if ENABLED(POWER_MONITOR_CURRENT)
     void PowerMonitor::draw_current() {
@@ -70,6 +70,6 @@ PowerMonitor power_monitor; // Single instance - this calls the constructor
     }
   #endif
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // HAS_GRAPHICAL_LCD
 
 #endif // HAS_POWER_MONITOR

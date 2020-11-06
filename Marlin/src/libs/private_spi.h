@@ -43,7 +43,7 @@ class SPIclass<MISO_PIN, MOSI_PIN, SCK_PIN> {
       SET_INPUT_PULLUP(MISO_PIN);
     }
     FORCE_INLINE static uint8_t receive() {
-      #if defined(__AVR__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__) || defined(__IMXRT1062__)
+      #if defined(__AVR__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
         SPDR = 0;
         for (;!TEST(SPSR, SPIF););
         return SPDR;

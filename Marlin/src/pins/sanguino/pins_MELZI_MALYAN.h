@@ -28,7 +28,7 @@
 #define BOARD_INFO_NAME "Melzi (Malyan)"
 
 // Alter timing for graphical display
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #endif

@@ -57,6 +57,7 @@ SdFile::SdFile(const char* path, uint8_t oflag) : SdBaseFile(path, oflag) { }
  * \a nbyte.  If an error occurs, write() returns -1.  Possible errors
  * include write() is called before a file has been opened, write is called
  * for a read-only file, device is full, a corrupt file system or an I/O error.
+ *
  */
 int16_t SdFile::write(const void* buf, uint16_t nbyte) { return SdBaseFile::write(buf, nbyte); }
 

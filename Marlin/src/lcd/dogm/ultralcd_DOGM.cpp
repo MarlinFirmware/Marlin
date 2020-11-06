@@ -37,7 +37,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB
+#if HAS_GRAPHICAL_LCD
 
 #include "ultralcd_DOGM.h"
 #include "u8g_fontutf8.h"
@@ -240,35 +240,39 @@ bool MarlinUI::detected() { return true; }
 
 // Initialize or re-initialize the LCD
 void MarlinUI::init_lcd() {
-  #if PIN_EXISTS(LCD_BACKLIGHT)
-    OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
-  #endif
+  #if DISABLED(MKS_LCD12864)
 
-  #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED)
-    SET_OUTPUT(LCD_PINS_DC);
-    #ifndef LCD_RESET_PIN
-      #define LCD_RESET_PIN LCD_PINS_RS
+    #if PIN_EXISTS(LCD_BACKLIGHT)
+      OUT_WRITE(LCD_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT)); // Illuminate after reset or right away
     #endif
-  #endif
 
-  #if PIN_EXISTS(LCD_RESET)
-    // Perform a clean hardware reset with needed delays
-    OUT_WRITE(LCD_RESET_PIN, LOW);
-    _delay_ms(5);
-    WRITE(LCD_RESET_PIN, HIGH);
-    _delay_ms(5);
-    u8g.begin();
-  #endif
+    #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED)
+      SET_OUTPUT(LCD_PINS_DC);
+      #ifndef LCD_RESET_PIN
+        #define LCD_RESET_PIN LCD_PINS_RS
+      #endif
+    #endif
 
-  #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    WRITE(LCD_BACKLIGHT_PIN, HIGH);
-  #endif
+    #if PIN_EXISTS(LCD_RESET)
+      // Perform a clean hardware reset with needed delays
+      OUT_WRITE(LCD_RESET_PIN, LOW);
+      _delay_ms(5);
+      WRITE(LCD_RESET_PIN, HIGH);
+      _delay_ms(5);
+      u8g.begin();
+    #endif
 
-  TERN_(HAS_LCD_CONTRAST, refresh_contrast());
+    #if PIN_EXISTS(LCD_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
+      WRITE(LCD_BACKLIGHT_PIN, HIGH);
+    #endif
 
-  TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
-  TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
-  TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
+    TERN_(HAS_LCD_CONTRAST, refresh_contrast());
+
+    TERN_(LCD_SCREEN_ROT_90, u8g.setRot90());
+    TERN_(LCD_SCREEN_ROT_180, u8g.setRot180());
+    TERN_(LCD_SCREEN_ROT_270, u8g.setRot270());
+
+  #endif // !MKS_LCD12864
 
   uxg_SetUtf8Fonts(g_fontinfo, COUNT(g_fontinfo));
 }
@@ -308,7 +312,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       lcd_put_u8str(i16tostr3rj(thermalManager.degHotend(extruder)));
       lcd_put_wchar('/');
 
-      if (get_blink() || !thermalManager.heater_idle[extruder].timed_out)
+      if (get_blink() || !thermalManager.hotend_idle[extruder].timed_out)
         lcd_put_u8str(i16tostr3rj(thermalManager.degTargetHotend(extruder)));
     }
 
@@ -687,4 +691,4 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
 #endif // HAS_LCD_MENU
 
-#endif // HAS_MARLINUI_U8GLIB
+#endif // HAS_GRAPHICAL_LCD

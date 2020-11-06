@@ -21,7 +21,7 @@
  */
 
 /**
- * HAL Timers for Teensy 3.2 (MK20DX256)
+ * Teensy3.2 __MK20DX256__
  */
 
 #ifdef __MK20DX256__

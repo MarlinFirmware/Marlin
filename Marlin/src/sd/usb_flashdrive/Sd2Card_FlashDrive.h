@@ -30,20 +30,19 @@
 #include "../SdInfo.h"
 
 /**
- * Define SOFTWARE_SPI to use bit-bang SPI
+ * define SOFTWARE_SPI to use bit-bang SPI
  */
-#if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
+#if MEGA_SOFT_SPI || USE_SOFTWARE_SPI
   #define SOFTWARE_SPI
 #endif
 
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
-#if ENABLED(SOFTWARE_SPI)
-  #warning "Auto-assigning '10' as the SD_CHIP_SELECT_PIN."
-  #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
-#else
+#if DISABLED(SOFTWARE_SPI)
   // hardware pin defs
   #define SD_CHIP_SELECT_PIN  SS_PIN            // The default chip select pin for the SD card is SS.
-#endif
+#else  // SOFTWARE_SPI
+  #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
+#endif // SOFTWARE_SPI
 
 class Sd2Card {
   private:

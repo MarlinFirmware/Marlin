@@ -44,7 +44,11 @@ extern xyze_pos_t destination;
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
-void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
+void GcodeSuite::G0_G1(
+  #if IS_SCARA || defined(G0_FEEDRATE)
+    const bool fast_move/*=false*/
+  #endif
+) {
 
   if (IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)

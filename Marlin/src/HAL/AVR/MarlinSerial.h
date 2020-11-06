@@ -48,11 +48,11 @@
 
   // These are macros to build serial port register names for the selected SERIAL_PORT (C preprocessor
   // requires two levels of indirection to expand macro values properly)
-  #define SERIAL_REGNAME(registerbase,number,suffix) _SERIAL_REGNAME(registerbase,number,suffix)
+  #define SERIAL_REGNAME(registerbase,number,suffix) SERIAL_REGNAME_INTERNAL(registerbase,number,suffix)
   #if SERIAL_PORT == 0 && (!defined(UBRR0H) || !defined(UDR0)) // use un-numbered registers if necessary
-    #define _SERIAL_REGNAME(registerbase,number,suffix) registerbase##suffix
+    #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##suffix
   #else
-    #define _SERIAL_REGNAME(registerbase,number,suffix) registerbase##number##suffix
+    #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
   #endif
 
   // Registers used by MarlinSerial class (expanded depending on selected serial port)
@@ -217,11 +217,9 @@
       static ring_buffer_pos_t available();
       static void write(const uint8_t c);
       static void flushTX();
-      #if HAS_DGUS_LCD
+      #ifdef DGUS_SERIAL_PORT
         static ring_buffer_pos_t get_tx_buffer_free();
       #endif
-
-      static inline bool emergency_parser_enabled() { return Cfg::EMERGENCYPARSER; }
 
       FORCE_INLINE static uint8_t dropped() { return Cfg::DROPPED_RX ? rx_dropped_bytes : 0; }
       FORCE_INLINE static uint8_t buffer_overruns() { return Cfg::RX_OVERRUNS ? rx_buffer_overruns : 0; }
@@ -280,53 +278,58 @@
 
 #endif // !USBCON
 
-#ifdef MMU2_SERIAL_PORT
+#ifdef INTERNAL_SERIAL_PORT
   template <uint8_t serial>
-  struct MMU2SerialCfg {
+  struct MarlinInternalSerialCfg {
     static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 32;
+    static constexpr unsigned int TX_SIZE   = 32;
     static constexpr bool XONOFF            = false;
     static constexpr bool EMERGENCYPARSER   = false;
     static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = false;
     static constexpr bool RX_FRAMING_ERRORS = false;
     static constexpr bool MAX_RX_QUEUED     = false;
-    static constexpr unsigned int RX_SIZE   = 32;
-    static constexpr unsigned int TX_SIZE   = 32;
-    static constexpr bool RX_OVERRUNS       = false;
   };
 
-  extern MarlinSerial<MMU2SerialCfg<MMU2_SERIAL_PORT>> mmuSerial;
+  extern MarlinSerial<MarlinInternalSerialCfg<INTERNAL_SERIAL_PORT>> internalSerial;
 #endif
 
-#ifdef LCD_SERIAL_PORT
-
+#ifdef DGUS_SERIAL_PORT
   template <uint8_t serial>
-  struct LCDSerialCfg {
-    static constexpr int PORT                 = serial;
-    static constexpr bool XONOFF              = false;
-    static constexpr bool EMERGENCYPARSER     = ENABLED(EMERGENCY_PARSER);
-    static constexpr bool DROPPED_RX          = false;
-    static constexpr bool RX_FRAMING_ERRORS   = false;
-    static constexpr bool MAX_RX_QUEUED       = false;
-    #if HAS_DGUS_LCD
-      static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
-      static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
-      static constexpr bool RX_OVERRUNS       = ENABLED(SERIAL_STATS_RX_BUFFER_OVERRUNS);
-    #elif EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
-      static constexpr unsigned int RX_SIZE   = 64;
-      static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false;
-    #else
-      static constexpr unsigned int RX_SIZE   = 64;
-      static constexpr unsigned int TX_SIZE   = 128;
-      static constexpr bool RX_OVERRUNS       = false
-    #endif
+  struct MarlinInternalSerialCfg {
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = DGUS_RX_BUFFER_SIZE;
+    static constexpr unsigned int TX_SIZE   = DGUS_TX_BUFFER_SIZE;
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = BOTH(HAS_DGUS_LCD, DGUS_SERIAL_STATS_RX_BUFFER_OVERRUNS);
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
   };
 
-  extern MarlinSerial<LCDSerialCfg<LCD_SERIAL_PORT>> lcdSerial;
+  extern MarlinSerial<MarlinInternalSerialCfg<DGUS_SERIAL_PORT>> internalDgusSerial;
+#endif
 
+#ifdef ANYCUBIC_LCD_SERIAL_PORT
+  template <uint8_t serial>
+  struct AnycubicLcdSerialCfg {
+    static constexpr int PORT               = serial;
+    static constexpr unsigned int RX_SIZE   = 64;
+    static constexpr unsigned int TX_SIZE   = 128;
+    static constexpr bool XONOFF            = false;
+    static constexpr bool EMERGENCYPARSER   = false;
+    static constexpr bool DROPPED_RX        = false;
+    static constexpr bool RX_OVERRUNS       = false;
+    static constexpr bool RX_FRAMING_ERRORS = false;
+    static constexpr bool MAX_RX_QUEUED     = false;
+  };
+
+  extern MarlinSerial<AnycubicLcdSerialCfg<ANYCUBIC_LCD_SERIAL_PORT>> anycubicLcdSerial;
 #endif
 
 // Use the UART for Bluetooth in AT90USB configurations
-#if BOTH(IS_AT90USB, BLUETOOTH)
+#if defined(USBCON) && ENABLED(BLUETOOTH)
   extern HardwareSerial bluetoothSerial;
 #endif

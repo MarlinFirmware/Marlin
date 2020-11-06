@@ -189,8 +189,8 @@ e-mail   :  support@circuitsathome.com
 #define                 UHS_USB_HOST_STATE_INITIALIZE 0x10U // Looks like "I"nit
 
 // Host SE result codes.
-// Common SE results are stored in the low nybble, all interface drivers understand these plus 0x1F.
-// Extended SE results are 0x10-0x1E. SE code only understands these internal to the hardware.
+// Common SE results are stored in the low nybble, all interface drivers understand these plus 0x1f.
+// Extended SE results are 0x10-0x1e. SE code only understands these internal to the hardware.
 // Values > 0x1F are driver or other internal error conditions.
 // Return these result codes from your host controller driver to match the error condition
 // ALL Non-zero values are errors.

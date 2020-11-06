@@ -42,6 +42,7 @@ constexpr uint32_t flash_eeprom_version = 1;
  * 0       16       DATA STORAGE AREA
  * 16      1        VERSIONING DATA
  * 17      inf      MEDIA STORAGE AREA
+ *
  */
 
 #define DATA_STORAGE_SIZE_64K
@@ -187,7 +188,7 @@ bool UIFlashStorage::is_present = false;
   }
 
   void UIFlashStorage::initialize() {
-    for (uint8_t i = 0; i < 10; i++) {
+    for(uint8_t i = 0; i < 10; i++) {
       if (check_known_device()) {
         is_present = true;
         break;
@@ -238,7 +239,7 @@ bool UIFlashStorage::is_present = false;
     uint16_t stride = 4 + block_size;
     int32_t read_offset = -1;
 
-    for (uint32_t offset = 0; offset < (data_storage_area_size - stride); offset += stride) {
+    for(uint32_t offset = 0; offset < (data_storage_area_size - stride); offset += stride) {
       uint32_t delim;
       spi_read_begin(offset);
       spi_read_bulk (&delim, sizeof(delim));
@@ -394,8 +395,9 @@ bool UIFlashStorage::is_present = false;
   uint32_t UIFlashStorage::get_media_file_start(uint8_t slot) {
     uint32_t addr = media_storage_addr + sizeof(uint32_t) * media_storage_slots;
     spi_read_begin(media_storage_addr);
-    for (uint8_t i = 0; i < slot; i++)
+    for(uint8_t i = 0; i < slot; i++) {
       addr += spi_read_32();
+    }
     spi_read_end();
     return addr;
   }
@@ -440,7 +442,7 @@ bool UIFlashStorage::is_present = false;
       addr = get_media_file_start(slot);
 
       // Write out the file itself
-      for (;;) {
+      for(;;) {
         const int16_t nBytes = reader.read(buff, write_page_size);
         if (nBytes == -1) {
           SERIAL_ECHOLNPGM("Failed to read from file");
@@ -448,7 +450,8 @@ bool UIFlashStorage::is_present = false;
         }
 
         addr = write(addr, buff, nBytes);
-        if (nBytes != write_page_size) break;
+        if (nBytes != write_page_size)
+          break;
 
         TERN_(EXTENSIBLE_UI, ExtUI::yield());
       }

@@ -25,16 +25,173 @@
 #if HAS_GRAPHICAL_TFT
 
 #include "tft.h"
+#include "st7735.h"
+#include "st7789v.h"
+#include "st7796s.h"
+#include "r65105.h"
+#include "ili9328.h"
+#include "ili9341.h"
+#include "ili9488.h"
 
 //#define DEBUG_GRAPHICAL_TFT
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
 
 uint16_t TFT::buffer[];
+uint32_t TFT::lcd_id = 0xFFFFFFFF;
 
 void TFT::init() {
+  if (lcd_id != 0xFFFFFFFF) return;
+
   io.Init();
-  io.InitTFT();
+
+  #if TFT_DRIVER != AUTO
+    lcd_id = TFT_DRIVER;
+  #endif
+
+  #if TFT_DRIVER == ST7735
+    write_esc_sequence(st7735_init);
+  #elif TFT_DRIVER == ST7789
+    write_esc_sequence(st7789v_init);
+  #elif TFT_DRIVER == ST7796
+    write_esc_sequence(st7796s_init);
+  #elif TFT_DRIVER == R61505
+    write_esc_sequence(r61505_init);
+  #elif TFT_DRIVER == ILI9328
+    write_esc_sequence(ili9328_init);
+  #elif TFT_DRIVER == ILI9341
+    write_esc_sequence(ili9341_init);
+  #elif TFT_DRIVER == ILI9488
+    write_esc_sequence(ili9488_init);
+  #elif TFT_DRIVER == LERDGE_ST7796
+    lcd_id = ST7796;
+    write_esc_sequence(lerdge_st7796s_init);
+
+  #elif TFT_DRIVER == AUTO // autodetect
+
+    lcd_id = io.GetID() & 0xFFFF;
+
+    switch (lcd_id) {
+      case ST7796:    // ST7796S    480x320
+        DEBUG_ECHO_MSG(" ST7796S");
+        write_esc_sequence(st7796s_init);
+        break;
+      case ST7789:    // ST7789V    320x240
+        DEBUG_ECHO_MSG(" ST7789V");
+        write_esc_sequence(st7789v_init);
+        break;
+      case ST7735:    // ST7735     160x128
+        DEBUG_ECHO_MSG(" ST7735");
+        write_esc_sequence(st7735_init);
+        break;
+      case R61505:    // R61505U    320x240
+        DEBUG_ECHO_MSG(" R61505U");
+        write_esc_sequence(r61505_init);
+        break;
+      case ILI9328:   // ILI9328    320x240
+        DEBUG_ECHO_MSG(" ILI9328");
+        write_esc_sequence(ili9328_init);
+        break;
+      case ILI9341:   // ILI9341    320x240
+        DEBUG_ECHO_MSG(" ILI9341");
+        write_esc_sequence(ili9341_init);
+        break;
+      case ILI9488:   // ILI9488    480x320
+        DEBUG_ECHO_MSG(" ILI9488");
+        write_esc_sequence(ili9488_init);
+        break;
+      default:
+        lcd_id = 0;
+    }
+  #else
+    #error Unsupported TFT driver
+  #endif
+}
+
+void TFT::set_window(uint16_t Xmin, uint16_t Ymin, uint16_t Xmax, uint16_t Ymax) {
+  #ifdef OFFSET_X
+    Xmin += OFFSET_X; Xmax += OFFSET_X;
+  #endif
+  #ifdef OFFSET_Y
+    Ymin += OFFSET_Y; Ymax += OFFSET_Y;
+  #endif
+
+  switch (lcd_id) {
+    case ST7735:    // ST7735     160x128
+    case ST7789:    // ST7789V    320x240
+    case ST7796:    // ST7796     480x320
+    case ILI9341:   // ILI9341    320x240
+    case ILI9488:   // ILI9488    480x320
+      io.DataTransferBegin(DATASIZE_8BIT);
+
+      // CASET: Column Address Set
+      io.WriteReg(ILI9341_CASET);
+      io.WriteData((Xmin >> 8) & 0xFF);
+      io.WriteData(Xmin & 0xFF);
+      io.WriteData((Xmax >> 8) & 0xFF);
+      io.WriteData(Xmax & 0xFF);
+
+      // RASET: Row Address Set
+      io.WriteReg(ILI9341_PASET);
+      io.WriteData((Ymin >> 8) & 0xFF);
+      io.WriteData(Ymin & 0xFF);
+      io.WriteData((Ymax >> 8) & 0xFF);
+      io.WriteData(Ymax & 0xFF);
+
+      // RAMWR: Memory Write
+      io.WriteReg(ILI9341_RAMWR);
+      break;
+    case R61505:    // R61505U    320x240
+    case ILI9328:   // ILI9328    320x240
+      io.DataTransferBegin(DATASIZE_16BIT);
+
+      // Mind the mess: with landscape screen orientation 'Horizontal' is Y and 'Vertical' is X
+      io.WriteReg(ILI9328_HASTART);
+      io.WriteData(Ymin);
+      io.WriteReg(ILI9328_HAEND);
+      io.WriteData(Ymax);
+      io.WriteReg(ILI9328_VASTART);
+      io.WriteData(Xmin);
+      io.WriteReg(ILI9328_VAEND);
+      io.WriteData(Xmax);
+
+      io.WriteReg(ILI9328_HASET);
+      io.WriteData(Ymin);
+      io.WriteReg(ILI9328_VASET);
+      io.WriteData(Xmin);
+
+      io.WriteReg(ILI9328_RAMWR);
+      break;
+    default:
+      break;
+  }
+
+  io.DataTransferEnd();
+}
+
+void TFT::write_esc_sequence(const uint16_t *Sequence) {
+  uint16_t dataWidth, data;
+
+  dataWidth = *Sequence++;
+  io.DataTransferBegin(dataWidth);
+
+  for (;;) {
+    data = *Sequence++;
+    if (data != 0xFFFF) {
+      io.WriteData(data);
+      continue;
+    }
+    data = *Sequence++;
+    if (data == 0x7FFF) return;
+    if (data == 0xFFFF)
+      io.WriteData(0xFFFF);
+    else if (data & 0x8000)
+      delay(data & 0x7FFF);
+    else if ((data & 0xFF00) == 0)
+      io.WriteReg(data);
+  }
+
+  io.DataTransferEnd();
 }
 
 TFT tft;

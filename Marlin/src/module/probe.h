@@ -84,12 +84,21 @@ public:
         do_z_clearance(Z_AFTER_PROBING, true, true, true); // Move down still permitted
       #endif
     }
+    static inline void move_z_after_homing() {
+      #ifdef Z_AFTER_HOMING
+        do_z_clearance(Z_AFTER_HOMING, true, true, true);
+      #elif defined(Z_AFTER_PROBING)
+        move_z_after_probing();
+      #endif
+    }
     static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
   #else
+
+    FORCE_INLINE static void move_z_after_homing() {}
 
     static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
 
@@ -98,14 +107,6 @@ public:
     FORCE_INLINE static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
 
   #endif
-
-  static inline void move_z_after_homing() {
-    #ifdef Z_AFTER_HOMING
-      do_z_clearance(Z_AFTER_HOMING, true, true, true);
-    #elif BOTH(Z_AFTER_PROBING,HAS_BED_PROBE)
-      move_z_after_probing();
-    #endif
-  }
 
   FORCE_INLINE static bool can_reach(const xy_pos_t &pos) { return can_reach(pos.x, pos.y); }
 

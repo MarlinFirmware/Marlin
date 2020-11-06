@@ -179,4 +179,5 @@ void pwm_details(int32_t pin) {
  * ----------------+--------
  *  ID             |  PB11
  *  VBOF           |  PB10
+ *
  */

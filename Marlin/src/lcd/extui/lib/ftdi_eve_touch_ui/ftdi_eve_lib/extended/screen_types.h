@@ -173,21 +173,10 @@ class UncachedScreen {
 template<uint8_t DL_SLOT,uint32_t DL_SIZE = 0>
 class CachedScreen {
   protected:
-    static void gfxError() {
-      using namespace FTDI;
-      CommandProcessor cmd;
-      cmd.cmd(CMD_DLSTART)
-         .cmd(CLEAR(true,true,true))
-         .font(30)
-         .text(0, 0, display_width, display_height, F("GFX MEM FULL"));
-    }
-
     static bool storeBackground() {
       DLCache dlcache(DL_SLOT);
       if (!dlcache.store(DL_SIZE)) {
         SERIAL_ECHO_MSG("CachedScreen::storeBackground() failed: not enough DL cache space");
-        gfxError(); // Try to cache a shorter error message instead.
-        dlcache.store(DL_SIZE);
         return false;
       }
       return true;

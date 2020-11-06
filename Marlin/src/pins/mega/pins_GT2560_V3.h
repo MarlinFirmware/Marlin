@@ -25,7 +25,7 @@
  * GT2560 RevB + GT2560 V3.0 + GT2560 V3.1 + GT2560 V4.0 pin assignment
  */
 
-#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
+#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 

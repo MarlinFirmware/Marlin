@@ -86,7 +86,7 @@
 
 #define rREVISION   0x90    //18<<3
 
-#define rIOPINS1    0xA0    //20<<3
+#define rIOPINS1    0xa0    //20<<3
 
 /* IOPINS1 Bits */
 #define bmGPOUT0    0x01
@@ -98,7 +98,7 @@
 #define bmGPIN2     0x40
 #define bmGPIN3     0x80
 
-#define rIOPINS2    0xA8    //21<<3
+#define rIOPINS2    0xa8    //21<<3
 /* IOPINS2 Bits */
 #define bmGPOUT4    0x01
 #define bmGPOUT5    0x02
@@ -109,7 +109,7 @@
 #define bmGPIN6     0x40
 #define bmGPIN7     0x80
 
-#define rGPINIRQ    0xB0    //22<<3
+#define rGPINIRQ    0xb0    //22<<3
 /* GPINIRQ Bits */
 #define bmGPINIRQ0 0x01
 #define bmGPINIRQ1 0x02
@@ -120,7 +120,7 @@
 #define bmGPINIRQ6 0x40
 #define bmGPINIRQ7 0x80
 
-#define rGPINIEN    0xB8    //23<<3
+#define rGPINIEN    0xb8    //23<<3
 /* GPINIEN Bits */
 #define bmGPINIEN0 0x01
 #define bmGPINIEN1 0x02
@@ -131,7 +131,7 @@
 #define bmGPINIEN6 0x40
 #define bmGPINIEN7 0x80
 
-#define rGPINPOL    0xC0    //24<<3
+#define rGPINPOL    0xc0    //24<<3
 /* GPINPOL Bits */
 #define bmGPINPOL0 0x01
 #define bmGPINPOL1 0x02
@@ -142,7 +142,7 @@
 #define bmGPINPOL6 0x40
 #define bmGPINPOL7 0x80
 
-#define rHIRQ       0xC8    //25<<3
+#define rHIRQ       0xc8    //25<<3
 /* HIRQ Bits */
 #define bmBUSEVENTIRQ   0x01   // indicates BUS Reset Done or BUS Resume
 #define bmRWUIRQ        0x02
@@ -153,7 +153,7 @@
 #define bmFRAMEIRQ      0x40
 #define bmHXFRDNIRQ     0x80
 
-#define rHIEN           0xD0    //26<<3
+#define rHIEN           0xd0    //26<<3
 
 /* HIEN Bits */
 #define bmBUSEVENTIE    0x01
@@ -165,7 +165,7 @@
 #define bmFRAMEIE       0x40
 #define bmHXFRDNIE      0x80
 
-#define rMODE           0xD8    //27<<3
+#define rMODE           0xd8    //27<<3
 
 /* MODE Bits */
 #define bmHOST          0x01
@@ -177,9 +177,9 @@
 #define bmDMPULLDN      0x40
 #define bmDPPULLDN      0x80
 
-#define rPERADDR    0xE0    //28<<3
+#define rPERADDR    0xe0    //28<<3
 
-#define rHCTL       0xE8    //29<<3
+#define rHCTL       0xe8    //29<<3
 /* HCTL Bits */
 #define bmBUSRST        0x01
 #define bmFRMRST        0x02
@@ -190,7 +190,7 @@
 #define bmSNDTOG0       0x40
 #define bmSNDTOG1       0x80
 
-#define rHXFR       0xF0    //30<<3
+#define rHXFR       0xf0    //30<<3
 
 #undef tokSETUP
 #undef tokIN
@@ -210,7 +210,7 @@
 #define tokISOIN  0x40  // HS=0, ISO=1, OUTNIN=0, SETUP=0
 #define tokISOOUT 0x60  // HS=0, ISO=1, OUTNIN=1, SETUP=0
 
-#define rHRSL       0xF8    //31<<3
+#define rHRSL       0xf8    //31<<3
 
 /* HRSL Bits */
 #define bmRCVTOGRD  0x10
@@ -218,7 +218,7 @@
 #define bmKSTATUS   0x40
 #define bmJSTATUS   0x80
 #define bmSE0       0x00    //SE0 - disconnect state
-#define bmSE1       0xC0    //SE1 - illegal state
+#define bmSE1       0xc0    //SE1 - illegal state
 
 /* Host error result codes, the 4 LSB's in the HRSL register */
 #define hrSUCCESS   0x00

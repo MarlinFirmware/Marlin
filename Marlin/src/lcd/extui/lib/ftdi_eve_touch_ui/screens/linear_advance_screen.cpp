@@ -34,7 +34,7 @@ void LinearAdvanceScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
   w.precision(2, DEFAULT_LOWEST).color(e_axis);
   w.heading(           GET_TEXT_F(MSG_LINEAR_ADVANCE));
-  #if !HAS_MULTI_EXTRUDER
+  #if EXTRUDERS == 1
     w.adjuster(     2, GET_TEXT_F(MSG_LINEAR_ADVANCE_K),    getLinearAdvance_mm_mm_s(E0) );
   #else
     w.adjuster(     2, GET_TEXT_F(MSG_LINEAR_ADVANCE_K1), getLinearAdvance_mm_mm_s(E0) );
@@ -55,7 +55,7 @@ bool LinearAdvanceScreen::onTouchHeld(uint8_t tag) {
   switch (tag) {
     case  2: UI_DECREMENT(LinearAdvance_mm_mm_s, E0); break;
     case  3: UI_INCREMENT(LinearAdvance_mm_mm_s, E0); break;
-    #if HAS_MULTI_EXTRUDER
+    #if EXTRUDERS > 1
       case  4: UI_DECREMENT(LinearAdvance_mm_mm_s, E1);  break;
       case  5: UI_INCREMENT(LinearAdvance_mm_mm_s, E1); break;
       #if EXTRUDERS > 2

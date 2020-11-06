@@ -31,6 +31,7 @@
  *  RAMPS_13_EFF (Extruder, Fan, Fan)
  *  RAMPS_13_EEF (Extruder, Extruder, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
+ *
  */
 
 #ifndef BOARD_INFO_NAME

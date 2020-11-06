@@ -27,13 +27,16 @@
  * https://www.pjrc.com/teensy/teensyduino.html
  */
 
-#if NOT_TARGET(IS_TEENSY_31_32)
+#if !IS_32BIT_TEENSY
   #error "Oops! Select 'Teensy 3.1' or 'Teensy 3.2' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Teensy3.2"
 #endif
+
+#define AT90USB                              1286 // Disable MarlinSerial etc.
+#define USBCON //1286  // Disable MarlinSerial etc.
 
 //
 // Limit Switches
@@ -89,16 +92,22 @@
 //
 // Misc. Functions
 //
-#define LED_PIN                               13
-//#define SOL1_PIN                            28
+
 //#define SDSS                                16  // 8
+#define LED_PIN                               13
+
+//#define SOL1_PIN                            28
 
 //
 // LCD / Controller
 //
 
+//#define SCK_PIN                             13
+//#define MISO_PIN                            12
+//#define MOSI_PIN                            11
+
 /*
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
   #define LCD_PINS_RS                         40
   #define LCD_PINS_ENABLE                     41
   #define LCD_PINS_D4                         42

@@ -70,11 +70,9 @@ void GcodeSuite::G12() {
     TEMPORARY_BED_LEVELING_STATE(!TEST(cleans, Z_AXIS) && planner.leveling_active);
   #endif
 
-  SET_SOFT_ENDSTOP_LOOSE(!parser.boolval('E'));
+  TEMPORARY_SOFT_ENDSTOP_STATE(parser.boolval('E'));
 
   nozzle.clean(pattern, strokes, radius, objects, cleans);
-
-  SET_SOFT_ENDSTOP_LOOSE(false);
 }
 
 #endif // NOZZLE_CLEAN_FEATURE

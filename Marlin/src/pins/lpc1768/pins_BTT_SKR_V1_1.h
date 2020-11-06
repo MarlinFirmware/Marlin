@@ -65,16 +65,7 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if IS_TFTGLCD_PANEL
-
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS                     P3_26
-  #endif
-
-  #define SD_DETECT_PIN                    P1_31
-
-#elif HAS_WIRED_LCD
-
+#if HAS_SPI_LCD
   #define BTN_EN1                          P3_26
   #define BTN_EN2                          P3_25
   #define BTN_ENC                          P2_11
@@ -89,8 +80,7 @@
     #define DOGLCD_CS                      P2_06
     #define DOGLCD_A0                      P0_16
   #endif
-
-#endif // HAS_WIRED_LCD
+#endif
 
 //
 // SD Support
@@ -99,7 +89,7 @@
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
-  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, IS_TFTGLCD_PANEL)
+  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD

@@ -32,9 +32,9 @@
 #define E0_DIAG_PIN                        P1_28  // X+
 #define E1_DIAG_PIN                        P1_26  // Y+
 
-//
-// Limit Switches
-//
+/**
+ * Limit Switches
+*/
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_DIR < 0
@@ -62,7 +62,7 @@
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
   #if Z_HOME_DIR < 0
-    #define Z_MAX_PIN                      P1_24  // Z+
+    #define Z_MAX_PIN                      P1_254 // Z+
   #else
     #define Z_MIN_PIN                      P1_24  // Z+
   #endif
@@ -92,6 +92,7 @@
 //
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN                   P1_28
+  #define FIL_RUNOUT2_PIN                  P1_29
 #endif
 
 //
@@ -125,6 +126,16 @@
   #define E0_CS_PIN                        P1_08
 #endif
 
+#define E1_STEP_PIN                        P0_01
+#define E1_DIR_PIN                         P0_00
+#define E1_ENABLE_PIN                      P0_10
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                        P1_01
+#endif
+
+#ifndef E0_CS_PIN
+  #define E0_CS_PIN                        P1_08
+#endif
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                        P1_01
 #endif
@@ -151,7 +162,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
+  //#define X_HARDWARE_SERIAL  Serial
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -182,7 +193,7 @@
   #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE                    19200
+  #define TMC_BAUD_RATE 19200
 #endif
 
 /**
@@ -214,7 +225,7 @@
 #define EXPA2_09_PIN                       P0_15
 #define EXPA2_10_PIN                       P0_17
 
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
 
   #if ENABLED(ANET_FULL_GRAPHICS_LCD)
 
@@ -264,14 +275,6 @@
   #elif HAS_ADC_BUTTONS
 
     #error "ADC BUTTONS do not work unmodifed on SKR 1.3, The ADC ports cannot take more than 3.3v."
-
-  #elif IS_TFTGLCD_PANEL
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS            EXPA2_08_PIN
-    #endif
-
-    #define SD_DETECT_PIN           EXPA2_04_PIN
 
   #else                                           // !CR10_STOCKDISPLAY
 
@@ -358,7 +361,7 @@
 
   #endif // !CR10_STOCKDISPLAY
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Support

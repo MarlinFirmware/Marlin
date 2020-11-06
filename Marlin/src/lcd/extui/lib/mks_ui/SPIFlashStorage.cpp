@@ -223,7 +223,7 @@ void SPIFlashStorage::flushPage() {
   #if HAS_SPI_FLASH_COMPRESSION
     // Restart the compressed buffer, keep the pointers of the uncompressed buffer
     m_compressedDataUsed = 0;
-  #else
+  #elif
     m_pageDataUsed = 0;
   #endif
   m_currentPage++;

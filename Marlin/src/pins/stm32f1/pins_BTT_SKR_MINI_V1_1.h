@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if NOT_TARGET(TARGET_STM32F1)
+#ifndef TARGET_STM32F1
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -31,7 +31,7 @@
 #define DISABLE_JTAG
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
@@ -110,7 +110,7 @@
  *                EXP2                                              EXP1
  */
 
-#if HAS_WIRED_LCD
+#if HAS_SPI_LCD
   #define BEEPER_PIN                        PC10
   #define BTN_ENC                           PC11
 
@@ -122,17 +122,6 @@
 
     #define LCD_PINS_ENABLE                 PC14
     #define LCD_PINS_D4                     PB7
-
-  #elif IS_TFTGLCD_PANEL
-
-    #undef BEEPER_PIN
-    #undef BTN_ENC
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS                    PD2
-    #endif
-
-    #define SD_DETECT_PIN                   PB9
 
   #else
 
@@ -183,7 +172,7 @@
 
     #endif // !FYSETC_MINI_12864
 
-    #if HAS_MARLINUI_U8GLIB
+    #if HAS_GRAPHICAL_LCD
       #ifndef BOARD_ST7920_DELAY_1
         #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
       #endif
@@ -197,7 +186,7 @@
 
   #endif
 
-#endif // HAS_WIRED_LCD
+#endif // HAS_SPI_LCD
 
 //
 // SD Card
@@ -224,5 +213,5 @@
   #define MOSI_PIN                          PA7
   #define SS_PIN                            PA4
 #endif
-#define ONBOARD_SPI_DEVICE                     1  // SPI1
+#define ON_BOARD_SPI_DEVICE 1                     // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

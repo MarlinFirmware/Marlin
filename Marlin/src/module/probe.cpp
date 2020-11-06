@@ -270,13 +270,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (deploy == (
-          #if HAS_CUSTOM_PROBE_PIN
-            READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING
-          #else
-            READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING
-          #endif
-        )) break;
+        if (deploy == (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING)) break;
       #endif
 
       BUZZ(100, 659);
@@ -729,6 +723,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
      * when starting up the machine or rebooting the board.
      * There's no way to know where the nozzle is positioned until
      * homing has been done - no homing with z-probe without init!
+     *
      */
     STOW_Z_SERVO();
   }
