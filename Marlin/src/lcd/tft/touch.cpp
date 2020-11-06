@@ -50,7 +50,7 @@ TouchControlType  Touch::touch_control_type = NONE;
 #endif
 
 void Touch::init() {
-  touch_calibration.calibration_reset();
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.Init();
   enable();
@@ -242,12 +242,18 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
 }
 
 bool Touch::get_point(int16_t *x, int16_t *y) {
-  bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
 
-  if (is_touched && touch_calibration.calibration.orientation != TOUCH_ORIENTATION_NONE) {
-    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
-    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
-  }
+    if (is_touched && touch_calibration.calibration.orientation != TOUCH_ORIENTATION_NONE) {
+      *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+      *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+    }
+  #else
+    bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
+    *x = uint16_t((uint32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
+    *y = uint16_t((uint32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
+  #endif
   return is_touched;
 }
 Touch touch;

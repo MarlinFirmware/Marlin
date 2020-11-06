@@ -20,8 +20,6 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
   #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
 #endif
@@ -49,6 +47,8 @@
     #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
 
 typedef struct __attribute__((__packed__)) {
   int32_t x;
