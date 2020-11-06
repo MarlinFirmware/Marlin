@@ -356,6 +356,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
       dev->com_fn(u8g, U8G_COM_MSG_INIT, U8G_SPI_CLK_CYCLE_NONE, nullptr);
       tftio.Init();
       tftio.InitTFT();
+      TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
 
       if (preinit) {
         preinit = false;
@@ -470,7 +471,6 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
 U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_tft_320x240_upscale_from_128x64_fn, U8G_COM_HAL_TFT_FN);
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-
   static void drawCross(uint16_t x, uint16_t y, uint16_t color) {
     tftio.set_window(x - 15, y, x + 15, y);
     tftio.WriteMultiple(color, 31);
