@@ -134,7 +134,7 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
   tftio.set_window(Xmin, Ymin, Xmax, Ymax);
 }
 
-#if HAS_TOUCH_XPT2046
+#if HAS_TOUCH_BUTTONS
 
   static const uint8_t buttonD[] = {
     B01111111,B11111111,B11111111,B11111110,
@@ -307,7 +307,7 @@ static void setWindow(u8g_t *u8g, u8g_dev_t *dev, uint16_t Xmin, uint16_t Ymin, 
     }
   }
 
-#endif // HAS_TOUCH_XPT2046
+#endif // HAS_TOUCH_BUTTONS
 
 // Used to fill RGB565 (16bits) background
 inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
@@ -318,7 +318,7 @@ inline void memset2(const void *ptr, uint16_t fill, size_t cnt) {
 static bool preinit = true;
 static uint8_t page;
 
-#if HAS_TOUCH_XPT2046
+#if HAS_TOUCH_BUTTONS
   static bool redrawTouchButtons = true;
   static void drawTouchButtons(u8g_t *u8g, u8g_dev_t *dev) {
     if (!redrawTouchButtons) {
@@ -339,7 +339,7 @@ static uint8_t page;
     setWindow(u8g, dev, BUTTONC_X_LO, BUTTON_Y_LO, BUTTONC_X_HI, BUTTON_Y_HI);
     drawImage(buttonC, u8g, dev, BUTTON_DRAW_WIDTH, BUTTON_DRAW_HEIGHT, TFT_BTOKMENU_COLOR);
   }
-#endif // HAS_TOUCH_XPT2046
+#endif // HAS_TOUCH_BUTTONS
 
 uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
@@ -378,7 +378,7 @@ uint8_t u8g_dev_tft_320x240_upscale_from_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, u
 
     case U8G_DEV_MSG_PAGE_FIRST:
       page = 0;
-      TERN_(HAS_TOUCH_XPT2046, drawTouchButtons(u8g, dev));
+      TERN_(HAS_TOUCH_BUTTONS, drawTouchButtons(u8g, dev));
       setWindow(u8g, dev, TFT_PIXEL_OFFSET_X, TFT_PIXEL_OFFSET_Y, X_HI, Y_HI);
       break;
 
@@ -516,7 +516,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
       str = calibration_stage == CALIBRATION_SUCCESS ? "Calibration Completed" : "Calibration Failed";
       defer_status_screen(false);
       touch_calibration.calibration_end();
-      TERN_(HAS_TOUCH_XPT2046, redrawTouchButtons = true);
+      TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);
     }
 
     // draw current message

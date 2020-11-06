@@ -60,7 +60,7 @@
 #include "sd/cardreader.h"
 
 #include "lcd/marlinui.h"
-#if HAS_TOUCH_XPT2046
+#if HAS_TOUCH_BUTTONS
   #include "lcd/touch/touch_buttons.h"
 #endif
 
@@ -1101,7 +1101,7 @@ void setup() {
     SETUP_RUN(ethernet.init());
   #endif
 
-  #if HAS_TOUCH_XPT2046
+  #if HAS_TOUCH_BUTTONS
     SETUP_RUN(touch.init());
   #endif
 
