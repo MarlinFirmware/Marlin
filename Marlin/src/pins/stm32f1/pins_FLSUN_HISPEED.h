@@ -116,27 +116,37 @@
 // Drivers
 //
 #if HAS_TMC220x
-  // SoftwareSerial with one pin per driver
-  // Compatible with TMC2208 and TMC2209 drivers
-  #define X_SERIAL_TX_PIN                   PA10  // RXD1
-  #define X_SERIAL_RX_PIN                   PA10  // RXD1
-  #define Y_SERIAL_TX_PIN                   PA9   // TXD1
-  #define Y_SERIAL_RX_PIN                   PA9   // TXD1
-  #define Z_SERIAL_TX_PIN                   PC7   // IO1
-  #define Z_SERIAL_RX_PIN                   PC7   // IO1
   #define TMC_BAUD_RATE                   19200
+  #ifdef HARDWARE_SERIAL  //TMC2209
+    /**
+    * HardwareSerial with one pin for four drivers.
+    * Compatible with TMC2209. Provides best performance.
+    * Requires SLAVE_ADDRESS definitions in Configuration_adv.h and proper
+    * jumper configuration. Uses only one I/O pin like PA10/PA9/PC7/PA8.
+    * Install the jumpers in the following way, for example:
+    */
+    #define  X_SLAVE_ADDRESS 3    // |  |  :
+    #define  Y_SLAVE_ADDRESS 2    // :  |  :
+    #define  Z_SLAVE_ADDRESS 1    // |  :  :
+    //#define E0_SLAVE_ADDRESS 0    // :  :  :
 
-  /**
-   * HardwareSerial with one pin for four drivers.
-   * Compatible with TMC2209. Provides best performance.
-   * Requires SLAVE_ADDRESS definitions in Configuration_adv.h and proper
-   * jumper configuration. Uses only one I/O pin like PA10/PA9/PC7/PA8.
-   * Install the jumpers in the following way, for example:
-   */
-   //#define  X_SLAVE_ADDRESS  3   // *  *  .   JP0, JP1
-   //#define  Y_SLAVE_ADDRESS  2   // .  *  .   JP1
-   //#define  Z_SLAVE_ADDRESS  1   // *  .  .   JP0
-   //#define E0_SLAVE_ADDRESS  0   // .  .  .
+    #define X_SERIAL_TX_PIN                  PA8  // TXD1
+    #define X_SERIAL_RX_PIN                  PA8  //TXD1
+    #define Y_SERIAL_TX_PIN                  PA8  // TXD1
+    #define Y_SERIAL_RX_PIN                  PA8  // TXD1
+    #define Z_SERIAL_TX_PIN                  PA8  // TXD1
+    #define Z_SERIAL_RX_PIN                  PA8  // TXD1
+  else
+    // SoftwareSerial with one pin per driver
+    // Compatible with TMC2208 and TMC2209 drivers
+    #define X_SERIAL_TX_PIN                   PA10  // RXD1
+    #define X_SERIAL_RX_PIN                   PA10  // RXD1
+    #define Y_SERIAL_TX_PIN                   PA9   // TXD1
+    #define Y_SERIAL_RX_PIN                   PA9   // TXD1
+    #define Z_SERIAL_TX_PIN                   PC7   // IO1
+    #define Z_SERIAL_RX_PIN                   PC7   // IO1
+
+  #endif
 
 #else
   // Motor current PWM pins
@@ -162,9 +172,12 @@
  *       ￣￣ AE￣￣
  */
   //Module ESP-WIFI
-  #define WIFI_IO0_PIN                      PA8   // MKS ESP WIFI IO0 PIN
-  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
-  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
+  #define ESP_WIFI_MODULE_COM                  2  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
+  #define ESP_WIFI_MODULE_RESET_PIN         PA5   // WIFI CTRL/RST
+  #define ESP_WIFI_MODULE_ENABLE_PIN        -1
+  #define ESP_WIFI_MODULE_TXD_PIN           PA9   // MKS or ESP WIFI RX PIN
+  #define ESP_WIFI_MODULE_RXD_PIN           PA10  // MKS or ESP WIFI TX PIN
 #endif
 
 //
@@ -224,16 +237,11 @@
 //#define LED_PIN                             PB2   // BOOT1
 
 #if ENABLED(NEOPIXEL_LED)
-  #define LED_PWM                           PA8
+  #define LED_PWM                           PC7  // IO1
   #ifndef NEOPIXEL_PIN
-    #define NEOPIXEL_PIN                LED_PWM  // USED WIFI IO0/IO1/TX/RX PIN
+    #define NEOPIXEL_PIN                 LED_PWM  // USED WIFI IO0/IO1 PIN
   #endif
 #endif
-
-//Others test.
-//#define SERVO0_PIN                          PA5   // WIFI CRTL
-//#define GPIO_CLEAR                          PA8   // IO0
-//#define GPIO_SET                            PA5
 
 //
 // SD Card
@@ -252,6 +260,10 @@
 //
 // LCD / Controller
 //
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
+#endif
+
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5
   #error "FLSun HiSpeed default BEEPER_PIN is not a SPEAKER."
 #endif
@@ -269,26 +281,7 @@
  * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
  */
 
-// MKS Robin TFT v2.0 with ILI9341
-// Read display identification information (0xD3 on ILI9341)
-//#define XPT2046_X_CALIBRATION            12013
-//#define XPT2046_Y_CALIBRATION            -8711
-//#define XPT2046_X_OFFSET                   -32
-//#define XPT2046_Y_OFFSET                   256
-
-// MKS Robin TFT v1.1 with ILI9328
-//#define XPT2046_X_CALIBRATION           -11792
-//#define XPT2046_Y_CALIBRATION             8947
-//#define XPT2046_X_OFFSET                   342
-//#define XPT2046_Y_OFFSET                   -19
-
-// MKS Robin TFT v1.1 with R61505
-//#define XPT2046_X_CALIBRATION            12489
-//#define XPT2046_Y_CALIBRATION             9210
-//#define XPT2046_X_OFFSET                   -52
-//#define XPT2046_Y_OFFSET                   -17
-
-// QQS-Pro uses MKS Robin TFT v2.0
+// QQS-Pro uses MKS Robin TFT v2.0 320x240
 
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
@@ -314,30 +307,30 @@
   #define TFT_BUFFER_SIZE                  14400
 
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12013
+    #define XPT2046_X_CALIBRATION          12033
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8711
+    #define XPT2046_Y_CALIBRATION          -9047
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -32
+    #define XPT2046_X_OFFSET                 -30
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 256
+    #define XPT2046_Y_OFFSET                 254
   #endif
 
 #elif ENABLED(TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12013
+    #define XPT2046_X_CALIBRATION          12033
   #endif
   #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8711
+    #define XPT2046_Y_CALIBRATION          -9047
   #endif
   #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -32
+    #define XPT2046_X_OFFSET                 -30
   #endif
   #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 256
+    #define XPT2046_Y_OFFSET                 251
   #endif
 
   #define TFT_MARLINUI_COLOR              0xFFFF  // White
