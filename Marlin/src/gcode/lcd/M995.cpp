@@ -25,15 +25,19 @@
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
 
 #include "../gcode.h"
-#include "../../lcd/menu/menu.h"
+#if DISABLED(TFT_LVGL_UI)
+  #include "../../lcd/menu/menu.h"
+#endif
 
 /**
  * M995: Touch screen calibration for TFT display
  */
 void GcodeSuite::M995() {
-
-  ui.goto_screen(touch_screen_calibration);
-
+  #if DISABLED(TFT_LVGL_UI)
+    ui.goto_screen(touch_screen_calibration);
+  #else
+    //TODO: show LVGL UI calibration screen
+  #endif
 }
 
 #endif // TOUCH_SCREEN_CALIBRATION
