@@ -27,6 +27,10 @@
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 XPT2046 touchIO;
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../tft_io/touch_calibration.h"
+#endif
+
 #include "../../lcd/marlinui.h" // For EN_C bit mask
 
 #define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
@@ -47,13 +51,16 @@ uint8_t TouchButtons::read_buttons() {
 
     if (!touchIO.getRawPoint(&x, &y)) return 0;
 
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      const calibrationState state = touch_calibration.get_calibration_state();
+      if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+        if (touch_calibration.handleTouch(x, y)) ui.refresh();
+        return 0;
+      }
+    #endif
+
     x = uint16_t((uint32_t(x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
     y = uint16_t((uint32_t(y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
-
-    #if (TFT_ROTATION & TFT_ROTATE_180)
-      x = TFT_WIDTH - x;
-      y = TFT_HEIGHT - y;
-    #endif
 
     // Touch within the button area simulates an encoder button
     if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
