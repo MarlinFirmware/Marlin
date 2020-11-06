@@ -33,7 +33,7 @@
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Trigorilla Pro supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to 1 for the onboard USB port."
+  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #define BOARD_INFO_NAME "Trigorilla Pro"
