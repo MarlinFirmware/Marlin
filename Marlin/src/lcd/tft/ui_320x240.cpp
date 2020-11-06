@@ -647,7 +647,7 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
+  TERN_(TOUCH_SCREEN, touch.add_control(TERN(SINGLE_TOUCH_NAVIGATION, CLICK, sel ? CLICK : MENU_ITEM), 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
 }
 
 void MarlinUI::move_axis_screen() {
