@@ -56,10 +56,10 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define SPI_DEVICE                            2
+#define SPI_DEVICE                          2
 
 // SPI Flash
-#define HAS_SPI_FLASH                          1
+#define HAS_SPI_FLASH                       1
 #define SPI_FLASH_SIZE                 0x1000000  // 16MB
 
 #if HAS_SPI_FLASH
@@ -73,7 +73,7 @@
 //
 // Servos
 //
-//#define SERVO0_PIN                        PA8   // use IO0 to enable BLTOUCH support/remove Mks_Wifi
+//#define SERVO0_PIN                          PA8   // use IO0 to enable BLTOUCH support/remove Mks_Wifi
 
 //
 // Limit Switches
@@ -117,7 +117,7 @@
 //
 #if HAS_TMC220x
   #define TMC_BAUD_RATE                   19200
-  #ifdef HARDWARE_SERIAL  //TMC2209
+  #ifdef HARDWARE_SERIAL /*  TMC2209 */
     /**
     * HardwareSerial with one pin for four drivers.
     * Compatible with TMC2209. Provides best performance.
@@ -130,22 +130,25 @@
     #define  Z_SLAVE_ADDRESS 1    // |  :  :
     //#define E0_SLAVE_ADDRESS 0    // :  :  :
 
-    #define X_SERIAL_TX_PIN                  PA8  // TXD1
-    #define X_SERIAL_RX_PIN                  PA8  //TXD1
-    #define Y_SERIAL_TX_PIN                  PA8  // TXD1
-    #define Y_SERIAL_RX_PIN                  PA8  // TXD1
-    #define Z_SERIAL_TX_PIN                  PA8  // TXD1
-    #define Z_SERIAL_RX_PIN                  PA8  // TXD1
-  else
+    #define X_SERIAL_TX_PIN                  PA8  // IO0
+    #define X_SERIAL_RX_PIN                  PA8  // IO0
+    #define Y_SERIAL_TX_PIN                  PA8  // IO0
+    #define Y_SERIAL_RX_PIN                  PA8  // IO0
+    #define Z_SERIAL_TX_PIN                  PA8  // IO0
+    #define Z_SERIAL_RX_PIN                  PA8  // IO0
+  #else /*  TMC220x   */
     // SoftwareSerial with one pin per driver
     // Compatible with TMC2208 and TMC2209 drivers
+    #define  X_SLAVE_ADDRESS 0
+    #define  Y_SLAVE_ADDRESS 0
+    #define  Z_SLAVE_ADDRESS 0
+    
     #define X_SERIAL_TX_PIN                   PA10  // RXD1
     #define X_SERIAL_RX_PIN                   PA10  // RXD1
     #define Y_SERIAL_TX_PIN                   PA9   // TXD1
     #define Y_SERIAL_RX_PIN                   PA9   // TXD1
     #define Z_SERIAL_TX_PIN                   PC7   // IO1
     #define Z_SERIAL_RX_PIN                   PC7   // IO1
-
   #endif
 
 #else
@@ -172,7 +175,7 @@
  *       ￣￣ AE￣￣
  */
   //Module ESP-WIFI
-  #define ESP_WIFI_MODULE_COM                  2  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+  #define ESP_WIFI_MODULE_COM               2     // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
   #define ESP_WIFI_MODULE_BAUDRATE      BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
   #define ESP_WIFI_MODULE_RESET_PIN         PA5   // WIFI CTRL/RST
   #define ESP_WIFI_MODULE_ENABLE_PIN        -1

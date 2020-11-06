@@ -28,7 +28,7 @@
 /**
  * Marlin release version identifier
  */
-#define SHORT_BUILD_VERSION "QQS-bugfix-2.0.x"
+#define SHORT_BUILD_VERSION "QQS-bugfix-2.0.8"
 
 /**
  * Verbose version identifier which should contain a reference to the location

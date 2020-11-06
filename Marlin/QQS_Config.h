@@ -18,11 +18,11 @@
 
 //========= Hardware ==========//
 /*------Drivers-(1 CHOICE)-----*/
-#define QQS                        //(S) For 4xA4988(green color)
-//#define QQS_TMC                    //(8) For 4xTMC220x_STANDLONE For 2208(white color) or 2209(black color)
+#define QQS                        //(S) For 4xA4988(green or red color)
+//#define QQS_TMC                    //(8) For 4xTMC220x_STANDALONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
-//#define QQS_UARTx                  //(U8) 4xTMC220x (Remove module ESP12)
+//#define QQS_UARTx                  //(U8) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
 //#define QQS_UART9                  //(U9) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------//
@@ -40,7 +40,7 @@
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
 #define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
-//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT_v2.0
+//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT
 //#define MKS_ROBIN_TFT_V1_1R
 //#define MKS_ROBIN_TFT24
 //#define TFT_GENERIC
@@ -96,7 +96,7 @@
 #endif
 
 //Set for A4988 
-#if ANY (QQS, STOCK)
+#if ANY(QQS, STOCK)
     #define DRIVER_AXES A4988
     #ifndef DRIVER_EXT
       #define DRIVER_EXT A4988
@@ -128,6 +128,7 @@
 // like PA10/PA9/PC7/PA8 only.
 #ifdef QQS_UART9
     #define QQS_UART
+    #define HARDWARE_SERIAL
     #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
       #define DRIVER_EXT TMC2209
