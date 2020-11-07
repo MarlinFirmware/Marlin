@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -72,7 +72,7 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
 #endif
-#if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Prusa P802M hot bed
+#if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Průša P802M hot bed
   #include "thermistor_502.h"
 #endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
@@ -105,6 +105,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
 #endif
+#if ANY_THERMISTOR_IS(17) // Dagoma NTC 100k white thermistor
+  #include "thermistor_17.h"
+#endif
 #if ANY_THERMISTOR_IS(18) // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327
   #include "thermistor_18.h"
 #endif
@@ -119,6 +122,9 @@ typedef struct { int16_t value, celsius; } temp_entry_t;
 #endif
 #if ANY_THERMISTOR_IS(23) // By AluOne #12622. Formerly 22 above. May need calibration/checking.
   #include "thermistor_23.h"
+#endif
+#if ANY_THERMISTOR_IS(30) // Kis3d Silicone mat 24V 200W/300W with 6mm Precision cast plate (EN AW 5083)
+  #include "thermistor_30.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
   #include "thermistor_51.h"

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,7 +31,7 @@
   #include "../../../MarlinCore.h"
   #include "../../../gcode/gcode.h"
 
-  #include "../../../module/configuration_store.h"
+  #include "../../../module/settings.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
   #include "../../../module/probe.h"
@@ -48,7 +48,7 @@
 
   void unified_bed_leveling::report_current_mesh() {
     if (!leveling_is_valid()) return;
-    SERIAL_ECHO_MSG("  G29 I99");
+    SERIAL_ECHO_MSG("  G29 I999");
     GRID_LOOP(x, y)
       if (!isnan(z_values[x][y])) {
         SERIAL_ECHO_START();

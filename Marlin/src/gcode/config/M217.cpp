@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
@@ -170,4 +170,4 @@ void GcodeSuite::M217() {
   M217_report();
 }
 
-#endif // EXTRUDERS > 1
+#endif // HAS_MULTI_EXTRUDER

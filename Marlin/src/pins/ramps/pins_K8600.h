@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -96,7 +96,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
   #undef BEEPER_PIN
 
   #undef LCD_PINS_RS

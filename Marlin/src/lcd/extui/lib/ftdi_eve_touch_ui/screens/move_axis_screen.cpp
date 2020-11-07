@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -55,7 +55,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
   w.color(Theme::e_axis);
   #if EXTRUDERS == 1
     w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E),  screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
-  #elif EXTRUDERS > 1
+  #elif HAS_MULTI_EXTRUDER
     w.adjuster(  8, GET_TEXT_F(MSG_AXIS_E1), screen_data.MoveAxisScreen.e_rel[0], canMove(E0));
     w.adjuster( 10, GET_TEXT_F(MSG_AXIS_E2), screen_data.MoveAxisScreen.e_rel[1], canMove(E1));
     #if EXTRUDERS > 2
@@ -82,7 +82,7 @@ bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
     // For extruders, also update relative distances.
     case  8: UI_DECREMENT_AXIS(E0); screen_data.MoveAxisScreen.e_rel[0] -= increment; break;
     case  9: UI_INCREMENT_AXIS(E0); screen_data.MoveAxisScreen.e_rel[0] += increment; break;
-    #if EXTRUDERS > 1
+    #if HAS_MULTI_EXTRUDER
     case 10: UI_DECREMENT_AXIS(E1); screen_data.MoveAxisScreen.e_rel[1] -= increment; break;
     case 11: UI_INCREMENT_AXIS(E1); screen_data.MoveAxisScreen.e_rel[1] += increment; break;
     #endif

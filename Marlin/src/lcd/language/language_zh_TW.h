@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_zh_TW {
   using namespace Language_en;  // Inherit undefined strings from English
@@ -338,13 +337,13 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("已停止");     //"STOPPED. "
   PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("回縮長度mm");     //"Retract mm" retract_length, retract length (positive mm)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("換手回抽長度mm");     //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回縮速率mm/s");     //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回縮速率mm/s");     //"Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");     //"Hop mm" retract_zraise, retract Z-lift
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("回縮恢復長度mm");     //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("換手回縮恢復長度mm");     //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回縮恢復後進料速率mm/s");     //"UnRet V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回縮恢復後進料速率mm/s");     //"Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");     // "S UnRet V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自動回縮");     //"AutoRetr." autoretract_enabled,
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自動回縮");     //"Auto-Retract" autoretract_enabled,
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("交換長度");    //"Swap Length"
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("清除長度");   //"Purge Length"
   PROGMEM Language_Str MSG_TOOL_CHANGE                     = _UxGT("交換工具"); //"Tool Change"
@@ -382,18 +381,12 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("總計");    //"Total"
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("擋塊終止");     //"Endstop abort"
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("加熱失敗");     //"Heating failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("熱床加熱失敗");   //"Bed Heating Failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("機箱加熱失敗");   //"Chamber Heating Fail"
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("錯誤：冗餘溫度");     //"Err: REDUNDANT TEMP"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("溫度失控");    //"THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("熱床溫度失控");    //"BED THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("機箱溫度失控");   //"CHAMBER T. RUNAWAY"
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("錯誤：最高溫度");     //"Err: MAXTEMP"
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("錯誤：最低溫度");     //"Err: MINTEMP"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("錯誤：最高熱床溫度");     //"Err: MAXTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("錯誤：最低熱床溫度");     //"Err: MINTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("錯誤：最高機箱溫度");   //"Err: MAXTEMP CHAMBER"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("錯誤：最低機箱溫度");   //"Err: MINTEMP CHAMBER"
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("印表機停機");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("請重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only
@@ -474,7 +467,6 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("絲距離mm");   //"Runout Dist mm"
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("歸原位失敗");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探針探測失敗");     // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太冷");     // "M600: Too cold"
 
   //
   // Filament Change screens show up to 3 lines on a 4-line display
@@ -509,8 +501,8 @@ namespace Language_zh_TW {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

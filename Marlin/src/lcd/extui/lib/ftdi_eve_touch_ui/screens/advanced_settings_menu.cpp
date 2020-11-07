@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -38,7 +38,7 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
   }
 
     #ifdef TOUCH_UI_PORTRAIT
-      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
+      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define GRID_ROWS 9
       #else
         #define GRID_ROWS 8
@@ -55,11 +55,11 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
       #define ACCELERATION_POS        BTN_POS(2,5), BTN_SIZE(1,1)
       #define ENDSTOPS_POS            BTN_POS(1,6), BTN_SIZE(1,1)
       #define JERK_POS                BTN_POS(2,6), BTN_SIZE(1,1)
-      #define OFFSETS_POS             BTN_POS(1,7), BTN_SIZE(1,1)
+      #define CASE_LIGHT_POS          BTN_POS(1,7), BTN_SIZE(1,1)
       #define BACKLASH_POS            BTN_POS(2,7), BTN_SIZE(1,1)
-      #define CASE_LIGHT_POS          BTN_POS(1,8), BTN_SIZE(1,1)
+      #define OFFSETS_POS             BTN_POS(1,8), BTN_SIZE(1,1)
       #define TMC_HOMING_THRS_POS     BTN_POS(2,8), BTN_SIZE(1,1)
-      #if EITHER(HAS_CASE_LIGHT, SENSORLESS_HOMING)
+      #if EITHER(HAS_MULTI_HOTEND, SENSORLESS_HOMING)
         #define BACK_POS              BTN_POS(1,9), BTN_SIZE(2,1)
       #else
         #define BACK_POS              BTN_POS(1,8), BTN_SIZE(2,1)
@@ -91,15 +91,15 @@ void AdvancedSettingsMenu::onRedraw(draw_mode_t what) {
        .font(Theme::font_medium)
       .enabled(ENABLED(HAS_BED_PROBE))
       .tag(2) .button( ZPROBE_ZOFFSET_POS,     GET_TEXT_F(MSG_ZPROBE_ZOFFSET))
-      .enabled(ENABLED(HAS_CASE_LIGHT))
+      .enabled(ENABLED(CASE_LIGHT_ENABLE))
       .tag(16).button( CASE_LIGHT_POS,         GET_TEXT_F(MSG_CASE_LIGHT))
       .tag(3) .button( STEPS_PER_MM_POS,       GET_TEXT_F(MSG_STEPS_PER_MM))
       .enabled(ENABLED(HAS_TRINAMIC_CONFIG))
       .tag(13).button( TMC_CURRENT_POS,        GET_TEXT_F(MSG_TMC_CURRENT))
       .enabled(ENABLED(SENSORLESS_HOMING))
       .tag(14).button( TMC_HOMING_THRS_POS,    GET_TEXT_F(MSG_TMC_HOMING_THRS))
-      .enabled(EITHER(HAS_MULTI_HOTEND, BLTOUCH))
-      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(TERN(HAS_MULTI_HOTEND, MSG_OFFSETS_MENU, MSG_RESET_BLTOUCH)))
+      .enabled(ENABLED(HAS_MULTI_HOTEND))
+      .tag(4) .button( OFFSETS_POS,            GET_TEXT_F(MSG_OFFSETS_MENU))
       .enabled(EITHER(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR))
       .tag(11).button( FILAMENT_POS,           GET_TEXT_F(MSG_FILAMENT))
       .tag(12).button( ENDSTOPS_POS,           GET_TEXT_F(MSG_LCD_ENDSTOPS))
@@ -123,13 +123,9 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case  2: GOTO_SCREEN(ZOffsetScreen);              break;
     #endif
     case  3: GOTO_SCREEN(StepsScreen);                break;
-    case  4:
-      #if HAS_MULTI_HOTEND
-        GOTO_SCREEN(NozzleOffsetScreen);
-      #elif ENABLED(BLTOUCH)
-        injectCommands_P(PSTR("M280 P0 S60"));
-      #endif
-      break;
+    #if ENABLED(HAS_MULTI_HOTEND)
+    case  4: GOTO_SCREEN(NozzleOffsetScreen);         break;
+    #endif
     case  5: GOTO_SCREEN(MaxVelocityScreen);          break;
     case  6: GOTO_SCREEN(DefaultAccelerationScreen);  break;
     case  7: GOTO_SCREEN(TERN(HAS_JUNCTION_DEVIATION, JunctionDeviationScreen, JerkScreen)); break;
@@ -149,7 +145,7 @@ bool AdvancedSettingsMenu::onTouchEnd(uint8_t tag) {
     case 14: GOTO_SCREEN(StepperBumpSensitivityScreen); break;
     #endif
     case 15: GOTO_SCREEN(DisplayTuningScreen); break;
-    #if HAS_CASE_LIGHT
+    #if ENABLED(CASE_LIGHT_ENABLE)
     case 16: GOTO_SCREEN(CaseLightScreen); break;
     #endif
     default: return false;

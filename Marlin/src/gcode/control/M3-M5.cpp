@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -69,9 +69,13 @@ void GcodeSuite::M3_M4(const bool is_M4) {
   auto get_s_power = [] {
     if (parser.seenval('S')) {
       const float spwr = parser.value_float();
-      cutter.unitPower = TERN(SPINDLE_LASER_PWM,
+      #if ENABLED(SPINDLE_SERVO)
+        cutter.unitPower = spwr;
+      #else
+        cutter.unitPower = TERN(SPINDLE_LASER_PWM,
                               cutter.power_to_range(cutter_power_t(round(spwr))),
                               spwr > 0 ? 255 : 0);
+      #endif
     }
     else
       cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
@@ -108,6 +112,8 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     }
     else
       cutter.set_power(cutter.upower_to_ocr(get_s_power()));
+  #elif ENABLED(SPINDLE_SERVO)
+    cutter.set_power(get_s_power());
   #else
     cutter.set_enabled(true);
   #endif

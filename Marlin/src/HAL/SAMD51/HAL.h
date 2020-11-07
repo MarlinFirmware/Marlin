@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,58 +35,35 @@
 
   // MYSERIAL0 required before MarlinSerial includes!
 
+  #define __MSERIAL(X) Serial##X
+  #define _MSERIAL(X) __MSERIAL(X)
+  #define MSERIAL(X) _MSERIAL(INCREMENT(X))
+
   #if SERIAL_PORT == -1
     #define MYSERIAL0 Serial
-  #elif SERIAL_PORT == 0
-    #define MYSERIAL0 Serial1
-  #elif SERIAL_PORT == 1
-    #define MYSERIAL0 Serial2
-  #elif SERIAL_PORT == 2
-    #define MYSERIAL0 Serial3
-  #elif SERIAL_PORT == 3
-    #define MYSERIAL0 Serial4
+  #elif WITHIN(SERIAL_PORT, 0, 3)
+    #define MYSERIAL0 MSERIAL(SERIAL_PORT)
   #else
     #error "SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
 
   #ifdef SERIAL_PORT_2
-    #if SERIAL_PORT_2 == SERIAL_PORT
-      #error "SERIAL_PORT_2 must be different than SERIAL_PORT. Please update your configuration."
-    #elif SERIAL_PORT_2 == -1
+    #if SERIAL_PORT_2 == -1
       #define MYSERIAL1 Serial
-    #elif SERIAL_PORT_2 == 0
-      #define MYSERIAL1 Serial1
-    #elif SERIAL_PORT_2 == 1
-      #define MYSERIAL1 Serial2
-    #elif SERIAL_PORT_2 == 2
-      #define MYSERIAL1 Serial3
-    #elif SERIAL_PORT_2 == 3
-      #define MYSERIAL1 Serial4
+    #elif WITHIN(SERIAL_PORT_2, 0, 3)
+      #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
     #else
       #error "SERIAL_PORT_2 must be from -1 to 3. Please update your configuration."
     #endif
-    #define NUM_SERIAL 2
-  #else
-    #define NUM_SERIAL 1
   #endif
 
-  #ifdef DGUS_SERIAL_PORT
-    #if DGUS_SERIAL_PORT == SERIAL_PORT
-      #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT. Please update your configuration."
-    #elif defined(SERIAL_PORT_2) && DGUS_SERIAL_PORT == SERIAL_PORT_2
-      #error "DGUS_SERIAL_PORT must be different than SERIAL_PORT_2. Please update your configuration."
-    #elif DGUS_SERIAL_PORT == -1
-      #define DGUS_SERIAL Serial
-    #elif DGUS_SERIAL_PORT == 0
-      #define DGUS_SERIAL Serial1
-    #elif DGUS_SERIAL_PORT == 1
-      #define DGUS_SERIAL Serial2
-    #elif DGUS_SERIAL_PORT == 2
-      #define DGUS_SERIAL Serial3
-    #elif DGUS_SERIAL_PORT == 2
-      #define DGUS_SERIAL Serial4
+  #ifdef LCD_SERIAL_PORT
+    #if LCD_SERIAL_PORT == -1
+      #define LCD_SERIAL Serial
+    #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
+      #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
     #else
-      #error "DGUS_SERIAL_PORT must be from -1 to 3. Please update your configuration."
+      #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
     #endif
   #endif
 
@@ -111,6 +88,8 @@ typedef int8_t pin_t;
 
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
+
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 //
 // ADC

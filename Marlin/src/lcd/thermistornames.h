@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -108,6 +108,8 @@
   #define THERMISTOR_NAME "100k with 10k pull-up"
 
 // Modified thermistors
+#elif THERMISTOR_ID == 30
+  #define THERMISTOR_NAME "Kis3d EN AW NTC100K/3950"
 #elif THERMISTOR_ID == 51
   #define THERMISTOR_NAME "EPCOS 1K"
 #elif THERMISTOR_ID == 52

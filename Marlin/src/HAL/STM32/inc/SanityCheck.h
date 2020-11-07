@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -28,9 +28,6 @@
 //  #error "SPINDLE_LASER_PWM_PIN must use SERVO0, SERVO1 or SERVO3 connector"
 //#endif
 
-#if ENABLED(FAST_PWM_FAN)
-  #error "FAST_PWM_FAN is not yet implemented for this platform."
-#endif
 
 #if ENABLED(SDCARD_EEPROM_EMULATION) && DISABLED(SDSUPPORT)
   #undef SDCARD_EEPROM_EMULATION // Avoid additional error noise

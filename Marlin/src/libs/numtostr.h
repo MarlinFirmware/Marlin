@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,6 +25,9 @@
 
 // Convert a full-range unsigned 8bit int to a percentage
 const char* ui8tostr4pctrj(const uint8_t i);
+
+// Convert uint8_t to string with 12 format
+const char* ui8tostr2(const uint8_t x);
 
 // Convert uint8_t to string with 123 format
 const char* ui8tostr3rj(const uint8_t i);

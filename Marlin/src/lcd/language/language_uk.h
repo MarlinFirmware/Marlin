@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_5
@@ -524,18 +523,12 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Сумарно");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Кінцевик спрацював");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Збій нагріву");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Збій нагріву столу");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Збій нагріву камери");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("ЗАВИЩЕНА Т") LCD_STR_DEGREE;
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ВИТІК ТЕПЛА");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ВИТІК ТЕПЛА СТОЛУ");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ВИТІК ТЕПЛА КАМЕРИ");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("ПЕРЕГРІВ");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE;
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("ПЕРЕГРІВ СТОЛУ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" СТОЛУ");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("ПЕРЕГРІВ КАМЕРИ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("МІНІМАЛЬНА Т") LCD_STR_DEGREE _UxGT(" КАМЕРИ");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("ПРИНТЕР ЗУПИНЕНО");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Перезавантажте");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("д"); // One character only
@@ -652,7 +645,6 @@ namespace Language_uk {
   #endif
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Помилка паркування");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Помилка зондування");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: низька Т") LCD_STR_DEGREE;
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ОБЕРІТЬ ПРУТОК");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("Налаштування MMU");
@@ -770,8 +762,8 @@ namespace Language_uk {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

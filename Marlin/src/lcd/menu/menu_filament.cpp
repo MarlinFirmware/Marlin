@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if BOTH(HAS_LCD_MENU, ADVANCED_PAUSE_FEATURE)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/temperature.h"
 #include "../../feature/pause.h"
 #include "../../gcode/queue.h"
@@ -87,7 +87,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   _change_filament_mode = mode;
   _change_filament_extruder = extruder;
   START_MENU();
-  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_CENTER|SS_INVERT);
+  if (LCD_HEIGHT >= 4) STATIC_ITEM_P(change_filament_header(mode), SS_DEFAULT|SS_INVERT);
   BACK_ITEM(MSG_BACK);
   #if PREHEAT_COUNT
     LOOP_L_N(m, PREHEAT_COUNT)
@@ -101,9 +101,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 }
 
 /**
- *
  * "Change Filament" submenu
- *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 
@@ -138,8 +136,9 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[13];
-            sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
+            PGM_P const cmdpstr = PSTR("M600 B0 T%i");
+            char cmd[strlen_P(cmdpstr) + 3 + 1];
+            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
             queue.inject(cmd);
           });
         }
@@ -220,7 +219,7 @@ static PGM_P pause_header() {
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
     if (ui.should_draw()) { \
-      MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT); \
+      TERN(HAS_GRAPHICAL_TFT,, MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -266,7 +265,7 @@ void _lcd_pause_message(PGM_P const msg) {
              skip1 = !has2 && (LCD_HEIGHT) >= 5;
 
   START_SCREEN();
-  STATIC_ITEM_P(pause_header(), SS_CENTER|SS_INVERT);           // 1: Header
+  STATIC_ITEM_P(pause_header(), SS_DEFAULT|SS_INVERT);          // 1: Header
   if (skip1) SKIP_ITEM();                                       // Move a single-line message down
   STATIC_ITEM_P(msg1);                                          // 2: Message Line 1
   if (has2) STATIC_ITEM_P(msg2);                                // 3: Message Line 2

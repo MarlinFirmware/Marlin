@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
@@ -72,7 +72,7 @@ static SPISettings spiConfig;
  */
 void spiBegin() {
   #if !defined(SS_PIN) || SS_PIN < 0
-    #error SS_PIN not defined!
+    #error "SS_PIN not defined!"
   #endif
 
   OUT_WRITE(SS_PIN, HIGH);

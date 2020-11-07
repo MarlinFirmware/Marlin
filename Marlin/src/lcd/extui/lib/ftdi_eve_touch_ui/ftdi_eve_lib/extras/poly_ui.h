@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -36,7 +36,7 @@
  *
  *   PolyReader r(data, N_ELEMENTS(data));
  *
- *   for(r.start();r.has_more(); r.next()) {
+ *   for (r.start();r.has_more(); r.next()) {
  *     uint16_t x = r.x;
  *     uint16_t y = r.y;
  *
@@ -49,7 +49,6 @@
  *       ...
  *     }
  *   }
- *
  */
 
 class PolyReader {
@@ -91,7 +90,7 @@ class PolyReader {
         if (start_x != eol)
           close_loop();
         else
-          p = NULL;
+          p = nullptr;
       }
       else {
         x = pgm_read_word_far(p++);
@@ -107,8 +106,8 @@ class PolyReader {
       }
     }
 
-    bool has_more()       {return p != NULL;}
-    bool end_of_loop()    {return start_x == eol;}
+    bool has_more()       { return p != nullptr; }
+    bool end_of_loop()    { return start_x == eol; }
 };
 
 /**
@@ -129,7 +128,7 @@ class TransformedPolyReader : public PolyReader {
      */
     static constexpr uint8_t fract_bits = 5;
     typedef int16_t fix_t;
-    fix_t makefix(float f) {return f * (1 << fract_bits);}
+    fix_t makefix(float f) { return f * (1 << fract_bits); }
 
     // First two rows of 3x3 transformation matrix
     fix_t a, b, c;
@@ -254,6 +253,13 @@ class GenericPolyUI {
     draw_mode_t mode;
 
   public:
+    enum ButtonStyle : uint8_t {
+      FILL    = 1,
+      STROKE  = 2,
+      SHADOW  = 4,
+      REGULAR = 7
+    };
+
     typedef POLY_READER poly_reader_t;
 
     GenericPolyUI(CommandProcessor &c, draw_mode_t what = BOTH) : cmd(c), mode(what) {}
@@ -276,7 +282,7 @@ class GenericPolyUI {
       Polygon p(cmd);
       p.begin_fill();
       p.begin_loop();
-      for(r.start();r.has_more();r.next()) {
+      for (r.start();r.has_more();r.next()) {
         p(r.x * 16, r.y * 16);
         if (r.end_of_loop()) {
           p.end_loop();
@@ -306,7 +312,7 @@ class GenericPolyUI {
       Polygon p(cmd);
       p.begin_stroke();
       p.begin_loop();
-      for(r.start();r.has_more(); r.next()) {
+      for (r.start();r.has_more(); r.next()) {
         p(r.x * 16, r.y * 16);
         if (r.end_of_loop()) {
           p.end_loop();
@@ -323,7 +329,7 @@ class GenericPolyUI {
       int16_t y_min = INT16_MAX;
       int16_t x_max = INT16_MIN;
       int16_t y_max = INT16_MIN;
-      for(r.start(); r.has_more(); r.next()) {
+      for (r.start(); r.has_more(); r.next()) {
         x_min = min(x_min, int16_t(r.x));
         x_max = max(x_max, int16_t(r.x));
         y_min = min(y_min, int16_t(r.y));
@@ -355,11 +361,11 @@ class GenericPolyUI {
       btn_shadow_depth = depth;
     }
 
-    void button(const uint8_t tag, poly_reader_t r) {
+    void button(const uint8_t tag, poly_reader_t r, uint8_t style = REGULAR) {
       using namespace FTDI;
       // Draw the shadow
       #if FTDI_API_LEVEL >= 810
-      if (mode & BACKGROUND) {
+      if (mode & BACKGROUND && style & SHADOW) {
         cmd.cmd(SAVE_CONTEXT());
         cmd.cmd(TAG(tag));
         cmd.cmd(VERTEX_TRANSLATE_X(btn_shadow_depth * 16));
@@ -381,11 +387,15 @@ class GenericPolyUI {
         #endif
         // Draw the fill and stroke
         cmd.cmd(TAG(tag));
-        cmd.cmd(COLOR_RGB(btn_fill_color));
-        fill(r, false);
-        cmd.cmd(COLOR_RGB(btn_stroke_color));
-        cmd.cmd(LINE_WIDTH(btn_stroke_width));
-        stroke(r);
+        if (style & FILL) {
+          cmd.cmd(COLOR_RGB(btn_fill_color));
+          fill(r, false);
+        }
+        if (style & STROKE) {
+          cmd.cmd(COLOR_RGB(btn_stroke_color));
+          cmd.cmd(LINE_WIDTH(btn_stroke_width));
+          stroke(r);
+        }
         cmd.cmd(RESTORE_CONTEXT());
       }
     }

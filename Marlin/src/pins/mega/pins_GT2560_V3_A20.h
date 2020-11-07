@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -32,7 +32,7 @@
 
 #define SPEAKER  // The speaker can produce tones
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_EN1                            16
   #define BTN_EN2                            17
   #define BTN_ENC                            19

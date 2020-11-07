@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
@@ -27,9 +27,11 @@
 
 #include "watchdog.h"
 
+#define WDT_TIMEOUT_MS TERN(WATCHDOG_DURATION_8S, 8000, 4000) // 4 or 8 second timeout
+
 void watchdog_init() {
   WDOG_TOVALH = 0;
-  WDOG_TOVALL = 4000;
+  WDOG_TOVALL = WDT_TIMEOUT_MS;
   WDOG_STCTRLH = WDOG_STCTRLH_WDOGEN;
 }
 

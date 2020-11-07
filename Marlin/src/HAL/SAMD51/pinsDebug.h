@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -150,5 +150,4 @@ void pwm_details(int32_t pin) {
  *  93             |  PA10  | QSPI: IO2
  *  94             |  PA11  | QSPI: IO3
  *  95             |  PB31  | SD: DETECT
- *
  */

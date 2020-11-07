@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_PL
@@ -385,18 +384,12 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Łącznie");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Błąd krańcówki");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Rozgrz. nieudane");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Rozgrz. stołu nieudane");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Rozgrz. komory nieudane");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Błąd temperatury");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ZANIK TEMPERATURY");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ZANIK TEMP. STOŁU");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ZANIK TEMP.KOMORY");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Błąd: MAXTEMP");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Błąd: MINTEMP");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Błąd: MAXTEMP STÓŁ");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Błąd: MINTEMP STÓŁ");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Błąd: MAXTEMP KOMORA");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Błąd: MINTEMP KOMORA");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("Drukarka zatrzym.");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Proszę zresetować");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d"); // One character only
@@ -476,7 +469,6 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("Dystans do czujnika mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Zerowanie nieudane");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Sondowanie nieudane");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: za zimne");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("WYBIERZ FILAMENT");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -500,7 +492,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Usuń, kliknij");
 
   PROGMEM Language_Str MSG_MIX                             = _UxGT("Miks");
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Komponent =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mikser");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Gradient");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Pełny gradient");

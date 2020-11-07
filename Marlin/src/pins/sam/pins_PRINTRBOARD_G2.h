@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * PRINTRBOARD_G2
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -147,7 +147,7 @@
 
 #define FET_SAFETY_PIN                        31  // PA7  must be pulsed low every 50 mS or FETs are turned off
 #define FET_SAFETY_DELAY                      50  // 50 mS delay between pulses
-#define FET_SAFETY_INVERTED true                  // true - negative going pulse of 2 uS
+#define FET_SAFETY_INVERTED                 true  // true - negative going pulse of 2 uS
 
 /////////////////////////////////////////////////////////
 
@@ -170,5 +170,4 @@
  * None of these are in the arduino_due_x variant so digitalWrite and digitalRead can't be used on them.
  *
  * They can be accessed via FASTIO functions WRITE, READ, OUT_WRITE, OUTPUT, ...
- *
  */

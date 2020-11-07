@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -99,6 +99,7 @@ public:
   static void openFileRead(char * const path, const uint8_t subcall=0);
   static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
+  static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }

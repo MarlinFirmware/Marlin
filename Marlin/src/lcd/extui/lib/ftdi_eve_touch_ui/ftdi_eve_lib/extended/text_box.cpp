@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
@@ -34,7 +34,7 @@ namespace FTDI {
     const char *p = str;
     end = str;
     uint16_t lw = 0, result = 0;
-    for(;;) {
+    for (;;) {
       utf8_char_t c = get_utf8_char_and_inc(p);
       if (c == ' ' || c == '\n' || c == '\0') {
         if (lw < w || end == str) {
@@ -60,7 +60,7 @@ namespace FTDI {
     const char *line_end;
     const uint16_t wrap_width = width;
     width = height = 0;
-    for(;;) {
+    for (;;) {
       uint16_t line_width = find_line_break(fm, wrap_width, line_start, line_end);
       if (line_end == line_start) break;
       width  = max(width, line_width);
@@ -78,7 +78,7 @@ namespace FTDI {
     FontMetrics fm(font);
 
     // Shrink the font until we find a font that fits
-    for(;;) {
+    for (;;) {
       box_width = w;
       measure_text_box(fm, str, box_width, box_height);
       if (box_width <= (uint16_t)w && box_height <= (uint16_t)h) break;
@@ -91,7 +91,7 @@ namespace FTDI {
 
     const char *line_start = str;
     const char *line_end;
-    for(;;) {
+    for (;;) {
       find_line_break(fm, w, line_start, line_end);
       if (line_end == line_start) break;
 

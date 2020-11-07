@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -24,19 +24,16 @@
 /**
  * Teensy 3.1 (MK20DX256) and Teensy 3.2 (MK20DX256) Breadboard pin assignments
  * Requires the Teensyduino software with Teensy 3.1 or Teensy 3.2 selected in Arduino IDE!
- * http://www.pjrc.com/teensy/teensyduino.html
+ * https://www.pjrc.com/teensy/teensyduino.html
  */
 
-#if !IS_32BIT_TEENSY
+#if NOT_TARGET(IS_TEENSY_31_32)
   #error "Oops! Select 'Teensy 3.1' or 'Teensy 3.2' in 'Tools > Board.'"
 #endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Teensy3.2"
 #endif
-
-#define AT90USB                              1286 // Disable MarlinSerial etc.
-#define USBCON //1286  // Disable MarlinSerial etc.
 
 //
 // Limit Switches
@@ -92,22 +89,16 @@
 //
 // Misc. Functions
 //
-
-//#define SDSS                                16  // 8
 #define LED_PIN                               13
-
 //#define SOL1_PIN                            28
+//#define SDSS                                16  // 8
 
 //
 // LCD / Controller
 //
 
-//#define SCK_PIN                             13
-//#define MISO_PIN                            12
-//#define MOSI_PIN                            11
-
 /*
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         40
   #define LCD_PINS_ENABLE                     41
   #define LCD_PINS_D4                         42

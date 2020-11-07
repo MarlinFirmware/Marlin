@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -91,7 +91,7 @@
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
-#define MARLIN_WEBSITE_URL "http://marlinfw.org"
+#define MARLIN_WEBSITE_URL "https://marlinfw.org"
 
 //#if !defined(STRING_SPLASH_LINE3) && defined(WEBSITE_URL)
 //  #define STRING_SPLASH_LINE3 WEBSITE_URL
@@ -108,8 +108,6 @@
 #define STR_BROWNOUT_RESET                  " Brown out Reset"
 #define STR_WATCHDOG_RESET                  " Watchdog Reset"
 #define STR_SOFTWARE_RESET                  " Software Reset"
-#define STR_AUTHOR                          " | Author: "
-#define STR_CONFIGURATION_VER               " Last Updated: "
 #define STR_FREE_MEMORY                     " Free Memory: "
 #define STR_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define STR_OK                              "ok"
@@ -120,13 +118,13 @@
 #define STR_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define STR_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
 #define STR_FILE_PRINTED                    "Done printing file"
+#define STR_NO_MEDIA                        "No media"
 #define STR_BEGIN_FILE_LIST                 "Begin file list"
 #define STR_END_FILE_LIST                   "End file list"
 #define STR_INVALID_EXTRUDER                "Invalid extruder"
 #define STR_INVALID_E_STEPPER               "Invalid E stepper"
 #define STR_E_STEPPER_NOT_SPECIFIED         "E stepper not specified"
 #define STR_INVALID_SOLENOID                "Invalid solenoid"
-#define STR_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
 #define STR_COUNT_X                         " Count X:"
 #define STR_COUNT_A                         " Count A:"
 #define STR_WATCHDOG_FIRED                  "Watchdog timeout. Reset required."
@@ -266,6 +264,13 @@
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_LEVELING                  "LEVELING"
 
+#define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
+#define STR_WRONG_PASSWORD                  "Incorrect Password"
+#define STR_PASSWORD_TOO_LONG               "Password too long"
+#define STR_PASSWORD_REMOVED                "Password removed"
+#define STR_REMINDER_SAVE_SETTINGS          "Remember to save!"
+#define STR_PASSWORD_SET                    "Password is "
+
 // LCD Menu Messages
 
 #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
@@ -298,7 +303,7 @@
 #define LCD_STR_C STR_C
 #define LCD_STR_E STR_E
 
-#if HAS_CHARACTER_LCD
+#if EITHER(HAS_MARLINUI_HD44780, IS_TFTGLCD_PANEL)
 
   // Custom characters defined in the first 8 characters of the LCD
   #define LCD_STR_BEDTEMP     "\x00" // Print only as a char. This will have 'unexpected' results when used in a string!
@@ -343,10 +348,9 @@
  * However, internal to Marlin E0/T0 is the first tool, and
  * most board silkscreens say "E0." Zero-based labels will
  * make these indexes consistent but this defies expectation.
- *
  */
 #if ENABLED(NUMBER_TOOLS_FROM_0)
-  #define LCD_FIRST_TOOL '0'
+  #define LCD_FIRST_TOOL 0
   #define LCD_STR_N0 "0"
   #define LCD_STR_N1 "1"
   #define LCD_STR_N2 "2"
@@ -356,7 +360,7 @@
   #define LCD_STR_N6 "6"
   #define LCD_STR_N7 "7"
 #else
-  #define LCD_FIRST_TOOL '1'
+  #define LCD_FIRST_TOOL 1
   #define LCD_STR_N0 "1"
   #define LCD_STR_N1 "2"
   #define LCD_STR_N2 "3"

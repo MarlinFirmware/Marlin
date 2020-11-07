@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -78,13 +78,16 @@ uint8_t const SD_CARD_TYPE_SD1  = 1,                    // Standard capacity V1 
               SD_CARD_TYPE_SDHC = 3;                    // High Capacity SD card
 
 /**
- * define SOFTWARE_SPI to use bit-bang SPI
+ * Define SOFTWARE_SPI to use bit-bang SPI
  */
-#if MEGA_SOFT_SPI
+#if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI
-#elif USE_SOFTWARE_SPI
-  #define SOFTWARE_SPI
-#endif  // MEGA_SOFT_SPI
+#endif
+
+#if IS_TEENSY_35_36 || IS_TEENSY_40_41
+  #include "NXP_SDHC.h"
+  #define BUILTIN_SDCARD 254
+#endif
 
 /**
  * \class Sd2Card

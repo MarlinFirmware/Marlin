@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,8 +30,8 @@
  * Hardware serial communication ports.
  */
 #if HAS_TMC_UART
-  #define X_HARDWARE_SERIAL  Serial4
-  #define Y_HARDWARE_SERIAL  Serial4
-  #define Z_HARDWARE_SERIAL  Serial4
-  #define E0_HARDWARE_SERIAL Serial4
+  #define X_HARDWARE_SERIAL  MSerial4
+  #define Y_HARDWARE_SERIAL  MSerial4
+  #define Z_HARDWARE_SERIAL  MSerial4
+  #define E0_HARDWARE_SERIAL MSerial4
 #endif

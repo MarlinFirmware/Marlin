@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
  #define DISPLAY_CHARSET_ISO10646_1
@@ -139,7 +138,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT(" DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Troca DesRet mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT(" DesRet  V");
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" AutoRetr.");
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT(" Auto-Retract");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Trocar filamento");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Trocar filamento *");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Inici. cartão SD");
@@ -150,8 +149,6 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Err: T Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Err: T Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Err: T Base Máxima");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Err: T Base Mínima");
   PROGMEM Language_Str MSG_HEATING                         = _UxGT("Aquecendo...");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Aquecendo base...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibração Delta");

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -89,8 +89,8 @@ extern bool wait_for_heatup;
 
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
   #if ENABLED(AUTO_POWER_CONTROL)
     #define PSU_ON()  powerManager.power_on()
     #define PSU_OFF() powerManager.power_off()

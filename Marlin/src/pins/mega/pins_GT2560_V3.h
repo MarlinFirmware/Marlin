@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * GT2560 RevB + GT2560 V3.0 + GT2560 V3.1 + GT2560 V4.0 pin assignment
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -172,7 +172,7 @@
   #define LCD_PINS_D7                         36
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #ifndef BTN_EN1
     #define BTN_EN1                           42
   #endif

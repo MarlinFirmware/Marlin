@@ -13,12 +13,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "LERDGE K supports up to 2 hotends / E-steppers."
@@ -147,10 +147,10 @@
 // Misc. Functions
 //
 #define SDSS                                PC11
-#define LED_PIN                             PA15   // Alive
+#define LED_PIN                             PA15  // Alive
 #define PS_ON_PIN                           -1
 #define KILL_PIN                            -1
-#define POWER_LOSS_PIN                      PA4    // Power-loss / nAC_FAULT
+#define POWER_LOSS_PIN                      PA4   // Power-loss / nAC_FAULT
 
 #define SCK_PIN                             PC12
 #define MISO_PIN                            PC8

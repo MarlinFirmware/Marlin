@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -98,7 +98,7 @@ static inline void pwm_details(const pin_t pin) {
     timer_dev * const tdev = PIN_MAP[pin].timer_device;
     const uint8_t channel = PIN_MAP[pin].timer_channel;
     const char num = (
-      #if defined(STM32_HIGH_DENSITY) || defined(STM32_XL_DENSITY)
+      #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)
         tdev == &timer8 ? '8' :
         tdev == &timer5 ? '5' :
       #endif
