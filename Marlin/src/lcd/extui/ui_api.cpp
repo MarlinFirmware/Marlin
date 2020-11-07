@@ -38,7 +38,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfigPre.h"
@@ -610,7 +610,7 @@ namespace ExtUI {
       caselight.update_enabled();
     }
 
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+    #if CASELIGHT_USES_BRIGHTNESS
       float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const float value) {
          caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
@@ -972,7 +972,11 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false)) || print_job_timer.isRunning() || print_job_timer.isPaused();
+  }
+
+  bool isPrintingPaused() {
+    return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
   bool isMediaInserted() {

@@ -137,7 +137,7 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if ENABLED(TFT_COLOR_UI) || ENABLED(TFT_LVGL_UI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION         -17181
   #endif
@@ -150,19 +150,6 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                  -9
   #endif
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -12316
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8981
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 340
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -20
-  #endif
 #endif
 
 #if NEED_TOUCH_PINS
@@ -173,7 +160,7 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2 ok

@@ -1608,6 +1608,54 @@
     #define Y_SPI_SENSORLESS Y_SENSORLESS
     #define Z_SPI_SENSORLESS Z_SENSORLESS
   #endif
+  #ifndef X_INTERPOLATE
+    #define X_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef X2_INTERPOLATE
+    #define X2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Y_INTERPOLATE
+    #define Y_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Y2_INTERPOLATE
+    #define Y2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z_INTERPOLATE
+    #define Z_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z2_INTERPOLATE
+    #define Z2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z3_INTERPOLATE
+    #define Z3_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z4_INTERPOLATE
+    #define Z4_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E0_INTERPOLATE
+    #define E0_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E1_INTERPOLATE
+    #define E1_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E2_INTERPOLATE
+    #define E2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E3_INTERPOLATE
+    #define E3_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E4_INTERPOLATE
+    #define E4_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E5_INTERPOLATE
+    #define E5_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E6_INTERPOLATE
+    #define E6_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E7_INTERPOLATE
+    #define E7_INTERPOLATE INTERPOLATE
+  #endif
 #endif
 
 #if (HAS_E_DRIVER(TMC2660) \
@@ -2457,11 +2505,11 @@
 /**
  * Buzzer/Speaker
  */
-#if PIN_EXISTS(BEEPER) || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
+#if PIN_EXISTS(BEEPER)
+  #define USE_BEEPER 1
+#endif
+#if USE_BEEPER || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
-  #if PIN_EXISTS(BEEPER)
-    #define USE_BEEPER 1
-  #endif
 #endif
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -2480,8 +2528,12 @@
   #endif
 #endif
 
-#if HAS_BUZZER && LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
-  #define HAS_CHIRP 1
+#if HAS_BUZZER
+  #if LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
+    #define HAS_CHIRP 1
+  #endif
+#else
+  #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
 #endif
 
 /**
