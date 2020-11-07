@@ -127,6 +127,11 @@ public:
   SPIClass(uint8_t spiPortNumber);
 
   /**
+   * Init using pins
+   */
+  SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel = (pin_t)-1);
+
+  /**
    * Select and configure the current selected SPI device to use
    */
   void begin();
