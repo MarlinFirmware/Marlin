@@ -23,6 +23,7 @@
 
 #include "HAL.h"
 #include <SPI.h>
+
 extern "C" {
 #include "utility/spi_com.h"
 }
@@ -52,9 +53,8 @@ extern "C" {
 
 class MarlinSPI {
 public:
-  MarlinSPI() : MarlinSPI(NC, NC, NC, NC) {
+  MarlinSPI() : MarlinSPI(NC, NC, NC, NC) {}
 
-  }
   MarlinSPI(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel = (pin_t)NC) : _mosiPin(mosi), _misoPin(miso), _sckPin(sclk), _ssPin(ssel) {
     _spi.pin_miso = digitalPinToPinName(_misoPin);
     _spi.pin_mosi = digitalPinToPinName(_mosiPin);
@@ -77,21 +77,14 @@ public:
   /* These methods are deprecated and kept for compatibility.
    * Use SPISettings with SPI.beginTransaction() to configure SPI parameters.
    */
-  void setBitOrder(BitOrder _order)
-  {
-    _bitOrder = _order;
-  }
+  void setBitOrder(BitOrder _order) { _bitOrder = _order; }
 
-  void setDataMode(uint8_t _mode)
-  {
-    if (SPI_MODE0 == _mode) {
-      _dataMode = SPI_MODE_0;
-    } else if (SPI_MODE1 == _mode) {
-      _dataMode = SPI_MODE_1;
-    } else if (SPI_MODE2 == _mode) {
-      _dataMode = SPI_MODE_2;
-    } else if (SPI_MODE3 == _mode) {
-      _dataMode = SPI_MODE_3;
+  void setDataMode(uint8_t _mode) {
+    switch (_mode) {
+      case SPI_MODE0: _dataMode = SPI_MODE_0; break;
+      case SPI_MODE1: _dataMode = SPI_MODE_1; break;
+      case SPI_MODE2: _dataMode = SPI_MODE_2; break;
+      case SPI_MODE3: _dataMode = SPI_MODE_3; break;
     }
   }
 

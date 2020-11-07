@@ -48,12 +48,8 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
   _dmaHandle.Init.PeriphInc = DMA_PINC_DISABLE;
   _dmaHandle.Init.Mode = DMA_NORMAL;
   _dmaHandle.Init.Priority = DMA_PRIORITY_LOW;
-  if (minc) {
-    _dmaHandle.Init.MemInc = DMA_MINC_ENABLE;
-  }
-  else {
-    _dmaHandle.Init.MemInc = DMA_MINC_DISABLE;
-  }
+  _dmaHandle.Init.MemInc = minc ? DMA_MINC_ENABLE : DMA_MINC_DISABLE;
+
   if (_dataSize == DATA_SIZE_8BIT) {
     _dmaHandle.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     _dmaHandle.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
@@ -62,7 +58,7 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
     _dmaHandle.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     _dmaHandle.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   }
-  #if defined(STM32F4xx)
+  #ifdef STM32F4xx
     _dmaHandle.Init.Channel = DMA_CHANNEL_3;
     _dmaHandle.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   #endif
@@ -73,12 +69,7 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
     if (_spiHandle.Instance == SPI1) {
       #ifdef STM32F1xx
         __HAL_RCC_DMA1_CLK_ENABLE();
-        if (direction == DMA_MEMORY_TO_PERIPH) {
-          _dmaHandle.Instance = DMA1_Channel3;
-        }
-        else {
-          _dmaHandle.Instance = DMA1_Channel2;
-        }
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Channel3 : DMA1_Channel2;
       #elif defined(STM32F4xx)
         __HAL_RCC_DMA2_CLK_ENABLE();
         _dmaHandle.Instance = DMA2_Stream3;
@@ -89,12 +80,7 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
     if (_spiHandle.Instance == SPI2) {
       #ifdef STM32F1xx
         __HAL_RCC_DMA1_CLK_ENABLE();
-        if (direction == DMA_MEMORY_TO_PERIPH) {
-          _dmaHandle.Instance = DMA1_Channel5;
-        }
-        else {
-          _dmaHandle.Instance = DMA1_Channel4;
-        }
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA1_Channel5 : DMA1_Channel4;
       #elif defined(STM32F4xx)
         //TODO: f4 dma config
       #endif
@@ -104,12 +90,7 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
     if (_spiHandle.Instance == SPI3) {
       #ifdef STM32F1xx
         __HAL_RCC_DMA2_CLK_ENABLE();
-        if (direction == DMA_MEMORY_TO_PERIPH) {
-          _dmaHandle.Instance = DMA2_Channel2;
-        }
-        else {
-          _dmaHandle.Instance = DMA2_Channel1;
-        }
+        _dmaHandle.Instance = (direction == DMA_MEMORY_TO_PERIPH) ? DMA2_Channel2 : DMA2_Channel1;
       #elif defined(STM32F4xx)
         //TODO: f4 dma config
       #endif
@@ -119,8 +100,7 @@ void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaH
   HAL_DMA_Init(&_dmaHandle);
 }
 
-byte MarlinSPI::transfer(uint8_t _data)
-{
+byte MarlinSPI::transfer(uint8_t _data) {
   uint8_t rxData = 0xFF;
   HAL_SPI_TransmitReceive(&_spi.handle, &_data, &rxData, 1, HAL_MAX_DELAY);
   return rxData;
