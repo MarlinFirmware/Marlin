@@ -38,13 +38,21 @@
 #define BOARD_INFO_NAME       "E4D@BOX"
 #define BOARD_WEBSITE_URL     "github.com/Exilaus/E4d@box"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
+
 //
 // Disable I2S stepper stream
 //
 #undef I2S_STEPPER_STREAM
+
+//
+// Redefine I2S for ESP32
+//
 #undef I2S_WS
+#define I2S_WS                                23
 #undef I2S_BCK
+#define I2S_BCK                               22
 #undef I2S_DATA
+#define I2S_DATA                              21
 
 //
 // Limit Switches
@@ -90,14 +98,10 @@
 #define HEATER_BED_PIN                        15
 
 //
-// MicroSD card
+// MicroSD card on SPI
 //
 #define MOSI_PIN                              23
 #define MISO_PIN                              19
 #define SCK_PIN                               18
 #define SDSS                                   5
 #define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
-
-#define I2S_WS                                23
-#define I2S_BCK                               22
-#define I2S_DATA                              21
