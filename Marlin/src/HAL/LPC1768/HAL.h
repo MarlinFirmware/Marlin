@@ -90,6 +90,7 @@ extern "C" volatile uint32_t _millis;
     #define LCD_SERIAL UsbSerial
   #elif WITHIN(LCD_SERIAL_PORT, 0, 3)
     #define LCD_SERIAL MSERIAL(LCD_SERIAL_PORT)
+    #define DGUS_SERIAL MSERIAL(LCD_SERIAL_PORT)
   #else
     #error "LCD_SERIAL_PORT must be from -1 to 3. Please update your configuration."
   #endif
