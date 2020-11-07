@@ -198,7 +198,7 @@ SPIClass::SPIClass(uint8_t device) {
 }
 
 SPIClass::SPIClass(pin_t mosi, pin_t miso, pin_t sclk, pin_t ssel) {
-  #if BOARD_NR_SPI >= 2
+  #if BOARD_NR_SPI >= 1
     if (mosi == BOARD_SPI1_MOSI_PIN) SPIClass(1);
   #endif
   #if BOARD_NR_SPI >= 2

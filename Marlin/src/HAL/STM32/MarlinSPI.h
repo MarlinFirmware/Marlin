@@ -25,7 +25,7 @@
 #include <SPI.h>
 
 extern "C" {
-#include "utility/spi_com.h"
+  #include <utility/spi_com.h>
 }
 
 /**
