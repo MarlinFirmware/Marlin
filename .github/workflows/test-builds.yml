@@ -83,6 +83,7 @@ jobs:
         - STM32F103RET6_creality
         - LERDGEX
         - mks_robin_nano35
+        - mks_robin_nano35_stm32
         - NUCLEO_F767ZI
 
         # Put lengthy tests last

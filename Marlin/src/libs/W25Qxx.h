@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#include HAL_PATH(../HAL, MarlinSPI.h)
+
 #define W25X_WriteEnable        0x06
 #define W25X_WriteDisable       0x04
 #define W25X_ReadStatusReg      0x05
@@ -49,6 +51,8 @@
 #define SPI_FLASH_PerWritePageSize   256
 
 class W25QXXFlash {
+private:
+  static MarlinSPI mySPI;
 public:
   void init(uint8_t spiRate);
   static uint8_t spi_flash_Rec();
