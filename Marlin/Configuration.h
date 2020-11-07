@@ -2343,6 +2343,10 @@
   //#define XPT2046_Y_CALIBRATION -8981
   //#define XPT2046_X_OFFSET        -43
   //#define XPT2046_Y_OFFSET        257
+
+  #if ENABLED(TFT_COLOR_UI)
+    //#define SINGLE_TOUCH_NAVIGATION
+  #endif
 #endif
 
 //
