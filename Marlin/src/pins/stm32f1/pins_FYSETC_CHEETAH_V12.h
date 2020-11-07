@@ -23,8 +23,6 @@
 
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #include "pins_FYSETC_CHEETAH.h"

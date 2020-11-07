@@ -28,8 +28,6 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
-#elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -38,6 +36,8 @@
 #ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "Ender 3 V2"
 #endif
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // EEPROM

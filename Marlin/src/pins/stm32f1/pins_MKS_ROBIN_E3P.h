@@ -31,11 +31,11 @@
   #error "MKS Robin e3p supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #elif HAS_FSMC_TFT
   #error "MKS Robin e3p doesn't support FSMC-based TFT displays."
-#elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin e3p"
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role

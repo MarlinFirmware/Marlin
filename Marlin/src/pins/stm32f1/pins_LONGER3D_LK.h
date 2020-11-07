@@ -26,12 +26,12 @@
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
-#elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #define BOARD_INFO_NAME "Longer3D"
 #define ALFAWISE_UX0                              // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG                           //  We still want to debug with STLINK...
 #define DISABLE_JTAG                              //  We free the jtag pins (PA15) but keep STLINK

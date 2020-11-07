@@ -25,14 +25,14 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin Lite supports only 1 hotend / E-stepper. Comment out this line to continue."
-#elif STM32_HAS_USB_SERIAL
-  #error "A serial port is set to -1, but this board does not support native USB. Set SERIAL_PORT to a valid value for your board."
 #endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "MKS Robin Lite"
 #endif
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG
 #define DISABLE_JTAG
