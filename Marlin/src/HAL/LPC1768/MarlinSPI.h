@@ -24,21 +24,21 @@
 #include <SPI.h>
 
 /**
- * Marlin currently needs 3 SPI class
+ * Marlin currently requires 3 SPI classes:
  *
  * SPIClass:
- *   This class normally is provide by the frameworks and have semi default interface.
- *   We need this, because some libs reference it globally.
+ *  This class is normally provided by frameworks and has a semi-default interface.
+ *  This is needed because some libraries reference it globally.
  *
  * SPISettings:
- *  Hold spi configs for the SPIClass. Same problem about: lib may reference it globally.
+ *  Container for SPI configs for SPIClass. As above, libraries may reference it globally.
+ *
+ * These two classes are often provided by frameworks so we cannot extend them to add
+ * useful methods for Marlin.
  *
  * MarlinSPI:
- *   As those two classes are often provided by frameworks, we cannot alter it, to add some
- * useful methods for marlin.
- *
- * This is the reason, we need MarlinSPI. It provide the default SPIClass interface, plus some
- * marlin goods (easy inteface for SPI DMA transfer)
+ *  Provides the default SPIClass interface plus some Marlin goodies such as a simplified
+ *  interface for SPI DMA transfer.
  *
  */
 
