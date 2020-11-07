@@ -16,26 +16,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #ifdef SKR_HAS_LPC1769
-  #if NOT_TARGET(MCU_LPC1769)
+  #ifndef MCU_LPC1769
     #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
   #endif
-#elif NOT_TARGET(MCU_LPC1768)
+#elif !defined(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+
+#if DISABLED(SDCARD_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+#endif
 
 //
 // Steppers
 //
-#ifndef E1_STEP_PIN
+/*#ifndef E1_STEP_PIN
   #define E1_STEP_PIN                      P0_01
 #endif
 #ifndef E1_DIR_PIN
@@ -44,6 +48,7 @@
 #ifndef E1_ENABLE_PIN
   #define E1_ENABLE_PIN                    P0_10
 #endif
+*/
 
 //
 // Temperature Sensors
@@ -59,12 +64,8 @@
   #define TEMP_BED_PIN                  P0_23_A0  // A0 (T0) - (67) - TEMP_BED_PIN
 #endif
 
-#if HOTENDS == 1
-  #if TEMP_SENSOR_PROBE
-    #define TEMP_PROBE_PIN            TEMP_1_PIN
-  #elif TEMP_SENSOR_CHAMBER
-    #define TEMP_CHAMBER_PIN          TEMP_1_PIN
-  #endif
+#if HOTENDS == 1 && TEMP_SENSOR_PROBE
+  #define TEMP_PROBE_PIN              TEMP_1_PIN
 #endif
 
 //
@@ -75,7 +76,7 @@
 #endif
 #if HOTENDS == 1
   #ifndef FAN1_PIN
-    #define FAN1_PIN                       P2_04
+    #define FAN1_PIN                       -1 //P2_04
   #endif
 #else
   #ifndef HEATER_1_PIN
@@ -92,7 +93,7 @@
 //
 // LCD / Controller
 //
-#if HAS_WIRED_LCD && DISABLED(LCD_USE_I2C_BUZZER)
+#if HAS_SPI_LCD
   #define BEEPER_PIN                       P1_30  // (37) not 5V tolerant
 #endif
 
@@ -106,12 +107,16 @@
   #define MISO_PIN                         P0_17
   #define MOSI_PIN                         P0_18
 #elif SD_CONNECTION_IS(ONBOARD)
-  #undef SD_DETECT_PIN
+  //#undef SD_DETECT_PIN
   #define SD_DETECT_PIN                    P0_27
   #define SCK_PIN                          P0_07
   #define MISO_PIN                         P0_08
   #define MOSI_PIN                         P0_09
   #define SS_PIN               ONBOARD_SD_CS_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
-  #error "No custom SD drive cable defined for this board."
+  #define SD_DETECT_PIN                    P1_25
+  #define SCK_PIN                          P0_07
+  #define MISO_PIN                         P0_08
+  #define MOSI_PIN                         P0_09
+  #define SS_PIN               ONBOARD_SD_CS_PIN
 #endif
