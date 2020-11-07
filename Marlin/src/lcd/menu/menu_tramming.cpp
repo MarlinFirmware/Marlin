@@ -50,7 +50,7 @@ bool probe_single_point() {
     // Move XY to safe position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Clearing Probing Point");
     const xyz_pos_t safe_pos = ASSISTED_TRAMMING_CLEAR_POSITION;
-    do_blocking_move_to(safe_pos, MMM_TO_MMS(XY_PROBE_FEEDRATE_MM_S));
+    do_blocking_move_to(safe_pos, XY_PROBE_FEEDRATE_MM_S);
   #endif
   return !isnan(z_probed_height);
 }
