@@ -40,7 +40,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Kortti asetettu");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Kortti poistettu");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Palaa");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Automaatti");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Automaatti");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Vapauta moottorit");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Aja referenssiin");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Aseta origo");

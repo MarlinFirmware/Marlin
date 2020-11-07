@@ -41,7 +41,7 @@ namespace Language_el_gr {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Αφαίρεση κάρτας");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Βασική Οθόνη");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Αυτόματη εκκίνηση");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Αυτόματη εκκίνηση");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Απενεργοποίηση βηματιστή");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Αρχικό σημείο X");

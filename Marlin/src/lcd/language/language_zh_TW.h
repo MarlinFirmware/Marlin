@@ -50,7 +50,7 @@ namespace Language_zh_TW {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("主選單");     //"Main"
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("進階設置");   //"Advanced Settings"
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("設置");    //Configuration
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("自動開始");     //"Autostart"
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("自動開始");     //"Autostart"
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("關閉步進馬達");     //"Disable steppers"
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("除錯選單");     // "Debug Menu"
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("進度條測試");     // "Progress Bar Test"

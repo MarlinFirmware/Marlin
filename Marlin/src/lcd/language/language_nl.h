@@ -43,7 +43,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Kaart verwijderd");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hoofdmenu");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motoren uit");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu"); // accepted English terms
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Vooruitgang Test");

@@ -38,7 +38,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Targeta extreta.");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menú principal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inici automatic");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inici automatic");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Desactiva motors");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu de depuracio");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barra progres");

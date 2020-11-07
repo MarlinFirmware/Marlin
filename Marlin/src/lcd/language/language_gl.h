@@ -54,7 +54,7 @@ namespace Language_gl {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menú principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Axustes avanzados");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuración");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autoarranque");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autoarranque");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Apagar motores");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menú depuración");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barra progreso");

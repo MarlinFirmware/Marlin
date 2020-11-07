@@ -57,7 +57,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hlavní nabídka");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Další nastavení");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfigurace");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Uvolnit motory");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Nabídka ladění");
   #if LCD_WIDTH >= 20
