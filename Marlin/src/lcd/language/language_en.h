@@ -64,7 +64,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Advanced Settings");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Run Auto Files");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Disable Steppers");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Progress Bar Test");
