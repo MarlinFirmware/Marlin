@@ -1941,7 +1941,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 // Delta and Cartesian use 3 homing endstops
-#if !IS_SCARA && DISABLED(SPI_ENDSTOPS)
+#if NONE(IS_SCARA, SPI_ENDSTOPS)
   #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
     #error "Enable USE_XMIN_PLUG when homing X to MIN."
   #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
