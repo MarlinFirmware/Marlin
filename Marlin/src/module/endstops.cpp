@@ -900,7 +900,7 @@ void Endstops::update() {
       }
     #endif
 
-    TERN_(ENDSTOP_INTERRUPTS_FEATURE, if (hit) update());
+    if (TERN0(ENDSTOP_INTERRUPTS_FEATURE, hit)) update();
 
     return hit;
   }
