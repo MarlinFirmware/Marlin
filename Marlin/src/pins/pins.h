@@ -104,13 +104,13 @@
 #elif MB(3DRAG)
   #include "ramps/pins_3DRAG.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8200)
-  #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8400)
-  #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8600)
   #include "ramps/pins_K8600.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8800)
-  #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(BAM_DICE)
   #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(BAM_DICE_DUE)
@@ -132,7 +132,9 @@
 #elif MB(KFB_2)
   #include "ramps/pins_BIQU_KFB_2.h"            // ATmega2560                             env:mega2560
 #elif MB(ZRIB_V20)
-  #include "ramps/pins_ZRIB_V20.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (MKS_GEN_13)
+  #include "ramps/pins_ZRIB_V20.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+#elif MB(ZRIB_V52)
+  #include "ramps/pins_ZRIB_V52.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(FELIX2)
   #include "ramps/pins_FELIX2.h"                // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RIGIDBOARD)
