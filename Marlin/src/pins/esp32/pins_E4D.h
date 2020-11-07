@@ -31,13 +31,28 @@
   #error "Oops! Select an ESP32 board in 'Tools > Board.'"
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "E4d@box only supports one E Stepper. Comment out this line to continue."
-#elif HOTENDS > 2
+#elif HOTENDS > 1
   #error "E4d@box currently supports only one hotend. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME       "E4D@BOX"
 #define BOARD_WEBSITE_URL     "github.com/Exilaus/E4d@box"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
+
+//
+// Disable I2S stepper stream
+//
+#undef I2S_STEPPER_STREAM
+
+//
+// Redefine I2S for ESP32
+//
+#undef I2S_WS
+#define I2S_WS                                23
+#undef I2S_BCK
+#define I2S_BCK                               22
+#undef I2S_DATA
+#define I2S_DATA                              21
 
 //
 // Limit Switches
@@ -82,9 +97,11 @@
 #define FAN_PIN                                0
 #define HEATER_BED_PIN                        15
 
-// SPI
+//
+// MicroSD card on SPI
+//
+#define MOSI_PIN                              23
+#define MISO_PIN                              19
+#define SCK_PIN                               18
 #define SDSS                                   5
-#define I2S_STEPPER_STREAM
-#define I2S_WS                                23
-#define I2S_BCK                               22
-#define I2S_DATA                              21
+#define USES_SHARED_SPI                           // SPI is shared by SD card with TMC SPI drivers
