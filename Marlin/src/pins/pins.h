@@ -298,27 +298,27 @@
 //
 
 #elif MB(SANGUINOLOLU_11)
-  #include "sanguino/pins_SANGUINOLOLU_11.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_SANGUINOLOLU_11.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(SANGUINOLOLU_12)
-  #include "sanguino/pins_SANGUINOLOLU_12.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_SANGUINOLOLU_12.h"    // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(MELZI)
-  #include "sanguino/pins_MELZI.h"              // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI.h"              // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(MELZI_V2)
-  #include "sanguino/pins_MELZI_V2.h"           // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI_V2.h"           // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(MELZI_MAKR3D)
-  #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI_MAKR3D.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(MELZI_CREALITY)
-  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optimized env:melzi_optiboot
+  #include "sanguino/pins_MELZI_CREALITY.h"     // ATmega1284P                            env:melzi env:melzi_optimized env:melzi_optiboot env:melzi_optiboot_optimized
 #elif MB(MELZI_MALYAN)
-  #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI_MALYAN.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(MELZI_TRONXY)
-  #include "sanguino/pins_MELZI_TRONXY.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_MELZI_TRONXY.h"       // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(STB_11)
-  #include "sanguino/pins_STB_11.h"             // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_STB_11.h"             // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(AZTEEG_X1)
-  #include "sanguino/pins_AZTEEG_X1.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_AZTEEG_X1.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(ZMIB_V2)
-  #include "sanguino/pins_ZMIB_V2.h"            // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_ZMIB_V2.h"            // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 
 //
 // Other ATmega644P, ATmega644, ATmega1284P
@@ -327,27 +327,27 @@
 #elif MB(GEN3_MONOLITHIC)
   #include "sanguino/pins_GEN3_MONOLITHIC.h"    // ATmega644P                             env:sanguino644p
 #elif MB(GEN3_PLUS)
-  #include "sanguino/pins_GEN3_PLUS.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN3_PLUS.h"          // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN6)
-  #include "sanguino/pins_GEN6.h"               // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN6.h"               // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN6_DELUXE)
-  #include "sanguino/pins_GEN6_DELUXE.h"        // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN6_DELUXE.h"        // ATmega644P, ATmega1284P                env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN7_CUSTOM)
-  #include "sanguino/pins_GEN7_CUSTOM.h"        // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN7_CUSTOM.h"        // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN7_12)
-  #include "sanguino/pins_GEN7_12.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN7_12.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN7_13)
-  #include "sanguino/pins_GEN7_13.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN7_13.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(GEN7_14)
-  #include "sanguino/pins_GEN7_14.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_GEN7_14.h"            // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(OMCA_A)
   #include "sanguino/pins_OMCA_A.h"             // ATmega644                              env:sanguino644p
 #elif MB(OMCA)
   #include "sanguino/pins_OMCA.h"               // ATmega644P, ATmega644                  env:sanguino644p
 #elif MB(ANET_10)
-  #include "sanguino/pins_ANET_10.h"            // ATmega1284P                            env:sanguino1284p
+  #include "sanguino/pins_ANET_10.h"            // ATmega1284P                            env:sanguino1284p env:sanguino1284p_optimized
 #elif MB(SETHI)
-  #include "sanguino/pins_SETHI.h"              // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p
+  #include "sanguino/pins_SETHI.h"              // ATmega644P, ATmega644, ATmega1284P     env:sanguino644p env:sanguino1284p env:sanguino1284p_optimized
 
 //
 // Teensyduino - AT90USB1286, AT90USB1286P
