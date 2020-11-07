@@ -705,7 +705,7 @@ void CardReader::write_command(char * const buf) {
 
 void CardReader::checkautostart() {
 
-  if (autostart_index < 0 || flag.sdprinting) return;
+  if (autostart_index < 0 || flag.sdprinting || queue.has_commands_queued()) return;
 
   if (!isMounted()) mount();
   TERN_(SDCARD_EEPROM_EMULATION, else settings.first_load());
