@@ -112,7 +112,7 @@ uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16
   //if ((hspi->Instance->CR1 & SPI_CR1_SPE) != SPI_CR1_SPE) //only enable if disabled
   __HAL_SPI_ENABLE(&_spi.handle);
 
-  if (receiveBuf != NULL) {
+  if (receiveBuf) {
     setupDma(_spi.handle, _dmaRx, DMA_PERIPH_TO_MEMORY, true);
     HAL_DMA_Start(&_dmaRx, (uint32_t)&(_spi.handle.Instance->DR), (uint32_t)receiveBuf, length);
     SET_BIT(_spi.handle.Instance->CR2, SPI_CR2_RXDMAEN); /* Enable Rx DMA Request */
@@ -120,18 +120,18 @@ uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16
 
   // check for 2 lines transfer
   bool mincTransmit = true;
-  if (transmitBuf == NULL && _spi.handle.Init.Direction == SPI_DIRECTION_2LINES && _spi.handle.Init.Mode == SPI_MODE_MASTER) {
+  if (transmitBuf == nullptr && _spi.handle.Init.Direction == SPI_DIRECTION_2LINES && _spi.handle.Init.Mode == SPI_MODE_MASTER) {
     transmitBuf = &ff;
     mincTransmit = false;
   }
 
-  if (transmitBuf != NULL) {
+  if (transmitBuf) {
     setupDma(_spi.handle, _dmaTx, DMA_MEMORY_TO_PERIPH, mincTransmit);
     HAL_DMA_Start(&_dmaTx, (uint32_t)transmitBuf, (uint32_t)&(_spi.handle.Instance->DR), length);
     SET_BIT(_spi.handle.Instance->CR2, SPI_CR2_TXDMAEN);   /* Enable Tx DMA Request */
   }
 
-  if (transmitBuf != NULL) {
+  if (transmitBuf) {
     HAL_DMA_PollForTransfer(&_dmaTx, HAL_DMA_FULL_TRANSFER, HAL_MAX_DELAY);
     HAL_DMA_Abort(&_dmaTx);
     HAL_DMA_DeInit(&_dmaTx);
