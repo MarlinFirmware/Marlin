@@ -33,6 +33,8 @@
 #define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "STM32F103VET6"
 
+#define BOARD_NO_NATIVE_USB
+
 //#define DISABLE_DEBUG
 
 //

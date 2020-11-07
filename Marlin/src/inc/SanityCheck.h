@@ -2295,6 +2295,20 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * Some boards forbid the use of -1 Native USB
+ */
+#if ENABLED(BOARD_NO_NATIVE_USB)
+  #undef BOARD_NO_NATIVE_USB
+  #if SERIAL_PORT == -1
+    #error "SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT to a valid value for your board."
+  #elif SERIAL_PORT_2 == -1
+    #error "SERIAL_PORT_2 is set to -1, but the MOTHERBOARD has no native USB support. Set SERIAL_PORT_2 to a valid value for your board."
+  #elif LCD_SERIAL_PORT == -1
+    #error "LCD_SERIAL_PORT is set to -1, but the MOTHERBOARD has no native USB support. Set LCD_SERIAL_PORT to a valid value for your board."
+  #endif
+#endif
+
+/**
  * Serial displays require a dedicated serial port
  */
 #ifdef LCD_SERIAL_PORT

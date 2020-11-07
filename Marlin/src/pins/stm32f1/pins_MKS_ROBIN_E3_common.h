@@ -29,6 +29,8 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
+#define BOARD_NO_NATIVE_USB
+
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
 //#define DISABLE_DEBUG

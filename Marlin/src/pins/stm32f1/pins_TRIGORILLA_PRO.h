@@ -35,6 +35,9 @@
 #endif
 
 #define BOARD_INFO_NAME "Trigorilla Pro"
+
+#define BOARD_NO_NATIVE_USB
+
 #define DISABLE_JTAG
 
 //
