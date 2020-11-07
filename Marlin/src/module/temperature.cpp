@@ -2154,7 +2154,7 @@ void Temperature::disable_all_heaters() {
 
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
 
-  bool Temperature::over_autostart_threshold() {
+  bool Temperature::auto_job_over_threshold() {
     #if HAS_HOTEND
       HOTEND_LOOP() if (degTargetHotend(e) > (EXTRUDE_MINTEMP) / 2) return true;
     #endif
@@ -2162,8 +2162,8 @@ void Temperature::disable_all_heaters() {
         || TERN0(HAS_HEATED_CHAMBER, degTargetChamber() > CHAMBER_MINTEMP);
   }
 
-  void Temperature::check_timer_autostart(const bool can_start, const bool can_stop) {
-    if (over_autostart_threshold()) {
+  void Temperature::auto_job_check_timer(const bool can_start, const bool can_stop) {
+    if (auto_job_over_threshold()) {
       if (can_start) startOrResumeJob();
     }
     else if (can_stop) {
