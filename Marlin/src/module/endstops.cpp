@@ -899,6 +899,9 @@ void Endstops::update() {
         hit = true;
       }
     #endif
+
+    TERN_(ENDSTOP_INTERRUPTS_FEATURE, if (hit) update());
+
     return hit;
   }
 
