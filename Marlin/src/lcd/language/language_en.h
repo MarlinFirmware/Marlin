@@ -73,7 +73,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
   PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Accuracy Achieved");
@@ -85,6 +84,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Set Home Offsets");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets Applied");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Set Origin");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
+  PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Tramming Wizard");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Select Origin");
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Last value ");
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preheat ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
@@ -666,6 +669,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
+
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
 }
 

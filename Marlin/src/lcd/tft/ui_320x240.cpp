@@ -336,7 +336,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(256, 130, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 }
 
@@ -647,7 +647,10 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
+  #if ENABLED(TOUCH_SCREEN)
+    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? CLICK : MENU_ITEM;
+    touch.add_control(tct, 0, 2 + 34 * row, 320, 32, encoderTopLine + row);
+  #endif
 }
 
 void MarlinUI::move_axis_screen() {

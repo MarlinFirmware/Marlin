@@ -637,7 +637,7 @@ bool CardReader::fileExists(const char * const path) {
   if (fname) {
     diveDir->rewind();
     selectByName(*diveDir, fname);
-    diveDir->close();
+    //diveDir->close();
   }
   return !!fname;
 }
