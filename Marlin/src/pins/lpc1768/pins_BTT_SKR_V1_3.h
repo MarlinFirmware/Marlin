@@ -215,7 +215,6 @@
 #define EXPA2_10_PIN                       P0_17
 
 #if HAS_WIRED_LCD
-
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
