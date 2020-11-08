@@ -1814,8 +1814,12 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
 #endif
 
-#if MAX6675_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS) && defined(MAX31865_CALIBRATION_OHMS))
-  #error "MAX31865_SENSOR_OHMS and MAX31865_CALIBRATION_OHMS must be set in Configuration.h when using a MAX31865 temperature sensor."
+#if MAX6675_IS_MAX31865 && (!defined(MAX31865_SENSOR_OHMS_0) || !defined(MAX31865_CALIBRATION_OHMS_0))  //ga
+  #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set in Configuration.h when using a MAX31865 temperature sensor on TEMP_SENSOR_0."
+#endif
+
+#if MAX6675_IS_MAX31865 && (!defined(MAX31865_SENSOR_OHMS_1) || !defined(MAX31865_CALIBRATION_OHMS_1)) && TEMP_SENSOR_1 == -5   //ga
+  #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set in Configuration.h when using a MAX31865 temperature sensor on TEMP_SENSOR_1."
 #endif
 
 /**
