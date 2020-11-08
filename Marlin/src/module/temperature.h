@@ -392,7 +392,7 @@ class Temperature {
 
     #if HAS_HEATED_BED
       TERN_(WATCH_BED, static bed_watch_t watch_bed);
-      TERN(PIDTEMPBED,,static millis_t next_bed_check_ms);
+      IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       #ifdef BED_MINTEMP
         static int16_t mintemp_raw_BED;
       #endif

@@ -54,17 +54,17 @@ public:
   #endif
 
   static inline float get_measurement(const AxisEnum a) {
+    UNUSED(a);
     // Return the measurement averaged over all readings
     return TERN(MEASURE_BACKLASH_WHEN_PROBING
       , measured_count[a] > 0 ? measured_mm[a] / measured_count[a] : 0
       , 0
     );
-    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_measurement(const AxisEnum a) {
+    UNUSED(a);
     return TERN0(MEASURE_BACKLASH_WHEN_PROBING, measured_count[a] > 0);
-    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_any_measurement() {
