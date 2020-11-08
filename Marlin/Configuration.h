@@ -1723,7 +1723,7 @@
 #define PREHEAT_3_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_4_LABEL       "UBL"
-#define PREHEAT_4_TEMP_HOTEND   0
+#define PREHEAT_4_TEMP_HOTEND  60
 #define PREHEAT_4_TEMP_BED     60
 #define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
 
