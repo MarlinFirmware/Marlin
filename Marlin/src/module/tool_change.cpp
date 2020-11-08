@@ -123,7 +123,7 @@
       if (e < EXTRUDERS - 1)
     #endif
     {
-      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e]);
+      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
   }
