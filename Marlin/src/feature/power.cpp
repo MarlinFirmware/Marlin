@@ -122,9 +122,16 @@ void Power::power_off() {
     #ifdef PSU_POWEROFF_GCODE
       GcodeSuite::process_subcommands_now_P(PSTR(PSU_POWEROFF_GCODE));
     #endif
-    safe_delay(SEC_TO_MS(POWER_OFF_TIMEOUT));
   	PSU_PIN_OFF();
   }
+}
+
+void Power::power_off_soon() {
+  #if POWER_OFF_TIMEOUT
+    lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_TIMEOUT);
+  #else
+    power_off();
+  #endif
 }
 
 #endif // AUTO_POWER_CONTROL
