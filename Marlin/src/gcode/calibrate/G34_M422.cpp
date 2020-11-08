@@ -65,7 +65,7 @@ void GcodeSuite::G34() {
     int zStepper;
     bool state;
     parser.intval('Z', zStepper);
-    parser.boolval(S, state);
+    parser.boolval('S', state);
 
 
     stepper.set_separate_multi_axis(true);
@@ -73,18 +73,18 @@ void GcodeSuite::G34() {
     switch(zStepper)
     {
       case 1 :
-        set_z1_lock(state);
+        stepper.set_z1_lock(state);
         break;
       case 2 :
-        set_z2_lock(state);
+        stepper.set_z2_lock(state);
         break;
       #if NUM_Z_STEPPER_DRIVERS >= 3
         case 3 :
-          set_z3_lock(state);
+          stepper.set_z3_lock(state);
         break;
       #if NUM_Z_STEPPER_DRIVERS >= 4
         case 4 :
-          set_z4_lock(state);
+          stepper.set_z4_lock(state);
         break;
       #endif
       default:

@@ -376,7 +376,7 @@ void GcodeSuite::G28() {
     #if Z_HOME_DIR < 0
 
       if (doZ) {
-        #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+        #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
           stepper.set_all_z_lock(false);
           stepper.set_separate_multi_axis(false);
         #endif
