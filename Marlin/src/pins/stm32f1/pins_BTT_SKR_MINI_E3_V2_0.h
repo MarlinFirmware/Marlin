@@ -43,10 +43,6 @@
 
 #define PS_ON_PIN                          PC13  // Power Supply Control
 
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                   PC12  // Power Loss Detection: PWR-DET
-#endif
-
 #define FAN1_PIN                           PC7
 
 #ifndef CONTROLLER_FAN_PIN
