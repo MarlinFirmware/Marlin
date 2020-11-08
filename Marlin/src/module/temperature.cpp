@@ -268,7 +268,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
     int16_t Temperature::maxtemp_raw_BED = HEATER_BED_RAW_HI_TEMP;
   #endif
   TERN_(WATCH_BED, bed_watch_t Temperature::watch_bed); // = { 0 }
-  TERN(PIDTEMPBED,, millis_t Temperature::next_bed_check_ms);
+  IF_DISABLED(PIDTEMPBED, millis_t Temperature::next_bed_check_ms);
 #endif // HAS_HEATED_BED
 
 #if HAS_TEMP_CHAMBER
