@@ -63,17 +63,13 @@
   #endif
   Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
     #if MAX31865_CS_PIN != MAX6675_SS_PIN
-      , MAX31865_MOSI_PIN           // For software SPI also set MOSI/MISO/SCK
-      , MAX31865_MISO_PIN
-      , MAX31865_SCK_PIN
+      , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
     #endif
   );
   #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
       #if MAX31865_CS2_PIN != MAX6675_SS2_PIN
-        , MAX31865_MOSI_PIN         // For software SPI also set MOSI/MISO/SCK
-        , MAX31865_MISO_PIN
-        , MAX31865_SCK_PIN
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
       #endif
     );
   #endif
