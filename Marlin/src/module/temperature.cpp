@@ -46,10 +46,10 @@
 
 #if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
   #include <Adafruit_MAX31865.h>
-  #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN)
+  #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
     #define MAX31865_CS_PIN   MAX6675_SS_PIN
   #endif
-  #if MAX6675_1_IS_MAX31865 && !defined(MAX31865_CS2_PIN)
+  #if MAX6675_1_IS_MAX31865 && !defined(MAX31865_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
     #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
   #endif
   #ifndef MAX31865_MOSI_PIN
@@ -62,6 +62,7 @@
     #define MAX31865_SCK_PIN  MAX6675_SCK_PIN
   #endif
   #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
+    #define HAS_MAX31865 1
     Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
       #if MAX31865_CS_PIN != MAX6675_SS_PIN
         , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
@@ -69,6 +70,7 @@
     );
   #endif
   #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
+    #define HAS_MAX31865 1
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
       #if MAX31865_CS2_PIN != MAX6675_SS2_PIN
         , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
@@ -2215,7 +2217,7 @@ void Temperature::disable_all_heaters() {
       #define MAX6675_ERROR_MASK    7
       #define MAX6675_DISCARD_BITS 18
       #define MAX6675_SPEED_BITS    3       // (_BV(SPR1)) // clock ÷ 64
-    #elif MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
+    #elif HAS_MAX31865
       static uint16_t max6675_temp = 2000;  // From datasheet 16 bits D15-D0
       #define MAX6675_ERROR_MASK    1       // D0 Bit not used
       #define MAX6675_DISCARD_BITS  1       // Data is in D15-D1
@@ -2259,9 +2261,8 @@ void Temperature::disable_all_heaters() {
     if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
-    Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-
-    #if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
+    #if HAS_MAX31865
+      Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
       max6675_temp = int(maxref.temperature(
         MAX6675_SEL(MAX31865_SENSOR_OHMS_0, MAX31865_SENSOR_OHMS_1),
         MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)
@@ -2290,7 +2291,7 @@ void Temperature::disable_all_heaters() {
 
     MAX6675_WRITE(HIGH); // disable TT_MAX6675
 
-    const uint8_t fault = maxref.readFault();
+    const uint8_t fault = TERN0(HAS_MAX31865, maxref.readFault());
 
     if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
       max6675_errors[hindex]++;
