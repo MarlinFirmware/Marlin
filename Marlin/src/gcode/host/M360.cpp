@@ -27,8 +27,8 @@
 #include "../../user_configs.cpp"
 
 /**
- * M360: Report Firmware configuration
- *       in RepRapFirmware-compatible format
+ * M360: Dump Firmware configuration
+ *       in Marlin Configuration.h format
  */
 void GcodeSuite::M360() {
   SERIAL_ECHOLN(user_config_options);
