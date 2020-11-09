@@ -428,21 +428,21 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
   extern screenFunc_t _manual_move_func_ptr;
   if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
 
-    #define SLIDER_LENGHT 336
+    #define SLIDER_LENGTH 336
     #define SLIDER_Y_POSITION 186
 
-    tft.canvas((TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION, SLIDER_LENGHT, 16);
+    tft.canvas((TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION, SLIDER_LENGTH, 16);
     tft.set_background(COLOR_BACKGROUND);
 
-    int16_t position = (SLIDER_LENGHT - 2) * ui.encoderPosition / maxEditValue;
+    int16_t position = (SLIDER_LENGTH - 2) * ui.encoderPosition / maxEditValue;
     tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
     tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
-    tft.add_bar(position + 1, 6, SLIDER_LENGHT - 2 - position, 4, COLOR_SLIDER_INACTIVE);
-    tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
+    tft.add_bar(position + 1, 6, SLIDER_LENGTH - 2 - position, 4, COLOR_SLIDER_INACTIVE);
+    tft.add_bar(SLIDER_LENGTH - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
 
     #if ENABLED(TOUCH_SCREEN)
-      tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGHT, 32, maxEditValue);
+      tft.add_image((SLIDER_LENGTH - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
+      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
   }
 
@@ -652,7 +652,10 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row));
+  #if ENABLED(TOUCH_SCREEN)
+    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? CLICK : MENU_ITEM;
+    touch.add_control(tct, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row);
+  #endif
 }
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

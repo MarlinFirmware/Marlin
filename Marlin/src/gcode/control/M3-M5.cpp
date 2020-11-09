@@ -113,7 +113,7 @@ void GcodeSuite::M3_M4(const bool is_M4) {
     else
       cutter.set_power(cutter.upower_to_ocr(get_s_power()));
   #elif ENABLED(SPINDLE_SERVO)
-    cutter.set_power(get_s_power()); 
+    cutter.set_power(get_s_power());
   #else
     cutter.set_enabled(true);
   #endif

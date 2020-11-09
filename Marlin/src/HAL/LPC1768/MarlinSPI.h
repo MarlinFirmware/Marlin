@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,27 +21,25 @@
  */
 #pragma once
 
-#include <stdint.h>
+#include <SPI.h>
 
-#ifndef HAVE_SW_SERIAL
-   #define SW_SERIAL_PLACEHOLDER 1
-#endif
+/**
+ * Marlin currently requires 3 SPI classes:
+ *
+ * SPIClass:
+ *  This class is normally provided by frameworks and has a semi-default interface.
+ *  This is needed because some libraries reference it globally.
+ *
+ * SPISettings:
+ *  Container for SPI configs for SPIClass. As above, libraries may reference it globally.
+ *
+ * These two classes are often provided by frameworks so we cannot extend them to add
+ * useful methods for Marlin.
+ *
+ * MarlinSPI:
+ *  Provides the default SPIClass interface plus some Marlin goodies such as a simplified
+ *  interface for SPI DMA transfer.
+ *
+ */
 
-class SoftwareSerial {
-public:
-  SoftwareSerial(int8_t RX_pin, int8_t TX_pin);
-
-  void begin(const uint32_t baudrate);
-
-  bool available();
-
-  uint8_t read();
-  uint16_t write(uint8_t byte);
-  void flush();
-
-  void listen();
-  void stopListening();
-
-protected:
-  bool listening;
-};
+using MarlinSPI = SPIClass;

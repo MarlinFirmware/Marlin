@@ -392,7 +392,7 @@ class Temperature {
 
     #if HAS_HEATED_BED
       TERN_(WATCH_BED, static bed_watch_t watch_bed);
-      TERN(PIDTEMPBED,,static millis_t next_bed_check_ms);
+      IF_DISABLED(PIDTEMPBED, static millis_t next_bed_check_ms);
       #ifdef BED_MINTEMP
         static int16_t mintemp_raw_BED;
       #endif
@@ -731,8 +731,8 @@ class Temperature {
       /**
        * Methods to check if heaters are enabled, indicating an active job
        */
-      static bool over_autostart_threshold();
-      static void check_timer_autostart(const bool can_start, const bool can_stop);
+      static bool auto_job_over_threshold();
+      static void auto_job_check_timer(const bool can_start, const bool can_stop);
     #endif
 
     /**
