@@ -416,8 +416,13 @@
   #endif
 #endif
 
-#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL)
-  #define PSU_POWERUP_DELAY 250
+#if ENABLED(PSU_CONTROL)
+  #ifndef PSU_POWERUP_DELAY
+    #define PSU_POWERUP_DELAY 250
+  #endif
+  #ifndef POWER_OFF_DELAY
+    #define POWER_OFF_DELAY   0
+  #endif
 #endif
 
 /**

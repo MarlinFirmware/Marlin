@@ -3016,9 +3016,9 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PSU_CONTROL requires PSU_ACTIVE_STATE to be defined as 'HIGH' or 'LOW'."
   #elif !PIN_EXISTS(PS_ON)
     #error "PSU_CONTROL requires PS_ON_PIN."
+  #elif POWER_OFF_DELAY < 0
+    #error "POWER_OFF_DELAY must be a positive value."
   #endif
-#elif ENABLED(AUTO_POWER_CONTROL)
-  #error "AUTO_POWER_CONTROL requires PSU_CONTROL."
 #endif
 
 #if HAS_CUTTER
