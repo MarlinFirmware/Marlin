@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
@@ -435,7 +435,7 @@
       base_char   = base_special ? NO_DOT_I : std_char;
     }
 
-    // If cmd != NULL, draw the glyph to the screen
+    // If cmd != nullptr, draw the glyph to the screen
     if (cmd) {
       ext_vertex2ii(*cmd, x, y, base_special ? alt_font : std_font, base_char);
       if (accent_char)
