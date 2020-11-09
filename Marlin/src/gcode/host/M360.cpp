@@ -21,7 +21,20 @@
  */
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(REPETIER_GCODE_M360)
+#if ENABLED(SAVE_CONFIG_INSIDE_FIRMWARE)
+
+#include "../gcode.h"
+#include "../../user_configs.cpp"
+
+/**
+ * M360: Report Firmware configuration
+ *       in RepRapFirmware-compatible format
+ */
+void GcodeSuite::M360() {
+  SERIAL_ECHOLN(user_config_options);
+}
+
+#elif ENABLED(REPETIER_GCODE_M360)
 
 #include "../gcode.h"
 

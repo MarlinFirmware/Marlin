@@ -3236,6 +3236,8 @@
 
 //#define REPETIER_GCODE_M360     // Add commands originally from Repetier FW
 
+//#define SAVE_CONFIG_INSIDE_FIRMWARE // This will save all user configuration options and enable M360 to dump it
+
 /**
  * CNC G-code options
  * Support CNC-style G-code dialects used by laser cutters, drawing machine cams, etc.
