@@ -1618,34 +1618,41 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Required custom thermistor settings
  */
-#if   ENABLED(HEATER_0_USER_THERMISTOR) && !(defined(HOTEND0_PULLUP_RESISTOR_OHMS) && defined(HOTEND0_RESISTANCE_25C_OHMS) && defined(HOTEND0_BETA))
+#if   HEATER_0_USER_THERMISTOR && !(defined(HOTEND0_PULLUP_RESISTOR_OHMS) && defined(HOTEND0_RESISTANCE_25C_OHMS) && defined(HOTEND0_BETA))
   #error "TEMP_SENSOR_0 1000 requires HOTEND0_PULLUP_RESISTOR_OHMS, HOTEND0_RESISTANCE_25C_OHMS and HOTEND0_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_1_USER_THERMISTOR) && !(defined(HOTEND1_PULLUP_RESISTOR_OHMS) && defined(HOTEND1_RESISTANCE_25C_OHMS) && defined(HOTEND1_BETA))
+#elif HEATER_1_USER_THERMISTOR && !(defined(HOTEND1_PULLUP_RESISTOR_OHMS) && defined(HOTEND1_RESISTANCE_25C_OHMS) && defined(HOTEND1_BETA))
   #error "TEMP_SENSOR_1 1000 requires HOTEND1_PULLUP_RESISTOR_OHMS, HOTEND1_RESISTANCE_25C_OHMS and HOTEND1_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_2_USER_THERMISTOR) && !(defined(HOTEND2_PULLUP_RESISTOR_OHMS) && defined(HOTEND2_RESISTANCE_25C_OHMS) && defined(HOTEND2_BETA))
+#elif HEATER_2_USER_THERMISTOR && !(defined(HOTEND2_PULLUP_RESISTOR_OHMS) && defined(HOTEND2_RESISTANCE_25C_OHMS) && defined(HOTEND2_BETA))
   #error "TEMP_SENSOR_2 1000 requires HOTEND2_PULLUP_RESISTOR_OHMS, HOTEND2_RESISTANCE_25C_OHMS and HOTEND2_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_3_USER_THERMISTOR) && !(defined(HOTEND3_PULLUP_RESISTOR_OHMS) && defined(HOTEND3_RESISTANCE_25C_OHMS) && defined(HOTEND3_BETA))
+#elif HEATER_3_USER_THERMISTOR && !(defined(HOTEND3_PULLUP_RESISTOR_OHMS) && defined(HOTEND3_RESISTANCE_25C_OHMS) && defined(HOTEND3_BETA))
   #error "TEMP_SENSOR_3 1000 requires HOTEND3_PULLUP_RESISTOR_OHMS, HOTEND3_RESISTANCE_25C_OHMS and HOTEND3_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_4_USER_THERMISTOR) && !(defined(HOTEND4_PULLUP_RESISTOR_OHMS) && defined(HOTEND4_RESISTANCE_25C_OHMS) && defined(HOTEND4_BETA))
+#elif HEATER_4_USER_THERMISTOR && !(defined(HOTEND4_PULLUP_RESISTOR_OHMS) && defined(HOTEND4_RESISTANCE_25C_OHMS) && defined(HOTEND4_BETA))
   #error "TEMP_SENSOR_4 1000 requires HOTEND4_PULLUP_RESISTOR_OHMS, HOTEND4_RESISTANCE_25C_OHMS and HOTEND4_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_5_USER_THERMISTOR) && !(defined(HOTEND5_PULLUP_RESISTOR_OHMS) && defined(HOTEND5_RESISTANCE_25C_OHMS) && defined(HOTEND5_BETA))
+#elif HEATER_5_USER_THERMISTOR && !(defined(HOTEND5_PULLUP_RESISTOR_OHMS) && defined(HOTEND5_RESISTANCE_25C_OHMS) && defined(HOTEND5_BETA))
   #error "TEMP_SENSOR_5 1000 requires HOTEND5_PULLUP_RESISTOR_OHMS, HOTEND5_RESISTANCE_25C_OHMS and HOTEND5_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_6_USER_THERMISTOR) && !(defined(HOTEND6_PULLUP_RESISTOR_OHMS) && defined(HOTEND6_RESISTANCE_25C_OHMS) && defined(HOTEND6_BETA))
+#elif HEATER_6_USER_THERMISTOR && !(defined(HOTEND6_PULLUP_RESISTOR_OHMS) && defined(HOTEND6_RESISTANCE_25C_OHMS) && defined(HOTEND6_BETA))
   #error "TEMP_SENSOR_6 1000 requires HOTEND6_PULLUP_RESISTOR_OHMS, HOTEND6_RESISTANCE_25C_OHMS and HOTEND6_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_7_USER_THERMISTOR) && !(defined(HOTEND7_PULLUP_RESISTOR_OHMS) && defined(HOTEND7_RESISTANCE_25C_OHMS) && defined(HOTEND7_BETA))
+#elif HEATER_7_USER_THERMISTOR && !(defined(HOTEND7_PULLUP_RESISTOR_OHMS) && defined(HOTEND7_RESISTANCE_25C_OHMS) && defined(HOTEND7_BETA))
   #error "TEMP_SENSOR_7 1000 requires HOTEND7_PULLUP_RESISTOR_OHMS, HOTEND7_RESISTANCE_25C_OHMS and HOTEND7_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_BED_USER_THERMISTOR) && !(defined(BED_PULLUP_RESISTOR_OHMS) && defined(BED_RESISTANCE_25C_OHMS) && defined(BED_BETA))
+#elif HEATER_BED_USER_THERMISTOR && !(defined(BED_PULLUP_RESISTOR_OHMS) && defined(BED_RESISTANCE_25C_OHMS) && defined(BED_BETA))
   #error "TEMP_SENSOR_BED 1000 requires BED_PULLUP_RESISTOR_OHMS, BED_RESISTANCE_25C_OHMS and BED_BETA in Configuration_adv.h."
-#elif ENABLED(HEATER_CHAMBER_USER_THERMISTOR) && !(defined(CHAMBER_PULLUP_RESISTOR_OHMS) && defined(CHAMBER_RESISTANCE_25C_OHMS) && defined(CHAMBER_BETA))
+#elif HEATER_CHAMBER_USER_THERMISTOR && !(defined(CHAMBER_PULLUP_RESISTOR_OHMS) && defined(CHAMBER_RESISTANCE_25C_OHMS) && defined(CHAMBER_BETA))
   #error "TEMP_SENSOR_CHAMBER 1000 requires CHAMBER_PULLUP_RESISTOR_OHMS, CHAMBER_RESISTANCE_25C_OHMS and CHAMBER_BETA in Configuration_adv.h."
 #endif
 
 /**
- * A Sensor ID has to be set for each heater
+ * Pins and Sensor IDs must be set for each heater
  */
+#if HEATER_0_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS)
+  #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif HAS_HOTEND && !HAS_TEMP_HOTEND
+  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
+#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
+  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
+#endif
 
 #if HAS_MULTI_HOTEND
-  #if ENABLED(HEATER_1_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS2)
+  #if HEATER_1_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS2)
     #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
   #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
@@ -1808,7 +1815,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
 #endif
 
-#if ENABLED(MAX6675_IS_MAX31865) && (!defined(MAX31865_SENSOR_OHMS) || !defined(MAX31865_CALIBRATION_OHMS))
+#if MAX6675_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS) && defined(MAX31865_CALIBRATION_OHMS))
   #error "MAX31865_SENSOR_OHMS and MAX31865_CALIBRATION_OHMS must be set in Configuration.h when using a MAX31865 temperature sensor."
 #endif
 
@@ -1825,15 +1832,6 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #elif EXTRUDERS && TEMP_SENSOR_0 == 0
   #error "TEMP_SENSOR_0 is required if there are any extruders."
-#endif
-
-// Pins are required for heaters
-#if ENABLED(HEATER_0_USES_MAX6675) && !PIN_EXISTS(MAX6675_SS)
-  #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif HAS_HOTEND && !HAS_TEMP_HOTEND
-  #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
-  #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
 #endif
 
 /**
