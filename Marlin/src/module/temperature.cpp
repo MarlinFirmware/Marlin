@@ -2247,7 +2247,7 @@ void Temperature::disable_all_heaters() {
       #define MAX6675_ERROR_MASK    7
       #define MAX6675_DISCARD_BITS 18
       #define MAX6675_SPEED_BITS    3  // (_BV(SPR1)) // clock ÷ 64
-    #elif ENABLED(MAX6675_IS_MAX31865)
+    #elif MAX6675_IS_MAX31865
       static uint16_t max6675_temp = 2000;  //from datasheet 16 bits D15-D0
       #define MAX6675_ERROR_MASK    1       //D0 Bit not used
       #define MAX6675_DISCARD_BITS  1       //data is in D15-D1
@@ -2325,9 +2325,9 @@ void Temperature::disable_all_heaters() {
     WRITE_MAX6675(HIGH); // disable TT_MAX6675
 
     uint8_t fault = 1;
-    #if (COUNT_6675 == 1 && ENABLED(MAX6675_IS_MAX31865))
+    #if COUNT_6675 == 1 && MAX6675_IS_MAX31865
         fault = max31865_0.readFault();
-    #elif ENABLED(MAX6675_IS_MAX31865)
+    #elif MAX6675_IS_MAX31865
       #if hindex == 0
         fault = max31865_0.readFault();
       #elif hindex == 1
@@ -2335,7 +2335,7 @@ void Temperature::disable_all_heaters() {
       #endif
     #endif
 
-     if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
+    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
       max6675_errors[hindex] += 1;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
