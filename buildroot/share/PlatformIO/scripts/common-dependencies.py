@@ -259,18 +259,18 @@ def get_all_marlin_config_options():
 def generate_cache_config_cpp():
 	if not 'SAVE_CONFIG_INSIDE_FIRMWARE' in env['MARLIN_FEATURES']:
 		return
-	header = 'const char config_options[] = "'
+	header = 'const char user_config_options[] = "'
 	content = ''
 	for option in env['MARLIN_CONFIG_OPTIONS']:
 		if not option in env['MARLIN_FEATURES']:
 			continue
 		option_compressed = option #re.sub(r'[AEIOU_]', '', option)
 		if env['MARLIN_FEATURES'][option] == "":
-			content += option_compressed + "\\\n"
+			content += option_compressed + "\\n\\\n"
 		else:
-			content += option_compressed + "=" + env['MARLIN_FEATURES'][option].replace('"','\\"') + "\\\n"
+			content += option_compressed + "=" + env['MARLIN_FEATURES'][option].replace('"','\\"') + "\\n\\\n"
 	content = header + content + '";\n'
-	with open('Marlin/src/configs.cpp', 'wt') as f:
+	with open('Marlin/src/user_configs.cpp', 'wt') as f:
 		f.write(content)
 
 
