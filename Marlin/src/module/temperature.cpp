@@ -61,11 +61,13 @@
   #ifndef MAX31865_SCK_PIN
     #define MAX31865_SCK_PIN  MAX6675_SCK_PIN
   #endif
-  Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
-    #if MAX31865_CS_PIN != MAX6675_SS_PIN
-      , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
-    #endif
-  );
+  #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
+    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
+      #if MAX31865_CS_PIN != MAX6675_SS_PIN
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
+      #endif
+    );
+  #endif
   #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
       #if MAX31865_CS2_PIN != MAX6675_SS2_PIN
@@ -2206,15 +2208,6 @@ void Temperature::disable_all_heaters() {
   #endif
 
   int Temperature::read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex/*=0*/)) {
-    #if HAS_MULTI_6675
-      // Needed to return the correct temp when this is called too soon
-      static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
-    #else
-      constexpr uint8_t hindex = 0;
-    #endif
-
-    static uint8_t max6675_errors[COUNT_6675] = { 0 };
-
     #define MAX6675_HEAT_INTERVAL 250UL
 
     #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
@@ -2234,25 +2227,45 @@ void Temperature::disable_all_heaters() {
       #define MAX6675_SPEED_BITS    2       // (_BV(SPR0)) // clock ÷ 16
     #endif
 
+    #if HAS_MULTI_6675
+      // Needed to return the correct temp when this is called between readings
+      static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
+      #define MAX6675_TEMP(I) max6675_temp_previous[I]
+      #define MAX6675_SEL(A,B) hindex ? B : A
+      #define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
+      #define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
+    #else
+      constexpr uint8_t hindex = 0;
+      #define MAX6675_TEMP(I) max6675_temp
+      #if MAX6675_0_IS_MAX31865
+        #define MAX6675_SEL(A,B) A
+      #else
+        #define MAX6675_SEL(A,B) B
+      #endif
+      #if HEATER_0_USES_MAX6675
+        #define MAX6675_WRITE(V)          WRITE(MAX6675_SS_PIN, V)
+        #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS_PIN)
+      #else
+        #define MAX6675_WRITE(V)          WRITE(MAX6675_SS2_PIN, V)
+        #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS2_PIN)
+      #endif
+    #endif
+
+    static uint8_t max6675_errors[COUNT_6675] = { 0 };
+
     // Return last-read value between readings
     static millis_t next_max6675_ms[COUNT_6675] = { 0 };
     millis_t ms = millis();
-    if (PENDING(ms, next_max6675_ms[hindex]))
-      return int(TERN(HAS_MULTI_6675, max6675_temp_previous[hindex], max6675_temp));
-
+    if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
+    Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
+
     #if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
-      max6675_temp = int(
-        #if HAS_MULTI_6675
-          hindex ? max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
-                 : max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
-        #elif MAX6675_0_IS_MAX31865
-          max31865_0.temperature(MAX31865_SENSOR_OHMS_0, MAX31865_CALIBRATION_OHMS_0)
-        #else
-          max31865_1.temperature(MAX31865_SENSOR_OHMS_1, MAX31865_CALIBRATION_OHMS_1)
-        #endif
-      );
+      max6675_temp = int(maxref.temperature(
+        MAX6675_SEL(MAX31865_SENSOR_OHMS_0, MAX31865_SENSOR_OHMS_1),
+        MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)
+      ));
     #endif
 
     //
@@ -2263,19 +2276,8 @@ void Temperature::disable_all_heaters() {
       spiInit(MAX6675_SPEED_BITS);
     #endif
 
-    #if HAS_MULTI_6675
-      #define WRITE_MAX6675(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
-      #define SET_OUTPUT_MAX6675() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
-    #elif HEATER_1_USES_MAX6675
-      #define WRITE_MAX6675(V)          WRITE(MAX6675_SS2_PIN, V)
-      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS2_PIN)
-    #else
-      #define WRITE_MAX6675(V)          WRITE(MAX6675_SS_PIN, V)
-      #define SET_OUTPUT_MAX6675() SET_OUTPUT(MAX6675_SS_PIN)
-    #endif
-
-    SET_OUTPUT_MAX6675();
-    WRITE_MAX6675(LOW);  // enable TT_MAX6675
+    MAX6675_SET_OUTPUT();
+    MAX6675_WRITE(LOW);  // enable TT_MAX6675
 
     DELAY_NS(100);       // Ensure 100ns delay
 
@@ -2286,12 +2288,12 @@ void Temperature::disable_all_heaters() {
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
-    WRITE_MAX6675(HIGH); // disable TT_MAX6675
+    MAX6675_WRITE(HIGH); // disable TT_MAX6675
 
-    const uint8_t fault = TERN0(MAX6675_0_IS_MAX31865, TERN_(HAS_MULTI_6675, hindex ? max31865_1.readFault() :) max31865_0.readFault());
+    const uint8_t fault = maxref.readFault();
 
     if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
-      max6675_errors[hindex] += 1;
+      max6675_errors[hindex]++;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
         SERIAL_ECHOPGM("Temp measurement error! ");
@@ -2305,6 +2307,7 @@ void Temperature::disable_all_heaters() {
             SERIAL_ECHOLNPGM("Short to VCC");
         #elif MAX6675_ERROR_MASK == 1
           if (fault) {
+            maxref.clearFault();
             SERIAL_ECHOPAIR("MAX31865 Fault :(", fault, ")  >>");
             if (fault & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
@@ -2316,23 +2319,15 @@ void Temperature::disable_all_heaters() {
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
             else if (fault & MAX31865_FAULT_RTDINLOW)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if  (fault & MAX31865_FAULT_OVUV)
+            else if (fault & MAX31865_FAULT_OVUV)
               SERIAL_ECHOLNPGM("Under/Over voltage");
-
-            TERN_(HAS_MULTI_6675, hindex ? max31865_1.clearFault() :) max31865_0.clearFault();
           }
         #else
           SERIAL_ECHOLNPGM("MAX6675");
         #endif
 
         // Thermocouple open
-        max6675_temp = 4 * (
-          #if HAS_MULTI_6675
-            hindex ? HEATER_1_MAX6675_TMAX : HEATER_0_MAX6675_TMAX
-          #else
-            TERN(HEATER_1_USES_MAX6675, HEATER_1_MAX6675_TMAX, HEATER_0_MAX6675_TMAX)
-          #endif
-        );
+        max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
       }
       else
         max6675_temp >>= MAX6675_DISCARD_BITS;
@@ -2346,7 +2341,7 @@ void Temperature::disable_all_heaters() {
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
-    TERN_(HAS_MULTI_6675, max6675_temp_previous[hindex] = max6675_temp);
+    MAX6675_TEMP(hindex) = max6675_temp;
 
     return int(max6675_temp);
   }
