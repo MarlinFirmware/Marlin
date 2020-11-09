@@ -810,112 +810,51 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
  * Filament Runout needs one or more pins and either SD Support or Auto print start detection
  */
 #if HAS_FILAMENT_SENSOR
+
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif NUM_RUNOUT_SENSORS > E_STEPPERS
     #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
-  #elif NUM_RUNOUT_SENSORS > 8
-    #error "NUM_RUNOUT_SENSORS cannot exceed 8"
-  #elif NUM_RUNOUT_SENSORS > 1 && !PIN_EXISTS(FIL_RUNOUT2)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 1 requires FIL_RUNOUT2_PIN."
-  #elif NUM_RUNOUT_SENSORS > 2 && !PIN_EXISTS(FIL_RUNOUT3)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 2 requires FIL_RUNOUT3_PIN."
-  #elif NUM_RUNOUT_SENSORS > 3 && !PIN_EXISTS(FIL_RUNOUT4)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 3 requires FIL_RUNOUT4_PIN."
-  #elif NUM_RUNOUT_SENSORS > 4 && !PIN_EXISTS(FIL_RUNOUT5)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 4 requires FIL_RUNOUT5_PIN."
-  #elif NUM_RUNOUT_SENSORS > 5 && !PIN_EXISTS(FIL_RUNOUT6)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 5 requires FIL_RUNOUT6_PIN."
-  #elif NUM_RUNOUT_SENSORS > 6 && !PIN_EXISTS(FIL_RUNOUT7)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 6 requires FIL_RUNOUT7_PIN."
-  #elif NUM_RUNOUT_SENSORS > 7 && !PIN_EXISTS(FIL_RUNOUT8)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 7 requires FIL_RUNOUT8_PIN."
-  #elif NONE(SDSUPPORT, PRINTJOB_TIMER_AUTOSTART)
-    #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
+  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
+    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
+  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
+    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
+  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
+    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
+  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
+    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
+  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
+  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
+    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
+    #error "FIL_RUNOUT8_PIN is required with NUM_RUNOUT_SENSORS >= 8."
   #elif FILAMENT_RUNOUT_DISTANCE_MM < 0
     #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
+
   #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-    #if BOTH(FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
-      #error "Enable only one of FIL_RUNOUT1_PULLUP or FIL_RUNOUT1_PULLDOWN."
+    #if NUM_RUNOUT_SENSORS >= 1 && !defined(FIL_RUNOUT1_STATE)
+      #error "FIL_RUNOUT1_STATE is required with NUM_RUNOUT_SENSORS >= 2."
+    #elif NUM_RUNOUT_SENSORS >= 2 && !defined(FIL_RUNOUT2_STATE)
+      #error "FIL_RUNOUT2_STATE is required with NUM_RUNOUT_SENSORS >= 2."
+    #elif NUM_RUNOUT_SENSORS >= 3 && !defined(FIL_RUNOUT3_STATE)
+      #error "FIL_RUNOUT3_STATE is required with NUM_RUNOUT_SENSORS >= 3."
+    #elif NUM_RUNOUT_SENSORS >= 4 && !defined(FIL_RUNOUT4_STATE)
+      #error "FIL_RUNOUT4_STATE is required with NUM_RUNOUT_SENSORS >= 4."
+    #elif NUM_RUNOUT_SENSORS >= 5 && !defined(FIL_RUNOUT5_STATE)
+      #error "FIL_RUNOUT5_STATE is required with NUM_RUNOUT_SENSORS >= 5."
+    #elif NUM_RUNOUT_SENSORS >= 6 && !defined(FIL_RUNOUT6_STATE)
+      #error "FIL_RUNOUT6_STATE is required with NUM_RUNOUT_SENSORS >= 6."
+    #elif NUM_RUNOUT_SENSORS >= 7 && !defined(FIL_RUNOUT7_STATE)
+      #error "FIL_RUNOUT7_STATE is required with NUM_RUNOUT_SENSORS >= 7."
+    #elif NUM_RUNOUT_SENSORS >= 8 && !defined(FIL_RUNOUT8_STATE)
+      #error "FIL_RUNOUT8_STATE is required with NUM_RUNOUT_SENSORS >= 8."
     #endif
-    #if NUM_RUNOUT_SENSORS > 1
-      #if BOTH(FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT2_PULLUP or FIL_RUNOUT2_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 2
-      #if BOTH(FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT3_PULLUP or FIL_RUNOUT3_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 3
-      #if BOTH(FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT4_PULLUP or FIL_RUNOUT4_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 4
-      #if BOTH(FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT5_PULLUP or FIL_RUNOUT5_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 5
-      #if BOTH(FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT6_PULLUP or FIL_RUNOUT6_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 6
-      #if BOTH(FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT7_PULLUP or FIL_RUNOUT7_PULLDOWN."
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 7
-      #if BOTH(FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
-        #error "Enable only one of FIL_RUNOUT8_PULLUP or FIL_RUNOUT8_PULLDOWN."
-      #endif
-    #endif
-  #else // !ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-    #if MANY(defined(FIL_RUNOUT1_STATE), FIL_RUNOUT1_PULLUP, FIL_RUNOUT1_PULLDOWN)
-      #warning "You have defined FIL_RUNOUT1_STATE/FIL_RUNOUT1_PULLUP/FIL_RUNOUT1_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-    #endif
-    #if NUM_RUNOUT_SENSORS > 1
-      #if MANY(defined(FIL_RUNOUT2_STATE), FIL_RUNOUT2_PULLUP, FIL_RUNOUT2_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT2_STATE/FIL_RUNOUT2_PULLUP/FIL_RUNOUT2_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 2
-      #if MANY(defined(FIL_RUNOUT3_STATE), FIL_RUNOUT3_PULLUP, FIL_RUNOUT3_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT3_STATE/FIL_RUNOUT3_PULLUP/FIL_RUNOUT3_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 3
-      #if MANY(defined(FIL_RUNOUT4_STATE), FIL_RUNOUT4_PULLUP, FIL_RUNOUT4_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT4_STATE/FIL_RUNOUT4_PULLUP/FIL_RUNOUT4_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 4
-      #if MANY(defined(FIL_RUNOUT5_STATE), FIL_RUNOUT5_PULLUP, FIL_RUNOUT5_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT5_STATE/FIL_RUNOUT5_PULLUP/FIL_RUNOUT5_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 5
-      #if MANY(defined(FIL_RUNOUT6_STATE), FIL_RUNOUT6_PULLUP, FIL_RUNOUT6_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT6_STATE/FIL_RUNOUT6_PULLUP/FIL_RUNOUT6_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 6
-      #if MANY(defined(FIL_RUNOUT7_STATE), FIL_RUNOUT7_PULLUP, FIL_RUNOUT7_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT7_STATE/FIL_RUNOUT7_PULLUP/FIL_RUNOUT7_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-    #if NUM_RUNOUT_SENSORS > 7
-      #if MANY(defined(FIL_RUNOUT8_STATE), FIL_RUNOUT8_PULLUP, FIL_RUNOUT8_PULLDOWN)
-        #warning "You have defined FIL_RUNOUT8_STATE/FIL_RUNOUT8_PULLUP/FIL_RUNOUT8_PULLDOWN but you haven't defined DISTINCT_FIL_RUNOUT_STATES"
-      #endif
-    #endif
-  #endif // ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+  #endif
+
 #endif
 
 /**

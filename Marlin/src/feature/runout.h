@@ -149,103 +149,33 @@ class FilamentSensorBase {
 
   public:
     static inline void setup() {
-      #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-        #if ENABLED(FIL_RUNOUT1_PULLUP)
-          #define INIT_RUNOUT1_PIN(P) SET_INPUT_PULLUP(P)
-        #elif ENABLED(FIL_RUNOUT1_PULLDOWN)
-          #define INIT_RUNOUT1_PIN(P) SET_INPUT_PULLDOWN(P)
-        #else
-          #define INIT_RUNOUT1_PIN(P) SET_INPUT(P)
-        #endif
-        #if NUM_RUNOUT_SENSORS > 1
-          #if ENABLED(FIL_RUNOUT2_PULLUP)
-            #define INIT_RUNOUT2_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT2_PULLDOWN)
-            #define INIT_RUNOUT2_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT2_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 2
-          #if ENABLED(FIL_RUNOUT3_PULLUP)
-            #define INIT_RUNOUT3_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT3_PULLDOWN)
-            #define INIT_RUNOUT3_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT3_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 3
-          #if ENABLED(FIL_RUNOUT4_PULLUP)
-            #define INIT_RUNOUT4_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT4_PULLDOWN)
-            #define INIT_RUNOUT4_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT4_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 4
-          #if ENABLED(FIL_RUNOUT5_PULLUP)
-            #define INIT_RUNOUT5_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT5_PULLDOWN)
-            #define INIT_RUNOUT5_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT5_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 5
-          #if ENABLED(FIL_RUNOUT6_PULLUP)
-            #define INIT_RUNOUT6_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT6_PULLDOWN)
-            #define INIT_RUNOUT6_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT6_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 6
-          #if ENABLED(FIL_RUNOUT7_PULLUP)
-            #define INIT_RUNOUT7_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT7_PULLDOWN)
-            #define INIT_RUNOUT7_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT7_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-        #if NUM_RUNOUT_SENSORS > 7
-          #if ENABLED(FIL_RUNOUT8_PULLUP)
-            #define INIT_RUNOUT8_PIN(P) SET_INPUT_PULLUP(P)
-          #elif ENABLED(FIL_RUNOUT8_PULLDOWN)
-            #define INIT_RUNOUT8_PIN(P) SET_INPUT_PULLDOWN(P)
-          #else
-            #define INIT_RUNOUT8_PIN(P) SET_INPUT(P)
-          #endif
-        #endif
-      #else // !DISTINCT_FIL_RUNOUT_STATES
-        #if ENABLED(FIL_RUNOUT_PULLUP)
-          #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
-        #elif ENABLED(FIL_RUNOUT_PULLDOWN)
-          #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLDOWN(P)
-        #else
-          #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
-        #endif
-      #endif // !DISTINCT_FIL_RUNOUT_STATES
-
-      #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-        #define _INIT_RUNOUT(N) INIT_RUNOUT##N##_PIN(FIL_RUNOUT##N##_PIN);
-      #else
-        #define _INIT_RUNOUT(N) INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN);
+      #define _INIT_RUNOUT_PIN(N,P) do{ if (DISABLED(FIL_RUNOUT##N##_PULL)) SET_INPUT(P) else if (FIL_RUNOUT##N##_STATE) SET_INPUT_PULLDOWN(P); else SET_INPUT_PULLUP(P); }while(0)
+      #define INIT_RUNOUT_PIN(N,P) _INIT_RUNOUT_PIN(TERN_(DISTINCT_FIL_RUNOUT_STATES, N),P)
+      #if NUM_RUNOUT_SENSORS >= 1
+        INIT_RUNOUT_PIN(1, P)
       #endif
-      REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _INIT_RUNOUT)
-      #undef _INIT_RUNOUT
-
-      #undef INIT_RUNOUT1_PIN
-      #undef INIT_RUNOUT2_PIN
-      #undef INIT_RUNOUT3_PIN
-      #undef INIT_RUNOUT4_PIN
-      #undef INIT_RUNOUT5_PIN
-      #undef INIT_RUNOUT6_PIN
-      #undef INIT_RUNOUT7_PIN
-      #undef INIT_RUNOUT8_PIN
+      #if NUM_RUNOUT_SENSORS >= 2
+        INIT_RUNOUT_PIN(2, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 3
+        INIT_RUNOUT_PIN(3, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 4
+        INIT_RUNOUT_PIN(4, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 5
+        INIT_RUNOUT_PIN(5, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 6
+        INIT_RUNOUT_PIN(6, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 7
+        INIT_RUNOUT_PIN(7, P)
+      #endif
+      #if NUM_RUNOUT_SENSORS >= 8
+        INIT_RUNOUT_PIN(8, P)
+      #endif
+      #undef _INIT_RUNOUT_PIN
       #undef INIT_RUNOUT_PIN
     }
 
