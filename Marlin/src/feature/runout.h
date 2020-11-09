@@ -220,7 +220,7 @@ class FilamentSensorBase {
             #define INIT_RUNOUT8_PIN(P) SET_INPUT(P)
           #endif
         #endif
-      #else // !ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+      #else // !DISTINCT_FIL_RUNOUT_STATES
         #if ENABLED(FIL_RUNOUT_PULLUP)
           #define INIT_RUNOUT_PIN(P) SET_INPUT_PULLUP(P)
         #elif ENABLED(FIL_RUNOUT_PULLDOWN)
@@ -228,7 +228,7 @@ class FilamentSensorBase {
         #else
           #define INIT_RUNOUT_PIN(P) SET_INPUT(P)
         #endif
-      #endif // ENABLED(DISTINCT_FIL_RUNOUT_STATES)
+      #endif // !DISTINCT_FIL_RUNOUT_STATES
 
       #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
         #define _INIT_RUNOUT(N) INIT_RUNOUT##N##_PIN(FIL_RUNOUT##N##_PIN);
@@ -237,18 +237,16 @@ class FilamentSensorBase {
       #endif
       REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _INIT_RUNOUT)
       #undef _INIT_RUNOUT
-      #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-        #undef INIT_RUNOUT1_PIN
-        #undef INIT_RUNOUT2_PIN
-        #undef INIT_RUNOUT3_PIN
-        #undef INIT_RUNOUT4_PIN
-        #undef INIT_RUNOUT5_PIN
-        #undef INIT_RUNOUT6_PIN
-        #undef INIT_RUNOUT7_PIN
-        #undef INIT_RUNOUT8_PIN
-      #else
-        #undef INIT_RUNOUT_PIN
-      #endif
+
+      #undef INIT_RUNOUT1_PIN
+      #undef INIT_RUNOUT2_PIN
+      #undef INIT_RUNOUT3_PIN
+      #undef INIT_RUNOUT4_PIN
+      #undef INIT_RUNOUT5_PIN
+      #undef INIT_RUNOUT6_PIN
+      #undef INIT_RUNOUT7_PIN
+      #undef INIT_RUNOUT8_PIN
+      #undef INIT_RUNOUT_PIN
     }
 
     // Return a bitmask of runout pin states
@@ -260,52 +258,36 @@ class FilamentSensorBase {
 
     // Return a bitmask of runout flag states (1 bits always indicates runout)
     static inline uint8_t poll_runout_states() {
-      return poll_runout_pins()
+      return poll_runout_pins() ^ uint8_t(0
         #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-          #if FIL_RUNOUT1_STATE == LOW
-            ^ uint8_t(_BV(1 - 1))
+          #if NUM_RUNOUT_SENSORS >= 1
+            | (FIL_RUNOUT1_STATE ? 0 : _BV(1 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 1
-            #if FIL_RUNOUT2_STATE == LOW
-              ^ uint8_t(_BV(2 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 2
+            | (FIL_RUNOUT2_STATE ? 0 : _BV(2 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 2
-            #if FIL_RUNOUT3_STATE == LOW
-              ^ uint8_t(_BV(3 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 3
+            | (FIL_RUNOUT3_STATE ? 0 : _BV(3 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 3
-            #if FIL_RUNOUT4_STATE == LOW
-              ^ uint8_t(_BV(4 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 4
+            | (FIL_RUNOUT4_STATE ? 0 : _BV(4 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 4
-            #if FIL_RUNOUT5_STATE == LOW
-              ^ uint8_t(_BV(5 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 5
+            | (FIL_RUNOUT5_STATE ? 0 : _BV(5 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 5
-            #if FIL_RUNOUT6_STATE == LOW
-              ^ uint8_t(_BV(6 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 6
+            | (FIL_RUNOUT6_STATE ? 0 : _BV(6 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 6
-            #if FIL_RUNOUT7_STATE == LOW
-              ^ uint8_t(_BV(7 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 7
+            | (FIL_RUNOUT7_STATE ? 0 : _BV(7 - 1))
           #endif
-          #if NUM_RUNOUT_SENSORS > 7
-            #if FIL_RUNOUT8_STATE == LOW
-              ^ uint8_t(_BV(8 - 1))
-            #endif
+          #if NUM_RUNOUT_SENSORS >= 8
+            | (FIL_RUNOUT8_STATE ? 0 : _BV(8 - 1))
           #endif
-        #else // !ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-          #if FIL_RUNOUT_STATE == LOW
-            ^ uint8_t(_BV(NUM_RUNOUT_SENSORS) - 1)
-          #endif
-        #endif // ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-      ;
+        #else // !DISTINCT_FIL_RUNOUT_STATES
+          | (FIL_RUNOUT_STATE ? 0 : _BV(NUM_RUNOUT_SENSORS) - 1)
+        #endif
+      );
     }
 };
 
