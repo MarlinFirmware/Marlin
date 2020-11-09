@@ -127,8 +127,8 @@ void Power::power_off() {
 }
 
 void Power::power_off_soon() {
-  #if POWER_OFF_TIMEOUT
-    lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_TIMEOUT);
+  #if POWER_OFF_DELAY
+    lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
   #else
     power_off();
   #endif
