@@ -675,7 +675,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 305: M305(); break;                                  // M305: Set user thermistor parameters
       #endif
 
-      #if ENABLED(REPETIER_GCODE_M360)
+      #if EITHER(REPETIER_GCODE_M360, SAVE_CONFIG_INSIDE_FIRMWARE)
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 

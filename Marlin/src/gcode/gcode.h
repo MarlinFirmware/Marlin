@@ -714,6 +714,7 @@ private:
   TERN_(CASE_LIGHT_ENABLE, static void M355());
 
   TERN_(REPETIER_GCODE_M360, static void M360());
+  TERN_(SAVE_CONFIG_INSIDE_FIRMWARE, static void M360());
 
   #if ENABLED(MORGAN_SCARA)
     static bool M360();
