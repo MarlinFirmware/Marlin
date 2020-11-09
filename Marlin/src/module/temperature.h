@@ -253,31 +253,31 @@ typedef struct { int16_t raw_min, raw_max, mintemp, maxtemp; } temp_range_t;
 #if HAS_USER_THERMISTORS
 
   enum CustomThermistorIndex : uint8_t {
-    #if ENABLED(HEATER_0_USER_THERMISTOR)
+    #if HEATER_0_USER_THERMISTOR
       CTI_HOTEND_0,
     #endif
-    #if ENABLED(HEATER_1_USER_THERMISTOR)
+    #if HEATER_1_USER_THERMISTOR
       CTI_HOTEND_1,
     #endif
-    #if ENABLED(HEATER_2_USER_THERMISTOR)
+    #if HEATER_2_USER_THERMISTOR
       CTI_HOTEND_2,
     #endif
-    #if ENABLED(HEATER_3_USER_THERMISTOR)
+    #if HEATER_3_USER_THERMISTOR
       CTI_HOTEND_3,
     #endif
-    #if ENABLED(HEATER_4_USER_THERMISTOR)
+    #if HEATER_4_USER_THERMISTOR
       CTI_HOTEND_4,
     #endif
-    #if ENABLED(HEATER_5_USER_THERMISTOR)
+    #if HEATER_5_USER_THERMISTOR
       CTI_HOTEND_5,
     #endif
-    #if ENABLED(HEATER_BED_USER_THERMISTOR)
+    #if HEATER_BED_USER_THERMISTOR
       CTI_BED,
     #endif
-    #if ENABLED(HEATER_PROBE_USER_THERMISTOR)
+    #if HEATER_PROBE_USER_THERMISTOR
       CTI_PROBE,
     #endif
-    #if ENABLED(HEATER_CHAMBER_USER_THERMISTOR)
+    #if HEATER_CHAMBER_USER_THERMISTOR
       CTI_CHAMBER,
     #endif
     USER_THERMISTORS
@@ -811,15 +811,12 @@ class Temperature {
     #if HAS_MAX6675
       #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
       #if COUNT_6675 > 1
+        #define HAS_MULTI_6675
         #define READ_MAX6675(N) read_max6675(N)
       #else
         #define READ_MAX6675(N) read_max6675()
       #endif
-      static int read_max6675(
-        #if COUNT_6675 > 1
-          const uint8_t hindex=0
-        #endif
-      );
+      static int read_max6675(TERN_(HAS_MULTI_6675, const uint8_t hindex=0));
     #endif
 
     static void checkExtruderAutoFans();
