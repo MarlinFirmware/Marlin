@@ -2237,10 +2237,10 @@ void Temperature::disable_all_heaters() {
     #else
       constexpr uint8_t hindex = 0;
       #define MAX6675_TEMP(I) max6675_temp
-      #if MAX6675_0_IS_MAX31865
-        #define MAX6675_SEL(A,B) A
-      #else
+      #if MAX6675_1_IS_MAX31865
         #define MAX6675_SEL(A,B) B
+      #else
+        #define MAX6675_SEL(A,B) A
       #endif
       #if HEATER_0_USES_MAX6675
         #define MAX6675_WRITE(V)          WRITE(MAX6675_SS_PIN, V)
