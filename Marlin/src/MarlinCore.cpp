@@ -991,6 +991,20 @@ void setup() {
 
   SETUP_RUN(HAL_init());
 
+  // Early-disable MAX6675, as it can flood on SPI bus and prevent TMC and others to init correctly
+  // thermalManager.init() called too late to do this
+  #if HAS_MAX6675
+    #if ENABLED(HEATER_0_USES_MAX6675)
+      SET_OUTPUT(MAX6675_SS_PIN);               // Setup CS pin
+      WRITE(MAX6675_SS_PIN, HIGH);              // Disable TT_MAX6675
+    #endif
+    #if ENABLED(HEATER_1_USES_MAX6675)
+      SET_OUTPUT(MAX6675_SS2_PIN);            // Setup CS pin
+      WRITE(MAX6675_SS2_PIN, HIGH);           // Disable TT_MAX6675
+    #endif
+    DELAY_NS(100);                            // Ensure 100ns delay
+  #endif
+
   #if HAS_L64XX
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
