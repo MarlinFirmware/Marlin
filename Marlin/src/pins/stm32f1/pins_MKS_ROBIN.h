@@ -163,7 +163,7 @@
 
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
-#define SD_DETECT_PIN                       -1
+#define SD_DETECT_PIN                       -1    // Set this to PF12 if you got an MKS Robin v2.4 board
 #define ONBOARD_SD_CS_PIN                   PC11
 
 //
@@ -274,11 +274,6 @@
 //
 #if HAS_TMC_UART
 
-  // Reduce baud rate for software serial reliability
-  #if HAS_TMC_SW_SERIAL
-    #define TMC_BAUD_RATE                  19200
-  #endif
-
   /**
    * TMC2208/TMC2209 stepper drivers
    *
@@ -286,25 +281,33 @@
    * If undefined software serial is used according to the pins below
    */
 
-  // Hardware serial on Serial 1
+  // Hardware serial on MSerial 0
+  // It seems like MSerial0 is the better choice for most MKS Robin users.
+  // If you have issues to setup an hardware serial connection on MSerial0 for your Trinamic drivers,
+  // please try MSerial1 and report your experience to the community on Github.
+  // Also if you have any issues with hardware serial on the old STM32F1 HAL, please try with SerialX instead
+  // of MSerialX and report your experience to the community on Github. 
+  // Your feedbacks will help us improve the default values of this pin file.
+  
   #define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
-    #define X_HARDWARE_SERIAL            Serial1
-    #define X2_HARDWARE_SERIAL           Serial1
-    #define Y_HARDWARE_SERIAL            Serial1
-    #define Y2_HARDWARE_SERIAL           Serial1
-    #define Z_HARDWARE_SERIAL            Serial1
-    #define Z2_HARDWARE_SERIAL           Serial1
-    #define E0_HARDWARE_SERIAL           Serial1
-    #define E1_HARDWARE_SERIAL           Serial1
-    #define E2_HARDWARE_SERIAL           Serial1
-    #define E3_HARDWARE_SERIAL           Serial1
-    #define E4_HARDWARE_SERIAL           Serial1
+    #define X_HARDWARE_SERIAL            MSerial0
+    #define X2_HARDWARE_SERIAL           MSerial0
+    #define Y_HARDWARE_SERIAL            MSerial0
+    #define Y2_HARDWARE_SERIAL           MSerial0
+    #define Z_HARDWARE_SERIAL            MSerial0
+    #define Z2_HARDWARE_SERIAL           MSerial0
+    #define E0_HARDWARE_SERIAL           MSerial0
+    #define E1_HARDWARE_SERIAL           MSerial0
+    #define E2_HARDWARE_SERIAL           MSerial0
+    #define E3_HARDWARE_SERIAL           MSerial0
+    #define E4_HARDWARE_SERIAL           MSerial0
   #endif
 
   // Software serial on unused servo pins
   //#define TMC_SOFTWARE_SERIAL
   #if ENABLED(TMC_SOFTWARE_SERIAL)
+    #define TMC_BAUD_RATE                   19200
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
