@@ -99,6 +99,7 @@ public:
   static void openFileRead(char * const path, const uint8_t subcall=0);
   static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
+  static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
@@ -248,12 +249,11 @@ private:
   //
   // Procedure calls to other files
   //
-  #ifndef SD_PROCEDURE_DEPTH
-    #define SD_PROCEDURE_DEPTH 1
+  #if HAS_MEDIA_SUBCALLS
+    static uint8_t file_subcall_ctr;
+    static uint32_t filespos[SD_PROCEDURE_DEPTH];
+    static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   #endif
-  static uint8_t file_subcall_ctr;
-  static uint32_t filespos[SD_PROCEDURE_DEPTH];
-  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
 
   //
   // SD Auto Reporting

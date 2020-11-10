@@ -17,16 +17,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+
+/**
+ * HAL PersistentStore for STM32F1
+ */
+
 #ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
 #if USE_WIRED_EEPROM
-
-/**
- * PersistentStore for Arduino-style EEPROM interface
- * with simple implementations supplied by Marlin.
- */
 
 #include "../shared/eeprom_if.h"
 #include "../shared/eeprom_api.h"
@@ -72,7 +72,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing && value) *value = c;

@@ -49,10 +49,6 @@
 #undef SDSS
 #define SDSS       SS_PIN
 
-#if ENABLED(ENABLE_SPI3)
-  #define SPI_DEVICE 3
-#elif ENABLED(ENABLE_SPI2)
-  #define SPI_DEVICE 2
-#else
+#ifndef SPI_DEVICE
   #define SPI_DEVICE 1
 #endif

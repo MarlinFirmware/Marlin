@@ -25,7 +25,7 @@
  * Formbot pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Formbot supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -155,7 +155,7 @@
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define LCD_PINS_RS                         16
   #define LCD_PINS_ENABLE                     17
   #define LCD_PINS_D4                         23

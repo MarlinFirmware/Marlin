@@ -24,7 +24,7 @@
  * CNControls V15 for HMS434 with DUE pin assignments
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -92,7 +92,7 @@
 //
 // Fans
 //
-//#define FAN0_PIN                             8
+//#define FAN_PIN                              8
 
 //
 // Auto fans
