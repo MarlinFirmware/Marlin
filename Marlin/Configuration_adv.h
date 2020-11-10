@@ -1217,6 +1217,10 @@
     #define POWER_LOSS_MIN_Z_CHANGE 0.05 // (mm) Minimum Z change before saving power-loss data
   #endif
 
+  #define SD_FILENAMES_MULTILINGUAL     // Allow national symbols in filenames. To display correctly
+                                        // font must contains it - check your language selected
+                                        // This needs ~78 bytes more RAM and ~130 bytes Flash
+
   /**
    * Sort SD file listings in alphabetical order.
    *
