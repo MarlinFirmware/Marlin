@@ -202,35 +202,6 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
-// XPT2046 Touch Screen calibration
-#if ANY(HAS_TFT_LVGL_UI_FSMC, TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_480x320)
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X          17880
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y         -12234
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 -45
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-   #define TOUCH_OFFSET_Y                  349
-  #endif
-#elif EITHER(TFT_COLOR_UI, TFT_CLASSIC_UI) && ENABLED(TFT_RES_320x240)
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X         -12246
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y           9453
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 360
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                 -22
-  #endif
-#endif
-
 #define HAS_SPI_FLASH                          1
 #if HAS_SPI_FLASH
   #define SPI_FLASH_SIZE               0x1000000  // 16MB

@@ -324,42 +324,6 @@
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 #endif
 
-// XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_COLOR_UI)
-  #define TFT_BUFFER_SIZE                  14400
-
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X          12218
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y          -8814
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 -35
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                 256
-  #endif
-
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X          12149
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y          -8746
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 -35
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                 256
-  #endif
-
-  #define TFT_MARLINUI_COLOR              0xFFFF  // White
-  #define TFT_BTARROWS_COLOR              0xDEE6  // 11011 110111 00110 Yellow
-  #define TFT_BTOKMENU_COLOR              0x145F  // 00010 100010 11111 Cyan
-#endif
-
 #if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PC2   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK

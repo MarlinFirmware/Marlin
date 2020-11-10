@@ -318,36 +318,7 @@
       #define LCD_PINS_ENABLE              -1
       #define LCD_PINS_RS                  -1
 
-      // XPT2046 Touch Screen calibration
-      #if ENABLED(TFT_CLASSIC_UI)
-        #ifndef TOUCH_CALIBRATION_X
-          #define TOUCH_CALIBRATION_X   -11386
-        #endif
-        #ifndef TOUCH_CALIBRATION_Y
-          #define TOUCH_CALIBRATION_Y     8684
-        #endif
-        #ifndef TOUCH_OFFSET_X
-          #define TOUCH_OFFSET_X           689
-        #endif
-        #ifndef TOUCH_OFFSET_Y
-          #define TOUCH_OFFSET_Y          -273
-        #endif
-      #elif ENABLED(TFT_COLOR_UI)
-        #ifndef TOUCH_CALIBRATION_X
-          #define TOUCH_CALIBRATION_X   -17089
-        #endif
-        #ifndef TOUCH_CALIBRATION_Y
-          #define TOUCH_CALIBRATION_Y    11424
-        #endif
-        #ifndef TOUCH_OFFSET_X
-          #define TOUCH_OFFSET_X          1044
-        #endif
-        #ifndef TOUCH_OFFSET_Y
-          #define TOUCH_OFFSET_Y          -365
-        #endif
-
-        #define TFT_BUFFER_SIZE             2400
-      #endif
+      #define TFT_BUFFER_SIZE               2400
 
     #else                                         // !MKS_12864OLED_SSD1306
 

@@ -282,35 +282,6 @@
   #define TFT_BUFFER_SIZE                  14400
 #endif
 
-// XPT2046 Touch Screen calibration
-#if EITHER(HAS_TFT_LVGL_UI, TFT_480x320_SPI)
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X         -17253
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y          11579
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 514
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                 -24
-  #endif
-#elif HAS_SPI_GRAPHICAL_TFT
-  #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X         -11386
-  #endif
-  #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y           8684
-  #endif
-  #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                 339
-  #endif
-  #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                 -18
-  #endif
-#endif
-
 #if HAS_WIRED_LCD && !HAS_SPI_TFT
 
   // NON TFT Displays
