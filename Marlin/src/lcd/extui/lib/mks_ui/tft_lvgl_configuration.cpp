@@ -51,6 +51,11 @@ XPT2046 touch;
   #include "../../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../../../tft_io/touch_calibration.h"
+  #include "draw_touch_calibration.h"
+#endif
+
 #include <SPI.h>
 
 #ifndef TFT_WIDTH
@@ -240,17 +245,22 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 static bool get_point(int16_t *x, int16_t *y) {
   bool is_touched = touch.getRawPoint(x, y);
 
-  if (is_touched) {
+  if (!is_touched) return false;
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    const calibrationState state = touch_calibration.get_calibration_state();
+    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+      if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
+      return false;
+    }
+    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+  #else
     *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
     *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
-  }
-
-  #if (TFT_ROTATION & TFT_ROTATE_180)
-    *x = int16_t((TFT_WIDTH) - (int)(*x));
-    *y = int16_t((TFT_HEIGHT) - (int)(*y));
   #endif
 
-  return is_touched;
+  return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {

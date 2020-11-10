@@ -48,6 +48,10 @@
   #include "../../../../feature/pause.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "draw_touch_calibration.h"
+#endif
+
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
@@ -1359,6 +1363,11 @@ void clear_cur_ui() {
       case ENCODER_SETTINGS_UI:
         lv_clear_encoder_settings();
         break;
+    #endif
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      case TOUCH_CALIBRATION_UI:
+        lv_clear_touch_calibration_screen();
+      break;
     #endif
     default: break;
   }

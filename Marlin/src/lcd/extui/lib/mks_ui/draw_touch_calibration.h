@@ -19,27 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
-
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-
-#include "../gcode.h"
-#if DISABLED(TFT_LVGL_UI)
-  #include "../../lcd/menu/menu.h"
-#else
-  #include "../../lcd/extui/lib/mks_ui/draw_touch_calibration.h"
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
 #endif
 
-/**
- * M995: Touch screen calibration for TFT display
- */
-void GcodeSuite::M995() {
-  #if DISABLED(TFT_LVGL_UI)
-    ui.goto_screen(touch_screen_calibration);
-  #else
-    lv_draw_touch_calibration_screen();
-  #endif
-}
+extern void lv_draw_touch_calibration_screen(void);
+extern void lv_clear_touch_calibration_screen();
+extern void lv_update_touch_calibration_screen();
 
-#endif // TOUCH_SCREEN_CALIBRATION
+//extern void disp_temp_ready_print();
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif
