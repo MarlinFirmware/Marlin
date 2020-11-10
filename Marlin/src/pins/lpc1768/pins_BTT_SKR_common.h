@@ -34,7 +34,7 @@
 //#define HAS_BTT_EXP_MOT 1
 
 #if BOTH(HAS_WIRED_LCD,HAS_BTT_EXP_MOT)
-  #ERROR "Having a LCD on EXP1/EXP2 and a expantion motor module on EXP1/EXP2 is not possable."
+  #ERROR "Having a LCD on EXP1/EXP2 and a expanion motor module on EXP1/EXP2 is not possable."
 #endif
 
 // Ignore temp readings during development.
