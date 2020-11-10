@@ -80,14 +80,14 @@ public:
   static calibrationState calibration_start() {
     calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE};
     calibration_state = CALIBRATION_TOP_LEFT;
-    calibration_points[CALIBRATION_TOP_LEFT].x = 20;
-    calibration_points[CALIBRATION_TOP_LEFT].y = 20;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].x = 20;
-    calibration_points[CALIBRATION_BOTTOM_LEFT].y = TFT_HEIGHT - 21;
-    calibration_points[CALIBRATION_TOP_RIGHT].x = TFT_WIDTH - 21;
-    calibration_points[CALIBRATION_TOP_RIGHT].y = 20;
-    calibration_points[CALIBRATION_BOTTOM_RIGHT].x = TFT_WIDTH - 21;
-    calibration_points[CALIBRATION_BOTTOM_RIGHT].y = TFT_HEIGHT - 21;
+    calibration_points[CALIBRATION_TOP_LEFT].x = 30;
+    calibration_points[CALIBRATION_TOP_LEFT].y = 30;
+    calibration_points[CALIBRATION_BOTTOM_LEFT].x = 30;
+    calibration_points[CALIBRATION_BOTTOM_LEFT].y = TFT_HEIGHT - 31;
+    calibration_points[CALIBRATION_TOP_RIGHT].x = TFT_WIDTH - 31;
+    calibration_points[CALIBRATION_TOP_RIGHT].y = 30;
+    calibration_points[CALIBRATION_BOTTOM_RIGHT].x = TFT_WIDTH - 31;
+    calibration_points[CALIBRATION_BOTTOM_RIGHT].y = TFT_HEIGHT - 31;
     return calibration_state;
   }
   static void calibration_end() { calibration_state = CALIBRATION_NONE; }

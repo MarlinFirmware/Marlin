@@ -590,7 +590,7 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
   void MarlinUI::touch_calibration_screen() {
-    static uint16_t x, y;
+    uint16_t x, y;
 
     calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
@@ -600,21 +600,25 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
       calibration_stage = touch_calibration.calibration_start();
     }
     else {
+      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
     }
 
-    x = 20; y = 20;
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       switch (calibration_stage) {
         case CALIBRATION_TOP_LEFT: tft_string.set("Top Left"); break;
-        case CALIBRATION_BOTTOM_LEFT: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
-        case CALIBRATION_TOP_RIGHT: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
-        case CALIBRATION_BOTTOM_RIGHT: x = TFT_WIDTH  - 21; y = TFT_HEIGHT - 21; tft_string.set("Bottom Right"); break;
+        case CALIBRATION_BOTTOM_LEFT: tft_string.set("Bottom Left"); break;
+        case CALIBRATION_TOP_RIGHT: tft_string.set("Top Right"); break;
+        case CALIBRATION_BOTTOM_RIGHT: tft_string.set("Bottom Right"); break;
         default: break;
       }
+
+      x = touch_calibration.calibration_points[calibration_stage].x;
+      y = touch_calibration.calibration_points[calibration_stage].y;
 
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
