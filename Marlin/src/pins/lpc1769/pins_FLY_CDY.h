@@ -25,7 +25,7 @@
  * Smoothieboard pin assignments
  */
 
-#ifndef MCU_LPC1769
+#if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
 
@@ -176,15 +176,15 @@
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
+
+ #if SD_CONNECTION_IS(ONBOARD)
     #define SS_PIN                          P0_06
     #define SCK_PIN                         P0_07
     #define MISO_PIN                        P0_08
     #define MOSI_PIN                        P0_09
     #define SD_DETECT_PIN                   P0_05
-#if SD_CONNECTION_IS(ONBOARD)
-
   #endif
-
+  
  #if SD_CONNECTION_IS(LCD)
 
   #define SCK_PIN                           P0_15

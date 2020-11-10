@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,7 @@
 #endif
 
 #define BOARD_INFO_NAME   "FLY_MINI"
-#define BOARD_WEBSITE_URL    "github.com/FLYmaker"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker"
 #define DISABLE_JTAG
 
 //
@@ -138,7 +138,7 @@
 #define MISO_PIN                            PB14
 #define MOSI_PIN                            PB15
 
-#define SDSS                              SS_PIN 
+#define SDSS                              SS_PIN
 #define SD_DETECT_PIN                       PB11
 
 #define BEEPER_PIN                          PC14
