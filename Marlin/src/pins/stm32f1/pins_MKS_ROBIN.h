@@ -282,7 +282,7 @@
    */
 
   // Hardware serial on MSerial 0
-  // It seems like MSerial0 is the better choice for most MKS Robin users.
+  // It seems like MSerial0 is the best choice for most MKS Robin users.
   // If you have issues to setup an hardware serial connection on MSerial0 for your Trinamic drivers,
   // please try MSerial1 and report your experience to the community on Github.
   // Also if you have any issues with hardware serial on the old STM32F1 HAL, please try with SerialX instead
