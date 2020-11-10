@@ -31,7 +31,7 @@ XPT2046 touchIO;
   #include "../tft_io/touch_calibration.h"
 #endif
 
-#include "../../lcd/marlinui.h" // For EN_C bit mask
+#include "../marlinui.h" // For EN_C bit mask
 
 #define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
 #define DOGM_AREA_TOP    TFT_PIXEL_OFFSET_Y

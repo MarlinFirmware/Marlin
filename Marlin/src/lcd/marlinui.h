@@ -31,6 +31,10 @@
   #include "../sd/cardreader.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "tft_io/touch_calibration.h"
+#endif
+
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -312,6 +316,12 @@ public:
 
   // LCD implementations
   static void clear_lcd();
+
+  #if HAS_LCD_MENU && ENABLED(TOUCH_SCREEN_CALIBRATION)
+    static void check_touch_calibration() {
+      if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
