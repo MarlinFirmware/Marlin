@@ -29,10 +29,6 @@
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
 #endif
 
-// If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
-// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT 1
-
 //
 // SD Connection
 //
