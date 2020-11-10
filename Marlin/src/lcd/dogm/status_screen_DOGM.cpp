@@ -64,6 +64,10 @@
   #include "../../feature/mixing.h"
 #endif
 
+#if ENABLED(INCH_MODE_SUPPORT)
+  #include "../../gcode/parser.h"
+#endif
+
 #define X_LABEL_POS      3
 #define X_VALUE_POS     11
 #define XYZ_SPACING     37
@@ -392,7 +396,12 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
+  #if ENABLED(INCH_MODE_SUPPORT)
+    static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 8)], ystring[8], zstring[8];
+  #else
+    static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
+  #endif
+
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
@@ -448,8 +457,18 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      strcpy(xstring, ftostr4sign(lpos.x));
-      strcpy(ystring, ftostr4sign(lpos.y));
+      #if ENABLED(INCH_MODE_SUPPORT)
+        if (ENABLED(INFO_DISPLAY_INCHES) && parser.linear_unit_factor == 25.4f) {
+          strcpy(xstring, ftostr42sign((lpos.x / parser.linear_unit_factor)));
+          strcpy(ystring, ftostr42sign((lpos.x / parser.linear_unit_factor)));
+        }else {
+          strcpy(xstring, ftostr4sign(lpos.x));
+          strcpy(ystring, ftostr4sign(lpos.y));
+        }
+      #else
+          strcpy(xstring, ftostr4sign(lpos.x));
+          strcpy(ystring, ftostr4sign(lpos.y));
+      #endif
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)

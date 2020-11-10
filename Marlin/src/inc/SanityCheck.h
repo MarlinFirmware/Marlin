@@ -3248,5 +3248,12 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 #endif
 #undef _BAD_DRIVER
 
+/**
+ * Sanity check for displaying inches on the status screen
+ */
+#if ENABLED(INFO_DISPLAY_INCHES) && DISABLED(INCH_MODE_SUPPORT)
+  #error "INCH_MODE_SUPPORT must be enabled for INFO_DISPLAY_INCHES"
+#endif
+
 // Misc. Cleanup
 #undef _TEST_PWM
