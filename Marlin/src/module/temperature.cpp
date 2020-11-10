@@ -2338,7 +2338,7 @@ void Temperature::disable_all_heaters() {
       max6675_errors[hindex] = 0;
     }
 
-    #if MAX6675_0_IS_MAX31855
+    #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
