@@ -75,6 +75,7 @@ public:
 
   static touch_calibration_t calibration;
   static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
+  static bool need_calibration() { return !calibration.offset_x && !calibration.offset_y && !calibration.x && !calibration.y; }
 
   static calibrationState calibration_start() {
     calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE};
