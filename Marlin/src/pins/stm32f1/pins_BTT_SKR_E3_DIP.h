@@ -264,7 +264,7 @@
   #define BEEPER_PIN                        PB6
 
   #define CLCD_MOD_RESET                    PA9
-  #define CLCD_SPI_CS                       PA8
+  #define CLCD_SPI_CS                       PB8
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
