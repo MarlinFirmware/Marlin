@@ -17,11 +17,11 @@
  *
  */
 
-#include "touch_calibration.h"
+#include "../../inc/MarlinConfig.h"
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
 
-#include "../../inc/MarlinConfig.h"
+#include "touch_calibration.h"
 
 TouchCalibration touch_calibration;
 
@@ -78,4 +78,4 @@ bool TouchCalibration::handleTouch(uint16_t x, uint16_t y) {
   return true;
 }
 
-#endif // ENABLED(TOUCH_SCREEN_CALIBRATION)
+#endif // TOUCH_SCREEN_CALIBRATION

@@ -36,21 +36,15 @@
   #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
 #endif
 
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-
 typedef struct __attribute__((__packed__)) {
-  int32_t x;
-  int32_t y;
-  int16_t offset_x;
-  int16_t offset_y;
+  int32_t x, y;
+  int16_t offset_x, offset_y;
   uint8_t orientation;
 } touch_calibration_t;
 
 typedef struct __attribute__((__packed__)) {
-  uint16_t x;
-  uint16_t y;
-  int16_t raw_x;
-  int16_t raw_y;
+  uint16_t x, y;
+  int16_t raw_x, raw_y;
 } touch_calibration_point_t;
 
 enum calibrationState : uint8_t {
@@ -74,11 +68,11 @@ public:
   static void validate_calibration();
 
   static touch_calibration_t calibration;
-  static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }
+  static void calibration_reset() { calibration = { TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION }; }
   static bool need_calibration() { return !calibration.offset_x && !calibration.offset_y && !calibration.x && !calibration.y; }
 
   static calibrationState calibration_start() {
-    calibration = {0, 0, 0, 0, TOUCH_ORIENTATION_NONE};
+    calibration = { 0, 0, 0, 0, TOUCH_ORIENTATION_NONE };
     calibration_state = CALIBRATION_TOP_LEFT;
     calibration_points[CALIBRATION_TOP_LEFT].x = 30;
     calibration_points[CALIBRATION_TOP_LEFT].y = 30;
@@ -97,5 +91,3 @@ public:
 };
 
 extern TouchCalibration touch_calibration;
-
-#endif

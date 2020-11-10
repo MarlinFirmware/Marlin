@@ -286,22 +286,22 @@
 
 // MKS Robin TFT v2.0 with ILI9341
 // Read display identification information (0xD3 on ILI9341)
-//#define TOUCH_CALIBRATION_X            12013
-//#define TOUCH_CALIBRATION_Y            -8711
-//#define TOUCH_OFFSET_X                   -32
-//#define TOUCH_OFFSET_Y                   256
+//#define TOUCH_CALIBRATION_X              12013
+//#define TOUCH_CALIBRATION_Y              -8711
+//#define TOUCH_OFFSET_X                     -32
+//#define TOUCH_OFFSET_Y                     256
 
 // MKS Robin TFT v1.1 with ILI9328
-//#define TOUCH_CALIBRATION_X           -11792
-//#define TOUCH_CALIBRATION_Y             8947
-//#define TOUCH_OFFSET_X                   342
-//#define TOUCH_OFFSET_Y                   -19
+//#define TOUCH_CALIBRATION_X             -11792
+//#define TOUCH_CALIBRATION_Y               8947
+//#define TOUCH_OFFSET_X                     342
+//#define TOUCH_OFFSET_Y                     -19
 
 // MKS Robin TFT v1.1 with R61505
-//#define TOUCH_CALIBRATION_X            12489
-//#define TOUCH_CALIBRATION_Y             9210
-//#define TOUCH_OFFSET_X                   -52
-//#define TOUCH_OFFSET_Y                   -17
+//#define TOUCH_CALIBRATION_X              12489
+//#define TOUCH_CALIBRATION_Y               9210
+//#define TOUCH_OFFSET_X                     -52
+//#define TOUCH_OFFSET_Y                     -17
 
 // QQS-Pro uses MKS Robin TFT v2.0
 

@@ -321,12 +321,10 @@ static uint8_t page;
 #if HAS_TOUCH_BUTTONS
   static bool redrawTouchButtons = true;
   static void drawTouchButtons(u8g_t *u8g, u8g_dev_t *dev) {
-    if (!redrawTouchButtons) {
-      return;
-    }
+    if (!redrawTouchButtons) return;
     redrawTouchButtons = false;
-    // Bottom buttons
 
+    // Bottom buttons
     setWindow(u8g, dev, BUTTOND_X_LO, BUTTON_Y_LO, BUTTOND_X_HI, BUTTON_Y_HI);
     drawImage(buttonD, u8g, dev, BUTTON_DRAW_WIDTH, BUTTON_DRAW_HEIGHT, TFT_BTCANCEL_COLOR);
 
@@ -471,6 +469,7 @@ uint8_t u8g_com_hal_tft_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_p
 U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_tft_320x240_upscale_from_128x64_fn, U8G_COM_HAL_TFT_FN);
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+
   static void drawCross(uint16_t x, uint16_t y, uint16_t color) {
     tftio.set_window(x - 15, y, x + 15, y);
     tftio.WriteMultiple(color, 31);
@@ -527,6 +526,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     } while (u8g.nextPage());
     drawing_screen = false;
   }
+
 #endif // TOUCH_SCREEN_CALIBRATION
 
 #endif // HAS_MARLINUI_U8GLIB && (FSMC_CS_PIN || HAS_SPI_GRAPHICAL_TFT)

@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI && ENABLED(TOUCH_SCREEN_CALIBRATION)
+#if BOTH(HAS_TFT_LVGL_UI, TOUCH_SCREEN_CALIBRATION)
 
 #include "draw_ui.h"
 #include "draw_touch_calibration.h"
@@ -100,7 +100,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   }
 }
 
-void lv_draw_touch_calibration_screen(void) {
+void lv_draw_touch_calibration_screen() {
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(TOUCH_CALIBRATION_UI, "");
@@ -117,4 +117,4 @@ void lv_clear_touch_calibration_screen() {
   lv_obj_del(scr);
 }
 
-#endif // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && TOUCH_SCREEN_CALIBRATION

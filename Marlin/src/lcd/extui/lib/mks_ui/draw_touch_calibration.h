@@ -25,7 +25,7 @@
   extern "C" { /* C-declarations for C++ */
 #endif
 
-extern void lv_draw_touch_calibration_screen(void);
+extern void lv_draw_touch_calibration_screen();
 extern void lv_clear_touch_calibration_screen();
 extern void lv_update_touch_calibration_screen();
 

@@ -23,11 +23,12 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TOUCH_SCREEN)
-
 #include "tft_color.h"
 #include "tft_image.h"
-#include "../tft_io/touch_calibration.h"
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../tft_io/touch_calibration.h"
+#endif
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 #define TOUCH_DRIVER XPT2046
@@ -117,5 +118,3 @@ class Touch {
 };
 
 extern Touch touch;
-
-#endif // TOUCH_SCREEN

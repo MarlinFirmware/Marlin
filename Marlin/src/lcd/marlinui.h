@@ -317,7 +317,7 @@ public:
   // LCD implementations
   static void clear_lcd();
 
-  #if HAS_LCD_MENU && ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
     static void check_touch_calibration() {
       if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
     }
