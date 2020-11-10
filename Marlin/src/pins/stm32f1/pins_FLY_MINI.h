@@ -16,17 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME   "FLY_MINI"
-#define BOARD_WEBSITE_URL    "github.com/FLYmaker"
+#define BOARD_WEBSITE_URL "github.com/FLYmaker"
 #define DISABLE_JTAG
 
 //

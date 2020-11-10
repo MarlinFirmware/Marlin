@@ -58,7 +58,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Основне меню");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Інші налаштування");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Конфігурація");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Вимкнути двигуни");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Меню Debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест Progress Bar");

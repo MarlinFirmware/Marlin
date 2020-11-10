@@ -118,9 +118,11 @@ Sd2Card CardReader::sd2card;
 SdVolume CardReader::volume;
 SdFile CardReader::file;
 
-uint8_t CardReader::file_subcall_ctr;
-uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
-char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
+#if HAS_MEDIA_SUBCALLS
+  uint8_t CardReader::file_subcall_ctr;
+  uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
+  char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
+#endif
 
 uint32_t CardReader::filesize, CardReader::sdpos;
 
@@ -135,7 +137,8 @@ CardReader::CardReader() {
   #endif
   flag.sdprinting = flag.mounted = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
-  file_subcall_ctr = 0;
+
+  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   workDirDepth = 0;
   ZERO(workDirParents);
@@ -540,34 +543,39 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
   switch (subcall_type) {
     case 0:      // Starting a new print. "Now fresh file: ..."
       announceOpen(2, path);
-      file_subcall_ctr = 0;
+      TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
       break;
 
-    case 1:      // Starting a sub-procedure
+    #if HAS_MEDIA_SUBCALLS
 
-      // With no file is open it's a simple macro. "Now doing file: ..."
-      if (!isFileOpen()) { announceOpen(1, path); break; }
+      case 1:      // Starting a sub-procedure
 
-      // Too deep? The firmware has to bail.
-      if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
-        SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:" STRINGIFY(SD_PROCEDURE_DEPTH));
-        kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
-        return;
-      }
+        // With no file is open it's a simple macro. "Now doing file: ..."
+        if (!isFileOpen()) { announceOpen(1, path); break; }
 
-      // Store current filename (based on workDirParents) and position
-      getAbsFilename(proc_filenames[file_subcall_ctr]);
-      filespos[file_subcall_ctr] = sdpos;
+        // Too deep? The firmware has to bail.
+        if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
+          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", int(SD_PROCEDURE_DEPTH));
+          kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
+          return;
+        }
 
-      // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
-      file_subcall_ctr++;
-      break;
+        // Store current filename (based on workDirParents) and position
+        getAbsFilename(proc_filenames[file_subcall_ctr]);
 
-    case 2:      // Resuming previous file after sub-procedure
-      SERIAL_ECHO_MSG("END SUBROUTINE");
-      break;
+        TERN_(HAS_MEDIA_SUBCALLS, filespos[file_subcall_ctr] = sdpos);
+
+        // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
+        file_subcall_ctr++;
+        break;
+
+      case 2:      // Resuming previous file after sub-procedure
+        SERIAL_ECHO_MSG("END SUBROUTINE");
+        break;
+
+    #endif
   }
 
   endFilePrint();
@@ -603,7 +611,7 @@ void CardReader::openFileWrite(char * const path) {
   if (!isMounted()) return;
 
   announceOpen(2, path);
-  file_subcall_ctr = 0;
+  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   endFilePrint();
 
@@ -637,7 +645,7 @@ bool CardReader::fileExists(const char * const path) {
   if (fname) {
     diveDir->rewind();
     selectByName(*diveDir, fname);
-    diveDir->close();
+    //diveDir->close();
   }
   return !!fname;
 }
@@ -1158,17 +1166,19 @@ uint16_t CardReader::get_num_Files() {
 void CardReader::fileHasFinished() {
   planner.synchronize();
   file.close();
-  if (file_subcall_ctr > 0) { // Resume calling file after closing procedure
-    file_subcall_ctr--;
-    openFileRead(proc_filenames[file_subcall_ctr], 2); // 2 = Returning from sub-procedure
-    setIndex(filespos[file_subcall_ctr]);
-    startFileprint();
-  }
-  else {
-    endFilePrint(TERN_(SD_RESORT, true));
 
-    marlin_state = MF_SD_COMPLETE;
-  }
+  #if HAS_MEDIA_SUBCALLS
+    if (file_subcall_ctr > 0) { // Resume calling file after closing procedure
+      file_subcall_ctr--;
+      openFileRead(proc_filenames[file_subcall_ctr], 2); // 2 = Returning from sub-procedure
+      setIndex(filespos[file_subcall_ctr]);
+      startFileprint();
+      return;
+    }
+  #endif
+
+  endFilePrint(TERN_(SD_RESORT, true));
+  marlin_state = MF_SD_COMPLETE;
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

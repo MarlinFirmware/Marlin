@@ -29,45 +29,13 @@ XPT2046 touchIO;
 
 #include "../../lcd/marlinui.h" // For EN_C bit mask
 
-/**
- * Draw and Touch processing
- *
- *      LCD_PIXEL_WIDTH/HEIGHT (128x64) is the (emulated DOGM) Pixel Drawing resolution.
- *   TOUCH_SENSOR_WIDTH/HEIGHT (320x240) is the Touch Area resolution.
- * TFT_WIDTH/HEIGHT (320x240 or 480x320) is the Actual (FSMC) Display resolution.
- *
- *  - All native (u8g) drawing is done in LCD_PIXEL_* (128x64)
- *  - The DOGM pixels are is upscaled 2-3x (as needed) for display.
- *  - Touch coordinates use TOUCH_SENSOR_* resolution and are converted to
- *    click and scroll-wheel events (emulating of a common DOGM display).
- *
- *  TOUCH_SCREEN resolution exists to fit our calibration values. The original touch code was made
- *  and originally calibrated for 320x240. If you decide to change the resolution of the touch code,
- *  new calibration values will be needed.
- *
- *  The Marlin menus are drawn scaled in the upper region of the screen. The bottom region (in a
- *  fixed location in TOUCH_SCREEN* coordinate space) is used for 4 general-purpose buttons to
- *  navigate and select menu items. Both regions are touchable.
- *
- * The Marlin screen touchable area starts at TFT_PIXEL_OFFSET_X/Y (translated to SCREEN_PCT_LEFT/TOP)
- * and spans LCD_PIXEL_WIDTH/HEIGHT (scaled to SCREEN_PCT_WIDTH/HEIGHT).
- */
+#define DOGM_AREA_LEFT   TFT_PIXEL_OFFSET_X
+#define DOGM_AREA_TOP    TFT_PIXEL_OFFSET_Y
+#define DOGM_AREA_WIDTH  (GRAPHICAL_TFT_UPSCALE) * (LCD_PIXEL_WIDTH)
+#define DOGM_AREA_HEIGHT (GRAPHICAL_TFT_UPSCALE) * (LCD_PIXEL_HEIGHT)
 
-// Touch sensor resolution independent of display resolution
-#define TOUCH_SENSOR_WIDTH  320
-#define TOUCH_SENSOR_HEIGHT 240
-
-#define SCREEN_PCT_WIDE(X) ((X) * (TOUCH_SENSOR_WIDTH)  / (TFT_WIDTH))
-#define SCREEN_PCT_HIGH(Y) ((Y) * (TOUCH_SENSOR_HEIGHT) / (TFT_HEIGHT))
-
-#define SCREEN_PCT_LEFT   SCREEN_PCT_WIDE(TFT_PIXEL_OFFSET_X)
-#define SCREEN_PCT_TOP    SCREEN_PCT_HIGH(TFT_PIXEL_OFFSET_Y)
-#define SCREEN_PCT_WIDTH  SCREEN_PCT_WIDE((GRAPHICAL_TFT_UPSCALE) * (LCD_PIXEL_WIDTH))
-#define SCREEN_PCT_HEIGHT SCREEN_PCT_HIGH((GRAPHICAL_TFT_UPSCALE) * (LCD_PIXEL_HEIGHT))
-
-// Coordinates in terms of 240-unit-tall touch area
-#define BUTTON_AREA_TOP 175
-#define BUTTON_AREA_BOT 234
+#define BUTTON_AREA_TOP BUTTON_Y_LO
+#define BUTTON_AREA_BOT BUTTON_Y_HI
 
 TouchButtons touch;
 
@@ -83,25 +51,25 @@ uint8_t TouchButtons::read_buttons() {
     y = uint16_t((uint32_t(y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
 
     #if (TFT_ROTATION & TFT_ROTATE_180)
-      x = TOUCH_SENSOR_WIDTH - x;
-      y = TOUCH_SENSOR_HEIGHT - y;
+      x = TFT_WIDTH - x;
+      y = TFT_HEIGHT - y;
     #endif
 
     // Touch within the button area simulates an encoder button
     if (y > BUTTON_AREA_TOP && y < BUTTON_AREA_BOT)
-      return WITHIN(x,  14,  77) ? EN_D
-           : WITHIN(x,  90, 153) ? EN_A
-           : WITHIN(x, 166, 229) ? EN_B
-           : WITHIN(x, 242, 305) ? EN_C
+      return WITHIN(x, BUTTOND_X_LO, BUTTOND_X_HI) ? EN_D
+           : WITHIN(x, BUTTONA_X_LO, BUTTONA_X_HI) ? EN_A
+           : WITHIN(x, BUTTONB_X_LO, BUTTONB_X_HI) ? EN_B
+           : WITHIN(x, BUTTONC_X_LO, BUTTONC_X_HI) ? EN_C
            : 0;
 
-    if ( !WITHIN(x, SCREEN_PCT_LEFT, SCREEN_PCT_LEFT + SCREEN_PCT_WIDTH)
-      || !WITHIN(y, SCREEN_PCT_TOP,  SCREEN_PCT_TOP  + SCREEN_PCT_HEIGHT)
+    if ( !WITHIN(x, DOGM_AREA_LEFT, DOGM_AREA_LEFT + DOGM_AREA_WIDTH)
+      || !WITHIN(y, DOGM_AREA_TOP,  DOGM_AREA_TOP  + DOGM_AREA_HEIGHT)
     ) return 0;
 
     // Column and row above BUTTON_AREA_TOP
-    int8_t col = (x - (SCREEN_PCT_LEFT)) * (LCD_WIDTH)  / (SCREEN_PCT_WIDTH),
-           row = (y - (SCREEN_PCT_TOP))  * (LCD_HEIGHT) / (SCREEN_PCT_HEIGHT);
+    int8_t col = (x - (DOGM_AREA_LEFT)) * (LCD_WIDTH)  / (DOGM_AREA_WIDTH),
+           row = (y - (DOGM_AREA_TOP))  * (LCD_HEIGHT) / (DOGM_AREA_HEIGHT);
 
     // Send the touch to the UI (which will simulate the encoder wheel)
     MarlinUI::screen_click(row, col, x, y);

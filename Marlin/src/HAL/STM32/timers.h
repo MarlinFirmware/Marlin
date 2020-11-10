@@ -43,6 +43,8 @@
 #define hal_timer_t uint32_t
 #define HAL_TIMER_TYPE_MAX UINT16_MAX
 
+#define NUM_HARDWARE_TIMERS 2
+
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
 #endif
@@ -103,7 +105,7 @@ void SetTimerInterruptPriorities();
 
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_num) {
-  return timer_instance[timer_num] != NULL;
+  return timer_instance[timer_num] != nullptr;
 }
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return HAL_timer_initialized(timer_num) ? timer_instance[timer_num]->getCount() : 0;
