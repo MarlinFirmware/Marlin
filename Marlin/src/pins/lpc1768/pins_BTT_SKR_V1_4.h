@@ -29,6 +29,14 @@
   #define BOARD_CUSTOM_BUILD_FLAGS -DLPC_PINCFG_UART3_P4_28
 #endif
 
+// If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
+// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
+//#define HAS_BTT_EXP_MOT 1
+
+#if BOTH(HAS_WIRED_LCD,HAS_BTT_EXP_MOT)
+  #ERROR "Having a LCD on EXP1/EXP2 and a expantion motor module on EXP1/EXP2 is not possable."
+#endif
+
 //
 // SD Connection
 //
@@ -208,9 +216,6 @@
   #define E1_SERIAL_TX_PIN                 P1_01
   #define E1_SERIAL_RX_PIN                 P1_01
 
-  #define Z2_SERIAL_TX_PIN                 P1_01
-  #define Z2_SERIAL_RX_PIN                 P1_01
-
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
 #endif
@@ -232,7 +237,7 @@
  *               -----                                             -----
  *               EXP2                                              EXP1
  */
-#if HAS_WIRED_LCD
+#if HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
@@ -435,7 +440,43 @@
 
   #endif // HAS_MARLINUI_U8GLIB
 
-#endif // HAS_WIRED_LCD
+// HAS_WIRED_LCD
+#elif HAS_BTT_EXP_MOT 
+/*               _____                                      _____
+ *           NC | · · | GND                             NC | · · | GND
+ *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
+ * (M1STP) 0.18 | · · < 3.25 (M1DIR)           (M1RX) 1.21 | · · < 1.20 (M1DIAG)
+ * (M2DIR) 0.16 | · · | 3.26 (M2STP)           (M2RX) 1.19 | · · | 1.18 (M2DIAG)
+ * (M3DIR) 0.15 | · · | 0.17 (M3STP)           (M3RX) 0.28 | · · | 1.30 (M3DIAG)
+ *               -----                                      -----
+ *               EXP2                                       EXP1
+ */
+
+  // M1 on Driver Expansion Module
+  #define E2_STEP_PIN                      P0_18
+  #define E2_DIR_PIN                       P3_25
+  #define E2_ENABLE_PIN                    P1_31
+  #define E2_DIAG_PIN                      P1_20
+  #define E2_CS_PIN                        P1_21
+  #define E2_SERIAL_TX_PIN                 P1_21
+  #define E2_SERIAL_RX_PIN                 P1_21
+  // M2 on Driver Expansion Module
+  #define E3_STEP_PIN                      P3_26
+  #define E3_DIR_PIN                       P0_16
+  #define E3_ENABLE_PIN                    P1_23
+  #define E3_DIAG_PIN                      P1_18
+  #define E3_CS_PIN                        P1_19
+  #define E3_SERIAL_TX_PIN                 P1_19
+  #define E3_SERIAL_RX_PIN                 P1_19
+  // M3 on Driver Expansion Module
+  #define E4_STEP_PIN                      P0_17
+  #define E4_DIR_PIN                       P0_15
+  #define E4_ENABLE_PIN                    P1_22
+  #define E4_DIAG_PIN                      P1_30
+  #define E4_CS_PIN                        P0_28
+  #define E4_SERIAL_TX_PIN                 P0_28
+  #define E4_SERIAL_RX_PIN                 P0_28
+#endif // HAS_BTT_EXP_MOT
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
