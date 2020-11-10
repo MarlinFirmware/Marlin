@@ -33,10 +33,6 @@
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define HAS_BTT_EXP_MOT 1
 
-#if BOTH(HAS_WIRED_LCD,HAS_BTT_EXP_MOT)
-  #ERROR "Having a LCD on EXP1/EXP2 and a expantion motor module on EXP1/EXP2 is not possable."
-#endif
-
 //
 // SD Connection
 //
@@ -220,23 +216,52 @@
   #define TMC_BAUD_RATE                    19200
 #endif
 
+/*               _____                        _____
+ *           NC | 1 2 | GND               5V | 1 2 | GND
+ *        RESET | 3 4 | 1.31            1.23 | 3 4 | 1.22
+ *         0.18 | 5 6   3.25            1.21 | 5 6   1.20
+ *         0.16 | 7 8 | 3.26            1.19 | 7 8 | 1.18
+ *         0.15 | 9 10| 0.17            0.28 | 9 10| 1.30
+ *               -----                        -----
+ *               EXP2                         EXP1
+ */
+
+#define EXPA1_03_PIN                       P1_23
+#define EXPA1_04_PIN                       P1_22
+#define EXPA1_05_PIN                       P1_21
+#define EXPA1_06_PIN                       P1_20
+#define EXPA1_07_PIN                       P1_19
+#define EXPA1_08_PIN                       P1_18
+#define EXPA1_09_PIN                       P0_28
+#define EXPA1_10_PIN                       P1_30
+
+#define EXPA2_03_PIN                       -1
+#define EXPA2_04_PIN                       P1_31
+#define EXPA2_05_PIN                       P0_18
+#define EXPA2_06_PIN                       P3_25
+#define EXPA2_07_PIN                       P0_16
+#define EXPA2_08_PIN                       P3_26
+#define EXPA2_09_PIN                       P0_15
+#define EXPA2_10_PIN                       P0_17
+
 //
 // SD Connection
 //
 #if SD_CONNECTION_IS(LCD)
-  #define SS_PIN                           P0_16
+  #define SS_PIN                           EXPA2_07_PIN
 #endif
 
 /**
  *               _____                                             _____
  *           NC | · · | GND                                    5V | · · | GND
  *        RESET | · · | 1.31 (SD_DETECT)            (LCD_D7) 1.23 | · · | 1.22 (LCD_D6)
- *  (MOSI) 0.18 | · · | 3.25 (BTN_EN2)              (LCD_D5) 1.21 | · · | 1.20 (LCD_D4)
+ *  (MOSI) 0.18 | · ·   3.25 (BTN_EN2)              (LCD_D5) 1.21 | · ·   1.20 (LCD_D4)
  * (SD_SS) 0.16 | · · | 3.26 (BTN_EN1)              (LCD_RS) 1.19 | · · | 1.18 (LCD_EN)
  *   (SCK) 0.15 | · · | 0.17 (MISO)                (BTN_ENC) 0.28 | · · | 1.30 (BEEPER)
  *               -----                                             -----
  *               EXP2                                              EXP1
  */
+
 #if HAS_WIRED_LCD && !HAS_BTT_EXP_MOT
   #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
     #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
@@ -265,24 +290,24 @@
     *                   LCD                             LCD
     */
 
-    #define LCD_PINS_RS                    P1_23
+    #define LCD_PINS_RS                    EXPA1_03_PIN
 
-    #define BTN_EN1                        P1_20
-    #define BTN_EN2                        P1_22
-    #define BTN_ENC                        P1_18
+    #define BTN_EN1                        EXPA1_06_PIN
+    #define BTN_EN2                        EXPA1_04_PIN
+    #define BTN_ENC                        EXPA1_08_PIN
 
-    #define LCD_PINS_ENABLE                P1_21
-    #define LCD_PINS_D4                    P1_19
+    #define LCD_PINS_ENABLE                EXPA1_05_PIN
+    #define LCD_PINS_D4                    EXPA1_07_PIN
 
   #elif ENABLED(CR10_STOCKDISPLAY)
-    #define BTN_ENC                        P0_28  // (58) open-drain
-    #define LCD_PINS_RS                    P1_22
+    #define BTN_ENC                        EXPA1_09_PIN  // (58) open-drain
+    #define LCD_PINS_RS                    EXPA1_04_PIN
 
-    #define BTN_EN1                        P1_18
-    #define BTN_EN2                        P1_20
+    #define BTN_EN1                        EXPA1_08_PIN
+    #define BTN_EN2                        EXPA1_06_PIN
 
-    #define LCD_PINS_ENABLE                P1_23
-    #define LCD_PINS_D4                    P1_21
+    #define LCD_PINS_ENABLE                EXPA1_03_PIN
+    #define LCD_PINS_D4                    EXPA1_05_PIN
 
   #elif ENABLED(ENDER2_STOCKDISPLAY)
 
@@ -297,36 +322,36 @@
      *                    EXP1
      */
 
-    #define BTN_EN1                        P1_18
-    #define BTN_EN2                        P1_20
-    #define BTN_ENC                        P0_28
+    #define BTN_EN1                        EXPA1_08_PIN
+    #define BTN_EN2                        EXPA1_06_PIN
+    #define BTN_ENC                        EXPA1_09_PIN
 
-    #define DOGLCD_CS                      P1_22
-    #define DOGLCD_A0                      P1_21
-    #define DOGLCD_SCK                     P1_30
-    #define DOGLCD_MOSI                    P1_23
+    #define DOGLCD_CS                      EXPA1_04_PIN
+    #define DOGLCD_A0                      EXPA1_05_PIN
+    #define DOGLCD_SCK                     EXPA1_10_PIN
+    #define DOGLCD_MOSI                    EXPA1_03_PIN
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN              -1
 
   #elif HAS_SPI_TFT                               // Config for Classic UI (emulated DOGM) and Color UI
-    #define TFT_CS_PIN                     P1_22
-    #define TFT_A0_PIN                     P1_23
-    #define TFT_DC_PIN                     P1_23
-    #define TFT_MISO_PIN                   P0_17
-    #define TFT_BACKLIGHT_PIN              P1_18
-    #define TFT_RESET_PIN                  P1_19
+    #define TFT_CS_PIN                     EXPA1_04_PIN
+    #define TFT_A0_PIN                     EXPA1_03_PIN
+    #define TFT_DC_PIN                     EXPA1_03_PIN
+    #define TFT_MISO_PIN                   EXPA2_10_PIN
+    #define TFT_BACKLIGHT_PIN              EXPA1_08_PIN
+    #define TFT_RESET_PIN                  EXPA1_07_PIN
 
     #define LCD_USE_DMA_SPI
 
-    #define TOUCH_INT_PIN                  P1_21
-    #define TOUCH_CS_PIN                   P1_20
+    #define TOUCH_INT_PIN                  EXPA1_05_PIN
+    #define TOUCH_CS_PIN                   EXPA1_06_PIN
     #define TOUCH_BUTTONS_HW_SPI
     #define TOUCH_BUTTONS_HW_SPI_DEVICE        1
 
     // SPI 1
-    #define SCK_PIN                        P0_15
-    #define MISO_PIN                       P0_17
-    #define MOSI_PIN                       P0_18
+    #define SCK_PIN                        EXPA2_09_PIN
+    #define MISO_PIN                       EXPA2_10_PIN
+    #define MOSI_PIN                       EXPA2_05_PIN
 
     // Disable any LCD related PINs config
     #define LCD_PINS_ENABLE                -1
@@ -366,72 +391,72 @@
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS                   P3_26
+      #define TFTGLCD_CS                   EXPA2_08_PIN
     #endif
 
-    #define SD_DETECT_PIN                  P1_31
+    #define SD_DETECT_PIN                  EXPA2_04_PIN
 
   #else
 
-    #define BTN_ENC                        P0_28  // (58) open-drain
-    #define LCD_PINS_RS                    P1_19
+    #define BTN_ENC                        EXPA1_09_PIN  // (58) open-drain
+    #define LCD_PINS_RS                    EXPA1_07_PIN
 
-    #define BTN_EN1                        P3_26  // (31) J3-2 & AUX-4
-    #define BTN_EN2                        P3_25  // (33) J3-4 & AUX-4
+    #define BTN_EN1                        EXPA2_08_PIN  // (31) J3-2 & AUX-4
+    #define BTN_EN2                        EXPA2_06_PIN  // (33) J3-4 & AUX-4
 
-    #define LCD_PINS_ENABLE                P1_18
-    #define LCD_PINS_D4                    P1_20
+    #define LCD_PINS_ENABLE                EXPA1_08_PIN
+    #define LCD_PINS_D4                    EXPA1_06_PIN
 
-    #define LCD_SDSS                       P0_16  // (16) J3-7 & AUX-4
+    #define LCD_SDSS                       EXPA2_07_PIN  // (16) J3-7 & AUX-4
 
     #if SD_CONNECTION_IS(LCD)
-      #define SD_DETECT_PIN                P1_31  // (49) (NOT 5V tolerant)
+      #define SD_DETECT_PIN                EXPA2_04_PIN  // (49) (NOT 5V tolerant)
     #endif
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS                    P1_18
-      #define DOGLCD_A0                    P1_19
-      #define DOGLCD_SCK                   P0_15
-      #define DOGLCD_MOSI                  P0_18
+      #define DOGLCD_CS                    EXPA1_08_PIN
+      #define DOGLCD_A0                    EXPA1_07_PIN
+      #define DOGLCD_SCK                   EXPA2_09_PIN
+      #define DOGLCD_MOSI                  EXPA2_05_PIN
 
       #define LCD_BACKLIGHT_PIN            -1
 
       #define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 
-      #define LCD_RESET_PIN                P1_20  // Must be high or open for LCD to operate normally.
+      #define LCD_RESET_PIN                EXPA1_06_PIN  // Must be high or open for LCD to operate normally.
 
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN            P1_21
+          #define RGB_LED_R_PIN            EXPA1_05_PIN
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN            P1_22
+          #define RGB_LED_G_PIN            EXPA1_04_PIN
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN            P1_23
+          #define RGB_LED_B_PIN            EXPA1_03_PIN
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN               P1_21
+        #define NEOPIXEL_PIN               EXPA1_05_PIN
       #endif
 
     #else                                         // !FYSETC_MINI_12864
 
       #if ENABLED(MKS_MINI_12864)
-        #define DOGLCD_CS                  P1_21
-        #define DOGLCD_A0                  P1_22
-        #define DOGLCD_SCK                 P0_15
-        #define DOGLCD_MOSI                P0_18
+        #define DOGLCD_CS                  EXPA1_05_PIN
+        #define DOGLCD_A0                  EXPA1_04_PIN
+        #define DOGLCD_SCK                 EXPA2_09_PIN
+        #define DOGLCD_MOSI                EXPA2_05_PIN
         #define FORCE_SOFT_SPI
       #endif
 
       #if IS_ULTIPANEL
-        #define LCD_PINS_D5                P1_21
-        #define LCD_PINS_D6                P1_22
-        #define LCD_PINS_D7                P1_23
+        #define LCD_PINS_D5                EXPA1_05_PIN
+        #define LCD_PINS_D6                EXPA1_04_PIN
+        #define LCD_PINS_D7                EXPA1_03_PIN
 
         #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+          #define BTN_ENC_EN               EXPA1_03_PIN  // Detect the presence of the encoder
         #endif
 
       #endif
@@ -440,43 +465,7 @@
 
   #endif // HAS_MARLINUI_U8GLIB
 
-// HAS_WIRED_LCD
-#elif HAS_BTT_EXP_MOT 
-/*               _____                                      _____
- *           NC | · · | GND                             NC | · · | GND
- *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
- * (M1STP) 0.18 | · · < 3.25 (M1DIR)           (M1RX) 1.21 | · · < 1.20 (M1DIAG)
- * (M2DIR) 0.16 | · · | 3.26 (M2STP)           (M2RX) 1.19 | · · | 1.18 (M2DIAG)
- * (M3DIR) 0.15 | · · | 0.17 (M3STP)           (M3RX) 0.28 | · · | 1.30 (M3DIAG)
- *               -----                                      -----
- *               EXP2                                       EXP1
- */
-
-  // M1 on Driver Expansion Module
-  #define E2_STEP_PIN                      P0_18
-  #define E2_DIR_PIN                       P3_25
-  #define E2_ENABLE_PIN                    P1_31
-  #define E2_DIAG_PIN                      P1_20
-  #define E2_CS_PIN                        P1_21
-  #define E2_SERIAL_TX_PIN                 P1_21
-  #define E2_SERIAL_RX_PIN                 P1_21
-  // M2 on Driver Expansion Module
-  #define E3_STEP_PIN                      P3_26
-  #define E3_DIR_PIN                       P0_16
-  #define E3_ENABLE_PIN                    P1_23
-  #define E3_DIAG_PIN                      P1_18
-  #define E3_CS_PIN                        P1_19
-  #define E3_SERIAL_TX_PIN                 P1_19
-  #define E3_SERIAL_RX_PIN                 P1_19
-  // M3 on Driver Expansion Module
-  #define E4_STEP_PIN                      P0_17
-  #define E4_DIR_PIN                       P0_15
-  #define E4_ENABLE_PIN                    P1_22
-  #define E4_DIAG_PIN                      P1_30
-  #define E4_CS_PIN                        P0_28
-  #define E4_SERIAL_TX_PIN                 P0_28
-  #define E4_SERIAL_RX_PIN                 P0_28
-#endif // HAS_BTT_EXP_MOT
+#endif // HAS_WIRED_LCD
 
 #if HAS_ADC_BUTTONS
   #error "ADC BUTTONS do not work unmodifed on SKR 1.4, The ADC ports cannot take more than 3.3v."
