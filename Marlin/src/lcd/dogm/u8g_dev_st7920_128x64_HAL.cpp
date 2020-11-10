@@ -55,7 +55,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include "HAL_LCD_com_defines.h"
 
@@ -201,8 +201,8 @@ u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi = { u8g_dev_st7920_128x64_HAL_4x_f
 
 #if NONE(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32) || defined(U8G_HAL_LINKS)
   // Also use this device for HAL version of rrd class. This results in the same device being used
-  // for the ST7920 for HAL systems no matter what is selected in ultralcd_impl_DOGM.h.
+  // for the ST7920 for HAL systems no matter what is selected in marlinui_DOGM.h.
   u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 #endif
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB

@@ -1,6 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,13 +82,15 @@ enum TouchControlType : uint16_t {
   FEEDRATE,
   FLOWRATE,
   UBL,
+  MOVE_AXIS,
+  BUTTON,
 };
 
 typedef void (*screenFunc_t)();
 
-void add_control(uint16_t x, uint16_t y, TouchControlType control_type, int32_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
+void add_control(uint16_t x, uint16_t y, TouchControlType control_type, intptr_t data, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED);
 inline void add_control(uint16_t x, uint16_t y, TouchControlType control_type, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, control_type, 0, image, is_enabled, color_enabled, color_disabled); }
-inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (int32_t)screen, image, is_enabled, color_enabled, color_disabled); }
+inline void add_control(uint16_t x, uint16_t y, screenFunc_t screen, MarlinImage image, bool is_enabled = true, uint16_t color_enabled = COLOR_CONTROL_ENABLED, uint16_t color_disabled = COLOR_CONTROL_DISABLED) { add_control(x, y, MENU_SCREEN, (intptr_t)screen, image, is_enabled, color_enabled, color_disabled); }
 
 typedef struct __attribute__((__packed__)) {
   TouchControlType type;
@@ -93,7 +98,7 @@ typedef struct __attribute__((__packed__)) {
   uint16_t y;
   uint16_t width;
   uint16_t height;
-  int32_t data;
+  intptr_t data;
 } touch_control_t;
 
 typedef struct __attribute__((__packed__)) {
@@ -132,15 +137,13 @@ class Touch {
   private:
     static TOUCH_DRIVER io;
     static int16_t x, y;
+    static bool enabled;
 
     static touch_control_t controls[MAX_CONTROLS];
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t now;
-    static millis_t time_to_hold;
-    static millis_t repeat_delay;
-    static millis_t touch_time;
+    static millis_t last_touch_ms, time_to_hold, repeat_delay, touch_time;
     static TouchControlType touch_control_type;
 
     static inline bool get_point(int16_t *x, int16_t *y);
@@ -158,12 +161,20 @@ class Touch {
 
   public:
     static void init();
-    static void reset() { controls_count = 0; touch_time = -1; current_control = NULL; }
+    static void reset() { controls_count = 0; touch_time = 0; current_control = NULL; }
     static void clear() { controls_count = 0; }
     static void idle();
-    static bool is_clicked() { return touch_control_type == CLICK; }
+    static bool is_clicked() {
+      if (touch_control_type == CLICK) {
+        touch_control_type = NONE;
+        return true;
+      }
+      return false;
+    }
+    static void disable() { enabled = false; }
+    static void enable() { enabled = true; }
 
-    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, int32_t data = 0);
+    static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, intptr_t data = 0);
 
     static touch_calibration_t calibration;
     static void calibration_reset() { calibration = {TOUCH_CALIBRATION_X, TOUCH_CALIBRATION_Y, TOUCH_OFFSET_X, TOUCH_OFFSET_Y, TOUCH_ORIENTATION}; }

@@ -41,7 +41,6 @@
  */
 
 /**
- *
  * A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
  * The servos are pulsed in the background using the value most recently written using the write() method
  *
@@ -71,6 +70,8 @@
   #include "../TEENSY31_32/Servo.h"
 #elif IS_TEENSY35 || IS_TEENSY36
   #include "../TEENSY35_36/Servo.h"
+#elif IS_TEENSY40 || IS_TEENSY41
+  #include "../TEENSY40_41/Servo.h"
 #elif defined(TARGET_LPC1768)
   #include "../LPC1768/Servo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)

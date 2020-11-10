@@ -27,7 +27,7 @@
  * Shield - https://github.com/jmz52/Hardware
  */
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Black STM32F4VET6 supports up to 2 hotends / E-steppers."
@@ -41,7 +41,7 @@
 
 //#define I2C_EEPROM
 #define SRAM_EEPROM_EMULATION
-#define MARLIN_EEPROM_SIZE 0x2000                 // 8KB
+#define MARLIN_EEPROM_SIZE                0x2000  // 8KB
 
 //
 // Servos

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
@@ -225,7 +225,7 @@
 //
 // All the above are also RRDSC with rotary encoder
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BTN_EN1                              2
   #define BTN_EN2                             12
   #define BTN_ENC                             29

@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -43,7 +42,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tarcheta sacada");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu prencipal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inicio automatico");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inicio automatico");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Amortar motors");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Levar a l'orichen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Orichen X");

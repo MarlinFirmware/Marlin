@@ -89,13 +89,10 @@ void TFT_FSMC::Init() {
   uint8_t cs = FSMC_CS_PIN, rs = FSMC_RS_PIN;
   uint32_t controllerAddress;
 
-  #if PIN_EXISTS(TFT_RESET)
-    OUT_WRITE(TFT_RESET_PIN, HIGH);
-    delay(100);
-  #endif
-
-  #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, HIGH);
+  #if ENABLED(LCD_USE_DMA_FSMC)
+    dma_init(FSMC_DMA_DEV);
+    dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+    dma_set_priority(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, DMA_PRIORITY_MEDIUM);
   #endif
 
   struct fsmc_nor_psram_reg_map* fsmcPsramRegion;
@@ -201,6 +198,8 @@ uint32_t TFT_FSMC::GetID() {
     id = ReadID(LCD_READ_ID);
   if ((id & 0xFFFF) == 0 || (id & 0xFFFF) == 0xFFFF)
     id = ReadID(LCD_READ_ID4);
+  if ((id & 0xFF00) == 0 && (id & 0xFF) != 0)
+    id = ReadID(LCD_READ_ID4);
   return id;
 }
 
@@ -224,13 +223,15 @@ void TFT_FSMC::Abort() {
 }
 
 void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
-  dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
-  dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
-  dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
-  dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+  #if defined(FSMC_DMA_DEV) && defined(FSMC_DMA_CHANNEL)
+    dma_setup_transfer(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Data, DMA_SIZE_16BITS, &LCD->RAM, DMA_SIZE_16BITS, DMA_MEM_2_MEM | MemoryIncrease);
+    dma_set_num_transfers(FSMC_DMA_DEV, FSMC_DMA_CHANNEL, Count);
+    dma_clear_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+    dma_enable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
 
-  while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & 0x0A) == 0) {};
-  dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+    while ((dma_get_isr_bits(FSMC_DMA_DEV, FSMC_DMA_CHANNEL) & 0x0A) == 0) {};
+    dma_disable(FSMC_DMA_DEV, FSMC_DMA_CHANNEL);
+  #endif
 }
 
 #endif // HAS_FSMC_TFT

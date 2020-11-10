@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Utility functions to access memory
  **************************************************************************/
@@ -20,124 +20,139 @@
 /* Validate address */
 
 #ifdef ARDUINO_ARCH_SAM
-// For DUE, valid address ranges are
-//  SRAM  (0x20070000 - 0x20088000) (96kb)
-//  FLASH (0x00080000 - 0x00100000) (512kb)
-//
-#define START_SRAM_ADDR   0x20070000
-#define END_SRAM_ADDR     0x20088000
-#define START_FLASH_ADDR  0x00080000
-#define END_FLASH_ADDR    0x00100000
-#endif
 
-#ifdef TARGET_LPC1768
-// For LPC1769:
-//  SRAM  (0x10000000 - 0x10008000) (32kb)
-//  FLASH (0x00000000 - 0x00080000) (512kb)
-//
-#define START_SRAM_ADDR   0x10000000
-#define END_SRAM_ADDR     0x10008000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00080000
-#endif
+  // For DUE, valid address ranges are
+  //  SRAM  (0x20070000 - 0x20088000) (96kb)
+  //  FLASH (0x00080000 - 0x00100000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x20070000
+  #define END_SRAM_ADDR     0x20088000
+  #define START_FLASH_ADDR  0x00080000
+  #define END_FLASH_ADDR    0x00100000
 
-#if 0
-// For STM32F103CBT6
-//  SRAM  (0x20000000 - 0x20005000) (20kb)
-//  FLASH (0x00000000 - 0x00020000) (128kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20005000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00020000
-#endif
+#elif defined(TARGET_LPC1768)
 
-#if defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx)
-// For STM32F103ZET6/STM32F103VET6/STM32F0xx
-//  SRAM  (0x20000000 - 0x20010000) (64kb)
-//  FLASH (0x00000000 - 0x00080000) (512kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20010000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00080000
-#endif
+  // For LPC1769:
+  //  SRAM  (0x10000000 - 0x10008000) (32kb)
+  //  FLASH (0x00000000 - 0x00080000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x10000000
+  #define END_SRAM_ADDR     0x10008000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00080000
 
-#if defined(STM32F4) || defined(STM32F4xx)
-// For STM32F407VET
-//  SRAM  (0x20000000 - 0x20030000) (192kb)
-//  FLASH (0x08000000 - 0x08080000) (512kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20030000
-#define START_FLASH_ADDR  0x08000000
-#define END_FLASH_ADDR    0x08080000
-#endif
+#elif 0
 
-#if MB(THE_BORG)
-// For STM32F765 in BORG
-//  SRAM  (0x20000000 - 0x20080000) (512kb)
-//  FLASH (0x08000000 - 0x08100000) (1024kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20080000
-#define START_FLASH_ADDR  0x08000000
-#define END_FLASH_ADDR    0x08100000
-#endif
+  // For STM32F103CBT6
+  //  SRAM  (0x20000000 - 0x20005000) (20kb)
+  //  FLASH (0x00000000 - 0x00020000) (128kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20005000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00020000
 
-#if MB(REMRAM_V1)
-// For STM32F765VI in RemRam v1
-//  SRAM  (0x20000000 - 0x20080000) (512kb)
-//  FLASH (0x08000000 - 0x08200000) (2048kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20080000
-#define START_FLASH_ADDR  0x08000000
-#define END_FLASH_ADDR    0x08200000
-#endif
+#elif defined(__STM32F1__) || defined(STM32F1xx) || defined(STM32F0xx)
 
-#ifdef __MK20DX256__
-// For MK20DX256 in TEENSY 3.1 or TEENSY 3.2
-//  SRAM  (0x1FFF8000 - 0x20008000) (64kb)
-//  FLASH (0x00000000 - 0x00040000) (256kb)
-//
-#define START_SRAM_ADDR   0x1FFF8000
-#define END_SRAM_ADDR     0x20008000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00040000
-#endif
+  // For STM32F103ZET6/STM32F103VET6/STM32F0xx
+  //  SRAM  (0x20000000 - 0x20010000) (64kb)
+  //  FLASH (0x00000000 - 0x00080000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20010000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00080000
 
-#ifdef __MK64FX512__
-// For MK64FX512 in TEENSY 3.5
-//  SRAM  (0x1FFF0000 - 0x20020000) (192kb)
-//  FLASH (0x00000000 - 0x00080000) (512kb)
-//
-#define START_SRAM_ADDR   0x1FFF0000
-#define END_SRAM_ADDR     0x20020000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00080000
-#endif
+#elif defined(STM32F4) || defined(STM32F4xx)
 
-#ifdef __MK66FX1M0__
-// For MK66FX1M0 in TEENSY 3.6
-//  SRAM  (0x1FFF0000 - 0x20030000) (256kb)
-//  FLASH (0x00000000 - 0x00140000) (1.25Mb)
-//
-#define START_SRAM_ADDR   0x1FFF0000
-#define END_SRAM_ADDR     0x20030000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00140000
-#endif
+  // For STM32F407VET
+  //  SRAM  (0x20000000 - 0x20030000) (192kb)
+  //  FLASH (0x08000000 - 0x08080000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20030000
+  #define START_FLASH_ADDR  0x08000000
+  #define END_FLASH_ADDR    0x08080000
 
-#ifdef __SAMD51P20A__
-// For SAMD51x20, valid address ranges are
-//  SRAM  (0x20000000 - 0x20040000) (256kb)
-//  FLASH (0x00000000 - 0x00100000) (1024kb)
-//
-#define START_SRAM_ADDR   0x20000000
-#define END_SRAM_ADDR     0x20040000
-#define START_FLASH_ADDR  0x00000000
-#define END_FLASH_ADDR    0x00100000
+#elif MB(THE_BORG)
+
+  // For STM32F765 in BORG
+  //  SRAM  (0x20000000 - 0x20080000) (512kb)
+  //  FLASH (0x08000000 - 0x08100000) (1024kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20080000
+  #define START_FLASH_ADDR  0x08000000
+  #define END_FLASH_ADDR    0x08100000
+
+#elif MB(REMRAM_V1, NUCLEO_F767ZI)
+
+  // For STM32F765VI in RemRam v1
+  //  SRAM  (0x20000000 - 0x20080000) (512kb)
+  //  FLASH (0x08000000 - 0x08200000) (2048kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20080000
+  #define START_FLASH_ADDR  0x08000000
+  #define END_FLASH_ADDR    0x08200000
+
+#elif defined(__MK20DX256__)
+
+  // For MK20DX256 in TEENSY 3.1 or TEENSY 3.2
+  //  SRAM  (0x1FFF8000 - 0x20008000) (64kb)
+  //  FLASH (0x00000000 - 0x00040000) (256kb)
+  //
+  #define START_SRAM_ADDR   0x1FFF8000
+  #define END_SRAM_ADDR     0x20008000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00040000
+
+#elif defined(__MK64FX512__)
+
+  // For MK64FX512 in TEENSY 3.5
+  //  SRAM  (0x1FFF0000 - 0x20020000) (192kb)
+  //  FLASH (0x00000000 - 0x00080000) (512kb)
+  //
+  #define START_SRAM_ADDR   0x1FFF0000
+  #define END_SRAM_ADDR     0x20020000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00080000
+
+#elif defined(__MK66FX1M0__)
+
+  // For MK66FX1M0 in TEENSY 3.6
+  //  SRAM  (0x1FFF0000 - 0x20030000) (256kb)
+  //  FLASH (0x00000000 - 0x00140000) (1.25Mb)
+  //
+  #define START_SRAM_ADDR   0x1FFF0000
+  #define END_SRAM_ADDR     0x20030000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00140000
+
+#elif defined(__IMXRT1062__)
+
+  // For IMXRT1062 in TEENSY 4.0/4/1
+  //  ITCM (rwx):  ORIGIN = 0x00000000, LENGTH = 512K
+  //  DTCM (rwx):  ORIGIN = 0x20000000, LENGTH = 512K
+  //  RAM (rwx):   ORIGIN = 0x20200000, LENGTH = 512K
+  //  FLASH (rwx): ORIGIN = 0x60000000, LENGTH = 1984K
+  //
+  #define START_SRAM_ADDR   0x00000000
+  #define END_SRAM_ADDR     0x20280000
+  #define START_FLASH_ADDR  0x60000000
+  #define END_FLASH_ADDR    0x601F0000
+
+#elif defined(__SAMD51P20A__)
+
+  // For SAMD51x20, valid address ranges are
+  //  SRAM  (0x20000000 - 0x20040000) (256kb)
+  //  FLASH (0x00000000 - 0x00100000) (1024kb)
+  //
+  #define START_SRAM_ADDR   0x20000000
+  #define END_SRAM_ADDR     0x20040000
+  #define START_FLASH_ADDR  0x00000000
+  #define END_FLASH_ADDR    0x00100000
+
 #endif
 
 static bool validate_addr(uint32_t addr) {
@@ -177,4 +192,4 @@ bool UnwReadB(const uint32_t a, uint8_t *v) {
   return true;
 }
 
-#endif
+#endif // __arm__ || __thumb__

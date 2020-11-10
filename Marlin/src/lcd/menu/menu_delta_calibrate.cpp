@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/delta.h"
 #include "../../module/motion.h"
 
@@ -118,7 +118,7 @@ void lcd_delta_settings() {
 }
 
 void menu_delta_calibrate() {
-  const bool all_homed = all_axes_homed();
+  TERN_(DELTA_CALIBRATION_MENU, const bool all_homed = all_axes_homed()); // Acquire ahead of loop
 
   START_MENU();
   BACK_ITEM(MSG_MAIN);

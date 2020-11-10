@@ -18,7 +18,7 @@
  */
 #pragma once
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "LERDGE X supports only one hotend / E-steppers"
@@ -27,8 +27,8 @@
 #define BOARD_INFO_NAME      "Lerdge X"
 #define DEFAULT_MACHINE_NAME "LERDGE"
 
-#define STEP_TIMER 4
-#define TEMP_TIMER 2
+#define STEP_TIMER                             4
+#define TEMP_TIMER                             2
 
 #define I2C_EEPROM
 
@@ -115,7 +115,7 @@
 #define KILL_PIN                            -1
 
 // Lerdge supports auto-power off and power loss sense through a single pin.
-#define POWER_LOSS_PIN                      PC14    // Power-loss / nAC_FAULT
+#define POWER_LOSS_PIN                      PC14  // Power-loss / nAC_FAULT
 
 #define SCK_PIN                             PC12
 #define MISO_PIN                            PC8
