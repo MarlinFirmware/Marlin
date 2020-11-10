@@ -164,7 +164,7 @@
 
 #define SDIO_SUPPORT
 #define SDIO_CLOCK                       4500000  // 4.5 MHz
-#define SD_DETECT_PIN                       -1
+#define SD_DETECT_PIN                       -1    // Set this to PF12 if you got an MKS Robin v2.4 board
 #define ONBOARD_SD_CS_PIN                   PC11
 
 //
@@ -281,20 +281,32 @@
 // Trinamic TMC2208/2209 UART
 //
 #if HAS_TMC_UART
-  // Hardware serial on Serial 1
+
+  /**
+   * TMC2208/TMC2209 stepper drivers
+   *
+   * Hardware serial communication ports.
+   * If undefined software serial is used according to the pins below
+   */
+
+  // Hardware serial on MSerial 0
+  // It seems like MSerial0 is the better choice for most MKS Robin users.
+  // If you have issues to setup an hardware serial connection on MSerial0 for your Trinamic drivers,
+  // please try MSerial1.
+  
   #define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
-    #define X_HARDWARE_SERIAL               Serial1
-    #define X2_HARDWARE_SERIAL              Serial1
-    #define Y_HARDWARE_SERIAL               Serial1
-    #define Y2_HARDWARE_SERIAL              Serial1
-    #define Z_HARDWARE_SERIAL               Serial1
-    #define Z2_HARDWARE_SERIAL              Serial1
-    #define E0_HARDWARE_SERIAL              Serial1
-    #define E1_HARDWARE_SERIAL              Serial1
-    #define E2_HARDWARE_SERIAL              Serial1
-    #define E3_HARDWARE_SERIAL              Serial1
-    #define E4_HARDWARE_SERIAL              Serial1
+    #define X_HARDWARE_SERIAL            MSerial0
+    #define X2_HARDWARE_SERIAL           MSerial0
+    #define Y_HARDWARE_SERIAL            MSerial0
+    #define Y2_HARDWARE_SERIAL           MSerial0
+    #define Z_HARDWARE_SERIAL            MSerial0
+    #define Z2_HARDWARE_SERIAL           MSerial0
+    #define E0_HARDWARE_SERIAL           MSerial0
+    #define E1_HARDWARE_SERIAL           MSerial0
+    #define E2_HARDWARE_SERIAL           MSerial0
+    #define E3_HARDWARE_SERIAL           MSerial0
+    #define E4_HARDWARE_SERIAL           MSerial0
   #endif
 
   // Software serial on unused servo pins
