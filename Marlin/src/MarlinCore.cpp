@@ -509,7 +509,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     kill();
   }
 
-  // M18 / M94 : Handle steppers inactive time timeout
+  // M18 / M84 : Handle steppers inactive time timeout
   if (gcode.stepper_inactive_time) {
 
     static bool already_shutdown_steppers; // = false
