@@ -1512,11 +1512,7 @@ SERIAL_ECHOLN(PSTR("BeginSwitch"));
       {
         if(
           #if (FIL_RUNOUT_STATE == LOW)
-<<<<<<< HEAD
             #define FIL_RUNOUT_INVERTING false
-=======
-            #define FIL_RUNOUT_INVERTING true
->>>>>>> 6f5430f00aeb765aa1a63b2db9950f48fd85e95d
           #endif
         #if DISABLED(FILAMENT_RUNOUT_SENSOR) || ENABLED(FILAMENT_MOTION_SENSOR)
           true
