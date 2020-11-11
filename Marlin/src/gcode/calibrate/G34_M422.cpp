@@ -51,51 +51,36 @@
 /**
  * G34: Z-Stepper automatic alignment
  *
+ *   L                 Unlock all
+ *   Z<1-4>            Set separate multi-axis and lock/unlock a Z stepper
+ *
+ * With Z_STEPPER_AUTO_ALIGN:
  *   I<iterations>
  *   T<accuracy>
- *   A<amplification>
- *   R<recalculate> points based on current probe offsets
+ *   A<amplification>  Provide an Amplification value
+ *   R                 Flag to recalculate points based on current probe offsets
  */
 void GcodeSuite::G34() {
   DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
-  if ( parser.seen('Z') )
-  {
-    int zStepper;
-    bool state;
-    parser.intval('Z', zStepper);
-    parser.boolval('S', state);
-
-
+  if (parser.seenval('Z')) {
     stepper.set_separate_multi_axis(true);
-
-    switch(zStepper)
-    {
-      case 1 :
-        stepper.set_z1_lock(state);
-        break;
-      case 2 :
-        stepper.set_z2_lock(state);
-        break;
+    const bool state = parser.boolval('S');
+    switch (parser.intval('Z')) {
+      case 1: stepper.set_z1_lock(state); break;
+      case 2: stepper.set_z2_lock(state); break;
       #if NUM_Z_STEPPER_DRIVERS >= 3
-        case 3 :
-          stepper.set_z3_lock(state);
-        break;
-      #if NUM_Z_STEPPER_DRIVERS >= 4
-        case 4 :
-          stepper.set_z4_lock(state);
-        break;
+        case 3: stepper.set_z3_lock(state); break;
+        #if NUM_Z_STEPPER_DRIVERS >= 4
+          case 4: stepper.set_z4_lock(state); break;
+        #endif
       #endif
-      default:
-        break;
-    #endif
     }
-
     return;
   }
-  else if ( parser.seen('L') )
-  {
+
+  if (parser.seen('L')) {
     stepper.set_all_z_lock(false);
     stepper.set_separate_multi_axis(false);
     return;
@@ -451,7 +436,8 @@ void GcodeSuite::G34() {
     }while(0);
   #endif
 }
-#endif // END Z_MULTI_ENDSTOPS or Z_STEPPER_AUTO_ALIGN
+
+#endif // Z_MULTI_ENDSTOPS || Z_STEPPER_AUTO_ALIGN
 
 #if ENABLED(Z_STEPPER_AUTO_ALIGN)
 
