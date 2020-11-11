@@ -1105,7 +1105,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
           n = (seq - 1) * (FILENAME_LENGTH);
           LOOP_L_N(i, FILENAME_LENGTH) {
             uint16_t utf16_ch = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
-            #if ENABLED(SD_FILENAMES_MULTILINGUAL)
+            #if ENABLED(UTF_FILENAME_SUPPORT)
               // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
               // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
               uint16_t idx = (n + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
@@ -1124,36 +1124,32 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 
     // Return if normal file or subdirectory
     if (DIR_IS_FILE_OR_SUBDIR(dir)) {
-      #if ENABLED(SD_FILENAMES_MULTILINGUAL)
+      #if ENABLED(UTF_FILENAME_SUPPORT)
         // Convert filename from utf-16 to utf-8 as Marlin expects
         #if LONG_FILENAME_CHARSIZE > 2
           // Add warning for developers for currently not supported 3-byte cases (Conversion series of 2-byte
-          // codepoints to 3-byte in-place will broke rest of filename)
-          #error "Currently filename re-encoding is done in-place, this may broke rest of chars if we use 3-byte codepoints"
+          // codepoints to 3-byte in-place will break the rest of filename)
+          #error "Currently filename re-encoding is done in-place. It may break the remaining chars to use 3-byte codepoints."
         #endif
         uint16_t currentPos = 0;
         LOOP_L_N(i, (LONG_FILENAME_LENGTH / 2)) {
           uint16_t idx = i * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
 
-          uint16_t utf16_ch = longFilename[idx] | (longFilename[idx+1] << 8);
-          if (0xD800 == (utf16_ch & 0xF800)) {
-            // Surrogate pair - encode as '_'
+          uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
+          if (0xD800 == (utf16_ch & 0xF800))                                    // Surrogate pair - encode as '_'
             longFilename[currentPos++] = '_';
-          } else if (0 == (utf16_ch & 0xFF80)) {
-            // Encode as 1-byte utf-8 char
+          else if (0 == (utf16_ch & 0xFF80))                                    // Encode as 1-byte utf-8 char
             longFilename[currentPos++] = utf16_ch & 0x007F;
-          } else if (0 == (utf16_ch & 0xF800)) {
-            // Encode as 2-byte utf-8 char
+          else if (0 == (utf16_ch & 0xF800)) {                                  // Encode as 2-byte utf-8 char
             longFilename[currentPos++] = 0xC0 | ((utf16_ch >> 6) & 0x1F);
             longFilename[currentPos++] = 0x80 | (utf16_ch & 0x3F);
-          } else {
-            #if LONG_FILENAME_CHARSIZE > 2
-              // Encode as 3-byte utf-8 char
+          }
+          else {
+            #if LONG_FILENAME_CHARSIZE > 2                                      // Encode as 3-byte utf-8 char
               longFilename[currentPos++] = 0xE0 | ((utf16_ch >> 12) & 0x0F);
               longFilename[currentPos++] = 0xC0 | ((utf16_ch >> 6) & 0x3F);
               longFilename[currentPos++] = 0xC0 | (utf16_ch & 0x3F);
-            #else
-              // Encode as '_'
+            #else                                                               // Encode as '_'
               longFilename[currentPos++] = '_';
             #endif
           }
@@ -1167,7 +1163,6 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     }
   }
 }
-
 
 // Read next directory entry into the cache
 // Assumes file is correctly positioned
