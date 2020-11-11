@@ -262,67 +262,71 @@ millis_t MarlinUI::next_button_update_ms; // = 0
 
   #endif
 
-  void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
-    SETCURSOR(col, row);
-    if (!string) return;
+  #if !HAS_GRAPHICAL_TFT
 
-    auto _newline = [&col, &row]{
-      col = 0; row++;                 // Move col to string len (plus space)
-      SETCURSOR(0, row);              // Simulate carriage return
-    };
+    void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, bool wordwrap/*=false*/) {
+      SETCURSOR(col, row);
+      if (!string) return;
 
-    uint8_t *p = (uint8_t*)string;
-    wchar_t ch;
-    if (wordwrap) {
-      uint8_t *wrd = nullptr, c = 0;
-      // find the end of the part
-      for (;;) {
-        if (!wrd) wrd = p;            // Get word start /before/ advancing
-        p = get_utf8_value_cb(p, cb_read_byte, &ch);
-        const bool eol = !ch;         // zero ends the string
-        // End or a break between phrases?
-        if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
-          if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
-          // Past the right and the word is not too long?
-          if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
-          c += !eol;                  // +1 so the space will be printed
-          col += c;                   // advance col to new position
-          while (c) {                 // character countdown
-            --c;                      // count down to zero
-            wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
-            lcd_put_wchar(ch);        // character to the LCD
+      auto _newline = [&col, &row]{
+        col = 0; row++;                 // Move col to string len (plus space)
+        SETCURSOR(0, row);              // Simulate carriage return
+      };
+
+      uint8_t *p = (uint8_t*)string;
+      wchar_t ch;
+      if (wordwrap) {
+        uint8_t *wrd = nullptr, c = 0;
+        // find the end of the part
+        for (;;) {
+          if (!wrd) wrd = p;            // Get word start /before/ advancing
+          p = get_utf8_value_cb(p, cb_read_byte, &ch);
+          const bool eol = !ch;         // zero ends the string
+          // End or a break between phrases?
+          if (eol || ch == ' ' || ch == '-' || ch == '+' || ch == '.') {
+            if (!c && ch == ' ') { if (wrd) wrd++; continue; } // collapse extra spaces
+            // Past the right and the word is not too long?
+            if (col + c > LCD_WIDTH && col >= (LCD_WIDTH) / 4) _newline(); // should it wrap?
+            c += !eol;                  // +1 so the space will be printed
+            col += c;                   // advance col to new position
+            while (c) {                 // character countdown
+              --c;                      // count down to zero
+              wrd = get_utf8_value_cb(wrd, cb_read_byte, &ch); // get characters again
+              lcd_put_wchar(ch);        // character to the LCD
+            }
+            if (eol) break;             // all done!
+            wrd = nullptr;              // set up for next word
           }
-          if (eol) break;             // all done!
-          wrd = nullptr;              // set up for next word
+          else c++;                     // count word characters
         }
-        else c++;                     // count word characters
+      }
+      else {
+        for (;;) {
+          p = get_utf8_value_cb(p, cb_read_byte, &ch);
+          if (!ch) break;
+          lcd_put_wchar(ch);
+          col++;
+          if (col >= LCD_WIDTH) _newline();
+        }
       }
     }
-    else {
-      for (;;) {
-        p = get_utf8_value_cb(p, cb_read_byte, &ch);
-        if (!ch) break;
-        lcd_put_wchar(ch);
-        col++;
-        if (col >= LCD_WIDTH) _newline();
-      }
-    }
-  }
 
-  void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
-    const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
-    uint8_t col = 0, row = 0;
-    if (!string && plen + slen <= LCD_WIDTH) {
-      col = (LCD_WIDTH - plen - slen) / 2;
-      row = LCD_HEIGHT > 3 ? 1 : 0;
+    void MarlinUI::draw_select_screen_prompt(PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
+      const uint8_t plen = utf8_strlen_P(pref), slen = suff ? utf8_strlen_P(suff) : 0;
+      uint8_t col = 0, row = 0;
+      if (!string && plen + slen <= LCD_WIDTH) {
+        col = (LCD_WIDTH - plen - slen) / 2;
+        row = LCD_HEIGHT > 3 ? 1 : 0;
+      }
+      wrap_string_P(col, row, pref, true);
+      if (string) {
+        if (col) { col = 0; row++; } // Move to the start of the next line
+        wrap_string(col, row, string);
+      }
+      if (suff) wrap_string_P(col, row, suff);
     }
-    wrap_string_P(col, row, pref, true);
-    if (string) {
-      if (col) { col = 0; row++; } // Move to the start of the next line
-      wrap_string(col, row, string);
-    }
-    if (suff) wrap_string_P(col, row, suff);
-  }
+
+  #endif // !HAS_GRAPHICAL_TFT
 
 #endif // HAS_LCD_MENU
 
