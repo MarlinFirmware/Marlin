@@ -576,5 +576,7 @@ namespace Language_fr {
     PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bas à Gauche");
     PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Haut à Droite");
     PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bas à Droite");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Terminée");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Échec de l'étalonnage");
   #endif
 }

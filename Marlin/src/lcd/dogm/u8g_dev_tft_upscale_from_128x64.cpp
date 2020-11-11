@@ -512,7 +512,7 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     }
     else {
       // end calibration
-      str = calibration_stage == CALIBRATION_SUCCESS ? "Calibration Completed" : "Calibration Failed";
+      str = calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED);
       defer_status_screen(false);
       touch_calibration.calibration_end();
       TERN_(HAS_TOUCH_BUTTONS, redrawTouchButtons = true);

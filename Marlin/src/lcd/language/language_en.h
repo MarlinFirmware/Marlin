@@ -677,6 +677,8 @@ namespace Language_en {
     PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bottom Left");
     PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Top Right");
     PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bottom Right");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Completed");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibration Failed");
   #endif
 }
 
