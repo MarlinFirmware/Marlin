@@ -778,6 +778,10 @@
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 #endif
 
+#if Z_HOME_DIR > 0
+  #define HOME_Z_FIRST // If homing away from BED do Z first
+#endif
+
 /**
  * Set granular options based on the specific type of leveling
  */
