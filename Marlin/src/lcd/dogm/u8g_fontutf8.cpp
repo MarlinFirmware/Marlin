@@ -9,7 +9,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include <string.h>
 #include "../fontutils.h"
@@ -140,7 +140,6 @@ static int fontgroup_cb_draw_u8g(void *userdata, const font_t *fnt_current, cons
 
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, (const u8g_fntpgm_uint8_t*)fnt_current);
-    //u8g_SetFontPosBottom(pdata->pu8g);
     pdata->fnt_prev = fnt_current;
   }
   if ((pdata->max_width != PIXEL_LEN_NOLIMIT) && (pdata->adv + u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg) > pdata->max_width))
@@ -256,7 +255,6 @@ static int fontgroup_cb_draw_u8gstrlen(void *userdata, const font_t *fnt_current
 
   if (pdata->fnt_prev != fnt_current) {
     u8g_SetFont(pdata->pu8g, (const u8g_fntpgm_uint8_t*)fnt_current);
-    u8g_SetFontPosBottom(pdata->pu8g);
     pdata->fnt_prev = fnt_current;
   }
   pdata->adv += u8g_GetStrPixelWidth(pdata->pu8g, (char*)msg);
@@ -314,4 +312,4 @@ int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, PGM_P utf8_msg) {
   return data.adv;
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB

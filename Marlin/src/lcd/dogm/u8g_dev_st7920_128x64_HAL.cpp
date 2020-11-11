@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -55,12 +55,10 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB && DISABLED(TFT_CLASSIC_UI)
 
 #include "HAL_LCD_com_defines.h"
 
-#define LCD_PIXEL_WIDTH  128
-#define LCD_PIXEL_HEIGHT  64
 #define PAGE_HEIGHT        8
 
 /* init sequence from https://github.com/adafruit/ST7565-LCD/blob/master/ST7565/ST7565.cpp */
@@ -89,11 +87,11 @@ void clear_graphics_DRAM(u8g_t *u8g, u8g_dev_t *dev) {
   u8g_SetAddress(u8g, dev, 0);         // cmd mode
   u8g_WriteByte(u8g, dev, 0x08);       //display off, cursor+blink off
   u8g_WriteByte(u8g, dev, 0x3E);       //extended mode + GDRAM active
-  for (uint8_t y = 0; y < (LCD_PIXEL_HEIGHT) / 2; y++) { //clear GDRAM
+  LOOP_L_N(y, (LCD_PIXEL_HEIGHT) / 2) { //clear GDRAM
     u8g_WriteByte(u8g, dev, 0x80 | y); //set y
     u8g_WriteByte(u8g, dev, 0x80);     //set x = 0
     u8g_SetAddress(u8g, dev, 1);                  /* data mode */
-    for (uint8_t i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
+    LOOP_L_N(i, 2 * (LCD_PIXEL_WIDTH) / 8) //2x width clears both segments
       u8g_WriteByte(u8g, dev, 0);
     u8g_SetAddress(u8g, dev, 0);           /* cmd mode */
   }
@@ -203,8 +201,8 @@ u8g_dev_t u8g_dev_st7920_128x64_HAL_4x_hw_spi = { u8g_dev_st7920_128x64_HAL_4x_f
 
 #if NONE(__AVR__, ARDUINO_ARCH_STM32, ARDUINO_ARCH_ESP32) || defined(U8G_HAL_LINKS)
   // Also use this device for HAL version of rrd class. This results in the same device being used
-  // for the ST7920 for HAL systems no matter what is selected in ultralcd_impl_DOGM.h.
+  // for the ST7920 for HAL systems no matter what is selected in marlinui_DOGM.h.
   u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = { u8g_dev_st7920_128x64_HAL_4x_fn, &u8g_dev_st7920_128x64_HAL_4x_pb, U8G_COM_ST7920_HAL_SW_SPI };
 #endif
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB

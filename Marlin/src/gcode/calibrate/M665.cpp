@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,8 +38,11 @@
    *    R = delta radius
    *    S = segments per second
    *    X = Alpha (Tower 1) angle trim
-   *    Y = Beta (Tower 2) angle trim
+   *    Y = Beta  (Tower 2) angle trim
    *    Z = Gamma (Tower 3) angle trim
+   *    A = Alpha (Tower 1) digonal rod trim
+   *    B = Beta  (Tower 2) digonal rod trim
+   *    C = Gamma (Tower 3) digonal rod trim
    */
   void GcodeSuite::M665() {
     if (parser.seen('H')) delta_height              = parser.value_linear_units();
@@ -49,6 +52,9 @@
     if (parser.seen('X')) delta_tower_angle_trim.a  = parser.value_float();
     if (parser.seen('Y')) delta_tower_angle_trim.b  = parser.value_float();
     if (parser.seen('Z')) delta_tower_angle_trim.c  = parser.value_float();
+    if (parser.seen('A')) delta_diagonal_rod_trim.a = parser.value_float();
+    if (parser.seen('B')) delta_diagonal_rod_trim.b = parser.value_float();
+    if (parser.seen('C')) delta_diagonal_rod_trim.c = parser.value_float();
     recalc_delta_settings();
   }
 

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -48,7 +48,6 @@
  * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
  * attached()            - Return true if a servo is attached.
  * detach()              - Stop an attached servo from pulsing its i/o pin.
- *
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -68,7 +67,7 @@ uint8_t ServoCount = 0;                         // the total number of attached 
 
 static boolean isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
-  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
+  LOOP_L_N(channel, SERVOS_PER_TIMER) {
     if (SERVO(timer, channel).Pin.isActive)
       return true;
   }
@@ -129,9 +128,9 @@ void Servo::writeMicroseconds(int value) {
     value = constrain(value, SERVO_MIN(min), SERVO_MAX(max)) - (TRIM_DURATION);
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
-    CRITICAL_SECTION_START;
+    CRITICAL_SECTION_START();
     servo_info[channel].ticks = value;
-    CRITICAL_SECTION_END;
+    CRITICAL_SECTION_END();
   }
 }
 
@@ -150,9 +149,7 @@ void Servo::move(const int value) {
   if (attach(0) >= 0) {
     write(value);
     safe_delay(servo_delay[servoIndex]);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      detach();
-    #endif
+    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
   }
 }
 

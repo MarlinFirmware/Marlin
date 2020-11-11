@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,20 +16,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
+
 #include "../../module/temperature.h"
-#include "../../module/stepper.h"
-#include "../../module/printcounter.h" // for print_job_timer
+#include "../../module/planner.h"       // for planner.finish_and_disable
+#include "../../module/printcounter.h"  // for print_job_timer.stop
+#include "../../lcd/marlinui.h"         // for LCD_MESSAGEPGM_P
 
 #include "../../inc/MarlinConfig.h"
-
-#if HAS_LCD_MENU
-  #include "../../lcd/ultralcd.h"
-#endif
 
 #if HAS_SUICIDE
   #include "../../MarlinCore.h"
@@ -39,12 +37,14 @@
 
   #if ENABLED(AUTO_POWER_CONTROL)
     #include "../../feature/power.h"
+  #else
+    void restore_stepper_drivers();
   #endif
 
   // Could be moved to a feature, but this is all the data
   bool powersupply_on;
 
-  #if HAS_TRINAMIC
+  #if HAS_TRINAMIC_CONFIG
     #include "../../feature/tmc_util.h"
   #endif
 
@@ -72,16 +72,15 @@
     #endif
 
     #if DISABLED(AUTO_POWER_CONTROL)
-      delay(PSU_POWERUP_DELAY); // Wait for power to settle
+      safe_delay(PSU_POWERUP_DELAY);
       restore_stepper_drivers();
+      TERN_(HAS_TRINAMIC_CONFIG, safe_delay(PSU_POWERUP_DELAY));
     #endif
 
-    #if HAS_LCD_MENU
-      ui.reset_status();
-    #endif
+    TERN_(HAS_LCD_MENU, ui.reset_status());
   }
 
-#endif // ENABLED(PSU_CONTROL)
+#endif // PSU_CONTROL
 
 /**
  * M81: Turn off Power, including Power Supply, if there is one.
@@ -93,7 +92,7 @@ void GcodeSuite::M81() {
   print_job_timer.stop();
   planner.finish_and_disable();
 
-  #if FAN_COUNT > 0
+  #if HAS_FAN
     thermalManager.zero_fan_speeds();
     #if ENABLED(PROBING_FANS_OFF)
       thermalManager.fans_paused = false;
@@ -106,10 +105,8 @@ void GcodeSuite::M81() {
   #if HAS_SUICIDE
     suicide();
   #elif ENABLED(PSU_CONTROL)
-    PSU_OFF();
+    PSU_OFF_SOON();
   #endif
 
-  #if HAS_LCD_MENU
-    LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " MSG_OFF "."));
-  #endif
+  LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));
 }

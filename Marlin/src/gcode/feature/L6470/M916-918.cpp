@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,7 +37,6 @@
 #include "../../../core/debug_out.h"
 
 /**
- *
  * M916: increase KVAL_HOLD until get thermal warning
  *       NOTE - on L6474 it is TVAL that is used
  *
@@ -46,6 +45,7 @@
  *     1 - monitor only X, Y, Z, E1
  *     2 - monitor only X2, Y2, Z2, E2
  *     3 - monitor only Z3, E3
+ *     4 - monitor only Z4, E4
  *
  * Xxxx, Yxxx, Zxxx, Exxx - axis to be monitored with displacement
  *     xxx (1-255) is distance moved on either side of current position
@@ -61,7 +61,6 @@
  *
  * D - time (in seconds) to run each setting of KVAL_HOLD/TVAL
  *     optional - defaults to zero (runs each setting once)
- *
  */
 
 /**
@@ -186,7 +185,6 @@ void GcodeSuite::M916() {
 }
 
 /**
- *
  * M917: Find minimum current thresholds
  *
  *   Decrease OCD current until overcurrent error
@@ -213,7 +211,6 @@ void GcodeSuite::M916() {
  *
  * K - value for KVAL_HOLD (0 - 255) (ignored for L6474)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M917() {
 
@@ -521,7 +518,6 @@ void GcodeSuite::M917() {
 }
 
 /**
- *
  * M918: increase speed until error or max feedrate achieved (as shown in configuration.h))
  *
  * J - select which driver(s) to monitor on multi-driver axis
@@ -542,7 +538,6 @@ void GcodeSuite::M917() {
  *
  * M - value for microsteps (1 - 128) (optional)
  *     optional - will report current value from driver if not specified
- *
  */
 void GcodeSuite::M918() {
 

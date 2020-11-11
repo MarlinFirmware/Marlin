@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -49,14 +49,13 @@
  *       PWM (D 14) PD6 20|        |21  PD7 (D 15) PWM
  *                        +--------+
  *
- * REF http://sanguino.cc/hardware
+ * REF http://sanguino.wikidot.com/hardware
  */
 
 /**
  * Rev B    26 DEC 2016
  *
  * added pointer to a current Arduino IDE extension
- *
  */
 
 /**
@@ -70,14 +69,13 @@
  *
  * When installing select 1.0.2
  *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Installation instructions can be found at http://learn.sparkfun.com/pages/CustomBoardsArduino
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega644' or 'ATmega644P' in 'Tools > Processor.'"
 #endif
 
@@ -86,66 +84,66 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN         0
-#define Y_STOP_PIN         1
-#define Z_STOP_PIN         2
+#define X_STOP_PIN                             0
+#define Y_STOP_PIN                             1
+#define Z_STOP_PIN                             2
 
 //
 // Steppers
 //
-#define X_STEP_PIN         26
-#define X_DIR_PIN          25
-#define X_ENABLE_PIN       10
+#define X_STEP_PIN                            26
+#define X_DIR_PIN                             25
+#define X_ENABLE_PIN                          10
 
-#define Y_STEP_PIN         28
-#define Y_DIR_PIN          27
-#define Y_ENABLE_PIN       10
+#define Y_STEP_PIN                            28
+#define Y_DIR_PIN                             27
+#define Y_ENABLE_PIN                          10
 
-#define Z_STEP_PIN         23
-#define Z_DIR_PIN          22
-#define Z_ENABLE_PIN       10
+#define Z_STEP_PIN                            23
+#define Z_DIR_PIN                             22
+#define Z_ENABLE_PIN                          10
 
-#define E0_STEP_PIN        24
-#define E0_DIR_PIN         21
-#define E0_ENABLE_PIN      10
+#define E0_STEP_PIN                           24
+#define E0_DIR_PIN                            21
+#define E0_ENABLE_PIN                         10
 
-#define E1_STEP_PIN        -1   // 21
-#define E1_DIR_PIN         -1   // 20
-#define E1_ENABLE_PIN      -1   // 19
+#define E1_STEP_PIN                           -1  // 21
+#define E1_DIR_PIN                            -1  // 20
+#define E1_ENABLE_PIN                         -1  // 19
 
-#define E2_STEP_PIN        -1   // 21
-#define E2_DIR_PIN         -1   // 20
-#define E2_ENABLE_PIN      -1   // 18
+#define E2_STEP_PIN                           -1  // 21
+#define E2_DIR_PIN                            -1  // 20
+#define E2_ENABLE_PIN                         -1  // 18
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0   // Analog Input
-#define TEMP_1_PIN          1   // Analog Input
-#define TEMP_BED_PIN        2   // Analog Input (1,2 or I2C)
+#define TEMP_0_PIN                             0  // Analog Input
+#define TEMP_1_PIN                             1  // Analog Input
+#define TEMP_BED_PIN                           2  // Analog Input (1,2 or I2C)
 
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        3   // DONE PWM on RIGHT connector
-#define HEATER_BED_PIN      4
+#define HEATER_0_PIN                           3  // DONE PWM on RIGHT connector
+#define HEATER_BED_PIN                         4
 
 #ifndef FAN_PIN
-  #define FAN_PIN          14   // PWM on MIDDLE connector
+  #define FAN_PIN                             14  // PWM on MIDDLE connector
 #endif
 
 //
 // Misc. Functions
 //
-#define SDSS               11
+#define SDSS                                  11
 
-#define I2C_SCL_PIN        16
-#define I2C_SDA_PIN        17
+#define I2C_SCL_PIN                           16
+#define I2C_SDA_PIN                           17
 
 // future proofing
-#define __FS  20
-#define __FD  19
-#define __GS  18
-#define __GD  13
+#define __FS                                  20
+#define __FD                                  19
+#define __GS                                  18
+#define __GD                                  13
 
-#define UNUSED_PWM         14   // PWM on LEFT connector
+#define UNUSED_PWM                            14  // PWM on LEFT connector

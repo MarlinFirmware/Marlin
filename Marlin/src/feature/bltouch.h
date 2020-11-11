@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,9 +26,17 @@
 // BLTouch commands are sent as servo angles
 typedef unsigned char BLTCommand;
 
-#define BLTOUCH_DEPLOY          10
+#if ENABLED(CREALITY_TOUCH)
+  #define STOW_ALARM         false
+  #define BLTOUCH_DEPLOY       170
+  #define BLTOUCH_STOW          20
+#else
+  #define STOW_ALARM          true
+  #define BLTOUCH_DEPLOY        10
+  #define BLTOUCH_STOW          90
+#endif
+
 #define BLTOUCH_SW_MODE         60
-#define BLTOUCH_STOW            90
 #define BLTOUCH_SELFTEST       120
 #define BLTOUCH_MODE_STORE     130
 #define BLTOUCH_5V_MODE        140
@@ -91,20 +99,18 @@ public:
   FORCE_INLINE static void mode_conv_5V()        { mode_conv_proc(true); }
   FORCE_INLINE static void mode_conv_OD()        { mode_conv_proc(false); }
 
+  static bool triggered();
+
 private:
   FORCE_INLINE static bool _deploy_query_alarm() { return command(BLTOUCH_DEPLOY, BLTOUCH_DEPLOY_DELAY); }
-  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY); }
+  FORCE_INLINE static bool _stow_query_alarm()   { return command(BLTOUCH_STOW, BLTOUCH_STOW_DELAY) == STOW_ALARM; }
 
   static void clear();
   static bool command(const BLTCommand cmd, const millis_t &ms);
-  static bool triggered();
   static bool deploy_proc();
   static bool stow_proc();
   static bool status_proc();
   static void mode_conv_proc(const bool M5V);
 };
-
-// Deploy/stow angles for use by servo.cpp / servo.h
-#define BLTOUCH_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
 extern BLTouch bltouch;

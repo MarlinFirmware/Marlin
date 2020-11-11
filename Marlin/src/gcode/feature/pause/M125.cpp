@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,11 @@
 #include "../../../module/printcounter.h"
 
 #if HAS_LCD_MENU
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../feature/powerloss.h"
 #endif
 
 /**
@@ -45,18 +49,17 @@
  *       position and waits, resuming with a button click or M108.
  *       Without PARK_HEAD_ON_PAUSE the M125 command does nothing.
  *
- *    L = override retract length
- *    X = override X
- *    Y = override Y
- *    Z = override Z raise
+ *    L<linear> = Override retract Length
+ *    X<pos>    = Override park position X
+ *    Y<pos>    = Override park position Y
+ *    Z<linear> = Override Z raise
+ *
+ *  With an LCD menu:
+ *    P<bool>   = Always show a prompt and await a response
  */
 void GcodeSuite::M125() {
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
-    #ifdef PAUSE_PARK_RETRACT_LENGTH
-      + (PAUSE_PARK_RETRACT_LENGTH)
-    #endif
-  );
+  const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
 
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
@@ -71,23 +74,18 @@ void GcodeSuite::M125() {
     park_point += hotend_offset[active_extruder];
   #endif
 
-  #if ENABLED(SDSUPPORT)
-    const bool sd_printing = IS_SD_PRINTING();
-  #else
-    constexpr bool sd_printing = false;
-  #endif
+  const bool sd_printing = TERN0(SDSUPPORT, IS_SD_PRINTING());
 
-  #if HAS_LCD_MENU
-    lcd_pause_show_message(PAUSE_MESSAGE_PAUSING, PAUSE_MODE_PAUSE_PRINT);
-    const bool show_lcd = parser.seenval('P');
-  #else
-    constexpr bool show_lcd = false;
-  #endif
+  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT));
+
+  // If possible, show an LCD prompt with the 'P' flag
+  const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
 
   if (pause_print(retract, park_point, 0, show_lcd)) {
-    if (!sd_printing || show_lcd) {
+    TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+    if (ENABLED(EXTENSIBLE_UI) || !sd_printing || show_lcd) {
       wait_for_confirmation(false, 0);
-      resume_print(0, 0, PAUSE_PARK_RETRACT_LENGTH, 0);
+      resume_print(0, 0, -retract, 0);
     }
   }
 }
