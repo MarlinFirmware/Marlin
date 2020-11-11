@@ -219,7 +219,7 @@
  * CSK O|3   5|O  GND
  * RST O|5   6|O  GND
  *      -------
- * /
+ */
 //SW_DIO                                    PA13   //
 //SW_CLK                                    PA14   //
 //SW_RST                                    NRST   //(14)
