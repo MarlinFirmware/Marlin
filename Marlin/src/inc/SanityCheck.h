@@ -111,7 +111,7 @@
 #elif defined(FILAMENT_SENSOR)
   #error "FILAMENT_SENSOR is now FILAMENT_WIDTH_SENSOR. Please update your configuration."
 #elif defined(ENDSTOPPULLUP_FIL_RUNOUT)
-  #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULLUP. Please update your configuration."
+  #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULL. Please update your configuration."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
   #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
 #elif defined(LANGUAGE_INCLUDE)
@@ -660,8 +660,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #if BOTH(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)
   #error "Enable only one of ENDSTOPPULLUPS or ENDSTOPPULLDOWNS."
-#elif BOTH(FIL_RUNOUT_PULLUP, FIL_RUNOUT_PULLDOWN)
-  #error "Enable only one of FIL_RUNOUT_PULLUP or FIL_RUNOUT_PULLDOWN."
 #elif BOTH(ENDSTOPPULLUP_XMAX, ENDSTOPPULLDOWN_XMAX)
   #error "Enable only one of ENDSTOPPULLUP_X_MAX or ENDSTOPPULLDOWN_X_MAX."
 #elif BOTH(ENDSTOPPULLUP_YMAX, ENDSTOPPULLDOWN_YMAX)
@@ -834,27 +832,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
     static_assert(nullptr == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
-
-  #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-    #if NUM_RUNOUT_SENSORS >= 1 && !defined(FIL_RUNOUT1_STATE)
-      #error "FIL_RUNOUT1_STATE is required with NUM_RUNOUT_SENSORS >= 2."
-    #elif NUM_RUNOUT_SENSORS >= 2 && !defined(FIL_RUNOUT2_STATE)
-      #error "FIL_RUNOUT2_STATE is required with NUM_RUNOUT_SENSORS >= 2."
-    #elif NUM_RUNOUT_SENSORS >= 3 && !defined(FIL_RUNOUT3_STATE)
-      #error "FIL_RUNOUT3_STATE is required with NUM_RUNOUT_SENSORS >= 3."
-    #elif NUM_RUNOUT_SENSORS >= 4 && !defined(FIL_RUNOUT4_STATE)
-      #error "FIL_RUNOUT4_STATE is required with NUM_RUNOUT_SENSORS >= 4."
-    #elif NUM_RUNOUT_SENSORS >= 5 && !defined(FIL_RUNOUT5_STATE)
-      #error "FIL_RUNOUT5_STATE is required with NUM_RUNOUT_SENSORS >= 5."
-    #elif NUM_RUNOUT_SENSORS >= 6 && !defined(FIL_RUNOUT6_STATE)
-      #error "FIL_RUNOUT6_STATE is required with NUM_RUNOUT_SENSORS >= 6."
-    #elif NUM_RUNOUT_SENSORS >= 7 && !defined(FIL_RUNOUT7_STATE)
-      #error "FIL_RUNOUT7_STATE is required with NUM_RUNOUT_SENSORS >= 7."
-    #elif NUM_RUNOUT_SENSORS >= 8 && !defined(FIL_RUNOUT8_STATE)
-      #error "FIL_RUNOUT8_STATE is required with NUM_RUNOUT_SENSORS >= 8."
-    #endif
-  #endif
-
 #endif
 
 /**
