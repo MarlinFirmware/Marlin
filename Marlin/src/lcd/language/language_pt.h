@@ -160,4 +160,11 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Fim de curso");
 
   PROGMEM Language_Str MSG_KILL_EXPECTED_PRINTER           = _UxGT("Impressora Incorreta");
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Superior Esquerdo");
+    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Inferior Esquerdo");
+    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Superior Direto");
+    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Inferior Direto");
+  #endif
 }

@@ -610,10 +610,10 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       switch (calibration_stage) {
-        case CALIBRATION_TOP_LEFT: tft_string.set("Top Left"); break;
-        case CALIBRATION_BOTTOM_LEFT: tft_string.set("Bottom Left"); break;
-        case CALIBRATION_TOP_RIGHT: tft_string.set("Top Right"); break;
-        case CALIBRATION_BOTTOM_RIGHT: tft_string.set("Bottom Right"); break;
+        case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
+        case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
+        case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
+        case CALIBRATION_BOTTOM_RIGHT: tft_string.set(GET_TEXT(MSG_BOTTOM_RIGHT)); break;
         default: break;
       }
 

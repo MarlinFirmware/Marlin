@@ -499,10 +499,10 @@ U8G_PB_DEV(u8g_dev_tft_320x240_upscale_from_128x64, WIDTH, HEIGHT, PAGE_HEIGHT, 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       // handle current state
       switch (calibration_stage) {
-        case CALIBRATION_TOP_LEFT: str = "Top Left"; break;
-        case CALIBRATION_BOTTOM_LEFT: str = "Bottom Left"; break;
-        case CALIBRATION_TOP_RIGHT:  str = "Top Right"; break;
-        case CALIBRATION_BOTTOM_RIGHT: str = "Bottom Right"; break;
+        case CALIBRATION_TOP_LEFT: str = GET_TEXT(MSG_TOP_LEFT); break;
+        case CALIBRATION_BOTTOM_LEFT: str = GET_TEXT(MSG_BOTTOM_LEFT); break;
+        case CALIBRATION_TOP_RIGHT:  str = GET_TEXT(MSG_TOP_RIGHT); break;
+        case CALIBRATION_BOTTOM_RIGHT: str = GET_TEXT(MSG_BOTTOM_RIGHT); break;
         default: break;
       }
 
