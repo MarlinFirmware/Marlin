@@ -2328,7 +2328,7 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Thermocouple open
-        max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
+        max6675_temp = 4 * (MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX));
       }
       else
         max6675_temp >>= MAX6675_DISCARD_BITS;
