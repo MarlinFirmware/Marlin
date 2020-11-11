@@ -425,9 +425,8 @@ void CardReader::manage_media() {
 
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
-      if (ENABLED(SD_MOUNT_ON_INSERT) && old_stat == 2) {
+      if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2))
         mount();                      // Try to mount the media
-      }                            
       #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
@@ -443,11 +442,7 @@ void CardReader::manage_media() {
 
     if (stat) {
       TERN_(SDCARD_EEPROM_EMULATION, settings.first_load());
-      if (
-          old_stat == 2 
-          && 
-          ENABLED(SD_MOUNT_ON_INSERT)
-         )                            // First mount?
+      if (old_stat == 2)              // First mount?
         DEBUG_ECHOLNPGM("First mount.");
         TERN(POWER_LOSS_RECOVERY,
           recovery.check(),           // Check for PLR file. (If not there it will beginautostart)

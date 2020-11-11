@@ -1740,15 +1740,6 @@
 //#define SDSUPPORT
 
 /**
- * SD CARD: MOUNT ON INSERT
- * 
- * If you do not want to mount the SD Card when it´s inserted to the slot, comment the following line.
- * 
- */
-
-#define SD_MOUNT_ON_INSERT
-
-/**
  * SD CARD: SPI SPEED
  *
  * Enable one of the following items for a slower SPI transfer speed.
