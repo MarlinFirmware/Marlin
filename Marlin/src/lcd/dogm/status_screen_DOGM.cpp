@@ -461,7 +461,8 @@ void MarlinUI::draw_status_screen() {
         if (ENABLED(INFO_DISPLAY_INCHES) && parser.linear_unit_factor == 25.4f) {
           strcpy(xstring, ftostr42sign((lpos.x / parser.linear_unit_factor)));
           strcpy(ystring, ftostr42sign((lpos.x / parser.linear_unit_factor)));
-        }else {
+        }
+        else {
           strcpy(xstring, ftostr4sign(lpos.x));
           strcpy(ystring, ftostr4sign(lpos.y));
         }
