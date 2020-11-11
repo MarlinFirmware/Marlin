@@ -2291,7 +2291,7 @@ void Temperature::disable_all_heaters() {
 
     MAX6675_WRITE(HIGH); // disable TT_MAX6675
 
-    const uint8_t fault = TERN0(HAS_MAX31865, maxref.readFault());
+    const uint8_t fault = TERN1(HAS_MAX31865, maxref.readFault());
 
     if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
       max6675_errors[hindex]++;
