@@ -130,9 +130,10 @@
 
   /**
    * HardwareSerial with one pin for four drivers.
-   * Compatible with TMC2209. Provides best performance.
-   * Requires SLAVE_ADDRESS definitions in Configuration_adv.h and proper
-   * jumper configuration. Uses only one I/O pin like PA10/PA9/PC7/PA8.
+   * The 4xTMC2209 module doesn't have a serial multiplexer and
+   * needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
+   * and proper jumper configuration. 
+   * Uses only one I/O pin like PA10/PA9/PC7/PA8.
    * Install the jumpers in the following way, for example:
    */
    //#define  X_SLAVE_ADDRESS  3   // *  *  .   JP0, JP1
@@ -150,7 +151,7 @@
   #endif
 
 /**
- * MKS Robin_Mini V2
+ * MKS Robin_Wifi or another ESP8266 module
  *
  *      __ESP(M1)__       -J1-
  *  GND| 15 | | 08 |+3v3  (22)  RXD1      (PA10)
@@ -211,6 +212,19 @@
 #endif
 
 //
+// 
+/**   Connector J2
+ *      -------
+ * DIO O|1   2|O  3v3
+ * CSK O|3   5|O  GND
+ * RST O|5   6|O  GND
+ *      -------
+ * /
+//SW_DIO                                    PA13   //
+//SW_CLK                                    PA14   //
+//SW_RST                                    NRST   //(14)
+
+//
 // Power Supply Control
 //
 #if ENABLED(PSU_CONTROL)
@@ -238,15 +252,23 @@
 //
 // SD Card
 //
-#define SDIO_SUPPORT
-#define SDIO_CLOCK                       4500000  // 4.5 MHz /* 18 MHz (18000000) or 4.5MHz (450000) */
-//#define SDIO_CLOCK                    18000000  // 18 MHz (18000000)
+#define SDIO_CLOCK                       4500000  // 4.5 MHz
+#define SDIO_READ_RETRIES                     16
+
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
-  #define SS_PIN                            PC2   // SPI2
-  #define SD_DETECT_PIN                     -1    // SD_CD
+  #define SD_DETECT_PIN                     -1    // SD_CD (-1 active refresh)
+  #define SS_PIN                            PC2
+#else // Use the on-board card socket labeled SD_Extender
+  #define SCK_PIN                           PC12
+  #define MISO_PIN                          PC8
+  #define MOSI_PIN                          PD2
+  #define SS_PIN                            -1
+  #define ONBOARD_SD_CS_PIN                 PC11
+  #define SDSS                              PD2
+  #define SD_DETECT_PIN                     PD12  // SD_CD (if -1 no detection)
 #endif
 
 //
@@ -295,7 +317,7 @@
 #endif
 
 // XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_COLOR_UI)
+#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_BUFFER_SIZE                  14400
 
   #ifndef XPT2046_X_CALIBRATION
@@ -311,23 +333,11 @@
     #define XPT2046_Y_OFFSET                 254
   #endif
 
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12033
+  #ifdef TFT_CLASSIC_UI
+    #define TFT_MARLINUI_COLOR            0xFFFF  // White
+    #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
+    #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -9047
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -30
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 251
-  #endif
-
-  #define TFT_MARLINUI_COLOR              0xFFFF  // White
-  #define TFT_BTARROWS_COLOR              0xDEE6  // Yellow
-  #define TFT_BTOKMENU_COLOR              0x145F  // Cyan
 #endif
 
 #if NEED_TOUCH_PINS
