@@ -1124,7 +1124,8 @@
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
 
-// The timeout (in ms) to return to the status screen from sub-menus
+// The timeout (in ms) to return to the status screen from sub-menus. 
+// If not defined, the default of 15s is used.
 //#define LCD_TIMEOUT_TO_STATUS 15000
 
 // Add an 'M73' G-code to set the current percentage
