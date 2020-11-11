@@ -11,7 +11,7 @@
 // ONLY UNCOMMENT THINGS IN ONE PRINTER SECTION!!! IF YOU HAVE MULTIPLE MACHINES FLASH THEM ONE AT A TIME.
 
 //===========================================================================
-// *************************   KINGROON PRINTERS    *************************
+// ***************   KINGROON PRINTERS W/ROBIN MINI BOARD   *****************
 //===========================================================================
 
 //===========================================================================
@@ -82,9 +82,9 @@
   *
   *     +-- BACK ---+
   *     |           |
-  *   L |    (+) P  | R <-- probe (20,20)
+  *   L |    (+) P  | R <-- probe (10,10)
   *   E |           | I
-  *   F | (-) N (+) | G <-- nozzle (10,10)
+  *   F | (-) N (+) | G <-- nozzle (0,0)
   *   T |           | H
   *     |    (-)    | T
   *     |           |
@@ -93,6 +93,14 @@
   *
   * Specify a Probe position as { X, Y, Z }
   * Do NOT enter an number for the Z position in here. Store your offset in EEPROM.
+  * 
+  * When is the offset POSITIVE?
+  * If the probe is right of the nozzle the offset on X is POSITIVE
+  * If the probe is behind of the nozzle the offset on Y is POSITIVE
+  * 
+  * When is the offset NEGATIVE?
+  * If the probe is left of the nozzle the offset on X is NEGATIVE
+  * If the probe is in front of the nozzle the offset on Y is NEGATIVE
   */
   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 #endif
@@ -187,9 +195,23 @@
 
 // BL TOUCH ----------------------------------------
 // If you want to use the BL-Touch uncomment the 2 lines below and enter in the pin you are using.
+// You also need to uncomment #define CUSTOM_PROBE above and then enter in your offsets above in the CUSTOM PROBE section.
 //#define BLTOUCH
 // Here is where you set your servo pin.
 //#define SERVO0_PIN 0
+
+// MANUAL MESH LEVELING ----------------------------
+// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
+// Mesh Bed Leveling Documentation: http://marlinfw.org/docs/gcode/G029-mbl.html 
+// NOTE: If you want to automate the leveling process our EZABL kits do this for you. Check them out here: http://EZABL.TH3DStudio.com
+//#define MANUAL_MESH_LEVELING
+
+// POWER LOSS RECOVERY -----------------------------
+// Continue after Power-Loss feature will store the current state to the SD Card at the start of each layer
+// during SD printing. If this is found at bootup it will ask you if you want to resume the print.
+//
+// NOTE: This feature causes excessive wear on your SD card.
+//#define POWER_LOSS_RECOVERY
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************

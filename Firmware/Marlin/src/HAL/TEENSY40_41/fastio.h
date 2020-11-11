@@ -23,7 +23,7 @@
 #pragma once
 
 /**
- * Fast I/O interfaces for Teensy 4
+ * Fast I/O interfaces for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  * These use GPIO functions instead of Direct Port Manipulation, as on AVR.
  */
 

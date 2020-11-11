@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.10"
+#define UNIFIED_VERSION "TH3D UFW 2.11"
 
 /**
  * Temp Settings
@@ -55,11 +55,11 @@
   #define BED_MAXTEMP 120
 #endif
 
-#define TEMP_RESIDENCY_TIME      5
+#define TEMP_RESIDENCY_TIME      3
 #define TEMP_WINDOW              1
 #define TEMP_HYSTERESIS          3
 
-#define TEMP_BED_RESIDENCY_TIME  5
+#define TEMP_BED_RESIDENCY_TIME  3
 #define TEMP_BED_WINDOW          1
 #define TEMP_BED_HYSTERESIS      3
 
@@ -69,9 +69,10 @@
 #define PID_MAX BANG_MAX
 #define PID_K1 0.95
 
+#define PID_AUTOTUNE_MENU
+
 #if DISABLED(SPACE_SAVER) && DISABLED(SKR_E3_MINI_BOARD)
   #define PID_EDIT_MENU
-  #define PID_AUTOTUNE_MENU
 #endif
 
 #ifndef DEFAULT_Kp
@@ -80,7 +81,7 @@
   #define DEFAULT_Kd 114
 #endif
 
-#if DISABLED(SPACE_SAVER) && ENABLED(ENABLE_PIDBED)
+#if DISABLED(SPACE_SAVER) && ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
   #define PIDTEMPBED
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
@@ -152,19 +153,27 @@
   #define NOZZLE_TO_PROBE_OFFSET { -35, -2, 0 }
   #define ABL_ENABLE
 #endif
+#if ENABLED(CR10V2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 52, 5, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(SIDEWINDER_X1_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 33, -39, 0 }
+  #define ABL_ENABLE
+#endif
 
 #if ENABLED(ABL_ENABLE)
-  //#define ENABLE_LEVELING_FADE_HEIGHT // Disable for release. Can cause issues.
   #define SEGMENT_LEVELED_MOVES
   #define LEVELED_SEGMENT_LENGTH 5.0
   
-  #undef Z_PROBE_OFFSET_RANGE_MIN //Some machines define these even with no probe. Override when a probe is used to ensure correct settings.
+  #undef Z_PROBE_OFFSET_RANGE_MIN
   #define Z_PROBE_OFFSET_RANGE_MIN    -5
-  #undef Z_PROBE_OFFSET_RANGE_MAX //Some machines define these even with no probe. Override when a probe is used to ensure correct settings.
+  #undef Z_PROBE_OFFSET_RANGE_MAX
   #define Z_PROBE_OFFSET_RANGE_MAX     1
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
   #define Z_AFTER_PROBING              5
+  #define Z_AFTER_HOMING               5
   #define Z_PROBE_LOW_POINT           -2
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
@@ -227,10 +236,6 @@
   #else
     #define CUSTOM_MACHINE_NAME SHORT_BUILD_VERSION
   #endif
-#endif
-
-#if DISABLED(SPACE_SAVER)
-  //#define S_CURVE_ACCELERATION
 #endif
 
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75
@@ -298,13 +303,13 @@
 #define EEPROM_SETTINGS
 
 #if ENABLED(SPACE_SAVER)
-  #define DISABLE_M503
+  //#define DISABLE_M503
 #endif
 
 #define EEPROM_CHITCHAT
 #define EEPROM_BOOT_SILENT
 
-#if DISABLED(SPACE_SAVER)
+#if DISABLED(SPACE_SAVER) && DISABLED(SPACE_SAVER_2560)
   #define EEPROM_AUTO_INIT
 #endif
 
@@ -355,23 +360,28 @@
 #define DISPLAY_CHARSET_HD44780 JAPANESE
 #define LCD_INFO_SCREEN_STYLE 0
 #define DISABLE_REDUCED_ACCURACY_WARNING
-#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
+#if DISABLED(DWIN_CREALITY_LCD)
+  #define SHOW_BOOTSCREEN
   #define SHOW_CUSTOM_BOOTSCREEN
 #endif
 
-#if NONE(DWIN_CREALITY_LCD, SPACE_SAVER)
+#if ENABLED(TH3D_STATUS_SCREEN_LOGO)
+  #define CUSTOM_STATUS_SCREEN_IMAGE
+#endif
+
+#if DISABLED(DWIN_CREALITY_LCD) && DISABLED(SPACE_SAVER)
   #define INDIVIDUAL_AXIS_HOMING_MENU
 #endif
 
-#if DISABLED(SPACE_SAVER)
+//#if DISABLED(SPACE_SAVER) //testing if space is available on all configs 10082020 TDH
   #define LEVEL_BED_CORNERS
   #if ENABLED(LEVEL_BED_CORNERS)
     #define LEVEL_CORNERS_INSET_LFRB { 30, 30, 30, 30 }
     #define LEVEL_CORNERS_HEIGHT      0.0
-    #define LEVEL_CORNERS_Z_HOP       4.0
+    #define LEVEL_CORNERS_Z_HOP       5.0
     #define LEVEL_CENTER_TOO
   #endif
-#endif
+//#endif
 
 #if ENABLED(MANUAL_MESH_LEVELING) && DISABLED(ABL_ENABLE)
   #define LCD_BED_LEVELING
@@ -379,6 +389,7 @@
   #define RESTORE_LEVELING_AFTER_G28
   #define MESH_EDIT_Z_STEP  0.025
   #define LCD_PROBE_Z_RANGE 4
+  #define MESH_INSET 25
 
   #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X

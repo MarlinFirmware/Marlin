@@ -210,6 +210,10 @@ void menu_main() {
     #endif
   #endif
 
+  #if ENABLED(LCD_INFO_MENU)
+    SUBMENU(MSG_INFO_MENU, menu_info);
+  #endif
+
   #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
     SUBMENU(MSG_LEDS, menu_led);
   #endif
@@ -286,10 +290,6 @@ void menu_main() {
         GET_TEXT(MSG_SERVICE_RESET), F(SERVICE_NAME_3), PSTR("?")
       );
     #endif
-  #endif
-
-  #if ENABLED(LCD_INFO_MENU)
-    SUBMENU(MSG_INFO_MENU, menu_info);
   #endif
 
   #if HAS_GAMES && DISABLED(LCD_INFO_MENU)

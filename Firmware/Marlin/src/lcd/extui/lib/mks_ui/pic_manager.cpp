@@ -266,19 +266,24 @@ void spiFlashErase_PIC() {
   W25QXX.init(SPI_QUARTER_SPEED);
   //erase 0x001000 -64K
   for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
+    watchdog_refresh();
     W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
   }
   //erase 64K -- 6M
-  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++)
+  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++) {
+    watchdog_refresh();
     W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
+  }
 }
 
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
-    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++)
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++) {
+      watchdog_refresh();
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
+    }
   }
 #endif
 
@@ -410,6 +415,7 @@ uint8_t public_buf[512];
       return;
     }
 
+    watchdog_refresh();
     disp_assets_update_progress(fn);
 
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -422,18 +428,21 @@ uint8_t public_buf[512];
     totalSizeLoaded += pfileSize;
     if (assetType == ASSET_TYPE_LOGO) {
       do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
       do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
       do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         default_view_Write(public_buf, pbr);
       } while (pbr >= BMP_WRITE_BUF_LEN);
@@ -443,6 +452,7 @@ uint8_t public_buf[512];
       SPIFlash.beginWrite(Pic_Write_Addr);
       #if HAS_SPI_FLASH_COMPRESSION
         do {
+          watchdog_refresh();
           pbr = file.read(public_buf, SPI_FLASH_PageSize);
           TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
           SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
@@ -463,6 +473,7 @@ uint8_t public_buf[512];
     else if (assetType == ASSET_TYPE_FONT) {
       Pic_Write_Addr = UNIGBK_FLASH_ADDR;
       do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
         Pic_Write_Addr += pbr;
@@ -482,9 +493,11 @@ uint8_t public_buf[512];
 
       disp_assets_update();
       disp_assets_update_progress("Erasing pics...");
+      watchdog_refresh();
       spiFlashErase_PIC();
       #if HAS_SPI_FLASH_FONT
         disp_assets_update_progress("Erasing fonts...");
+        watchdog_refresh();
         spiFlashErase_FONT();
       #endif
 
@@ -543,7 +556,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
   PIC_MSG PIC;
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xff)
+  if (Pic_cnt == 0xFF)
     Pic_cnt = 0;
 
   for (i = 0; i < Pic_cnt; i++) {

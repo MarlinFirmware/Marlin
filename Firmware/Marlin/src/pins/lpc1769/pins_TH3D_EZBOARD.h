@@ -112,13 +112,6 @@
 #endif
 
 #define TEMP_BED_PIN                    P0_24_A1  // Analog Input P0_24
-#define TEMP_1_PIN                      P0_25_A2  // Analog Input P0_25
-
-#if ENABLED(FILAMENT_WIDTH_SENSOR)
-  #define FILWIDTH_PIN                  P0_26_A3  // Analog Input P0_26
-#else
-  #define TEMP_2_PIN                    P0_26_A3  // Analog Input P0_26
-#endif
 
 //
 // Heaters / Fans
@@ -149,6 +142,8 @@
 //
 
 #define SDCARD_CONNECTION                ONBOARD
+
+#define SD_DETECT_PIN                      P0_25 //SD_CD
 
 #define SCK_PIN                            P0_07
 #define MISO_PIN                           P0_08

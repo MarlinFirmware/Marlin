@@ -92,7 +92,7 @@
 
 #define TICK_CYCLE 1
 
-#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4a, 0x52, 0xff);
+#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF);
 
 #define TFT35
 

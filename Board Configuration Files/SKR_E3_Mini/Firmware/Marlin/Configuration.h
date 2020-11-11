@@ -13,15 +13,14 @@
 // THE BOARD THIS FIRMWARE IS FOR IS A 3RD PARTY/AFTERMARKET/UPGRADE BOARD NOT STANDARD ON THESE MACHINES.
 // THIS FIRMWARE IS PROVIDED AS-IS AND NOT COVERED UNDER ANY TECHNICAL SUPPORT PROVIDED FOR TH3D PRODUCTS. 
 // CONTACT BIGTREETECH SUPPORT IF YOU REQUIRE SUPPORT ON THEIR PRODUCT OR YOU CAN POST IN OUR FORUM.
+// YOU MUST UNCOMMENT THE PRINTER LINE AND YOUR BOARD VERSION LINE TO COMPILE.
 
 //===========================================================================
 // *************   CREALITY PRINTERS W/SKR E3 MINI BOARD    *****************
 //===========================================================================
 
-//===========================================================================
-// Creality Ender 3/3 Pro Options - SKR E3 Mini Boards
-//===========================================================================
 //#define ENDER3_SKR_E3_MINI
+//#define ENDER5_SKR_E3_MINI
 
 // Uncomment what SKR E3 Mini Board Version you are using
 //#define SKR_E3_MINI_V1
@@ -30,24 +29,21 @@
 
 // EZABL Probe Mounts
 //#define ENDER3_OEM
+//#define ENDER5_OEM
 //#define CUSTOM_PROBE
 
-//===========================================================================
-// Creality Ender 5/5 Pro Options - SKR E3 Mini Boards
-//===========================================================================
-//#define ENDER5_SKR_E3_MINI
+// Ender 3 Specific Options
 
-// Uncomment what SKR E3 Mini Board Version you are using
-//#define SKR_E3_MINI_V1
-//#define SKR_E3_MINI_V1_2
-//#define SKR_E3_MINI_V2_0
+// Ender Xtender Kit Options
+//#define ENDER_XTENDER_300
+//#define ENDER_XTENDER_400
+//#define ENDER_XTENDER_400XL
+//#define ENDER_XTENDER_XL
+
+// Ender 5 Specific Options
 
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
-
-// EZABL Probe Mounts
-//#define ENDER5_OEM
-//#define CUSTOM_PROBE
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -93,9 +89,9 @@
   *
   *     +-- BACK ---+
   *     |           |
-  *   L |    (+) P  | R <-- probe (20,20)
+  *   L |    (+) P  | R <-- probe (10,10)
   *   E |           | I
-  *   F | (-) N (+) | G <-- nozzle (10,10)
+  *   F | (-) N (+) | G <-- nozzle (0,0)
   *   T |           | H
   *     |    (-)    | T
   *     |           |
@@ -104,6 +100,14 @@
   *
   * Specify a Probe position as { X, Y, Z }
   * Do NOT enter an number for the Z position in here. Store your offset in EEPROM.
+  * 
+  * When is the offset POSITIVE?
+  * If the probe is right of the nozzle the offset on X is POSITIVE
+  * If the probe is behind of the nozzle the offset on Y is POSITIVE
+  * 
+  * When is the offset NEGATIVE?
+  * If the probe is left of the nozzle the offset on X is NEGATIVE
+  * If the probe is in front of the nozzle the offset on Y is NEGATIVE
   */
   #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 #endif
@@ -201,11 +205,25 @@
 #define LINEAR_ADVANCE_K 0
 
 // BL TOUCH ----------------------------------------
-// If you want to use the BL-Touch uncomment the 2 lines below. Refer to BTT documentation for connecting the BL Touch
+// If you want to use the BL-Touch uncomment the 2 lines below. Refer to BTT documentation for connecting the BL Touch.
 // Use the Z endstop port for the black/white wires from the BL Touch.
+// You also need to uncomment #define CUSTOM_PROBE above and then enter in your offsets above in the CUSTOM PROBE section.
 //#define BLTOUCH
 // Here is where you set your servo pin. For SKR E3 Mini use PA1
 //#define SERVO0_PIN PA1
+
+// MANUAL MESH LEVELING ----------------------------
+// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
+// Mesh Bed Leveling Documentation: http://marlinfw.org/docs/gcode/G029-mbl.html 
+// NOTE: If you want to automate the leveling process our EZABL kits do this for you. Check them out here: http://EZABL.TH3DStudio.com
+//#define MANUAL_MESH_LEVELING
+
+// POWER LOSS RECOVERY -----------------------------
+// Continue after Power-Loss feature will store the current state to the SD Card at the start of each layer
+// during SD printing. If this is found at bootup it will ask you if you want to resume the print.
+//
+// NOTE: This feature causes excessive wear on your SD card.
+//#define POWER_LOSS_RECOVERY
 
 //===========================================================================
 // **********************  END CONFIGURATION SETTINGS   *********************
@@ -261,8 +279,9 @@
   #else
     #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 95 }
   #endif
-  #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 25 }
-  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+
+  #define DEFAULT_MAX_FEEDRATE          { 200, 200, 15, 50 }
+  #define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 500, 5000 }
 
   #define DEFAULT_ACCELERATION          500
   #define DEFAULT_RETRACT_ACCELERATION  500
@@ -270,8 +289,8 @@
 
   #define CLASSIC_JERK
   #if ENABLED(CLASSIC_JERK)
-    #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 10.0
+    #define DEFAULT_XJERK  7.0
+    #define DEFAULT_YJERK  7.0
     #define DEFAULT_ZJERK  0.3
   #endif
 
@@ -280,14 +299,33 @@
   #define SHOW_BOOTSCREEN
 
   #define EXTRUDERS 1
-
-  #define X_BED_SIZE 220
-  #define Y_BED_SIZE 220
   
   #if ENABLED(ENDER5_SKR_E3_MINI)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
     #define Z_MAX_POS 300
   #else
-    #define Z_MAX_POS 250
+    #if ENABLED(ENDER_XTENDER_400)
+      #define X_BED_SIZE 400
+      #define Y_BED_SIZE 400
+      #define Z_MAX_POS 250
+    #elif ENABLED(ENDER_XTENDER_300)
+      #define X_BED_SIZE 300
+      #define Y_BED_SIZE 300
+      #define Z_MAX_POS 250
+    #elif ENABLED(ENDER_XTENDER_400XL)
+      #define X_BED_SIZE 400
+      #define Y_BED_SIZE 400
+      #define Z_MAX_POS 500
+    #elif ENABLED(ENDER_XTENDER_XL)
+      #define X_BED_SIZE 235
+      #define Y_BED_SIZE 235
+      #define Z_MAX_POS 500
+    #else
+      #define X_BED_SIZE 235
+      #define Y_BED_SIZE 235
+      #define Z_MAX_POS 250
+    #endif
   #endif
   
   #if ENABLED(HOME_ADJUST)
@@ -421,9 +459,11 @@
     #define ABL_ENABLE
   #endif
 
-  #if ENABLED(ABL_ENABLE)
+  #if ENABLED(ABL_ENABLE) || ENABLED(POWER_LOSS_RECOVERY)
     #define SPACE_SAVER
   #endif
+#else
+  #error "UNCOMMENT YOUR PRINTER MODEL. BOTH PRINTER AND BOARD VERSION ARE REQUIRED TO COMPILE."
 #endif
 // End Ender 3/5 SKR E3 Mini Board Settings
  
