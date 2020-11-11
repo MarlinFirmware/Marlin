@@ -435,7 +435,7 @@ void PrintJobRecovery::resume() {
   // Restore print cooling fan speeds
   #if HAS_FAN
     FANS_LOOP(i) {
-      uint8_t f = info.fan_speed[i];
+      const int f = info.fan_speed[i];
       if (f) {
         sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
         gcode.process_subcommands_now(cmd);
