@@ -1700,7 +1700,7 @@ void Temperature::updateTemperaturesFromRawValues() {
 void Temperature::init() {
 
   TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
-  TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+  TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
 
   #if EARLY_WATCHDOG
     // Flag that the thermalManager should be running
@@ -2291,9 +2291,9 @@ void Temperature::disable_all_heaters() {
 
     MAX6675_WRITE(HIGH); // disable TT_MAX6675
 
-    const uint8_t fault = TERN1(HAS_MAX31865, maxref.readFault());
+    const uint8_t fault_31865 = TERN1(HAS_MAX31865, maxref.readFault());
 
-    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault) {
+    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
       max6675_errors[hindex]++;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
         SERIAL_ERROR_START();
@@ -2306,21 +2306,21 @@ void Temperature::disable_all_heaters() {
             SERIAL_ECHOLNPGM("Short to GND");
           else if (max6675_temp & 4)
             SERIAL_ECHOLNPGM("Short to VCC");
-        #elif MAX6675_ERROR_MASK == 1
-          if (fault) {
+        #elif HAS_MAX31865
+          if (fault_31865) {
             maxref.clearFault();
-            SERIAL_ECHOPAIR("MAX31865 Fault :(", fault, ")  >>");
-            if (fault & MAX31865_FAULT_HIGHTHRESH)
+            SERIAL_ECHOPAIR("MAX31865 Fault :(", fault_31865, ")  >>");
+            if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
               SERIAL_ECHOLNPGM("RTD High Threshold");
-            else if (fault & MAX31865_FAULT_LOWTHRESH)
+            else if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
               SERIAL_ECHOLNPGM("RTD Low Threshold");
-            else if (fault & MAX31865_FAULT_REFINLOW)
+            else if (fault_31865 & MAX31865_FAULT_REFINLOW)
               SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
-            else if (fault & MAX31865_FAULT_REFINHIGH)
+            else if (fault_31865 & MAX31865_FAULT_REFINHIGH)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault & MAX31865_FAULT_RTDINLOW)
+            else if (fault_31865 & MAX31865_FAULT_RTDINLOW)
               SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault & MAX31865_FAULT_OVUV)
+            else if (fault_31865 & MAX31865_FAULT_OVUV)
               SERIAL_ECHOLNPGM("Under/Over voltage");
           }
         #else
