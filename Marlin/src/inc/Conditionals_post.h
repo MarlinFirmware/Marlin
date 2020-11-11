@@ -445,9 +445,9 @@
     #define HEATER_0_MAX6675_TMAX 1024
   #endif
   #if TEMP_SENSOR_0 == -5
-    #define MAX6675_IS_MAX31865 1
+    #define MAX6675_0_IS_MAX31865 1
   #elif TEMP_SENSOR_0 == -3
-    #define MAX6675_IS_MAX31855 1
+    #define MAX6675_0_IS_MAX31855 1
   #endif
 #elif TEMP_SENSOR_0 == -4
   #define HEATER_0_USES_AD8495 1
@@ -472,6 +472,11 @@
   #else
     #define HEATER_1_MAX6675_TMIN    0
     #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 == -5
+    #define MAX6675_1_IS_MAX31865 1
+  #elif TEMP_SENSOR_1 == -3
+    #define MAX6675_1_IS_MAX31855 1
   #endif
   #if TEMP_SENSOR_1 != TEMP_SENSOR_0
     #if   TEMP_SENSOR_1 == -5

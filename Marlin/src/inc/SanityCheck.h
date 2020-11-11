@@ -405,6 +405,10 @@
   #error "MAX6675_SS is now MAX6675_SS_PIN. Please update your configuration and/or pins."
 #elif defined(MAX6675_SS2)
   #error "MAX6675_SS2 is now MAX6675_SS2_PIN. Please update your configuration and/or pins."
+#elif defined(MAX31865_SENSOR_OHMS)
+  #error "MAX31865_SENSOR_OHMS is now MAX31865_SENSOR_OHMS_0. Please update your configuration."
+#elif defined(MAX31865_CALIBRATION_OHMS)
+  #error "MAX31865_CALIBRATION_OHMS is now MAX31865_CALIBRATION_OHMS_0. Please update your configuration."
 #elif defined(SPINDLE_LASER_ENABLE)
   #error "SPINDLE_LASER_ENABLE is now SPINDLE_FEATURE or LASER_FEATURE. Please update your Configuration_adv.h."
 #elif defined(SPINDLE_LASER_ENABLE_PIN)
@@ -1814,8 +1818,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
 #endif
 
-#if MAX6675_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS) && defined(MAX31865_CALIBRATION_OHMS))
-  #error "MAX31865_SENSOR_OHMS and MAX31865_CALIBRATION_OHMS must be set in Configuration.h when using a MAX31865 temperature sensor."
+#if MAX6675_0_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_0) && defined(MAX31865_CALIBRATION_OHMS_0))
+  #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set in Configuration.h if TEMP_SENSOR_0 is MAX31865."
+#elif MAX6675_1_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_1) && defined(MAX31865_CALIBRATION_OHMS_1))
+  #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set in Configuration.h if TEMP_SENSOR_1 is MAX31865."
 #endif
 
 /**
