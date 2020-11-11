@@ -50,9 +50,13 @@
 
 /**
  * G34: Z-Stepper automatic alignment
- *
+ * Manual stepper lock controls:
  *   L                 Unlock all
- *   Z<1-4>            Set separate multi-axis and lock/unlock a Z stepper
+ *   Z<1-4>            Select Z stepper to act on
+ *   S<state>          Boolean value for lock state to set
+ *
+ *   Example G34Z1S1;G34Z2S1;G34Z3S0 to unlock only the 3rd Z stepper
+ *   Reset by G28
  *
  * With Z_STEPPER_AUTO_ALIGN:
  *   I<iterations>
