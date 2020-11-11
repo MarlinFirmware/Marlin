@@ -461,27 +461,17 @@ void _O2 Endstops::report_states() {
     #if NUM_RUNOUT_SENSORS == 1
       print_es_state(READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE, PSTR(STR_FILAMENT_RUNOUT_SENSOR));
     #else
-      #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-        #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
-      #else
-        #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; break;
-      #endif
+      #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
       LOOP_S_LE_N(i, 1, NUM_RUNOUT_SENSORS) {
         pin_t pin;
-        #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-          uint8_t state;
-        #endif
+        uint8_t state;
         switch (i) {
           default: continue;
           REPEAT_S(1, INCREMENT(NUM_RUNOUT_SENSORS), _CASE_RUNOUT)
         }
         SERIAL_ECHOPGM(STR_FILAMENT_RUNOUT_SENSOR);
         if (i > 1) SERIAL_CHAR(' ', '0' + i);
-        #if ENABLED(DISTINCT_FIL_RUNOUT_STATES)
-          print_es_state(extDigitalRead(pin) != state);
-        #else
-          print_es_state(extDigitalRead(pin) != FIL_RUNOUT_STATE);
-        #endif
+        print_es_state(extDigitalRead(pin) != state);
       }
       #undef _CASE_RUNOUT
     #endif
