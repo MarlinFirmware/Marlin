@@ -275,15 +275,15 @@
     *
     * The ANET_FULL_GRAPHICS_LCD connector plug:
     *
-    *                  BEFORE                          AFTER
-    *                  _____                           _____
-    *           GND 1 | 1 2 |  2 5V              5V 1 | 1 2 |  2 GND
-    *            CS 3 | 3 4 |  4 BTN_EN2         CS 3 | 3 4 |  4 BTN_EN2
-    *           SID 5 | 5 6    6 BTN_EN1        SID 5 | 5 6    6 BTN_EN1
-    *          open 7 | 7 8 |  8 BTN_ENC        CLK 7 | 7 8 |  8 BTN_ENC
-    *           CLK 9 | 9 10| 10 Beeper        open 9 | 9 10| 10 Beeper
-    *                  -----                           -----
-    *                   LCD                             LCD
+    *                BEFORE                     AFTER
+    *                _____                      _____
+    *           GND | 1 2 | 5V              5V | 1 2 | GND
+    *            CS | 3 4 | BTN_EN2         CS | 3 4 | BTN_EN2
+    *           SID | 5 6   BTN_EN1        SID | 5 6   BTN_EN1
+    *          open | 7 8 | BTN_ENC        CLK | 7 8 | BTN_ENC
+    *           CLK | 9 10| Beeper        open | 9 10| Beeper
+    *                -----                      -----
+    *                 LCD                        LCD
     */
 
     #define LCD_PINS_RS                    EXPA1_03_PIN
@@ -311,7 +311,7 @@
      *                   _____
      *               5V | 1 2 | GND
      *      (MOSI) 1.23 | 3 4 | 1.22 (LCD_RS)
-     *    (LCD_A0) 1.21 | 5 6 | 1.20 (BTN_EN2)
+     *    (LCD_A0) 1.21 | 5 6   1.20 (BTN_EN2)
      *       RESET 1.19 | 7 8 | 1.18 (BTN_EN1)
      *   (BTN_ENC) 0.28 | 9 10| 1.30  (SCK)
      *                   -----

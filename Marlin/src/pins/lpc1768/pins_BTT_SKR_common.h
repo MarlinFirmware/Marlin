@@ -124,7 +124,7 @@
   #error "No custom SD drive cable defined for this board."
 #endif
 
-#if HAS_BTT_EXP_MOT 
+#if HAS_BTT_EXP_MOT
 /*               _____                                      _____
  *           NC | · · | GND                             NC | · · | GND
  *           NC | · · | 1.31 (M1EN)            (M2EN) 1.23 | · · | 1.22 (M3EN)
