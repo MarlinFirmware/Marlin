@@ -111,7 +111,7 @@
 #elif defined(FILAMENT_SENSOR)
   #error "FILAMENT_SENSOR is now FILAMENT_WIDTH_SENSOR. Please update your configuration."
 #elif defined(ENDSTOPPULLUP_FIL_RUNOUT)
-  #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULLUP. Please update your configuration."
+  #error "ENDSTOPPULLUP_FIL_RUNOUT is now FIL_RUNOUT_PULL. Please update your configuration."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
   #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
 #elif defined(LANGUAGE_INCLUDE)
@@ -405,6 +405,10 @@
   #error "MAX6675_SS is now MAX6675_SS_PIN. Please update your configuration and/or pins."
 #elif defined(MAX6675_SS2)
   #error "MAX6675_SS2 is now MAX6675_SS2_PIN. Please update your configuration and/or pins."
+#elif defined(MAX31865_SENSOR_OHMS)
+  #error "MAX31865_SENSOR_OHMS is now MAX31865_SENSOR_OHMS_0. Please update your configuration."
+#elif defined(MAX31865_CALIBRATION_OHMS)
+  #error "MAX31865_CALIBRATION_OHMS is now MAX31865_CALIBRATION_OHMS_0. Please update your configuration."
 #elif defined(SPINDLE_LASER_ENABLE)
   #error "SPINDLE_LASER_ENABLE is now SPINDLE_FEATURE or LASER_FEATURE. Please update your Configuration_adv.h."
 #elif defined(SPINDLE_LASER_ENABLE_PIN)
@@ -582,6 +586,11 @@
 /**
  * Serial
  */
+#ifndef SERIAL_PORT
+  #error "SERIAL_PORT must be defined in Configuration.h"
+#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
+  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
+#endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
@@ -592,12 +601,6 @@
   #endif
 #elif ANY(SERIAL_XON_XOFF, SERIAL_STATS_MAX_RX_QUEUED, SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
-#endif
-
-#ifndef SERIAL_PORT
-  #error "SERIAL_PORT must be defined in Configuration.h"
-#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
-  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
 #endif
 
 /**
@@ -660,8 +663,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
 #if BOTH(ENDSTOPPULLUPS, ENDSTOPPULLDOWNS)
   #error "Enable only one of ENDSTOPPULLUPS or ENDSTOPPULLDOWNS."
-#elif BOTH(FIL_RUNOUT_PULLUP, FIL_RUNOUT_PULLDOWN)
-  #error "Enable only one of FIL_RUNOUT_PULLUP or FIL_RUNOUT_PULLDOWN."
 #elif BOTH(ENDSTOPPULLUP_XMAX, ENDSTOPPULLDOWN_XMAX)
   #error "Enable only one of ENDSTOPPULLUP_X_MAX or ENDSTOPPULLDOWN_X_MAX."
 #elif BOTH(ENDSTOPPULLUP_YMAX, ENDSTOPPULLDOWN_YMAX)
@@ -814,18 +815,20 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif NUM_RUNOUT_SENSORS > E_STEPPERS
     #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
-  #elif NUM_RUNOUT_SENSORS > 1 && !PIN_EXISTS(FIL_RUNOUT2)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 1 requires FIL_RUNOUT2_PIN."
-  #elif NUM_RUNOUT_SENSORS > 2 && !PIN_EXISTS(FIL_RUNOUT3)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 2 requires FIL_RUNOUT3_PIN."
-  #elif NUM_RUNOUT_SENSORS > 3 && !PIN_EXISTS(FIL_RUNOUT4)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 3 requires FIL_RUNOUT4_PIN."
-  #elif NUM_RUNOUT_SENSORS > 4 && !PIN_EXISTS(FIL_RUNOUT5)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 4 requires FIL_RUNOUT5_PIN."
-  #elif NUM_RUNOUT_SENSORS > 5 && !PIN_EXISTS(FIL_RUNOUT6)
-    #error "FILAMENT_RUNOUT_SENSOR with NUM_RUNOUT_SENSORS > 5 requires FIL_RUNOUT6_PIN."
-  #elif NONE(SDSUPPORT, PRINTJOB_TIMER_AUTOSTART)
-    #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
+  #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
+    #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
+  #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
+    #error "FIL_RUNOUT3_PIN is required with NUM_RUNOUT_SENSORS >= 3."
+  #elif NUM_RUNOUT_SENSORS >= 4 && !PIN_EXISTS(FIL_RUNOUT4)
+    #error "FIL_RUNOUT4_PIN is required with NUM_RUNOUT_SENSORS >= 4."
+  #elif NUM_RUNOUT_SENSORS >= 5 && !PIN_EXISTS(FIL_RUNOUT5)
+    #error "FIL_RUNOUT5_PIN is required with NUM_RUNOUT_SENSORS >= 5."
+  #elif NUM_RUNOUT_SENSORS >= 6 && !PIN_EXISTS(FIL_RUNOUT6)
+    #error "FIL_RUNOUT6_PIN is required with NUM_RUNOUT_SENSORS >= 6."
+  #elif NUM_RUNOUT_SENSORS >= 7 && !PIN_EXISTS(FIL_RUNOUT7)
+    #error "FIL_RUNOUT7_PIN is required with NUM_RUNOUT_SENSORS >= 7."
+  #elif NUM_RUNOUT_SENSORS >= 8 && !PIN_EXISTS(FIL_RUNOUT8)
+    #error "FIL_RUNOUT8_PIN is required with NUM_RUNOUT_SENSORS >= 8."
   #elif FILAMENT_RUNOUT_DISTANCE_MM < 0
     #error "FILAMENT_RUNOUT_DISTANCE_MM must be greater than or equal to zero."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
@@ -1815,8 +1818,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
 #endif
 
-#if MAX6675_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS) && defined(MAX31865_CALIBRATION_OHMS))
-  #error "MAX31865_SENSOR_OHMS and MAX31865_CALIBRATION_OHMS must be set in Configuration.h when using a MAX31865 temperature sensor."
+#if MAX6675_0_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_0) && defined(MAX31865_CALIBRATION_OHMS_0))
+  #error "MAX31865_SENSOR_OHMS_0 and MAX31865_CALIBRATION_OHMS_0 must be set in Configuration.h if TEMP_SENSOR_0 is MAX31865."
+#elif MAX6675_1_IS_MAX31865 && !(defined(MAX31865_SENSOR_OHMS_1) && defined(MAX31865_CALIBRATION_OHMS_1))
+  #error "MAX31865_SENSOR_OHMS_1 and MAX31865_CALIBRATION_OHMS_1 must be set in Configuration.h if TEMP_SENSOR_1 is MAX31865."
 #endif
 
 /**
@@ -2191,6 +2196,14 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #warning "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
     #warning "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
+  #endif
+#endif
+
+#if ENABLED(SD_IGNORE_AT_STARTUP)
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #error "SD_IGNORE_AT_STARTUP is incompatible with POWER_LOSS_RECOVERY."
+  #elif ENABLED(SDCARD_EEPROM_EMULATION)
+    #error "SD_IGNORE_AT_STARTUP is incompatible with SDCARD_EEPROM_EMULATION."
   #endif
 #endif
 

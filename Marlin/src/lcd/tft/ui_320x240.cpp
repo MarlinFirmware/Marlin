@@ -649,7 +649,7 @@ void menu_item(const uint8_t row, bool sel ) {
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
   #if ENABLED(TOUCH_SCREEN)
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, 2 + 34 * row, 320, 32, encoderTopLine + row);
+    touch.add_control(tct, 0, 2 + 34 * row, TFT_WIDTH, 32, encoderTopLine + row);
   #endif
 }
 
