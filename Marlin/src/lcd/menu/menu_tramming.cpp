@@ -50,6 +50,14 @@ bool probe_single_point() {
   const float z_probed_height = probe.probe_at_point(screws_tilt_adjust_pos[tram_index], PROBE_PT_RAISE, 0, true);
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
+
+  #ifdef ASSISTED_TRAMMING_WAIT_POSITION
+    // Move XY to safe position
+    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");
+    const xyz_pos_t wait_pos = ASSISTED_TRAMMING_WAIT_POSITION;
+    do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S);
+  #endif
+
   return !isnan(z_probed_height);
 }
 
