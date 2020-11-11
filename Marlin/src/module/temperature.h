@@ -811,7 +811,7 @@ class Temperature {
     #if HAS_MAX6675
       #define COUNT_6675 1 + BOTH(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
       #if COUNT_6675 > 1
-        #define HAS_MULTI_6675
+        #define HAS_MULTI_6675 1
         #define READ_MAX6675(N) read_max6675(N)
       #else
         #define READ_MAX6675(N) read_max6675()
