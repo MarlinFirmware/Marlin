@@ -149,31 +149,31 @@ class FilamentSensorBase {
 
   public:
     static inline void setup() {
-      #define _INIT_RUNOUT_PIN(N,P) do{ if (DISABLED(FIL_RUNOUT##N##_PULL)) SET_INPUT(P) else if (FIL_RUNOUT##N##_STATE) SET_INPUT_PULLDOWN(P); else SET_INPUT_PULLUP(P); }while(0)
-      #define  INIT_RUNOUT_PIN(N,P) _INIT_RUNOUT_PIN(N,P)
+      #define _INIT_RUNOUT_PIN(P,S,U) do{ if (DISABLED(U)) SET_INPUT(P); else if (S) SET_INPUT_PULLDOWN(P); else SET_INPUT_PULLUP(P); }while(0)
+      #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULL)
       #if NUM_RUNOUT_SENSORS >= 1
-        INIT_RUNOUT_PIN(1, P)
+        INIT_RUNOUT_PIN(1);
       #endif
       #if NUM_RUNOUT_SENSORS >= 2
-        INIT_RUNOUT_PIN(2, P)
+        INIT_RUNOUT_PIN(2);
       #endif
       #if NUM_RUNOUT_SENSORS >= 3
-        INIT_RUNOUT_PIN(3, P)
+        INIT_RUNOUT_PIN(3);
       #endif
       #if NUM_RUNOUT_SENSORS >= 4
-        INIT_RUNOUT_PIN(4, P)
+        INIT_RUNOUT_PIN(4);
       #endif
       #if NUM_RUNOUT_SENSORS >= 5
-        INIT_RUNOUT_PIN(5, P)
+        INIT_RUNOUT_PIN(5);
       #endif
       #if NUM_RUNOUT_SENSORS >= 6
-        INIT_RUNOUT_PIN(6, P)
+        INIT_RUNOUT_PIN(6);
       #endif
       #if NUM_RUNOUT_SENSORS >= 7
-        INIT_RUNOUT_PIN(7, P)
+        INIT_RUNOUT_PIN(7);
       #endif
       #if NUM_RUNOUT_SENSORS >= 8
-        INIT_RUNOUT_PIN(8, P)
+        INIT_RUNOUT_PIN(8);
       #endif
       #undef _INIT_RUNOUT_PIN
       #undef  INIT_RUNOUT_PIN
