@@ -582,6 +582,11 @@
 /**
  * Serial
  */
+#ifndef SERIAL_PORT
+  #error "SERIAL_PORT must be defined in Configuration.h"
+#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
+  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
+#endif
 #if !(defined(__AVR__) && defined(USBCON))
   #if ENABLED(SERIAL_XON_XOFF) && RX_BUFFER_SIZE < 1024
     #error "SERIAL_XON_XOFF requires RX_BUFFER_SIZE >= 1024 for reliable transfers without drops."
@@ -592,12 +597,6 @@
   #endif
 #elif ANY(SERIAL_XON_XOFF, SERIAL_STATS_MAX_RX_QUEUED, SERIAL_STATS_DROPPED_RX)
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
-#endif
-
-#ifndef SERIAL_PORT
-  #error "SERIAL_PORT must be defined in Configuration.h"
-#elif defined(SERIAL_PORT_2) && SERIAL_PORT_2 == SERIAL_PORT
-  #error "SERIAL_PORT_2 cannot be the same as SERIAL_PORT. Please update your configuration."
 #endif
 
 /**
@@ -2191,6 +2190,14 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #warning "Either disable SDCARD_READONLY or disable BINARY_FILE_TRANSFER."
   #elif ENABLED(SDCARD_EEPROM_EMULATION)
     #warning "Either disable SDCARD_READONLY or disable SDCARD_EEPROM_EMULATION."
+  #endif
+#endif
+
+#if ENABLED(SD_IGNORE_AT_STARTUP)
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #error "SD_IGNORE_AT_STARTUP is incompatible with POWER_LOSS_RECOVERY."
+  #elif ENABLED(SDCARD_EEPROM_EMULATION)
+    #error "SD_IGNORE_AT_STARTUP is incompatible with SDCARD_EEPROM_EMULATION."
   #endif
 #endif
 
