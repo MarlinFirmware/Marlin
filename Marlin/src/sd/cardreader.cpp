@@ -562,8 +562,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
 
         // Store current filename (based on workDirParents) and position
         getAbsFilename(proc_filenames[file_subcall_ctr]);
-
-        TERN_(HAS_MEDIA_SUBCALLS, filespos[file_subcall_ctr] = sdpos);
+        filespos[file_subcall_ctr] = sdpos;
 
         // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
         SERIAL_ECHO_START();
