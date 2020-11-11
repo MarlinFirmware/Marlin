@@ -1799,22 +1799,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  #if MAX6675_SEPARATE_SPI
-
-    OUT_WRITE(SCK_PIN, LOW);
-    OUT_WRITE(MOSI_PIN, HIGH);
-    SET_INPUT_PULLUP(MISO_PIN);
-
-    max6675_spi.init();
-
-    OUT_WRITE(SS_PIN, HIGH);
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);
-
-  #endif
-
-  #if HEATER_1_USES_MAX6675
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH);
-  #endif
+  TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
 
   HAL_adc_init();
 
