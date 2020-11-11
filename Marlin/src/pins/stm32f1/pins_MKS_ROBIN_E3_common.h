@@ -29,6 +29,8 @@
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
+#define BOARD_NO_NATIVE_USB
+
 #define BOARD_WEBSITE_URL "github.com/makerbase-mks"
 
 //#define DISABLE_DEBUG
@@ -167,7 +169,7 @@
 //
 // SD Card
 //
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 #define SD_DETECT_PIN                       PC10
 #define SCK_PIN                             PB13
 #define MISO_PIN                            PB14

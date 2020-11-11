@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,45 +19,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(__STM32F1__) && !defined(HAVE_SW_SERIAL)
+#pragma once
+
+#include <SPI.h>
 
 /**
- * Empty class for Software Serial implementation (Custom RX/TX pins)
+ * Marlin currently requires 3 SPI classes:
  *
- * TODO: Optionally use https://github.com/FYSETC/SoftwareSerialM if TMC UART is wanted
+ * SPIClass:
+ *  This class is normally provided by frameworks and has a semi-default interface.
+ *  This is needed because some libraries reference it globally.
+ *
+ * SPISettings:
+ *  Container for SPI configs for SPIClass. As above, libraries may reference it globally.
+ *
+ * These two classes are often provided by frameworks so we cannot extend them to add
+ * useful methods for Marlin.
+ *
+ * MarlinSPI:
+ *  Provides the default SPIClass interface plus some Marlin goodies such as a simplified
+ *  interface for SPI DMA transfer.
+ *
  */
 
-#include "SoftwareSerial.h"
-
-// Constructor
-
-SoftwareSerial::SoftwareSerial(int8_t RX_pin, int8_t TX_pin) {}
-
-// Public
-
-void SoftwareSerial::begin(const uint32_t baudrate) {
-}
-
-bool SoftwareSerial::available() {
-  return false;
-}
-
-uint8_t SoftwareSerial::read() {
-  return 0;
-}
-
-uint16_t SoftwareSerial::write(uint8_t byte) {
-  return 0;
-}
-
-void SoftwareSerial::flush() {}
-
-void SoftwareSerial::listen() {
-  listening = true;
-}
-
-void SoftwareSerial::stopListening() {
-  listening = false;
-}
-
-#endif // __STM32F1__
+using MarlinSPI = SPIClass;

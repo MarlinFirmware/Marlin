@@ -305,6 +305,10 @@ void menu_move() {
   void menu_bed_leveling();
 #endif
 
+#if ENABLED(ASSISTED_TRAMMING_WIZARD)
+  void goto_tramming_wizard();
+#endif
+
 void menu_motion() {
   START_MENU();
 
@@ -346,7 +350,9 @@ void menu_motion() {
   //
   // Assisted Bed Tramming
   //
-  #if ENABLED(ASSISTED_TRAMMING_MENU_ITEM)
+  #if ENABLED(ASSISTED_TRAMMING_WIZARD)
+    SUBMENU(MSG_TRAMMING_WIZARD, goto_tramming_wizard);
+  #elif ENABLED(ASSISTED_TRAMMING_MENU_ITEM)
     GCODES_ITEM(MSG_ASSISTED_TRAMMING, PSTR("G35"));
   #endif
 
