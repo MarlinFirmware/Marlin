@@ -2233,7 +2233,7 @@ void Temperature::disable_all_heaters() {
       // Needed to return the correct temp when this is called between readings
       static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
       #define MAX6675_TEMP(I) max6675_temp_previous[I]
-      #define MAX6675_SEL(A,B) hindex ? B : A
+      #define MAX6675_SEL(A,B) (hindex ? (B) : (A))
       #define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
       #define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
     #else
@@ -2328,7 +2328,7 @@ void Temperature::disable_all_heaters() {
         #endif
 
         // Thermocouple open
-        max6675_temp = 4 * (MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX));
+        max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
       }
       else
         max6675_temp >>= MAX6675_DISCARD_BITS;
