@@ -1548,7 +1548,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
 #if ENABLED(Z_PROBE_ALLEN_KEY) && (Z_HOME_DIR < 0) && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-  #error "You can't home to a z min endstop with a Z_PROBE_ALLEN_KEY."
+  #error "You can't home to a Z min endstop with a Z_PROBE_ALLEN_KEY."
 #endif
 
 /**
@@ -1963,6 +1963,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
   #error "Z_HOME_DIR must be -1 when homing Z with the probe."
 #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
   #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+#endif
+
+#if BOTH(HOME_Z_FIRST, USE_PROBE_FOR_Z_HOMING)
+  #error "HOME_Z_FIRST can't be used when homing Z with a probe."
 #endif
 
 // Dual/multiple endstops requirements
