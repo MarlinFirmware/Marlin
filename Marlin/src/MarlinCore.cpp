@@ -509,7 +509,7 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
     kill();
   }
 
-  // M18 / M94 : Handle steppers inactive time timeout
+  // M18 / M84 : Handle steppers inactive time timeout
   if (gcode.stepper_inactive_time) {
 
     static bool already_shutdown_steppers; // = false
@@ -990,6 +990,14 @@ void setup() {
   #endif
 
   SETUP_RUN(HAL_init());
+
+  // Init and disable SPI thermocouples
+  #if HEATER_0_USES_MAX6675
+    OUT_WRITE(MAX6675_SS_PIN, HIGH);  // Disable
+  #endif
+  #if HEATER_1_USES_MAX6675
+    OUT_WRITE(MAX6675_SS2_PIN, HIGH); // Disable
+  #endif
 
   #if HAS_L64XX
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers

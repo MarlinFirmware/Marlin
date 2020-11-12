@@ -183,5 +183,6 @@ cmake-build-*
 
 #Python
 __pycache__
-Marlin/_Bootscreen.h
-*.h
+
+#IOLogger logs
+*_log.csv
