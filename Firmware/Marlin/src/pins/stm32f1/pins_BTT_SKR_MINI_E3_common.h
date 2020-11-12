@@ -48,12 +48,21 @@
 //
 #define X_STOP_PIN                          PC0   // "X-STOP"
 #define Y_STOP_PIN                          PC1   // "Y-STOP"
-#define Z_STOP_PIN                          PC2   // "Z-STOP"
+#if ENABLED(EZABL_ON_ZPROBE)
+  #define Z_STOP_PIN                          PC14   // "Z-STOP"
+#else
+  #define Z_STOP_PIN                          PC2   // "Z-STOP"
+#endif
 
 //
 // Z Probe must be this pin
 //
-#define Z_MIN_PROBE_PIN                     PC14  // "PROBE"
+#if ENABLED(EZABL_ON_ZPROBE)
+  #define Z_MIN_PROBE_PIN                     PC2  // "PROBE""
+#else
+  #define Z_MIN_PROBE_PIN                     PC14  // "PROBE"
+#endif
+
 
 //
 // Filament Runout Sensor
