@@ -50,27 +50,35 @@
 
 /**
  * G34: Z-Stepper automatic alignment
- * Manual stepper lock controls:
- *   L                 Unlock all
- *   Z<1-4>            Select Z stepper to act on
- *   S<state>          Boolean value for lock state to set
  *
- *   Example G34Z1S1;G34Z2S1;G34Z3S0 to unlock only the 3rd Z stepper
- *   Reset by G28
+ * Manual stepper lock controls (reset by G28):
+ *   L                 Unlock all steppers
+ *   Z<1-4>            Z stepper to lock / unlock
+ *   S<state>          0=UNLOCKED 1=LOCKED. If omitted, assume LOCKED.
+ *
+ *   Examples:
+ *     G34 Z1     ; Lock Z1
+ *     G34 L Z2   ; Unlock all, then lock Z2
+ *     G34 Z2 S0  ; Unlock Z2
  *
  * With Z_STEPPER_AUTO_ALIGN:
- *   I<iterations>
- *   T<accuracy>
- *   A<amplification>  Provide an Amplification value
+ *   I<iterations>     Number of tests. If omitted, Z_STEPPER_ALIGN_ITERATIONS.
+ *   T<accuracy>       Target Accuracy factor. If omitted, Z_STEPPER_ALIGN_ACC.
+ *   A<amplification>  Provide an Amplification value. If omitted, Z_STEPPER_ALIGN_AMP.
  *   R                 Flag to recalculate points based on current probe offsets
  */
 void GcodeSuite::G34() {
   DEBUG_SECTION(log_G34, "G34", DEBUGGING(LEVELING));
   if (DEBUGGING(LEVELING)) log_machine_info();
 
-  if (parser.seenval('Z')) {
-    stepper.set_separate_multi_axis(true);
-    const bool state = parser.boolval('S');
+  planner.synchronize();  // Prevent damage
+
+  const bool seenL = parser.seen('L');
+  if (seenL) stepper.set_all_z_lock(false);
+
+  const bool seenZ = parser.seenval('Z');
+  if (seenZ) {
+    const bool state = parser.boolval('S', true);
     switch (parser.intval('Z')) {
       case 1: stepper.set_z1_lock(state); break;
       case 2: stepper.set_z2_lock(state); break;
@@ -81,12 +89,10 @@ void GcodeSuite::G34() {
         #endif
       #endif
     }
-    return;
   }
 
-  if (parser.seen('L')) {
-    stepper.set_all_z_lock(false);
-    stepper.set_separate_multi_axis(false);
+  if (seenL || seenZ) {
+    stepper.set_separate_multi_axis(seenZ);
     return;
   }
 
@@ -112,23 +118,15 @@ void GcodeSuite::G34() {
         break;
       }
 
-      const float z_auto_align_amplification =
-        #if ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
-          Z_STEPPER_ALIGN_AMP;
-        #else
-          parser.floatval('A', Z_STEPPER_ALIGN_AMP);
-          if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
-            SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
-            break;
-          }
-        #endif
+      const float z_auto_align_amplification = TERN(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS, Z_STEPPER_ALIGN_AMP, parser.floatval('A', Z_STEPPER_ALIGN_AMP));
+      if (!WITHIN(ABS(z_auto_align_amplification), 0.5f, 2.0f)) {
+        SERIAL_ECHOLNPGM("?(A)mplification out of bounds (0.5-2.0).");
+        break;
+      }
 
       if (parser.seen('R')) z_stepper_align.reset_to_default();
 
       const ProbePtRaise raise_after = parser.boolval('E') ? PROBE_PT_STOW : PROBE_PT_RAISE;
-
-      // Wait for planner moves to finish!
-      planner.synchronize();
 
       // Disable the leveling matrix before auto-aligning
       #if HAS_LEVELING
