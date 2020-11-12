@@ -109,7 +109,7 @@ Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.
 
 - This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
 - Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
-- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues).
+- Please submit Feature Requests and Bug Reports to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues/new/choose). Support resources are also listed there.
 
 ### [RepRap.org Wiki Page](https://reprap.org/wiki/Marlin)
 

@@ -80,12 +80,10 @@
 
     #include "lcdprint.h"
 
-    void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
-    inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
-    inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
-
-    #if ENABLED(SDSUPPORT)
-      #include "../sd/cardreader.h"
+    #if !HAS_GRAPHICAL_TFT
+      void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+      inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+      inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
     #endif
 
     typedef void (*screenFunc_t)();
@@ -291,6 +289,12 @@ public:
   MarlinUI() {
     TERN_(HAS_LCD_MENU, currentScreen = status_screen);
   }
+
+  #if ENABLED(SOUND_MENU_ITEM)
+    static bool buzzer_enabled; // Initialized by settings.load()
+  #else
+    static constexpr bool buzzer_enabled = true;
+  #endif
 
   #if HAS_BUZZER
     static void buzz(const long duration, const uint16_t freq);

@@ -153,6 +153,10 @@
   #include "../feature/ethernet.h"
 #endif
 
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../libs/buzzer.h"
+#endif
+
 #pragma pack(push, 1) // No padding between variables
 
 #if HAS_ETHERNET
@@ -451,6 +455,12 @@ typedef struct SettingsDataStruct {
              ethernet_subnet;                           // M554 P
   #endif
 
+  //
+  // Buzzer enable/disable
+  //
+  #if ENABLED(SOUND_MENU_ITEM)
+    bool buzzer_enabled;
+  #endif
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -1423,6 +1433,13 @@ void MarlinSettings::postprocess() {
     #endif
 
     //
+    // Buzzer enable/disable
+    //
+    #if ENABLED(SOUND_MENU_ITEM)
+      EEPROM_WRITE(ui.buzzer_enabled);
+    #endif
+
+    //
     // Report final CRC and Data Size
     //
     if (!eeprom_error) {
@@ -1480,7 +1497,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_version());
+      IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
     else {
@@ -2294,19 +2311,27 @@ void MarlinSettings::postprocess() {
       #endif
 
       //
+      // Buzzer enable/disable
+      //
+      #if ENABLED(SOUND_MENU_ITEM)
+        _FIELD_TEST(buzzer_enabled);
+        EEPROM_READ(ui.buzzer_enabled);
+      #endif
+
+      //
       // Validate Final Size and CRC
       //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_index());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_crc());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
@@ -2602,6 +2627,11 @@ void MarlinSettings::reset() {
   // TOUCH_SCREEN_CALIBRATION
   //
   TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
+
+  //
+  // Buzzer enable/disable
+  //
+  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
 
   //
   // Magnetic Parking Extruder
@@ -3770,7 +3800,7 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
+    #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       CONFIG_ECHO_HEADING("Stepper motor currents:");
       CONFIG_ECHO_START();
       #if HAS_MOTOR_CURRENT_PWM
@@ -3788,10 +3818,10 @@ void MarlinSettings::reset() {
         SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
         SERIAL_ECHOLN(stepper.motor_current_setting[4]);
       #endif
-    #elif HAS_MOTOR_CURRENT_I2C                                // i2c-based has any number of values
+    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)                       // i2c-based has any number of values
       // Values sent over i2c are not stored.
       // Indexes map directly to drivers, not axes.
-    #elif HAS_MOTOR_CURRENT_DAC                                // DAC-based has 4 values, for X Y Z E
+    #elif ENABLED(HAS_MOTOR_CURRENT_DAC)                       // DAC-based has 4 values, for X Y Z E
       // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 

@@ -86,7 +86,7 @@
   #include "draw_wifi_tips.h"
 #endif
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 #define FILE_SYS_USB  0
 #define FILE_SYS_SD 1
 

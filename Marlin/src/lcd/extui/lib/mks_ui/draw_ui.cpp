@@ -1640,7 +1640,6 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
     disp_state_stack._disp_state[disp_state_stack._disp_index] = newScreenType;
   }
   disp_state = newScreenType;
-  lv_refr_now(lv_refr_get_disp_refreshing());
 
   // title
   lv_obj_t *titleLabel = nullptr;
@@ -1651,18 +1650,22 @@ lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title) {
   if (titleLabel)
     lv_obj_set_style(titleLabel, &tft_style_label_rel);
 
+  lv_refr_now(lv_refr_get_disp_refreshing());
+
   return scr;
 }
 
 // Create an empty label
 lv_obj_t* lv_label_create_empty(lv_obj_t *par) {
-  return lv_label_create(par, (lv_obj_t*)nullptr);
+  lv_obj_t *label = lv_label_create(par, (lv_obj_t*)nullptr);
+  return label;
 }
 
 // Create a label with style and text
 lv_obj_t* lv_label_create(lv_obj_t *par, const char *text) {
   lv_obj_t *label = lv_label_create_empty(par);
   if (text) lv_label_set_text(label, text);
+  lv_obj_set_style(label, &tft_style_label_rel);
   return label;
 }
 
@@ -1677,7 +1680,7 @@ lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char 
 lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id/*=0*/, lv_style_t *style/*=&style_para_value*/) {
   lv_obj_t *btn = lv_btn_create(par, nullptr);
   if (id)
-    lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
+    lv_obj_set_event_cb_mks(btn, cb, id, "", 0);
   else
     lv_obj_set_event_cb(btn, cb);
   lv_btn_set_style_both(btn, style);
@@ -1745,7 +1748,7 @@ lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, con
   lv_obj_t *btn = lv_imgbtn_create(par, nullptr);
   if (img) lv_imgbtn_set_src_both(btn, img);
   if (id)
-    lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
+    lv_obj_set_event_cb_mks(btn, cb, id, "", 0);
   else
     lv_obj_set_event_cb(btn, cb);
   lv_imgbtn_use_label_style(btn);
@@ -1782,7 +1785,7 @@ lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_
   lv_obj_t *btn = lv_btn_create(par, nullptr);   /*Add a button the current screen*/
   lv_obj_set_pos(btn, x, y);                         /*Set its position*/
   lv_obj_set_size(btn, PARA_UI_SIZE_X, PARA_UI_SIZE_Y);                       /*Set its size*/
-  if (id > -1) lv_obj_set_event_cb_mks(btn, cb, id, nullptr, 0);
+  if (id > -1) lv_obj_set_event_cb_mks(btn, cb, id, "", 0);
   lv_btn_use_label_style(btn);
   lv_btn_set_layout(btn, LV_LAYOUT_OFF);
   lv_obj_t *label = lv_label_create_empty(btn);        /*Add a label to the button*/

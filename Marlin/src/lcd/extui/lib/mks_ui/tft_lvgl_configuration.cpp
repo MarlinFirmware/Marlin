@@ -43,7 +43,7 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
+#include HAL_PATH(../../../../HAL, tft/xpt2046.h)
 #include "../../../marlinui.h"
 XPT2046 touch;
 
@@ -116,17 +116,20 @@ void tft_lvgl_init() {
   ui_cfg_init();
   disp_language_init();
 
-  //init tft first!
+  watchdog_refresh();     // LVGL init takes time
+
+  // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
+  watchdog_refresh();     // LVGL init takes time
+
   //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
-    watchdog_refresh();
     UpdateAssets();
+    watchdog_refresh();   // LVGL init takes time
   #endif
 
-  watchdog_refresh();
   mks_test_get();
 
   touch.Init();
@@ -189,9 +192,11 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
+      ready = false;
       if (gCfgItems.from_flash_pic)
         flash_preview_begin = true;
       else
@@ -201,14 +206,12 @@ void tft_lvgl_init() {
 
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
-
       strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
       lv_draw_printing();
     }
-    else
   #endif
-    lv_draw_ready_print();
+
+  if (ready) lv_draw_ready_print();
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();

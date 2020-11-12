@@ -488,6 +488,7 @@ uint8_t public_buf[512];
   }
 
   void UpdateAssets() {
+    if (!card.isMounted()) return;
     SdFile dir, root = card.getroot();
     if (dir.open(&root, assetsPath, O_RDONLY)) {
 

@@ -594,7 +594,7 @@ inline void Item_Prepare_Home(const uint8_t row) {
     if (HMI_IsChinese()) {
       #if HAS_BED_PROBE
         DWIN_Frame_AreaCopy(1, 174, 164, 223, 177, LBLX, MBASE(row));
-        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), probe.offset.z * 100);
       #else
         DWIN_Frame_AreaCopy(1, 43, 89, 98, 101, LBLX, MBASE(row));
       #endif
@@ -602,7 +602,7 @@ inline void Item_Prepare_Home(const uint8_t row) {
     else {
       #if HAS_BED_PROBE
         DWIN_Frame_AreaCopy(1, 93, 179, 141, 189, LBLX, MBASE(row));    // "Z-Offset"
-        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), BABY_Z_VAR * 100);
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(row), probe.offset.z * 100);
       #else
         DWIN_Frame_AreaCopy(1, 1, 76, 106, 86, LBLX, MBASE(row));       // "..."
       #endif
@@ -1271,14 +1271,8 @@ void HMI_Move_Z() {
           probe.offset.z = dwin_zoffset;
           TERN_(EEPROM_SETTINGS, settings.save());
         #endif
-        if (HMI_ValueStruct.show_mode == -4) {
-          checkkey = Prepare;
-          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
-        }
-        else {
-          checkkey = Tune;
-          DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
-        }
+        checkkey = HMI_ValueStruct.show_mode == -4 ? Prepare : Tune;
+        DWIN_Draw_Signed_Float(font8x16, Color_Bg_Black, 2, 2, 202, MBASE(zoff_line), TERN(HAS_BED_PROBE, BABY_Z_VAR * 100, HMI_ValueStruct.offset_value));
         DWIN_UpdateLCD();
         return;
       }
@@ -1311,11 +1305,7 @@ void HMI_Move_Z() {
       }
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.E_Temp)) {
         EncoderRate.enabled = false;
-        if (HMI_ValueStruct.show_mode == -1) { // temperature
-          checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
-        }
-        else if (HMI_ValueStruct.show_mode == -2) {
+        if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].hotend_temp = HMI_ValueStruct.E_Temp;
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), ui.material_preset[0].hotend_temp);
@@ -1327,10 +1317,11 @@ void HMI_Move_Z() {
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), ui.material_preset[1].hotend_temp);
           return;
         }
-        else { // tune
+        else if (HMI_ValueStruct.show_mode == -1) // Temperature
+          checkkey = TemperatureID;
+        else
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
-        }
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(temp_line), HMI_ValueStruct.E_Temp);
         thermalManager.setTargetHotend(HMI_ValueStruct.E_Temp, 0);
         return;
       }
@@ -1358,11 +1349,7 @@ void HMI_Move_Z() {
       }
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Bed_Temp)) {
         EncoderRate.enabled = false;
-        if (HMI_ValueStruct.show_mode == -1) {
-          checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
-        }
-        else if (HMI_ValueStruct.show_mode == -2) {
+        if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].bed_temp = HMI_ValueStruct.Bed_Temp;
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), ui.material_preset[0].bed_temp);
@@ -1374,10 +1361,11 @@ void HMI_Move_Z() {
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), ui.material_preset[1].bed_temp);
           return;
         }
-        else {
+        else if (HMI_ValueStruct.show_mode == -1)
+          checkkey = TemperatureID;
+        else
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
-        }
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(bed_line), HMI_ValueStruct.Bed_Temp);
         thermalManager.setTargetBed(HMI_ValueStruct.Bed_Temp);
         return;
       }
@@ -1406,11 +1394,7 @@ void HMI_Move_Z() {
 
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Fan_speed)) {
         EncoderRate.enabled = false;
-        if (HMI_ValueStruct.show_mode == -1) {
-          checkkey = TemperatureID;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
-        }
-        else if (HMI_ValueStruct.show_mode == -2) {
+        if (HMI_ValueStruct.show_mode == -2) {
           checkkey = PLAPreheat;
           ui.material_preset[0].fan_speed = HMI_ValueStruct.Fan_speed;
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), ui.material_preset[0].fan_speed);
@@ -1422,10 +1406,11 @@ void HMI_Move_Z() {
           DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), ui.material_preset[1].fan_speed);
           return;
         }
-        else {
+        else if (HMI_ValueStruct.show_mode == -1)
+          checkkey = TemperatureID;
+        else
           checkkey = Tune;
-          DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
-        }
+        DWIN_Draw_IntValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 216, MBASE(fan_line), HMI_ValueStruct.Fan_speed);
         thermalManager.set_fan_speed(0, HMI_ValueStruct.Fan_speed);
         return;
       }
@@ -1844,7 +1829,8 @@ void Draw_Status_Area(const bool with_update) {
 
   #if HAS_ZOFFSET_ITEM
     DWIN_ICON_Show(ICON, ICON_Zoffset, 158, 428);
-    DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178, 429, BABY_Z_VAR * 100);
+    dwin_zoffset = BABY_Z_VAR;
+    DWIN_Draw_Signed_Float(DWIN_FONT_STAT, Color_Bg_Black, 2, 2, 178, 429, dwin_zoffset * 100);
   #endif
 
   if (with_update) {
@@ -2158,7 +2144,7 @@ void HMI_Printing() {
             #endif
           #endif
 
-          strcat_P(cmd, PSTR("M24"));
+          strcat_P(cmd, M24_STR);
           queue.inject(cmd);
         }
         else {
@@ -3573,7 +3559,7 @@ void EachMomentUpdate() {
   else if (dwin_abort_flag && !HMI_flag.home_flag) { // Print Stop
     dwin_abort_flag = false;
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
-    dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
+    dwin_zoffset = BABY_Z_VAR;
     select_page.set(0);
     Goto_MainMenu();
   }
@@ -3681,6 +3667,7 @@ void DWIN_HandleScreen() {
 
 void DWIN_CompletedHoming() {
   HMI_flag.home_flag = false;
+  dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
   if (checkkey == Last_Prepare) {
     checkkey = Prepare;
     select_prepare.now = PREPARE_CASE_HOME;
@@ -3689,7 +3676,6 @@ void DWIN_CompletedHoming() {
   }
   else if (checkkey == Back_Main) {
     HMI_ValueStruct.print_speed = feedrate_percentage = 100;
-    dwin_zoffset = TERN0(HAS_BED_PROBE, probe.offset.z);
     planner.finish_and_disable();
     Goto_MainMenu();
   }

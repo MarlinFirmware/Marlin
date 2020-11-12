@@ -38,6 +38,8 @@
 #define BOARD_INFO_NAME      "FLSun HiSpeedV1"
 #define BOARD_WEBSITE_URL    "github.com/Foxies-CSTL"
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
@@ -56,7 +58,7 @@
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1

@@ -244,3 +244,20 @@ void analogWrite(pin_t pin, int pwm_val8); // PWM only! mul by 257 in maple!?
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Timer PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

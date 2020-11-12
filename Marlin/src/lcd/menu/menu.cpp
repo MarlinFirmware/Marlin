@@ -81,7 +81,7 @@ void MarlinUI::save_previous_screen() {
 }
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
-  TERN(TURBO_BACK_MENU_ITEM,,constexpr bool is_back = false);
+  IF_DISABLED(TURBO_BACK_MENU_ITEM, constexpr bool is_back = false);
   TERN_(HAS_TOUCH_XPT2046, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
