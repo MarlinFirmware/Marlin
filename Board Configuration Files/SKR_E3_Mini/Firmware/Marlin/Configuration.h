@@ -25,12 +25,25 @@
 // Uncomment what SKR E3 Mini Board Version you are using
 //#define SKR_E3_MINI_V1
 //#define SKR_E3_MINI_V1_2
-//#define SKR_E3_MINI_V2_0
+#define SKR_E3_MINI_V2_0
+
+// EZOut Filament Sensor
+// This board only works with this version of our sensor kit: https://www.th3dstudio.com/product/ezout-filament-sensor-kit-standard/
+// If you bought just the sensor from us and not the kit with the adapter PCB you will need to swap the red an white wires at one end of the plug to use it with these boards.
+// Failure to use our sensor with the EZOut adapter PCB OR without swapping the red and white wires will result in a short to ground.
+// Connect the EZOut sensor kit (or sensor only with wiring changed as per above) to the "E-Stop" port and uncomment the below line to enable the filament sensor.
+//#define EZOUTV2_ENABLE
 
 // EZABL Probe Mounts
 //#define ENDER3_OEM
 //#define ENDER5_OEM
 //#define CUSTOM_PROBE
+
+// EZABL on Z-Probe Port Wiring Option
+// If your BTT board is making the EZABL work unreliably then connect to the Z-Probe port on pins GND and PC14.
+// This will bypass the endstop filtering and allow the sensor to work correctly.
+// See the "EZABL_SKRE3_AlternateWiring.png" file in the Firmware folder for a picture.
+//#define EZABL_ON_ZPROBE
 
 // Ender 3 Specific Options
 
@@ -462,6 +475,17 @@
   #if ENABLED(ABL_ENABLE) || ENABLED(POWER_LOSS_RECOVERY)
     #define SPACE_SAVER
   #endif
+
+  #if ENABLED(EZOUTV2_ENABLE)
+    #define FILAMENT_RUNOUT_SENSOR
+  #endif
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #define FIL_RUNOUT_STATE LOW
+    #define NUM_RUNOUT_SENSORS   1
+    #define FIL_RUNOUT_PULLUP
+    #define FILAMENT_RUNOUT_SCRIPT "M600"
+  #endif
+
 #else
   #error "UNCOMMENT YOUR PRINTER MODEL. BOTH PRINTER AND BOARD VERSION ARE REQUIRED TO COMPILE."
 #endif

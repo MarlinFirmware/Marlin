@@ -31,5 +31,7 @@ This does not include machine configs or PlatformIO files.
 				- `pins_TH3D_EZBOARD.h`
 			- **sanguino**
 				- `pins_MELZI_CREALITY.h`
+			- **stm32f1**
+				- `pins_BTT_SKR_MINI_E3_common.h`
 	- `Configuration_adv.h`
 	- `Version.h`
