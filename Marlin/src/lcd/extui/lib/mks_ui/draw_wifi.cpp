@@ -73,7 +73,7 @@ void lv_draw_wifi(void) {
 
     buttonReconnect = lv_imgbtn_create(scr, nullptr);
 
-    lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, nullptr, 0);
+    lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, "", 0);
     lv_imgbtn_set_src_both(buttonReconnect, "F:/bmp_wifi.bin");
     lv_imgbtn_use_label_style(buttonReconnect);
 

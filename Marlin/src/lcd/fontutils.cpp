@@ -9,6 +9,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define MAX_UTF8_CHAR_SIZE 4
+
 #if HAS_WIRED_LCD
   #include "marlinui.h"
   #include "../MarlinCore.h"
@@ -79,6 +81,8 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
   uint32_t val = 0;
   uint8_t *p = pstart;
 
+  #define NEXT_6_BITS() do{ val <<= 6; p++; valcur = cb_read_byte(p); val |= (valcur & 0x3F); }while(0)
+
   uint8_t valcur = cb_read_byte(p);
   if (0 == (0x80 & valcur)) {
     val = valcur;
@@ -86,74 +90,51 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
   }
   else if (0xC0 == (0xE0 & valcur)) {
     val = valcur & 0x1F;
-    val <<= 6;
-    p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
+    NEXT_6_BITS();
     p++;
   }
-  else if (0xE0 == (0xF0 & valcur)) {
-    val = valcur & 0x0F;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xF0 == (0xF8 & valcur)) {
-    val = valcur & 0x07;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xF8 == (0xFC & valcur)) {
-    val = valcur & 0x03;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xFC == (0xFE & valcur)) {
-    val = valcur & 0x01;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
+  #if MAX_UTF8_CHAR_SIZE >= 3
+    else if (0xE0 == (0xF0 & valcur)) {
+      val = valcur & 0x0F;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 4
+    else if (0xF0 == (0xF8 & valcur)) {
+      val = valcur & 0x07;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 5
+    else if (0xF8 == (0xFC & valcur)) {
+      val = valcur & 0x03;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 6
+    else if (0xFC == (0xFE & valcur)) {
+      val = valcur & 0x01;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
   else if (0x80 == (0xC0 & valcur))
     for (; 0x80 == (0xC0 & valcur); ) { p++; valcur = cb_read_byte(p); }
   else
-    for (; ((0xFE & valcur) > 0xFC); ) { p++; valcur = cb_read_byte(p); }
+    for (; 0xFC < (0xFE & valcur); ) { p++; valcur = cb_read_byte(p); }
 
   if (pval) *pval = val;
 
