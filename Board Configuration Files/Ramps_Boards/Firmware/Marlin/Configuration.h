@@ -35,13 +35,19 @@
 //#define CR10S_S5
 #define CR10_V2
 //#define CR10S_PRO
-//#define CR20
+//#define CR20 
 //#define ENDER5_PLUS
+
+// NOTE: Ender 5 Plus is ONLY compatible with our firmware once you have installed the LCD conversion kit
+// the stock LCD is not supported due to closed source firmware limitations on it.
+// You can get the LCD conversion kit here: https://www.th3dstudio.com/product/ender-5-plus-12864-lcd-upgrade-kit/
 
 // EZABL Probe Mounts
 //#define CR10S_OEM
 //#define CR10S_PRO_OEM
 #define CR10V2_OEM
+//#define CR20_OEM
+//#define ENDER5_PLUS_OEM
 //#define CR10_VOLCANO
 //#define CR10_V6HEAVYDUTY
 //#define TM3DAERO
