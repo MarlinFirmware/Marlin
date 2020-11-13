@@ -10,6 +10,8 @@ Always download the latest firmware releases from our Unified 2 Firmware website
 
 This GitHub repository is for tracking code changes. We have a local script that updates the download packages on the Unified 2 Firmware website linked above.
 
+**This is ONLY tested for use with VSCode with the PlatformIO extension. Arduino IDE is not tested or supported.**
+
 ## Technical Support & Bug Reporting
 
 For best results getting help with configuration and troubleshooting, please use the following resources:
