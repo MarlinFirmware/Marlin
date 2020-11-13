@@ -113,7 +113,7 @@
   #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM)
+#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM) || ENABLED(CR10S_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
 #endif
@@ -125,11 +125,11 @@
   #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_VOLCANO)
+#if ENABLED(CR10_VOLCANO) || ENABLED(TORNADO_VOLCANO)
   #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_V6HEAVYDUTY)
+#if ENABLED(CR10_V6HEAVYDUTY) || ENABLED(TORNADO_V6HEAVYDUTY)
   #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
   #define ABL_ENABLE
 #endif
@@ -159,6 +159,78 @@
 #endif
 #if ENABLED(SIDEWINDER_X1_OEM)
   #define NOZZLE_TO_PROBE_OFFSET { 33, -39, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CR10S_PRO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -27, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CRX_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -5, -48, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ZONESTAR_Z5F_STOCK_ABL)
+  #define NOZZLE_TO_PROBE_OFFSET { 35, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TARANTULA_PRO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -65, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TORNADO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -37, -10, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TAZ5_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -52, 15, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -25, -38, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_D6_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 24, -16, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3_DIIICOOLER)
+  #define NOZZLE_TO_PROBE_OFFSET { -36, -37, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3MINI_OEM_EZABLMINI)
+  #define NOZZLE_TO_PROBE_OFFSET { -32, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3MINI_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -36, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ALFAWISEU10_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 39, -47, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ALFAWISEU10_PETSFANG)
+  #define NOZZLE_TO_PROBE_OFFSET { -48, -2, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER4_OEM_LEFT)
+  #define NOZZLE_TO_PROBE_OFFSET { -53, -19, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ADIM_I3P_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 33, -60, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(GEE_A10_V1_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -54, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(GEE_A10_V2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -52, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(EZ300_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { -32, -8, 0 }
   #define ABL_ENABLE
 #endif
 

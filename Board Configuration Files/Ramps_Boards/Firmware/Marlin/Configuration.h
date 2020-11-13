@@ -28,11 +28,38 @@
 //===========================================================================
 // *****************   CREALITY PRINTERS 2560 CPU BOARD   *******************
 //===========================================================================
-//#define CR10_V2
+//#define CR10S
+//#define CR10S_MINI
+//#define CR10S_S4
+//#define CR10S_S5
+#define CR10_V2
+//#define CR10S_PRO
 
 // EZABL Probe Mounts
-//#define CR10V2_OEM
+//#define CR10S_OEM
+//#define CR10S_PRO_OEM
+#define CR10V2_OEM
+//#define CR10_VOLCANO
+//#define CR10_V6HEAVYDUTY
+//#define TM3DAERO
+//#define TM3DAERO_EXTENDED
+//#define PETSFANG  //This is the RIGHT mounted version - if using the left mount please use the CUSTOM_PROBE option.
 //#define CUSTOM_PROBE
+
+// Filament Sensor - Disable
+// If you are having issues with the stock Creality filament sensor you can disable it with the below feature
+//#define DISABLE_FILAMENT_SENSOR
+
+// Use this to use the CR-10 LCD with the CR-10S Board. Rotate the LCD plug 180
+// and plug into EXP1. You will have to force it in but it will fit and work.
+//#define CR10LCD_CR10S
+
+// Creality 2560 Silent Board
+// If you are using the 2560 based "Silent" board with TMC drivers enable the below setting
+//#define CREALITY_SILENT_BOARD
+
+// If you are using the stock Creality ABL probe on the CR-10S Pro uncomment the below line
+//#define CR10S_PRO_STOCK_ABL
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -409,7 +436,11 @@
 
   #define BAUDRATE 115200
   
-  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #if ENABLED(CR10LCD_CR10S)
+    #define CR10_STOCKDISPLAY
+  #else
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #endif
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_RAMPS_CREALITY
@@ -508,10 +539,17 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE TMC2208_STANDALONE
-  #define Y_DRIVER_TYPE TMC2208_STANDALONE
-  #define Z_DRIVER_TYPE TMC2208_STANDALONE
-  #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #if ENABLED(CR10_V2) || ENABLED(CREALITY_SILENT_BOARD)
+    #define X_DRIVER_TYPE TMC2208_STANDALONE
+    #define Y_DRIVER_TYPE TMC2208_STANDALONE
+    #define Z_DRIVER_TYPE TMC2208_STANDALONE
+    #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #else
+    #define X_DRIVER_TYPE A4988
+    #define Y_DRIVER_TYPE A4988
+    #define Z_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE A4988
+  #endif
   
   #define ENDSTOP_INTERRUPTS_FEATURE
 
@@ -542,14 +580,16 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
-  #define FILAMENT_RUNOUT_SENSOR
+  #if DISABLED(DISABLE_FILAMENT_SENSOR)
+    #define FILAMENT_RUNOUT_SENSOR
+  #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
     #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
     #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
     //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
-    #define FIL_RUNOUT_PIN 2                // Creality CR10 V2 stock sensor
+    #define FIL_RUNOUT_PIN 2                // Creality CR10 V2/CR10S Series stock sensor
 
     // Set one or more commands to execute on filament runout.
     // (After 'M412 H' Marlin will ask the host to handle the process.)
