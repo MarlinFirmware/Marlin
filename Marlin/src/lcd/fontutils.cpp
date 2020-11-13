@@ -150,7 +150,7 @@ static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_
   uint8_t cnt = 0;
   uint8_t *p = (uint8_t *)pstart;
   for (;;) {
-    uint8_t b = cb_read_byte(p);
+    const uint8_t b = cb_read_byte(p);
     if (!b) break;
     if (utf8_is_start_byte_of_char(b)) cnt++;
     p++;
@@ -171,7 +171,7 @@ static inline uint8_t utf8_byte_pos_by_char_num_cb(const char *pstart, read_byte
   uint8_t char_idx = 0;
   uint8_t byte_idx = 0;
   for (;;) {
-    uint8_t b = cb_read_byte(p+byte_idx);
+    const uint8_t b = cb_read_byte(p + byte_idx);
     if (!b) return byte_idx; // Termination byte of string
     if (utf8_is_start_byte_of_char(b)) {
       char_idx++;
