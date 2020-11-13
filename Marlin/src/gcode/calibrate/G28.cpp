@@ -375,6 +375,11 @@ void GcodeSuite::G28() {
     // Home Z last if homing towards the bed
     #if DISABLED(HOME_Z_FIRST)
       if (doZ) {
+        #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+          stepper.set_all_z_lock(false);
+          stepper.set_separate_multi_axis(false);
+        #endif
+
         TERN_(BLTOUCH, bltouch.init());
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
         probe.move_z_after_homing();
