@@ -2267,7 +2267,9 @@ uint32_t Stepper::block_phase_isr() {
       interval = LA_ADV_NEVER;
 
     if (LA_steps) { // LA_steps != 0
+
       DIR_WAIT_BEFORE();
+
       #if ENABLED(MIXING_EXTRUDER)
         // We don't know which steppers will be stepped because LA loop follows,
         // with potentially multiple steps. Set all.
@@ -2281,13 +2283,17 @@ uint32_t Stepper::block_phase_isr() {
         else if (LA_steps < 0)
           REV_E_DIR(stepper_extruder);
       #endif
+
       DIR_WAIT_AFTER();
+
       //const hal_timer_t added_step_ticks = hal_timer_t(ADDED_STEP_TICKS);
+
       // Step E stepper if we have steps
       #if ISR_MULTI_STEPS
         bool firstStep = true;
         USING_TIMED_PULSE();
       #endif
+
       while (LA_steps) {
         #if ISR_MULTI_STEPS
           if (firstStep)
@@ -2295,33 +2301,41 @@ uint32_t Stepper::block_phase_isr() {
           else
             AWAIT_LOW_PULSE();
         #endif
+
         // Set the STEP pulse ON
         #if ENABLED(MIXING_EXTRUDER)
           E_STEP_WRITE(mixer.get_next_stepper(), !INVERT_E_STEP_PIN);
         #else
           E_STEP_WRITE(stepper_extruder, !INVERT_E_STEP_PIN);
         #endif
+
         // Enforce a minimum duration for STEP pulse ON
         #if ISR_PULSE_CONTROL
           START_HIGH_PULSE();
         #endif
+
         LA_steps < 0 ? ++LA_steps : --LA_steps;
+
         #if ISR_PULSE_CONTROL
           AWAIT_HIGH_PULSE();
         #endif
+
         // Set the STEP pulse OFF
         #if ENABLED(MIXING_EXTRUDER)
           E_STEP_WRITE(mixer.get_stepper(), INVERT_E_STEP_PIN);
         #else
           E_STEP_WRITE(stepper_extruder, INVERT_E_STEP_PIN);
         #endif
+
         // For minimum pulse time wait before looping
         // Just wait for the requested pulse duration
         #if ISR_PULSE_CONTROL
           if (LA_steps) START_LOW_PULSE();
         #endif
       } // LA_steps
+
     } // LA_steps != 0
+
     return interval;
   }
 
