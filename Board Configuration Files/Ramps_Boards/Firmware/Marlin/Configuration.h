@@ -36,6 +36,7 @@
 #define CR10_V2
 //#define CR10S_PRO
 //#define CR20 
+//#define CRX
 //#define ENDER5_PLUS
 
 // NOTE: Ender 5 Plus is ONLY compatible with our firmware once you have installed the LCD conversion kit
@@ -445,7 +446,7 @@
 // End Sidewinder X1 Settings 
 
 // CR-10 V2 Settings
-#if ENABLED(CR10_V2) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER3_DUALBOARD) || ENABLED(CR20) || ENABLED(ENDER5_DUALBOARD) || ENABLED(CRX) || ENABLED(CR10S_PRO)
+#if ENABLED(CR10_V2) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER3_DUALBOARD) || ENABLED(CR20) || ENABLED(ENDER5_DUALBOARD) || ENABLED(CRX) || ENABLED(CR10S_PRO) || ENABLED(CRX)
   #if ENABLED(ENDER5_PLUS)
     #if DISABLED(ENDER5_PLUS_NOABL) && DISABLED(ENDER5_PLUS_EZABL)
       #define BLTOUCH
@@ -499,8 +500,13 @@
 
   #define CLASSIC_JERK
   #if ENABLED(CLASSIC_JERK)
-    #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 10.0
+    #if ENABLED(CR10S_S4) || ENABLED(CR10S_S5)
+      #define DEFAULT_XJERK 5.0
+      #define DEFAULT_YJERK 5.0
+    #else
+      #define DEFAULT_XJERK 7.0
+      #define DEFAULT_YJERK 7.0
+    #endif
     #define DEFAULT_ZJERK  0.3
   #endif
 
@@ -508,10 +514,42 @@
 
   #define EXTRUDERS 1
 
-  #define X_BED_SIZE 300
-  #define Y_BED_SIZE 300
-  #define Z_MAX_POS 400
+  #if ENABLED(CR10S) || ENABLED(CRX) || ENABLED(CR10_V2)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 400
+  #endif
+
+  #if ENABLED(CR10S_MINI)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+  #endif
+
+  #if ENABLED(CR10S_S4)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 400
+  #endif
+
+  #if ENABLED(CR10S_S5)
+    #define X_BED_SIZE 500
+    #define Y_BED_SIZE 500
+    #define Z_MAX_POS 500
+  #endif
   
+  #if ENABLED(CR20)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 250
+  #endif
+
+  #if ENABLED(ENDER5_PLUS)
+    #define X_BED_SIZE 350
+    #define Y_BED_SIZE 350
+    #define Z_MAX_POS 400
+  #endif
+
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_ADJUST_LOCATION
     #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
@@ -598,7 +636,12 @@
   #define E_ENABLE_ON 0
 
   #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
+  
+  #if ENABLED(CRX)
+    #define INVERT_Y_DIR true
+  #else
+    #define INVERT_Y_DIR false
+  #endif
   
   #define INVERT_Z_DIR true
   
