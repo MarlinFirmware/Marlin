@@ -26,7 +26,7 @@ Now we are sure MMU is available and ready. If there was a timeout or other comm
 
 - *Firmware version* is an integer value, but we don't care about it
 - *Build number* is an integer value and has to be >=126, or =>132 if 12V mode is enabled
-- *FINDA status* is 1 if the is filament loaded to the extruder, 0 otherwise
+- *FINDA status* is 1 if the filament is loaded to the extruder, 0 otherwise
 
 
 *Build number* is checked against the required value, if it does not match, printer is halted.
