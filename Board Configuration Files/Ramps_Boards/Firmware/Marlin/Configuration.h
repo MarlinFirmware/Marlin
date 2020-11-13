@@ -1,3 +1,4 @@
+
 /**
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
  * THIS VERSION IS NOT FOR PRODUCTION USE AT THIS TIME AND ONLY AVAILABLE FOR TESTING PURPOSES
@@ -34,6 +35,8 @@
 //#define CR10S_S5
 #define CR10_V2
 //#define CR10S_PRO
+//#define CR20
+//#define ENDER5_PLUS
 
 // EZABL Probe Mounts
 //#define CR10S_OEM
@@ -50,7 +53,7 @@
 // If you are having issues with the stock Creality filament sensor you can disable it with the below feature
 //#define DISABLE_FILAMENT_SENSOR
 
-// Use this to use the CR-10 LCD with the CR-10S Board. Rotate the LCD plug 180
+// LCD - Use this to use the CR-10 LCD with the CR-10S Board. Rotate the LCD plug 180
 // and plug into EXP1. You will have to force it in but it will fit and work.
 //#define CR10LCD_CR10S
 
@@ -58,8 +61,14 @@
 // If you are using the 2560 based "Silent" board with TMC drivers enable the below setting
 //#define CREALITY_SILENT_BOARD
 
-// If you are using the stock Creality ABL probe on the CR-10S Pro uncomment the below line
+// CR-10S Pro - If you are using the stock Creality ABL probe on the CR-10S Pro uncomment the below line
 //#define CR10S_PRO_STOCK_ABL
+
+// Ender 5 Plus - ABL Settings
+// By default the Ender 5 Plus comes with a BL Touch. Enabling the ENDER5_PLUS_EZABL or ENDER5_PLUS_NOABL will override the BL Touch setting
+// If you are using the stock BL Touch with a non-stock mount enable the CUSTOM_PROBE line above and enter the offsets below for the new mount.
+//#define ENDER5_PLUS_EZABL
+//#define ENDER5_PLUS_NOABL
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -430,16 +439,40 @@
 // End Sidewinder X1 Settings 
 
 // CR-10 V2 Settings
-#if ENABLED(CR10_V2)
+#if ENABLED(CR10_V2) || ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER3_DUALBOARD) || ENABLED(CR20) || ENABLED(ENDER5_DUALBOARD) || ENABLED(CRX) || ENABLED(CR10S_PRO)
+  #if ENABLED(ENDER5_PLUS)
+    #if DISABLED(ENDER5_PLUS_NOABL) && DISABLED(ENDER5_PLUS_EZABL)
+      #define BLTOUCH
+      #define SERVO0_PIN 11
+      #if DISABLED(CUSTOM_PROBE)
+        #define NOZZLE_TO_PROBE_OFFSET { -44, -9, 0 }
+      #endif
+    #endif  
+    #if DISABLED(ENDER5_PLUS_NOABL)
+      #define ABL_ENABLE
+    #endif
+  #endif
+
+  #if ENABLED(ENDER5_NEW_LEADSCREW) || ENABLED(ENDER5_PLUS)
+    #define CREALITY_Z_STEPS 800
+  #else
+    #define CREALITY_Z_STEPS 400
+  #endif
+
   #define SERIAL_PORT 0
   #define SPACE_SAVER_2560
 
   #define BAUDRATE 115200
   
-  #if ENABLED(CR10LCD_CR10S)
+  #if ENABLED(CR10LCD_CR10S) || ENABLED(ENDER3_DUALBOARD) || ENABLED(ENDER5_DUALBOARD)
     #define CR10_STOCKDISPLAY
+  #elif ENABLED(CR20)
+    #define MINIPANEL
   #else
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #if ENABLED(CRX)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
   #endif
 
   #ifndef MOTHERBOARD
@@ -447,9 +480,9 @@
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, CUSTOM_ESTEPS_VALUE }
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 95 }
   #endif
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 1000, 5000 }
