@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.11b"
+#define UNIFIED_VERSION "TH3D UFW 2.11c"
 
 /**
  * Temp Settings
@@ -173,7 +173,7 @@
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
   #define Z_AFTER_PROBING              5
-  #define Z_AFTER_HOMING               5
+  //#define Z_AFTER_HOMING               5 //Disabled. Makes setting offset harder.
   #define Z_PROBE_LOW_POINT           -2
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
@@ -266,9 +266,9 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if BOTH(EZABL_SUPERFASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (15*60)
-#elif BOTH(EZABL_FASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#elif ENABLED(EZABL_FASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (8*60)
 #else
   #define HOMING_FEEDRATE_Z  (4*60)
@@ -283,7 +283,7 @@
   #define Z_CLEARANCE_MULTI_PROBE    8
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
-#elif BOTH(EZABL_SUPERFASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define Z_CLEARANCE_DEPLOY_PROBE   1
   #define Z_CLEARANCE_BETWEEN_PROBES 2
   #define Z_CLEARANCE_MULTI_PROBE    1
