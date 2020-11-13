@@ -1009,14 +1009,8 @@ void MarlinUI::update() {
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_media && !lcd_status_update_delay--) {
-        lcd_status_update_delay = 4;
-        filename_scroll_pos++;
-        if (filename_scroll_pos == filename_scroll_max){
-          lcd_status_update_delay = 12;
-        } else if (filename_scroll_pos > filename_scroll_max) {
-          filename_scroll_pos = 0;
-          lcd_status_update_delay = 12;
-        }
+        lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
+        if (filename_scroll_max < filename_scroll_pos) filename_scroll_pos = 0;
         refresh(LCDVIEW_REDRAW_NOW);
         RESET_STATUS_TIMEOUT();
       }
