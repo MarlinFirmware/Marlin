@@ -208,19 +208,13 @@ millis_t MarlinUI::next_button_update_ms; // = 0
             filename_scroll_pos = 0;                                       // Reset scroll to the start
             lcd_status_update_delay = 8;                                   // Don't scroll right away
           }
-          #if ENABLED(UTF_FILENAME_SUPPORT)
-            // Advance byte position corresponding to filename_scroll_pos char position
-            outstr += utf8_byte_pos_by_char_num(outstr, filename_scroll_pos);
-          #else
-            outstr += filename_scroll_pos;
-          #endif
+          // Advance byte position corresponding to filename_scroll_pos char position
+          outstr += TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(outstr, filename_scroll_pos), filename_scroll_pos);
         }
       #else
-        #if ENABLED(UTF_FILENAME_SUPPORT)
-          theCard.longFilename[utf8_byte_pos_by_char_num(theCard.longFilename, maxlen)] = '\0'; // cutoff at screen edge
-        #else
-          theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
-        #endif
+        theCard.longFilename[
+          TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen)
+        ] = '\0'; // cutoff at screen edge
       #endif
     }
     return outstr;
