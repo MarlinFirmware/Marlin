@@ -435,7 +435,7 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
        // Counters to manage disabling inactive extruders
-      static uint8_t g_uc_extruder_last_move[EXTRUDERS];
+      static uint16_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
     #if HAS_WIRED_LCD
