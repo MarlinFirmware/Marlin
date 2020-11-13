@@ -208,10 +208,13 @@ millis_t MarlinUI::next_button_update_ms; // = 0
             filename_scroll_pos = 0;                                       // Reset scroll to the start
             lcd_status_update_delay = 8;                                   // Don't scroll right away
           }
-          outstr += filename_scroll_pos;
+          // Advance byte position corresponding to filename_scroll_pos char position
+          outstr += TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(outstr, filename_scroll_pos), filename_scroll_pos);
         }
       #else
-        theCard.longFilename[maxlen] = '\0'; // cutoff at screen edge
+        theCard.longFilename[
+          TERN(UTF_FILENAME_SUPPORT, utf8_byte_pos_by_char_num(theCard.longFilename, maxlen), maxlen)
+        ] = '\0'; // cutoff at screen edge
       #endif
     }
     return outstr;
@@ -1006,11 +1009,8 @@ void MarlinUI::update() {
       // If scrolling of long file names is enabled and we are in the sd card menu,
       // cause a refresh to occur until all the text has scrolled into view.
       if (currentScreen == menu_media && !lcd_status_update_delay--) {
-        lcd_status_update_delay = 4;
-        if (++filename_scroll_pos > filename_scroll_max) {
-          filename_scroll_pos = 0;
-          lcd_status_update_delay = 12;
-        }
+        lcd_status_update_delay = ++filename_scroll_pos >= filename_scroll_max ? 12 : 4; // Long delay at end and start
+        if (filename_scroll_pos > filename_scroll_max) filename_scroll_pos = 0;
         refresh(LCDVIEW_REDRAW_NOW);
         RESET_STATUS_TIMEOUT();
       }
