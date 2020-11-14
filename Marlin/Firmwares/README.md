@@ -124,7 +124,7 @@ Enjoy....🙃
 
   This QQS-Pro porting project for the Marlin firmware was only possible thanks to its supporters, you can participate via
  <br/><br/>
-  [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/Foxies40)<br/>[paypal.me/Foxies40](https://www.paypal.me/Foxies40)
+  [![paypal.me](../../docs/icons/paypal_50px.png)](https://www.paypal.me/Foxies40)<br/>[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/Foxies40)
  <br/><br/>
   You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
