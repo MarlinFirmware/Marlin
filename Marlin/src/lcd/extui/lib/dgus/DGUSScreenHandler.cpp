@@ -217,7 +217,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
   // It is using a hex display for that: It expects BSD coded data in the format xxyyzz
   void DGUSScreenHandler::DGUSLCD_SendPrintAccTimeToDisplay(DGUS_VP_Variable &var) {
     printStatistics state = print_job_timer.getStats();
-    char buf[22];
+    char buf[21];
     duration_t elapsed = state.printTime;
     elapsed.toString(buf);
     dgusdisplay.WriteVariable(VP_PrintAccTime, buf, var.size, true);
@@ -225,7 +225,7 @@ void DGUSScreenHandler::DGUSLCD_SendStringToDisplayPGM(DGUS_VP_Variable &var) {
 
   void DGUSScreenHandler::DGUSLCD_SendPrintsTotalToDisplay(DGUS_VP_Variable &var) {
     printStatistics state = print_job_timer.getStats();
-    char buf[10];
+    char buf[21];
     sprintf_P(buf, PSTR("%u"), state.totalPrints);
     dgusdisplay.WriteVariable(VP_PrintsTotal, buf, var.size, true);
   }
