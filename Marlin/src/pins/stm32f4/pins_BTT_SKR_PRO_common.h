@@ -25,11 +25,10 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #endif
 
-// If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
-// https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
-//#define HAS_BTT_EXP_MOT
+// BigTreeTech driver expansion module https://bit.ly/3ptRRoj
+//#define BTT_MOTOR_EXPANSION
 
-#if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
   #error "It's not possible to have both LCD and motor expansion module on EXP1/EXP2."
 #endif
 
@@ -310,8 +309,7 @@
   #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
-#if ENABLED(HAS_BTT_EXP_MOT)
-
+#if ENABLED(BTT_MOTOR_EXPANSION)
   /**
    *               _____                                      _____
    *           NC | · · | GND                             NC | · · | GND
@@ -356,7 +354,7 @@
     #define E5_SERIAL_RX_PIN        EXPA1_09_PIN
   #endif
 
-#endif // HAS_BTT_EXP_MOT
+#endif // BTT_MOTOR_EXPANSION
 
 //
 // LCDs and Controllers
