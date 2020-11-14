@@ -29,8 +29,8 @@
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 #define HAS_BTT_EXP_MOT 1
 
-#if BOTH(HAS_WIRED_LCD,HAS_BTT_EXP_MOT)
-  #ERROR "Having a LCD on EXP1/EXP2 and a expanion motor module on EXP1/EXP2 is not possible."
+#if BOTH(HAS_WIRED_LCD, HAS_BTT_EXP_MOT)
+  #error "It's not possible to have both LCD and motor expansion module on EXP1/EXP2."
 #endif
 
 // Use one of these or SDCard-based Emulation will be used
