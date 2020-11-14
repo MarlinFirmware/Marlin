@@ -37,6 +37,7 @@
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
 //#define BMG                        //(B) Uncomment to change Extruder step.
+//#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
 #define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
