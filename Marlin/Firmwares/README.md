@@ -55,7 +55,7 @@ With activate parts:
 * [PAUSE_BEFORE_DEPLOY_STOW]
 * [LIN_ADVANCE]
 
-Typically the probes for the QQS-Pro printers.
+Typically the probe for the QQS-Pro printers.
 
   * Z Probe Offset of -16.2mm
 
@@ -63,7 +63,7 @@ Typically the probes for the QQS-Pro printers.
 
 
 No validate:
--TMC2209
+-TMC51
 
   ## Exemple: 
 
