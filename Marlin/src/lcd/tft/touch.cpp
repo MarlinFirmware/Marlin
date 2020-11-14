@@ -50,6 +50,9 @@ touch_calibration_t Touch::calibration;
   calibrationState Touch::calibration_state = CALIBRATION_NONE;
   touch_calibration_point_t Touch::calibration_points[4];
 #endif
+#if HAS_RESUME_CONTINUE
+  extern bool wait_for_user;
+#endif
 
 void Touch::init() {
   calibration_reset();
@@ -80,6 +83,15 @@ void Touch::idle() {
   now = millis();
 
   if (get_point(&_x, &_y)) {
+    #if HAS_RESUME_CONTINUE
+      // UI is waiting for a click anywhere?
+      if (wait_for_user) {
+        touch_control_type = CLICK;
+        ui.lcd_clicked = true;
+        return;
+      }
+    #endif
+
     #if LCD_TIMEOUT_TO_STATUS
       ui.return_to_status_ms = now + LCD_TIMEOUT_TO_STATUS;
     #endif

@@ -38,7 +38,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if !defined(USBCON) && (defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H))
+#if !IS_AT90USB && (defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H))
 
 #include "MarlinSerial.h"
 #include "../../MarlinCore.h"
@@ -792,10 +792,10 @@ MarlinSerial<MarlinSerialCfg<SERIAL_PORT>> customizedSerial1;
 
 #endif
 
-#endif // !USBCON && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
+#endif // !IS_AT90USB && (UBRRH || UBRR0H || UBRR1H || UBRR2H || UBRR3H)
 
 // For AT90USB targets use the UART for BT interfacing
-#if defined(USBCON) && ENABLED(BLUETOOTH)
+#if BOTH(IS_AT90USB, BLUETOOTH)
   HardwareSerial bluetoothSerial;
 #endif
 

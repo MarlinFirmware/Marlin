@@ -258,9 +258,9 @@
  * M900 - Get or Set Linear Advance K-factor. (Requires LIN_ADVANCE)
  * M906 - Set or get motor current in milliamps using axis codes X, Y, Z, E. Report values if no axis codes given. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660 or L6470)
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
- * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
- * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
- * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
+ * M908 - Control digital trimpot directly. (Requires HAS_MOTOR_CURRENT_DAC or DIGIPOTSS_PIN)
+ * M909 - Print digipot/DAC current value. (Requires HAS_MOTOR_CURRENT_DAC)
+ * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires HAS_MOTOR_CURRENT_DAC)
  * M911 - Report stepper driver overtemperature pre-warn condition. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires at least one _DRIVER_TYPE defined as TMC2130/2160/5130/5160/2208/2209/2660)
  * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
@@ -465,10 +465,11 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
-    static void M422();
   #endif
+
+  TERN_(Z_STEPPER_AUTO_ALIGN, static void M422());
 
   TERN_(ASSISTED_TRAMMING, static void G35());
 
@@ -847,11 +848,11 @@ private:
     static void M918();
   #endif
 
-  #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
+  #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
     static void M907();
-    #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
+    #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
       static void M908();
-      #if ENABLED(DAC_STEPPER_CURRENT)
+      #if ENABLED(HAS_MOTOR_CURRENT_DAC)
         static void M909();
         static void M910();
       #endif
