@@ -97,6 +97,7 @@ Caption:
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
  ## For the Wifi Module (MKS_Wifi):
+![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
 2) Flash original firmware + Custum mkswifi 
