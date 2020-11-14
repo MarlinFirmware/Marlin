@@ -41,15 +41,26 @@ Firmware for QQS-Pro with A4988.
 
 Firmware for QQS-Pro with TMC2208_Standalone
 
-Firmware for QQS-Pro with TMC2208_UART
+Firmware for QQS-Pro with TMC220x_UART 
+
+Firmware for QQS-Pro with TMC2209_UART one-wire
 
 With activate parts:
 
-[PID_EDIT_MENU]
-[DELTA_CALIBRATION_MENU ]
-[POWER_LOSS_RECOVERY]
-[FILAMENT_RUNOUT_SENSOR]
-[PAUSE_BEFORE_DEPLOY_STOW]
+* [PID_EDIT_MENU]
+* [DELTA_CALIBRATION_MENU]
+* [POWER_LOSS_RECOVERY]
+* [FILAMENT_RUNOUT_SENSOR]
+* [AUTO_BED_LEVELING_UBL]
+* [PAUSE_BEFORE_DEPLOY_STOW]
+* [LIN_ADVANCE]
+
+Typically the probes for the QQS-Pro printers.
+
+  * Z Probe Offset of -16.2mm
+
+    ![Version Probe](images/VersionProbe.jpg)
+
 
 No validate:
 -TMC2209
