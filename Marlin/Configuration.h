@@ -516,9 +516,9 @@
     #define DEFAULT_Ki_LIST {   1.63,   1.63 }
     #define DEFAULT_Kd_LIST {  76.48,  76.48 }
   #else
-    #define DEFAULT_Kp 13.05
-    #define DEFAULT_Ki 0.58
-    #define DEFAULT_Kd 72.95
+    #define DEFAULT_Kp 15.86
+    #define DEFAULT_Ki 0.87
+    #define DEFAULT_Kd 72.41
   #endif
 #endif // PIDTEMP
 
@@ -1161,8 +1161,8 @@
  * A total of 2 does fast/slow probes with a weighted average.
  * A total of 3 or more adds more slow probes, taking the average.
  */
-#define MULTIPLE_PROBING 3
-#define EXTRA_PROBING    1
+//#define MULTIPLE_PROBING 3
+//#define EXTRA_PROBING    1
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
