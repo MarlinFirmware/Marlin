@@ -105,23 +105,23 @@ int16_t MMU2::version = -1, MMU2::buildnr = -1;
 millis_t MMU2::prev_request, MMU2::prev_P0_request;
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
-#if BOTH(HAS_LCD_MENU, MMU2_MENUS)
+struct E_Step {
+  float extrude;        //!< extrude distance in mm
+  feedRate_t feedRate;  //!< feed rate in mm/s
+};
 
-  struct E_Step {
-    float extrude;        //!< extrude distance in mm
-    feedRate_t feedRate;  //!< feed rate in mm/s
-  };
-
-  static constexpr E_Step
+// ramming_sequence and load_to_nozzle_sequence are required for PRUSA_MMU2_S_MODE too
+static constexpr E_Step
+  #if EITHER(MMU2_MENUS, PRUSA_MMU2_S_MODE)
       ramming_sequence[] PROGMEM = { MMU2_RAMMING_SEQUENCE }
     , load_to_nozzle_sequence[] PROGMEM = { MMU2_LOAD_TO_NOZZLE_SEQUENCE }
-    #if ENABLED(PRUSA_MMU2_S_MODE)
-      , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
-      , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
-    #endif
-  ;
+  #endif
+  #if ENABLED(PRUSA_MMU2_S_MODE)
+    , can_load_sequence[] PROGMEM = { MMU2_CAN_LOAD_SEQUENCE }
+    , can_load_increment_sequence[] PROGMEM = { MMU2_CAN_LOAD_INCREMENT_SEQUENCE }
+  #endif
+;
 
-#endif // MMU2_MENUS
 
 MMU2::MMU2() {
   rx_buffer[0] = '\0';
@@ -188,7 +188,7 @@ void MMU2::mmu_loop() {
 
     case -2:
       if (rx_ok()) {
-        sscanf(rx_buffer, "%uok\n", &version);
+        sscanf(rx_buffer, "%huok\n", &version);
 
         DEBUG_ECHOLNPAIR("MMU => ", version, "\nMMU <= 'S2'");
 
@@ -199,7 +199,7 @@ void MMU2::mmu_loop() {
 
     case -3:
       if (rx_ok()) {
-        sscanf(rx_buffer, "%uok\n", &buildnr);
+        sscanf(rx_buffer, "%huok\n", &buildnr);
 
         DEBUG_ECHOLNPAIR("MMU => ", buildnr);
 
@@ -866,6 +866,30 @@ void MMU2::filament_runout() {
   planner.synchronize();
 }
 
+void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
+
+  planner.synchronize();
+  ENABLE_AXIS_E0();
+
+  const E_Step* step = sequence;
+
+  LOOP_L_N(i, steps) {
+    const float es = pgm_read_float(&(step->extrude));
+    const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
+
+    DEBUG_ECHO_START();
+    DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
+
+    current_position.e += es;
+    line_to_current_position(MMM_TO_MMS(fr_mm_m));
+    planner.synchronize();
+
+    step++;
+  }
+
+  DISABLE_AXIS_E0();
+}
+
 #if ENABLED(PRUSA_MMU2_S_MODE)
 
   void MMU2::check_filament() {
@@ -909,6 +933,82 @@ void MMU2::filament_runout() {
   }
 #endif
 
+
+/**
+ * Switch material and load to nozzle
+ */
+bool MMU2::load_filament_to_nozzle(const uint8_t index) {
+
+  if (!enabled) return false;
+
+  if (thermalManager.tooColdToExtrude(active_extruder)) {
+    BUZZ(200, 404);
+    LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
+    return false;
+  }
+
+  command(MMU_CMD_T0 + index);
+  manage_response(true, true);
+
+  const bool success = load_to_gears();
+  if (success) {
+    mmu_loop();
+    extruder = index;
+    active_extruder = 0;
+    load_to_nozzle();
+    BUZZ(200, 404);
+  }
+  return success;
+}
+
+/**
+ * Load filament to nozzle of multimaterial printer
+ *
+ * This function is used only only after T? (user select filament) and M600 (change filament).
+ * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
+ * filament to nozzle.
+ */
+void MMU2::load_to_nozzle() {
+  if (!enabled) return;
+  execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
+}
+
+
+/**
+ * Unload from hotend and retract to MMU
+ */
+bool MMU2::unload() {
+
+  if (!enabled) return false;
+
+  if (thermalManager.tooColdToExtrude(active_extruder)) {
+    BUZZ(200, 404);
+    LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
+    return false;
+  }
+
+  filament_ramming();
+
+  command(MMU_CMD_U0);
+  manage_response(false, true);
+
+  BUZZ(200, 404);
+
+  // no active tool
+  extruder = MMU2_NO_TOOL;
+
+  set_runout_valid(false);
+
+  return true;
+}
+
+/**
+ * Unload sequence to optimize shape of the tip of the unloaded filament
+ */
+void MMU2::filament_ramming() {
+  execute_extruder_sequence((const E_Step *)ramming_sequence, sizeof(ramming_sequence) / sizeof(E_Step));
+}
+
 #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
 
   // Load filament into MMU2
@@ -917,45 +1017,6 @@ void MMU2::filament_runout() {
     command(MMU_CMD_L0 + index);
     manage_response(false, false);
     BUZZ(200, 404);
-  }
-
-  /**
-   * Switch material and load to nozzle
-   */
-  bool MMU2::load_filament_to_nozzle(const uint8_t index) {
-
-    if (!enabled) return false;
-
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
-      BUZZ(200, 404);
-      LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
-      return false;
-    }
-
-    command(MMU_CMD_T0 + index);
-    manage_response(true, true);
-
-    const bool success = load_to_gears();
-    if (success) {
-      mmu_loop();
-      extruder = index;
-      active_extruder = 0;
-      load_to_nozzle();
-      BUZZ(200, 404);
-    }
-    return success;
-  }
-
-  /**
-   * Load filament to nozzle of multimaterial printer
-   *
-   * This function is used only only after T? (user select filament) and M600 (change filament).
-   * It is not used after T0 .. T4 command (select filament), in such case, gcode is responsible for loading
-   * filament to nozzle.
-   */
-  void MMU2::load_to_nozzle() {
-    if (!enabled) return;
-    execute_extruder_sequence((const E_Step *)load_to_nozzle_sequence, COUNT(load_to_nozzle_sequence));
   }
 
   bool MMU2::eject_filament(const uint8_t index, const bool recover) {
@@ -1004,64 +1065,6 @@ void MMU2::filament_runout() {
     return true;
   }
 
-  /**
-   * Unload from hotend and retract to MMU
-   */
-  bool MMU2::unload() {
-
-    if (!enabled) return false;
-
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
-      BUZZ(200, 404);
-      LCD_ALERTMESSAGEPGM(MSG_HOTEND_TOO_COLD);
-      return false;
-    }
-
-    filament_ramming();
-
-    command(MMU_CMD_U0);
-    manage_response(false, true);
-
-    BUZZ(200, 404);
-
-    // no active tool
-    extruder = MMU2_NO_TOOL;
-
-    set_runout_valid(false);
-
-    return true;
-  }
-
-  /**
-   * Unload sequence to optimize shape of the tip of the unloaded filament
-   */
-  void MMU2::filament_ramming() {
-    execute_extruder_sequence((const E_Step *)ramming_sequence, sizeof(ramming_sequence) / sizeof(E_Step));
-  }
-
-  void MMU2::execute_extruder_sequence(const E_Step * sequence, int steps) {
-
-    planner.synchronize();
-    ENABLE_AXIS_E0();
-
-    const E_Step* step = sequence;
-
-    LOOP_L_N(i, steps) {
-      const float es = pgm_read_float(&(step->extrude));
-      const feedRate_t fr_mm_m = pgm_read_float(&(step->feedRate));
-
-      DEBUG_ECHO_START();
-      DEBUG_ECHOLNPAIR("E step ", es, "/", fr_mm_m);
-
-      current_position.e += es;
-      line_to_current_position(MMM_TO_MMS(fr_mm_m));
-      planner.synchronize();
-
-      step++;
-    }
-
-    DISABLE_AXIS_E0();
-  }
 
 #endif // HAS_LCD_MENU && MMU2_MENUS
 
