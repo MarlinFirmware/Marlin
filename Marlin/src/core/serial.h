@@ -303,14 +303,14 @@ extern uint8_t marlin_debug_flags;
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, long v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 void serial_echopair_PGM(PGM_P const s_P, float v);
 void serial_echopair_PGM(PGM_P const s_P, double v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 inline void serial_echopair_PGM(PGM_P const s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
-inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (unsigned long)v); }
+inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
 void serialprintPGM(PGM_P str);
 void serial_echo_start();
