@@ -639,7 +639,7 @@
   #define DEFAULT_DUPLICATION_X_OFFSET 100
 
   // Default action to execute following M605 mode change commands. Typically G28X to apply new mode.
-  //#define EVENT_GCODE_AFTER_MODECHANGE "G28X"
+  //#define EVENT_GCODE_IDEX_AFTER_MODECHANGE "G28X"
 #endif
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.
