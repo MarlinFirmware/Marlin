@@ -23,7 +23,7 @@
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8/U9) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
-//#define QQS_UART9                  //(U9h) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
+//#define QQS_UART9                  //(UH) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------//
 * Options: 
@@ -72,7 +72,6 @@
 #define PID_AUTOTUNE_MENU          //
 #define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe.
 #define LCD_INFO_MENU              // Informations printer.
-//#define LED_CONTROL_MENU           // To control LedStrip.
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
@@ -80,7 +79,7 @@
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
+//#define UTF_FILENAME_SUPPORT      // Bug at the reboot
 
 /* OPTION no validate */
 //#define USE_CONTROLLER_FAN         //BOARD FAN
@@ -88,6 +87,13 @@
 
 //
 //==================Part for Driver defintions=============//
+// Options for Modules Hardware
+#ifdef ESP_WIFI
+  #define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
+#endif
+#ifdef NEOPIXEL_LED
+  #define LED_CONTROL_MENU           // To control LedStrip.
+#endif
 
 //TFT Type For TFT_GENERIC
 #if ENABLED(TFT_GENERIC)
