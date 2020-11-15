@@ -67,7 +67,7 @@ Caption:
   - (9) TMC2209
   - (U8) TMC2208_UART with no module ESP12.
   - (U9) TMC2209_UART with no module ESP12.
-  - **(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
+  - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
 
