@@ -276,23 +276,24 @@
 //
 // SD Card
 //
-#define SDIO_CLOCK                       4500000  // 4.5 MHz
-#define SDIO_READ_RETRIES                     16
+#ifndef SDCARD_CONNECTION
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
 
-#if ENABLED(SDIO_SUPPORT)
-  #define SCK_PIN                           PB13  // SPI2
-  #define MISO_PIN                          PB14  // SPI2
-  #define MOSI_PIN                          PB15  // SPI2
-  #define SD_DETECT_PIN                     -1    // SD_CD (-1 active refresh)
-  #define SS_PIN                            PC2
-#else // Use the on-board card socket labeled SD_Extender
+// Use the on-board card socket labeled SD_Extender
+#if SD_CONNECTION_IS(CUSTOM_CABLE) 
   #define SCK_PIN                           PC12
   #define MISO_PIN                          PC8
   #define MOSI_PIN                          PD2
   #define SS_PIN                            -1
-  #define ONBOARD_SD_CS_PIN                 PC11
-  #define SDSS                              PD2
   #define SD_DETECT_PIN                     PD12  // SD_CD (if -1 no detection)
+#else
+  #define SDIO_SUPPORT
+  #define SDIO_CLOCK                      4500000  // 4.5 MHz
+  #define SDIO_READ_RETRIES                    16
+  #define ONBOARD_SPI_DEVICE                     1  // SPI1
+  #define ONBOARD_SD_CS_PIN                   PC11
+  #define SD_DETECT_PIN                     -1    // SD_CD (-1 active refresh)
 #endif
 
 //
