@@ -31,13 +31,7 @@ __Not for production use. Use with caution!__
 
   ## Validate:
 
-Firmware for QQS-Pro with A4988.
-
-Firmware for QQS-Pro with TMC2208_Standalone
-
-Firmware for QQS-Pro with TMC220x_UART 
-
-Firmware for QQS-Pro with TMC2209_UART one-wire
+  - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire
 
 With activate parts:
 
@@ -63,51 +57,39 @@ No validate:
 
 8CWBL-Robin_mini.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
+**Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it on your SD card, insert your SD card into the printer and power on your printer.
+
 Caption:
 
   ### /*------Drivers--------*/
-(S) A4988
-
-(8) TMC2208
-
-(9) TMC2209
-
-(U8) TMC2208_UART with no module ESP12.
-
-(U9) TMC2209_UART with no module ESP12.
-
-**(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
-
-(U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
-
-(U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
+  - (S) A4988
+  - (8) TMC2208
+  - (9) TMC2209
+  - (U8) TMC2208_UART with no module ESP12.
+  - (U9) TMC2209_UART with no module ESP12.
+  - **(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
+  - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
+  - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
 
   ### /*------Modules--------*/
-(W) Module ESP8266/ESP12
-
-(T) Extruder Titan
-
-(B) Extruder BMG
-
-(N) NeoPixel
+  - (W) Module ESP8266/ESP12
+  - (T) Extruder Titan
+  - (B) Extruder BMG
+  - (N) NeoPixel
 
   ### /*-------Options UI TFT--------*/
-(F) UI STANDARD 
-
-(C) UI MARLIN 
-
-(I) UI MKS
+  - (F) UI STANDARD 
+  - (C) UI MARLIN 
+  - (I) UI MKS
 
   ### /*-------Others options in firmware----*/ 
-(A) BED_LEVELING_BILINEAR
+  - (A) BED_LEVELING_BILINEAR
+  - (U) BED_LEVELING_UBL
+  - (R) ARC_SUPPORT
+  - (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
-(U) BED_LEVELING_UBL
+  # For the Wifi Module (MKS_Wifi):
 
-(R) ARC_SUPPORT
-
-(L) Linear Advance (Possible Bug with BabyStep and TMC)
-
- ## For the Wifi Module (MKS_Wifi):
 ![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
