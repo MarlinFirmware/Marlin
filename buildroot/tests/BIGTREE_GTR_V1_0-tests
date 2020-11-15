@@ -37,7 +37,7 @@ opt_set FIL_RUNOUT4_STATE HIGH
 opt_enable FIL_RUNOUT4_PULL
 opt_set FIL_RUNOUT8_STATE HIGH
 opt_enable FIL_RUNOUT8_PULL
-exec_test $1 $2 "BigTreeTech GTR 8 Extruders with Auto-Fan, Mixed TMC Drivers, and Runout Sensors with distinct states"
+exec_test $1 $2 "BigTreeTech GTR 8 Extruders with Auto-Fan, Mixed TMC Drivers, and Runout Sensors with distinct states" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_BTT_GTR_V1_0
