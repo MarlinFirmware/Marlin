@@ -1620,7 +1620,12 @@ void MarlinUI::update() {
     if (status) {
       if (old_status < 2) {
         TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
-        set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+        #if ENABLED(SD_AUTOOPEN_MENU)
+          quick_feedback();
+          goto_screen(menu_media);
+        #else
+          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+        #endif
       }
     }
     else {
