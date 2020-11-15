@@ -60,7 +60,7 @@
 #include "sd/cardreader.h"
 
 #include "lcd/marlinui.h"
-#if HAS_TOUCH_XPT2046
+#if HAS_TOUCH_BUTTONS
   #include "lcd/touch/touch_buttons.h"
 #endif
 
@@ -1109,7 +1109,7 @@ void setup() {
     SETUP_RUN(ethernet.init());
   #endif
 
-  #if HAS_TOUCH_XPT2046
+  #if HAS_TOUCH_BUTTONS
     SETUP_RUN(touch.init());
   #endif
 
@@ -1305,6 +1305,10 @@ void setup() {
 
   #if ENABLED(PASSWORD_ON_STARTUP)
     SETUP_RUN(password.lock_machine());      // Will not proceed until correct password provided
+  #endif
+
+  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION) && EITHER(TFT_CLASSIC_UI, TFT_COLOR_UI)
+    ui.check_touch_calibration();
   #endif
 
   marlin_state = MF_RUNNING;
