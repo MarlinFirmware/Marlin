@@ -88,6 +88,44 @@ Caption:
   - (R) ARC_SUPPORT
   - (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
+  ## HELP - PROCEDURE - TIPS 
+    After the flash, you must reset your printer using the menu or M502,
+  M500 put the probe then start a calibration or G33 V3 (5 iterations).
+  
+  Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
+  Then lower the nozzle slowly to adjust to a sheet of paper.
+  View the value on the display and enter the value in the Probe_Z_Offset menu Configuration or M851 Z-xx.xx and finally store the parameters (M500).
+  Through a terminal (I do it through the web page of the Wifi module),
+
+  Perform a bed calibration (UBL) with this commands:
+  - M190 S60 (temp bed at 60° or other)
+  - G28 (autohome)
+  - G29 P1 (automated probing of the bed)
+  - G29 P3 T (Repeat until all mesh points are filled in)
+  - G29 P3 T (bis)
+  - G29 T (View the Z compensation values)
+  - G29 S1 (Save UBL mesh points to EEPROM)
+  - G29 F 5 (Set Fade Height for correction at 5 mm)
+  - G29 A (Activate the UBL System)
+  - M500 (Save to EEPROM)
+  - M140 S0 (Stop temp bed)
+
+  Remember to adjust your temperatures by doing your **bed PID** and adjust your **eSteps** for stable filament flow.
+
+  **TIPS-SLICER** 
+  In your Start GCode on your Slicer.
+  - M420 S1 enable bed leveling
+  - M420 Lx (Load mesh_x correction)
+  And on your EndGCode remove G28 because I enable a height(270cm)  after the "HOME" where XY movement is unconstrained.
+  You can substitute this type of code:
+  "{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000" 
+  This works fine in PrusaSlicer (https://help .prusa3d.com/en/article/macros_1775).
+  Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
+
+  **
+
+
+
   # For the Wifi Module (MKS_Wifi):
 
 ![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
