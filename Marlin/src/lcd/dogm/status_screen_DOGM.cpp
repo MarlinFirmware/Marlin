@@ -414,7 +414,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  #if ENABLED(INCH_MODE_SUPPORT)
+  #if ENABLED(STATUS_DISPLAY_INCHES)
     static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 8)], ystring[8], zstring[8];
   #else
     static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
