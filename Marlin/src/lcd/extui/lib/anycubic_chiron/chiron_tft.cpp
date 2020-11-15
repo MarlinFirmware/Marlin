@@ -364,7 +364,7 @@ namespace Anycubic {
       faultDuration++;
       if (faultDuration >= AC_HEATER_FAULT_VALIDATION_TIME) {
         SendtoTFTLN(AC_msg_nozzle_temp_abnormal);
-        SERIAL_ECHOLNPAIR_P("Bed temp abnormal! : ", temp);
+        SERIAL_ECHOLNPAIR("Bed temp abnormal! : ", temp);
         break;
       }
       delay_ms(500);
