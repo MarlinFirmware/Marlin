@@ -268,7 +268,8 @@ const char* ftostr63(const float &f) {
     conv[6] = DIGIMOD(ii, 1);
     return &conv[3];
   }
-  #if ENABLED(INFO_DISPLAY_INCHES) && ENABLED(INCH_MODE_SUPPORT)
+
+  #if ENABLED(STATUS_DISPLAY_INCHES)
   
     // Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 format
     const char* ftostr42sign(const float &f) {

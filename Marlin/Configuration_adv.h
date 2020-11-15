@@ -1127,11 +1127,7 @@
 //#define STATUS_MESSAGE_SCROLLING
 
 // On the Info Screen, display XY with one decimal place when possible
-//#define LCD_DECIMAL_SMALL_XY
-  #if ENABLED(LCD_DECIMAL_SMALL_XY) && ENABLED(INCH_MODE_SUPPORT)
-    #define INFO_DISPLAY_INCHES // Show coordnates in inches when G20 is used.
-  #endif
-    
+//#define LCD_DECIMAL_SMALL_XY    
 
 // The timeout (in ms) to return to the status screen from sub-menus
 //#define LCD_TIMEOUT_TO_STATUS 15000

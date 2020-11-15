@@ -1506,6 +1506,11 @@
 // G20/G21 Inch mode support
 //
 //#define INCH_MODE_SUPPORT
+  * STATUS_DISPLAY_INCHES automatically turns on its dependencies,
+  * 'LCD_DECIMAL_SMALL_XY' and 'XYZ_NO_FRAME'. 
+  */
+  //#define STATUS_DISPLAY_INCHES
+#endif
 
 //
 // M149 Set temperature units support
@@ -1998,7 +2003,6 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // ReprapWorld Graphical LCD
