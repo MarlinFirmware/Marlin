@@ -11,7 +11,7 @@ You are here because you are looking for the latest BIQU B1 firmware and you wil
 
 ## Current version of Marlin
 
-The files in this repository contain the source, configs and compiled firmware for Marlin: 2.0.7.2
+The files in this repository contain the source, configs and compiled firmware for Marlin: 2.0.7.2 (If you downloaded before 12:00pm GMT on 15-11-2020 please download and install again).
 
 The firmware within this repo uses modified versions of the standard Marlin config files created by the talented @thisiskeithb.
 
