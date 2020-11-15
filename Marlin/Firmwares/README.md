@@ -80,6 +80,10 @@ Caption:
 
 (U8) TMC2208_UART with no module ESP12.
 
+(U9) TMC2209_UART with no module ESP12.
+
+(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)
+
 (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
 
 (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
@@ -104,6 +108,8 @@ Caption:
 (A) BED_LEVELING_BILINEAR
 
 (U) BED_LEVELING_UBL
+
+(R) ARC_SUPPORT
 
 (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
