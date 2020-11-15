@@ -15,7 +15,7 @@ opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO
 exec_test $1 $2 "MKS Robin nano v1.2 Emulated DOGM FSMC"
 
 #
-# MKS Robin v2 nano LVGL SPI
+# MKS Robin v2 nano Emulated DOGM SPI
 # (Robin v2 nano has no FSMC interface)
 #
 use_example_configs Mks/Robin

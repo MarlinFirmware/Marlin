@@ -35,6 +35,8 @@
 
 #define BOARD_INFO_NAME "MKS Robin"
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
@@ -166,7 +168,7 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2

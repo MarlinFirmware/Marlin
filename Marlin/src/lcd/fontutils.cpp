@@ -9,6 +9,8 @@
 
 #include "../inc/MarlinConfig.h"
 
+#define MAX_UTF8_CHAR_SIZE 4
+
 #if HAS_WIRED_LCD
   #include "marlinui.h"
   #include "../MarlinCore.h"
@@ -73,11 +75,18 @@ int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, 
   return -1;
 }
 
+/* Returns true if passed byte is first byte of UTF-8 char sequence */
+static inline bool utf8_is_start_byte_of_char(const uint8_t b) {
+  return 0x80 != (b & 0xC0);
+}
+
 /* This function gets the character at the pstart position, interpreting UTF8 multibyte sequences
    and returns the pointer to the next character */
 uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval) {
   uint32_t val = 0;
   uint8_t *p = pstart;
+
+  #define NEXT_6_BITS() do{ val <<= 6; p++; valcur = cb_read_byte(p); val |= (valcur & 0x3F); }while(0)
 
   uint8_t valcur = cb_read_byte(p);
   if (0 == (0x80 & valcur)) {
@@ -86,74 +95,51 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
   }
   else if (0xC0 == (0xE0 & valcur)) {
     val = valcur & 0x1F;
-    val <<= 6;
-    p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
+    NEXT_6_BITS();
     p++;
   }
-  else if (0xE0 == (0xF0 & valcur)) {
-    val = valcur & 0x0F;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xF0 == (0xF8 & valcur)) {
-    val = valcur & 0x07;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xF8 == (0xFC & valcur)) {
-    val = valcur & 0x03;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0xFC == (0xFE & valcur)) {
-    val = valcur & 0x01;
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    val <<= 6; p++;
-    valcur = cb_read_byte(p);
-    val |= (valcur & 0x3F);
-    p++;
-  }
-  else if (0x80 == (0xC0 & valcur))
-    for (; 0x80 == (0xC0 & valcur); ) { p++; valcur = cb_read_byte(p); }
+  #if MAX_UTF8_CHAR_SIZE >= 3
+    else if (0xE0 == (0xF0 & valcur)) {
+      val = valcur & 0x0F;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 4
+    else if (0xF0 == (0xF8 & valcur)) {
+      val = valcur & 0x07;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 5
+    else if (0xF8 == (0xFC & valcur)) {
+      val = valcur & 0x03;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  #if MAX_UTF8_CHAR_SIZE >= 6
+    else if (0xFC == (0xFE & valcur)) {
+      val = valcur & 0x01;
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      NEXT_6_BITS();
+      p++;
+    }
+  #endif
+  else if (!utf8_is_start_byte_of_char(valcur))
+    for (; !utf8_is_start_byte_of_char(valcur); ) { p++; valcur = cb_read_byte(p); }
   else
-    for (; ((0xFE & valcur) > 0xFC); ) { p++; valcur = cb_read_byte(p); }
+    for (; 0xFC < (0xFE & valcur); ) { p++; valcur = cb_read_byte(p); }
 
   if (pval) *pval = val;
 
@@ -162,12 +148,12 @@ uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t
 
 static inline uint8_t utf8_strlen_cb(const char *pstart, read_byte_cb_t cb_read_byte) {
   uint8_t cnt = 0;
-  uint8_t *pnext = (uint8_t *)pstart;
+  uint8_t *p = (uint8_t *)pstart;
   for (;;) {
-    wchar_t ch;
-    pnext = get_utf8_value_cb(pnext, cb_read_byte, &ch);
-    if (!ch) break;
-    cnt++;
+    const uint8_t b = cb_read_byte(p);
+    if (!b) break;
+    if (utf8_is_start_byte_of_char(b)) cnt++;
+    p++;
   }
   return cnt;
 }
@@ -178,4 +164,27 @@ uint8_t utf8_strlen(const char *pstart) {
 
 uint8_t utf8_strlen_P(PGM_P pstart) {
   return utf8_strlen_cb(pstart, read_byte_rom);
+}
+
+static inline uint8_t utf8_byte_pos_by_char_num_cb(const char *pstart, read_byte_cb_t cb_read_byte, const uint8_t charnum) {
+  uint8_t *p = (uint8_t *)pstart;
+  uint8_t char_idx = 0;
+  uint8_t byte_idx = 0;
+  for (;;) {
+    const uint8_t b = cb_read_byte(p + byte_idx);
+    if (!b) return byte_idx; // Termination byte of string
+    if (utf8_is_start_byte_of_char(b)) {
+      char_idx++;
+      if (char_idx == charnum + 1) return byte_idx;
+    }
+    byte_idx++;
+  }
+}
+
+uint8_t utf8_byte_pos_by_char_num(const char *pstart, const uint8_t charnum) {
+  return utf8_byte_pos_by_char_num_cb(pstart, read_byte_ram, charnum);
+}
+
+uint8_t utf8_byte_pos_by_char_num_P(PGM_P pstart, const uint8_t charnum) {
+  return utf8_byte_pos_by_char_num_cb(pstart, read_byte_rom, charnum);
 }

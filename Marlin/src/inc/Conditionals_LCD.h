@@ -235,7 +235,7 @@
   #define BOARD_ST7920_DELAY_2 DELAY_NS(125)
   #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
 
-#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, BQ_LCD_SMART_CONTROLLER)
+#elif ANY(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD, ANET_FULL_GRAPHICS_LCD_ALT_WIRING, BQ_LCD_SMART_CONTROLLER)
 
   #define IS_RRD_FG_SC 1
 
@@ -675,6 +675,77 @@
   #define HAS_BED_PROBE 1
 #endif
 
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if NUM_RUNOUT_SENSORS >= 1
+    #ifndef FIL_RUNOUT1_STATE
+      #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT1_PULL
+      #define FIL_RUNOUT1_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 2
+    #ifndef FIL_RUNOUT2_STATE
+      #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT2_PULL
+      #define FIL_RUNOUT2_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 3
+    #ifndef FIL_RUNOUT3_STATE
+      #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT3_PULL
+      #define FIL_RUNOUT3_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 4
+    #ifndef FIL_RUNOUT4_STATE
+      #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT4_PULL
+      #define FIL_RUNOUT4_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 5
+    #ifndef FIL_RUNOUT5_STATE
+      #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT5_PULL
+      #define FIL_RUNOUT5_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 6
+    #ifndef FIL_RUNOUT6_STATE
+      #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT6_PULL
+      #define FIL_RUNOUT6_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 7
+    #ifndef FIL_RUNOUT7_STATE
+      #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT7_PULL
+      #define FIL_RUNOUT7_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+  #if NUM_RUNOUT_SENSORS >= 8
+    #ifndef FIL_RUNOUT8_STATE
+      #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
+    #endif
+    #ifndef FIL_RUNOUT8_PULL
+      #define FIL_RUNOUT8_PULL FIL_RUNOUT_PULL
+    #endif
+  #endif
+#endif // FILAMENT_RUNOUT_SENSOR
+
+#if EITHER(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
+  #undef PROBE_MANUALLY
+#endif
+
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
 #endif
@@ -705,6 +776,10 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
+
+#if Z_HOME_DIR > 0
+  #define HOME_Z_FIRST // If homing away from BED do Z first
 #endif
 
 /**
@@ -747,6 +822,7 @@
   #define HAS_PROBING_PROCEDURE 1
 #endif
 #if !HAS_LEVELING
+  #undef PROBE_MANUALLY
   #undef RESTORE_LEVELING_AFTER_G28
 #endif
 
@@ -997,8 +1073,24 @@
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #undef TOUCH_SCREEN_CALIBRATION
   #if !HAS_TFT_LVGL_UI
-    #define HAS_TOUCH_XPT2046 1
+    #define HAS_TOUCH_BUTTONS 1
+  #endif
+#endif
+
+// XPT2046_** Compatibility
+#if !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
+  #if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET)
+    #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
+    #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
+    #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
+    #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
+    #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+  #else
+    #define TOUCH_CALIBRATION_X  0
+    #define TOUCH_CALIBRATION_Y  0
+    #define TOUCH_OFFSET_X       0
+    #define TOUCH_OFFSET_Y       0
+    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
