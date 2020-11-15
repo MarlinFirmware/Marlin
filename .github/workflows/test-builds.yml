@@ -88,7 +88,6 @@ jobs:
         - LERDGEX
         - mks_robin_nano35_stm32
         - NUCLEO_F767ZI
-        - STM32F4
         - REMRAM_V1
 
         # Put lengthy tests last
