@@ -1506,6 +1506,9 @@
 // G20/G21 Inch mode support
 //
 //#define INCH_MODE_SUPPORT
+#if ENABLED(INCH_MODE_SUPPORT)
+  /**
+  * Show XYZ coordnates in inches when G20 is active.
   * STATUS_DISPLAY_INCHES automatically turns on its dependencies,
   * 'LCD_DECIMAL_SMALL_XY' and 'XYZ_NO_FRAME'. 
   */
