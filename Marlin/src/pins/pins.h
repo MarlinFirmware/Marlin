@@ -628,7 +628,7 @@
 #elif MB(LERDGE_X)
   #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGEX
 #elif MB(VAKE403D)
-  #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_VAKE403D.h"            // STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32f4/pins_FYSETC_S6.h"           // STM32F4                                env:FYSETC_S6
 #elif MB(FLYF407ZG)
