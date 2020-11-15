@@ -22,8 +22,8 @@
 //#define QQS_TMC                    //(8) For 4xTMC220x_STANDALONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
-//#define QQS_UARTx                  //(U8) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
-//#define QQS_UART9                  //(U9) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
+//#define QQS_UARTx                  //(U8/U9) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
+//#define QQS_UART9                  //(U9h) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------//
 * Options: 
