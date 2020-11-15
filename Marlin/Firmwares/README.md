@@ -8,26 +8,20 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20201115
+  - Validate TMC2209 mode.
+
  Update Marlin-BugFix 20201030
-
-  -Last correction for Black screen in UI Color
-
-  -Correction thermal protection hysterisis.
-
-  -Remove part for TMC2209 UART HardwareSerial
-  
+  - Last correction for Black screen in UI Color
+  - Correction thermal protection hysterisis.
+  - Remove part for TMC2209 UART HardwareSerial
   - Add comments into definition_pins file.
 
  Update Marlin-BugFix 20201022
- 
-  -Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
-  
-  -Fixed Deploy/Stow ZProbe
-  
-  -Fixed for users using E3Dv6 hotend
-  
-  -Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
-
+  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+  - Fixed Deploy/Stow ZProbe
+  - Fixed for users using E3Dv6 hotend
+  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
 
 ## Marlin 2.0.7 
  Update 2020-10-01
@@ -82,7 +76,7 @@ Caption:
 
 (U9) TMC2209_UART with no module ESP12.
 
-(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)
+**(U9h) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
 
 (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
 
