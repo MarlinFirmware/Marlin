@@ -25,7 +25,7 @@
 // Uncomment what SKR E3 Mini Board Version you are using
 //#define SKR_E3_MINI_V1
 //#define SKR_E3_MINI_V1_2
-#define SKR_E3_MINI_V2_0
+//#define SKR_E3_MINI_V2_0
 
 // EZOut Filament Sensor
 // This board only works with this version of our sensor kit: https://www.th3dstudio.com/product/ezout-filament-sensor-kit-standard/
