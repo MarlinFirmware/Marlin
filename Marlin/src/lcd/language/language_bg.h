@@ -40,7 +40,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Картата е поставена");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Картата е извадена");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Меню");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Изкл. двигатели");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Паркиране");
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Задай Начало");

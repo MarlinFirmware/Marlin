@@ -341,7 +341,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(404, 180, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(12, 180, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    TERN_(SDSUPPORT, add_control(12, 180, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 }
 
@@ -428,21 +428,21 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
   extern screenFunc_t _manual_move_func_ptr;
   if (ui.currentScreen != _manual_move_func_ptr && !ui.external_control) {
 
-    #define SLIDER_LENGHT 336
+    #define SLIDER_LENGTH 336
     #define SLIDER_Y_POSITION 186
 
-    tft.canvas((TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION, SLIDER_LENGHT, 16);
+    tft.canvas((TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION, SLIDER_LENGTH, 16);
     tft.set_background(COLOR_BACKGROUND);
 
-    int16_t position = (SLIDER_LENGHT - 2) * ui.encoderPosition / maxEditValue;
+    int16_t position = (SLIDER_LENGTH - 2) * ui.encoderPosition / maxEditValue;
     tft.add_bar(0, 7, 1, 2, ui.encoderPosition == 0 ? COLOR_SLIDER_INACTIVE : COLOR_SLIDER);
     tft.add_bar(1, 6, position, 4, COLOR_SLIDER);
-    tft.add_bar(position + 1, 6, SLIDER_LENGHT - 2 - position, 4, COLOR_SLIDER_INACTIVE);
-    tft.add_bar(SLIDER_LENGHT - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
+    tft.add_bar(position + 1, 6, SLIDER_LENGTH - 2 - position, 4, COLOR_SLIDER_INACTIVE);
+    tft.add_bar(SLIDER_LENGTH - 1, 7, 1, 2, int32_t(ui.encoderPosition) == maxEditValue ? COLOR_SLIDER : COLOR_SLIDER_INACTIVE);
 
     #if ENABLED(TOUCH_SCREEN)
-      tft.add_image((SLIDER_LENGHT - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
-      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGHT) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGHT, 32, maxEditValue);
+      tft.add_image((SLIDER_LENGTH - 8) * ui.encoderPosition / maxEditValue, 0, imgSlider, COLOR_SLIDER);
+      touch.add_control(SLIDER, (TFT_WIDTH - SLIDER_LENGTH) / 2, SLIDER_Y_POSITION - 8, SLIDER_LENGTH, 32, maxEditValue);
     #endif
   }
 
@@ -589,32 +589,36 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // AUTO_BED_LEVELING_UBL
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  void MarlinUI::touch_calibration() {
-    static uint16_t x, y;
+  void MarlinUI::touch_calibration_screen() {
+    uint16_t x, y;
 
-    calibrationState calibration_stage = touch.get_calibration_state();
+    calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
     if (calibration_stage == CALIBRATION_NONE) {
       defer_status_screen(true);
       clear_lcd();
-      calibration_stage = touch.calibration_start();
+      calibration_stage = touch_calibration.calibration_start();
     }
     else {
+      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
     }
 
-    x = 20; y = 20;
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       switch (calibration_stage) {
-        case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
-        case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
-        case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
-        case CALIBRATION_POINT_4: x = TFT_WIDTH  - 21; y = TFT_HEIGHT - 21; tft_string.set("Bottom Right"); break;
+        case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
+        case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
+        case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
+        case CALIBRATION_BOTTOM_RIGHT: tft_string.set(GET_TEXT(MSG_BOTTOM_RIGHT)); break;
         default: break;
       }
+
+      x = touch_calibration.calibration_points[calibration_stage].x;
+      y = touch_calibration.calibration_points[calibration_stage].y;
 
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
@@ -624,9 +628,9 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
       touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
     }
     else {
-      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? "Calibration Completed" : "Calibration Failed");
+      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
       defer_status_screen(false);
-      touch.calibration_end();
+      touch_calibration.calibration_end();
       touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     }
 
@@ -652,7 +656,10 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row));
+  #if ENABLED(TOUCH_SCREEN)
+    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? CLICK : MENU_ITEM;
+    touch.add_control(tct, 0, 4 + 45 * row, TFT_WIDTH, 43, encoderTopLine + row);
+  #endif
 }
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)

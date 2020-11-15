@@ -202,12 +202,12 @@ void menu_backlash();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
+    UNUSED(e);
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int16_t e) {
-    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
+    UNUSED(e);
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     thermalManager.updatePID();
   }
