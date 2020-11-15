@@ -82,7 +82,7 @@ void MarlinUI::save_previous_screen() {
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
   IF_DISABLED(TURBO_BACK_MENU_ITEM, constexpr bool is_back = false);
-  TERN_(HAS_TOUCH_XPT2046, on_edit_screen = false);
+  TERN_(HAS_TOUCH_BUTTONS, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -123,7 +123,7 @@ void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_b
  *       MenuItem_int3::draw(encoderLine == _thisItemNr, _lcdLineNr, plabel, &feedrate_percentage, 10, 999)
  */
 void MenuEditItemBase::edit_screen(strfunc_t strfunc, loadfunc_t loadfunc) {
-  TERN_(HAS_TOUCH_XPT2046, ui.repeat_delay = BUTTON_DELAY_EDIT);
+  TERN_(HAS_TOUCH_BUTTONS, ui.repeat_delay = BUTTON_DELAY_EDIT);
   if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
   if (int32_t(ui.encoderPosition) > maxEditValue) ui.encoderPosition = maxEditValue;
   if (ui.should_draw())
@@ -145,7 +145,7 @@ void MenuEditItemBase::goto_edit_screen(
   const screenFunc_t cb,  // Callback after edit
   const bool le           // Flag to call cb() during editing
 ) {
-  TERN_(HAS_TOUCH_XPT2046, ui.on_edit_screen = true);
+  TERN_(HAS_TOUCH_BUTTONS, ui.on_edit_screen = true);
   ui.screen_changed = true;
   ui.save_previous_screen();
   ui.refresh();
@@ -175,7 +175,7 @@ bool printer_busy() {
 void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, const uint8_t top/*=0*/, const uint8_t items/*=0*/) {
   if (currentScreen != screen) {
 
-    TERN_(HAS_TOUCH_XPT2046, repeat_delay = BUTTON_DELAY_MENU);
+    TERN_(HAS_TOUCH_BUTTONS, repeat_delay = BUTTON_DELAY_MENU);
 
     TERN_(LCD_SET_PROGRESS_MANUALLY, progress_reset());
 

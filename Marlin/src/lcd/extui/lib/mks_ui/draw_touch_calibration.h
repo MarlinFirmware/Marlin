@@ -19,18 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
-#if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+extern void lv_draw_touch_calibration_screen();
+extern void lv_clear_touch_calibration_screen();
+extern void lv_update_touch_calibration_screen();
 
-#include "menu_item.h"
-#include "../marlinui.h"
-
-void touch_screen_calibration() {
-
-  ui.touch_calibration_screen();
-
-}
-
-#endif // TOUCH_SCREEN_CALIBRATION
+//extern void disp_temp_ready_print();
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif

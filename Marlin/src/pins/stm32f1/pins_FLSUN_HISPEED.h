@@ -286,22 +286,22 @@
 
 // MKS Robin TFT v2.0 with ILI9341
 // Read display identification information (0xD3 on ILI9341)
-//#define XPT2046_X_CALIBRATION            12013
-//#define XPT2046_Y_CALIBRATION            -8711
-//#define XPT2046_X_OFFSET                   -32
-//#define XPT2046_Y_OFFSET                   256
+//#define TOUCH_CALIBRATION_X              12013
+//#define TOUCH_CALIBRATION_Y              -8711
+//#define TOUCH_OFFSET_X                     -32
+//#define TOUCH_OFFSET_Y                     256
 
 // MKS Robin TFT v1.1 with ILI9328
-//#define XPT2046_X_CALIBRATION           -11792
-//#define XPT2046_Y_CALIBRATION             8947
-//#define XPT2046_X_OFFSET                   342
-//#define XPT2046_Y_OFFSET                   -19
+//#define TOUCH_CALIBRATION_X             -11792
+//#define TOUCH_CALIBRATION_Y               8947
+//#define TOUCH_OFFSET_X                     342
+//#define TOUCH_OFFSET_Y                     -19
 
 // MKS Robin TFT v1.1 with R61505
-//#define XPT2046_X_CALIBRATION            12489
-//#define XPT2046_Y_CALIBRATION             9210
-//#define XPT2046_X_OFFSET                   -52
-//#define XPT2046_Y_OFFSET                   -17
+//#define TOUCH_CALIBRATION_X              12489
+//#define TOUCH_CALIBRATION_Y               9210
+//#define TOUCH_OFFSET_X                     -52
+//#define TOUCH_OFFSET_Y                     -17
 
 // QQS-Pro uses MKS Robin TFT v2.0
 
@@ -322,42 +322,6 @@
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-#endif
-
-// XPT2046 Touch Screen calibration
-#if EITHER(TFT_LVGL_UI_FSMC, TFT_COLOR_UI)
-  #define TFT_BUFFER_SIZE                  14400
-
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12218
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8814
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 256
-  #endif
-
-#elif ENABLED(TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12149
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -8746
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -35
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 256
-  #endif
-
-  #define TFT_MARLINUI_COLOR              0xFFFF  // White
-  #define TFT_BTARROWS_COLOR              0xDEE6  // 11011 110111 00110 Yellow
-  #define TFT_BTOKMENU_COLOR              0x145F  // 00010 100010 11111 Cyan
 #endif
 
 #if NEED_TOUCH_PINS

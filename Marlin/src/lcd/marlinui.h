@@ -31,6 +31,10 @@
   #include "../sd/cardreader.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "tft_io/touch_calibration.h"
+#endif
+
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -74,7 +78,7 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_XPT2046, 50, 100)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
@@ -146,7 +150,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_XPT2046
+  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_BUTTONS
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -212,7 +216,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_XPT2046, IS_TFTGLCD_PANEL)
+#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_BUTTONS, IS_TFTGLCD_PANEL)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -310,6 +314,12 @@ public:
 
   // LCD implementations
   static void clear_lcd();
+
+  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+    static void check_touch_calibration() {
+      if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
@@ -452,7 +462,7 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
-      #if HAS_TOUCH_XPT2046
+      #if HAS_TOUCH_BUTTONS
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
@@ -512,7 +522,7 @@ public:
       static millis_t return_to_status_ms;
     #endif
 
-    #if HAS_TOUCH_XPT2046
+    #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
     #endif
@@ -682,7 +692,7 @@ public:
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    static void touch_calibration();
+    static void touch_calibration_screen();
   #endif
 
   #if HAS_GRAPHICAL_TFT

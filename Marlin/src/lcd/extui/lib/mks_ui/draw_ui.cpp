@@ -48,6 +48,10 @@
   #include "../../../../feature/pause.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "draw_touch_calibration.h"
+#endif
+
 CFG_ITMES gCfgItems;
 UI_CFG uiCfg;
 DISP_STATE_STACK disp_state_stack;
@@ -1138,227 +1142,94 @@ void clear_cur_ui() {
   last_disp_state = disp_state_stack._disp_state[disp_state_stack._disp_index];
 
   switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
-    case PRINT_READY_UI:
-      //Get_Temperature_Flg = 0;
-      lv_clear_ready_print();
-      break;
-    case PRINT_FILE_UI:
-      lv_clear_print_file();
-      break;
-    case PRINTING_UI:
-      lv_clear_printing();
-      break;
-    case MOVE_MOTOR_UI:
-      lv_clear_move_motor();
-      break;
-    case OPERATE_UI:
-      lv_clear_operation();
-      break;
-    case PAUSE_UI:
-      //Clear_pause();
-      break;
-    case EXTRUSION_UI:
-      lv_clear_extrusion();
-      break;
-    case PRE_HEAT_UI:
-      lv_clear_preHeat();
-      break;
-    case CHANGE_SPEED_UI:
-      lv_clear_change_speed();
-      break;
-    case FAN_UI:
-      lv_clear_fan();
-      break;
-    case SET_UI:
-      lv_clear_set();
-      break;
-    case ZERO_UI:
-      lv_clear_home();
-      break;
-    case SPRAYER_UI:
-      //Clear_Sprayer();
-      break;
-    case MACHINE_UI:
-      //Clear_Machine();
-      break;
-    case LANGUAGE_UI:
-      lv_clear_language();
-      break;
-    case ABOUT_UI:
-      lv_clear_about();
-      break;
-    case LOG_UI:
-      //Clear_Connect();
-      break;
-    case DISK_UI:
-      //Clear_Disk();
-      break;
+    case PRINT_READY_UI:              //Get_Temperature_Flg = 0;
+                                      lv_clear_ready_print(); break;
+    case PRINT_FILE_UI:               lv_clear_print_file(); break;
+    case PRINTING_UI:                 lv_clear_printing(); break;
+    case MOVE_MOTOR_UI:               lv_clear_move_motor(); break;
+    case OPERATE_UI:                  lv_clear_operation(); break;
+    case PAUSE_UI:                    /* Clear_pause(); */ break;
+    case EXTRUSION_UI:                lv_clear_extrusion(); break;
+    case PRE_HEAT_UI:                 lv_clear_preHeat(); break;
+    case CHANGE_SPEED_UI:             lv_clear_change_speed(); break;
+    case FAN_UI:                      lv_clear_fan(); break;
+    case SET_UI:                      lv_clear_set(); break;
+    case ZERO_UI:                     lv_clear_home(); break;
+    case SPRAYER_UI:                  /* Clear_Sprayer(); */ break;
+    case MACHINE_UI:                  /* Clear_Machine(); */ break;
+    case LANGUAGE_UI:                 lv_clear_language(); break;
+    case ABOUT_UI:                    lv_clear_about(); break;
+    case LOG_UI:                      /* Clear_Connect(); */ break;
+    case DISK_UI:                     /* Clear_Disk(); */ break;
     #if ENABLED(USE_WIFI_FUNCTION)
-      case WIFI_UI:
-        lv_clear_wifi();
-        break;
+      case WIFI_UI:                   lv_clear_wifi(); break;
     #endif
-    case MORE_UI:
-      //Clear_more();
-      break;
-    case FILETRANSFER_UI:
-      //Clear_fileTransfer();
-      break;
-    case DIALOG_UI:
-      lv_clear_dialog();
-      break;
-    case FILETRANSFERSTATE_UI:
-      //Clear_WifiFileTransferdialog();
-      break;
-    case PRINT_MORE_UI:
-      //Clear_Printmore();
-      break;
-    case FILAMENTCHANGE_UI:
-      lv_clear_filament_change();
-      break;
-    case LEVELING_UI:
-      lv_clear_manualLevel();
-      break;
-    case BIND_UI:
-      //Clear_Bind();
-      break;
+    case MORE_UI:                     /* Clear_more(); */ break;
+    case FILETRANSFER_UI:             /* Clear_fileTransfer(); */ break;
+    case DIALOG_UI:                   lv_clear_dialog(); break;
+    case FILETRANSFERSTATE_UI:        /* Clear_WifiFileTransferdialog(); */ break;
+    case PRINT_MORE_UI:               /* Clear_Printmore(); */ break;
+    case FILAMENTCHANGE_UI:           lv_clear_filament_change(); break;
+    case LEVELING_UI:                 lv_clear_manualLevel(); break;
+    case BIND_UI:                     /* Clear_Bind(); */ break;
     #if HAS_BED_PROBE
-      case NOZZLE_PROBE_OFFSET_UI:
-        lv_clear_auto_level_offset_settings();
-        break;
+      case NOZZLE_PROBE_OFFSET_UI:    lv_clear_auto_level_offset_settings(); break;
     #endif
-    case TOOL_UI:
-      lv_clear_tool();
-      break;
-    case MESHLEVELING_UI:
-      //Clear_MeshLeveling();
-      break;
-    case HARDWARE_TEST_UI:
-      //Clear_Hardwaretest();
-      break;
+    case TOOL_UI:                     lv_clear_tool(); break;
+    case MESHLEVELING_UI:             /* Clear_MeshLeveling(); */ break;
+    case HARDWARE_TEST_UI:            /* Clear_Hardwaretest(); */ break;
     #if ENABLED(USE_WIFI_FUNCTION)
-      case WIFI_LIST_UI:
-          lv_clear_wifi_list();
-        break;
+      case WIFI_LIST_UI:              lv_clear_wifi_list(); break;
     #endif
-    case KEY_BOARD_UI:
-      lv_clear_keyboard();
-      break;
+    case KEY_BOARD_UI:                lv_clear_keyboard(); break;
     #if ENABLED(USE_WIFI_FUNCTION)
-      case WIFI_TIPS_UI:
-        lv_clear_wifi_tips();
-        break;
+      case WIFI_TIPS_UI:              lv_clear_wifi_tips(); break;
     #endif
-    case MACHINE_PARA_UI:
-      lv_clear_machine_para();
-      break;
-    case MACHINE_SETTINGS_UI:
-      lv_clear_machine_settings();
-      break;
-    case TEMPERATURE_SETTINGS_UI:
-      //Clear_TemperatureSettings();
-      break;
-    case MOTOR_SETTINGS_UI:
-      lv_clear_motor_settings();
-      break;
-    case MACHINETYPE_UI:
-      //Clear_MachineType();
-      break;
-    case STROKE_UI:
-      //Clear_Stroke();
-      break;
-    case HOME_DIR_UI:
-      //Clear_HomeDir();
-      break;
-    case ENDSTOP_TYPE_UI:
-      //Clear_EndstopType();
-      break;
-    case FILAMENT_SETTINGS_UI:
-      lv_clear_filament_settings();
-      break;
-    case LEVELING_SETTIGNS_UI:
-      //Clear_LevelingSettings();
-      break;
-    case LEVELING_PARA_UI:
-      lv_clear_level_settings();
-      break;
-    case DELTA_LEVELING_PARA_UI:
-      //Clear_DeltaLevelPara();
-      break;
-    case MANUAL_LEVELING_POSIGION_UI:
-      lv_clear_manual_level_pos_settings();
-      break;
-    case MAXFEEDRATE_UI:
-      lv_clear_max_feedrate_settings();
-      break;
-    case STEPS_UI:
-      lv_clear_step_settings();
-      break;
-    case ACCELERATION_UI:
-      lv_clear_acceleration_settings();
-      break;
-    case JERK_UI:
-      #if HAS_CLASSIC_JERK
-        lv_clear_jerk_settings();
-      #endif
-      break;
-    case MOTORDIR_UI:
-      //Clear_MotorDir();
-      break;
-    case HOMESPEED_UI:
-      //Clear_HomeSpeed();
-      break;
-    case NOZZLE_CONFIG_UI:
-      //Clear_NozzleConfig();
-      break;
-    case HOTBED_CONFIG_UI:
-      //Clear_HotbedConfig();
-      break;
-    case ADVANCED_UI:
-      lv_clear_advance_settings();
-      break;
-    case DOUBLE_Z_UI:
-      //Clear_DoubleZ();
-      break;
-    case ENABLE_INVERT_UI:
-      //Clear_EnableInvert();
-      break;
-    case NUMBER_KEY_UI:
-      lv_clear_number_key();
-      break;
-    case BABY_STEP_UI:
-      lv_clear_baby_stepping();
-      break;
-    case PAUSE_POS_UI:
-      lv_clear_pause_position();
-      break;
+    case MACHINE_PARA_UI:             lv_clear_machine_para(); break;
+    case MACHINE_SETTINGS_UI:         lv_clear_machine_settings(); break;
+    case TEMPERATURE_SETTINGS_UI:     /* Clear_TemperatureSettings(); */ break;
+    case MOTOR_SETTINGS_UI:           lv_clear_motor_settings(); break;
+    case MACHINETYPE_UI:              /* Clear_MachineType(); */ break;
+    case STROKE_UI:                   /* Clear_Stroke(); */ break;
+    case HOME_DIR_UI:                 /* Clear_HomeDir(); */ break;
+    case ENDSTOP_TYPE_UI:             /* Clear_EndstopType(); */ break;
+    case FILAMENT_SETTINGS_UI:        lv_clear_filament_settings(); break;
+    case LEVELING_SETTIGNS_UI:        /* Clear_LevelingSettings(); */ break;
+    case LEVELING_PARA_UI:            lv_clear_level_settings(); break;
+    case DELTA_LEVELING_PARA_UI:      /* Clear_DeltaLevelPara(); */ break;
+    case MANUAL_LEVELING_POSIGION_UI: lv_clear_manual_level_pos_settings(); break;
+    case MAXFEEDRATE_UI:              lv_clear_max_feedrate_settings(); break;
+    case STEPS_UI:                    lv_clear_step_settings(); break;
+    case ACCELERATION_UI:             lv_clear_acceleration_settings(); break;
+    case JERK_UI:                     TERN_(HAS_CLASSIC_JERK, lv_clear_jerk_settings()); break;
+    case MOTORDIR_UI:                 /* Clear_MotorDir(); */ break;
+    case HOMESPEED_UI:                /* Clear_HomeSpeed(); */ break;
+    case NOZZLE_CONFIG_UI:            /* Clear_NozzleConfig(); */ break;
+    case HOTBED_CONFIG_UI:            /* Clear_HotbedConfig(); */ break;
+    case ADVANCED_UI:                 lv_clear_advance_settings(); break;
+    case DOUBLE_Z_UI:                 /* Clear_DoubleZ(); */ break;
+    case ENABLE_INVERT_UI:            /* Clear_EnableInvert(); */ break;
+    case NUMBER_KEY_UI:               lv_clear_number_key(); break;
+    case BABY_STEP_UI:                lv_clear_baby_stepping(); break;
+    case PAUSE_POS_UI:                lv_clear_pause_position(); break;
       #if HAS_TRINAMIC_CONFIG
-        case TMC_CURRENT_UI:
-          lv_clear_tmc_current_settings();
-          break;
+        case TMC_CURRENT_UI:          lv_clear_tmc_current_settings(); break;
       #endif
-    case EEPROM_SETTINGS_UI:
-      lv_clear_eeprom_settings();
-      break;
+    case EEPROM_SETTINGS_UI:          lv_clear_eeprom_settings(); break;
       #if HAS_STEALTHCHOP
-        case TMC_MODE_UI:
-          lv_clear_tmc_step_mode_settings();
-          break;
+        case TMC_MODE_UI:             lv_clear_tmc_step_mode_settings(); break;
       #endif
     #if ENABLED(USE_WIFI_FUNCTION)
-    case WIFI_SETTINGS_UI:
-      lv_clear_wifi_settings();
-      break;
+    case WIFI_SETTINGS_UI:            lv_clear_wifi_settings(); break;
     #endif
     #if USE_SENSORLESS
-      case HOMING_SENSITIVITY_UI:
-        lv_clear_homing_sensitivity_settings();
-        break;
+      case HOMING_SENSITIVITY_UI:     lv_clear_homing_sensitivity_settings(); break;
     #endif
     #if HAS_ROTARY_ENCODER
-      case ENCODER_SETTINGS_UI:
-        lv_clear_encoder_settings();
-        break;
+      case ENCODER_SETTINGS_UI:       lv_clear_encoder_settings(); break;
+    #endif
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      case TOUCH_CALIBRATION_UI:      lv_clear_touch_calibration_screen(); break;
     #endif
     default: break;
   }
@@ -1370,227 +1241,98 @@ void draw_return_ui() {
     disp_state_stack._disp_index--;
 
     switch (disp_state_stack._disp_state[disp_state_stack._disp_index]) {
-      case PRINT_READY_UI:
-        lv_draw_ready_print();
-        break;
-      case PRINT_FILE_UI:
-        lv_draw_print_file();
-        break;
-      case PRINTING_UI:
-        if (gCfgItems.from_flash_pic) flash_preview_begin = true;
-        else default_preview_flg = true;
-        lv_draw_printing();
-        break;
-      case MOVE_MOTOR_UI:
-        lv_draw_move_motor();
-        break;
-      case OPERATE_UI:
-        lv_draw_operation();
-        break;
+      case PRINT_READY_UI:              lv_draw_ready_print(); break;
+      case PRINT_FILE_UI:               lv_draw_print_file(); break;
 
-        #if 1
-          case PAUSE_UI:
-            //draw_pause();
-            break;
-        #endif
+      case PRINTING_UI:                 if (gCfgItems.from_flash_pic)
+                                          flash_preview_begin = true;
+                                        else
+                                          default_preview_flg = true;
+                                        lv_draw_printing();
+                                        break;
 
-      case EXTRUSION_UI:
-        lv_draw_extrusion();
-        break;
-      case PRE_HEAT_UI:
-        lv_draw_preHeat();
-        break;
-      case CHANGE_SPEED_UI:
-        lv_draw_change_speed();
-        break;
-      case FAN_UI:
-        lv_draw_fan();
-        break;
-      case SET_UI:
-        lv_draw_set();
-        break;
-      case ZERO_UI:
-        lv_draw_home();
-        break;
-      case SPRAYER_UI:
-        //draw_Sprayer();
-        break;
-      case MACHINE_UI:
-        //draw_Machine();
-        break;
-      case LANGUAGE_UI:
-        lv_draw_language();
-        break;
-      case ABOUT_UI:
-        lv_draw_about();
-        break;
+      case MOVE_MOTOR_UI:               lv_draw_move_motor(); break;
+      case OPERATE_UI:                  lv_draw_operation(); break;
+      case PAUSE_UI:                    /* draw_pause(); */ break;
+      case EXTRUSION_UI:                lv_draw_extrusion(); break;
+      case PRE_HEAT_UI:                 lv_draw_preHeat(); break;
+      case CHANGE_SPEED_UI:             lv_draw_change_speed(); break;
+      case FAN_UI:                      lv_draw_fan(); break;
+      case SET_UI:                      lv_draw_set(); break;
+      case ZERO_UI:                     lv_draw_home(); break;
+      case SPRAYER_UI:                  /* draw_Sprayer(); */ break;
+      case MACHINE_UI:                  /* draw_Machine(); */ break;
+      case LANGUAGE_UI:                 lv_draw_language(); break;
+      case ABOUT_UI:                    lv_draw_about(); break;
 
-      case CALIBRATE_UI:
-        //draw_calibrate();
-        break;
-      case DISK_UI:
-        //draw_Disk();
-        break;
+      case CALIBRATE_UI:                /* draw_calibrate(); */ break;
+      case DISK_UI:                     /* draw_Disk(); */ break;
       #if ENABLED(USE_WIFI_FUNCTION)
-        case WIFI_UI:
-          lv_draw_wifi();
-          break;
+        case WIFI_UI:                   lv_draw_wifi(); break;
       #endif
-      case MORE_UI:
-        //draw_More();
-        break;
-      case PRINT_MORE_UI:
-        //draw_printmore();
-        break;
-      case FILAMENTCHANGE_UI:
-        lv_draw_filament_change();
-        break;
-      case LEVELING_UI:
-        lv_draw_manualLevel();
-        break;
-      case BIND_UI:
-        //draw_bind();
-        break;
+      case MORE_UI:                     /* draw_More(); */ break;
+      case PRINT_MORE_UI:               /* draw_printmore(); */ break;
+      case FILAMENTCHANGE_UI:           lv_draw_filament_change(); break;
+      case LEVELING_UI:                 lv_draw_manualLevel(); break;
+      case BIND_UI:                     /* draw_bind(); */ break;
       #if HAS_BED_PROBE
-        case NOZZLE_PROBE_OFFSET_UI:
-          lv_draw_auto_level_offset_settings();
-          break;
+        case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif
-      case TOOL_UI:
-        lv_draw_tool();
-        break;
-      case MESHLEVELING_UI:
-        //draw_meshleveling();
-        break;
-      case HARDWARE_TEST_UI:
-        //draw_Hardwaretest();
-        break;
-      case WIFI_LIST_UI:
-        #if ENABLED(USE_WIFI_FUNCTION)
-          lv_draw_wifi_list();
-        #endif
-        break;
-      case KEY_BOARD_UI:
-        lv_draw_keyboard();
-        break;
-      case WIFI_TIPS_UI:
-        #if ENABLED(USE_WIFI_FUNCTION)
-          lv_draw_wifi_tips();
-        #endif
-        break;
-      case MACHINE_PARA_UI:
-        lv_draw_machine_para();
-        break;
-      case MACHINE_SETTINGS_UI:
-        lv_draw_machine_settings();
-        break;
-      case TEMPERATURE_SETTINGS_UI:
-        //draw_TemperatureSettings();
-        break;
-      case MOTOR_SETTINGS_UI:
-        lv_draw_motor_settings();
-        break;
-      case MACHINETYPE_UI:
-        //draw_MachineType();
-        break;
-      case STROKE_UI:
-        //draw_Stroke();
-        break;
-      case HOME_DIR_UI:
-        //draw_HomeDir();
-        break;
-      case ENDSTOP_TYPE_UI:
-        //draw_EndstopType();
-        break;
-      case FILAMENT_SETTINGS_UI:
-        lv_draw_filament_settings();
-        break;
-      case LEVELING_SETTIGNS_UI:
-        //draw_LevelingSettings();
-        break;
-      case LEVELING_PARA_UI:
-        lv_draw_level_settings();
-        break;
-      case DELTA_LEVELING_PARA_UI:
-        //draw_DeltaLevelPara();
-        break;
-      case MANUAL_LEVELING_POSIGION_UI:
-        lv_draw_manual_level_pos_settings();
-        break;
-      case MAXFEEDRATE_UI:
-        lv_draw_max_feedrate_settings();
-        break;
-      case STEPS_UI:
-        lv_draw_step_settings();
-        break;
-      case ACCELERATION_UI:
-        lv_draw_acceleration_settings();
-        break;
-      case JERK_UI:
-        #if HAS_CLASSIC_JERK
-          lv_draw_jerk_settings();
-        #endif
-        break;
-      case MOTORDIR_UI:
-        //draw_MotorDir();
-        break;
-      case HOMESPEED_UI:
-        //draw_HomeSpeed();
-        break;
-      case NOZZLE_CONFIG_UI:
-        //draw_NozzleConfig();
-        break;
-      case HOTBED_CONFIG_UI:
-        //draw_HotbedConfig();
-        break;
-      case ADVANCED_UI:
-        lv_draw_advance_settings();
-        break;
-      case DOUBLE_Z_UI:
-        //draw_DoubleZ();
-        break;
-      case ENABLE_INVERT_UI:
-        //draw_EnableInvert();
-        break;
-      case NUMBER_KEY_UI:
-        lv_draw_number_key();
-        break;
-      case DIALOG_UI:
-        //draw_dialog(uiCfg.dialogType);
-        break;
-      case BABY_STEP_UI:
-        lv_draw_baby_stepping();
-        break;
-      case PAUSE_POS_UI:
-        lv_draw_pause_position();
-        break;
-        #if HAS_TRINAMIC_CONFIG
-          case TMC_CURRENT_UI:
-            lv_draw_tmc_current_settings();
-            break;
-        #endif
-      case EEPROM_SETTINGS_UI:
-        lv_draw_eeprom_settings();
-        break;
+      case TOOL_UI:                     lv_draw_tool(); break;
+      case MESHLEVELING_UI:             /* draw_meshleveling(); */ break;
+      case HARDWARE_TEST_UI:            /* draw_Hardwaretest(); */ break;
+      #if ENABLED(USE_WIFI_FUNCTION)
+        case WIFI_LIST_UI:              lv_draw_wifi_list(); break;
+      #endif
+      case KEY_BOARD_UI:                lv_draw_keyboard(); break;
+      #if ENABLED(USE_WIFI_FUNCTION)
+        case WIFI_TIPS_UI:              lv_draw_wifi_tips(); break;
+      #endif
+      case MACHINE_PARA_UI:             lv_draw_machine_para(); break;
+      case MACHINE_SETTINGS_UI:         lv_draw_machine_settings(); break;
+      case TEMPERATURE_SETTINGS_UI:     /* draw_TemperatureSettings(); */ break;
+      case MOTOR_SETTINGS_UI:           lv_draw_motor_settings(); break;
+      case MACHINETYPE_UI:              /* draw_MachineType(); */ break;
+      case STROKE_UI:                   /* draw_Stroke(); */ break;
+      case HOME_DIR_UI:                 /* draw_HomeDir(); */ break;
+      case ENDSTOP_TYPE_UI:             /* draw_EndstopType(); */ break;
+      case FILAMENT_SETTINGS_UI:        lv_draw_filament_settings(); break;
+      case LEVELING_SETTIGNS_UI:        /* draw_LevelingSettings(); */ break;
+      case LEVELING_PARA_UI:            lv_draw_level_settings(); break;
+      case DELTA_LEVELING_PARA_UI:      /* draw_DeltaLevelPara(); */ break;
+      case MANUAL_LEVELING_POSIGION_UI: lv_draw_manual_level_pos_settings(); break;
+      case MAXFEEDRATE_UI:              lv_draw_max_feedrate_settings(); break;
+      case STEPS_UI:                    lv_draw_step_settings(); break;
+      case ACCELERATION_UI:             lv_draw_acceleration_settings(); break;
+      #if HAS_CLASSIC_JERK
+        case JERK_UI:                   lv_draw_jerk_settings(); break;
+      #endif
+      case MOTORDIR_UI:                 /* draw_MotorDir(); */ break;
+      case HOMESPEED_UI:                /* draw_HomeSpeed(); */ break;
+      case NOZZLE_CONFIG_UI:            /* draw_NozzleConfig(); */ break;
+      case HOTBED_CONFIG_UI:            /* draw_HotbedConfig(); */ break;
+      case ADVANCED_UI:                 lv_draw_advance_settings(); break;
+      case DOUBLE_Z_UI:                 /* draw_DoubleZ(); */ break;
+      case ENABLE_INVERT_UI:            /* draw_EnableInvert(); */ break;
+      case NUMBER_KEY_UI:               lv_draw_number_key(); break;
+      case DIALOG_UI:                   /* draw_dialog(uiCfg.dialogType); */ break;
+      case BABY_STEP_UI:                lv_draw_baby_stepping(); break;
+      case PAUSE_POS_UI:                lv_draw_pause_position(); break;
+      #if HAS_TRINAMIC_CONFIG
+        case TMC_CURRENT_UI:            lv_draw_tmc_current_settings(); break;
+      #endif
+      case EEPROM_SETTINGS_UI:          lv_draw_eeprom_settings(); break;
         #if HAS_STEALTHCHOP
-          case TMC_MODE_UI:
-            lv_draw_tmc_step_mode_settings();
-            break;
+          case TMC_MODE_UI:             lv_draw_tmc_step_mode_settings(); break;
         #endif
       #if ENABLED(USE_WIFI_FUNCTION)
-        case WIFI_SETTINGS_UI:
-        lv_draw_wifi_settings();
-        break;
+        case WIFI_SETTINGS_UI:          lv_draw_wifi_settings(); break;
       #endif
       #if USE_SENSORLESS
-        case HOMING_SENSITIVITY_UI:
-          lv_draw_homing_sensitivity_settings();
-          break;
+        case HOMING_SENSITIVITY_UI:     lv_draw_homing_sensitivity_settings(); break;
       #endif
       #if HAS_ROTARY_ENCODER
-        case ENCODER_SETTINGS_UI:
-          lv_draw_encoder_settings();
-          break;
+        case ENCODER_SETTINGS_UI:       lv_draw_encoder_settings(); break;
       #endif
       default: break;
     }
@@ -1879,15 +1621,11 @@ void LV_TASK_HANDLER() {
   lv_task_handler();
   if (mks_test_flag == 0x1E) mks_hardware_test();
 
-  #if HAS_GCODE_PREVIEW
-    disp_pre_gcode(2, 36);
-  #endif
+  TERN_(HAS_GCODE_PREVIEW, disp_pre_gcode(2, 36));
 
   GUI_RefreshPage();
 
-  #if ENABLED(USE_WIFI_FUNCTION)
-    get_wifi_commands();
-  #endif
+  TERN_(USE_WIFI_FUNCTION, get_wifi_commands());
 
   //sd_detection();
 
