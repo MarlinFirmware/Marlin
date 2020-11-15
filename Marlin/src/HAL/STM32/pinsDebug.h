@@ -20,7 +20,10 @@
 
 #include <Arduino.h>
 
-#ifdef NUM_DIGITAL_PINS  // Only in ST's Arduino core (STM32duino, STM32Core)
+#ifndef NUM_DIGITAL_PINS
+   // Only in ST's Arduino core (STM32duino, STM32Core)
+   #error "Expected NUM_DIGITAL_PINS not found"
+#endif
 
 /**
  *  Life gets complicated if you want an easy to use 'M43 I' output (in port/pin order)
@@ -269,5 +272,3 @@ void pwm_details(const pin_t Ard_num) {
     }
   }
 } // pwm_details
-
-#endif // NUM_DIGITAL_PINS

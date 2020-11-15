@@ -26,15 +26,11 @@
  * Translation of routines & variables used by pinsDebug.h
  */
 
-#ifdef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
-
-#ifdef __STM32F1__
-  #include "../STM32F1/fastio.h"
-#elif defined(STM32F4) || defined(STM32F7)
-  #include "../STM32_F4_F7/fastio.h"
-#else
-  #include "fastio.h"
+#ifndef BOARD_NR_GPIO_PINS  // Only in STM32GENERIC (Maple)
+   #error "Expected BOARD_NR_GPIO_PINS not found"
 #endif
+
+#include "fastio.h"
 
 extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS];
 
@@ -121,5 +117,3 @@ static inline void print_port(pin_t pin) {
   if (gbit < 10) SERIAL_CHAR(' ');
   SERIAL_ECHO(buffer);
 }
-
-#endif // BOARD_NR_GPIO_PINS
