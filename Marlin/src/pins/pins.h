@@ -644,8 +644,6 @@
 // ARM Cortex M7
 //
 
-#elif MB(THE_BORG)
-  #include "stm32f7/pins_THE_BORG.h"            // STM32F7
 #elif MB(REMRAM_V1)
   #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)

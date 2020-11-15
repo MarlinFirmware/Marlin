@@ -365,11 +365,10 @@
 // ARM Cortex M7
 //
 
-#define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_REMRAM_V1               5001  // RemRam v1
-#define BOARD_TEENSY41                5002  // Teensy 4.1
-#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy 4.1 breakout board
-#define BOARD_NUCLEO_F767ZI           5004  // ST NUCLEO-F767ZI Dev Board
+#define BOARD_REMRAM_V1               5000  // RemRam v1
+#define BOARD_TEENSY41                5001  // Teensy 4.1
+#define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
 
 //
 // Espressif ESP32 WiFi
