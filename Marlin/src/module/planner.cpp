@@ -2039,13 +2039,12 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         LOOP_L_N(i, EXTRUDERS)
           if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
-        #define ENABLE_AND_RESET(N) do{ ENABLE_AXIS_E##N(); g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; }while(0);
-
         #define ENABLE_ONE_E(N) do{ \
           if (extruder == N) { \
-            ENABLE_AND_RESET(N); \
+            ENABLE_AXIS_E##N(); \
+            g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
             if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
-              ENABLE_AND_RESET(1); \
+              ENABLE_AXIS_E1(); \
           } \
           else if (!g_uc_extruder_last_move[N]) { \
             DISABLE_AXIS_E##N(); \
