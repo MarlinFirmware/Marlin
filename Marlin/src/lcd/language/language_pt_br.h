@@ -478,4 +478,13 @@ namespace Language_pt_br {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_1_LINE("Clique p. finalizar"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_1_LINE("Continuando..."));
   #endif
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Superior Esquerdo");
+    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Inferior Esquerdo");
+    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Superior Direto");
+    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Inferior Direto");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibração Completa");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibração Falhou");
+  #endif
 }

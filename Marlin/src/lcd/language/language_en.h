@@ -671,6 +671,15 @@ namespace Language_en {
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Top Left");
+    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bottom Left");
+    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Top Right");
+    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bottom Right");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Completed");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibration Failed");
+  #endif
 }
 
 #if FAN_COUNT == 1

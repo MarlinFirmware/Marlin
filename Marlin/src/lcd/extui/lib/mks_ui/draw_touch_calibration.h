@@ -19,22 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../gcode.h"
-#include "../../core/serial.h"
-#include "../../module/printcounter.h"
-#include "../../libs/duration_t.h"
-#include "../../lcd/marlinui.h"
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
-/**
- * M31: Get the time since the start of SD Print (or last M109)
- */
-void GcodeSuite::M31() {
-  char buffer[22];
-  duration_t(print_job_timer.duration()).toString(buffer);
+extern void lv_draw_touch_calibration_screen();
+extern void lv_clear_touch_calibration_screen();
+extern void lv_update_touch_calibration_screen();
 
-  ui.set_status(buffer);
-
-  SERIAL_ECHO_START();
-  SERIAL_ECHOLNPAIR("Print time: ", buffer);
-}
+//extern void disp_temp_ready_print();
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif

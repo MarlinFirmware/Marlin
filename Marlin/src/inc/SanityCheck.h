@@ -2792,8 +2792,11 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "Z_STEPPER_AUTO_ALIGN requires NUM_Z_STEPPER_DRIVERS greater than 1."
   #elif !HAS_BED_PROBE
     #error "Z_STEPPER_AUTO_ALIGN requires a Z-bed probe."
-  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS) && NUM_Z_STEPPER_DRIVERS < 3
-    #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
+  #elif ENABLED(Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS)
+    static_assert(WITHIN(Z_STEPPER_ALIGN_AMP, 0.5, 2.0), "Z_STEPPER_ALIGN_AMP must be between 0.5 and 2.0.");
+    #if NUM_Z_STEPPER_DRIVERS < 3
+      #error "Z_STEPPER_ALIGN_KNOWN_STEPPER_POSITIONS requires NUM_Z_STEPPER_DRIVERS to be 3 or 4."
+    #endif
   #endif
 #endif
 
@@ -3169,17 +3172,17 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
  * Touch Buttons
  */
 #if ENABLED(TOUCH_SCREEN)
-  #ifndef XPT2046_X_CALIBRATION
-    #error "XPT2046_X_CALIBRATION must be defined with TOUCH_SCREEN."
+  #ifndef TOUCH_CALIBRATION_X
+    #error "TOUCH_CALIBRATION_X must be defined with TOUCH_SCREEN."
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #error "XPT2046_Y_CALIBRATION must be defined with TOUCH_SCREEN."
+  #ifndef TOUCH_CALIBRATION_Y
+    #error "TOUCH_CALIBRATION_Y must be defined with TOUCH_SCREEN."
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #error "XPT2046_X_OFFSET must be defined with TOUCH_SCREEN."
+  #ifndef TOUCH_OFFSET_X
+    #error "TOUCH_OFFSET_X must be defined with TOUCH_SCREEN."
   #endif
-  #ifndef XPT2046_Y_OFFSET
-    #error "XPT2046_Y_OFFSET must be defined with TOUCH_SCREEN."
+  #ifndef TOUCH_OFFSET_Y
+    #error "TOUCH_OFFSET_Y must be defined with TOUCH_SCREEN."
   #endif
 #endif
 
