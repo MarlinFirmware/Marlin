@@ -259,10 +259,10 @@ exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home
 
 ######## Example Configurations ##############
 #
-# Test a full-featured CR-10S config
+# Test a basic DUAL_X_CARRIAGE configuration
 #
-use_example_configs Creality/CR-10S
-exec_test $1 $2 "Full-featured CR-10S config"
+use_example_configs Formbot/T_Rex_3
+exec_test $1 $2 "Formbot/T_Rex_3 example configuration."
 
 #
 # BQ Hephestos 2
