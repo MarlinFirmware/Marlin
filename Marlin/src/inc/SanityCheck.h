@@ -887,8 +887,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
     #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif HAS_PRUSA_MMU2S && !HAS_LCD_MENU
-    #error "PRUSA_MMU2S requires an LCD supporting MarlinUI to be enabled."
   #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
     #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI to be enabled."
   #elif DISABLED(ADVANCED_PAUSE_FEATURE)
