@@ -2759,6 +2759,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 
 #if !BLOCK_BUFFER_SIZE || !IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
   #error "BLOCK_BUFFER_SIZE must be a power of 2."
+#elif BLOCK_BUFFER_SIZE > 64
+  #error "A very large BLOCK_BUFFER_SIZE is not needed and takes longer to drain the buffer on pause / cancel."
 #endif
 
 #if ENABLED(LED_CONTROL_MENU) && !IS_ULTIPANEL
