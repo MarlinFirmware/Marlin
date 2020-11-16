@@ -30,7 +30,7 @@
   #include "../feature/host_actions.h"
 #endif
 
-#if ENABLED(PASSWORD_ON_SD_PRINT_MENU)
+#if ENABLED(BROWSE_MEDIA_ON_INSERT, PASSWORD_ON_SD_PRINT_MENU)
   #include "../feature/password/password.h"
 #endif
 
