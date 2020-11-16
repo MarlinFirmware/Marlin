@@ -40,7 +40,7 @@
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
-#define MKS_ROBIN_TFT28              //Mks_Robin_TFT_v2
+#define MKS_ROBIN_TFT28            //Mks_Robin_TFT_v2
 //#define MKS_ROBIN_TFT32            //Mks_Robin_TFT
 //#define MKS_ROBIN_TFT_V1_1R
 //#define MKS_ROBIN_TFT24
@@ -80,6 +80,7 @@
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
 //#define UTF_FILENAME_SUPPORT      // Bug at the reboot
+//#define CANCEL_OBJECTS
 
 /* OPTION no validate */
 //#define USE_CONTROLLER_FAN         //BOARD FAN
@@ -118,7 +119,7 @@
     #endif
 #endif
 
-// Set Software Serial UART for TMC 2208 / TMC 2209
+// Software Serial UART for TMC 2208 / TMC 2209
 #ifdef QQS_UARTx
     #define QQS_UART
     #define DRIVER_AXES TMC2208
