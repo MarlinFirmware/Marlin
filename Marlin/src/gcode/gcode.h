@@ -769,12 +769,8 @@ private:
 
   #if ENABLED(PASSWORD_FEATURE)
     static void M510();
-    #if ENABLED(PASSWORD_UNLOCK_GCODE)
-      static void M511();
-    #endif
-    #if ENABLED(PASSWORD_CHANGE_GCODE)
-      static void M512();
-    #endif
+    TERN_(PASSWORD_UNLOCK_GCODE, static void M511());
+    TERN_(PASSWORD_CHANGE_GCODE, static void M512());
   #endif
 
   TERN_(SDSUPPORT, static void M524());
