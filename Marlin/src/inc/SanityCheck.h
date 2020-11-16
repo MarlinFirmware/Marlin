@@ -2204,7 +2204,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Make sure PASSWORD_FEATURE is not enabled with SD_AUTOOPEN_MENU
  */
-#if ENABLED(SD_AUTOOPEN_MENU) && ENABLED(PASSWORD_FEATURE)
+#if BOTH(SD_AUTOOPEN_MENU, PASSWORD_FEATURE)
   #error SD_AUTOOPEN_MENU might not work with PASSWORD_FEATURE
 #endif
 
