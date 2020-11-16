@@ -737,7 +737,7 @@
   #endif
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 360            //370 E3D 360 (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 370            //370 E3D 360 (mm) Get this value from G33 auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
