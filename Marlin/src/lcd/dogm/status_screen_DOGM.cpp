@@ -381,20 +381,18 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
   const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
   #if ENABLED(STATUS_DISPLAY_INCHES)
-    if (parser.linear_unit_factor == 25.4f) {
+    if (parser.imperial_units) {
       const uint8_t offs = (XYZ_SPACING + XYZ_SPACING_IN) * a;
       lcd_put_wchar((X_LABEL_POS + X_LABEL_POS_IN) + offs, XYZ_BASELINE, axis_codes[axis]);
       lcd_moveto((X_VALUE_POS + X_VALUE_POS_IN) + offs, XYZ_BASELINE);
     }
     else {
-      const uint8_t offs = (XYZ_SPACING) * a;
-      lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
-      lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
+  #endif
+  const uint8_t offs = (XYZ_SPACING) * a;
+  lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
+  lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
+  #if ENABLED(STATUS_DISPLAY_INCHES)
     }
-  #else
-    const uint8_t offs = (XYZ_SPACING) * a;
-    lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
-    lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
   #endif
   if (blink)
     lcd_put_u8str(value);
@@ -467,15 +465,11 @@ void MarlinUI::draw_status_screen() {
 
     const xyz_pos_t lpos = current_position.asLogical();
     #if ENABLED(STATUS_DISPLAY_INCHES)
-      if (parser.linear_unit_factor == 25.4f) {
+      if (parser.imperial_units)
         strcpy(zstring, ftostr42sign((lpos.z / parser.linear_unit_factor)));
-      }
-      else {
-        strcpy(zstring, ftostr52sp(lpos.z));
-      }
-    #else
-      strcpy(zstring, ftostr52sp(lpos.z));
+      else
     #endif
+    strcpy(zstring, ftostr52sp(lpos.z));
 
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -485,17 +479,16 @@ void MarlinUI::draw_status_screen() {
     }
     else {
       #if ENABLED(STATUS_DISPLAY_INCHES)
-        if (parser.linear_unit_factor == 25.4f) {
+        if (parser.imperial_units) {
           strcpy(xstring, ftostr53_63((lpos.x / parser.linear_unit_factor)));
           strcpy(ystring, ftostr53_63((lpos.y / parser.linear_unit_factor)));
         }
         else {
-          strcpy(xstring, ftostr4sign(lpos.x));
-          strcpy(ystring, ftostr4sign(lpos.y));
+      #endif
+      strcpy(xstring, ftostr4sign(lpos.x));
+      strcpy(ystring, ftostr4sign(lpos.y));
+      #if ENABLED(STATUS_DISPLAY_INCHES)
         }
-      #else
-          strcpy(xstring, ftostr4sign(lpos.x));
-          strcpy(ystring, ftostr4sign(lpos.y));
       #endif
     }
 
