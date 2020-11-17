@@ -336,10 +336,10 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
+  #define TFT_BUFFER_SIZE                  14400
   #ifdef TFT_CLASSIC_UI
-    #define TFT_MARLINUI_COLOR            0xFFFF  // White
+    #define TFT_MARLINBG_COLOR            0x3186  // White
+    #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
