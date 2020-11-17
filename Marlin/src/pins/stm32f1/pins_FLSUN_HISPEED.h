@@ -299,27 +299,10 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-#endif
-
-// XPT2046 Touch Screen calibration
-#if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_BUFFER_SIZE                  14400
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12033
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -9047
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -30
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 254
-  #endif
-  #ifdef TFT_CLASSIC_UI
-    #define TFT_MARLINUI_COLOR            0xFFFF  // White
+  #if ENABLED(TFT_CLASSIC_UI)  
+    #define TFT_MARLINBG_COLOR            0x3186  // White
+    #define TFT_MARLINUI_COLOR            0xC7B6  // green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
