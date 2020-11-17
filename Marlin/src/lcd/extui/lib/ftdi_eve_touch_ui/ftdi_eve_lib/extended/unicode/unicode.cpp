@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../ftdi_extended.h"
@@ -146,9 +146,9 @@
   uint16_t FTDI::get_utf8_char_width(utf8_char_t c, font_size_t fs) {
     int x = 0, y = 0;
     #ifdef TOUCH_UI_UTF8_WESTERN_CHARSET
-      WesternCharSet::render_glyph(NULL, x, y, fs, c) ||
+      WesternCharSet::render_glyph(nullptr, x, y, fs, c) ||
     #endif
-      StandardCharSet::render_glyph(NULL, x, y, fs, c);
+      StandardCharSet::render_glyph(nullptr, x, y, fs, c);
     return x;
   }
 
@@ -165,7 +165,7 @@
     */
 
   uint16_t FTDI::get_utf8_text_width(const char *str, font_size_t fs) {
-    return render_utf8_text(NULL, 0, 0, str, fs);
+    return render_utf8_text(nullptr, 0, 0, str, fs);
   }
 
   uint16_t FTDI::get_utf8_text_width(progmem_str pstr, font_size_t fs) {

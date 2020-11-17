@@ -28,6 +28,8 @@
 #define BOARD_INFO_NAME   "FYSETC AIO II"
 #define BOARD_WEBSITE_URL "fysetc.com"
 
+#define BOARD_NO_NATIVE_USB
+
 #define DISABLE_JTAG
 
 #define pins_v2_20190128                          // new pins define
@@ -93,10 +95,10 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  MSerial1
-  #define Y_HARDWARE_SERIAL  MSerial1
-  #define Z_HARDWARE_SERIAL  MSerial1
-  #define E0_HARDWARE_SERIAL MSerial1
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
 
   // The 4xTMC2209 module doesn't have a serial multiplexer and
   // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
@@ -105,6 +107,9 @@
     #define SERIAL_MUL_PIN1                 PB13
     #define SERIAL_MUL_PIN2                 PB12
   #endif
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
 
 #endif
 
@@ -162,7 +167,7 @@
   // not connected to a pin
   #define SD_DETECT_PIN                     PC3
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // The encoder and click button
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11

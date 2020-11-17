@@ -60,7 +60,7 @@
 #define EEPROMSize     4096
 #define PagesPerGroup   128
 #define GroupCount        2
-#define PageSize        256u
+#define PageSize        256U
 
  /* Flash storage */
 typedef struct FLASH_SECTOR {
@@ -996,7 +996,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = ee_Read(uint32_t(pos));
     if (writing) *value = c;

@@ -201,7 +201,7 @@
  *               -----                                             -----
  *       5V/D41 | · · | GND                                    5V | · · | GND
  *        RESET | · · | D49 (SD_DETECT)             (LCD_D7)  D29 | · · | D27  (LCD_D6)
- *   (MOSI) D51 | · · | D33 (BTN_EN2)               (LCD_D5)  D25 | · · | D23  (LCD_D4)
+ *   (MOSI) D51 | · ·   D33 (BTN_EN2)               (LCD_D5)  D25 | · ·   D23  (LCD_D4)
  *  (SD_SS) D53 | · · | D31 (BTN_EN1)               (LCD_RS)  D16 | · · | D17  (LCD_EN)
  *    (SCK) D52 | · · | D50 (MISO)                 (BTN_ENC)  D35 | · · | D37  (BEEPER)
  *               -----                                             -----
@@ -261,7 +261,7 @@
       #define NEOPIXEL_PIN                    25
     #endif
 
-  #elif HAS_MARLINUI_U8GLIB
+  #elif HAS_MARLINUI_U8GLIB || HAS_MARLINUI_HD44780
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                   17
@@ -277,7 +277,7 @@
 
   #endif
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                           31
     #define BTN_EN2                           33
     #define BTN_ENC                           35

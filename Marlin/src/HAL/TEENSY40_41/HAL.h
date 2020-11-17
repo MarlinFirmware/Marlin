@@ -66,10 +66,12 @@
 #ifdef SERIAL_PORT_2
   #if SERIAL_PORT_2 == -1
     #define MYSERIAL1 usbSerial
+  #elif SERIAL_PORT_2 == -2
+    #define MYSERIAL1 ethernet.telnetClient
   #elif WITHIN(SERIAL_PORT_2, 0, 8)
     #define MYSERIAL1 MSERIAL(SERIAL_PORT_2)
   #else
-      #error "SERIAL_PORT_2 must be from -1 to 8. Please update your configuration."
+    #error "SERIAL_PORT_2 must be from -2 to 8. Please update your configuration."
   #endif
 #endif
 
@@ -78,7 +80,7 @@
 typedef int8_t pin_t;
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define CRITICAL_SECTION_START()  uint32_t primask = __get_primask(); __disable_irq()

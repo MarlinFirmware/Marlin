@@ -155,7 +155,7 @@
 //
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define LCD_PINS_RS                         16
   #define LCD_PINS_ENABLE                     17
   #define LCD_PINS_D4                         23

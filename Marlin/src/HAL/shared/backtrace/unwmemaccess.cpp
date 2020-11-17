@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Utility functions to access memory
  **************************************************************************/
@@ -85,7 +85,7 @@
   #define START_FLASH_ADDR  0x08000000
   #define END_FLASH_ADDR    0x08100000
 
-#elif MB(REMRAM_V1)
+#elif MB(REMRAM_V1, NUCLEO_F767ZI)
 
   // For STM32F765VI in RemRam v1
   //  SRAM  (0x20000000 - 0x20080000) (512kb)

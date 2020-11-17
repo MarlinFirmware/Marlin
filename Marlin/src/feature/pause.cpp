@@ -55,10 +55,14 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
 #if HAS_BUZZER
   #include "../libs/buzzer.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "powerloss.h"
 #endif
 
 #include "../libs/nozzle.h"
@@ -128,8 +132,10 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   DEBUG_SECTION(est, "ensure_safe_temperature", true);
   DEBUG_ECHOLNPAIR("... wait:", int(wait), " mode:", int(mode));
 
-  if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
-    thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    if (!DEBUGGING(DRYRUN) && thermalManager.targetTooColdToExtrude(active_extruder))
+      thermalManager.setTargetHotend(thermalManager.extrude_min_temp, active_extruder);
+  #endif
 
   #if HAS_LCD_MENU
     lcd_pause_show_message(PAUSE_MESSAGE_HEATING, mode);
@@ -193,17 +199,18 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
     first_impatient_beep(max_beep_count);
 
     KEEPALIVE_STATE(PAUSED_FOR_USER);
+
     #if ENABLED(HOST_PROMPT_SUPPORT)
       const char tool = '0'
         #if NUM_RUNOUT_SENSORS > 1
           + active_extruder
         #endif
       ;
-      host_action_prompt_begin(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool);
-      host_action_prompt_button(CONTINUE_STR);
-      host_action_prompt_show();
+      host_prompt_do(PROMPT_USER_CONTINUE, PSTR("Load Filament T"), tool, CONTINUE_STR);
     #endif
+
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired_P(PSTR("Load Filament")));
+
     while (wait_for_user) {
       impatient_beep(max_beep_count);
       idle_no_sleep();
@@ -217,8 +224,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Slow Load filament
@@ -239,9 +245,7 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
   }
 
   #if ENABLED(DUAL_X_CARRIAGE)      // Tie the two extruders movement back together.
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   #if ENABLED(ADVANCED_PAUSE_CONTINUOUS_PURGE)
@@ -433,17 +437,14 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   if (unload_length)   // Unload the filament
     unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
   return true;
@@ -489,8 +490,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = active_extruder;
     const bool saved_ext_dup_mode = extruder_duplication_enabled;
-    active_extruder = DXC_ext;
-    extruder_duplication_enabled = false;
+    set_duplication_enabled(false, DXC_ext);
   #endif
 
   // Wait for filament insert by user and press button
@@ -544,9 +544,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     idle_no_sleep();
   }
   #if ENABLED(DUAL_X_CARRIAGE)
-    active_extruder = saved_ext;
-    extruder_duplication_enabled = saved_ext_dup_mode;
-    stepper.set_directions();
+    set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 }
 
@@ -639,6 +637,9 @@ void resume_print(const float &slow_load_length/*=0*/, const float &fast_load_le
   // Now all extrusion positions are resumed and ready to be confirmed
   // Set extruder to saved position
   planner.set_e_position_mm((destination.e = current_position.e = resume_position.e));
+
+  // Write PLR now to update the z axis value
+  TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
 
   TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_STATUS));
 

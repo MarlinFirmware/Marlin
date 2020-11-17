@@ -23,14 +23,13 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../../Configuration.h"
-#include "../../../../MarlinCore.h"
+#include "../../../../inc/MarlinConfig.h"
 
-extern lv_group_t * g;
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
 #define LV_KB_CTRL_BTN_FLAGS (LV_BTNM_CTRL_NO_REPEAT | LV_BTNM_CTRL_CLICK_TRIG)
 
@@ -73,7 +72,7 @@ static const lv_btnm_ctrl_t kb_ctrl_num_map[] = {
         1, 1, 1, 2,
         1, 1, 1, 1, 1};
 
-static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
+static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   //LV_ASSERT_OBJ(kb, LV_OBJX_NAME);
 
   if (event != LV_EVENT_VALUE_CHANGED) return;
@@ -85,7 +84,7 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
   if (lv_btnm_get_btn_ctrl(kb, btn_id, LV_BTNM_CTRL_NO_REPEAT) && event == LV_EVENT_LONG_PRESSED_REPEAT) return;
 
   const char * txt = lv_btnm_get_active_btn_text(kb);
-  if (txt == NULL) return;
+  if (!txt) return;
 
   // Do the corresponding action according to the text of the button
   if (strcmp(txt, "abc") == 0) {
@@ -105,13 +104,13 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
   }
   else if (strcmp(txt, LV_SYMBOL_CLOSE) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
-      //lv_res_t res = lv_event_send(kb, LV_EVENT_CANCEL, NULL);
+      //lv_res_t res = lv_event_send(kb, LV_EVENT_CANCEL, nullptr);
       //if (res != LV_RES_OK) return;
       lv_clear_keyboard();
       draw_return_ui();
     }
     else {
-      lv_kb_set_ta(kb, NULL); /*De-assign the text area  to hide it cursor if needed*/
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area  to hide it cursor if needed
       lv_obj_del(kb);
       return;
     }
@@ -119,7 +118,7 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
   }
   else if (strcmp(txt, LV_SYMBOL_OK) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
-      //lv_res_t res = lv_event_send(kb, LV_EVENT_APPLY, NULL);
+      //lv_res_t res = lv_event_send(kb, LV_EVENT_APPLY, nullptr);
       //if (res != LV_RES_OK) return;
       const char * ret_ta_txt = lv_ta_get_text(ext->ta);
       switch (keyboard_value) {
@@ -135,17 +134,15 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
             draw_return_ui();
             break;
           case wifiConfig:
-            memset((void *)uiCfg.wifi_name, 0, sizeof(uiCfg.wifi_name));
+            ZERO(uiCfg.wifi_name);
             memcpy((void *)uiCfg.wifi_name, wifi_list.wifiName[wifi_list.nameIndex], 32);
 
-            memset((void *)uiCfg.wifi_key, 0, sizeof(uiCfg.wifi_key));
+            ZERO(uiCfg.wifi_key);
             memcpy((void *)uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_key));
 
             gCfgItems.wifi_mode_sel = STA_MODEL;
 
             package_to_wifi(WIFI_PARA_SET, (char *)0, 0);
-
-            memset(public_buf_l,0,sizeof(public_buf_l));
 
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
@@ -172,14 +169,13 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
         default: break;
       }
     }
-    else {
-      lv_kb_set_ta(kb, NULL); /*De-assign the text area to hide it cursor if needed*/
-    }
+    else
+      lv_kb_set_ta(kb, nullptr); // De-assign the text area to hide it cursor if needed
   return;
   }
 
-  /*Add the characters to the text area if set*/
-  if (ext->ta == NULL) return;
+  // Add the characters to the text area if set
+  if (!ext->ta) return;
 
   if (strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
     lv_ta_add_char(ext->ta, '\n');
@@ -216,37 +212,25 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
 }
 
 void lv_draw_keyboard() {
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != KEY_BOARD_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = KEY_BOARD_UI;
-  }
-  disp_state = KEY_BOARD_UI;
+  scr = lv_screen_create(KEY_BOARD_UI, "");
 
-  scr = lv_obj_create(NULL, NULL);
-
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
-  /*Create styles for the keyboard*/
+  // Create styles for the keyboard
   static lv_style_t rel_style, pr_style;
 
   lv_style_copy(&rel_style, &lv_style_btn_rel);
   rel_style.body.radius = 0;
   rel_style.body.border.width = 1;
-  rel_style.body.main_color = lv_color_make(0xa9, 0x62, 0x1d);
-  rel_style.body.grad_color = lv_color_make(0xa7, 0x59, 0x0e);
+  rel_style.body.main_color = lv_color_make(0xA9, 0x62, 0x1D);
+  rel_style.body.grad_color = lv_color_make(0xA7, 0x59, 0x0E);
 
   lv_style_copy(&pr_style, &lv_style_btn_pr);
   pr_style.body.radius = 0;
   pr_style.body.border.width = 1;
   pr_style.body.main_color = lv_color_make(0x72, 0x42, 0x15);
-  pr_style.body.grad_color = lv_color_make(0x6a, 0x3a, 0x0c);
+  pr_style.body.grad_color = lv_color_make(0x6A, 0x3A, 0x0C);
 
-  /*Create a keyboard and apply the styles*/
-  lv_obj_t *kb = lv_kb_create(scr, NULL);
+  // Create a keyboard and apply the styles
+  lv_obj_t *kb = lv_kb_create(scr, nullptr);
   lv_obj_set_event_cb(kb, lv_kb_event_cb);
   lv_kb_set_cursor_manage(kb, true);
   lv_kb_set_style(kb, LV_KB_STYLE_BG, &lv_style_transp_tight);
@@ -259,9 +243,9 @@ void lv_draw_keyboard() {
     }
   #endif
 
-  /*Create a text area. The keyboard will write here*/
-  lv_obj_t *ta = lv_ta_create(scr, NULL);
-  lv_obj_align(ta, NULL, LV_ALIGN_IN_TOP_MID, 0, 10);
+  // Create a text area. The keyboard will write here
+  lv_obj_t *ta = lv_ta_create(scr, nullptr);
+  lv_obj_align(ta, nullptr, LV_ALIGN_IN_TOP_MID, 0, 10);
   if (keyboard_value == gcodeCommand) {
     get_gcode_command(AUTO_LEVELING_COMMAND_ADDR,(uint8_t *)public_buf_m);
     public_buf_m[sizeof(public_buf_m)-1] = 0;
@@ -271,7 +255,7 @@ void lv_draw_keyboard() {
     lv_ta_set_text(ta, "");
   }
 
-  /*Assign the text area to the keyboard*/
+  // Assign the text area to the keyboard
   lv_kb_set_ta(kb, ta);
 }
 

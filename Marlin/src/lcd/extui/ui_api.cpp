@@ -38,14 +38,14 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfigPre.h"
 
 #if ENABLED(EXTENSIBLE_UI)
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -305,27 +305,9 @@ namespace ExtUI {
   }
 
   void setAxisPosition_mm(const float position, const axis_t axis, const feedRate_t feedrate/*=0*/) {
-    // Start with no limits to movement
-    float min = current_position[axis] - 1000,
-          max = current_position[axis] + 1000;
-
-    // Limit to software endstops, if enabled
-    #if HAS_SOFTWARE_ENDSTOPS
-      if (soft_endstops_enabled) switch (axis) {
-        case X_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_X, min = soft_endstop.min.x);
-          TERN_(MAX_SOFTWARE_ENDSTOP_X, max = soft_endstop.max.x);
-          break;
-        case Y_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Y, min = soft_endstop.min.y);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Y, max = soft_endstop.max.y);
-          break;
-        case Z_AXIS:
-          TERN_(MIN_SOFTWARE_ENDSTOP_Z, min = soft_endstop.min.z);
-          TERN_(MAX_SOFTWARE_ENDSTOP_Z, max = soft_endstop.max.z);
-        default: break;
-      }
-    #endif // HAS_SOFTWARE_ENDSTOPS
+    // Get motion limit from software endstops, if any
+    float min, max;
+    soft_endstop.get_manual_axis_limits((AxisEnum)axis, min, max);
 
     // Delta limits XY based on the current offset from center
     // This assumes the center is 0,0
@@ -389,8 +371,8 @@ namespace ExtUI {
   }
 
   #if HAS_SOFTWARE_ENDSTOPS
-    bool getSoftEndstopState() { return soft_endstops_enabled; }
-    void setSoftEndstopState(const bool value) { soft_endstops_enabled = value; }
+    bool getSoftEndstopState() { return soft_endstop._enabled; }
+    void setSoftEndstopState(const bool value) { soft_endstop._enabled = value; }
   #endif
 
   #if HAS_TRINAMIC_CONFIG
@@ -628,7 +610,7 @@ namespace ExtUI {
       caselight.update_enabled();
     }
 
-    #if DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+    #if CASELIGHT_USES_BRIGHTNESS
       float getCaseLightBrightness_percent()                 { return ui8_to_percent(caselight.brightness); }
       void setCaseLightBrightness_percent(const float value) {
          caselight.brightness = map(constrain(value, 0, 100), 0, 100, 0, 255);
@@ -990,7 +972,11 @@ namespace ExtUI {
   }
 
   bool isPrinting() {
-    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false));
+    return (commandsInQueue() || isPrintingFromMedia() || IFSD(IS_SD_PRINTING(), false)) || print_job_timer.isRunning() || print_job_timer.isPaused();
+  }
+
+  bool isPrintingPaused() {
+    return isPrinting() && (isPrintingFromMediaPaused() || print_job_timer.isPaused());
   }
 
   bool isMediaInserted() {
@@ -1071,11 +1057,9 @@ namespace ExtUI {
 
 } // namespace ExtUI
 
-// At the moment, we piggy-back off the ultralcd calls, but this could be cleaned up in the future
+// At the moment we hook into MarlinUI methods, but this could be cleaned up in the future
 
-void MarlinUI::init() {
-  ExtUI::onStartup();
-}
+void MarlinUI::init() { ExtUI::onStartup(); }
 
 void MarlinUI::update() { ExtUI::onIdle(); }
 

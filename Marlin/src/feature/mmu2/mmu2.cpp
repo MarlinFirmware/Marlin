@@ -30,7 +30,7 @@
 MMU2 mmu2;
 
 #include "../../gcode/gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../libs/buzzer.h"
 #include "../../libs/nozzle.h"
 #include "../../module/temperature.h"
@@ -163,7 +163,7 @@ uint8_t MMU2::get_current_tool() {
 }
 
 #if EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
-  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT_PIN) != FIL_RUNOUT_STATE)
+  #define FILAMENT_PRESENT() (READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE)
 #endif
 
 void MMU2::mmu_loop() {

@@ -39,7 +39,7 @@
   //#define SDCARD_EEPROM_EMULATION
   //#define I2C_EEPROM                            // AT24C32
   #define FLASH_EEPROM_EMULATION
-  #define MARLIN_EEPROM_SIZE 0x1000               // 4KB
+  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
 #endif
 
 //
@@ -190,7 +190,7 @@
   #define E1_SERIAL_RX_PIN                 P1_17
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif // HAS_TMC_UART
 
 //
@@ -227,15 +227,31 @@
 // Misc. Functions
 //
 #define LED_PIN                            P1_18  // Used as a status indicator
-#define LED2_PIN                           P1_19
-#define LED3_PIN                           P1_20
-#define LED4_PIN                           P1_21
+
+//
+// RGB LED
+//
+#if ENABLED(RGB_LED)
+  #ifndef RGB_LED_R_PIN
+    #define RGB_LED_R_PIN                  P1_19
+  #endif
+  #ifndef RGB_LED_G_PIN
+    #define RGB_LED_G_PIN                  P1_20
+  #endif
+  #ifndef RGB_LED_B_PIN
+    #define RGB_LED_B_PIN                  P1_21
+  #endif
+#else
+  #define LED2_PIN                         P1_19  // Initialized by HAL/LPC1768/main.cpp
+  #define LED3_PIN                         P1_20
+  #define LED4_PIN                         P1_21
+#endif
 
 /**
  *                _____                                            _____
- * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)          (MISO)       0.8 | · · | 0.7  (SD_SCK)
- * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)           (BTN_EN1)   3.25 | · · | 0.28 (SD_CS2)
- * (LCD_D4) 0.15 | · ·| 0.17 (LCD_D5)            (BTN_EN2)   3.26 | · ·|  0.9 (SD_MOSI)
+ * (BEEPER) 1.31 | · · | 1.30 (BTN_ENC)               (MISO) 0.8  | · · | 0.7  (SD_SCK)
+ * (LCD_EN) 0.18 | · · | 0.16 (LCD_RS)             (BTN_EN1) 3.25 | · · | 0.28 (SD_CS2)
+ * (LCD_D4) 0.15 | · ·   0.17 (LCD_D5)             (BTN_EN2) 3.26 | · ·   0.9  (SD_MOSI)
  * (LCD_D6)  1.0 | · · | 1.22 (LCD_D7)           (SD_DETECT) 0.27 | · · | RST
  *           GND | · · | 5V                                   GND | · · | NC
  *                -----                                            -----
@@ -283,6 +299,27 @@
       #define LCD_PINS_D7                  P1_22
       #define KILL_PIN                     -1     // NC
 
+    #elif HAS_SPI_TFT                             // Config for Classic UI (emulated DOGM) and Color UI
+      #define TFT_CS_PIN                   P1_00
+      #define TFT_A0_PIN                   P1_22
+      #define TFT_DC_PIN                   P1_22
+      #define TFT_MISO_PIN                 P0_08
+      #define TFT_BACKLIGHT_PIN            P0_18
+      #define TFT_RESET_PIN                P0_16
+
+      #define LCD_USE_DMA_SPI
+
+      #define TOUCH_INT_PIN                P0_17
+      #define TOUCH_CS_PIN                 P0_15
+      #define TOUCH_BUTTONS_HW_SPI
+      #define TOUCH_BUTTONS_HW_SPI_DEVICE      2
+
+      // Disable any LCD related PINs config
+      #define LCD_PINS_ENABLE              -1
+      #define LCD_PINS_RS                  -1
+
+      #define TFT_BUFFER_SIZE               2400
+
     #else                                         // !MKS_12864OLED_SSD1306
 
       #define LCD_PINS_RS                  P0_16
@@ -325,7 +362,7 @@
           #define DOGLCD_A0                P1_00
         #endif
 
-        #if ENABLED(ULTIPANEL)
+        #if IS_ULTIPANEL
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22

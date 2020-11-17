@@ -33,6 +33,8 @@
 #define BOARD_INFO_NAME      "GTM32 Pro VB"
 #define DEFAULT_MACHINE_NAME "M201"
 
+#define BOARD_NO_NATIVE_USB
+
 //#define DISABLE_DEBUG
 
 //
@@ -137,7 +139,7 @@
 //
 #if HAS_WIRED_LCD
 
- #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+ #if IS_RRD_SC
 
     //
     // LCD display on J2 FFC40

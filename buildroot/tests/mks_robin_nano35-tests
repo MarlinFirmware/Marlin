@@ -7,40 +7,63 @@
 # exit on first failure
 set -e
 
+#
+# MKS Robin nano v1.2 Emulated DOGM FSMC
+#
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO
-opt_disable TFT_320x240
-opt_enable TOUCH_SCREEN
-opt_enable FSMC_GRAPHICAL_TFT
 exec_test $1 $2 "MKS Robin nano v1.2 Emulated DOGM FSMC"
 
+#
+# MKS Robin v2 nano Emulated DOGM SPI
+# (Robin v2 nano has no FSMC interface)
+#
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
-opt_disable TFT_320x240
-opt_enable TOUCH_SCREEN
-opt_enable SPI_GRAPHICAL_TFT
+opt_disable TFT_INTERFACE_FSMC
+opt_enable TFT_INTERFACE_SPI
 exec_test $1 $2 "MKS Robin v2 nano Emulated DOGM SPI"
 
+#
+# MKS Robin nano v1.2 LVGL FSMC
+#
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO
-opt_disable TFT_320x240
-opt_disable TOUCH_SCREEN
-opt_enable TFT_LVGL_UI_FSMC
+opt_disable TFT_CLASSIC_UI TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
+opt_enable TFT_LVGL_UI TFT_RES_480x320
 exec_test $1 $2 "MKS Robin nano v1.2 LVGL FSMC"
 
+#
+# MKS Robin v2 nano LVGL SPI
+# (Robin v2 nano has no FSMC interface)
+#
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
-opt_disable TFT_320x240
-opt_disable TOUCH_SCREEN
-opt_enable TFT_LVGL_UI_SPI
+opt_disable TFT_INTERFACE_FSMC TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
+opt_enable TFT_INTERFACE_SPI TFT_LVGL_UI TFT_RES_480x320
 exec_test $1 $2 "MKS Robin v2 nano LVGL SPI"
 
+#
+# MKS Robin v2 nano New Color UI 480x320 SPI
+# (Robin v2 nano has no FSMC interface)
+#
 use_example_configs Mks/Robin
 opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
-opt_disable TFT_320x240
-opt_enable TOUCH_SCREEN
-opt_enable TFT_480x320_SPI
+opt_disable TFT_INTERFACE_FSMC TFT_RES_320x240
+opt_enable TFT_INTERFACE_SPI TFT_RES_480x320
 exec_test $1 $2 "MKS Robin v2 nano New Color UI 480x320 SPI"
+
+#
+# MKS Robin v2 nano LVGL SPI + TMC
+# (Robin v2 nano has no FSMC interface)
+#
+use_example_configs Mks/Robin
+opt_set MOTHERBOARD BOARD_MKS_ROBIN_NANO_V2
+opt_disable TFT_INTERFACE_FSMC TFT_COLOR_UI TOUCH_SCREEN TFT_RES_320x240
+opt_enable TFT_INTERFACE_SPI TFT_LVGL_UI TFT_RES_480x320
+opt_set X_DRIVER_TYPE TMC2209
+opt_set Y_DRIVER_TYPE TMC2209
+exec_test $1 $2 "MKS Robin v2 nano LVGL SPI + TMC"
 
 # cleanup
 restore_configs

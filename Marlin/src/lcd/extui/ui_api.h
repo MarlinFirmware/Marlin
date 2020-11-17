@@ -39,7 +39,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../../inc/MarlinConfig.h"
@@ -302,6 +302,7 @@ namespace ExtUI {
   bool isPrintingFromMediaPaused();
   bool isPrintingFromMedia();
   bool isPrinting();
+  bool isPrintingPaused();
 
   void printFile(const char *filename);
   void stopPrint();

@@ -61,6 +61,10 @@
   #include "../gcode/gcode.h"
 #endif
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  #include "stepper.h"
+#endif
+
 #if ANY(SWITCHING_EXTRUDER, SWITCHING_NOZZLE, SWITCHING_TOOLHEAD)
   #include "servo.h"
 #endif
@@ -90,7 +94,7 @@
 #endif
 
 #if HAS_LCD_MENU
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
@@ -119,7 +123,7 @@
       if (e < EXTRUDERS - 1)
     #endif
     {
-      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e]);
+      MOVE_SERVO(_SERVO_NR(e), servo_angles[_SERVO_NR(e)][e & 1]);
       safe_delay(500);
     }
   }
@@ -701,6 +705,13 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
+  /**
+   * @brief Dual X Tool Change
+   * @details Change tools, with extra behavior based on current mode
+   *
+   * @param new_tool Tool index to activate
+   * @param no_move Flag indicating no moves should take place
+   */
   inline void dualx_tool_change(const uint8_t new_tool, bool &no_move) {
 
     DEBUG_ECHOPGM("Dual X Carriage Mode ");
@@ -711,17 +722,16 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
       case DXC_MIRRORED_MODE:     DEBUG_ECHOLNPGM("MIRRORED");     break;
     }
 
+    // Get the home position of the currently-active tool
     const float xhome = x_home_pos(active_extruder);
-    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE
-        && IsRunning() && !no_move
-        && (delayed_move_time || current_position.x != xhome)
+
+    if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE                  // If Auto-Park mode is enabled
+        && IsRunning() && !no_move                                  // ...and movement is permitted
+        && (delayed_move_time || current_position.x != xhome)       // ...and delayed_move_time is set OR not "already parked"...
     ) {
-
       DEBUG_ECHOLNPAIR("MoveX to ", xhome);
-
-      // Park old head
       current_position.x = xhome;
-      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);
+      line_to_current_position(planner.settings.max_feedrate_mm_s[X_AXIS]);   // Park the current head
       planner.synchronize();
     }
 
@@ -736,19 +746,20 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     switch (dual_x_carriage_mode) {
       case DXC_FULL_CONTROL_MODE:
         // New current position is the position of the activated extruder
-        current_position.x = inactive_extruder_x_pos;
+        current_position.x = inactive_extruder_x;
         // Save the inactive extruder's position (from the old current_position)
-        inactive_extruder_x_pos = destination.x;
+        inactive_extruder_x = destination.x;
+        DEBUG_ECHOLNPAIR("DXC Full Control curr.x=", current_position.x, " dest.x=", destination.x);
         break;
       case DXC_AUTO_PARK_MODE:
-        // record current raised toolhead position for use by unpark
-        raised_parked_position = current_position;
-        active_extruder_parked = true;
-        delayed_move_time = 0;
+        idex_set_parked();
         break;
       default:
         break;
     }
+
+    // Ensure X axis DIR pertains to the correct carriage
+    stepper.set_directions();
 
     DEBUG_ECHOLNPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
     DEBUG_POS("New extruder (parked)", current_position);
@@ -788,8 +799,8 @@ void tool_change_prime() {
     // Park
     #if ENABLED(TOOLCHANGE_PARK)
       if (ok) {
-        TERN(TOOLCHANGE_PARK_Y_ONLY,,current_position.x = toolchange_settings.change_point.x);
-        TERN(TOOLCHANGE_PARK_X_ONLY,,current_position.y = toolchange_settings.change_point.y);
+        IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
+        IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
         planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), active_extruder);
         planner.synchronize();
       }
@@ -875,7 +886,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     planner.synchronize();
 
     #if ENABLED(DUAL_X_CARRIAGE)  // Only T0 allowed if the Printer is in DXC_DUPLICATION_MODE or DXC_MIRRORED_MODE
-      if (new_tool != 0 && dxc_is_duplicating())
+      if (new_tool != 0 && idex_is_duplicating())
          return invalid_extruder_error(new_tool);
     #endif
 
@@ -987,8 +998,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && DISABLED(SWITCHING_NOZZLE)
         if (can_move_away && toolchange_settings.enable_park) {
-          TERN(TOOLCHANGE_PARK_Y_ONLY,,current_position.x = toolchange_settings.change_point.x);
-          TERN(TOOLCHANGE_PARK_X_ONLY,,current_position.y = toolchange_settings.change_point.y);
+          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, current_position.x = toolchange_settings.change_point.x);
+          IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, current_position.y = toolchange_settings.change_point.y);
           planner.buffer_line(current_position, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE), old_tool);
           planner.synchronize();
         }
@@ -1017,14 +1028,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          #if HAS_SOFTWARE_ENDSTOPS
-            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
-          #else
-            constexpr float maxz = Z_MAX_POS;
-          #endif
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
           if (newz > maxz) return;
 
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
@@ -1155,7 +1162,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           }
         #endif
 
-        TERN_(DUAL_X_CARRIAGE, active_extruder_parked = false);
+        TERN_(DUAL_X_CARRIAGE, idex_set_parked(false));
       }
 
       #if ENABLED(SWITCHING_NOZZLE)
@@ -1202,25 +1209,22 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
+  #define DEBUG_OUT ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
+  #include "../core/debug_out.h"
+
   bool extruder_migration() {
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
       if (thermalManager.targetTooColdToExtrude(active_extruder)) {
-        #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-          SERIAL_ECHOLN("Migration Source Too Cold");
-        #endif
+        DEBUG_ECHOLNPGM("Migration Source Too Cold");
         return false;
       }
     #endif
 
     // No auto-migration or specified target?
     if (!migration.target && active_extruder >= migration.last) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHO_MSG("No Migration Target");
-        SERIAL_ECHO_MSG("Target: ", migration.target,
-                        " Last: ", migration.last,
-                        " Active: ", active_extruder);
-      #endif
+      DEBUG_ECHO_MSG("No Migration Target");
+      DEBUG_ECHO_MSG("Target: ", migration.target, " Last: ", migration.last, " Active: ", active_extruder);
       migration.automode = false;
       return false;
     }
@@ -1230,9 +1234,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     uint8_t migration_extruder = active_extruder;
 
     if (migration.target) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration using fixed target");
-      #endif
+      DEBUG_ECHOLNPGM("Migration using fixed target");
       // Specified target ok?
       const int16_t t = migration.target - 1;
       if (t != active_extruder) migration_extruder = t;
@@ -1241,16 +1243,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       migration_extruder++;
 
     if (migration_extruder == active_extruder) {
-      #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-        SERIAL_ECHOLN("Migration source matches active");
-      #endif
+      DEBUG_ECHOLNPGM("Migration source matches active");
       return false;
     }
 
     // Migration begins
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Beginning migration");
-    #endif
+    DEBUG_ECHOLNPGM("Beginning migration");
 
     migration.in_progress = true; // Prevent runout script
     planner.synchronize();
@@ -1296,9 +1294,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     planner.synchronize();
     planner.set_e_position_mm(current_position.e); // New extruder primed and ready
-    #if ENABLED(DEBUG_TOOLCHANGE_MIGRATION_FEATURE)
-      SERIAL_ECHOLN("Migration Complete");
-    #endif
+    DEBUG_ECHOLNPGM("Migration Complete");
     return true;
   }
 

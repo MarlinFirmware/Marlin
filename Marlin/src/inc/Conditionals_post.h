@@ -383,7 +383,7 @@
 
 #endif
 
-#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, FSMC_GRAPHICAL_TFT, SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
+#if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
   #define NO_LCD_REINIT 1  // Suppress LCD re-initialization
 #endif
 
@@ -416,8 +416,13 @@
   #endif
 #endif
 
-#if !defined(PSU_POWERUP_DELAY) && ENABLED(PSU_CONTROL)
-  #define PSU_POWERUP_DELAY 250
+#if ENABLED(PSU_CONTROL)
+  #ifndef PSU_POWERUP_DELAY
+    #define PSU_POWERUP_DELAY 250
+  #endif
+  #ifndef POWER_OFF_DELAY
+    #define POWER_OFF_DELAY   0
+  #endif
 #endif
 
 /**
@@ -431,7 +436,7 @@
 #endif
 
 #if TEMP_SENSOR_0 == -5 || TEMP_SENSOR_0 == -3 || TEMP_SENSOR_0 == -2
-  #define HEATER_0_USES_MAX6675
+  #define HEATER_0_USES_MAX6675 1
   #if TEMP_SENSOR_0 == -3
     #define HEATER_0_MAX6675_TMIN -270
     #define HEATER_0_MAX6675_TMAX 1800
@@ -440,19 +445,21 @@
     #define HEATER_0_MAX6675_TMAX 1024
   #endif
   #if TEMP_SENSOR_0 == -5
-    #define MAX6675_IS_MAX31865
+    #define MAX6675_0_IS_MAX31865 1
   #elif TEMP_SENSOR_0 == -3
-    #define MAX6675_IS_MAX31855
+    #define MAX6675_0_IS_MAX31855 1
   #endif
 #elif TEMP_SENSOR_0 == -4
-  #define HEATER_0_USES_AD8495
+  #define HEATER_0_USES_AD8495 1
 #elif TEMP_SENSOR_0 == -1
-  #define HEATER_0_USES_AD595
+  #define HEATER_0_USES_AD595 1
 #elif TEMP_SENSOR_0 > 0
   #define THERMISTOR_HEATER_0 TEMP_SENSOR_0
-  #define HEATER_0_USES_THERMISTOR
+  #define HEATER_0_USES_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
-    #define HEATER_0_USER_THERMISTOR
+    #define HEATER_0_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
+    #define HEATER_0_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_0_MINTEMP
@@ -460,13 +467,18 @@
 #endif
 
 #if TEMP_SENSOR_1 == -5 || TEMP_SENSOR_1 == -3 || TEMP_SENSOR_1 == -2
-  #define HEATER_1_USES_MAX6675
+  #define HEATER_1_USES_MAX6675 1
   #if TEMP_SENSOR_1 == -3
     #define HEATER_1_MAX6675_TMIN -270
     #define HEATER_1_MAX6675_TMAX 1800
   #else
     #define HEATER_1_MAX6675_TMIN    0
     #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 == -5
+    #define MAX6675_1_IS_MAX31865 1
+  #elif TEMP_SENSOR_1 == -3
+    #define MAX6675_1_IS_MAX31855 1
   #endif
   #if TEMP_SENSOR_1 != TEMP_SENSOR_0
     #if   TEMP_SENSOR_1 == -5
@@ -478,14 +490,16 @@
     #endif
   #endif
 #elif TEMP_SENSOR_1 == -4
-  #define HEATER_1_USES_AD8495
+  #define HEATER_1_USES_AD8495 1
 #elif TEMP_SENSOR_1 == -1
-  #define HEATER_1_USES_AD595
+  #define HEATER_1_USES_AD595 1
 #elif TEMP_SENSOR_1 > 0
   #define THERMISTOR_HEATER_1 TEMP_SENSOR_1
-  #define HEATER_1_USES_THERMISTOR
+  #define HEATER_1_USES_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
-    #define HEATER_1_USER_THERMISTOR
+    #define HEATER_1_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
+    #define HEATER_1_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_1_MINTEMP
@@ -493,18 +507,20 @@
 #endif
 
 #if TEMP_SENSOR_2 == -4
-  #define HEATER_2_USES_AD8495
+  #define HEATER_2_USES_AD8495 1
 #elif TEMP_SENSOR_2 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_2."
 #elif TEMP_SENSOR_2 == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_2."
 #elif TEMP_SENSOR_2 == -1
-  #define HEATER_2_USES_AD595
+  #define HEATER_2_USES_AD595 1
 #elif TEMP_SENSOR_2 > 0
   #define THERMISTOR_HEATER_2 TEMP_SENSOR_2
-  #define HEATER_2_USES_THERMISTOR
+  #define HEATER_2_USES_THERMISTOR 1
   #if TEMP_SENSOR_2 == 1000
-    #define HEATER_2_USER_THERMISTOR
+    #define HEATER_2_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
+    #define HEATER_2_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_2_MINTEMP
@@ -512,18 +528,20 @@
 #endif
 
 #if TEMP_SENSOR_3 == -4
-  #define HEATER_3_USES_AD8495
+  #define HEATER_3_USES_AD8495 1
 #elif TEMP_SENSOR_3 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_3."
 #elif TEMP_SENSOR_3 == -1
-  #define HEATER_3_USES_AD595
+  #define HEATER_3_USES_AD595 1
 #elif TEMP_SENSOR_3 > 0
   #define THERMISTOR_HEATER_3 TEMP_SENSOR_3
-  #define HEATER_3_USES_THERMISTOR
+  #define HEATER_3_USES_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
-    #define HEATER_3_USER_THERMISTOR
+    #define HEATER_3_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+    #define HEATER_3_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_3_MINTEMP
@@ -531,18 +549,20 @@
 #endif
 
 #if TEMP_SENSOR_4 == -4
-  #define HEATER_4_USES_AD8495
+  #define HEATER_4_USES_AD8495 1
 #elif TEMP_SENSOR_4 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_4."
 #elif TEMP_SENSOR_4 == -1
-  #define HEATER_4_USES_AD595
+  #define HEATER_4_USES_AD595 1
 #elif TEMP_SENSOR_4 > 0
   #define THERMISTOR_HEATER_4 TEMP_SENSOR_4
-  #define HEATER_4_USES_THERMISTOR
+  #define HEATER_4_USES_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
-    #define HEATER_4_USER_THERMISTOR
+    #define HEATER_4_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+    #define HEATER_4_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_4_MINTEMP
@@ -550,18 +570,20 @@
 #endif
 
 #if TEMP_SENSOR_5 == -4
-  #define HEATER_5_USES_AD8495
+  #define HEATER_5_USES_AD8495 1
 #elif TEMP_SENSOR_5 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_5."
 #elif TEMP_SENSOR_5 == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_5."
 #elif TEMP_SENSOR_5 == -1
-  #define HEATER_5_USES_AD595
+  #define HEATER_5_USES_AD595 1
 #elif TEMP_SENSOR_5 > 0
   #define THERMISTOR_HEATER_5 TEMP_SENSOR_5
-  #define HEATER_5_USES_THERMISTOR
+  #define HEATER_5_USES_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
-    #define HEATER_5_USER_THERMISTOR
+    #define HEATER_5_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+    #define HEATER_5_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_5_MINTEMP
@@ -569,18 +591,20 @@
 #endif
 
 #if TEMP_SENSOR_6 == -4
-  #define HEATER_6_USES_AD8495
+  #define HEATER_6_USES_AD8495 1
 #elif TEMP_SENSOR_6 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_6."
 #elif TEMP_SENSOR_6 == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_6."
 #elif TEMP_SENSOR_6 == -1
-  #define HEATER_6_USES_AD595
+  #define HEATER_6_USES_AD595 1
 #elif TEMP_SENSOR_6 > 0
   #define THERMISTOR_HEATER_6 TEMP_SENSOR_6
-  #define HEATER_6_USES_THERMISTOR
+  #define HEATER_6_USES_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
-    #define HEATER_6_USER_THERMISTOR
+    #define HEATER_6_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+    #define HEATER_6_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_6_MINTEMP
@@ -588,18 +612,20 @@
 #endif
 
 #if TEMP_SENSOR_7 == -4
-  #define HEATER_7_USES_AD8495
+  #define HEATER_7_USES_AD8495 1
 #elif TEMP_SENSOR_7 == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_7."
 #elif TEMP_SENSOR_7 == -2
   #error "MAX7775 Thermocouples (-2) not supported for TEMP_SENSOR_7."
 #elif TEMP_SENSOR_7 == -1
-  #define HEATER_7_USES_AD595
+  #define HEATER_7_USES_AD595 1
 #elif TEMP_SENSOR_7 > 0
   #define THERMISTOR_HEATER_7 TEMP_SENSOR_7
-  #define HEATER_7_USES_THERMISTOR
+  #define HEATER_7_USES_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
-    #define HEATER_7_USER_THERMISTOR
+    #define HEATER_7_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+    #define HEATER_7_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_7_MINTEMP
@@ -607,18 +633,20 @@
 #endif
 
 #if TEMP_SENSOR_BED == -4
-  #define HEATER_BED_USES_AD8495
+  #define HEATER_BED_USES_AD8495 1
 #elif TEMP_SENSOR_BED == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_BED."
 #elif TEMP_SENSOR_BED == -1
-  #define HEATER_BED_USES_AD595
+  #define HEATER_BED_USES_AD595 1
 #elif TEMP_SENSOR_BED > 0
   #define THERMISTORBED TEMP_SENSOR_BED
-  #define HEATER_BED_USES_THERMISTOR
+  #define HEATER_BED_USES_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
-    #define HEATER_BED_USER_THERMISTOR
+    #define HEATER_BED_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
+    #define HEATER_BED_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef BED_MINTEMP
@@ -626,18 +654,20 @@
 #endif
 
 #if TEMP_SENSOR_CHAMBER == -4
-  #define HEATER_CHAMBER_USES_AD8495
+  #define HEATER_CHAMBER_USES_AD8495 1
 #elif TEMP_SENSOR_CHAMBER == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_CHAMBER."
 #elif TEMP_SENSOR_CHAMBER == -1
-  #define HEATER_CHAMBER_USES_AD595
+  #define HEATER_CHAMBER_USES_AD595 1
 #elif TEMP_SENSOR_CHAMBER > 0
   #define THERMISTORCHAMBER TEMP_SENSOR_CHAMBER
-  #define HEATER_CHAMBER_USES_THERMISTOR
+  #define HEATER_CHAMBER_USES_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
-    #define HEATER_CHAMBER_USER_THERMISTOR
+    #define HEATER_CHAMBER_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
+    #define HEATER_CHAMBER_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef CHAMBER_MINTEMP
@@ -645,24 +675,22 @@
 #endif
 
 #if TEMP_SENSOR_PROBE == -4
-  #define HEATER_PROBE_USES_AD8495
+  #define HEATER_PROBE_USES_AD8495 1
 #elif TEMP_SENSOR_PROBE == -3
   #error "MAX31855 Thermocouples (-3) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE == -2
   #error "MAX6675 Thermocouples (-2) not supported for TEMP_SENSOR_PROBE."
 #elif TEMP_SENSOR_PROBE == -1
-  #define HEATER_PROBE_USES_AD595
+  #define HEATER_PROBE_USES_AD595 1
 #elif TEMP_SENSOR_PROBE > 0
   #define THERMISTORPROBE TEMP_SENSOR_PROBE
-  #define PROBE_USES_THERMISTOR
+  #define HEATER_PROBE_USES_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
-    #define PROBE_USER_THERMISTOR
+    #define HEATER_PROBE_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
+    #define HEATER_PROBE_DUMMY_THERMISTOR 1
   #endif
 #endif
-
-#define HOTEND_USES_THERMISTOR ANY( \
-  HEATER_0_USES_THERMISTOR, HEATER_1_USES_THERMISTOR, HEATER_2_USES_THERMISTOR, HEATER_3_USES_THERMISTOR, \
-  HEATER_4_USES_THERMISTOR, HEATER_5_USES_THERMISTOR, HEATER_6_USES_THERMISTOR, HEATER_7_USES_THERMISTOR )
 
 /**
  * X_DUAL_ENDSTOPS endstop reassignment
@@ -1608,6 +1636,54 @@
     #define Y_SPI_SENSORLESS Y_SENSORLESS
     #define Z_SPI_SENSORLESS Z_SENSORLESS
   #endif
+  #ifndef X_INTERPOLATE
+    #define X_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef X2_INTERPOLATE
+    #define X2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Y_INTERPOLATE
+    #define Y_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Y2_INTERPOLATE
+    #define Y2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z_INTERPOLATE
+    #define Z_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z2_INTERPOLATE
+    #define Z2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z3_INTERPOLATE
+    #define Z3_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef Z4_INTERPOLATE
+    #define Z4_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E0_INTERPOLATE
+    #define E0_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E1_INTERPOLATE
+    #define E1_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E2_INTERPOLATE
+    #define E2_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E3_INTERPOLATE
+    #define E3_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E4_INTERPOLATE
+    #define E4_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E5_INTERPOLATE
+    #define E5_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E6_INTERPOLATE
+    #define E6_INTERPOLATE INTERPOLATE
+  #endif
+  #ifndef E7_INTERPOLATE
+    #define E7_INTERPOLATE INTERPOLATE
+  #endif
 #endif
 
 #if (HAS_E_DRIVER(TMC2660) \
@@ -1700,7 +1776,7 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
-#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && DISABLED(HEATER_##P##_USES_MAX6675))
+#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(HEATER_##P##_USES_MAX6675, HEATER_##P##_DUMMY_THERMISTOR))
 #if HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
@@ -1735,7 +1811,7 @@
   #define HAS_TEMP_ADC_CHAMBER 1
 #endif
 
-#if HAS_HOTEND && EITHER(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675)
+#if HAS_HOTEND && ANY(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675, HEATER_0_DUMMY_THERMISTOR)
   #define HAS_TEMP_HOTEND 1
 #endif
 #define HAS_TEMP_BED        HAS_TEMP_ADC_BED
@@ -1976,7 +2052,7 @@
   #define HAS_STEPPER_RESET 1
 #endif
 #if PIN_EXISTS(DIGIPOTSS)
-  #define HAS_DIGIPOTSS 1
+  #define HAS_MOTOR_CURRENT_SPI 1
 #endif
 #if ANY_PIN(MOTOR_CURRENT_PWM_X, MOTOR_CURRENT_PWM_Y, MOTOR_CURRENT_PWM_XY, MOTOR_CURRENT_PWM_Z, MOTOR_CURRENT_PWM_E)
   #define HAS_MOTOR_CURRENT_PWM 1
@@ -2457,11 +2533,11 @@
 /**
  * Buzzer/Speaker
  */
-#if PIN_EXISTS(BEEPER) || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER, IS_TFTGLCD_PANEL)
+#if PIN_EXISTS(BEEPER)
+  #define USE_BEEPER 1
+#endif
+#if USE_BEEPER || ANY(LCD_USE_I2C_BUZZER, PCA9632_BUZZER)
   #define HAS_BUZZER 1
-  #if PIN_EXISTS(BEEPER)
-    #define USE_BEEPER 1
-  #endif
 #endif
 
 #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -2480,8 +2556,12 @@
   #endif
 #endif
 
-#if HAS_BUZZER && LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
-  #define HAS_CHIRP 1
+#if HAS_BUZZER
+  #if LCD_FEEDBACK_FREQUENCY_DURATION_MS && LCD_FEEDBACK_FREQUENCY_HZ
+    #define HAS_CHIRP 1
+  #endif
+#else
+  #undef SOUND_MENU_ITEM   // No buzzer menu item without a buzzer
 #endif
 
 /**
@@ -2578,7 +2658,7 @@
 // Force SDCARD_SORT_ALPHA to be enabled for Graphical LCD on LPC1768
 // on boards where SD card and LCD display share the same SPI bus
 // because of a bug in the shared SPI implementation. (See #8122)
-#if defined(TARGET_LPC1768) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && (SCK_PIN == LCD_PINS_D4)
+#if defined(TARGET_LPC1768) && IS_RRD_FG_SC && (SCK_PIN == LCD_PINS_D4)
   #define SDCARD_SORT_ALPHA         // Keep one directory level in RAM. Changing directory levels
                                     // may still glitch the screen, but LCD updates clean it up.
   #undef SDSORT_LIMIT
@@ -2614,14 +2694,14 @@
     #if HAS_MARLINUI_U8GLIB
       #define LCD_WIDTH 21
     #else
-      #define LCD_WIDTH TERN(ULTIPANEL, 20, 16)
+      #define LCD_WIDTH TERN(IS_ULTIPANEL, 20, 16)
     #endif
   #endif
   #ifndef LCD_HEIGHT
     #if HAS_MARLINUI_U8GLIB
       #define LCD_HEIGHT 5
     #else
-      #define LCD_HEIGHT TERN(ULTIPANEL, 4, 2)
+      #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
 #endif

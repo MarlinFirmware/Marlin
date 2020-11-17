@@ -23,10 +23,12 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "draw_ui.h"
-#include "wifiSerial.h"
+#include "tft_lvgl_configuration.h"
 
 #if ENABLED(USE_WIFI_FUNCTION)
+
+#include "draw_ui.h"
+#include "wifiSerial.h"
 
 #include <libmaple/libmaple.h>
 #include <libmaple/gpio.h>
@@ -51,7 +53,7 @@ WifiSerial::WifiSerial(usart_dev *usart_device, uint8 tx_pin, uint8 rx_pin) {
   /* F1 MCUs have no GPIO_AFR[HL], so turn off PWM if there's a conflict
    * on this GPIO bit. */
   static void disable_timer_if_necessary(timer_dev *dev, uint8 ch) {
-    if (dev != nullptr) timer_set_mode(dev, ch, TIMER_DISABLED);
+    if (dev) timer_set_mode(dev, ch, TIMER_DISABLED);
   }
 #elif STM32_MCU_SERIES == STM32_SERIES_F2 || STM32_MCU_SERIES == STM32_SERIES_F4
   #define disable_timer_if_necessary(dev, ch) ((void)0)

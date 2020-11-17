@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V81"
+#define EEPROM_VERSION "V82"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -54,7 +54,7 @@
   #include "../lcd/dwin/e3v2/dwin.h"
 #endif
 
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
@@ -137,9 +137,8 @@
   void M710_report(const bool forReplay);
 #endif
 
-#if ENABLED(CASE_LIGHT_ENABLE) && DISABLED(CASE_LIGHT_NO_BRIGHTNESS)
+#if ENABLED(CASE_LIGHT_ENABLE)
   #include "../feature/caselight.h"
-  #define HAS_CASE_LIGHT_BRIGHTNESS 1
 #endif
 
 #if ENABLED(PASSWORD_FEATURE)
@@ -147,10 +146,26 @@
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../lcd/tft/touch.h"
+  #include "../lcd/tft_io/touch_calibration.h"
+#endif
+
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
+#if ENABLED(SOUND_MENU_ITEM)
+  #include "../libs/buzzer.h"
 #endif
 
 #pragma pack(push, 1) // No padding between variables
+
+#if HAS_ETHERNET
+  void ETH0_report();
+  void MAC_report();
+  void M552_report();
+  void M553_report();
+  void M554_report();
+#endif
 
 typedef struct { uint16_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_stepper_current_t;
 typedef struct { uint32_t X, Y, Z, X2, Y2, Z2, Z3, Z4, E0, E1, E2, E3, E4, E5, E6, E7; } tmc_hybrid_threshold_t;
@@ -365,7 +380,10 @@ typedef struct SettingsDataStruct {
   //
   // HAS_MOTOR_CURRENT_PWM
   //
-  uint32_t motor_current_setting[3];                    // M907 X Z E
+  #ifndef MOTOR_CURRENT_COUNT
+    #define MOTOR_CURRENT_COUNT 3
+  #endif
+  uint32_t motor_current_setting[MOTOR_CURRENT_COUNT];  // M907 X Z E
 
   //
   // CNC_COORDINATE_SYSTEMS
@@ -407,9 +425,9 @@ typedef struct SettingsDataStruct {
   #endif
 
   //
-  // HAS_CASE_LIGHT_BRIGHTNESS
+  // CASELIGHT_USES_BRIGHTNESS
   //
-  #if HAS_CASE_LIGHT_BRIGHTNESS
+  #if CASELIGHT_USES_BRIGHTNESS
     uint8_t caselight_brightness;                        // M355 P
   #endif
 
@@ -425,9 +443,24 @@ typedef struct SettingsDataStruct {
   // TOUCH_SCREEN_CALIBRATION
   //
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    touch_calibration_t touch_calibration;
+    touch_calibration_t touch_calibration_data;
   #endif
 
+  // Ethernet settings
+  #if HAS_ETHERNET
+    bool ethernet_hardware_enabled;                     // M552 S
+    uint32_t ethernet_ip,                               // M552 P
+             ethernet_dns,
+             ethernet_gateway,                          // M553 P
+             ethernet_subnet;                           // M554 P
+  #endif
+
+  //
+  // Buzzer enable/disable
+  //
+  #if ENABLED(SOUND_MENU_ITEM)
+    bool buzzer_enabled;
+  #endif
 } SettingsData;
 
 //static_assert(sizeof(SettingsData) <= MARLIN_EEPROM_SIZE, "EEPROM too small to contain SettingsData!");
@@ -479,7 +512,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(HAS_LINEAR_E_JERK, planner.recalculate_max_e_jerk());
 
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.update_brightness());
+  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.update_brightness());
 
   // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
@@ -1190,60 +1223,60 @@ void MarlinSettings::postprocess() {
 
       #if HAS_STEALTHCHOP
         #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_stealth_enabled.X = stepperX.get_stored_stealthChop_status();
+          tmc_stealth_enabled.X = stepperX.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop_status();
+          tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop();
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop_status();
+          tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop();
         #endif
         #if MAX_EXTRUDERS
           #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop_status();
+            tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop();
           #endif
           #if MAX_EXTRUDERS > 1
             #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop_status();
+              tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop();
             #endif
             #if MAX_EXTRUDERS > 2
               #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop_status();
+                tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop();
               #endif
               #if MAX_EXTRUDERS > 3
                 #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop_status();
+                  tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop();
                 #endif
                 #if MAX_EXTRUDERS > 4
                   #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop_status();
+                    tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop();
                   #endif
                   #if MAX_EXTRUDERS > 5
                     #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop_status();
+                      tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop();
                     #endif
                     #if MAX_EXTRUDERS > 6
                       #if AXIS_HAS_STEALTHCHOP(E6)
-                        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop_status();
+                        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop();
                       #endif
                       #if MAX_EXTRUDERS > 7
                         #if AXIS_HAS_STEALTHCHOP(E7)
-                          tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop_status();
+                          tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop();
                         #endif
                       #endif // MAX_EXTRUDERS > 7
                     #endif // MAX_EXTRUDERS > 6
@@ -1277,10 +1310,10 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(motor_current_setting);
 
-      #if HAS_MOTOR_CURRENT_PWM
+      #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
         EEPROM_WRITE(stepper.motor_current_setting);
       #else
-        const uint32_t no_current[3] = { 0 };
+        const uint32_t no_current[MOTOR_CURRENT_COUNT] = { 0 };
         EEPROM_WRITE(no_current);
       #endif
     }
@@ -1361,7 +1394,7 @@ void MarlinSettings::postprocess() {
     //
     // Case Light Brightness
     //
-    #if HAS_CASE_LIGHT_BRIGHTNESS
+    #if CASELIGHT_USES_BRIGHTNESS
       EEPROM_WRITE(caselight.brightness);
     #endif
 
@@ -1377,11 +1410,37 @@ void MarlinSettings::postprocess() {
     // TOUCH_SCREEN_CALIBRATION
     //
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      EEPROM_WRITE(touch.calibration);
+      EEPROM_WRITE(touch_calibration.calibration);
     #endif
 
     //
-    // Validate CRC and Data Size
+    // Ethernet network info
+    //
+    #if HAS_ETHERNET
+    {
+      _FIELD_TEST(ethernet_hardware_enabled);
+      const bool ethernet_hardware_enabled = ethernet.hardware_enabled;
+      const uint32_t ethernet_ip      = ethernet.ip,
+                     ethernet_dns     = ethernet.myDns,
+                     ethernet_gateway = ethernet.gateway,
+                     ethernet_subnet  = ethernet.subnet;
+      EEPROM_WRITE(ethernet_hardware_enabled);
+      EEPROM_WRITE(ethernet_ip);
+      EEPROM_WRITE(ethernet_dns);
+      EEPROM_WRITE(ethernet_gateway);
+      EEPROM_WRITE(ethernet_subnet);
+    }
+    #endif
+
+    //
+    // Buzzer enable/disable
+    //
+    #if ENABLED(SOUND_MENU_ITEM)
+      EEPROM_WRITE(ui.buzzer_enabled);
+    #endif
+
+    //
+    // Report final CRC and Data Size
     //
     if (!eeprom_error) {
       const uint16_t eeprom_size = eeprom_index - (EEPROM_OFFSET),
@@ -1438,7 +1497,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_version());
+      IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
     else {
@@ -2110,10 +2169,16 @@ void MarlinSettings::postprocess() {
       // Motor Current PWM
       //
       {
-        uint32_t motor_current_setting[3];
         _FIELD_TEST(motor_current_setting);
+        uint32_t motor_current_setting[MOTOR_CURRENT_COUNT]
+          #if HAS_MOTOR_CURRENT_SPI
+             = DIGIPOT_MOTOR_CURRENT
+          #endif
+        ;
+        DEBUG_ECHOLNPGM("DIGIPOTS Loading");
         EEPROM_READ(motor_current_setting);
-        #if HAS_MOTOR_CURRENT_PWM
+        DEBUG_ECHOLNPGM("DIGIPOTS Loaded");
+        #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
           if (!validating)
             COPY(stepper.motor_current_setting, motor_current_setting);
         #endif
@@ -2210,7 +2275,7 @@ void MarlinSettings::postprocess() {
       //
       // Case Light Brightness
       //
-      #if HAS_CASE_LIGHT_BRIGHTNESS
+      #if CASELIGHT_USES_BRIGHTNESS
         _FIELD_TEST(caselight_brightness);
         EEPROM_READ(caselight.brightness);
       #endif
@@ -2228,21 +2293,45 @@ void MarlinSettings::postprocess() {
       // TOUCH_SCREEN_CALIBRATION
       //
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        _FIELD_TEST(touch.calibration);
-        EEPROM_READ(touch.calibration);
+        _FIELD_TEST(touch_calibration_data);
+        EEPROM_READ(touch_calibration.calibration);
       #endif
 
+      //
+      // Ethernet network info
+      //
+      #if HAS_ETHERNET
+        _FIELD_TEST(ethernet_hardware_enabled);
+        uint32_t ethernet_ip, ethernet_dns, ethernet_gateway, ethernet_subnet;
+        EEPROM_READ(ethernet.hardware_enabled);
+        EEPROM_READ(ethernet_ip);      ethernet.ip      = ethernet_ip;
+        EEPROM_READ(ethernet_dns);     ethernet.myDns   = ethernet_dns;
+        EEPROM_READ(ethernet_gateway); ethernet.gateway = ethernet_gateway;
+        EEPROM_READ(ethernet_subnet);  ethernet.subnet  = ethernet_subnet;
+      #endif
+
+      //
+      // Buzzer enable/disable
+      //
+      #if ENABLED(SOUND_MENU_ITEM)
+        _FIELD_TEST(buzzer_enabled);
+        EEPROM_READ(ui.buzzer_enabled);
+      #endif
+
+      //
+      // Validate Final Size and CRC
+      //
       eeprom_error = size_error(eeprom_index - (EEPROM_OFFSET));
       if (eeprom_error) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_index());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_crc());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
@@ -2287,7 +2376,7 @@ void MarlinSettings::postprocess() {
 
     #if ENABLED(EEPROM_CHITCHAT) && DISABLED(DISABLE_M503)
       // Report the EEPROM settings
-      if (!validating && (DISABLED(EEPROM_BOOT_SILENT) || IsRunning())) report();
+      if (!validating && TERN1(EEPROM_BOOT_SILENT, IsRunning())) report();
     #endif
 
     EEPROM_FINISH();
@@ -2532,12 +2621,17 @@ void MarlinSettings::reset() {
   //
   // Case Light Brightness
   //
-  TERN_(HAS_CASE_LIGHT_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
+  TERN_(CASELIGHT_USES_BRIGHTNESS, caselight.brightness = CASE_LIGHT_DEFAULT_BRIGHTNESS);
 
   //
   // TOUCH_SCREEN_CALIBRATION
   //
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
+
+  //
+  // Buzzer enable/disable
+  //
+  TERN_(SOUND_MENU_ITEM, ui.buzzer_enabled = true);
 
   //
   // Magnetic Parking Extruder
@@ -2791,9 +2885,20 @@ void MarlinSettings::reset() {
   //
 
   #if HAS_MOTOR_CURRENT_PWM
-    constexpr uint32_t tmp_motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    LOOP_L_N(q, 3)
-      stepper.digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+    constexpr uint32_t tmp_motor_current_setting[MOTOR_CURRENT_COUNT] = PWM_MOTOR_CURRENT;
+    LOOP_L_N(q, MOTOR_CURRENT_COUNT)
+      stepper.set_digipot_current(q, (stepper.motor_current_setting[q] = tmp_motor_current_setting[q]));
+  #endif
+
+  //
+  // DIGIPOTS
+  //
+  #if HAS_MOTOR_CURRENT_SPI
+    static constexpr uint32_t tmp_motor_current_setting[] = DIGIPOT_MOTOR_CURRENT;
+    DEBUG_ECHOLNPGM("Writing Digipot");
+    LOOP_L_N(q, COUNT(tmp_motor_current_setting))
+      stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
+    DEBUG_ECHOLNPGM("Digipot Written");
   #endif
 
   //
@@ -3595,17 +3700,17 @@ void MarlinSettings::reset() {
       #if HAS_STEALTHCHOP
         CONFIG_ECHO_HEADING("Driver stepping mode:");
         #if AXIS_HAS_STEALTHCHOP(X)
-          const bool chop_x = stepperX.get_stored_stealthChop_status();
+          const bool chop_x = stepperX.get_stored_stealthChop();
         #else
           constexpr bool chop_x = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y)
-          const bool chop_y = stepperY.get_stored_stealthChop_status();
+          const bool chop_y = stepperY.get_stored_stealthChop();
         #else
           constexpr bool chop_y = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z)
-          const bool chop_z = stepperZ.get_stored_stealthChop_status();
+          const bool chop_z = stepperZ.get_stored_stealthChop();
         #else
           constexpr bool chop_z = false;
         #endif
@@ -3619,17 +3724,17 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(X2)
-          const bool chop_x2 = stepperX2.get_stored_stealthChop_status();
+          const bool chop_x2 = stepperX2.get_stored_stealthChop();
         #else
           constexpr bool chop_x2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Y2)
-          const bool chop_y2 = stepperY2.get_stored_stealthChop_status();
+          const bool chop_y2 = stepperY2.get_stored_stealthChop();
         #else
           constexpr bool chop_y2 = false;
         #endif
         #if AXIS_HAS_STEALTHCHOP(Z2)
-          const bool chop_z2 = stepperZ2.get_stored_stealthChop_status();
+          const bool chop_z2 = stepperZ2.get_stored_stealthChop();
         #else
           constexpr bool chop_z2 = false;
         #endif
@@ -3643,36 +3748,36 @@ void MarlinSettings::reset() {
         }
 
         #if AXIS_HAS_STEALTHCHOP(Z3)
-          if (stepperZ3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I2 Z"), true); }
+          if (stepperZ3.get_stored_stealthChop()) { say_M569(forReplay, PSTR("I2 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(Z4)
-          if (stepperZ4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("I3 Z"), true); }
+          if (stepperZ4.get_stored_stealthChop()) { say_M569(forReplay, PSTR("I3 Z"), true); }
         #endif
 
         #if AXIS_HAS_STEALTHCHOP(E0)
-          if (stepperE0.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T0 E"), true); }
+          if (stepperE0.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T0 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E1)
-          if (stepperE1.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T1 E"), true); }
+          if (stepperE1.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T1 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E2)
-          if (stepperE2.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T2 E"), true); }
+          if (stepperE2.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T2 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E3)
-          if (stepperE3.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T3 E"), true); }
+          if (stepperE3.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T3 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E4)
-          if (stepperE4.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T4 E"), true); }
+          if (stepperE4.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T4 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E5)
-          if (stepperE5.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T5 E"), true); }
+          if (stepperE5.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T5 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E6)
-          if (stepperE6.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T6 E"), true); }
+          if (stepperE6.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T6 E"), true); }
         #endif
         #if AXIS_HAS_STEALTHCHOP(E7)
-          if (stepperE7.get_stored_stealthChop_status()) { say_M569(forReplay, PSTR("T7 E"), true); }
+          if (stepperE7.get_stored_stealthChop()) { say_M569(forReplay, PSTR("T7 E"), true); }
         #endif
 
       #endif // HAS_STEALTHCHOP
@@ -3695,14 +3800,29 @@ void MarlinSettings::reset() {
       #endif
     #endif
 
-    #if HAS_MOTOR_CURRENT_PWM
+    #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM)
       CONFIG_ECHO_HEADING("Stepper motor currents:");
       CONFIG_ECHO_START();
-      SERIAL_ECHOLNPAIR_P(
-          PSTR("  M907 X"), stepper.motor_current_setting[0]
-        , SP_Z_STR, stepper.motor_current_setting[1]
-        , SP_E_STR, stepper.motor_current_setting[2]
-      );
+      #if HAS_MOTOR_CURRENT_PWM
+        SERIAL_ECHOLNPAIR_P(                                   // PWM-based has 3 values:
+            PSTR("  M907 X"), stepper.motor_current_setting[0] // X and Y
+                  , SP_Z_STR, stepper.motor_current_setting[1] // Z
+                  , SP_E_STR, stepper.motor_current_setting[2] // E
+        );
+      #elif HAS_MOTOR_CURRENT_SPI
+        SERIAL_ECHOPGM("  M907");                              // SPI-based has 5 values:
+        LOOP_XYZE(q) {                                         // X Y Z E (map to X Y Z E0 by default)
+          SERIAL_CHAR(' ', axis_codes[q]);
+          SERIAL_ECHO(stepper.motor_current_setting[q]);
+        }
+        SERIAL_CHAR(' ', 'B');                                 // B (maps to E1 by default)
+        SERIAL_ECHOLN(stepper.motor_current_setting[4]);
+      #endif
+    #elif ENABLED(HAS_MOTOR_CURRENT_I2C)                       // i2c-based has any number of values
+      // Values sent over i2c are not stored.
+      // Indexes map directly to drivers, not axes.
+    #elif ENABLED(HAS_MOTOR_CURRENT_DAC)                       // DAC-based has 4 values, for X Y Z E
+      // Values sent over i2c are not stored. Uses indirect mapping.
     #endif
 
     /**
@@ -3748,6 +3868,15 @@ void MarlinSettings::reset() {
           , " D", LINEAR_UNIT(runout.runout_distance())
         #endif
       );
+    #endif
+
+    #if HAS_ETHERNET
+      CONFIG_ECHO_HEADING("Ethernet:");
+      if (!forReplay) { CONFIG_ECHO_START(); ETH0_report(); }
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); MAC_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M552_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M553_report();
+      CONFIG_ECHO_START(); SERIAL_ECHO_SP(2); M554_report();
     #endif
   }
 

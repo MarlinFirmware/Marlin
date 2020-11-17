@@ -250,7 +250,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
   */
   #if ENABLED(PASSWORD_FEATURE)
-    if (password.is_locked && !(parser.command_letter == 'M' && parser.codenum == 511)) {
+    if (password.is_locked && !parser.is_command('M', 511)) {
       SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
       return;
     }
@@ -327,7 +327,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
-      #if ENABLED(Z_STEPPER_AUTO_ALIGN)
+      #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
@@ -431,7 +431,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 28: M28(); break;                                    // M28: Start SD write
         case 29: M29(); break;                                    // M29: Stop SD write
         case 30: M30(); break;                                    // M30 <filename> Delete File
-        case 32: M32(); break;                                    // M32: Select file and start SD print
+
+        #if HAS_MEDIA_SUBCALLS
+          case 32: M32(); break;                                  // M32: Select file and start SD print
+        #endif
 
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           case 33: M33(); break;                                  // M33: Get the long full path to a file or folder
@@ -445,7 +448,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
       #endif // SDSUPPORT
 
       case 31: M31(); break;                                      // M31: Report time since the start of SD print or last M109
-      case 42: M42(); break;                                      // M42: Change pin state
+
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 42: M42(); break;                                    // M42: Change pin state
+      #endif
 
       #if ENABLED(PINS_DEBUGGING)
         case 43: M43(); break;                                    // M43: Read pin state
@@ -620,7 +626,9 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
-      case 226: M226(); break;                                    // M226: Wait until a pin reaches a state
+      #if ENABLED(DIRECT_PIN_CONTROL)
+        case 226: M226(); break;                                  // M226: Wait until a pin reaches a state
+      #endif
 
       #if HAS_SERVOS
         case 280: M280(); break;                                  // M280: Set servo position absolute
@@ -749,8 +757,8 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
           case 511: M511(); break;                                // M511: Unlock Printer
         #endif
         #if ENABLED(PASSWORD_CHANGE_GCODE)
-          case 512: M512(); break;
-        #endif                                                    // M512: Set/Change/Remove Password
+          case 512: M512(); break;                                // M512: Set/Change/Remove Password
+        #endif
       #endif
 
       #if ENABLED(SDSUPPORT)
@@ -759,6 +767,12 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
         case 540: M540(); break;                                  // M540: Set abort on endstop hit for SD printing
+      #endif
+
+      #if HAS_ETHERNET
+        case 552: M552(); break;                                  // M552: Set IP address
+        case 553: M553(); break;                                  // M553: Set gateway
+        case 554: M554(); break;                                  // M554: Set netmask
       #endif
 
       #if ENABLED(BAUD_RATE_GCODE)
@@ -818,11 +832,11 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 900: M900(); break;                                  // M900: Set advance K factor.
       #endif
 
-      #if ANY(HAS_DIGIPOTSS, HAS_MOTOR_CURRENT_PWM, HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT)
+      #if ANY(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_PWM, HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC)
         case 907: M907(); break;                                  // M907: Set digital trimpot motor current using axis codes.
-        #if EITHER(HAS_DIGIPOTSS, DAC_STEPPER_CURRENT)
+        #if EITHER(HAS_MOTOR_CURRENT_SPI, HAS_MOTOR_CURRENT_DAC)
           case 908: M908(); break;                                // M908: Control digital trimpot directly.
-          #if ENABLED(DAC_STEPPER_CURRENT)
+          #if ENABLED(HAS_MOTOR_CURRENT_DAC)
             case 909: M909(); break;                              // M909: Print digipot/DAC current value
             case 910: M910(); break;                              // M910: Commit digipot/DAC value to external EEPROM
           #endif
@@ -922,6 +936,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
     break;
 
     case 'T': T(parser.codenum); break;                           // Tn: Tool Change
+
+    #if ENABLED(MARLIN_DEV_MODE)
+      case 'D': D(parser.codenum); break;                         // Dn: Debug codes
+    #endif
 
     default:
       #if ENABLED(WIFI_CUSTOM_COMMAND)

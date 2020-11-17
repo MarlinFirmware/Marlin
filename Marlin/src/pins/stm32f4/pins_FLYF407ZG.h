@@ -150,27 +150,6 @@
 #define TEMP_5_PIN                          PF4   // Analog Input
 #define TEMP_BED_PIN                        PF3   // Analog Input
 
-// SPI for Max6675 or Max31855 Thermocouple
-#define THERMO_SCK_PIN                      PA5   // SCK
-#define THERMO_DO_PIN                       PA6   // MISO
-#define THERMO_CS1_PIN                      PA4   // CS1
-#define THERMO_CS2_PIN                      -1    // CS2
-
-#define MAX6675_SS_PIN             THERMO_CS1_PIN
-#define MAX6675_SS2_PIN            THERMO_CS2_PIN
-#define MAX6675_SCK_PIN            THERMO_SCK_PIN
-#define MAX6675_DO_PIN             THERMO_DO_PIN
-
-
-
-
-
-
-
-
-
-
-
 //
 // Heaters / Fans
 //

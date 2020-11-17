@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_basic.h"
@@ -1060,11 +1060,11 @@ void CLCD::init() {
 
   delay(40); // FTDI/BRT recommendation: no SPI traffic during startup. EVE needs at the very least 45ms to start, so leave her alone for a little while.
 
-  /* read the device-id until it returns 0x7c or times out, should take less than 150ms */
+  /* read the device-id until it returns 0x7C or times out, should take less than 150ms */
   uint8_t counter;
   for (counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
-   if (device_id == 0x7c) {
+   if (device_id == 0x7C) {
      #if ENABLED(TOUCH_UI_DEBUG)
        SERIAL_ECHO_MSG("FTDI chip initialized ");
      #endif

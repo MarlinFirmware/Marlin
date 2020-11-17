@@ -215,9 +215,10 @@
 #define EXPA2_10_PIN                       P0_17
 
 #if HAS_WIRED_LCD
+  #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+    #error "ANET_FULL_GRAPHICS_LCD_ALT_WIRING only applies to the ANET 1.0 board."
 
-  #if ENABLED(ANET_FULL_GRAPHICS_LCD)
-
+  #elif ENABLED(ANET_FULL_GRAPHICS_LCD)
     #error "CAUTION! ANET_FULL_GRAPHICS_LCD requires wiring modifications. See 'pins_BTT_SKR_V1_3.h' for details. Comment out this line to continue."
 
    /**
@@ -348,7 +349,7 @@
         #define LCD_BACKLIGHT_PIN          -1
       #endif
 
-      #if ENABLED(ULTIPANEL)
+      #if IS_ULTIPANEL
         #define LCD_PINS_D5         EXPA1_05_PIN
         #define LCD_PINS_D6         EXPA1_04_PIN
         #define LCD_PINS_D7         EXPA1_03_PIN

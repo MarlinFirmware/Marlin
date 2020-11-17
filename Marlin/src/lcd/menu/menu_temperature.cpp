@@ -31,7 +31,7 @@
 #include "menu_item.h"
 #include "../../module/temperature.h"
 
-#if FAN_COUNT > 1 || ENABLED(SINGLENOZZLE)
+#if HAS_FAN || ENABLED(SINGLENOZZLE)
   #include "../../module/motion.h"
 #endif
 
@@ -44,24 +44,17 @@
 //
 
 void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t indb) {
+  UNUSED(e); UNUSED(indh); UNUSED(indb);
   #if HAS_HOTEND
     if (indh >= 0 && ui.material_preset[indh].hotend_temp > 0)
       setTargetHotend(_MIN(thermalManager.heater_maxtemp[e] - HOTEND_OVERSHOOT, ui.material_preset[indh].hotend_temp), e);
-  #else
-    UNUSED(e); UNUSED(indh);
   #endif
   #if HAS_HEATED_BED
     if (indb >= 0 && ui.material_preset[indb].bed_temp > 0) setTargetBed(ui.material_preset[indb].bed_temp);
-  #else
-    UNUSED(indb);
   #endif
   #if HAS_FAN
-    set_fan_speed((
-      #if FAN_COUNT > 1
-        active_extruder < FAN_COUNT ? active_extruder :
-      #endif
-      0), ui.material_preset[indh].fan_speed
-    );
+    if (indh >= 0)
+      set_fan_speed(active_extruder < (FAN_COUNT) ? active_extruder : 0, ui.material_preset[indh].fan_speed);
   #endif
   ui.return_to_status();
 }
@@ -70,15 +63,14 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
   #if HAS_TEMP_HOTEND
     inline void _preheat_end(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, -1); }
-    #if HAS_HEATED_BED
-      inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
-    #endif
+    void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
   #endif
   #if HAS_HEATED_BED
     inline void _preheat_bed(const uint8_t m) { thermalManager.lcd_preheat(-1, -1, m); }
   #endif
 
   #if HAS_TEMP_HOTEND && HAS_HEATED_BED
+    inline void _preheat_both(const uint8_t m, const uint8_t e) { thermalManager.lcd_preheat(e, m, m); }
 
     // Indexed "Preheat ABC" and "Heat Bed" items
     #define PREHEAT_ITEMS(M,E) do{ \
@@ -92,8 +84,6 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
     #define PREHEAT_ITEMS(M,E) ACTION_ITEM_N_S(E, ui.get_preheat_label(M), MSG_PREHEAT_M_H, []{ _preheat_end(M, MenuItemBase::itemIndex); })
 
   #endif
-
-  void do_preheat_end_m() { _preheat_end(editable.int8, 0); }
 
   #if HAS_MULTI_HOTEND || HAS_HEATED_BED
 
@@ -118,8 +108,8 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
         HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
-          TERN_(HAS_HEATED_BED, []{ _preheat_bed(editable.int8); });
           HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+          TERN(HAS_HEATED_BED, _preheat_bed(editable.int8), ui.return_to_status());
         });
 
       #endif

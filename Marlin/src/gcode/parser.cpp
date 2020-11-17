@@ -28,10 +28,6 @@
 
 #include "../MarlinCore.h"
 
-#if HAS_MULTI_SERIAL
-  #include "queue.h"
-#endif
-
 // Must be declared for allocation and to satisfy the linker
 // Zero values need no initialization.
 
@@ -49,7 +45,7 @@ char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
-int GCodeParser::codenum;
+uint16_t GCodeParser::codenum;
 
 #if ENABLED(USE_GCODE_SUBCODES)
   uint8_t GCodeParser::subcode;
@@ -147,22 +143,15 @@ void GCodeParser::parse(char *p) {
     starpos[1] = '\0';
   }
 
-  #if ENABLED(GCODE_MOTION_MODES)
-    #if ENABLED(ARC_SUPPORT)
-      #define GTOP 3
-    #else
-      #define GTOP 1
-    #endif
+  #if ANY(MARLIN_DEV_MODE, SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+    #define SIGNED_CODENUM 1
   #endif
 
   // Bail if the letter is not G, M, or T
   // (or a valid parameter for the current motion mode)
   switch (letter) {
 
-    case 'G': case 'M': case 'T':
-    #if ENABLED(CANCEL_OBJECTS)
-      case 'O':
-    #endif
+    case 'G': case 'M': case 'T': TERN_(MARLIN_DEV_MODE, case 'D':)
       // Skip spaces to get the numeric part
       while (*p == ' ') p++;
 
@@ -178,22 +167,33 @@ void GCodeParser::parse(char *p) {
       #endif
 
       // Bail if there's no command code number
-      if (!NUMERIC(*p)) return;
+      if (!TERN(SIGNED_CODENUM, NUMERIC_SIGNED(*p), NUMERIC(*p))) return;
 
       // Save the command letter at this point
       // A '?' signifies an unknown command
       command_letter = letter;
 
-      // Get the code number - integer digits only
-      codenum = 0;
-      do { codenum *= 10, codenum += *p++ - '0'; } while (NUMERIC(*p));
+      {
+        #if ENABLED(SIGNED_CODENUM)
+          int sign = 1; // Allow for a negative code like D-1 or T-1
+          if (*p == '-') { sign = -1; ++p; }
+        #endif
+
+        // Get the code number - integer digits only
+        codenum = 0;
+
+        do { codenum = codenum * 10 + *p++ - '0'; } while (NUMERIC(*p));
+
+        // Apply the sign, if any
+        TERN_(SIGNED_CODENUM, codenum *= sign);
+      }
 
       // Allow for decimal point in command
       #if ENABLED(USE_GCODE_SUBCODES)
         if (*p == '.') {
           p++;
           while (NUMERIC(*p))
-          subcode *= 10, subcode += *p++ - '0';
+            subcode = subcode * 10 + *p++ - '0';
         }
       #endif
 
@@ -201,11 +201,8 @@ void GCodeParser::parse(char *p) {
       while (*p == ' ') p++;
 
       #if ENABLED(GCODE_MOTION_MODES)
-        if (letter == 'G' && (codenum <= GTOP || codenum == 5
-                                #if ENABLED(G38_PROBE_TARGET)
-                                  || codenum == 38
-                                #endif
-                             )
+        if (letter == 'G'
+          && (codenum <= TERN(ARC_SUPPORT, 3, 1) || codenum == 5 || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
           motion_mode_codenum = codenum;
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
@@ -216,12 +213,12 @@ void GCodeParser::parse(char *p) {
 
     #if ENABLED(GCODE_MOTION_MODES)
       #if ENABLED(ARC_SUPPORT)
-        case 'I': case 'J': case 'R':
+        case 'I' ... 'J': case 'R':
           if (motion_mode_codenum != 2 && motion_mode_codenum != 3) return;
       #endif
-      case 'P': case 'Q':
+      case 'P' ... 'Q':
         if (motion_mode_codenum != 5) return;
-      case 'X': case 'Y': case 'Z': case 'E': case 'F':
+      case 'X' ... 'Z': case 'E' ... 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
         codenum = motion_mode_codenum;
@@ -247,7 +244,7 @@ void GCodeParser::parse(char *p) {
     #if ENABLED(EXPECTED_PRINTER_CHECK)
       case 16:
     #endif
-    case 23: case 28: case 30: case 33: case 117: case 118: case 928:
+    case 23: case 28: case 30: case 117 ... 118: case 928:
       string_arg = unescape_string(p);
       return;
     default: break;
@@ -273,7 +270,7 @@ void GCodeParser::parse(char *p) {
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
-    if (param == '!' && letter == 'M' && codenum == 32) {
+    if (param == '!' && is_command('M', 32)) {
       string_arg = p;                           // Name starts after '!'
       char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
       if (lb) *lb = '\0';                       // Safe to mark the end of the filename

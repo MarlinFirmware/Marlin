@@ -36,9 +36,11 @@ jobs:
         # Base Environments
 
         - DUE
+        - DUE_archim
         - esp32
         - linux_native
         - mega2560
+        - at90usb1286_dfu
         - teensy31
         - teensy35
         - teensy41
@@ -81,6 +83,8 @@ jobs:
         - STM32F103RET6_creality
         - LERDGEX
         - mks_robin_nano35
+        - mks_robin_nano35_stm32
+        - NUCLEO_F767ZI
 
         # Put lengthy tests last
 
@@ -94,7 +98,6 @@ jobs:
 
         # Non-working environment tests
         #- at90usb1286_cdc
-        #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
 

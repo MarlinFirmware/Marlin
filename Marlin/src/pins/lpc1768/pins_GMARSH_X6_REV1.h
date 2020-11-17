@@ -125,7 +125,7 @@
 //
 // LCD
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BEEPER_PIN                       P0_19
   #define BTN_EN1                          P1_23
   #define BTN_EN2                          P1_24

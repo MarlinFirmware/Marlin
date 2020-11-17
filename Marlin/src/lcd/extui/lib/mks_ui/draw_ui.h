@@ -86,13 +86,13 @@
   #include "draw_wifi_tips.h"
 #endif
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 #define FILE_SYS_USB  0
 #define FILE_SYS_SD 1
 
 #define TICK_CYCLE 1
 
-#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4a, 0x52, 0xff);
+#define PARA_SEL_ICON_TEXT_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF);
 
 #define TFT35
 
@@ -174,12 +174,12 @@ extern char public_buf_l[30];
 typedef struct {
   uint32_t spi_flash_flag;
   uint8_t disp_rotation_180;
-  uint8_t multiple_language;
+  bool multiple_language;
   uint8_t language;
   uint8_t leveling_mode;
-  uint8_t from_flash_pic;
-  uint8_t finish_power_off;
-  uint8_t pause_reprint;
+  bool from_flash_pic;
+  bool finish_power_off;
+  bool pause_reprint;
   uint8_t wifi_mode_sel;
   uint8_t fileSysType;
   uint8_t wifi_type;
@@ -198,10 +198,10 @@ typedef struct {
 } CFG_ITMES;
 
 typedef struct {
-  uint8_t curTempType : 1,
-          curSprayerChoose : 3,
-          stepHeat : 4;
-  uint8_t leveling_first_time : 1,
+  uint8_t curTempType:1,
+          curSprayerChoose:3,
+          stepHeat:4;
+  uint8_t leveling_first_time:1,
           para_ui_page:1,
           configWifi:1,
           command_send:1,
@@ -313,7 +313,8 @@ typedef enum {
   EEPROM_SETTINGS_UI,
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
-  ENCODER_SETTINGS_UI
+  ENCODER_SETTINGS_UI,
+  TOUCH_CALIBRATION_UI
 } DISP_STATE;
 
 typedef struct {
@@ -425,6 +426,8 @@ extern lv_style_t style_sel_text;
 extern lv_style_t style_para_value;
 extern lv_style_t style_para_back;
 extern lv_style_t lv_bar_style_indic;
+extern lv_style_t style_btn_pr;
+extern lv_style_t style_btn_rel;
 
 extern lv_point_t line_points[4][2];
 
@@ -447,8 +450,78 @@ extern void gCfg_to_spiFlah();
 extern void print_time_count();
 
 extern void LV_TASK_HANDLER();
-extern void lv_ex_line(lv_obj_t * line, lv_point_t *points);
+extern void lv_ex_line(lv_obj_t *line, lv_point_t *points);
 
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif
+
+// Set the same image for both Released and Pressed
+void lv_imgbtn_set_src_both(lv_obj_t *imgbtn, const void *src);
+
+// Set label styles for Released and Pressed
+void lv_imgbtn_use_label_style(lv_obj_t *imgbtn);
+
+// Set label styles for Released and Pressed
+void lv_btn_use_label_style(lv_obj_t *btn);
+
+// Set the same style for both Released and Pressed
+void lv_btn_set_style_both(lv_obj_t *btn, lv_style_t *style);
+
+// Create a screen
+lv_obj_t* lv_screen_create(DISP_STATE newScreenType, const char* title = nullptr);
+
+// Create an empty label
+lv_obj_t* lv_label_create_empty(lv_obj_t *par);
+
+// Create a label with style and text
+lv_obj_t* lv_label_create(lv_obj_t *par, const char *text);
+
+// Create a label with style, position, and text
+lv_obj_t* lv_label_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, const char *text);
+
+// Create a button with callback, ID, and Style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id, lv_style_t *style=&style_para_value);
+
+// Create a button with callback and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, ID, and style.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id, lv_style_t *style);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_value.
+lv_obj_t* lv_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with label style.
+lv_obj_t* lv_label_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID, with button style.
+lv_obj_t* lv_button_btn_create(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create a button with callback and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_event_cb_t cb, const int id=0);
+
+// Create a button with position, size, callback, and ID. Style set to style_para_back.
+lv_obj_t* lv_btn_create_back(lv_obj_t *par, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_event_cb_t cb, const int id=0);
+
+// Create an image button with image, position, callback, and ID. Use label style.
+lv_obj_t* lv_imgbtn_create(lv_obj_t *par, const char *img, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id=0);
+
+// Create a big image button with a label, follow the LVGL UI standard.
+lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, bool centerLabel = false);
+
+// Create a menu item, follow the LVGL UI standard.
+lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, bool drawArrow = true);
+lv_obj_t* lv_screen_menu_item_1_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue);
+lv_obj_t* lv_screen_menu_item_2_edit(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const char *editValue, const int idEdit2, const char *editValue2);
+lv_obj_t* lv_screen_menu_item_onoff(lv_obj_t *par, const char *text, lv_coord_t x, lv_coord_t y, lv_event_cb_t cb, const int id, const int index, const bool curValue);
+void lv_screen_menu_item_onoff_update(lv_obj_t *btn, const bool curValue);
+
+#define _DIA_1(T)       (uiCfg.dialogType == DIALOG_##T)
+#define DIALOG_IS(V...) DO(DIA,||,V)

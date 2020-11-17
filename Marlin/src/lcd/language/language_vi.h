@@ -47,7 +47,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Chính");                                // Main
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Thiết lập cấp cao");                    // Advanced Settings
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Cấu hình");                             // Configuration
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Khởi chạy tự động");                    // Autostart
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Khởi chạy tự động");                    // Autostart
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Tắt động cơ bước");                     // Disable steppers
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu gỡ lỗi");                          // Debug Menu
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Kiểm tra tiến độ");                     // Progress bar test

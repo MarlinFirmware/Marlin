@@ -39,6 +39,12 @@ def parse_pkg_uri(spec):
 FEATURE_CONFIG = {}
 
 def add_to_feat_cnf(feature, flines):
+
+	try:
+		feat = FEATURE_CONFIG[feature]
+	except:
+		FEATURE_CONFIG[feature] = {}
+
 	feat = FEATURE_CONFIG[feature]
 	atoms = re.sub(',\\s*', '\n', flines).strip().split('\n')
 	for dep in atoms:
@@ -202,7 +208,8 @@ def search_compiler():
 		for filepath in os.listdir(pathdir):
 			if not filepath.endswith(gcc):
 				continue
-
+			# Use entire path to not rely on env PATH
+			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
 				blab('Caching g++ for current env')
@@ -227,7 +234,7 @@ def load_marlin_features():
 	build_flags = env.ParseFlagsExtended(build_flags)
 
 	cxx = search_compiler()
-	cmd = [cxx]
+	cmd = ['"' + cxx + '"']
 
 	# Build flags from board.json
 	#if 'BOARD' in env:
@@ -238,7 +245,7 @@ def load_marlin_features():
 		else:
 			cmd += ['-D' + s]
 
-	cmd += ['-D__MARLIN_PREBUILD__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
+	cmd += ['-D__MARLIN_DEPS__ -w -dM -E -x c++ buildroot/share/PlatformIO/scripts/common-dependencies.h']
 	cmd = ' '.join(cmd)
 	blab(cmd)
 	define_list = subprocess.check_output(cmd, shell=True).splitlines()
