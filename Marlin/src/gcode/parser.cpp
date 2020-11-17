@@ -35,6 +35,9 @@ bool GCodeParser::volumetric_enabled;
 
 #if ENABLED(INCH_MODE_SUPPORT)
   float GCodeParser::linear_unit_factor, GCodeParser::volumetric_unit_factor;
+  #if ENABLED(STATUS_DISPLAY_INCHES)
+    bool GCodeParser::imperial_units;
+  #endif
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)

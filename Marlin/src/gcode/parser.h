@@ -74,6 +74,9 @@ public:
 
   #if ENABLED(INCH_MODE_SUPPORT)
     static float linear_unit_factor, volumetric_unit_factor;
+    #if ENABLED(STATUS_DISPLAY_INCHES)
+      static bool imperial_units;
+    #endif
   #endif
 
   #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
@@ -301,8 +304,16 @@ public:
     static inline void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         default:
-        case LINEARUNIT_MM:   linear_unit_factor =  1.0f; break;
-        case LINEARUNIT_INCH: linear_unit_factor = 25.4f; break;
+        case LINEARUNIT_MM:   linear_unit_factor =  1.0f;
+        #if ENABLED(STATUS_DISPLAY_INCHES)
+          imperial_units = false;
+        #endif
+        break;
+        case LINEARUNIT_INCH: linear_unit_factor = 25.4f;
+        #if ENABLED(STATUS_DISPLAY_INCHES)
+          imperial_units = true;
+        #endif
+        break;
       }
       volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
