@@ -1513,7 +1513,7 @@
   * 'LCD_DECIMAL_SMALL_XY' and 'XYZ_NO_FRAME'. 
   */
   //#define STATUS_DISPLAY_INCHES
-  #define INCH_MANUAL_MOVEMENT // Move axis menu moves in inches when G20 is active.
+  //#define INCH_MANUAL_MOVEMENT // 'Move Axis' menu moves in inches when G20 is active.
 #endif
 
 //
