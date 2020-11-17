@@ -214,7 +214,7 @@ void lv_draw_dialog(uint8_t type) {
   uiCfg.dialogType = type;
   scr = lv_screen_create(DIALOG_UI);
 
-  lv_obj_t *labelDialog = lv_label_create_empty(scr);
+  lv_obj_t *labelDialog = lv_label_create(scr, "");
 
   if (DIALOG_IS(TYPE_FINISH_PRINT, PAUSE_MESSAGE_RESUME)) {
       btnOk = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_ok_event_cb);

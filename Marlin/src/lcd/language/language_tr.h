@@ -57,7 +57,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Ana");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Gelişmiş Ayarlar");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Yapılandırma");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Oto. Başlat");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Oto. Başlat");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motorları Durdur");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Hata Ayıklama");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Durum Çubuğu Testi");

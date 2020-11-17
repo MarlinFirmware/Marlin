@@ -26,6 +26,13 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
+ *
+ * Substitutions are applied for the following characters when used
+ * in menu items that call lcd_put_u8str_ind_P with an index:
+ *
+ *   = displays  '0'....'10' for indexes 0 - 10
+ *   ~ displays  '1'....'11' for indexes 0 - 10
+ *   * displays 'E1'...'E11' for indexes 0 - 10 (By default. Uses LCD_FIRST_TOOL)
  */
 
 #define en 1234
@@ -57,7 +64,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Advanced Settings");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Run Auto Files");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Disable Steppers");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug Menu");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Progress Bar Test");
@@ -66,7 +73,6 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Auto Z-Align");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("G34 Iteration: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Accuracy Decreasing!");
   PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Accuracy Achieved");
@@ -78,6 +84,10 @@ namespace Language_en {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Set Home Offsets");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets Applied");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Set Origin");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assisted Tramming");
+  PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Tramming Wizard");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Select Origin");
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Last value ");
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preheat ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preheat ") PREHEAT_1_LABEL " ~";
@@ -134,6 +144,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplication");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Mirrored Copy");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Full Control");
+  PROGMEM Language_Str MSG_IDEX_DUPE_GAP                   = _UxGT("Duplicate X-Gap");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2nd Nozzle X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2nd Nozzle Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2nd Nozzle Z");
@@ -659,6 +670,17 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
+
+  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Top Left");
+    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bottom Left");
+    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Top Right");
+    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bottom Right");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Completed");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibration Failed");
+  #endif
 }
 
 #if FAN_COUNT == 1

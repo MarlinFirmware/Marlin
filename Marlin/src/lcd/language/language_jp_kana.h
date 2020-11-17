@@ -47,7 +47,7 @@ namespace Language_jp_kana {
   PROGMEM Language_Str MSG_RELEASE_MEDIA                   = _UxGT("メディアノトリダシ");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("エンドストップ");                  // "Endstops" // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("メイン");                       // "Main"
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("ジドウカイシ");                   // "Autostart"
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("ジドウカイシ");                   // "Autostart"
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("モーターデンゲン オフ");            // "Disable steppers"
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("デバッグメニュー");                // "Debug Menu"
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("プログレスバー テスト");            // "Progress Bar Test"

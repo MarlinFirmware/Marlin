@@ -468,7 +468,7 @@ private:
 
   TERN_(DELTA_AUTO_CALIBRATION, static void G33());
 
-  #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+  #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
     static void G34();
   #endif
 
@@ -541,7 +541,7 @@ private:
   static void M31();
 
   #if ENABLED(SDSUPPORT)
-    static void M32();
+    TERN_(HAS_MEDIA_SUBCALLS, static void M32());
     TERN_(LONG_FILENAME_HOST_SUPPORT, static void M33());
     #if BOTH(SDCARD_SORT_ALPHA, SDSORT_GCODE)
       static void M34();

@@ -104,6 +104,9 @@
 
 #if DO_DRAW_HOTENDS
   #define MAX_HOTEND_DRAW _MIN(HOTENDS, ((LCD_PIXEL_WIDTH - (STATUS_LOGO_BYTEWIDTH + STATUS_FAN_BYTEWIDTH) * 8) / (STATUS_HEATERS_XSPACE)))
+#endif
+
+#if EITHER(DO_DRAW_BED, DO_DRAW_HOTENDS)
   #define STATUS_HEATERS_BOT (STATUS_HEATERS_Y + STATUS_HEATERS_HEIGHT - 1)
 #endif
 
@@ -771,8 +774,14 @@ void MarlinUI::draw_status_screen() {
             mixer.update_mix_from_vtool();
             mix_label = PSTR("Mx");
           }
+
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wformat-overflow"
+
         sprintf_P(mixer_messages, PSTR(S_FMT " %d;%d%% "), mix_label, int(mixer.mix[0]), int(mixer.mix[1]));
         lcd_put_u8str(X_LABEL_POS, XYZ_BASELINE, mixer_messages);
+
+        #pragma GCC diagnostic pop
 
       #else
 

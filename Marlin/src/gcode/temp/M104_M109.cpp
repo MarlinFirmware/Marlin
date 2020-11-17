@@ -105,7 +105,7 @@ void GcodeSuite::M104() {
        * mode, for instance in a dual extruder setup, without affecting the running
        * print timer.
        */
-      thermalManager.check_timer_autostart(false, true);
+      thermalManager.auto_job_check_timer(false, true);
     #endif
   }
 
@@ -182,7 +182,7 @@ void GcodeSuite::M109() {
        * standby mode, (e.g., in a dual extruder setup) without affecting
        * the running print timer.
        */
-      thermalManager.check_timer_autostart(true, true);
+      thermalManager.auto_job_check_timer(true, true);
     #endif
 
     #if HAS_DISPLAY

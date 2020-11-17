@@ -33,6 +33,8 @@
 
 #define BOARD_INFO_NAME "MKS Robin Mini"
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
@@ -48,7 +50,7 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 //
 // Limit Switches
@@ -109,7 +111,9 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#endif
 
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_PIN_INVERTING               false
@@ -169,17 +173,17 @@
 #endif
 
 #if ENABLED(TOUCH_SCREEN)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION          12033
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X            12033
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          -9047
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            -9047
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 -30
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   -30
   #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 254
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                   254
   #endif
 #endif
 

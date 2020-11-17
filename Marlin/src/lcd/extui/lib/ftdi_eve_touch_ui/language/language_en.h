@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -119,7 +119,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CAUTION                  = u8"Caution:";
   PROGMEM Language_Str MSG_HOT                      = u8"Hot!";
   PROGMEM Language_Str MSG_UNLOAD_FILAMENT          = u8"Unload/Retract";
-  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extruder";
+  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extrude";
   PROGMEM Language_Str MSG_MOMENTARY                = u8"Momentary";
   PROGMEM Language_Str MSG_CONTINUOUS               = u8"Continuous";
   PROGMEM Language_Str MSG_PLEASE_WAIT              = u8"Please wait...";

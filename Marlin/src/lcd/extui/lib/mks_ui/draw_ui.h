@@ -86,7 +86,7 @@
   #include "draw_wifi_tips.h"
 #endif
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../inc/MarlinConfigPre.h"
 #define FILE_SYS_USB  0
 #define FILE_SYS_SD 1
 
@@ -313,7 +313,8 @@ typedef enum {
   EEPROM_SETTINGS_UI,
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
-  ENCODER_SETTINGS_UI
+  ENCODER_SETTINGS_UI,
+  TOUCH_CALIBRATION_UI
 } DISP_STATE;
 
 typedef struct {

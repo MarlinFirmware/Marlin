@@ -57,7 +57,7 @@ namespace Language_sk {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hlavná ponuka");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Pokročilé nastav.");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfigurácia");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto-štart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto-štart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Uvolniť motory");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Ponuka ladenia");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test uk. priebehu");

@@ -165,7 +165,6 @@
 // SD-NAND
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI1
   #define SD_DETECT_PIN                     -1
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6

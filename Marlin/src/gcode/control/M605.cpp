@@ -103,6 +103,10 @@
       }
       idex_set_parked(false);
       set_duplication_enabled(false);
+
+      #ifdef EVENT_GCODE_IDEX_AFTER_MODECHANGE
+        gcode.process_subcommands_now_P(PSTR(EVENT_GCODE_IDEX_AFTER_MODECHANGE));
+      #endif
     }
     else if (!parser.seen('W'))  // if no S or W parameter, the DXC mode gets reset to the user's default
       dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;

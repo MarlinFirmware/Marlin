@@ -81,7 +81,7 @@ void GcodeSuite::M140() {
        * temperatures need to be set below mintemp. Order of M140, M104, and M141
        * at the end of the print does not matter.
        */
-      thermalManager.check_timer_autostart(false, true);
+      thermalManager.auto_job_check_timer(false, true);
     #endif
   }
 }
@@ -128,7 +128,7 @@ void GcodeSuite::M190() {
 
   thermalManager.setTargetBed(temp);
 
-  TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.check_timer_autostart(true, false));
+  TERN_(PRINTJOB_TIMER_AUTOSTART, thermalManager.auto_job_check_timer(true, false));
 
   ui.set_status_P(thermalManager.isHeatingBed() ? GET_TEXT(MSG_BED_HEATING) : GET_TEXT(MSG_BED_COOLING));
 

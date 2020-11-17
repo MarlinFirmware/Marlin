@@ -43,12 +43,17 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
+#include HAL_PATH(../../../../HAL, tft/xpt2046.h)
 #include "../../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
+#endif
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../../../tft_io/touch_calibration.h"
+  #include "draw_touch_calibration.h"
 #endif
 
 #include <SPI.h>
@@ -116,17 +121,20 @@ void tft_lvgl_init() {
   ui_cfg_init();
   disp_language_init();
 
-  //init tft first!
+  watchdog_refresh();     // LVGL init takes time
+
+  // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
+  watchdog_refresh();     // LVGL init takes time
+
   //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
-    watchdog_refresh();
     UpdateAssets();
+    watchdog_refresh();   // LVGL init takes time
   #endif
 
-  watchdog_refresh();
   mks_test_get();
 
   touch.Init();
@@ -189,9 +197,11 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
+      ready = false;
       if (gCfgItems.from_flash_pic)
         flash_preview_begin = true;
       else
@@ -201,14 +211,19 @@ void tft_lvgl_init() {
 
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
-
       strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
       lv_draw_printing();
     }
-    else
   #endif
-    lv_draw_ready_print();
+
+  if (ready) {
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
+      else lv_draw_ready_print();
+    #else
+      lv_draw_ready_print();
+    #endif
+  }
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
@@ -237,17 +252,22 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 static bool get_point(int16_t *x, int16_t *y) {
   bool is_touched = touch.getRawPoint(x, y);
 
-  if (is_touched) {
-    *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-    *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
-  }
+  if (!is_touched) return false;
 
-  #if (TFT_ROTATION & TFT_ROTATE_180)
-    *x = int16_t((TFT_WIDTH) - (int)(*x));
-    *y = int16_t((TFT_HEIGHT) - (int)(*y));
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    const calibrationState state = touch_calibration.get_calibration_state();
+    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+      if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
+      return false;
+    }
+    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+  #else
+    *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+    *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
   #endif
 
-  return is_touched;
+  return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
