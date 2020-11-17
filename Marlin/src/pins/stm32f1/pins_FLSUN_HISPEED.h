@@ -50,15 +50,16 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)          // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
 
+//
 // SPI
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
-#define SPI_DEVICE                            2
+#define SPI_DEVICE 2
 
 // SPI Flash
 #define HAS_SPI_FLASH                          1
@@ -197,25 +198,24 @@
   #define POWER_LOSS_PIN                    PA2   // PW_DET (UPS) MKSPWC
 #endif
 
-//
-// 
-/**   Connector J2
+/**
+ *    Connector J2
  *      -------
  * DIO O|1   2|O  3v3
  * CSK O|3   5|O  GND
  * RST O|5   6|O  GND
  *      -------
  */
-//SW_DIO                                    PA13   //
-//SW_CLK                                    PA14   //
-//SW_RST                                    NRST   //(14)
+//#define SW_DIO                            PA13
+//#define SW_CLK                            PA14
+//#define SW_RST                            NRST   // (14)
 
 //
 // Power Supply Control
 //
 #if ENABLED(PSU_CONTROL)
   #define KILL_PIN                          PA2   // PW_DET
-  #define KILL_PIN_INVERTING                true  //
+  #define KILL_PIN_INVERTING                true
   //#define PS_ON_PIN                       PA3   // PW_CN /PW_OFF
 #endif
 
@@ -229,7 +229,7 @@
 //#define LED_PIN                           PB2   // BOOT1
 
 #if ENABLED(NEOPIXEL_LED)
-  #define LED_PWM                           PC7  // IO1
+  #define LED_PWM                           PC7   // IO1
   #ifndef NEOPIXEL_PIN
     #define NEOPIXEL_PIN                 LED_PWM  // USED WIFI IO0/IO1 PIN
   #endif
@@ -306,7 +306,6 @@
 // XPT2046 Touch Screen calibration
 #if ANY(TFT_COLOR_UI, TFT_LVGL_UI, TFT_CLASSIC_UI)
   #define TFT_BUFFER_SIZE                  14400
-
   #ifndef XPT2046_X_CALIBRATION
     #define XPT2046_X_CALIBRATION          12033
   #endif
@@ -319,7 +318,6 @@
   #ifndef XPT2046_Y_OFFSET
     #define XPT2046_Y_OFFSET                 254
   #endif
-
   #ifdef TFT_CLASSIC_UI
     #define TFT_MARLINUI_COLOR            0xFFFF  // White
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
