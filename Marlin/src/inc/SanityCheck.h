@@ -868,7 +868,20 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
- * Multi-Material-Unit requirements
+ * Sanity checking for all Průša MMU
+ */
+#ifdef SNMM
+  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif ENABLED(MK2_MULTIPLEXER)
+  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif ENABLED(PRUSA_MMU2)
+  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
+#elif ENABLED(PRUSA_MMU2_S_MODE)
+  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
+#endif
+
+/**
+ * Multi-Material-Unit 2 / SMUFF requirements
  */
 #if HAS_PRUSA_MMU2
   #if EXTRUDERS != 5
@@ -933,19 +946,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
 
-#endif
-
-/**
- * Sanity checking for all Průša MMU
- */
-#ifdef SNMM
-  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(MK2_MULTIPLEXER)
-  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
-#elif ENABLED(PRUSA_MMU2)
-  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
-#elif ENABLED(PRUSA_MMU2_S_MODE)
-  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
 #endif
 
 /**
