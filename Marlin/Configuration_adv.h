@@ -1085,8 +1085,8 @@
     //#define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
       #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
-      //#define PROBE_OFFSET_MOVE_TO_X X_BED_SIZE / 2 // uncomment if you need to move to specific X position after homing
-      //#define PROBE_OFFSET_MOVE_TO_Y Y_BED_SIZE / 2 // uncomment if you need to move to specific Y position after homing
+      //#define PROBE_OFFSET_MOVE_TO_X (X_BED_SIZE / 2) // uncomment if you need to move to specific X position after homing
+      //#define PROBE_OFFSET_MOVE_TO_Y (Y_BED_SIZE / 2) // uncomment if you need to move to specific Y position after homing
     #endif
   #endif
 
