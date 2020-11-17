@@ -60,9 +60,9 @@
 //#define CRX
 //#define ENDER5_PLUS
 
-// NOTE: Ender 5 Plus is ONLY compatible with our firmware once you have installed the LCD conversion kit
-// the stock LCD is not supported due to closed source firmware limitations on it.
-// You can get the LCD conversion kit here: https://www.th3dstudio.com/product/ender-5-plus-12864-lcd-upgrade-kit/
+// NOTE: Ender 5 Plus are CRX are ONLY compatible with our firmware once you have installed the LCD conversion kit the stock LCD is not supported due to closed source firmware limitations on them
+// Ender 5 Plus LCD Kit: https://www.th3dstudio.com/product/ender-5-plus-12864-lcd-upgrade-kit/
+// CRX LCD Kit: https://www.th3dstudio.com/product/cr-x-12864-lcd-upgrade-kit/
 
 // EZABL Probe Mounts
 //#define CR10S_OEM
