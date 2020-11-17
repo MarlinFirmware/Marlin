@@ -21,10 +21,6 @@
  */
 #pragma once
 
-/**
- * Smoothieboard pin assignments
- */
-
 #if NOT_TARGET(MCU_LPC1769)
   #error "Oops! Make sure you have the LPC1769 environment selected in your IDE."
 #endif
@@ -35,7 +31,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                          P1_26
+#define SERVO0_PIN                         P1_26
 
 
 //
