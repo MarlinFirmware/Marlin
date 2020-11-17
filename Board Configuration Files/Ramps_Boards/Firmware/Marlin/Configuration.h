@@ -16,15 +16,36 @@
 //===========================================================================
 // ****************   ARTILLERY PRINTERS 2560 CPU BOARD   *******************
 //===========================================================================
+//#define ARTILLERY_AL4
 //#define SIDEWINDER_X1
 
 // EZABL Probe Mounts
 //#define SIDEWINDER_X1_OEM
+// The AL4 Printer Carriage is 100% compatible with the Creality printer mounts.
+//#define CR10_OEM
+//#define CR10_VOLCANO
+//#define CR10_V6HEAVYDUTY
+//#define TM3DAERO
+//#define TM3DAERO_EXTENDED
+//#define PETSFANG  //This is the RIGHT mounted version - if using the left mount please use the CUSTOM_PROBE option.
+//#define EZ300_OEM_MOUNT //Enabling this will set other options for the EZ300 Prototype Printer
 //#define CUSTOM_PROBE
 
+// Sidewinder X1 Notes
 // NOTE: The Sidewinder X1 is ONLY compatible with our firmware once you have installed the LCD conversion kit
 // the stock LCD is not supported due to closed source firmware limitations on it.
 // You can get the LCD conversion kit here: https://www.th3dstudio.com/product/evonvo-artillery-sidewinder-x1-lcd-conversion-kit/
+
+// Artillery AL4 Options --------------------------------------------------------
+// If you swapped the X, Y, or Z drivers with the TMC2208s you may need to reverse your axis. Uncomment the line for each axis that needs reversing.
+// Enabling these options will also set the driver delays/modes to the TMC2208_STANDALONE mode for whatever axis you uncomment it for.
+//#define ARTILLERY_AL4_X_AXIS_TMC2208
+//#define ARTILLERY_AL4_Y_AXIS_TMC2208
+//#define ARTILLERY_AL4_Z_AXIS_TMC2208
+
+// Filament Sensor - EZOut Kit
+// If you are using our EZOut filament sensor kit on your machine uncomment the below line.
+//#define EZOUT_ENABLE
 
 //===========================================================================
 // *****************   CREALITY PRINTERS 2560 CPU BOARD   *******************
@@ -271,34 +292,79 @@
  */
 
  // Sidewinder X1 Settings
-#if ENABLED(SIDEWINDER_X1)
+#if ENABLED(SIDEWINDER_X1) || ENABLED(ARTILLERY_AL4)
+  #if ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4)
+    #define ARTILLERY_AL4_X_AXIS_TMC2208
+    #define ARTILLERY_AL4_Y_AXIS_TMC2208
+    #define EZOUT_ENABLE
+    #define CUSTOM_ESTEPS
+    #define CUSTOM_ESTEPS_VALUE 463
+    #define REVERSE_E_MOTOR_DIRECTION
+    #define CUSTOM_PRINTER_NAME
+    #define USER_PRINTER_NAME "TH3D EZ300"
+  #endif
+
   #define SERIAL_PORT 0
   #define SPACE_SAVER_2560
 
   #define STOCK_MKS_PRINTER
   #define DIRECT_DRIVE_PRINTER
 
-  #define RGB_LIGHTS
-  #define RGB_LED
-  #define RGB_LED_R_PIN 5
-  #define RGB_LED_G_PIN 4
-  #define RGB_LED_B_PIN 6
-  #define PRINTER_EVENT_LEDS
+  #if ENABLED(SIDEWINDER_X1)
+    #define RGB_LIGHTS
+    #define RGB_LED
+    #define RGB_LED_R_PIN 5
+    #define RGB_LED_G_PIN 4
+    #define RGB_LED_B_PIN 6
+    #define PRINTER_EVENT_LEDS
+  #endif
+
+  #if ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #define NEOPIXEL_TYPE   NEO_GRB
+    #define NEOPIXEL_PIN    19
+    #define NEOPIXEL_PIXELS 3
+    #define NEOPIXEL_IS_SEQUENTIAL
+    #define NEOPIXEL_BRIGHTNESS 255
+    #define PRINTER_EVENT_LEDS
+  #endif
 
   #define BAUDRATE 250000
   
-  #define MKS_MINI_12864
+  #if ENABLED(SIDEWINDER_X1)
+    #define MKS_MINI_12864
+  #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #define ENCODER_PULSES_PER_STEP 4
+    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+
   #define DEFAULT_LCD_CONTRAST 150
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_MKS_GEN_L
   #endif
 
-  #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
-  #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 463 }
+  #if ENABLED(SIDEWINDER_X1)
+    #if ENABLED(CUSTOM_ESTEPS)
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+    #else
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 463 }
+    #endif
   #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #if ENABLED(CUSTOM_ESTEPS)
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, CUSTOM_ESTEPS_VALUE }
+    #else
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 95 }
+    #endif
+  #endif
+
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 1000, 5000 }
 
@@ -319,7 +385,11 @@
 
   #define X_BED_SIZE 300
   #define Y_BED_SIZE 300
-  #define Z_MAX_POS 400
+  #if ENABLED(ARTILLERY_AL4)
+    #define Z_MAX_POS 300
+  #else
+    #define Z_MAX_POS 400
+  #endif
   
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_ADJUST_LOCATION
@@ -387,11 +457,34 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE TMC2130_STANDALONE
-  #define Y_DRIVER_TYPE TMC2130_STANDALONE
-  #define Z_DRIVER_TYPE TMC2130_STANDALONE
-  #define E0_DRIVER_TYPE TMC2130_STANDALONE
-  
+  #if ENABLED(SIDEWINDER_X1)
+    #define X_DRIVER_TYPE TMC2130_STANDALONE
+    #define Y_DRIVER_TYPE TMC2130_STANDALONE
+    #define Z_DRIVER_TYPE TMC2130_STANDALONE
+    #define E0_DRIVER_TYPE TMC2130_STANDALONE
+  #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #if ENABLED(ARTILLERY_AL4_X_AXIS_TMC2208)
+      #define X_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define X_DRIVER_TYPE  A4988
+    #endif
+    
+    #if ENABLED(ARTILLERY_AL4_Y_AXIS_TMC2208)
+      #define Y_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define Y_DRIVER_TYPE  A4988
+    #endif
+    
+    #if ENABLED(ARTILLERY_AL4_Z_AXIS_TMC2208)
+      #define Z_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define Z_DRIVER_TYPE  A4988
+    #endif
+    #define E0_DRIVER_TYPE A4988
+  #endif
+    
   #define ENDSTOP_INTERRUPTS_FEATURE
 
   #define X_ENABLE_ON 0
@@ -399,10 +492,23 @@
   #define Z_ENABLE_ON 0
   #define E_ENABLE_ON 0
 
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
+  #if ENABLED(ARTILLERY_AL4_X_AXIS_TMC2208)
+    #define INVERT_X_DIR true
+  #else
+    #define INVERT_X_DIR false
+  #endif
   
-  #define INVERT_Z_DIR true
+  #if ENABLED(ARTILLERY_AL4_Y_AXIS_TMC2208)
+    #define INVERT_Y_DIR true
+  #else
+    #define INVERT_Y_DIR false
+  #endif
+  
+  #if ENABLED(ARTILLERY_AL4_Z_AXIS_TMC2208)
+    #define INVERT_Z_DIR false
+  #else
+    #define INVERT_Z_DIR true
+  #endif
   
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
     #define INVERT_E0_DIR true
@@ -421,7 +527,10 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
-  #define FILAMENT_RUNOUT_SENSOR
+  #if ENABLED(SIDEWINDER_X1) || ENABLED(EZOUT_ENABLE)
+    #define FILAMENT_RUNOUT_SENSOR
+  #endif
+
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
