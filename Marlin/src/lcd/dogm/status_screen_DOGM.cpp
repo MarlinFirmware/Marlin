@@ -64,7 +64,7 @@
   #include "../../feature/mixing.h"
 #endif
 
-#if ENABLED(INCH_MODE_SUPPORT)
+#if ENABLED(STATUS_DISPLAY_INCHES)
   #include "../../gcode/parser.h"
 #endif
 
