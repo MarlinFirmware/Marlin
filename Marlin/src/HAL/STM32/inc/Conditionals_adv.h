@@ -20,3 +20,7 @@
  *
  */
 #pragma once
+
+#if ENABLED(USBD_USE_CDC_COMPOSITE)
+  #define HAS_SD_HOST_DRIVE 1
+#endif

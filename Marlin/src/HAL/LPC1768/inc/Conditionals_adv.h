@@ -20,3 +20,5 @@
  *
  */
 #pragma once
+
+#define HAS_SD_HOST_DRIVE 1

@@ -21,7 +21,7 @@
 #include "SPI.h"
 #include "fastio.h"
 
-#if HAS_SHARED_MEDIA
+#if HAS_SD_HOST_DRIVE
   #ifndef ONBOARD_SPI_DEVICE
     #define ONBOARD_SPI_DEVICE SPI_DEVICE
   #endif
