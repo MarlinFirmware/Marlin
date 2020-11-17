@@ -161,7 +161,9 @@
 //
 #define TEMP_0_PIN                         P0_24
 #define TEMP_1_PIN                         P0_23
-//#define TEMP_2_PIN                       P1_30  // Onboard thermistor
+#ifdef TEMP_SENSOR_CHAMBER
+  #define TEMP_CHAMBER_PIN                 P1_30  // Onboard thermistor
+#endif
 #define TEMP_BED_PIN                       P0_25
 
 //
