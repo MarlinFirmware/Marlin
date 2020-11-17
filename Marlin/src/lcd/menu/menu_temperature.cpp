@@ -108,8 +108,8 @@ void Temperature::lcd_preheat(const int16_t e, const int8_t indh, const int8_t i
 
         HOTEND_LOOP() PREHEAT_ITEMS(editable.int8, e);
         ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []() {
-          TERN_(HAS_HEATED_BED, []{ _preheat_bed(editable.int8); });
           HOTEND_LOOP() thermalManager.setTargetHotend(ui.material_preset[editable.int8].hotend_temp, e);
+          TERN(HAS_HEATED_BED, _preheat_bed(editable.int8), ui.return_to_status());
         });
 
       #endif
