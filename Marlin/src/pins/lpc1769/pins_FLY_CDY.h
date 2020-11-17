@@ -42,12 +42,12 @@
 // Limit Switches
 //
 
-  #define X_MIN_PIN                        P1_29  // X-
-  #define X_MAX_PIN                        P1_28  // X+
-  #define Y_MIN_PIN                        P1_27  // Y-
-  #define Y_MAX_PIN                        P1_25  // Y+
-  #define Z_MIN_PIN                        P1_22  // Z-
-  #define Z_MAX_PIN                        P0_27  // Z+
+#define X_MIN_PIN                          P1_29  // X-
+#define X_MAX_PIN                          P1_28  // X+
+#define Y_MIN_PIN                          P1_27  // Y-
+#define Y_MAX_PIN                          P1_25  // Y+
+#define Z_MIN_PIN                          P1_22  // Z-
+#define Z_MAX_PIN                          P0_27  // Z+
 
 
 //
@@ -112,26 +112,26 @@
 
 
 #if HAS_TMC_UART
-  #define X_SERIAL_TX_PIN                   P1_04
-  #define X_SERIAL_RX_PIN                   P1_04
+  #define X_SERIAL_TX_PIN                  P1_04
+  #define X_SERIAL_RX_PIN                  P1_04
 
-  #define Y_SERIAL_TX_PIN                   P1_10
-  #define Y_SERIAL_RX_PIN                   P1_10
+  #define Y_SERIAL_TX_PIN                  P1_10
+  #define Y_SERIAL_RX_PIN                  P1_10
 
-  #define Z_SERIAL_TX_PIN                   P1_16
-  #define Z_SERIAL_RX_PIN                   P1_16
+  #define Z_SERIAL_TX_PIN                  P1_16
+  #define Z_SERIAL_RX_PIN                  P1_16
 
-  #define E0_SERIAL_TX_PIN                  P4_28
-  #define E0_SERIAL_RX_PIN                  P4_28
+  #define E0_SERIAL_TX_PIN                 P4_28
+  #define E0_SERIAL_RX_PIN                 P4_28
 
-  #define E1_SERIAL_TX_PIN                  P2_12
-  #define E1_SERIAL_RX_PIN                  P2_12
+  #define E1_SERIAL_TX_PIN                 P2_12
+  #define E1_SERIAL_RX_PIN                 P2_12
 
-  #define E2_SERIAL_TX_PIN                  P0_10
-  #define E2_SERIAL_RX_PIN                  P0_10
+  #define E2_SERIAL_TX_PIN                 P0_10
+  #define E2_SERIAL_RX_PIN                 P0_10
 
-
-
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 
@@ -161,39 +161,32 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                          P2_07
-#define LCD_PINS_RS                         P2_10
-#define LCD_PINS_ENABLE                     P0_22
-#define LCD_PINS_D4                         P1_19
-#define LCD_PINS_D5                         P2_08
-#define LCD_PINS_D6                         P1_30
-#define LCD_PINS_D7                         P1_31
-#define BTN_EN1                             P0_00
-#define BTN_EN2                             P0_01
-#define BTN_ENC                             P0_28
+#define BEEPER_PIN                         P2_07
+#define LCD_PINS_RS                        P2_10
+#define LCD_PINS_ENABLE                    P0_22
+#define LCD_PINS_D4                        P1_19
+#define LCD_PINS_D5                        P2_08
+#define LCD_PINS_D6                        P1_30
+#define LCD_PINS_D7                        P1_31
+#define BTN_EN1                            P0_00
+#define BTN_EN2                            P0_01
+#define BTN_ENC                            P0_28
 
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
 #endif
 
- #if SD_CONNECTION_IS(ONBOARD)
-    #define SS_PIN                          P0_06
-    #define SCK_PIN                         P0_07
-    #define MISO_PIN                        P0_08
-    #define MOSI_PIN                        P0_09
-    #define SD_DETECT_PIN                   P0_05
-  #endif
-  
- #if SD_CONNECTION_IS(LCD)
-
-  #define SCK_PIN                           P0_15
-  #define MISO_PIN                          P0_17
-  #define MOSI_PIN                          P0_18
-  #define SS_PIN                            P0_16
-  #define SD_DETECT_PIN                     P2_06
-
+#if SD_CONNECTION_IS(ONBOARD)
+    #define SS_PIN                         P0_06
+    #define SCK_PIN                        P0_07
+    #define MISO_PIN                       P0_08
+    #define MOSI_PIN                       P0_09
+    #define SD_DETECT_PIN                  P0_05
+#elif SD_CONNECTION_IS(LCD)
+  #define SCK_PIN                          P0_15
+  #define MISO_PIN                         P0_17
+  #define MOSI_PIN                         P0_18
+  #define SS_PIN                           P0_16
+  #define SD_DETECT_PIN                    P2_06
 #endif
-
-
-
