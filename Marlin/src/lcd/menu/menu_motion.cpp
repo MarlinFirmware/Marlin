@@ -50,6 +50,10 @@
   float manual_move_e_origin = 0;
 #endif
 
+#if ENABLED(INCH_MANUAL_MOVEMENT)
+  #include "../../gcode/parser.h"
+#endif
+
 //
 // "Motion" > "Move Axis" submenu
 //
@@ -97,8 +101,8 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     );
     #if ENABLED(INCH_MANUAL_MOVEMENT)
       if (parser.imperial_units) {
-        pos = pos / ui.manual_move.menu_scale;
-        MenuEditItemBase::draw_edit_screen(name, ftostr63(pos));
+        float imp_pos = pos / ui.manual_move.menu_scale;
+        MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
       }
       else {
     #endif
