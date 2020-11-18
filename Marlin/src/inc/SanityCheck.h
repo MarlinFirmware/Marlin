@@ -1638,7 +1638,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
  */
 #if HEATER_0_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS)
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
-#elif HAS_HOTEND && !HAS_TEMP_HOTEND
+#elif HAS_HOTEND && !HAS_TEMP_HOTEND && !HEATER_0_DUMMY_THERMISTOR
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif EITHER(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
   #error "HEATER_1_PIN is not defined. TEMP_SENSOR_1 might not be set, or the board (not EEB / EEF?) doesn't define a pin."
@@ -1649,7 +1649,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
     #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
   #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-  #elif !ANY_PIN(TEMP_1, MAX6675_SS2)
+  #elif !ANY_PIN(TEMP_1, MAX6675_SS2) && !HEATER_1_DUMMY_THERMISTOR
     #error "TEMP_1_PIN not defined for this board."
   #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     #error "HOTENDS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT."
@@ -1659,7 +1659,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
       #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
     #elif !HAS_HEATER_2
       #error "HEATER_2_PIN not defined for this board."
-    #elif !PIN_EXISTS(TEMP_2)
+    #elif !PIN_EXISTS(TEMP_2) && !HEATER_2_DUMMY_THERMISTOR
       #error "TEMP_2_PIN not defined for this board."
     #endif
     #if HOTENDS > 3
@@ -1667,7 +1667,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
         #error "TEMP_SENSOR_3 is required with 4 or more HOTENDS."
       #elif !HAS_HEATER_3
         #error "HEATER_3_PIN not defined for this board."
-      #elif !PIN_EXISTS(TEMP_3)
+      #elif !PIN_EXISTS(TEMP_3) && !HEATER_3_DUMMY_THERMISTOR
         #error "TEMP_3_PIN not defined for this board."
       #endif
       #if HOTENDS > 4
@@ -1675,7 +1675,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
           #error "TEMP_SENSOR_4 is required with 5 or more HOTENDS."
         #elif !HAS_HEATER_4
           #error "HEATER_4_PIN not defined for this board."
-        #elif !PIN_EXISTS(TEMP_4)
+        #elif !PIN_EXISTS(TEMP_4) && !HEATER_4_DUMMY_THERMISTOR
           #error "TEMP_4_PIN not defined for this board."
         #endif
         #if HOTENDS > 5
@@ -1683,7 +1683,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
             #error "TEMP_SENSOR_5 is required with 6 HOTENDS."
           #elif !HAS_HEATER_5
             #error "HEATER_5_PIN not defined for this board."
-          #elif !PIN_EXISTS(TEMP_5)
+          #elif !PIN_EXISTS(TEMP_5) && !HEATER_5_DUMMY_THERMISTOR
             #error "TEMP_5_PIN not defined for this board."
           #endif
           #if HOTENDS > 6
@@ -1691,7 +1691,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
               #error "TEMP_SENSOR_6 is required with 6 HOTENDS."
             #elif !HAS_HEATER_6
               #error "HEATER_6_PIN not defined for this board."
-            #elif !PIN_EXISTS(TEMP_6)
+            #elif !PIN_EXISTS(TEMP_6) && !HEATER_6_DUMMY_THERMISTOR
               #error "TEMP_6_PIN not defined for this board."
             #endif
             #if HOTENDS > 7
@@ -1699,7 +1699,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
                 #error "TEMP_SENSOR_7 is required with 7 HOTENDS."
               #elif !HAS_HEATER_7
                 #error "HEATER_7_PIN not defined for this board."
-              #elif !PIN_EXISTS(TEMP_7)
+              #elif !PIN_EXISTS(TEMP_7) && !HEATER_7_DUMMY_THERMISTOR
                 #error "TEMP_7_PIN not defined for this board."
               #endif
             #elif TEMP_SENSOR_7 != 0
@@ -2759,6 +2759,8 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
 
 #if !BLOCK_BUFFER_SIZE || !IS_POWER_OF_2(BLOCK_BUFFER_SIZE)
   #error "BLOCK_BUFFER_SIZE must be a power of 2."
+#elif BLOCK_BUFFER_SIZE > 64
+  #error "A very large BLOCK_BUFFER_SIZE is not needed and takes longer to drain the buffer on pause / cancel."
 #endif
 
 #if ENABLED(LED_CONTROL_MENU) && !IS_ULTIPANEL
