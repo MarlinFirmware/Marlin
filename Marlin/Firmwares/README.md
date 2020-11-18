@@ -5,9 +5,9 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
 [![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
 
-![Group FaceBook](https://www.facebook.com/groups/120961628750040)
+[Group FaceBook](https://www.facebook.com/groups/120961628750040)
 
-![My Posts on Group FB](https://www.facebook.com/groups/120961628750040/user/100000652030417)
+[My Posts on Group FB](https://www.facebook.com/groups/120961628750040/user/100000652030417)
 
 __Not for production use. Use with caution!__
 
