@@ -1,6 +1,6 @@
 # 1. Slicers configuration files
 
-You will find here 2 type of configuration files, Cura and Prusa Slic3r config files
+You will find here 2 types of configuration files, Cura and Prusa Slic3r configuration files
 
 - [1. Slicers configuration files](#1-slicers-configuration-files)
   - [1.1. File naming convention](#11-file-naming-convention)
@@ -11,7 +11,7 @@ You will find here 2 type of configuration files, Cura and Prusa Slic3r config f
 
 We are applying this naming convention on configuration files:  
 [slicer]-[Release]-[Text]-[Version].[Extension]  
-Example: *PrusaSlicer-2.2.0_config_bundle_FLSUN_QQS-v1.ini*
+Example: *PrusaSlicer-2.2.0-config_bundle_FLSUN_QQS-v1.ini*
 
 ## 1.2. How to import Prusa Slic3r config bundle
 
