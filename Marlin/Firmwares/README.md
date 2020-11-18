@@ -57,18 +57,22 @@ Typically the probe for the QQS-Pro printers.
     ![Version Probe](images/VersionProbe.jpg)
   
   * TFT screen color Marlin
+
     ![TFT_COLOR_UI](images/UI_Color.png)
 
 Optionals:
 
   * Modules Wifi
+  
     ![ESP12](images/esp12.jpg)
     ![ESP8266](images/WemosD1.jpg)
 
   * Micro Steppinp Drivers
+  
     ![Drivers](images/MicroSteppinpDrivers.jpg)
 
   * Led Strip with additional converter 24v/12-5v
+  
     ![Neopixels](images/LedsStip.jpg)
 
 No validate:
