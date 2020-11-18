@@ -2324,7 +2324,9 @@ void Temperature::disable_all_heaters() {
     #endif
 
     // return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
-    if (HAS_MAX31865) max6675_temp = max31865_resistance;
+    #if HAS_MAX31865
+      max6675_temp = max31865_resistance;
+    #endif
 
     MAX6675_TEMP(hindex) = max6675_temp;
 
