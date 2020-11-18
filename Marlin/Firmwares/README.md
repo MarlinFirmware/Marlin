@@ -126,8 +126,6 @@ Caption:
   Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
 
 ![Final_Print](images/Final.jpg)
-
-
 ![Presentation](images/Final2.jpg)
 
 
