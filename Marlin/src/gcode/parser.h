@@ -337,6 +337,8 @@ public:
 
   #endif
 
+  static inline bool using_inch_units() { return mm_to_linear_unit(1.0f) != 1.0f; }
+
   #define LINEAR_UNIT(V)     parser.mm_to_linear_unit(V)
   #define VOLUMETRIC_UNIT(V) parser.mm_to_volumetric_unit(V)
 
