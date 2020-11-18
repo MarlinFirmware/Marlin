@@ -1626,7 +1626,7 @@ void MarlinUI::update() {
         TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
         #if ENABLED(BROWSE_MEDIA_ON_INSERT)
           quick_feedback();
-          goto_screen(TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
+          goto_screen(MEDIA_MENU_GATEWAY);
         #else
           set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
         #endif
