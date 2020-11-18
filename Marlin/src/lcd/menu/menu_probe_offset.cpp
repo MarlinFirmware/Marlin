@@ -36,6 +36,7 @@
 
 #include "menu_item.h"
 #include "menu_addon.h"
+#include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
 #include "../../module/probe.h"
@@ -120,22 +121,32 @@ void probe_offset_wizard_menu() {
   END_MENU();
 }
 
-void goto_probe_offset_wizard() {
-  ui.defer_status_screen();
+#ifdef PROBE_OFFSET_WIZARD_XY_POS
 
-  prepare_for_calibration();
+  #define HAS_PROBE_OFFSET_WIZARD_XY_POS 1
 
-  probe.offset.z = PROBE_OFFSET_START;
+  inline void goto_probe_offset_wizard() {
+    if (ui.wait_for_move) return;
+    constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
+    current_position = wizard_pos;
+    ui.wait_for_move = true;
+    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY)); // Could invoke idle()
+    ui.wait_for_move = false;
+    ui.synchronize();
+    prepare_for_calibration();
+    probe.offset.z = PROBE_OFFSET_START;
+    ui.goto_screen(probe_offset_wizard_menu);
+    ui.defer_status_screen();
+  }
 
-  set_all_unhomed();
+#endif
+
+void home_and_goto_probe_offset_wizard() {
   queue.inject_P(G28_STR);
-
   ui.goto_screen([]{
     _lcd_draw_homing();
-    if (all_axes_homed()) {
-      ui.goto_screen(probe_offset_wizard_menu);
-      ui.defer_status_screen();
-    }
+    if (all_axes_homed())
+      ui.goto_screen(TERN(HAS_PROBE_OFFSET_WIZARD_XY_POS, goto_probe_offset_wizard, probe_offset_wizard_menu));
   });
 }
 
