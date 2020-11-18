@@ -2249,7 +2249,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MAX31865
       Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      max31865_resistance = convert_rtd_resistance(maxref.readRTD(), MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1));
+      max31865_resistance = maxref.readRTD() / 32768.00 * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1);
     #endif
 
     //
@@ -2332,13 +2332,6 @@ void Temperature::disable_all_heaters() {
   }
 
 #endif // HAS_MAX6675
-
-/**
- * Calculate MAX31865 Resistance value
- */
-uint16_t Temperature::convert_rtd_resistance(const float rtd, const int16_t refResistor){
-  return (uint16_t) (rtd / 32768.00 * refResistor);
-}
 
 /**
  * Update raw temperatures
