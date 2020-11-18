@@ -1,20 +1,26 @@
-# Marlin 3D Printer Firmware for Delta QQS-Pro
+# Marlin 3D Printer Firmware for Delta QQS-Pro with HISPEEDv1 Board.
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
 [![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
 
+![Group FaceBook](https://www.facebook.com/groups/120961628750040)
+
+![My Posts on Group FB](https://www.facebook.com/groups/120961628750040/user/100000652030417)
+
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201115
-  - Validate TMC2209 mode.
+ Update Marlin-BugFix 20201118
+  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - Validate TMC2209 modes.
+  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
  Update Marlin-BugFix 20201030
   - Last correction for Black screen in UI Color
   - Correction thermal protection hysterisis.
-  - Remove part for TMC2209 UART HardwareSerial
+  - Enable mode TMC220x UART SoftSerial
   - Add comments into definition_pins file.
 
  Update Marlin-BugFix 20201022
@@ -42,13 +48,28 @@ With activate parts:
 * [AUTO_BED_LEVELING_UBL]
 * [PAUSE_BEFORE_DEPLOY_STOW]
 * [LIN_ADVANCE]
+* [ARC_SUPPORT]
 
 Typically the probe for the QQS-Pro printers.
 
   * Z Probe Offset of -16.2mm
 
     ![Version Probe](images/VersionProbe.jpg)
+  
+  * TFT screen color Marlin
+    ![TFT_COLOR_UI](images/UI_Color.png)
 
+Optionals:
+
+  * Modules Wifi
+    ![ESP12](images/esp12.jpg)
+    ![ESP8266](images/WemosD1.jpg)
+
+  * Micro Steppinp Drivers
+    ![Drivers](images/MicroSteppinpDrivers.jpg)
+
+  * Led Strip with additional converter 24v/12-5v
+    ![Neopixels](images/LedsStip.jpg)
 
 No validate:
 -TMC51
@@ -62,26 +83,23 @@ No validate:
 Caption:
 
   ### /*------Drivers--------*/
-  - (S) A4988
-  - (8) TMC2208
-  - (9) TMC2209
+  - (S) A4988 (green/red)
+  - (8) TMC2208 Standalone
+  - (9) TMC2209 Standalone
   - (U8) TMC2208_UART with no module ESP12.
   - (U9) TMC2209_UART with no module ESP12.
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
-
   ### /*------Modules--------*/
   - (W) Module ESP8266/ESP12
   - (T) Extruder Titan
   - (B) Extruder BMG
   - (N) NeoPixel
-
   ### /*-------Options UI TFT--------*/
   - (F) UI STANDARD 
   - (C) UI MARLIN 
   - (I) UI MKS
-
   ### /*-------Others options in firmware----*/ 
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
@@ -116,15 +134,12 @@ Caption:
   In your Start GCode on your Slicer.
   - M420 S1 enable bed leveling
   - M420 Lx (Load mesh_x correction)
-  And on your EndGCode remove G28 because I enable a height(270cm)  after the "HOME" where XY movement is unconstrained.
-  You can substitute this type of code:
+  And on my EndGCode I remove G28 and I substitute with this type of code:
   "{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000" 
   This works fine in PrusaSlicer (https://help .prusa3d.com/en/article/macros_1775).
   Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  **
-
-
+  **You will find some Slicer profiles in the "Slicers" directory.**
 
   # For the Wifi Module (MKS_Wifi):
 

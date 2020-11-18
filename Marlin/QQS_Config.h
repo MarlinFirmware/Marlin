@@ -61,7 +61,7 @@
 #define FILAMENT_RUNOUT_SENSOR     //NC LVGL
 #define ADVANCED_PAUSE_FEATURE     //NC LVGL
 #define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
-//#define ARC_SUPPORT                //(R)
+#define ARC_SUPPORT                //(R)
 
 //============= End_Hardware ===============//
 
