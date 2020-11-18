@@ -232,7 +232,7 @@ if [[ $CHOICE == 0 ]]; then
     while IFS= read -r LINE
     do
       if [[ $LINE =~ $ISEXEC ]]; then
-        DESC=$( "$SED" -E 's/^exec_test \$1 \$2 "(.*)" "\$3".*$/\1/g' <<<"$LINE" )
+        DESC=$( "$SED" -E 's/^exec_test \$1 \$2 "([^"]+)".*$/\1/g' <<<"$LINE" )
         (( ++IND < 10 )) && echo -n " "
         echo " $IND) $DESC"
       fi
