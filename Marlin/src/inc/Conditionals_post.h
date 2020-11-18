@@ -359,10 +359,6 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #if ENABLED(NO_SD_HOST_DRIVE)
-    #undef HAS_SD_HOST_DRIVE
-  #endif
-
   #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
@@ -383,8 +379,6 @@
       #define SD_DETECT_STATE LOW
     #endif
   #endif
-#else
-  #undef HAS_SD_HOST_DRIVE
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)

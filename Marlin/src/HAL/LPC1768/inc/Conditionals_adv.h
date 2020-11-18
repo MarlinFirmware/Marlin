@@ -21,4 +21,6 @@
  */
 #pragma once
 
-#define HAS_SD_HOST_DRIVE 1
+#if DISABLED(NO_SD_HOST_DRIVE)
+  #define HAS_SD_HOST_DRIVE 1
+#endif
