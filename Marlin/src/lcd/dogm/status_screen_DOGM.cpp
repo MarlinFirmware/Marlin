@@ -64,17 +64,17 @@
   #include "../../feature/mixing.h"
 #endif
 
-#if ENABLED(STATUS_DISPLAY_INCHES)
+#if ENABLED(INCH_MODE_SUPPORT)
   #include "../../gcode/parser.h"
 #endif
 
 #define X_LABEL_POS      3
 #define X_VALUE_POS     11
 #define XYZ_SPACING     37
-#if ENABLED(STATUS_DISPLAY_INCHES)
-  #define X_LABEL_POS_IN    -3
-  #define X_VALUE_POS_IN    -6
-  #define XYZ_SPACING_IN    10
+#if ENABLED(INCH_MODE_SUPPORT)
+  #define X_LABEL_POS_IN    -2
+  #define X_VALUE_POS_IN    -5
+  #define XYZ_SPACING_IN    9
 #endif
 #define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
@@ -380,8 +380,8 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
   const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
-  #if ENABLED(STATUS_DISPLAY_INCHES)
-    if (parser.imperial_units) {
+  #if ENABLED(INCH_MODE_SUPPORT)
+    if (parser.using_inch_units()) {
       const uint8_t offs = (XYZ_SPACING + XYZ_SPACING_IN) * a;
       lcd_put_wchar((X_LABEL_POS + X_LABEL_POS_IN) + offs, XYZ_BASELINE, axis_codes[axis]);
       lcd_moveto((X_VALUE_POS + X_VALUE_POS_IN) + offs, XYZ_BASELINE);
@@ -391,7 +391,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   const uint8_t offs = (XYZ_SPACING) * a;
   lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
   lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
-  #if ENABLED(STATUS_DISPLAY_INCHES)
+  #if ENABLED(INCH_MODE_SUPPORT)
     }
   #endif
   if (blink)
@@ -412,7 +412,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  #if ENABLED(STATUS_DISPLAY_INCHES)
+  #if ENABLED(INCH_MODE_SUPPORT)
     static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 8)], ystring[8], zstring[8];
   #else
     static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
@@ -464,8 +464,8 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     const xyz_pos_t lpos = current_position.asLogical();
-    #if ENABLED(STATUS_DISPLAY_INCHES)
-      if (parser.imperial_units)
+    #if ENABLED(INCH_MODE_SUPPORT)
+      if (parser.using_inch_units())
         strcpy(zstring, ftostr42sign((lpos.z / parser.linear_unit_factor)));
       else
     #endif
@@ -478,8 +478,8 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      #if ENABLED(STATUS_DISPLAY_INCHES)
-        if (parser.imperial_units) {
+      #if ENABLED(INCH_MODE_SUPPORT)
+        if (parser.using_inch_units()) {
           strcpy(xstring, ftostr53_63((lpos.x / parser.linear_unit_factor)));
           strcpy(ystring, ftostr53_63((lpos.y / parser.linear_unit_factor)));
         }
@@ -487,7 +487,7 @@ void MarlinUI::draw_status_screen() {
       #endif
       strcpy(xstring, ftostr4sign(lpos.x));
       strcpy(ystring, ftostr4sign(lpos.y));
-      #if ENABLED(STATUS_DISPLAY_INCHES)
+      #if ENABLED(INCH_MODE_SUPPORT)
         }
       #endif
     }
