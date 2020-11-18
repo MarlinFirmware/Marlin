@@ -7,7 +7,31 @@
 #
 
 MFINFO=$(mfinfo) || exit 1
-[[ -d Marlin/src ]] || { echo "Please 'cd' up to repo root." ; exit 1 ; }
+[[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
+
+errout() { echo "$0: $1 -- $2" ; }
+
+usage() {
+  echo "
+Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
+       mftest [-a|--autobuild]
+       mftest [-r|--rebuild]
+       mftest [-u|--autoupload] [-n|--num=<num>]
+
+OPTIONS
+  -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
+  -n --num         The index of the test to run. (In *-tests file order.)
+  -m --make        Use the make / Docker method for the build.
+  -y --build       Skip 'Do you want to build this test?' and assume YES.
+  -h --help        Print this help.
+  -a --autobuild   PIO Build using the MOTHERBOARD environment.
+  -u --autoupload  PIO Upload using the MOTHERBOARD environment.
+  -v --verbose     Extra output for debugging.
+
+env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
+
+"
+}
 
 TESTPATH=buildroot/tests
 
@@ -22,37 +46,62 @@ ISCMD='^(restore|opt|exec|use|pins|env)_'
 ISEXEC='^exec_'
 ISCONT='\\ *$'
 
-# Get the environment and test number from the command
+# Get environment, test number, etc. from the command
 TESTENV='-'
 CHOICE=0
-AUTOENV=0
+DEBUG=0
 
-usage() {
-  echo -e "$(basename $0) : Marlin Firmware test, build, and upload\n"
-  echo "Usage: $(basename $0) ................. Select env and test to apply / run"
-  echo "       $(basename $0) [-y] env ........ Select a test for env to apply / run"
-  echo "       $(basename $0) [-y] env test ... Apply / run the specified env test"
-  echo "       $(basename $0) -b [variant] .... Auto-build the specified variant"
-  echo "       $(basename $0) -u [variant] .... Auto-build and upload the specified variant"
-  echo
-  echo "env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41"
-}
-
-while getopts 'abmn:rt:vy123' flag; do
-  case "${flag}" in
-    a) AUTO_BUILD=1            ; echo "Get target via auto-build..." ;;
-    t) TEST_TARGET="${OPTARG}" ; echo "Got a target: $TEST_TARGET"   ;;
-    n) CHOICE="${OPTARG}"      ; echo "Got a number: $CHOICE"        ;;
-    r) REBUILD=1               ; echo "Rebuilding previous..."       ;;
-    m) USE_MAKE=1              ; echo "Using make with Docker..."    ;;
-    y) BUILD_YES='Y'           ; echo "Build will initiate..."       ;;
-    v) verbose='true' ;;
-   \d) echo "Number as flag?" ;;
- -h|*) usage ; exit 1 ;;
+while getopts 'abhmruv:yn:t:-:' OFLAG; do
+  case "${OFLAG}" in
+    a) AUTO_BUILD=1 ; ((DEBUG)) && echo "Auto-Build target..." ;;
+    h) EXIT_USAGE=1 ;;
+    m) USE_MAKE=1 ; ((DEBUG)) && echo "Using make with Docker..." ;;
+    n) case "$OPTARG" in
+         *[!0-9]*) errout "option requires a number" $OFLAG ; USAGE=1 ;;
+                *) CHOICE="$OPTARG" ; ((DEBUG)) && echo "Got a number: $CHOICE" ;;
+       esac
+       ;;
+    r) REBUILD=1         ; ((DEBUG)) && echo "Rebuilding previous..."    ;;
+    t) TESTENV="$OPTARG" ; ((DEBUG)) && echo "Got a target: $TESTENV" ;;
+    u) AUTO_BUILD=2      ; ((DEBUG)) && echo "Auto-Upload target..."  ;;
+    v) DEBUG=1 ;;
+    y) BUILD_YES='Y'     ; ((DEBUG)) && echo "Build will initiate..."    ;;
+    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+       case "$ONAM" in
+         help) [[ -z "$OVAL" ]] || errout "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
+    autobuild) AUTO_BUILD=1 ; ((DEBUG)) && echo "Auto-Build target..."  ;;
+   autoupload) AUTO_BUILD=2 ; ((DEBUG)) && echo "Auto-Upload target..." ;;
+          env) case "$OVAL" in
+                 '') errout "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                  *) TESTENV="$OVAL" ; ((DEBUG)) && echo "Got a target: $TESTENV" ;;
+               esac
+               ;;
+          num) case "$OVAL" in
+                 [0-9]+) CHOICE="$OVAL" ; ((DEBUG)) && echo "Got a number: $CHOICE" ;;
+                      *) errout "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+               esac
+               ;;
+      rebuild) REBUILD=1      ; ((DEBUG)) && echo "Rebuilding previous..."    ;;
+         make) USE_MAKE=1     ; ((DEBUG)) && echo "Using make with Docker..." ;;
+      verbose) DEBUG=1 ;;
+        build) case "$OVAL" in
+                 ''|y|yes) BUILD_YES='Y' ;;
+                     n|no) BUILD_YES='N' ;;
+                        *) errout "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
+               esac
+               ((DEBUG)) && echo "Build will initiate? ($BUILD_YES)"
+               ;;
+            *) errout "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
+       esac
+       ;;
   esac
 done
 
+((DEBUG)) && echo "Debug ON"
+((EXIT_USAGE)) && { usage ; exit 1 ; }
+
 if ((REBUILD)); then
+  ((DEBUG)) && echo "Rebuilding previous..."
   # Build with the last-built env
   [[ -f "$STATE_FILE" ]] || { echo "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
@@ -88,7 +137,7 @@ if ((AUTO_BUILD)); then
   #
   # List environments that apply to the current MOTHERBOARD.
   #
-  echo ; echo "Auto Build..."
+  echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
   MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
@@ -128,8 +177,8 @@ if ((AUTO_BUILD)); then
 
   echo "$TARGET" >"$STATE_FILE"
 
-  if [[ $TESTENV == "-u" ]]; then
-    echo "Build/Uploading environment $TARGET for board $MB ($BNUM)..." ; echo
+  if ((AUTO_BUILD == 2)); then
+    echo "Uploading environment $TARGET for board $MB ($BNUM)..." ; echo
     pio run -t upload -e $TARGET
   else
     echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
@@ -239,7 +288,7 @@ if [[ $BUILD_YES != 'Y' ]]; then
 fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
-  ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=1
+  ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
   ((USE_MAKE)) || pio run -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }
