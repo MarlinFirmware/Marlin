@@ -27,7 +27,7 @@ opt_set POWER_MONITOR_CURRENT_PIN 14
 opt_set POWER_MONITOR_VOLTAGE_PIN 15
 opt_set CLOSED_LOOP_ENABLE_PIN 44
 opt_set CLOSED_LOOP_MOVE_COMPLETE_PIN 45
-exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD"
+exec_test $1 $2 "Spindle, MESH_BED_LEVELING, closed loop, Power Monitor, and LCD" "$3"
 
 #
 # Test DUAL_X_CARRIAGE
@@ -39,21 +39,21 @@ opt_set EXTRUDERS 2
 opt_set TEMP_SENSOR_1 1
 opt_enable USE_XMAX_PLUG DUAL_X_CARRIAGE REPRAPWORLD_KEYPAD
 opt_set REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
-exec_test $1 $2 "TT Oscar | DUAL_X_CARRIAGE"
+exec_test $1 $2 "TT Oscar | DUAL_X_CARRIAGE" "$3"
 
 #
 # Delta Config (generic) + Probeless
 #
 use_example_configs delta/generic
 opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_AUTO_CALIBRATION DELTA_CALIBRATION_MENU
-exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBRATION_MENU"
+exec_test $1 $2 "RAMPS | DELTA | RRD LCD | DELTA_AUTO_CALIBRATION | DELTA_CALIBRATION_MENU" "$3"
 
 #
 # Delta Config (generic) + ABL bilinear + BLTOUCH
 use_example_configs delta/generic
 opt_set LCD_LANGUAGE cz
 opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU AUTO_BED_LEVELING_BILINEAR BLTOUCH
-exec_test $1 $2 "DELTA | RRD LCD | ABL Bilinear | BLTOUCH"
+exec_test $1 $2 "DELTA | RRD LCD | ABL Bilinear | BLTOUCH" "$3"
 
 # clean up
 restore_configs

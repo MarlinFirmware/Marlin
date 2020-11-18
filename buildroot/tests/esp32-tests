@@ -15,7 +15,7 @@ opt_enable WIFISUPPORT WEBSUPPORT GCODE_MACROS BAUD_RATE_GCODE M115_GEOMETRY_REP
 opt_add WIFI_SSID "\"ssid\""
 opt_add WIFI_PWD "\"password\""
 opt_set TX_BUFFER_SIZE 64
-exec_test $1 $2 "ESP32 with WIFISUPPORT and WEBSUPPORT"
+exec_test $1 $2 "ESP32 with WIFISUPPORT and WEBSUPPORT" "$3"
 
 #
 # Build with TMC drivers using hardware serial
@@ -35,7 +35,7 @@ opt_set Y_SLAVE_ADDRESS 1
 opt_set Z_SLAVE_ADDRESS 2
 opt_set E0_SLAVE_ADDRESS 3
 opt_enable HOTEND_IDLE_TIMEOUT
-exec_test $1 $2 "ESP32, TMC HW Serial, Hotend Idle"
+exec_test $1 $2 "ESP32, TMC HW Serial, Hotend Idle" "$3"
 
 # cleanup
 restore_configs
