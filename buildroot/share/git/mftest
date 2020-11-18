@@ -9,7 +9,9 @@
 MFINFO=$(mfinfo) || exit 1
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
 
-errout() { echo "$0: $1 -- $2" ; }
+perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
+errout() { echo -e "\033[0;31m$1\033[0m" ; }
+bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
 
 usage() {
   echo "
@@ -51,59 +53,58 @@ TESTENV='-'
 CHOICE=0
 DEBUG=0
 
-while getopts 'abhmruv:yn:t:-:' OFLAG; do
+while getopts 'abhmruvyn:t:-:' OFLAG; do
   case "${OFLAG}" in
-    a) AUTO_BUILD=1 ; ((DEBUG)) && echo "Auto-Build target..." ;;
+    a) AUTO_BUILD=1 ; bugout "Auto-Build target..." ;;
     h) EXIT_USAGE=1 ;;
-    m) USE_MAKE=1 ; ((DEBUG)) && echo "Using make with Docker..." ;;
+    m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
     n) case "$OPTARG" in
-         *[!0-9]*) errout "option requires a number" $OFLAG ; USAGE=1 ;;
-                *) CHOICE="$OPTARG" ; ((DEBUG)) && echo "Got a number: $CHOICE" ;;
+         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=1 ;;
+                *) CHOICE="$OPTARG" ; bugout "Got a number: $CHOICE" ;;
        esac
        ;;
-    r) REBUILD=1         ; ((DEBUG)) && echo "Rebuilding previous..."    ;;
-    t) TESTENV="$OPTARG" ; ((DEBUG)) && echo "Got a target: $TESTENV" ;;
-    u) AUTO_BUILD=2      ; ((DEBUG)) && echo "Auto-Upload target..."  ;;
-    v) DEBUG=1 ;;
-    y) BUILD_YES='Y'     ; ((DEBUG)) && echo "Build will initiate..."    ;;
+    r) REBUILD=1         ; bugout "Rebuilding previous..."    ;;
+    t) TESTENV="$OPTARG" ; bugout "Got a target: $TESTENV" ;;
+    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..."  ;;
+    v) DEBUG=1           ; bugout "Debug ON" ;;
+    y) BUILD_YES='Y'     ; bugout "Build will initiate..."    ;;
     -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
        case "$ONAM" in
-         help) [[ -z "$OVAL" ]] || errout "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
-    autobuild) AUTO_BUILD=1 ; ((DEBUG)) && echo "Auto-Build target..."  ;;
-   autoupload) AUTO_BUILD=2 ; ((DEBUG)) && echo "Auto-Upload target..." ;;
+         help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
+    autobuild) AUTO_BUILD=1 ; bugout "Auto-Build target..."  ;;
+   autoupload) AUTO_BUILD=2 ; bugout "Auto-Upload target..." ;;
           env) case "$OVAL" in
-                 '') errout "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
-                  *) TESTENV="$OVAL" ; ((DEBUG)) && echo "Got a target: $TESTENV" ;;
+                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                  *) TESTENV="$OVAL" ; bugout "Got a target: $TESTENV" ;;
                esac
                ;;
           num) case "$OVAL" in
-                 [0-9]+) CHOICE="$OVAL" ; ((DEBUG)) && echo "Got a number: $CHOICE" ;;
-                      *) errout "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                 [0-9]+) CHOICE="$OVAL" ; bugout "Got a number: $CHOICE" ;;
+                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
                esac
                ;;
-      rebuild) REBUILD=1      ; ((DEBUG)) && echo "Rebuilding previous..."    ;;
-         make) USE_MAKE=1     ; ((DEBUG)) && echo "Using make with Docker..." ;;
-      verbose) DEBUG=1 ;;
+      rebuild) REBUILD=1      ; bugout "Rebuilding previous..."    ;;
+         make) USE_MAKE=1     ; bugout "Using make with Docker..." ;;
+debug|verbose) DEBUG=1        ; bugout "Debug ON" ;;
         build) case "$OVAL" in
                  ''|y|yes) BUILD_YES='Y' ;;
                      n|no) BUILD_YES='N' ;;
-                        *) errout "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
+                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
                esac
-               ((DEBUG)) && echo "Build will initiate? ($BUILD_YES)"
+               bugout "Build will initiate? ($BUILD_YES)"
                ;;
-            *) errout "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
+            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
        esac
        ;;
   esac
 done
 
-((DEBUG)) && echo "Debug ON"
 ((EXIT_USAGE)) && { usage ; exit 1 ; }
 
 if ((REBUILD)); then
-  ((DEBUG)) && echo "Rebuilding previous..."
+  bugout "Rebuilding previous..."
   # Build with the last-built env
-  [[ -f "$STATE_FILE" ]] || { echo "No previous (-r) build state found." ; exit 1 ; }
+  [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
   read TESTENV <"$STATE_FILE"
   pio run -d . -e $TESTENV
   exit
@@ -145,7 +146,7 @@ if ((AUTO_BUILD)); then
   BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
   [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
   ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:[^ ]+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' ) )
-  [[ -z $ENVS ]] && { echo "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
+  [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
   ECOUNT=${#ENVS[*]}
 
   if [[ $ECOUNT == 1 ]]; then
@@ -163,7 +164,7 @@ if ((AUTO_BUILD)); then
           read -p "Select a target for '$MB' (1-$ECOUNT) : " CHOICE
           [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
           [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= ECOUNT)) && break
-          echo ">>> Invalid environment choice '$CHOICE'."
+          errout ">>> Invalid environment choice '$CHOICE'."
         done
         echo
       fi
@@ -208,20 +209,20 @@ if [[ $TESTENV == '-' ]]; then
   for (( ; ; ))
   do
     read -p "Select a test to apply (1-$IND) : " NAMEIND
-    [[ -z "$NAMEIND" ]] && { echo '(canceled)' ; exit 1 ; }
+    [[ -z "$NAMEIND" ]] && { errout "(canceled)" ; exit 1 ; }
     [[ $NAMEIND =~ $ISNUM ]] && ((NAMEIND >= 1 && NAMEIND <= IND)) && { TESTENV=${NAMES[$NAMEIND-1]} ; echo ; break ; }
-    echo "Invalid selection."
+    errout "Invalid selection."
   done
 fi
 
 # Get the contents of the test file
-OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { echo "Can't find test '$TESTENV'." ; exit 1 ; }
+OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
 
 # Count up the number of tests
 TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
 
 # User entered a number?
-(( CHOICE && CHOICE > TESTCOUNT )) && { echo "Invalid test selection '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
+(( CHOICE && CHOICE > TESTCOUNT )) && { errout "Invalid test selection '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
 
 if [[ $CHOICE == 0 ]]; then
   #
@@ -243,9 +244,9 @@ if [[ $CHOICE == 0 ]]; then
     for (( ; ; ))
     do
       read -p "Select a '$TESTENV' test (1-$TESTCOUNT) : " CHOICE
-      [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
+      [[ -z "$CHOICE" ]] && { errout "(canceled)" ; exit 1 ; }
       [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= TESTCOUNT)) && break
-      echo ">>> Invalid test selection '$CHOICE'."
+      errout ">>> Invalid test selection '$CHOICE'."
     done
   fi
 fi
@@ -253,6 +254,7 @@ fi
 #
 # Run the specified test lines
 #
+echo -ne "\033[0;33m"
 echo "$OUT" | {
   IND=0
   GOTX=0
@@ -270,19 +272,20 @@ echo "$OUT" | {
         }
         ((IND == CHOICE)) && {
           GOTX=1
-          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' )
-          [[ $LINE =~ $ISCONT ]] || { echo $CMD ; eval "$CMD" ; CMD="" ; }
+          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' | $SED -E 's/ +/ /g' )
+          [[ $LINE =~ $ISCONT ]] || { echo "$CMD" ; eval "$CMD" ; CMD="" ; }
         }
       fi
     fi
   done
 }
+echo -ne "\033[0m"
 
 # Make clear it's a TEST
 opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
 
 # Build the test too?
-if [[ $BUILD_YES != 'Y' ]]; then
+if [[ -z "$BUILD_YES" ]]; then
   echo
   read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
 fi
