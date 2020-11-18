@@ -15,7 +15,7 @@ opt_set SERIAL_PORT -1
 opt_enable BLTOUCH Z_SAFE_HOMING SPEAKER
 opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2208
-exec_test $1 $2 "Mixed timer usage"
+exec_test $1 $2 "Mixed timer usage" "$3"
 
 # clean up
 restore_configs
