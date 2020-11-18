@@ -122,7 +122,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(NO_SD_HOST_DRIVE)
+  #if HAS_SD_HOST_DRIVE
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 
@@ -140,7 +140,7 @@ void HAL_init() {
 
 // HAL idle task
 void HAL_idletask() {
-  #if HAS_SHARED_MEDIA
+  #if HAS_SD_HOST_DRIVE
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but
