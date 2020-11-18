@@ -101,7 +101,7 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
     );
     #if ENABLED(INCH_MANUAL_MOVEMENT)
       if (parser.imperial_units) {
-        float imp_pos = pos / ui.manual_move.menu_scale;
+        float imp_pos = pos / parser.linear_unit_factor;
         MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
       }
       else {
