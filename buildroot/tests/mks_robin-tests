@@ -8,7 +8,7 @@
 set -e
 
 use_example_configs Mks/Robin
-exec_test $1 $2 "MKS Robin config (FSMC Color UI)"
+exec_test $1 $2 "MKS Robin config (FSMC Color UI)" "$3"
 
 # cleanup
 restore_configs

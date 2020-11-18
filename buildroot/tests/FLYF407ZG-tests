@@ -12,7 +12,7 @@ opt_set MOTHERBOARD BOARD_FLYF407ZG
 opt_set SERIAL_PORT -1
 opt_set X_DRIVER_TYPE TMC2208
 opt_set Y_DRIVER_TYPE TMC2130
-exec_test $1 $2 "FLYF407ZG Default Config with mixed TMC Drivers"
+exec_test $1 $2 "FLYF407ZG Default Config with mixed TMC Drivers" "$3"
 
 # cleanup
 restore_configs

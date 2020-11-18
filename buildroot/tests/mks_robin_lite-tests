@@ -11,7 +11,7 @@ opt_set MOTHERBOARD BOARD_MKS_ROBIN_LITE
 opt_set SERIAL_PORT 1
 opt_enable EEPROM_SETTINGS
 opt_enable SDSUPPORT
-exec_test $1 $2 "Default Configuration with Fallback SD EEPROM"
+exec_test $1 $2 "Default Configuration with Fallback SD EEPROM" "$3"
 
 # cleanup
 restore_configs

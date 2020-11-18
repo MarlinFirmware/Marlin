@@ -15,7 +15,7 @@ opt_set X_DRIVER_TYPE TMC2209
 opt_set Y_DRIVER_TYPE TMC2130
 opt_set TEMP_SENSOR_BED 1
 opt_disable THERMAL_PROTECTION_HOTENDS
-exec_test $1 $2 "MKS Robin Pro, TMC Drivers, no thermal protection"
+exec_test $1 $2 "MKS Robin Pro, TMC Drivers, no thermal protection" "$3"
 
 # cleanup
 restore_configs

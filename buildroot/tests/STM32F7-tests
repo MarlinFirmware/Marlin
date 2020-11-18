@@ -12,7 +12,7 @@ set -e
 restore_configs
 opt_set MOTHERBOARD BOARD_REMRAM_V1
 opt_set SERIAL_PORT 1
-exec_test $1 $2 "Default Configuration"
+exec_test $1 $2 "Default Configuration" "$3"
 
 # clean up
 restore_configs

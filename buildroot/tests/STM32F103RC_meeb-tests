@@ -17,7 +17,7 @@ opt_set X_DRIVER_TYPE TMC2208
 opt_set Y_DRIVER_TYPE TMC2208
 opt_set Z_DRIVER_TYPE TMC2208
 opt_set E0_DRIVER_TYPE TMC2208
-exec_test $1 $2 "MEEB_3DP - Basic Config with TMC2208 SW Serial"
+exec_test $1 $2 "MEEB_3DP - Basic Config with TMC2208 SW Serial" "$3"
 
 # clean up
 restore_configs

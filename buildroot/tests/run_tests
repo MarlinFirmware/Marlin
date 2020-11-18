@@ -10,11 +10,27 @@ set -e
 
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
-  if platformio run --project-dir $1 -e $2 --silent; then
+  # Check to see if we should skip tests
+  if [[ -n "$4" ]] ; then
+    if [[ ! "$3" =~ $4 ]] ; then
+      printf "\033[1;33mSkipped\033[0m\n"
+      return 0
+    fi
+  fi
+  if [[ -z "$VERBOSE_PLATFORMIO" ]] ; then
+    silent="--silent"
+  else
+    silent=""
+  fi
+  if platformio run --project-dir $1 -e $2 $silent; then
     printf "\033[0;32mPassed\033[0m\n"
     return 0
   else
-    git reset --hard HEAD
+    if [[ -n $GIT_RESET_HARD ]]; then
+      git reset --hard HEAD
+    else
+      restore_configs
+    fi
     printf "\033[0;31mFailed!\033[0m\n"
     return 1
   fi
@@ -30,12 +46,32 @@ if [[ $2 = "ALL" ]]; then
     testenv=$(basename $f | cut -d"-" -f1)
     printf "Running \033[0;32m$f\033[0m Tests\n"
     exec_test $1 "$testenv --target clean" "Setup Build Environment"
-    $f $1 $testenv
-    git reset --hard HEAD
+    if [[ $GIT_RESET_HARD == "true" ]]; then
+      git reset --hard HEAD
+    else
+      restore_configs
+    fi
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
-  $2-tests $1 $2
-  git reset --hard HEAD
+  test_name="$3"
+  # If the test name is 1 or 2 digits, treat it as an index
+  if [[ "$test_name" =~ ^[0-9][0-9]?$ ]] ; then
+    # Find the test name that corresponds to that index
+    test_name="$(cat buildroot/tests/$2-tests | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
+    if [[ -z "$test_name" ]] ; then
+      # Fail if none matches
+      printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2-tests\n"
+      exit 1
+    else
+      printf "\033[0;32mMatching test \033[0m#$3\033[0;32m: '\033[0m$test_name\033[0;32m'\n"
+    fi
+  fi
+  $2-tests $1 $2 "$test_name"
+  if [[ $GIT_RESET_HARD == "true" ]]; then
+    git reset --hard HEAD
+  else
+    restore_configs
+  fi
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"

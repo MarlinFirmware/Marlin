@@ -17,7 +17,7 @@ restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
 opt_enable VIKI2 SDSUPPORT SDCARD_READONLY SERIAL_PORT_2 NEOPIXEL_LED
 opt_set NEOPIXEL_PIN P1_16
-exec_test $1 $2 "ReARM EFB VIKI2, SDSUPPORT, 2 Serial ports (USB CDC + UART0), NeoPixel"
+exec_test $1 $2 "ReARM EFB VIKI2, SDSUPPORT, 2 Serial ports (USB CDC + UART0), NeoPixel" "$3"
 
 #restore_configs
 #use_example_configs Mks/Sbase
@@ -30,7 +30,7 @@ opt_set TEMP_SENSOR_1 1
 opt_set NUM_SERVOS 2
 opt_set SERVO_DELAY "{ 300, 300 }"
 opt_enable SWITCHING_NOZZLE SWITCHING_NOZZLE_E1_SERVO_NR ULTIMAKERCONTROLLER
-exec_test $1 $2 "MKS SBASE with SWITCHING_NOZZLE"
+exec_test $1 $2 "MKS SBASE with SWITCHING_NOZZLE" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EEB
@@ -47,7 +47,7 @@ opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT ADAPTIVE_FAN_
            LCD_INFO_MENU ARC_SUPPORT BEZIER_CURVE_SUPPORT EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES SDCARD_SORT_ALPHA EMERGENCY_PARSER
 opt_set GRID_MAX_POINTS_X 16
 opt_set NOZZLE_TO_PROBE_OFFSET "{ 0, 0, 0 }"
-exec_test $1 $2 "Re-ARM with NOZZLE_AS_PROBE and many features."
+exec_test $1 $2 "Re-ARM with NOZZLE_AS_PROBE and many features." "$3"
 
 # clean up
 restore_configs

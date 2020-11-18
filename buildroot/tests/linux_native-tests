@@ -13,7 +13,7 @@ restore_configs
 opt_set MOTHERBOARD BOARD_LINUX_RAMPS
 opt_set TEMP_SENSOR_BED 1
 opt_enable PIDTEMPBED EEPROM_SETTINGS BAUD_RATE_GCODE
-exec_test $1 $2 "Linux with EEPROM"
+exec_test $1 $2 "Linux with EEPROM" "$3"
 
 # cleanup
 restore_configs

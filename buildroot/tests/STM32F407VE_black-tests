@@ -9,7 +9,7 @@ set -e
 restore_configs
 use_example_configs STM32/Black_STM32F407VET6
 opt_enable BAUD_RATE_GCODE
-exec_test $1 $2 "Full-featured Sample Black STM32F407VET6 config"
+exec_test $1 $2 "Full-featured Sample Black STM32F407VET6 config" "$3"
 
 # cleanup
 restore_configs
