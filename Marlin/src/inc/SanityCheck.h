@@ -804,7 +804,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
   #if !PIN_EXISTS(FIL_RUNOUT)
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif NUM_RUNOUT_SENSORS > E_STEPPERS
-    #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
+    #if HAS_PRUSA_MMU2
+      #error "NUM_RUNOUT_SENSORS must be 1 with MMU2 / MMU2S."
+    #else
+      #error "NUM_RUNOUT_SENSORS cannot exceed the number of E steppers."
+    #endif
   #elif NUM_RUNOUT_SENSORS >= 2 && !PIN_EXISTS(FIL_RUNOUT2)
     #error "FIL_RUNOUT2_PIN is required with NUM_RUNOUT_SENSORS >= 2."
   #elif NUM_RUNOUT_SENSORS >= 3 && !PIN_EXISTS(FIL_RUNOUT3)
@@ -868,6 +872,42 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
 #endif
 
 /**
+ * Sanity checking for all Průša MMU
+ */
+#ifdef SNMM
+  #error "SNMM is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif ENABLED(MK2_MULTIPLEXER)
+  #error "MK2_MULTIPLEXER is obsolete. Define MMU_MODEL as PRUSA_MMU1 instead."
+#elif ENABLED(PRUSA_MMU2)
+  #error "PRUSA_MMU2 is obsolete. Define MMU_MODEL as PRUSA_MMU2 instead."
+#elif ENABLED(PRUSA_MMU2_S_MODE)
+  #error "PRUSA_MMU2_S_MODE is obsolete. Define MMU_MODEL as PRUSA_MMU2S instead."
+#endif
+
+/**
+ * Multi-Material-Unit 2 / SMUFF requirements
+ */
+#if HAS_PRUSA_MMU2
+  #if EXTRUDERS != 5
+    #undef SINGLENOZZLE
+    #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
+  #elif DISABLED(NOZZLE_PARK_FEATURE)
+    #error "PRUSA_MMU2(S) requires NOZZLE_PARK_FEATURE. Enable it to continue."
+  #elif HAS_PRUSA_MMU2S && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "PRUSA_MMU2S requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif ENABLED(MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
+    #error "MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
+  #elif ENABLED(MMU_EXTRUDER_SENSOR) && !HAS_LCD_MENU
+    #error "MMU_EXTRUDER_SENSOR requires an LCD supporting MarlinUI to be enabled."
+  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
+    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2(S) / SMUFF_EMU_MMU2(S).");
+  #endif
+#endif
+#if HAS_SMUFF && EXTRUDERS > 12
+  #error "Too many extruders for SMUFF_EMU_MMU2(S). (12 maximum)."
+#endif
+
+/**
  * Options only for EXTRUDERS > 1
  */
 #if HAS_MULTI_EXTRUDER
@@ -902,17 +942,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "TOOLCHANGE_ZRAISE required for EXTRUDERS > 1."
   #endif
 
-#elif ENABLED(MK2_MULTIPLEXER)
-  #error "MK2_MULTIPLEXER requires 2 or more EXTRUDERS."
-#elif ENABLED(SINGLENOZZLE)
-  #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
-#endif
+#elif HAS_PRUSA_MMU1 || HAS_SMUFF
 
-/**
- * Sanity checking for the Průša MK2 Multiplexer
- */
-#ifdef SNMM
-  #error "SNMM is now MK2_MULTIPLEXER."
+  #error "Multi-Material-Unit requires 2 or more EXTRUDERS."
+
+#elif ENABLED(SINGLENOZZLE)
+
+  #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+
 #endif
 
 /**
@@ -1870,48 +1907,46 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Test Extruder Stepper Pins
  */
-#if DISABLED(MK2_MULTIPLEXER) // MK2_MULTIPLEXER uses E0 stepper only
-  #if E_STEPPERS
-    #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
-      #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+#if E_STEPPERS
+  #if !(PINS_EXIST(E0_STEP, E0_DIR) && HAS_E0_ENABLE)
+    #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
+  #endif
+  #if E_STEPPERS > 1
+    #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
+      #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
     #endif
-    #if E_STEPPERS > 1
-      #if !(PINS_EXIST(E1_STEP, E1_DIR) && HAS_E1_ENABLE)
-        #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
+    #if E_STEPPERS > 2
+      #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
+        #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
       #endif
-      #if E_STEPPERS > 2
-        #if !(PINS_EXIST(E2_STEP, E2_DIR) && HAS_E2_ENABLE)
-          #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
+      #if E_STEPPERS > 3
+        #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
+          #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
         #endif
-        #if E_STEPPERS > 3
-          #if !(PINS_EXIST(E3_STEP, E3_DIR) && HAS_E3_ENABLE)
-            #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
+        #if E_STEPPERS > 4
+          #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
+            #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
           #endif
-          #if E_STEPPERS > 4
-            #if !(PINS_EXIST(E4_STEP, E4_DIR) && HAS_E4_ENABLE)
-              #error "E4_STEP_PIN, E4_DIR_PIN, or E4_ENABLE_PIN not defined for this board."
+          #if E_STEPPERS > 5
+            #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
+              #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
             #endif
-            #if E_STEPPERS > 5
-              #if !(PINS_EXIST(E5_STEP, E5_DIR) && HAS_E5_ENABLE)
-                #error "E5_STEP_PIN, E5_DIR_PIN, or E5_ENABLE_PIN not defined for this board."
+            #if E_STEPPERS > 6
+              #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
+                #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
               #endif
-              #if E_STEPPERS > 6
-                #if !(PINS_EXIST(E6_STEP, E6_DIR) && HAS_E6_ENABLE)
-                  #error "E6_STEP_PIN, E6_DIR_PIN, or E6_ENABLE_PIN not defined for this board."
+              #if E_STEPPERS > 7
+                #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
+                  #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
                 #endif
-                #if E_STEPPERS > 7
-                  #if !(PINS_EXIST(E7_STEP, E7_DIR) && HAS_E7_ENABLE)
-                    #error "E7_STEP_PIN, E7_DIR_PIN, or E7_ENABLE_PIN not defined for this board."
-                  #endif
-                #endif // E_STEPPERS > 7
-              #endif // E_STEPPERS > 6
-            #endif // E_STEPPERS > 5
-          #endif // E_STEPPERS > 4
-        #endif // E_STEPPERS > 3
-      #endif // E_STEPPERS > 2
-    #endif // E_STEPPERS > 1
-  #endif // E_STEPPERS
-#endif
+              #endif // E_STEPPERS > 7
+            #endif // E_STEPPERS > 6
+          #endif // E_STEPPERS > 5
+        #endif // E_STEPPERS > 4
+      #endif // E_STEPPERS > 3
+    #endif // E_STEPPERS > 2
+  #endif // E_STEPPERS > 1
+#endif // E_STEPPERS
 
 /**
  * Endstop Tests
@@ -2974,23 +3009,6 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
     #error "PHOTO_SWITCH_MS is required with CHDK_PIN."
   #elif defined(PHOTO_RETRACT_MM)
     static_assert(PHOTO_RETRACT_MM + 0 >= 0, "PHOTO_RETRACT_MM must be >= 0.");
-  #endif
-#endif
-
-/**
- * Průša MMU2 requirements
- */
-#if ENABLED(PRUSA_MMU2)
-  #if EXTRUDERS != 5
-    #error "PRUSA_MMU2 requires EXTRUDERS = 5."
-  #elif DISABLED(NOZZLE_PARK_FEATURE)
-    #error "PRUSA_MMU2 requires NOZZLE_PARK_FEATURE. Enable it to continue."
-  #elif EITHER(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR) && DISABLED(FILAMENT_RUNOUT_SENSOR)
-    #error "PRUSA_MMU2_S_MODE or MMU_EXTRUDER_SENSOR requires FILAMENT_RUNOUT_SENSOR. Enable it to continue."
-  #elif BOTH(PRUSA_MMU2_S_MODE, MMU_EXTRUDER_SENSOR)
-    #error "Enable only one of PRUSA_MMU2_S_MODE or MMU_EXTRUDER_SENSOR."
-  #elif DISABLED(ADVANCED_PAUSE_FEATURE)
-    static_assert(nullptr == strstr(MMU2_FILAMENT_RUNOUT_SCRIPT, "M600"), "ADVANCED_PAUSE_FEATURE is required to use M600 with PRUSA_MMU2.");
   #endif
 #endif
 

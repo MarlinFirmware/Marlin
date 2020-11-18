@@ -360,7 +360,7 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
+  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -381,7 +381,6 @@
       #define SD_DETECT_STATE LOW
     #endif
   #endif
-
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
@@ -2603,6 +2602,10 @@
   #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
     #define BLTOUCH_DELAY 500
   #endif
+#endif
+
+#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
