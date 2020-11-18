@@ -73,10 +73,6 @@
   #include "../feature/solenoid.h"
 #endif
 
-#if ENABLED(MK2_MULTIPLEXER)
-  #include "../feature/snmm.h"
-#endif
-
 #if ENABLED(MIXING_EXTRUDER)
   #include "../feature/mixing.h"
 #endif
@@ -89,8 +85,10 @@
   #include "../feature/fanmux.h"
 #endif
 
-#if ENABLED(PRUSA_MMU2)
-  #include "../feature/mmu2/mmu2.h"
+#if HAS_PRUSA_MMU1
+  #include "../feature/mmu/mmu.h"
+#elif HAS_PRUSA_MMU2
+  #include "../feature/mmu/mmu2.h"
 #endif
 
 #if HAS_LCD_MENU
@@ -863,7 +861,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       mixer.T(new_tool);
     #endif
 
-  #elif ENABLED(PRUSA_MMU2)
+  #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
 
@@ -1171,8 +1169,6 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
       #endif
 
-      TERN_(PRUSA_MMU2, mmu2.tool_change(new_tool));
-
       TERN_(SWITCHING_NOZZLE_TWO_SERVOS, lower_nozzle(new_tool));
 
     } // (new_tool != old_tool)
@@ -1184,7 +1180,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       enable_solenoid_on_active_extruder();
     #endif
 
-    #if ENABLED(MK2_MULTIPLEXER)
+    #if HAS_PRUSA_MMU1
       if (new_tool >= E_STEPPERS) return invalid_extruder_error(new_tool);
       select_multiplexed_stepper(new_tool);
     #endif
