@@ -25,8 +25,8 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 8 || E_STEPPERS > 8
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
-#elif HOTENDS > MAX_EXTRUDERS || E_STEPPERS > MAX_EXTRUDERS
-  #error "Marlin extruder/hotends limit! Increase MAX_EXTRUDERS to continue."
+#elif HOTENDS > MAX_E_STEPPERS || E_STEPPERS > MAX_E_STEPPERS
+  #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
