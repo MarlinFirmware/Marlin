@@ -125,7 +125,13 @@ Caption:
   This works fine in PrusaSlicer (https://help .prusa3d.com/en/article/macros_1775).
   Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  **You will find some Slicer profiles in the "Slicers" directory.**
+![Final_Print](images/Final.jpg)
+
+
+![Presentation](images/Final2.jpg)
+
+
+  **You will find some Slicer profiles in the "Slicers" directory.(in progresss...)** 
 
   # For the Wifi Module (MKS_Wifi):
 
