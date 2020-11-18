@@ -45,7 +45,7 @@ char *GCodeParser::command_ptr,
      *GCodeParser::string_arg,
      *GCodeParser::value_ptr;
 char GCodeParser::command_letter;
-int GCodeParser::codenum;
+uint16_t GCodeParser::codenum;
 
 #if ENABLED(USE_GCODE_SUBCODES)
   uint8_t GCodeParser::subcode;
@@ -270,7 +270,7 @@ void GCodeParser::parse(char *p) {
 
     // Special handling for M32 [P] !/path/to/file.g#
     // The path must be the last parameter
-    if (param == '!' && letter == 'M' && codenum == 32) {
+    if (param == '!' && is_command('M', 32)) {
       string_arg = p;                           // Name starts after '!'
       char * const lb = strchr(p, '#');         // Already seen '#' as SD char (to pause buffering)
       if (lb) *lb = '\0';                       // Safe to mark the end of the filename
