@@ -42,7 +42,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef USE_USB_COMPOSITE
+#if HAS_SD_HOST_DRIVE
   #include "msc_sd.h"
 #endif
 
@@ -61,7 +61,7 @@
 #endif
 
 #ifdef SERIAL_USB
-  #ifndef USE_USB_COMPOSITE
+  #if !HAS_SD_HOST_DRIVE
     #define UsbSerial Serial
   #else
     #define UsbSerial MarlinCompositeSerial

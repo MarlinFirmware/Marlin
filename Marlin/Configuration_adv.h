@@ -637,6 +637,9 @@
 
   // Default x offset in duplication mode (typically set to half print bed width)
   #define DEFAULT_DUPLICATION_X_OFFSET 100
+
+  // Default action to execute following M605 mode change commands. Typically G28X to apply new mode.
+  //#define EVENT_GCODE_IDEX_AFTER_MODECHANGE "G28X"
 #endif
 
 // Activate a solenoid on the active extruder with M380. Disable all with M381.
@@ -1082,6 +1085,7 @@
     //#define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
       #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
+      //#define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER // Set a convenient position to do the measurement
     #endif
   #endif
 
@@ -1188,6 +1192,8 @@
   #define SD_MENU_CONFIRM_START             // Confirm the selected SD file before printing
 
   //#define MENU_ADDAUTOSTART               // Add a menu option to run auto#.g files
+
+  //#define BROWSE_MEDIA_ON_INSERT          // Open the file browser when media is inserted
 
   #define EVENT_GCODE_SD_ABORT "G28XY"      // G-code to run on SD Abort Print (e.g., "G28XY" or "G27")
 
@@ -3444,7 +3450,7 @@
   #define GANTRY_CALIBRATION_FEEDRATE         500     // Feedrate for correction move
   //#define GANTRY_CALIBRATION_TO_MIN                 // Enable to calibrate Z in the MIN direction
 
-  //#define GANTRY_CALIBRATION_SAFE_POSITION  { X_CENTER, Y_CENTER } // Safe position for nozzle
+  //#define GANTRY_CALIBRATION_SAFE_POSITION XY_CENTER // Safe position for nozzle
   //#define GANTRY_CALIBRATION_XY_PARK_FEEDRATE 3000  // XY Park Feedrate - MMM
   //#define GANTRY_CALIBRATION_COMMANDS_PRE   ""
   #define GANTRY_CALIBRATION_COMMANDS_POST  "G28"     // G28 highly recommended to ensure an accurate position
