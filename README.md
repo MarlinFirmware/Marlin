@@ -12,7 +12,7 @@ Phisically move connections from privious install:
 This is a build of the current 2.0.x (2.0.6.1 as of the september 2nd) Marlin with settings for the Haribo Build on Franks3DShop Youtube channel https://youtu.be/LdET-DzsB4g
 Features:
 - BLTOUCH auto bed leveling
-- Character display REPRAP_DISCOUNT_SMART_CONTROLLER
+- Character based display REPRAP_DISCOUNT_SMART_CONTROLLER
 - MAX7219 debug display
 - Linear Advance
 - Sensorless Homing (TMC2130 SPI)
