@@ -806,6 +806,7 @@ class Temperature {
   private:
     static void update_raw_temperatures();
     static void updateTemperaturesFromRawValues();
+    static uint16_t convert_rtd_resistance(const float rtd, const int16_t refResistor);
 
     #define HAS_MAX6675 EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675)
     #if HAS_MAX6675

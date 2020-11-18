@@ -2204,6 +2204,7 @@ void Temperature::disable_all_heaters() {
       #define MAX6675_SPEED_BITS    3       // (_BV(SPR1)) // clock ÷ 64
     #elif HAS_MAX31865
       static uint16_t max6675_temp = 2000;  // From datasheet 16 bits D15-D0
+      static uint16_t max31865_resistance = 2000; 
       #define MAX6675_ERROR_MASK    1       // D0 Bit not used
       #define MAX6675_DISCARD_BITS  1       // Data is in D15-D1
       #define MAX6675_SPEED_BITS    3       //  (_BV(SPR1)) // clock ÷ 64
@@ -2248,10 +2249,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MAX31865
       Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      max6675_temp = int(maxref.temperature(
-        MAX6675_SEL(MAX31865_SENSOR_OHMS_0, MAX31865_SENSOR_OHMS_1),
-        MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)
-      ));
+      max31865_resistance = convert_rtd_resistance(maxref.readRTD(), MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1));
     #endif
 
     //
@@ -2325,12 +2323,22 @@ void Temperature::disable_all_heaters() {
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
+    // return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
+    if (HAS_MAX31865) max6675_temp = max31865_resistance;
+
     MAX6675_TEMP(hindex) = max6675_temp;
 
     return int(max6675_temp);
   }
 
 #endif // HAS_MAX6675
+
+/**
+ * Calculate MAX31865 Resistance value
+ */
+uint16_t Temperature::convert_rtd_resistance(const float rtd, const int16_t refResistor){
+  return (uint16_t) (rtd / 32768.00 * refResistor);
+}
 
 /**
  * Update raw temperatures
