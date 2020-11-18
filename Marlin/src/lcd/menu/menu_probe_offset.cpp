@@ -127,15 +127,13 @@ void goto_probe_offset_wizard() {
 
   probe.offset.z = PROBE_OFFSET_START;
 
-  set_all_unhomed();
-  queue.inject_P(G28_STR); 
-  #ifdef PROBE_OFFSET_MOVE_TO_Y
-    queue.enqueue_one_now(PSTR("G1 Y" STRINGIFY(PROBE_OFFSET_MOVE_TO_Y) " F" STRINGIFY(HOMING_FEEDRATE_XY)));
+  home_all_axes();
+
+  #ifdef PROBE_OFFSET_WIZARD_XY_POS
+    constexpr xy_int_t wizard_pos PROBE_OFFSET_WIZARD_XY_POS;
+    do_blocking_move_to_xy(wizard_pos.x, , MMM_TO_MMS(HOMING_FEEDRATE_XY));
   #endif
-  #ifdef PROBE_OFFSET_MOVE_TO_X
-    queue.enqueue_one_now(PSTR("G1 X" STRINGIFY(PROBE_OFFSET_MOVE_TO_X) " F" STRINGIFY(HOMING_FEEDRATE_XY)));
-  #endif
-  
+
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
