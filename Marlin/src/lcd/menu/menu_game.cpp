@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,7 @@
 
 #if HAS_GAME_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "game/game.h"
 
 void menu_game() {

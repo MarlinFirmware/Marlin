@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -106,6 +106,9 @@ struct duration_t {
     return this->value;
   }
 
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wformat-overflow"
+
   /**
    * @brief Formats the duration as a string
    * @details String will be formated using a "full" representation of duration
@@ -127,7 +130,7 @@ struct duration_t {
         m = this->minute() % 60,
         s = this->second() % 60;
 
-    if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
+         if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
     else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
     else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
     else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
@@ -163,4 +166,6 @@ struct duration_t {
       return 6;
     }
   }
+
+  #pragma GCC diagnostic pop
 };

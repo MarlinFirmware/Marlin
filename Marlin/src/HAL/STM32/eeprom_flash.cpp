@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
@@ -113,7 +113,7 @@ bool PersistentStore::access_start() {
       // This must be the first time since power on that we have accessed the storage, or someone
       // loaded and called write_data and never called access_finish.
       // Lets go looking for the slot that holds our configuration.
-      if (eeprom_data_written) DEBUG_ECHOLN("Dangling EEPROM write_data");
+      if (eeprom_data_written) DEBUG_ECHOLNPGM("Dangling EEPROM write_data");
       uint32_t address = FLASH_ADDRESS_START;
       while (address <= FLASH_ADDRESS_END) {
         uint32_t address_value = (*(__IO uint32_t*)address);
@@ -261,7 +261,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     const uint8_t c = TERN(FLASH_EEPROM_LEVELING, ram_eeprom[pos], eeprom_buffered_read_byte(pos));
     if (writing) *value = c;

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * Einsy-Rambo pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Mega 2560 or Rambo' in 'Tools > Board.'"
 #endif
 
@@ -81,6 +81,13 @@
 #endif
 
 //
+// Filament Runout Sensor
+//
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                      62
+#endif
+
+//
 // Steppers
 //
 #define X_STEP_PIN                            37
@@ -109,6 +116,7 @@
 #define TEMP_0_PIN                             0  // Analog Input
 #define TEMP_1_PIN                             1  // Analog Input
 #define TEMP_BED_PIN                           2  // Analog Input
+#define TEMP_PROBE_PIN                         3  // Analog Input
 
 //
 // Heaters / Fans
@@ -152,11 +160,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD || TOUCH_UI_ULTIPANEL
+#if HAS_WIRED_LCD || TOUCH_UI_ULTIPANEL
 
   #define KILL_PIN                            32
 
-  #if ENABLED(ULTIPANEL) || TOUCH_UI_ULTIPANEL
+  #if IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
 
     #if ENABLED(CR10_STOCKDISPLAY)
       #define LCD_PINS_RS                     85
@@ -179,5 +187,5 @@
     #define BEEPER_PIN                        84  // AUX-4
     #define SD_DETECT_PIN                     15
 
-  #endif // ULTIPANEL || TOUCH_UI_ULTIPANEL
-#endif // HAS_SPI_LCD
+  #endif // IS_ULTIPANEL || TOUCH_UI_ULTIPANEL
+#endif // HAS_WIRED_LCD

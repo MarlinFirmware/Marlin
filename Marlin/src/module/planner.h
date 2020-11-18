@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -164,7 +164,7 @@ typedef struct block_t {
   };
   uint32_t step_event_count;                // The number of step events required to complete this block
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     uint8_t extruder;                       // The extruder to move (if E move)
   #else
     static constexpr uint8_t extruder = 0;
@@ -218,7 +218,7 @@ typedef struct block_t {
     uint8_t valve_pressure, e_to_p_pressure;
   #endif
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     uint32_t segment_time_us;
   #endif
 
@@ -286,6 +286,10 @@ typedef struct {
                 xz = XZ_SKEW_FACTOR, yz = YZ_SKEW_FACTOR;
   #endif
 } skew_factor_t;
+
+#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+  typedef IF<(BLOCK_BUFFER_SIZE > 64), uint16_t, uint8_t>::type last_move_t;
+#endif
 
 class Planner {
   public:
@@ -435,10 +439,10 @@ class Planner {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
        // Counters to manage disabling inactive extruders
-      static uint8_t g_uc_extruder_last_move[EXTRUDERS];
+      static last_move_t g_uc_extruder_last_move[EXTRUDERS];
     #endif
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       volatile static uint32_t block_buffer_runtime_us; // Theoretical block buffer runtime in µs
     #endif
 
@@ -871,7 +875,7 @@ class Planner {
         block_buffer_tail = next_block_index(block_buffer_tail);
     }
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       static uint16_t block_buffer_runtime();
       static void clear_block_buffer_runtime();
     #endif

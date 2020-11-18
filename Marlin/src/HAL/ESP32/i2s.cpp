@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
@@ -184,7 +184,7 @@ int i2s_init() {
 
   // Allocate the array of pointers to the buffers
   dma.buffers = (uint32_t **)malloc(sizeof(uint32_t*) * DMA_BUF_COUNT);
-  if (dma.buffers == nullptr) return -1;
+  if (!dma.buffers) return -1;
 
   // Allocate each buffer that can be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {
@@ -194,7 +194,7 @@ int i2s_init() {
 
   // Allocate the array of DMA descriptors
   dma.desc = (lldesc_t**) malloc(sizeof(lldesc_t*) * DMA_BUF_COUNT);
-  if (dma.desc == nullptr) return -1;
+  if (!dma.desc) return -1;
 
   // Allocate each DMA descriptor that will be used by the DMA controller
   for (int buf_idx = 0; buf_idx < DMA_BUF_COUNT; buf_idx++) {

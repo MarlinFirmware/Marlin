@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "ADSK"
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #endif
 
@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

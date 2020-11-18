@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -816,7 +816,6 @@ int8_t I2CPositionEncodersMgr::parse() {
  *    Y       Report on Y axis encoder, if present.
  *    Z       Report on Z axis encoder, if present.
  *    E       Report on E axis encoder, if present.
- *
  */
 void I2CPositionEncodersMgr::M860() {
   if (parse()) return;
@@ -846,7 +845,6 @@ void I2CPositionEncodersMgr::M860() {
  *    Y       Report on Y axis encoder, if present.
  *    Z       Report on Z axis encoder, if present.
  *    E       Report on E axis encoder, if present.
- *
  */
 void I2CPositionEncodersMgr::M861() {
   if (parse()) return;
@@ -875,7 +873,6 @@ void I2CPositionEncodersMgr::M861() {
  *    Y       Report on Y axis encoder, if present.
  *    Z       Report on Z axis encoder, if present.
  *    E       Report on E axis encoder, if present.
- *
  */
 void I2CPositionEncodersMgr::M862() {
   if (parse()) return;
@@ -905,7 +902,6 @@ void I2CPositionEncodersMgr::M862() {
  *    Y       Report on Y axis encoder, if present.
  *    Z       Report on Z axis encoder, if present.
  *    E       Report on E axis encoder, if present.
- *
  */
 void I2CPositionEncodersMgr::M863() {
   if (parse()) return;

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
@@ -25,31 +25,33 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-  #include "watchdog.h"
+#include "watchdog.h"
 
-  IWDG_HandleTypeDef hiwdg;
+#define WDT_TIMEOUT_COUNT TERN(WATCHDOG_DURATION_8S, 8192, 4096) // 4 or 8 second timeout
 
-  void watchdog_init() {
-    hiwdg.Instance = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_32; //32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
-    hiwdg.Init.Reload = 4095;           //4095 counts = 4 seconds at 1024Hz
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
-      //Error_Handler();
-    }
-    else {
-      #if PIN_EXISTS(LED) && DISABLED(PINS_DEBUGGING)
-        TOGGLE(LED_PIN);  // heartbeat indicator
-      #endif
-    }
+IWDG_HandleTypeDef hiwdg;
+
+void watchdog_init() {
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_32; // 32kHz LSI clock and 32x prescalar = 1024Hz IWDG clock
+  hiwdg.Init.Reload = WDT_TIMEOUT_COUNT - 1;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK) {
+    //Error_Handler();
   }
-
-  void HAL_watchdog_refresh() {
-    /* Refresh IWDG: reload counter */
-    if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
-      /* Refresh Error */
-      //Error_Handler();
-    }
+  else {
+    #if PIN_EXISTS(LED) && DISABLED(PINS_DEBUGGING)
+      TOGGLE(LED_PIN);  // heartbeat indicator
+    #endif
   }
+}
+
+void HAL_watchdog_refresh() {
+  /* Refresh IWDG: reload counter */
+  if (HAL_IWDG_Refresh(&hiwdg) != HAL_OK) {
+    /* Refresh Error */
+    //Error_Handler();
+  }
+}
 
 #endif // USE_WATCHDOG
 #endif // STM32GENERIC && (STM32F4 || STM32F7)

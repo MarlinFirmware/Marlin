@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,9 +36,9 @@
 #include "endstops.h"
 
 #include "../gcode/gcode.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 
-#include "../MarlinCore.h" // for stop(), disable_e_steppers, wait_for_user
+#include "../MarlinCore.h" // for stop(), disable_e_steppers
 
 #if HAS_LEVELING
   #include "../feature/bedlevel/bedlevel.h"
@@ -260,22 +260,23 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
  * Raise Z to a minimum height to make room for a probe to move
  */
 void Probe::do_z_raise(const float z_raise) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::move_z(", z_raise, ")");
-
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Probe::do_z_raise(", z_raise, ")");
   float z_dest = z_raise;
   if (offset.z < 0) z_dest -= offset.z;
-
-  NOMORE(z_dest, Z_MAX_POS);
-
-  if (z_dest > current_position.z)
-    do_blocking_move_to_z(z_dest);
+  do_z_clearance(z_dest);
 }
 
 FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (deploy == (READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING)) break;
+        if (deploy == (
+          #if HAS_CUSTOM_PROBE_PIN
+            READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING
+          #else
+            READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING
+          #endif
+        )) break;
       #endif
 
       BUZZ(100, 659);
@@ -364,7 +365,7 @@ bool Probe::set_deployed(const bool deploy) {
     do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
-    if (axis_unhomed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
+    if (homing_needed_error(TERN_(Z_PROBE_SLED, _BV(X_AXIS)))) {
       SERIAL_ERROR_MSG(STR_STOP_UNHOMED);
       stop();
       return true;
@@ -410,16 +411,6 @@ bool Probe::set_deployed(const bool deploy) {
   return false;
 }
 
-#ifdef Z_AFTER_PROBING
-  // After probing move to a preferred Z position
-  void Probe::move_z_after_probing() {
-    if (current_position.z != Z_AFTER_PROBING) {
-      do_blocking_move_to_z(Z_AFTER_PROBING);
-      current_position.z = Z_AFTER_PROBING;
-    }
-  }
-#endif
-
 /**
  * @brief Used by run_z_probe to do a single Z probe move.
  *
@@ -439,7 +430,7 @@ bool Probe::set_deployed(const bool deploy) {
  * @return TRUE if the probe failed to trigger.
  */
 bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
-  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::probe_down_to_z", current_position);
+  DEBUG_SECTION(log_probe, "Probe::probe_down_to_z", DEBUGGING(LEVELING));
 
   #if BOTH(HAS_HEATED_BED, WAIT_FOR_BED_HEATER)
     thermalManager.wait_for_bed_heating();
@@ -499,8 +490,6 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   // Tell the planner where we actually are
   sync_plan_position();
 
-  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< Probe::probe_down_to_z", current_position);
-
   return !probe_triggered;
 }
 
@@ -513,8 +502,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
  * @return The Z position of the bed at the current XY or NAN on error.
  */
 float Probe::run_z_probe(const bool sanity_check/*=true*/) {
-
-  if (DEBUGGING(LEVELING)) DEBUG_POS(">>> Probe::run_z_probe", current_position);
+  DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
     // Do a first probe at the fast speed
@@ -527,7 +515,6 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
         if (probe_fail) DEBUG_ECHOPGM(" No trigger.");
         if (early_fail) DEBUG_ECHOPGM(" Triggered early.");
         DEBUG_EOL();
-        DEBUG_POS("<<< run_z_probe", current_position);
       }
     #else
       UNUSED(plbl);
@@ -651,8 +638,6 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   #endif
 
-  if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
-
   return measured_z;
 }
 
@@ -666,9 +651,11 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
  * - Return the probed Z position
  */
 float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after/*=PROBE_PT_NONE*/, const uint8_t verbose_level/*=0*/, const bool probe_relative/*=true*/, const bool sanity_check/*=true*/) {
+  DEBUG_SECTION(log_probe, "Probe::probe_at_point", DEBUGGING(LEVELING));
+
   if (DEBUGGING(LEVELING)) {
     DEBUG_ECHOLNPAIR(
-      ">>> Probe::probe_at_point(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
+      "...(", LOGICAL_X_POSITION(rx), ", ", LOGICAL_Y_POSITION(ry),
       ", ", raise_after == PROBE_PT_RAISE ? "raise" : raise_after == PROBE_PT_STOW ? "stow" : "none",
       ", ", int(verbose_level),
       ", ", probe_relative ? "probe" : "nozzle", "_relative)"
@@ -680,8 +667,8 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     if (bltouch.triggered()) bltouch._reset();
   #endif
 
-  // TODO: Adapt for SCARA, where the offset rotates
-  xyz_pos_t npos = { rx, ry };
+  // On delta keep Z below clip height or do_blocking_move_to will abort
+  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, current_position.z), current_position.z) };
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
@@ -690,15 +677,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     npos -= offset_xy;                                      // Get the nozzle position
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
-
-  npos.z =
-    #if ENABLED(DELTA)
-      // Move below clip height or xy move will be aborted by do_blocking_move_to
-      _MIN(current_position.z, delta_clip_start_height)
-    #else
-      current_position.z
-    #endif
-  ;
 
   const float old_feedrate_mm_s = feedrate_mm_s;
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
@@ -729,8 +707,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     #endif
   }
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< Probe::probe_at_point");
-
   return measured_z;
 }
 
@@ -744,7 +720,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
      * when starting up the machine or rebooting the board.
      * There's no way to know where the nozzle is positioned until
      * homing has been done - no homing with z-probe without init!
-     *
      */
     STOW_Z_SERVO();
   }

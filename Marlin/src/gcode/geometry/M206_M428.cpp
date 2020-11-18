@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,8 +26,15 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../libs/buzzer.h"
+#include "../../MarlinCore.h"
+
+extern const char SP_Y_STR[], SP_Z_STR[];
+
+void m206_report() {
+  SERIAL_ECHOLNPAIR_P(PSTR("M206 X"), home_offset.x, SP_Y_STR, home_offset.y, SP_Z_STR, home_offset.z);
+}
 
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -46,7 +53,10 @@ void GcodeSuite::M206() {
     if (parser.seen('P')) set_home_offset(B_AXIS, parser.value_float()); // Psi
   #endif
 
-  report_current_position();
+  if (!parser.seen("XYZ"))
+    m206_report();
+  else
+    report_current_position();
 }
 
 /**
@@ -61,7 +71,7 @@ void GcodeSuite::M206() {
  *       Use M206 to set these values directly.
  */
 void GcodeSuite::M428() {
-  if (axis_unhomed_error()) return;
+  if (homing_needed_error()) return;
 
   xyz_float_t diff;
   LOOP_XYZ(i) {

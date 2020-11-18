@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -27,19 +27,19 @@
  * without adding new pin definitions to the board.
  */
 
-#ifdef S6_TFT_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
+#include "../../../../inc/MarlinConfig.h"
+
+#if ENABLED(F6_TFT_PINMAP)              // FYSETC F6 - ATmega2560
+
+  #define CLCD_SPI_CS                    33
+  #define CLCD_MOD_RESET                 31
+
+#elif ENABLED(S6_TFT_PINMAP)            // FYSETC S6 - STM32F4
 
   #define CLCD_SPI_CS                    PC7
   #define CLCD_MOD_RESET                 PC6
-#endif
 
-#ifdef CR10_TFT_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
+#elif ENABLED(CR10_TFT_PINMAP)          // FYSETC S6 - STM32F4 - with TOUCH_UI_ULTIPANEL
 
   #define CLCD_USE_SOFT_SPI
   #define CLCD_SOFT_SPI_SCLK             LCD_PINS_D4      // PORTA1               Pin 6
@@ -49,17 +49,13 @@
   #define CLCD_MOD_RESET                 11               // PORTD3   BTN_EN1     Pin 3
   #define CLCD_AUX_0                     10               // PORTD2   BTN_EN2     Pin 5
   #define CLCD_AUX_1                     BEEPER_PIN       // PORTA4               Pin 1
-#endif
 
-/**
- * The AlephObjects pinout for re-purposing the UltraLCD
- * connector EXP1 for software SPI (rev B, obsolete)
- */
+#elif ENABLED(AO_EXP1_DEPRECATED_PINMAP)
 
-#ifdef AO_EXP1_DEPRECATED_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
+  /**
+   * This AlephObjects pinout re-purposes the UltraLCD
+   * connector EXP1 for Software SPI (rev B, obsolete)
+   */
 
   #define CLCD_MOD_RESET                 LCD_PINS_D4
   #define CLCD_SPI_CS                    LCD_PINS_D5
@@ -72,34 +68,30 @@
   #define CLCD_SOFT_SPI_SCLK             LCD_PINS_D7
   #define CLCD_SOFT_SPI_MOSI             LCD_PINS_D6
   #define CLCD_SOFT_SPI_MISO             LCD_PINS_RS
-#endif
 
-/**
- * AO_EXP1_PINMAP
- *
- * The AlephObjects mapping for re-purposing the UltraLCD
- * connector EXP1 for software SPI for display (rev C):
- *
- *     EXP2:      FTDI:   SD -or- USB [1]:     ULTRA_LCD:
- *      1         MISO    MISO    MISO    -->  BEEPER
- *      2         SCLK    SCLK    SCLK    -->  BTN_ENC
- *      3         PD_N      -      -      -->  LCDE
- *      4          -      CS_N    CS_N    -->  LCDRS
- *      5         CS_N      -      -      -->  LCD4
- *      6         MOSI    MOSI    MOSI    -->  LCD5
- *      7          -      SD_DET  INT     -->  LCD6
- *      8         RESET     -     RESET   -->  LCD4
- *      9         GND     GND     GND     -->  GND
- *     10         5V      5V      5V      -->  5V
- *
- *     [1] At the moment, Marlin does not support SD or USB
- *         functionality over software SPI.
- */
+#elif ENABLED(AO_EXP1_PINMAP)
 
-#ifdef AO_EXP1_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
+  /**
+   * AO_EXP1_PINMAP with TOUCH_UI_ULTIPANEL
+   *
+   * This AlephObjects mapping re-purposes the UltraLCD
+   * connector EXP1 for Software SPI for display (rev C):
+   *
+   *     EXP2:      FTDI:   SD -or- USB [1]:     ULTRA_LCD:
+   *      1         MISO    MISO    MISO    -->  BEEPER
+   *      2         SCLK    SCLK    SCLK    -->  BTN_ENC
+   *      3         PD_N      -      -      -->  LCDE
+   *      4          -      CS_N    CS_N    -->  LCDRS
+   *      5         CS_N      -      -      -->  LCD4
+   *      6         MOSI    MOSI    MOSI    -->  LCD5
+   *      7          -      SD_DET  INT     -->  LCD6
+   *      8         RESET     -     RESET   -->  LCD4
+   *      9         GND     GND     GND     -->  GND
+   *     10         5V      5V      5V      -->  5V
+   *
+   *     [1] At the moment, Marlin does not support SD or USB
+   *         functionality over software SPI.
+   */
 
   #define CLCD_MOD_RESET                 LCD_PINS_ENABLE
   #define CLCD_SPI_CS                    LCD_PINS_D4
@@ -108,49 +100,45 @@
   #define CLCD_SOFT_SPI_SCLK             BTN_ENC
   #define CLCD_SOFT_SPI_MOSI             LCD_PINS_D5
   #define CLCD_SOFT_SPI_MISO             BEEPER_PIN
-#endif
 
-/**
- * AO_EXP2_PINMAP
- *
- * The AlephObjects mapping for re-purposing the UltraLCD
- * connector EXP2 for hardware SPI for display and SD card
- * or USB (rev C):
- *
- *     EXP2:      FTDI:   SD -or- USB:         ULTRA_LCD:
- *      1         MISO    MISO    MISO    -->  MISO
- *      2         SCLK    SCLK    SCLK    -->  SCLK
- *      3         PD_N      -      -      -->  BTN_EN2
- *      4          -      CS_N    CS_N    -->  SD_CSEL
- *      5         CS_N      -      -      -->  BTN_EN1
- *      6         MOSI    MOSI    MOSI    -->  MOSI
- *      7          -      SD_DET  INT     -->  SD_DET
- *      8         RESET     -     RESET   -->  RESET
- *      9         GND     GND     GND     -->  GND
- *     10         5V      5V      5V      -->  KILL [3]
- *
- * [1] This configuration allows daisy-chaining of the
- *     display and SD/USB on EXP2, except for [2]
- *
- * [2] The Ultimachine Einsy boards have a level shifter
- *     on MISO enabled by SD_CSEL chip select, hence it
- *     is not possible to run both the display and the
- *     SD/USB on EXP2.
- *
- * [3] Archim Rambo provides 5V on this pin. On any other
- *     board, divert this wire from the ribbon cable and
- *     connect it to 5V at an endstop.
- */
+#elif ENABLED(AO_EXP2_PINMAP)
 
-#ifdef AO_EXP2_PINMAP
-  #ifndef __MARLIN_FIRMWARE__
-    #error "This pin mapping requires Marlin."
-  #endif
+  /**
+   * AO_EXP2_PINMAP with TOUCH_UI_ULTIPANEL
+   *
+   * The AlephObjects mapping for re-purposing the UltraLCD
+   * connector EXP2 for hardware SPI for display and SD card
+   * or USB (rev C):
+   *
+   *     EXP2:      FTDI:   SD -or- USB:         ULTRA_LCD:
+   *      1         MISO    MISO    MISO    -->  MISO
+   *      2         SCLK    SCLK    SCLK    -->  SCLK
+   *      3         PD_N      -      -      -->  BTN_EN2
+   *      4          -      CS_N    CS_N    -->  SD_CSEL
+   *      5         CS_N      -      -      -->  BTN_EN1
+   *      6         MOSI    MOSI    MOSI    -->  MOSI
+   *      7          -      SD_DET  INT     -->  SD_DET
+   *      8         RESET     -     RESET   -->  RESET
+   *      9         GND     GND     GND     -->  GND
+   *     10         5V      5V      5V      -->  KILL [3]
+   *
+   * [1] This configuration allows daisy-chaining of the
+   *     display and SD/USB on EXP2, except for [2]
+   *
+   * [2] The Ultimachine Einsy boards have a level shifter
+   *     on MISO enabled by SD_CSEL chip select, hence it
+   *     is not possible to run both the display and the
+   *     SD/USB on EXP2.
+   *
+   * [3] Archim Rambo provides 5V on this pin. On any other
+   *     board, divert this wire from the ribbon cable and
+   *     connect it to 5V at an endstop.
+   */
 
   #define CLCD_SPI_CS                    BTN_EN1
   #define CLCD_MOD_RESET                 BTN_EN2
-
   #if MB(EINSY_RAMBO, EINSY_RETRO) && DISABLED(SDSUPPORT)
     #define CLCD_SPI_EXTRA_CS            SDSS
   #endif
+
 #endif

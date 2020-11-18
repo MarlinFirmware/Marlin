@@ -14,9 +14,19 @@ on:
     - data/**
     - docs/**
     - '**/*.md'
+  push:
+    branches:
+    - bugfix-2.0.x
+    paths-ignore:
+    - config/**
+    - data/**
+    - docs/**
+    - '**/*.md'
 
 jobs:
   test_builds:
+    name: Run All Tests
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
@@ -26,11 +36,14 @@ jobs:
         # Base Environments
 
         - DUE
+        - DUE_archim
         - esp32
         - linux_native
         - mega2560
+        - at90usb1286_dfu
         - teensy31
         - teensy35
+        - teensy41
         - SAMD51_grandcentral_m4
 
         # Extended AVR Environments
@@ -57,8 +70,10 @@ jobs:
         - BIGTREE_SKR_PRO
         - BIGTREE_GTR_V1_0
         - mks_robin
+        - mks_robin_stm32
         - ARMED
         - FYSETC_S6
+        - STM32F070CB_malyan
         - STM32F070RB_malyan
         - malyan_M300
         - mks_robin_lite
@@ -66,6 +81,10 @@ jobs:
         - rumba32
         - mks_robin_pro
         - STM32F103RET6_creality
+        - LERDGEX
+        - mks_robin_nano35
+        - mks_robin_nano35_stm32
+        - NUCLEO_F767ZI
 
         # Put lengthy tests last
 
@@ -79,10 +98,8 @@ jobs:
 
         # Non-working environment tests
         #- at90usb1286_cdc
-        #- at90usb1286_dfu
         #- STM32F103CB_malyan
         #- mks_robin_mini
-        #- mks_robin_nano
 
     steps:
 
@@ -94,7 +111,7 @@ jobs:
 
     - name: Install PlatformIO
       run: |
-        pip install -U https://github.com/platformio/platformio-core/archive/master.zip
+        pip install -U https://github.com/platformio/platformio-core/archive/develop.zip
         platformio update
 
     - name: Check out the PR
@@ -102,9 +119,4 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        # Inline tests script
-        [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
-        chmod +x buildroot/bin/*
-        chmod +x buildroot/tests/*
-        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
-        run_tests . ${{ matrix.test-platform }}
+        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}

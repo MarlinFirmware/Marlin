@@ -16,16 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if ENABLED(PRUSA_MMU2)
+#if HAS_PRUSA_MMU2
 
 #include "../../gcode.h"
-#include "../../../feature/mmu2/mmu2.h"
+#include "../../../feature/mmu/mmu2.h"
 
 /**
  * M403: Set filament type for MMU2
@@ -46,4 +46,4 @@ void GcodeSuite::M403() {
     SERIAL_ECHO_MSG("M403 - bad arguments.");
 }
 
-#endif // PRUSA_MMU2
+#endif // HAS_PRUSA_MMU2

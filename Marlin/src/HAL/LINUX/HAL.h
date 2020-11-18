@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #define CPU_32_BIT
 
-#define F_CPU 100000000
+#define F_CPU 100000000UL
 #define SystemCoreClock F_CPU
 #include <iostream>
 #include <stdint.h>
@@ -62,7 +62,6 @@ uint8_t _getc();
 
 extern HalSerial usb_serial;
 #define MYSERIAL0 usb_serial
-#define NUM_SERIAL 1
 
 #define ST7920_DELAY_1 DELAY_NS(600)
 #define ST7920_DELAY_2 DELAY_NS(750)
@@ -101,6 +100,8 @@ uint16_t HAL_adc_get_result();
 // Reset source
 inline void HAL_clear_reset_source(void) {}
 inline uint8_t HAL_get_reset_source(void) { return RST_POWER_ON; }
+
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 /* ---------------- Delay in cycles */
 FORCE_INLINE static void DELAY_CYCLES(uint64_t x) {

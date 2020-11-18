@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,8 +30,20 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
+// STM32 timers may be 16 or 32 bit. Limiting HAL_TIMER_TYPE_MAX to 16 bits
+// avoids issues with STM32F0 MCUs, which seem to pause timers if UINT32_MAX
+// is written to the register. STM32F4 timers do not manifest this issue,
+// even when writing to 16 bit timers.
+//
+// The range of the timer can be queried at runtime using IS_TIM_32B_COUNTER_INSTANCE.
+// This is a more expensive check than a simple compile-time constant, so its
+// implementation is deferred until the desire for a 32-bit range outweighs the cost
+// of adding a run-time check and HAL_TIMER_TYPE_MAX is refactored to allow unique
+// values for each timer.
 #define hal_timer_t uint32_t
-#define HAL_TIMER_TYPE_MAX 0xFFFFFFFF // Timers can be 16 or 32 bit
+#define HAL_TIMER_TYPE_MAX UINT16_MAX
+
+#define NUM_HARDWARE_TIMERS 2
 
 #ifndef STEP_TIMER_NUM
   #define STEP_TIMER_NUM        0  // Timer Index for Stepper
@@ -47,7 +59,8 @@
 
 // TODO: get rid of manual rate/prescale/ticks/cycles taken for procedures in stepper.cpp
 #define STEPPER_TIMER_RATE 2000000 // 2 Mhz
-#define STEPPER_TIMER_PRESCALE ((HAL_TIMER_RATE)/(STEPPER_TIMER_RATE))
+extern uint32_t GetStepperTimerClkFreq();
+#define STEPPER_TIMER_PRESCALE (GetStepperTimerClkFreq() / (STEPPER_TIMER_RATE))
 #define STEPPER_TIMER_TICKS_PER_US ((STEPPER_TIMER_RATE) / 1000000) // stepper timer ticks per µs
 
 #define PULSE_TIMER_RATE STEPPER_TIMER_RATE
@@ -61,14 +74,14 @@
 #define ENABLE_TEMPERATURE_INTERRUPT() HAL_timer_enable_interrupt(TEMP_TIMER_NUM)
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
-extern void Step_Handler(HardwareTimer *htim);
-extern void Temp_Handler(HardwareTimer *htim);
+extern void Step_Handler();
+extern void Temp_Handler();
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR() void Step_Handler(HardwareTimer *htim)
+  #define HAL_STEP_TIMER_ISR() void Step_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR() void Temp_Handler(HardwareTimer *htim)
+  #define HAL_TEMP_TIMER_ISR() void Temp_Handler()
 #endif
 
 // ------------------------
@@ -86,14 +99,13 @@ void HAL_timer_enable_interrupt(const uint8_t timer_num);
 void HAL_timer_disable_interrupt(const uint8_t timer_num);
 bool HAL_timer_interrupt_enabled(const uint8_t timer_num);
 
+// Configure timer priorities for peripherals such as Software Serial or Servos.
 // Exposed here to allow all timer priority information to reside in timers.cpp
-void SetSoftwareSerialTimerInterruptPriority();
-
-//TIM_TypeDef* HAL_timer_device(const uint8_t timer_num); no need to be public for now. not public = not used externally
+void SetTimerInterruptPriorities();
 
 // FORCE_INLINE because these are used in performance-critical situations
 FORCE_INLINE bool HAL_timer_initialized(const uint8_t timer_num) {
-  return timer_instance[timer_num] != NULL;
+  return timer_instance[timer_num] != nullptr;
 }
 FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
   return HAL_timer_initialized(timer_num) ? timer_instance[timer_num]->getCount() : 0;

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -161,6 +161,14 @@ void print_bilinear_leveling_grid() {
   #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
   float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
     uint8_t ep = 0, ip = 1;
+    if (x > GRID_MAX_POINTS_X + 1 || y > GRID_MAX_POINTS_Y + 1) {
+      // The requested point requires extrapolating two points beyond the mesh.
+      // These values are only requested for the edges of the mesh, which are always an actual mesh point,
+      // and do not require interpolation. When interpolation is not needed, this "Mesh + 2" point is
+      // cancelled out in bed_level_virt_cmr and does not impact the result. Return 0.0 rather than
+      // making this function more complex by extrapolating two points.
+      return 0.0;
+    }    
     if (!x || x == ABL_TEMP_POINTS_X - 1) {
       if (x) {
         ep = GRID_MAX_POINTS_X - 1;
@@ -348,7 +356,7 @@ float bilinear_z_offset(const xy_pos_t &raw) {
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
    */
-  void bilinear_line_to_destination(const feedRate_t scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
+  void bilinear_line_to_destination(const feedRate_t &scaled_fr_mm_s, uint16_t x_splits, uint16_t y_splits) {
     // Get current and destination cells for this line
     xy_int_t c1 { CELL_INDEX(x, current_position.x), CELL_INDEX(y, current_position.y) },
              c2 { CELL_INDEX(x, destination.x), CELL_INDEX(y, destination.y) };

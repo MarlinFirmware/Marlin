@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -29,11 +29,17 @@
 
 #include <avr/io.h>
 
-#define AVR_AT90USB1286_FAMILY (defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__) || defined(__AVR_AT90USB647__))
-#define AVR_ATmega1284_FAMILY (defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__))
-#define AVR_ATmega2560_FAMILY (defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__))
-#define AVR_ATmega2561_FAMILY (defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__))
-#define AVR_ATmega328_FAMILY (defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__))
+#if defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB1286P__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB646P__) || defined(__AVR_AT90USB647__)
+  #define AVR_AT90USB1286_FAMILY 1
+#elif defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
+  #define AVR_ATmega1284_FAMILY 1
+#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+  #define AVR_ATmega2560_FAMILY 1
+#elif defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
+  #define AVR_ATmega2561_FAMILY 1
+#elif defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
+  #define AVR_ATmega328_FAMILY 1
+#endif
 
 /**
  * Include Ports and Functions
@@ -57,7 +63,7 @@
  *
  * Now you can simply SET_OUTPUT(PIN); WRITE(PIN, HIGH); WRITE(PIN, LOW);
  *
- * Why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+ * Why double up on these macros? see https://gcc.gnu.org/onlinedocs/cpp/Stringification.html
  */
 
 #define _READ(IO)             TEST(DIO ## IO ## _RPORT, DIO ## IO ## _PIN)

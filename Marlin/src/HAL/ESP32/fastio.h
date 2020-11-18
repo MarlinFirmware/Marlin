@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -51,6 +51,9 @@
 
 // Set pin as input with pullup wrapper
 #define SET_INPUT_PULLUP(IO)    do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
+
+// Set pin as input with pulldown (substitution)
+#define SET_INPUT_PULLDOWN      SET_INPUT
 
 // Set pin as output wrapper
 #define SET_OUTPUT(IO)          do{ _SET_OUTPUT(IO); }while(0)

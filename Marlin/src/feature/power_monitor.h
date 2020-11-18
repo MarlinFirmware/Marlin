@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -35,7 +35,7 @@ struct pm_lpf_t {
     filter_buf = filter_buf - (filter_buf >> K_VALUE) + (uint32_t(sample) << K_SCALE);
   }
   void capture() {
-    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE))));
+    value = filter_buf * (SCALE * (1.0f / (1UL << (PM_K_VALUE + PM_K_SCALE)))) + (POWER_MONITOR_CURRENT_OFFSET);
   }
   void reset(uint16_t reset_value = 0) {
     filter_buf = uint32_t(reset_value) << (K_VALUE + K_SCALE);
@@ -88,8 +88,10 @@ public:
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
   #endif
 
-  #if HAS_SPI_LCD
-    FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+  #if HAS_WIRED_LCD
+    #if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
+      FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
+    #endif
     #if ENABLED(POWER_MONITOR_CURRENT)
       static void draw_current();
       FORCE_INLINE static bool current_display_enabled() { return TEST(flags, PM_DISP_BIT_I); }
@@ -100,13 +102,13 @@ public:
       static void draw_voltage();
       FORCE_INLINE static bool voltage_display_enabled() { return TEST(flags, PM_DISP_BIT_V); }
       FORCE_INLINE static void set_voltage_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_V, b); }
-      FORCE_INLINE static void toggle_voltage_display() { TBI(flags, PM_DISP_BIT_I); }
+      FORCE_INLINE static void toggle_voltage_display() { TBI(flags, PM_DISP_BIT_V); }
     #endif
     #if HAS_POWER_MONITOR_WATTS
       static void draw_power();
       FORCE_INLINE static bool power_display_enabled() { return TEST(flags, PM_DISP_BIT_P); }
       FORCE_INLINE static void set_power_display(const bool b) { SET_BIT_TO(flags, PM_DISP_BIT_P, b); }
-      FORCE_INLINE static void toggle_power_display() { TBI(flags, PM_DISP_BIT_I); }
+      FORCE_INLINE static void toggle_power_display() { TBI(flags, PM_DISP_BIT_P); }
     #endif
   #endif
 

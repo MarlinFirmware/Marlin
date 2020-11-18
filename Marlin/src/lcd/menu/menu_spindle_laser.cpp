@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && HAS_CUTTER
 
-  #include "menu.h"
+  #include "menu_item.h"
 
   #include "../../feature/spindle_laser.h"
 
@@ -55,10 +55,8 @@
       #endif
     }
 
-    #if ENABLED(MARLIN_DEV_MODE)
-      #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
-        EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
-      #endif
+    #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
+      EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
     #endif
     END_MENU();
   }

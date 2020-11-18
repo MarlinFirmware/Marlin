@@ -16,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 //****************英文***************************//
-#define MACHINE_CONFIG_EN              "Machine\nSettings"
+#define MACHINE_CONFIG_EN              "Config"
 
 #define NEXT_EN                 "Next"
 #define PREVIOUS_EN             "Previous"
 #define DEFAULT_EN              "Default"
 #define KEY_BACK_EN             "Del"
-#define KEY_REST_EN             "Rest"
+#define KEY_REST_EN             "Reset"
 #define KEY_CONFIRM_EN          "Confirm"
 
 #define KEYBOARD_KEY0_EN "0"
@@ -44,12 +44,11 @@
 #define KEYBOARD_KEY_POINT_EN "."
 #define KEYBOARD_KEY_NEGATIVE_EN "-"
 
-#define MACHINE_PARA_EN             "Machine\nsettings"
-#define MACHINE_PARA_TITLE_EN       "Machine settings"
-#define MACHINE_TYPE_CNOFIG_EN      "Machine"
-#define TEMPERATURE_CONFIG_EN       "Temperature"
-#define MOTOR_CONFIG_EN             "Motor"
-#define ADVANCE_CONFIG_EN           "Adavance"
+#define MACHINE_PARA_TITLE_EN       "Config"
+#define MACHINE_TYPE_CNOFIG_EN      "Machine settings"
+#define MOTOR_CONFIG_EN             "Motor settings"
+#define MACHINE_LEVELING_CONFIG_EN  "Leveling settings"
+#define ADVANCE_CONFIG_EN           "Adavance settings"
 
 #define MACHINE_CONFIG_TITLE_EN     "Machine Settings"
 #define MACHINE_TYPE_EN             "Machine type"
@@ -57,7 +56,6 @@
 #define MACHINE_HOMEDIR_EN          "Home direction"
 #define MACHINE_ENDSTOP_TYPE_EN     "Endstop type"
 #define MACHINE_FILAMENT_CONFIG_EN  "Filament settings"
-#define MACHINE_LEVELING_CONFIG_EN  "Leveling settings"
 
 #define MACHINE_TYPE_CONFIG_TITLE_EN    "Machine Settings>Machine type"
 #define MACHINE_TYPE_XYZ_EN             "XYZ Machine"
@@ -92,18 +90,18 @@
 #define ENDSTOP_OPENED_EN               "Open"
 #define ENDSTOP_CLOSED_EN               "Close"
 
-#define FILAMENT_CONF_TITLE_EN          "Filament settings"
-#define FILAMENT_IN_TEMPERATURE_EN      "Load temperature"
+#define FILAMENT_CONF_TITLE_EN          "Machine Settings>Filament settings"
 #define FILAMENT_IN_LENGTH_EN           "Load length"
 #define FILAMENT_IN_SPEED_EN            "Load speed"
-#define FILAMENT_OUT_TEMPERATURE_EN     "Unload temperature"
+#define FILAMENT_TEMPERATURE_EN         "Filament temperature"
 #define FILAMENT_OUT_LENGTH_EN          "Unload length"
 #define FILAMENT_OUT_SPEED_EN           "Unload speed"
 
-#define LEVELING_CONF_TITLE_EN          "Leveling settings"
+#define LEVELING_CONF_TITLE_EN          "Machine Settings>Leveling settings"
 #define LEVELING_PARA_CONF_EN           "Leveling settings"
-#define LEVELING_DELTA_EN               "delta machine leveling"
-#define LEVELING_XYZ_EN                 "Manual leveling coordinate settings"
+#define LEVELING_MANUAL_POS_EN          "Manual leveling coordinate settings"
+#define LEVELING_AUTO_COMMAND_EN        "AutoLeveling command settings"
+#define LEVELING_AUTO_ZOFFSET_EN        "Nozzle-to-probe offsets settings"
 
 #define LEVELING_PARA_CONF_TITLE_EN     "leveling setting"
 #define AUTO_LEVELING_ENABLE_EN         "Enable auto leveling"
@@ -158,6 +156,8 @@
 #define ACCELERATION_CONF_EN            "Acceleration settings"
 #define JERKCONF_EN                     "Jerk settings"
 #define STEPSCONF_EN                    "Steps settings"
+#define TMC_CURRENT_EN                  "TMC Current settings"
+#define TMC_STEP_MODE_EN                "TMC Step mode settings"
 #define MOTORDIRCONF_EN                 "Motor direction settings"
 #define HOMEFEEDRATECONF_EN             "Home speed setting"
 
@@ -191,6 +191,20 @@
 #define E0_STEPS_EN                     "E0-axis steps"
 #define E1_STEPS_EN                     "E1-axis steps"
 
+#define TMC_CURRENT_CONF_TITLE_EN       "Machine Settings>TMC current settings"
+#define X_TMC_CURRENT_EN                "X axis current (mA)"
+#define Y_TMC_CURRENT_EN                "Y axis current (mA)"
+#define Z_TMC_CURRENT_EN                "Z axis current (mA)"
+#define E0_TMC_CURRENT_EN               "E0 axis current (mA)"
+#define E1_TMC_CURRENT_EN               "E1 axis current (mA)"
+
+#define TMC_MODE_CONF_TITLE_EN          "Machine Settings>TMC step mode settings"
+#define X_TMC_MODE_EN                   "Whether X axis enable stealthChop modes"
+#define Y_TMC_MODE_EN                   "Whether Y axis enable stealthChop modes"
+#define Z_TMC_MODE_EN                   "Whether Z axis enable stealthChop modes"
+#define E0_TMC_MODE_EN                  "Whether E0 axis enable stealthChop modes"
+#define E1_TMC_MODE_EN                  "Whether E1 axis enable stealthChop modes"
+
 #define MOTORDIR_CONF_TITLE_EN          "Machine Settings>Motor direction"
 #define X_MOTORDIR_EN                   "X-axis motor direction invert"
 #define Y_MOTORDIR_EN                   "Y-axis motor direction invert"
@@ -211,6 +225,9 @@
 #define HAVE_UPS_EN                     "Has UPS power supply"
 #define Z2_AND_Z2ENDSTOP_CONF_EN        "Z2 Settings"
 #define ENABLE_PINS_CONF_EN             "Enable pins level settings"
+#define WIFI_SETTINGS_EN                "Wi-Fi parameter settings"
+#define HOMING_SENSITIVITY_CONF_EN      "Homing sensitivity settings"
+#define ENCODER_SETTINGS_EN             "Rotary encoder settings"
 
 #define Z2_AND_Z2ENDSTOP_CONF_TITLE_EN  "Z2 Settings"
 #define Z2_ENABLE_EN                    "Z2 Enable"
@@ -222,6 +239,34 @@
 #define Y_ENABLE_PINS_INVERT_EN         "Y_ENABLE_PIN_INVERT"
 #define Z_ENABLE_PINS_INVERT_EN         "Z_ENABLE_PIN_INVERT"
 #define E_ENABLE_PINS_INVERT_EN         "E_ENABLE_PIN_INVERT"
+
+#define PAUSE_POSITION_EN    "Printing pause position settings"
+#define PAUSE_POSITION_X_EN  "X axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Y_EN  "Y axis position (Absolute position,-1 invalid)"
+#define PAUSE_POSITION_Z_EN  "Z axis position (Relative position,-1 invalid)"
+
+#define WIFI_SETTINGS_TITLE_EN    "Machine Settings>Wi-Fi Parameter"
+#define WIFI_SETTINGS_MODE_EN     "Wi-Fi Mode"
+#define WIFI_SETTINGS_NAME_EN     "Wi-Fi Name: "
+#define WIFI_SETTINGS_PASSWORD_EN "Wi-Fi Password: "
+#define WIFI_SETTINGS_CLOUD_EN    "Do you use cloud services?"
+#define WIFI_SETTINGS_CONFIG_EN   "Config"
+#define WIFI_SETTINGS_EDIT_EN     "Edit"
+#define WIFI_CONFIG_TIPS_EN       "Wi-Fi configuration?"
+
+#define OFFSET_TITLE_EN  "Machine Settings>Offset"
+#define OFFSET_X_EN      "X offset"
+#define OFFSET_Y_EN      "Y offset"
+#define OFFSET_Z_EN      "Z offset"
+
+#define HOMING_SENSITIVITY_CONF_TITLE_EN      "Machine Settings>Sensitivity"
+#define X_SENSITIVITY_EN                      "X Axis Sensitivity"
+#define Y_SENSITIVITY_EN                      "Y Axis Sensitivity"
+#define Z_SENSITIVITY_EN                      "Z Axis Sensitivity"
+#define Z2_SENSITIVITY_EN                     "Z2 Axis Sensitivity"
+
+#define ENCODER_CONF_TITLE_EN                 "Machine Settings>Rotary encoder settings"
+#define ENCODER_CONF_TEXT_EN                  "Is the encoder function used?"
 
 #define TOOL_TEXT_EN            "Tool"
 #define PREHEAT_TEXT_EN         "Preheat"
@@ -299,6 +344,8 @@
 #define MOTOR_OFF_TEXT_EN             "Motor-off"
 #define MOTOR_OFF_XY_TEXT_EN          "Off-XY"
 #define SHUTDOWN_TEXT_EN              "Shutdown"
+#define MACHINE_PARA_EN               "Config"
+#define EEPROM_SETTINGS_EN            "Eeprom Set"
 
 #define U_DISK_TEXT_EN                "USB"
 #define SD_CARD_TEXT_EN               "SD"
@@ -368,8 +415,8 @@
 #define FILAMENT_DIALOG_UNLOAD_COMPLETE_TIPS_EN "Unload filament completed,\nclick <confirm> for return!"
 
 
-#define PRE_HEAT_EXT_TEXT_EN                "E"
-#define PRE_HEAT_BED_TEXT_EN                "Bed"
+#define PRE_HEAT_EXT_TEXT_EN            "E"
+#define PRE_HEAT_BED_TEXT_EN            "Bed"
 
 #define FILE_LOADING_EN                 "Loading......"
 #if 0
@@ -407,10 +454,6 @@
 #define STEP_5PERCENT_EN                    "5%"
 #define STEP_10PERCENT_EN                   "10%"
 
-#define ZOFFSET_EN                          "Z Offset"
-#define ZOFFSET_INC_EN                      "Add"
-#define ZOFFSET_DEC_EN                      "Dec"
-
 #define TITLE_READYPRINT_EN                 "ReadyPrint"
 #define TITLE_PREHEAT_EN                    "Preheat"
 #define TITLE_MOVE_EN                       "Move"
@@ -433,7 +476,6 @@
 #define TITLE_CLOUD_TEXT_EN                 "Cloud"
 #define TITLE_DIALOG_CONFIRM_EN             "Confirm"
 #define TITLE_FILESYS_EN                    "FileSys"
-#define TITLE_ZOFFSET_EN                    "Z Offset"
 
 #define AUTO_SHUTDOWN_EN                    "Auto"
 #define MANUAL_SHUTDOWN_EN                  "Manual"
@@ -472,11 +514,9 @@
 #define TEXT_WIFI_SYMBOL_EN     "#+="
 #define TEXT_WIFI_PASSWORD_EN   "Password"
 
-#define TEXT_WIFI_POINT_BOLD_EN "`"
-
-#define TEXT_WIFI_JOINING_EN        "Joining\nNetwork..."
-#define TEXT_WIFI_FAILED_JOIN_EN    "Failed to\nJoin Wi-Fi"
-#define TEXT_WIFI_WIFI_CONECTED_EN  "Wi-Fi\nConnected"
+#define TEXT_WIFI_JOINING_EN  "Joining Network..."
+#define TEXT_WIFI_FAILED_JOIN_EN  "Failed to Join Wi-Fi"
+#define TEXT_WIFI_WIFI_CONECTED_EN "Wi-Fi Connected"
 
 #define TEXT_BUTTON_DISCONECTED_EN  "Disconnect"
 #define TEXT_WIFI_FORGET_EN         "Forget Network"
@@ -703,16 +743,24 @@
 #define PRINTING_OPERATION_OTHER_LANGUGE    "Operation"
 #define PRINTING_PAUSE_OTHER_LANGUGE        "Pause"
 
-#define MESSEGE_PAUSING_EN          "Parking..."
-#define MESSEGE_CHANGING_EN         "Wait for filament change to start"
-#define MESSEGE_UNLOAD_EN           "Wait for filament unload"
-#define MESSEGE_WAITING_EN          "Press Button to resume print"
-#define MESSEGE_INSERT_EN           "Insert filament and press button to continue"
-#define MESSEGE_LOAD_EN             "Wait for filament load"
-#define MESSEGE_PURGE_EN            "Wait for filament purge"
-#define MESSEGE_RESUME_EN           "Wait for print to resume..."
-#define MESSEGE_HEAT_EN             "Press button to heat nozzle"
-#define MESSEGE_HEATING_EN          "Nozzle heating Please wait..."
-#define MESSEGE_OPTION_EN           "Purge more or continue print?"
-#define MESSEGE_PURGE_MORE_EN       "Purge"
-#define MESSEGE_CONTINUE_PRINT_EN   "Print"
+#define MESSAGE_PAUSING_EN        "Parking..."
+#define MESSAGE_CHANGING_EN       "Wait for filament change to start"
+#define MESSAGE_UNLOAD_EN         "Wait for filament unload"
+#define MESSAGE_WAITING_EN        "Press Button to resume print"
+#define MESSAGE_INSERT_EN         "Insert filament and press button to continue"
+#define MESSAGE_LOAD_EN           "Wait for filament load"
+#define MESSAGE_PURGE_EN          "Wait for filament purge"
+#define MESSAGE_RESUME_EN         "Wait for print to resume..."
+#define MESSAGE_HEAT_EN           "Press button to heat nozzle"
+#define MESSAGE_HEATING_EN        "Nozzle heating Please wait..."
+#define MESSAGE_OPTION_EN         "Purge more or continue print?"
+#define MESSAGE_PURGE_MORE_EN     "Purge"
+#define MESSAGE_CONTINUE_PRINT_EN "Print"
+#define EEPROM_SETTINGS_TITLE_EN  "EEPROM Settings"
+#define EEPROM_SETTINGS_STORE_EN  "Store settings to EEPROM"
+#define EEPROM_SETTINGS_READ_EN   "Read settings from EEPROM"
+#define EEPROM_SETTINGS_REVERT_EN "Revert settings to factory defaults"
+
+#define EEPROM_STORE_TIPS_EN  "Store settings to EEPROM?"
+#define EEPROM_READ_TIPS_EN   "Read settings from EEPROM?"
+#define EEPROM_REVERT_TIPS_EN "Revert settings to factory defaults?"

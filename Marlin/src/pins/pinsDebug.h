@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,7 +31,6 @@
  *
  *  Both passes use the same pin list.  The list contains two macro names. The
  *  actual macro definitions are changed depending on which pass is being done.
- *
  */
 
 // first pass - put the name strings into FLASH
@@ -45,7 +44,7 @@
 #line 46
 
 // manually add pins that have names that are macros which don't play well with these macros
-#if (AVR_ATmega2560_FAMILY || AVR_ATmega1284_FAMILY || defined(ARDUINO_ARCH_SAM) || defined(TARGET_LPC1768))
+#if ANY(AVR_ATmega2560_FAMILY, AVR_ATmega1284_FAMILY, ARDUINO_ARCH_SAM, TARGET_LPC1768)
   #if SERIAL_PORT == 0
     static const char RXD_NAME_0[] PROGMEM = { "RXD0" };
     static const char TXD_NAME_0[] PROGMEM = { "TXD0" };
@@ -110,83 +109,119 @@ const PinInfo pin_array[] PROGMEM = {
 
   // manually add pins ...
   #if SERIAL_PORT == 0
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_0, 0, true },
       { TXD_NAME_0, 1, true },
     #elif AVR_ATmega1284_FAMILY
       { RXD_NAME_0, 8, true },
       { TXD_NAME_0, 9, true },
-    #elif defined(TARGET_LPC1768)
+    #elif defined(TARGET_LPC1768)           // TX P0_02  RX P0_03
       { RXD_NAME_0, 3, true },
       { TXD_NAME_0, 2, true },
     #endif
   #elif SERIAL_PORT == 1
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_1, 19, true },
       { TXD_NAME_1, 18, true },
     #elif AVR_ATmega1284_FAMILY
       { RXD_NAME_1, 10, true },
       { TXD_NAME_1, 11, true },
     #elif defined(TARGET_LPC1768)
-      { RXD_NAME_1, 16, true },
-      { TXD_NAME_1, 15, true },
+      #ifdef LPC_PINCFG_UART1_P2_00         // TX P2_00  RX P2_01
+        { RXD_NAME_1, 0x41, true },
+        { TXD_NAME_1, 0x40, true },
+      #else                                 // TX P0_15  RX P0_16
+        { RXD_NAME_1, 16, true },
+        { TXD_NAME_1, 15, true },
+      #endif
     #endif
   #elif SERIAL_PORT == 2
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_2, 17, true },
       { TXD_NAME_2, 16, true },
     #elif defined(TARGET_LPC1768)
-      { RXD_NAME_2, 11, true },
-      { TXD_NAME_2, 10, true },
+      #ifdef LPC_PINCFG_UART2_P2_08         // TX P2_08  RX P2_09
+        { RXD_NAME_2, 0x49, true },
+        { TXD_NAME_2, 0x48, true },
+      #else                                 // TX P0_10  RX P0_11
+        { RXD_NAME_2, 11, true },
+        { TXD_NAME_2, 10, true },
+      #endif
     #endif
   #elif SERIAL_PORT == 3
-    #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+    #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
       { RXD_NAME_3, 15, true },
       { TXD_NAME_3, 14, true },
     #elif defined(TARGET_LPC1768)
-      { RXD_NAME_3, 1, true },
-      { TXD_NAME_3, 0, true },
+      #ifdef LPC_PINCFG_UART3_P0_25         // TX P0_25  RX P0_26
+        { RXD_NAME_3, 0x1A, true },
+        { TXD_NAME_3, 0x19, true },
+      #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28  RX P4_29
+        { RXD_NAME_3, 0x9D, true },
+        { TXD_NAME_3, 0x9C, true },
+      #else                                 // TX P0_00  RX P0_01
+        { RXD_NAME_3, 1, true },
+        { TXD_NAME_3, 0, true },
+      #endif
     #endif
   #endif
 
   #ifdef SERIAL_PORT_2
     #if SERIAL_PORT_2 == 0
-      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
         { RXD_NAME_0, 0, true },
         { TXD_NAME_0, 1, true },
       #elif AVR_ATmega1284_FAMILY
         { RXD_NAME_0, 8, true },
         { TXD_NAME_0, 9, true },
-      #elif defined(TARGET_LPC1768)
+      #elif defined(TARGET_LPC1768)           // TX P0_02  RX P0_03
         { RXD_NAME_0, 3, true },
         { TXD_NAME_0, 2, true },
       #endif
     #elif SERIAL_PORT_2 == 1
-      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
         { RXD_NAME_1, 19, true },
         { TXD_NAME_1, 18, true },
       #elif AVR_ATmega1284_FAMILY
         { RXD_NAME_1, 10, true },
         { TXD_NAME_1, 11, true },
       #elif defined(TARGET_LPC1768)
-        { RXD_NAME_1, 16, true },
-        { TXD_NAME_1, 15, true },
+        #ifdef LPC_PINCFG_UART1_P2_00         // TX P2_00  RX P2_01
+          { RXD_NAME_1, 0x41, true },
+          { TXD_NAME_1, 0x40, true },
+        #else                                 // TX P0_15  RX P0_16
+          { RXD_NAME_1, 16, true },
+          { TXD_NAME_1, 15, true },
+        #endif
       #endif
     #elif SERIAL_PORT_2 == 2
-      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
         { RXD_NAME_2, 17, true },
         { TXD_NAME_2, 16, true },
       #elif defined(TARGET_LPC1768)
-        { RXD_NAME_2, 11, true },
-        { TXD_NAME_2, 10, true },
+        #ifdef LPC_PINCFG_UART2_P2_08         // TX P2_08  RX P2_09
+          { RXD_NAME_2, 0x49, true },
+          { TXD_NAME_2, 0x48, true },
+        #else                                 // TX P0_10  RX P0_11
+          { RXD_NAME_2, 11, true },
+          { TXD_NAME_2, 10, true },
+        #endif
       #endif
     #elif SERIAL_PORT_2 == 3
-      #if (AVR_ATmega2560_FAMILY || defined(ARDUINO_ARCH_SAM))
+      #if EITHER(AVR_ATmega2560_FAMILY, ARDUINO_ARCH_SAM)
         { RXD_NAME_3, 15, true },
         { TXD_NAME_3, 14, true },
       #elif defined(TARGET_LPC1768)
-        { RXD_NAME_3, 1, true },
-        { TXD_NAME_3, 0, true },
+        #ifdef LPC_PINCFG_UART3_P0_25         // TX P0_25  RX P0_26
+          { RXD_NAME_3, 0x1A, true },
+          { TXD_NAME_3, 0x19, true },
+        #elif defined(LPC_PINCFG_UART3_P4_28) // TX P4_28  RX P4_29
+          { RXD_NAME_3, 0x9D, true },
+          { TXD_NAME_3, 0x9C, true },
+        #else                                 // TX P0_00  RX P0_01
+          { RXD_NAME_3, 1, true },
+          { TXD_NAME_3, 0, true },
+        #endif
       #endif
     #endif
   #endif

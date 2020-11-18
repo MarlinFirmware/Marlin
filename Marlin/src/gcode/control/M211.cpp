@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,8 +37,8 @@ void GcodeSuite::M211() {
                   l_soft_max = soft_endstop.max.asLogical();
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM(STR_SOFT_ENDSTOPS);
-  if (parser.seen('S')) soft_endstops_enabled = parser.value_bool();
-  serialprint_onoff(soft_endstops_enabled);
+  if (parser.seen('S')) soft_endstop._enabled = parser.value_bool();
+  serialprint_onoff(soft_endstop._enabled);
   print_xyz(l_soft_min, PSTR(STR_SOFT_MIN), PSTR(" "));
   print_xyz(l_soft_max, PSTR(STR_SOFT_MAX));
 }

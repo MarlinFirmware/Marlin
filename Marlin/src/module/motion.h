@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -40,8 +40,8 @@ constexpr uint8_t xyz_bits = _BV(X_AXIS) | _BV(Y_AXIS) | _BV(Z_AXIS);
 FORCE_INLINE bool no_axes_homed() { return !axis_homed; }
 FORCE_INLINE bool all_axes_homed() { return (axis_homed & xyz_bits) == xyz_bits; }
 FORCE_INLINE bool all_axes_known() { return (axis_known_position & xyz_bits) == xyz_bits; }
-FORCE_INLINE void set_all_unhomed() { axis_homed = 0; }
-FORCE_INLINE void set_all_unknown() { axis_known_position = 0; }
+FORCE_INLINE void set_all_homed() { axis_homed = axis_known_position = xyz_bits; }
+FORCE_INLINE void set_all_unhomed() { axis_homed = axis_known_position = 0; }
 
 FORCE_INLINE bool homing_needed() {
   return !TERN(HOME_AFTER_DEACTIVATE, all_axes_known, all_axes_homed)();
@@ -78,10 +78,6 @@ extern xyz_pos_t cartes;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
-#if ENABLED(Z_SAFE_HOMING)
-  constexpr xy_float_t safe_homing_xy = { Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT };
-#endif
-
 /**
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
@@ -98,7 +94,7 @@ extern feedRate_t feedrate_mm_s;
 extern int16_t feedrate_percentage;
 
 // The active extruder (tool). Set with T<extruder> command.
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   extern uint8_t active_extruder;
 #else
   constexpr uint8_t active_extruder = 0;
@@ -108,22 +104,28 @@ extern int16_t feedrate_percentage;
   extern float e_move_accumulator;
 #endif
 
-inline float pgm_read_any(const float *p) { return pgm_read_float(p); }
-inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte(p); }
+#ifdef __IMXRT1062__
+  #define DEFS_PROGMEM
+#else
+  #define DEFS_PROGMEM PROGMEM
+#endif
+
+inline float pgm_read_any(const float *p)   { return TERN(__IMXRT1062__, *p, pgm_read_float(p)); }
+inline int8_t pgm_read_any(const int8_t *p) { return TERN(__IMXRT1062__, *p, pgm_read_byte(p)); }
 
 #define XYZ_DEFS(T, NAME, OPT) \
   inline T NAME(const AxisEnum axis) { \
-    static const XYZval<T> NAME##_P PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
+    static const XYZval<T> NAME##_P DEFS_PROGMEM = { X_##OPT, Y_##OPT, Z_##OPT }; \
     return pgm_read_any(&NAME##_P[axis]); \
   }
 XYZ_DEFS(float, base_min_pos,   MIN_POS);
 XYZ_DEFS(float, base_max_pos,   MAX_POS);
 XYZ_DEFS(float, base_home_pos,  HOME_POS);
 XYZ_DEFS(float, max_length,     MAX_LENGTH);
-XYZ_DEFS(signed char, home_dir, HOME_DIR);
+XYZ_DEFS(int8_t, home_dir, HOME_DIR);
 
 inline float home_bump_mm(const AxisEnum axis) {
-  static const xyz_pos_t home_bump_mm_P PROGMEM = HOMING_BUMP_MM;
+  static const xyz_pos_t home_bump_mm_P DEFS_PROGMEM = HOMING_BUMP_MM;
   return pgm_read_any(&home_bump_mm_P[axis]);
 }
 
@@ -142,26 +144,59 @@ inline float home_bump_mm(const AxisEnum axis) {
   constexpr xyz_pos_t hotend_offset[1] = { { 0 } };
 #endif
 
-typedef struct { xyz_pos_t min, max; } axis_limits_t;
 #if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
-  extern axis_limits_t soft_endstop;
+
+  typedef struct {
+    bool _enabled, _loose;
+    bool enabled() { return _enabled && !_loose; }
+
+    xyz_pos_t min, max;
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      amin = -100000; amax = 100000; // "No limits"
+      #if HAS_SOFTWARE_ENDSTOPS
+        if (enabled()) switch (axis) {
+          case X_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_X, amin = min.x);
+            TERN_(MAX_SOFTWARE_ENDSTOP_X, amax = max.x);
+            break;
+          case Y_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Y, amin = min.y);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Y, amax = max.y);
+            break;
+          case Z_AXIS:
+            TERN_(MIN_SOFTWARE_ENDSTOP_Z, amin = min.z);
+            TERN_(MAX_SOFTWARE_ENDSTOP_Z, amax = max.z);
+          default: break;
+        }
+      #endif
+    }
+  } soft_endstops_t;
+
+  extern soft_endstops_t soft_endstop;
   void apply_motion_limits(xyz_pos_t &target);
   void update_software_endstops(const AxisEnum axis
     #if HAS_HOTEND_OFFSET
       , const uint8_t old_tool_index=0, const uint8_t new_tool_index=0
     #endif
   );
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(enable) REMEMBER(tes, soft_endstops_enabled, enable);
-#else
-  constexpr bool soft_endstops_enabled = false;
-  //constexpr axis_limits_t soft_endstop = {
-  //  { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
-  //  { X_MAX_POS, Y_MAX_POS, Z_MAX_POS } };
-  #define apply_motion_limits(V)    NOOP
+  #define SET_SOFT_ENDSTOP_LOOSE(loose) (soft_endstop._loose = loose)
+
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  typedef struct {
+    bool enabled() { return false; }
+    void get_manual_axis_limits(const AxisEnum axis, float &amin, float &amax) {
+      // No limits
+      amin = current_position[axis] - 1000;
+      amax = current_position[axis] + 1000;
+    }
+  } soft_endstops_t;
+  extern soft_endstops_t soft_endstop;
+  #define apply_motion_limits(V)        NOOP
   #define update_software_endstops(...) NOOP
-  #define TEMPORARY_SOFT_ENDSTOP_STATE(...) NOOP
-#endif
+  #define SET_SOFT_ENDSTOP_LOOSE(V)     NOOP
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
 
 void report_real_position();
 void report_current_position();
@@ -234,24 +269,22 @@ void remember_feedrate_and_scaling();
 void remember_feedrate_scaling_off();
 void restore_feedrate_and_scaling();
 
+void do_z_clearance(const float &zclear, const bool z_known=true, const bool raise_on_unknown=true, const bool lower_allowed=false);
+
 //
 // Homing
 //
-
-uint8_t axes_need_homing(uint8_t axis_bits=0x07);
-bool axis_unhomed_error(uint8_t axis_bits=0x07);
+void homeaxis(const AxisEnum axis);
+void set_axis_is_at_home(const AxisEnum axis);
+void set_axis_never_homed(const AxisEnum axis);
+uint8_t axes_should_home(uint8_t axis_bits=0x07);
+bool homing_needed_error(uint8_t axis_bits=0x07);
 
 #if ENABLED(NO_MOTION_BEFORE_HOMING)
-  #define MOTION_CONDITIONS (IsRunning() && !axis_unhomed_error())
+  #define MOTION_CONDITIONS (IsRunning() && !homing_needed_error())
 #else
   #define MOTION_CONDITIONS IsRunning()
 #endif
-
-void set_axis_is_at_home(const AxisEnum axis);
-
-void set_axis_not_trusted(const AxisEnum axis);
-
-void homeaxis(const AxisEnum axis);
 
 /**
  * Workspace offsets
@@ -347,8 +380,7 @@ void homeaxis(const AxisEnum axis);
  * Duplication mode
  */
 #if HAS_DUPLICATION_MODE
-  extern bool extruder_duplication_enabled,       // Used in Dual X mode 2
-              mirrored_duplication_mode;          // Used in Dual X mode 3
+  extern bool extruder_duplication_enabled;       // Used in Dual X mode 2
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     extern uint8_t duplication_e_mask;
   #endif
@@ -367,23 +399,29 @@ void homeaxis(const AxisEnum axis);
   };
 
   extern DualXMode dual_x_carriage_mode;
-  extern float inactive_extruder_x_pos,           // Used in mode 0 & 1
+  extern float inactive_extruder_x,               // Used in mode 0 & 1
                duplicate_extruder_x_offset;       // Used in mode 2 & 3
   extern xyz_pos_t raised_parked_position;        // Used in mode 1
   extern bool active_extruder_parked;             // Used in mode 1, 2 & 3
   extern millis_t delayed_move_time;              // Used in mode 1
   extern int16_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
+  extern bool idex_mirrored_mode;                 // Used in mode 3
 
-  FORCE_INLINE bool dxc_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
+  FORCE_INLINE bool idex_is_duplicating() { return dual_x_carriage_mode >= DXC_DUPLICATION_MODE; }
 
-  float x_home_pos(const int extruder);
+  float x_home_pos(const uint8_t extruder);
 
   FORCE_INLINE int x_home_dir(const uint8_t extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
+
+  void set_duplication_enabled(const bool dupe, const int8_t tool_index=-1);
+  void idex_set_mirrored_mode(const bool mirr);
+  void idex_set_parked(const bool park=true);
 
 #else
 
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     enum DualXMode : char { DXC_DUPLICATION_MODE = 2 };
+    FORCE_INLINE void set_duplication_enabled(const bool dupe) { extruder_duplication_enabled = dupe; }
   #endif
 
   FORCE_INLINE int x_home_dir(const uint8_t) { return home_dir(X_AXIS); }
@@ -392,4 +430,10 @@ void homeaxis(const AxisEnum axis);
 
 #if HAS_M206_COMMAND
   void set_home_offset(const AxisEnum axis, const float v);
+#endif
+
+#if USE_SENSORLESS
+  struct sensorless_t;
+  sensorless_t start_sensorless_homing_per_axis(const AxisEnum axis);
+  void end_sensorless_homing_per_axis(const AxisEnum axis, sensorless_t enable_stealth);
 #endif

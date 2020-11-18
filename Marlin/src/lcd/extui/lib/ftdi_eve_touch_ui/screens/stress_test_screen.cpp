@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -38,7 +38,7 @@ using namespace ExtUI;
 
 void StressTestScreen::drawDots(uint16_t x, uint16_t y, uint16_t w, uint16_t h) {
   CommandProcessor cmd;
-  for(uint8_t i = 0; i < 100; i++) {
+  for (uint8_t i = 0; i < 100; i++) {
     cmd.cmd(BEGIN(POINTS))
        .cmd(POINT_SIZE(20*16))
        .cmd(COLOR_RGB(random(0xFFFFFF)))
@@ -87,9 +87,8 @@ void StressTestScreen::runTestOnBootup(bool enable) {
 }
 
 void StressTestScreen::startupCheck() {
-  if (LockScreen::get_hash() == 0xDEAD) {
+  if (LockScreen::get_hash() == 0xDEAD)
     GOTO_SCREEN(StressTestScreen);
-  }
 }
 
 void StressTestScreen::onEntry() {
@@ -112,7 +111,7 @@ void StressTestScreen::recursiveLockup() {
 
 void StressTestScreen::iterativeLockup() {
   screen_data.StressTestScreen.message = PSTR("Test 3: Printer will restart.");
-  for(;;) current_screen.onRefresh();
+  for (;;) current_screen.onRefresh();
 }
 
 void StressTestScreen::onIdle() {
@@ -120,20 +119,18 @@ void StressTestScreen::onIdle() {
   reset_menu_timeout();
 
   if (!commandsInQueue()) {
-      if (!isPositionKnown()) {
-        extern const char G28_STR[];
-        injectCommands_P(G28_STR);
-      }
-      else {
-        injectCommands_P(PSTR(
-          "G0 X100 Y100 Z100 F6000\n"
-          "T0\nG4 S1"
-          #if EXTRUDERS > 1
-            "\nT1\nG4 S1"
-          #endif
-          "\nG0 X150 Y150 Z150"
-        ));
-      }
+    if (!isPositionKnown()) {
+      extern const char G28_STR[];
+      injectCommands_P(G28_STR);
+    }
+    else {
+      injectCommands_P(PSTR(
+        "G0 X100 Y100 Z100 F6000\n"
+        "T0\nG4 S1"
+        TERN_(HAS_MULTI_EXTRUDER, "\nT1\nG4 S1")
+        "\nG0 X150 Y150 Z150"
+      ));
+    }
   }
 
   if (refresh_timer.elapsed(STRESS_TEST_CHANGE_INTERVAL)) {
@@ -141,10 +138,10 @@ void StressTestScreen::onIdle() {
   }
 
   if (watchDogTestNow()) {
-      if (random(2) % 2)
-        iterativeLockup();
-      else
-        recursiveLockup();
+    if (random(2) % 2)
+      iterativeLockup();
+    else
+      recursiveLockup();
   }
 
   BaseScreen::onIdle();
