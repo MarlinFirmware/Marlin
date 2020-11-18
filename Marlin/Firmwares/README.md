@@ -17,24 +17,6 @@ __Not for production use. Use with caution!__
   - Validate TMC2209 modes.
   - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
- Update Marlin-BugFix 20201030
-  - Last correction for Black screen in UI Color
-  - Correction thermal protection hysterisis.
-  - Enable mode TMC220x UART SoftSerial
-  - Add comments into definition_pins file.
-
- Update Marlin-BugFix 20201022
-  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
-  - Fixed Deploy/Stow ZProbe
-  - Fixed for users using E3Dv6 hotend
-  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
-
-## Marlin 2.0.7 
- Update 2020-10-01
- 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20200905
-
   ## Validate:
 
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire
@@ -148,6 +130,7 @@ Caption:
   # For the Wifi Module (MKS_Wifi):
 
 ![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
+
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
 2) Flash original firmware + Custum mkswifi 
@@ -180,3 +163,25 @@ Enjoy....🙃
   You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
  Massive thank you in advance :heart:
+
+# Version history
+## Marlin 2.0 Bugfix Branch 
+Update Marlin-BugFix 20201030
+  - Last correction for Black screen in UI Color
+  - Correction thermal protection hysterisis.
+  - Enable mode TMC220x UART SoftSerial
+  - Add comments into definition_pins file.
+
+ Update Marlin-BugFix 20201022
+  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+  - Fixed Deploy/Stow ZProbe
+  - Fixed for users using E3Dv6 hotend
+  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
+
+## Marlin 2.0.7 
+ Update 2020-10-01
+ 
+## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20200905
+
+
