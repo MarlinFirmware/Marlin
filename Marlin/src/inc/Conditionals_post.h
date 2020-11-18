@@ -2603,6 +2603,10 @@
   #endif
 #endif
 
+#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
+#endif
+
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
   #undef UI_VOLTAGE_LEVEL
   #undef RADDS_DISPLAY
