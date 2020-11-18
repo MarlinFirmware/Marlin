@@ -35,9 +35,10 @@ extern "C" {
   #include <debug_frmwrk.h>
 }
 
-#include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
+
+#include "../../sd/cardreader.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
@@ -140,7 +141,7 @@ void HAL_init() {
 
 // HAL idle task
 void HAL_idletask() {
-  #if HAS_SD_HOST_DRIVE
+  #if HAS_SHARED_MEDIA
     // If Marlin is using the SD card we need to lock it to prevent access from
     // a PC via USB.
     // Other HALs use IS_SD_PRINTING() and IS_SD_FILE_OPEN() to check for access but

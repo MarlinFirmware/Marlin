@@ -367,6 +367,7 @@
     // mount/unmount the card and refresh it. So we disable card detect.
     //
     #undef SD_DETECT_PIN
+    #define HAS_SHARED_MEDIA 1
   #endif
 
   #if PIN_EXISTS(SD_DETECT)
