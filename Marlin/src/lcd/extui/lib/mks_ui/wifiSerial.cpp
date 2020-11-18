@@ -25,7 +25,7 @@
 
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(USES_MKS_WIFI_FUNCTION)
 
 #include "draw_ui.h"
 #include "wifiSerial.h"
@@ -89,7 +89,11 @@ void WifiSerial::begin(uint32 baud, uint8_t config) {
                            txi->gpio_device, txi->gpio_bit,
                            config);
   usart_set_baud_rate(this->usart_device, USART_USE_PCLK, baud);
-  usart_enable(this->usart_device);
+    //usart_enable(this->usart_device);
+  usart_reg_map *regs = this->usart_device->regs;
+	if(baud == WIFI_BAUDRATE) regs->CR1 |= USART_CR1_RXNEIE;
+    regs->CR1 |= (USART_CR1_TE | USART_CR1_RE);// don't change the word length etc, and 'or' in the patten not overwrite |USART_CR1_M_8N1);
+    regs->CR1 |= USART_CR1_UE;
 }
 
 void WifiSerial::end(void) {
@@ -118,5 +122,5 @@ int WifiSerial::wifi_rb_is_full(void) {
   return rb_is_full(this->usart_device->rb);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // USES_MKS_WIFI_FUNCTION
 #endif // HAS_TFT_LVGL_UI

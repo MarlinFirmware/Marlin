@@ -99,6 +99,7 @@
 #define PROBE_Z_SPEED_T_CN              "探针Z方向移動速度"
 #define ENABLE_T_CN                     "是"
 #define DISABLE_T_CN                    "否"
+#define LOCKED_T_CN                     "否"
 #define Z_MIN_T_CN                      "ZMin"
 #define Z_MAX_T_CN                      "ZMax"
 
@@ -259,6 +260,7 @@
 #define PRINT_TEXT_T_CN                 "打印"
 #define EXTRUDE_TEXT_T_CN               "擠出"
 #define LEVELING_TEXT_T_CN              "調平"
+#define MLEVELING_TEXT_T_CN              "調平"
 #define AUTO_LEVELING_TEXT_T_CN         "自動調平"
 #define SET_TEXT_T_CN                   "設置"
 #define MORE_TEXT_T_CN                  "更多"
@@ -280,6 +282,7 @@
 #define TOOL_MOVE_T_CN                  "移動"
 #define TOOL_HOME_T_CN                  "回零"
 #define TOOL_LEVELING_T_CN              "調平"
+#define TOOL_MLEVELING_T_CN              "調平"
 #define TOOL_AUTO_LEVELING_T_CN         "自動調平"
 #define TOOL_FILAMENT_T_CN              "換料"
 #define TOOL_MORE_T_CN                  "更多"
@@ -497,3 +500,11 @@
 #define EEPROM_STORE_TIPS_T_CN        "是否保存參數到EEPROM?"
 #define EEPROM_READ_TIPS_T_CN         "是否使用EEPROM參數?"
 #define EEPROM_REVERT_TIPS_T_CN       "是否恢復默認參數?"
+
+#define MORE_CUSTOM1_TEXT_T_CN  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_T_CN  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_T_CN  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_T_CN  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_T_CN  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_T_CN  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_T_CN  USER_DESC_7

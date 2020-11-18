@@ -19,42 +19,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../../../inc/MarlinConfigPre.h"
-
-#if HAS_TFT_LVGL_UI
-
-#include "tft_lvgl_configuration.h"
-
-#if ENABLED(USES_MKS_WIFI_FUNCTION)
-
-#include "draw_ui.h"
-#include "wifiSerial.h"
-
-#include <libmaple/libmaple.h>
-#include <libmaple/gpio.h>
-#include <libmaple/timer.h>
-#include <libmaple/usart.h>
-#include <libmaple/ring_buffer.h>
-
-#include "../../../../inc/MarlinConfig.h"
+#pragma once
 
 #ifdef __cplusplus
-  extern "C" { /* C-declarations for C++ */
+extern "C" { /* C-declarations for C++ */
 #endif
 
-#define WIFI_IO1_SET()    WRITE(WIFI_IO1_PIN, HIGH);
-#define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
+extern void lv_draw_more(void);
+extern void lv_clear_more();
 
-void __irq_usart1(void) {
-   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE)) {
-   	WRITE(WIFI_IO1_PIN, HIGH);
-   }
-   WIFISERIAL.wifi_usart_irq(USART1_BASE);
-}
-
+//extern void disp_temp_ready_print();
 #ifdef __cplusplus
-  } /* C-declarations for C++ */
+} /* C-declarations for C++ */
 #endif
-
-#endif // USES_MKS_WIFI_FUNCTION
-#endif // HAS_TFT_LVGL_UI

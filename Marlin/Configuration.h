@@ -2354,6 +2354,9 @@
   #endif
 #endif
 
+// Enable the MKS WI-FI module function of TFT_LVGL_UI
+//#define USES_MKS_WIFI_FUNCTION
+
 //
 // RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/

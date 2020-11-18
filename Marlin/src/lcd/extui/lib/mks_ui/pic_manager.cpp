@@ -36,7 +36,7 @@
 #include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
-extern unsigned char bmp_public_buf[17 * 1024];
+extern unsigned char bmp_public_buf[14 * 1024];
 
 #if ENABLED(SDSUPPORT)
   extern char *createFilename(char * const buffer, const dir_t &p);
@@ -55,9 +55,10 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_preHeat.bin",
   "bmp_extruct.bin",
   "bmp_mov.bin",
-  // "bmp_Zero.bin",
+  // "bmp_zero.bin",
   "bmp_leveling.bin",
   "bmp_filamentchange.bin",
+  "bmp_more.bin",
 
   //fan screen
   "bmp_Add.bin",
@@ -182,21 +183,19 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
 
   // settings screen
   "bmp_about.bin",
-  //"bmp_Language.bin",
-  //"bmp_Fan.bin",
+  "bmp_eeprom_settings.bin",
+  "bmp_machine_para.bin",
+  "bmp_function1.bin",
   //"bmp_manual_off.bin",
+  //"bmp_Fan.bin",
+  //"bmp_Language.bin",
 
   //start screen
   "bmp_printing.bin",
   "bmp_set.bin",
   "bmp_tool.bin",
 
-  // settings screen
-  "bmp_eeprom_settings.bin",
-  "bmp_machine_para.bin",
-  "bmp_function1.bin",
-
-  // base icons
+  //base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
@@ -205,15 +204,30 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_enable.bin",
   "bmp_return.bin",
 
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
     // wifi screen
     "bmp_wifi.bin",
+    "bmp_cloud.bin",
   #endif
 
-  // babystep screen
+  //babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
-  "bmp_baby_move0_1.bin"
+  "bmp_baby_move0_1.bin",
+
+ //presets screen
+  //"bmp_preHeat.bin",
+  //"bmp_preHeat.bin",
+  //"bmp_Fan.bin",
+
+  // more screen
+  "bmp_custom1.bin",
+  "bmp_custom2.bin",
+  "bmp_custom3.bin",
+  "bmp_custom4.bin",
+  "bmp_custom5.bin",
+  "bmp_custom6.bin",
+  "bmp_custom7.bin"
 };
 
 #if HAS_SPI_FLASH_FONT
@@ -373,7 +387,7 @@ uint32_t Pic_Info_Write(uint8_t *P_name, uint32_t P_size) {
   return Pic_SaveAddr;
 }
 
-uint8_t public_buf[512];
+uint8_t public_buf[513];
 
 #if ENABLED(SDSUPPORT)
 

@@ -26,7 +26,7 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(USES_MKS_WIFI_FUNCTION)
 
 #include "draw_ui.h"
 
@@ -41,16 +41,26 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+    	char buf[6]={0};
+  #endif
   switch (obj->mks_obj_id) {
     case ID_W_RETURN:
       clear_cur_ui();
       lv_draw_set();
       break;
     case ID_W_CLOUD:
-      //clear_cur_ui();
-      //draw_return_ui();
+      clear_cur_ui();
+	    lv_draw_cloud_bind();
       break;
     case ID_W_RECONNECT:
+      buf[0] = 0xA5;
+      buf[1] = 0x07;
+      buf[2] = 0x00;
+      buf[3] = 0x00;
+      buf[4] = 0xFC;
+      raw_send_to_wifi(buf, 5);
+
       clear_cur_ui();
       lv_draw_wifi_list();
       break;
@@ -60,6 +70,25 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_wifi(void) {
   scr = lv_screen_create(WIFI_UI);
 
+  lv_obj_t *buttonReconnect = nullptr, *label_Reconnect = nullptr;
+  lv_obj_t *buttonCloud = nullptr, *label_Cloud = nullptr;
+
+  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+
+    if(gCfgItems.cloud_enable)
+      buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_X_PIXEL+INTERVAL_V*2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_CLOUD);
+    
+    buttonReconnect = lv_imgbtn_create(scr, "F:/bmp_wifi.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RECONNECT);
+
+    #if HAS_ROTARY_ENCODER
+      if (gCfgItems.cloud_enable) lv_group_add_obj(g, buttonCloud);
+      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonReconnect);
+    #endif
+
+    label_Reconnect = lv_label_create_empty(buttonReconnect);
+    if(gCfgItems.cloud_enable) label_Cloud = lv_label_create_empty(buttonCloud);
+  }
+
   // Create an Image button
   lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_W_RETURN);
   #if HAS_ROTARY_ENCODER
@@ -67,34 +96,17 @@ void lv_draw_wifi(void) {
   #endif
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
-  lv_obj_t *buttonReconnect = nullptr, *label_Reconnect = nullptr;
-
-  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
-
-    buttonReconnect = lv_imgbtn_create(scr, nullptr);
-
-    lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, "", 0);
-    lv_imgbtn_set_src_both(buttonReconnect, "F:/bmp_wifi.bin");
-    lv_imgbtn_use_label_style(buttonReconnect);
-
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonReconnect);
-    #endif
-
-    lv_obj_set_pos(buttonReconnect, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
-    lv_btn_set_layout(buttonReconnect, LV_LAYOUT_OFF);
-
-    label_Reconnect = lv_label_create_empty(buttonReconnect);
-  }
-
   if (gCfgItems.multiple_language) {
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
-
     if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+      if(gCfgItems.cloud_enable) {
+        lv_label_set_text(label_Cloud, wifi_menu.cloud);
+				lv_obj_align(label_Cloud, buttonCloud, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+      }
       lv_label_set_text(label_Reconnect, wifi_menu.reconnect);
       lv_obj_align(label_Reconnect, buttonReconnect, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
     }
+    lv_label_set_text(label_Back, common_menu.text_back);
+    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
 
   wifi_ip_text = lv_label_create_empty(scr);
@@ -159,5 +171,5 @@ void lv_clear_wifi() {
   lv_obj_del(scr);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // USES_MKS_WIFI_FUNCTION
 #endif // HAS_TFT_LVGL_UI

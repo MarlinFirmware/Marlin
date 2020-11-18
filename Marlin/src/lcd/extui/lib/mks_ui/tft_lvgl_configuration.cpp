@@ -56,6 +56,10 @@ XPT2046 touch;
   #include "draw_touch_calibration.h"
 #endif
 
+#if ENABLED(USES_MKS_WIFI_FUNCTION)
+  #include "wifi_module.h"
+#endif
+
 #include <SPI.h>
 
 #ifndef TFT_WIDTH
@@ -79,12 +83,12 @@ extern uint8_t sel_id;
 
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
-uint8_t bmp_public_buf[17 * 1024];
+uint8_t bmp_public_buf[14 * 1024];
 
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
     if (tips_disp.timer == TIPS_TIMER_START)
       tips_disp.timer_count++;
   #endif
@@ -109,8 +113,6 @@ void SysTick_Callback() {
   }
 }
 
-extern uint8_t bmp_public_buf[17 * 1024];
-
 void tft_lvgl_init() {
 
   //uint16_t test_id=0;
@@ -122,6 +124,10 @@ void tft_lvgl_init() {
   disp_language_init();
 
   watchdog_refresh();     // LVGL init takes time
+
+  #if MB(MKS_ROBIN_NANO)
+    OUT_WRITE(PB0, LOW);      // HE1
+  #endif
 
   // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
@@ -141,7 +147,7 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -197,6 +203,9 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+    mks_wifi_firmware_upddate();
+  #endif
   bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
@@ -241,6 +250,35 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
   W25QXX.init(SPI_QUARTER_SPEED);
+}
+
+void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color) {
+  uint16_t width, height;
+  width = x2 - x1 + 1;
+  height = y2 - y1 + 1;
+  #if 1//ENABLED(TFT_LVGL_UI_SPI)
+    const uint16 size = (uint16)width;
+    uint16_t buf[size];
+    for(uint16 j = 0; j < size; j++) {
+      buf[j] = bk_color.full; 
+    }
+    SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
+    for (uint16_t i = 0; i < height; i++) {
+      SPI_TFT.tftio.WriteSequence(buf, width);
+    }
+    W25QXX.init(SPI_QUARTER_SPEED);
+  #else
+    // tft_set_cursor(0, 0);
+    // LCD_setWindowArea((uint16_t)x1, (uint16_t)y1, width, height);
+    // LCD_WriteRAM_Prepare();
+    // #ifdef LCD_USE_DMA_FSMC
+    //   LCD_IO_WriteMultiple(bk_color.full, width * height);
+    // #else
+    //   for (uint32_t i = 0; i < width * height; i++) {
+    //     LCD_IO_WriteData(bk_color.full);
+    // }
+    //#endif
+  #endif
 }
 
 #define TICK_CYCLE 1
@@ -385,7 +423,7 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
-  if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
+  //if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
   return LV_FS_RES_OK;
 }
 

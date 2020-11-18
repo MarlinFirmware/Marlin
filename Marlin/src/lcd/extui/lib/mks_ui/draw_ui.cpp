@@ -70,8 +70,8 @@ uint8_t printing_rate_update_flag;
 
 extern bool once_flag;
 extern uint8_t sel_id;
-extern uint8_t public_buf[512];
-extern uint8_t bmp_public_buf[17 * 1024];
+extern uint8_t public_buf[513];
+extern uint8_t bmp_public_buf[14 * 1024];
 extern lv_group_t *g;
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
@@ -137,12 +137,12 @@ void gCfgItems_init() {
   gCfgItems.levelingPos[3][1] = Y_MAX_POS - 30;
   gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
   gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
-  gCfgItems.cloud_enable  = true;
-  #if ENABLED(USE_WIFI_FUNCTION)
+  gCfgItems.cloud_enable      = false;
+  //#if ENABLED(USES_MKS_WIFI_FUNCTION)
     gCfgItems.wifi_mode_sel = STA_MODEL;
     gCfgItems.fileSysType   = FILE_SYS_SD;
     gCfgItems.wifi_type     = ESP_WIFI;
-  #endif
+  //#endif
   gCfgItems.filamentchange_load_length   = 200;
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;
@@ -203,7 +203,7 @@ void ui_cfg_init() {
   uiCfg.filament_unloading_time_flg  = 0;
   uiCfg.filament_unloading_time_cnt  = 0;
 
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
     memset(&wifiPara, 0, sizeof(wifiPara));
     memset(&ipPara, 0, sizeof(ipPara));
     strcpy(wifiPara.ap_name, WIFI_AP_NAME);
@@ -448,6 +448,7 @@ void titleText_cat(char *str, int strSize, char *addPart) {
 
 char *getDispText(int index) {
 
+  ZERO(public_buf_l);
 
   switch (disp_state_stack._disp_state[index]) {
     case PRINT_READY_UI:
@@ -525,6 +526,7 @@ char *getDispText(int index) {
       strcpy(public_buf_l, wifi_menu.title);
       break;
     case MORE_UI:
+      strcpy(public_buf_l, more_menu.title);
     case PRINT_MORE_UI:
       strcpy(public_buf_l, more_menu.title);
       break;
@@ -542,7 +544,7 @@ char *getDispText(int index) {
       strcpy(public_buf_l, tool_menu.title);
       break;
     case WIFI_LIST_UI:
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         strcpy(public_buf_l, list_menu.title);
         break;
       #endif
@@ -676,7 +678,7 @@ char *creat_title_text() {
           }
         }
 
-        card.setIndex((gPicturePreviewStart + To_pre_view) + size * row + 8);
+        card.setIndex(gPicturePreviewStart + size * row + 8);
         SPI_TFT.setWindow(xpos_pixel, ypos_pixel + row, 200, 1);
 
         j = i = 0;
@@ -1040,19 +1042,18 @@ void GUI_RefreshPage() {
       */
       break;
 
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
       case WIFI_UI:
         if (temps_update_flag) {
           disp_wifi_state();
           temps_update_flag = false;
         }
         break;
-    #endif
-
-    case BIND_UI:
-      /*refresh_bind_ui();*/
-      break;
-
+    
+      case BIND_UI:
+        refresh_bind_ui();
+        break;
+    #endif  //USES_MKS_WIFI_FUNCTION
     case FILAMENTCHANGE_UI:
       if (temps_update_flag) {
         temps_update_flag = false;
@@ -1061,7 +1062,7 @@ void GUI_RefreshPage() {
       break;
     case DIALOG_UI:
       filament_dialog_handle();
-      TERN_(USE_WIFI_FUNCTION, wifi_scan_handle());
+      TERN_(USES_MKS_WIFI_FUNCTION, wifi_scan_handle());
       break;
     case MESHLEVELING_UI:
       /*disp_zpos();*/
@@ -1069,7 +1070,7 @@ void GUI_RefreshPage() {
     case HARDWARE_TEST_UI:
       break;
     case WIFI_LIST_UI:
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         if (printing_rate_update_flag) {
           disp_wifi_list();
           printing_rate_update_flag = false;
@@ -1080,7 +1081,7 @@ void GUI_RefreshPage() {
       /*update_password_disp();
       update_join_state_disp();*/
       break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
       case WIFI_TIPS_UI:
         switch (wifi_tips_type) {
           case TIPS_TYPE_JOINING:
@@ -1161,28 +1162,30 @@ void clear_cur_ui() {
     case ABOUT_UI:                    lv_clear_about(); break;
     case LOG_UI:                      /* Clear_Connect(); */ break;
     case DISK_UI:                     /* Clear_Disk(); */ break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
       case WIFI_UI:                   lv_clear_wifi(); break;
     #endif
-    case MORE_UI:                     /* Clear_more(); */ break;
+    case MORE_UI:                     lv_clear_more(); break;
     case FILETRANSFER_UI:             /* Clear_fileTransfer(); */ break;
     case DIALOG_UI:                   lv_clear_dialog(); break;
     case FILETRANSFERSTATE_UI:        /* Clear_WifiFileTransferdialog(); */ break;
     case PRINT_MORE_UI:               /* Clear_Printmore(); */ break;
     case FILAMENTCHANGE_UI:           lv_clear_filament_change(); break;
     case LEVELING_UI:                 lv_clear_manualLevel(); break;
-    case BIND_UI:                     /* Clear_Bind(); */ break;
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
+      case BIND_UI:                     lv_clear_cloud_bind(); break;
+    #endif
     #if HAS_BED_PROBE
       case NOZZLE_PROBE_OFFSET_UI:    lv_clear_auto_level_offset_settings(); break;
     #endif
     case TOOL_UI:                     lv_clear_tool(); break;
     case MESHLEVELING_UI:             /* Clear_MeshLeveling(); */ break;
     case HARDWARE_TEST_UI:            /* Clear_Hardwaretest(); */ break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
       case WIFI_LIST_UI:              lv_clear_wifi_list(); break;
     #endif
     case KEY_BOARD_UI:                lv_clear_keyboard(); break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
       case WIFI_TIPS_UI:              lv_clear_wifi_tips(); break;
     #endif
     case MACHINE_PARA_UI:             lv_clear_machine_para(); break;
@@ -1219,7 +1222,7 @@ void clear_cur_ui() {
       #if HAS_STEALTHCHOP
         case TMC_MODE_UI:             lv_clear_tmc_step_mode_settings(); break;
       #endif
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(USES_MKS_WIFI_FUNCTION)
     case WIFI_SETTINGS_UI:            lv_clear_wifi_settings(); break;
     #endif
     #if USE_SENSORLESS
@@ -1267,25 +1270,27 @@ void draw_return_ui() {
 
       case CALIBRATE_UI:                /* draw_calibrate(); */ break;
       case DISK_UI:                     /* draw_Disk(); */ break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         case WIFI_UI:                   lv_draw_wifi(); break;
       #endif
       case MORE_UI:                     /* draw_More(); */ break;
-      case PRINT_MORE_UI:               /* draw_printmore(); */ break;
+      case PRINT_MORE_UI:               lv_draw_more(); break;
       case FILAMENTCHANGE_UI:           lv_draw_filament_change(); break;
       case LEVELING_UI:                 lv_draw_manualLevel(); break;
-      case BIND_UI:                     /* draw_bind(); */ break;
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
+        case BIND_UI:                     lv_draw_cloud_bind(); break;
+      #endif
       #if HAS_BED_PROBE
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
       #endif
       case TOOL_UI:                     lv_draw_tool(); break;
       case MESHLEVELING_UI:             /* draw_meshleveling(); */ break;
       case HARDWARE_TEST_UI:            /* draw_Hardwaretest(); */ break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         case WIFI_LIST_UI:              lv_draw_wifi_list(); break;
       #endif
       case KEY_BOARD_UI:                lv_draw_keyboard(); break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         case WIFI_TIPS_UI:              lv_draw_wifi_tips(); break;
       #endif
       case MACHINE_PARA_UI:             lv_draw_machine_para(); break;
@@ -1325,7 +1330,7 @@ void draw_return_ui() {
         #if HAS_STEALTHCHOP
           case TMC_MODE_UI:             lv_draw_tmc_step_mode_settings(); break;
         #endif
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(USES_MKS_WIFI_FUNCTION)
         case WIFI_SETTINGS_UI:          lv_draw_wifi_settings(); break;
       #endif
       #if USE_SENSORLESS
@@ -1625,7 +1630,7 @@ void LV_TASK_HANDLER() {
 
   GUI_RefreshPage();
 
-  TERN_(USE_WIFI_FUNCTION, get_wifi_commands());
+  TERN_(USES_MKS_WIFI_FUNCTION, get_wifi_commands());
 
   //sd_detection();
 

@@ -136,6 +136,7 @@ void machine_setting_disp() {
     machine_menu.ProbeZspeed          = PROBE_Z_SPEED_CN;
     machine_menu.enable               = ENABLE_CN;
     machine_menu.disable              = DISABLE_CN;
+    machine_menu.locked               = LOCKED_CN;
     machine_menu.z_min                = Z_MIN_CN;
     machine_menu.z_max                = Z_MAX_CN;
 
@@ -369,6 +370,7 @@ void machine_setting_disp() {
     machine_menu.ProbeZspeed          = PROBE_Z_SPEED_T_CN;
     machine_menu.enable               = ENABLE_T_CN;
     machine_menu.disable              = DISABLE_T_CN;
+    machine_menu.locked               = LOCKED_T_CN;
     machine_menu.z_min                = Z_MIN_T_CN;
     machine_menu.z_max                = Z_MAX_T_CN;
 
@@ -605,6 +607,7 @@ void machine_setting_disp() {
     machine_menu.ProbeZspeed          = PROBE_Z_SPEED_EN;
     machine_menu.enable               = ENABLE_EN;
     machine_menu.disable              = DISABLE_EN;
+    machine_menu.locked               = LOCKED_EN;
     machine_menu.z_min                = Z_MIN_EN;
     machine_menu.z_max                = Z_MAX_EN;
 
@@ -853,7 +856,7 @@ void disp_language_init() {
   machine_menu.key_point = KEYBOARD_KEY_POINT_EN;
   machine_menu.negative  = KEYBOARD_KEY_NEGATIVE_EN;
   // wifi-list
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(USES_MKS_WIFI_FUNCTION)
     list_menu.title        = TEXT_WIFI_MENU_TITLE_EN;
     list_menu.file_pages   = FILE_PAGES_EN;
 
@@ -861,7 +864,7 @@ void disp_language_init() {
     tips_menu.joining      = TEXT_WIFI_JOINING_EN;
     tips_menu.failedJoin   = TEXT_WIFI_FAILED_JOIN_EN;
     tips_menu.wifiConected = TEXT_WIFI_WIFI_CONECTED_EN;
-  #endif  //USE_WIFI_FUNCTION
+  #endif  //USES_MKS_WIFI_FUNCTION
   machine_setting_disp();
 
   operation_menu.babystep = TEXT_BABY_STEP_EN;
@@ -883,6 +886,7 @@ void disp_language_init() {
       main_menu.print        = PRINT_TEXT_CN;
       main_menu.extrude      = EXTRUDE_TEXT_CN;
       main_menu.leveling     = LEVELING_TEXT_CN;
+      main_menu.mleveling     = MLEVELING_TEXT_CN;
       main_menu.autoleveling = AUTO_LEVELING_TEXT_CN;
       main_menu.fan          = FAN_TEXT_CN;
       main_menu.set          = SET_TEXT_CN;
@@ -895,6 +899,7 @@ void disp_language_init() {
       tool_menu.move         = TOOL_MOVE_CN;
       tool_menu.home         = TOOL_HOME_CN;
       tool_menu.leveling     = TOOL_LEVELING_CN;
+      tool_menu.mleveling     = TOOL_MLEVELING_CN;
       tool_menu.autoleveling = TOOL_AUTO_LEVELING_CN;
       tool_menu.filament     = TOOL_FILAMENT_CN;
       tool_menu.more         = TOOL_MORE_CN;
@@ -962,6 +967,27 @@ void disp_language_init() {
       filesys_menu.usb_sys = U_DISK_TEXT_CN;
       //
       more_menu.title   = TITLE_MORE_CN;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_CN;
+            #endif
       // WIFI
       wifi_menu.title = WIFI_TEXT;
       // wifi_menu.key = WIFI_KEY_TEXT_CN;
@@ -976,6 +1002,7 @@ void disp_language_init() {
       cloud_menu.unbind       = CLOUD_UNBIND_CN;
       cloud_menu.unbinding    = CLOUD_UNBINDED_CN;
       cloud_menu.disconnected = CLOUD_DISCONNECTED_CN;
+      cloud_menu.unbinded     = CLOUD_UNBINDED_CN;
       cloud_menu.disable      = CLOUD_DISABLE_CN;
       //
       about_menu.title   = ABOUT_TEXT_CN;
@@ -1114,6 +1141,7 @@ void disp_language_init() {
             main_menu.print        = PRINT_TEXT_T_CN;
             main_menu.extrude      = EXTRUDE_TEXT_T_CN;
             main_menu.leveling     = LEVELING_TEXT_T_CN;
+            main_menu.mleveling     = MLEVELING_TEXT_T_CN;
             main_menu.autoleveling = AUTO_LEVELING_TEXT_T_CN;
             main_menu.fan          = FAN_TEXT_T_CN;
             main_menu.set          = SET_TEXT_T_CN;
@@ -1126,6 +1154,7 @@ void disp_language_init() {
             tool_menu.move         = TOOL_MOVE_T_CN;
             tool_menu.home         = TOOL_HOME_T_CN;
             tool_menu.leveling     = TOOL_LEVELING_T_CN;
+            tool_menu.mleveling     = TOOL_MLEVELING_T_CN;
             tool_menu.autoleveling = TOOL_AUTO_LEVELING_T_CN;
             tool_menu.filament     = TOOL_FILAMENT_T_CN;
             tool_menu.more         = TOOL_MORE_T_CN;
@@ -1191,6 +1220,27 @@ void disp_language_init() {
             filesys_menu.usb_sys  = U_DISK_TEXT_T_CN;
             //
             more_menu.title = TITLE_MORE_T_CN;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_T_CN;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_T_CN;
+            #endif
             // WIFI
             wifi_menu.title = WIFI_TEXT;
             // wifi_menu.key = WIFI_KEY_TEXT_CN;
@@ -1205,6 +1255,7 @@ void disp_language_init() {
             cloud_menu.unbind       = CLOUD_UNBIND_T_CN;
             cloud_menu.unbinding    = CLOUD_UNBINDED_T_CN;
             cloud_menu.disconnected = CLOUD_DISCONNECTED_T_CN;
+            cloud_menu.unbinded     = CLOUD_UNBINDED_T_CN;
             cloud_menu.disable      = CLOUD_DISABLE_T_CN;
             //
             about_menu.title   = ABOUT_TEXT_T_CN;
@@ -1338,6 +1389,7 @@ void disp_language_init() {
             main_menu.print        = PRINT_TEXT_EN;
             main_menu.extrude      = EXTRUDE_TEXT_EN;
             main_menu.leveling     = LEVELING_TEXT_EN;
+            main_menu.mleveling     = MLEVELING_TEXT_EN;
             main_menu.autoleveling = AUTO_LEVELING_TEXT_EN;
             main_menu.fan          = FAN_TEXT_EN;
             main_menu.set          = SET_TEXT_EN;
@@ -1350,6 +1402,7 @@ void disp_language_init() {
             tool_menu.move         = TOOL_MOVE_EN;
             tool_menu.home         = TOOL_HOME_EN;
             tool_menu.leveling     = TOOL_LEVELING_EN;
+            tool_menu.mleveling    = TOOL_MLEVELING_EN;
             tool_menu.autoleveling = TOOL_AUTO_LEVELING_EN;
             tool_menu.filament     = TOOL_FILAMENT_EN;
             tool_menu.more         = TOOL_MORE_EN;
@@ -1406,6 +1459,28 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_EN;
             set_menu.eepromSet    = EEPROM_SETTINGS_EN;
             more_menu.title       = TITLE_MORE_EN;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_EN;
+            #endif
+
             //
             filesys_menu.title   = TITLE_FILESYS_EN;
             filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
@@ -1424,6 +1499,7 @@ void disp_language_init() {
             cloud_menu.unbind       = CLOUD_UNBIND_EN;
             cloud_menu.unbinding    = CLOUD_UNBINDED_EN;
             cloud_menu.disconnected = CLOUD_DISCONNECTED_EN;
+            cloud_menu.unbinded     = CLOUD_UNBINDED_EN;
             cloud_menu.disable      = CLOUD_DISABLE_EN;
             //
             about_menu.title   = TITLE_ABOUT_EN;
@@ -1553,6 +1629,7 @@ void disp_language_init() {
             main_menu.print        = PRINT_TEXT_RU;
             main_menu.extrude      = EXTRUDE_TEXT_RU;
             main_menu.leveling     = LEVELING_TEXT_RU;
+            main_menu.mleveling     = MLEVELING_TEXT_RU;
             main_menu.autoleveling = AUTO_LEVELING_TEXT_RU;
             main_menu.fan          = FAN_TEXT_RU;
             main_menu.set          = SET_TEXT_RU;
@@ -1565,6 +1642,7 @@ void disp_language_init() {
             tool_menu.move         = TOOL_MOVE_RU;
             tool_menu.home         = TOOL_HOME_RU;
             tool_menu.leveling     = TOOL_LEVELING_RU;
+            tool_menu.mleveling     = TOOL_MLEVELING_RU;
             tool_menu.autoleveling = TOOL_AUTO_LEVELING_RU;
             tool_menu.filament     = TOOL_FILAMENT_RU;
             tool_menu.more         = TOOL_MORE_RU;
@@ -1621,6 +1699,27 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_RU;
             set_menu.eepromSet    = EEPROM_SETTINGS_RU;
             more_menu.title       = TITLE_MORE_RU;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_RU;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_RU;
+            #endif
             //
             filesys_menu.title   = TITLE_FILESYS_RU;
             filesys_menu.sd_sys  = SD_CARD_TEXT_RU;
@@ -1633,6 +1732,102 @@ void disp_language_init() {
             wifi_menu.cloud     = CLOUD_TEXT_RU;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_RU;
 
+//Start Malderin translate
+            machine_menu.next          = NEXT_RU;
+            machine_menu.previous      = PREVIOUS_RU;
+            machine_menu.enable        = ENABLE_RU;
+            machine_menu.disable       = DISABLE_RU;
+            machine_menu.key_confirm   = KEY_CONFIRM_RU;
+
+			      MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_RU;
+            MachinePara_menu.title              = MACHINE_PARA_TITLE_RU;
+            machine_menu.MachineConfigTitle     = MACHINE_CONFIG_TITLE_RU;
+			      MachinePara_menu.MotorSetting       = MOTOR_CONFIG_RU;
+			      MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_RU;
+			      MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_RU;
+            machine_menu.MotorConfTitle        = MOTOR_CONF_TITLE_RU;
+            machine_menu.MaxFeedRateConf       = MAXFEEDRATE_CONF_RU;
+            machine_menu.AccelerationConf      = ACCELERATION_CONF_RU;
+            machine_menu.JerkConf              = JERKCONF_RU;
+            machine_menu.StepsConf             = STEPSCONF_RU;
+            machine_menu.TMCcurrentConf        = TMC_CURRENT_RU;
+            machine_menu.TMCStepModeConf       = TMC_STEP_MODE_RU;
+            machine_menu.PausePosition         = PAUSE_POSITION_RU;
+            machine_menu.FilamentConf          = MACHINE_FILAMENT_CONFIG_RU;
+            machine_menu.EncoderSettings       = ENCODER_SETTINGS_RU;
+            machine_menu.AdvancedConfTitle     = ADVANCED_CONF_TITLE_RU;
+
+            machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_RU;
+            machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_RU;
+            machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_RU;
+        	  machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_RU;
+        	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_RU;
+
+            machine_menu.AccelerationConfTitle = ACCELERATION_CONF_TITLE_RU;
+            machine_menu.PrintAcceleration     = PRINT_ACCELERATION_RU;
+            machine_menu.RetractAcceleration   = RETRACT_ACCELERATION_RU;
+            machine_menu.TravelAcceleration    = TRAVEL_ACCELERATION_RU;
+            machine_menu.X_Acceleration        = X_ACCELERATION_RU;
+            machine_menu.Y_Acceleration        = Y_ACCELERATION_RU;
+            machine_menu.Z_Acceleration        = Z_ACCELERATION_RU;
+            machine_menu.E0_Acceleration       = E0_ACCELERATION_RU;
+            machine_menu.E1_Acceleration       = E1_ACCELERATION_RU;
+
+            machine_menu.MaxFeedRateConfTitle = MAXFEEDRATE_CONF_TITLE_RU;
+            machine_menu.XMaxFeedRate         = X_MAXFEEDRATE_RU;
+            machine_menu.YMaxFeedRate         = Y_MAXFEEDRATE_RU;
+            machine_menu.ZMaxFeedRate         = Z_MAXFEEDRATE_RU;
+            machine_menu.E0MaxFeedRate        = E0_MAXFEEDRATE_RU;
+            machine_menu.E1MaxFeedRate        = E1_MAXFEEDRATE_RU;
+
+            machine_menu.JerkConfTitle = JERK_CONF_TITLE_RU;
+            machine_menu.X_Jerk        = X_JERK_RU;
+            machine_menu.Y_Jerk        = Y_JERK_RU;
+            machine_menu.Z_Jerk        = Z_JERK_RU;
+            machine_menu.E_Jerk        = E_JERK_RU;
+
+            machine_menu.StepsConfTitle = STEPS_CONF_TITLE_RU;
+            machine_menu.X_Steps        = X_STEPS_RU;
+            machine_menu.Y_Steps        = Y_STEPS_RU;
+            machine_menu.Z_Steps        = Z_STEPS_RU;
+            machine_menu.E0_Steps       = E0_STEPS_RU;
+            machine_menu.E1_Steps       = E1_STEPS_RU;
+
+            machine_menu.TmcCurrentConfTitle = TMC_CURRENT_CONF_TITLE_RU;
+            machine_menu.X_Current           = X_TMC_CURRENT_RU;
+            machine_menu.Y_Current           = Y_TMC_CURRENT_RU;
+            machine_menu.Z_Current           = Z_TMC_CURRENT_RU;
+            machine_menu.E0_Current          = E0_TMC_CURRENT_RU;
+            machine_menu.E1_Current          = E1_TMC_CURRENT_RU;
+
+            machine_menu.TmcStepModeConfTitle = TMC_MODE_CONF_TITLE_RU;
+            machine_menu.X_StepMode           = X_TMC_MODE_RU;
+            machine_menu.Y_StepMode           = Y_TMC_MODE_RU;
+            machine_menu.Z_StepMode           = Z_TMC_MODE_RU;
+            machine_menu.E0_StepMode          = E0_TMC_MODE_RU;
+            machine_menu.E1_StepMode          = E1_TMC_MODE_RU;
+
+            machine_menu.PausePosText   = PAUSE_POSITION_RU;
+            machine_menu.xPos           = PAUSE_POSITION_X_RU;
+            machine_menu.yPos           = PAUSE_POSITION_Y_RU;
+            machine_menu.zPos           = PAUSE_POSITION_Z_RU;
+
+            machine_menu.OffsetConfTitle = OFFSET_TITLE_RU;
+            machine_menu.Xoffset         = OFFSET_X_RU;
+            machine_menu.Yoffset         = OFFSET_Y_RU;
+            machine_menu.Zoffset         = OFFSET_Z_RU;
+
+            machine_menu.FilamentConfTitle   = FILAMENT_CONF_TITLE_RU;
+            machine_menu.InLength            = FILAMENT_IN_LENGTH_RU;
+            machine_menu.InSpeed             = FILAMENT_IN_SPEED_RU;
+            machine_menu.FilamentTemperature = FILAMENT_TEMPERATURE_RU;
+            machine_menu.OutLength           = FILAMENT_OUT_LENGTH_RU;
+            machine_menu.OutSpeed            = FILAMENT_OUT_SPEED_RU;
+
+            machine_menu.EncoderConfTitle    = ENCODER_CONF_TITLE_RU;
+            machine_menu.EncoderConfText     = ENCODER_CONF_TEXT_RU;
+
+//End Malderin translate
 
             cloud_menu.title        = TITLE_CLOUD_TEXT_RU;
             cloud_menu.bind         = CLOUD_BINDED_RU;
@@ -1640,6 +1835,7 @@ void disp_language_init() {
             cloud_menu.unbind       = CLOUD_UNBIND_RU;
             cloud_menu.unbinding    = CLOUD_UNBINDED_RU;
             cloud_menu.disconnected = CLOUD_DISCONNECTED_RU;
+            cloud_menu.unbinded     = CLOUD_UNBINDED_RU;
             cloud_menu.disable      = CLOUD_DISABLE_RU;
             //
             about_menu.title   = ABOUT_TEXT_RU;
@@ -1768,6 +1964,7 @@ void disp_language_init() {
             main_menu.print        = PRINT_TEXT_SP;
             main_menu.extrude      = EXTRUDE_TEXT_SP;
             main_menu.leveling     = LEVELING_TEXT_SP;
+            main_menu.mleveling     = MLEVELING_TEXT_SP;
             main_menu.autoleveling = AUTO_LEVELING_TEXT_SP;
             main_menu.fan          = FAN_TEXT_SP;
             main_menu.set          = SET_TEXT_SP;
@@ -1780,6 +1977,7 @@ void disp_language_init() {
             tool_menu.move         = TOOL_MOVE_SP;
             tool_menu.home         = TOOL_HOME_SP;
             tool_menu.leveling     = TOOL_LEVELING_SP;
+            tool_menu.mleveling     = TOOL_MLEVELING_SP;
             tool_menu.autoleveling = TOOL_AUTO_LEVELING_SP;
             tool_menu.filament     = TOOL_FILAMENT_SP;
             tool_menu.more         = TOOL_MORE_SP;
@@ -1840,6 +2038,27 @@ void disp_language_init() {
             set_menu.machine_para = MACHINE_PARA_SP;
             set_menu.eepromSet    = EEPROM_SETTINGS_SP;
             more_menu.title       = TITLE_MORE_SP;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_SP;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_SP;
+            #endif
             //
             filesys_menu.title   = TITLE_FILESYS_SP;
             filesys_menu.sd_sys  = SD_CARD_TEXT_SP;
@@ -1859,6 +2078,7 @@ void disp_language_init() {
             cloud_menu.unbind       = CLOUD_UNBIND_SP;
             cloud_menu.unbinding    = CLOUD_UNBINDED_SP;
             cloud_menu.disconnected = CLOUD_DISCONNECTED_SP;
+            cloud_menu.unbinded     = CLOUD_UNBINDED_SP;
             cloud_menu.disable      = CLOUD_DISABLE_SP;
             //
             about_menu.title   = ABOUT_TEXT_SP;
@@ -1992,6 +2212,7 @@ void disp_language_init() {
           main_menu.print        = PRINT_TEXT_FR;
           main_menu.extrude      = EXTRUDE_TEXT_FR;
           main_menu.leveling     = LEVELING_TEXT_FR;
+          main_menu.mleveling     = MLEVELING_TEXT_FR;
           main_menu.autoleveling = AUTO_LEVELING_TEXT_FR;
           main_menu.fan          = FAN_TEXT_FR;
           main_menu.set          = SET_TEXT_FR;
@@ -2004,6 +2225,7 @@ void disp_language_init() {
           tool_menu.move         = TOOL_MOVE_FR;
           tool_menu.home         = TOOL_HOME_FR;
           tool_menu.leveling     = TOOL_LEVELING_FR;
+          tool_menu.mleveling     = TOOL_MLEVELING_FR;
           tool_menu.autoleveling = TOOL_AUTO_LEVELING_FR;
           tool_menu.filament     = TOOL_FILAMENT_FR;
           tool_menu.more         = TOOL_MORE_FR;
@@ -2057,6 +2279,27 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_FR;
           set_menu.eepromSet    = EEPROM_SETTINGS_FR;
           more_menu.title       = TITLE_MORE_FR;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_FR;
+            #endif
           //
           filesys_menu.title          = TITLE_FILESYS_FR;
           filesys_menu.sd_sys         = SD_CARD_TEXT_FR;
@@ -2079,6 +2322,7 @@ void disp_language_init() {
           cloud_menu.unbind       = CLOUD_UNBIND_FR;
           cloud_menu.unbinding    = CLOUD_UNBINDED_FR;
           cloud_menu.disconnected = CLOUD_DISCONNECTED_FR;
+          cloud_menu.unbinded     = CLOUD_UNBINDED_FR;
           cloud_menu.disable      = CLOUD_DISABLE_FR;
           //
           about_menu.title   = ABOUT_TEXT_FR;
@@ -2208,6 +2452,7 @@ void disp_language_init() {
           main_menu.print        = PRINT_TEXT_IT;
           main_menu.extrude      = EXTRUDE_TEXT_IT;
           main_menu.leveling     = LEVELING_TEXT_IT;
+          main_menu.mleveling     = MLEVELING_TEXT_IT;
           main_menu.autoleveling = AUTO_LEVELING_TEXT_IT;
           main_menu.fan          = FAN_TEXT_IT;
           main_menu.set          = SET_TEXT_IT;
@@ -2220,6 +2465,7 @@ void disp_language_init() {
           tool_menu.move         = TOOL_MOVE_IT;
           tool_menu.home         = TOOL_HOME_IT;
           tool_menu.leveling     = TOOL_LEVELING_IT;
+          tool_menu.mleveling     = TOOL_MLEVELING_IT;
           tool_menu.autoleveling = TOOL_AUTO_LEVELING_IT;
           tool_menu.filament     = TOOL_FILAMENT_IT;
           tool_menu.more         = TOOL_MORE_IT;
@@ -2276,6 +2522,27 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_IT;
           set_menu.eepromSet    = EEPROM_SETTINGS_IT;
           more_menu.title       = TITLE_MORE_IT;
+            #if ENABLED(USER_CMD_1_ENABLE)
+              more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_2_ENABLE)
+              more_menu.custom2 = MORE_CUSTOM2_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_3_ENABLE)
+              more_menu.custom3 = MORE_CUSTOM3_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_4_ENABLE)
+              more_menu.custom4 = MORE_CUSTOM4_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_5_ENABLE)
+              more_menu.custom5 = MORE_CUSTOM5_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_6_ENABLE)
+              more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
+            #endif
+            #if ENABLED(USER_CMD_7_ENABLE)
+              more_menu.custom7 = MORE_CUSTOM7_TEXT_IT;
+            #endif
           //
           filesys_menu.title   = TITLE_FILESYS_IT;
           filesys_menu.sd_sys  = SD_CARD_TEXT_IT;
@@ -2295,6 +2562,7 @@ void disp_language_init() {
           cloud_menu.unbind       = CLOUD_UNBIND_IT;
           cloud_menu.unbinding    = CLOUD_UNBINDED_IT;
           cloud_menu.disconnected = CLOUD_DISCONNECTED_IT;
+          cloud_menu.unbinded     = CLOUD_UNBINDED_IT;
           cloud_menu.disable      = CLOUD_DISABLE_IT;
           //
           about_menu.title   = ABOUT_TEXT_IT;
@@ -2425,6 +2693,7 @@ void disp_language_init() {
       main_menu.print        = PRINT_TEXT_EN;
       main_menu.extrude      = EXTRUDE_TEXT_EN;
       main_menu.leveling     = LEVELING_TEXT_EN;
+      main_menu.mleveling     = MLEVELING_TEXT_EN;
       main_menu.autoleveling = AUTO_LEVELING_TEXT_EN;
       main_menu.fan          = FAN_TEXT_EN;
       main_menu.set          = SET_TEXT_EN;
@@ -2437,6 +2706,7 @@ void disp_language_init() {
       tool_menu.move         = TOOL_MOVE_EN;
       tool_menu.home         = TOOL_HOME_EN;
       tool_menu.leveling     = TOOL_LEVELING_EN;
+      tool_menu.mleveling     = TOOL_MLEVELING_EN;
       tool_menu.autoleveling = TOOL_AUTO_LEVELING_EN;
       tool_menu.filament     = TOOL_FILAMENT_EN;
       tool_menu.more         = TOOL_MORE_EN;
@@ -2494,6 +2764,27 @@ void disp_language_init() {
       set_menu.eepromSet    = EEPROM_SETTINGS_EN;
       //
       more_menu.title   = TITLE_MORE_EN;
+      #if ENABLED(USER_CMD_1_ENABLE)
+        more_menu.custom1 = MORE_CUSTOM1_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_2_ENABLE)
+        more_menu.custom2 = MORE_CUSTOM2_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_3_ENABLE)
+        more_menu.custom3 = MORE_CUSTOM3_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_4_ENABLE)
+        more_menu.custom4 = MORE_CUSTOM4_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_5_ENABLE)
+        more_menu.custom5 = MORE_CUSTOM5_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_6_ENABLE)
+        more_menu.custom6 = MORE_CUSTOM6_TEXT_EN;
+      #endif
+      #if ENABLED(USER_CMD_7_ENABLE)
+        more_menu.custom7 = MORE_CUSTOM7_TEXT_EN;
+      #endif
       //
       filesys_menu.title   = TITLE_FILESYS_EN;
       filesys_menu.sd_sys  = SD_CARD_TEXT_EN;
@@ -2512,6 +2803,7 @@ void disp_language_init() {
       cloud_menu.unbind       = CLOUD_UNBIND_EN;
       cloud_menu.unbinding    = CLOUD_UNBINDED_EN;
       cloud_menu.disconnected = CLOUD_DISCONNECTED_EN;
+      cloud_menu.unbinded     = CLOUD_UNBINDED_EN;
       cloud_menu.disable      = CLOUD_DISABLE_EN;
       //
       about_menu.title   = TITLE_ABOUT_EN;

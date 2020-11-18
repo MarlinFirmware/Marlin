@@ -26,7 +26,7 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(USES_MKS_WIFI_FUNCTION)
 
 #include "draw_ui.h"
 
@@ -90,9 +90,13 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
 void lv_draw_wifi_list(void) {
   scr = lv_screen_create(WIFI_LIST_UI);
-
-  lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
-  lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
+  #if HAS_ROTARY_ENCODER
+    lv_obj_t * buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
+    lv_obj_t * buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
+  #else
+    lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
+    lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
+  #endif
 
   for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
     buttonWifiN[i] = lv_label_btn_create(scr, 0, NAME_BTN_Y * i + 10 + titleHeight, NAME_BTN_X, NAME_BTN_Y, event_handler, i + 1);
@@ -170,6 +174,6 @@ void lv_clear_wifi_list() {
   lv_obj_del(scr);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // USES_MKS_WIFI_FUNCTION
 
 #endif // HAS_TFT_LVGL_UI
