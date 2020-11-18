@@ -367,6 +367,7 @@
     // mount/unmount the card and refresh it. So we disable card detect.
     //
     #undef SD_DETECT_PIN
+    #define HAS_SHARED_MEDIA 1
   #endif
 
   #if PIN_EXISTS(SD_DETECT)
@@ -2601,6 +2602,10 @@
   #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
     #define BLTOUCH_DELAY 500
   #endif
+#endif
+
+#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation
