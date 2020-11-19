@@ -181,7 +181,7 @@
 #define JERK_CONF_TITLE_EN              "Machine Settings>Jerk speed"
 #define X_JERK_EN                       "X-axis jerk speed"
 #define Y_JERK_EN                       "Y-axis jerk speed"
-#define Z_JERK_EN                       "J-axis jerk speed"
+#define Z_JERK_EN                       "Z-axis jerk speed"
 #define E_JERK_EN                       "Extruder jerk speed"
 
 #define STEPS_CONF_TITLE_EN             "Machine Settings>Steps settings"
