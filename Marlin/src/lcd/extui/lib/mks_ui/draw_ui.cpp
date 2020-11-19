@@ -1161,7 +1161,7 @@ void clear_cur_ui() {
     case ABOUT_UI:                    lv_clear_about(); break;
     case LOG_UI:                      /* Clear_Connect(); */ break;
     case DISK_UI:                     /* Clear_Disk(); */ break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_UI:                   lv_clear_wifi(); break;
     #endif
     case MORE_UI:                     /* Clear_more(); */ break;
@@ -1178,11 +1178,11 @@ void clear_cur_ui() {
     case TOOL_UI:                     lv_clear_tool(); break;
     case MESHLEVELING_UI:             /* Clear_MeshLeveling(); */ break;
     case HARDWARE_TEST_UI:            /* Clear_Hardwaretest(); */ break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_LIST_UI:              lv_clear_wifi_list(); break;
     #endif
     case KEY_BOARD_UI:                lv_clear_keyboard(); break;
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_TIPS_UI:              lv_clear_wifi_tips(); break;
     #endif
     case MACHINE_PARA_UI:             lv_clear_machine_para(); break;
@@ -1219,7 +1219,7 @@ void clear_cur_ui() {
     #if HAS_STEALTHCHOP
       case TMC_MODE_UI:               lv_clear_tmc_step_mode_settings(); break;
     #endif
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       case WIFI_SETTINGS_UI:          lv_clear_wifi_settings(); break;
     #endif
     #if USE_SENSORLESS
@@ -1267,7 +1267,7 @@ void draw_return_ui() {
 
       case CALIBRATE_UI:                /* draw_calibrate(); */ break;
       case DISK_UI:                     /* draw_Disk(); */ break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_UI:                   lv_draw_wifi(); break;
       #endif
       case MORE_UI:                     /* draw_More(); */ break;
@@ -1281,11 +1281,11 @@ void draw_return_ui() {
       case TOOL_UI:                     lv_draw_tool(); break;
       case MESHLEVELING_UI:             /* draw_meshleveling(); */ break;
       case HARDWARE_TEST_UI:            /* draw_Hardwaretest(); */ break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_LIST_UI:              lv_draw_wifi_list(); break;
       #endif
       case KEY_BOARD_UI:                lv_draw_keyboard(); break;
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_TIPS_UI:              lv_draw_wifi_tips(); break;
       #endif
       case MACHINE_PARA_UI:             lv_draw_machine_para(); break;
@@ -1325,7 +1325,7 @@ void draw_return_ui() {
         #if HAS_STEALTHCHOP
           case TMC_MODE_UI:             lv_draw_tmc_step_mode_settings(); break;
         #endif
-      #if ENABLED(USE_WIFI_FUNCTION)
+      #if ENABLED(MKS_WIFI_MODULE)
         case WIFI_SETTINGS_UI:          lv_draw_wifi_settings(); break;
       #endif
       #if USE_SENSORLESS
@@ -1620,7 +1620,7 @@ void LV_TASK_HANDLER() {
 
   GUI_RefreshPage();
 
-  TERN_(USE_WIFI_FUNCTION, get_wifi_commands());
+  TERN_(MKS_WIFI_MODULE, get_wifi_commands());
 
   //sd_detection();
 
