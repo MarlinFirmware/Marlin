@@ -2248,10 +2248,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MAX31865
       Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      max6675_temp = int(maxref.temperature(
-        MAX6675_SEL(MAX31865_SENSOR_OHMS_0, MAX31865_SENSOR_OHMS_1),
-        MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)
-      ));
+      const uint16_t max31865_ohms = (uint32_t(maxref.readRTD()) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
     #endif
 
     //
@@ -2324,6 +2321,9 @@ void Temperature::disable_all_heaters() {
     #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
+
+    // Return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
+    TERN_(HAS_MAX31865, max6675_temp = max31865_ohms);
 
     MAX6675_TEMP(hindex) = max6675_temp;
 
