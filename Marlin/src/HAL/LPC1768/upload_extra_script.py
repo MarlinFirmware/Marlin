@@ -23,6 +23,9 @@ def print_error(e):
 		  %(e, env.get('PIOENV')))
 
 try:
+	#
+	# Find a disk for upload
+	#
 	upload_disk = 'Disk not found'
 	target_file_found = False
 	target_drive_found = False
@@ -30,9 +33,6 @@ try:
 		#
 		# platformio.ini will accept this for a Windows upload port designation: 'upload_port = L:'
 		#   Windows - doesn't care about the disk's name, only cares about the drive letter
-		#
-		# get all drives on this computer
-		#
 		import subprocess
 		from ctypes import windll
 		import string
@@ -55,11 +55,11 @@ try:
 				print ('error:{}'.format(e))
 				continue
 			else:
-				if target_drive in volume_info and target_file_found == False:  # set upload if not found target file yet
+				if target_drive in volume_info and not target_file_found:  # set upload if not found target file yet
 					target_drive_found = True
 					upload_disk = final_drive_name
 				if target_filename in volume_info:
-					if target_file_found == False:
+					if not target_file_found:
 						upload_disk = final_drive_name
 					target_file_found = True
 
@@ -96,7 +96,7 @@ try:
 		# platformio.ini will accept this for a OSX upload port designation: 'upload_port = /media/media_name/drive'
 		#
 		drives = os.listdir('/Volumes')  # human readable names
-		if target_drive in drives and target_file_found == False:  # set upload if not found target file yet
+		if target_drive in drives and not target_file_found:  # set upload if not found target file yet
 			target_drive_found = True
 			upload_disk = '/Volumes/' + target_drive + '/'
 		for drive in drives:
@@ -106,7 +106,7 @@ try:
 				continue
 			else:
 				if target_filename in filenames:
-					if target_file_found == False:
+					if not target_file_found:
 						upload_disk = '/Volumes/' + drive + '/'
 					target_file_found = True
 
