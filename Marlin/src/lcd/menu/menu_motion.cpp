@@ -50,7 +50,7 @@
   float manual_move_e_origin = 0;
 #endif
 
-#if ENABLED(INCH_MANUAL_MOVEMENT)
+#if ENABLED(INCH_MODE_SUPPORT)
   #include "../../gcode/parser.h"
 #endif
 
@@ -99,15 +99,15 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
-    #if ENABLED(INCH_MANUAL_MOVEMENT)
-      if (parser.imperial_units) {
+    #if ENABLED(INCH_MODE_SUPPORT)
+      if (parser.using_inch_units()) {
         float imp_pos = pos / parser.linear_unit_factor;
         MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
       }
       else {
     #endif
     MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
-    #if ENABLED(INCH_MANUAL_MOVEMENT)
+    #if ENABLED(INCH_MODE_SUPPORT)
       }
     #endif
   }
@@ -179,8 +179,8 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  #if ENABLED(INCH_MANUAL_MOVEMENT)
-    if (parser.imperial_units) {
+  #if ENABLED(INCH_MODE_SUPPORT)
+    if (parser.using_inch_units()) {
       SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move( 2.54f);   });
       SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move( 0.254f);  });
       SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move( 0.0254f); });
@@ -208,7 +208,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
     #endif
   }
-  #if ENABLED(INCH_MANUAL_MOVEMENT)
+  #if ENABLED(INCH_MODE_SUPPORT)
     }
   #endif
   END_MENU();
