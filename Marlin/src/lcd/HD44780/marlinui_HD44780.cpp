@@ -707,8 +707,7 @@ void MarlinUI::draw_status_message(const bool blink) {
  *  |01234567890123456789|
  */
 
-inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos) {
-  const bool blink = ui.get_blink();
+inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink) {
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
@@ -875,7 +874,7 @@ void MarlinUI::draw_status_screen() {
       lcd_put_u8str(i16tostr3rj(feedrate_percentage));
       lcd_put_wchar('%');
 
-      const uint8_t timepos = draw_elapsed_or_remaining_time(LCD_WIDTH - 1);
+      const uint8_t timepos = draw_elapsed_or_remaining_time(LCD_WIDTH - 1, blink);
 
       #if LCD_WIDTH >= 20
         lcd_moveto(timepos - 7, 2);
@@ -974,7 +973,7 @@ void MarlinUI::draw_status_screen() {
 
     #else
 
-      (void)draw_elapsed_or_remaining_time(LCD_WIDTH - 4);
+      (void)draw_elapsed_or_remaining_time(LCD_WIDTH - 4, blink);
 
     #endif
 
