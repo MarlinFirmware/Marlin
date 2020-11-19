@@ -11,8 +11,7 @@ target_drive = "REARM"
 import os
 import getpass
 import platform
-from ctypes import windll
-import string
+
 
 current_OS = platform.system()
 Import("env")
@@ -45,6 +44,8 @@ try:
 		# get all drives on this computer
 		#
 		import subprocess
+		from ctypes import windll
+		import string
 		# getting list of drives
 		drives = get_drives()
 
