@@ -2204,7 +2204,6 @@ void Temperature::disable_all_heaters() {
       #define MAX6675_SPEED_BITS    3       // (_BV(SPR1)) // clock ÷ 64
     #elif HAS_MAX31865
       static uint16_t max6675_temp = 2000;  // From datasheet 16 bits D15-D0
-      static uint16_t max31865_ohms = 2000;
       #define MAX6675_ERROR_MASK    1       // D0 Bit not used
       #define MAX6675_DISCARD_BITS  1       // Data is in D15-D1
       #define MAX6675_SPEED_BITS    3       //  (_BV(SPR1)) // clock ÷ 64
@@ -2249,7 +2248,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MAX31865
       Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      max31865_ohms = maxref.readRTD() / 32768.0f * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1);
+      const uint16_t max31865_ohms = maxref.readRTD() / 32768.0f * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1);
     #endif
 
     //
