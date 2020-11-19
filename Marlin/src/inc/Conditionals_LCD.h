@@ -1007,11 +1007,3 @@
     #define HAS_TOUCH_XPT2046 1
   #endif
 #endif
-
-/**
- * STATUS_DISPLAY_INCHES dependencies needed to work.
- */
-#if ENABLED(STATUS_DISPLAY_INCHES)
-  #define LCD_DECIMAL_SMALL_XY
-  #define XYZ_NO_FRAME
-#endif
