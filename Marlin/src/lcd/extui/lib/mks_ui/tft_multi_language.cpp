@@ -967,27 +967,27 @@ void disp_language_init() {
       filesys_menu.usb_sys = U_DISK_TEXT_CN;
       //
       more_menu.title   = TITLE_MORE_CN;
-            #if ENABLED(USER_CMD_1_ENABLE)
-              more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_2_ENABLE)
-              more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_3_ENABLE)
-              more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_4_ENABLE)
-              more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_5_ENABLE)
-              more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_6_ENABLE)
-              more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_CN;
-            #endif
+      #if ENABLED(USER_CMD_1_ENABLE)
+        more_menu.custom1 = MORE_CUSTOM1_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_2_ENABLE)
+        more_menu.custom2 = MORE_CUSTOM2_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_3_ENABLE)
+        more_menu.custom3 = MORE_CUSTOM3_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_4_ENABLE)
+        more_menu.custom4 = MORE_CUSTOM4_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_5_ENABLE)
+        more_menu.custom5 = MORE_CUSTOM5_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_6_ENABLE)
+        more_menu.custom6 = MORE_CUSTOM6_TEXT_CN;
+      #endif
+      #if ENABLED(USER_CMD_7_ENABLE)
+        more_menu.custom7 = MORE_CUSTOM7_TEXT_CN;
+      #endif
       // WIFI
       wifi_menu.title = WIFI_TEXT;
       // wifi_menu.key = WIFI_KEY_TEXT_CN;
@@ -1827,7 +1827,7 @@ void disp_language_init() {
             machine_menu.EncoderConfTitle    = ENCODER_CONF_TITLE_RU;
             machine_menu.EncoderConfText     = ENCODER_CONF_TEXT_RU;
 
-//End Malderin translate
+            // End Malderin translate
 
             cloud_menu.title        = TITLE_CLOUD_TEXT_RU;
             cloud_menu.bind         = CLOUD_BINDED_RU;
@@ -2522,27 +2522,27 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_IT;
           set_menu.eepromSet    = EEPROM_SETTINGS_IT;
           more_menu.title       = TITLE_MORE_IT;
-            #if ENABLED(USER_CMD_1_ENABLE)
-              more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_2_ENABLE)
-              more_menu.custom2 = MORE_CUSTOM2_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_3_ENABLE)
-              more_menu.custom3 = MORE_CUSTOM3_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_4_ENABLE)
-              more_menu.custom4 = MORE_CUSTOM4_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_5_ENABLE)
-              more_menu.custom5 = MORE_CUSTOM5_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_6_ENABLE)
-              more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_IT;
-            #endif
+          #if ENABLED(USER_CMD_1_ENABLE)
+            more_menu.custom1 = MORE_CUSTOM1_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_2_ENABLE)
+            more_menu.custom2 = MORE_CUSTOM2_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_3_ENABLE)
+            more_menu.custom3 = MORE_CUSTOM3_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_4_ENABLE)
+            more_menu.custom4 = MORE_CUSTOM4_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_5_ENABLE)
+            more_menu.custom5 = MORE_CUSTOM5_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_6_ENABLE)
+            more_menu.custom6 = MORE_CUSTOM6_TEXT_IT;
+          #endif
+          #if ENABLED(USER_CMD_7_ENABLE)
+            more_menu.custom7 = MORE_CUSTOM7_TEXT_IT;
+          #endif
           //
           filesys_menu.title   = TITLE_FILESYS_IT;
           filesys_menu.sd_sys  = SD_CARD_TEXT_IT;
