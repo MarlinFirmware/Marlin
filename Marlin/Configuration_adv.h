@@ -1084,8 +1084,8 @@
   #if HAS_BED_PROBE
     //#define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
-      #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
-      //#define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER // Set a convenient position to do the measurement
+      //#define PROBE_OFFSET_START -4.0              // If enabled, this will override the set Z-Offset for the Wizard. Estimated nozzle-to-probe Z offset, plus a little extra
+      //#define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER // Set a convenient position to do the calibration (probing point and nozzle/bed-distance). Format: { X , Y }
     #endif
   #endif
 
