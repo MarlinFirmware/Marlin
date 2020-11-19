@@ -856,7 +856,7 @@ void disp_language_init() {
   machine_menu.key_point = KEYBOARD_KEY_POINT_EN;
   machine_menu.negative  = KEYBOARD_KEY_NEGATIVE_EN;
   // wifi-list
-  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     list_menu.title        = TEXT_WIFI_MENU_TITLE_EN;
     list_menu.file_pages   = FILE_PAGES_EN;
 
@@ -864,7 +864,7 @@ void disp_language_init() {
     tips_menu.joining      = TEXT_WIFI_JOINING_EN;
     tips_menu.failedJoin   = TEXT_WIFI_FAILED_JOIN_EN;
     tips_menu.wifiConected = TEXT_WIFI_WIFI_CONECTED_EN;
-  #endif  //USES_MKS_WIFI_FUNCTION
+  #endif  //MKS_WIFI_MODULE
   machine_setting_disp();
 
   operation_menu.babystep = TEXT_BABY_STEP_EN;
@@ -1732,19 +1732,19 @@ void disp_language_init() {
             wifi_menu.cloud     = CLOUD_TEXT_RU;
             wifi_menu.reconnect = WIFI_RECONNECT_TEXT_RU;
 
-//Start Malderin translate
+            // Start Malderin translate
             machine_menu.next          = NEXT_RU;
             machine_menu.previous      = PREVIOUS_RU;
             machine_menu.enable        = ENABLE_RU;
             machine_menu.disable       = DISABLE_RU;
             machine_menu.key_confirm   = KEY_CONFIRM_RU;
 
-			      MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_RU;
+            MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_RU;
             MachinePara_menu.title              = MACHINE_PARA_TITLE_RU;
             machine_menu.MachineConfigTitle     = MACHINE_CONFIG_TITLE_RU;
-			      MachinePara_menu.MotorSetting       = MOTOR_CONFIG_RU;
-			      MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_RU;
-			      MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_RU;
+            MachinePara_menu.MotorSetting       = MOTOR_CONFIG_RU;
+            MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_RU;
+            MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_RU;
             machine_menu.MotorConfTitle        = MOTOR_CONF_TITLE_RU;
             machine_menu.MaxFeedRateConf       = MAXFEEDRATE_CONF_RU;
             machine_menu.AccelerationConf      = ACCELERATION_CONF_RU;
@@ -1760,8 +1760,8 @@ void disp_language_init() {
             machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_RU;
             machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_RU;
             machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_RU;
-        	  machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_RU;
-        	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_RU;
+            machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_RU;
+            machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_RU;
 
             machine_menu.AccelerationConfTitle = ACCELERATION_CONF_TITLE_RU;
             machine_menu.PrintAcceleration     = PRINT_ACCELERATION_RU;
@@ -2279,27 +2279,27 @@ void disp_language_init() {
           set_menu.machine_para = MACHINE_PARA_FR;
           set_menu.eepromSet    = EEPROM_SETTINGS_FR;
           more_menu.title       = TITLE_MORE_FR;
-            #if ENABLED(USER_CMD_1_ENABLE)
-              more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_2_ENABLE)
-              more_menu.custom2 = MORE_CUSTOM2_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_3_ENABLE)
-              more_menu.custom3 = MORE_CUSTOM3_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_4_ENABLE)
-              more_menu.custom4 = MORE_CUSTOM4_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_5_ENABLE)
-              more_menu.custom5 = MORE_CUSTOM5_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_6_ENABLE)
-              more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
-            #endif
-            #if ENABLED(USER_CMD_7_ENABLE)
-              more_menu.custom7 = MORE_CUSTOM7_TEXT_FR;
-            #endif
+          #if ENABLED(USER_CMD_1_ENABLE)
+            more_menu.custom1 = MORE_CUSTOM1_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_2_ENABLE)
+            more_menu.custom2 = MORE_CUSTOM2_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_3_ENABLE)
+            more_menu.custom3 = MORE_CUSTOM3_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_4_ENABLE)
+            more_menu.custom4 = MORE_CUSTOM4_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_5_ENABLE)
+            more_menu.custom5 = MORE_CUSTOM5_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_6_ENABLE)
+            more_menu.custom6 = MORE_CUSTOM6_TEXT_FR;
+          #endif
+          #if ENABLED(USER_CMD_7_ENABLE)
+            more_menu.custom7 = MORE_CUSTOM7_TEXT_FR;
+          #endif
           //
           filesys_menu.title          = TITLE_FILESYS_FR;
           filesys_menu.sd_sys         = SD_CARD_TEXT_FR;

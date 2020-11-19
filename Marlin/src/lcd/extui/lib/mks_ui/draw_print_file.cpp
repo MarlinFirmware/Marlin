@@ -295,7 +295,7 @@ void disp_gcode_icon(uint8_t file_num) {
           //lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), list_file.file_name[i], 1);
 
           char *cur_name = strrchr(list_file.file_name[i], '/');
-		      test_public_buf_l[i][0] = '\0';
+          test_public_buf_l[i][0] = '\0';
           strcat(test_public_buf_l[i],"S:");
           strcat(test_public_buf_l[i],cur_name);
           char *temp = strstr(test_public_buf_l[i],".GCO");

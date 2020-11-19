@@ -148,67 +148,52 @@ void lv_draw_more(void) {
 
   /*Create an Image button and label*/
 
+  const bool enc_ena = TERN0(HAS_ROTARY_ENCODER. gCfgItems.encoder_enable);
+
   #if ENABLED(USER_CMD_1_ENABLE)
     buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", INTERVAL_V, titleHeight, event_handler, ID_CUSTOM_1);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom1);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom1);
     lv_obj_t *labelCustom1 = lv_label_create_empty(buttonCustom1);
   #endif
 
   #if ENABLED(USER_CMD_2_ENABLE)
     buttonCustom2 = lv_imgbtn_create(scr, "F:/bmp_custom2.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_CUSTOM_2);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom2);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom2);
     lv_obj_t *labelCustom2 = lv_label_create_empty(buttonCustom2);
   #endif
 
   #if ENABLED(USER_CMD_3_ENABLE)
     buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_CUSTOM_3);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom3);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom3);
     lv_obj_t *labelCustom3 = lv_label_create_empty(buttonCustom3);
   #endif
 
   #if ENABLED(USER_CMD_4_ENABLE)
     buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_CUSTOM_4);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom4);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom4);
     lv_obj_t *labelCustom4 = lv_label_create_empty(buttonCustom4);
   #endif
 
   #if ENABLED(USER_CMD_5_ENABLE)
     buttonCustom5 = lv_imgbtn_create(scr, "F:/bmp_custom5.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_5);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom5);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom5);
     lv_obj_t *labelCustom5 = lv_label_create_empty(buttonCustom5);
   #endif
 
   #if ENABLED(USER_CMD_6_ENABLE)
     buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_6);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom6);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom6);
     lv_obj_t *labelCustom6 = lv_label_create_empty(buttonCustom6);
   #endif
 
   #if ENABLED(USER_CMD_7_ENABLE)
     buttonCustom7 = lv_imgbtn_create(scr, "F:/bmp_custom7.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_7);
-    #if HAS_ROTARY_ENCODER
-      if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonCustom7);
-    #endif
+    if (enc_ena) lv_group_add_obj(g, buttonCustom7);
     lv_obj_t *labelCustom7 = lv_label_create_empty(buttonCustom7);
   #endif
 
   lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_return.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_M_RETURN);
-
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) lv_group_add_obj(g, buttonBack);
-  #endif
+  if (enc_ena) lv_group_add_obj(g, buttonBack);
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language != 0) {
@@ -245,40 +230,38 @@ void lv_draw_more(void) {
   }
 
   #if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-    #if ENABLED(USER_CMD_1_ENABLE)
-      lv_group_add_obj(g, buttonCustom1);
-    #endif
-    #if ENABLED(USER_CMD_2_ENABLE)
-      lv_group_add_obj(g, buttonCustom2);
-    #endif
-    #if ENABLED(USER_CMD_3_ENABLE)
-      lv_group_add_obj(g, buttonCustom3);
-    #endif
-    #if ENABLED(USER_CMD_4_ENABLE)
-      lv_group_add_obj(g, buttonCustom4);
-    #endif
-    #if ENABLED(USER_CMD_5_ENABLE)
-      lv_group_add_obj(g, buttonCustom5);
-    #endif
-    #if ENABLED(USER_CMD_6_ENABLE)
-      lv_group_add_obj(g, buttonCustom6);
-    #endif
-    #if ENABLED(USER_CMD_7_ENABLE)
-      lv_group_add_obj(g, buttonCustom7);
-    #endif
-		lv_group_add_obj(g, buttonBack);
-	}
-  #endif // BUTTONS_EXIST(EN1, EN2, ENC)
+    if (enc_ena) {
+      #if ENABLED(USER_CMD_1_ENABLE)
+        lv_group_add_obj(g, buttonCustom1);
+      #endif
+      #if ENABLED(USER_CMD_2_ENABLE)
+        lv_group_add_obj(g, buttonCustom2);
+      #endif
+      #if ENABLED(USER_CMD_3_ENABLE)
+        lv_group_add_obj(g, buttonCustom3);
+      #endif
+      #if ENABLED(USER_CMD_4_ENABLE)
+        lv_group_add_obj(g, buttonCustom4);
+      #endif
+      #if ENABLED(USER_CMD_5_ENABLE)
+        lv_group_add_obj(g, buttonCustom5);
+      #endif
+      #if ENABLED(USER_CMD_6_ENABLE)
+        lv_group_add_obj(g, buttonCustom6);
+      #endif
+      #if ENABLED(USER_CMD_7_ENABLE)
+        lv_group_add_obj(g, buttonCustom7);
+      #endif
+      lv_group_add_obj(g, buttonBack);
+    }
+  #endif
 }
 
 void lv_clear_more() {
-	#if BUTTONS_EXIST(EN1, EN2, ENC)
-	if (gCfgItems.encoder_enable == true) {
-		lv_group_remove_all_objs(g);
-	}
-  	#endif // BUTTONS_EXIST(EN1, EN2, ENC)
-	lv_obj_del(scr);
+  #if BUTTONS_EXIST(EN1, EN2, ENC)
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
 }
 
 #endif // HAS_TFT_LVGL_UI

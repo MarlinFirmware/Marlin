@@ -58,7 +58,7 @@ void printer_state_polling() {
         uiCfg.current_x_position_bak = current_position.x;
         uiCfg.current_y_position_bak = current_position.y;
         uiCfg.current_z_position_bak = current_position.z;
-        
+
         if (gCfgItems.pausePosZ != (float)-1) {
           gcode.process_subcommands_now_P(PSTR("G91"));
           sprintf_P(public_buf_l, PSTR("G1 Z%.1f"), gCfgItems.pausePosZ);
@@ -154,7 +154,7 @@ void printer_state_polling() {
   if (uiCfg.print_state == WORKING)
     filament_check();
 
-  TERN_(USES_MKS_WIFI_FUNCTION, wifi_looping());
+  TERN_(MKS_WIFI_MODULE, wifi_looping());
 }
 
 void filament_pin_setup() {

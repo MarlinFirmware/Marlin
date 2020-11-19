@@ -25,7 +25,7 @@
 
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USES_MKS_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifiSerial.h"
@@ -46,9 +46,9 @@
 #define WIFI_IO1_RESET()  WRITE(WIFI_IO1_PIN, LOW);
 
 void __irq_usart1(void) {
-   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE)) {
-   	WRITE(WIFI_IO1_PIN, HIGH);
-   }
+   if ((USART1_BASE->CR1 & USART_CR1_RXNEIE) && (USART1_BASE->SR & USART_SR_RXNE))
+     WRITE(WIFI_IO1_PIN, HIGH);
+
    WIFISERIAL.wifi_usart_irq(USART1_BASE);
 }
 
@@ -56,5 +56,5 @@ void __irq_usart1(void) {
   } /* C-declarations for C++ */
 #endif
 
-#endif // USES_MKS_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

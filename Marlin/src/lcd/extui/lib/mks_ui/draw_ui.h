@@ -79,7 +79,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(USES_MKS_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
   #include "wifiSerial.h"
   #include "wifi_module.h"
   #include "wifi_upload.h"
@@ -90,12 +90,12 @@
   #include "draw_cloud_bind.h"
 #endif
 
-#define ESP_WIFI					0x02
-#define AP_MODEL					0x01
-#define STA_MODEL					0x02
+#define ESP_WIFI          0x02
+#define AP_MODEL          0x01
+#define STA_MODEL         0x02
 
-#define FILE_SYS_USB	    0
-#define FILE_SYS_SD	      1
+#define FILE_SYS_USB      0
+#define FILE_SYS_SD       1
 
 #define TICK_CYCLE 1
 
@@ -164,9 +164,9 @@
   #define PARA_UI_BACK_BTN_X_SIZE   70
   #define PARA_UI_BACK_BTN_Y_SIZE   40
 
-  #define QRCODE_X 	                20
-  #define QRCODE_Y 	                40
-  #define QRCODE_WIDTH	            160
+  #define QRCODE_X                  20
+  #define QRCODE_Y                  40
+  #define QRCODE_WIDTH              160
 
 #else // ifdef TFT35
 
@@ -390,14 +390,12 @@ typedef enum {
   level_pos_x4,
   level_pos_y4,
   level_pos_x5,
-  level_pos_y5
+  level_pos_y5,
   #if HAS_BED_PROBE
-    ,
     x_offset,
     y_offset,
-    z_offset
+    z_offset,
   #endif
-  ,
   load_length,
   load_speed,
   unload_length,

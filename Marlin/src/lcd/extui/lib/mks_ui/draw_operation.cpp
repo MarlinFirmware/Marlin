@@ -182,7 +182,7 @@ void lv_draw_operation(void) {
   if (uiCfg.print_state != WORKING) {
     /*
       label_Filament = lv_label_create_empty(buttonFilament);
-    } else {
+      } else {
     */
     labelExtrusion = lv_label_create_empty(buttonExtrusion);
     label_Move = lv_label_create_empty(buttonMove);
@@ -213,7 +213,6 @@ void lv_draw_operation(void) {
       /*
         lv_label_set_text(label_Filament, operation_menu.filament);
         lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-      } else {
       */
       lv_label_set_text(labelExtrusion, operation_menu.extr);
       lv_obj_align(labelExtrusion, buttonExtrusion, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

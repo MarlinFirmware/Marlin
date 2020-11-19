@@ -204,7 +204,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_enable.bin",
   "bmp_return.bin",
 
-  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     // wifi screen
     "bmp_wifi.bin",
     "bmp_cloud.bin",

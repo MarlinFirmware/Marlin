@@ -56,7 +56,7 @@ XPT2046 touch;
   #include "draw_touch_calibration.h"
 #endif
 
-#if ENABLED(USES_MKS_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
   #include "wifi_module.h"
 #endif
 
@@ -88,7 +88,7 @@ uint8_t bmp_public_buf[14 * 1024];
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
-  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     if (tips_disp.timer == TIPS_TIMER_START)
       tips_disp.timer_count++;
   #endif
@@ -126,7 +126,7 @@ void tft_lvgl_init() {
   watchdog_refresh();     // LVGL init takes time
 
   #if MB(MKS_ROBIN_NANO)
-    OUT_WRITE(PB0, LOW);      // HE1
+    OUT_WRITE(PB0, LOW);  // HE1
   #endif
 
   // Init TFT first!
@@ -203,7 +203,7 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
-  #if ENABLED(USES_MKS_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     mks_wifi_firmware_upddate();
   #endif
   bool ready = true;
@@ -226,12 +226,9 @@ void tft_lvgl_init() {
   #endif
 
   if (ready) {
-    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
-      else lv_draw_ready_print();
-    #else
-      lv_draw_ready_print();
-    #endif
+    const bool need_cal = TERN0(TOUCH_SCREEN_CALIBRATION, touch_calibration.need_calibration());
+    TERN_(TOUCH_SCREEN_CALIBRATION, if (need_cal) lv_draw_touch_calibration_screen());
+    if (!need_cal) lv_draw_ready_print();
   }
 
   if (mks_test_flag == 0x1E)
@@ -256,27 +253,26 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   uint16_t width, height;
   width = x2 - x1 + 1;
   height = y2 - y1 + 1;
-  #if 1//ENABLED(TFT_LVGL_UI_SPI)
+  #if 1 || ENABLED(TFT_LVGL_UI_SPI)
     const uint16 size = (uint16)width;
     uint16_t buf[size];
-    for(uint16 j = 0; j < size; j++) {
-      buf[j] = bk_color.full; 
-    }
+    for (uint16 j = 0; j < size; j++)
+      buf[j] = bk_color.full;
+
     SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
-    for (uint16_t i = 0; i < height; i++) {
+    for (uint16_t i = 0; i < height; i++)
       SPI_TFT.tftio.WriteSequence(buf, width);
-    }
+
     W25QXX.init(SPI_QUARTER_SPEED);
   #else
-    // tft_set_cursor(0, 0);
-    // LCD_setWindowArea((uint16_t)x1, (uint16_t)y1, width, height);
-    // LCD_WriteRAM_Prepare();
-    // #ifdef LCD_USE_DMA_FSMC
-    //   LCD_IO_WriteMultiple(bk_color.full, width * height);
-    // #else
-    //   for (uint32_t i = 0; i < width * height; i++) {
-    //     LCD_IO_WriteData(bk_color.full);
-    // }
+    //tft_set_cursor(0, 0);
+    //LCD_setWindowArea((uint16_t)x1, (uint16_t)y1, width, height);
+    //LCD_WriteRAM_Prepare();
+    //#ifdef LCD_USE_DMA_FSMC
+    //  LCD_IO_WriteMultiple(bk_color.full, width * height);
+    //#else
+    //  for (uint32_t i = 0; i < width * height; i++)
+    //    LCD_IO_WriteData(bk_color.full);
     //#endif
   #endif
 }
@@ -561,7 +557,6 @@ void lv_encoder_pin_init() {
         const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
         if (enc_c != last_button_state) {
           state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-
           last_button_state = enc_c;
         }
 

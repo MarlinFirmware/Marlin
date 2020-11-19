@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if BOTH(HAS_TFT_LVGL_UI, USES_MKS_WIFI_FUNCTION)
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -117,16 +117,16 @@ signed char IsReady() {
 }
 
 void uploadPort_write(const uint8_t *buf, size_t len) {
-	for(size_t i = 0; i < len; i++) {
-		WIFISERIAL.write(*(buf + i));
-	}
+  for(size_t i = 0; i < len; i++) {
+    WIFISERIAL.write(*(buf + i));
+  }
 }
 
 char uploadPort_read() {
-	uint8_t retChar;
-	retChar = WIFISERIAL.read();
-	if(retChar > 0) return retChar;
-	else return 0;
+  uint8_t retChar;
+  retChar = WIFISERIAL.read();
+  if (retChar > 0) return retChar;
+  else return 0;
 }
 
 int uploadPort_available() {
@@ -292,13 +292,10 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     EspUploadResult stat;
 
     //IWDG_ReloadCounter();
-    #if ENABLED(USE_WATCHDOG)
-      watchdog_refresh();
-    #endif
+    watchdog_refresh();
 
-    if (getWifiTickDiff(startTime, getWifiTick()) > msTimeout) {
-      return(timeout);
-    }
+    if (getWifiTickDiff(startTime, getWifiTick()) > msTimeout)
+      return timeout;
 
     if (uploadPort_available() < needBytes) {
       // insufficient data available
@@ -310,70 +307,58 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
     switch (state) {
       case begin: // expecting frame start
         c = uploadPort_read();
-        if (c != (uint8_t)0xC0) {
-          break;
-        }
+        if (c == (uint8_t)0xC0) break;
         state = header;
         needBytes = 2;
-
         break;
       case end:   // expecting frame end
         c = uploadPort_read();
-        if (c != (uint8_t)0xC0) {
-          return slipFrame;
-        }
+        if (c != (uint8_t)0xC0) return slipFrame;
         state = done;
-
         break;
 
       case header:  // reading an 8-byte header
-      case body:    // reading the response body
-        {
-          int rslt;
-          // retrieve a byte with SLIP decoding
-          rslt = ReadByte(&c, 1);
-          if (rslt != 1 && rslt != 2) {
-            // some error occurred
-            stat = (rslt == 0 || rslt == -2) ? slipData : slipFrame;
-            return stat;
-          }
-          else if (state == header) {
-            //store the header byte
-            hdr[hdrIdx++] = c;
-            if (hdrIdx >= headerLength) {
-              // get the body length, prepare a buffer for it
-              *bodyLen = (uint16_t)getData(2, hdr, 2);
+      case body: {  // reading the response body
+        int rslt;
+        // retrieve a byte with SLIP decoding
+        rslt = ReadByte(&c, 1);
+        if (rslt != 1 && rslt != 2) {
+          // some error occurred
+          stat = (rslt == 0 || rslt == -2) ? slipData : slipFrame;
+          return stat;
+        }
+        else if (state == header) {
+          //store the header byte
+          hdr[hdrIdx++] = c;
+          if (hdrIdx >= headerLength) {
+            // get the body length, prepare a buffer for it
+            *bodyLen = (uint16_t)getData(2, hdr, 2);
 
-              // extract the value, if requested
-              if (valp != 0) {
-                *valp = getData(4, hdr, 4);
-              }
+            // extract the value, if requested
+            if (valp)
+              *valp = getData(4, hdr, 4);
 
-              if (*bodyLen != 0) {
-                state = body;
-              }
-              else {
-                needBytes = 1;
-                state = end;
-              }
-            }
-          }
-          else {
-            // Store the response body byte, check for completion
-            if (bodyIdx < ARRAY_SIZE(respBuf)) {
-              respBuf[bodyIdx] = c;
-            }
-            ++bodyIdx;
-            if (bodyIdx >= *bodyLen) {
+            if (*bodyLen != 0)
+              state = body;
+            else {
               needBytes = 1;
               state = end;
             }
           }
         }
-        break;
+        else {
+          // Store the response body byte, check for completion
+          if (bodyIdx < ARRAY_SIZE(respBuf))
+            respBuf[bodyIdx] = c;
 
-      default:    // this shouldn't happen
-        return slipState;
+          if (++bodyIdx >= *bodyLen) {
+            needBytes = 1;
+            state = end;
+          }
+        }
+      } break;
+
+      default: return slipState;  // this shouldn't happen
     }
   }
 
@@ -404,7 +389,6 @@ void _writePacket(const uint8_t *data, size_t len) {
     }
     else {
       outBuf[outIndex++] = *data;
-
     }
     data++;
     --len;
@@ -491,12 +475,8 @@ EspUploadResult Sync(uint16_t timeout) {
     for (;;) {
       size_t bodyLen;
       EspUploadResult rc = readPacket(ESP_SYNC, 0, &bodyLen, defaultTimeout);
-      #if ENABLED(USE_WATCHDOG)
-        watchdog_refresh();
-      #endif
-      if (rc != success || bodyLen != 2) {
-        break;
-      }
+      watchdog_refresh();
+      if (rc != success || bodyLen != 2) break;
     }
   }
   //DEBUG
@@ -540,208 +520,203 @@ uint16_t checksum(const uint8_t *data, uint16_t dataLen, uint16_t cksum) {
 }
 
 EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
-	const uint32_t blkSize = EspFlashBlockSize;
-	int i;
+  const uint32_t blkSize = EspFlashBlockSize;
+  int i;
 
-	// Allocate a data buffer for the combined header and block data
-	const uint16_t hdrOfst = 0;
-	const uint16_t dataOfst = 16;
-	const uint16_t blkBufSize = dataOfst + blkSize;
-	uint32_t blkBuf32[blkBufSize/4];
-	uint8_t * const blkBuf = (uint8_t*)(blkBuf32);
-	uint32_t cnt;
-	uint16_t cksum;
-	EspUploadResult stat;
+  // Allocate a data buffer for the combined header and block data
+  const uint16_t hdrOfst = 0;
+  const uint16_t dataOfst = 16;
+  const uint16_t blkBufSize = dataOfst + blkSize;
+  uint32_t blkBuf32[blkBufSize/4];
+  uint8_t * const blkBuf = (uint8_t*)(blkBuf32);
+  uint32_t cnt;
+  uint16_t cksum;
+  EspUploadResult stat;
 
-	// Prepare the header for the block
-	putData(blkSize, 4, blkBuf, hdrOfst + 0);
-	putData(esp_upload.uploadBlockNumber, 4, blkBuf, hdrOfst + 4);
-	putData(0, 4, blkBuf, hdrOfst + 8);
-	putData(0, 4, blkBuf, hdrOfst + 12);
+  // Prepare the header for the block
+  putData(blkSize, 4, blkBuf, hdrOfst + 0);
+  putData(esp_upload.uploadBlockNumber, 4, blkBuf, hdrOfst + 4);
+  putData(0, 4, blkBuf, hdrOfst + 8);
+  putData(0, 4, blkBuf, hdrOfst + 12);
 
-	// Get the data for the block
-	cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
-	if (cnt != blkSize) {
-		if (update_file.curPosition() == esp_upload.fileSize) {
-			// partial last block, fill the remainder
-			memset(blkBuf + dataOfst + cnt, 0xff, blkSize - cnt);
-		}
-		else {
-			return fileRead;
-		}
-	}
+  // Get the data for the block
+  cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
+  if (cnt != blkSize) {
+    if (update_file.curPosition() == esp_upload.fileSize) {
+      // partial last block, fill the remainder
+      memset(blkBuf + dataOfst + cnt, 0xff, blkSize - cnt);
+    }
+    else
+      return fileRead;
+  }
 
-	// Patch the flash parameters into the first block if it is loaded at address 0
-	if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0) {
-		// update the Flash parameters
-		uint32_t flashParm = getData(2, blkBuf + dataOfst + 2, 0) & ~(uint32_t)flashParmMask;
-		putData(flashParm | flashParmVal, 2, blkBuf + dataOfst + 2, 0);
-	}
+  // Patch the flash parameters into the first block if it is loaded at address 0
+  if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0) {
+    // update the Flash parameters
+    uint32_t flashParm = getData(2, blkBuf + dataOfst + 2, 0) & ~(uint32_t)flashParmMask;
+    putData(flashParm | flashParmVal, 2, blkBuf + dataOfst + 2, 0);
+  }
 
-	// Calculate the block checksum
-	cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
-	
-	for (i = 0; i < 3; i++){
-		if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success) {
-			break;
-		}
-	}
+  // Calculate the block checksum
+  cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
 
-	//printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
+  for (i = 0; i < 3; i++)
+    if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success)
+      break;
 
-	return stat;
+  //printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
+
+  return stat;
 }
 
 void upload_spin() {
-	
-	switch (esp_upload.state) {
-	case resetting:
 
-		if (esp_upload.connectAttemptNumber == 9) {
-			esp_upload.uploadResult = connected;
-			esp_upload.state = done;
-		}
-		else{
-			//if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {}
-			uploadPort_begin();
+  switch (esp_upload.state) {
+    case resetting:
 
-			wifi_delay(2000);
-
-			flushInput();
-		
-			esp_upload.lastAttemptTime = esp_upload.lastResetTime = getWifiTick();
-			esp_upload.state = connecting;
-		}
-
-		break;
-
-	case connecting:
-		if ((getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= connectAttemptInterval) && (getWifiTickDiff(esp_upload.lastResetTime, getWifiTick()) >= 500)) {
-			EspUploadResult res = Sync(5000);
-			esp_upload.lastAttemptTime = getWifiTick();
-			if (res == success) {
-				esp_upload.state = erasing;
-			}
-			else {
-				esp_upload.connectAttemptNumber++;
-				if (esp_upload.connectAttemptNumber % retriesPerReset == 0) {
-					esp_upload.state = resetting;		
-				}
-			}
-		}
-		break;
-
-  case erasing:
-    if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= blockWriteInterval) {
-      uint32_t eraseSize;
-      const uint32_t sectorsPerBlock = 16;
-      const uint32_t sectorSize = 4096;
-      const uint32_t numSectors = (esp_upload.fileSize + sectorSize - 1)/sectorSize;
-      const uint32_t startSector = esp_upload.uploadAddress/sectorSize;
-
-      uint32_t headSectors = sectorsPerBlock - (startSector % sectorsPerBlock);
-      NOMORE(headSectors, numSectors);
-
-      eraseSize = (numSectors < 2 * headSectors)
-                ? (numSectors + 1) / 2 * sectorSize
-                : (numSectors - headSectors) * sectorSize;
-
-      //MessageF("Erasing %u bytes...\n", fileSize);
-      esp_upload.uploadResult = flashBegin(esp_upload.uploadAddress, eraseSize);
-      if (esp_upload.uploadResult == success) {
-        //MessageF("Uploading file...\n");
-        esp_upload.uploadBlockNumber = 0;
-        esp_upload.uploadNextPercentToReport = percentToReportIncrement;
-        esp_upload.lastAttemptTime = getWifiTick();
-        esp_upload.state = uploading;
-      }
-      else {
-        //MessageF("Erase failed\n");
+      if (esp_upload.connectAttemptNumber == 9) {
+        esp_upload.uploadResult = connected;
         esp_upload.state = done;
       }
-    }
-    break;
+      else{
+        //if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {}
+        uploadPort_begin();
 
-  case uploading:
-    // The ESP needs several milliseconds to recover from one packet before it will accept another
-    if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= 15) {
-      unsigned int percentComplete;
-      const uint32_t blkCnt = (esp_upload.fileSize + EspFlashBlockSize - 1) / EspFlashBlockSize;
-      if (esp_upload.uploadBlockNumber < blkCnt) {
-        esp_upload.uploadResult = flashWriteBlock(0, 0);
+        wifi_delay(2000);
+
+        flushInput();
+
+        esp_upload.lastAttemptTime = esp_upload.lastResetTime = getWifiTick();
+        esp_upload.state = connecting;
+      }
+
+      break;
+
+    case connecting:
+      if ((getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= connectAttemptInterval) && (getWifiTickDiff(esp_upload.lastResetTime, getWifiTick()) >= 500)) {
+        EspUploadResult res = Sync(5000);
         esp_upload.lastAttemptTime = getWifiTick();
-        if (esp_upload.uploadResult != success) {
-          //MessageF("Flash block upload failed\n");
+        if (res == success) {
+          esp_upload.state = erasing;
+        }
+        else {
+          esp_upload.connectAttemptNumber++;
+          if (esp_upload.connectAttemptNumber % retriesPerReset == 0) {
+            esp_upload.state = resetting;
+          }
+        }
+      }
+      break;
+
+    case erasing:
+      if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= blockWriteInterval) {
+        uint32_t eraseSize;
+        const uint32_t sectorsPerBlock = 16;
+        const uint32_t sectorSize = 4096;
+        const uint32_t numSectors = (esp_upload.fileSize + sectorSize - 1)/sectorSize;
+        const uint32_t startSector = esp_upload.uploadAddress/sectorSize;
+
+        uint32_t headSectors = sectorsPerBlock - (startSector % sectorsPerBlock);
+        NOMORE(headSectors, numSectors);
+
+        eraseSize = (numSectors < 2 * headSectors)
+                  ? (numSectors + 1) / 2 * sectorSize
+                  : (numSectors - headSectors) * sectorSize;
+
+        //MessageF("Erasing %u bytes...\n", fileSize);
+        esp_upload.uploadResult = flashBegin(esp_upload.uploadAddress, eraseSize);
+        if (esp_upload.uploadResult == success) {
+          //MessageF("Uploading file...\n");
+          esp_upload.uploadBlockNumber = 0;
+          esp_upload.uploadNextPercentToReport = percentToReportIncrement;
+          esp_upload.lastAttemptTime = getWifiTick();
+          esp_upload.state = uploading;
+        }
+        else {
+          //MessageF("Erase failed\n");
           esp_upload.state = done;
         }
-        percentComplete = (100 * esp_upload.uploadBlockNumber)/blkCnt;
-        ++esp_upload.uploadBlockNumber;
-        if (percentComplete >= esp_upload.uploadNextPercentToReport) {
-          //MessageF("%u%% complete\n", percentComplete);
-          esp_upload.uploadNextPercentToReport += percentToReportIncrement;
+      }
+      break;
+
+    case uploading:
+      // The ESP needs several milliseconds to recover from one packet before it will accept another
+      if (getWifiTickDiff(esp_upload.lastAttemptTime, getWifiTick()) >= 15) {
+        unsigned int percentComplete;
+        const uint32_t blkCnt = (esp_upload.fileSize + EspFlashBlockSize - 1) / EspFlashBlockSize;
+        if (esp_upload.uploadBlockNumber < blkCnt) {
+          esp_upload.uploadResult = flashWriteBlock(0, 0);
+          esp_upload.lastAttemptTime = getWifiTick();
+          if (esp_upload.uploadResult != success) {
+            //MessageF("Flash block upload failed\n");
+            esp_upload.state = done;
+          }
+          percentComplete = (100 * esp_upload.uploadBlockNumber)/blkCnt;
+          ++esp_upload.uploadBlockNumber;
+          if (percentComplete >= esp_upload.uploadNextPercentToReport) {
+            //MessageF("%u%% complete\n", percentComplete);
+            esp_upload.uploadNextPercentToReport += percentToReportIncrement;
+          }
         }
+        else
+          esp_upload.state = done;
+      }
+      break;
+
+    case done:
+      update_file.close();
+
+      if (esp_upload.uploadResult == success) {
+        //printf("upload successfully\n");
       }
       else {
-        esp_upload.state = done;
+        //printf("upload failed\n");
       }
-    }
-    break;
+      esp_upload.state = upload_idle;//idle;
+      break;
 
-	case done:
-		update_file.close();
-		
-		if (esp_upload.uploadResult == success) {
-			//printf("upload successfully\n");
-		}
-		else {
-			//printf("upload failed\n");
-		}
-		esp_upload.state = upload_idle;//idle;
-		break;
-
-	default:
-		break;
-	}
+    default: break;
+  }
 }
 
 // Try to upload the given file at the given address
 void SendUpdateFile(const char *file, uint32_t address) {
 
-	const char * const fname = card.diveToFile(true, update_curDir, ESP_FIRMWARE_FILE);
-	if (!update_file.open(update_curDir, fname, O_READ)) return;
+  const char * const fname = card.diveToFile(true, update_curDir, ESP_FIRMWARE_FILE);
+  if (!update_file.open(update_curDir, fname, O_READ)) return;
 
-	esp_upload.fileSize = update_file.fileSize();
+  esp_upload.fileSize = update_file.fileSize();
 
-	if (esp_upload.fileSize == 0) {
-		update_file.close();
-		return;
-	}
+  if (esp_upload.fileSize == 0) {
+    update_file.close();
+    return;
+  }
 
-	esp_upload.uploadAddress = address;
-	esp_upload.connectAttemptNumber = 0;
-	esp_upload.state = resetting;
+  esp_upload.uploadAddress = address;
+  esp_upload.connectAttemptNumber = 0;
+  esp_upload.state = resetting;
 }
 
 static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000;
 
 void ResetWiFiForUpload(int begin_or_end) {
-	//#if 0
-	uint32_t start, now;
-	
-	start = getWifiTick();
-	now = start;
-	
-	if(begin_or_end == 0) {
-		SET_OUTPUT(WIFI_IO0_PIN);
-	    WRITE(WIFI_IO0_PIN, LOW);
-	}
-	else {
-		SET_INPUT_PULLUP(WIFI_IO0_PIN);
-	}
-    WIFI_RESET();
-    while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
-    WIFI_SET();
-	//#endif
+  //#if 0
+  uint32_t start, now;
+
+  start = getWifiTick();
+  now = start;
+
+  if (begin_or_end == 0) {
+    SET_OUTPUT(WIFI_IO0_PIN);
+      WRITE(WIFI_IO0_PIN, LOW);
+  }
+  else
+    SET_INPUT_PULLUP(WIFI_IO0_PIN);
+
+  WIFI_RESET();
+  while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
+  WIFI_SET();
+  //#endif
 }
 
 int32_t wifi_upload(int type) {
@@ -769,4 +744,4 @@ int32_t wifi_upload(int type) {
   return esp_upload.uploadResult == success ? 0 : -1;
 }
 
-#endif // HAS_TFT_LVGL_UI && USES_MKS_WIFI_FUNCTION
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE

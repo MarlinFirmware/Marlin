@@ -143,9 +143,9 @@ void lv_draw_change_speed(void) {
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_C_RETURN);
 
   // Create labels on the image buttons
-  labelMov              = lv_label_create_empty(buttonMov);
-  labelExt              = lv_label_create_empty(buttonExt);
-  labelStep             = lv_label_create_empty(buttonStep);
+  labelMov  = lv_label_create_empty(buttonMov);
+  labelExt  = lv_label_create_empty(buttonExt);
+  labelStep = lv_label_create_empty(buttonStep);
 
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
