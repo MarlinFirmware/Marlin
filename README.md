@@ -1,3 +1,25 @@
+# Franks 3D Shop Haribo Build
+
+Modified to use Software SPI for the TMC2130, and moved CS for E0 SPI.
+
+Phisically move connections from privious install:
+- MAX7219   44 to 65
+- MOSI      51 to 66
+- MISO      50 to 44
+- SCK       52 to 64
+- E0 TMC_CS 49 to 59
+
+This is a build of the current 2.0.x (2.0.6.1 as of the september 2nd) Marlin with settings for the Haribo Build on Franks3DShop Youtube channel https://youtu.be/LdET-DzsB4g
+Features:
+- BLTOUCH auto bed leveling
+- Character based display REPRAP_DISCOUNT_SMART_CONTROLLER
+- MAX7219 debug display
+- Linear Advance
+- Sensorless Homing (TMC2130 SPI)
+- Custom bootscreen
+- BABYSTEPPING (activate by pushing 2 times the select knob rapidly when printing)
+- NEOPixels (30 pixels) for lighting with state (Red= Printing/Hot ect.)
+
 # Marlin 3D Printer Firmware
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
