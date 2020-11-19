@@ -95,8 +95,8 @@ Caption:
   - (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
   ## HELP - PROCEDURE - TIPS 
-    After the flash, you must reset your printer using the menu or M502,
-  M500 put the probe then start a calibration or G33 V3 (5 iterations).
+  After the flash, you must reset your printer using the menu or M502,
+  M500 put the probe then start a calibration or G33 V3 (5/8 iterations).
     
     **Tip**: After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
              it means that you have a problem with the structure of your printer!
