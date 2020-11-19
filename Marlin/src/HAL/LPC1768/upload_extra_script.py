@@ -12,20 +12,8 @@ import os
 import getpass
 import platform
 
-
 current_OS = platform.system()
 Import("env")
-
-# getting from https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-drive-letters-in-python
-def get_drives():
-    drives = []
-    bitmask = windll.kernel32.GetLogicalDrives()
-    for letter in string.ascii_uppercase:
-        if bitmask & 1:
-            drives.append(letter)
-        bitmask >>= 1
-
-    return drives
 
 def print_error(e):
 	print('\nUnable to find destination disk (%s)\n' \
@@ -46,17 +34,24 @@ try:
 		import subprocess
 		from ctypes import windll
 		import string
+
 		# getting list of drives
-		drives = get_drives()
+		# https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-drive-letters-in-python
+		drives = []
+		bitmask = windll.kernel32.GetLogicalDrives()
+		for letter in string.ascii_uppercase:
+			if bitmask & 1:
+				drives.append(letter)
+			bitmask >>= 1
 
 		upload_disk = 'Disk not found'
 		target_file_found = False
 		target_drive_found = False
 		for drive in drives:
 			final_drive_name = drive + ':\\' 
-			print ('disc check: {}'.format(final_drive_name))
+			# print ('disc check: {}'.format(final_drive_name))
 			try:
-				volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))				
+				volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
 			except Exception as e:
 				print ('error:{}'.format(e))
 				continue
