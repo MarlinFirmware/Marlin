@@ -455,7 +455,9 @@ void CardReader::manage_media() {
 }
 
 void CardReader::release() {
-  endFilePrint();
+  // Card removed while printing? Abort!
+  if (IS_SD_PRINTING()) card.flag.abort_sd_printing = true;
+  else endFilePrint();
   flag.mounted = false;
   flag.workDirIsRoot = true;
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
