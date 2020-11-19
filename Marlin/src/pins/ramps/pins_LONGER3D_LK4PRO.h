@@ -26,24 +26,12 @@
   #error "Longer UI supports only 1 hotend / E-stepper."
 #endif
 
-#define BOARD_INFO_NAME "Longer-LKPRO"
-
-#ifdef LGT_ESP
-    #define Y_MIN_PIN                         37
-#endif
+#define BOARD_INFO_NAME "LGT_KIT_V1.0"
 
 #define SD_DETECT_PIN                         49
 #define FIL_RUNOUT_PIN                         2
 
-#ifdef U20_Pro_AutoBed
-    #define Z_MIN_PIN                         11
-    #define Z_MAX_PIN                         37
-#else //U30_Pro
-    #define Z_MIN_PIN                         35
-    #ifndef LGT_ESP
-        #define Z_MAX_PIN                     37
-    #endif // !LGT_ESP
-#endif
+#define Z_MIN_PIN                             35
 
 //
 // Import RAMPS 1.4 pins
