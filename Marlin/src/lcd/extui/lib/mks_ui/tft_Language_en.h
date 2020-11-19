@@ -200,11 +200,11 @@
 #define E1_TMC_CURRENT_EN               "E1 current (mA)"
 
 #define TMC_MODE_CONF_TITLE_EN          "Machine Settings>TMC step mode settings"
-#define X_TMC_MODE_EN                   "Whether X-axis enable stealthChop modes"
-#define Y_TMC_MODE_EN                   "Whether Y-axis enable stealthChop modes"
-#define Z_TMC_MODE_EN                   "Whether Z-axis enable stealthChop modes"
-#define E0_TMC_MODE_EN                  "Whether E0 enable stealthChop modes"
-#define E1_TMC_MODE_EN                  "Whether E1 enable stealthChop modes"
+#define X_TMC_MODE_EN                   "Whether X-axis enables stealthChop mode"
+#define Y_TMC_MODE_EN                   "Whether Y-axis enables stealthChop mode"
+#define Z_TMC_MODE_EN                   "Whether Z-axis enables stealthChop mode"
+#define E0_TMC_MODE_EN                  "Whether E0 enables stealthChop mode"
+#define E1_TMC_MODE_EN                  "Whether E1 enables stealthChop mode"
 
 #define MOTORDIR_CONF_TITLE_EN          "Machine Settings>Motor direction"
 #define X_MOTORDIR_EN                   "X-axis motor direction invert"
