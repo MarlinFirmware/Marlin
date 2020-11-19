@@ -84,21 +84,12 @@ public:
         do_z_clearance(Z_AFTER_PROBING, true, true, true); // Move down still permitted
       #endif
     }
-    static inline void move_z_after_homing() {
-      #ifdef Z_AFTER_HOMING
-        do_z_clearance(Z_AFTER_HOMING, true, true, true);
-      #elif defined(Z_AFTER_PROBING)
-        move_z_after_probing();
-      #endif
-    }
     static float probe_at_point(const float &rx, const float &ry, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true);
     static inline float probe_at_point(const xy_pos_t &pos, const ProbePtRaise raise_after=PROBE_PT_NONE, const uint8_t verbose_level=0, const bool probe_relative=true, const bool sanity_check=true) {
       return probe_at_point(pos.x, pos.y, raise_after, verbose_level, probe_relative, sanity_check);
     }
 
   #else
-
-    FORCE_INLINE static void move_z_after_homing() {}
 
     static constexpr xyz_pos_t offset = xyz_pos_t({ 0, 0, 0 }); // See #16767
 
@@ -107,6 +98,14 @@ public:
     FORCE_INLINE static bool can_reach(const float &rx, const float &ry) { return position_is_reachable(rx, ry); }
 
   #endif
+
+  static inline void move_z_after_homing() {
+    #ifdef Z_AFTER_HOMING
+      do_z_clearance(Z_AFTER_HOMING, true, true, true);
+    #elif BOTH(Z_AFTER_PROBING,HAS_BED_PROBE)
+      move_z_after_probing();
+    #endif
+  }
 
   FORCE_INLINE static bool can_reach(const xy_pos_t &pos) { return can_reach(pos.x, pos.y); }
 
@@ -134,53 +133,37 @@ public:
   #if HAS_BED_PROBE || HAS_LEVELING
     #if IS_KINEMATIC
       static constexpr float printable_radius = (
-        #if ENABLED(DELTA)
-          DELTA_PRINTABLE_RADIUS
-        #elif IS_SCARA
-          SCARA_PRINTABLE_RADIUS
-        #endif
+        TERN_(DELTA, DELTA_PRINTABLE_RADIUS)
+        TERN_(IS_SCARA, SCARA_PRINTABLE_RADIUS)
       );
-
       static inline float probe_radius() {
         return printable_radius - _MAX(PROBING_MARGIN, HYPOT(offset_xy.x, offset_xy.y));
       }
     #endif
 
     static inline float min_x() {
-      return (
-        #if IS_KINEMATIC
-          (X_CENTER) - probe_radius()
-        #else
-          _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
-        #endif
-      );
+      return TERN(IS_KINEMATIC,
+        (X_CENTER) - probe_radius(),
+        _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float max_x() {
-      return (
-        #if IS_KINEMATIC
-          (X_CENTER) + probe_radius()
-        #else
-          _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
-        #endif
-      );
+      return TERN(IS_KINEMATIC,
+        (X_CENTER) + probe_radius(),
+        _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float min_y() {
-      return (
-        #if IS_KINEMATIC
-          (Y_CENTER) - probe_radius()
-        #else
-          _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
-        #endif
-      );
+      return TERN(IS_KINEMATIC,
+        (Y_CENTER) - probe_radius(),
+        _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
     static inline float max_y() {
-      return (
-        #if IS_KINEMATIC
-          (Y_CENTER) + probe_radius()
-        #else
-          _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
-        #endif
-      );
+      return TERN(IS_KINEMATIC,
+        (Y_CENTER) + probe_radius(),
+        _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
+      ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
 
     #if NEEDS_THREE_PROBE_POINTS

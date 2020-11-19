@@ -25,7 +25,7 @@
  * AGCM4 with RAMPS v1.4.4 pin assignments
  */
 
-#ifndef ARDUINO_GRAND_CENTRAL_M4
+#if NOT_TARGET(ARDUINO_GRAND_CENTRAL_M4)
   #error "Oops! Select 'Adafruit Grand Central M4' in 'Tools > Board.'"
 #endif
 
@@ -287,7 +287,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -299,7 +299,7 @@
     //#define LCD_PINS_ENABLE                 51  // SID (MOSI)
     //#define LCD_PINS_D4                     52  // SCK (CLK) clock
 
-  #elif BOTH(NEWPANEL, PANEL_ONE)
+  #elif BOTH(IS_NEWPANEL, PANEL_ONE)
 
     // TO TEST
     //#define LCD_PINS_RS                     40
@@ -318,7 +318,7 @@
       //#define LCD_PINS_ENABLE               29
       //#define LCD_PINS_D4                   25
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         // TO TEST
         //#define BEEPER_PIN                  37
       #endif
@@ -354,13 +354,13 @@
 
       #define LCD_PINS_D7                     29
 
-      #if DISABLED(NEWPANEL)
+      #if !IS_NEWPANEL
         #define BEEPER_PIN                    33
       #endif
 
     #endif
 
-    #if DISABLED(NEWPANEL)
+    #if !IS_NEWPANEL
       // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK                     38
@@ -374,9 +374,9 @@
   //
   // LCD Display input pins
   //
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
-    #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #if IS_RRD_SC
 
       #define BEEPER_PIN                      37
 
@@ -565,7 +565,7 @@
       //#define BEEPER_PIN                    33
 
       // Buttons are directly attached to AUX-2
-      #if ENABLED(REPRAPWORLD_KEYPAD)
+      #if IS_RRW_KEYPAD
         // TO TEST
         //#define SHIFT_OUT                   40
         //#define SHIFT_CLK                   44
@@ -592,9 +592,9 @@
       #endif
 
     #endif
-  #endif // NEWPANEL
+  #endif // IS_NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support

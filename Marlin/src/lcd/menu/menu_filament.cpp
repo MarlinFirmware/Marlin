@@ -91,7 +91,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
   BACK_ITEM(MSG_BACK);
   #if PREHEAT_COUNT
     LOOP_L_N(m, PREHEAT_COUNT)
-      ACTION_ITEM_N_S(m, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
+      ACTION_ITEM_N_S(extruder, ui.get_preheat_label(m), MSG_PREHEAT_M, _change_filament_with_preset);
   #endif
   EDIT_ITEM_FAST_N(int3, extruder, MSG_PREHEAT_CUSTOM, &thermalManager.temp_hotend[extruder].target,
     EXTRUDE_MINTEMP, thermalManager.heater_maxtemp[extruder] - HOTEND_OVERSHOOT,
@@ -101,9 +101,7 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
 }
 
 /**
- *
  * "Change Filament" submenu
- *
  */
 #if E_STEPPERS > 1 || ENABLED(FILAMENT_LOAD_UNLOAD_GCODES)
 
@@ -138,8 +136,9 @@ void _menu_temp_filament_op(const PauseMode mode, const int8_t extruder) {
           SUBMENU_N_P(s, msg, []{ _menu_temp_filament_op(PAUSE_MODE_CHANGE_FILAMENT, MenuItemBase::itemIndex); });
         else {
           ACTION_ITEM_N_P(s, msg, []{
-            char cmd[13];
-            sprintf_P(cmd, PSTR("M600 B0 T%i"), int(MenuItemBase::itemIndex));
+            PGM_P const cmdpstr = PSTR("M600 B0 T%i");
+            char cmd[strlen_P(cmdpstr) + 3 + 1];
+            sprintf_P(cmd, cmdpstr, int(MenuItemBase::itemIndex));
             queue.inject(cmd);
           });
         }
@@ -220,7 +219,7 @@ static PGM_P pause_header() {
 #define HOTEND_STATUS_ITEM() do { \
   if (_menuLineNr == _thisItemNr) { \
     if (ui.should_draw()) { \
-      TERN(HAS_GRAPHICAL_TFT,, MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
+      IF_DISABLED(HAS_GRAPHICAL_TFT, MenuItem_static::draw(_lcdLineNr, GET_TEXT(MSG_FILAMENT_CHANGE_NOZZLE), SS_INVERT)); \
       ui.draw_hotend_status(_lcdLineNr, hotend_status_extruder); \
     } \
     if (_skipStatic && encoderLine <= _thisItemNr) { \

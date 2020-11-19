@@ -30,7 +30,7 @@
   #include "../../../HAL/shared/eeprom_api.h"
   #include "../../../libs/hex_print.h"
   #include "../../../module/settings.h"
-  #include "../../../lcd/ultralcd.h"
+  #include "../../../lcd/marlinui.h"
   #include "../../../module/stepper.h"
   #include "../../../module/planner.h"
   #include "../../../module/motion.h"
@@ -484,7 +484,7 @@
             }
 
             if (parser.seen('B')) {
-              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness(float(Z_CLEARANCE_BETWEEN_PROBES));
+              g29_card_thickness = parser.has_value() ? parser.value_float() : measure_business_card_thickness();
               if (ABS(g29_card_thickness) > 1.5f) {
                 SERIAL_ECHOLNPGM("?Error in Business Card measurement.");
                 return;
@@ -736,6 +736,7 @@
       uint8_t count = GRID_MAX_POINTS;
 
       mesh_index_pair best;
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_START));
       do {
         if (do_ubl_mesh_map) display_map(g29_map_type);
 
@@ -774,6 +775,8 @@
         SERIAL_FLUSH(); // Prevent host M105 buffer overrun.
 
       } while (best.pos.x >= 0 && --count);
+
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(best.pos, ExtUI::MESH_FINISH));
 
       // Release UI during stow to allow for PAUSE_BEFORE_DEPLOY_STOW
       TERN_(HAS_LCD_MENU, ui.release());
@@ -834,11 +837,11 @@
 
     static void echo_and_take_a_measurement() { SERIAL_ECHOLNPGM(" and take a measurement."); }
 
-    float unified_bed_leveling::measure_business_card_thickness(float in_height) {
+    float unified_bed_leveling::measure_business_card_thickness() {
       ui.capture();
       save_ubl_active_state_and_disable();   // Disable bed level correction for probing
 
-      do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), in_height);
+      do_blocking_move_to(0.5f * (MESH_MAX_X - (MESH_MIN_X)), 0.5f * (MESH_MAX_Y - (MESH_MIN_Y)), MANUAL_PROBE_START_Z);
         //, _MIN(planner.settings.max_feedrate_mm_s[X_AXIS], planner.settings.max_feedrate_mm_s[Y_AXIS]) * 0.5f);
       planner.synchronize();
 
@@ -994,6 +997,10 @@
 
         if (do_ubl_mesh_map) display_map(g29_map_type);     // Display the current point
 
+        #if IS_TFTGLCD_PANEL
+          ui.ubl_plot(lpos.x, lpos.y);   // update plot screen
+        #endif
+
         ui.refresh();
 
         float new_z = z_values[lpos.x][lpos.y];
@@ -1002,12 +1009,16 @@
 
         lcd_mesh_edit_setup(new_z);
 
+        SET_SOFT_ENDSTOP_LOOSE(true);
+
         do {
           idle();
           new_z = lcd_mesh_edit();
           TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset + new_z)); // Move the nozzle as the point is edited
           SERIAL_FLUSH();                                   // Prevent host M105 buffer overrun.
         } while (!ui.button_pressed());
+
+        SET_SOFT_ENDSTOP_LOOSE(false);
 
         if (!lcd_map_control) ui.return_to_status();        // Just editing a single point? Return to status
 

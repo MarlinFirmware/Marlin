@@ -46,7 +46,7 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
 
   board|processor|speed|flash|sram|logic|fpu
   ----|---------|-----|-----|----|-----|---
-  [ESP32](https://www.espressif.com/en/products/hardware/esp32/overview)|Tensilica Xtensa LX6|240MHz|---|---|3.3V|---
+  [ESP32](https://www.espressif.com/en/products/hardware/esp32/overview)|Tensilica Xtensa LX6|160-240MHz variants|---|---|3.3V|---
 
   #### LPC1768 / LPC1769
 
@@ -96,13 +96,25 @@ Marlin 2.0 introduces a layer of abstraction so that all the existing high-level
   [Teensy 3.5](https://www.pjrc.com/store/teensy35.html)|[MK64FX512VMD12](https://www.mouser.com/ProductDetail/NXP-Freescale/MK64FX512VMD12) ARM-Cortex M4|120MHz|512k|192k|3.3-5V|yes
   [Teensy 3.6](https://www.pjrc.com/store/teensy36.html)|[MK66FX1M0VMD18](https://www.mouser.com/ProductDetail/NXP-Freescale/MK66FX1M0VMD18) ARM-Cortex M4|180MHz|1M|256k|3.3V|yes
 
+  #### Teensy 4.0 / 4.1
+
+  boards|processor|speed|flash|sram|logic|fpu
+  ----|---------|-----|-----|----|-----|---
+  [Teensy 4.0](https://www.pjrc.com/store/teensy40.html)|[IMXRT1062DVL6A](https://www.mouser.com/new/nxp-semiconductors/nxp-imx-rt1060-crossover-processor/) ARM-Cortex M7|600MHz|1M|2M|3.3V|yes
+  [Teensy 4.1](https://www.pjrc.com/store/teensy41.html)|[IMXRT1062DVJ6A](https://www.mouser.com/new/nxp-semiconductors/nxp-imx-rt1060-crossover-processor/) ARM-Cortex M7|600MHz|1M|2M|3.3V|yes
+
 ## Submitting Patches
 
 Proposed patches should be submitted as a Pull Request against the ([bugfix-2.0.x](https://github.com/MarlinFirmware/Marlin/tree/bugfix-2.0.x)) branch.
 
 - This branch is for fixing bugs and integrating any new features for the duration of the Marlin 2.0.x life-cycle.
 - Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) to gain points with the maintainers.
-- Please submit your questions and concerns to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues).
+- Please submit Feature Requests and Bug Reports to the [Issue Queue](https://github.com/MarlinFirmware/Marlin/issues/new/choose). Support resources are also listed there.
+- Whenever you add new features, be sure to add tests to `buildroot/tests` and then run your tests locally, if possible.
+  - It's optional: Running all the tests on Windows might take a long time, and they will run anyway on GitHub.
+  - If you're running the tests on Linux (or on WSL with the code on a Linux volume) the speed is much faster.
+  - You can use `make tests-all-local` or `make tests-single-local TEST_TARGET=...`.
+  - If you prefer Docker you can use `make tests-all-local-docker` or `make tests-all-local-docker TEST_TARGET=...`.
 
 ### [RepRap.org Wiki Page](https://reprap.org/wiki/Marlin)
 

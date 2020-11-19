@@ -27,13 +27,15 @@
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
-#if !defined(STM32F1) && !defined(STM32F1xx)
+#if NOT_TARGET(STM32F1, STM32F1xx)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin supports up to 2 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin"
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -126,12 +128,12 @@
 #endif
 #define LED_PIN                             PB2
 
-#ifdef HAS_GRAPHICAL_TFT
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
+#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
   #define TFT_CS_PIN                        PG12  // NE4
   #define TFT_RS_PIN                        PF0   // A0
-#else
+#endif
+
+#if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
    * Supported screens are based on the ILI9341, ST7789V and ILI9328 (320x240)
@@ -146,12 +148,15 @@
    */
   //#define LCD_RESET_PIN                   PF6
   #define LCD_BACKLIGHT_PIN                 PG11
-  #define FSMC_CS_PIN                       PG12  // NE4
-  #define FSMC_RS_PIN                       PF0   // A0
+  #define FSMC_CS_PIN                 TFT_CS_PIN
+  #define FSMC_RS_PIN                 TFT_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
+#elif HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 #endif
 
 #if NEED_TOUCH_PINS
@@ -163,7 +168,7 @@
 #endif
 
 // SPI1(PA7) & SPI3(PB5) not available
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
@@ -188,17 +193,11 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
+  //#define E1_HARDWARE_SERIAL MSerial1
 
   // Unused servo pins may be repurposed with SoftwareSerialM
   //#define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
