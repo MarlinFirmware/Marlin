@@ -97,6 +97,10 @@ Caption:
   ## HELP - PROCEDURE - TIPS 
     After the flash, you must reset your printer using the menu or M502,
   M500 put the probe then start a calibration or G33 V3 (5 iterations).
+    
+    **Tip**: After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
+             it means that you have a problem with the structure of your printer!
+             A "std dev:" of 0.04 and less is excellent !!
   
   Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
   Then lower the nozzle slowly to adjust to a sheet of paper.
