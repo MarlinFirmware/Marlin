@@ -496,6 +496,36 @@
 #endif
 
 /**
+ *  Multi-Material-Unit supported models
+ */
+#define PRUSA_MMU1      1
+#define PRUSA_MMU2      2
+#define PRUSA_MMU2S     3
+#define SMUFF_EMU_MMU2  12
+#define SMUFF_EMU_MMU2S 13
+
+#ifdef MMU_MODEL
+  #define HAS_MMU 1
+  #if MMU_MODEL == PRUSA_MMU1
+    #define HAS_PRUSA_MMU1 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2
+    #define HAS_PRUSA_MMU2 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+    #define HAS_PRUSA_MMU2 1
+    #define HAS_PRUSA_MMU2S 1
+  #endif
+  #if MMU_MODEL >= SMUFF_EMU_MMU2
+    #define HAS_SMUFF 1
+  #endif
+#endif
+
+#undef PRUSA_MMU1
+#undef PRUSA_MMU2
+#undef PRUSA_MMU2S
+#undef SMUFF_EMU_MMU2
+#undef SMUFF_EMU_MMU2S
+
+/**
  * Extruders have some combination of stepper motors and hotends
  * so we separate these concepts into the defines:
  *
@@ -512,8 +542,6 @@
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
-  #undef MK2_MULTIPLEXER
-  #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
 #elif EXTRUDERS > 1
   #define HAS_MULTI_EXTRUDER 1
@@ -539,17 +567,17 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif ENABLED(PRUSA_MMU2)
+#elif HAS_PRUSA_MMU2
   #define E_STEPPERS 1
 #endif
 
-// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
-#if EITHER(MK2_MULTIPLEXER, SWITCHING_NOZZLE)
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
-#if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+#if HAS_MMU
   #define SINGLENOZZLE
 #endif
 
@@ -1073,8 +1101,24 @@
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'
 #if ENABLED(TOUCH_SCREEN) && !HAS_GRAPHICAL_TFT
   #undef TOUCH_SCREEN
-  #undef TOUCH_SCREEN_CALIBRATION
   #if !HAS_TFT_LVGL_UI
-    #define HAS_TOUCH_XPT2046 1
+    #define HAS_TOUCH_BUTTONS 1
+  #endif
+#endif
+
+// XPT2046_** Compatibility
+#if !(defined(TOUCH_CALIBRATION_X) || defined(TOUCH_CALIBRATION_Y) || defined(TOUCH_OFFSET_X) || defined(TOUCH_OFFSET_Y) || defined(TOUCH_ORIENTATION))
+  #if defined(XPT2046_X_CALIBRATION) && defined(XPT2046_Y_CALIBRATION) && defined(XPT2046_X_OFFSET) && defined(XPT2046_Y_OFFSET)
+    #define TOUCH_CALIBRATION_X  XPT2046_X_CALIBRATION
+    #define TOUCH_CALIBRATION_Y  XPT2046_Y_CALIBRATION
+    #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
+    #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
+    #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
+  #else
+    #define TOUCH_CALIBRATION_X  0
+    #define TOUCH_CALIBRATION_Y  0
+    #define TOUCH_OFFSET_X       0
+    #define TOUCH_OFFSET_Y       0
+    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
