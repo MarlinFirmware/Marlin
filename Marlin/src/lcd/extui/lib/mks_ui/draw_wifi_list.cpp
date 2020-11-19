@@ -175,5 +175,4 @@ void lv_clear_wifi_list() {
 }
 
 #endif // MKS_WIFI_MODULE
-
 #endif // HAS_TFT_LVGL_UI

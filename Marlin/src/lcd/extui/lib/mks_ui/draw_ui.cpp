@@ -1219,11 +1219,11 @@ void clear_cur_ui() {
         case TMC_CURRENT_UI:          lv_clear_tmc_current_settings(); break;
       #endif
     case EEPROM_SETTINGS_UI:          lv_clear_eeprom_settings(); break;
-      #if HAS_STEALTHCHOP
-        case TMC_MODE_UI:             lv_clear_tmc_step_mode_settings(); break;
-      #endif
+    #if HAS_STEALTHCHOP
+      case TMC_MODE_UI:               lv_clear_tmc_step_mode_settings(); break;
+    #endif
     #if ENABLED(MKS_WIFI_MODULE)
-    case WIFI_SETTINGS_UI:            lv_clear_wifi_settings(); break;
+      case WIFI_SETTINGS_UI:          lv_clear_wifi_settings(); break;
     #endif
     #if USE_SENSORLESS
       case HOMING_SENSITIVITY_UI:     lv_clear_homing_sensitivity_settings(); break;
@@ -1521,10 +1521,8 @@ lv_obj_t* lv_big_button_create(lv_obj_t *par, const char *img, const char *text,
     else
       lv_obj_align(label, btn, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
   }
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable)
-      lv_group_add_obj(g, btn);
-  #endif
+  if (TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable))
+    lv_group_add_obj(g, btn);
   return btn;
 }
 
@@ -1540,11 +1538,8 @@ lv_obj_t* lv_screen_menu_item(lv_obj_t *par, const char *text, lv_coord_t x, lv_
     lv_label_set_text(label, text);
     lv_obj_align(label, btn, LV_ALIGN_IN_LEFT_MID, 0, 0);
   }
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) {
-      lv_group_add_obj(g, btn);
-    }
-  #endif
+  if (TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable))
+    lv_group_add_obj(g, btn);
 
   if (drawArrow) (void)lv_imgbtn_create(par, "F:/bmp_arrow.bin", x + PARA_UI_SIZE_X, y + PARA_UI_ARROW_V, cb, id);
 
