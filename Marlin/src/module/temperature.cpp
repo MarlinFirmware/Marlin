@@ -2248,7 +2248,7 @@ void Temperature::disable_all_heaters() {
 
     #if HAS_MAX31865
       Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      const uint16_t max31865_ohms = maxref.readRTD() / 32768.0f * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1);
+      const uint16_t max31865_ohms = (uint32_t(maxref.readRTD()) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
     #endif
 
     //
