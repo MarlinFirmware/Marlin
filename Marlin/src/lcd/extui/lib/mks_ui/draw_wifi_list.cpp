@@ -26,7 +26,7 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 
@@ -170,6 +170,5 @@ void lv_clear_wifi_list() {
   lv_obj_del(scr);
 }
 
-#endif // USE_WIFI_FUNCTION
-
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

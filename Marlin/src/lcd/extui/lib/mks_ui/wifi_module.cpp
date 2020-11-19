@@ -27,7 +27,7 @@
 #include "wifi_module.h"
 #include "wifi_upload.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
@@ -283,7 +283,7 @@ void esp_port_begin(uint8_t interrupt) {
   }
   #endif
   if (interrupt) {
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       WIFISERIAL.end();
       for (uint16_t i = 0; i < 65535; i++);
       WIFISERIAL.begin(WIFI_BAUDRATE);
@@ -293,7 +293,7 @@ void esp_port_begin(uint8_t interrupt) {
     #endif
   }
   else {
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       WIFISERIAL.end();
       for (uint16_t i = 0; i < 65535; i++);
       WIFISERIAL.begin(WIFI_UPLOAD_BAUDRATE);
@@ -305,7 +305,7 @@ void esp_port_begin(uint8_t interrupt) {
   }
 }
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
   int raw_send_to_wifi(char *buf, int len) {
     if (buf == 0 || len <= 0) return 0;
@@ -1811,5 +1811,5 @@ int readWifiBuf(int8_t *buf, int32_t len) {
   return i;
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

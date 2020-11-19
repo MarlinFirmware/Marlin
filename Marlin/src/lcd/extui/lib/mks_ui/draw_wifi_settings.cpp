@@ -26,7 +26,7 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 
@@ -96,7 +96,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 void lv_draw_wifi_settings(void) {
   scr = lv_screen_create(WIFI_SETTINGS_UI, machine_menu.WifiConfTitle);
 
-  lv_obj_t *labelModelText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
+  lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y + 10, machine_menu.wifiMode);
 
   lv_obj_t *buttonModelValue = lv_imgbtn_create(scr, "F:/bmp_blank_sel.bin", PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V, event_handler, ID_WIFI_MODEL);
   lv_btn_set_style_both(buttonModelValue, &style_para_value_pre);
@@ -119,7 +119,7 @@ void lv_draw_wifi_settings(void) {
   lv_obj_t *line3 = lv_line_create(scr, nullptr);
   lv_ex_line(line3, line_points[2]);
 
-  lv_obj_t *labelCloudText = lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.wifiCloud);
+  lv_label_create(scr, PARA_UI_POS_X, PARA_UI_POS_Y * 4 + 10, machine_menu.wifiCloud);
   lv_obj_t *buttonCloudValue = lv_imgbtn_create(scr, gCfgItems.cloud_enable ? "F:/bmp_enable.bin" : "F:/bmp_disable.bin", PARA_UI_STATE_POS_X, PARA_UI_POS_Y * 4 + PARA_UI_STATE_V, event_handler, ID_WIFI_CLOUD);
   labelCloudValue = lv_label_create_empty(buttonCloudValue);
 
@@ -141,14 +141,14 @@ void lv_draw_wifi_settings(void) {
       lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
       lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER, 0, 0);
     }
-    strcat(public_buf_m, machine_menu.wifiName);
+    strcpy(public_buf_m, machine_menu.wifiName);
     strcat(public_buf_m, (const char *)uiCfg.wifi_name);
     lv_label_set_text(labelNameText, public_buf_m);
 
     lv_label_set_text(labelNameValue, machine_menu.wifiEdit);
     lv_obj_align(labelNameValue, buttonNameValue, LV_ALIGN_CENTER, 0, 0);
 
-    strcat(public_buf_m, machine_menu.wifiPassWord);
+    strcpy(public_buf_m, machine_menu.wifiPassWord);
     strcat(public_buf_m, (const char *)uiCfg.wifi_key);
     lv_label_set_text(labelPassWordText, public_buf_m);
 
@@ -184,5 +184,5 @@ void lv_clear_wifi_settings() {
   lv_obj_del(scr);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

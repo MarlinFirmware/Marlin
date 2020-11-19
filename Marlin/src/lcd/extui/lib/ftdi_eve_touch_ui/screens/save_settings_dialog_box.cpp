@@ -56,10 +56,9 @@ void SaveSettingsDialogBox::promptToSaveSettings() {
      // so SaveSettingsDialogBox doesn't return here.
      GOTO_SCREEN(SaveSettingsDialogBox);
      current_screen.forget();
-   } else {
-     // No save needed.
-     GOTO_PREVIOUS();
    }
+   else
+     GOTO_PREVIOUS(); // No save needed.
 }
 
 #endif // TOUCH_UI_FTDI_EVE

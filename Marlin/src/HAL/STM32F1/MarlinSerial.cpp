@@ -111,7 +111,9 @@ constexpr bool serial_handles_emergency(int port) {
 // Instantiate all UARTs even if they are not needed
 // This avoids a bunch of logic to figure out every serial
 // port which may be in use on the system.
-DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
+#if DISABLED(MKS_WIFI_MODULE)
+  DEFINE_HWSERIAL_MARLIN(MSerial1, 1);
+#endif
 DEFINE_HWSERIAL_MARLIN(MSerial2, 2);
 DEFINE_HWSERIAL_MARLIN(MSerial3, 3);
 #if EITHER(STM32_HIGH_DENSITY, STM32_XL_DENSITY)

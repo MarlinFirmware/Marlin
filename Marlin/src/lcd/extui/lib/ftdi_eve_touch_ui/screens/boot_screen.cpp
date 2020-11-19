@@ -72,7 +72,8 @@ void BootScreen::onIdle() {
     GOTO_SCREEN(TouchCalibrationScreen);
     current_screen.forget();
     PUSH_SCREEN(StatusScreen);
-  } else {
+  }
+  else {
     if (!UIFlashStorage::is_valid()) {
       StatusScreen::loadBitmaps();
       SpinnerDialogBox::show(GET_TEXT_F(MSG_PLEASE_WAIT));
