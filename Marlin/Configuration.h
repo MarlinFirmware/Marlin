@@ -732,7 +732,7 @@
     #define DELTA_DIAGONAL_ROD 280.0        //280 (mm)
 
     // Horizontal distance bridged by diagonal push rods when effector is centered.
-    #define DELTA_RADIUS 14.8               //140.8 (mm) Get this value from G33 auto calibrate
+    #define DELTA_RADIUS 140.8               //140.8 (mm) Get this value from G33 auto calibrate
   #endif
 
   // Distance between bed and nozzle Z home position
