@@ -20,7 +20,7 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
 #if HAS_PRUSA_MMU1
 
