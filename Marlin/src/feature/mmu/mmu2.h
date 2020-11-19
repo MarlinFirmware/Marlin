@@ -49,13 +49,11 @@ public:
   static uint8_t get_current_tool();
   static void set_filament_type(const uint8_t index, const uint8_t type);
 
-  #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
-    static bool unload();
-    static void load_filament(uint8_t);
-    static void load_all();
-    static bool load_filament_to_nozzle(const uint8_t index);
-    static bool eject_filament(const uint8_t index, const bool recover);
-  #endif
+  static bool unload();
+  static void load_filament(uint8_t);
+  static void load_all();
+  static bool load_filament_to_nozzle(const uint8_t index);
+  static bool eject_filament(const uint8_t index, const bool recover);
 
 private:
   static bool rx_str_P(const char* str);
@@ -72,15 +70,13 @@ private:
   static bool get_response();
   static void manage_response(const bool move_axes, const bool turn_off_nozzle);
 
-  #if BOTH(HAS_LCD_MENU, MMU2_MENUS)
-    static void load_to_nozzle();
-    static void filament_ramming();
-    static void execute_extruder_sequence(const E_Step * sequence, int steps);
-  #endif
+  static void load_to_nozzle();
+  static void filament_ramming();
+  static void execute_extruder_sequence(const E_Step * sequence, int steps);
 
   static void filament_runout();
 
-  #if ENABLED(PRUSA_MMU2_S_MODE)
+  #if HAS_PRUSA_MMU2S
     static bool mmu2s_triggered;
     static void check_filament();
     static bool can_load();
