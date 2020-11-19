@@ -318,8 +318,12 @@
       #define LCD_PINS_ENABLE              -1
       #define LCD_PINS_RS                  -1
 
-      #define TFT_BUFFER_SIZE               1200
-      #define TFT_QUEUE_SIZE                6144
+      #ifndef TFT_BUFFER_SIZE
+        #define TFT_BUFFER_SIZE             1200
+      #endif
+      #ifndef TFT_QUEUE_SIZE
+        #define TFT_QUEUE_SIZE              6144
+      #endif
 
     #else                                         // !MKS_12864OLED_SSD1306
 
