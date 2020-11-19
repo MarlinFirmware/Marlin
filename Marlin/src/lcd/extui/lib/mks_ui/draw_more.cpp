@@ -148,7 +148,7 @@ void lv_draw_more(void) {
 
   /*Create an Image button and label*/
 
-  const bool enc_ena = TERN0(HAS_ROTARY_ENCODER. gCfgItems.encoder_enable);
+  const bool enc_ena = TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable);
 
   #if ENABLED(USER_CMD_1_ENABLE)
     buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", INTERVAL_V, titleHeight, event_handler, ID_CUSTOM_1);

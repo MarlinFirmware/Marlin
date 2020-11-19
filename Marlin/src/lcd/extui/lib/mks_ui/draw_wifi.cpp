@@ -73,7 +73,7 @@ void lv_draw_wifi(void) {
   lv_obj_t *buttonReconnect = nullptr, *label_Reconnect = nullptr;
   lv_obj_t *buttonCloud = nullptr, *label_Cloud = nullptr;
 
-  const bool enc_ena = TERN0(HAS_ROTARY_ENCODER. gCfgItems.encoder_enable);
+  const bool enc_ena = TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable);
 
   if (gCfgItems.wifi_mode_sel == STA_MODEL) {
 
