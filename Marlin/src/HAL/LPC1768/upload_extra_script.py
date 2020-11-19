@@ -11,9 +11,22 @@ target_drive = "REARM"
 import os
 import getpass
 import platform
+from ctypes import windll
+import string
 
 current_OS = platform.system()
 Import("env")
+
+# getting from https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-drive-letters-in-python
+def get_drives():
+    drives = []
+    bitmask = windll.kernel32.GetLogicalDrives()
+    for letter in string.ascii_uppercase:
+        if bitmask & 1:
+            drives.append(letter)
+        bitmask >>= 1
+
+    return drives
 
 def print_error(e):
 	print('\nUnable to find destination disk (%s)\n' \
@@ -28,29 +41,23 @@ try:
 		# platformio.ini will accept this for a Windows upload port designation: 'upload_port = L:'
 		#   Windows - doesn't care about the disk's name, only cares about the drive letter
 		#
-
 		#
 		# get all drives on this computer
 		#
 		import subprocess
-		# typical result (string): 'Drives: C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-		driveStr = str(subprocess.check_output("fsutil fsinfo drives"))
-		# typical result (string): 'C:\ D:\ E:\ F:\ G:\ H:\ I:\ J:\ K:\ L:\ M:\ Y:\ Z:\'
-		# driveStr = driveStr.strip().lstrip('Drives: ') <- Doesn't work in other Languages as English. In German is "Drives:" = "Laufwerke:"
-		FirstFound = driveStr.find(':',0,-1)         # Find the first ":" and
-		driveStr = driveStr[FirstFound + 1 : -1]     # truncate to the rest
-		# typical result (array of stings): ['C:\\', 'D:\\', 'E:\\', 'F:\\',
-		# 'G:\\', 'H:\\', 'I:\\', 'J:\\', 'K:\\', 'L:\\', 'M:\\', 'Y:\\', 'Z:\\']
-		drives = driveStr.split()
+		# getting list of drives
+		drives = get_drives()
 
 		upload_disk = 'Disk not found'
 		target_file_found = False
 		target_drive_found = False
 		for drive in drives:
-			final_drive_name = drive.strip().rstrip('\\')   # typical result (string): 'C:'
+			final_drive_name = drive + ':\\' 
+			print ('disc check: {}'.format(final_drive_name))
 			try:
-				volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))
+				volume_info = str(subprocess.check_output('cmd /C dir ' + final_drive_name, stderr=subprocess.STDOUT))				
 			except Exception as e:
+				print ('error:{}'.format(e))
 				continue
 			else:
 				if target_drive in volume_info and target_file_found == False:  # set upload if not found target file yet
