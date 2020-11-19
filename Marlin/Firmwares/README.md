@@ -5,9 +5,9 @@
 ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
 [![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
 
-[Group FaceBook](https://www.facebook.com/groups/120961628750040)
+[**Group FaceBook**](https://www.facebook.com/groups/120961628750040)
 
-[My Posts on Group FB](https://www.facebook.com/groups/120961628750040/user/100000652030417)
+[**My Posts on Group FB**](https://www.facebook.com/groups/120961628750040/user/100000652030417)
 
 ![QQS](images/FLSunMarlin.png)
 
@@ -137,7 +137,7 @@ Caption:
 
   **You will find some Slicer profiles in the "Slicers" directory.(in progresss...)** 
 
-  # For the Wifi Module (MKS_Wifi):
+  # For the Wifi Module (ESP3DV2 directory):
 
 ![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
 
