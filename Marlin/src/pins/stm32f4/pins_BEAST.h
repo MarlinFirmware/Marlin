@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#if !defined(__STM32F1__) && !defined(__STM32F4__)
+#if NOT_TARGET(__STM32F1__, __STM32F4__)
   #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
 #endif
 
@@ -120,7 +120,7 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
@@ -282,4 +282,4 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

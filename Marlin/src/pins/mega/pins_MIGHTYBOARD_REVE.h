@@ -37,7 +37,7 @@
  *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
  */
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Mega 1280' or 'Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -212,7 +212,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 
@@ -260,7 +260,7 @@
   #define BTN_CENTER                          15  // J0
   #define BTN_ENC                     BTN_CENTER
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

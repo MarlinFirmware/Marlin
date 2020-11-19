@@ -128,7 +128,6 @@ typedef struct masterBootRecord mbr_t;
  * \struct fat_boot
  *
  * \brief Boot sector for a FAT12/FAT16 volume.
- *
  */
 struct fat_boot {
   /**
@@ -409,7 +408,6 @@ uint32_t const FSINFO_LEAD_SIG   = 0x41615252,  // 'AaRR' Lead signature for a F
  * \struct fat32_fsinfo
  *
  * \brief FSINFO sector for a FAT32 volume.
- *
  */
 struct fat32_fsinfo {
   uint32_t  leadSignature;    // must be 0x52, 0x52, 0x61, 0x41 'RRaA'

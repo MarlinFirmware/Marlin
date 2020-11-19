@@ -20,9 +20,8 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if BOTH(HAS_GRAPHICAL_LCD, FORCE_SOFT_SPI)
+#if BOTH(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
 
-#include "../HAL.h"
 #include <U8glib.h>
 
 #undef SPI_SPEED
@@ -161,5 +160,5 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
 #endif // STM32F1
