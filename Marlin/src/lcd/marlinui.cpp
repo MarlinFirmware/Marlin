@@ -30,6 +30,10 @@
   #include "../feature/host_actions.h"
 #endif
 
+#if ENABLED(BROWSE_MEDIA_ON_INSERT, PASSWORD_ON_SD_PRINT_MENU)
+  #include "../feature/password/password.h"
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
 MarlinUI ui;
@@ -1620,7 +1624,12 @@ void MarlinUI::update() {
     if (status) {
       if (old_status < 2) {
         TERN_(EXTENSIBLE_UI, ExtUI::onMediaInserted()); // ExtUI response
-        set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+        #if ENABLED(BROWSE_MEDIA_ON_INSERT)
+          quick_feedback();
+          goto_screen(MEDIA_MENU_GATEWAY);
+        #else
+          set_status_P(GET_TEXT(MSG_MEDIA_INSERTED));
+        #endif
       }
     }
     else {
