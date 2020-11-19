@@ -526,7 +526,6 @@ char *getDispText(int index) {
       strcpy(public_buf_l, wifi_menu.title);
       break;
     case MORE_UI:
-      strcpy(public_buf_l, more_menu.title);
     case PRINT_MORE_UI:
       strcpy(public_buf_l, more_menu.title);
       break;
@@ -1173,7 +1172,7 @@ void clear_cur_ui() {
     case FILAMENTCHANGE_UI:           lv_clear_filament_change(); break;
     case LEVELING_UI:                 lv_clear_manualLevel(); break;
     #if ENABLED(MKS_WIFI_MODULE)
-      case BIND_UI:                     lv_clear_cloud_bind(); break;
+      case BIND_UI:                   lv_clear_cloud_bind(); break;
     #endif
     #if HAS_BED_PROBE
       case NOZZLE_PROBE_OFFSET_UI:    lv_clear_auto_level_offset_settings(); break;
@@ -1278,7 +1277,7 @@ void draw_return_ui() {
       case FILAMENTCHANGE_UI:           lv_draw_filament_change(); break;
       case LEVELING_UI:                 lv_draw_manualLevel(); break;
       #if ENABLED(MKS_WIFI_MODULE)
-        case BIND_UI:                     lv_draw_cloud_bind(); break;
+        case BIND_UI:                   lv_draw_cloud_bind(); break;
       #endif
       #if HAS_BED_PROBE
         case NOZZLE_PROBE_OFFSET_UI:    lv_draw_auto_level_offset_settings(); break;
