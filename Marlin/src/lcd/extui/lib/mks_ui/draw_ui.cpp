@@ -1052,7 +1052,7 @@ void GUI_RefreshPage() {
       case BIND_UI:
         refresh_bind_ui();
         break;
-    #endif  //MKS_WIFI_MODULE
+    #endif
     case FILAMENTCHANGE_UI:
       if (temps_update_flag) {
         temps_update_flag = false;

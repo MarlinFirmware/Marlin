@@ -864,7 +864,7 @@ void disp_language_init() {
     tips_menu.joining      = TEXT_WIFI_JOINING_EN;
     tips_menu.failedJoin   = TEXT_WIFI_FAILED_JOIN_EN;
     tips_menu.wifiConected = TEXT_WIFI_WIFI_CONECTED_EN;
-  #endif  //MKS_WIFI_MODULE
+  #endif
   machine_setting_disp();
 
   operation_menu.babystep = TEXT_BABY_STEP_EN;

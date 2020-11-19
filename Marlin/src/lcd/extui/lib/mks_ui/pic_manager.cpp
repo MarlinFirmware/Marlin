@@ -195,7 +195,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_set.bin",
   "bmp_tool.bin",
 
-  //base icons
+  // base icons
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
@@ -210,12 +210,12 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
     "bmp_cloud.bin",
   #endif
 
-  //babystep screen
+  // babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin",
 
- //presets screen
+  // presets screen
   //"bmp_preHeat.bin",
   //"bmp_preHeat.bin",
   //"bmp_Fan.bin",
