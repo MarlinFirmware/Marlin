@@ -708,6 +708,7 @@ void MarlinUI::draw_status_message(const bool blink) {
  */
 
 inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos) {
+  const bool blink = ui.get_blink();
   char buffer[14];
 
   #if ENABLED(SHOW_REMAINING_TIME)
@@ -716,7 +717,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos) {
       #if ENABLED(USE_M73_REMAINING_TIME)
         duration_t remaining = get_remaining_time();
       #else
-        uint8_t progress = get_progress_percent();
+        uint8_t progress = ui.get_progress_percent();
         uint32_t elapsed = print_job_timer.duration();
         duration_t remaining = (progress > 0) ? ((elapsed * 25600 / progress) >> 8) - elapsed : 0;
       #endif
