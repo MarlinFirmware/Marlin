@@ -381,7 +381,7 @@
           #define RGB_LED_B_PIN             PG5
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PF13
+        #define NEOPIXEL_PIN                PG7
       #endif
     #endif // !FYSETC_MINI_12864
 
