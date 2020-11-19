@@ -77,7 +77,7 @@
 
 #include "../../../inc/MarlinConfigPre.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
 #include <U8glib.h>
 
@@ -193,6 +193,6 @@ uint8_t u8g_com_HAL_LPC1768_ssd_hw_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_v
   return 1;
 }
 
-#endif // HAS_GRAPHICAL_LCD
+#endif // HAS_MARLINUI_U8GLIB
 
 #endif // TARGET_LPC1768

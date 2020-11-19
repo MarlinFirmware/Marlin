@@ -35,6 +35,10 @@ public:
       #endif
   { }
 
+  #if ENABLED(EMERGENCY_PARSER)
+    static inline bool emergency_parser_enabled() { return true; }
+  #endif
+
   void begin(unsigned long baud, uint8_t config);
   inline void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
 

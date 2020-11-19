@@ -110,7 +110,7 @@ public:
       #if CONJOINED_NEOPIXEL
         adaneo2.show();
       #else
-        adaneo1.setPin(NEOPIXEL2_PIN);
+        TERN(NEOPIXEL2_SEPARATE,,adaneo1.setPin(NEOPIXEL2_PIN));
         adaneo1.show();
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
@@ -133,7 +133,7 @@ extern Marlin_NeoPixel neo;
 
 // Neo pixel channel 2
 #if ENABLED(NEOPIXEL2_SEPARATE)
-  
+
   #if NEOPIXEL2_TYPE == NEO_RGB || NEOPIXEL2_TYPE == NEO_RBG || NEOPIXEL2_TYPE == NEO_GRB || NEOPIXEL2_TYPE == NEO_GBR || NEOPIXEL2_TYPE == NEO_BRG || NEOPIXEL2_TYPE == NEO_BGR
     #define NEOPIXEL2_IS_RGB 1
   #else
@@ -161,7 +161,10 @@ extern Marlin_NeoPixel neo;
     static inline void begin() { adaneo.begin(); }
     static inline void set_pixel_color(const uint16_t n, const uint32_t c) { adaneo.setPixelColor(n, c); }
     static inline void set_brightness(const uint8_t b) { adaneo.setBrightness(b); }
-    static inline void show() { adaneo.show(); }
+    static inline void show() {
+      adaneo.show();
+      adaneo.setPin(NEOPIXEL2_PIN);
+    }
 
     // Accessors
     static inline uint16_t pixels() { return adaneo.numPixels();}

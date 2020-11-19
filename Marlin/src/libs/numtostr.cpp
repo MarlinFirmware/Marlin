@@ -52,6 +52,13 @@ const char* ui8tostr3rj(const uint8_t i) {
   return &conv[4];
 }
 
+// Convert uint8_t to string with 12 format
+const char* ui8tostr2(const uint8_t i) {
+  conv[5] = DIGIMOD(i, 10);
+  conv[6] = DIGIMOD(i, 1);
+  return &conv[5];
+}
+
 // Convert signed 8bit int to rj string with 123 or -12 format
 const char* i8tostr3rj(const int8_t x) {
   int xx = x;
