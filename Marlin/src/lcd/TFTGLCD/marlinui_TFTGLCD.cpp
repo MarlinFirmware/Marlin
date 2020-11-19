@@ -204,7 +204,7 @@ void TFTGLCD::print_line() {
   #endif
 }
 
-void TFTGLCD::print_screen(){
+void TFTGLCD::print_screen() {
   if (!PanelDetected) return;
   framebuffer[FBSIZE - 2] = picBits & PIC_MASK;
   framebuffer[FBSIZE - 1] = ledBits;
