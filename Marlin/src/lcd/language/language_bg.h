@@ -106,7 +106,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Нишка");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Диам. нишка");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Диам. нишка *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD контраст");

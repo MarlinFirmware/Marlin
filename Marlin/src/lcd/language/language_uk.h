@@ -372,8 +372,8 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Рух");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Пруток");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E обмеж.,мм³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E обмеж.,мм") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E обмеж. *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Діам. прутка");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Діам. прутка *");

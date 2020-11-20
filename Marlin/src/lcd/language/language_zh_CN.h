@@ -313,8 +313,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("温度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("运动");     //"Motion"
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("料丝");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm³");     //"E in mm3" volumetric_enabled
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm") SUPERSCRIPT_THREE;     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E 限制 *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("丝料直径");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("丝料直径 *");
