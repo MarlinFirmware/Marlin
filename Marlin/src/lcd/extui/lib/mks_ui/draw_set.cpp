@@ -37,6 +37,10 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
+#if HAS_SUICIDE
+  #include "../../../../MarlinCore.h"
+#endif
+
 static lv_obj_t *scr;
 extern lv_group_t*  g;
 
