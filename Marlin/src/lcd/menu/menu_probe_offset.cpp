@@ -135,7 +135,7 @@ void goto_probe_offset_wizard() {
 
   z_offset_ref = 0;
 
-  #if (defined(PROBE_OFFSET_WIZARD_XY_POS) && (NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+  #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
 
     #ifdef PROBE_OFFSET_WIZARD_XY_POS
       // Get X and Y from Configuration
