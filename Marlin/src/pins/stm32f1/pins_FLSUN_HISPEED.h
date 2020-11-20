@@ -60,6 +60,9 @@
 // Note: FLSun Hispeed (clone MKS_Robin_miniV2) board is using SPI2 interface.
 //
 #define SPI_DEVICE 2
+#define SCK_PIN                           PB13  // SPI2
+#define MISO_PIN                          PB14  // SPI2
+#define MOSI_PIN                          PB15  // SPI2
 
 // SPI Flash
 #define HAS_SPI_FLASH                       1
@@ -320,17 +323,17 @@
  */
 
 // QQS-Pro uses MKS Robin TFT v2.0 320x240
-
+#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
+  #define TFT_CS_PIN                        PD7  // NE4
+  #define TFT_RS_PIN                        PD11   // A0
+#endif
 // Shared FSMC Configs
 #if HAS_FSMC_TFT
-  #define DOGLCD_MOSI                       -1    // Prevent auto-define by Conditionals_post.h
-  #define DOGLCD_SCK                        -1
-
-  #define FSMC_CS_PIN                       PD7   // NE4
-  #define FSMC_RS_PIN                       PD11  // A0
-
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
+  
+  #define FSMC_CS_PIN                       TFT_CS_PIN   // NE4
+  #define FSMC_RS_PIN                       TFT_RS_PIN  // A0
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
@@ -343,6 +346,9 @@
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
   #endif
+#elif HAS_GRAPHICAL_TFT
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
 #endif
 
 #if NEED_TOUCH_PINS
@@ -350,4 +356,5 @@
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
   #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define TOUCH_INT_PIN                     -1
 #endif
