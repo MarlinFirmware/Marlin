@@ -708,64 +708,88 @@
     #ifndef FIL_RUNOUT1_STATE
       #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT1_PULL
-      #define FIL_RUNOUT1_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT1_PULLUP
+      #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT1_PULLDOWN
+      #define FIL_RUNOUT1_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 2
     #ifndef FIL_RUNOUT2_STATE
       #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT2_PULL
-      #define FIL_RUNOUT2_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT2_PULLUP
+      #define FIL_RUNOUT2_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT2_PULLDOWN
+      #define FIL_RUNOUT2_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 3
     #ifndef FIL_RUNOUT3_STATE
       #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT3_PULL
-      #define FIL_RUNOUT3_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT3_PULLUP
+      #define FIL_RUNOUT3_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT3_PULLDOWN
+      #define FIL_RUNOUT3_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 4
     #ifndef FIL_RUNOUT4_STATE
       #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT4_PULL
-      #define FIL_RUNOUT4_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT4_PULLUP
+      #define FIL_RUNOUT4_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT4_PULLDOWN
+      #define FIL_RUNOUT4_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 5
     #ifndef FIL_RUNOUT5_STATE
       #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT5_PULL
-      #define FIL_RUNOUT5_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT5_PULLUP
+      #define FIL_RUNOUT5_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT5_PULLDOWN
+      #define FIL_RUNOUT5_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 6
     #ifndef FIL_RUNOUT6_STATE
       #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT6_PULL
-      #define FIL_RUNOUT6_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT6_PULLUP
+      #define FIL_RUNOUT6_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT6_PULLDOWN
+      #define FIL_RUNOUT6_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 7
     #ifndef FIL_RUNOUT7_STATE
       #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT7_PULL
-      #define FIL_RUNOUT7_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT7_PULLUP
+      #define FIL_RUNOUT7_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT7_PULLDOWN
+      #define FIL_RUNOUT7_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 8
     #ifndef FIL_RUNOUT8_STATE
       #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT8_PULL
-      #define FIL_RUNOUT8_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT8_PULLUP
+      #define FIL_RUNOUT8_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT8_PULLDOWN
+      #define FIL_RUNOUT8_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
