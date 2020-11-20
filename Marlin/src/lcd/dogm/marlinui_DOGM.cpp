@@ -123,7 +123,7 @@ bool MarlinUI::detected() { return true; }
           custom_start_bmp
         #endif
       ;
-      TERN(CUSTOM_BOOTSCREEN_ANIMATED,,UNUSED(frame));
+      UNUSED(frame);
 
       u8g.drawBitmapP(left, top, CUSTOM_BOOTSCREEN_BMP_BYTEWIDTH, CUSTOM_BOOTSCREEN_BMPHEIGHT, bmp);
 
@@ -461,8 +461,8 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     void MenuItem_sdbase::draw(const bool sel, const uint8_t row, PGM_P const, CardReader &theCard, const bool isDir) {
       if (mark_as_selected(row, sel)) {
+        const uint8_t maxlen = LCD_WIDTH - isDir;
         if (isDir) lcd_put_wchar(LCD_STR_FOLDER[0]);
-        constexpr uint8_t maxlen = LCD_WIDTH - 1;
         const pixel_len_t pixw = maxlen * (MENU_FONT_WIDTH);
         pixel_len_t n = pixw - lcd_put_u8str_max(ui.scrolled_filename(theCard, maxlen, row, sel), pixw);
         while (n > MENU_FONT_WIDTH) n -= lcd_put_wchar(' ');

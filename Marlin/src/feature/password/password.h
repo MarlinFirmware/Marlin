@@ -47,7 +47,7 @@ public:
     static void start_over();
 
     static void digit_entered();
-    static void set_password_done();
+    static void set_password_done(const bool with_set=true);
     static void menu_password_report();
 
     static void remove_password();

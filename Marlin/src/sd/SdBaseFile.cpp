@@ -1103,18 +1103,65 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
         if (WITHIN(seq, 1, MAX_VFAT_ENTRIES)) {
           // TODO: Store the filename checksum to verify if a long-filename-unaware system modified the file table.
           n = (seq - 1) * (FILENAME_LENGTH);
-          LOOP_L_N(i, FILENAME_LENGTH)
-            longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+          LOOP_L_N(i, FILENAME_LENGTH) {
+            uint16_t utf16_ch = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
+            #if ENABLED(UTF_FILENAME_SUPPORT)
+              // We can't reconvert to UTF-8 here as UTF-8 is variable-size encoding, but joining LFN blocks
+              // needs static bytes addressing. So here just store full UTF-16LE words to re-convert later.
+              uint16_t idx = (n + i) * 2; // This is fixed as FAT LFN always contain UTF-16LE encoding
+              longFilename[idx]     =  utf16_ch       & 0xFF;
+              longFilename[idx + 1] = (utf16_ch >> 8) & 0xFF;
+            #else
+              // Replace all multibyte characters to '_'
+              longFilename[n + i] = (utf16_ch > 0xFF) ? '_' : (utf16_ch & 0xFF);
+            #endif
+          }
           // If this VFAT entry is the last one, add a NUL terminator at the end of the string
-          if (VFAT->sequenceNumber & 0x40) longFilename[n + FILENAME_LENGTH] = '\0';
+          if (VFAT->sequenceNumber & 0x40) longFilename[(n + FILENAME_LENGTH) * LONG_FILENAME_CHARSIZE] = '\0';
         }
       }
     }
-    // Return if normal file or subdirectory
-    if (DIR_IS_FILE_OR_SUBDIR(dir)) return n;
+
+    // Post-process normal file or subdirectory longname, if any
+    if (DIR_IS_FILE_OR_SUBDIR(dir)) {
+      #if ENABLED(UTF_FILENAME_SUPPORT)
+        #if LONG_FILENAME_CHARSIZE > 2
+          // Add warning for developers for currently not supported 3-byte cases (Conversion series of 2-byte
+          // codepoints to 3-byte in-place will break the rest of filename)
+          #error "Currently filename re-encoding is done in-place. It may break the remaining chars to use 3-byte codepoints."
+        #endif
+
+        // Is there a long filename to decode?
+        if (longFilename) {
+          // Reset n to the start of the long name
+          n = 0;
+          for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH) / 2; idx += 2) {    // idx is fixed since FAT LFN always contains UTF-16LE encoding
+            uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
+            if (0xD800 == (utf16_ch & 0xF800))                                    // Surrogate pair - encode as '_'
+              longFilename[n++] = '_';
+            else if (0 == (utf16_ch & 0xFF80))                                    // Encode as 1-byte UTF-8 char
+              longFilename[n++] = utf16_ch & 0x007F;
+            else if (0 == (utf16_ch & 0xF800)) {                                  // Encode as 2-byte UTF-8 char
+              longFilename[n++] = 0xC0 | ((utf16_ch >> 6) & 0x1F);
+              longFilename[n++] = 0x80 | ( utf16_ch       & 0x3F);
+            }
+            else {
+              #if LONG_FILENAME_CHARSIZE > 2                                      // Encode as 3-byte UTF-8 char
+                longFilename[n++] = 0xE0 | ((utf16_ch >> 12) & 0x0F);
+                longFilename[n++] = 0xC0 | ((utf16_ch >>  6) & 0x3F);
+                longFilename[n++] = 0xC0 | ( utf16_ch        & 0x3F);
+              #else                                                               // Encode as '_'
+                longFilename[n++] = '_';
+              #endif
+            }
+            if (0 == utf16_ch) break; // End of filename
+          } // idx
+        } // longFilename
+      #endif
+      return n;
+    } // DIR_IS_FILE_OR_SUBDIR
   }
 }
-
 
 // Read next directory entry into the cache
 // Assumes file is correctly positioned

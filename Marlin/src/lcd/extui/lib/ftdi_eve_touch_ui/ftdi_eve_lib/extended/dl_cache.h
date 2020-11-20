@@ -29,15 +29,12 @@
  *
  * The DLCache can be used like so:
  *
- *   void some_function() {
- *     DLCache dlcache(UNIQUE_ID);
+ *   DLCache dlcache(UNIQUE_ID);
  *
- *     if (dlcache.hasData()) {
- *       dlcache.append();
- *     } else {
- *       // Add stuff to the DL
- *       dlcache.store();
- *     }
+ *   if (dlcache.hasData())
+ *     dlcache.append();
+ *   else
+ *     dlcache.store(); // Add stuff to the DL
  */
 class DLCache {
   private:

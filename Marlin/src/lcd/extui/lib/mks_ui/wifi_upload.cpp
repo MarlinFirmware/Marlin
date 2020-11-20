@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -822,4 +822,4 @@ int32_t wifi_upload(int type) {
   return esp_upload.uploadResult == success ? 0 : -1;
 }
 
-#endif  // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE

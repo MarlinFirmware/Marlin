@@ -25,7 +25,7 @@
 
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifiSerial.h"
@@ -118,5 +118,5 @@ int WifiSerial::wifi_rb_is_full(void) {
   return rb_is_full(this->usart_device->rb);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

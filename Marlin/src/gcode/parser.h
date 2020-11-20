@@ -84,7 +84,7 @@ public:
   static char *command_ptr,               // The command, so it can be echoed
               *string_arg,                // string of command line
               command_letter;             // G, M, or T
-  static int codenum;                     // 123
+  static uint16_t codenum;                // 123
   #if ENABLED(USE_GCODE_SUBCODES)
     static uint8_t subcode;               // .1
   #endif
@@ -243,6 +243,9 @@ public:
     // Parse the next parameter as a new command
     static bool chain();
   #endif
+
+  // Test whether the parsed command matches the input
+  static inline bool is_command(const char ltr, const uint16_t num) { return command_letter == ltr && codenum == num; }
 
   // The code value pointer was set
   FORCE_INLINE static bool has_value() { return !!value_ptr; }

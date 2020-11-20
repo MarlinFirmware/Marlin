@@ -146,6 +146,10 @@
   #define HAS_PRINT_PROGRESS 1
 #endif
 
+#if ENABLED(SDSUPPORT) && SD_PROCEDURE_DEPTH
+  #define HAS_MEDIA_SUBCALLS 1
+#endif
+
 #if HAS_PRINT_PROGRESS && EITHER(PRINT_PROGRESS_SHOW_DECIMALS, SHOW_REMAINING_TIME)
   #define HAS_PRINT_PROGRESS_PERMYRIAD 1
 #endif
@@ -360,7 +364,7 @@
 
 // Touch Screen or "Touch Buttons" need XPT2046 pins
 // but they use different components
-#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_XPT2046)
+#if EITHER(HAS_TFT_XPT2046, HAS_TOUCH_BUTTONS)
   #define NEED_TOUCH_PINS 1
 #endif
 

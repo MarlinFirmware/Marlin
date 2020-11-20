@@ -35,7 +35,12 @@
  *    These numbers are the same in any pin mapping.
  */
 
-#define MAX_EXTRUDERS 8
+#if HAS_SMUFF
+  #define MAX_EXTRUDERS 12
+#else
+  #define MAX_EXTRUDERS 8
+#endif
+#define MAX_E_STEPPERS 8
 
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
@@ -104,13 +109,13 @@
 #elif MB(3DRAG)
   #include "ramps/pins_3DRAG.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8200)
-  #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8200.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8400)
-  #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8400.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8600)
   #include "ramps/pins_K8600.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(K8800)
-  #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (3DRAG)
+  #include "ramps/pins_K8800.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(BAM_DICE)
   #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(BAM_DICE_DUE)
@@ -132,7 +137,9 @@
 #elif MB(KFB_2)
   #include "ramps/pins_BIQU_KFB_2.h"            // ATmega2560                             env:mega2560
 #elif MB(ZRIB_V20)
-  #include "ramps/pins_ZRIB_V20.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560 (MKS_GEN_13)
+  #include "ramps/pins_ZRIB_V20.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
+#elif MB(ZRIB_V52)
+  #include "ramps/pins_ZRIB_V52.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(FELIX2)
   #include "ramps/pins_FELIX2.h"                // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 #elif MB(RIGIDBOARD)
@@ -213,6 +220,8 @@
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(RAMPS_S_12_EFFB)
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MB(RAMPS_LONGER3D_LKPRO)
+  #include "ramps/pins_LONGER3D_LK4PRO.h"       // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -431,6 +440,8 @@
   #include "lpc1769/pins_MKS_SGEN_L_V2.h"       // LPC1769                                env:LPC1769
 #elif MB(BTT_SKR_E3_TURBO)
   #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"    // LPC1769                                env:LPC1769
+#elif MB(FLY_CDY)
+  #include "lpc1769/pins_FLY_CDY.h"             // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards

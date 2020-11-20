@@ -7,7 +7,33 @@
 #
 
 MFINFO=$(mfinfo) || exit 1
-[[ -d Marlin/src ]] || { echo "Please 'cd' up to repo root." ; exit 1 ; }
+[[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
+
+perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
+errout() { echo -e "\033[0;31m$1\033[0m" ; }
+bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
+
+usage() {
+  echo "
+Usage: mftest [-t|--env=<env>] [-n|--num=<num>] [-m|--make] [-y|--build=<Y|n>]
+       mftest [-a|--autobuild]
+       mftest [-r|--rebuild]
+       mftest [-u|--autoupload] [-n|--num=<num>]
+
+OPTIONS
+  -t --env         The environment of the test to apply / run. (As named in platformio.ini.)
+  -n --num         The index of the test to run. (In *-tests file order.)
+  -m --make        Use the make / Docker method for the build.
+  -y --build       Skip 'Do you want to build this test?' and assume YES.
+  -h --help        Print this help.
+  -a --autobuild   PIO Build using the MOTHERBOARD environment.
+  -u --autoupload  PIO Upload using the MOTHERBOARD environment.
+  -v --verbose     Extra output for debugging.
+
+env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41
+
+"
+}
 
 TESTPATH=buildroot/tests
 
@@ -22,110 +48,145 @@ ISCMD='^(restore|opt|exec|use|pins|env)_'
 ISEXEC='^exec_'
 ISCONT='\\ *$'
 
-# Get the environment and test number from the command
-TESTENV=${1:-'-'}
-CHOICE=${2:-0}
-AUTOENV=0
+# Get environment, test number, etc. from the command
+TESTENV='-'
+CHOICE=0
+DEBUG=0
 
-# Allow shorthand for test name
+while getopts 'abhmruvyn:t:-:' OFLAG; do
+  case "${OFLAG}" in
+    a) AUTO_BUILD=1 ; bugout "Auto-Build target..." ;;
+    h) EXIT_USAGE=1 ;;
+    m) USE_MAKE=1 ; bugout "Using make with Docker..." ;;
+    n) case "$OPTARG" in
+         *[!0-9]*) perror "option requires a number" $OFLAG ; EXIT_USAGE=1 ;;
+                *) CHOICE="$OPTARG" ; bugout "Got a number: $CHOICE" ;;
+       esac
+       ;;
+    r) REBUILD=1         ; bugout "Rebuilding previous..."    ;;
+    t) TESTENV="$OPTARG" ; bugout "Got a target: $TESTENV" ;;
+    u) AUTO_BUILD=2      ; bugout "Auto-Upload target..."  ;;
+    v) DEBUG=1           ; bugout "Debug ON" ;;
+    y) BUILD_YES='Y'     ; bugout "Build will initiate..."    ;;
+    -) IFS="=" read -r ONAM OVAL <<< "$OPTARG"
+       case "$ONAM" in
+         help) [[ -z "$OVAL" ]] || perror "option can't take value $OVAL" $ONAM ; EXIT_USAGE=1 ;;
+    autobuild) AUTO_BUILD=1 ; bugout "Auto-Build target..."  ;;
+   autoupload) AUTO_BUILD=2 ; bugout "Auto-Upload target..." ;;
+          env) case "$OVAL" in
+                 '') perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+                  *) TESTENV="$OVAL" ; bugout "Got a target: $TESTENV" ;;
+               esac
+               ;;
+          num) case "$OVAL" in
+                 [0-9]+) CHOICE="$OVAL" ; bugout "Got a number: $CHOICE" ;;
+                      *) perror "option requires a value" $ONAM ; EXIT_USAGE=1 ;;
+               esac
+               ;;
+      rebuild) REBUILD=1      ; bugout "Rebuilding previous..."    ;;
+         make) USE_MAKE=1     ; bugout "Using make with Docker..." ;;
+debug|verbose) DEBUG=1        ; bugout "Debug ON" ;;
+        build) case "$OVAL" in
+                 ''|y|yes) BUILD_YES='Y' ;;
+                     n|no) BUILD_YES='N' ;;
+                        *) perror "option value must be y, n, yes, or no" $ONAM ; EXIT_USAGE=1 ;;
+               esac
+               bugout "Build will initiate? ($BUILD_YES)"
+               ;;
+            *) perror "Unknown flag" "$OPTARG" ; EXIT_USAGE=1 ;;
+       esac
+       ;;
+  esac
+done
+
+((EXIT_USAGE)) && { usage ; exit 1 ; }
+
+if ((REBUILD)); then
+  bugout "Rebuilding previous..."
+  # Build with the last-built env
+  [[ -f "$STATE_FILE" ]] || { errout "No previous (-r) build state found." ; exit 1 ; }
+  read TESTENV <"$STATE_FILE"
+  pio run -d . -e $TESTENV
+  exit
+fi
+
 case $TESTENV in
-    tree) pio run -d . -e include_tree ; exit 1 ;;
-     due) TESTENV='DUE' ;;
-     esp) TESTENV='esp32' ;;
-    lin*) TESTENV='linux_native' ;;
- lpc?(8)) TESTENV='LPC1768' ;;
-    lpc9) TESTENV='LPC1769' ;;
-    m128) TESTENV='mega1280' ;;
-    m256) TESTENV='mega2560' ;;
-    mega) TESTENV='mega2560' ;;
-     stm) TESTENV='STM32F103RE' ;;
-      f1) TESTENV='STM32F103RE' ;;
-      f4) TESTENV='STM32F4' ;;
-      f7) TESTENV='STM32F7' ;;
-      s6) TESTENV='FYSETC_S6' ;;
-  teensy) TESTENV='teensy31' ;;
-     t31) TESTENV='teensy31' ;;
-     t32) TESTENV='teensy31' ;;
-     t35) TESTENV='teensy35' ;;
-     t36) TESTENV='teensy35' ;;
-     t40) TESTENV='teensy41' ;;
-     t41) TESTENV='teensy41' ;;
-
--h|--help)  echo -e "$(basename $0) : Marlin Firmware test, build, and upload\n"
-            echo "Usage: $(basename $0) ................. Select env and test to apply / run"
-            echo "       $(basename $0) [-y] env ........ Select a test for env to apply / run"
-            echo "       $(basename $0) [-y] env test ... Apply / run the specified env test"
-            echo "       $(basename $0) -b [variant] .... Auto-build the specified variant"
-            echo "       $(basename $0) -u [variant] .... Auto-build and upload the specified variant"
-            echo
-            echo "env shortcuts: tree due esp lin lpc|lpc8 lpc9 m128 m256|mega stm|f1 f4 f7 s6 teensy|t31|t32 t35|t36 t40|t41"
-            exit
-            ;;
-
-          # Build with the last-built env
-      -r) [[ -f "$STATE_FILE" ]] || { echo "No previous (-r) build state found." ; exit 1 ; }
-          read TESTENV <"$STATE_FILE"
-          pio run -d . -e $TESTENV
-          exit
-          ;;
-
-   -[bu]) MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
-          [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
-          BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
-          BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
-          BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
-          [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
-          readarray -t ENVS <<< $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:.+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' )
-          [[ -z $ENVS ]] && { echo "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
-          ECOUNT=${#ENVS[*]}
-
-          if [[ $ECOUNT == 1 ]]; then
-            TARGET=$ENVS
-          else
-            if [[ $CHOICE == 0 ]]; then
-              #
-              # List env names and numbers. Get selection.
-              #
-              echo "Available targets for \"$BDESC\" | $MB ($BNUM):"
-
-              IND=0 ; for ENV in "${ENVS[@]}"; do let IND++ ; echo " $IND) $ENV" ; done
-
-              if [[ $ECOUNT > 1 ]]; then
-                for (( ; ; ))
-                do
-                  read -p "Select a target for '$MB' (1-$ECOUNT) : " CHOICE
-                  [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
-                  [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= ECOUNT)) && break
-                  echo ">>> Invalid environment choice '$CHOICE'."
-                done
-                echo
-              fi
-            else
-              echo "Detected \"$BDESC\" | $MB ($BNUM)."
-              [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection out of range." ; exit 1 ; }
-            fi
-            TARGET="${ENVS[$CHOICE-1]}"
-            echo "Selected $TARGET"
-          fi
-
-          echo "$TARGET" >"$STATE_FILE"
-
-          if [[ $TESTENV == "-u" ]]; then
-            echo "Build/Uploading environment $TARGET for board $MB ($BNUM)..." ; echo
-            pio run -t upload -e $TARGET
-          else
-            echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
-            pio run -e $TARGET
-          fi
-          exit
-          ;;
-
-          # The -y flag may come first
-      -y) TESTENV=${2:-'-'} ; CHOICE=${3:-0} ;;
-
-  -[a-z]) echo "Unknown flag $TESTENV" ; exit 1 ;;
-       -) ;;
+   tree) pio run -d . -e include_tree ; exit 1 ;;
+    due) TESTENV='DUE' ;;
+    esp) TESTENV='esp32' ;;
+   lin*) TESTENV='linux_native' ;;
+lpc?(8)) TESTENV='LPC1768' ;;
+   lpc9) TESTENV='LPC1769' ;;
+   m128) TESTENV='mega1280' ;;
+   m256) TESTENV='mega2560' ;;
+   mega) TESTENV='mega2560' ;;
+    stm) TESTENV='STM32F103RE' ;;
+     f1) TESTENV='STM32F103RE' ;;
+     f4) TESTENV='STM32F4' ;;
+     f7) TESTENV='STM32F7' ;;
+     s6) TESTENV='FYSETC_S6' ;;
+ teensy) TESTENV='teensy31' ;;
+    t31) TESTENV='teensy31' ;;
+    t32) TESTENV='teensy31' ;;
+    t35) TESTENV='teensy35' ;;
+    t36) TESTENV='teensy35' ;;
+    t40) TESTENV='teensy41' ;;
+    t41) TESTENV='teensy41' ;;
 esac
+
+if ((AUTO_BUILD)); then
+  #
+  # List environments that apply to the current MOTHERBOARD.
+  #
+  echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
+  MB=$( grep -E "^\s*#define MOTHERBOARD" Marlin/Configuration.h | awk '{ print $3 }' | $SED 's/BOARD_//' )
+  [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
+  BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
+  BNUM=$( $SED -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
+  BDESC=$( $SED -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )
+  [[ -z $BNUM ]] && { echo "Error - Can't find $MB in boards list." ; exit 1 ; }
+  ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E '#include.+//.+env:[^ ]+' | grep -oE 'env:[^ ]+' | $SED -E 's/env://' ) )
+  [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
+  ECOUNT=${#ENVS[*]}
+
+  if [[ $ECOUNT == 1 ]]; then
+    TARGET=$ENVS
+  else
+    if [[ $CHOICE == 0 ]]; then
+      # List env names and numbers. Get selection.
+      echo "Available targets for \"$BDESC\" | $MB ($BNUM):"
+
+      IND=0 ; for ENV in "${ENVS[@]}"; do let IND++ ; echo " $IND) $ENV" ; done
+
+      if [[ $ECOUNT > 1 ]]; then
+        for (( ; ; ))
+        do
+          read -p "Select a target for '$MB' (1-$ECOUNT) : " CHOICE
+          [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
+          [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= ECOUNT)) && break
+          errout ">>> Invalid environment choice '$CHOICE'."
+        done
+        echo
+      fi
+    else
+      echo "Detected \"$BDESC\" | $MB ($BNUM)."
+      [[ $CHOICE > $ECOUNT ]] && { echo "Environment selection out of range." ; exit 1 ; }
+    fi
+    TARGET="${ENVS[$CHOICE-1]}"
+    echo "Selected $TARGET"
+  fi
+
+  echo "$TARGET" >"$STATE_FILE"
+
+  if ((AUTO_BUILD == 2)); then
+    echo "Uploading environment $TARGET for board $MB ($BNUM)..." ; echo
+    pio run -t upload -e $TARGET
+  else
+    echo "Building environment $TARGET for board $MB ($BNUM)..." ; echo
+    pio run -e $TARGET
+  fi
+  exit
+fi
 
 #
 # List available tests and ask for selection
@@ -148,20 +209,20 @@ if [[ $TESTENV == '-' ]]; then
   for (( ; ; ))
   do
     read -p "Select a test to apply (1-$IND) : " NAMEIND
-    [[ -z "$NAMEIND" ]] && { echo '(canceled)' ; exit 1 ; }
+    [[ -z "$NAMEIND" ]] && { errout "(canceled)" ; exit 1 ; }
     [[ $NAMEIND =~ $ISNUM ]] && ((NAMEIND >= 1 && NAMEIND <= IND)) && { TESTENV=${NAMES[$NAMEIND-1]} ; echo ; break ; }
-    echo "Invalid selection."
+    errout "Invalid selection."
   done
 fi
 
 # Get the contents of the test file
-OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { echo "Can't find test '$TESTENV'." ; exit 1 ; }
+OUT=$( cat $TESTPATH/$TESTENV-tests 2>/dev/null ) || { errout "Can't find test '$TESTENV'." ; exit 1 ; }
 
 # Count up the number of tests
 TESTCOUNT=$( awk "/$ISEXEC/{a++}END{print a}" <<<"$OUT" )
 
 # User entered a number?
-(( CHOICE && CHOICE > TESTCOUNT )) && { echo "Invalid test selection '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
+(( CHOICE && CHOICE > TESTCOUNT )) && { errout "Invalid test selection '$CHOICE' (1-$TESTCOUNT)." ; exit 1 ; }
 
 if [[ $CHOICE == 0 ]]; then
   #
@@ -172,7 +233,7 @@ if [[ $CHOICE == 0 ]]; then
     while IFS= read -r LINE
     do
       if [[ $LINE =~ $ISEXEC ]]; then
-        DESC=$( "$SED" -E 's/^.+"(.*)".*$/\1/g' <<<"$LINE" )
+        DESC=$( "$SED" -E 's/^exec_test \$1 \$2 "([^"]+)".*$/\1/g' <<<"$LINE" )
         (( ++IND < 10 )) && echo -n " "
         echo " $IND) $DESC"
       fi
@@ -183,9 +244,9 @@ if [[ $CHOICE == 0 ]]; then
     for (( ; ; ))
     do
       read -p "Select a '$TESTENV' test (1-$TESTCOUNT) : " CHOICE
-      [[ -z "$CHOICE" ]] && { echo '(canceled)' ; exit 1 ; }
+      [[ -z "$CHOICE" ]] && { errout "(canceled)" ; exit 1 ; }
       [[ $CHOICE =~ $ISNUM ]] && ((CHOICE >= 1 && CHOICE <= TESTCOUNT)) && break
-      echo ">>> Invalid test selection '$CHOICE'."
+      errout ">>> Invalid test selection '$CHOICE'."
     done
   fi
 fi
@@ -193,6 +254,7 @@ fi
 #
 # Run the specified test lines
 #
+echo -ne "\033[0;33m"
 echo "$OUT" | {
   IND=0
   GOTX=0
@@ -210,27 +272,26 @@ echo "$OUT" | {
         }
         ((IND == CHOICE)) && {
           GOTX=1
-          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' )
-          [[ $LINE =~ $ISCONT ]] || { echo $CMD ; eval "$CMD" ; CMD="" ; }
+          [[ $CMD == "" ]] && CMD="$LINE" || CMD=$( echo -e "$CMD$LINE" | $SED -e 's/\\//g' | $SED -E 's/ +/ /g' )
+          [[ $LINE =~ $ISCONT ]] || { echo "$CMD" ; eval "$CMD" ; CMD="" ; }
         }
       fi
     fi
   done
 }
+echo -ne "\033[0m"
 
 # Make clear it's a TEST
 opt_set CUSTOM_MACHINE_NAME "\"$TESTENV-tests ($CHOICE)\""
 
-# Get a -y parameter the lazy way
-[[ "$2" == "-y" || "$3" == "-y" ]] && BUILD_YES='Y'
-
 # Build the test too?
-if [[ $BUILD_YES != 'Y' ]]; then
+if [[ -z "$BUILD_YES" ]]; then
   echo
   read -p "Build $TESTENV test #$CHOICE (y/N) ? " BUILD_YES
 fi
 
 [[ $BUILD_YES == 'Y' || $BUILD_YES == 'Yes' ]] && {
-  pio run -d . -e $TESTENV
+  ((USE_MAKE)) && make tests-single-local TEST_TARGET=$TESTENV ONLY_TEST=$CHOICE
+  ((USE_MAKE)) || pio run -d . -e $TESTENV
   echo "$TESTENV" >"$STATE_FILE"
 }

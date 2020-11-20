@@ -48,17 +48,12 @@ millis_t Touch::last_touch_ms = 0,
          Touch::repeat_delay,
          Touch::touch_time;
 TouchControlType  Touch::touch_control_type = NONE;
-touch_calibration_t Touch::calibration;
-#if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  calibrationState Touch::calibration_state = CALIBRATION_NONE;
-  touch_calibration_point_t Touch::calibration_points[4];
-#endif
 #if HAS_RESUME_CONTINUE
   extern bool wait_for_user;
 #endif
 
 void Touch::init() {
-  calibration_reset();
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
   reset();
   io.Init();
   enable();
@@ -155,61 +150,17 @@ void Touch::touch(touch_control_t *control) {
   switch (control->type) {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
       case CALIBRATE:
-        ui.refresh();
-
-        if (calibration_state < CALIBRATION_SUCCESS) {
-          calibration_points[calibration_state].x = int16_t(control->data >> 16);
-          calibration_points[calibration_state].y = int16_t(control->data & 0xFFFF);
-          calibration_points[calibration_state].raw_x = x;
-          calibration_points[calibration_state].raw_y = y;
-        }
-
-        switch (calibration_state) {
-          case CALIBRATION_POINT_1: calibration_state = CALIBRATION_POINT_2; break;
-          case CALIBRATION_POINT_2: calibration_state = CALIBRATION_POINT_3; break;
-          case CALIBRATION_POINT_3: calibration_state = CALIBRATION_POINT_4; break;
-          case CALIBRATION_POINT_4:
-            if (validate_precision_x(0, 1) && validate_precision_x(2, 3) && validate_precision_y(0, 2) && validate_precision_y(1, 3)) {
-              calibration_state = CALIBRATION_SUCCESS;
-              calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_x + calibration_points[2].raw_x - calibration_points[1].raw_x - calibration_points[0].raw_x);
-              calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_y - calibration_points[2].raw_y + calibration_points[1].raw_y - calibration_points[0].raw_y);
-              calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_x + calibration_points[1].raw_x) * calibration.x) >> 17);
-              calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_y + calibration_points[2].raw_y) * calibration.y) >> 17);
-              calibration.orientation = TOUCH_LANDSCAPE;
-            }
-            else if (validate_precision_y(0, 1) && validate_precision_y(2, 3) && validate_precision_x(0, 2) && validate_precision_x(1, 3)) {
-              calibration_state = CALIBRATION_SUCCESS;
-              calibration.x = ((calibration_points[2].x - calibration_points[0].x) << 17) / (calibration_points[3].raw_y + calibration_points[2].raw_y - calibration_points[1].raw_y - calibration_points[0].raw_y);
-              calibration.y = ((calibration_points[1].y - calibration_points[0].y) << 17) / (calibration_points[3].raw_x - calibration_points[2].raw_x + calibration_points[1].raw_x - calibration_points[0].raw_x);
-              calibration.offset_x = calibration_points[0].x - int16_t(((calibration_points[0].raw_y + calibration_points[1].raw_y) * calibration.x) >> 17);
-              calibration.offset_y = calibration_points[0].y - int16_t(((calibration_points[0].raw_x + calibration_points[2].raw_x) * calibration.y) >> 17);
-              calibration.orientation = TOUCH_PORTRAIT;
-            }
-            else {
-              calibration_state = CALIBRATION_FAIL;
-              calibration_reset();
-            }
-
-            if (calibration_state == CALIBRATION_SUCCESS) {
-              SERIAL_ECHOLNPGM("Touch screen calibration completed");
-              SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_X ", calibration.x);
-              SERIAL_ECHOLNPAIR("TOUCH_CALIBRATION_Y ", calibration.y);
-              SERIAL_ECHOLNPAIR("TOUCH_OFFSET_X ", calibration.offset_x);
-              SERIAL_ECHOLNPAIR("TOUCH_OFFSET_Y ", calibration.offset_y);
-              SERIAL_ECHOPGM("TOUCH_ORIENTATION "); if (calibration.orientation == TOUCH_LANDSCAPE) SERIAL_ECHOLNPGM("TOUCH_LANDSCAPE"); else SERIAL_ECHOLNPGM("TOUCH_PORTRAIT");
-            }
-            break;
-          default: break;
-        }
+        if (touch_calibration.handleTouch(x, y)) ui.refresh();
         break;
     #endif // TOUCH_SCREEN_CALIBRATION
 
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
-    case CLICK:
+    case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       ui.lcd_clicked = true;
       break;
+    case CLICK: ui.lcd_clicked = true; break;
     #if HAS_RESUME_CONTINUE
       case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
@@ -298,12 +249,18 @@ void Touch::hold(touch_control_t *control, millis_t delay) {
 }
 
 bool Touch::get_point(int16_t *x, int16_t *y) {
-  bool is_touched = (calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    bool is_touched = (touch_calibration.calibration.orientation == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
 
-  if (is_touched && calibration.orientation != TOUCH_ORIENTATION_NONE) {
-    *x = int16_t((int32_t(*x) * calibration.x) >> 16) + calibration.offset_x;
-    *y = int16_t((int32_t(*y) * calibration.y) >> 16) + calibration.offset_y;
-  }
+    if (is_touched && touch_calibration.calibration.orientation != TOUCH_ORIENTATION_NONE) {
+      *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+      *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+    }
+  #else
+    bool is_touched = (TOUCH_ORIENTATION == TOUCH_PORTRAIT ? io.getRawPoint(y, x) : io.getRawPoint(x, y));
+    *x = uint16_t((uint32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+    *y = uint16_t((uint32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
+  #endif
   return is_touched;
 }
 Touch touch;

@@ -26,7 +26,7 @@
 #include <lv_conf.h>
 #include "tft_lvgl_configuration.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 
@@ -73,7 +73,7 @@ void lv_draw_wifi(void) {
 
     buttonReconnect = lv_imgbtn_create(scr, nullptr);
 
-    lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, nullptr, 0);
+    lv_obj_set_event_cb_mks(buttonReconnect, event_handler, ID_W_RECONNECT, "", 0);
     lv_imgbtn_set_src_both(buttonReconnect, "F:/bmp_wifi.bin");
     lv_imgbtn_use_label_style(buttonReconnect);
 
@@ -159,5 +159,5 @@ void lv_clear_wifi() {
   lv_obj_del(scr);
 }
 
-#endif // USE_WIFI_FUNCTION
+#endif // MKS_WIFI_MODULE
 #endif // HAS_TFT_LVGL_UI

@@ -204,7 +204,7 @@ void TFTGLCD::print_line() {
   #endif
 }
 
-void TFTGLCD::print_screen(){
+void TFTGLCD::print_screen() {
   if (!PanelDetected) return;
   framebuffer[FBSIZE - 2] = picBits & PIC_MASK;
   framebuffer[FBSIZE - 1] = ledBits;
@@ -675,8 +675,8 @@ void MarlinUI::draw_status_screen() {
   //
 
   lcd.setCursor(0, 0);
-  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink);  lcd.write(' ');
-  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink);  lcd.write(' ');
+  _draw_axis_value(X_AXIS, ftostr4sign(LOGICAL_X_POSITION(current_position[X_AXIS])), blink); lcd.write(' ');
+  _draw_axis_value(Y_AXIS, ftostr4sign(LOGICAL_Y_POSITION(current_position[Y_AXIS])), blink); lcd.write(' ');
   _draw_axis_value(Z_AXIS, ftostr52sp(LOGICAL_Z_POSITION(current_position[Z_AXIS])), blink);
 
   #if HAS_LEVELING && !HAS_HEATED_BED
@@ -700,7 +700,7 @@ void MarlinUI::draw_status_screen() {
   uint8_t len = elapsed.toDigital(buffer);
 
   lcd.setCursor((LCD_WIDTH - 1) - len, 1);
-  lcd.write(0x07); lcd.print(buffer); // LCD_CLOCK_CHAR
+  lcd.write(LCD_STR_CLOCK[0]); lcd.print(buffer);
 
   //
   // Line 3 - progressbar
@@ -807,13 +807,13 @@ void MarlinUI::draw_status_screen() {
     void MarlinUI::draw_hotend_status(const uint8_t row, const uint8_t extruder) {
       if (!PanelDetected) return;
       lcd.setCursor((LCD_WIDTH - 14) / 2, row + 1);
-      lcd.write(0x02);  lcd_put_u8str_P(" E"); lcd.write('1' + extruder); lcd.write(' ');
-      lcd.print(i16tostr3rj(thermalManager.degHotend(extruder))); lcd.write(0x01);  lcd.write('/');
-      lcd.print(i16tostr3rj(thermalManager.degTargetHotend(extruder)));  lcd.write(0x01);
+      lcd.write(LCD_STR_THERMOMETER[0]); lcd_put_u8str_P(PSTR(" E")); lcd.write('1' + extruder); lcd.write(' ');
+      lcd.print(i16tostr3rj(thermalManager.degHotend(extruder)));       lcd.write(LCD_STR_DEGREE[0]); lcd.write('/');
+      lcd.print(i16tostr3rj(thermalManager.degTargetHotend(extruder))); lcd.write(LCD_STR_DEGREE[0]);
       lcd.print_line();
     }
 
-  #endif // ADVANCED_PAUSE_FEATURE
+  #endif
 
   // Draw a static item with no left-right margin required. Centered by default.
   void MenuItem_static::draw(const uint8_t row, PGM_P const pstr, const uint8_t style/*=SS_DEFAULT*/, const char * const valstr/*=nullptr*/) {
