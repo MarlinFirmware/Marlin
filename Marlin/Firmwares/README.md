@@ -127,8 +127,9 @@ Caption:
   - M420 S1 enable bed leveling
   - M420 Lx (Load mesh_x correction)
   And on my EndGCode I remove G28 and I substitute with this type of code:
-    >'{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000'
-    
+
+  >{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000
+
   This works fine in [PrusaSlicer](https://help.prusa3d.com/en/article/macros_1775).
   Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
 
