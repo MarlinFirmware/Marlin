@@ -156,10 +156,11 @@ void Touch::touch(touch_control_t *control) {
 
     case MENU_SCREEN: ui.goto_screen((screenFunc_t)control->data); break;
     case BACK: ui.goto_previous_screen(); break;
-    case CLICK:
+    case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       ui.lcd_clicked = true;
       break;
+    case CLICK: ui.lcd_clicked = true; break;
     #if HAS_RESUME_CONTINUE
       case RESUME_CONTINUE: extern bool wait_for_user; wait_for_user = false; break;
     #endif
