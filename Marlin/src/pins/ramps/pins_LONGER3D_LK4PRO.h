@@ -26,11 +26,10 @@
   #error "Longer UI supports only 1 hotend / E-stepper."
 #endif
 
-#define BOARD_INFO_NAME "LGT_KIT_V1.0"
+#define BOARD_INFO_NAME "LGT Kit 1.0"
 
 #define SD_DETECT_PIN                         49
 #define FIL_RUNOUT_PIN                         2
-
 #define Z_MIN_PIN                             35
 
 //
