@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -122,28 +122,25 @@ char &LockScreen::message_style() {
 }
 
 void LockScreen::onPasscodeEntered() {
-  if (passcode == 0) {
-    // We are defining a passcode
+  if (passcode == 0) {                        // We are defining a passcode
     message_style() = 0;
     onRefresh();
     sound.play(twinkle, PLAY_SYNCHRONOUS);
     passcode = compute_checksum();
     GOTO_PREVIOUS();
-  } else {
-    // We are verifying a passcode
-    if (passcode == compute_checksum()) {
-      message_style() = 'g';
-      onRefresh();
-      sound.play(twinkle, PLAY_SYNCHRONOUS);
-      GOTO_PREVIOUS();
-    }
-    else {
-      message_style() = 'w';
-      onRefresh();
-      sound.play(sad_trombone, PLAY_SYNCHRONOUS);
-      current_screen.forget(); // Discard the screen the user was trying to go to.
-      GOTO_PREVIOUS();
-    }
+  }
+  else if (passcode == compute_checksum()) {  // We are verifying a passcode
+    message_style() = 'g';
+    onRefresh();
+    sound.play(twinkle, PLAY_SYNCHRONOUS);
+    GOTO_PREVIOUS();
+  }
+  else {
+    message_style() = 'w';
+    onRefresh();
+    sound.play(sad_trombone, PLAY_SYNCHRONOUS);
+    current_screen.forget(); // Discard the screen the user was trying to go to.
+    GOTO_PREVIOUS();
   }
 }
 

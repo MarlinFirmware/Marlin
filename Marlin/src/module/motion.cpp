@@ -36,7 +36,7 @@
 
 #if IS_SCARA
   #include "../libs/buzzer.h"
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if HAS_BED_PROBE
@@ -52,7 +52,7 @@
 #endif
 
 #if HAS_DISPLAY
-  #include "../lcd/ultralcd.h"
+  #include "../lcd/marlinui.h"
 #endif
 
 #if HAS_FILAMENT_SENSOR
@@ -569,7 +569,7 @@ void restore_feedrate_and_scaling() {
           soft_endstop.min.x = X2_MIN_POS;
           soft_endstop.max.x = dual_max_x;
         }
-        else if (dxc_is_duplicating()) {
+        else if (idex_is_duplicating()) {
           // In Duplication Mode, T0 can move as far left as X1_MIN_POS
           // but not so far to the right that T1 would move past the end
           soft_endstop.min.x = X1_MIN_POS;
@@ -932,8 +932,7 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 #endif // !UBL_SEGMENTED
 
 #if HAS_DUPLICATION_MODE
-  bool extruder_duplication_enabled,
-       mirrored_duplication_mode;
+  bool extruder_duplication_enabled;
   #if ENABLED(MULTI_NOZZLE_DUPLICATION)
     uint8_t duplication_e_mask; // = 0
   #endif
@@ -942,12 +941,13 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
 #if ENABLED(DUAL_X_CARRIAGE)
 
   DualXMode dual_x_carriage_mode         = DEFAULT_DUAL_X_CARRIAGE_MODE;
-  float inactive_extruder_x_pos          = X2_MAX_POS,                    // used in mode 0 & 1
-        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // used in mode 2
-  xyz_pos_t raised_parked_position;                                       // used in mode 1
-  bool active_extruder_parked            = false;                         // used in mode 1 & 2
-  millis_t delayed_move_time             = 0;                             // used in mode 1
-  int16_t duplicate_extruder_temp_offset = 0;                             // used in mode 2
+  float inactive_extruder_x              = X2_MAX_POS,                    // Used in mode 0 & 1
+        duplicate_extruder_x_offset      = DEFAULT_DUPLICATION_X_OFFSET;  // Used in mode 2
+  xyz_pos_t raised_parked_position;                                       // Used in mode 1
+  bool active_extruder_parked            = false;                         // Used in mode 1 & 2
+  millis_t delayed_move_time             = 0;                             // Used in mode 1
+  int16_t duplicate_extruder_temp_offset = 0;                             // Used in mode 2
+  bool idex_mirrored_mode                = false;                         // Used in mode 3
 
   float x_home_pos(const uint8_t extruder) {
     if (extruder == 0)
@@ -962,6 +962,23 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
       return hotend_offset[1].x > 0 ? hotend_offset[1].x : X2_HOME_POS;
   }
 
+  void idex_set_mirrored_mode(const bool mirr) {
+    idex_mirrored_mode = mirr;
+    stepper.set_directions();
+  }
+
+  void set_duplication_enabled(const bool dupe, const int8_t tool_index/*=-1*/) {
+    extruder_duplication_enabled = dupe;
+    if (tool_index >= 0) active_extruder = tool_index;
+    stepper.set_directions();
+  }
+
+  void idex_set_parked(const bool park/*=true*/) {
+    delayed_move_time = 0;
+    active_extruder_parked = park;
+    if (park) raised_parked_position = current_position;  // Remember current raised toolhead position for use by unpark
+  }
+
   /**
    * Prepare a linear move in a dual X axis setup
    *
@@ -970,9 +987,10 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
   inline bool dual_x_carriage_unpark() {
     if (active_extruder_parked) {
       switch (dual_x_carriage_mode) {
-        case DXC_FULL_CONTROL_MODE:
-          break;
-        case DXC_AUTO_PARK_MODE:
+
+        case DXC_FULL_CONTROL_MODE: break;
+
+        case DXC_AUTO_PARK_MODE: {
           if (current_position.e == destination.e) {
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
@@ -984,23 +1002,27 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
               return true;
             }
           }
-          // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
+          //
+          // Un-park the active extruder
+          //
+          const feedRate_t fr_zfast = planner.settings.max_feedrate_mm_s[Z_AXIS];
+          #define CURPOS current_position
+          #define RAISED raised_parked_position
+          //  1. Move to the raised parked XYZ. Presumably the tool is already at XY.
+          if (planner.buffer_line(RAISED.x, RAISED.y, RAISED.z, CURPOS.e, fr_zfast, active_extruder)) {
+            //  2. Move to the current native XY and raised Z. Presumably this is a null move.
+            if (planner.buffer_line(CURPOS.x, CURPOS.y, RAISED.z, CURPOS.e, PLANNER_XY_FEEDRATE(), active_extruder)) {
+              //  3. Lower Z back down
+              line_to_current_position(fr_zfast);
+            }
+          }
+          planner.synchronize(); // paranoia
+          stepper.set_directions();
 
-            #define CUR_X    current_position.x
-            #define CUR_Y    current_position.y
-            #define CUR_Z    current_position.z
-            #define CUR_E    current_position.e
-            #define RAISED_X raised_parked_position.x
-            #define RAISED_Y raised_parked_position.y
-            #define RAISED_Z raised_parked_position.z
+          idex_set_parked(false);
+          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("idex_set_parked(false)");
+        } break;
 
-            if (  planner.buffer_line(RAISED_X, RAISED_Y, RAISED_Z, CUR_E, planner.settings.max_feedrate_mm_s[Z_AXIS], active_extruder))
-              if (planner.buffer_line(   CUR_X,    CUR_Y, RAISED_Z, CUR_E, PLANNER_XY_FEEDRATE(),             active_extruder))
-                  line_to_current_position(planner.settings.max_feedrate_mm_s[Z_AXIS]);
-          delayed_move_time = 0;
-          active_extruder_parked = false;
-          if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Clear active_extruder_parked");
-          break;
         case DXC_MIRRORED_MODE:
         case DXC_DUPLICATION_MODE:
           if (active_extruder == 0) {
@@ -1008,22 +1030,23 @@ FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
             if (dual_x_carriage_mode == DXC_DUPLICATION_MODE)
               new_pos.x += duplicate_extruder_x_offset;
             else
-              new_pos.x = inactive_extruder_x_pos;
-            // move duplicate extruder into correct duplication position.
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Set planner X", inactive_extruder_x_pos, " ... Line to X", new_pos.x);
-            planner.set_position_mm(inactive_extruder_x_pos, current_position.y, current_position.z, current_position.e);
+              new_pos.x = inactive_extruder_x;
+            // Move duplicate extruder into correct duplication position.
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Set planner X", inactive_extruder_x, " ... Line to X", new_pos.x);
+            planner.set_position_mm(inactive_extruder_x, current_position.y, current_position.z, current_position.e);
             if (!planner.buffer_line(new_pos, planner.settings.max_feedrate_mm_s[X_AXIS], 1)) break;
+
             planner.synchronize();
             sync_plan_position();
-            extruder_duplication_enabled = true;
-            active_extruder_parked = false;
-            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Set extruder_duplication_enabled\nClear active_extruder_parked");
+
+            set_duplication_enabled(true);
+            idex_set_parked(false);
+            if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("set_duplication_enabled(true)\nidex_set_parked(false)");
           }
           else if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Active extruder not 0");
           break;
       }
     }
-    stepper.set_directions();
     return false;
   }
 

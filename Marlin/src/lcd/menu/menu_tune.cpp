@@ -47,7 +47,7 @@
   #include "../../feature/babystep.h"
   #include "../lcdprint.h"
   #if HAS_MARLINUI_U8GLIB
-    #include "../dogm/ultralcd_DOGM.h"
+    #include "../dogm/marlinui_DOGM.h"
   #endif
 
   void _lcd_babystep(const AxisEnum axis, PGM_P const msg) {
@@ -202,10 +202,10 @@ void menu_tune() {
   //
   #if ENABLED(LIN_ADVANCE) && DISABLED(SLIM_LCD_MENUS)
     #if EXTRUDERS == 1
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
     #elif HAS_MULTI_EXTRUDER
       LOOP_L_N(n, EXTRUDERS)
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
     #endif
   #endif
 

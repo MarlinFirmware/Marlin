@@ -43,12 +43,17 @@
 #include "../../../../MarlinCore.h"
 #include "../../../../inc/MarlinConfig.h"
 
-#include HAL_PATH(../../HAL, tft/xpt2046.h)
-#include "../../../ultralcd.h"
+#include HAL_PATH(../../../../HAL, tft/xpt2046.h)
+#include "../../../marlinui.h"
 XPT2046 touch;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
+#endif
+
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../../../tft_io/touch_calibration.h"
+  #include "draw_touch_calibration.h"
 #endif
 
 #include <SPI.h>
@@ -72,17 +77,16 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
-extern uint8_t gcode_preview_over, flash_preview_begin, default_preview_flg;
+extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 uint8_t bmp_public_buf[17 * 1024];
 
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
-  #if ENABLED(USE_WIFI_FUNCTION)
-    if (tips_disp.timer == TIPS_TIMER_START) {
+  #if ENABLED(MKS_WIFI_MODULE)
+    if (tips_disp.timer == TIPS_TIMER_START)
       tips_disp.timer_count++;
-    }
   #endif
   if (uiCfg.filament_loading_time_flg == 1) {
     uiCfg.filament_loading_time_cnt++;
@@ -100,7 +104,7 @@ void SysTick_Callback() {
       uiCfg.filament_unloading_time_cnt  = 0;
       uiCfg.filament_unloading_time_flg  = 0;
       uiCfg.filament_unloading_completed = 1;
-      uiCfg.filament_rate                = 100;
+      uiCfg.filament_rate = 100;
     }
   }
 }
@@ -117,24 +121,27 @@ void tft_lvgl_init() {
   ui_cfg_init();
   disp_language_init();
 
-  //init tft first!
+  watchdog_refresh();     // LVGL init takes time
+
+  // Init TFT first!
   SPI_TFT.spi_init(SPI_FULL_SPEED);
   SPI_TFT.LCD_init();
 
+  watchdog_refresh();     // LVGL init takes time
+
   //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
-    watchdog_refresh();
     UpdateAssets();
+    watchdog_refresh();   // LVGL init takes time
   #endif
 
-  watchdog_refresh();
   mks_test_get();
 
   touch.Init();
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, NULL, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -190,42 +197,47 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  bool ready = true;
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
-      if (gCfgItems.from_flash_pic == 1)
-        flash_preview_begin = 1;
+      ready = false;
+      if (gCfgItems.from_flash_pic)
+        flash_preview_begin = true;
       else
-        default_preview_flg = 1;
+        default_preview_flg = true;
 
       uiCfg.print_state = REPRINTING;
 
-      ZERO(public_buf_m);
       strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
       card.printLongPath(public_buf_m);
-
       strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[sel_id]));
-
       lv_draw_printing();
     }
-    else
   #endif
-    lv_draw_ready_print();
+
+  if (ready) {
+    #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+      if (touch_calibration.need_calibration()) lv_draw_touch_calibration_screen();
+      else lv_draw_ready_print();
+    #else
+      lv_draw_ready_print();
+    #endif
+  }
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
 }
 
 void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p) {
-  uint16_t i, width, height;
-
-  width = area->x2 - area->x1 + 1;
-  height = area->y2 - area->y1 + 1;
+  uint16_t width = area->x2 - area->x1 + 1,
+          height = area->y2 - area->y1 + 1;
 
   SPI_TFT.setWindow((uint16_t)area->x1, (uint16_t)area->y1, width, height);
-  for (i = 0; i < height; i++) {
+
+  for (uint16_t i = 0; i < height; i++)
     SPI_TFT.tftio.WriteSequence((uint16_t*)(color_p + width * i), width);
-  }
+
   lv_disp_flush_ready(disp);       /* Indicate you are ready with the flushing*/
 
   W25QXX.init(SPI_QUARTER_SPEED);
@@ -240,17 +252,22 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 static bool get_point(int16_t *x, int16_t *y) {
   bool is_touched = touch.getRawPoint(x, y);
 
-  if (is_touched) {
-    *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-    *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
-  }
+  if (!is_touched) return false;
 
-  #if (TFT_ROTATION & TFT_ROTATE_180)
-    *x = int16_t((TFT_WIDTH) - (int)(*x));
-    *y = int16_t((TFT_HEIGHT) - (int)(*y));
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    const calibrationState state = touch_calibration.get_calibration_state();
+    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+      if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
+      return false;
+    }
+    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+  #else
+    *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+    *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
   #endif
 
-  return is_touched;
+  return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
@@ -311,10 +328,9 @@ extern uint8_t currentFlashPage;
 uint32_t pic_read_base_addr = 0, pic_read_addr_offset = 0;
 lv_fs_res_t spi_flash_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   static char last_path_name[30];
-  if (strcasecmp(last_path_name,path) != 0) {
+  if (strcasecmp(last_path_name, path) != 0) {
     pic_read_base_addr = lv_get_pic_addr((uint8_t *)path);
-    ZERO(last_path_name);
-    strcpy(last_path_name,path);
+    strcpy(last_path_name, path);
   }
   else {
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -363,11 +379,10 @@ uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
   //cur_namefff = strrchr(path, '/');
   char name_buf[100];
-  ZERO(name_buf);
-  strcat(name_buf,"/");
-  strcat(name_buf,path);
-  char *temp = strstr(name_buf,".bin");
-  if (temp) { strcpy(temp,".GCO"); }
+  *name_buf = '/';
+  strcpy(name_buf + 1, path);
+  char *temp = strstr(name_buf, ".bin");
+  if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
   if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
@@ -408,36 +423,32 @@ lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
 }
 
 void lv_encoder_pin_init() {
-  #if 1 // HAS_DIGITAL_BUTTONS
+  #if BUTTON_EXISTS(EN1)
+    SET_INPUT_PULLUP(BTN_EN1);
+  #endif
+  #if BUTTON_EXISTS(EN2)
+    SET_INPUT_PULLUP(BTN_EN2);
+  #endif
+  #if BUTTON_EXISTS(ENC)
+    SET_INPUT_PULLUP(BTN_ENC);
+  #endif
 
-    #if BUTTON_EXISTS(EN1)
-      SET_INPUT_PULLUP(BTN_EN1);
-    #endif
-    #if BUTTON_EXISTS(EN2)
-      SET_INPUT_PULLUP(BTN_EN2);
-    #endif
-    #if BUTTON_EXISTS(ENC)
-      SET_INPUT_PULLUP(BTN_ENC);
-    #endif
+  #if BUTTON_EXISTS(BACK)
+    SET_INPUT_PULLUP(BTN_BACK);
+  #endif
 
-    #if BUTTON_EXISTS(BACK)
-      SET_INPUT_PULLUP(BTN_BACK);
-    #endif
-
-    #if BUTTON_EXISTS(UP)
-      SET_INPUT(BTN_UP);
-    #endif
-    #if BUTTON_EXISTS(DWN)
-      SET_INPUT(BTN_DWN);
-    #endif
-    #if BUTTON_EXISTS(LFT)
-      SET_INPUT(BTN_LFT);
-    #endif
-    #if BUTTON_EXISTS(RT)
-      SET_INPUT(BTN_RT);
-    #endif
-
-  #endif // HAS_DIGITAL_BUTTONS
+  #if BUTTON_EXISTS(UP)
+    SET_INPUT(BTN_UP);
+  #endif
+  #if BUTTON_EXISTS(DWN)
+    SET_INPUT(BTN_DWN);
+  #endif
+  #if BUTTON_EXISTS(LFT)
+    SET_INPUT(BTN_LFT);
+  #endif
+  #if BUTTON_EXISTS(RT)
+    SET_INPUT(BTN_RT);
+  #endif
 }
 
 #if 1 // HAS_ENCODER_ACTION
@@ -512,7 +523,6 @@ void lv_encoder_pin_init() {
         const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
         if (enc_c != last_button_state) {
           state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-
           last_button_state = enc_c;
         }
 

@@ -21,7 +21,7 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if BOTH(HAS_TFT_LVGL_UI, MKS_WIFI_MODULE)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
@@ -260,7 +260,7 @@ void WriteByteSlip(uint8_t b) {
 // Wait for a data packet to be returned.  If the body of the packet is
 // non-zero length, return an allocated buffer indirectly containing the
 // data and return the data length. Note that if the pointer for returning
-// the data buffer is NULL, the response is expected to be two bytes of zero.
+// the data buffer is nullptr, the response is expected to be two bytes of zero.
 //
 // If an error occurs, return a negative value.  Otherwise, return the number
 // of bytes in the response (or zero if the response was not the standard "two bytes of zero").
@@ -533,12 +533,8 @@ EspUploadResult flashFinish(signed char reboot) {
 
 // Compute the checksum of a block of data
 uint16_t checksum(const uint8_t *data, uint16_t dataLen, uint16_t cksum) {
-  if (data != NULL) {
-    while (dataLen--) {
-      cksum ^= (uint16_t)*data++;
-    }
-  }
-  return(cksum);
+  if (data) while (dataLen--) cksum ^= (uint16_t)*data++;
+  return cksum;
 }
 
 EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
@@ -826,4 +822,4 @@ int32_t wifi_upload(int type) {
   return esp_upload.uploadResult == success ? 0 : -1;
 }
 
-#endif  // HAS_TFT_LVGL_UI
+#endif // HAS_TFT_LVGL_UI && MKS_WIFI_MODULE

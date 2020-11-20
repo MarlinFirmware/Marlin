@@ -208,7 +208,8 @@ def search_compiler():
 		for filepath in os.listdir(pathdir):
 			if not filepath.endswith(gcc):
 				continue
-
+			# Use entire path to not rely on env PATH
+			filepath = os.path.sep.join([pathdir, filepath])
 			# Cache the g++ path to no search always
 			if os.path.exists(ENV_BUILD_PATH):
 				blab('Caching g++ for current env')
@@ -233,7 +234,7 @@ def load_marlin_features():
 	build_flags = env.ParseFlagsExtended(build_flags)
 
 	cxx = search_compiler()
-	cmd = [cxx]
+	cmd = ['"' + cxx + '"']
 
 	# Build flags from board.json
 	#if 'BOARD' in env:

@@ -23,6 +23,10 @@
 
 #include "../inc/MarlinConfig.h"
 
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
+
 /**
  * Define debug bit-masks
  */
@@ -56,8 +60,9 @@ extern uint8_t marlin_debug_flags;
     #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
   #else
     #define SERIAL_OUT(WHAT, V...) do{ \
-      if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
-      if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
+      const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client); \
+      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
+      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
     }while(0)
   #endif
 
@@ -298,14 +303,14 @@ extern uint8_t marlin_debug_flags;
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, long v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 void serial_echopair_PGM(PGM_P const s_P, float v);
 void serial_echopair_PGM(PGM_P const s_P, double v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 inline void serial_echopair_PGM(PGM_P const s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
-inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (unsigned long)v); }
+inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
 void serialprintPGM(PGM_P str);
 void serial_echo_start();

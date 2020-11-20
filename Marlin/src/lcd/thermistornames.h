@@ -68,6 +68,8 @@
   #define THERMISTOR_NAME "Zonestar (Tronxy X3A)"
 #elif THERMISTOR_ID == 502
   #define THERMISTOR_NAME "Zonestar (P802M Hot Bed)"
+#elif THERMISTOR_ID == 503
+  #define THERMISTOR_NAME "Zonestar (Z8XM2 Bed)"
 #elif THERMISTOR_ID == 512
   #define THERMISTOR_NAME "RPW-Ultra"
 #elif THERMISTOR_ID == 6

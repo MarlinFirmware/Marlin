@@ -40,7 +40,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Εισαγωγή κάρτας");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Αφαίρεση κάρτας");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Βασική Οθόνη");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Αυτόματη εκκίνηση");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Αυτόματη εκκίνηση");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Απενεργοποίηση Μοτέρ");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο"); //SHORTEN
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Αρχικό σημείο X");
