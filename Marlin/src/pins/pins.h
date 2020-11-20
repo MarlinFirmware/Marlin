@@ -220,6 +220,8 @@
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(RAMPS_S_12_EFFB)
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MB(RAMPS_LONGER3D_LKPRO)
+  #include "ramps/pins_LONGER3D_LK4PRO.h"       // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
