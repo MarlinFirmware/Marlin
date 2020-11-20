@@ -37,6 +37,10 @@
 #include "../../../../gcode/queue.h"
 #include "../../../../inc/MarlinConfig.h"
 
+#if HAS_SUICIDE
+  #include "../../../../MarlinCore.h"
+#endif
+
 static lv_obj_t *scr;
 extern lv_group_t*  g;
 
@@ -54,7 +58,7 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     char buf[6] = { 0 };
   #endif
   switch (obj->mks_obj_id) {
@@ -87,7 +91,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       lv_draw_ready_print();
       break;
 
-    #if ENABLED(USE_WIFI_FUNCTION)
+    #if ENABLED(MKS_WIFI_MODULE)
       case ID_S_WIFI:
         if (gCfgItems.wifi_mode_sel == STA_MODEL) {
           if (wifi_link_state == WIFI_CONNECTED) {
@@ -135,7 +139,7 @@ void lv_draw_set(void) {
   #if HAS_LANG_SELECT_SCREEN
     lv_big_button_create(scr, "F:/bmp_language.bin", set_menu.language, BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_LANGUAGE);
   #endif
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     lv_big_button_create(scr, "F:/bmp_wifi.bin", set_menu.wifi, BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_WIFI);
   #endif
   lv_big_button_create(scr, "F:/bmp_return.bin", common_menu.text_back, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_S_RETURN);

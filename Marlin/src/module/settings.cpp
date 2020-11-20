@@ -146,7 +146,7 @@
 #endif
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  #include "../lcd/tft/touch.h"
+  #include "../lcd/tft_io/touch_calibration.h"
 #endif
 
 #if HAS_ETHERNET
@@ -443,7 +443,7 @@ typedef struct SettingsDataStruct {
   // TOUCH_SCREEN_CALIBRATION
   //
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    touch_calibration_t touch_calibration;
+    touch_calibration_t touch_calibration_data;
   #endif
 
   // Ethernet settings
@@ -1068,46 +1068,30 @@ void MarlinSettings::postprocess() {
         #if AXIS_IS_TMC(Z4)
           tmc_stepper_current.Z4 = stepperZ4.getMilliamps();
         #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_IS_TMC(E0)
-            tmc_stepper_current.E0 = stepperE0.getMilliamps();
-          #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_IS_TMC(E1)
-              tmc_stepper_current.E1 = stepperE1.getMilliamps();
-            #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_IS_TMC(E2)
-                tmc_stepper_current.E2 = stepperE2.getMilliamps();
-              #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_IS_TMC(E3)
-                  tmc_stepper_current.E3 = stepperE3.getMilliamps();
-                #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_IS_TMC(E4)
-                    tmc_stepper_current.E4 = stepperE4.getMilliamps();
-                  #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_IS_TMC(E5)
-                      tmc_stepper_current.E5 = stepperE5.getMilliamps();
-                    #endif
-                    #if MAX_EXTRUDERS > 6
-                      #if AXIS_IS_TMC(E6)
-                        tmc_stepper_current.E6 = stepperE6.getMilliamps();
-                      #endif
-                      #if MAX_EXTRUDERS > 7
-                        #if AXIS_IS_TMC(E7)
-                          tmc_stepper_current.E7 = stepperE7.getMilliamps();
-                        #endif
-                      #endif // MAX_EXTRUDERS > 7
-                    #endif // MAX_EXTRUDERS > 6
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
+        #if AXIS_IS_TMC(E0)
+          tmc_stepper_current.E0 = stepperE0.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E1)
+          tmc_stepper_current.E1 = stepperE1.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E2)
+          tmc_stepper_current.E2 = stepperE2.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E3)
+          tmc_stepper_current.E3 = stepperE3.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E4)
+          tmc_stepper_current.E4 = stepperE4.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E5)
+          tmc_stepper_current.E5 = stepperE5.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E6)
+          tmc_stepper_current.E6 = stepperE6.getMilliamps();
+        #endif
+        #if AXIS_IS_TMC(E7)
+          tmc_stepper_current.E7 = stepperE7.getMilliamps();
+        #endif
       #endif
       EEPROM_WRITE(tmc_stepper_current);
     }
@@ -1144,46 +1128,30 @@ void MarlinSettings::postprocess() {
         #if AXIS_HAS_STEALTHCHOP(Z4)
           tmc_hybrid_threshold.Z4 = stepperZ4.get_pwm_thrs();
         #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs();
-          #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs();
-            #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs();
-              #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs();
-                #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs();
-                  #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs();
-                    #endif
-                    #if MAX_EXTRUDERS > 6
-                      #if AXIS_HAS_STEALTHCHOP(E6)
-                        tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs();
-                      #endif
-                      #if MAX_EXTRUDERS > 7
-                        #if AXIS_HAS_STEALTHCHOP(E7)
-                          tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs();
-                        #endif
-                      #endif // MAX_EXTRUDERS > 7
-                    #endif // MAX_EXTRUDERS > 6
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
+        #if AXIS_HAS_STEALTHCHOP(E0)
+          tmc_hybrid_threshold.E0 = stepperE0.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E1)
+          tmc_hybrid_threshold.E1 = stepperE1.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E2)
+          tmc_hybrid_threshold.E2 = stepperE2.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E3)
+          tmc_hybrid_threshold.E3 = stepperE3.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E4)
+          tmc_hybrid_threshold.E4 = stepperE4.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E5)
+          tmc_hybrid_threshold.E5 = stepperE5.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E6)
+          tmc_hybrid_threshold.E6 = stepperE6.get_pwm_thrs();
+        #endif
+        #if AXIS_HAS_STEALTHCHOP(E7)
+          tmc_hybrid_threshold.E7 = stepperE7.get_pwm_thrs();
+        #endif
       #else
         const tmc_hybrid_threshold_t tmc_hybrid_threshold = {
           .X  = 100, .Y  = 100, .Z  =   3,
@@ -1219,73 +1187,54 @@ void MarlinSettings::postprocess() {
     {
       _FIELD_TEST(tmc_stealth_enabled);
 
-      tmc_stealth_enabled_t tmc_stealth_enabled = { false, false, false, false, false, false, false, false, false, false, false, false, false };
-
-      #if HAS_STEALTHCHOP
-        #if AXIS_HAS_STEALTHCHOP(X)
-          tmc_stealth_enabled.X = stepperX.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y)
-          tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z)
-          tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(X2)
-          tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Y2)
-          tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z2)
-          tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z3)
-          tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop();
-        #endif
-        #if AXIS_HAS_STEALTHCHOP(Z4)
-          tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop();
-        #endif
-        #if MAX_EXTRUDERS
-          #if AXIS_HAS_STEALTHCHOP(E0)
-            tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop();
-          #endif
-          #if MAX_EXTRUDERS > 1
-            #if AXIS_HAS_STEALTHCHOP(E1)
-              tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop();
-            #endif
-            #if MAX_EXTRUDERS > 2
-              #if AXIS_HAS_STEALTHCHOP(E2)
-                tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop();
-              #endif
-              #if MAX_EXTRUDERS > 3
-                #if AXIS_HAS_STEALTHCHOP(E3)
-                  tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop();
-                #endif
-                #if MAX_EXTRUDERS > 4
-                  #if AXIS_HAS_STEALTHCHOP(E4)
-                    tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop();
-                  #endif
-                  #if MAX_EXTRUDERS > 5
-                    #if AXIS_HAS_STEALTHCHOP(E5)
-                      tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop();
-                    #endif
-                    #if MAX_EXTRUDERS > 6
-                      #if AXIS_HAS_STEALTHCHOP(E6)
-                        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop();
-                      #endif
-                      #if MAX_EXTRUDERS > 7
-                        #if AXIS_HAS_STEALTHCHOP(E7)
-                          tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop();
-                        #endif
-                      #endif // MAX_EXTRUDERS > 7
-                    #endif // MAX_EXTRUDERS > 6
-                  #endif // MAX_EXTRUDERS > 5
-                #endif // MAX_EXTRUDERS > 4
-              #endif // MAX_EXTRUDERS > 3
-            #endif // MAX_EXTRUDERS > 2
-          #endif // MAX_EXTRUDERS > 1
-        #endif // MAX_EXTRUDERS
+      tmc_stealth_enabled_t tmc_stealth_enabled = { false };
+      #if AXIS_HAS_STEALTHCHOP(X)
+        tmc_stealth_enabled.X = stepperX.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Y)
+        tmc_stealth_enabled.Y = stepperY.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z)
+        tmc_stealth_enabled.Z = stepperZ.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(X2)
+        tmc_stealth_enabled.X2 = stepperX2.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Y2)
+        tmc_stealth_enabled.Y2 = stepperY2.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z2)
+        tmc_stealth_enabled.Z2 = stepperZ2.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z3)
+        tmc_stealth_enabled.Z3 = stepperZ3.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(Z4)
+        tmc_stealth_enabled.Z4 = stepperZ4.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E0)
+        tmc_stealth_enabled.E0 = stepperE0.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E1)
+        tmc_stealth_enabled.E1 = stepperE1.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E2)
+        tmc_stealth_enabled.E2 = stepperE2.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E3)
+        tmc_stealth_enabled.E3 = stepperE3.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E4)
+        tmc_stealth_enabled.E4 = stepperE4.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E5)
+        tmc_stealth_enabled.E5 = stepperE5.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E6)
+        tmc_stealth_enabled.E6 = stepperE6.get_stored_stealthChop();
+      #endif
+      #if AXIS_HAS_STEALTHCHOP(E7)
+        tmc_stealth_enabled.E7 = stepperE7.get_stored_stealthChop();
       #endif
       EEPROM_WRITE(tmc_stealth_enabled);
     }
@@ -1410,7 +1359,7 @@ void MarlinSettings::postprocess() {
     // TOUCH_SCREEN_CALIBRATION
     //
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      EEPROM_WRITE(touch.calibration);
+      EEPROM_WRITE(touch_calibration.calibration);
     #endif
 
     //
@@ -1497,7 +1446,7 @@ void MarlinSettings::postprocess() {
       }
       DEBUG_ECHO_START();
       DEBUG_ECHOLNPAIR("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_version());
+      IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
     }
     else {
@@ -2293,8 +2242,8 @@ void MarlinSettings::postprocess() {
       // TOUCH_SCREEN_CALIBRATION
       //
       #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-        _FIELD_TEST(touch.calibration);
-        EEPROM_READ(touch.calibration);
+        _FIELD_TEST(touch_calibration_data);
+        EEPROM_READ(touch_calibration.calibration);
       #endif
 
       //
@@ -2325,13 +2274,13 @@ void MarlinSettings::postprocess() {
       if (eeprom_error) {
         DEBUG_ECHO_START();
         DEBUG_ECHOLNPAIR("Index: ", int(eeprom_index - (EEPROM_OFFSET)), " Size: ", datasize());
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_index());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_index());
       }
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_START();
         DEBUG_ECHOLNPAIR("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN(EEPROM_AUTO_INIT,,ui.eeprom_alert_crc());
+        IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
         DEBUG_ECHO_START();
@@ -2626,7 +2575,7 @@ void MarlinSettings::reset() {
   //
   // TOUCH_SCREEN_CALIBRATION
   //
-  TERN_(TOUCH_SCREEN_CALIBRATION, touch.calibration_reset());
+  TERN_(TOUCH_SCREEN_CALIBRATION, touch_calibration.calibration_reset());
 
   //
   // Buzzer enable/disable

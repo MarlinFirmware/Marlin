@@ -30,13 +30,13 @@
 //
 // Endstops
 //
-#define X_STOP_PIN                            2
-#define Y_STOP_PIN                            3
-#define Z_STOP_PIN                           15
+#define X_STOP_PIN                             2
+#define Y_STOP_PIN                             3
+#define Z_STOP_PIN                            15
 
-#define FIL_RUNOUT_PIN                       39
+#define FIL_RUNOUT_PIN                        39
 #if EXTRUDERS > 1
-  #define FIL_RUNOUT2_PIN                    14
+  #define FIL_RUNOUT2_PIN                     14
 #endif
 
 //

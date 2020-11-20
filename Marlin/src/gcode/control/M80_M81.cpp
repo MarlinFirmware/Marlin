@@ -105,7 +105,7 @@ void GcodeSuite::M81() {
   #if HAS_SUICIDE
     suicide();
   #elif ENABLED(PSU_CONTROL)
-    PSU_OFF();
+    PSU_OFF_SOON();
   #endif
 
   LCD_MESSAGEPGM_P(PSTR(MACHINE_NAME " " STR_OFF "."));

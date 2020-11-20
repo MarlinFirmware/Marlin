@@ -163,6 +163,9 @@
 #define SET_INPUT(IO)        _SET_INPUT(IO)
 // Set pin as input with pullup (wrapper)
 #define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _PULLUP(IO, HIGH); }while(0)
+// Set pin as input with pulldown (substitution)
+#define SET_INPUT_PULLDOWN   SET_INPUT
+
 // Set pin as output (wrapper) -  reads the pin and sets the output to that value
 #define SET_OUTPUT(IO)       _SET_OUTPUT(IO)
 // Set pin as PWM

@@ -46,7 +46,7 @@
   #define MACHINE_CAN_PAUSE 1
 #endif
 
-#if ENABLED(PRUSA_MMU2)
+#if ENABLED(MMU2_MENUS)
   #include "../../lcd/menu/menu_mmu2.h"
 #endif
 
@@ -133,15 +133,15 @@ void menu_main() {
       // *** IF THIS SECTION IS CHANGED, REPRODUCE BELOW ***
 
       //
-      // Autostart
+      // Run Auto Files
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.beginautostart);
       #endif
 
       if (card_detected) {
         if (!card_open) {
-          SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
           #if PIN_EXISTS(SD_DETECT)
             GCODES_ITEM(MSG_CHANGE_MEDIA, M21_STR);
           #else
@@ -238,7 +238,7 @@ void menu_main() {
       // Autostart
       //
       #if ENABLED(MENU_ADDAUTOSTART)
-        ACTION_ITEM(MSG_AUTOSTART, card.beginautostart);
+        ACTION_ITEM(MSG_RUN_AUTO_FILES, card.beginautostart);
       #endif
 
       if (card_detected) {
@@ -248,7 +248,7 @@ void menu_main() {
           #else
             GCODES_ITEM(MSG_RELEASE_MEDIA, PSTR("M22"));
           #endif
-          SUBMENU(MSG_MEDIA_MENU, TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media));
+          SUBMENU(MSG_MEDIA_MENU, MEDIA_MENU_GATEWAY);
         }
       }
       else {

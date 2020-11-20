@@ -239,7 +239,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_t *labelCancel = lv_label_create_empty(btnCancel);
     lv_label_set_text(labelCancel, print_file_dialog_menu.cancle);
   }
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 2) {
         btnCancel = lv_button_btn_create(scr, BTN_OK_X + 90, BTN_OK_Y, 100, 50, btn_cancel_event_cb);
@@ -377,7 +377,7 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, DIALOG_UPDATE_NO_DEVICE_EN);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
   }
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     else if (DIALOG_IS(TYPE_UPLOAD_FILE)) {
       if (upload_result == 1) {
         lv_label_set_text(labelDialog, DIALOG_UPLOAD_ING_EN);
@@ -418,7 +418,7 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
       }
     }
-  #endif // USE_WIFI_FUNCTION
+  #endif // MKS_WIFI_MODULE
   else if (DIALOG_IS(TYPE_FILAMENT_LOAD_HEAT)) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
     lv_obj_align(labelDialog, nullptr, LV_ALIGN_CENTER, 0, -20);
