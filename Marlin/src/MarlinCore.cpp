@@ -355,9 +355,7 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
-  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    planner.axis_enabled = {true};
-  #endif
+  IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.set(true, true, true));
   enable_e_steppers();
 }
 
@@ -377,9 +375,7 @@ void disable_all_steppers() {
   DISABLE_AXIS_X();
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
-  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-    planner.axis_enabled = {false};
-  #endif
+  IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.set(false, false, false));
   disable_e_steppers();
 }
 
@@ -531,21 +527,15 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         // Individual axes will be disabled if configured
         if (ENABLED(DISABLE_INACTIVE_X)) {
           DISABLE_AXIS_X();
-          #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-            planner.axis_enabled.x = false;
-          #endif
+          IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.x = false);
         }
         if (ENABLED(DISABLE_INACTIVE_Y)) {
           DISABLE_AXIS_Y();
-          #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-            planner.axis_enabled.y = false;
-          #endif
+          IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.y = false);
         }
         if (ENABLED(DISABLE_INACTIVE_Z)) {
           DISABLE_AXIS_Z();
-          #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-            planner.axis_enabled.z = false;
-          #endif
+          IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.z = false);
         }
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 

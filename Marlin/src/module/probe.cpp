@@ -246,10 +246,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
         DISABLE_AXIS_X();
         DISABLE_AXIS_Y();
-        #if ENABLED(SOFTWARE_DRIVER_ENABLE)
-          planner.axis_enabled.x = false;
-          planner.axis_enabled.y = false;
-        #endif
+        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.x = false);
+        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.y = false);
       #endif
     #endif
     if (p) safe_delay(25
