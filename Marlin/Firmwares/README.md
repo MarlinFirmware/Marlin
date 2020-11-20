@@ -123,10 +123,12 @@ Caption:
   Remember to adjust your temperatures by doing your **bed PID** and adjust your **eSteps** for stable filament flow.
 
   **TIPS-SLICER** 
-  In your Start GCode on your Slicer.
+  
+  In your **Start GCode** on your Slicer.
   - M420 S1 enable bed leveling
   - M420 Lx (Load mesh_x correction)
-  And on my EndGCode I remove G28 and I substitute with this type of code:
+
+  And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
         {if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000
 
