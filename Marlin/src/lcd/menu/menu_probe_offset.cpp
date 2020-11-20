@@ -94,7 +94,7 @@ void probe_offset_wizard_menu() {
       #ifdef Z_AFTER_HOMING
         - 20.0 + Z_AFTER_HOMING
       #endif
-	);
+  );
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
       queue.inject_P(G28_STR);
     #endif
@@ -127,45 +127,47 @@ void goto_probe_offset_wizard() {
   
   // Home all Axis
   queue.inject_P(G28_STR);
-  if (all_axes_homed()) return;
-  
-  // Disable soft endstops for free Z movement
-  SET_SOFT_ENDSTOP_LOOSE(true);
-  
-  // Set Z Value for Wizard Position to 0
-  z_offset_ref = 0;
 
-  #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+  if (all_axes_homed()) {
+
+    // Disable soft endstops for free Z movement
+    SET_SOFT_ENDSTOP_LOOSE(true);
+
+    // Set Z Value for Wizard Position to 0
+    z_offset_ref = 0;
+
+    #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
 
     #ifdef PROBE_OFFSET_WIZARD_XY_POS
       // Get X and Y from Configuration
-	  constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
+      constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
     #else
       // Set Bed Center as probe point
-      constexpr xy_pos_t wizard_pos = XY_CENTER;	
-	  #endif
+      constexpr xy_pos_t wizard_pos = XY_CENTER;  
+      #endif
 
     // Probe for Z reference
     ui.wait_for_move = true;
     z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
     ui.wait_for_move = false;
     ui.synchronize();
-	
-	  if (ui.wait_for_move) return;
 
-  #endif
+      if (ui.wait_for_move) return;
 
-  // Move Nozzle to Probing/Homing Position
-  ui.wait_for_move = true;
-  current_position = current_position + probe.offset_xy;
-  line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
-  ui.wait_for_move = false;
-  ui.synchronize();
+    #endif
 
-  // Go to Menu for Calibration
-  if (ui.wait_for_move) return;
-  ui.goto_screen(probe_offset_wizard_menu);
+    // Move Nozzle to Probing/Homing Position
+    ui.wait_for_move = true;
+    current_position = current_position + probe.offset_xy;
+    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
+    ui.wait_for_move = false;
+    ui.synchronize();
 
+    // Go to Menu for Calibration
+    if (ui.wait_for_move) return;
+    ui.goto_screen(probe_offset_wizard_menu);
+
+  }
 
 }
 
