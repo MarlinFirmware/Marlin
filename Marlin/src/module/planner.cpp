@@ -203,6 +203,8 @@ skew_factor_t Planner::skew_factor; // Initialized by settings.load()
   bool Planner::autotemp_enabled = false;
 #endif
 
+xyz_bool_t Planner::axis_enabled{false};
+
 // private:
 
 xyze_long_t Planner::position{0};
@@ -1340,9 +1342,24 @@ void Planner::check_axes_activity() {
   //
   // Disable inactive axes
   //
-  if (TERN0(DISABLE_X, !axis_active.x)) DISABLE_AXIS_X();
-  if (TERN0(DISABLE_Y, !axis_active.y)) DISABLE_AXIS_Y();
-  if (TERN0(DISABLE_Z, !axis_active.z)) DISABLE_AXIS_Z();
+  if (TERN0(DISABLE_X, !axis_active.x)) {
+    DISABLE_AXIS_X();
+    #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+      axis_enabled.x = false;
+    #endif
+  }
+  if (TERN0(DISABLE_Y, !axis_active.y)) {
+    DISABLE_AXIS_Y();
+    #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+      axis_enabled.y = false;
+    #endif
+  }
+  if (TERN0(DISABLE_Z, !axis_active.z)) {
+    DISABLE_AXIS_Z();
+    #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+      axis_enabled.z = false;
+    #endif
+  }
   if (TERN0(DISABLE_E, !axis_active.e)) disable_e_steppers();
 
   //
@@ -2002,30 +2019,72 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
 
   // Enable active axes
   #if EITHER(CORE_IS_XY, MARKFORGED_XY)
-    if (block->steps.a || block->steps.b) {
+    if ((block->steps.a || block->steps.b) && (!axis_enabled.x || !axis_enabled.y)) {
       ENABLE_AXIS_X();
       ENABLE_AXIS_Y();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.x = true;
+        axis_enabled.y = true;
+      #endif
     }
     #if DISABLED(Z_LATE_ENABLE)
-      if (block->steps.z) ENABLE_AXIS_Z();
+      if (block->steps.z && !axis_enabled.z) {
+        ENABLE_AXIS_Z();
+        #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+          axis_enabled.z = true;
+        #endif
+      }
     #endif
   #elif CORE_IS_XZ
-    if (block->steps.a || block->steps.c) {
+    if ((block->steps.a || block->steps.c) && (!axis_enabled.x || !axis_enabled.z)) {
       ENABLE_AXIS_X();
       ENABLE_AXIS_Z();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.x = true;
+        axis_enabled.z = true;
+      #endif
     }
-    if (block->steps.y) ENABLE_AXIS_Y();
+    if (block->steps.y && !axis_enabled.y) {
+      ENABLE_AXIS_Y();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.y = true;
+      #endif
+    }
   #elif CORE_IS_YZ
-    if (block->steps.b || block->steps.c) {
+    if ((block->steps.b || block->steps.c) && (!axis_enabled.y || !axis_enabled.z)) {
       ENABLE_AXIS_Y();
       ENABLE_AXIS_Z();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.y = true;
+        axis_enabled.z = true;
+      #endif
     }
-    if (block->steps.x) ENABLE_AXIS_X();
+    if (block->steps.x && !axis_enabled.x) {
+      ENABLE_AXIS_X();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.x = true;
+      #endif
+    }
   #else
-    if (block->steps.x) ENABLE_AXIS_X();
-    if (block->steps.y) ENABLE_AXIS_Y();
+    if (block->steps.x && !axis_enabled.x) {
+      ENABLE_AXIS_X();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.x = true;
+      #endif
+    }
+    if (block->steps.y && !axis_enabled.y) {
+      ENABLE_AXIS_Y();
+      #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+        axis_enabled.y = true;
+      #endif
+    }
     #if DISABLED(Z_LATE_ENABLE)
-      if (block->steps.z) ENABLE_AXIS_Z();
+      if (block->steps.z && !axis_enabled.z) {
+        ENABLE_AXIS_Z();
+        #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+          axis_enabled.z = true;
+        #endif
+      }
     #endif
   #endif
 
