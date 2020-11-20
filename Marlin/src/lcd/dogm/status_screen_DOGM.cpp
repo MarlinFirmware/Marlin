@@ -412,11 +412,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 
 void MarlinUI::draw_status_screen() {
 
-  #if ENABLED(INCH_MODE_SUPPORT)
-    static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 8)], ystring[8], zstring[8];
-  #else
-    static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
-  #endif
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, TERN(INCH_MODE_SUPPORT, 8, 5))], ystring[TERN(INCH_MODE_SUPPORT, 8, 5)], zstring[8];
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
@@ -464,12 +460,7 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     const xyz_pos_t lpos = current_position.asLogical();
-    #if ENABLED(INCH_MODE_SUPPORT)
-      if (parser.using_inch_units())
-        strcpy(zstring, ftostr42sign((lpos.z / parser.linear_unit_factor)));
-      else
-    #endif
-    strcpy(zstring, ftostr52sp(lpos.z));
+    strcpy(zstring, TERN(INCH_MODE_SUPPORT, parser.using_inch_units() ? ftostr42sign((lpos.z / parser.linear_unit_factor)) : ftostr52sp(lpos.z) , ftostr52sp(lpos.z)));
 
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -487,9 +478,7 @@ void MarlinUI::draw_status_screen() {
       #endif
       strcpy(xstring, ftostr4sign(lpos.x));
       strcpy(ystring, ftostr4sign(lpos.y));
-      #if ENABLED(INCH_MODE_SUPPORT)
-        }
-      #endif
+      TERN_(INCH_MODE_SUPPORT, })
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)

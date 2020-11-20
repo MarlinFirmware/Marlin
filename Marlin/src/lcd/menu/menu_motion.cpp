@@ -208,9 +208,7 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
       SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
     #endif
   }
-  #if ENABLED(INCH_MODE_SUPPORT)
-    }
-  #endif
+  TERN_(INCH_MODE_SUPPORT, })
   END_MENU();
 }
 
