@@ -14,7 +14,8 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201118
+ Update Marlin-BugFix 20201120
+  - Last fix by feedback users.
   - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
   - Validate TMC2209 modes.
   - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
