@@ -135,7 +135,7 @@ Caption:
 ![Presentation](images/Final2.jpg)
 
 
-  **You will find some Slicer profiles in the "Slicers" directory.(in progresss...)** 
+  **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
   # For the Wifi Module (ESP3DV2 directory):
 
