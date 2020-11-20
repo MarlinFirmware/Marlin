@@ -301,8 +301,8 @@ public:
     static inline void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         default:
-        case LINEARUNIT_MM:   linear_unit_factor =  1.0f;  break;
-        case LINEARUNIT_INCH: linear_unit_factor = 25.4f;  break;
+        case LINEARUNIT_MM:   linear_unit_factor =  1.0f; break;
+        case LINEARUNIT_INCH: linear_unit_factor = 25.4f; break;
       }
       volumetric_unit_factor = POW(linear_unit_factor, 3);
     }
