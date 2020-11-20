@@ -9,7 +9,7 @@
 
 [**My Posts on Group FB**](https://www.facebook.com/groups/120961628750040/user/100000652030417)
 
-![QQS](images/FLSunMarlin.png)
+![QQS](../../docs/images/FLSunMarlin.png)
 
 __Not for production use. Use with caution!__
 
@@ -38,26 +38,26 @@ Typically the probe for the QQS-Pro printers.
 
   * Z Probe Offset of -16.2mm
 
-    ![Version Probe](images/VersionProbe.jpg)
+    ![Version Probe](../../docs/images/VersionProbe.jpg)
   
   * TFT screen color Marlin
 
-    ![TFT_COLOR_UI](images/UI_Color.png)
+    ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
 
 Optionals:
 
   * Modules Wifi
   
-    ![ESP12](images/esp12.jpg)
-    ![ESP8266](images/WemosD1.jpg)
+    ![ESP12](../../docs/images/esp12.jpg)
+    ![ESP8266](../../docs/images/WemosD1.jpg)
 
   * Micro Steppinp Drivers
   
-    ![Drivers](images/MicroSteppinpDrivers.jpg)
+    ![Drivers](../../docs/images/MicroSteppinpDrivers.jpg)
 
   * Led Strip with additional converter 24v/12-5v
   
-    ![Neopixels](images/LedsStip.jpg)
+    ![Neopixels](../../docs/images/LedsStip.jpg)
 
 No validate:
 -TMC51

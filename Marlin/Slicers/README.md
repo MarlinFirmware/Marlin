@@ -19,7 +19,7 @@ Download the right config bundle file (take care about the version of the file f
 Start Pruca Slic3r  
 Select File -> Import -> Import Config Bundle...  
 
-![picture 1](images/199333bc84d91e1da80aa5419c740490fdf023564681c68a6fcaec123c8681ce.png)  
+![picture 1](../../docs/images/PS_Import.png)  
 
 ## 1.3. How to import Cura configuration
 
