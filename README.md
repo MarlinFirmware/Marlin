@@ -9,7 +9,7 @@ Phisically move connections from privious install:
 - SCK       52 to 64
 - E0 TMC_CS 49 to 59
 
-This is a build of the current 2.0.x (2.0.6.1 as of the september 2nd) Marlin with settings for the Haribo Build on Franks3DShop Youtube channel https://youtu.be/LdET-DzsB4g
+This is a build of the current 2.0.x (2.0.7.2 as of the november 20th) Marlin with settings for the Haribo Build on Franks3DShop Youtube channel https://youtu.be/LdET-DzsB4g
 Features:
 - BLTOUCH auto bed leveling
 - Character based display REPRAP_DISCOUNT_SMART_CONTROLLER
