@@ -66,7 +66,7 @@ No validate:
 
 8CWBL-Robin_mini.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
-**Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it on your SD card, insert your SD card into the printer and power on your printer.
+  **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it  on your SD card, insert your SD card into the printer and power on your printer.
 
 Caption:
 
@@ -128,14 +128,13 @@ Caption:
   - M420 Lx (Load mesh_x correction)
   And on my EndGCode I remove G28 and I substitute with this type of code:
   "{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000" 
-  This works fine in PrusaSlicer (https://help .prusa3d.com/en/article/macros_1775).
+  This works fine in PrusaSlicer (https://help.prusa3d.com/en/article/macros_1775).
   Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
+
+  ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
 ![Final_Print](images/Final.jpg)
 ![Presentation](images/Final2.jpg)
-
-
-  **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
   # For the Wifi Module (ESP3DV2 directory):
 
