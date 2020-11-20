@@ -1509,9 +1509,6 @@ void MarlinUI::update() {
       wait_for_heatup = wait_for_user = false;
       card.flag.abort_sd_printing = true;
     #endif
-    #ifdef ACTION_ON_CANCEL
-      host_action_cancel();
-    #endif
     TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_INFO, PSTR("UI Aborted"), DISMISS_STR));
     print_job_timer.stop();
     set_status_P(GET_TEXT(MSG_PRINT_ABORTED));
