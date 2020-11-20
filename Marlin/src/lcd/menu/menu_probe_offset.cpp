@@ -94,10 +94,10 @@ void probe_offset_wizard_menu() {
       #ifdef Z_AFTER_HOMING
         - 20.0 + Z_AFTER_HOMING
       #endif
+	);
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
       queue.inject_P(G28_STR);
     #endif
-    );
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
