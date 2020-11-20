@@ -136,12 +136,12 @@ Caption:
 
   ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
-![Final_Print](images/Final.jpg)
-![Presentation](images/Final2.jpg)
+![Final_Print](../../docs/images/Final.jpg)
+![Presentation](../../docs/images/Final2.jpg)
 
   # For the Wifi Module (ESP3DV2 directory):
 
-![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
+![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
 
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
