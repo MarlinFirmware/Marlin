@@ -464,6 +464,11 @@ void startOrResumeJob() {
     #ifdef EVENT_GCODE_SD_ABORT
       queue.inject_P(PSTR(EVENT_GCODE_SD_ABORT));
     #endif
+	#if ENABLED(HOST_ACTION_COMMANDS)
+		#ifdef ACTION_ON_CANCEL
+			host_action_cancel();
+		#endif
+    #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
   }
