@@ -109,6 +109,7 @@ void probe_offset_wizard_menu() {
 
 
 void goto_probe_offset_wizard() {
+  set_all_unhomed();
   _lcd_draw_homing();
 
   // Store probe.offset.z for Case: Cancel
@@ -126,13 +127,12 @@ void goto_probe_offset_wizard() {
   
   // Home all Axis
   queue.inject_P(G28_STR);
+  if (all_axes_homed()) return;
   
   // Disable soft endstops for free Z movement
   SET_SOFT_ENDSTOP_LOOSE(true);
   
-  // wait
-  if (ui.wait_for_move) return;
-
+  // Set Z Value for Wizard Position to 0
   z_offset_ref = 0;
 
   #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
@@ -143,7 +143,7 @@ void goto_probe_offset_wizard() {
     #else
       // Set Bed Center as probe point
       constexpr xy_pos_t wizard_pos = XY_CENTER;	
-	#endif
+	  #endif
 
     // Probe for Z reference
     ui.wait_for_move = true;
@@ -151,10 +151,9 @@ void goto_probe_offset_wizard() {
     ui.wait_for_move = false;
     ui.synchronize();
 	
-	if (ui.wait_for_move) return;
+	  if (ui.wait_for_move) return;
 
   #endif
-
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
@@ -164,6 +163,7 @@ void goto_probe_offset_wizard() {
   ui.synchronize();
 
   // Go to Menu for Calibration
+  if (ui.wait_for_move) return;
   ui.goto_screen(probe_offset_wizard_menu);
 
 
