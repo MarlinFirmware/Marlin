@@ -119,7 +119,7 @@ void prepare_for_probe_offset_wizard() {
 
     #ifdef PROBE_OFFSET_WIZARD_XY_POS
       // Get X and Y from Configuration
-    constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
+      constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
     #else
       // Set Bed Center as probe point
       constexpr xy_pos_t wizard_pos = XY_CENTER;  
@@ -136,7 +136,8 @@ void prepare_for_probe_offset_wizard() {
   // Move Nozzle to Probing/Homing Position
   if (!ui.wait_for_move) {
     ui.wait_for_move = true;
-    current_position = current_position + probe.offset_xy;
+    current_position.x = current_position.x + probe.offset_x;
+    current_position.y = current_position.y + probe.offset_y;
     line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
     ui.wait_for_move = false;
     ui.synchronize();
