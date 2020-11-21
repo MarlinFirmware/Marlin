@@ -111,7 +111,9 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PA3   // PW_OFF
 
-#define SERVO0_PIN                          PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#ifndef SERVO0_PIN
+  #define SERVO0_PIN                        PA8   // Enable BLTOUCH support on IO0 (WIFI connector)
+#endif
 
 #define MT_DET_1_PIN                        PA4
 #define MT_DET_PIN_INVERTING               false

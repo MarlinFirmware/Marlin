@@ -40,8 +40,8 @@
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
-#define MKS_ROBIN_TFT28            //Mks_Robin_TFT_v2
-//#define MKS_ROBIN_TFT32            //Mks_Robin_TFT
+#define MKS_ROBIN_TFT32            //Mks_Robin_TFTV2.0
+//#define MKS_ROBIN_TFT28            //Mks_Robin_TFT
 //#define MKS_ROBIN_TFT_V1_1R
 //#define MKS_ROBIN_TFT24
 //#define TFT_GENERIC
@@ -61,7 +61,7 @@
 #define FILAMENT_RUNOUT_SENSOR     //NC LVGL
 #define ADVANCED_PAUSE_FEATURE     //NC LVGL
 #define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
-//#define ARC_SUPPORT                //(R)
+#define ARC_SUPPORT                //(R)
 
 //============= End_Hardware ===============//
 

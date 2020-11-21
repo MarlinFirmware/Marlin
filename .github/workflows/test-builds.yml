@@ -119,8 +119,4 @@ jobs:
 
     - name: Run ${{ matrix.test-platform }} Tests
       run: |
-        # Inline tests script
-        chmod +x buildroot/bin/*
-        chmod +x buildroot/tests/*
-        export PATH=./buildroot/bin/:./buildroot/tests/:${PATH}
-        run_tests . ${{ matrix.test-platform }}
+        make tests-single-ci TEST_TARGET=${{ matrix.test-platform }}

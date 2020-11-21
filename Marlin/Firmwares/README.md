@@ -1,33 +1,24 @@
-# Marlin 3D Printer Firmware for Delta QQS-Pro
+# Marlin 3D Printer Firmware for Delta QQS-Pro with HISPEEDv1 Board.
 
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
 ![GitHub contributors](https://img.shields.io/github/contributors/marlinfirmware/marlin.svg)
 ![GitHub Release Date](https://img.shields.io/github/release-date/marlinfirmware/marlin.svg)
 [![Build Status](https://github.com/MarlinFirmware/Marlin/workflows/CI/badge.svg?branch=bugfix-2.0.x)](https://github.com/MarlinFirmware/Marlin/actions)
 
+[**Group FaceBook**](https://www.facebook.com/groups/120961628750040)
+
+[**My Posts on Group FB**](https://www.facebook.com/groups/120961628750040/user/100000652030417)
+
+![QQS](../../docs/images/FLSunMarlin.png)
+
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201115
-  - Validate TMC2209 mode.
-
- Update Marlin-BugFix 20201030
-  - Last correction for Black screen in UI Color
-  - Correction thermal protection hysterisis.
-  - Remove part for TMC2209 UART HardwareSerial
-  - Add comments into definition_pins file.
-
- Update Marlin-BugFix 20201022
-  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
-  - Fixed Deploy/Stow ZProbe
-  - Fixed for users using E3Dv6 hotend
-  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
-
-## Marlin 2.0.7 
- Update 2020-10-01
- 
-## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20200905
+ Update Marlin-BugFix 20201120
+  - Last fix by feedback users.
+  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - Validate TMC2209 modes.
+  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
 
   ## Validate:
 
@@ -42,13 +33,32 @@ With activate parts:
 * [AUTO_BED_LEVELING_UBL]
 * [PAUSE_BEFORE_DEPLOY_STOW]
 * [LIN_ADVANCE]
+* [ARC_SUPPORT]
 
 Typically the probe for the QQS-Pro printers.
 
   * Z Probe Offset of -16.2mm
 
-    ![Version Probe](images/VersionProbe.jpg)
+    ![Version Probe](../../docs/images/VersionProbe.jpg)
+  
+  * TFT screen color Marlin
 
+    ![TFT_COLOR_UI](../../docs/images/UI_Color.png)
+
+Optionals:
+
+  * Modules Wifi
+  
+    ![ESP12](../../docs/images/esp12.jpg)
+    ![ESP8266](../../docs/images/WemosD1.jpg)
+
+  * Micro Steppinp Drivers
+  
+    ![Drivers](../../docs/images/MicroSteppinpDrivers.jpg)
+
+  * Led Strip with additional converter 24v/12-5v
+  
+    ![Neopixels](../../docs/images/LedsStip.jpg)
 
 No validate:
 -TMC51
@@ -57,31 +67,28 @@ No validate:
 
 8CWBL-Robin_mini.bin =>  (8)TMC2208 standalone - (C)UI Marlin - (W)Module Wifi - (B)Extruder BMG - (L)LinearAdvance  
 
-**Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it on your SD card, insert your SD card into the printer and power on your printer.
+  **Note**: After choosing your binary, remove the "8CWBL-" header or rename the file to "Robin_mini.bin", place it  on your SD card, insert your SD card into the printer and power on your printer.
 
 Caption:
 
   ### /*------Drivers--------*/
-  - (S) A4988
-  - (8) TMC2208
-  - (9) TMC2209
+  - (S) A4988 (green/red)
+  - (8) TMC2208 Standalone
+  - (9) TMC2209 Standalone
   - (U8) TMC2208_UART with no module ESP12.
   - (U9) TMC2209_UART with no module ESP12.
   - **(UH) TMC2209_UART with one wire (option modules Wifi/Neopixel)**
   - (U8+) TMC2208 (XYZ) + Choice for E0 (A4988,TMC220x) 
   - (U9+) TMC2209 (XYZ) + Choice for E0 (A4988,TMC220x)
-
   ### /*------Modules--------*/
   - (W) Module ESP8266/ESP12
   - (T) Extruder Titan
   - (B) Extruder BMG
   - (N) NeoPixel
-
   ### /*-------Options UI TFT--------*/
   - (F) UI STANDARD 
   - (C) UI MARLIN 
   - (I) UI MKS
-
   ### /*-------Others options in firmware----*/ 
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
@@ -89,8 +96,12 @@ Caption:
   - (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
   ## HELP - PROCEDURE - TIPS 
-    After the flash, you must reset your printer using the menu or M502,
-  M500 put the probe then start a calibration or G33 V3 (5 iterations).
+  After the flash, you must reset your printer using the menu or M502,
+  M500 put the probe then start a calibration or G33 V3 (5/8 iterations).
+    
+    **Tip**: After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
+             it means that you have a problem with the structure of your printer!
+             A "std dev:" of 0.04 and less is excellent !!
   
   Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
   Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -113,22 +124,26 @@ Caption:
   Remember to adjust your temperatures by doing your **bed PID** and adjust your **eSteps** for stable filament flow.
 
   **TIPS-SLICER** 
-  In your Start GCode on your Slicer.
+  
+  In your **Start GCode** on your Slicer.
   - M420 S1 enable bed leveling
   - M420 Lx (Load mesh_x correction)
-  And on your EndGCode remove G28 because I enable a height(270cm)  after the "HOME" where XY movement is unconstrained.
-  You can substitute this type of code:
-  "{if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000" 
-  This works fine in PrusaSlicer (https://help .prusa3d.com/en/article/macros_1775).
-  Go 100cm above the finished object.It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  **
+  And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
+        {if layer_z <max_print_height} G1 Z {min (layer_z + 100, max_print_height)} {endif} F4000
 
+  This works fine in [PrusaSlicer](https://help.prusa3d.com/en/article/macros_1775) and goes 100cm above the finished object. It's up to you to adapt it for your favorite Slicer or to improve mine.
 
-  # For the Wifi Module (MKS_Wifi):
+  ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
-![UI ESP3D with Module Wifi MKS](images/QQSPro_ESP3D.png)
+![Final_Print](../../docs/images/Final.jpg)
+![Presentation](../../docs/images/Final2.jpg)
+
+  # For the Wifi Module (ESP3DV2 directory):
+
+![UI ESP3D with Module Wifi MKS](../../docs/images/QQSPro_ESP3D.png)
+
 Put the firmware (MksWifi.bin) on the scard with the firmware FLSUN (Robin_mini.bin)
 1) Flash original firmware + original mkswifi 
 2) Flash original firmware + Custum mkswifi 
@@ -161,3 +176,25 @@ Enjoy....🙃
   You can also send me a tip via [Thingiverse](https://www.thingiverse.com/FamStel/about) if you prefer.
 
  Massive thank you in advance :heart:
+
+# Version history
+## Marlin 2.0 Bugfix Branch 
+Update Marlin-BugFix 20201030
+  - Last correction for Black screen in UI Color
+  - Correction thermal protection hysterisis.
+  - Enable mode TMC220x UART SoftSerial
+  - Add comments into definition_pins file.
+
+ Update Marlin-BugFix 20201022
+  - Integration in the Marlin firmware of the HISPEED motherboard and configuration files for the QQS-Pro.
+  - Fixed Deploy/Stow ZProbe
+  - Fixed for users using E3Dv6 hotend
+  - Others TIPS(QQS_Config.h, Quick calibration 6, Menu management of NeoPixel leds, etc).
+
+## Marlin 2.0.7 
+ Update 2020-10-01
+ 
+## Marlin 2.0 Bugfix Branch
+ Update Marlin-BugFix 20200905
+
+
