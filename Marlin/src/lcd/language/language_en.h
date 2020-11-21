@@ -41,14 +41,6 @@
 #endif
 #undef en
 
-#if DISABLED(NOT_EXTENDED_ISO10646_1_5X7)
-  #define SUPERSCRIPT_TWO   "²"
-  #define SUPERSCRIPT_THREE   "³"
-#else
-  #define SUPERSCRIPT_TWO   "^2"
-  #define SUPERSCRIPT_THREE   "^3"
-#endif
-
 namespace Language_en {
   constexpr uint8_t    CHARSIZE                            = 2;
   PROGMEM Language_Str LANGUAGE                            = _UxGT("English");
