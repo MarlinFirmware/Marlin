@@ -48,7 +48,7 @@
   #include "delta.h"
 #endif
 
-#if EITHER(BABYSTEP_ZPROBE_OFFSET, SOFTWARE_DRIVER_ENABLE)
+#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
   #include "planner.h"
 #endif
 
@@ -244,10 +244,7 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
     #if ENABLED(PROBING_STEPPERS_OFF)
       disable_e_steppers();
       #if NONE(DELTA, HOME_AFTER_DEACTIVATE)
-        DISABLE_AXIS_X();
-        DISABLE_AXIS_Y();
-        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.x = false);
-        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.y = false);
+        DISABLE_AXIS_X(); DISABLE_AXIS_Y();
       #endif
     #endif
     if (p) safe_delay(25

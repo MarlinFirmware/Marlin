@@ -845,20 +845,24 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 //
 #define FORGET_AXIS(A) TERN(HOME_AFTER_DEACTIVATE, set_axis_never_homed(A), CBI(axis_known_position, A))
 
-#define  ENABLE_AXIS_X() do{ ENABLE_STEPPER_X(); ENABLE_STEPPER_X2(); }while(0)
-#define DISABLE_AXIS_X() do{ DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); FORGET_AXIS(X_AXIS); }while(0)
+// Break out of a loop if axis is already in the correct state. To be used only with ENABLE/DISABLE_AXIS macros
+#define CHECK_AXIS_SW_ENABLED(N)  TERN(SOFTWARE_DRIVER_ENABLE, if(axis_sw_enabled[N##_AXIS]) break; else axis_sw_enabled[N##_AXIS] = true, NOOP)
+#define CHECK_AXIS_SW_DISABLED(N) TERN(SOFTWARE_DRIVER_ENABLE, if(!axis_sw_enabled[N##_AXIS]) break; else axis_sw_enabled[N##_AXIS] = false, NOOP)
 
-#define  ENABLE_AXIS_Y() do{ ENABLE_STEPPER_Y(); ENABLE_STEPPER_Y2(); }while(0)
-#define DISABLE_AXIS_Y() do{ DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); FORGET_AXIS(Y_AXIS); }while(0)
+#define  ENABLE_AXIS_X() do{ CHECK_AXIS_SW_ENABLED(X); ENABLE_STEPPER_X(); ENABLE_STEPPER_X2(); }while(0)
+#define DISABLE_AXIS_X() do{ CHECK_AXIS_SW_DISABLED(X); DISABLE_STEPPER_X(); DISABLE_STEPPER_X2(); FORGET_AXIS(X_AXIS); }while(0)
 
-#define  ENABLE_AXIS_Z() do{ ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
+#define  ENABLE_AXIS_Y() do{ CHECK_AXIS_SW_ENABLED(Y); ENABLE_STEPPER_Y(); ENABLE_STEPPER_Y2(); }while(0)
+#define DISABLE_AXIS_Y() do{ CHECK_AXIS_SW_DISABLED(Y); DISABLE_STEPPER_Y(); DISABLE_STEPPER_Y2(); FORGET_AXIS(Y_AXIS); }while(0)
+
+#define  ENABLE_AXIS_Z() do{ CHECK_AXIS_SW_ENABLED(Z); ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); }while(0)
 
 #ifdef Z_AFTER_DEACTIVATE
   #define Z_RESET() do{ current_position.z = Z_AFTER_DEACTIVATE; sync_plan_position(); }while(0)
 #else
   #define Z_RESET()
 #endif
-#define DISABLE_AXIS_Z() do{ DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); FORGET_AXIS(Z_AXIS); Z_RESET(); }while(0)
+#define DISABLE_AXIS_Z() do{ CHECK_AXIS_SW_DISABLED(Z); DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); FORGET_AXIS(Z_AXIS); Z_RESET(); }while(0)
 
 //
 // Extruder steppers enable / disable macros
@@ -992,4 +996,11 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #else
     #define DISABLE_AXIS_E7() NOOP
   #endif
+#endif
+
+/**
+ * Enable state for each axis
+ */
+#if ENABLED(SOFTWARE_DRIVER_ENABLE)
+  extern xyz_bool_t axis_sw_enabled;
 #endif

@@ -43,3 +43,9 @@ void reset_stepper_drivers() {
   TERN_(HAS_L64XX, L64xxManager.init_to_defaults());
   TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
 }
+
+
+/**
+ * Enable state for each axis
+ */
+xyz_bool_t axis_sw_enabled = {false, false, false};

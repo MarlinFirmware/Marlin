@@ -2872,7 +2872,6 @@ void Stepper::report_positions() {
           ENABLE_AXIS_X();
           ENABLE_AXIS_Y();
           ENABLE_AXIS_Z();
-          IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.set(true, true, true));
 
           DIR_WAIT_BEFORE();
 

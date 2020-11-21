@@ -416,11 +416,6 @@ class Planner {
       }
     #endif
 
-    /**
-     * Enable state for each axis
-     */
-    static xyz_bool_t axis_enabled;
-
   private:
 
     /**

@@ -34,18 +34,9 @@
  */
 void GcodeSuite::M17() {
   if (parser.seen("XYZE")) {
-    if (parser.seen('X')) {
-      ENABLE_AXIS_X();
-      IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.x = true);
-    }
-    if (parser.seen('Y')) {
-      ENABLE_AXIS_Y();
-      IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.y = true);
-    }
-    if (parser.seen('Z')) {
-      ENABLE_AXIS_Z();
-      IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.z = true);
-    }
+    if (parser.seen('X')) ENABLE_AXIS_X();
+    if (parser.seen('Y')) ENABLE_AXIS_Y();
+    if (parser.seen('Z')) ENABLE_AXIS_Z();
     if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen('E'))) enable_e_steppers();
   }
   else {
@@ -65,18 +56,9 @@ void GcodeSuite::M18_M84() {
   else {
     if (parser.seen("XYZE")) {
       planner.synchronize();
-      if (parser.seen('X')) {
-        DISABLE_AXIS_X();
-        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.x = false);
-      }
-      if (parser.seen('Y')) {
-        DISABLE_AXIS_Y();
-        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.y = false);
-      }
-      if (parser.seen('Z')) {
-        DISABLE_AXIS_Z();
-        IF_ENABLED(SOFTWARE_DRIVER_ENABLE, planner.axis_enabled.z = false);
-      }
+      if (parser.seen('X')) DISABLE_AXIS_X();
+      if (parser.seen('Y')) DISABLE_AXIS_Y();
+      if (parser.seen('Z')) DISABLE_AXIS_Z();
       if (TERN0(HAS_E_STEPPER_ENABLE, parser.seen('E'))) disable_e_steppers();
     }
     else
