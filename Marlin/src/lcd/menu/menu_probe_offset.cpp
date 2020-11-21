@@ -126,7 +126,7 @@ void goto_probe_offset_wizard() {
   #endif
   
   // Home all Axis
-  queue.inject_P(G28_STR);
+  home_all_axes();
 
   planner.synchronize();
 
