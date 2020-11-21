@@ -160,7 +160,7 @@ void prepare_for_probe_offset_wizard() {
 }
 
 void goto_probe_offset_wizard() {
-  
+  ui.defer_status_screen();
   set_all_unhomed();
 
   // Store probe.offset.z for Case: Cancel
