@@ -146,12 +146,12 @@ void prepare_for_probe_offset_wizard() {
   // Go to Menu for Calibration
   if (!ui.wait_for_move) {
     ui.goto_screen(probe_offset_wizard_menu);
+    ui.defer_status_screen();
   }
 
 }
 
 void goto_probe_offset_wizard() {
-  ui.defer_status_screen();
   
   set_all_unhomed();
 
