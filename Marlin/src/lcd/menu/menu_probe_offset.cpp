@@ -28,12 +28,6 @@
 
 #if ENABLED(PROBE_OFFSET_WIZARD)
 
-#ifndef PROBE_OFFSET_START
-  #error "PROBE_OFFSET_WIZARD requires a PROBE_OFFSET_START with a negative value."
-#else
-  static_assert(PROBE_OFFSET_START < 0, "PROBE_OFFSET_START must be < 0. Please update your configuration.");
-#endif
-
 #include "menu_item.h"
 #include "menu_addon.h"
 #include "../../gcode/queue.h"
@@ -46,22 +40,11 @@
 #endif
 
 // Global storage
-float z_offset_backup, calculated_z_offset;
+float z_offset_backup, calculated_z_offset, z_offset_ref;
 
 TERN_(HAS_LEVELING, bool leveling_was_active);
 
-void prepare_for_calibration() {
-  z_offset_backup = probe.offset.z;
 
-  // Disable soft endstops for free Z movement
-  SET_SOFT_ENDSTOP_LOOSE(true);
-
-  // Disable leveling for raw planner motion
-  #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(false);
-  #endif
-}
 
 void set_offset_and_go_back(const float &z) {
   probe.offset.z = z;
@@ -77,7 +60,7 @@ void _goto_manual_move_z(const float scale) {
 
 void probe_offset_wizard_menu() {
   START_MENU();
-  calculated_z_offset = probe.offset.z + current_position.z;
+  calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
@@ -107,47 +90,103 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-    do_z_clearance(20.0
-      #ifdef Z_AFTER_HOMING
+    // Rehome with new offset if homing is done by probe
+    #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
+      queue.inject_P(G28_STR);
+    #else
+      do_z_clearance(20.0
+        #ifdef Z_AFTER_HOMING
         - 20.0 + Z_AFTER_HOMING
-      #endif
-    );
+        #endif
+      );
+    #endif
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
+    // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_START by probe
+    #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+      queue.inject_P(G28_STR);
+    #endif
   });
 
   END_MENU();
 }
 
-#ifdef PROBE_OFFSET_WIZARD_XY_POS
+void prepare_for_probe_offset_wizard() {
 
-  #define HAS_PROBE_OFFSET_WIZARD_XY_POS 1
+  // Disable soft endstops for free Z movement
+  SET_SOFT_ENDSTOP_LOOSE(true);
 
-  inline void goto_probe_offset_wizard() {
-    if (ui.wait_for_move) return;
-    constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
-    current_position = wizard_pos;
+  // Set Z Value for Wizard Position to 0
+  z_offset_ref = 0;
+
+  #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+
+    #ifdef PROBE_OFFSET_WIZARD_XY_POS
+      // Get X and Y from Configuration
+      constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
+    #else
+      // Set Bed Center as probe point
+      constexpr xy_pos_t wizard_pos = XY_CENTER;  
+    #endif
+
+    // Probe for Z reference
+    if (!ui.wait_for_move) {
+      ui.wait_for_move = true;
+      z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
+      ui.wait_for_move = false;
+      ui.synchronize();
+    }
+
+  #endif
+
+  // Move Nozzle to Probing/Homing Position
+  if (!ui.wait_for_move) {
     ui.wait_for_move = true;
-    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY)); // Could invoke idle()
+    current_position.x = current_position.x + probe.offset_xy.x;
+    current_position.y = current_position.y + probe.offset_xy.y;
+    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
     ui.wait_for_move = false;
     ui.synchronize();
-    prepare_for_calibration();
-    probe.offset.z = PROBE_OFFSET_START;
+  }
+
+  // Go to Menu for Calibration
+  if (!ui.wait_for_move) {
     ui.goto_screen(probe_offset_wizard_menu);
     ui.defer_status_screen();
   }
 
-#endif
+}
 
-void home_and_goto_probe_offset_wizard() {
+void goto_probe_offset_wizard() {
+  
+  set_all_unhomed();
+
+  // Store probe.offset.z for Case: Cancel
+  z_offset_backup = probe.offset.z;
+  
+  #ifdef PROBE_OFFSET_START
+    probe.offset.z = PROBE_OFFSET_START;
+  #endif
+
+  // Store Bed-Leveling-State and disable
+  #if HAS_LEVELING
+    leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+  
+  // Home all Axis
   queue.inject_P(G28_STR);
+
   ui.goto_screen([]{
     _lcd_draw_homing();
-    if (all_axes_homed())
-      ui.goto_screen(TERN(HAS_PROBE_OFFSET_WIZARD_XY_POS, goto_probe_offset_wizard, probe_offset_wizard_menu));
+    if (all_axes_homed()) {
+      ui.goto_screen(prepare_for_probe_offset_wizard);
+      ui.defer_status_screen();
+    }
   });
+
 }
 
 #endif // PROBE_OFFSET_WIZARD
