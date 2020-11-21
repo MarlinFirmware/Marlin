@@ -175,6 +175,11 @@
       #endif
       #define BEEPER_PIN                   P1_30  // (37) not 5V tolerant
       #define DOGLCD_CS                    P0_16  // (16)
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #if ENABLED(MINIPANEL)

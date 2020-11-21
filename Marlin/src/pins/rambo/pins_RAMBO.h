@@ -228,6 +228,10 @@
 
     #endif // !VIKI2 && !miniVIKI
 
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
   #else                                           // !IS_NEWPANEL - old style panel with shift register
 
     // No Beeper added

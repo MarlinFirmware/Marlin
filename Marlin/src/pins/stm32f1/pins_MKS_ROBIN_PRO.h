@@ -258,6 +258,11 @@
       #define LCD_PINS_D5                   PF15
       #define LCD_PINS_D6                   PF12
       #define LCD_PINS_D7                   PF13
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
