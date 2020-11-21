@@ -95,7 +95,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Lämpötila");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Liike");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("LCD kontrasti");
   PROGMEM Language_Str MSG_STORE_EEPROM                    = _UxGT("Tallenna muistiin");
   PROGMEM Language_Str MSG_LOAD_EEPROM                     = _UxGT("Lataa muistista");

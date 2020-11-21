@@ -380,6 +380,10 @@
 #define LCD_STR_E6 "E" LCD_STR_N6
 #define LCD_STR_E7 "E" LCD_STR_N7
 
+// Use superscripts, if possible. Evaluated at point of use.
+#define SUPERSCRIPT_TWO   TERN(NOT_EXTENDED_ISO10646_1_5X7, "^2", "²")
+#define SUPERSCRIPT_THREE TERN(NOT_EXTENDED_ISO10646_1_5X7, "^3", "³")
+
 #include "multi_language.h"   // Allow multiple languages
 
 #include "../lcd/language/language_en.h"
