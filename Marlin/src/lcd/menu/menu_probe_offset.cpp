@@ -30,7 +30,6 @@
 
 #include "menu_item.h"
 #include "menu_addon.h"
-#include "../../gcode/gcode.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
@@ -108,30 +107,7 @@ void probe_offset_wizard_menu() {
   END_MENU();
 }
 
-
-void goto_probe_offset_wizard() {
-  set_all_unhomed();
-  _lcd_draw_homing();
-
-  // Store probe.offset.z for Case: Cancel
-  z_offset_backup = probe.offset.z;
-  
-  #ifdef PROBE_OFFSET_START
-    probe.offset.z = PROBE_OFFSET_START;
-  #endif
-
-  // Store Bed-Leveling-State and disable
-  #if HAS_LEVELING
-    leveling_was_active = planner.leveling_active;
-    set_bed_leveling_enabled(false);
-  #endif
-  
-  // Home all Axis
-  home_all_axes();
-
-  planner.synchronize();
-
-  if (all_axes_homed()) {
+void prepare_for_probe_offset_wizard() {
 
     // Disable soft endstops for free Z movement
     SET_SOFT_ENDSTOP_LOOSE(true);
@@ -155,22 +131,54 @@ void goto_probe_offset_wizard() {
       ui.wait_for_move = false;
       ui.synchronize();
 
-      if (ui.wait_for_move) return;
-
     #endif
 
     // Move Nozzle to Probing/Homing Position
-    ui.wait_for_move = true;
-    current_position = current_position + probe.offset_xy;
-    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
-    ui.wait_for_move = false;
-    ui.synchronize();
+    if (!ui.wait_for_move) {
+      ui.wait_for_move = true;
+      current_position = current_position + probe.offset_xy;
+      line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
+      ui.wait_for_move = false;
+      ui.synchronize();
+    }
 
     // Go to Menu for Calibration
-    if (ui.wait_for_move) return;
-    ui.goto_screen(probe_offset_wizard_menu);
+    if (!ui.wait_for_move) {
+      ui.goto_screen(probe_offset_wizard_menu);
+    }
 
   }
+
+}
+
+void goto_probe_offset_wizard() {
+  ui.defer_status_screen();
+  
+  set_all_unhomed();
+
+  // Store probe.offset.z for Case: Cancel
+  z_offset_backup = probe.offset.z;
+  
+  #ifdef PROBE_OFFSET_START
+    probe.offset.z = PROBE_OFFSET_START;
+  #endif
+
+  // Store Bed-Leveling-State and disable
+  #if HAS_LEVELING
+    leveling_was_active = planner.leveling_active;
+    set_bed_leveling_enabled(false);
+  #endif
+  
+  // Home all Axis
+  queue.inject_P(G28_STR);
+
+  ui.goto_screen([]{
+    _lcd_draw_homing();
+    if (all_axes_homed()) {
+      ui.goto_screen(prepare_for_probe_offset_wizard);
+      ui.defer_status_screen();
+    }
+  });
 
 }
 
