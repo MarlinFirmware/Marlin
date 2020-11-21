@@ -30,6 +30,7 @@
 
 #include "menu_item.h"
 #include "menu_addon.h"
+#include "../gcode.h"
 #include "../../gcode/queue.h"
 #include "../../module/motion.h"
 #include "../../module/planner.h"
