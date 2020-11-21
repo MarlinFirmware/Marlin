@@ -35,7 +35,12 @@
  *    These numbers are the same in any pin mapping.
  */
 
-#define MAX_EXTRUDERS 8
+#if HAS_SMUFF
+  #define MAX_EXTRUDERS 12
+#else
+  #define MAX_EXTRUDERS 8
+#endif
+#define MAX_E_STEPPERS 8
 
 #if   MB(RAMPS_13_EFB, RAMPS_14_EFB, RAMPS_PLUS_EFB, RAMPS_14_RE_ARM_EFB, RAMPS_SMART_EFB, RAMPS_DUO_EFB, RAMPS4DUE_EFB)
   #define IS_RAMPS_EFB
@@ -215,6 +220,8 @@
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(RAMPS_S_12_EFFB)
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
+#elif MB(RAMPS_LONGER3D_LKPRO)
+  #include "ramps/pins_LONGER3D_LK4PRO.h"       // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -433,6 +440,8 @@
   #include "lpc1769/pins_MKS_SGEN_L_V2.h"       // LPC1769                                env:LPC1769
 #elif MB(BTT_SKR_E3_TURBO)
   #include "lpc1769/pins_BTT_SKR_E3_TURBO.h"    // LPC1769                                env:LPC1769
+#elif MB(FLY_CDY)
+  #include "lpc1769/pins_FLY_CDY.h"             // LPC1769                                env:LPC1769
 
 //
 // Due (ATSAM) boards

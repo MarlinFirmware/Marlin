@@ -425,7 +425,8 @@ void CardReader::manage_media() {
 
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
-      mount();                        // Try to mount the media
+      if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2))
+        mount();                      // Try to mount the media
       #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
@@ -453,8 +454,17 @@ void CardReader::manage_media() {
     DEBUG_ECHOLNPGM("SD: No UI Detected.");
 }
 
+/**
+ * "Release" the media by clearing the 'mounted' flag.
+ * Used by M22, "Release Media", manage_media.
+ */
 void CardReader::release() {
-  endFilePrint();
+  // Card removed while printing? Abort!
+  if (IS_SD_PRINTING())
+    card.flag.abort_sd_printing = true;
+  else
+    endFilePrint();
+
   flag.mounted = false;
   flag.workDirIsRoot = true;
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
@@ -462,6 +472,10 @@ void CardReader::release() {
   #endif
 }
 
+/**
+ * Open a G-code file and set Marlin to start processing it.
+ * Enqueues M23 and M24 commands to initiate a media print.
+ */
 void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   extern const char M23_STR[];
@@ -471,6 +485,12 @@ void CardReader::openAndPrintFile(const char *name) {
   queue.enqueue_now_P(M24_STR);
 }
 
+/**
+ * Start or resume a media print by setting the sdprinting flag.
+ * The file browser pre-sort is also purged to free up memory,
+ * since you cannot browse files during active printing.
+ * Used by M24 and anywhere Start / Resume applies.
+ */
 void CardReader::startFileprint() {
   if (isMounted()) {
     flag.sdprinting = true;
@@ -478,6 +498,9 @@ void CardReader::startFileprint() {
   }
 }
 
+//
+// Run tasks upon finishing or aborting a file print.
+//
 void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
   TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
@@ -562,8 +585,7 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
 
         // Store current filename (based on workDirParents) and position
         getAbsFilename(proc_filenames[file_subcall_ctr]);
-
-        TERN_(HAS_MEDIA_SUBCALLS, filespos[file_subcall_ctr] = sdpos);
+        filespos[file_subcall_ctr] = sdpos;
 
         // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
         SERIAL_ECHO_START();

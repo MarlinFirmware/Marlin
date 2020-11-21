@@ -626,7 +626,7 @@ namespace ExtUI {
 
     void setLinearAdvance_mm_mm_s(const float value, const extruder_t extruder) {
       if (extruder < EXTRUDERS)
-        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 999);
+        planner.extruder_advance_K[extruder - E0] = constrain(value, 0, 10);
     }
   #endif
 

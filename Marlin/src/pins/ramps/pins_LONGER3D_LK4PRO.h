@@ -19,20 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#include "../inc/MarlinConfig.h"
+// Longer UI assumptions
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "Longer UI supports only 1 hotend / E-stepper."
+#endif
 
-#if ENABLED(MK2_MULTIPLEXER)
+#define BOARD_INFO_NAME "LGT Kit 1.0"
 
-#include "../module/stepper.h"
+#define SD_DETECT_PIN                         49
+#define FIL_RUNOUT_PIN                         2
+#define Z_MIN_PIN                             35
 
-void select_multiplexed_stepper(const uint8_t e) {
-  planner.synchronize();
-  disable_e_steppers();
-  WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
-  WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
-  WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
-  safe_delay(100);
-}
-
-#endif // MK2_MULTIPLEXER
+//
+// Import RAMPS 1.4 pins
+//
+#include "pins_RAMPS.h"

@@ -35,9 +35,10 @@ extern "C" {
   #include <debug_frmwrk.h>
 }
 
-#include "../../sd/cardreader.h"
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
+
+#include "../../sd/cardreader.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
 extern "C" int isLPC1769();
@@ -122,7 +123,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(TRUE);
 
-  #if DISABLED(NO_SD_HOST_DRIVE)
+  #if HAS_SD_HOST_DRIVE
     MSC_SD_Init(0);                         // Enable USB SD card access
   #endif
 

@@ -100,6 +100,7 @@
 #define _Y_HALF_BED ((Y_BED_SIZE) / 2)
 #define X_CENTER TERN(BED_CENTER_AT_0_0, 0, _X_HALF_BED)
 #define Y_CENTER TERN(BED_CENTER_AT_0_0, 0, _Y_HALF_BED)
+#define XY_CENTER { X_CENTER, Y_CENTER }
 
 // Get the linear boundaries of the bed
 #define X_MIN_BED (X_CENTER - _X_HALF_BED)
@@ -359,7 +360,7 @@
  */
 #if ENABLED(SDSUPPORT)
 
-  #if SD_CONNECTION_IS(ONBOARD) && DISABLED(NO_SD_HOST_DRIVE) && !defined(ARDUINO_GRAND_CENTRAL_M4)
+  #if HAS_SD_HOST_DRIVE && SD_CONNECTION_IS(ONBOARD)
     //
     // The external SD card is not used. Hardware SPI is used to access the card.
     // When sharing the SD card with a PC we want the menu options to
@@ -380,7 +381,6 @@
       #define SD_DETECT_STATE LOW
     #endif
   #endif
-
 #endif
 
 #if ANY(HAS_GRAPHICAL_TFT, LCD_USE_DMA_FSMC, HAS_FSMC_GRAPHICAL_TFT, HAS_SPI_GRAPHICAL_TFT) || !PIN_EXISTS(SD_DETECT)
@@ -445,9 +445,9 @@
     #define HEATER_0_MAX6675_TMAX 1024
   #endif
   #if TEMP_SENSOR_0 == -5
-    #define MAX6675_IS_MAX31865 1
+    #define MAX6675_0_IS_MAX31865 1
   #elif TEMP_SENSOR_0 == -3
-    #define MAX6675_IS_MAX31855 1
+    #define MAX6675_0_IS_MAX31855 1
   #endif
 #elif TEMP_SENSOR_0 == -4
   #define HEATER_0_USES_AD8495 1
@@ -458,6 +458,8 @@
   #define HEATER_0_USES_THERMISTOR 1
   #if TEMP_SENSOR_0 == 1000
     #define HEATER_0_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_0 == 998 || TEMP_SENSOR_0 == 999
+    #define HEATER_0_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_0_MINTEMP
@@ -472,6 +474,11 @@
   #else
     #define HEATER_1_MAX6675_TMIN    0
     #define HEATER_1_MAX6675_TMAX 1024
+  #endif
+  #if TEMP_SENSOR_1 == -5
+    #define MAX6675_1_IS_MAX31865 1
+  #elif TEMP_SENSOR_1 == -3
+    #define MAX6675_1_IS_MAX31855 1
   #endif
   #if TEMP_SENSOR_1 != TEMP_SENSOR_0
     #if   TEMP_SENSOR_1 == -5
@@ -491,6 +498,8 @@
   #define HEATER_1_USES_THERMISTOR 1
   #if TEMP_SENSOR_1 == 1000
     #define HEATER_1_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_1 == 998 || TEMP_SENSOR_1 == 999
+    #define HEATER_1_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_1_MINTEMP
@@ -510,6 +519,8 @@
   #define HEATER_2_USES_THERMISTOR 1
   #if TEMP_SENSOR_2 == 1000
     #define HEATER_2_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_2 == 998 || TEMP_SENSOR_2 == 999
+    #define HEATER_2_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_2_MINTEMP
@@ -529,6 +540,8 @@
   #define HEATER_3_USES_THERMISTOR 1
   #if TEMP_SENSOR_3 == 1000
     #define HEATER_3_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_3 == 998 || TEMP_SENSOR_3 == 999
+    #define HEATER_3_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_3_MINTEMP
@@ -548,6 +561,8 @@
   #define HEATER_4_USES_THERMISTOR 1
   #if TEMP_SENSOR_4 == 1000
     #define HEATER_4_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_4 == 998 || TEMP_SENSOR_4 == 999
+    #define HEATER_4_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_4_MINTEMP
@@ -567,6 +582,8 @@
   #define HEATER_5_USES_THERMISTOR 1
   #if TEMP_SENSOR_5 == 1000
     #define HEATER_5_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_5 == 998 || TEMP_SENSOR_5 == 999
+    #define HEATER_5_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_5_MINTEMP
@@ -586,6 +603,8 @@
   #define HEATER_6_USES_THERMISTOR 1
   #if TEMP_SENSOR_6 == 1000
     #define HEATER_6_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_6 == 998 || TEMP_SENSOR_6 == 999
+    #define HEATER_6_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_6_MINTEMP
@@ -605,6 +624,8 @@
   #define HEATER_7_USES_THERMISTOR 1
   #if TEMP_SENSOR_7 == 1000
     #define HEATER_7_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_7 == 998 || TEMP_SENSOR_7 == 999
+    #define HEATER_7_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef HEATER_7_MINTEMP
@@ -624,6 +645,8 @@
   #define HEATER_BED_USES_THERMISTOR 1
   #if TEMP_SENSOR_BED == 1000
     #define HEATER_BED_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_BED == 998 || TEMP_SENSOR_BED == 999
+    #define HEATER_BED_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef BED_MINTEMP
@@ -643,6 +666,8 @@
   #define HEATER_CHAMBER_USES_THERMISTOR 1
   #if TEMP_SENSOR_CHAMBER == 1000
     #define HEATER_CHAMBER_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_CHAMBER == 998 || TEMP_SENSOR_CHAMBER == 999
+    #define HEATER_CHAMBER_DUMMY_THERMISTOR 1
   #endif
 #else
   #undef CHAMBER_MINTEMP
@@ -662,6 +687,8 @@
   #define HEATER_PROBE_USES_THERMISTOR 1
   #if TEMP_SENSOR_PROBE == 1000
     #define HEATER_PROBE_USER_THERMISTOR 1
+  #elif TEMP_SENSOR_PROBE == 998 || TEMP_SENSOR_PROBE == 999
+    #define HEATER_PROBE_DUMMY_THERMISTOR 1
   #endif
 #endif
 
@@ -1749,7 +1776,7 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
-#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && DISABLED(HEATER_##P##_USES_MAX6675))
+#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(HEATER_##P##_USES_MAX6675, HEATER_##P##_DUMMY_THERMISTOR))
 #if HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
@@ -1784,7 +1811,7 @@
   #define HAS_TEMP_ADC_CHAMBER 1
 #endif
 
-#if HAS_HOTEND && EITHER(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675)
+#if HAS_HOTEND && ANY(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675, HEATER_0_DUMMY_THERMISTOR)
   #define HAS_TEMP_HOTEND 1
 #endif
 #define HAS_TEMP_BED        HAS_TEMP_ADC_BED
@@ -2575,6 +2602,10 @@
   #if ENABLED(BLTOUCH) && !defined(BLTOUCH_DELAY)
     #define BLTOUCH_DELAY 500
   #endif
+#endif
+
+#if !defined(MANUAL_PROBE_START_Z) && defined(Z_CLEARANCE_BETWEEN_PROBES)
+  #define MANUAL_PROBE_START_Z Z_CLEARANCE_BETWEEN_PROBES
 #endif
 
 #ifndef __SAM3X8E__ //todo: hal: broken hal encapsulation

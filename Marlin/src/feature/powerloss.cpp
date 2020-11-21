@@ -433,13 +433,15 @@ void PrintJobRecovery::resume() {
   #endif
 
   // Restore print cooling fan speeds
-  FANS_LOOP(i) {
-    uint8_t f = info.fan_speed[i];
-    if (f) {
-      sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
-      gcode.process_subcommands_now(cmd);
+  #if HAS_FAN
+    FANS_LOOP(i) {
+      const int f = info.fan_speed[i];
+      if (f) {
+        sprintf_P(cmd, PSTR("M106 P%i S%i"), i, f);
+        gcode.process_subcommands_now(cmd);
+      }
     }
-  }
+  #endif
 
   // Restore retract and hop state
   #if ENABLED(FWRETRACT)

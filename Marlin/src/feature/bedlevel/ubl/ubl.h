@@ -62,7 +62,7 @@ class unified_bed_leveling {
     #if IS_NEWPANEL
       static void move_z_with_encoder(const float &multiplier);
       static float measure_point_with_encoder();
-      static float measure_business_card_thickness(float in_height);
+      static float measure_business_card_thickness();
       static void manually_probe_remaining_mesh(const xy_pos_t&, const float&, const float&, const bool) _O0;
       static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) _O0;
     #endif
