@@ -63,7 +63,7 @@ void _goto_manual_move_z(const float scale) {
 
 void probe_offset_wizard_menu() {
   START_MENU();
-  calculated_z_offset = probe.offset.z + current_position.z + z_offset_ref;
+  calculated_z_offset = probe.offset.z + current_position.z - z_offset_ref;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
