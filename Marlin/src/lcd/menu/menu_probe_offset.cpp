@@ -90,15 +90,15 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-    do_z_clearance(20.0
-      #ifdef Z_AFTER_HOMING
-        - 20.0 + Z_AFTER_HOMING
-      #endif
-    );
     // Rehome with new offset if homing is done by probe
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
       queue.inject_P(G28_STR);
-      _lcd_draw_homing();
+    #else
+      do_z_clearance(20.0
+        #ifdef Z_AFTER_HOMING
+        - 20.0 + Z_AFTER_HOMING
+        #endif
+      );
     #endif
   });
 
@@ -107,7 +107,6 @@ void probe_offset_wizard_menu() {
     // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_START by probe
     #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
       queue.inject_P(G28_STR);
-      _lcd_draw_homing();
     #endif
   });
 
