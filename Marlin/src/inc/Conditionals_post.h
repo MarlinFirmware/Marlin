@@ -1776,7 +1776,7 @@
 //
 // ADC Temp Sensors (Thermistor or Thermocouple with amplifier ADC interface)
 //
-#define HAS_ADC_TEST(P) (PIN_EXISTS(TEMP_##P) && TEMP_SENSOR_##P != 0 && NONE(HEATER_##P##_USES_MAX6675, HEATER_##P##_DUMMY_THERMISTOR))
+#define HAS_ADC_TEST(P) ((PIN_EXISTS(TEMP_##P) || ENABLED(HEATER_##P##_DUMMY_THERMISTOR)) && TEMP_SENSOR_##P != 0 && DISABLED(HEATER_##P##_USES_MAX6675))
 #if HAS_ADC_TEST(0)
   #define HAS_TEMP_ADC_0 1
 #endif
