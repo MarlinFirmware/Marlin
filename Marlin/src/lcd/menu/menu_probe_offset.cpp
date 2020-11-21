@@ -105,7 +105,7 @@ void probe_offset_wizard_menu() {
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
     // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_START by probe
-    #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
+    #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
       queue.inject_P(G28_STR);
       _lcd_draw_homing();
     #endif
