@@ -38,10 +38,11 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
+#include "../../gcode/parser.h" // for units (and volumetric)
+
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   #include "../../feature/filwidth.h"
   #include "../../module/planner.h"
-  #include "../../gcode/parser.h"
 #endif
 
 #if HAS_CUTTER
@@ -62,10 +63,6 @@
 
 #if HAS_DUAL_MIXING
   #include "../../feature/mixing.h"
-#endif
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  #include "../../gcode/parser.h"
 #endif
 
 #define X_LABEL_POS      3
