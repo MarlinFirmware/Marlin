@@ -402,18 +402,3 @@ const char* ftostr52sp(const float &f) {
   }
   return conv;
 }
-
-#if ENABLED(INCH_MODE_SUPPORT)
-
-  // Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 format
-  const char* ftostr42sign(const float &f) {
-    long i = INTFLOAT(f, 2);
-    conv[2] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
-    conv[3] = DIGIMOD(i, 100);
-    conv[4] = '.';
-    conv[5] = DIGIMOD(i, 10);
-    conv[6] = DIGIMOD(i, 1);
-    return &conv[2];
-  }
-
-#endif

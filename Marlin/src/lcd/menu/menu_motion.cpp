@@ -32,6 +32,7 @@
 #include "menu_addon.h"
 
 #include "../../module/motion.h"
+#include "../../gcode/parser.h" // for inch support
 
 #if ENABLED(DELTA)
   #include "../../module/delta.h"
@@ -48,10 +49,6 @@
 
 #if ENABLED(MANUAL_E_MOVES_RELATIVE)
   float manual_move_e_origin = 0;
-#endif
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  #include "../../gcode/parser.h"
 #endif
 
 //
@@ -99,17 +96,12 @@ static void _lcd_move_xyz(PGM_P const name, const AxisEnum axis) {
       ui.manual_move.processing ? destination[axis] : current_position[axis] + TERN0(IS_KINEMATIC, ui.manual_move.offset),
       axis
     );
-    #if ENABLED(INCH_MODE_SUPPORT)
-      if (parser.using_inch_units()) {
-        float imp_pos = pos / parser.linear_unit_factor;
-        MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
-      }
-      else {
-    #endif
-    MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
-    #if ENABLED(INCH_MODE_SUPPORT)
-      }
-    #endif
+    if (parser.using_inch_units()) {
+      const float imp_pos = LINEAR_UNIT(pos);
+      MenuEditItemBase::draw_edit_screen(name, ftostr63(imp_pos));
+    }
+    else
+      MenuEditItemBase::draw_edit_screen(name, ui.manual_move.menu_scale >= 0.1f ? ftostr41sign(pos) : ftostr63(pos));
   }
 }
 void lcd_move_x() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_X), X_AXIS); }
@@ -179,36 +171,34 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
   }
 
   BACK_ITEM(MSG_MOVE_AXIS);
-  #if ENABLED(INCH_MODE_SUPPORT)
-    if (parser.using_inch_units()) {
-      SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move( 2.54f);   });
-      SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move( 0.254f);  });
-      SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move( 0.0254f); });
-    }
-    else {
-  #endif
-  SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
-  SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
-  SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
-  if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
-    // Determine digits needed right of decimal
-    constexpr uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                              !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-    PGM_P const label = GET_TEXT(MSG_MOVE_Z_DIST);
-    char tmp[strlen_P(label) + 10 + 1], numstr[10];
-    sprintf_P(tmp, label, dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
-
-    #if DISABLED(HAS_GRAPHICAL_TFT)
-      extern const char NUL_STR[];
-      SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-      MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
-      lcd_put_u8str(tmp);
-      MENU_ITEM_ADDON_END();
-    #else
-      SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
-    #endif
+  if (parser.using_inch_units()) {
+    SUBMENU(MSG_MOVE_01IN,   []{ _goto_manual_move(IN_TO_MM(0.100f)); });
+    SUBMENU(MSG_MOVE_001IN,  []{ _goto_manual_move(IN_TO_MM(0.010f)); });
+    SUBMENU(MSG_MOVE_0001IN, []{ _goto_manual_move(IN_TO_MM(0.001f)); });
   }
-  TERN_(INCH_MODE_SUPPORT, })
+  else {
+    SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
+    SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
+    SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
+    if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+      // Determine digits needed right of decimal
+      constexpr uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
+                               !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
+      PGM_P const label = GET_TEXT(MSG_MOVE_Z_DIST);
+      char tmp[strlen_P(label) + 10 + 1], numstr[10];
+      sprintf_P(tmp, label, dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+
+      #if DISABLED(HAS_GRAPHICAL_TFT)
+        extern const char NUL_STR[];
+        SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+        MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
+        lcd_put_u8str(tmp);
+        MENU_ITEM_ADDON_END();
+      #else
+        SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+      #endif
+    }
+  }
   END_MENU();
 }
 

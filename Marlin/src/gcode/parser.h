@@ -298,6 +298,9 @@ public:
     // Init linear units by constructor
     GCodeParser() { set_input_linear_units(LINEARUNIT_MM); }
 
+    #define IN_TO_MM(in) (in * 25.4f)
+    #define MM_TO_IN(mm) (mm / 25.4f)
+
     static inline void set_input_linear_units(const LinearUnit units) {
       switch (units) {
         default:

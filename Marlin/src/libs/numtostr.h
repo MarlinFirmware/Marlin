@@ -123,8 +123,3 @@ FORCE_INLINE const char* ftostr3(const float &x) { return i16tostr3rj(int16_t(x 
   // Convert float to rj string with 1234, _123, -123, __12, _-12, ___1, or __-1 format
   FORCE_INLINE const char* ftostr4sign(const float &x) { return i16tostr4signrj(int16_t(x + (x < 0 ? -0.5f : 0.5f))); }
 #endif
-
-#if ENABLED(INCH_MODE_SUPPORT)
-  // Convert signed float to fixed-length string with 12.34 / _2.34 / -2.34 format
-  const char* ftostr42sign(const float &x);
-#endif
