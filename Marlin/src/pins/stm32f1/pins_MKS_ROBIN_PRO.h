@@ -42,7 +42,7 @@
 // Note: MKS Robin board is using SPI2 interface.
 //
 //#define SPI_MODULE                           2
-#define ENABLE_SPI2
+#define ENABLE_SPI2								          1
 
 //
 // Servos
@@ -180,8 +180,8 @@
 #define POWER_LOSS_PIN                      PA2   // PW_DET
 #define PS_ON_PIN                           PG11  // PW_OFF
 #define FIL_RUNOUT_PIN                      PA4   // MT_DET1
-//#define FIL_RUNOUT_PIN                    PE6   // MT_DET2
-//#define FIL_RUNOUT_PIN                    PG14  // MT_DET3
+//#define FIL_RUNOUT2_PIN                     PE6   // MT_DET2
+//#define FIL_RUNOUT3_PIN                     PG14  // MT_DET3
 
 //
 // SD Card
@@ -210,15 +210,39 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if HAS_FSMC_TFT
+
+  #define DOGLCD_MOSI                       -1    // prevent redefine Conditionals_post.h
+  #define DOGLCD_SCK                        -1
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
   #define LCD_RESET_PIN                     PF6
   #define LCD_BACKLIGHT_PIN                 PD13
 
+  #define TFT_RESET_PIN                     PC6
+  #define TFT_BACKLIGHT_PIN                 PD13
+
+  #define LCD_USE_DMA_FSMC                  // Use DMA transfers to send data to the TFT
+  #define FSMC_DMA_DEV                      DMA2
+  #define FSMC_DMA_CHANNEL               	  DMA_CH5
+
+  #define MT_DET_1_PIN                      PA4   // LVGL UI FILAMENT RUNOUT1 PIN
+  #define MT_DET_2_PIN                      PE6   // LVGL UI FILAMENT RUNOUT2 PIN
+  #define MT_DET_3_PIN                      PG14  // LVGL UI FILAMENT RUNOUT3 PIN
+  #define MT_DET_PIN_INVERTING              false // LVGL UI filament RUNOUT PIN STATE
+
+  #define WIFI_IO0_PIN                      -1  // MKS ESP WIFI IO0 PIN
+  #define WIFI_IO1_PIN                      PC7   // MKS ESP WIFI IO1 PIN
+  #define WIFI_RESET_PIN                    PA5   // MKS ESP WIFI RESET PIN
+
   #if NEED_TOUCH_PINS
-    #define TOUCH_CS_PIN                    PA7
+    #define TOUCH_CS_PIN                    PA7   // SPI2_NSS
+    #define TOUCH_SCK_PIN                   PB13  // SPI2_SCK
+    #define TOUCH_MISO_PIN                  PB14  // SPI2_MISO
+    #define TOUCH_MOSI_PIN                  PB15  // SPI2_MOSI
+    #define TOUCH_BUTTONS_HW_SPI
+    #define TOUCH_BUTTONS_HW_SPI_DEVICE     2
   #else
     #define BEEPER_PIN                      PC5
     #define BTN_ENC                         PG2
@@ -264,6 +288,48 @@
 
 #endif
 
+// XPT2046 Touch Screen calibration
+#if EITHER(TFT_LVGL_UI_FSMC, TFT_480x320)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          17880
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION         -12234
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -45
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+   #define XPT2046_Y_OFFSET                  349
+  #endif
+#elif ENABLED(TFT_CLASSIC_UI)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION          12149
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION          -8746
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 -35
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 256
+  #endif
+#elif ENABLED(TFT_320x240)
+  #ifndef XPT2046_X_CALIBRATION
+    #define XPT2046_X_CALIBRATION         -12246
+  #endif
+  #ifndef XPT2046_Y_CALIBRATION
+    #define XPT2046_Y_CALIBRATION           9453
+  #endif
+  #ifndef XPT2046_X_OFFSET
+    #define XPT2046_X_OFFSET                 360
+  #endif
+  #ifndef XPT2046_Y_OFFSET
+    #define XPT2046_Y_OFFSET                 -22
+  #endif
+#endif
+
 #ifndef BOARD_ST7920_DELAY_1
   #define BOARD_ST7920_DELAY_1     DELAY_NS(125)
 #endif
@@ -272,4 +338,13 @@
 #endif
 #ifndef BOARD_ST7920_DELAY_3
   #define BOARD_ST7920_DELAY_3     DELAY_NS(125)
+#endif
+
+#define HAS_SPI_FLASH              1
+#if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE           0x1000000  // 16MB
+  #define W25QXX_CS_PIN            PB12
+  #define W25QXX_MOSI_PIN          PB15
+  #define W25QXX_MISO_PIN          PB14
+  #define W25QXX_SCK_PIN           PB13
 #endif
