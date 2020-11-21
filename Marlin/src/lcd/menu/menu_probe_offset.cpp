@@ -50,9 +50,6 @@ void set_offset_and_go_back(const float &z) {
   probe.offset.z = z;
   SET_SOFT_ENDSTOP_LOOSE(false);
   TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
-  #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-    queue.inject_P(G28_STR);
-  #endif
   ui.goto_previous_screen_no_defer();
 }
 
@@ -98,10 +95,20 @@ void probe_offset_wizard_menu() {
         - 20.0 + Z_AFTER_HOMING
       #endif
     );
+    // Rehome with new offset if homing is done by probe
+    #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
+      queue.inject_P(G28_STR);
+      _lcd_draw_homing();
+    #endif
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
+    // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_START by probe
+    #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
+      queue.inject_P(G28_STR);
+      _lcd_draw_homing();
+    #endif
   });
 
   END_MENU();
