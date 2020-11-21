@@ -48,4 +48,6 @@ void reset_stepper_drivers() {
 /**
  * Enable state for each axis
  */
-xyz_bool_t axis_sw_enabled = {false, false, false};
+#if ENABLED(SOFTWARE_DRIVER_ENABLE)
+  xyz_bool_t axis_sw_enabled = {false, false, false};
+#endif
