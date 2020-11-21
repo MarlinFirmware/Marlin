@@ -126,10 +126,12 @@ void prepare_for_probe_offset_wizard() {
     #endif
 
     // Probe for Z reference
-    ui.wait_for_move = true;
-    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
-    ui.wait_for_move = false;
-    ui.synchronize();
+    if (!ui.wait_for_move) {
+      ui.wait_for_move = true;
+      z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
+      ui.wait_for_move = false;
+      ui.synchronize();
+    }
 
   #endif
 
