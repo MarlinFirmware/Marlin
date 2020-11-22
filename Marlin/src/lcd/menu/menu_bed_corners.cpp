@@ -57,7 +57,7 @@
   bool wait_for_probe = false;
   bool probe_triggered = false;
   bool corner_probing_done = false;
-  int count_points_in_tolerance = 0;
+  int good_points = 0;
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
@@ -90,7 +90,7 @@ static int8_t bed_corner;
       case 2: current_position.y = rb.y; break;
       case 3: current_position.x = lf.x; break;
       #if ENABLED(LEVEL_CENTER_TOO)
-        case 4: current_position.set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); count_points_in_tolerance--; break;
+        case 4: current_position.set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); good_points--; break;
       #endif
     }
 
@@ -136,16 +136,16 @@ static int8_t bed_corner;
 
     if (probe_triggered) {
       endstops.hit_on_purpose();
-      if (!WITHIN(current_position.z, current_position.z - (LEVEL_CORNERS_PROBE_TOLERANCE), current_position.z + (LEVEL_CORNERS_PROBE_TOLERANCE))) {
+      if (!WITHIN(current_position.z, last_z - (LEVEL_CORNERS_PROBE_TOLERANCE), last_z + (LEVEL_CORNERS_PROBE_TOLERANCE))) {
         last_z = current_position.z;
-        count_points_in_tolerance = 1;
+        good_points = 1;
       }
-      count_points_in_tolerance++;
+      good_points++;
     }
 
     if (!corner_probing_done) {
       if (++bed_corner > 3) bed_corner = 0;
-      if (count_points_in_tolerance < 4)
+      if (good_points < 4)
         _lcd_level_bed_corners_probing();
       else {
         ui.goto_screen([]{
