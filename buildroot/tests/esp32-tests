@@ -34,7 +34,7 @@ opt_set X_SLAVE_ADDRESS 0
 opt_set Y_SLAVE_ADDRESS 1
 opt_set Z_SLAVE_ADDRESS 2
 opt_set E0_SLAVE_ADDRESS 3
-opt_enable HOTEND_IDLE_TIMEOUT
+opt_enable HOTEND_IDLE_TIMEOUT SOFTWARE_DRIVER_ENABLE
 exec_test $1 $2 "ESP32, TMC HW Serial, Hotend Idle" "$3"
 
 # cleanup
