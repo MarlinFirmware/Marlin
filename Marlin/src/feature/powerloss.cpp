@@ -375,7 +375,7 @@ void PrintJobRecovery::resume() {
       "G28R0"
     ));
 
-  #else // "G92.9 E0 ..."
+  #elif DISABLED(BELTPRINTER) // "G92.9 E0 ..."
 
     // If a Z raise occurred at outage restore Z, otherwise raise Z now
     sprintf_P(cmd, PSTR("G92.9 E0 " TERN(BACKUP_POWER_SUPPLY, "Z%s", "Z0\nG1Z%s")), dtostrf(info.zraise, 1, 3, str_1));

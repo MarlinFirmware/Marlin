@@ -604,6 +604,12 @@
 //#define COREZY
 //#define MARKFORGED_XY  // MarkForged. See https://reprap.org/forum/read.php?152,504042
 
+// Enable for a belt style printer with endless "Z" motion
+//#define BELTPRINTER
+#if ENABLED(BELTPRINTER)
+  #define BED_TO_TRUSS_ANGLE 45
+#endif
+
 //===========================================================================
 //============================== Endstop Settings ===========================
 //===========================================================================
