@@ -989,6 +989,8 @@
 
         do_blocking_move_to(raw);                           // Move the nozzle to the edit point with probe clearance
 
+        TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset)); // Move Z to the given 'H' offset before editing
+
         KEEPALIVE_STATE(PAUSED_FOR_USER);
 
         if (do_ubl_mesh_map) display_map(g29_map_type);     // Display the current point
