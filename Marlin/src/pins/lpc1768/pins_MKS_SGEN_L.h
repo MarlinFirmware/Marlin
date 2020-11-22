@@ -268,8 +268,12 @@
     #define LCD_PINS_ENABLE                -1
     #define LCD_PINS_RS                    -1
 
-    #define TFT_BUFFER_SIZE                 1200
-    #define TFT_QUEUE_SIZE                  6144
+    #ifndef TFT_BUFFER_SIZE
+      #define TFT_BUFFER_SIZE               1200
+    #endif
+    #ifndef TFT_QUEUE_SIZE
+      #define TFT_QUEUE_SIZE                6144
+    #endif
 
     #define BTN_EN1                        P3_25
     #define BTN_EN2                        P3_26
@@ -348,6 +352,11 @@
           #define LCD_PINS_D5              P0_17
           #define LCD_PINS_D6              P1_00
           #define LCD_PINS_D7              P1_22
+
+          #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+            #define BTN_ENC_EN       LCD_PINS_D7  // Detect the presence of the encoder
+          #endif
+
         #endif
 
       #endif // !FYSETC_MINI_12864

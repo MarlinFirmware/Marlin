@@ -19,32 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * stepper/indirection.cpp
- *
- * Stepper motor driver indirection to allow some stepper functions to
- * be done via SPI/I2c instead of direct pin manipulation.
- *
- * Copyright (c) 2015 Dominik Wenger
- */
-
-#include "../../inc/MarlinConfig.h"
-#include "indirection.h"
-
-void restore_stepper_drivers() {
-  TERN_(HAS_TRINAMIC_CONFIG, restore_trinamic_drivers());
-}
-
-void reset_stepper_drivers() {
-  #if HAS_DRIVER(TMC26X)
-    tmc26x_init_to_defaults();
-  #endif
-  TERN_(HAS_L64XX, L64xxManager.init_to_defaults());
-  TERN_(HAS_TRINAMIC_CONFIG, reset_trinamic_drivers());
-}
-
-#if ENABLED(SOFTWARE_DRIVER_ENABLE)
-  // Flags to optimize XYZ Enabled state
-  xyz_bool_t axis_sw_enabled; // = { false, false, false }
+// Longer UI assumptions
+#if HOTENDS > 1 || E_STEPPERS > 1
+  #error "Longer UI supports only 1 hotend / E-stepper."
 #endif
+
+#define BOARD_INFO_NAME "LGT Kit 1.0"
+
+#define SD_DETECT_PIN                         49
+#define FIL_RUNOUT_PIN                         2
+#define Z_MIN_PIN                             35
+
+//
+// Import RAMPS 1.4 pins
+//
+#include "pins_RAMPS.h"
