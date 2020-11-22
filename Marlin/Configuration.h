@@ -441,7 +441,11 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
+#ifdef kendric
+  #define TEMP_SENSOR_0 147
+#else
 #define TEMP_SENSOR_0 1
+#endif
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -524,12 +528,19 @@
     #define DEFAULT_Kp_LIST {  28.16,  28.16 }
     #define DEFAULT_Ki_LIST {   3.38,   3.38 }
     #define DEFAULT_Kd_LIST {  58.69,  58.69 }
+
   #else
+    #ifdef kendric
+    // FLSUN QQ-S, 200 C with 100% part cooling
+      #define DEFAULT_Kp  4.3755
+      #define DEFAULT_Ki  0.6498
+      #define DEFAULT_Kd  7.3655
+    #else
     // FLSUN QQ-S, 200 C with 100% part cooling
     #define DEFAULT_Kp  28.16
     #define DEFAULT_Ki   3.38
     #define DEFAULT_Kd  58.69
-
+    #endif
     // FLSUN QQS-Pro, PET 235 C with 70% part cooling
     //M301 P21.67 I1.25 D93.81        PLA
     //M301 P21.6708 I1.2515 D93.8127  PET
@@ -877,8 +888,12 @@
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
 #ifdef BMG
-  #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 417 }  //415 default steps per unit
-#else 
+  #ifdef kendric
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 405 }  //415 default steps per unit
+  #else
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 417 }  //415 default steps per unit
+  #endif
+#else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 397  }  //397 default steps per unit
 #endif
 
@@ -1163,8 +1178,11 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#define NOZZLE_TO_PROBE_OFFSET { 0, 0, -14.2 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
-
+#ifdef kendric
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -19.8 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
+#else
+  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -14.2 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
+#endif
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
 #define PROBING_MARGIN 20
