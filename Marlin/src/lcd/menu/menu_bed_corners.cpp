@@ -83,12 +83,7 @@ static int8_t bed_corner;
 #if ENABLED(LEVEL_CORNERS_USE_PROBE)
 
   static inline void _lcd_level_bed_corners_probing() {
-    ui.goto_screen([]{
-      MenuItem_static::draw(
-      (LCD_HEIGHT - 1) / 2
-      , GET_TEXT(MSG_PROBING_MESH)
-      );
-    });
+    ui.goto_screen([]{ MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH)); });
 
     float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
     xy_pos_t lf { (X_MIN_BED) + lfrb[0] - probe.offset_xy.x , (Y_MIN_BED) + lfrb[1] - probe.offset_xy.y },
@@ -120,15 +115,12 @@ static int8_t bed_corner;
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
-          , []{
-            corner_probing_done = true;
-            wait_for_probe = false;
-            TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
-            ui.goto_previous_screen_no_defer();
-          }
-          , []{
-            wait_for_probe = false;
-          }
+          , []{ corner_probing_done = true;
+                wait_for_probe = false;
+                TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_was_active));
+                ui.goto_previous_screen_no_defer();
+            }
+          , []{ wait_for_probe = false; }
           , GET_TEXT(MSG_LEVEL_CORNERS_RAISE)
           , (const char*)nullptr, PSTR("")
         );
@@ -141,7 +133,6 @@ static int8_t bed_corner;
         idle();
       }
       wait_for_probe = false;
-
     }
 
     TERN_(QUIET_PROBING, probe.set_probing_paused(false));
@@ -184,7 +175,7 @@ static int8_t bed_corner;
   static inline void _lcd_goto_next_corner() {
     constexpr float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
     constexpr xy_pos_t lf { (X_MIN_BED) + lfrb[0], (Y_MIN_BED) + lfrb[1] },
-                      rb { (X_MAX_BED) - lfrb[2], (Y_MAX_BED) - lfrb[3] };
+                       rb { (X_MAX_BED) - lfrb[2], (Y_MAX_BED) - lfrb[3] };
     line_to_z(LEVEL_CORNERS_Z_HOP);
     switch (bed_corner) {
       case 0: current_position   = lf;   break; // copy xy
