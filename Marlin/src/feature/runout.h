@@ -149,7 +149,7 @@ class FilamentSensorBase {
 
   public:
     static inline void setup() {
-      #define _INIT_RUNOUT_PIN(P,S,U) do{ if (DISABLED(U)) SET_INPUT(P); else if (S) SET_INPUT_PULLDOWN(P); else SET_INPUT_PULLUP(P); }while(0)
+      #define _INIT_RUNOUT_PIN(P,S,U) do{ if (DISABLED(U)) SET_INPUT(P); else if (S) SET_INPUT_PULLUP(P); else SET_INPUT_PULLDOWN(P); }while(0)
       #define  INIT_RUNOUT_PIN(N) _INIT_RUNOUT_PIN(FIL_RUNOUT##N##_PIN, FIL_RUNOUT##N##_STATE, FIL_RUNOUT##N##_PULL)
       #if NUM_RUNOUT_SENSORS >= 1
         INIT_RUNOUT_PIN(1);
