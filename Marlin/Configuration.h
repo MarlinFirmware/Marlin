@@ -1378,8 +1378,8 @@
   //#define LEVEL_CENTER_TOO              // Move to the center after the last corner
   //#define LEVEL_CORNERS_USE_PROBE
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)
-    #define LEVEL_CORNERS_USE_PROBE_TOLERANCE 0.1
-  #endif  
+    #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
+  #endif
 #endif
 
 /**
