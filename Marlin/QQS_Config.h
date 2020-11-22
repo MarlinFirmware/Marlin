@@ -142,3 +142,7 @@
       #define DRIVER_EXT TMC2209
     #endif
 #endif
+//For Some Special Users //
+//#define pat
+//#define hanz
+//#define kendric
