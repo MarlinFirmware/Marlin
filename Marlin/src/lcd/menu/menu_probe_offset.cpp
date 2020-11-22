@@ -104,8 +104,8 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_START by probe
-    #if (defined(PROBE_OFFSET_START) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+    // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe
+    #if defined(PROBE_OFFSET_WIZARD_START_Z) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
       queue.inject_P(G28_STR);
     #endif
   });
@@ -121,14 +121,14 @@ void prepare_for_probe_offset_wizard() {
   // Set Z Value for Wizard Position to 0
   z_offset_ref = 0;
 
-  #if (defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING))
+  #if defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
 
     #ifdef PROBE_OFFSET_WIZARD_XY_POS
       // Get X and Y from Configuration
       constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
     #else
       // Set Bed Center as probe point
-      constexpr xy_pos_t wizard_pos = XY_CENTER;  
+      constexpr xy_pos_t wizard_pos = XY_CENTER;
     #endif
 
     // Probe for Z reference
@@ -165,9 +165,9 @@ void goto_probe_offset_wizard() {
 
   // Store probe.offset.z for Case: Cancel
   z_offset_backup = probe.offset.z;
-  
-  #ifdef PROBE_OFFSET_START
-    probe.offset.z = PROBE_OFFSET_START;
+
+  #ifdef PROBE_OFFSET_WIZARD_START_Z
+    probe.offset.z = PROBE_OFFSET_WIZARD_START_Z;
   #endif
 
   // Store Bed-Leveling-State and disable
@@ -175,7 +175,7 @@ void goto_probe_offset_wizard() {
     leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
   #endif
-  
+
   // Home all Axis
   queue.inject_P(G28_STR);
 
