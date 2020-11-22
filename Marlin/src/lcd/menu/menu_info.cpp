@@ -263,13 +263,21 @@ void menu_info_board() {
 void menu_info() {
   START_MENU();
   BACK_ITEM(MSG_MAIN);
+  STATIC_ITEM(MSG_MARLIN);                                             // Marlin
+  STATIC_ITEM_P(PSTR(SHORT_BUILD_VERSION));                            // x.x.x-Branch
+  STATIC_ITEM_P(PSTR(STRING_DISTRIBUTION_DATE));                       // YYYY-MM-DD HH:MM
+  STATIC_ITEM_P(PSTR(MACHINE_NAME));                                   // 3DPrintMill
+  STATIC_ITEM_P(PSTR(WEBSITE_URL));                                    // www.creality.com
+  STATIC_ITEM_P(PSTR(BOARD_INFO_NAME), SS_CENTER);                     // MyPrinterController
+  VALUE_ITEM_P(MSG_INFO_EXTRUDERS, STRINGIFY(EXTRUDERS), SS_CENTER);   // Extruders: 1
+  VALUE_ITEM_P(MSG_INFO_BAUDRATE, STRINGIFY(BAUDRATE), SS_CENTER);     // Baud: 115200
   #if ENABLED(LCD_PRINTER_INFO_IS_BOOTSCREEN)
     SUBMENU(MSG_INFO_PRINTER_MENU, TERN(SHOW_CUSTOM_BOOTSCREEN, menu_show_custom_bootscreen, menu_show_marlin_bootscreen));
   #else
-    SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
-    SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
+    //SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
+    //SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
     #if EXTRUDERS
-      SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
+      //SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif
   #endif
 
