@@ -48,6 +48,10 @@
   #include "../feature/joystick.h"
 #endif
 
+#if HAS_BED_PROBE
+  #include "probe.h"
+#endif
+
 Endstops endstops;
 
 // private:

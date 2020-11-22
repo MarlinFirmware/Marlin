@@ -53,11 +53,11 @@
   #ifndef LEVEL_CORNERS_PROBE_TOLERANCE
     #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
   #endif
-  static float last_z = LEVEL_CORNERS_HEIGHT;
-  bool wait_for_probe = false;
-  bool probe_triggered = false;
-  bool corner_probing_done = false;
-  int good_points = 0;
+  static float last_z;
+  bool wait_for_probe;
+  bool probe_triggered;
+  bool corner_probing_done;
+  int good_points;
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
@@ -151,7 +151,7 @@ static int8_t bed_corner;
         ui.goto_screen([]{
           MenuItem_confirm::confirm_screen(
             []{ ui.goto_previous_screen_no_defer();
-                queue.inject_P(TERN(HAS_LEVELING, PSTR("G28\nG29"), G28_STR);
+                queue.inject_P(TERN(HAS_LEVELING, PSTR("G28\nG29"), G28_STR));
               }
             , []{ ui.goto_previous_screen_no_defer(); }
             , GET_TEXT(MSG_LEVEL_CORNERS_IN_RANGE)
@@ -224,6 +224,14 @@ void _lcd_level_bed_corners() {
   #if HAS_LEVELING
     leveling_was_active = planner.leveling_active;
     set_bed_leveling_enabled(false);
+  #endif
+
+  #if ENABLED(LEVEL_CORNERS_USE_PROBE)
+    last_z = LEVEL_CORNERS_HEIGHT;
+    wait_for_probe = false;
+    probe_triggered = false;
+    corner_probing_done = false;
+    good_points = 0;
   #endif
 
   ui.goto_screen(_lcd_level_bed_corners_homing);
