@@ -53,6 +53,18 @@
   #ifndef LEVEL_CORNERS_PROBE_TOLERANCE
     #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
   #endif
+  #ifndef LEVEL_CORNERS_FEEDBACK_FREQUENCY_DURATION_MS
+    #define LEVEL_CORNERS_FEEDBACK_FREQUENCY_DURATION_MS 0
+  #endif
+  #if LEVEL_CORNERS_FEEDBACK_FREQUENCY_DURATION_MS > 0
+    #ifndef LEVEL_CORNERS_FEEDBACK_FREQUENCY_HZ
+      #define LEVEL_CORNERS_FEEDBACK_FREQUENCY_HZ 600
+    #endif
+    #include "../../libs/buzzer.h"
+    #define PROBE_BUZZ() (BUZZ(LEVEL_CORNERS_FEEDBACK_FREQUENCY_DURATION_MS, LEVEL_CORNERS_FEEDBACK_FREQUENCY_HZ))
+  #else
+    #define PROBE_BUZZ() NOOP
+  #endif
   static float last_z;
   bool wait_for_probe;
   bool probe_triggered;
@@ -123,6 +135,7 @@ static int8_t bed_corner;
       wait_for_probe = true;
       while (wait_for_probe && !probe_triggered) {
         probe_triggered = PROBE_TRIGGERED();
+        if (probe_triggered) PROBE_BUZZ();
         idle();
       }
       wait_for_probe = false;
