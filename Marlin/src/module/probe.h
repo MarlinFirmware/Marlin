@@ -38,6 +38,12 @@
   };
 #endif
 
+#if HAS_CUSTOM_PROBE_PIN
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+#else
+  #define PROBE_TRIGGERED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+#endif
+
 class Probe {
 public:
 

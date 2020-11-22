@@ -58,13 +58,6 @@
   bool probe_triggered = false;
   bool corner_probing_done = false;
   int count_points_in_tolerance = 0;
-  #ifndef TEST_PROBE_PIN
-    #if HAS_CUSTOM_PROBE_PIN
-      #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
-    #else
-      #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
-    #endif
-  #endif
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
@@ -129,7 +122,7 @@ static int8_t bed_corner;
 
       wait_for_probe = true;
       while (wait_for_probe && !probe_triggered) {
-        probe_triggered = TEST_PROBE_PIN;
+        probe_triggered = PROBE_TRIGGERED();
         idle();
       }
       wait_for_probe = false;
