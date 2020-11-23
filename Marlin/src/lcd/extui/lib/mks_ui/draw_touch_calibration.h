@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,45 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(__STM32F1__) && !defined(HAVE_SW_SERIAL)
+#pragma once
 
-/**
- * Empty class for Software Serial implementation (Custom RX/TX pins)
- *
- * TODO: Optionally use https://github.com/FYSETC/SoftwareSerialM if TMC UART is wanted
- */
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
-#include "SoftwareSerial.h"
+extern void lv_draw_touch_calibration_screen();
+extern void lv_clear_touch_calibration_screen();
+extern void lv_update_touch_calibration_screen();
 
-// Constructor
-
-SoftwareSerial::SoftwareSerial(int8_t RX_pin, int8_t TX_pin) {}
-
-// Public
-
-void SoftwareSerial::begin(const uint32_t baudrate) {
-}
-
-bool SoftwareSerial::available() {
-  return false;
-}
-
-uint8_t SoftwareSerial::read() {
-  return 0;
-}
-
-uint16_t SoftwareSerial::write(uint8_t byte) {
-  return 0;
-}
-
-void SoftwareSerial::flush() {}
-
-void SoftwareSerial::listen() {
-  listening = true;
-}
-
-void SoftwareSerial::stopListening() {
-  listening = false;
-}
-
-#endif // __STM32F1__
+//extern void disp_temp_ready_print();
+#ifdef __cplusplus
+  } /* C-declarations for C++ */
+#endif

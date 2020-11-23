@@ -118,9 +118,11 @@ Sd2Card CardReader::sd2card;
 SdVolume CardReader::volume;
 SdFile CardReader::file;
 
-uint8_t CardReader::file_subcall_ctr;
-uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
-char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
+#if HAS_MEDIA_SUBCALLS
+  uint8_t CardReader::file_subcall_ctr;
+  uint32_t CardReader::filespos[SD_PROCEDURE_DEPTH];
+  char CardReader::proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
+#endif
 
 uint32_t CardReader::filesize, CardReader::sdpos;
 
@@ -135,7 +137,8 @@ CardReader::CardReader() {
   #endif
   flag.sdprinting = flag.mounted = flag.saving = flag.logging = false;
   filesize = sdpos = 0;
-  file_subcall_ctr = 0;
+
+  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   workDirDepth = 0;
   ZERO(workDirParents);
@@ -422,7 +425,8 @@ void CardReader::manage_media() {
 
     if (stat) {                       // Media Inserted
       safe_delay(500);                // Some boards need a delay to get settled
-      mount();                        // Try to mount the media
+      if (TERN1(SD_IGNORE_AT_STARTUP, old_stat != 2))
+        mount();                      // Try to mount the media
       #if MB(FYSETC_CHEETAH, FYSETC_CHEETAH_V12, FYSETC_AIO_II)
         reset_stepper_drivers();      // Workaround for Cheetah bug
       #endif
@@ -450,8 +454,17 @@ void CardReader::manage_media() {
     DEBUG_ECHOLNPGM("SD: No UI Detected.");
 }
 
+/**
+ * "Release" the media by clearing the 'mounted' flag.
+ * Used by M22, "Release Media", manage_media.
+ */
 void CardReader::release() {
-  endFilePrint();
+  // Card removed while printing? Abort!
+  if (IS_SD_PRINTING())
+    card.flag.abort_sd_printing = true;
+  else
+    endFilePrint();
+
   flag.mounted = false;
   flag.workDirIsRoot = true;
   #if ALL(SDCARD_SORT_ALPHA, SDSORT_USES_RAM, SDSORT_CACHE_NAMES)
@@ -459,6 +472,10 @@ void CardReader::release() {
   #endif
 }
 
+/**
+ * Open a G-code file and set Marlin to start processing it.
+ * Enqueues M23 and M24 commands to initiate a media print.
+ */
 void CardReader::openAndPrintFile(const char *name) {
   char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   extern const char M23_STR[];
@@ -468,6 +485,12 @@ void CardReader::openAndPrintFile(const char *name) {
   queue.enqueue_now_P(M24_STR);
 }
 
+/**
+ * Start or resume a media print by setting the sdprinting flag.
+ * The file browser pre-sort is also purged to free up memory,
+ * since you cannot browse files during active printing.
+ * Used by M24 and anywhere Start / Resume applies.
+ */
 void CardReader::startFileprint() {
   if (isMounted()) {
     flag.sdprinting = true;
@@ -475,6 +498,9 @@ void CardReader::startFileprint() {
   }
 }
 
+//
+// Run tasks upon finishing or aborting a file print.
+//
 void CardReader::endFilePrint(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
   TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
   TERN_(DWIN_CREALITY_LCD, HMI_flag.print_finish = flag.sdprinting);
@@ -540,34 +566,38 @@ void CardReader::openFileRead(char * const path, const uint8_t subcall_type/*=0*
   switch (subcall_type) {
     case 0:      // Starting a new print. "Now fresh file: ..."
       announceOpen(2, path);
-      file_subcall_ctr = 0;
+      TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
       break;
 
-    case 1:      // Starting a sub-procedure
+    #if HAS_MEDIA_SUBCALLS
 
-      // With no file is open it's a simple macro. "Now doing file: ..."
-      if (!isFileOpen()) { announceOpen(1, path); break; }
+      case 1:      // Starting a sub-procedure
 
-      // Too deep? The firmware has to bail.
-      if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
-        SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:" STRINGIFY(SD_PROCEDURE_DEPTH));
-        kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
-        return;
-      }
+        // With no file is open it's a simple macro. "Now doing file: ..."
+        if (!isFileOpen()) { announceOpen(1, path); break; }
 
-      // Store current filename (based on workDirParents) and position
-      getAbsFilename(proc_filenames[file_subcall_ctr]);
-      filespos[file_subcall_ctr] = sdpos;
+        // Too deep? The firmware has to bail.
+        if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
+          SERIAL_ERROR_MSG("Exceeded max SUBROUTINE depth:", int(SD_PROCEDURE_DEPTH));
+          kill(GET_TEXT(MSG_KILL_SUBCALL_OVERFLOW));
+          return;
+        }
 
-      // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
-      SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
-      file_subcall_ctr++;
-      break;
+        // Store current filename (based on workDirParents) and position
+        getAbsFilename(proc_filenames[file_subcall_ctr]);
+        filespos[file_subcall_ctr] = sdpos;
 
-    case 2:      // Resuming previous file after sub-procedure
-      SERIAL_ECHO_MSG("END SUBROUTINE");
-      break;
+        // For sub-procedures say 'SUBROUTINE CALL target: "..." parent: "..." pos12345'
+        SERIAL_ECHO_START();
+        SERIAL_ECHOLNPAIR("SUBROUTINE CALL target:\"", path, "\" parent:\"", proc_filenames[file_subcall_ctr], "\" pos", sdpos);
+        file_subcall_ctr++;
+        break;
+
+      case 2:      // Resuming previous file after sub-procedure
+        SERIAL_ECHO_MSG("END SUBROUTINE");
+        break;
+
+    #endif
   }
 
   endFilePrint();
@@ -603,7 +633,7 @@ void CardReader::openFileWrite(char * const path) {
   if (!isMounted()) return;
 
   announceOpen(2, path);
-  file_subcall_ctr = 0;
+  TERN_(HAS_MEDIA_SUBCALLS, file_subcall_ctr = 0);
 
   endFilePrint();
 
@@ -637,7 +667,7 @@ bool CardReader::fileExists(const char * const path) {
   if (fname) {
     diveDir->rewind();
     selectByName(*diveDir, fname);
-    diveDir->close();
+    //diveDir->close();
   }
   return !!fname;
 }
@@ -1158,17 +1188,19 @@ uint16_t CardReader::get_num_Files() {
 void CardReader::fileHasFinished() {
   planner.synchronize();
   file.close();
-  if (file_subcall_ctr > 0) { // Resume calling file after closing procedure
-    file_subcall_ctr--;
-    openFileRead(proc_filenames[file_subcall_ctr], 2); // 2 = Returning from sub-procedure
-    setIndex(filespos[file_subcall_ctr]);
-    startFileprint();
-  }
-  else {
-    endFilePrint(TERN_(SD_RESORT, true));
 
-    marlin_state = MF_SD_COMPLETE;
-  }
+  #if HAS_MEDIA_SUBCALLS
+    if (file_subcall_ctr > 0) { // Resume calling file after closing procedure
+      file_subcall_ctr--;
+      openFileRead(proc_filenames[file_subcall_ctr], 2); // 2 = Returning from sub-procedure
+      setIndex(filespos[file_subcall_ctr]);
+      startFileprint();
+      return;
+    }
+  #endif
+
+  endFilePrint(TERN_(SD_RESORT, true));
+  marlin_state = MF_SD_COMPLETE;
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)

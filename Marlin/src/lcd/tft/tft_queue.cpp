@@ -210,7 +210,7 @@ void TFT_Queue::set_background(uint16_t color) {
 #define QUEUE_SAFETY_FREE_SPACE 100
 
 void TFT_Queue::handle_queue_overflow(uint16_t sizeNeeded) {
-  if (uintptr_t(end_of_queue) + sizeNeeded + (QUEUE_SAFETY_FREE_SPACE) - uintptr_t(queue) >= QUEUE_SIZE) {
+  if (uintptr_t(end_of_queue) + sizeNeeded + (QUEUE_SAFETY_FREE_SPACE) - uintptr_t(queue) >= TFT_QUEUE_SIZE) {
     end_of_queue = queue;
     ((parametersCanvasText_t *)last_parameter)->nextParameter = end_of_queue;
   }

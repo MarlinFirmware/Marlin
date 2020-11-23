@@ -110,10 +110,10 @@ void menu_backlash();
 
     #if ENABLED(LIN_ADVANCE)
       #if EXTRUDERS == 1
-        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+        EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
       #elif HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+          EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
       #endif
     #endif
 
@@ -202,12 +202,12 @@ void menu_backlash();
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int16_t e) {
-    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
+    UNUSED(e);
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int16_t e) {
-    TERN(PID_PARAMS_PER_HOTEND,,UNUSED(e));
+    UNUSED(e);
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     thermalManager.updatePID();
   }
@@ -488,7 +488,7 @@ void menu_backlash();
       EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
 
       #if ENABLED(PROBE_OFFSET_WIZARD)
-        SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+        SUBMENU(MSG_PROBE_WIZARD, home_and_goto_probe_offset_wizard);
       #endif
 
       END_MENU();
@@ -587,10 +587,10 @@ void menu_advanced_settings() {
     SUBMENU(MSG_FILAMENT, menu_advanced_filament);
   #elif ENABLED(LIN_ADVANCE)
     #if EXTRUDERS == 1
-      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
+      EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 10);
     #elif HAS_MULTI_EXTRUDER
       LOOP_L_N(n, E_STEPPERS)
-        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
+        EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 10);
     #endif
   #endif
 

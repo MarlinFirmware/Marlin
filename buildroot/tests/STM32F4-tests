@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 use_example_configs STM32/STM32F4
-exec_test $1 $2 "STM32F4 Default Configuration"
+exec_test $1 $2 "STM32F4 Default Configuration" "$3"
 
 # clean up
 restore_configs

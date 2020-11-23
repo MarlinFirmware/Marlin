@@ -155,7 +155,7 @@
  *                  _____
  *              5V | · · | GND
  *  (LCD_EN) P0_18 | · · | P0_16 (LCD_RS)
- *  (LCD_D4) P0_15 | · · | P3_25 (BTN_EN2)
+ *  (LCD_D4) P0_15 | · ·   P3_25 (BTN_EN2)
  *   (RESET) P2_11 | · · | P3_26 (BTN_EN1)
  * (BTN_ENC) P1_30 | · · | P1_31 (BEEPER)
  *                  -----

@@ -34,8 +34,8 @@
   #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 #endif
 
-// Change the priority to 3. Priority 2 is for software serial.
-//#define TEMP_TIMER_IRQ_PRIO                  3
+// Avoid conflict with TIMER_TONE defined in variant
+#define STEP_TIMER 10
 
 //
 // EEPROM Emulation
@@ -256,6 +256,11 @@
       #define LCD_PINS_D5                   PC12
       #define LCD_PINS_D6                   PD0
       #define LCD_PINS_D7                   PD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif

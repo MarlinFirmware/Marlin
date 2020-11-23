@@ -56,7 +56,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Основное меню");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Другие настройки");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Конфигурация");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Автостарт");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Автостарт");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Выключить двигатели");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Меню отладки");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Тест индикатора");
@@ -369,8 +369,8 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Температура");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Движение");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Филамент");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E огран.,мм³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E в мм") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E огран.,мм") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E огран. *");
   #if LCD_WIDTH > 21
     PROGMEM Language_Str MSG_FILAMENT_DIAM                 = _UxGT("Диам. филамента");

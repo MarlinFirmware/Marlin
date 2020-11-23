@@ -53,7 +53,7 @@ namespace Language_de {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Hauptmenü");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Erw. Einstellungen");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfiguration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motoren deaktivieren"); // M84 :: Max length 19 characters
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Debug-Menü");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Statusbalken-Test");
@@ -318,8 +318,8 @@ namespace Language_de {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatur");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Bewegung");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Filamentdurchmesser");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Filamentdurchmesser *");

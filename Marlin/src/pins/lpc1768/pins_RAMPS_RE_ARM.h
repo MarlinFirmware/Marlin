@@ -420,6 +420,11 @@
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
       #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
       #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
   #endif
 

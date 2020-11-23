@@ -38,7 +38,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Targeta extreta.");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menú principal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inici automatic");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inici automatic");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Desactiva motors");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu de depuracio");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barra progres");
@@ -111,7 +111,7 @@ namespace Language_ca {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Moviment");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diam. Fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diam. Fil. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contrast de LCD");
