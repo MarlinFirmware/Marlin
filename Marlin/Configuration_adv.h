@@ -189,7 +189,7 @@
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
-  #ifdef kendric
+  #ifdef Kendric
     #define THERMAL_PROTECTION_HYSTERESIS 30    // Degrees Celsius
   #else
     #define THERMAL_PROTECTION_HYSTERESIS 10    // Degrees Celsius
@@ -1090,9 +1090,9 @@
 
   // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if HAS_BED_PROBE
-    //#define PROBE_OFFSET_WIZARD
+    //#define PROBE_OFFSET_WIZARD //Define on QQS_Config
     #if ENABLED(PROBE_OFFSET_WIZARD)
-      #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
+      #define PROBE_OFFSET_START -14.0   // Estimated nozzle-to-probe Z offset, plus a little extra
       //#define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER // Set a convenient position to do the measurement
     #endif
   #endif

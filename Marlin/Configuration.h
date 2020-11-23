@@ -443,7 +443,7 @@
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
  *   999 : Dummy Table that ALWAYS reads 100°C or the temperature defined below.
  */
-#ifdef kendric
+#ifdef Kendric
   #define TEMP_SENSOR_0 147
 #else
 #define TEMP_SENSOR_0 1
@@ -532,7 +532,7 @@
     #define DEFAULT_Kd_LIST {  58.69,  58.69 }
 
   #else
-    #ifdef kendric
+    #ifdef Kendric
     // FLSUN QQ-S, 200 C with 100% part cooling
       #define DEFAULT_Kp  4.3755
       #define DEFAULT_Ki  0.6498
@@ -546,7 +546,7 @@
     // FLSUN QQS-Pro, PET 235 C with 70% part cooling
     //M301 P21.67 I1.25 D93.81        PLA
     //M301 P21.6708 I1.2515 D93.8127  PET
-    // FIND YOUR OWN: measured after M106 S180 with M303 E0 S230 C8
+    // FIND YOUR OWN: measured after M106 S180 with M303 E0 S230 C8 U0
     //#define DEFAULT_Kp
     //#define DEFAULT_Ki
     //#define DEFAULT_Kd
@@ -603,7 +603,7 @@
   #define DEFAULT_bedKi 15.93
   #define DEFAULT_bedKd 288.25
 
-  // FIND YOUR OWN: "M303 E-1 S60 C8" to run autotune on the bed at 60 degrees for 8 cycles.
+  // FIND YOUR OWN: "M303 E-1 S60 C8 U" to run autotune on the bed at 60 degrees for 8 cycles.
   //M303 E-1 C8 S60 =>Memo M304 P61.05 I11.27 D218.99
   //#define DEFAULT_bedKp 61.05
   //#define DEFAULT_bedKi 11.72
@@ -885,12 +885,16 @@
 #define XYZ_FULL_STEPS_PER_ROTATION 200
 #define XYZ_MICROSTEPS 16
 #define XYZ_BELT_PITCH 2
-#define XYZ_PULLEY_TEETH 16
+#ifdef Pat
+  #define XYZ_PULLEY_TEETH 20 
+#else
+  #define XYZ_PULLEY_TEETH 16
+#endif
 
 // delta speeds must be the same on xyz
 #define DEFAULT_XYZ_STEPS_PER_UNIT ((XYZ_FULL_STEPS_PER_ROTATION) * (XYZ_MICROSTEPS) / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
 #ifdef BMG
-  #ifdef kendric
+  #ifdef Kendric
     #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 405 }  //415 default steps per unit
   #else
     #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 417 }  //415 default steps per unit
@@ -1180,7 +1184,7 @@
  *     |    [-]    |
  *     O-- FRONT --+
  */
-#ifdef kendric
+#ifdef Kendric
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -19.8 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
 #else
   #define NOZZLE_TO_PROBE_OFFSET { 0, 0, -14.2 }  //OPT (Stock 16.2) (E3Dv6 -14.1)
@@ -1725,7 +1729,7 @@
 // every couple of seconds when it can't accept commands.
 //
 #define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
-#define DEFAULT_KEEPALIVE_INTERVAL 2  // Number of seconds between "busy" messages. Set with M113.
+#define DEFAULT_KEEPALIVE_INTERVAL 3  // Number of seconds between "busy" messages. Set with M113.
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
 //

@@ -18,12 +18,12 @@
 
 //========= Hardware ==========//
 /*------Drivers-(1 CHOICE)-----*/
-#define QQS                        //(S) For 4xA4988(green or red color)
+//#define QQS                        //(S) For 4xA4988(green or red color)
 //#define QQS_TMC                    //(8) For 4xTMC220x_STANDALONE For 2208(white color) or 2209(black color)
 
 /* MODE UART XYZ */
 //#define QQS_UARTx                  //(U8/U9) 4xTMC220x Note: For 2209 change TMC2208 by TMC2209 at the bottom file and remove on your printer the module WIFI.
-//#define QQS_UART9                  //(UH) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
+#define QQS_UART9                  //(UH) Mode special 2209 wiring with one I/O pin (Remove module ESP12)
 
 /*------- Choice Other driver for EXTRUDER-------//
 * Options: 
@@ -54,7 +54,7 @@
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
 
 /*For LedStrip which need an external power source on Vcc pin.*/
-//#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
+#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 //Many options for Modules: 
 #define POWER_LOSS_RECOVERY        //NC LVGL pb SD
@@ -74,8 +74,9 @@
 #define LCD_INFO_MENU              // Informations printer.
 
 //  Type Calibration (CAL)
-//#define AUTO_BED_LEVELING_BILINEAR //(A)
-#define AUTO_BED_LEVELING_UBL      //(U) 
+#define AUTO_BED_LEVELING_BILINEAR //(A)
+//#define AUTO_BED_LEVELING_UBL      //(U) 
+#define PROBE_OFFSET_WIZARD
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
@@ -122,9 +123,9 @@
 // Software Serial UART for TMC 2208 / TMC 2209
 #ifdef QQS_UARTx
     #define QQS_UART
-    #define DRIVER_AXES TMC2208
+    #define DRIVER_AXES TMC2209
     #ifndef DRIVER_EXT
-      #define DRIVER_EXT TMC2208
+      #define DRIVER_EXT TMC2209
     #endif
 #endif
 
@@ -143,6 +144,6 @@
     #endif
 #endif
 //For Some Special Users //
-//#define pat
-//#define hanz
-//#define kendric
+#define Pat
+//#define Hanz
+//#define Kendric
