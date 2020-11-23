@@ -949,7 +949,7 @@
         g29_repetition_cnt = 1;   // do exactly one mesh location. Otherwise use what the parser decided.
 
       #if ENABLED(UBL_MESH_EDIT_MOVES_Z)
-        const float h_offset = parser.seenval('H') ? parser.value_linear_units() : 0;
+        const float h_offset = parser.seenval('H') ? parser.value_linear_units() : MANUAL_PROBE_START_Z;
         if (!WITHIN(h_offset, 0, 10)) {
           SERIAL_ECHOLNPGM("Offset out of bounds. (0 to 10mm)\n");
           return;
@@ -969,8 +969,6 @@
       ui.capture();                                               // Take over control of the LCD encoder
 
       do_blocking_move_to_xy_z(pos, Z_CLEARANCE_BETWEEN_PROBES);  // Move to the given XY with probe clearance
-
-      TERN_(UBL_MESH_EDIT_MOVES_Z, do_blocking_move_to_z(h_offset));  // Move Z to the given 'H' offset
 
       MeshFlags done_flags{0};
       const xy_int8_t &lpos = location.pos;
