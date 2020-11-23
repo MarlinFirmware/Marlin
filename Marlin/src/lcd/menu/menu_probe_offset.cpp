@@ -90,9 +90,9 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-    // Rehome with new offset if homing is done by probe
+    // Rehome Z with new offset if homing is done by probe
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-      queue.inject_P(G28_STR);
+      queue.inject_P(PSTR("G28Z"));
     #else
       do_z_clearance(20.0
         #ifdef Z_AFTER_HOMING
@@ -104,9 +104,9 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // Rehome with backed up offset if wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe
+    // Rehome Z with backed up offset if wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe
     #if defined(PROBE_OFFSET_WIZARD_START_Z) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-      queue.inject_P(G28_STR);
+      queue.inject_P(PSTR("G28Z"));
     #endif
   });
 
@@ -123,6 +123,8 @@ void prepare_for_probe_offset_wizard() {
 
   #if defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
 
+    if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_PROBE_WIZARD_PROBING));
+
     #ifdef PROBE_OFFSET_WIZARD_XY_POS
       // Get X and Y from Configuration
       constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
@@ -136,7 +138,7 @@ void prepare_for_probe_offset_wizard() {
       ui.wait_for_move = true;
       z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
       ui.wait_for_move = false;
-      ui.synchronize();
+      planner.synchronize();
     }
 
   #endif
@@ -148,7 +150,7 @@ void prepare_for_probe_offset_wizard() {
     current_position.y = current_position.y + probe.offset_xy.y;
     line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
     ui.wait_for_move = false;
-    ui.synchronize();
+    ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   }
 
   // Go to Menu for Calibration
@@ -160,6 +162,7 @@ void prepare_for_probe_offset_wizard() {
 }
 
 void goto_probe_offset_wizard() {
+
   ui.defer_status_screen();
   set_all_unhomed();
 
