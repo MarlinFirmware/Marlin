@@ -145,7 +145,11 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   if (wait)
     return thermalManager.wait_for_hotend(active_extruder);
 
-  wait_for_heatup = true; // Allow interruption by Emergency Parser M108
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
+    wait_for_heatup = !thermalManager.allow_cold_extrude;
+  #else
+    wait_for_heatup = true; // Allow interruption by Emergency Parser M108
+  #endif
   while (wait_for_heatup && ABS(thermalManager.degHotend(active_extruder) - thermalManager.degTargetHotend(active_extruder)) > TEMP_WINDOW)
     idle();
   wait_for_heatup = false;
