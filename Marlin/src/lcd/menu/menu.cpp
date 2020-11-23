@@ -206,8 +206,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
     screen_items = items;
     if (on_status_screen()) {
       defer_status_screen(false);
+      clear_menu_history();
       TERN_(AUTO_BED_LEVELING_UBL, ubl.lcd_map_control = false);
-      screen_history_depth = 0;
     }
 
     clear_lcd();
