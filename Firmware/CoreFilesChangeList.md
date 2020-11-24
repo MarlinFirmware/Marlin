@@ -31,6 +31,7 @@ This does not include machine configs or PlatformIO files.
 				- `pins_TH3D_EZBOARD.h`
 			- **ramps**
 				- `pins_RAMPS.h`
+				- `pins_RAMPS_CREALITY.h`
 			- **sanguino**
 				- `pins_MELZI_CREALITY.h`
 			- **stm32f1**

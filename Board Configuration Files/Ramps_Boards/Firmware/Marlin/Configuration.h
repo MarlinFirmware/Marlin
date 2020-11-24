@@ -717,13 +717,25 @@
     #endif
   #endif
 
-  #define USE_XMIN_PLUG
-  #define USE_YMIN_PLUG
-  #define USE_ZMIN_PLUG
-
-  #define X_HOME_DIR -1
-  #define Y_HOME_DIR -1
-  #define Z_HOME_DIR -1
+  #if ENABLED(ENDER5_PLUS)
+    #define USE_XMAX_PLUG
+    #define USE_YMAX_PLUG
+    #define USE_ZMIN_PLUG
+  #else
+    #define USE_XMIN_PLUG
+    #define USE_YMIN_PLUG
+    #define USE_ZMIN_PLUG
+  #endif
+  
+  #if ENABLED(ENDER5_PLUS)
+    #define X_HOME_DIR 1
+    #define Y_HOME_DIR 1
+    #define Z_HOME_DIR -1
+  #else
+    #define X_HOME_DIR -1
+    #define Y_HOME_DIR -1
+    #define Z_HOME_DIR -1
+  #endif
 
   #if ENABLED(CRX)
     #define SINGLENOZZLE
@@ -888,7 +900,7 @@
   #endif
 
 #endif
-// End CR-10 V2 Settings
+// End Creality 2560 Printer Settings
 
 /*
  * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
