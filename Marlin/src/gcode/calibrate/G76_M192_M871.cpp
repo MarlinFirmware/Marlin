@@ -144,7 +144,7 @@ void GcodeSuite::G76() {
 
   const xyz_pos_t parkpos = temp_comp.park_point,
             probe_pos_xyz = xyz_pos_t(temp_comp.measure_point) + xyz_pos_t({ 0.0f, 0.0f, PTC_PROBE_HEATING_OFFSET }),
-              noz_pos_xyz = probe_pos_xyz - xy_pos_t(probe.offset_xy); // Nozzle position based on probe position
+              noz_pos_xyz = probe_pos_xyz - probe.offset_xy;  // Nozzle position based on probe position
 
   if (do_bed_cal || do_probe_cal) {
     // Ensure park position is reachable
