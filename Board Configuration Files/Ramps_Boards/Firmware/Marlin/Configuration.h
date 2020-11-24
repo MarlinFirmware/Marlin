@@ -84,7 +84,7 @@
 //#define EZOUT_ENABLE
 
 // Filament Sensor - Disable
-// If you are having issues with the stock Creality filament sensor you can disable it with the below feature
+// If you are having issues with the stock Creality filament sensor (or do not have one) you can disable it with the below feature
 //#define DISABLE_FILAMENT_SENSOR
 
 // LCD - Use this to use the CR-10 LCD with the CR-10S Board. Rotate the LCD plug 180
@@ -103,6 +103,10 @@
 // If you are using the stock BL Touch with a non-stock mount enable the CUSTOM_PROBE line above and enter the offsets below for the new mount.
 //#define ENDER5_PLUS_EZABL
 //#define ENDER5_PLUS_NOABL
+
+// Ender 5 - Leadscrew Setting
+// If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
+//#define ENDER5_NEW_LEADSCREW
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -562,6 +566,7 @@
 
 // Creality 2560 Printer Settings
 #if ENABLED(CR10S) || ENABLED(CR10_V2) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER3_DUALBOARD) || ENABLED(CR20) || ENABLED(ENDER5_DUALBOARD) || ENABLED(CRX) || ENABLED(CR10S_PRO) || ENABLED(CRX) || ENABLED(ENDER5_PLUS)
+
   #if ENABLED(ENDER5_PLUS)
     #if DISABLED(ENDER5_PLUS_NOABL) && DISABLED(ENDER5_PLUS_EZABL)
       #define BLTOUCH
