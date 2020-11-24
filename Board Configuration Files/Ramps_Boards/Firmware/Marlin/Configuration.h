@@ -900,7 +900,7 @@
   #endif
 
 #endif
-// End CR-10 V2 Settings
+// End Creality 2560 Printer Settings
 
 /*
  * All other settings are stored in the Configuration_backend.h file. Do not change unless you know what you are doing.
