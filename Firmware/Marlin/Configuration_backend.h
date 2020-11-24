@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.11b"
+#define UNIFIED_VERSION "TH3D UFW 2.12"
 
 /**
  * Temp Settings
@@ -113,7 +113,7 @@
   #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM)
+#if ENABLED(ENDER3_OEM) || ENABLED(ENDER5_OEM) || ENABLED(CR10_OEM) || ENABLED(CR10S_OEM) || ENABLED(ENDER5_PLUS_OEM) || ENABLED(CR20_OEM)
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -44, -10, 0 }
 #endif
@@ -125,11 +125,11 @@
   #define NOZZLE_TO_PROBE_OFFSET { 22, -50, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_VOLCANO)
+#if ENABLED(CR10_VOLCANO) || ENABLED(TORNADO_VOLCANO)
   #define NOZZLE_TO_PROBE_OFFSET { 30, 12, 0 }
   #define ABL_ENABLE
 #endif
-#if ENABLED(CR10_V6HEAVYDUTY)
+#if ENABLED(CR10_V6HEAVYDUTY) || ENABLED(TORNADO_V6HEAVYDUTY)
   #define NOZZLE_TO_PROBE_OFFSET { 63, 0, 0 }
   #define ABL_ENABLE
 #endif
@@ -161,6 +161,78 @@
   #define NOZZLE_TO_PROBE_OFFSET { 33, -39, 0 }
   #define ABL_ENABLE
 #endif
+#if ENABLED(CR10S_PRO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -27, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(CRX_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -5, -48, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ZONESTAR_Z5F_STOCK_ABL)
+  #define NOZZLE_TO_PROBE_OFFSET { 35, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TARANTULA_PRO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -65, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TORNADO_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -37, -10, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(TAZ5_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -52, 15, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -25, -38, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_D6_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 24, -16, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3_DIIICOOLER)
+  #define NOZZLE_TO_PROBE_OFFSET { -36, -37, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3MINI_OEM_EZABLMINI)
+  #define NOZZLE_TO_PROBE_OFFSET { -32, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(WANHAO_I3MINI_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -36, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ALFAWISEU10_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 39, -47, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ALFAWISEU10_PETSFANG)
+  #define NOZZLE_TO_PROBE_OFFSET { -48, -2, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ENDER4_OEM_LEFT)
+  #define NOZZLE_TO_PROBE_OFFSET { -53, -19, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(ADIM_I3P_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { 33, -60, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(GEE_A10_V1_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -54, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(GEE_A10_V2_OEM)
+  #define NOZZLE_TO_PROBE_OFFSET { -52, 0, 0 }
+  #define ABL_ENABLE
+#endif
+#if ENABLED(EZ300_OEM_MOUNT)
+  #define NOZZLE_TO_PROBE_OFFSET { -32, -8, 0 }
+  #define ABL_ENABLE
+#endif
 
 #if ENABLED(ABL_ENABLE)
   #define SEGMENT_LEVELED_MOVES
@@ -172,9 +244,9 @@
   #define Z_PROBE_OFFSET_RANGE_MAX     1
   
   #define Z_MIN_PROBE_REPEATABILITY_TEST
-  #define Z_AFTER_PROBING              5
-  #define Z_AFTER_HOMING               5
-  #define Z_PROBE_LOW_POINT           -2
+  //#define Z_AFTER_PROBING              5 //Disabled for testing.
+  //#define Z_AFTER_HOMING               5 //Disabled. Makes setting offset harder.
+  #define Z_PROBE_LOW_POINT           -3
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
   #endif
@@ -208,6 +280,11 @@
     #define Z_MIN_PROBE_ENDSTOP_INVERTING false
     #undef Z_MIN_ENDSTOP_INVERTING
     #define Z_MIN_ENDSTOP_INVERTING false
+  #elif ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)
+    #undef Z_MIN_PROBE_ENDSTOP_INVERTING
+    #define Z_MIN_PROBE_ENDSTOP_INVERTING false
+    #undef Z_MIN_ENDSTOP_INVERTING
+    #define Z_MIN_ENDSTOP_INVERTING false
   #else                // EZABL uses true
     #undef Z_MIN_PROBE_ENDSTOP_INVERTING
     #define Z_MIN_PROBE_ENDSTOP_INVERTING true
@@ -233,6 +310,8 @@
     #define CUSTOM_MACHINE_NAME "TH3D EZABL"
   #elif ENABLED(EZOUT_ENABLE)
     #define CUSTOM_MACHINE_NAME "TH3D EZOut"
+  #elif ENABLED(CR10S_PRO_STOCK_ABL) && ENABLED(CR10S_PRO)
+    #define CUSTOM_MACHINE_NAME "CR-10S Pro"
   #else
     #define CUSTOM_MACHINE_NAME SHORT_BUILD_VERSION
   #endif
@@ -266,9 +345,9 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if BOTH(EZABL_SUPERFASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#if ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (15*60)
-#elif BOTH(EZABL_FASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#elif ENABLED(EZABL_FASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define HOMING_FEEDRATE_Z  (8*60)
 #else
   #define HOMING_FEEDRATE_Z  (4*60)
@@ -283,7 +362,7 @@
   #define Z_CLEARANCE_MULTI_PROBE    8
   #define ENDSTOPPULLUP_ZMIN
   #define ENDSTOPPULLUP_ZMIN_PROBE
-#elif BOTH(EZABL_SUPERFASTPROBE, ABL_ENABLE) && DISABLED(BLTOUCH)
+#elif ENABLED(EZABL_SUPERFASTPROBE) && ENABLED(ABL_ENABLE) && DISABLED(BLTOUCH)
   #define Z_CLEARANCE_DEPLOY_PROBE   1
   #define Z_CLEARANCE_BETWEEN_PROBES 2
   #define Z_CLEARANCE_MULTI_PROBE    1
@@ -389,7 +468,7 @@
   #define RESTORE_LEVELING_AFTER_G28
   #define MESH_EDIT_Z_STEP  0.025
   #define LCD_PROBE_Z_RANGE 4
-  #define MESH_INSET 25
+  #define MESH_INSET EZABL_PROBE_EDGE
 
   #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X

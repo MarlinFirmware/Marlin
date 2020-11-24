@@ -426,6 +426,18 @@
   #endif
 #endif
 
+#if ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4)
+  #define USE_CONTROLLER_FAN
+  #define CONTROLLER_FAN_PIN           5
+  #define CONTROLLERFAN_IDLE_TIME     60
+  #define CONTROLLERFAN_SPEED_MIN      0
+  #define CONTROLLERFAN_SPEED_ACTIVE 255
+  #define CONTROLLER_FAN_EDITABLE
+  #if ENABLED(CONTROLLER_FAN_EDITABLE)
+    #define CONTROLLER_FAN_MENU
+  #endif
+#endif
+
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
@@ -490,7 +502,7 @@
  * Multiple extruders can be assigned to the same pin in which case
  * the fan will turn on when any selected extruder is above the threshold.
  */
-#if ENABLED(SIDEWINDER_X1)
+#if ENABLED(SIDEWINDER_X1) || (ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4))
   #define E0_AUTO_FAN_PIN 7
 #else
   #define E0_AUTO_FAN_PIN -1
@@ -1100,9 +1112,9 @@
 
   // Add Probe Z Offset calibration to the Z Probe Offsets menu
   #if HAS_BED_PROBE
-    //#define PROBE_OFFSET_WIZARD
+    #define PROBE_OFFSET_WIZARD
     #if ENABLED(PROBE_OFFSET_WIZARD)
-      #define PROBE_OFFSET_START -4.0   // Estimated nozzle-to-probe Z offset, plus a little extra
+      #define PROBE_OFFSET_START -5.0   // Estimated nozzle-to-probe Z offset, plus a little extra
     #endif
   #endif
 

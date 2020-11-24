@@ -25,7 +25,7 @@
 // Uncomment what SKR E3 Mini Board Version you are using
 //#define SKR_E3_MINI_V1
 //#define SKR_E3_MINI_V1_2
-#define SKR_E3_MINI_V2_0
+//#define SKR_E3_MINI_V2_0
 
 // EZOut Filament Sensor
 // This board only works with this version of our sensor kit: https://www.th3dstudio.com/product/ezout-filament-sensor-kit-standard/
@@ -53,8 +53,7 @@
 //#define ENDER_XTENDER_400XL
 //#define ENDER_XTENDER_XL
 
-// Ender 5 Specific Options
-
+// Ender 5 - Leadscrew Setting
 // If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
 //#define ENDER5_NEW_LEADSCREW
 
@@ -70,7 +69,7 @@
 // Default is 3 which gives you 3x3 grid for a total of 9 points. STICK WITH ODD NUMBERS
 #define EZABL_POINTS 3
 
-// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below
+// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below. This also sets the edge inset value for MANUAL_MESH_LEVELING.
 // Most Machines - 35
 // Binder Clips? - 50
 #define EZABL_PROBE_EDGE 35
@@ -226,7 +225,7 @@
 //#define SERVO0_PIN PA1
 
 // MANUAL MESH LEVELING ----------------------------
-// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
+// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe. To change the mesh inset value change the EZABL_PROBE_EDGE setting above.
 // Mesh Bed Leveling Documentation: http://marlinfw.org/docs/gcode/G029-mbl.html 
 // NOTE: If you want to automate the leveling process our EZABL kits do this for you. Check them out here: http://EZABL.TH3DStudio.com
 //#define MANUAL_MESH_LEVELING

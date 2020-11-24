@@ -1,3 +1,4 @@
+
 /**
  * For directions on how to use this firmware visit http://uf2.th3dstudio.com
  * THIS VERSION IS NOT FOR PRODUCTION USE AT THIS TIME AND ONLY AVAILABLE FOR TESTING PURPOSES
@@ -15,24 +16,97 @@
 //===========================================================================
 // ****************   ARTILLERY PRINTERS 2560 CPU BOARD   *******************
 //===========================================================================
+//#define ARTILLERY_AL4
 //#define SIDEWINDER_X1
 
 // EZABL Probe Mounts
 //#define SIDEWINDER_X1_OEM
+// The AL4 Printer Carriage is 100% compatible with the Creality printer mounts.
+//#define CR10_OEM
+//#define CR10_VOLCANO
+//#define CR10_V6HEAVYDUTY
+//#define TM3DAERO
+//#define TM3DAERO_EXTENDED
+//#define PETSFANG  //This is the RIGHT mounted version - if using the left mount please use the CUSTOM_PROBE option.
+//#define EZ300_OEM_MOUNT //Enabling this will set other options for the EZ300 Prototype Printer
 //#define CUSTOM_PROBE
 
+// Sidewinder X1 Notes
 // NOTE: The Sidewinder X1 is ONLY compatible with our firmware once you have installed the LCD conversion kit
 // the stock LCD is not supported due to closed source firmware limitations on it.
 // You can get the LCD conversion kit here: https://www.th3dstudio.com/product/evonvo-artillery-sidewinder-x1-lcd-conversion-kit/
 
+// Artillery AL4 Options --------------------------------------------------------
+// If you swapped the X, Y, or Z drivers with the TMC2208s you may need to reverse your axis. Uncomment the line for each axis that needs reversing.
+// Enabling these options will also set the driver delays/modes to the TMC2208_STANDALONE mode for whatever axis you uncomment it for.
+//#define ARTILLERY_AL4_X_AXIS_TMC2208
+//#define ARTILLERY_AL4_Y_AXIS_TMC2208
+//#define ARTILLERY_AL4_Z_AXIS_TMC2208
+
+// Filament Sensor - EZOut Kit
+// If you are using our EZOut filament sensor kit on your machine uncomment the below line.
+//#define EZOUT_ENABLE
+
 //===========================================================================
 // *****************   CREALITY PRINTERS 2560 CPU BOARD   *******************
 //===========================================================================
+//#define CR10S
+//#define CR10S_MINI
+//#define CR10S_S4
+//#define CR10S_S5
 //#define CR10_V2
+//#define CR10S_PRO
+//#define CR20 
+//#define CRX
+//#define ENDER5_PLUS
+
+// NOTE: Ender 5 Plus, CR-10S Pro, and CRX ONLY work once you have installed our LCD kit. Stock LCD is not supported due to closed source firmware limitations.
+// Ender 5 Plus LCD Kit: https://www.th3dstudio.com/product/ender-5-plus-12864-lcd-upgrade-kit/
+// CRX LCD Kit: https://www.th3dstudio.com/product/cr-x-12864-lcd-upgrade-kit/
+// CR-10S Pro LCD Kit: https://www.th3dstudio.com/product/cr-10s-pro-lcd-ezabl-upgrade-kit/
 
 // EZABL Probe Mounts
+//#define CR10S_OEM
+//#define CR10S_PRO_OEM
 //#define CR10V2_OEM
+//#define CR20_OEM
+//#define ENDER5_PLUS_OEM
+//#define CR10_VOLCANO
+//#define CR10_V6HEAVYDUTY
+//#define TM3DAERO
+//#define TM3DAERO_EXTENDED
+//#define PETSFANG  //This is the RIGHT mounted version - if using the left mount please use the CUSTOM_PROBE option.
 //#define CUSTOM_PROBE
+
+// Filament Sensor - EZOut Kit
+// If you are using our EZOut filament sensor kit on your machine uncomment the below line.
+// For dual extrusion machines the firmware assumes you have a sensor for each extruder
+//#define EZOUT_ENABLE
+
+// Filament Sensor - Disable
+// If you are having issues with the stock Creality filament sensor (or do not have one) you can disable it with the below feature
+//#define DISABLE_FILAMENT_SENSOR
+
+// LCD - Use this to use the CR-10 LCD with the CR-10S Board. Rotate the LCD plug 180
+// and plug into EXP1. You will have to force it in but it will fit and work.
+//#define CR10LCD_CR10S
+
+// Creality 2560 Silent Board
+// If you are using the 2560 based "Silent" board with TMC drivers enable the below setting
+//#define CREALITY_SILENT_BOARD
+
+// CR-10S Pro - If you are using the stock Creality ABL probe on the CR-10S Pro uncomment the below line
+//#define CR10S_PRO_STOCK_ABL
+
+// Ender 5 Plus - ABL Settings
+// By default the Ender 5 Plus comes with a BL Touch. Enabling the ENDER5_PLUS_EZABL or ENDER5_PLUS_NOABL will override the BL Touch setting
+// If you are using the stock BL Touch with a non-stock mount enable the CUSTOM_PROBE line above and enter the offsets below for the new mount.
+//#define ENDER5_PLUS_EZABL
+//#define ENDER5_PLUS_NOABL
+
+// Ender 5 - Leadscrew Setting
+// If you have the new Ender 5/5 Pro Model that has the new 800steps/mm Z leadscrew uncomment the below option to set the correct steps/mm
+//#define ENDER5_NEW_LEADSCREW
 
 //===========================================================================
 // *************************  END PRINTER SECTION   *************************
@@ -46,7 +120,7 @@
 // Default is 3 which gives you 3x3 grid for a total of 9 points. STICK WITH ODD NUMBERS
 #define EZABL_POINTS 3
 
-// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below
+// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below. This also sets the edge inset value for MANUAL_MESH_LEVELING.
 // Most Machines - 35
 // Binder Clips? - 50
 #define EZABL_PROBE_EDGE 35
@@ -197,7 +271,7 @@
 //#define SERVO0_PIN 11
 
 // MANUAL MESH LEVELING ----------------------------
-// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
+// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe. To change the mesh inset value change the EZABL_PROBE_EDGE setting above.
 // Mesh Bed Leveling Documentation: http://marlinfw.org/docs/gcode/G029-mbl.html 
 // NOTE: If you want to automate the leveling process our EZABL kits do this for you. Check them out here: http://EZABL.TH3DStudio.com
 //#define MANUAL_MESH_LEVELING
@@ -223,34 +297,79 @@
  */
 
  // Sidewinder X1 Settings
-#if ENABLED(SIDEWINDER_X1)
+#if ENABLED(SIDEWINDER_X1) || ENABLED(ARTILLERY_AL4)
+  #if ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4)
+    #define ARTILLERY_AL4_X_AXIS_TMC2208
+    #define ARTILLERY_AL4_Y_AXIS_TMC2208
+    #define EZOUT_ENABLE
+    #define CUSTOM_ESTEPS
+    #define CUSTOM_ESTEPS_VALUE 463
+    #define REVERSE_E_MOTOR_DIRECTION
+    #define CUSTOM_PRINTER_NAME
+    #define USER_PRINTER_NAME "TH3D EZ300"
+  #endif
+
   #define SERIAL_PORT 0
   #define SPACE_SAVER_2560
 
   #define STOCK_MKS_PRINTER
   #define DIRECT_DRIVE_PRINTER
 
-  #define RGB_LIGHTS
-  #define RGB_LED
-  #define RGB_LED_R_PIN 5
-  #define RGB_LED_G_PIN 4
-  #define RGB_LED_B_PIN 6
-  #define PRINTER_EVENT_LEDS
+  #if ENABLED(SIDEWINDER_X1)
+    #define RGB_LIGHTS
+    #define RGB_LED
+    #define RGB_LED_R_PIN 5
+    #define RGB_LED_G_PIN 4
+    #define RGB_LED_B_PIN 6
+    #define PRINTER_EVENT_LEDS
+  #endif
+
+  #if ENABLED(EZ300_OEM_MOUNT) && ENABLED(ARTILLERY_AL4)
+    #define RGB_LIGHTS
+    #define NEOPIXEL_LED
+    #define NEOPIXEL_TYPE   NEO_GRB
+    #define NEOPIXEL_PIN    19
+    #define NEOPIXEL_PIXELS 3
+    #define NEOPIXEL_IS_SEQUENTIAL
+    #define NEOPIXEL_BRIGHTNESS 255
+    #define PRINTER_EVENT_LEDS
+  #endif
 
   #define BAUDRATE 250000
   
-  #define MKS_MINI_12864
+  #if ENABLED(SIDEWINDER_X1)
+    #define MKS_MINI_12864
+  #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #define ENCODER_PULSES_PER_STEP 4
+    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #define REVERSE_ENCODER_DIRECTION
+  #endif
+
   #define DEFAULT_LCD_CONTRAST 150
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_MKS_GEN_L
   #endif
 
-  #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
-  #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 463 }
+  #if ENABLED(SIDEWINDER_X1)
+    #if ENABLED(CUSTOM_ESTEPS)
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+    #else
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 463 }
+    #endif
   #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #if ENABLED(CUSTOM_ESTEPS)
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, CUSTOM_ESTEPS_VALUE }
+    #else
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 400, 95 }
+    #endif
+  #endif
+
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
   #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 1000, 5000 }
 
@@ -271,7 +390,11 @@
 
   #define X_BED_SIZE 300
   #define Y_BED_SIZE 300
-  #define Z_MAX_POS 400
+  #if ENABLED(ARTILLERY_AL4)
+    #define Z_MAX_POS 300
+  #else
+    #define Z_MAX_POS 400
+  #endif
   
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_ADJUST_LOCATION
@@ -339,11 +462,34 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING true
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE TMC2130_STANDALONE
-  #define Y_DRIVER_TYPE TMC2130_STANDALONE
-  #define Z_DRIVER_TYPE TMC2130_STANDALONE
-  #define E0_DRIVER_TYPE TMC2130_STANDALONE
-  
+  #if ENABLED(SIDEWINDER_X1)
+    #define X_DRIVER_TYPE TMC2130_STANDALONE
+    #define Y_DRIVER_TYPE TMC2130_STANDALONE
+    #define Z_DRIVER_TYPE TMC2130_STANDALONE
+    #define E0_DRIVER_TYPE TMC2130_STANDALONE
+  #endif
+
+  #if ENABLED(ARTILLERY_AL4)
+    #if ENABLED(ARTILLERY_AL4_X_AXIS_TMC2208)
+      #define X_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define X_DRIVER_TYPE  A4988
+    #endif
+    
+    #if ENABLED(ARTILLERY_AL4_Y_AXIS_TMC2208)
+      #define Y_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define Y_DRIVER_TYPE  A4988
+    #endif
+    
+    #if ENABLED(ARTILLERY_AL4_Z_AXIS_TMC2208)
+      #define Z_DRIVER_TYPE  TMC2208_STANDALONE
+    #else
+      #define Z_DRIVER_TYPE  A4988
+    #endif
+    #define E0_DRIVER_TYPE A4988
+  #endif
+    
   #define ENDSTOP_INTERRUPTS_FEATURE
 
   #define X_ENABLE_ON 0
@@ -351,10 +497,23 @@
   #define Z_ENABLE_ON 0
   #define E_ENABLE_ON 0
 
-  #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
+  #if ENABLED(ARTILLERY_AL4_X_AXIS_TMC2208)
+    #define INVERT_X_DIR true
+  #else
+    #define INVERT_X_DIR false
+  #endif
   
-  #define INVERT_Z_DIR true
+  #if ENABLED(ARTILLERY_AL4_Y_AXIS_TMC2208)
+    #define INVERT_Y_DIR true
+  #else
+    #define INVERT_Y_DIR false
+  #endif
+  
+  #if ENABLED(ARTILLERY_AL4_Z_AXIS_TMC2208)
+    #define INVERT_Z_DIR false
+  #else
+    #define INVERT_Z_DIR true
+  #endif
   
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
     #define INVERT_E0_DIR true
@@ -373,7 +532,10 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
-  #define FILAMENT_RUNOUT_SENSOR
+  #if ENABLED(SIDEWINDER_X1) || ENABLED(EZOUT_ENABLE)
+    #define FILAMENT_RUNOUT_SENSOR
+  #endif
+
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
     #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
@@ -402,52 +564,157 @@
 #endif
 // End Sidewinder X1 Settings 
 
-// CR-10 V2 Settings
-#if ENABLED(CR10_V2)
+// Creality 2560 Printer Settings
+#if ENABLED(CR10S) || ENABLED(CR10_V2) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5) || ENABLED(ENDER3_DUALBOARD) || ENABLED(CR20) || ENABLED(ENDER5_DUALBOARD) || ENABLED(CRX) || ENABLED(CR10S_PRO) || ENABLED(CRX) || ENABLED(ENDER5_PLUS)
+
+  #if ENABLED(ENDER5_PLUS)
+    #if DISABLED(ENDER5_PLUS_NOABL) && DISABLED(ENDER5_PLUS_EZABL)
+      #define BLTOUCH
+      #define SERVO0_PIN 11
+      #if DISABLED(CUSTOM_PROBE)
+        #define NOZZLE_TO_PROBE_OFFSET { -44, -9, 0 }
+      #endif
+    #endif  
+    #if DISABLED(ENDER5_PLUS_NOABL)
+      #define ABL_ENABLE
+    #endif
+  #endif
+
+  #if ENABLED(ENDER5_NEW_LEADSCREW) || ENABLED(ENDER5_PLUS)
+    #define CREALITY_Z_STEPS 800
+  #else
+    #define CREALITY_Z_STEPS 400
+  #endif
+
   #define SERIAL_PORT 0
   #define SPACE_SAVER_2560
 
   #define BAUDRATE 115200
   
-  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #if ENABLED(CR10LCD_CR10S) || ENABLED(ENDER3_DUALBOARD) || ENABLED(ENDER5_DUALBOARD)
+    #define CR10_STOCKDISPLAY
+  #elif ENABLED(CR20)
+    #define MINIPANEL
+  #else
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #if ENABLED(CRX) || ENABLED(CR10S_PRO) || ENABLED(ENDER5_PLUS)
+      #define REVERSE_ENCODER_DIRECTION
+    #endif
+  #endif
 
   #ifndef MOTHERBOARD
     #define MOTHERBOARD BOARD_RAMPS_CREALITY
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, CUSTOM_ESTEPS_VALUE }
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, CUSTOM_ESTEPS_VALUE }
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 400, 95 }
+    #if ENABLED(CR10S_PRO)
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 140 }
+    #else
+      #define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, CREALITY_Z_STEPS, 95 }
+    #endif
   #endif
   #define DEFAULT_MAX_FEEDRATE          { 500, 500, 15, 50 }
-  #define DEFAULT_MAX_ACCELERATION      { 500, 500, 100, 1000 }
+  #define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 1000, 5000 }
 
-  #define DEFAULT_ACCELERATION          500
-  #define DEFAULT_RETRACT_ACCELERATION  500
+  #define DEFAULT_ACCELERATION          1000
+  #define DEFAULT_RETRACT_ACCELERATION  1000
   #define DEFAULT_TRAVEL_ACCELERATION   1000
 
   #define CLASSIC_JERK
   #if ENABLED(CLASSIC_JERK)
-    #define DEFAULT_XJERK 10.0
-    #define DEFAULT_YJERK 10.0
+    #if ENABLED(CR10S_S4) || ENABLED(CR10S_S5)
+      #define DEFAULT_XJERK 5.0
+      #define DEFAULT_YJERK 5.0
+    #else
+      #define DEFAULT_XJERK 7.0
+      #define DEFAULT_YJERK 7.0
+    #endif
     #define DEFAULT_ZJERK  0.3
   #endif
 
   #define DEFAULT_EJERK    5.0
 
-  #define EXTRUDERS 1
+  #if ENABLED(CRX) || ENABLED(ENDER5_DUALBOARD) || ENABLED(ENDER3_DUALBOARD)
+    #define EXTRUDERS 2
+  #else
+    #define EXTRUDERS 1
+  #endif
 
-  #define X_BED_SIZE 300
-  #define Y_BED_SIZE 300
-  #define Z_MAX_POS 400
+  #if ENABLED(CR10S) || ENABLED(CRX) || ENABLED(CR10_V2) || ENABLED(CR10S_PRO)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 300
+    #define Z_MAX_POS 400
+  #endif
+
+  #if ENABLED(CR10S_MINI)
+    #define X_BED_SIZE 300
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+  #endif
+
+  #if ENABLED(CR10S_S4)
+    #define X_BED_SIZE 400
+    #define Y_BED_SIZE 400
+    #define Z_MAX_POS 400
+  #endif
+
+  #if ENABLED(CR10S_S5)
+    #define X_BED_SIZE 500
+    #define Y_BED_SIZE 500
+    #define Z_MAX_POS 500
+  #endif
   
+  #if ENABLED(CR20)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 250
+  #endif
+
+  #if ENABLED(ENDER5_PLUS)
+    #define X_BED_SIZE 350
+    #define Y_BED_SIZE 350
+    #define Z_MAX_POS 400
+  #endif
+
+  #if ENABLED(ENDER3_DUALBOARD)
+		#if ENABLED(ENDER_XTENDER_400)
+			#define X_BED_SIZE 400
+			#define Y_BED_SIZE 400
+			#define Z_MAX_POS 250
+		#elif ENABLED(ENDER_XTENDER_400XL)
+			#define X_BED_SIZE 400
+			#define Y_BED_SIZE 400
+			#define Z_MAX_POS 500
+		#elif ENABLED(ENDER_XTENDER_XL)
+			#define X_BED_SIZE 235
+			#define Y_BED_SIZE 235
+			#define Z_MAX_POS 500
+		#else
+			#define X_BED_SIZE 235
+			#define Y_BED_SIZE 235
+			#define Z_MAX_POS 250
+		#endif
+  #endif
+  
+  #if ENABLED(ENDER5_DUALBOARD)
+    #define X_BED_SIZE 220
+    #define Y_BED_SIZE 220
+    #define Z_MAX_POS 300
+  #endif
+
   #if ENABLED(HOME_ADJUST)
     #define X_MIN_POS X_HOME_ADJUST_LOCATION
     #define Y_MIN_POS Y_HOME_ADJUST_LOCATION
   #else
-    #define X_MIN_POS 0
-    #define Y_MIN_POS 0
+    #if ENABLED(CRX)
+      #define X_MIN_POS 0
+      #define Y_MIN_POS -8
+    #else
+      #define X_MIN_POS 0
+      #define Y_MIN_POS 0
+    #endif
   #endif
 
   #define USE_XMIN_PLUG
@@ -457,6 +724,10 @@
   #define X_HOME_DIR -1
   #define Y_HOME_DIR -1
   #define Z_HOME_DIR -1
+
+  #if ENABLED(CRX)
+    #define SINGLENOZZLE
+  #endif
   
   #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
     #define TEMP_SENSOR_0 1
@@ -508,10 +779,17 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #define X_DRIVER_TYPE TMC2208_STANDALONE
-  #define Y_DRIVER_TYPE TMC2208_STANDALONE
-  #define Z_DRIVER_TYPE TMC2208_STANDALONE
-  #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #if ENABLED(CR10_V2) || ENABLED(CREALITY_SILENT_BOARD) || ENABLED(CR10S_PRO)
+    #define X_DRIVER_TYPE TMC2208_STANDALONE
+    #define Y_DRIVER_TYPE TMC2208_STANDALONE
+    #define Z_DRIVER_TYPE TMC2208_STANDALONE
+    #define E0_DRIVER_TYPE TMC2208_STANDALONE
+  #else
+    #define X_DRIVER_TYPE A4988
+    #define Y_DRIVER_TYPE A4988
+    #define Z_DRIVER_TYPE A4988
+    #define E0_DRIVER_TYPE A4988
+  #endif
   
   #define ENDSTOP_INTERRUPTS_FEATURE
 
@@ -521,9 +799,18 @@
   #define E_ENABLE_ON 0
 
   #define INVERT_X_DIR false
-  #define INVERT_Y_DIR false
   
-  #define INVERT_Z_DIR true
+  #if ENABLED(CRX) || ENABLED(CR10S_PRO)
+    #define INVERT_Y_DIR true
+  #else
+    #define INVERT_Y_DIR false
+  #endif
+  
+  #if ENABLED(ENDER5_DUALBOARD) || ENABLED(ENDER5_PLUS)
+    #define INVERT_Z_DIR false
+  #else
+    #define INVERT_Z_DIR true
+  #endif
   
   #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
     #define INVERT_E0_DIR true
@@ -531,7 +818,20 @@
     #define INVERT_E0_DIR false
   #endif
   
-  #define INVERT_E1_DIR false
+  #if ENABLED(CRX)
+    #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+      #define INVERT_E1_DIR false
+    #else
+      #define INVERT_E1_DIR true
+    #endif
+  #else
+    #if ENABLED(REVERSE_E_MOTOR_DIRECTION)
+      #define INVERT_E1_DIR true
+    #else
+      #define INVERT_E1_DIR false
+    #endif
+  #endif
+
   #define INVERT_E2_DIR false
   #define INVERT_E3_DIR false
   #define INVERT_E4_DIR false
@@ -542,14 +842,33 @@
   #define ENCODER_PULSES_PER_STEP 4
   #define ENCODER_STEPS_PER_MENU_ITEM 1
 
-  #define FILAMENT_RUNOUT_SENSOR
+  #if DISABLED(DISABLE_FILAMENT_SENSOR)
+    #if ENABLED(CRX) && DISABLED(EZOUT_ENABLE)
+      // do nothing
+    #elif ENABLED(CR20) && DISABLED(EZOUT_ENABLE)
+      // do nothing
+    #else
+      #define FILAMENT_RUNOUT_SENSOR
+    #endif
+  #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     #define FIL_RUNOUT_ENABLED_DEFAULT true // Enable the sensor on startup. Override with M412 followed by M500.
-    #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
-    #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+    
+    #if ENABLED(CRX)
+      #define NUM_RUNOUT_SENSORS   2          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #else
+      #define NUM_RUNOUT_SENSORS   1          // Number of sensors, up to one per extruder. Define a FIL_RUNOUT#_PIN for each.
+    #endif
+    
+    #if (ENABLED(CR10S) || ENABLED(CR10S_MINI) || ENABLED(CR10S_S4) || ENABLED(CR10S_S5)) && DISABLED(EZOUT_ENABLE)
+      #define FIL_RUNOUT_STATE     HIGH        // Pin state indicating that filament is NOT present.
+    #else
+      #define FIL_RUNOUT_STATE     LOW        // Pin state indicating that filament is NOT present.
+    #endif
+
     #define FIL_RUNOUT_PULLUP               // Use internal pullup for filament runout pins.
     //#define FIL_RUNOUT_PULLDOWN           // Use internal pulldown for filament runout pins.
-    #define FIL_RUNOUT_PIN 2                // Creality CR10 V2 stock sensor
+    #define FIL_RUNOUT_PIN 2                // Creality CR10 V2/CR10S Series stock sensor
 
     // Set one or more commands to execute on filament runout.
     // (After 'M412 H' Marlin will ask the host to handle the process.)
