@@ -17,14 +17,14 @@
 //===========================================================================
 // Uncomment the define line for what board you have (V4.2.2 or V4.2.7)
 //===========================================================================
-//#define ENDER3_V422_BOARD //Ender 3 with V4.2.2 Board
-//#define ENDER3_V427_BOARD //Ender 3 with V4.2.7 Board
-//#define ENDER3_V2 //Only has the V4.2.2 Board
-//#define ENDER5_V422_BOARD //Ender 5 with V4.2.2 Board
-//#define ENDER5_V427_BOARD //Ender 5 with V4.2.7 Board
+//#define ENDER3_V422_BOARD    //Ender 3 with V4.2.2 Board
+//#define ENDER3_V427_BOARD    //Ender 3 with V4.2.7 Board
 
-// If your V4.2.2 board has TMC2208 (silent) drivers on it uncomment the below line
-//#define V422_TMC2208_BOARD
+//#define ENDER3_V2_V422_BOARD //Ender 3 V2 with V4.2.2 Board
+//#define ENDER3_V2_V427_BOARD //Ender 3 V2 with V4.2.7 Board
+
+//#define ENDER5_V422_BOARD    //Ender 5 with V4.2.2 Board
+//#define ENDER5_V427_BOARD    //Ender 5 with V4.2.7 Board
 
 // If you are using our EZOut V1/V2 (connected to LCD header) filament sensor kit please follow the install guide
 // and then uncomment the #define EZOUT_ENABLE line below.
@@ -62,7 +62,7 @@
 // Default is 3 which gives you 3x3 grid for a total of 9 points. STICK WITH ODD NUMBERS
 #define EZABL_POINTS 3
 
-// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below. This also sets the edge inset value for MANUAL_MESH_LEVELING.
+// If you want to change how far in or out the probe senses change EZABL_PROBE_EDGE value below
 // Most Machines - 35
 // Binder Clips? - 50
 #define EZABL_PROBE_EDGE 35
@@ -214,7 +214,7 @@
 //#define SERVO0_PIN PB0
 
 // MANUAL MESH LEVELING ----------------------------
-// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe. To change the mesh inset value change the EZABL_PROBE_EDGE setting above.
+// If you want to use manual mesh leveling you can enable the below option. This is for generating a MANUAL mesh WITHOUT a probe.
 // Mesh Bed Leveling Documentation: http://marlinfw.org/docs/gcode/G029-mbl.html 
 // NOTE: If you want to automate the leveling process our EZABL kits do this for you. Check them out here: http://EZABL.TH3DStudio.com
 //#define MANUAL_MESH_LEVELING
@@ -409,7 +409,7 @@
   #define Z_MIN_PROBE_ENDSTOP_INVERTING false
   #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
 
-  #if ENABLED(V422_TMC2208_BOARD) || ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
+  #if ENABLED(ENDER3_V427_BOARD) || ENABLED(ENDER5_V427_BOARD)
     #define X_DRIVER_TYPE TMC2208_STANDALONE
     #define Y_DRIVER_TYPE TMC2208_STANDALONE
     #define Z_DRIVER_TYPE TMC2208_STANDALONE
@@ -487,18 +487,24 @@
 // End Ender 3/5 V422 Board Settings
  
 // Ender 3 V2 Settings
-#if ENABLED(ENDER3_V2)
+#if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V427_BOARD)
   #define SERIAL_PORT 1
   #define SERIAL_PORT_2 3
   
-  #if ENABLED(ENDER3_V2) && ENABLED(MANUAL_MESH_LEVELING)
+  #if ENABLED(MANUAL_MESH_LEVELING)
     #error "Due to closed source LCD firmware, Manual Mesh Leveling is not available on the Ender 3 V2."
   #endif
 
   #define BAUDRATE 115200
 
-  #ifndef MOTHERBOARD
-    #define MOTHERBOARD BOARD_CREALITY_V4
+  #if ENABLED(ENDER3_V2_V422_BOARD) || ENABLED(ENDER3_V2_V422_BOARD)
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_CREALITY_V4
+    #endif
+  #else
+    #ifndef MOTHERBOARD
+      #define MOTHERBOARD BOARD_CREALITY_V427
+    #endif
   #endif
 
   #if ENABLED(CUSTOM_ESTEPS)
