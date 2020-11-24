@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xyz_pos_t &Probe::offset_xy = Probe::offset;
+  const xy_pos_t &Probe::offset_xy = xy_pos_t(Probe::offset);
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
