@@ -93,7 +93,7 @@ void probe_offset_wizard_menu() {
 
     // Set Z to 0, as we can expect
     current_position.z = 0;
-    planner.sync_plan_position();
+    sync_plan_position();
 
     // Raise Z as if it was homed
     do_z_clearance(0
@@ -111,7 +111,7 @@ void probe_offset_wizard_menu() {
     // If wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe.
     // Set Z to 0 (if higher than 0) to be sure for G28 clearance and rehome Z with backed up offset.
     #if defined(PROBE_OFFSET_WIZARD_START_Z) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-      if(current_position.z > 0) { current_position.z = 0; planner.sync_plan_position();; }
+      if(current_position.z > 0) { current_position.z = 0; sync_plan_position();; }
       queue.inject_P(PSTR("G28Z"));
 
     // Otherwise do a Z clearance move like after Homing
