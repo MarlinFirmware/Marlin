@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 #restore_configs
-#exec_test $1 $2 "Default Configuration"
+#exec_test $1 $2 "Default Configuration" "$3"
 
 #
 # Test a probeless build of AUTO_BED_LEVELING_UBL, with lots of extruders
@@ -91,14 +91,14 @@ opt_enable ZONESTAR_LCD Z_PROBE_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_
            AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT M114_DETAIL \
            NO_VOLUMETRICS EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES AUTOTEMP G38_PROBE_TARGET JOYSTICK \
            DIRECT_STEPPING DETECT_BROKEN_ENDSTOP \
-           FILAMENT_RUNOUT_SENSOR NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE Z_SAFE_HOMING FIL_RUNOUT3_PULL
+           FILAMENT_RUNOUT_SENSOR NOZZLE_PARK_FEATURE ADVANCED_PAUSE_FEATURE Z_SAFE_HOMING FIL_RUNOUT3_PULLUP
 opt_set NUM_RUNOUT_SENSORS 5
 opt_set FIL_RUNOUT2_PIN 44
 opt_set FIL_RUNOUT3_PIN 45
 opt_set FIL_RUNOUT3_STATE HIGH
 opt_set FIL_RUNOUT4_PIN 46
 opt_set FIL_RUNOUT5_PIN 47
-exec_test $1 $2 "Multiple runout sensors (x5) | Distinct runout states"
+exec_test $1 $2 "Multiple runout sensors (x5) | Distinct runout states" "$3"
 
 #
 # Test MINIRAMBO with PWM_MOTOR_CURRENT and many features
@@ -148,7 +148,7 @@ exec_test $1 $2 "Azteeg X3 | Mixing Extruder (x5) | Gradient Mix | Greek" "$3"
 #
 #restore_configs
 #opt_enable COREXY
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 #
 # Test many less common options
@@ -181,27 +181,27 @@ exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home
 #
 #restore_configs
 #opt_enable ULTRA_LCD
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # DOGLCD
 #
 #restore_configs
 #opt_enable DOGLCD
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # MAKRPANEL
 # Needs to use Melzi and Sanguino hardware
 #
 #restore_configs
 #opt_enable MAKRPANEL
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, BABYSTEPPING, RIGIDBOARD_V2, and DAC_MOTOR_CURRENT_DEFAULT
 #
 #restore_configs
 #opt_set MOTHERBOARD BOARD_RIGIDBOARD_V2
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING DAC_MOTOR_CURRENT_DEFAULT
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 # #
 # G3D_PANEL with SDCARD_SORT_ALPHA and STATUS_MESSAGE_SCROLLING
 #
@@ -211,20 +211,20 @@ exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home
 #opt_set SDSORT_USES_RAM true
 #opt_set SDSORT_USES_STACK true
 #opt_set SDSORT_CACHE_NAMES true
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # REPRAPWORLD_KEYPAD
 #
 # Cant find configuration details to get it to compile
 #restore_configs
 #opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # RA_CONTROL_PANEL
 #
 #restore_configs
 #opt_enable RA_CONTROL_PANEL PINS_DEBUGGING
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 ######## I2C LCD/PANELS ##############
 #
@@ -236,49 +236,49 @@ exec_test $1 $2 "Mightyboard Rev. E | CoreXY, Gradient Mix | Endstop Int. | Home
 #
 #restore_configs
 #opt_enable LCD_SAINSMART_I2C_1602
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # LCD_I2C_PANELOLU2
 #
 #restore_configs
 #opt_enable LCD_I2C_PANELOLU2
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # LCD_I2C_VIKI
 #
 #restore_configs
 #opt_enable LCD_I2C_VIKI
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 #
 # LCM1602
 #
 #restore_configs
 #opt_enable LCM1602
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 #
 # Language files test with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 #
 #restore_configs
 #opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
-#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff"; done
+#for lang in an bg ca cz da de el el_gr en es eu fi fr gl hr hu it jp_kana nl pl pt pt_br ro ru sk tr uk vi zh_CN zh_TW test; do opt_set LCD_LANGUAGE $lang; echo "compile with language $lang ..."; exec_test $1 $2 "Stuff" "$3"; done
 
 ######## Example Configurations ##############
 #
 # Test a basic DUAL_X_CARRIAGE configuration
 #
 use_example_configs Formbot/T_Rex_3
-exec_test $1 $2 "Formbot/T_Rex_3 example configuration."
+exec_test $1 $2 "Formbot/T_Rex_3 example configuration." "$3"
 
 #
 # BQ Hephestos 2
 #restore_configs
 #use_example_configs Hephestos_2
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 #
 # Delta Config (generic) + UBL + ALLEN_KEY + EEPROM_SETTINGS + OLED_PANEL_TINYBOY2
@@ -308,7 +308,7 @@ exec_test $1 $2 "RAMPS 1.3 | DELTA | FLSUN AC Config" "$3"
 # Makibox Config  need to check board type for Teensy++ 2.0
 #
 #use_example_configs makibox
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 #
 # Test mixed TMC config
@@ -346,7 +346,7 @@ exec_test $1 $2 "RAMPS | SCARA | Mixed TMC | EEPROM" "$3"
 # tvrrug Config need to check board type for sanguino atmega644p
 #
 #use_example_configs tvrrug/Round2
-#exec_test $1 $2 "Stuff"
+#exec_test $1 $2 "Stuff" "$3"
 
 # clean up
 restore_configs

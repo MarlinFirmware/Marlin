@@ -120,43 +120,6 @@
   #endif
 #endif
 
-/**
- * CoreXY, CoreXZ, and CoreYZ - and their reverse
- */
-#if EITHER(COREXY, COREYX)
-  #define CORE_IS_XY 1
-#endif
-#if EITHER(COREXZ, COREZX)
-  #define CORE_IS_XZ 1
-#endif
-#if EITHER(COREYZ, COREZY)
-  #define CORE_IS_YZ 1
-#endif
-#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
-  #define IS_CORE 1
-#endif
-#if IS_CORE
-  #if CORE_IS_XY
-    #define CORE_AXIS_1 A_AXIS
-    #define CORE_AXIS_2 B_AXIS
-    #define NORMAL_AXIS Z_AXIS
-  #elif CORE_IS_XZ
-    #define CORE_AXIS_1 A_AXIS
-    #define NORMAL_AXIS Y_AXIS
-    #define CORE_AXIS_2 C_AXIS
-  #elif CORE_IS_YZ
-    #define NORMAL_AXIS X_AXIS
-    #define CORE_AXIS_1 B_AXIS
-    #define CORE_AXIS_2 C_AXIS
-  #endif
-  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
-#elif ENABLED(MARKFORGED_XY)
-  // Markforged kinematics
-  #define CORE_AXIS_1 A_AXIS
-  #define CORE_AXIS_2 B_AXIS
-  #define NORMAL_AXIS Z_AXIS
-#endif
-
 // Calibration codes only for non-core axes
 #if EITHER(BACKLASH_GCODE, CALIBRATION_GCODE)
   #if EITHER(IS_CORE, MARKFORGED_XY)
@@ -1811,12 +1774,19 @@
   #define HAS_TEMP_ADC_CHAMBER 1
 #endif
 
-#if HAS_HOTEND && ANY(HAS_TEMP_ADC_0, HEATER_0_USES_MAX6675, HEATER_0_DUMMY_THERMISTOR)
+#define HAS_TEMP(N) ANY(HAS_TEMP_ADC_##N, HEATER_##N##_USES_MAX6675, HEATER_##N##_DUMMY_THERMISTOR)
+#if HAS_HOTEND && HAS_TEMP(0)
   #define HAS_TEMP_HOTEND 1
 #endif
-#define HAS_TEMP_BED        HAS_TEMP_ADC_BED
-#define HAS_TEMP_PROBE      HAS_TEMP_ADC_PROBE
-#define HAS_TEMP_CHAMBER    HAS_TEMP_ADC_CHAMBER
+#if HAS_TEMP(BED)
+  #define HAS_TEMP_BED 1
+#endif
+#if HAS_TEMP(PROBE)
+  #define HAS_TEMP_PROBE 1
+#endif
+#if HAS_TEMP(CHAMBER)
+  #define HAS_TEMP_CHAMBER 1
+#endif
 
 #if ENABLED(JOYSTICK)
   #if PIN_EXISTS(JOY_X)
