@@ -373,9 +373,15 @@
     #define Y_MIN_POS 0
   #endif
 
-  #define USE_XMIN_PLUG
-  #define USE_YMIN_PLUG
-  #define USE_ZMIN_PLUG
+  #if ENABLED(ENDER5)
+    #define USE_XMAX_PLUG
+    #define USE_YMAX_PLUG
+    #define USE_ZMIN_PLUG
+  #else
+    #define USE_XMIN_PLUG
+    #define USE_YMIN_PLUG
+    #define USE_ZMIN_PLUG
+  #endif
 
   #if ENABLED(ENDER5)
     #define X_HOME_DIR 1
