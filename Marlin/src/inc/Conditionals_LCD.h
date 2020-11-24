@@ -26,16 +26,6 @@
  * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
-// Kinematics
-#if ENABLED(MORGAN_SCARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ENABLED(DELTA)
-  #define IS_KINEMATIC 1
-#else
-  #define IS_CARTESIAN 1
-#endif
-
 // MKS_LCD12864 is a variant of MKS_MINI_12864
 #if ENABLED(MKS_LCD12864)
   #define MKS_MINI_12864
@@ -482,6 +472,10 @@
   #endif
 #endif
 
+#if EITHER(HAS_DISPLAY, GLOBAL_STATUS_MESSAGE)
+  #define HAS_STATUS_MESSAGE 1
+#endif
+
 #if IS_ULTIPANEL && DISABLED(NO_LCD_MENUS)
   #define HAS_LCD_MENU 1
 #endif
@@ -494,6 +488,36 @@
     #define LCD_PIXEL_HEIGHT 64
   #endif
 #endif
+
+/**
+ *  Multi-Material-Unit supported models
+ */
+#define PRUSA_MMU1      1
+#define PRUSA_MMU2      2
+#define PRUSA_MMU2S     3
+#define SMUFF_EMU_MMU2  12
+#define SMUFF_EMU_MMU2S 13
+
+#ifdef MMU_MODEL
+  #define HAS_MMU 1
+  #if MMU_MODEL == PRUSA_MMU1
+    #define HAS_PRUSA_MMU1 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2
+    #define HAS_PRUSA_MMU2 1
+  #elif MMU_MODEL % 10 == PRUSA_MMU2S
+    #define HAS_PRUSA_MMU2 1
+    #define HAS_PRUSA_MMU2S 1
+  #endif
+  #if MMU_MODEL >= SMUFF_EMU_MMU2
+    #define HAS_SMUFF 1
+  #endif
+#endif
+
+#undef PRUSA_MMU1
+#undef PRUSA_MMU2
+#undef PRUSA_MMU2S
+#undef SMUFF_EMU_MMU2
+#undef SMUFF_EMU_MMU2S
 
 /**
  * Extruders have some combination of stepper motors and hotends
@@ -512,8 +536,6 @@
   #undef SWITCHING_EXTRUDER
   #undef SWITCHING_NOZZLE
   #undef MIXING_EXTRUDER
-  #undef MK2_MULTIPLEXER
-  #undef PRUSA_MMU2
   #undef HOTEND_IDLE_TIMEOUT
 #elif EXTRUDERS > 1
   #define HAS_MULTI_EXTRUDER 1
@@ -539,17 +561,17 @@
 #elif ENABLED(SWITCHING_TOOLHEAD)
   #define E_STEPPERS      EXTRUDERS
   #define E_MANUAL        EXTRUDERS
-#elif ENABLED(PRUSA_MMU2)
+#elif HAS_PRUSA_MMU2
   #define E_STEPPERS 1
 #endif
 
-// No inactive extruders with MK2_MULTIPLEXER or SWITCHING_NOZZLE
-#if EITHER(MK2_MULTIPLEXER, SWITCHING_NOZZLE)
+// No inactive extruders with SWITCHING_NOZZLE or Průša MMU1
+#if ENABLED(SWITCHING_NOZZLE) || HAS_PRUSA_MMU1
   #undef DISABLE_INACTIVE_EXTRUDER
 #endif
 
-// Průša MK2 Multiplexer and MMU 2.0 force SINGLENOZZLE
-#if EITHER(MK2_MULTIPLEXER, PRUSA_MMU2)
+// Průša MMU1, MMU 2.0, MMUS 2.0 and SMUFF force SINGLENOZZLE
+#if HAS_MMU
   #define SINGLENOZZLE
 #endif
 
@@ -680,64 +702,88 @@
     #ifndef FIL_RUNOUT1_STATE
       #define FIL_RUNOUT1_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT1_PULL
-      #define FIL_RUNOUT1_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT1_PULLUP
+      #define FIL_RUNOUT1_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT1_PULLDOWN
+      #define FIL_RUNOUT1_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 2
     #ifndef FIL_RUNOUT2_STATE
       #define FIL_RUNOUT2_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT2_PULL
-      #define FIL_RUNOUT2_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT2_PULLUP
+      #define FIL_RUNOUT2_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT2_PULLDOWN
+      #define FIL_RUNOUT2_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 3
     #ifndef FIL_RUNOUT3_STATE
       #define FIL_RUNOUT3_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT3_PULL
-      #define FIL_RUNOUT3_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT3_PULLUP
+      #define FIL_RUNOUT3_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT3_PULLDOWN
+      #define FIL_RUNOUT3_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 4
     #ifndef FIL_RUNOUT4_STATE
       #define FIL_RUNOUT4_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT4_PULL
-      #define FIL_RUNOUT4_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT4_PULLUP
+      #define FIL_RUNOUT4_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT4_PULLDOWN
+      #define FIL_RUNOUT4_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 5
     #ifndef FIL_RUNOUT5_STATE
       #define FIL_RUNOUT5_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT5_PULL
-      #define FIL_RUNOUT5_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT5_PULLUP
+      #define FIL_RUNOUT5_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT5_PULLDOWN
+      #define FIL_RUNOUT5_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 6
     #ifndef FIL_RUNOUT6_STATE
       #define FIL_RUNOUT6_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT6_PULL
-      #define FIL_RUNOUT6_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT6_PULLUP
+      #define FIL_RUNOUT6_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT6_PULLDOWN
+      #define FIL_RUNOUT6_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 7
     #ifndef FIL_RUNOUT7_STATE
       #define FIL_RUNOUT7_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT7_PULL
-      #define FIL_RUNOUT7_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT7_PULLUP
+      #define FIL_RUNOUT7_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT7_PULLDOWN
+      #define FIL_RUNOUT7_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
   #if NUM_RUNOUT_SENSORS >= 8
     #ifndef FIL_RUNOUT8_STATE
       #define FIL_RUNOUT8_STATE FIL_RUNOUT_STATE
     #endif
-    #ifndef FIL_RUNOUT8_PULL
-      #define FIL_RUNOUT8_PULL FIL_RUNOUT_PULL
+    #ifndef FIL_RUNOUT8_PULLUP
+      #define FIL_RUNOUT8_PULLUP FIL_RUNOUT_PULLUP
+    #endif
+    #ifndef FIL_RUNOUT8_PULLDOWN
+      #define FIL_RUNOUT8_PULLDOWN FIL_RUNOUT_PULLDOWN
     #endif
   #endif
 #endif // FILAMENT_RUNOUT_SENSOR
@@ -834,6 +880,55 @@
 // Slim menu optimizations
 #if ENABLED(SLIM_LCD_MENUS)
   #define BOOT_MARLIN_LOGO_SMALL
+#endif
+
+/**
+ * CoreXY, CoreXZ, and CoreYZ - and their reverse
+ */
+#if EITHER(COREXY, COREYX)
+  #define CORE_IS_XY 1
+#endif
+#if EITHER(COREXZ, COREZX)
+  #define CORE_IS_XZ 1
+#endif
+#if EITHER(COREYZ, COREZY)
+  #define CORE_IS_YZ 1
+#endif
+#if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
+  #define IS_CORE 1
+#endif
+#if IS_CORE
+  #if CORE_IS_XY
+    #define CORE_AXIS_1 A_AXIS
+    #define CORE_AXIS_2 B_AXIS
+    #define NORMAL_AXIS Z_AXIS
+  #elif CORE_IS_XZ
+    #define CORE_AXIS_1 A_AXIS
+    #define NORMAL_AXIS Y_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #elif CORE_IS_YZ
+    #define NORMAL_AXIS X_AXIS
+    #define CORE_AXIS_1 B_AXIS
+    #define CORE_AXIS_2 C_AXIS
+  #endif
+  #define CORESIGN(n) (ANY(COREYX, COREZX, COREZY) ? (-(n)) : (n))
+#elif ENABLED(MARKFORGED_XY)
+  // Markforged kinematics
+  #define CORE_AXIS_1 A_AXIS
+  #define CORE_AXIS_2 B_AXIS
+  #define NORMAL_AXIS Z_AXIS
+#endif
+
+#if ENABLED(MORGAN_SCARA)
+  #define IS_SCARA 1
+  #define IS_KINEMATIC 1
+#elif ENABLED(DELTA)
+  #define IS_KINEMATIC 1
+#else
+  #define IS_CARTESIAN 1
+  #if !IS_CORE
+    #define IS_FULL_CARTESIAN 1
+  #endif
 #endif
 
 // This flag indicates some kind of jerk storage is needed

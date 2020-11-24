@@ -20,30 +20,19 @@
  *
  */
 
-#include "../../../inc/MarlinConfigPre.h"
+#include "../../inc/MarlinConfig.h"
 
-#if HAS_PRUSA_MMU2
+#if HAS_PRUSA_MMU1
 
-#include "../../gcode.h"
-#include "../../../feature/mmu/mmu2.h"
+#include "../module/stepper.h"
 
-/**
- * M403: Set filament type for MMU2
- *
- * Valid filament type values:
- *
- *  0   Default
- *  1   Flexible
- *  2   PVA
- */
-void GcodeSuite::M403() {
-  int8_t index = parser.intval('E', -1),
-         type = parser.intval('F', -1);
-
-  if (WITHIN(index, 0, 4) && WITHIN(type, 0, 2))
-    mmu2.set_filament_type(index, type);
-  else
-    SERIAL_ECHO_MSG("M403 - bad arguments.");
+void select_multiplexed_stepper(const uint8_t e) {
+  planner.synchronize();
+  disable_e_steppers();
+  WRITE(E_MUX0_PIN, TEST(e, 0) ? HIGH : LOW);
+  WRITE(E_MUX1_PIN, TEST(e, 1) ? HIGH : LOW);
+  WRITE(E_MUX2_PIN, TEST(e, 2) ? HIGH : LOW);
+  safe_delay(100);
 }
 
-#endif // HAS_PRUSA_MMU2
+#endif // HAS_PRUSA_MMU1

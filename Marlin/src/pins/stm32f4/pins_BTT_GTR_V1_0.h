@@ -25,8 +25,8 @@
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 8 || E_STEPPERS > 8
   #error "BIGTREE GTR V1.0 supports up to 8 hotends / E-steppers."
-#elif HOTENDS > MAX_EXTRUDERS || E_STEPPERS > MAX_EXTRUDERS
-  #error "Marlin extruder/hotends limit! Increase MAX_EXTRUDERS to continue."
+#elif HOTENDS > MAX_E_STEPPERS || E_STEPPERS > MAX_E_STEPPERS
+  #error "Marlin extruder/hotends limit! Increase MAX_E_STEPPERS to continue."
 #endif
 
 #define BOARD_INFO_NAME "BTT GTR V1.0"
@@ -381,7 +381,7 @@
           #define RGB_LED_B_PIN             PG5
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PF13
+        #define NEOPIXEL_PIN                PG7
       #endif
     #endif // !FYSETC_MINI_12864
 
@@ -389,6 +389,11 @@
       #define LCD_PINS_D5                   PG7
       #define LCD_PINS_D6                   PG6
       #define LCD_PINS_D7                   PG5
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif

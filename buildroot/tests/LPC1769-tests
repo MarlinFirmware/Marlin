@@ -54,7 +54,7 @@ exec_test $1 $2 "Smoothieboard with TFTGLCD_PANEL_SPI" "$3"
 #opt_set FAN_MIN_PWM 50
 #opt_set FAN_KICKSTART_TIME 100
 #opt_set XY_FREQUENCY_LIMIT  15
-#exec_test $1 $2 "Azteeg X5 MINI WIFI Many less common options"
+#exec_test $1 $2 "Azteeg X5 MINI WIFI Many less common options" "$3"
 
 restore_configs
 use_example_configs delta/generic
