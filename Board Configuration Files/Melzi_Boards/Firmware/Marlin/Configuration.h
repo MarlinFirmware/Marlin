@@ -378,9 +378,15 @@
   #define USE_YMIN_PLUG
   #define USE_ZMIN_PLUG
 
-  #define X_HOME_DIR -1
-  #define Y_HOME_DIR -1
-  #define Z_HOME_DIR -1
+  #if ENABLED(ENDER5)
+    #define X_HOME_DIR 1
+    #define Y_HOME_DIR 1
+    #define Z_HOME_DIR -1
+  #else
+    #define X_HOME_DIR -1
+    #define Y_HOME_DIR -1
+    #define Z_HOME_DIR -1
+  #endif
   
   #if NONE(V6_HOTEND, TH3D_HOTEND_THERMISTOR, KNOWN_HOTEND_THERMISTOR)
     #define TEMP_SENSOR_0 1
