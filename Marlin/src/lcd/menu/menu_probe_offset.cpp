@@ -120,55 +120,37 @@ void probe_offset_wizard_menu() {
 }
 
 void prepare_for_probe_offset_wizard() {
-
-  // Disable soft endstops for free Z movement
-  SET_SOFT_ENDSTOP_LOOSE(true);
-
-  // Set Z Value for Wizard Position to 0
-  z_offset_ref = 0;
+  if (ui.wait_for_move) return;
 
   #if defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-
     if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_PROBE_WIZARD_PROBING));
 
-    #ifdef PROBE_OFFSET_WIZARD_XY_POS
-      // Get X and Y from Configuration
-      constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
-    #else
-      // Set Bed Center as probe point
-      constexpr xy_pos_t wizard_pos = XY_CENTER;
+    #ifndef PROBE_OFFSET_WIZARD_XY_POS
+      #define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER
     #endif
+    // Get X and Y from configuration, or use center
+    constexpr xy_pos_t wizard_pos = PROBE_OFFSET_WIZARD_XY_POS;
 
     // Probe for Z reference
-    if (!ui.wait_for_move) {
-      ui.wait_for_move = true;
-      z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
-      ui.wait_for_move = false;
-      planner.synchronize();
-    }
+    ui.wait_for_move = true;
+    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
+    ui.wait_for_move = false;
 
   #endif
 
   // Move Nozzle to Probing/Homing Position
-  if (!ui.wait_for_move) {
-    ui.wait_for_move = true;
-    current_position.x = current_position.x + probe.offset_xy.x;
-    current_position.y = current_position.y + probe.offset_xy.y;
-    line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
-    ui.wait_for_move = false;
-    ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
-  }
+  ui.wait_for_move = true;
+  current_position += probe.offset_xy;
+  line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
+  ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
+  ui.wait_for_move = false;
 
-  // Go to Menu for Calibration
-  if (!ui.wait_for_move) {
-    ui.goto_screen(probe_offset_wizard_menu);
-    ui.defer_status_screen();
-  }
-
+  // Go to Calibration Menu
+  ui.goto_screen(probe_offset_wizard_menu);
+  ui.defer_status_screen();
 }
 
 void goto_probe_offset_wizard() {
-
   ui.defer_status_screen();
   set_all_unhomed();
 
@@ -191,6 +173,8 @@ void goto_probe_offset_wizard() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
+      SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
+      z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
       ui.goto_screen(prepare_for_probe_offset_wizard);
       ui.defer_status_screen();
     }
