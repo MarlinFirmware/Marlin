@@ -99,7 +99,7 @@ void probe_offset_wizard_menu() {
     do_z_clearance(0
     #ifdef Z_AFTER_HOMING
       +Z_AFTER_HOMING
-    #elseif defined(Z_HOMING_HEIGHT)
+    #elif defined(Z_HOMING_HEIGHT)
       +Z_HOMING_HEIGHT
     #endif
     );
@@ -107,22 +107,14 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-
     // If wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe.
-    // Set Z to 0 (if higher than 0) to be sure for G28 clearance and rehome Z with backed up offset.
-    #if defined(PROBE_OFFSET_WIZARD_START_Z) && EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
-      if(current_position.z > 0) { current_position.z = 0; sync_plan_position();; }
+    #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING) && defined(PROBE_OFFSET_WIZARD_START_Z)
       queue.inject_P(PSTR("G28Z"));
-
-    // Otherwise do a Z clearance move like after Homing
-    #else
-      do_z_clearance(0
-      #ifdef Z_AFTER_HOMING
-        +Z_AFTER_HOMING
-      #elseif defined(Z_HOMING_HEIGHT)
-        +Z_HOMING_HEIGHT
-      #endif
-      );
+    #elif defined(Z_AFTER_HOMING)
+      // Otherwise do a Z clearance move like after Homing
+      do_z_clearance(Z_AFTER_HOMING);
+    #elif defined(Z_HOMING_HEIGHT)
+      do_z_clearance(Z_HOMING_HEIGHT);
     #endif
   });
 
