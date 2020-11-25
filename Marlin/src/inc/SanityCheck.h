@@ -1356,11 +1356,11 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
                   "NOZZLE_AS_PROBE requires the X,Y offsets in NOZZLE_TO_PROBE_OFFSET to be 0,0.");
   #else
     constexpr float sanity_nozzle_to_probe_offset[] = NOZZLE_TO_PROBE_OFFSET;
-    static_assert(sanity_nozzle_to_probe_offset[2] <= 0.0,
+    static_assert(sanity_nozzle_to_probe_offset[2] <= 0.25,
                   "Are you shure your Probe triggers above your nozzle? Set a negative value for NOZZLE_TO_PROBE_OFFSET Z");
   #endif
   #ifdef PROBE_OFFSET_WIZARD_START_Z
-    static_assert(sanity_nozzle_to_probe_offset[2] <= 0.0,
+    static_assert(sanity_nozzle_to_probe_offset[2] <= 0.25,
                   "Are you shure your Probe triggers above your nozzle? Set a negative value for PROBE_OFFSET_WIZARD_START_Z");
   #endif
 
