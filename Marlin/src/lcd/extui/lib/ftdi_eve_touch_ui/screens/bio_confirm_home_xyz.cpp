@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && defined(TOUCH_UI_LULZBOT_BIO)
+#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
@@ -52,4 +52,5 @@ bool BioConfirmHomeXYZ::onTouchEnd(uint8_t tag) {
   }
   return true;
 }
-#endif // TOUCH_UI_FTDI_EVE
+
+#endif // TOUCH_UI_FTDI_EVE && TOUCH_UI_LULZBOT_BIO
