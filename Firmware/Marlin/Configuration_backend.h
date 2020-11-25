@@ -246,7 +246,7 @@
   #define Z_MIN_PROBE_REPEATABILITY_TEST
   //#define Z_AFTER_PROBING              5 //Disabled for testing.
   //#define Z_AFTER_HOMING               5 //Disabled. Makes setting offset harder.
-  #define Z_PROBE_LOW_POINT           -3
+  #define Z_PROBE_LOW_POINT           -10
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
   #endif
