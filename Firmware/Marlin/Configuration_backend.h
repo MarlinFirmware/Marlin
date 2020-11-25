@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.12a"
+#define UNIFIED_VERSION "TH3D UFW 2.12b"
 
 /**
  * Temp Settings
@@ -246,7 +246,7 @@
   #define Z_MIN_PROBE_REPEATABILITY_TEST
   //#define Z_AFTER_PROBING              5 //Disabled for testing.
   //#define Z_AFTER_HOMING               5 //Disabled. Makes setting offset harder.
-  #define Z_PROBE_LOW_POINT           -3
+  #define Z_PROBE_LOW_POINT           -10
   #if DISABLED(BLTOUCH)
     #define FIX_MOUNTED_PROBE
   #endif
@@ -469,6 +469,9 @@
   #define MESH_EDIT_Z_STEP  0.025
   #define LCD_PROBE_Z_RANGE 4
   #define MESH_INSET EZABL_PROBE_EDGE
+  
+  #define SEGMENT_LEVELED_MOVES
+  #define LEVELED_SEGMENT_LENGTH 5.0
 
   #define GRID_MAX_POINTS_X 3
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
