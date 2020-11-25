@@ -100,6 +100,8 @@ void probe_offset_wizard_menu() {
       do_z_clearance(Z_AFTER_HOMING);
     #elif defined(Z_HOMING_HEIGHT)
       do_z_clearance(Z_HOMING_HEIGHT);
+    #else
+      do_z_clearance(10);
     #endif
   });
 
@@ -113,6 +115,8 @@ void probe_offset_wizard_menu() {
       do_z_clearance(Z_AFTER_HOMING);
     #elif defined(Z_HOMING_HEIGHT)
       do_z_clearance(Z_HOMING_HEIGHT);
+    #else
+      do_z_clearance(10);
     #endif
   });
 
