@@ -19,6 +19,7 @@
 #pragma once
 
 #include "../../inc/MarlinConfigPre.h"
+#include "tft_io.h"
 
 #ifndef TOUCH_SCREEN_CALIBRATION_PRECISION
   #define TOUCH_SCREEN_CALIBRATION_PRECISION  80
@@ -26,14 +27,6 @@
 
 #ifndef TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS
   #define TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS   2500
-#endif
-
-#define TOUCH_ORIENTATION_NONE  0
-#define TOUCH_LANDSCAPE         1
-#define TOUCH_PORTRAIT          2
-
-#ifndef TOUCH_ORIENTATION
-  #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
 #endif
 
 typedef struct __attribute__((__packed__)) {
