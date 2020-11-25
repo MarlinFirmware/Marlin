@@ -96,13 +96,11 @@ void probe_offset_wizard_menu() {
     sync_plan_position();
 
     // Raise Z as if it was homed
-    do_z_clearance(0
     #ifdef Z_AFTER_HOMING
-      +Z_AFTER_HOMING
+      do_z_clearance(Z_AFTER_HOMING);
     #elif defined(Z_HOMING_HEIGHT)
-      +Z_HOMING_HEIGHT
+      do_z_clearance(Z_HOMING_HEIGHT);
     #endif
-    );
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
