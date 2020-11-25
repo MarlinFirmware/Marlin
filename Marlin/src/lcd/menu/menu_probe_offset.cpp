@@ -109,6 +109,7 @@ void probe_offset_wizard_menu() {
     set_offset_and_go_back(z_offset_backup);
     // If wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe.
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING) && defined(PROBE_OFFSET_WIZARD_START_Z)
+      if(current_position.z > 0) { current_position.z = 0; sync_plan_position(); }
       queue.inject_P(PSTR("G28Z"));
     #elif defined(Z_AFTER_HOMING)
       // Otherwise do a Z clearance move like after Homing
