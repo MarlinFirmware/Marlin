@@ -91,8 +91,8 @@ void probe_offset_wizard_menu() {
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
 
-    // Set Z to 0, as we can expect
-    current_position.z = 0;
+    // Set Z to z_offset_ref, as we can expect it is on probed height
+    current_position.z = z_offset_ref;
     sync_plan_position();
 
     // Raise Z as if it was homed
