@@ -181,7 +181,7 @@ static void disp_language(uint8_t language, uint8_t state) {
 
   strcat_P(public_buf_l, PSTR(".bin"));
 
-  lv_obj_set_event_cb_mks(obj, event_handler, id, nullptr, 0);
+  lv_obj_set_event_cb_mks(obj, event_handler, id, "", 0);
   lv_imgbtn_set_src_both(obj, public_buf_l);
 
   if (state == UNSELECTED) lv_obj_refresh_ext_draw_pad(obj);

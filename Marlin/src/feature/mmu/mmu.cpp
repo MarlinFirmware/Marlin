@@ -20,9 +20,9 @@
  *
  */
 
-#include "../inc/MarlinConfig.h"
+#include "../../inc/MarlinConfig.h"
 
-#if ENABLED(MK2_MULTIPLEXER)
+#if HAS_PRUSA_MMU1
 
 #include "../module/stepper.h"
 
@@ -35,4 +35,4 @@ void select_multiplexed_stepper(const uint8_t e) {
   safe_delay(100);
 }
 
-#endif // MK2_MULTIPLEXER
+#endif // HAS_PRUSA_MMU1

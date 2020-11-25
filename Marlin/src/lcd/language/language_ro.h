@@ -53,7 +53,7 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Setari Avansate");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configurare");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autostart");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autostart");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Dezactivare Motoare");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Meniu Debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test Bara Progres");
@@ -315,8 +315,8 @@ namespace Language_ro {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperature");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Motion");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E Limit in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E Limit *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");

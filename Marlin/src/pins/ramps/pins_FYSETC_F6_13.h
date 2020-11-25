@@ -201,7 +201,7 @@
  *               -----                                             -----
  *       5V/D41 | · · | GND                                    5V | · · | GND
  *        RESET | · · | D49 (SD_DETECT)             (LCD_D7)  D29 | · · | D27  (LCD_D6)
- *   (MOSI) D51 | · · | D33 (BTN_EN2)               (LCD_D5)  D25 | · · | D23  (LCD_D4)
+ *   (MOSI) D51 | · ·   D33 (BTN_EN2)               (LCD_D5)  D25 | · ·   D23  (LCD_D4)
  *  (SD_SS) D53 | · · | D31 (BTN_EN1)               (LCD_RS)  D16 | · · | D17  (LCD_EN)
  *    (SCK) D52 | · · | D50 (MISO)                 (BTN_ENC)  D35 | · · | D37  (BEEPER)
  *               -----                                             -----
@@ -273,6 +273,10 @@
     #if ENABLED(MKS_MINI_12864)
       #define DOGLCD_CS                       25
       #define DOGLCD_A0                       27
+    #endif
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
     #endif
 
   #endif

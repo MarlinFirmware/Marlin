@@ -313,7 +313,7 @@ void GcodeSuite::G28() {
                home_all = homeX == homeY && homeX == homeZ, // All or None
                doX = home_all || homeX, doY = home_all || homeY, doZ = home_all || homeZ;
 
-    #if Z_HOME_DIR > 0  // If homing away from BED do Z first
+    #if ENABLED(HOME_Z_FIRST)
 
       if (doZ) homeaxis(Z_AXIS);
 
@@ -373,18 +373,18 @@ void GcodeSuite::G28() {
     TERN_(IMPROVE_HOMING_RELIABILITY, end_slow_homing(slow_homing));
 
     // Home Z last if homing towards the bed
-    #if Z_HOME_DIR < 0
-
+    #if DISABLED(HOME_Z_FIRST)
       if (doZ) {
+        #if EITHER(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN)
+          stepper.set_all_z_lock(false);
+          stepper.set_separate_multi_axis(false);
+        #endif
+
         TERN_(BLTOUCH, bltouch.init());
-
         TERN(Z_SAFE_HOMING, home_z_safely(), homeaxis(Z_AXIS));
-
         probe.move_z_after_homing();
-
-      } // doZ
-
-    #endif // Z_HOME_DIR < 0
+      }
+    #endif
 
     sync_plan_position();
 

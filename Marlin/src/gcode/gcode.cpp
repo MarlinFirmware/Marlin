@@ -250,7 +250,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   * Will still block Gcodes if M511 is disabled, in which case the printer should be unlocked via LCD Menu
   */
   #if ENABLED(PASSWORD_FEATURE)
-    if (password.is_locked && !(parser.command_letter == 'M' && parser.codenum == 511)) {
+    if (password.is_locked && !parser.is_command('M', 511)) {
       SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
       return;
     }
@@ -327,7 +327,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 33: G33(); break;                                    // G33: Delta Auto-Calibration
       #endif
 
-      #if EITHER(Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
+      #if ANY(Z_MULTI_ENDSTOPS, Z_STEPPER_AUTO_ALIGN, MECHANICAL_GANTRY_CALIBRATION)
         case 34: G34(); break;                                    // G34: Z Stepper automatic alignment using probe
       #endif
 
@@ -431,7 +431,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 28: M28(); break;                                    // M28: Start SD write
         case 29: M29(); break;                                    // M29: Stop SD write
         case 30: M30(); break;                                    // M30 <filename> Delete File
-        case 32: M32(); break;                                    // M32: Select file and start SD print
+
+        #if HAS_MEDIA_SUBCALLS
+          case 32: M32(); break;                                  // M32: Select file and start SD print
+        #endif
 
         #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
           case 33: M33(); break;                                  // M33: Get the long full path to a file or folder
@@ -699,7 +702,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 402: M402(); break;                                  // M402: Stow probe
       #endif
 
-      #if ENABLED(PRUSA_MMU2)
+      #if HAS_PRUSA_MMU2
         case 403: M403(); break;
       #endif
 

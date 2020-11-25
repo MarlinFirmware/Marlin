@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xyz_pos_t &Probe::offset_xy = Probe::offset;
+  const xy_pos_t &Probe::offset_xy = xy_pos_t(Probe::offset);
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -667,8 +667,8 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     if (bltouch.triggered()) bltouch._reset();
   #endif
 
-  // TODO: Adapt for SCARA, where the offset rotates
-  xyz_pos_t npos = { rx, ry };
+  // On delta keep Z below clip height or do_blocking_move_to will abort
+  xyz_pos_t npos = { rx, ry, _MIN(TERN(DELTA, delta_clip_start_height, current_position.z), current_position.z) };
   if (probe_relative) {                                     // The given position is in terms of the probe
     if (!can_reach(npos)) {
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
@@ -677,15 +677,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     npos -= offset_xy;                                      // Get the nozzle position
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
-
-  npos.z =
-    #if ENABLED(DELTA)
-      // Move below clip height or xy move will be aborted by do_blocking_move_to
-      _MIN(current_position.z, delta_clip_start_height)
-    #else
-      current_position.z
-    #endif
-  ;
 
   const float old_feedrate_mm_s = feedrate_mm_s;
   feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;

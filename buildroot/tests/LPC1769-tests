@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 use_example_configs Azteeg/X5GT
-exec_test $1 $2 "Azteeg X5GT Example Configuration"
+exec_test $1 $2 "Azteeg X5GT Example Configuration" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_SMOOTHIEBOARD
@@ -23,8 +23,9 @@ opt_enable VIKI2 SDSUPPORT ADAPTIVE_FAN_SLOWING NO_FAN_SLOWING_IN_PID_TUNING \
            PRINTCOUNTER NOZZLE_PARK_FEATURE NOZZLE_CLEAN_FEATURE SLOW_PWM_HEATERS PIDTEMPBED EEPROM_SETTINGS INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT \
            Z_SAFE_HOMING ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE \
            LCD_INFO_MENU ARC_SUPPORT BEZIER_CURVE_SUPPORT EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES SDCARD_SORT_ALPHA EMERGENCY_PARSER
+opt_disable SD_PROCEDURE_DEPTH
 opt_set GRID_MAX_POINTS_X 16
-exec_test $1 $2 "Smoothieboard with many features"
+exec_test $1 $2 "Smoothieboard with many features" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_SMOOTHIEBOARD
@@ -38,7 +39,7 @@ opt_enable TFTGLCD_PANEL_SPI SDSUPPORT ADAPTIVE_FAN_SLOWING NO_FAN_SLOWING_IN_PI
            Z_SAFE_HOMING ADVANCED_PAUSE_FEATURE PARK_HEAD_ON_PAUSE \
            LCD_INFO_MENU ARC_SUPPORT BEZIER_CURVE_SUPPORT EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES SDCARD_SORT_ALPHA EMERGENCY_PARSER
 opt_set GRID_MAX_POINTS_X 16
-exec_test $1 $2 "Smoothieboard with TFTGLCD_PANEL_SPI"
+exec_test $1 $2 "Smoothieboard with TFTGLCD_PANEL_SPI" "$3"
 
 #restore_configs
 #opt_set MOTHERBOARD BOARD_AZTEEG_X5_MINI_WIFI
@@ -53,7 +54,7 @@ exec_test $1 $2 "Smoothieboard with TFTGLCD_PANEL_SPI"
 #opt_set FAN_MIN_PWM 50
 #opt_set FAN_KICKSTART_TIME 100
 #opt_set XY_FREQUENCY_LIMIT  15
-#exec_test $1 $2 "Azteeg X5 MINI WIFI Many less common options"
+#exec_test $1 $2 "Azteeg X5 MINI WIFI Many less common options" "$3"
 
 restore_configs
 use_example_configs delta/generic
@@ -66,7 +67,7 @@ opt_enable AUTO_BED_LEVELING_BILINEAR EEPROM_SETTINGS EEPROM_CHITCHAT MECHANICAL
            SENSORLESS_PROBING Z_SAFE_HOMING X_STALL_SENSITIVITY Y_STALL_SENSITIVITY Z_STALL_SENSITIVITY TMC_DEBUG \
            EXPERIMENTAL_I2CBUS
 opt_disable PSU_CONTROL
-exec_test $1 $2 "Cohesion3D Remix DELTA + ABL Bilinear + EEPROM + SENSORLESS_PROBING"
+exec_test $1 $2 "Cohesion3D Remix DELTA + ABL Bilinear + EEPROM + SENSORLESS_PROBING" "$3"
 
 # clean up
 restore_configs

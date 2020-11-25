@@ -40,7 +40,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Εισαγωγή κάρτας");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Αφαίρεση κάρτας");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Βασική Οθόνη");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Αυτόματη εκκίνηση");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Αυτόματη εκκίνηση");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Απενεργοποίηση Μοτέρ");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Αυτομ. επαναφορά στο αρχικό σημείο"); //SHORTEN
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Αρχικό σημείο X");
@@ -132,7 +132,7 @@ namespace Language_el {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Θερμοκρασία");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Κίνηση");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Νήμα");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ε σε μμ") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Διάμετρος νήματος");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Διάμετρος νήματος *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Κοντράστ LCD");
