@@ -552,8 +552,12 @@
   #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
 #elif MB(MKS_ROBIN_E3)
   #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3_V1_1)
+  #include "stm32f1/pins_MKS_ROBIN_E3_V1_1.h"   // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3D)
   #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3D_V1_1)
+  #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p
 #elif MB(BTT_SKR_MINI_V1_1)
