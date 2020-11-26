@@ -69,6 +69,7 @@
   bool wait_for_probe;
   bool probe_triggered;
   bool corner_probing_done;
+  bool verify_corner;
   int good_points;
 #endif
 
@@ -139,6 +140,11 @@ static int8_t bed_corner;
         idle();
       }
       wait_for_probe = false;
+
+      #if ENABLED(LEVEL_CORNERS_VERIFY_RAISED)
+        verify_corner = true;
+      #endif
+
     }
 
     TERN_(QUIET_PROBING, probe.set_probing_paused(false));
@@ -151,13 +157,15 @@ static int8_t bed_corner;
       endstops.hit_on_purpose();
       if (!WITHIN(current_position.z, last_z - (LEVEL_CORNERS_PROBE_TOLERANCE), last_z + (LEVEL_CORNERS_PROBE_TOLERANCE))) {
         last_z = current_position.z;
-        good_points = 1;
+        good_points = 0;
       }
-      good_points++;
+      if (!verify_corners) good_points++;
     }
 
     if (!corner_probing_done) {
-      if (++bed_corner > 3) bed_corner = 0;
+      if (!verify_corners) bed_corner++;
+      if (bed_corner > 3) bed_corner = 0;
+      verify_corner = false;
       if (good_points < 4)
         _lcd_level_bed_corners_probing();
       else {
@@ -244,6 +252,7 @@ void _lcd_level_bed_corners() {
     wait_for_probe = false;
     probe_triggered = false;
     corner_probing_done = false;
+    verify_corner = false;
     good_points = 0;
   #endif
 
