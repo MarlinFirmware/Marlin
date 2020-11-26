@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -210,3 +211,4 @@ void TFT_SPI::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Coun
 }
 
 #endif // HAS_SPI_TFT
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
