@@ -53,8 +53,8 @@ void GcodeSuite::G42() {
 
     #if HAS_PROBE_XY_OFFSET
       if (parser.boolval('P')) {
-        if (hasI) destination.x -= probe.offset_xy.x;
-        if (hasJ) destination.y -= probe.offset_xy.y;
+        if (hasI) destination.x -= probe.offset.x;
+        if (hasJ) destination.y -= probe.offset.y;
       }
     #endif
 

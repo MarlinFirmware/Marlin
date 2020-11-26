@@ -76,8 +76,8 @@ void GcodeSuite::M48() {
 
   // Test at the current position by default, overridden by X and Y
   const xy_pos_t test_position = {
-    parser.linearval('X', current_position.x + probe.offset_xy.x),  // If no X use the probe's current X position
-    parser.linearval('Y', current_position.y + probe.offset_xy.y)   // If no Y, ditto
+    parser.linearval('X', current_position.x + probe.offset.x),  // If no X use the probe's current X position
+    parser.linearval('Y', current_position.y + probe.offset.y)   // If no Y, ditto
   };
 
   if (!probe.can_reach(test_position)) {
@@ -190,7 +190,7 @@ void GcodeSuite::M48() {
           while (angle < 0.0) angle += 360.0;
 
           // Choose the next position as an offset to chosen test position
-          const xy_pos_t noz_pos = test_position - probe.offset_xy;
+          const xy_pos_t noz_pos = test_position - probe.offset;
           xy_pos_t next_pos = {
             noz_pos.x + float(cos(RADIANS(angle))) * radius,
             noz_pos.y + float(sin(RADIANS(angle))) * radius

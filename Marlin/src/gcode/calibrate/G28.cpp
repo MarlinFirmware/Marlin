@@ -136,7 +136,7 @@
 
     destination.set(okay_homing_xy, current_position.z);
 
-    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset_xy);
+    TERN_(HOMING_Z_WITH_PROBE, destination -= probe.offset);
 
     if (position_is_reachable(destination)) {
 
