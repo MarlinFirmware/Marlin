@@ -673,6 +673,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Moving to Probing Pos");
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
 
