@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- *
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
- * Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
- * Copyright (c) 2017 Victor Perez
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,19 @@
  */
 #pragma once
 
-#ifdef STM32F4
-  #include "STM32F4/timers.h"
-#else
-  #include "STM32F7/timers.h"
+//
+// EEPROM
+//
+// Onboard I2C EEPROM
+#if NO_EEPROM_SELECTED
+  #define I2C_EEPROM
+  #define MARLIN_EEPROM_SIZE                0x1000// 4KB
+  #undef NO_EEPROM_SELECTED
 #endif
+
+#define Z_STEP_PIN                          PC14
+#define Z_DIR_PIN                           PC15
+
+#define BTN_ENC_EN                            -1
+
+#include "pins_MKS_ROBIN_E3_common.h"
