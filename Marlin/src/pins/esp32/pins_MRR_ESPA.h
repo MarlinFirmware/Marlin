@@ -32,7 +32,7 @@
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "MRR ESPA only supports one E Stepper. Comment out this line to continue."
 #elif HOTENDS > 1
-  #error "MRR ESPA currently supports only one hotend. Comment out this line to continue."
+  #error "MRR ESPA only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME       "MRR ESPA"

@@ -33,7 +33,7 @@
 #endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "RemRam supports only one hotend / E-stepper."
+  #error "RemRam only supports one hotend / E-stepper."
 #endif
 
 //

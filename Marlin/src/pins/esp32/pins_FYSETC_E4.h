@@ -32,7 +32,7 @@
 #elif EXTRUDERS > 1 || E_STEPPERS > 1
   #error "FYSETC E4 only supports one E Stepper. Comment out this line to continue."
 #elif HOTENDS > 1
-  #error "FYSETC E4 currently supports only one hotend. Comment out this line to continue."
+  #error "FYSETC E4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME       "FYSETC_E4"
