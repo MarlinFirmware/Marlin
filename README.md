@@ -9,11 +9,13 @@
 
 You are here because you are looking for the latest BIQU B1 firmware and you will hopefully find what you are looking for! Read below to find out how.
 
-## Current version of Marlin
+## Current versions of Marlin and TFT
 
-The files in this repository contain the source, configs and compiled firmware for Marlin: 2.0.7.2 (If you downloaded before 12:00pm GMT on 15-11-2020 please download and install again).
+The files in this repository contain the source, configs and compiled firmware for Marlin: 2.0.7.2
 
 The firmware within this repo uses modified versions of the standard Marlin config files created by the talented @thisiskeithb.
+
+You will also find the latest compiled versions of the TFT firmware which has been customized for use with the B1.
 
 ## Using this repo.
 
@@ -33,23 +35,27 @@ B1_ABL_SFS | Coming soon...
 
 ![Step1](/step1_branch.png)
 
-Once you have selected a branch you will have access to the source code as well as the compiled binary file (the firmware that you need to put on your SD card) for that branch. Most of you will not care about the source code and are here for the compiled firmware but I made the source available anyways. To download the firmware simply follow the steps in the next pictues.
+Once you have selected a branch you will have access to the source code (Marlin only) as well as the compiled binary file (the firmware that you need to put on your SD card) for that branch. Most of you will not care about the source code and are here for the compiled firmware but I made the source available anyways. To download the firmware for Marlin simply follow the steps in the next pictues.
 
 ![Step2](/step2_firmware.png)
 
 ![Step2](/step3_download.png)
 
+To download the TFT firmware simply locate the TFT zip file in the root directory and download it. Instructions on how to install both follow.
+
 ## Using the Firmware
 
-Before installing the firmware take note of the following points:
+Before installing the Marlin firmware take note of the following points:
 
 1. The ABL versions of this firmware use the probe as the z-endstop. I prefer this method over using a dedicated z-endstop switch. This means that you will need to remove the z-endstop post that is screwed into the back of the left, upright 4020 extrusion.
 2. The ABL versions of this firmware are programmed to apply any z babysteps to the z-offset. This means that if you save your babysteps the nozzle will always start in the right place for each print regardless of what you do to your bed provided that you don't mess with the position of the BL touch between prints (e.g. take apart the hotend).
 3. The ABL versions of this firmware assume that the probe is located in the position when using the stock mount. If you are using the mount by @thisiskeithb from thingiverse that places the probe in the front-center of the hotend mount then you will need to adjust your z-probe offsets using the LCD. Using the unified interface nagivate to Menu --> Settings --> Machine --> Parameter --> Probe Offset and change the values to: X = -1.5 Y = -34 Z = -1.5.
 
-To install: once you have downloaded the firmware file just copy it onto your SD card in the motherboard (not TFT) and reboot. Once it is done you should have a FIRMWARE.CUR file on the SD. That means it worked.
+To install Marlin: once you have downloaded the firmware file just copy it onto your SD card in the motherboard (not TFT) and reboot. Once it is done you should have a FIRMWARE.CUR file on the SD. That means it worked.
 
 If you use an ABL version you will receive an error message relating to EEPROM as soon as you boot up. This is normal. Simply enter the terminal and send M500 in order to clear it.
+
+To install the TFT firmware simply unzip the contents of the zip folder and copy them onto an SD card. Put the SD card into the TFT SD slot and reboot. You will see a series of images on the TFT showing you the status of the update. Do not ignore any errors as doing so will result in your TFT freezing when trying to use it. Rather, try the installation again and if it fails a second time then report the issue in the issue log.
 
 I recommend performing a home on all axes directly after installing the firmware and using your finger to trigger the probe on the way down for the z home. This will confirm that the probe is working fine and prevent the nozzle from crashing into the bed if it is not.
 
