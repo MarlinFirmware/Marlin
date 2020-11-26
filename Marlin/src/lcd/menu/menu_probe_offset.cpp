@@ -167,7 +167,7 @@ void goto_probe_offset_wizard() {
     set_bed_leveling_enabled(false);
   #endif
 
-  // Home all Axis
+  // Home all axes
   queue.inject_P(G28_STR);
 
   ui.goto_screen([]{
