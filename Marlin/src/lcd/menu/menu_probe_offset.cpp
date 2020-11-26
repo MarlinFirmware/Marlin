@@ -44,7 +44,17 @@ float z_offset_backup, calculated_z_offset, z_offset_ref;
 
 TERN_(HAS_LEVELING, bool leveling_was_active);
 
-
+inline void z_clearance_move() {
+  do_z_clearance(
+    #ifdef Z_AFTER_HOMING
+      Z_AFTER_HOMING
+    #elif defined(Z_HOMING_HEIGHT)
+      Z_HOMING_HEIGHT
+    #else
+      10
+    #endif
+  );
+}
 
 void set_offset_and_go_back(const float &z) {
   probe.offset.z = z;
@@ -75,7 +85,7 @@ void probe_offset_wizard_menu() {
     char tmp[20], numstr[10];
     // Determine digits needed right of decimal
     const uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                          !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
+                         !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
     sprintf_P(tmp, GET_TEXT(MSG_MOVE_Z_DIST), dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
     #if DISABLED(HAS_GRAPHICAL_TFT)
       extern const char NUL_STR[];
@@ -90,34 +100,19 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
     set_offset_and_go_back(calculated_z_offset);
-
-    // Set Z to z_offset_ref, as we can expect it is on probed height
-    current_position.z = z_offset_ref;
+    current_position.z = z_offset_ref;  // Set Z to z_offset_ref, as we can expect it is at probe height
     sync_plan_position();
-
-    // Raise Z as if it was homed
-    #ifdef Z_AFTER_HOMING
-      do_z_clearance(Z_AFTER_HOMING);
-    #elif defined(Z_HOMING_HEIGHT)
-      do_z_clearance(Z_HOMING_HEIGHT);
-    #else
-      do_z_clearance(10);
-    #endif
+    z_clearance_move();                 // Raise Z as if it was homed
   });
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // If wizard-homing was done with PROBE_OFFSET_WIZARD_START_Z by probe.
+    // If wizard-homing was done by probe with with PROBE_OFFSET_WIZARD_START_Z
     #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING) && defined(PROBE_OFFSET_WIZARD_START_Z)
-      if(current_position.z > 0) { current_position.z = 0; sync_plan_position(); }
+      set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
       queue.inject_P(PSTR("G28Z"));
-    #elif defined(Z_AFTER_HOMING)
-      // Otherwise do a Z clearance move like after Homing
-      do_z_clearance(Z_AFTER_HOMING);
-    #elif defined(Z_HOMING_HEIGHT)
-      do_z_clearance(Z_HOMING_HEIGHT);
-    #else
-      do_z_clearance(10);
+    #else // Otherwise do a Z clearance move like after Homing
+      z_clearance_move();
     #endif
   });
 
