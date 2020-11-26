@@ -1396,8 +1396,7 @@
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)
     #define LEVEL_CORNERS_PROBE_TOLERANCE 0.1
     #define LEVEL_CORNERS_VERIFY_RAISED   // After adjustment triggers the probe, re-probe to verify
-    //#define LEVEL_CORNERS_FEEDBACK_FREQUENCY_DURATION_MS 50 //0 to disable
-    //#define LEVEL_CORNERS_FEEDBACK_FREQUENCY_HZ 600
+    //#define LEVEL_CORNERS_AUDIO_FEEDBACK
   #endif
 #endif
 
