@@ -1545,6 +1545,15 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 /**
+ * Make sure NO_MOTION_BEFORE_HOMING if NO_MOTION_BEFORE_HOMING enabled
+ */
+
+#if ENABLED(HOME_AFTER_DEACTIVATE) && DISABLED(NO_MOTION_BEFORE_HOMING)
+  #error "NO_MOTION_BEFORE_HOMING must be enabled for HOME_AFTER_DEACTIVATE"
+#endif
+
+
+/**
  * Filament Width Sensor
  */
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
