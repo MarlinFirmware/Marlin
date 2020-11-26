@@ -559,13 +559,11 @@ void MarlinSettings::postprocess() {
 #endif // SD_FIRMWARE_UPDATE
 
 #ifdef ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE
-  static_assert(
-      EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
-      "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data."
-    );
+  static_assert(EEPROM_OFFSET + sizeof(SettingsData) < ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE,
+                "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data.");
 #endif
 
-#define DEBUG_OUT ENABLED(EEPROM_CHITCHAT)
+//#define DEBUG_OUT 1
 #include "../core/debug_out.h"
 
 #if ENABLED(EEPROM_SETTINGS)
