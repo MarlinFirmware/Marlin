@@ -144,7 +144,7 @@
   }
   #undef nop
 
-#elif defined(__PLAT_LINUX__) || defined(ESP32)
+#elif defined(__PLAT_LINUX__) || defined(__PLAT_WINDOWS__) || defined(ESP32)
 
   // specified inside platform
 

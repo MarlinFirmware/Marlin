@@ -391,6 +391,7 @@
 //
 
 #define BOARD_LINUX_RAMPS             9999
+#define BOARD_WINDOWS_RAMPS             9999
 
 #define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
 #define MB(V...)  DO(MB,||,V)
