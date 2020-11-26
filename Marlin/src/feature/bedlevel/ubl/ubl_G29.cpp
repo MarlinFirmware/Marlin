@@ -447,7 +447,7 @@
               SERIAL_DECIMAL(g29_pos.y);
               SERIAL_ECHOLNPGM(").\n");
             }
-            const xy_pos_t near_probe_xy = g29_pos + probe.offset;
+            const xy_pos_t near_probe_xy = g29_pos + probe.offset_xy;
             probe_entire_mesh(near_probe_xy, parser.seen('T'), parser.seen('E'), parser.seen('U'));
 
             report_current_position();
@@ -477,8 +477,8 @@
                 #if IS_KINEMATIC
                   X_HOME_POS, Y_HOME_POS
                 #else
-                  probe.offset.x > 0 ? X_BED_SIZE : 0,
-                  probe.offset.y < 0 ? Y_BED_SIZE : 0
+                  probe.offset_xy.x > 0 ? X_BED_SIZE : 0,
+                  probe.offset_xy.y < 0 ? Y_BED_SIZE : 0
                 #endif
               );
             }
@@ -788,8 +788,8 @@
       restore_ubl_active_state_and_leave();
 
       do_blocking_move_to_xy(
-        constrain(near.x - probe.offset.x, MESH_MIN_X, MESH_MAX_X),
-        constrain(near.y - probe.offset.y, MESH_MIN_Y, MESH_MAX_Y)
+        constrain(near.x - probe.offset_xy.x, MESH_MIN_X, MESH_MAX_X),
+        constrain(near.y - probe.offset_xy.y, MESH_MIN_Y, MESH_MAX_Y)
       );
     }
 
@@ -1248,7 +1248,7 @@
     closest.distance = -99999.9f;
 
     // Get the reference position, either nozzle or probe
-    const xy_pos_t ref = probe_relative ? pos + probe.offset : pos;
+    const xy_pos_t ref = probe_relative ? pos + probe.offset_xy : pos;
 
     float best_so_far = 99999.99f;
 

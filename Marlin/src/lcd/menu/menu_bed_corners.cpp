@@ -84,8 +84,8 @@ static int8_t bed_corner;
     ui.goto_screen([]{ MenuItem_static::draw((LCD_HEIGHT - 1) / 2, GET_TEXT(MSG_PROBING_MESH)); });
 
     float lfrb[4] = LEVEL_CORNERS_INSET_LFRB;
-    xy_pos_t lf { (X_MIN_BED) + lfrb[0] - probe.offset.x , (Y_MIN_BED) + lfrb[1] - probe.offset.y },
-             rb { (X_MAX_BED) - lfrb[2] - probe.offset.x , (Y_MAX_BED) - lfrb[3] - probe.offset.y };
+    xy_pos_t lf { (X_MIN_BED) + lfrb[0] - probe.offset_xy.x , (Y_MIN_BED) + lfrb[1] - probe.offset_xy.y },
+             rb { (X_MAX_BED) - lfrb[2] - probe.offset_xy.x , (Y_MAX_BED) - lfrb[3] - probe.offset_xy.y };
 
     do_blocking_move_to_z(LEVEL_CORNERS_Z_HOP - probe.offset.z);
 
@@ -95,7 +95,7 @@ static int8_t bed_corner;
       case 2: current_position.y = rb.y; break;
       case 3: current_position.x = lf.x; break;
       #if ENABLED(LEVEL_CENTER_TOO)
-        case 4: current_position.set(X_CENTER - probe.offset.x, Y_CENTER - probe.offset.y); good_points--; break;
+        case 4: current_position.set(X_CENTER - probe.offset_xy.x, Y_CENTER - probe.offset_xy.y); good_points--; break;
       #endif
     }
 

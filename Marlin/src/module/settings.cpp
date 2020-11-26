@@ -3407,8 +3407,8 @@ void MarlinSettings::reset() {
       CONFIG_ECHO_START();
       SERIAL_ECHOLNPAIR_P(
         #if HAS_PROBE_XY_OFFSET
-          PSTR("  M851 X"), LINEAR_UNIT(probe.offset.x),
-                  SP_Y_STR, LINEAR_UNIT(probe.offset.y),
+          PSTR("  M851 X"), LINEAR_UNIT(probe.offset_xy.x),
+                  SP_Y_STR, LINEAR_UNIT(probe.offset_xy.y),
                   SP_Z_STR
         #else
           PSTR("  M851 X0 Y0 Z")

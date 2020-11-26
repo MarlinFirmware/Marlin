@@ -88,6 +88,10 @@ Probe probe;
 
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
+#if HAS_PROBE_XY_OFFSET
+  const xy_pos_t &Probe::offset_xy = xy_pos_t(Probe::offset);
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -656,7 +660,7 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Position Not Reachable");
       return NAN;
     }
-    npos -= offset;                                      // Get the nozzle position
+    npos -= offset_xy;                                      // Get the nozzle position
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
 

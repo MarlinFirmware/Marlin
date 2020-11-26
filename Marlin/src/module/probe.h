@@ -59,7 +59,7 @@ public:
         // Return true if the both nozzle and the probe can reach the given point.
         // Note: This won't work on SCARA since the probe offset rotates with the arm.
         static inline bool can_reach(const float &rx, const float &ry) {
-          return position_is_reachable(rx - offset.x, ry - offset.y) // The nozzle can go where it needs to go?
+          return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y) // The nozzle can go where it needs to go?
               && position_is_reachable(rx, ry, ABS(PROBING_MARGIN));       // Can the nozzle also go near there?
         }
       #else
@@ -78,7 +78,7 @@ public:
        *          nozzle must be be able to reach +10,-10.
        */
       static inline bool can_reach(const float &rx, const float &ry) {
-        return position_is_reachable(rx - offset.x, ry - offset.y)
+        return position_is_reachable(rx - offset_xy.x, ry - offset_xy.y)
             && WITHIN(rx, min_x() - fslop, max_x() + fslop)
             && WITHIN(ry, min_y() - fslop, max_y() + fslop);
       }
@@ -125,6 +125,14 @@ public:
     );
   }
 
+  // Use offset_xy for read only access
+  // More optimal the XY offset is known to always be zero.
+  #if HAS_PROBE_XY_OFFSET
+    static const xy_pos_t &offset_xy;
+  #else
+    static constexpr xy_pos_t offset_xy = xy_pos_t({ 0, 0 });   // See #16767
+  #endif
+
   static inline bool deploy() { return set_deployed(true); }
   static inline bool stow() { return set_deployed(false); }
 
@@ -135,32 +143,32 @@ public:
         TERN_(IS_SCARA, SCARA_PRINTABLE_RADIUS)
       );
       static inline float probe_radius() {
-        return printable_radius - _MAX(PROBING_MARGIN, HYPOT(offset.x, offset.y));
+        return printable_radius - _MAX(PROBING_MARGIN, HYPOT(offset_xy.x, offset_xy.y));
       }
     #endif
 
     static inline float min_x() {
       return TERN(IS_KINEMATIC,
         (X_CENTER) - probe_radius(),
-        _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset.x)
+        _MAX((X_MIN_BED) + (PROBING_MARGIN_LEFT), (X_MIN_POS) + offset_xy.x)
       ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float max_x() {
       return TERN(IS_KINEMATIC,
         (X_CENTER) + probe_radius(),
-        _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset.x)
+        _MIN((X_MAX_BED) - (PROBING_MARGIN_RIGHT), (X_MAX_POS) + offset_xy.x)
       ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.x));
     }
     static inline float min_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) - probe_radius(),
-        _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset.y)
+        _MAX((Y_MIN_BED) + (PROBING_MARGIN_FRONT), (Y_MIN_POS) + offset_xy.y)
       ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
     static inline float max_y() {
       return TERN(IS_KINEMATIC,
         (Y_CENTER) + probe_radius(),
-        _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset.y)
+        _MIN((Y_MAX_BED) - (PROBING_MARGIN_BACK), (Y_MAX_POS) + offset_xy.y)
       ) - TERN0(NOZZLE_AS_PROBE, TERN0(HAS_HOME_OFFSET, home_offset.y));
     }
 

@@ -40,8 +40,8 @@
  */
 void GcodeSuite::G30() {
 
-  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset.x),
-                         parser.linearval('Y', current_position.y + probe.offset.y) };
+  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
+                         parser.linearval('Y', current_position.y + probe.offset_xy.y) };
 
   if (!probe.can_reach(pos)) return;
 

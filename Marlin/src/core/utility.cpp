@@ -81,21 +81,21 @@ void safe_delay(millis_t ms) {
       #if !HAS_PROBE_XY_OFFSET
         SERIAL_ECHOPAIR("Probe Offset X0 Y0 Z", probe.offset.z, " (");
       #else
-        SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe.offset.x, SP_Y_STR, probe.offset.y, SP_Z_STR, probe.offset.z);
-        if (probe.offset.x > 0)
+        SERIAL_ECHOPAIR_P(PSTR("Probe Offset X"), probe.offset_xy.x, SP_Y_STR, probe.offset_xy.y, SP_Z_STR, probe.offset.z);
+        if (probe.offset_xy.x > 0)
           SERIAL_ECHOPGM(" (Right");
-        else if (probe.offset.x < 0)
+        else if (probe.offset_xy.x < 0)
           SERIAL_ECHOPGM(" (Left");
-        else if (probe.offset.y != 0)
+        else if (probe.offset_xy.y != 0)
           SERIAL_ECHOPGM(" (Middle");
         else
           SERIAL_ECHOPGM(" (Aligned With");
 
-        if (probe.offset.y > 0)
+        if (probe.offset_xy.y > 0)
           serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Distal") : PSTR("-Back"));
-        else if (probe.offset.y < 0)
+        else if (probe.offset_xy.y < 0)
           serialprintPGM(ENABLED(IS_SCARA) ? PSTR("-Proximal") : PSTR("-Front"));
-        else if (probe.offset.x != 0)
+        else if (probe.offset_xy.x != 0)
           SERIAL_ECHOPGM("-Center");
 
         SERIAL_ECHOPGM(" & ");
