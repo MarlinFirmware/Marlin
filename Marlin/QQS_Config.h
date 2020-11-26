@@ -36,8 +36,9 @@
 * (T=397)/(B=417)/(b=141)
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
-//#define BMG                        //(B) Uncomment to change Extruder step.
-//#define BMini                        //(b) Uncomment to change Extruder step.
+//#define BMG                        //(B) Uncomment to change Extruder step(417).
+//#define Mini                        //(b) Uncomment BMG&Mini to change Extruder step(141).
+
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
