@@ -26,30 +26,19 @@
 
 #if USING_SERIAL_0
   MarlinSerial MSerial(LPC_UART0);
-  extern "C" void UART0_IRQHandler() {
-    MSerial.IRQHandler();
-  }
+  extern "C" void UART0_IRQHandler() { MSerial.IRQHandler(); }
 #endif
-
 #if USING_SERIAL_1
   MarlinSerial MSerial1((LPC_UART_TypeDef *) LPC_UART1);
-  extern "C" void UART1_IRQHandler() {
-    MSerial1.IRQHandler();
-  }
+  extern "C" void UART1_IRQHandler() { MSerial1.IRQHandler(); }
 #endif
-
 #if USING_SERIAL_2
   MarlinSerial MSerial2(LPC_UART2);
-  extern "C" void UART2_IRQHandler() {
-    MSerial2.IRQHandler();
-  }
+  extern "C" void UART2_IRQHandler() { MSerial2.IRQHandler(); }
 #endif
-
 #if USING_SERIAL_3
   MarlinSerial MSerial3(LPC_UART3);
-  extern "C" void UART3_IRQHandler() {
-    MSerial3.IRQHandler();
-  }
+  extern "C" void UART3_IRQHandler() { MSerial3.IRQHandler(); }
 #endif
 
 #endif // TARGET_LPC1768
