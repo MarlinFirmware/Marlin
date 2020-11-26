@@ -552,8 +552,12 @@
   #include "stm32f1/pins_MKS_ROBIN_PRO.h"       // STM32F1                                env:mks_robin_pro
 #elif MB(MKS_ROBIN_E3)
   #include "stm32f1/pins_MKS_ROBIN_E3.h"        // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3_V1_1)
+  #include "stm32f1/pins_MKS_ROBIN_E3_V1_1.h"   // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3D)
   #include "stm32f1/pins_MKS_ROBIN_E3D.h"       // STM32F1                                env:mks_robin_e3
+#elif MB(MKS_ROBIN_E3D_V1_1)
+  #include "stm32f1/pins_MKS_ROBIN_E3D_V1_1.h"  // STM32F1                                env:mks_robin_e3
 #elif MB(MKS_ROBIN_E3P)
   #include "stm32f1/pins_MKS_ROBIN_E3P.h"       // STM32F1                                env:mks_robin_e3p
 #elif MB(BTT_SKR_MINI_V1_1)
@@ -594,6 +598,8 @@
   #include "stm32f1/pins_FLY_MINI.h"            // STM32F1                                env:FLY_MINI
 #elif MB(FLSUN_HISPEED)
   #include "stm32f1/pins_FLSUN_HISPEED.h"       // STM32F1                                env:flsun_hispeed
+#elif MB(BEAST)
+  #include "stm32f1/pins_BEAST.h"               // STM32F1                                env:STM32F103RE
 
 //
 // ARM Cortex-M4F
@@ -608,10 +614,6 @@
 // STM32 ARM Cortex-M4F
 //
 
-#elif MB(BEAST)
-  #include "stm32f4/pins_BEAST.h"               // STM32F4                                env:STM32F4
-#elif MB(GENERIC_STM32F4)
-  #include "stm32f4/pins_GENERIC_STM32F4.h"     // STM32F4                                env:STM32F4
 #elif MB(ARMED)
   #include "stm32f4/pins_ARMED.h"               // STM32F4                                env:ARMED
 #elif MB(RUMBA32_V1_0)
@@ -633,13 +635,13 @@
 #elif MB(BTT_BTT002_V1_0)
   #include "stm32f4/pins_BTT_BTT002_V1_0.h"     // STM32F4                                env:BIGTREE_BTT002
 #elif MB(LERDGE_K)
-  #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_LERDGE_K.h"            // STM32F4                                env:LERDGEK
 #elif MB(LERDGE_S)
-  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGE_S
+  #include "stm32f4/pins_LERDGE_S.h"            // STM32F4                                env:LERDGES
 #elif MB(LERDGE_X)
-  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGE_X
+  #include "stm32f4/pins_LERDGE_X.h"            // STM32F4                                env:LERDGEX
 #elif MB(VAKE403D)
-  #include "stm32f4/pins_VAKE403D.h"            // STM32F4                                env:STM32F4
+  #include "stm32f4/pins_VAKE403D.h"            // STM32F4
 #elif MB(FYSETC_S6)
   #include "stm32f4/pins_FYSETC_S6.h"           // STM32F4                                env:FYSETC_S6
 #elif MB(FLYF407ZG)
@@ -653,10 +655,8 @@
 // ARM Cortex M7
 //
 
-#elif MB(THE_BORG)
-  #include "stm32f7/pins_THE_BORG.h"            // STM32F7                                env:STM32F7
 #elif MB(REMRAM_V1)
-  #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:STM32F7
+  #include "stm32f7/pins_REMRAM_V1.h"           // STM32F7                                env:REMRAM_V1
 #elif MB(NUCLEO_F767ZI)
   #include "stm32f7/pins_NUCLEO_F767ZI.h"       // STM32F7                                env:NUCLEO_F767ZI
 #elif MB(TEENSY41)
