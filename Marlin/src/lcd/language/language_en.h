@@ -258,6 +258,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Move 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Move 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Move 10mm");
+  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Move 0.001in");
+  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Move 0.01in");
+  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Move 0.1in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Speed");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Bed Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Nozzle");
@@ -670,6 +673,8 @@ namespace Language_en {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Reheating...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Z Probe Wizard");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Probing Z Reference");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Moving to Probing Pos");
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sound");
 
