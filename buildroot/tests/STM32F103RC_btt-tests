@@ -21,6 +21,7 @@ opt_set X_SLAVE_ADDRESS 0
 opt_set Y_SLAVE_ADDRESS 1
 opt_set Z_SLAVE_ADDRESS 2
 opt_set E0_SLAVE_ADDRESS 3
+opt_enable PINS_DEBUGGING
 
 exec_test $1 $2 "BigTreeTech SKR Mini E3 1.0 - Basic Config with TMC2209 HW Serial" "$3"
 

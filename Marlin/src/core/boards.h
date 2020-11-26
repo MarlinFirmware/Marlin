@@ -329,6 +329,7 @@
 #define BOARD_TRIGORILLA_PRO          4037  // Trigorilla Pro (STM32F103ZET6)
 #define BOARD_FLY_MINI                4038  // FLY MINI (STM32F103RCT6)
 #define BOARD_FLSUN_HISPEED           4039  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4040  // STM32F103RET6 Libmaple-based controller
 
 //
 // ARM Cortex-M4F
@@ -341,37 +342,34 @@
 // STM32 ARM Cortex-M4F
 //
 
-#define BOARD_BEAST                   4200  // STM32F4xxVxT6 Libmaple-based STM32F4 controller
-#define BOARD_GENERIC_STM32F4         4201  // STM32 STM32GENERIC-based STM32F4 controller
-#define BOARD_ARMED                   4202  // Arm'ed STM32F4-based controller
-#define BOARD_RUMBA32_V1_0            4203  // RUMBA32 STM32F446VET6 based controller from Aus3D
-#define BOARD_RUMBA32_V1_1            4204  // RUMBA32 STM32F446VET6 based controller from Aus3D
-#define BOARD_RUMBA32_MKS             4205  // RUMBA32 STM32F446VET6 based controller from Makerbase
-#define BOARD_BLACK_STM32F407VE       4206  // BLACK_STM32F407VE
-#define BOARD_BLACK_STM32F407ZE       4207  // BLACK_STM32F407ZE
-#define BOARD_STEVAL_3DP001V1         4208  // STEVAL-3DP001V1 3D PRINTER BOARD
-#define BOARD_BTT_SKR_PRO_V1_1        4209  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
-#define BOARD_BTT_SKR_PRO_V1_2        4210  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
-#define BOARD_BTT_BTT002_V1_0         4211  // BigTreeTech BTT002 v1.0 (STM32F407VG)
-#define BOARD_BTT_GTR_V1_0            4212  // BigTreeTech GTR v1.0 (STM32F407IGT)
-#define BOARD_LERDGE_K                4213  // Lerdge K (STM32F407ZG)
-#define BOARD_LERDGE_S                4214  // Lerdge S (STM32F407VE)
-#define BOARD_LERDGE_X                4215  // Lerdge X (STM32F407VE)
-#define BOARD_VAKE403D                4216  // VAkE 403D (STM32F446VET6)
-#define BOARD_FYSETC_S6               4217  // FYSETC S6 board
-#define BOARD_FYSETC_S6_V2_0          4218  // FYSETC S6 v2.0 board
-#define BOARD_FLYF407ZG               4219  // FLYF407ZG board (STM32F407ZG)
-#define BOARD_MKS_ROBIN2              4220  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_ARMED                   4200  // Arm'ed STM32F4-based controller
+#define BOARD_RUMBA32_V1_0            4201  // RUMBA32 STM32F446VET6 based controller from Aus3D
+#define BOARD_RUMBA32_V1_1            4202  // RUMBA32 STM32F446VET6 based controller from Aus3D
+#define BOARD_RUMBA32_MKS             4203  // RUMBA32 STM32F446VET6 based controller from Makerbase
+#define BOARD_BLACK_STM32F407VE       4204  // BLACK_STM32F407VE
+#define BOARD_BLACK_STM32F407ZE       4205  // BLACK_STM32F407ZE
+#define BOARD_STEVAL_3DP001V1         4206  // STEVAL-3DP001V1 3D PRINTER BOARD
+#define BOARD_BTT_SKR_PRO_V1_1        4207  // BigTreeTech SKR Pro v1.1 (STM32F407ZG)
+#define BOARD_BTT_SKR_PRO_V1_2        4208  // BigTreeTech SKR Pro v1.2 (STM32F407ZG)
+#define BOARD_BTT_BTT002_V1_0         4209  // BigTreeTech BTT002 v1.0 (STM32F407VG)
+#define BOARD_BTT_GTR_V1_0            4210  // BigTreeTech GTR v1.0 (STM32F407IGT)
+#define BOARD_LERDGE_K                4211  // Lerdge K (STM32F407ZG)
+#define BOARD_LERDGE_S                4212  // Lerdge S (STM32F407VE)
+#define BOARD_LERDGE_X                4213  // Lerdge X (STM32F407VE)
+#define BOARD_VAKE403D                4214  // VAkE 403D (STM32F446VET6)
+#define BOARD_FYSETC_S6               4215  // FYSETC S6 board
+#define BOARD_FYSETC_S6_V2_0          4216  // FYSETC S6 v2.0 board
+#define BOARD_FLYF407ZG               4217  // FLYF407ZG board (STM32F407ZG)
+#define BOARD_MKS_ROBIN2              4218  // MKS_ROBIN2 (STM32F407ZE)
 
 //
 // ARM Cortex M7
 //
 
-#define BOARD_THE_BORG                5000  // THE-BORG (Power outputs: Hotend0, Hotend1, Bed, Fan)
-#define BOARD_REMRAM_V1               5001  // RemRam v1
-#define BOARD_TEENSY41                5002  // Teensy 4.1
-#define BOARD_T41U5XBB                5003  // T41U5XBB Teensy 4.1 breakout board
-#define BOARD_NUCLEO_F767ZI           5004  // ST NUCLEO-F767ZI Dev Board
+#define BOARD_REMRAM_V1               5000  // RemRam v1
+#define BOARD_TEENSY41                5001  // Teensy 4.1
+#define BOARD_T41U5XBB                5002  // T41U5XBB Teensy 4.1 breakout board
+#define BOARD_NUCLEO_F767ZI           5003  // ST NUCLEO-F767ZI Dev Board
 
 //
 // Espressif ESP32 WiFi
