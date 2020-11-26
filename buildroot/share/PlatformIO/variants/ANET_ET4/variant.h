@@ -269,7 +269,7 @@ extern "C" {
 #define LED_GREEN               LED_BUILTIN
 
 // On-board user button
-//#define USER_BTN                
+//#define USER_BTN
 
 // Below SPI and I2C definitions already done in the core
 // Could be redefined here if differs from the default one

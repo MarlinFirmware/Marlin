@@ -261,17 +261,16 @@ void TFT_Queue::add_image(int16_t x, int16_t y, MarlinImage image, uint16_t *col
   if (color_mode == HIGHCOLOR) return;
 
   uint16_t *color = (uint16_t *)end_of_queue;
-  uint8_t number_of_color = 0;
+  uint8_t color_count = 0;
 
   switch (color_mode) {
-    case GREYSCALE1:  number_of_color =  1; break;
-    case GREYSCALE2:  number_of_color =  3; break;
-    case GREYSCALE4:  number_of_color = 15; break;
-    default:
-      break;
+    case GREYSCALE1: color_count =  1; break;
+    case GREYSCALE2: color_count =  3; break;
+    case GREYSCALE4: color_count = 15; break;
+    default: break;
   }
 
-  while (number_of_color--) {
+  while (color_count--) {
     *color++ = *colors++;
   }
 

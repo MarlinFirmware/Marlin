@@ -47,10 +47,11 @@ void TFT_FSMC::Init() {
 
   uint32_t NSBank = (uint32_t)pinmap_peripheral(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
 
+  // Perform the SRAM1 memory initialization sequence
   SRAMx.Instance = FSMC_NORSRAM_DEVICE;
   SRAMx.Extended = FSMC_NORSRAM_EXTENDED_DEVICE;
-  /* SRAMx.Init */
   SRAMx.Init.NSBank = NSBank;
+  // SRAMx.Init
   SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
   SRAMx.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
@@ -66,8 +67,8 @@ void TFT_FSMC::Init() {
   #ifdef STM32F4xx
     SRAMx.Init.PageSize = FSMC_PAGE_SIZE_NONE;
   #endif
-  /* Read Timing - relatively slow to ensure ID information is correctly read from TFT controller */
-  /* Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss */
+  // Read Timing - relatively slow to ensure ID information is correctly read from TFT controller
+  // Can be decreases from 15-15-24 to 4-4-8 with risk of stability loss
   Timing.AddressSetupTime = 15;
   Timing.AddressHoldTime = 15;
   Timing.DataSetupTime = 24;
@@ -75,8 +76,8 @@ void TFT_FSMC::Init() {
   Timing.CLKDivision = 16;
   Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
-  /* Write Timing */
-  /* Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss */
+  // Write Timing
+  // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
   ExtTiming.AddressSetupTime = 8;
   ExtTiming.AddressHoldTime = 15;
   ExtTiming.DataSetupTime = 8;
