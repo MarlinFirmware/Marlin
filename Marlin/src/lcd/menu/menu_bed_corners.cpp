@@ -141,10 +141,7 @@ static int8_t bed_corner;
       }
       wait_for_probe = false;
 
-      #if ENABLED(LEVEL_CORNERS_VERIFY_RAISED)
-        verify_corner = true;
-      #endif
-
+      TERN_(LEVEL_CORNERS_VERIFY_RAISED, verify_corner = true);
     }
 
     TERN_(QUIET_PROBING, probe.set_probing_paused(false));
@@ -159,11 +156,11 @@ static int8_t bed_corner;
         last_z = current_position.z;
         good_points = 0;
       }
-      if (!verify_corners) good_points++;
+      if (!verify_corner) good_points++;
     }
 
     if (!corner_probing_done) {
-      if (!verify_corners) bed_corner++;
+      if (!verify_corner) bed_corner++;
       if (bed_corner > 3) bed_corner = 0;
       verify_corner = false;
       if (good_points < 4)
