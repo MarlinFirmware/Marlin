@@ -153,10 +153,16 @@ void HAL_init();
 //
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 #ifdef __cplusplus
   extern "C" {

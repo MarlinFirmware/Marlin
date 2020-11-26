@@ -31,18 +31,18 @@
 #include <CDCSerial.h>
 #include <usb/mscuser.h>
 
-extern "C" {
-  #include <debug_frmwrk.h>
-}
-
 #include "../../inc/MarlinConfig.h"
 #include "../../core/millis_t.h"
 
 #include "../../sd/cardreader.h"
 
 extern uint32_t MSC_SD_Init(uint8_t pdrv);
-extern "C" int isLPC1769();
-extern "C" void disk_timerproc();
+
+extern "C" {
+  #include <debug_frmwrk.h>
+  extern "C" int isLPC1769();
+  extern "C" void disk_timerproc();
+}
 
 void SysTick_Callback() { disk_timerproc(); }
 

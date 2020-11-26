@@ -91,9 +91,11 @@ typedef uint64_t hal_timer_t;
   #define HAL_PWM_TIMER_ISR() extern "C" void pwmTC_Handler()
 #endif
 
-extern "C" void tempTC_Handler();
-extern "C" void stepTC_Handler();
-extern "C" void pwmTC_Handler();
+extern "C" {
+  void tempTC_Handler();
+  void stepTC_Handler();
+  void pwmTC_Handler();
+}
 
 // ------------------------
 // Types

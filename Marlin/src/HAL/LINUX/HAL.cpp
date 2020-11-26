@@ -27,18 +27,13 @@
 HalSerial usb_serial;
 
 // U8glib required functions
-extern "C" void u8g_xMicroDelay(uint16_t val) {
-  DELAY_US(val);
+extern "C" {
+  void u8g_xMicroDelay(uint16_t val) { DELAY_US(val); }
+  void u8g_MicroDelay()              { u8g_xMicroDelay(1); }
+  void u8g_10MicroDelay()            { u8g_xMicroDelay(10); }
+  void u8g_Delay(uint16_t val)       { delay(val); }
 }
-extern "C" void u8g_MicroDelay() {
-  u8g_xMicroDelay(1);
-}
-extern "C" void u8g_10MicroDelay() {
-  u8g_xMicroDelay(10);
-}
-extern "C" void u8g_Delay(uint16_t val) {
-  delay(val);
-}
+
 //************************//
 
 // return free heap space
