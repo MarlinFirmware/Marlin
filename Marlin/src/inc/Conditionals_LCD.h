@@ -1189,3 +1189,7 @@
     #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
+
+#if MB(ANET_ET4, ANET_ET5)
+  #define IS_ANET_ET 1
+#endif
