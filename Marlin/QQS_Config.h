@@ -37,10 +37,11 @@
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
 //#define BMG                        //(B) Uncomment to change Extruder step.
+//#define BMini                        //(b) Uncomment to change Extruder step.
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
-#define MKS_ROBIN_TFT32            //Mks_Robin_TFTV2.0
+#define MKS_ROBIN_TFT32            //Mks_Robin_TFTV_2.0
 //#define MKS_ROBIN_TFT28            //Mks_Robin_TFT
 //#define MKS_ROBIN_TFT_V1_1R
 //#define MKS_ROBIN_TFT24
@@ -67,7 +68,7 @@
 
 //Choice add menu: (OPT)
 //#define DELTA_CALIBRATION_MENU     //auto for CLASSIC and COLOR (NC LVGL)
-#define SOFT_ENDSTOPS_MENU_ITEM      // for UI CLASSIC and UI COLOR
+#define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
 #define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe.
@@ -124,9 +125,9 @@
 // Software Serial UART for TMC 2208 / TMC 2209
 #ifdef QQS_UARTx
     #define QQS_UART
-    #define DRIVER_AXES TMC2209
+    #define DRIVER_AXES TMC2208
     #ifndef DRIVER_EXT
-      #define DRIVER_EXT TMC2209
+      #define DRIVER_EXT TMC2208
     #endif
 #endif
 
@@ -145,7 +146,3 @@
     #endif
 #endif
 
-//For Some Special Users //
-//#define Pat
-//#define Hanz
-//#define Kendric
