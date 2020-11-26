@@ -257,7 +257,7 @@ namespace Language_vi {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Nhiệt độ");                             // Temperature
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Chuyển động");                          // Motion
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Vật liệu in");                          // dây nhựa
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E bằng mm³");                           // E in mm
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E bằng mm") SUPERSCRIPT_THREE;                           // E in mm
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Đường kính nhựa");                      // Fil. Dai.
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Đường kính nhựa *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Dỡ mm");                                // unload mm

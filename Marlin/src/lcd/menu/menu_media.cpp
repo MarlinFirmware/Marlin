@@ -104,8 +104,6 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
     }
 };
 
-extern uint8_t screen_history_depth;
-
 void menu_media() {
   ui.encoder_direction_menus();
 

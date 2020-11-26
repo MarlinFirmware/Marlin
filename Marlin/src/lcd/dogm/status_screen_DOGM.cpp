@@ -38,10 +38,11 @@
 #include "../../module/motion.h"
 #include "../../module/temperature.h"
 
+#include "../../gcode/parser.h" // for units (and volumetric)
+
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   #include "../../feature/filwidth.h"
   #include "../../module/planner.h"
-  #include "../../gcode/parser.h"
 #endif
 
 #if HAS_CUTTER
@@ -67,6 +68,11 @@
 #define X_LABEL_POS      3
 #define X_VALUE_POS     11
 #define XYZ_SPACING     37
+
+#define X_LABEL_POS_IN (X_LABEL_POS - 2)
+#define X_VALUE_POS_IN (X_VALUE_POS - 5)
+#define XYZ_SPACING_IN (XYZ_SPACING + 9)
+
 #define XYZ_BASELINE    (30 + INFO_FONT_ASCENT)
 #define EXTRAS_BASELINE (40 + INFO_FONT_ASCENT)
 #define STATUS_BASELINE (LCD_PIXEL_HEIGHT - INFO_FONT_DESCENT)
@@ -370,10 +376,12 @@ FORCE_INLINE void _draw_centered_temp(const int16_t temp, const uint8_t tx, cons
 // Homed and known, display constantly.
 //
 FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const bool blink) {
+  const bool is_inch = parser.using_inch_units();
   const AxisEnum a = TERN(LCD_SHOW_E_TOTAL, axis == E_AXIS ? X_AXIS : axis, axis);
-  const uint8_t offs = (XYZ_SPACING) * a;
-  lcd_put_wchar(X_LABEL_POS + offs, XYZ_BASELINE, axis_codes[axis]);
-  lcd_moveto(X_VALUE_POS + offs, XYZ_BASELINE);
+  const uint8_t offs = a * (is_inch ? XYZ_SPACING_IN : XYZ_SPACING);
+  lcd_put_wchar((is_inch ? X_LABEL_POS_IN : X_LABEL_POS) + offs, XYZ_BASELINE, axis_codes[axis]);
+  lcd_moveto((is_inch ? X_VALUE_POS_IN : X_VALUE_POS) + offs, XYZ_BASELINE);
+
   if (blink)
     lcd_put_u8str(value);
   else {
@@ -390,9 +398,16 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   }
 }
 
+/**
+ * Draw the Status Screen for a 128x64 DOGM (U8glib) display.
+ *
+ * Called as needed to update the current display stripe.
+ * Use the PAGE_CONTAINS macros to avoid pointless draw calls.
+ */
 void MarlinUI::draw_status_screen() {
+  constexpr int xystorage = TERN(INCH_MODE_SUPPORT, 8, 5);
+  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, xystorage)], ystring[xystorage], zstring[8];
 
-  static char xstring[TERN(LCD_SHOW_E_TOTAL, 12, 5)], ystring[5], zstring[8];
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     static char wstring[5], mstring[4];
   #endif
@@ -439,7 +454,8 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     const xyz_pos_t lpos = current_position.asLogical();
-    strcpy(zstring, ftostr52sp(lpos.z));
+    const bool is_inch = parser.using_inch_units();
+    strcpy(zstring, is_inch ? ftostr42_52(LINEAR_UNIT(lpos.z)) : ftostr52sp(lpos.z));
 
     if (show_e_total) {
       #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -448,8 +464,8 @@ void MarlinUI::draw_status_screen() {
       #endif
     }
     else {
-      strcpy(xstring, ftostr4sign(lpos.x));
-      strcpy(ystring, ftostr4sign(lpos.y));
+      strcpy(xstring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.x)) : ftostr4sign(lpos.x));
+      strcpy(ystring, is_inch ? ftostr53_63(LINEAR_UNIT(lpos.y)) : ftostr4sign(lpos.y));
     }
 
     #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -854,6 +870,9 @@ void MarlinUI::draw_status_screen() {
   }
 }
 
+/**
+ * Draw the Status Message area
+ */
 void MarlinUI::draw_status_message(const bool blink) {
 
   // Get the UTF8 character count of the string
