@@ -79,14 +79,34 @@ void plan_arc(
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
-  if (angular_travel < 0) angular_travel += RADIANS(360);
+
+  //ATAN2 gives shortest angle to target vector (i.e. (-pi, +pi] ) // bracket after +pi means inclusive range
+  // < 0 means CW angle and > 0 means CCW angle -> i.e. -pi (example case since atan2 never returns -pi) equals 180 degrees CW and +pi equals 180 degrees CCW even though both reach same target vector
+  
+  // Thus, the only time this should be modified (i.e. through the switch statement below) is if user through specification of either G2 or G3 needs to use the larger angle i.e. > 180 degrees CW or > 180 degress CCW
+
+  switch (((angular_travel < 0)<<1) + clockwise) {
+    // possible values:
+    // 0 : means atan2 angle > 0 and user has not specified clockwise motion -> no angular correction needed since atan2 already returns the correct CCW angle
+    // 1 : means atan2 angle > 0 but user has specified clockwise motion -> thus atan2 returns a CCW angle but we need CW angle. We must subtract 2pi radians to get CW angle.
+    // 2 : means atan2 angle < 0 but user has specified counter-clockwise motion -> thus atan2 returns a CW angle but we need CCW angle. We must add 2pi radians to get CCW angle.
+    // 3 : means atan2 angle < 0 and user has not specified counter-clockwise motion ->  no angular correction needed since atan2 already returns the correect CW angle
+    case 1:
+      angular_travel -= RADIANS(360);
+      break;
+    case 2:
+      angular_travel += RADIANS(360); 
+      break;
+  }
+
+
+
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (ABS(angular_travel) / RADIANS(360))); // since CW (if specified via G2) angular_travel is negative we must ensure absolute value ABS function is always used here
     NOLESS(min_segments, 1U);
   #else
     constexpr uint16_t min_segments = 1;
   #endif
-  if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0 and the target is current position
   if (NEAR_ZERO(angular_travel) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
