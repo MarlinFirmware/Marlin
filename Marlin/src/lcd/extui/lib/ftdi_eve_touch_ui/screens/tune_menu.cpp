@@ -22,7 +22,7 @@
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && !defined(TOUCH_UI_LULZBOT_BIO)
+#if ENABLED(TOUCH_UI_FTDI_EVE) && DISABLED(TOUCH_UI_LULZBOT_BIO)
 
 #include "screens.h"
 
