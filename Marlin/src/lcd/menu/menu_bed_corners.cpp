@@ -60,8 +60,6 @@
     #define PROBE_BUZZ() NOOP
   #endif
   static float last_z;
-  static bool wait_for_probe;
-  static bool probe_triggered;
   static bool corner_probing_done;
   static bool verify_corner;
   static int good_points;
@@ -108,10 +106,15 @@ static int8_t bed_corner;
     #endif
     TERN_(QUIET_PROBING, probe.set_probing_paused(true));
 
-    do_blocking_move_to_z(last_z - (LEVEL_CORNERS_PROBE_TOLERANCE), manual_feedrate_mm_s.z);// Move down until the probe is triggered
-    probe_triggered = TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE));// Check to see if the probe was triggered
+    // Move down until the probe is triggered
+    do_blocking_move_to_z(last_z - (LEVEL_CORNERS_PROBE_TOLERANCE), manual_feedrate_mm_s.z);
 
+    // Check to see if the probe was triggered
+    bool probe_triggered = TEST(endstops.trigger_state(), TERN(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_MIN, Z_MIN_PROBE));
     if (!probe_triggered) {
+
+      static bool wait_for_probe;
+
       ui.goto_screen([]{
         MenuItem_confirm::select_screen(
           GET_TEXT(MSG_BUTTON_DONE), GET_TEXT(MSG_BUTTON_SKIP)
@@ -240,8 +243,6 @@ void _lcd_level_bed_corners() {
 
   #if ENABLED(LEVEL_CORNERS_USE_PROBE)
     last_z = LEVEL_CORNERS_HEIGHT;
-    wait_for_probe = false;
-    probe_triggered = false;
     corner_probing_done = false;
     verify_corner = false;
     good_points = 0;
