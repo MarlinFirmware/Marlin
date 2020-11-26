@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * MKS Robin E3 (STM32F103RCT6) board pin assignments
+ * MKS Robin E3 v1.1 (STM32F103RCT6) board pin assignments
  */
 
 #if HOTENDS > 1 || E_STEPPERS > 1
