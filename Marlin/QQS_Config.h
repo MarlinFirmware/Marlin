@@ -79,7 +79,7 @@
 #define AUTO_BED_LEVELING_BILINEAR //(A)
 //#define AUTO_BED_LEVELING_UBL      //(U)
 //#define LEVEL_BED_CORNERS
-#define PROBE_OFFSET_WIZARD
+//#define PROBE_OFFSET_WIZARD
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
