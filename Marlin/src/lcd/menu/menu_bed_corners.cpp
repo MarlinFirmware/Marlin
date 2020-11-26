@@ -60,11 +60,11 @@
     #define PROBE_BUZZ() NOOP
   #endif
   static float last_z;
-  bool wait_for_probe;
-  bool probe_triggered;
-  bool corner_probing_done;
-  bool verify_corner;
-  int good_points;
+  static bool wait_for_probe;
+  static bool probe_triggered;
+  static bool corner_probing_done;
+  static bool verify_corner;
+  static int good_points;
 #endif
 
 static_assert(LEVEL_CORNERS_Z_HOP >= 0, "LEVEL_CORNERS_Z_HOP must be >= 0. Please update your configuration.");
