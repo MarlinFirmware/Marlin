@@ -81,11 +81,10 @@ void plan_arc(
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
 
   // Make sure angular travel over 180 degrees goes the other way around.
-  const uint8_t congruity = ((angular_travel < 0) << 1) + clockwise;
-  if (congruity == 1)
-    angular_travel -= RADIANS(360);  // Positive but CW? Reverse direction.
-  else if (congruity == 2)
-    angular_travel += RADIANS(360);  // Negative but CCW? Reverse direction.
+  switch (((angular_travel < 0) << 1) + clockwise) {
+    case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
+    case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
+  }
 
   #ifdef MIN_ARC_SEGMENTS
     uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * ABS(angular_travel) / RADIANS(360));
