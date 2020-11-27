@@ -187,9 +187,6 @@ void GcodeSuite::G35() {
 
   // After this operation the Z position needs correction
   set_axis_never_homed(Z_AXIS);
-
-  // Home Z after the alignment procedure
-  process_subcommands_now_P(PSTR("G28Z"));
 }
 
 #endif // ASSISTED_TRAMMING
