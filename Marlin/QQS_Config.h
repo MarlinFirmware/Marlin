@@ -76,8 +76,8 @@
 #define LCD_INFO_MENU              // Informations printer.
 
 //  Type Calibration (CAL)
-#define AUTO_BED_LEVELING_BILINEAR //(A)
-//#define AUTO_BED_LEVELING_UBL      //(U)
+//#define AUTO_BED_LEVELING_BILINEAR //(A)
+#define AUTO_BED_LEVELING_UBL      //(U)
 //#define LEVEL_BED_CORNERS
 //#define PROBE_OFFSET_WIZARD
 
