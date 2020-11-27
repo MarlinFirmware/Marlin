@@ -117,6 +117,9 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
 
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
 

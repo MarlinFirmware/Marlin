@@ -882,6 +882,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
       #endif
 
+      #if ENABLED(GCODE_REPEAT_MARKERS)
+        case 808: M808(); break;                                  // M808: Set / Goto repeat markers
+      #endif
+
       #if ENABLED(I2C_POSITION_ENCODERS)
         case 860: M860(); break;                                  // M860: Report encoder module position
         case 861: M861(); break;                                  // M861: Report encoder module status
