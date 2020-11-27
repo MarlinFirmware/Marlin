@@ -34,7 +34,8 @@
     "protocols": [
       "stlink",
       "dfu",
-      "jlink"
+      "jlink",
+	  "cmsis-dap"
     ],
     "offset_address": "0x8008000",
     "require_upload_port": true,

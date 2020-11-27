@@ -45,6 +45,12 @@
 #endif
 
 //
+// USB OTG Host
+//
+#define USB_OTG_DM  PA11
+#define USB_OTG_DP  PA12
+
+//
 // Servos
 //
 #define SERVO0_PIN                          PA1

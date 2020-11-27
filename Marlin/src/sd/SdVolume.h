@@ -36,6 +36,8 @@
 
 #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
   #include "usb_flashdrive/Sd2Card_FlashDrive.h"
+#elif ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+  #include "usb_hostmsc/Sd2Card_usbhost_msc.h"
 #elif ENABLED(SDIO_SUPPORT)
   #include "Sd2Card_sdio.h"
 #else

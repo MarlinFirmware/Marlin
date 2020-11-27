@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -21,14 +18,11 @@
  */
 #pragma once
 
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "BIGTREE SKR Pro V1.1 supports up to 3 hotends / E-steppers."
-#endif
+#include <stdint.h>
 
-#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT) && ((SERIAL_PORT == -1) || (SERIAL_PORT_2 == -1))
-  #error "USB host msc and USB emulated serial port cannot be enabled on SKR Pro V1.1 at the same time"
-#endif
+void USBH_HAL_Init(void);
+void USB_HAL_Loop(void);
 
-#define BOARD_INFO_NAME "BTT SKR Pro V1.1"
-
-#include "pins_BTT_SKR_PRO_common.h"
+uint8_t USBH_IsConnected(void);
+uint8_t USBH_read(uint8_t lun, uint8_t *buff, uint32_t sector, uint32_t count);
+uint8_t USBH_write(uint8_t lun, const uint8_t *buff, uint32_t sector, uint32_t count);

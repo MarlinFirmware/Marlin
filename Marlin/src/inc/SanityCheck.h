@@ -2901,6 +2901,10 @@ static_assert(   _ARR_TEST(3,0) && _ARR_TEST(3,1) && _ARR_TEST(3,2)
   #error "USB_CS_PIN and USB_INTR_PIN are required for USB_FLASH_DRIVE_SUPPORT."
 #endif
 
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT) && NOT_TARGET(STM32F4)
+  #error "USB host msc only supported in STM32F4 platform now!"
+#endif
+
 #if ENABLED(SD_FIRMWARE_UPDATE) && !defined(__AVR_ATmega2560__)
   #error "SD_FIRMWARE_UPDATE requires an ATmega2560-based (Arduino Mega) board."
 #endif
