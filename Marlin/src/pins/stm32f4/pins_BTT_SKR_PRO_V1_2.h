@@ -25,8 +25,14 @@
   #error "BIGTREE SKR Pro V1.2 supports up to 3 hotends / E-steppers."
 #endif
 
-#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT) && ((SERIAL_PORT == -1) || (SERIAL_PORT_2 == -1))
-  #error "USB host msc and USB emulated serial port cannot be enabled on SKR Pro V1.2 at the same time"
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+  #if ENABLED(USBCON)
+    #error "USB host msc need DELETED the -DUSBCON in platformio.ini"
+  #endif
+
+  #if (SERIAL_PORT == -1) || (SERIAL_PORT_2 == -1)
+    #error "USB host msc and USB emulated serial port cannot be enabled on SKR Pro V1.2 at the same time"
+  #endif
 #endif
 
 #define BOARD_INFO_NAME "BTT SKR Pro V1.2"
