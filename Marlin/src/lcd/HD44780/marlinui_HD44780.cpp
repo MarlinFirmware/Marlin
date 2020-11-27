@@ -714,7 +714,7 @@ inline uint8_t draw_elapsed_or_remaining_time(uint8_t timepos, const bool blink)
     const bool show_remain = TERN1(ROTATE_PROGRESS_DISPLAY, blink) && (printingIsActive() || marlin_state == MF_SD_COMPLETE);
     if (show_remain) {
       #if ENABLED(USE_M73_REMAINING_TIME)
-        duration_t remaining = get_remaining_time();
+        duration_t remaining = ui.get_remaining_time();
       #else
         uint8_t progress = ui.get_progress_percent();
         uint32_t elapsed = print_job_timer.duration();
