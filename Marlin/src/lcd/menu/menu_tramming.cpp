@@ -49,7 +49,7 @@ bool probe_single_point() {
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
 
-  // Move XY to wait position
+  // Move XYZ to wait position
   move_to_wait_pos();
 
   return !isnan(z_probed_height);

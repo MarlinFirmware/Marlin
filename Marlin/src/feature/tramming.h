@@ -65,7 +65,7 @@ extern PGM_P const tramming_point_name[];
 
 inline void move_to_wait_pos() {
   #ifdef ASSISTED_TRAMMING_WAIT_POSITION
-    // Move XY to wait position
+    // Move XYZ to wait position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");
     const xyz_pos_t wait_pos = ASSISTED_TRAMMING_WAIT_POSITION;
     do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S);
