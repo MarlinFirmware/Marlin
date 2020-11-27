@@ -41,10 +41,12 @@
  */
 void GcodeSuite::M355() {
   bool didset = false;
-  if (parser.seenval('P')) {
-    didset = true;
-    caselight.brightness = parser.value_byte();
-  }
+  #if CASELIGHT_USES_BRIGHTNESS
+    if (parser.seenval('P')) {
+      didset = true;
+      caselight.brightness = parser.value_byte();
+    }
+  #endif
   const bool sflag = parser.seenval('S');
   if (sflag) {
     didset = true;
@@ -58,8 +60,13 @@ void GcodeSuite::M355() {
   if (!caselight.on)
     SERIAL_ECHOLNPGM(STR_OFF);
   else {
-    if (!PWM_PIN(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM(STR_ON);
-    else SERIAL_ECHOLN(int(caselight.brightness));
+    #if CASELIGHT_USES_BRIGHTNESS
+      if (PWM_PIN(CASE_LIGHT_PIN)) {
+        SERIAL_ECHOLN(int(caselight.brightness));
+        return;
+      }
+    #endif
+    SERIAL_ECHOLNPGM(STR_ON);
   }
 }
 

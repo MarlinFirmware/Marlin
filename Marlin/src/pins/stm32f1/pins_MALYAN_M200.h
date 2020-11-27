@@ -25,13 +25,16 @@
  * MALYAN M200 pin assignments
  */
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select an STM32 board in your IDE."
 #endif
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "Malyan M200"
 #endif
+
+// Prevents hanging from an extra watchdog init
+#define DISABLE_WATCHDOG_INIT
 
 // Assume Flash EEPROM
 #if NO_EEPROM_SELECTED

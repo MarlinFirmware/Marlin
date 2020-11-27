@@ -25,7 +25,7 @@
  * Tenlog pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Tenlog supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -163,7 +163,7 @@
 // LCD / Controller
 //
 
-//#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+//#if IS_RRD_SC
 
 #define LCD_PINS_RS                           -1
 #define LCD_PINS_ENABLE                       -1
@@ -182,4 +182,4 @@
 #define BEEPER_PIN                            -1
 //#endif
 
-//#endif // REPRAP_DISCOUNT_SMART_CONTROLLER
+//#endif // IS_RRD_SC

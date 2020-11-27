@@ -27,7 +27,7 @@
 #include "../gcode.h"
 #include "../../module/motion.h"
 #include "../../module/probe.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 #include "../../feature/bedlevel/bedlevel.h"
 
@@ -144,7 +144,7 @@ void GcodeSuite::M48() {
     float sample_sum = 0.0;
 
     LOOP_L_N(n, n_samples) {
-      #if HAS_SPI_LCD
+      #if HAS_WIRED_LCD
         // Display M48 progress in the status bar
         ui.status_printf_P(0, PSTR(S_FMT ": %d/%d"), GET_TEXT(MSG_M48_POINT), int(n + 1), int(n_samples));
       #endif
@@ -192,8 +192,8 @@ void GcodeSuite::M48() {
           // Choose the next position as an offset to chosen test position
           const xy_pos_t noz_pos = test_position - probe.offset_xy;
           xy_pos_t next_pos = {
-            noz_pos.x + cos(RADIANS(angle)) * radius,
-            noz_pos.y + sin(RADIANS(angle)) * radius
+            noz_pos.x + float(cos(RADIANS(angle))) * radius,
+            noz_pos.y + float(sin(RADIANS(angle))) * radius
           };
 
           #if ENABLED(DELTA)
@@ -258,7 +258,7 @@ void GcodeSuite::M48() {
     SERIAL_ECHOLNPGM("Finished!");
     dev_report(verbose_level > 0, mean, sigma, min, max, true);
 
-    #if HAS_SPI_LCD
+    #if HAS_WIRED_LCD
       // Display M48 results in the status bar
       char sigma_str[8];
       ui.status_printf_P(0, PSTR(S_FMT ": %s"), GET_TEXT(MSG_M48_DEVIATION), dtostrf(sigma, 2, 6, sigma_str));

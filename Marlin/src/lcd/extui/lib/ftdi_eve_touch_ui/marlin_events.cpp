@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "compat.h"
@@ -61,7 +61,9 @@ namespace ExtUI {
     if (AT_SCREEN(StatusScreen) || isPrintingFromMedia())
       StatusScreen::setStatusMessage(GET_TEXT_F(MSG_MEDIA_REMOVED));
 
-    if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen)
+    #if ENABLED(SDSUPPORT)
+      if (AT_SCREEN(FilesScreen)) GOTO_SCREEN(StatusScreen);
+    #endif
   }
 
   void onMediaError() {

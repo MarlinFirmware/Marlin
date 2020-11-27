@@ -24,7 +24,7 @@
  * CREALITY v4.2.7 (STM32F103) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 

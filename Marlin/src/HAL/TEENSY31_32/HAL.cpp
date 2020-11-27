@@ -20,9 +20,8 @@
  *
  */
 
-
 /**
- * Description: HAL for Teensy32 (MK20DX256)
+ * HAL for Teensy 3.2 (MK20DX256)
  */
 
 #ifdef __MK20DX256__

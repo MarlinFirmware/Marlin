@@ -34,7 +34,7 @@
 
 #include "../inc/MarlinConfig.h"
 
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
 
   #include "dogm/u8g_fontutf8.h"
   typedef u8g_uint_t lcd_uint_t;
@@ -101,7 +101,7 @@
 
 #define SETCURSOR_X(col)    SETCURSOR(col, _lcdLineNr)
 #define SETCURSOR_X_RJ(len) SETCURSOR_RJ(len, _lcdLineNr)
-#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80u)
+#define START_OF_UTF8_CHAR(C) (((C) & 0xC0u) != 0x80U)
 
 int lcd_glyph_height();
 

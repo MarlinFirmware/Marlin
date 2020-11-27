@@ -27,7 +27,7 @@
  * Shield - https://github.com/jmz52/Hardware
  */
 
-#if !defined(STM32F4) && !defined(STM32F4xx)
+#if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "Black STM32F4VET6 supports up to 2 hotends / E-steppers."
@@ -131,6 +131,10 @@
 
 #define DOGLCD_CS                    LCD_PINS_D5
 #define DOGLCD_A0                    LCD_PINS_D6
+
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define BTN_ENC_EN                 LCD_PINS_D7  // Detect the presence of the encoder
+#endif
 
 //
 // Onboard SD support

@@ -34,6 +34,9 @@
   #include "game/game.h"
 #endif
 
+#define VALUE_ITEM(MSG, VALUE, STYL)    do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy(msg + 2, VALUE); STATIC_ITEM(MSG, STYL, msg); }while(0)
+#define VALUE_ITEM_P(MSG, PVALUE, STYL) do{ char msg[21]; strcpy_P(msg, PSTR(": ")); strcpy_P(msg + 2, PSTR(PVALUE)); STATIC_ITEM(MSG, STYL, msg); }while(0)
+
 #if ENABLED(PRINTCOUNTER)
 
   #include "../../module/printcounter.h"
@@ -49,8 +52,8 @@
     char buffer[21];
 
     START_SCREEN();                                                                         // 12345678901234567890
-    STATIC_ITEM(MSG_INFO_PRINT_COUNT,      SS_LEFT, i16tostr3left(stats.totalPrints));      // Print Count: 999
-    STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS, SS_LEFT, i16tostr3left(stats.finishedPrints));   // Completed  : 666
+    VALUE_ITEM(MSG_INFO_PRINT_COUNT, i16tostr3left(stats.totalPrints), SS_LEFT);            // Print Count: 999
+    VALUE_ITEM(MSG_INFO_COMPLETED_PRINTS, i16tostr3left(stats.finishedPrints), SS_LEFT);    // Completed  : 666
 
     STATIC_ITEM(MSG_INFO_PRINT_TIME, SS_LEFT);                                              // Total print Time:
     STATIC_ITEM_P(PSTR("> "), SS_LEFT, duration_t(stats.printTime).toString(buffer));       // > 99y 364d 23h 59m 59s
@@ -176,7 +179,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_BED
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("BED:" THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_P(PSTR("BED: " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(BED_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(BED_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_BED, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);
@@ -186,7 +189,7 @@ void menu_info_thermistors() {
     #undef THERMISTOR_ID
     #define THERMISTOR_ID TEMP_SENSOR_CHAMBER
     #include "../thermistornames.h"
-    STATIC_ITEM_P(PSTR("CHAM:" THERMISTOR_NAME), SS_INVERT);
+    STATIC_ITEM_P(PSTR("CHAM: " THERMISTOR_NAME), SS_INVERT);
     PSTRING_ITEM(MSG_INFO_MIN_TEMP, STRINGIFY(CHAMBER_MINTEMP), SS_LEFT);
     PSTRING_ITEM(MSG_INFO_MAX_TEMP, STRINGIFY(CHAMBER_MAXTEMP), SS_LEFT);
     STATIC_ITEM(TERN(WATCH_CHAMBER, MSG_INFO_RUNAWAY_ON, MSG_INFO_RUNAWAY_OFF), SS_LEFT);

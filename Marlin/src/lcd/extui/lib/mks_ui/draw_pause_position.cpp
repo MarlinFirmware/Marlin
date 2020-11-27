@@ -23,200 +23,67 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "lv_conf.h"
 #include "draw_ui.h"
+#include <lv_conf.h>
 
-#include "../../../../MarlinCore.h"
 #include "../../../../module/planner.h"
+#include "../../../../inc/MarlinConfig.h"
 
-static lv_obj_t * scr;
+extern lv_group_t *g;
+static lv_obj_t *scr;
 
-#define ID_PAUSE_RETURN 1
-#define ID_PAUSE_X      2
-#define ID_PAUSE_Y      3
-#define ID_PAUSE_Z      4
+enum {
+  ID_PAUSE_RETURN = 1,
+  ID_PAUSE_X,
+  ID_PAUSE_Y,
+  ID_PAUSE_Z
+};
 
-static void event_handler(lv_obj_t * obj, lv_event_t event) {
+static void event_handler(lv_obj_t *obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_PAUSE_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_pause_position();
-        draw_return_ui();
-      }
+      lv_clear_pause_position();
+      draw_return_ui();
       break;
     case ID_PAUSE_X:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_x;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_x;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
     case ID_PAUSE_Y:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_y;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_y;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
     case ID_PAUSE_Z:
-      if (event == LV_EVENT_CLICKED) {
-
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        value = pause_pos_z;
-        lv_clear_pause_position();
-        lv_draw_number_key();
-      }
+      value = pause_pos_z;
+      lv_clear_pause_position();
+      lv_draw_number_key();
       break;
   }
 }
 
 void lv_draw_pause_position(void) {
-  lv_obj_t *buttonBack = NULL, *label_Back = NULL;
-  lv_obj_t *buttonXText = NULL, *labelXText = NULL, *buttonXValue = NULL, *labelXValue = NULL;
-  lv_obj_t *buttonYText = NULL, *labelYText = NULL, *buttonYValue = NULL, *labelYValue = NULL;
-  lv_obj_t *buttonZText = NULL, *labelZText = NULL, *buttonZValue = NULL, *labelZValue = NULL;
+  scr = lv_screen_create(PAUSE_POS_UI, machine_menu.PausePosText);
 
-  lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL;
-  if (disp_state_stack._disp_state[disp_state_stack._disp_index] != PAUSE_POS_UI) {
-    disp_state_stack._disp_index++;
-    disp_state_stack._disp_state[disp_state_stack._disp_index] = PAUSE_POS_UI;
-  }
-  disp_state = PAUSE_POS_UI;
+  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);
+  lv_screen_menu_item_1_edit(scr, machine_menu.xPos, PARA_UI_POS_X, PARA_UI_POS_Y, event_handler, ID_PAUSE_X, 0, public_buf_l);
 
-  scr = lv_obj_create(NULL, NULL);
+  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosY);
+  lv_screen_menu_item_1_edit(scr, machine_menu.yPos, PARA_UI_POS_X, PARA_UI_POS_Y * 2, event_handler, ID_PAUSE_Y, 1, public_buf_l);
 
-  lv_obj_set_style(scr, &tft_style_scr);
-  lv_scr_load(scr);
-  lv_obj_clean(scr);
+  sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosZ);
+  lv_screen_menu_item_1_edit(scr, machine_menu.zPos, PARA_UI_POS_X, PARA_UI_POS_Y * 3, event_handler, ID_PAUSE_Z, 2, public_buf_l);
 
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, machine_menu.PausePosText);
-
-  lv_refr_now(lv_refr_get_disp_refreshing());
-
-  LV_IMG_DECLARE(bmp_para_back);
-  // LV_IMG_DECLARE(bmp_para_arrow);
-  LV_IMG_DECLARE(bmp_para_bank);
-
-  buttonXText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-  lv_obj_set_pos(buttonXText, PARA_UI_POS_X, PARA_UI_POS_Y);              /*Set its position*/
-  lv_obj_set_size(buttonXText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-  lv_obj_set_event_cb(buttonXText, event_handler);
-  lv_btn_set_style(buttonXText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonXText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-  lv_btn_set_layout(buttonXText, LV_LAYOUT_OFF);
-  labelXText = lv_label_create(buttonXText, NULL);                        /*Add a label to the button*/
-
-  buttonXValue = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonXValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-  lv_obj_set_event_cb_mks(buttonXValue, event_handler, ID_PAUSE_X, "bmp_value_blank.bin", 0);
-  lv_imgbtn_set_src(buttonXValue, LV_BTN_STATE_REL, &bmp_para_bank);
-  lv_imgbtn_set_src(buttonXValue, LV_BTN_STATE_PR, &bmp_para_bank);
-  lv_imgbtn_set_style(buttonXValue, LV_BTN_STATE_PR, &style_para_value_pre);
-  lv_imgbtn_set_style(buttonXValue, LV_BTN_STATE_REL, &style_para_value_rel);
-  lv_btn_set_layout(buttonXValue, LV_LAYOUT_OFF);
-  labelXValue = lv_label_create(buttonXValue, NULL);
-
-  line1 = lv_line_create(scr, NULL);
-  lv_ex_line(line1, line_points[0]);
-
-  buttonYText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-  lv_obj_set_pos(buttonYText, PARA_UI_POS_X, PARA_UI_POS_Y * 2);          /*Set its position*/
-  lv_obj_set_size(buttonYText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-  lv_obj_set_event_cb(buttonYText, event_handler);
-  lv_btn_set_style(buttonYText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonYText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-  lv_btn_set_layout(buttonYText, LV_LAYOUT_OFF);
-  labelYText = lv_label_create(buttonYText, NULL);                        /*Add a label to the button*/
-
-  buttonYValue = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonYValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 2 + PARA_UI_VALUE_V);
-  lv_obj_set_event_cb_mks(buttonYValue, event_handler, ID_PAUSE_Y, "bmp_value_blank.bin", 0);
-  lv_imgbtn_set_src(buttonYValue, LV_BTN_STATE_REL, &bmp_para_bank);
-  lv_imgbtn_set_src(buttonYValue, LV_BTN_STATE_PR, &bmp_para_bank);
-  lv_imgbtn_set_style(buttonYValue, LV_BTN_STATE_PR, &style_para_value_pre);
-  lv_imgbtn_set_style(buttonYValue, LV_BTN_STATE_REL, &style_para_value_rel);
-  lv_btn_set_layout(buttonYValue, LV_LAYOUT_OFF);
-  labelYValue = lv_label_create(buttonYValue, NULL);
-
-  line2 = lv_line_create(scr, NULL);
-  lv_ex_line(line2, line_points[1]);
-
-  buttonZText = lv_btn_create(scr, NULL);                                 /*Add a button the current screen*/
-  lv_obj_set_pos(buttonZText, PARA_UI_POS_X, PARA_UI_POS_Y * 3);          /*Set its position*/
-  lv_obj_set_size(buttonZText, PARA_UI_VALUE_SIZE_X, PARA_UI_SIZE_Y);     /*Set its size*/
-  lv_obj_set_event_cb(buttonZText, event_handler);
-  lv_btn_set_style(buttonZText, LV_BTN_STYLE_REL, &tft_style_label_rel);  /*Set the button's released style*/
-  lv_btn_set_style(buttonZText, LV_BTN_STYLE_PR, &tft_style_label_pre);   /*Set the button's pressed style*/
-  lv_btn_set_layout(buttonZText, LV_LAYOUT_OFF);
-  labelZText = lv_label_create(buttonZText, NULL);                        /*Add a label to the button*/
-
-  buttonZValue = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_pos(buttonZValue, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y * 3 + PARA_UI_VALUE_V);
-  lv_obj_set_event_cb_mks(buttonZValue, event_handler, ID_PAUSE_Z, "bmp_value_blank.bin", 0);
-  lv_imgbtn_set_src(buttonZValue, LV_BTN_STATE_REL, &bmp_para_bank);
-  lv_imgbtn_set_src(buttonZValue, LV_BTN_STATE_PR, &bmp_para_bank);
-  lv_imgbtn_set_style(buttonZValue, LV_BTN_STATE_PR, &style_para_value_pre);
-  lv_imgbtn_set_style(buttonZValue, LV_BTN_STATE_REL, &style_para_value_rel);
-  lv_btn_set_layout(buttonZValue, LV_LAYOUT_OFF);
-  labelZValue = lv_label_create(buttonZValue, NULL);
-
-  line3 = lv_line_create(scr, NULL);
-  lv_ex_line(line3, line_points[2]);
-
-  buttonBack = lv_imgbtn_create(scr, NULL);
-  lv_obj_set_event_cb_mks(buttonBack, event_handler, ID_PAUSE_RETURN, "bmp_back70x40.bin", 0);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, &bmp_para_back);
-  lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, &bmp_para_back);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  lv_obj_set_pos(buttonBack, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y);
-  lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-  label_Back = lv_label_create(buttonBack, NULL);
-
-  if (gCfgItems.multiple_language != 0) {
-    ZERO(public_buf_l);
-    sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosX);
-    lv_label_set_text(labelXValue, public_buf_l);
-    lv_obj_align(labelXValue, buttonXValue, LV_ALIGN_CENTER, 0, 0);
-
-    ZERO(public_buf_l);
-    sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosY);
-    lv_label_set_text(labelYValue, public_buf_l);
-    lv_obj_align(labelYValue, buttonYValue, LV_ALIGN_CENTER, 0, 0);
-
-    ZERO(public_buf_l);
-    sprintf_P(public_buf_l, PSTR("%.1f"), gCfgItems.pausePosZ);
-    lv_label_set_text(labelZValue, public_buf_l);
-    lv_obj_align(labelZValue, buttonZValue, LV_ALIGN_CENTER, 0, 0);
-
-    lv_label_set_text(labelXText, machine_menu.xPos);
-    lv_obj_align(labelXText, buttonXText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-    lv_label_set_text(labelYText, machine_menu.yPos);
-    lv_obj_align(labelYText, buttonYText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-    lv_label_set_text(labelZText, machine_menu.zPos);
-    lv_obj_align(labelZText, buttonZText, LV_ALIGN_IN_LEFT_MID, 0, 0);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_CENTER, 0, 0);
-  }
+  lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACL_POS_X, PARA_UI_BACL_POS_Y, event_handler, ID_PAUSE_RETURN, true);
 }
 
-void lv_clear_pause_position() { lv_obj_del(scr); }
+void lv_clear_pause_position() {
+  #if HAS_ROTARY_ENCODER
+    if (gCfgItems.encoder_enable) lv_group_remove_all_objs(g);
+  #endif
+  lv_obj_del(scr);
+}
 
 #endif // HAS_TFT_LVGL_UI
