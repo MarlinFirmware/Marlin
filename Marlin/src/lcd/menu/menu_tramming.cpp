@@ -49,12 +49,8 @@ bool probe_single_point() {
   DEBUG_ECHOLNPAIR("probe_single_point: ", z_probed_height, "mm");
   z_measured[tram_index] = z_probed_height;
 
-  #ifdef ASSISTED_TRAMMING_WAIT_POSITION
-    // Move XY to wait position
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");
-    const xyz_pos_t wait_pos = ASSISTED_TRAMMING_WAIT_POSITION;
-    do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S);
-  #endif
+  // Move XY to wait position
+  wait_pos_move();
 
   return !isnan(z_probed_height);
 }

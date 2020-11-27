@@ -178,12 +178,8 @@ void GcodeSuite::G35() {
   // the probe deployed if it was successful.
   probe.stow();
 
-  #ifdef ASSISTED_TRAMMING_WAIT_POSITION
-    // Move XY to wait position
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");
-    const xyz_pos_t wait_pos = ASSISTED_TRAMMING_WAIT_POSITION;
-    do_blocking_move_to(wait_pos, XY_PROBE_FEEDRATE_MM_S);
-  #endif
+  // Move XY to wait position
+  wait_pos_move();
 
   // After this operation the Z position needs correction
   set_axis_never_homed(Z_AXIS);
