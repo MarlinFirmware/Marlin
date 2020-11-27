@@ -1,6 +1,9 @@
+#include "../../../inc/MarlinConfig.h"
 #include "usbh_usr.h"
 #include "STM32_USB_Host_Library/Core/Inc/usbh_def.h"
 #include "STM32_USB_Host_Library/Class/MSC/Inc/usbh_msc.h"
+
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
 
 USBH_HandleTypeDef MarlinUSB_Host;
 
@@ -148,3 +151,5 @@ uint8_t USBH_write(uint8_t lun, const uint8_t *buff, uint32_t sector, uint32_t c
 
   return res;
 }
+
+#endif // USB_HOST_MSC_FLASH_SUPPORT

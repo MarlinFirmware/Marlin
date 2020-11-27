@@ -22,6 +22,8 @@
 #include "STM32_USB_Host_Library/Core/Inc/usbh_core.h"
 #include "usbh_pins.h"
 
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+
 HCD_HandleTypeDef Marlinhcd;
 
 /**
@@ -470,3 +472,5 @@ void  USBH_Delay(uint32_t Delay)
   HAL_Delay(Delay);
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+#endif // USB_HOST_MSC_FLASH_SUPPORT
