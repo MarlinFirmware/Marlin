@@ -63,7 +63,7 @@ static_assert(_NR_TRAM_NAMES >= G35_PROBE_COUNT, "Define enough TRAMMING_POINT_N
 
 extern PGM_P const tramming_point_name[];
 
-inline void move_to_wait_pos() {
+inline void move_to_tramming_wait_pos() {
   #ifdef ASSISTED_TRAMMING_WAIT_POSITION
     // Move XYZ to wait position
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Moving away");

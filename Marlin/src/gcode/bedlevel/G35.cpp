@@ -179,7 +179,7 @@ void GcodeSuite::G35() {
   probe.stow();
 
   // Move XYZ to wait position
-  move_to_wait_pos();
+  move_to_tramming_wait_pos();
 
   // After this operation the Z position needs correction
   set_axis_never_homed(Z_AXIS);
