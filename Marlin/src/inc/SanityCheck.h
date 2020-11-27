@@ -2167,8 +2167,12 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * G35 Assisted Tramming
  */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
-  #error "ASSISTED_TRAMMING requires a bed probe."
+#if ENABLED(ASSISTED_TRAMMING)
+  #if !HAS_BED_PROBE
+    #error "ASSISTED_TRAMMING requires a bed probe."
+  #elif BOTH(ASSISTED_TRAMMING_MENU_ITEM, ASSISTED_TRAMMING_WIZARD)
+    #error "Please select either ASSISTED_TRAMMING_MENU_ITEM or ASSISTED_TRAMMING_WIZARD, not both."
+  #endif
 #endif
 
 /**

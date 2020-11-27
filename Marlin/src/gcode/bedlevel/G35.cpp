@@ -42,26 +42,6 @@
 
 #include "../../feature/tramming.h" // Validate
 
-PGMSTR(point_name_1, TRAMMING_POINT_NAME_1);
-PGMSTR(point_name_2, TRAMMING_POINT_NAME_2);
-PGMSTR(point_name_3, TRAMMING_POINT_NAME_3);
-#ifdef TRAMMING_POINT_NAME_4
-  PGMSTR(point_name_4, TRAMMING_POINT_NAME_4);
-  #ifdef TRAMMING_POINT_NAME_5
-    PGMSTR(point_name_5, TRAMMING_POINT_NAME_5);
-  #endif
-#endif
-
-PGM_P const tramming_point_name[] PROGMEM = {
-  point_name_1, point_name_2, point_name_3
-  #ifdef TRAMMING_POINT_NAME_4
-    , point_name_4
-    #ifdef TRAMMING_POINT_NAME_5
-      , point_name_5
-    #endif
-  #endif
-};
-
 /**
  * G35: Read bed corners to help adjust bed screws
  *
