@@ -77,32 +77,18 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
 
-  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
+  // Angle of rotation between position and target from the circle center.
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
 
-  //ATAN2 gives shortest angle to target vector (i.e. (-pi, +pi] ) // bracket after +pi means inclusive range
-  // < 0 means CW angle and > 0 means CCW angle -> i.e. -pi (example case since atan2 never returns -pi) equals 180 degrees CW and +pi equals 180 degrees CCW even though both reach same target vector
-  
-  // Thus, the only time this should be modified (i.e. through the switch statement below) is if user through specification of either G2 or G3 needs to use the larger angle i.e. > 180 degrees CW or > 180 degress CCW
-
-  switch (((angular_travel < 0)<<1) + clockwise) {
-    // possible values:
-    // 0 : means atan2 angle > 0 and user has not specified clockwise motion -> no angular correction needed since atan2 already returns the correct CCW angle
-    // 1 : means atan2 angle > 0 but user has specified clockwise motion -> thus atan2 returns a CCW angle but we need CW angle. We must subtract 2pi radians to get CW angle.
-    // 2 : means atan2 angle < 0 but user has specified counter-clockwise motion -> thus atan2 returns a CW angle but we need CCW angle. We must add 2pi radians to get CCW angle.
-    // 3 : means atan2 angle < 0 and user has not specified counter-clockwise motion ->  no angular correction needed since atan2 already returns the correect CW angle
-    case 1:
-      angular_travel -= RADIANS(360);
-      break;
-    case 2:
-      angular_travel += RADIANS(360); 
-      break;
-  }
-
-
+  // Make sure angular travel over 180 degrees goes the other way around.
+  const uint8_t congruity = ((angular_travel < 0) << 1) + clockwise;
+  if (congruity == 1)
+    angular_travel -= RADIANS(360);  // Positive but CW? Reverse direction.
+  else if (congruity == 2)
+    angular_travel += RADIANS(360);  // Negative but CCW? Reverse direction.
 
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (ABS(angular_travel) / RADIANS(360))); // since CW (if specified via G2) angular_travel is negative we must ensure absolute value ABS function is always used here
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * ABS(angular_travel) / RADIANS(360));
     NOLESS(min_segments, 1U);
   #else
     constexpr uint16_t min_segments = 1;
