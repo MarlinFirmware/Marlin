@@ -50,7 +50,7 @@ bool probe_single_point() {
   z_measured[tram_index] = z_probed_height;
 
   // Move XY to wait position
-  wait_pos_move();
+  move_to_wait_pos();
 
   return !isnan(z_probed_height);
 }
