@@ -89,7 +89,7 @@ Probe probe;
 xyz_pos_t Probe::offset; // Initialized by settings.load()
 
 #if HAS_PROBE_XY_OFFSET
-  const xy_pos_t &Probe::offset_xy = xy_pos_t(Probe::offset);
+  const xy_pos_t &Probe::offset_xy = Probe::offset;
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -270,13 +270,7 @@ FORCE_INLINE void probe_specific_action(const bool deploy) {
   #if ENABLED(PAUSE_BEFORE_DEPLOY_STOW)
     do {
       #if ENABLED(PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED)
-        if (deploy == (
-          #if HAS_CUSTOM_PROBE_PIN
-            READ(Z_MIN_PROBE_PIN) == Z_MIN_PROBE_ENDSTOP_INVERTING
-          #else
-            READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_INVERTING
-          #endif
-        )) break;
+        if (deploy == PROBE_TRIGGERED()) break;
       #endif
 
       BUZZ(100, 659);
@@ -375,23 +369,15 @@ bool Probe::set_deployed(const bool deploy) {
   const xy_pos_t old_xy = current_position;
 
   #if ENABLED(PROBE_TRIGGERED_WHEN_STOWED_TEST)
-    #if HAS_CUSTOM_PROBE_PIN
-      #define PROBE_STOWED() (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
-    #else
-      #define PROBE_STOWED() (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
-    #endif
-  #endif
-
-  #ifdef PROBE_STOWED
 
     // Only deploy/stow if needed
-    if (PROBE_STOWED() == deploy) {
+    if (PROBE_TRIGGERED() == deploy) {
       if (!deploy) endstops.enable_z_probe(false); // Switch off triggered when stowed probes early
                                                    // otherwise an Allen-Key probe can't be stowed.
       probe_specific_action(deploy);
     }
 
-    if (PROBE_STOWED() == deploy) {                // Unchanged after deploy/stow action?
+    if (PROBE_TRIGGERED() == deploy) {             // Unchanged after deploy/stow action?
       if (IsRunning()) {
         SERIAL_ERROR_MSG("Z-Probe failed");
         LCD_ALERTMESSAGEPGM_P(PSTR("Err: ZPROBE"));

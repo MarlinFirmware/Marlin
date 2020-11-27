@@ -182,6 +182,8 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=0*/
     info.current_position = current_position;
     info.feedrate = uint16_t(feedrate_mm_s * 60.0f);
     info.zraise = zraise;
+
+    TERN_(GCODE_REPEAT_MARKERS, info.stored_repeat = repeat);
     TERN_(HAS_HOME_OFFSET, info.home_offset = home_offset);
     TERN_(HAS_POSITION_SHIFT, info.position_shift = position_shift);
 
@@ -507,6 +509,7 @@ void PrintJobRecovery::resume() {
   sprintf_P(cmd, PSTR("G92.9 E%s"), dtostrf(info.current_position.e, 1, 3, str_1));
   gcode.process_subcommands_now(cmd);
 
+  TERN_(GCODE_REPEAT_MARKERS, repeat = info.stored_repeat);
   TERN_(HAS_HOME_OFFSET, home_offset = info.home_offset);
   TERN_(HAS_POSITION_SHIFT, position_shift = info.position_shift);
   #if HAS_HOME_OFFSET || HAS_POSITION_SHIFT
