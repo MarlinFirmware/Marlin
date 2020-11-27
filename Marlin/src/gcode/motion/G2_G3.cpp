@@ -77,16 +77,21 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
 
-  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
+  // Angle of rotation between position and target from the circle center.
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
-  if (angular_travel < 0) angular_travel += RADIANS(360);
+
+  // Make sure angular travel over 180 degrees goes the other way around.
+  switch (((angular_travel < 0) << 1) + clockwise) {
+    case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
+    case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
+  }
+
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * (angular_travel / RADIANS(360)));
+    uint16_t min_segments = CEIL((MIN_ARC_SEGMENTS) * ABS(angular_travel) / RADIANS(360));
     NOLESS(min_segments, 1U);
   #else
     constexpr uint16_t min_segments = 1;
   #endif
-  if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0 and the target is current position
   if (NEAR_ZERO(angular_travel) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
