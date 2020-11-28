@@ -113,7 +113,8 @@
 #define BOARD_RAMPS_S_12_EEFB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_RAMPS_S_12_EEEB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
 #define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
-#define BOARD_RAMPS_LONGER3D_LK4PRO   1160  // Longer LKxxPRO/ Alfawise UxxPro (PRO version)
+#define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
+#define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
 
 //
 // RAMBo and derivatives
