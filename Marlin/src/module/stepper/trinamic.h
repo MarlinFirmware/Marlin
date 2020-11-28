@@ -46,6 +46,10 @@
 #define TMC_Y_LABEL 'Y', '0'
 #define TMC_Z_LABEL 'Z', '0'
 
+#define TMC_I_LABEL 'I', '0'
+#define TMC_J_LABEL 'J', '0'
+#define TMC_K_LABEL 'K', '0'
+
 #define TMC_X2_LABEL 'X', '2'
 #define TMC_Y2_LABEL 'Y', '2'
 #define TMC_Z2_LABEL 'Z', '2'
@@ -222,6 +226,45 @@ void reset_trinamic_drivers();
   #endif
   #if AXIS_HAS_SQUARE_WAVE(Z4)
     #define Z4_STEP_WRITE(STATE) do{ if(STATE) TOGGLE(Z4_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// I Stepper
+#if AXIS_IS_TMC(I)
+  extern TMC_CLASS(I, I) stepperI;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define I_ENABLE_INIT() NOOP
+    #define I_ENABLE_WRITE(STATE) stepperI.toff((STATE)==I_ENABLE_ON ? chopper_timing.toff : 0)
+    #define I_ENABLE_READ() stepperI.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(I)
+    #define I_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(I_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// J Stepper
+#if AXIS_IS_TMC(J)
+  extern TMC_CLASS(J, J) stepperJ;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define J_ENABLE_INIT() NOOP
+    #define J_ENABLE_WRITE(STATE) stepperJ.toff((STATE)==J_ENABLE_ON ? chopper_timing.toff : 0)
+    #define J_ENABLE_READ() stepperJ.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(J)
+    #define J_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(J_STEP_PIN); }while(0)
+  #endif
+#endif
+
+// K Stepper
+#if AXIS_IS_TMC(K)
+  extern TMC_CLASS(K, K) stepperK;
+  #if ENABLED(SOFTWARE_DRIVER_ENABLE)
+    #define K_ENABLE_INIT() NOOP
+    #define K_ENABLE_WRITE(STATE) stepperK.toff((STATE)==K_ENABLE_ON ? chopper_timing.toff : 0)
+    #define K_ENABLE_READ() stepperK.isEnabled()
+  #endif
+  #if AXIS_HAS_SQUARE_WAVE(K)
+    #define K_STEP_WRITE(STATE) do{ if (STATE) TOGGLE(K_STEP_PIN); }while(0)
   #endif
 #endif
 

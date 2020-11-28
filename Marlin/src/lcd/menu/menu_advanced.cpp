@@ -64,13 +64,22 @@ void menu_backlash();
 
   void menu_dac() {
     static xyze_uint8_t driverPercent;
-    LOOP_XYZE(i) driverPercent[i] = stepper_dac.get_current_percent((AxisEnum)i);
+    LOOP_NUM_AXIS(i) driverPercent[i] = stepper_dac.get_current_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
     #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
+    #if LINEAR_AXES >= 4
+      EDIT_DAC_PERCENT(I);
+    #endif
+    #if LINEAR_AXES >= 5
+      EDIT_DAC_PERCENT(J);
+    #endif
+    #if LINEAR_AXES >= 6
+      EDIT_DAC_PERCENT(K);
+    #endif
     EDIT_DAC_PERCENT(E);
     ACTION_ITEM(MSG_DAC_EEPROM_WRITE, stepper_dac.commit_eeprom);
     END_MENU();
@@ -364,6 +373,15 @@ void menu_backlash();
     EDIT_VMAX(A);
     EDIT_VMAX(B);
     EDIT_VMAX(C);
+    #if LINEAR_AXES >= 4
+      EDIT_VMAX(I);
+    #endif
+    #if LINEAR_AXES >= 5
+      EDIT_VMAX(J);
+    #endif
+    #if LINEAR_AXES >= 6
+      EDIT_VMAX(K);
+    #endif
 
     #if E_STEPPERS
       EDIT_ITEM_FAST(float3, MSG_VMAX_E, &planner.settings.max_feedrate_mm_s[E_AXIS_N(active_extruder)], 1, max_fr_edit_scaled.e);
@@ -418,6 +436,15 @@ void menu_backlash();
     EDIT_AMAX(A, 100);
     EDIT_AMAX(B, 100);
     EDIT_AMAX(C,  10);
+    #if LINEAR_AXES >= 4
+      EDIT_AMAX(I, 10);
+    #endif
+    #if LINEAR_AXES >= 5
+      EDIT_AMAX(J, 10);
+    #endif
+    #if LINEAR_AXES >= 6
+      EDIT_AMAX(K, 10);
+    #endif
 
     #if ENABLED(DISTINCT_E_FACTORS)
       EDIT_ITEM_FAST(long5_25, MSG_AMAX_E, &planner.settings.max_acceleration_mm_per_s2[E_AXIS_N(active_extruder)], 100, max_accel_edit_scaled.e, []{ planner.reset_acceleration_rates(); });
@@ -467,6 +494,16 @@ void menu_backlash();
       #else
         EDIT_ITEM_FAST(float52sign, MSG_VC_JERK, &planner.max_jerk.c, 0.1f, max_jerk_edit.c);
       #endif
+      #if LINEAR_AXES >= 4
+        EDIT_JERK(I);
+      #endif
+      #if LINEAR_AXES >= 5
+        EDIT_JERK(J);
+      #endif
+      #if LINEAR_AXES >= 6
+        EDIT_JERK(K);
+      #endif
+
       #if HAS_CLASSIC_E_JERK
         EDIT_ITEM_FAST(float52sign, MSG_VE_JERK, &planner.max_jerk.e, 0.1f, max_jerk_edit.e);
       #endif
@@ -506,6 +543,15 @@ void menu_advanced_steps_per_mm() {
   EDIT_QSTEPS(A);
   EDIT_QSTEPS(B);
   EDIT_QSTEPS(C);
+  #if LINEAR_AXES >= 4
+    EDIT_QSTEPS(I);
+  #endif
+  #if LINEAR_AXES >= 5
+    EDIT_QSTEPS(J);
+  #endif
+  #if LINEAR_AXES >= 6
+    EDIT_QSTEPS(K);
+  #endif
 
   #if ENABLED(DISTINCT_E_FACTORS)
     LOOP_L_N(n, E_STEPPERS)

@@ -52,10 +52,19 @@ void GcodeSuite::M425() {
       case X_AXIS: return AXIS_CAN_CALIBRATE(X);
       case Y_AXIS: return AXIS_CAN_CALIBRATE(Y);
       case Z_AXIS: return AXIS_CAN_CALIBRATE(Z);
+      #if LINEAR_AXES >= 4
+        case I_AXIS: return AXIS_CAN_CALIBRATE(I);
+      #endif
+      #if LINEAR_AXES >= 5
+        case J_AXIS: return AXIS_CAN_CALIBRATE(J);
+      #endif
+      #if LINEAR_AXES >= 6
+        case K_AXIS: return AXIS_CAN_CALIBRATE(K);
+      #endif
     }
   };
 
-  LOOP_XYZ(a) {
+  LOOP_LINEAR(a) {
     if (axis_can_calibrate(a) && parser.seen(XYZ_CHAR(a))) {
       planner.synchronize();
       backlash.distance_mm[a] = parser.has_value() ? parser.value_linear_units() : backlash.get_measurement(AxisEnum(a));
@@ -96,7 +105,7 @@ void GcodeSuite::M425() {
     #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
       SERIAL_ECHOPGM("  Average measured backlash (mm):");
       if (backlash.has_any_measurement()) {
-        LOOP_XYZ(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
+        LOOP_LINEAR(a) if (axis_can_calibrate(a) && backlash.has_measurement(AxisEnum(a))) {
           SERIAL_CHAR(' ', XYZ_CHAR(a));
           SERIAL_ECHO(backlash.get_measurement(AxisEnum(a)));
         }

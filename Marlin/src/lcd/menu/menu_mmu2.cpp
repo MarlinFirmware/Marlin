@@ -35,7 +35,7 @@
 void _mmu2_load_filamentToNozzle(uint8_t index) {
   ui.reset_status();
   ui.return_to_status();
-  ui.status_printf_P(0,  GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
+  ui.status_printf_P(0, GET_TEXT(MSG_MMU2_LOADING_FILAMENT), int(index + 1));
   if (mmu2.load_filament_to_nozzle(index)) ui.reset_status();
 }
 

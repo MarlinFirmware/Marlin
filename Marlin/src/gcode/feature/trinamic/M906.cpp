@@ -48,11 +48,11 @@ void GcodeSuite::M906() {
 
   bool report = true;
 
-  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4)
+  #if AXIS_IS_TMC(X) || AXIS_IS_TMC(X2) || AXIS_IS_TMC(Y) || AXIS_IS_TMC(Y2) || AXIS_IS_TMC(Z) || AXIS_IS_TMC(Z2) || AXIS_IS_TMC(Z3) || AXIS_IS_TMC(Z4) || AXIS_IS_TMC(I) || AXIS_IS_TMC(J) || AXIS_IS_TMC(K)
     const uint8_t index = parser.byteval('I');
   #endif
 
-  LOOP_XYZE(i) if (uint16_t value = parser.intval(axis_codes[i])) {
+  LOOP_NUM_AXIS(i) if (uint16_t value = parser.intval(axis_codes[i])) {
     report = false;
     switch (i) {
       case X_AXIS:
@@ -85,6 +85,17 @@ void GcodeSuite::M906() {
           if (index == 3) TMC_SET_CURRENT(Z4);
         #endif
         break;
+
+      #if AXIS_IS_TMC(I)
+        case I_AXIS: TMC_SET_CURRENT(I); break;
+      #endif
+      #if AXIS_IS_TMC(J)
+        case J_AXIS: TMC_SET_CURRENT(J); break;
+      #endif
+      #if AXIS_IS_TMC(K)
+        case K_AXIS: TMC_SET_CURRENT(K); break;
+      #endif
+
       case E_AXIS: {
         const int8_t target_extruder = get_target_extruder_from_command();
         if (target_extruder < 0) return;
@@ -142,6 +153,15 @@ void GcodeSuite::M906() {
     #endif
     #if AXIS_IS_TMC(Z4)
       TMC_SAY_CURRENT(Z4);
+    #endif
+    #if AXIS_IS_TMC(I)
+      TMC_SAY_CURRENT(I);
+    #endif
+    #if AXIS_IS_TMC(J)
+      TMC_SAY_CURRENT(J);
+    #endif
+    #if AXIS_IS_TMC(K)
+      TMC_SAY_CURRENT(K);
     #endif
     #if AXIS_IS_TMC(E0)
       TMC_SAY_CURRENT(E0);

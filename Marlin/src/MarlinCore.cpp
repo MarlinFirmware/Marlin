@@ -240,11 +240,15 @@ PGMSTR(M21_STR, "M21");
 PGMSTR(M23_STR, "M23 %s");
 PGMSTR(M24_STR, "M24");
 PGMSTR(SP_P_STR, " P");  PGMSTR(SP_T_STR, " T");
-PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR,     "E");
-PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL,     "E:");
+PGMSTR(X_STR,     "X");  PGMSTR(Y_STR,     "Y");  PGMSTR(Z_STR,     "Z");  PGMSTR(E_STR, "E");
+PGMSTR(X_LBL,     "X:"); PGMSTR(Y_LBL,     "Y:"); PGMSTR(Z_LBL,     "Z:"); PGMSTR(E_LBL, "E:");
 PGMSTR(SP_A_STR, " A");  PGMSTR(SP_B_STR, " B");  PGMSTR(SP_C_STR, " C");
 PGMSTR(SP_X_STR, " X");  PGMSTR(SP_Y_STR, " Y");  PGMSTR(SP_Z_STR, " Z");  PGMSTR(SP_E_STR, " E");
 PGMSTR(SP_X_LBL, " X:"); PGMSTR(SP_Y_LBL, " Y:"); PGMSTR(SP_Z_LBL, " Z:"); PGMSTR(SP_E_LBL, " E:");
+PGMSTR(I_STR, AXIS4_STR);     PGMSTR(J_STR, AXIS5_STR);     PGMSTR(K_STR, AXIS6_STR);
+PGMSTR(I_LBL, AXIS4_STR ":"); PGMSTR(J_LBL, AXIS5_STR ":"); PGMSTR(K_LBL, AXIS6_STR ":");
+PGMSTR(SP_I_STR, " " AXIS4_STR);     PGMSTR(SP_J_STR, " " AXIS5_STR);     PGMSTR(SP_K_STR, " " AXIS6_STR);
+PGMSTR(SP_I_LBL, " " AXIS4_STR ":"); PGMSTR(SP_J_LBL, " " AXIS5_STR ":"); PGMSTR(SP_K_LBL, " " AXIS6_STR ":");
 
 MarlinState marlin_state = MF_INITIALIZING;
 
@@ -363,6 +367,11 @@ void enable_all_steppers() {
   ENABLE_AXIS_X();
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
+
+  ENABLE_AXIS_I(); // Marlin 6-axis support: 2019 - 2020 DerAndere (https://github.com/DerAndere1/Marlin/wiki)
+  ENABLE_AXIS_J();
+  ENABLE_AXIS_K();
+
   enable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
@@ -384,6 +393,11 @@ void disable_all_steppers() {
   DISABLE_AXIS_X();
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
+
+  DISABLE_AXIS_I();
+  DISABLE_AXIS_J();
+  DISABLE_AXIS_K();
+
   disable_e_steppers();
 
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
@@ -540,6 +554,17 @@ inline void manage_inactivity(const bool ignore_stepper_queue=false) {
         if (ENABLED(DISABLE_INACTIVE_X)) DISABLE_AXIS_X();
         if (ENABLED(DISABLE_INACTIVE_Y)) DISABLE_AXIS_Y();
         if (ENABLED(DISABLE_INACTIVE_Z)) DISABLE_AXIS_Z();
+
+        #if ENABLED(DISABLE_INACTIVE_I)
+          DISABLE_AXIS_I();
+        #endif
+        #if ENABLED(DISABLE_INACTIVE_K)
+          DISABLE_AXIS_K();
+        #endif
+        #if ENABLED(DISABLE_INACTIVE_J)
+          DISABLE_AXIS_J();
+        #endif
+
         if (ENABLED(DISABLE_INACTIVE_E)) disable_e_steppers();
 
         TERN_(AUTO_BED_LEVELING_UBL, ubl.steppers_were_disabled());
@@ -1286,7 +1311,7 @@ void setup() {
   #endif
 
   #if HAS_TRINAMIC_CONFIG && DISABLED(PSU_DEFAULT_OFF)
-    SETUP_RUN(test_tmc_connection(true, true, true, true));
+    SETUP_RUN(test_tmc_connection(true, LIST_N(LINEAR_AXES, true, true, true, true, true, true)));
   #endif
 
   #if HAS_PRUSA_MMU2

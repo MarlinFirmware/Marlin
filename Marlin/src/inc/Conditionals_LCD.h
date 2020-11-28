@@ -608,9 +608,9 @@
 // Helper macros for extruder and hotend arrays
 #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
 #define ARRAY_BY_EXTRUDERS(V...) ARRAY_N(EXTRUDERS, V)
-#define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1, v1, v1)
+#define ARRAY_BY_EXTRUDERS1(v1) ARRAY_N_1(EXTRUDERS, v1)
 #define ARRAY_BY_HOTENDS(V...) ARRAY_N(HOTENDS, V)
-#define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1, v1, v1)
+#define ARRAY_BY_HOTENDS1(v1) ARRAY_N_1(HOTENDS, v1)
 
 #if ENABLED(SWITCHING_EXTRUDER) && (DISABLED(SWITCHING_NOZZLE) || SWITCHING_EXTRUDER_SERVO_NR != SWITCHING_NOZZLE_SERVO_NR)
   #define DO_SWITCH_EXTRUDER 1
@@ -634,9 +634,20 @@
 /**
  * DISTINCT_E_FACTORS affects how some E factors are accessed
  */
+#ifndef LINEAR_AXES
+  #define LINEAR_AXES 3
+#endif
+
+#if EXTRUDERS >= 1
+  #define NUM_AXIS INCREMENT(LINEAR_AXES)
+#else
+  #define NUM_AXIS LINEAR_AXES
+#endif
+
 #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
   #define DISTINCT_E E_STEPPERS
   #define XYZE_N (XYZ + E_STEPPERS)
+  #define NUM_AXIS_N (LINEAR_AXES + E_STEPPERS)
   #define E_INDEX_N(E) (E)
   #define E_AXIS_N(E) AxisEnum(E_AXIS + E)
   #define UNUSED_E(E) NOOP
@@ -644,6 +655,7 @@
   #undef DISTINCT_E_FACTORS
   #define DISTINCT_E 1
   #define XYZE_N XYZE
+  #define NUM_AXIS_N INCREMENT(LINEAR_AXES)
   #define E_INDEX_N(E) 0
   #define E_AXIS_N(E) E_AXIS
   #define UNUSED_E(E) UNUSED(E)
@@ -1043,6 +1055,15 @@
 #endif
 #ifndef INVERT_Z_DIR
   #define INVERT_Z_DIR false
+#endif
+#if LINEAR_AXES >= 4 && !defined(INVERT_I_DIR)
+  #define INVERT_I_DIR false
+#endif
+#if LINEAR_AXES >= 5 && !defined(INVERT_J_DIR)
+  #define INVERT_J_DIR false
+#endif
+#if LINEAR_AXES >= 6 && !defined(INVERT_K_DIR)
+  #define INVERT_K_DIR false
 #endif
 #ifndef INVERT_E_DIR
   #define INVERT_E_DIR false

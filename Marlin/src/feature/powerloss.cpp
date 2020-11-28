@@ -546,7 +546,7 @@ void PrintJobRecovery::resume() {
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {
         DEBUG_ECHOPGM("current_position: ");
-        LOOP_XYZE(i) {
+        LOOP_NUM_AXIS(i) {
           if (i) DEBUG_CHAR(',');
           DEBUG_DECIMAL(info.current_position[i]);
         }

@@ -838,6 +838,9 @@
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
 #define INVERT_Z_STEP_PIN false
+#define INVERT_I_STEP_PIN false
+#define INVERT_J_STEP_PIN false
+#define INVERT_K_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
 /**
@@ -849,6 +852,9 @@
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // Set 'false' if the nozzle could fall onto your printed part!
+#define DISABLE_INACTIVE_I true
+#define DISABLE_INACTIVE_J true
+#define DISABLE_INACTIVE_K true
 #define DISABLE_INACTIVE_E true
 
 // If the Nozzle or Bed falls when the Z stepper is disabled, set its resting position here.
@@ -892,7 +898,7 @@
 #if ENABLED(BACKLASH_COMPENSATION)
   // Define values for backlash distance and correction.
   // If BACKLASH_GCODE is enabled these values are the defaults.
-  #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (mm)
+  #define BACKLASH_DISTANCE_MM { 0, 0, 0 } // (mm) One value for each linear axis
   #define BACKLASH_CORRECTION    0.0       // 0.0 = no correction; 1.0 = full correction
 
   // Set BACKLASH_SMOOTHING_MM to spread backlash correction over multiple segments
@@ -959,6 +965,13 @@
   #define CALIBRATION_MEASURE_FRONT
   #define CALIBRATION_MEASURE_LEFT
   #define CALIBRATION_MEASURE_BACK
+
+  //#define CALIBRATION_MEASURE_IMIN
+  //#define CALIBRATION_MEASURE_IMAX
+  //#define CALIBRATION_MEASURE_JMIN
+  //#define CALIBRATION_MEASURE_JMAX
+  //#define CALIBRATION_MEASURE_KMIN
+  //#define CALIBRATION_MEASURE_KMAX
 
   // Probing at the exact top center only works if the center is flat. If
   // probing on a screwhead or hollow washer, probe near the edges.
@@ -1833,6 +1846,9 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
+// Support for G81 (drilling), G82 (spot drilling) G83 (peck drilling)
+//#define DRILLING_CANNED_CYCLES
+
 /**
  * Direct Stepping
  *
@@ -2046,6 +2062,12 @@
   #if ENABLED(TOOLCHANGE_NO_RETURN)
     //#define EVENT_GCODE_AFTER_TOOLCHANGE "G12X"   // Extra G-code to run after tool-change
   #endif
+  /**
+   * Extra G-code to run while executing tool-change commands. Can be used to use an additional
+   * stepper motor (I axis, see option LINEAR_AXES in Configuration.h) to drive the tool-changer.
+   */
+  //#define EVENT_GCODE_TOOLCHANGE_T0 "G28 A\nG1 I0" // Extra G-code to run while executing tool-change command T0
+  //#define EVENT_GCODE_TOOLCHANGE_T1 "G1 A10"       // Extra G-code to run while executing tool-change command T1
 
   /**
    * Retract and prime filament on tool-change to reduce
@@ -2217,6 +2239,24 @@
     #define Z4_MICROSTEPS       16
   #endif
 
+  #if AXIS_DRIVER_TYPE_I(TMC26X)
+    #define I_MAX_CURRENT    1000
+    #define I_SENSE_RESISTOR   91
+    #define I_MICROSTEPS       16
+  #endif
+
+  #if AXIS_DRIVER_TYPE_J(TMC26X)
+    #define J_MAX_CURRENT    1000
+    #define J_SENSE_RESISTOR   91
+    #define J_MICROSTEPS       16
+  #endif
+
+  #if AXIS_DRIVER_TYPE_K(TMC26X)
+    #define K_MAX_CURRENT    1000
+    #define K_SENSE_RESISTOR   91
+    #define K_MICROSTEPS       16
+  #endif
+
   #if AXIS_DRIVER_TYPE_E0(TMC26X)
     #define E0_MAX_CURRENT    1000
     #define E0_SENSE_RESISTOR   91
@@ -2367,6 +2407,33 @@
     //#define Z4_INTERPOLATE true
   #endif
 
+  #if AXIS_IS_TMC(I)
+    #define I_CURRENT      800
+    #define I_CURRENT_HOME I_CURRENT
+    #define I_MICROSTEPS    16
+    #define I_RSENSE         0.11
+    #define I_CHAIN_POS     -1
+    //#define I_INTERPOLATE  true
+  #endif
+
+  #if AXIS_IS_TMC(J)
+    #define J_CURRENT      800
+    #define J_CURRENT_HOME J_CURRENT
+    #define J_MICROSTEPS    16
+    #define J_RSENSE         0.11
+    #define J_CHAIN_POS     -1
+    //#define J_INTERPOLATE  true
+  #endif
+
+  #if AXIS_IS_TMC(K)
+    #define K_CURRENT      800
+    #define K_CURRENT_HOME K_CURRENT
+    #define K_MICROSTEPS    16
+    #define K_RSENSE         0.11
+    #define K_CHAIN_POS     -1
+    //#define K_INTERPOLATE  true
+  #endif
+
   #if AXIS_IS_TMC(E0)
     #define E0_CURRENT      800
     #define E0_MICROSTEPS    16
@@ -2442,6 +2509,9 @@
   //#define Y2_CS_PIN         -1
   //#define Z2_CS_PIN         -1
   //#define Z3_CS_PIN         -1
+  //#define I_CS_PIN          -1
+  //#define J_CS_PIN          -1
+  //#define K_CS_PIN          -1
   //#define E0_CS_PIN         -1
   //#define E1_CS_PIN         -1
   //#define E2_CS_PIN         -1
@@ -2481,6 +2551,9 @@
   //#define Z2_SLAVE_ADDRESS 0
   //#define Z3_SLAVE_ADDRESS 0
   //#define Z4_SLAVE_ADDRESS 0
+  //#define  I_SLAVE_ADDRESS 0
+  //#define  J_SLAVE_ADDRESS 0
+  //#define  K_SLAVE_ADDRESS 0
   //#define E0_SLAVE_ADDRESS 0
   //#define E1_SLAVE_ADDRESS 0
   //#define E2_SLAVE_ADDRESS 0
@@ -2505,6 +2578,9 @@
    */
   #define STEALTHCHOP_XY
   #define STEALTHCHOP_Z
+  #define STEALTHCHOP_I
+  #define STEALTHCHOP_J
+  #define STEALTHCHOP_K
   #define STEALTHCHOP_E
 
   /**
@@ -2576,6 +2652,9 @@
   #define Z2_HYBRID_THRESHOLD      3
   #define Z3_HYBRID_THRESHOLD      3
   #define Z4_HYBRID_THRESHOLD      3
+  #define I_HYBRID_THRESHOLD       3
+  #define J_HYBRID_THRESHOLD       3
+  #define K_HYBRID_THRESHOLD       3
   #define E0_HYBRID_THRESHOLD     30
   #define E1_HYBRID_THRESHOLD     30
   #define E2_HYBRID_THRESHOLD     30
@@ -2622,6 +2701,9 @@
     //#define Z2_STALL_SENSITIVITY Z_STALL_SENSITIVITY
     //#define Z3_STALL_SENSITIVITY Z_STALL_SENSITIVITY
     //#define Z4_STALL_SENSITIVITY Z_STALL_SENSITIVITY
+    //#define I_STALL_SENSITIVITY  8
+    //#define J_STALL_SENSITIVITY  8
+    //#define K_STALL_SENSITIVITY  8
     //#define SPI_ENDSTOPS              // TMC2130 only
     //#define IMPROVE_HOMING_RELIABILITY
   #endif
@@ -2760,6 +2842,33 @@
     #define Z4_MAX_VOLTAGE     127
     #define Z4_CHAIN_POS        -1
     #define Z4_SLEW_RATE         1
+  #endif
+
+  #if AXIS_DRIVER_TYPE_I(L6470)
+    #define I_MICROSTEPS      128
+    #define I_OVERCURRENT    2000
+    #define I_STALLCURRENT   1500
+    #define I_MAX_VOLTAGE     127
+    #define I_CHAIN_POS        -1
+    #define I_SLEW_RATE         1
+  #endif
+
+  #if AXIS_DRIVER_TYPE_J(L6470)
+    #define J_MICROSTEPS      128
+    #define J_OVERCURRENT    2000
+    #define J_STALLCURRENT   1500
+    #define J_MAX_VOLTAGE     127
+    #define J_CHAIN_POS        -1
+    #define J_SLEW_RATE         1
+  #endif
+
+  #if AXIS_DRIVER_TYPE_K(L6470)
+    #define K_MICROSTEPS      128
+    #define K_OVERCURRENT    2000
+    #define K_STALLCURRENT   1500
+    #define K_MAX_VOLTAGE     127
+    #define K_CHAIN_POS        -1
+    #define K_SLEW_RATE         1
   #endif
 
   #if AXIS_IS_L64XX(E0)

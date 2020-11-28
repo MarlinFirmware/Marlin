@@ -412,6 +412,19 @@ xyze_int8_t Stepper::count_direction{0};
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
 #endif
 
+#if LINEAR_AXES >= 4
+  #define I_APPLY_DIR(v,Q) I_DIR_WRITE(v)
+  #define I_APPLY_STEP(v,Q) I_STEP_WRITE(v)
+#endif
+#if LINEAR_AXES >= 5
+  #define J_APPLY_DIR(v,Q) J_DIR_WRITE(v)
+  #define J_APPLY_STEP(v,Q) J_STEP_WRITE(v)
+#endif
+#if LINEAR_AXES >= 6
+  #define K_APPLY_DIR(v,Q) K_DIR_WRITE(v)
+  #define K_APPLY_STEP(v,Q) K_STEP_WRITE(v)
+#endif
+
 #if DISABLED(MIXING_EXTRUDER)
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(stepper_extruder, v)
 #endif
@@ -477,6 +490,19 @@ void Stepper::set_directions() {
   #if HAS_Z_DIR
     SET_STEP_DIR(Z); // C
   #endif
+
+  #if HAS_I_DIR
+    SET_STEP_DIR(I); // I
+  #endif
+
+  #if HAS_J_DIR
+    SET_STEP_DIR(J); // J
+  #endif
+
+  #if HAS_K_DIR
+    SET_STEP_DIR(K); // K
+  #endif
+
 
   #if DISABLED(LIN_ADVANCE)
     #if ENABLED(MIXING_EXTRUDER)
@@ -1573,7 +1599,7 @@ void Stepper::pulse_phase_isr() {
     const bool is_page = IS_PAGE(current_block);
 
     #if ENABLED(DIRECT_STEPPING)
-
+      // TODO (DerAndere): Add support for LINEAR_AXES >= 4
       if (is_page) {
 
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
@@ -1689,6 +1715,15 @@ void Stepper::pulse_phase_isr() {
       #if HAS_Z_STEP
         PULSE_PREP(Z);
       #endif
+      #if HAS_I_STEP
+        PULSE_PREP(I);
+      #endif
+      #if HAS_J_STEP
+        PULSE_PREP(J);
+      #endif
+      #if HAS_K_STEP
+        PULSE_PREP(K);
+      #endif
 
       #if EITHER(LIN_ADVANCE, MIXING_EXTRUDER)
         delta_error.e += advance_dividend.e;
@@ -1724,6 +1759,15 @@ void Stepper::pulse_phase_isr() {
     #if HAS_Z_STEP
       PULSE_START(Z);
     #endif
+    #if HAS_I_STEP
+      PULSE_START(I);
+    #endif
+    #if HAS_J_STEP
+      PULSE_START(J);
+    #endif
+    #if HAS_K_STEP
+      PULSE_START(K);
+    #endif
 
     #if DISABLED(LIN_ADVANCE)
       #if ENABLED(MIXING_EXTRUDER)
@@ -1752,6 +1796,15 @@ void Stepper::pulse_phase_isr() {
     #endif
     #if HAS_Z_STEP
       PULSE_STOP(Z);
+    #endif
+    #if HAS_I_STEP
+      PULSE_STOP(I);
+    #endif
+    #if HAS_J_STEP
+      PULSE_STOP(J);
+    #endif
+    #if HAS_K_STEP
+      PULSE_STOP(K);
     #endif
 
     #if DISABLED(LIN_ADVANCE)
@@ -1787,6 +1840,7 @@ uint32_t Stepper::block_phase_isr() {
     // If current block is finished, reset pointer and finalize state
     if (step_events_completed >= step_event_count) {
       #if ENABLED(DIRECT_STEPPING)
+        // TODO (DerAndere): Add support for LINEAR_AXES >= 4
         #if STEPPER_PAGE_FORMAT == SP_4x4D_128
           #define PAGE_SEGMENT_UPDATE_POS(AXIS) \
             count_position[_AXIS(AXIS)] += page_step_state.bd[_AXIS(AXIS)] - 128 * 7;
@@ -2086,6 +2140,15 @@ uint32_t Stepper::block_phase_isr() {
       if (X_MOVE_TEST) SBI(axis_bits, A_AXIS);
       if (Y_MOVE_TEST) SBI(axis_bits, B_AXIS);
       if (Z_MOVE_TEST) SBI(axis_bits, C_AXIS);
+      #if LINEAR_AXES >= 4
+        if (current_block->steps.i) SBI(axis_bits, I_AXIS);
+      #endif
+      #if LINEAR_AXES >= 5
+        if (current_block->steps.j) SBI(axis_bits, J_AXIS);
+      #endif
+      #if LINEAR_AXES >= 6
+        if (current_block->steps.k) SBI(axis_bits, K_AXIS);
+      #endif
       //if (!!current_block->steps.e) SBI(axis_bits, E_AXIS);
       //if (!!current_block->steps.a) SBI(axis_bits, X_HEAD);
       //if (!!current_block->steps.b) SBI(axis_bits, Y_HEAD);
@@ -2411,6 +2474,15 @@ void Stepper::init() {
       Z4_DIR_INIT();
     #endif
   #endif
+  #if HAS_I_DIR
+    I_DIR_INIT();
+  #endif
+  #if HAS_J_DIR
+    J_DIR_INIT();
+  #endif
+  #if HAS_K_DIR
+    K_DIR_INIT();
+  #endif
   #if HAS_E0_DIR
     E0_DIR_INIT();
   #endif
@@ -2468,6 +2540,18 @@ void Stepper::init() {
       Z4_ENABLE_INIT();
       if (!Z_ENABLE_ON) Z4_ENABLE_WRITE(HIGH);
     #endif
+  #endif
+  #if HAS_I_ENABLE
+    I_ENABLE_INIT();
+    if (!I_ENABLE_ON) I_ENABLE_WRITE(HIGH);
+  #endif
+  #if HAS_J_ENABLE
+    J_ENABLE_INIT();
+    if (!J_ENABLE_ON) J_ENABLE_WRITE(HIGH);
+  #endif
+  #if HAS_K_ENABLE
+    K_ENABLE_INIT();
+    if (!K_ENABLE_ON) K_ENABLE_WRITE(HIGH);
   #endif
   #if HAS_E0_ENABLE
     E0_ENABLE_INIT();
@@ -2545,7 +2629,15 @@ void Stepper::init() {
     #endif
     AXIS_INIT(Z, Z);
   #endif
-
+  #if HAS_I_STEP
+    AXIS_INIT(I, I);
+  #endif
+  #if HAS_J_STEP
+    AXIS_INIT(J, J);
+  #endif
+  #if HAS_K_STEP
+    AXIS_INIT(K, K);
+  #endif
   #if E_STEPPERS && HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
@@ -2578,9 +2670,16 @@ void Stepper::init() {
   #endif
 
   // Init direction bits for first moves
-  set_directions((INVERT_X_DIR ? _BV(X_AXIS) : 0)
-               | (INVERT_Y_DIR ? _BV(Y_AXIS) : 0)
-               | (INVERT_Z_DIR ? _BV(Z_AXIS) : 0));
+  set_directions(0
+    GANG_N(LINEAR_AXES,
+      | TERN0(INVERT_X_DIR, _BV(X_AXIS)),
+      | TERN0(INVERT_Y_DIR, _BV(Y_AXIS)),
+      | TERN0(INVERT_Z_DIR, _BV(Z_AXIS)),
+      | TERN0(INVERT_I_DIR, _BV(I_AXIS)),
+      | TERN0(INVERT_J_DIR, _BV(J_AXIS)),
+      | TERN0(INVERT_K_DIR, _BV(K_AXIS))
+    )
+  );
 
   #if HAS_MOTOR_CURRENT_SPI || HAS_MOTOR_CURRENT_PWM
     initialized = true;
@@ -2597,7 +2696,10 @@ void Stepper::init() {
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+void Stepper::_set_position(
+  LIST_N(LINEAR_AXES, const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &i, const int32_t &j, const int32_t &k),
+  const int32_t &e
+) {
   #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on https://www.corexy.com/theory.html
@@ -2612,7 +2714,7 @@ void Stepper::_set_position(const int32_t &a, const int32_t &b, const int32_t &c
     count_position.set(a - b, b, c);
   #else
     // default non-h-bot planning
-    count_position.set(a, b, c);
+    count_position.set(LIST_N(LINEAR_AXES, a, b, c, i, j, k));
   #endif
   count_position.e = e;
 }
@@ -2637,10 +2739,14 @@ int32_t Stepper::position(const AxisEnum axis) {
 }
 
 // Set the current position in steps
-void Stepper::set_position(const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &e) {
+//TODO: Test for LINEAR_AXES >= 4
+void Stepper::set_position(
+  LIST_N(LINEAR_AXES, const int32_t &a, const int32_t &b, const int32_t &c, const int32_t &i, const int32_t &j, const int32_t &k),
+  const int32_t &e
+) {
   planner.synchronize();
   const bool was_enabled = suspend();
-  _set_position(a, b, c, e);
+  _set_position(LIST_N(LINEAR_AXES, a, b, c, i, j, k), e);
   if (was_enabled) wake_up();
 }
 
@@ -2717,8 +2823,18 @@ void Stepper::report_a_position(const xyz_long_t &pos) {
   #if ANY(CORE_IS_XZ, CORE_IS_YZ, DELTA)
     SERIAL_ECHOLNPAIR(" C:", pos.z);
   #else
-    SERIAL_ECHOLNPAIR_P(SP_Z_LBL, pos.z);
+    SERIAL_ECHOPAIR_P(SP_Z_LBL, pos.z);
   #endif
+  #if LINEAR_AXES >= 4
+    SERIAL_ECHOPAIR_P(SP_I_LBL, pos.i);
+  #endif
+  #if LINEAR_AXES >= 5
+    SERIAL_ECHOPAIR_P(SP_J_LBL, pos.j);
+  #endif
+  #if LINEAR_AXES >= 6
+    SERIAL_ECHOPAIR_P(SP_K_LBL, pos.k);
+  #endif
+  SERIAL_EOL();
 }
 
 void Stepper::report_positions() {
@@ -2873,13 +2989,27 @@ void Stepper::report_positions() {
           ENABLE_AXIS_Y();
           ENABLE_AXIS_Z();
 
+          ENABLE_AXIS_I();
+          ENABLE_AXIS_J();
+          ENABLE_AXIS_K();
+
           DIR_WAIT_BEFORE();
 
-          const xyz_byte_t old_dir = { X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ() };
+          const xyz_byte_t old_dir = ARRAY_N(LINEAR_AXES, X_DIR_READ(), Y_DIR_READ(), Z_DIR_READ(), I_DIR_READ(), J_DIR_READ(), K_DIR_READ());
 
           X_DIR_WRITE(INVERT_X_DIR ^ z_direction);
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
+
+          #ifdef I_DIR_WRITE
+            I_DIR_WRITE(INVERT_I_DIR ^ z_direction);
+          #endif
+          #ifdef J_DIR_WRITE
+            J_DIR_WRITE(INVERT_J_DIR ^ z_direction);
+          #endif
+          #ifdef K_DIR_WRITE
+            K_DIR_WRITE(INVERT_K_DIR ^ z_direction);
+          #endif
 
           DIR_WAIT_AFTER();
 
@@ -2889,11 +3019,31 @@ void Stepper::report_positions() {
           Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
 
+          #ifdef I_STEP_WRITE
+            I_STEP_WRITE(!INVERT_I_STEP_PIN);
+          #endif
+          #ifdef J_STEP_WRITE
+            J_STEP_WRITE(!INVERT_J_STEP_PIN);
+          #endif
+          #ifdef K_STEP_WRITE
+            K_STEP_WRITE(!INVERT_K_STEP_PIN);
+          #endif
+
           _PULSE_WAIT();
 
           X_STEP_WRITE(INVERT_X_STEP_PIN);
           Y_STEP_WRITE(INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
+
+          #ifdef I_STEP_WRITE
+            I_STEP_WRITE(INVERT_I_STEP_PIN);
+          #endif
+          #ifdef J_STEP_WRITE
+            J_STEP_WRITE(INVERT_J_STEP_PIN);
+          #endif
+          #ifdef K_STEP_WRITE
+            K_STEP_WRITE(INVERT_K_STEP_PIN);
+          #endif
 
           // Restore direction bits
           EXTRA_DIR_WAIT_BEFORE();
@@ -2902,11 +3052,31 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(old_dir.y);
           Z_DIR_WRITE(old_dir.z);
 
+          #ifdef I_DIR_WRITE
+            I_DIR_WRITE(old_dir.i);
+          #endif
+          #ifdef J_DIR_WRITE
+            J_DIR_WRITE(old_dir.j);
+          #endif
+          #ifdef K_DIR_WRITE
+            K_DIR_WRITE(old_dir.k);
+          #endif
+
           EXTRA_DIR_WAIT_AFTER();
 
         #endif
 
       } break;
+
+      #if LINEAR_AXES >= 4
+        case I_AXIS: BABYSTEP_AXIS(I, 0, direction); break;
+      #endif
+      #if LINEAR_AXES >= 5
+        case J_AXIS: BABYSTEP_AXIS(J, 0, direction); break;
+      #endif
+      #if LINEAR_AXES >= 6
+        case K_AXIS: BABYSTEP_AXIS(K, 0, direction); break;
+      #endif
 
       default: break;
     }
@@ -3248,6 +3418,15 @@ void Stepper::report_positions() {
       #if HAS_E7_MS_PINS
         case 10: WRITE(E7_MS1_PIN, ms1); break;
       #endif
+      #if HAS_I_MICROSTEPS
+        case 11: WRITE(I_MS1_PIN, ms1); break
+      #endif
+      #if HAS_J_MICROSTEPS
+        case 12: WRITE(J_MS1_PIN, ms1); break
+      #endif
+      #if HAS_K_MICROSTEPS
+        case 13: WRITE(K_MS1_PIN, ms1); break
+      #endif
     }
     if (ms2 >= 0) switch (driver) {
       #if HAS_X_MS_PINS || HAS_X2_MS_PINS
@@ -3309,6 +3488,15 @@ void Stepper::report_positions() {
       #endif
       #if HAS_E7_MS_PINS
         case 10: WRITE(E7_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_I_M_PINS
+        case 11: WRITE(I_MS2_PIN, ms2); break
+      #endif
+      #if HAS_J_M_PINS
+        case 12: WRITE(J_MS2_PIN, ms2); break
+      #endif
+      #if HAS_K_M_PINS
+        case 13: WRITE(K_MS2_PIN, ms2); break
       #endif
     }
     if (ms3 >= 0) switch (driver) {
@@ -3426,6 +3614,24 @@ void Stepper::report_positions() {
       MS_LINE(Z);
       #if PIN_EXISTS(Z_MS3)
         PIN_CHAR(Z_MS3);
+      #endif
+    #endif
+    #if HAS_I_MS_PINS
+      MS_LINE(I);
+      #if PIN_EXISTS(I_MS3)
+        PIN_CHAR(I_MS3);
+      #endif
+    #endif
+    #if HAS_J_MS_PINS
+      MS_LINE(J);
+      #if PIN_EXISTS(J_MS3)
+        PIN_CHAR(J_MS3);
+      #endif
+    #endif
+    #if HAS_K_MS_PINS
+      MS_LINE(K);
+      #if PIN_EXISTS(K_MS3)
+        PIN_CHAR(K_MS3);
       #endif
     #endif
     #if HAS_E0_MS_PINS

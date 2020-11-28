@@ -36,12 +36,22 @@
 #define _XMIN_   100
 #define _YMIN_   200
 #define _ZMIN_   300
+#define _DMIN_   400
+#define _IMIN_   400
+#define _JMIN_   500
+#define _KMIN_   600
 #define _XMAX_   101
 #define _YMAX_   201
 #define _ZMAX_   301
+#define _IMAX_   401
+#define _JMAX_   501
+#define _KMAX_   601
 #define _XDIAG_  102
 #define _YDIAG_  202
 #define _ZDIAG_  302
+#define _IDIAG_  502
+#define _JDIAG_  602
+#define _KDIAG_  702
 #define _E0DIAG_ 400
 #define _E1DIAG_ 401
 #define _E2DIAG_ 402
@@ -226,6 +236,30 @@
     memcpy(&a[0],&b[0],_MIN(sizeof(a),sizeof(b))); \
   }while(0)
 
+#define CODE_9( A,B,C,D,E,F,G,H,I,...) do{ A; B; C; D; E; F; G; H; I; }while(0)
+#define CODE_8( A,B,C,D,E,F,G,H,...) do{ A; B; C; D; E; F; G; H; }while(0)
+#define CODE_7( A,B,C,D,E,F,G,...) do{ A; B; C; D; E; F; G; }while(0)
+#define CODE_6( A,B,C,D,E,F,...) do{ A; B; C; D; E; F; }while(0)
+#define CODE_5( A,B,C,D,E,...) do{ A; B; C; D; E; }while(0)
+#define CODE_4( A,B,C,D,...) do{ A; B; C; D; }while(0)
+#define CODE_3( A,B,C,...) do{ A; B; C; }while(0)
+#define CODE_2( A,B,...) do{ A; B; }while(0)
+#define CODE_1( A,...) do{ A; }while(0)
+#define _CODE_N(N,V...) CODE_##N(V)
+#define CODE_N(N,V...) _CODE_N(N,V)
+
+#define GANG_9( A,B,C,D,E,F,G,H,I,...) A B C D E F G H I
+#define GANG_8( A,B,C,D,E,F,G,H,...) A B C D E F G H
+#define GANG_7( A,B,C,D,E,F,G,...) A B C D E F G
+#define GANG_6( A,B,C,D,E,F,...) A B C D E F
+#define GANG_5( A,B,C,D,E,...) A B C D E
+#define GANG_4( A,B,C,D,...) A B C D
+#define GANG_3( A,B,C,...) A B C
+#define GANG_2( A,B,...) A B
+#define GANG_1( A,...) A
+#define _GANG_N(N,V...) GANG_##N(V)
+#define GANG_N(N,V...) _GANG_N(N,V)
+
 // Macros for initializing arrays
 #define LIST_16(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P
 #define LIST_15(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,...) A,B,C,D,E,F,G,H,I,J,K,L,M,N,O
@@ -243,10 +277,13 @@
 #define LIST_3( A,B,C,...) A,B,C
 #define LIST_2( A,B,...) A,B
 #define LIST_1( A,...) A
+#define LIST_0(...)
 
 #define _LIST_N(N,V...) LIST_##N(V)
 #define LIST_N(N,V...) _LIST_N(N,V)
+#define LIST_N_1(N,K) _LIST_N(N,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K,K)
 #define ARRAY_N(N,V...) { _LIST_N(N,V) }
+#define ARRAY_N_1(N,K)  { LIST_N_1(N,K) }
 
 #define _JOIN_1(O)         (O)
 #define JOIN_N(N,C,V...)   (DO(JOIN,C,LIST_N(N,V)))
@@ -374,6 +411,9 @@
 #define ADD8(N)  ADD4(ADD4(N))
 #define ADD9(N)  ADD4(ADD5(N))
 #define ADD10(N) ADD5(ADD5(N))
+#define SUM(A,B) _CAT(ADD,A)(B)
+#define DOUBLE_(n) ADD##n(n)
+#define DOUBLE(n) DOUBLE_(n)
 
 // Macros for subtracting
 #define DEC_0   0

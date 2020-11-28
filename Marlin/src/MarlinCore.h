@@ -122,6 +122,7 @@ void protected_pin_err();
 #endif
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
-                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
-                  SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
-                  X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[], SP_E_STR[], SP_I_STR[], SP_J_STR[],
+                  SP_K_STR[], SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[],
+                  E_LBL[], I_LBL[], J_LBL[], K_LBL[], X_LBL[], Y_LBL[], Z_LBL[],
+                  SP_E_LBL[], SP_I_LBL[], SP_J_LBL[], SP_K_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[];
