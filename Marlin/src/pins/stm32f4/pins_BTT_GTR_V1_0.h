@@ -31,11 +31,10 @@
 
 #if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
   #if ENABLED(USBCON)
-    #error "USB host msc need DELETED the -DUSBCON in platformio.ini"
+    #error "For USB host MSC make sure USBCON is not defined. Remove -DUSBCON if present."
   #endif
-
-  #if (SERIAL_PORT == -1) || (SERIAL_PORT_2 == -1)
-    #error "USB host msc and USB emulated serial port cannot be enabled on SKR Pro V1.2 at the same time"
+  #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+    #error "USB host MSC and USB emulated serial port can't be enabled on GTR V1.0 at the same time."
   #endif
 #endif
 
@@ -50,8 +49,8 @@
 //
 // USB OTG Host
 //
-#define USB_OTG_DM  PA11
-#define USB_OTG_DP  PA12
+#define USB_OTG_DM_PIN                      PA11
+#define USB_OTG_DP_PIN                      PA12
 
 //
 // Servos

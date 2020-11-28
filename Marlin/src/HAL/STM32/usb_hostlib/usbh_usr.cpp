@@ -1,9 +1,29 @@
+/**
+  ******************************************************************************
+  * @file    usbh_usr.cpp
+  * @author  MCD Application Team
+  * @brief   This file implements the board support package for the USB host library
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2015 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                      www.st.com/SLA0044
+  *
+  ******************************************************************************
+  */
+
 #include "../../../inc/MarlinConfig.h"
+
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+
 #include "usbh_usr.h"
 #include "STM32_USB_Host_Library/Core/Inc/usbh_def.h"
 #include "STM32_USB_Host_Library/Class/MSC/Inc/usbh_msc.h"
-
-#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
 
 USBH_HandleTypeDef MarlinUSB_Host;
 
@@ -93,7 +113,7 @@ uint8_t USBH_read(uint8_t lun, uint8_t *buff, uint32_t sector, uint32_t count)
     case SCSI_ASC_NOT_READY_TO_READY_CHANGE:
       USBH_ErrLog ("USB Disk is not ready!");
       res = 3; // Media not ready
-      break; 
+      break;
 
     default:
       res = 1; // Error

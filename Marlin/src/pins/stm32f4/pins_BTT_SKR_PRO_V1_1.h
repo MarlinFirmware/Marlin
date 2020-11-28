@@ -27,11 +27,10 @@
 
 #if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
   #if ENABLED(USBCON)
-    #error "USB host msc need DELETED the -DUSBCON in platformio.ini"
+    #error "For USB host MSC make sure USBCON is not defined. Remove -DUSBCON if present."
   #endif
-
-  #if (SERIAL_PORT == -1) || (SERIAL_PORT_2 == -1)
-    #error "USB host msc and USB emulated serial port cannot be enabled on SKR Pro V1.2 at the same time"
+  #if SERIAL_PORT == -1 || SERIAL_PORT_2 == -1
+    #error "USB host MSC and USB emulated serial port can't be enabled on BTT SKR Pro V1.1 at the same time."
   #endif
 #endif
 

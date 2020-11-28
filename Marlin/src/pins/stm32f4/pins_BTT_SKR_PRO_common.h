@@ -47,8 +47,8 @@
 //
 // USB OTG Host
 //
-#define USB_OTG_DM  PA11
-#define USB_OTG_DP  PA12
+#define USB_OTG_DM_PIN                      PA11
+#define USB_OTG_DP_PIN                      PA12
 
 //
 // Servos

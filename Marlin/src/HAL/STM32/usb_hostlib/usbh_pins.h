@@ -21,16 +21,16 @@
 /**
  * Define USB HOST Pins: OTG_DM, OTG_DP
  */
-#ifndef USB_OTG_DM
-  #define USB_OTG_DM  PA11
+#ifndef USB_OTG_DM_PIN
+  #define USB_OTG_DM_PIN  PA11
 #endif
-#ifndef USB_OTG_DP
-  #define USB_OTG_DP  PA12
+#ifndef USB_OTG_DP_PIN
+  #define USB_OTG_DP_PIN  PA12
 #endif
 
-#if (USB_OTG_DM == PA11) && (USB_OTG_DP == PA12)
+#if USB_OTG_DM_PIN == PA11 && USB_OTG_DP_PIN == PA12
   #define USB_OTG_ID FS
-#elif (USB_OTG_DM == PB14) && (USB_OTG_DP == PB15)
+#elif USB_OTG_DM_PIN == PB14 && USB_OTG_DP_PIN == PB15
   #define USB_OTG_ID HS  // HS port used for FS function
 #else
   #error "USB OTG pins error!"

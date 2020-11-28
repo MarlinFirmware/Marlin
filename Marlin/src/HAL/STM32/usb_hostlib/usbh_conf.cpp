@@ -1,13 +1,13 @@
 /**
   ******************************************************************************
-  * @file    usbh_conf.c
+  * @file    usbh_conf.cpp
   * @author  MCD Application Team
   * @brief   This file implements the board support package for the USB host library
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2015 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2015 STMicroelectronics.
+  * All rights reserved.
   *
   * This software component is licensed by ST under Ultimate Liberty license
   * SLA0044, the "License"; You may not use this file except in compliance with
@@ -18,11 +18,13 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "../../../inc/MarlinConfig.h"
-#include "STM32_USB_Host_Library/Core/Inc/usbh_core.h"
-#include "usbh_pins.h"
 
 #if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+
+#include "STM32_USB_Host_Library/Core/Inc/usbh_core.h"
+#include "usbh_pins.h"
 
 HCD_HandleTypeDef Marlinhcd;
 
@@ -471,6 +473,7 @@ void  USBH_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
 }
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
 #endif // USB_HOST_MSC_FLASH_SUPPORT
