@@ -17,11 +17,9 @@ Example: *PrusaSlicer-2.2.0-config_bundle_FLSUN_QQS-v1.ini*
 
 Download the right config bundle file (take care about the version of the file for the right release of Prusa Slic3r)  
 Start Prusa Slic3r  
-Select File -> Import -> Import Config Bundle... 
+Select File -> Import -> Import Config Bundle... for a pack of Presets/Filaments/Printers
 
-or
-
-Select File -> Import -> Import Config... 
+and -> Import Config... for a single pack Preset/Filament/Printer. 
 
 ![picture 1](../../docs/images/PS_Import.png)  
 
