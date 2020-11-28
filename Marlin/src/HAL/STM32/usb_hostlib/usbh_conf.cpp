@@ -17,6 +17,8 @@
   ******************************************************************************
   */
 
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
 /* Includes ------------------------------------------------------------------*/
 
 #include "../../../inc/MarlinConfig.h"
@@ -477,3 +479,4 @@ void  USBH_Delay(uint32_t Delay)
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
 #endif // USB_HOST_MSC_FLASH_SUPPORT
+#endif // STM32

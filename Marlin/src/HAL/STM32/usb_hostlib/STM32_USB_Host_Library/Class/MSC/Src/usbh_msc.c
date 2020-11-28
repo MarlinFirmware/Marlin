@@ -28,6 +28,11 @@
   *
   ******************************************************************************
   */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
+#include "../../../../../../../inc/MarlinConfig.h"
+
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
 
 /* BSPDependencies
 - "stm32xxxxx_{eval}{discovery}{nucleo_144}.c"
@@ -856,3 +861,6 @@ USBH_StatusTypeDef USBH_MSC_Write(USBH_HandleTypeDef *phost,
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+#endif // USB_HOST_MSC_FLASH_SUPPORT
+#endif // STM32

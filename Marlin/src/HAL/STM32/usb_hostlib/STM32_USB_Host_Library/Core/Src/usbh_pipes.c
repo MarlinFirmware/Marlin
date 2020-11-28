@@ -17,6 +17,12 @@
   ******************************************************************************
   */
 
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+
+#include "../../../../../../inc/MarlinConfig.h"
+
+#if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
+
 /* Includes ------------------------------------------------------------------*/
 #include "../Inc/usbh_pipes.h"
 
@@ -185,4 +191,5 @@ static uint16_t USBH_GetFreePipe(USBH_HandleTypeDef *phost)
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
-
+#endif // USB_HOST_MSC_FLASH_SUPPORT
+#endif // STM32
