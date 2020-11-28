@@ -24,12 +24,12 @@
 
 #if ENABLED(USB_HOST_MSC_FLASH_SUPPORT)
 
+#include "Sd2Card_usbhost_msc.h"
+#include HAL_PATH(../../HAL, usb_hostlib/usbh_usr.h)
+
 #include "../../MarlinCore.h"
 #include "../../core/serial.h"
 #include "../../module/temperature.h"
-
-#include "Sd2Card_usbhost_msc.h"
-#include "../../HAL/STM32/usb_hostlib/usbh_usr.h"
 
 // idle() is always called in Marlin idle()
 void Sd2Card::idle() {
@@ -49,7 +49,6 @@ void Sd2Card::idle() {
 bool Sd2Card::isInserted() {
   return USBH_IsConnected();
 }
-
 
 // Marlin calls this to initialize an SD card once it is inserted.
 bool Sd2Card::init(const uint8_t, const pin_t) {
