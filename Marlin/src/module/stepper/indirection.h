@@ -862,7 +862,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #define  ENABLE_AXIS_Z() if (SHOULD_ENABLE(z))  {  ENABLE_STEPPER_Z();  ENABLE_STEPPER_Z2();  ENABLE_STEPPER_Z3();  ENABLE_STEPPER_Z4(); AFTER_CHANGE(z, true); }
 #define DISABLE_AXIS_Z() if (SHOULD_DISABLE(z)) { DISABLE_STEPPER_Z(); DISABLE_STEPPER_Z2(); DISABLE_STEPPER_Z3(); DISABLE_STEPPER_Z4(); AFTER_CHANGE(z, false); FORGET_AXIS(Z_AXIS); Z_RESET(); }
 
-#define FORGET_AXIS(A) TERN(HOME_AFTER_DEACTIVATE, set_axis_never_homed(A), CBI(axis_known_position, A))
+#define FORGET_AXIS(A) TERN(HOME_AFTER_DEACTIVATE, set_axis_never_homed, set_axis_untrusted)(A)
 
 #ifdef Z_AFTER_DEACTIVATE
   #define Z_RESET() do{ current_position.z = Z_AFTER_DEACTIVATE; sync_plan_position(); }while(0)

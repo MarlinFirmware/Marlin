@@ -265,15 +265,15 @@ void MarlinUI::draw_status_screen() {
   tft.add_text(127, 3, COLOR_AXIS_HOMED , "Y");
   tft.add_text(219, 3, COLOR_AXIS_HOMED , "Z");
 
-  is_homed = TEST(axis_homed, X_AXIS);
+  is_homed = axis_was_homed(X_AXIS);
   tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
   tft.add_text( 68 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Y_AXIS);
+  is_homed = axis_was_homed(Y_AXIS);
   tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
   tft.add_text(185 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Z_AXIS);
+  is_homed = axis_was_homed(Z_AXIS);
   if (blink & !is_homed) {
     tft_string.set("?");
     offset = 25; // ".00"

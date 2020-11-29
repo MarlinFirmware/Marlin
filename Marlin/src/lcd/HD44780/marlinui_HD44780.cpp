@@ -507,11 +507,11 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   if (blink)
     lcd_put_u8str(value);
   else {
-    if (!TEST(axis_homed, axis))
+    if (!axis_was_homed(axis))
       while (const char c = *value++) lcd_put_wchar(c <= '.' ? c : '?');
     else {
       #if NONE(HOME_AFTER_DEACTIVATE, DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!TEST(axis_known_position, axis))
+        if (!axis_is_trusted(axis))
           lcd_put_u8str_P(axis == Z_AXIS ? PSTR("       ") : PSTR("    "));
         else
       #endif
