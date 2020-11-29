@@ -1292,8 +1292,7 @@
   // The height can be set with M420 Z<height>
   #define ENABLE_LEVELING_FADE_HEIGHT
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-    // Enable a fade height by default. Otherwise defaults to 0.0 (disabled)
-    #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) default fade height
+    #define DEFAULT_LEVELING_FADE_HEIGHT 10.0 // (mm) Default fade height.
   #endif
 
   // For Cartesian machines, instead of dividing moves on mesh boundaries,
