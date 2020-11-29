@@ -202,17 +202,9 @@ extern "C" {
 
 extern "C" char* _sbrk(int incr);
 
-/*
-static int freeMemory() {
-  volatile int top;
-  top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
-  return top;
-}
-*/
-
-static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
-  return &top - reinterpret_cast<char*>(_sbrk(0));
+  return &top - _sbrk(0);
 }
 
 #if GCC_VERSION <= 50000
