@@ -81,31 +81,26 @@ void plan_arc(
   float angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
 
   #ifdef MIN_ARC_SEGMENTS
-    uint16_t min_segments;
+    uint16_t min_segments = MIN_ARC_SEGMENTS;
   #else
     constexpr uint16_t min_segments = 1;
   #endif
 
-  // Make a circle if the angular rotation is near 0 and the target is current position or if angular rotation is perfectly 0
-  if (!angular_travel || NEAR_ZERO(angular_travel) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
-    //even though a circle is a circle we should still probably respect users wish on direction of motion via G2/G3
-    angular_travel = (clockwise?-1:1) * RADIANS(360); // clockwise?-RADIANS(360):RADIANS(360) 
-    #ifdef MIN_ARC_SEGMENTS
-      min_segments = MIN_ARC_SEGMENTS;
-    #endif
-  } else {
-
+  // Do a full circle if angular rotation is near 0 and the target is current position
+  if ((!angular_travel || NEAR_ZERO(angular_travel)) && NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
+    // Preserve direction for circles
+    angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
+  }
+  else {
     // Make sure angular travel over 180 degrees goes the other way around.
     switch (((angular_travel < 0) << 1) | clockwise) {
       case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
     }
-
     #ifdef MIN_ARC_SEGMENTS
-      min_segments = CEIL((MIN_ARC_SEGMENTS) * ABS(angular_travel) / RADIANS(360));
+      min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
       NOLESS(min_segments, 1U);
     #endif
-
   }
 
   float linear_travel = cart[l_axis] - start_L,
