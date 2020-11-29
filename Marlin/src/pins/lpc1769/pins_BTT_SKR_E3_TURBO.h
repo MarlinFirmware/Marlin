@@ -173,6 +173,10 @@
 #define FAN_PIN                            P2_01
 #define FAN1_PIN                           P2_02
 
+#ifndef CONTROLLER_FAN_PIN
+  #define CONTROLLER_FAN_PIN               FAN1_PIN
+#endif
+
 /**
  *                  _____
  *              5V | 1 2 | GND
