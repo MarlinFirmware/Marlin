@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,7 +26,7 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
-#include "../../Marlin.h"
+#include "../../MarlinCore.h"
 
 /**
  * G81: Drilling cycle
@@ -34,7 +34,10 @@
 void GcodeSuite::G81() {
   if (!IsRunning()
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
-      || axis_unhomed_error(parser.seen('X'), parser.seen('Y'), parser.seen('Z'))
+      || homing_needed_error(
+          (parser.seen('X') ? _BV(X_AXIS) : 0)
+        | (parser.seen('Y') ? _BV(Y_AXIS) : 0)
+        | (parser.seen('Z') ? _BV(Z_AXIS) : 0) )
     #endif
   ) return;
 
@@ -47,38 +50,35 @@ void GcodeSuite::G81() {
                 #elif defined(G0_FEEDRATE)
                   MMM_TO_MMS(G0_FEEDRATE)
                 #else
-                  slow_feedrate
+                  feedrate_mm_s
                 #endif
               );
 
+  auto line_to_z = [](const float &z, const feedRate_t fr_mm_s) {
+    REMEMBER(fr, feedrate_mm_s, fr_mm_s);
+    destination.z = z;
+    prepare_line_to_destination();
+  };
+
   // Store current Z and drill depth Z
-  const float initial_z = current_position[Z_AXIS],
-              depth_z = destination[Z_AXIS];
+  const float initial_z = current_position.z,
+              depth_z = destination.z;
+  float retract_z = initial_z;
 
   // Rapid move XY plane only at current Z height
-  feedrate_mm_s = fast_feedrate;
-  destination[Z_AXIS] = initial_z;
-  prepare_move_to_destination();
+  line_to_z(initial_z, fast_feedrate);
 
   // Rapid move to Z retract height, if provided
-  float ret_z = initial_z;
   if (parser.seenval('R')) {
-    ret_z = LOGICAL_TO_NATIVE(parser.value_float(), Z_AXIS);
-    destination[Z_AXIS] = ret_z;
-    prepare_move_to_destination();
+    retract_z = LOGICAL_TO_NATIVE(parser.value_float(), Z_AXIS);
+    line_to_z(retract_z, fast_feedrate);
   }
 
   // Move Z only to target depth at defined feedrate
-  feedrate_mm_s = slow_feedrate;
-  destination[Z_AXIS] = depth_z;
-  prepare_move_to_destination();
+  line_to_z(depth_z, slow_feedrate);
 
   // Retract to specified height or starting height
-  feedrate_mm_s = fast_feedrate;
-  destination[Z_AXIS] = ret_z;
-  prepare_move_to_destination();
-
-  feedrate_mm_s = slow_feedrate;
+  line_to_z(retract_z, fast_feedrate);
 }
 
 #endif // CNC_DRILLING_CYCLE
