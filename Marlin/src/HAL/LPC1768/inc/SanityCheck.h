@@ -81,8 +81,6 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
   #endif
 #endif
 
-static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported on LPC176x.");
-
 /**
  * Flag any serial port conflicts
  *

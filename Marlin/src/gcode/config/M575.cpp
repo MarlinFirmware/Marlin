@@ -25,7 +25,7 @@
 #if ENABLED(BAUD_RATE_GCODE)
 
 #include "../gcode.h"
-#include "../../module/configuration_store.h"
+#include "../../module/settings.h"
 
 /**
  * M575 - Change serial baud rate

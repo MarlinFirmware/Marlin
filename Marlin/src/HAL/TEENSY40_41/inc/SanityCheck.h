@@ -36,3 +36,7 @@
 #if HAS_TMC_SW_SERIAL
   #error "TMC220x Software Serial is not supported on this platform."
 #endif
+
+#if ENABLED(BAUD_RATE_GCODE)
+  #error "BAUD_RATE_GCODE is not yet supported on Teensy 4.0/4.1."
+#endif
