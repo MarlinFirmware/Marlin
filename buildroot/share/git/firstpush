@@ -14,15 +14,15 @@ FORK=${INFO[1]}
 REPO=${INFO[2]}
 BRANCH=${INFO[5]}
 
-git push --set-upstream origin $BRANCH
+git push --set-upstream origin HEAD:$BRANCH
 
-TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
 URL="https://github.com/$FORK/$REPO/commits/$BRANCH"
 
-if [ -z "$TOOL" ]; then
+if [ -z "$OPEN" ]; then
   echo "Can't find a tool to open the URL:"
   echo $URL
 else
   echo "Viewing commits on $BRANCH..."
-  "$TOOL" "$URL"
+  "$OPEN" "$URL"
 fi

@@ -5,11 +5,11 @@
 # Use Jekyll to generate Marlin Documentation, which is then
 # git-pushed to Github to publish it to the live site.
 # This publishes the current branch, and doesn't force
-# changes to be pushed to the 'master' branch. Be sure to push
-# any permanent changes to 'master'.
+# changes to be pushed to the 'master' branch. Be sure to
+# push any permanent changes to 'master'.
 #
 
-[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "usage: `basename $0` [branch]" 1>&2 ; exit 1; }
+[[ $# < 2 && $1 != "-h" && $1 != "--help" ]] || { echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1; }
 
 MFINFO=$(mfinfo "$@") || exit 1
 IFS=' ' read -a INFO <<< "$MFINFO"
@@ -18,6 +18,7 @@ FORK=${INFO[1]}
 REPO=${INFO[2]}
 TARG=${INFO[3]}
 BRANCH=${INFO[4]}
+CURR=${INFO[5]}
 
 if [[ $ORG != "MarlinFirmware" || $REPO != "MarlinDocumentation" ]]; then
   echo "Wrong repository."
@@ -30,35 +31,47 @@ if [[ $BRANCH == "gh-pages" ]]; then
 fi
 
 # Check out the named branch (or stay in current)
-git checkout $BRANCH
 
-echo "Stashing any changes to files..."
-echo "Don't forget to update and push 'master'!"
-# GOJF Card
-[[ $(git stash) != "No local "* ]] && HAS_STASH=1
+if [[ $BRANCH != $CURR ]]; then
+  echo "Stashing any changes to files..."
+  [[ $(git stash) != "No local "* ]] && HAS_STASH=1
+  git checkout $BRANCH
+fi
 
 COMMIT=$( git log --format="%H" -n 1 )
 
 # Clean out changes and other junk in the branch
 git clean -d -f
 
+opensite() {
+  URL="$1"
+  OPEN=$(echo $(which gnome-open xdg-open open) | awk '{ print $1 }')
+  if [ -z "$OPEN" ]; then
+    echo "Can't find a tool to open the URL:"
+    echo $URL
+  else
+    echo "Opening the site in the browser..."
+    "$OPEN" "$URL"
+  fi
+}
+
 # Push 'master' to the fork and make a proper PR...
-if [[ $BRANCH == "master" ]]; then
+if [[ $BRANCH == $TARG ]]; then
 
   # Don't lose upstream changes!
   git fetch upstream
 
   # Rebase onto latest master
-  if git rebase upstream/master; then
+  if git rebase upstream/$TARG; then
 
     # Allow working directly with the main fork
     echo
-    echo -n "Pushing to origin/master... "
-    git push -f origin
+    echo -n "Pushing to origin/$TARG... "
+    git push origin HEAD:$TARG
 
     echo
-    echo -n "Pushing to upstream/master... "
-    git push -f upstream
+    echo -n "Pushing to upstream/$TARG... "
+    git push upstream HEAD:$TARG
 
   else
 
@@ -77,16 +90,7 @@ else
     git push -f origin
   fi
 
-  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
-  URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
-
-  if [ -z "$TOOL" ]; then
-    echo "Can't find a tool to open the URL:"
-    echo $URL
-  else
-    echo "Opening a New PR Form..."
-    "$TOOL" "$URL"
-  fi
+  opensite "https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
 
 fi
 
@@ -97,15 +101,15 @@ fi
 echo
 echo "Generating MarlinDocumentation..."
 
-rm -rf _site
+rm -rf build
 
 # build the site statically and proof it
 bundle exec jekyll build --profile --trace --no-watch
-bundle exec htmlproofer ./_site --only-4xx --allow-hash-href --check-favicon --check-html --url-swap ".*marlinfw.org/:/"
+bundle exec htmlproofer ./build --only-4xx --allow-hash-href --check-favicon --check-html --url-swap ".*marlinfw.org/:/"
 
 # Sync the built site into a temporary folder
 TMPFOLDER=$( mktemp -d )
-rsync -av _site/ ${TMPFOLDER}/
+rsync -av build/ ${TMPFOLDER}/
 
 # Clean out changes and other junk in the branch
 git reset --hard
@@ -115,25 +119,14 @@ git clean -d -f
 git checkout gh-pages || { echo "Something went wrong!"; exit 1; }
 rsync -av ${TMPFOLDER}/ ./
 
-opensite() {
-  TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
-  URL="http://marlinfw.org/"
-  if [ -z "$TOOL" ]; then
-    echo "Can't find a tool to open the URL:"
-    echo $URL
-  else
-    echo "Opening the site in the browser..."
-    "$TOOL" "$URL"
-  fi
-}
-
 # Commit and push the new live site directly
 git add --all
 git commit --message "Built from ${COMMIT}"
-git push upstream | {
+git push -f origin
+git push -f upstream | {
   while IFS= read -r line
   do
-    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite
+    [[ $line =~ "gh-pages -> gh-pages" ]] && opensite "https://marlinfw.org/"
     echo "$line"
   done
 }
@@ -142,6 +135,4 @@ git push upstream | {
 rm -rf ${TMPFOLDER}
 
 # Go back to the branch we started from
-git checkout $BRANCH
-
-[[ $HAS_STASH == 1 ]] && git stash pop
+git checkout $CURR && [[ $HAS_STASH == 1 ]] && git stash pop

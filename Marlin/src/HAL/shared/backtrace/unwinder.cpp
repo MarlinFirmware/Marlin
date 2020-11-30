@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Implementation of the interface into the ARM unwinder.
  **************************************************************************/
@@ -27,7 +27,7 @@ extern "C" const UnwTabEntry __exidx_start[];
 extern "C" const UnwTabEntry __exidx_end[];
 
 // Detect if unwind information is present or not
-static int HasUnwindTableInfo(void) {
+static int HasUnwindTableInfo() {
   // > 16 because there are default entries we can't supress
   return ((char*)(&__exidx_end) - (char*)(&__exidx_start)) > 16 ? 1 : 0;
 }

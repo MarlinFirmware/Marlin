@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,12 +26,12 @@
 
 #include "../../gcode.h"
 
-#include "../../../Marlin.h" // for i2c
+#include "../../../MarlinCore.h" // for i2c
 
 /**
  * M260: Send data to a I2C slave device
  *
- * This is a PoC, the formating and arguments for the GCODE will
+ * This is a PoC, the formatting and arguments for the GCODE will
  * change to be more compatible, the current proposal is:
  *
  *  M260 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to
@@ -42,7 +42,6 @@
  *
  *  M260 S1 ; Send the buffered data and reset the buffer
  *  M260 R1 ; Reset the buffer without sending data
- *
  */
 void GcodeSuite::M260() {
   // Set the target address

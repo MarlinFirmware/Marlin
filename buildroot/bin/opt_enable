@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
+# exit on first failure
+set -e
+
 SED=$(which gsed || which sed)
 
 for opt in "$@" ; do
-  eval "${SED} -i 's/\/\/[[:blank:]]*\(#define \b${opt}\b\)/\1/g' Marlin/Configuration.h"
-done
-
-for opt in "$@" ; do
-  eval "${SED} -i 's/\/\/[[:blank:]]*\(#define \b${opt}\b\)/\1/g' Marlin/Configuration_adv.h"
+  # Logic for returning nonzero based on answer here: https://stackoverflow.com/a/15966279/104648
+  eval "${SED} -i '/\(\/\/\)*[[:blank:]]*\(#define \b${opt}\b\)/{s//\2/;h};\${x;/./{x;q0};x;q9}' Marlin/Configuration.h" ||
+  eval "${SED} -i '/\(\/\/\)*[[:blank:]]*\(#define \b${opt}\b\)/{s//\2/;h};\${x;/./{x;q0};x;q9}' Marlin/Configuration_adv.h" ||
+  (echo "ERROR: opt_enable Can't find ${opt}" >&2 && exit 9)
 done

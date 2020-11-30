@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -39,32 +39,26 @@
  *   E   Engage the probe for each probe (default 1)
  */
 void GcodeSuite::G30() {
-  const float xpos = parser.linearval('X', current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER),
-              ypos = parser.linearval('Y', current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-  if (!position_is_reachable_by_probe(xpos, ypos)) return;
+  const xy_pos_t pos = { parser.linearval('X', current_position.x + probe.offset_xy.x),
+                         parser.linearval('Y', current_position.y + probe.offset_xy.y) };
+
+  if (!probe.can_reach(pos)) return;
 
   // Disable leveling so the planner won't mess with us
-  #if HAS_LEVELING
-    set_bed_leveling_enabled(false);
-  #endif
+  TERN_(HAS_LEVELING, set_bed_leveling_enabled(false));
 
-  setup_for_endstop_or_probe_move();
+  remember_feedrate_scaling_off();
 
   const ProbePtRaise raise_after = parser.boolval('E', true) ? PROBE_PT_STOW : PROBE_PT_NONE;
-  const float measured_z = probe_pt(xpos, ypos, raise_after, 1);
+  const float measured_z = probe.probe_at_point(pos, raise_after, 1);
+  if (!isnan(measured_z))
+    SERIAL_ECHOLNPAIR("Bed X: ", pos.x, " Y: ", pos.y, " Z: ", measured_z);
 
-  if (!isnan(measured_z)) {
-    SERIAL_ECHOPAIR("Bed X: ", FIXFLOAT(xpos));
-    SERIAL_ECHOPAIR(" Y: ", FIXFLOAT(ypos));
-    SERIAL_ECHOLNPAIR(" Z: ", FIXFLOAT(measured_z));
-  }
+  restore_feedrate_and_scaling();
 
-  clean_up_after_endstop_or_probe_move();
-
-  #ifdef Z_AFTER_PROBING
-    if (raise_after == PROBE_PT_STOW) move_z_after_probing();
-  #endif
+  if (raise_after == PROBE_PT_STOW)
+    probe.move_z_after_probing();
 
   report_current_position();
 }

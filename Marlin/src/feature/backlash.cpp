@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -31,9 +31,9 @@
 
 #ifdef BACKLASH_DISTANCE_MM
   #if ENABLED(BACKLASH_GCODE)
-    float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+    xyz_float_t Backlash::distance_mm = BACKLASH_DISTANCE_MM;
   #else
-    const float Backlash::distance_mm[XYZ] = BACKLASH_DISTANCE_MM;
+    const xyz_float_t Backlash::distance_mm = BACKLASH_DISTANCE_MM;
   #endif
 #endif
 
@@ -45,8 +45,8 @@
 #endif
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  float Backlash::measured_mm[XYZ] = { 0 };
-  uint8_t Backlash::measured_count[XYZ] = { 0 };
+  xyz_float_t Backlash::measured_mm{0};
+  xyz_uint8_t Backlash::measured_count{0};
 #endif
 
 Backlash backlash;
@@ -80,12 +80,12 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 
     // Residual error carried forward across multiple segments, so correction can be applied
     // to segments where there is no direction change.
-    static int32_t residual_error[XYZ] = { 0 };
+    static xyz_long_t residual_error{0};
   #else
     // No direction change, no correction.
     if (!changed_dir) return;
     // No leftover residual error from segment to segment
-    int32_t residual_error[XYZ] = { 0 };
+    xyz_long_t residual_error{0};
   #endif
 
   const float f_corr = float(correction) / 255.0f;
@@ -106,14 +106,14 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
           // the current segment travels in the same direction as the correction
           if (reversing == (error_correction < 0)) {
             if (segment_proportion == 0)
-              segment_proportion = MIN(1.0f, block->millimeters / smoothing_mm);
+              segment_proportion = _MIN(1.0f, block->millimeters / smoothing_mm);
             error_correction = CEIL(segment_proportion * error_correction);
           }
           else
             error_correction = 0; // Don't take up any backlash in this segment, as it would subtract steps
         }
       #endif
-      // Making a correction reduces the residual error and modifies delta_mm
+      // Making a correction reduces the residual error and adds block steps
       if (error_correction) {
         block->steps[axis] += ABS(error_correction);
         residual_error[axis] -= error_correction;
@@ -123,24 +123,22 @@ void Backlash::add_correction_steps(const int32_t &da, const int32_t &db, const 
 }
 
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
-  #if USES_Z_MIN_PROBE_ENDSTOP
-    #define TEST_PROBE_PIN (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
-  #else
-    #define TEST_PROBE_PIN (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
-  #endif
+
+  #include "../module/probe.h"
 
   // Measure Z backlash by raising nozzle in increments until probe deactivates
   void Backlash::measure_with_probe() {
-    if (measured_count[Z_AXIS] == 255) return;
+    if (measured_count.z == 255) return;
 
-    float start_height = current_position[Z_AXIS];
-    while (current_position[Z_AXIS] < (start_height + BACKLASH_MEASUREMENT_LIMIT) && TEST_PROBE_PIN)
-      do_blocking_move_to_z(current_position[Z_AXIS] + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
+    const float start_height = current_position.z;
+    while (current_position.z < (start_height + BACKLASH_MEASUREMENT_LIMIT) && PROBE_TRIGGERED())
+      do_blocking_move_to_z(current_position.z + BACKLASH_MEASUREMENT_RESOLUTION, MMM_TO_MMS(BACKLASH_MEASUREMENT_FEEDRATE));
 
     // The backlash from all probe points is averaged, so count the number of measurements
-    measured_mm[Z_AXIS] += current_position[Z_AXIS] - start_height;
-    measured_count[Z_AXIS]++;
+    measured_mm.z += current_position.z - start_height;
+    measured_count.z++;
   }
+
 #endif
 
 #endif // BACKLASH_COMPENSATION

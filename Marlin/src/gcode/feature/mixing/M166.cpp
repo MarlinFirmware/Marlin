@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,15 +30,12 @@
 #include "../../../feature/mixing.h"
 
 inline void echo_mix() {
-  SERIAL_ECHOPAIR(" (", int(mixer.mix[0]));
-  SERIAL_ECHOPAIR("%|", int(mixer.mix[1]));
-  SERIAL_ECHOPGM("%)");
+  SERIAL_ECHOPAIR(" (", int(mixer.mix[0]), "%|", int(mixer.mix[1]), "%)");
 }
 
 inline void echo_zt(const int t, const float &z) {
   mixer.update_mix_from_vtool(t);
-  SERIAL_ECHOPAIR(" Z", z);
-  SERIAL_ECHOPAIR(" T", t);
+  SERIAL_ECHOPAIR_P(SP_Z_STR, z, SP_T_STR, t);
   echo_mix();
 }
 
@@ -89,7 +86,14 @@ void GcodeSuite::M166() {
     echo_zt(mixer.gradient.end_vtool, mixer.gradient.end_z);
 
     mixer.update_mix_from_gradient();
-    SERIAL_ECHOPAIR(" ; Current Z", planner.get_axis_position_mm(Z_AXIS));
+
+    SERIAL_ECHOPGM(" ; Current Z");
+    #if ENABLED(DELTA)
+      get_cartesian_from_steppers();
+      SERIAL_ECHO(cartes.z);
+    #else
+      SERIAL_ECHO(planner.get_axis_position_mm(Z_AXIS));
+    #endif
     echo_mix();
   }
 

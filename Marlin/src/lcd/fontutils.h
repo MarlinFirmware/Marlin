@@ -8,12 +8,12 @@
  */
 #pragma once
 
-#include "../HAL/shared/Marduino.h"
-#include "../core/macros.h"
-
 #include <stdlib.h>
 #include <stddef.h> // wchar_t
 #include <stdint.h> // uint32_t
+
+#include "../HAL/shared/Marduino.h"
+#include "../core/macros.h"
 
 // read a byte from ROM or RAM
 typedef uint8_t (*read_byte_cb_t)(uint8_t * str);
@@ -38,6 +38,10 @@ int pf_bsearch_r(void *userdata, size_t num_data, pf_bsearch_cb_comp_t cb_comp, 
 /* Get the character, decoding multibyte UTF8 characters and returning a pointer to the start of the next UTF8 character */
 uint8_t* get_utf8_value_cb(uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval);
 
-/* Returns lenght of string in CHARACTERS, NOT BYTES */
+/* Returns length of string in CHARACTERS, NOT BYTES */
 uint8_t utf8_strlen(const char *pstart);
 uint8_t utf8_strlen_P(PGM_P pstart);
+
+/* Returns start byte position of desired char number */
+uint8_t utf8_byte_pos_by_char_num(const char *pstart, const uint8_t charnum);
+uint8_t utf8_byte_pos_by_char_num_P(PGM_P pstart, const uint8_t charnum);

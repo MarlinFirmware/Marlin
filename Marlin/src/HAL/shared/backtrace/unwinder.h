@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commerically or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liablity for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  **************************************************************************/
 /** \file
  * Interface to the ARM stack unwinding module.
@@ -164,7 +164,7 @@ typedef struct {
  * link register (i.e. not a normal register) and the stack pointer value
  * supplied.
  *
- * -If the program was compiled with -funwind-tables , it will use them to
+ * -If the program was compiled with -funwind-tables it will use them to
  * perform the traceback. Otherwise, brute force will be employed
  * -If the program was compiled with -mpoke-function-name, then you will
  * get function names in the traceback. Otherwise, you will not.

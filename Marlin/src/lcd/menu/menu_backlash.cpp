@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -26,28 +26,28 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_LCD_MENU && ENABLED(BACKLASH_GCODE)
+#if BOTH(HAS_LCD_MENU, BACKLASH_GCODE)
 
-#include "menu.h"
+#include "menu_item.h"
 
 #include "../../feature/backlash.h"
 
 void menu_backlash() {
   START_MENU();
-  MENU_BACK(MSG_MAIN);
+  BACK_ITEM(MSG_MAIN);
 
-  MENU_MULTIPLIER_ITEM_EDIT(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
+  EDIT_ITEM_FAST(percent, MSG_BACKLASH_CORRECTION, &backlash.correction, all_off, all_on);
 
-  #define EDIT_BACKLASH_DISTANCE(N) MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
-  EDIT_BACKLASH_DISTANCE(A);
-  EDIT_BACKLASH_DISTANCE(B);
-  EDIT_BACKLASH_DISTANCE(C);
+  #define EDIT_BACKLASH_DISTANCE(N) EDIT_ITEM_FAST(float43, MSG_BACKLASH_##N, &backlash.distance_mm[_AXIS(N)], 0.0f, 9.9f);
+  if (AXIS_CAN_CALIBRATE(A)) EDIT_BACKLASH_DISTANCE(A);
+  if (AXIS_CAN_CALIBRATE(B)) EDIT_BACKLASH_DISTANCE(B);
+  if (AXIS_CAN_CALIBRATE(C)) EDIT_BACKLASH_DISTANCE(C);
 
   #ifdef BACKLASH_SMOOTHING_MM
-    MENU_MULTIPLIER_ITEM_EDIT(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);
+    EDIT_ITEM_FAST(float43, MSG_BACKLASH_SMOOTHING, &backlash.smoothing_mm, 0.0f, 9.9f);
   #endif
 
   END_MENU();
 }
 
-#endif // HAS_LCD_MENU && BACKLASH_COMPENSATION
+#endif // HAS_LCD_MENU && BACKLASH_GCODE

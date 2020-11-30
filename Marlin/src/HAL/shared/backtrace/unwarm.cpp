@@ -7,7 +7,7 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Utility functions and glue for ARM unwinding sub-modules.
  **************************************************************************/
@@ -78,7 +78,7 @@ void UnwInitState(UnwState * const state,     /**< Pointer to structure to fill.
 }
 
 // Detect if function names are available
-static int __attribute__ ((noinline)) has_function_names(void) {
+static int __attribute__ ((noinline)) has_function_names() {
   uint32_t flag_word = ((uint32_t*)(((uint32_t)(&has_function_names)) & (-4))) [-1];
   return ((flag_word & 0xFF000000) == 0xFF000000) ? 1 : 0;
 }

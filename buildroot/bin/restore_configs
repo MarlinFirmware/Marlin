@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-cp config/default/Configuration*.h Marlin
-
-[ -f Marlin/src/pins/pins_RAMPS.h.backup ] && cp Marlin/src/pins/pins_RAMPS.h.backup Marlin/src/pins/pins_RAMPS.h
-rm -f Marlin/src/pins/pins_RAMPS.h.backup
-
-rm -f Marlin/_Bootscreen.h
-rm -f Marlin/_Statusscreen.h
+git checkout Marlin/Configuration*.h 2>/dev/null
+git checkout Marlin/src/pins/ramps/pins_RAMPS.h 2>/dev/null
+rm -f Marlin/_Bootscreen.h Marlin/_Statusscreen.h

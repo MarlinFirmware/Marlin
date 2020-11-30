@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -29,11 +29,17 @@
 #include "../../module/stepper.h"
 
 /**
- *  M3 - Cutter ON (Clockwise)
- *  M4 - Cutter ON (Counter-clockwise)
+ * Laser:
+ *  M3 - Laser ON/Power (Ramped power)
+ *  M4 - Laser ON/Power (Continuous power)
  *
- *    S<power> - Set power. S0 turns it off.
- *    O<ocr>   - Set power and OCR
+ * Spindle:
+ *  M3 - Spindle ON (Clockwise)
+ *  M4 - Spindle ON (Counter-clockwise)
+ *
+ * Parameters:
+ *  S<power> - Set power. S0 will turn the spindle/laser off, except in relative mode.
+ *  O<ocr>   - Set power and OCR (oscillator count register)
  *
  *  If no PWM pin is defined then M3/M4 just turns it on.
  *
@@ -60,27 +66,75 @@
  *  PWM duty cycle goes from 0 (off) to 255 (always on).
  */
 void GcodeSuite::M3_M4(const bool is_M4) {
+  auto get_s_power = [] {
+    if (parser.seenval('S')) {
+      const float spwr = parser.value_float();
+      #if ENABLED(SPINDLE_SERVO)
+        cutter.unitPower = spwr;
+      #else
+        cutter.unitPower = TERN(SPINDLE_LASER_PWM,
+                              cutter.power_to_range(cutter_power_t(round(spwr))),
+                              spwr > 0 ? 255 : 0);
+      #endif
+    }
+    else
+      cutter.unitPower = cutter.cpwr_to_upwr(SPEED_POWER_STARTUP);
+    return cutter.unitPower;
+  };
+
+  #if ENABLED(LASER_POWER_INLINE)
+    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
+      // Laser power in inline mode
+      cutter.inline_direction(is_M4); // Should always be unused
+      #if ENABLED(SPINDLE_LASER_PWM)
+        if (parser.seen('O')) {
+          cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
+          cutter.inline_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+        }
+        else
+          cutter.inline_power(cutter.upower_to_ocr(get_s_power()));
+      #else
+        cutter.set_inline_enabled(true);
+      #endif
+      return;
+    }
+    // Non-inline, standard case
+    cutter.inline_disable(); // Prevent future blocks re-setting the power
+  #endif
 
   planner.synchronize();   // Wait for previous movement commands (G0/G0/G2/G3) to complete before changing power
-
   cutter.set_direction(is_M4);
 
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (parser.seen('O'))
-      cutter.set_ocr_power(parser.value_byte()); // The OCR is a value from 0 to 255 (uint8_t)
+    if (parser.seenval('O')) {
+      cutter.unitPower = cutter.power_to_range(parser.value_byte(), 0);
+      cutter.set_ocr_power(cutter.unitPower); // The OCR is a value from 0 to 255 (uint8_t)
+    }
     else
-      cutter.set_power(parser.intval('S', 255));
+      cutter.set_power(cutter.upower_to_ocr(get_s_power()));
+  #elif ENABLED(SPINDLE_SERVO)
+    cutter.set_power(get_s_power());
   #else
     cutter.set_enabled(true);
   #endif
+  cutter.menuPower = cutter.unitPower;
 }
 
 /**
- * M5 - Cutter OFF
+ * M5 - Cutter OFF (when moves are complete)
  */
 void GcodeSuite::M5() {
+  #if ENABLED(LASER_POWER_INLINE)
+    if (parser.seen('I') == DISABLED(LASER_POWER_INLINE_INVERT)) {
+      cutter.set_inline_enabled(false); // Laser power in inline mode
+      return;
+    }
+    // Non-inline, standard case
+    cutter.inline_disable(); // Prevent future blocks re-setting the power
+  #endif
   planner.synchronize();
   cutter.set_enabled(false);
+  cutter.menuPower = cutter.unitPower;
 }
 
 #endif // HAS_CUTTER

@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2019 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,31 +16,43 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfigPre.h"
-
-constexpr char axis_codes[XYZE] = { 'X', 'Y', 'Z', 'E' };
+#include "../core/types.h"
+#include "../core/millis_t.h"
 
 // Delay that ensures heaters and watchdog are kept alive
 void safe_delay(millis_t ms);
 
-// A delay to provide brittle hosts time to receive bytes
-inline void serial_delay(const millis_t ms) {
-  #if ENABLED(SERIAL_OVERRUN_PROTECTION)
-    safe_delay(ms);
-  #else
-    UNUSED(ms);
-  #endif
-}
+#if ENABLED(SERIAL_OVERRUN_PROTECTION)
+  void serial_delay(const millis_t ms);
+#else
+  inline void serial_delay(const millis_t) {}
+#endif
 
-// 16x16 bit arrays
-FORCE_INLINE void bitmap_clear(uint16_t bits[16], const uint8_t x, const uint8_t y)  { CBI(bits[y], x); }
-FORCE_INLINE void bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y)    { SBI(bits[y], x); }
-FORCE_INLINE bool is_bitmap_set(uint16_t bits[16], const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
+#if GRID_MAX_POINTS_X && GRID_MAX_POINTS_Y
+
+  // 16x16 bit arrays
+  template <int W, int H>
+  struct FlagBits {
+    typename IF<(W>8), uint16_t, uint8_t>::type bits[H];
+    void fill()                                   { memset(bits, 0xFF, sizeof(bits)); }
+    void reset()                                  { memset(bits, 0x00, sizeof(bits)); }
+    void unmark(const uint8_t x, const uint8_t y) { CBI(bits[y], x); }
+    void mark(const uint8_t x, const uint8_t y)   { SBI(bits[y], x); }
+    bool marked(const uint8_t x, const uint8_t y) { return TEST(bits[y], x); }
+    inline void unmark(const xy_int8_t &xy)       { unmark(xy.x, xy.y); }
+    inline void mark(const xy_int8_t &xy)         { mark(xy.x, xy.y); }
+    inline bool marked(const xy_int8_t &xy)       { return marked(xy.x, xy.y); }
+  };
+
+  typedef FlagBits<GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y> MeshFlags;
+
+#endif
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void log_machine_info();
@@ -59,7 +71,7 @@ public:
   inline void restore() { ref_ = val_; }
 };
 
-#define REMEMBER(N,X, ...) restorer<typeof(X)> restorer_##N(X, ##__VA_ARGS__)
+#define REMEMBER(N,X,V...) restorer<__typeof__(X)> restorer_##N(X, ##V)
 #define RESTORE(N) restorer_##N.restore()
 
 // Converts from an uint8_t in the range of 0-255 to an uint8_t
