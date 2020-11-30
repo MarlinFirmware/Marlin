@@ -524,7 +524,7 @@ void _ubl_map_screen_homing() {
  */
 void _ubl_goto_map_screen() {
   if (planner.movesplanned()) return;     // The ACTION_ITEM will do nothing
-  if (!all_axes_known()) {
+  if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }

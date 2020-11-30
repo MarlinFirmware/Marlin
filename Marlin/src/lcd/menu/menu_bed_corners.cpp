@@ -230,7 +230,7 @@ static inline void _lcd_level_bed_corners_homing() {
 
 void _lcd_level_bed_corners() {
   ui.defer_status_screen();
-  if (!all_axes_known()) {
+  if (!all_axes_trusted()) {
     set_all_unhomed();
     queue.inject_P(G28_STR);
   }

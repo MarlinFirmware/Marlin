@@ -59,10 +59,8 @@
 void GcodeSuite::M701() {
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    // Don't raise Z if the machine isn't homed
-    if (axes_should_home()) park_point.z = 0;
-  #endif
+  // Don't raise Z if the machine isn't homed
+  if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t target_e_stepper = get_target_e_stepper_from_command();
@@ -147,10 +145,8 @@ void GcodeSuite::M701() {
 void GcodeSuite::M702() {
   xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
-  #if ENABLED(NO_MOTION_BEFORE_HOMING)
-    // Don't raise Z if the machine isn't homed
-    if (axes_should_home()) park_point.z = 0;
-  #endif
+  // Don't raise Z if the machine isn't homed
+  if (TERN0(NO_MOTION_BEFORE_HOMING, axes_should_home())) park_point.z = 0;
 
   #if ENABLED(MIXING_EXTRUDER)
     const uint8_t old_mixing_tool = mixer.get_current_vtool();

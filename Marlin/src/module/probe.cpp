@@ -350,7 +350,7 @@ bool Probe::set_deployed(const bool deploy) {
 
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)
-    const bool unknown_condition = TEST(axis_known_position, Z_AXIS);
+    const bool unknown_condition = axis_is_trusted(Z_AXIS);
   #else
     constexpr float unknown_condition = true;
   #endif
@@ -510,7 +510,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
 
   // Stop the probe before it goes too low to prevent damage.
   // If Z isn't known then probe to -10mm.
-  const float z_probe_low_point = TEST(axis_known_position, Z_AXIS) ? -offset.z + Z_PROBE_LOW_POINT : -10.0;
+  const float z_probe_low_point = axis_is_trusted(Z_AXIS) ? -offset.z + Z_PROBE_LOW_POINT : -10.0;
 
   // Double-probing does a fast probe followed by a slow probe
   #if TOTAL_PROBING == 2

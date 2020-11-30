@@ -1281,8 +1281,7 @@ void HMI_Move_Z() {
       last_zoffset = dwin_zoffset;
       dwin_zoffset = HMI_ValueStruct.offset_value / 100.0f;
       #if EITHER(BABYSTEP_ZPROBE_OFFSET, JUST_BABYSTEP)
-        if ( (ENABLED(BABYSTEP_WITHOUT_HOMING) || all_axes_known()) && (ENABLED(BABYSTEP_ALWAYS_AVAILABLE) || printer_busy()) )
-          babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
+        if (BABYSTEP_ALLOWED()) babystep.add_mm(Z_AXIS, dwin_zoffset - last_zoffset);
       #endif
       DWIN_Draw_Signed_Float(font8x16, Select_Color, 2, 2, 202, MBASE(zoff_line), HMI_ValueStruct.offset_value);
       DWIN_UpdateLCD();
