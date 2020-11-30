@@ -1124,10 +1124,11 @@ void prepare_line_to_destination() {
 }
 
 uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
+  #define SHOULD_HOME(A) TERN(HOME_AFTER_DEACTIVATE, axis_is_trusted, axis_was_homed)(A)
   // Clear test bits that are trusted
-  if (TEST(axis_bits, X_AXIS) && axis_was_homed(X_AXIS)) CBI(axis_bits, X_AXIS);
-  if (TEST(axis_bits, Y_AXIS) && axis_was_homed(Y_AXIS)) CBI(axis_bits, Y_AXIS);
-  if (TEST(axis_bits, Z_AXIS) && axis_was_homed(Z_AXIS)) CBI(axis_bits, Z_AXIS);
+  if (TEST(axis_bits, X_AXIS) && SHOULD_HOME(X_AXIS)) CBI(axis_bits, X_AXIS);
+  if (TEST(axis_bits, Y_AXIS) && SHOULD_HOME(Y_AXIS)) CBI(axis_bits, Y_AXIS);
+  if (TEST(axis_bits, Z_AXIS) && SHOULD_HOME(Z_AXIS)) CBI(axis_bits, Z_AXIS);
   return axis_bits;
 }
 
