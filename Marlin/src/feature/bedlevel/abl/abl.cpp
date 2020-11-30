@@ -168,7 +168,7 @@ void print_bilinear_leveling_grid() {
       // cancelled out in bed_level_virt_cmr and does not impact the result. Return 0.0 rather than
       // making this function more complex by extrapolating two points.
       return 0.0;
-    }    
+    }
     if (!x || x == ABL_TEMP_POINTS_X - 1) {
       if (x) {
         ep = GRID_MAX_POINTS_X - 1;

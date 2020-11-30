@@ -243,7 +243,7 @@
 #endif
 
 // Use the on-board card socket labeled SD_Extender
-#if SD_CONNECTION_IS(CUSTOM_CABLE) 
+#if SD_CONNECTION_IS(CUSTOM_CABLE)
   #define SCK_PIN                           PC12
   #define MISO_PIN                          PC8
   #define MOSI_PIN                          PD2
@@ -300,7 +300,7 @@
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
   #define TFT_BUFFER_SIZE                  14400
-  #if ENABLED(TFT_CLASSIC_UI)  
+  #if ENABLED(TFT_CLASSIC_UI)
     #define TFT_MARLINBG_COLOR            0x3186  // White
     #define TFT_MARLINUI_COLOR            0xC7B6  // green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
