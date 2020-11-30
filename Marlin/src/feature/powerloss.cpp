@@ -369,28 +369,24 @@ void PrintJobRecovery::resume() {
 
     gcode.process_subcommands_now_P(PSTR(
       "G28R0"                               // No raise during G28
-      #if IS_CARTESIAN && DISABLED(POWER_LOSS_RECOVER_ZHOME) && !defined(POWER_LOSS_ZHOME_POS)
+      #if IS_CARTESIAN && (DISABLED(POWER_LOSS_RECOVER_ZHOME) || defined(POWER_LOSS_ZHOME_POS))
         "XY"                                // Don't home Z on Cartesian unless overridden
       #endif
     ));
 
   #endif
 
-  // Pretend that all axes are homed
+  #ifdef POWER_LOSS_ZHOME_POS
+    // If defined move to a safe Z homing position that avoids the print
+    constexpr xy_pos_t homepos = POWER_LOSS_ZHOME_POS;
+    sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28Z", dtostrf(homepos.x, 1, 3, str_1), dtostrf(homepos.y, 1, 3, str_2)));
+    gcode.process_subcommands_now(cmd);
+  #endif
+
+  // Ensure that all axes are marked as homed
   set_all_homed();
 
   #if ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    #ifdef POWER_LOSS_ZHOME_POS
-      // If defined move to a safe Z homing position that avoids the print
-      constexpr xy_pos_t plr_zhome_pos = POWER_LOSS_ZHOME_POS;
-      sprintf_P(cmd, PSTR("G1 X%s Y%s F1000\nG28UZ", dtostrf(plr_zhome_pos.x, 1, 3, str_1), dtostrf(plr_zhome_pos.y, 1, 3, str_2)));
-      gcode.process_subcommands_now(cmd);
-    #else
-      gcode.process_subcommands_now(PSTR("G28Z"));
-    #endif
-  #endif
-
-  #if ENABLED(POWER_LOSS_ZRAISE)
     // Now move to ZsavedPos + POWER_LOSS_ZRAISE
     sprintf_P(cmd, PSTR("G1 F500 Z%s"), dtostrf(info.current_position.z + POWER_LOSS_ZRAISE, 1, 3, str_1));
     gcode.process_subcommands_now(cmd);
@@ -505,7 +501,7 @@ void PrintJobRecovery::resume() {
   // Move back to the saved Z
   dtostrf(info.current_position.z, 1, 3, str_1);
   #if Z_HOME_DIR > 0 || ENABLED(POWER_LOSS_RECOVER_ZHOME)
-    sprintf_P(cmd, PSTR("G1 Z%s F200"), str_1);
+    sprintf_P(cmd, PSTR("G1 Z%s F500"), str_1);
   #else
     gcode.process_subcommands_now_P(PSTR("G1 Z0 F200"));
     sprintf_P(cmd, PSTR("G92.9 Z%s"), str_1);
