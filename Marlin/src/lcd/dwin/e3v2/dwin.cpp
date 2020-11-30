@@ -186,7 +186,6 @@ bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
 constexpr float default_max_jerk[]            = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
-constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 
 uint8_t Percentrecord = 0;
 uint16_t remain_time = 0;
@@ -1522,7 +1521,7 @@ void HMI_StepXYZE() {
     }
     // Step limit
     if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
-      NOMORE(HMI_ValueStruct.Max_Step, default_axis_steps_per_unit[HMI_flag.step_axis] * 2 * MINUNITMULT);
+      NOMORE(HMI_ValueStruct.Max_Step, 999.9 * MINUNITMULT);
     NOLESS(HMI_ValueStruct.Max_Step, MIN_STEP);
     // Step value
     DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Select_Color, 3, 1, 210, MBASE(select_step.now), HMI_ValueStruct.Max_Step);
