@@ -1,10 +1,14 @@
 <!--
 
-Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/master/.github/code_of_conduct.md
+Have you read Marlin's Code of Conduct? By filing an Issue, you are expected to comply with it, including treating everyone with respect: https://github.com/MarlinFirmware/Marlin/blob/bugfix-2.0.x/.github/code_of_conduct.md
 
-Do you want to ask a question? Are you looking for support? Please don't post here. Instead please use the Marlin Firmware forum at http://forums.reprap.org/list.php?415 or the Marlin Facebook Group https://www.facebook.com/groups/1049718498464482/.
+Do you want to ask a question? Are you looking for support? Please don't post here. Instead use one of the following options:
 
-Before filing an issue be sure to test the 1.1 and/or 2.0 "bugfix" branches to see whether the issue is already addressed.
+- The Marlin Firmware forum at https://reprap.org/forum/list.php?415
+- The MarlinFirmware Facebook Group at https://www.facebook.com/groups/1049718498464482/
+- The MarlinFirmware Discord Server at https://discord.gg/n5NJ59y.
+
+Before filing an issue be sure to test the latest "bugfix" branch to see whether the issue is already addressed.
 
 -->
 

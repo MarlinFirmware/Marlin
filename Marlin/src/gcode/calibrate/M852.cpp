@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -42,8 +42,8 @@ void GcodeSuite::M852() {
     ++ijk;
     const float value = parser.value_linear_units();
     if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-      if (planner.xy_skew_factor != value) {
-        planner.xy_skew_factor = value;
+      if (planner.skew_factor.xy != value) {
+        planner.skew_factor.xy = value;
         ++setval;
       }
     }
@@ -57,8 +57,8 @@ void GcodeSuite::M852() {
       ++ijk;
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-        if (planner.xz_skew_factor != value) {
-          planner.xz_skew_factor = value;
+        if (planner.skew_factor.xz != value) {
+          planner.skew_factor.xz = value;
           ++setval;
         }
       }
@@ -70,8 +70,8 @@ void GcodeSuite::M852() {
       ++ijk;
       const float value = parser.value_linear_units();
       if (WITHIN(value, SKEW_FACTOR_MIN, SKEW_FACTOR_MAX)) {
-        if (planner.yz_skew_factor != value) {
-          planner.yz_skew_factor = value;
+        if (planner.skew_factor.yz != value) {
+          planner.skew_factor.yz = value;
           ++setval;
         }
       }
@@ -82,7 +82,7 @@ void GcodeSuite::M852() {
   #endif
 
   if (badval)
-    SERIAL_ECHOLNPGM(MSG_SKEW_MIN " " STRINGIFY(SKEW_FACTOR_MIN) " " MSG_SKEW_MAX " " STRINGIFY(SKEW_FACTOR_MAX));
+    SERIAL_ECHOLNPGM(STR_SKEW_MIN " " STRINGIFY(SKEW_FACTOR_MIN) " " STR_SKEW_MAX " " STRINGIFY(SKEW_FACTOR_MAX));
 
   // When skew is changed the current position changes
   if (setval) {
@@ -93,15 +93,13 @@ void GcodeSuite::M852() {
 
   if (!ijk) {
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM(MSG_SKEW_FACTOR " XY: ");
-    SERIAL_ECHO_F(planner.xy_skew_factor, 6);
-    SERIAL_EOL();
+    serialprintPGM(GET_TEXT(MSG_SKEW_FACTOR));
+    SERIAL_ECHOPAIR_F(" XY: ", planner.skew_factor.xy, 6);
     #if ENABLED(SKEW_CORRECTION_FOR_Z)
-      SERIAL_ECHOPAIR(" XZ: ", planner.xz_skew_factor);
-      SERIAL_ECHOLNPAIR(" YZ: ", planner.yz_skew_factor);
-    #else
-      SERIAL_EOL();
+      SERIAL_ECHOPAIR_F(" XZ: ", planner.skew_factor.xz, 6);
+      SERIAL_ECHOPAIR_F(" YZ: ", planner.skew_factor.yz, 6);
     #endif
+    SERIAL_EOL();
   }
 }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,42 +16,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-// PT100 with INA826 amp on Ultimaker v2.0 electronics
-// The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
-// This does not match the normal thermistor behaviour so we need to set the following defines
-#if THERMISTORHEATER_0 == 20
-  #define HEATER_0_RAW_HI_TEMP 16383
-  #define HEATER_0_RAW_LO_TEMP 0
-#endif
-#if THERMISTORHEATER_1 == 20
-  #define HEATER_1_RAW_HI_TEMP 16383
-  #define HEATER_1_RAW_LO_TEMP 0
-#endif
-#if THERMISTORHEATER_2 == 20
-  #define HEATER_2_RAW_HI_TEMP 16383
-  #define HEATER_2_RAW_LO_TEMP 0
-#endif
-#if THERMISTORHEATER_3 == 20
-  #define HEATER_3_RAW_HI_TEMP 16383
-  #define HEATER_3_RAW_LO_TEMP 0
-#endif
-#if THERMISTORHEATER_4 == 20
-  #define HEATER_4_RAW_HI_TEMP 16383
-  #define HEATER_4_RAW_LO_TEMP 0
-#endif
-#if THERMISTORBED == 20
-  #define HEATER_BED_RAW_HI_TEMP 16383
-  #define HEATER_BED_RAW_LO_TEMP 0
-#endif
-#if THERMISTORCHAMBER == 20
-  #define HEATER_CHAMBER_RAW_HI_TEMP 16383
-  #define HEATER_CHAMBER_RAW_LO_TEMP 0
-#endif
-const short temptable_20[][2] PROGMEM = {
+#define REVERSE_TEMP_SENSOR_RANGE_20 1
+
+// Pt100 with INA826 amp on Ultimaker v2.0 electronics
+const temp_entry_t temptable_20[] PROGMEM = {
   { OV(  0),    0 },
   { OV(227),    1 },
   { OV(236),   10 },

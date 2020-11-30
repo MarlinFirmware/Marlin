@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -37,7 +37,7 @@
  *
  *       M302         ; report current cold extrusion state
  *       M302 P0      ; enable cold extrusion checking
- *       M302 P1      ; disables cold extrusion checking
+ *       M302 P1      ; disable cold extrusion checking
  *       M302 S0      ; always allow extrusion (disables checking)
  *       M302 S170    ; only allow extrusion above 170
  *       M302 S170 P1 ; set min extrude temp to 170 but leave disabled
@@ -54,9 +54,9 @@ void GcodeSuite::M302() {
   else if (!seen_S) {
     // Report current state
     SERIAL_ECHO_START();
-    SERIAL_ECHOPAIR("Cold extrudes are ", (thermalManager.allow_cold_extrude ? "en" : "dis"));
-    SERIAL_ECHOPAIR("abled (min temp ", thermalManager.extrude_min_temp);
-    SERIAL_ECHOLNPGM("C)");
+    SERIAL_ECHOPGM("Cold extrudes are ");
+    serialprintPGM(thermalManager.allow_cold_extrude ? PSTR("en") : PSTR("dis"));
+    SERIAL_ECHOLNPAIR("abled (min temp ", thermalManager.extrude_min_temp, "C)");
   }
 }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -58,12 +58,21 @@
 #define PCA9632_AUTOGLO     0xC0
 #define PCA9632_AUTOGI      0xE0
 
-// Red   LED0
-// Green LED1
-// Blue  LED2
-#define PCA9632_RED     0x00
-#define PCA9632_GRN     0x02
-#define PCA9632_BLU     0x04
+// Red=LED0   Green=LED1   Blue=LED2
+#ifndef PCA9632_RED
+  #define PCA9632_RED 0x00
+#endif
+#ifndef PCA9632_GRN
+  #define PCA9632_GRN 0x02
+#endif
+#ifndef PCA9632_BLU
+  #define PCA9632_BLU 0x04
+#endif
+
+// If any of the color indexes are greater than 0x04 they can't use auto increment
+#if !defined(PCA9632_NO_AUTO_INC) && (PCA9632_RED > 0x04 || PCA9632_GRN > 0x04 || PCA9632_BLU > 0x04)
+  #define PCA9632_NO_AUTO_INC
+#endif
 
 #define LED_OFF   0x00
 #define LED_ON    0x01
@@ -74,24 +83,36 @@
 byte PCA_init = 0;
 
 static void PCA9632_WriteRegister(const byte addr, const byte regadd, const byte value) {
-  Wire.beginTransmission(addr);
+  Wire.beginTransmission(I2C_ADDRESS(addr));
   Wire.write(regadd);
   Wire.write(value);
   Wire.endTransmission();
 }
 
-static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte value1, const byte value2, const byte value3) {
-  Wire.beginTransmission(addr);
-  Wire.write(PCA9632_AUTO_IND | regadd);
-  Wire.write(value1);
-  Wire.write(value2);
-  Wire.write(value3);
+static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const byte vr, const byte vg, const byte vb) {
+  #if DISABLED(PCA9632_NO_AUTO_INC)
+    uint8_t data[4], len = 4;
+    data[0] = PCA9632_AUTO_IND | regadd;
+    data[1 + (PCA9632_RED >> 1)] = vr;
+    data[1 + (PCA9632_GRN >> 1)] = vg;
+    data[1 + (PCA9632_BLU >> 1)] = vb;
+  #else
+    uint8_t data[6], len = 6;
+    data[0] = regadd + (PCA9632_RED >> 1);
+    data[1] = vr;
+    data[2] = regadd + (PCA9632_GRN >> 1);
+    data[3] = vg;
+    data[4] = regadd + (PCA9632_BLU >> 1);
+    data[5] = vb;
+  #endif
+  Wire.beginTransmission(I2C_ADDRESS(addr));
+  Wire.write(data, len);
   Wire.endTransmission();
 }
 
 #if 0
   static byte PCA9632_ReadRegister(const byte addr, const byte regadd) {
-    Wire.beginTransmission(addr);
+    Wire.beginTransmission(I2C_ADDRESS(addr));
     Wire.write(regadd);
     const byte value = Wire.read();
     Wire.endTransmission();
@@ -99,7 +120,7 @@ static void PCA9632_WriteAllRegisters(const byte addr, const byte regadd, const 
   }
 #endif
 
-void pca9632_set_led_color(const LEDColor &color) {
+void PCA9632_set_led_color(const LEDColor &color) {
   Wire.begin();
   if (!PCA_init) {
     PCA_init = 1;
@@ -114,5 +135,16 @@ void pca9632_set_led_color(const LEDColor &color) {
   PCA9632_WriteAllRegisters(PCA9632_ADDRESS,PCA9632_PWM0, color.r, color.g, color.b);
   PCA9632_WriteRegister(PCA9632_ADDRESS,PCA9632_LEDOUT, LEDOUT);
 }
+
+#if ENABLED(PCA9632_BUZZER)
+
+  void PCA9632_buzz(const long, const uint16_t) {
+    uint8_t data[] = PCA9632_BUZZER_DATA;
+    Wire.beginTransmission(I2C_ADDRESS(PCA9632_ADDRESS));
+    Wire.write(data, sizeof(data));
+    Wire.endTransmission();
+  }
+
+#endif // PCA9632_BUZZER
 
 #endif // PCA9632

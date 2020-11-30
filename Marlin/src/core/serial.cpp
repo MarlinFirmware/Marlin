@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,65 +16,59 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "serial.h"
+#include "../inc/MarlinConfig.h"
 
-uint8_t marlin_debug_flags = DEBUG_NONE;
+uint8_t marlin_debug_flags = MARLIN_DEBUG_NONE;
 
-const char errormagic[] PROGMEM = "Error:";
-const char echomagic[] PROGMEM = "echo:";
+static PGMSTR(errormagic, "Error:");
+static PGMSTR(echomagic, "echo:");
 
-#if NUM_SERIAL > 1
-  void serialprintPGM_P(const int8_t p, const char * str) {
-    while (char ch = pgm_read_byte(str++)) SERIAL_CHAR_P(p, ch);
-  }
-
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, const char *v)   { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, char v)          { serialprintPGM_P(p, s_P); SERIAL_CHAR_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, int v)           { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, long v)          { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, float v)         { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, double v)        { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned int v)  { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-  void serial_echopair_PGM_P(const int8_t p, PGM_P s_P, unsigned long v) { serialprintPGM_P(p, s_P); SERIAL_ECHO_P(p, v); }
-
-  void serial_spaces_P(const int8_t p, uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR_P(p, ' '); }
+#if HAS_MULTI_SERIAL
+  int8_t serial_port_index = 0;
 #endif
 
 void serialprintPGM(PGM_P str) {
-  while (char ch = pgm_read_byte(str++)) SERIAL_CHAR(ch);
+  while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
+void serial_echo_start()  { serialprintPGM(echomagic); }
+void serial_error_start() { serialprintPGM(errormagic); }
 
-void serial_echopair_PGM(PGM_P s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
-void serial_echopair_PGM(PGM_P s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_PGM(PGM_P s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, char v)          { serialprintPGM(s_P); SERIAL_CHAR(v); }
+void serial_echopair_PGM(PGM_P const s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v)  { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
+void serial_ternary(const bool onoff, PGM_P const pre, PGM_P const on, PGM_P const off, PGM_P const post/*=nullptr*/) {
+  if (pre) serialprintPGM(pre);
+  serialprintPGM(onoff ? on : off);
+  if (post) serialprintPGM(post);
+}
+void serialprint_onoff(const bool onoff) { serialprintPGM(onoff ? PSTR(STR_ON) : PSTR(STR_OFF)); }
+void serialprintln_onoff(const bool onoff) { serialprint_onoff(onoff); SERIAL_EOL(); }
+void serialprint_truefalse(const bool tf) { serialprintPGM(tf ? PSTR("true") : PSTR("false")); }
 
-  #include "enum.h"
-
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float x, const float y, const float z) {
-    serialprintPGM(prefix);
-    SERIAL_CHAR('(');
-    SERIAL_ECHO(x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
-    SERIAL_CHAR(')');
-    if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
+void print_bin(uint16_t val) {
+  for (uint8_t i = 16; i--;) {
+    SERIAL_CHAR('0' + TEST(val, i));
+    if (!(i & 0x3) && i) SERIAL_CHAR(' ');
   }
+}
 
-  void print_xyz(PGM_P prefix, PGM_P suffix, const float xyz[]) {
-    print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
+extern const char SP_X_STR[], SP_Y_STR[], SP_Z_STR[];
 
-#endif
+void print_xyz(const float &x, const float &y, const float &z, PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+  if (prefix) serialprintPGM(prefix);
+  SERIAL_ECHOPAIR_P(SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z);
+  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
+}

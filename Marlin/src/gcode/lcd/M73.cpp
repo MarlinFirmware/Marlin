@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(ULTRA_LCD) && ENABLED(LCD_SET_PROGRESS_MANUALLY)
+#if ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
 
 /**
@@ -33,15 +33,16 @@
  *
  * Example:
  *   M73 P25 ; Set progress to 25%
- *
- * Notes:
- *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
-  if (!IS_SD_PRINTING && parser.seen('P')) {
-    progress_bar_percent = parser.value_byte();
-    NOMORE(progress_bar_percent, 100);
-  }
+  if (parser.seen('P'))
+    ui.set_progress((PROGRESS_SCALE) > 1
+      ? parser.value_float() * (PROGRESS_SCALE)
+      : parser.value_byte()
+    );
+  #if BOTH(LCD_SET_PROGRESS_MANUALLY, USE_M73_REMAINING_TIME)
+    if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
+  #endif
 }
 
-#endif // ULTRA_LCD && LCD_SET_PROGRESS_MANUALLY
+#endif // LCD_SET_PROGRESS_MANUALLY

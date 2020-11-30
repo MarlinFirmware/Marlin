@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,16 +25,14 @@
 #if HAS_LCD_CONTRAST
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 
 /**
  * M250: Read and optionally set the LCD contrast
  */
 void GcodeSuite::M250() {
-  if (parser.seen('C')) set_lcd_contrast(parser.value_int());
-  SERIAL_PROTOCOLPGM("lcd contrast value: ");
-  SERIAL_PROTOCOL(lcd_contrast);
-  SERIAL_EOL();
+  if (parser.seen('C')) ui.set_contrast(parser.value_int());
+  SERIAL_ECHOLNPAIR("LCD Contrast: ", ui.contrast);
 }
 
 #endif // HAS_LCD_CONTRAST

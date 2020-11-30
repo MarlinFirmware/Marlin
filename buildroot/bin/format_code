@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#
+# format_code [dir/file...]
+#
+
+HERE=`dirname $0`
+
+while [[ $# -gt 0 ]]; do
+
+  val="$1"
+
+  if [ -d "$val" ]; then
+
+    find $val -name *.cpp -exec "$HERE/uncrust" '{}' \;
+
+  elif [ -d "./Marlin/src/$val" ]; then
+
+    find "./Marlin/src/$val" -name *.cpp -exec "$HERE/uncrust" '{}' \;
+
+  elif [ -f "./Marlin/src/$val" ]; then
+
+    uncrust "./Marlin/src/$val"
+
+  elif [ -f "$val" ]; then
+
+    uncrust "$val"
+
+  fi
+
+done

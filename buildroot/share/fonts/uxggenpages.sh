@@ -139,11 +139,13 @@ BEGIN {
 }
 EOF
 
+AWK=$(which gawk || which awk)
+
 grep -Hrn _UxGT . | grep '"' \
   | sed 's/_UxGT("/\n&/g;s/[^\n]*\n_UxGT("\([^"]*\)[^\n]*/\1 /g;s/.$//' \
   | ${EXEC_GENPAGES} \
   | sort -k 1n -k 2n | uniq \
-  | gawk -v EXEC_PREFIX=${DN_EXEC} -f "proc.awk" \
+  | "$AWK" -v EXEC_PREFIX=${DN_EXEC} -f "proc.awk" \
   | while read PAGE BEGIN END UTF8BEGIN UTF8END; do \
     if [ ! -f ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
       ${EXEC_BDF2U8G} -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
@@ -169,6 +171,6 @@ cat <<EOF >fontutf8-data.h
  */
 #include <U8glib.h>
 $TMPA
-#define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
+#define FONTDATA_ITEM(page, begin, end, data) { page, begin, end, COUNT(data), data }
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {$TMPB};
 EOF

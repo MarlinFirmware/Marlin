@@ -7,13 +7,12 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commerically or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liablity for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Utility functions to access memory
  **************************************************************************/
 
-#ifndef UNWMEMACCESS_H
-#define UNWMEMACCESS_H
+#pragma once
 
 #include "unwarm.h"
 #include <stdint.h>
@@ -21,6 +20,3 @@
 bool UnwReadW(const uint32_t a, uint32_t *v);
 bool UnwReadH(const uint32_t a, uint16_t *v);
 bool UnwReadB(const uint32_t a, uint8_t *v);
-
-#endif
-

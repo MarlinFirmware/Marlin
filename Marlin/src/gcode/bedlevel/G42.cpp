@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,8 +25,9 @@
 #if HAS_MESH
 
 #include "../gcode.h"
-#include "../../Marlin.h" // for IsRunning()
+#include "../../MarlinCore.h" // for IsRunning()
 #include "../../module/motion.h"
+#include "../../module/probe.h" // for probe.offset
 #include "../../feature/bedlevel/bedlevel.h"
 
 /**
@@ -40,26 +41,31 @@ void GcodeSuite::G42() {
     const int8_t iy = hasJ ? parser.value_int() : 0;
 
     if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
-      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      SERIAL_ECHOLNPGM(STR_ERR_MESH_XY);
       return;
     }
 
-    set_destination_from_current();
-    if (hasI) destination[X_AXIS] = _GET_MESH_X(ix);
-    if (hasJ) destination[Y_AXIS] = _GET_MESH_Y(iy);
-    if (parser.boolval('P')) {
-      if (hasI) destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      if (hasJ) destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
-    }
+    // Move to current_position, as modified by I, J, P parameters
+    destination = current_position;
 
-    const float fval = parser.linearval('F');
-    if (fval > 0.0) feedrate_mm_s = MMM_TO_MMS(fval);
+    if (hasI) destination.x = _GET_MESH_X(ix);
+    if (hasJ) destination.y = _GET_MESH_Y(iy);
+
+    #if HAS_PROBE_XY_OFFSET
+      if (parser.boolval('P')) {
+        if (hasI) destination.x -= probe.offset_xy.x;
+        if (hasJ) destination.y -= probe.offset_xy.y;
+      }
+    #endif
+
+    const feedRate_t fval = parser.linearval('F'),
+                     fr_mm_s = MMM_TO_MMS(fval > 0 ? fval : 0.0f);
 
     // SCARA kinematic has "safe" XY raw moves
     #if IS_SCARA
-      prepare_uninterpolated_move_to_destination();
+      prepare_internal_fast_move_to_destination(fr_mm_s);
     #else
-      prepare_move_to_destination();
+      prepare_internal_move_to_destination(fr_mm_s);
     #endif
   }
 }

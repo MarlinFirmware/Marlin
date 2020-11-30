@@ -8,11 +8,10 @@
 				"MarlinFirmware/lib",
 				"Marlin/lib",
 				"datatmp",
-				"Marlin/*/src",
 				".vscode"
 			],
 			"binary_file_patterns":
-			[ "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg" ],
+			[ "*.psd", "*.png", "*.jpg", "*.jpeg", "*.bdf", "*.patch", "avrdude_5.*", "*.svg", "*.bin", "*.woff" ],
 			"file_exclude_patterns":
 			[
 				"Marlin/platformio.ini",
@@ -20,9 +19,17 @@
 				"Marlin/.gitignore",
 				"Marlin/*/platformio.ini",
 				"Marlin/*/.travis.yml",
-				"Marlin/*/.gitignore"
+				"Marlin/*/.gitignore",
+				"*.d"
 			],
 			"path": "../../.."
 		}
-	]
+	],
+	"settings":
+	{
+		"ensure_newline_at_eof_on_save": true,
+		"tab_size": 2,
+		"translate_tabs_to_spaces": true,
+		"trim_trailing_white_space_on_save": true
+	}
 }

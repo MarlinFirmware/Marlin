@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,27 +16,36 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 #include "../../module/printcounter.h"
+#include "../../lcd/marlinui.h"
+
+#include "../../MarlinCore.h" // for startOrResumeJob
 
 /**
  * M75: Start print timer
  */
-void GcodeSuite::M75() { print_job_timer.start(); }
+void GcodeSuite::M75() {
+  startOrResumeJob();
+}
 
 /**
  * M76: Pause print timer
  */
-void GcodeSuite::M76() { print_job_timer.pause(); }
+void GcodeSuite::M76() {
+  print_job_timer.pause();
+}
 
 /**
  * M77: Stop print timer
  */
-void GcodeSuite::M77() { print_job_timer.stop(); }
+void GcodeSuite::M77() {
+  print_job_timer.stop();
+}
 
 #if ENABLED(PRINTCOUNTER)
 
@@ -44,10 +53,21 @@ void GcodeSuite::M77() { print_job_timer.stop(); }
  * M78: Show print statistics
  */
 void GcodeSuite::M78() {
-  if (parser.intval('S') == 78)   // "M78 S78" will reset the statistics
+  if (parser.intval('S') == 78) {  // "M78 S78" will reset the statistics
     print_job_timer.initStats();
-  else
-    print_job_timer.showStats();
+    ui.reset_status();
+    return;
+  }
+
+  #if HAS_SERVICE_INTERVALS
+    if (parser.seenval('R')) {
+      print_job_timer.resetServiceInterval(parser.value_int());
+      ui.reset_status();
+      return;
+    }
+  #endif
+
+  print_job_timer.showStats();
 }
 
 #endif // PRINTCOUNTER

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -27,15 +27,22 @@
 #include "../gcode.h"
 #include "../../module/temperature.h"
 
+/**
+ * M304 - Set and/or Report the current Bed PID values
+ *
+ *  P<pval> - Set the P value
+ *  I<ival> - Set the I value
+ *  D<dval> - Set the D value
+ */
 void GcodeSuite::M304() {
-  if (parser.seen('P')) thermalManager.bedKp = parser.value_float();
-  if (parser.seen('I')) thermalManager.bedKi = scalePID_i(parser.value_float());
-  if (parser.seen('D')) thermalManager.bedKd = scalePID_d(parser.value_float());
+  if (parser.seen('P')) thermalManager.temp_bed.pid.Kp = parser.value_float();
+  if (parser.seen('I')) thermalManager.temp_bed.pid.Ki = scalePID_i(parser.value_float());
+  if (parser.seen('D')) thermalManager.temp_bed.pid.Kd = scalePID_d(parser.value_float());
 
   SERIAL_ECHO_START();
-  SERIAL_ECHOPAIR(" p:", thermalManager.bedKp);
-  SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.bedKi));
-  SERIAL_ECHOLNPAIR(" d:", unscalePID_d(thermalManager.bedKd));
+  SERIAL_ECHOLNPAIR(" p:", thermalManager.temp_bed.pid.Kp,
+                    " i:", unscalePID_i(thermalManager.temp_bed.pid.Ki),
+                    " d:", unscalePID_d(thermalManager.temp_bed.pid.Kd));
 }
 
 #endif // PIDTEMPBED

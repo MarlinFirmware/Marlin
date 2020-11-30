@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 // R25 = 2.5 MOhm, beta25 = 4500 K, 4.7 kOhm pull-up, DyzeDesign 500 °C Thermistor
-const short temptable_66[][2] PROGMEM = {
+const temp_entry_t temptable_66[] PROGMEM = {
   { OV(  17.5), 850 },
   { OV(  17.9), 500 },
   { OV(  21.7), 480 },
@@ -47,6 +48,6 @@ const short temptable_66[][2] PROGMEM = {
   { OV(1006.6),  80 },
   { OV(1015.8),  60 },
   { OV(1021.3),  30 },
-  { OV(  1023) - 1, 25 },
+  { OV(  1022),  25 },
   { OV(  1023),  20 }
 };

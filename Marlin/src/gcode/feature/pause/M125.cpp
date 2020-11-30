@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,62 +28,65 @@
 #include "../../parser.h"
 #include "../../../feature/pause.h"
 #include "../../../module/motion.h"
+#include "../../../sd/cardreader.h"
+#include "../../../module/printcounter.h"
 
-#if DISABLED(SDSUPPORT)
-  #include "../../../module/printcounter.h"
+#if HAS_LCD_MENU
+  #include "../../../lcd/marlinui.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../feature/powerloss.h"
 #endif
 
 /**
- * M125: Store current position and move to filament change position.
+ * M125: Store current position and move to parking position.
  *       Called on pause (by M25) to prevent material leaking onto the
  *       object. On resume (M24) the head will be moved back and the
  *       print will resume.
  *
- *       If Marlin is compiled without SD Card support, M125 can be
- *       used directly to pause the print and move to park position,
- *       resuming with a button click or M108.
+ *       When not actively SD printing, M125 simply moves to the park
+ *       position and waits, resuming with a button click or M108.
+ *       Without PARK_HEAD_ON_PAUSE the M125 command does nothing.
  *
- *    L = override retract length
- *    X = override X
- *    Y = override Y
- *    Z = override Z raise
+ *    L<linear> = Override retract Length
+ *    X<pos>    = Override park position X
+ *    Y<pos>    = Override park position Y
+ *    Z<linear> = Override Z raise
+ *
+ *  With an LCD menu:
+ *    P<bool>   = Always show a prompt and await a response
  */
 void GcodeSuite::M125() {
   // Initial retract before move to filament change position
-  const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : 0
-    #ifdef PAUSE_PARK_RETRACT_LENGTH
-      + (PAUSE_PARK_RETRACT_LENGTH)
-    #endif
-  );
+  const float retract = -ABS(parser.seen('L') ? parser.value_axis_units(E_AXIS) : (PAUSE_PARK_RETRACT_LENGTH));
 
-  point_t park_point = NOZZLE_PARK_POINT;
+  xyz_pos_t park_point = NOZZLE_PARK_POINT;
 
   // Move XY axes to filament change position or given position
-  if (parser.seenval('X')) park_point.x = parser.linearval('X');
-  if (parser.seenval('Y')) park_point.y = parser.linearval('Y');
+  if (parser.seenval('X')) park_point.x = RAW_X_POSITION(parser.linearval('X'));
+  if (parser.seenval('Y')) park_point.y = RAW_X_POSITION(parser.linearval('Y'));
 
   // Lift Z axis
   if (parser.seenval('Z')) park_point.z = parser.linearval('Z');
 
-  #if HAS_HOTEND_OFFSET && DISABLED(DUAL_X_CARRIAGE) && DISABLED(DELTA)
-    park_point.x += (active_extruder ? hotend_offset[X_AXIS][active_extruder] : 0);
-    park_point.y += (active_extruder ? hotend_offset[Y_AXIS][active_extruder] : 0);
+  #if HAS_HOTEND_OFFSET && NONE(DUAL_X_CARRIAGE, DELTA)
+    park_point += hotend_offset[active_extruder];
   #endif
 
-  #if DISABLED(SDSUPPORT)
-    const bool job_running = print_job_timer.isRunning();
-  #endif
+  const bool sd_printing = TERN0(SDSUPPORT, IS_SD_PRINTING());
 
-  if (pause_print(retract, park_point)) {
-    #if DISABLED(SDSUPPORT)
-      // Wait for lcd click or M108
-      wait_for_filament_reload();
+  TERN_(HAS_LCD_MENU, lcd_pause_show_message(PAUSE_MESSAGE_PARKING, PAUSE_MODE_PAUSE_PRINT));
 
-      // Return to print position and continue
-      resume_print();
+  // If possible, show an LCD prompt with the 'P' flag
+  const bool show_lcd = TERN0(HAS_LCD_MENU, parser.boolval('P'));
 
-      if (job_running) print_job_timer.start();
-    #endif
+  if (pause_print(retract, park_point, 0, show_lcd)) {
+    TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
+    if (ENABLED(EXTENSIBLE_UI) || !sd_printing || show_lcd) {
+      wait_for_confirmation(false, 0);
+      resume_print(0, 0, -retract, 0);
+    }
   }
 }
 

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,17 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
-#include "../../gcode.h"
-
 #include "../../../inc/MarlinConfig.h"
 
-#if HAS_CASE_LIGHT
-  #include "../../../feature/caselight.h"
-#endif
+#if ENABLED(CASE_LIGHT_ENABLE)
+
+#include "../../../feature/caselight.h"
+#include "../../gcode.h"
 
 /**
  * M355: Turn case light on/off and set brightness
@@ -41,29 +40,34 @@
  *   M355 S1 turns on the light with a brightness of 200 (assuming a PWM pin)
  */
 void GcodeSuite::M355() {
-  #if HAS_CASE_LIGHT
-    uint8_t args = 0;
+  bool didset = false;
+  #if CASELIGHT_USES_BRIGHTNESS
     if (parser.seenval('P')) {
-      ++args, case_light_brightness = parser.value_byte();
-      case_light_arg_flag = false;
+      didset = true;
+      caselight.brightness = parser.value_byte();
     }
-    if (parser.seenval('S')) {
-      ++args, case_light_on = parser.value_bool();
-      case_light_arg_flag = true;
-    }
-    if (args) update_case_light();
-
-    // always report case light status
-    SERIAL_ECHO_START();
-    if (!case_light_on) {
-      SERIAL_ECHOLNPGM("Case light: off");
-    }
-    else {
-      if (!USEABLE_HARDWARE_PWM(CASE_LIGHT_PIN)) SERIAL_ECHOLNPGM("Case light: on");
-      else SERIAL_ECHOLNPAIR("Case light: ", case_light_brightness);
-    }
-  #else
-    SERIAL_ERROR_START();
-    SERIAL_ERRORLNPGM(MSG_ERR_M355_NONE);
   #endif
+  const bool sflag = parser.seenval('S');
+  if (sflag) {
+    didset = true;
+    caselight.on = parser.value_bool();
+  }
+  if (didset) caselight.update(sflag);
+
+  // Always report case light status
+  SERIAL_ECHO_START();
+  SERIAL_ECHOPGM("Case light: ");
+  if (!caselight.on)
+    SERIAL_ECHOLNPGM(STR_OFF);
+  else {
+    #if CASELIGHT_USES_BRIGHTNESS
+      if (PWM_PIN(CASE_LIGHT_PIN)) {
+        SERIAL_ECHOLN(int(caselight.brightness));
+        return;
+      }
+    #endif
+    SERIAL_ECHOLNPGM(STR_ON);
+  }
 }
+
+#endif // CASE_LIGHT_ENABLE

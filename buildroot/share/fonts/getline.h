@@ -1,6 +1,5 @@
-
 #ifndef MYGETLINE_H
-#define MYGETLINE_H 1
+#define MYGETLINE_H
 
 //#include "config.h"
 
@@ -11,4 +10,3 @@
 #endif
 
 #endif // MYGETLINE_H
-

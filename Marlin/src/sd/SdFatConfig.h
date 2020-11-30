@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +16,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
 /**
- * SdFatConfig.h
+ * sd/SdFatConfig.h
+ *
  * Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+ * Copyright (c) 2009 by William Greiman
  *
  * This file is part of the Arduino Sd2Card Library
  */
 
-#ifndef _SDFATCONFIG_H_
-#define _SDFATCONFIG_H_
-
 #include "../inc/MarlinConfig.h"
-
 
 /**
  * To use multiple SD cards set USE_MULTIPLE_CARDS nonzero.
@@ -93,12 +91,6 @@
 // Set USE_SOFTWARE_SPI nonzero to ALWAYS use Software SPI.
 #define USE_SOFTWARE_SPI 0
 
-// Define software SPI pins so Mega can use unmodified 168/328 shields
-#define SOFT_SPI_CS_PIN   10 // Software SPI chip select pin for the SD
-#define SOFT_SPI_MOSI_PIN 11 // Software SPI Master Out Slave In pin
-#define SOFT_SPI_MISO_PIN 12 // Software SPI Master In Slave Out pin
-#define SOFT_SPI_SCK_PIN  13 // Software SPI Clock pin
-
 /**
  * The __cxa_pure_virtual function is an error handler that is invoked when
  * a pure virtual function is called.
@@ -111,7 +103,10 @@
 
 #define FILENAME_LENGTH 13 // Number of UTF-16 characters per entry
 
-// Total bytes needed to store a single long filename
-#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * MAX_VFAT_ENTRIES + 1)
+// UTF-8 may use up to 3 bytes to represent single UTF-16 code point.
+// We discard 3-byte characters allowing only 2-bytes
+// or 1-byte if UTF_FILENAME_SUPPORT disabled.
+#define LONG_FILENAME_CHARSIZE TERN(UTF_FILENAME_SUPPORT, 2, 1)
 
-#endif // _SDFATCONFIG_H_
+// Total bytes needed to store a single long filename
+#define LONG_FILENAME_LENGTH (FILENAME_LENGTH * LONG_FILENAME_CHARSIZE * MAX_VFAT_ENTRIES + 1)

@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-build_marlin $@ && exit 0
-exit 1

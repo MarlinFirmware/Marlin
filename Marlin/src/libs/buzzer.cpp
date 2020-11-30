@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../inc/MarlinConfig.h"
 
-#if DISABLED(LCD_USE_I2C_BUZZER) && PIN_EXISTS(BEEPER)
+#if USE_BEEPER
 
 #include "buzzer.h"
 #include "../module/temperature.h"
+#include "../lcd/marlinui.h"
+
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../lcd/extui/ui_api.h"
+#endif
 
 Buzzer::state_t Buzzer::state;
 CircularQueue<tone_t, TONE_QUEUE_LENGTH> Buzzer::buffer;
@@ -40,6 +45,7 @@ Buzzer buzzer;
  * @param frequency Frequency of the tone in hertz
  */
 void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
+  if (!ui.buzzer_enabled) return;
   while (buffer.isFull()) {
     tick();
     thermalManager.manage_heater();
@@ -49,6 +55,7 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
 }
 
 void Buzzer::tick() {
+  if (!ui.buzzer_enabled) return;
   const millis_t now = millis();
 
   if (!state.endtime) {
@@ -58,10 +65,14 @@ void Buzzer::tick() {
     state.endtime = now + state.tone.duration;
 
     if (state.tone.frequency > 0) {
-      #if ENABLED(SPEAKER)
-        CRITICAL_SECTION_START;
+      #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)
+        CRITICAL_SECTION_START();
+        ExtUI::onPlayTone(state.tone.frequency, state.tone.duration);
+        CRITICAL_SECTION_END();
+      #elif ENABLED(SPEAKER)
+        CRITICAL_SECTION_START();
         ::tone(BEEPER_PIN, state.tone.frequency, state.tone.duration);
-        CRITICAL_SECTION_END;
+        CRITICAL_SECTION_END();
       #else
         on();
       #endif
@@ -70,4 +81,4 @@ void Buzzer::tick() {
   else if (ELAPSED(now, state.endtime)) reset();
 }
 
-#endif // !LCD_USE_I2C_BUZZER && BEEPER
+#endif // USE_BEEPER
