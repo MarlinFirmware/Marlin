@@ -441,9 +441,9 @@ public:
   }
 
   void dispatch() {
-    switch(static_cast<Protocol>(packet.header.protocol())) {
+    switch (static_cast<Protocol>(packet.header.protocol())) {
       case Protocol::CONTROL:
-        switch(static_cast<ProtocolControl>(packet.header.type())) {
+        switch (static_cast<ProtocolControl>(packet.header.type())) {
           case ProtocolControl::CLOSE: // revert back to ASCII mode
             card.flag.binary_mode = false;
             break;

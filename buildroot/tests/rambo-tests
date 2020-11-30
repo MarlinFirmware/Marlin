@@ -42,7 +42,7 @@ opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER LCD_PROGRESS_BAR LCD_PROGRESS_BAR_TE
            SLOW_PWM_HEATERS THERMAL_PROTECTION_CHAMBER LIN_ADVANCE EXTRA_LIN_ADVANCE_K \
            HOST_ACTION_COMMANDS HOST_PROMPT_SUPPORT PINS_DEBUGGING MAX7219_DEBUG M114_DETAIL
 opt_add DEBUG_POWER_LOSS_RECOVERY
-exec_test $1 $2 "RAMBO | EXTRUDERS 2 | CHAR LCD + SD | FIX Probe | ABL-Linear | Advanced Pause | PLR | LEDs ..."
+exec_test $1 $2 "RAMBO | EXTRUDERS 2 | CHAR LCD + SD | FIX Probe | ABL-Linear | Advanced Pause | PLR | LEDs ..." "$3"
 
 #
 # Full size Rambo Dual Endstop CNC
@@ -58,7 +58,17 @@ opt_enable USE_XMAX_PLUG USE_YMAX_PLUG USE_ZMAX_PLUG \
            S_CURVE_ACCELERATION X_DUAL_STEPPER_DRIVERS X_DUAL_ENDSTOPS Y_DUAL_STEPPER_DRIVERS Y_DUAL_ENDSTOPS \
            ADAPTIVE_STEP_SMOOTHING CNC_COORDINATE_SYSTEMS GCODE_MOTION_MODES
 opt_disable MIN_SOFTWARE_ENDSTOP_Z MAX_SOFTWARE_ENDSTOPS
-exec_test $1 $2 "Rambo CNC Configuration"
+exec_test $1 $2 "Rambo CNC Configuration" "$3"
+
+#
+# Rambo heated bed only
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_RAMBO
+opt_set EXTRUDERS 0
+opt_set TEMP_SENSOR_BED 1
+opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+exec_test $1 $2 "Rambo heated bed only" "$3"
 
 #
 # Build with the default configurations
@@ -69,7 +79,7 @@ opt_set X_DRIVER_TYPE TMC2130
 opt_set Y_DRIVER_TYPE TMC2130
 opt_set Z_DRIVER_TYPE TMC2130
 opt_set E0_DRIVER_TYPE TMC2130
-exec_test $1 $2 "Einsy RAMBo with TMC2130"
+exec_test $1 $2 "Einsy RAMBo with TMC2130" "$3"
 
 # clean up
 restore_configs

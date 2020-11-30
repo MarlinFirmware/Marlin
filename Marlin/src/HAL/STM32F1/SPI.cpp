@@ -40,6 +40,9 @@
 #include <boards.h>
 #include <wirish.h>
 
+#include "../../inc/MarlinConfig.h"
+#include "spi_pins.h"
+
 /** Time in ms for DMA receive timeout */
 #define DMA_TIMEOUT 100
 
@@ -142,6 +145,18 @@ SPIClass::SPIClass(uint32_t spi_num) {
 
   // added for DMA callbacks.
   _currentSetting->state = SPI_STATE_IDLE;
+}
+
+SPIClass::SPIClass(int8_t mosi, int8_t miso, int8_t sclk, int8_t ssel) : SPIClass(1) {
+  #if BOARD_NR_SPI >= 1
+    if (mosi == BOARD_SPI1_MOSI_PIN) setModule(1);
+  #endif
+  #if BOARD_NR_SPI >= 2
+    if (mosi == BOARD_SPI2_MOSI_PIN) setModule(2);
+  #endif
+  #if BOARD_NR_SPI >= 3
+    if (mosi == BOARD_SPI3_MOSI_PIN) setModule(3);
+  #endif
 }
 
 /**
@@ -653,7 +668,7 @@ static const spi_pins* dev_to_spi_pins(spi_dev *dev) {
     #if BOARD_NR_SPI >= 3
       case RCC_SPI3: return board_spi_pins + 2;
     #endif
-    default: return NULL;
+    default: return nullptr;
   }
 }
 
@@ -710,6 +725,6 @@ static spi_baud_rate determine_baud_rate(spi_dev *dev, uint32_t freq) {
   return baud_rates[i];
 }
 
-SPIClass SPI(1);
+SPIClass SPI(SPI_DEVICE);
 
 #endif // __STM32F1__

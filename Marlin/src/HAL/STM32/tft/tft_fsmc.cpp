@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../../inc/MarlinConfig.h"
 
@@ -87,7 +88,7 @@ void TFT_FSMC::Init() {
 
   __HAL_RCC_FSMC_CLK_ENABLE();
 
-  for(uint16_t i = 0; PinMap_FSMC[i].pin != NC; i++)
+  for (uint16_t i = 0; PinMap_FSMC[i].pin != NC; i++)
     pinmap_pinout(PinMap_FSMC[i].pin, PinMap_FSMC);
   pinmap_pinout(digitalPinToPinName(TFT_CS_PIN), PinMap_FSMC_CS);
   pinmap_pinout(digitalPinToPinName(TFT_RS_PIN), PinMap_FSMC_RS);
@@ -178,3 +179,4 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Cou
 }
 
 #endif // HAS_FSMC_TFT
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

@@ -35,7 +35,7 @@
 #include "../../../../../module/planner.h"
 
 #include "../../../ui_api.h"
-#include "../../../../ultralcd.h"
+#include "../../../../marlinui.h"
 
 #if ENABLED(DGUS_UI_MOVE_DIS_OPTION)
   uint16_t distanceToMove = 10;

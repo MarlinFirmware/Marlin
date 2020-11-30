@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -53,7 +52,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu principal");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Config. avancée");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Configuration");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Exéc. auto.gcode");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Exéc. auto.gcode");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Arrêter moteurs");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Menu debug");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Test barre progress.");
@@ -282,8 +281,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Température");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Mouvement");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filament");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm³");
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("Limite en mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E en mm") SUPERSCRIPT_THREE;
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("Limite en mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("Limite *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Diamètre fil.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Diamètre fil. *");
@@ -413,6 +412,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_COOLING                         = _UxGT("Refroidissement");
   PROGMEM Language_Str MSG_BED_HEATING                     = _UxGT("Lit en chauffe...");
   PROGMEM Language_Str MSG_BED_COOLING                     = _UxGT("Refroid. du lit...");
+  PROGMEM Language_Str MSG_PROBE_HEATING                   = _UxGT("Probe en chauffe...");
+  PROGMEM Language_Str MSG_PROBE_COOLING                   = _UxGT("Refroid. Probe...");
   PROGMEM Language_Str MSG_CHAMBER_HEATING                 = _UxGT("Chauffe caisson...");
   PROGMEM Language_Str MSG_CHAMBER_COOLING                 = _UxGT("Refroid. caisson...");
   PROGMEM Language_Str MSG_DELTA_CALIBRATE                 = _UxGT("Calibration Delta");
@@ -485,7 +486,6 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Capteur fil.");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Echec origine");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Echec sonde");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Trop froid");
 
   PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("MAJ firmware MMU!!");
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("CHOISIR FILAMENT");
@@ -508,7 +508,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MMU2_RESETTING                  = _UxGT("Réinit. MMU...");
   PROGMEM Language_Str MSG_MMU2_EJECT_RECOVER              = _UxGT("Retrait, click");
 
-  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Composante ~");
+  PROGMEM Language_Str MSG_MIX_COMPONENT_N                 = _UxGT("Composante =");
   PROGMEM Language_Str MSG_MIXER                           = _UxGT("Mixeur");
   PROGMEM Language_Str MSG_GRADIENT                        = _UxGT("Dégradé");
   PROGMEM Language_Str MSG_FULL_GRADIENT                   = _UxGT("Dégradé complet");
@@ -570,4 +570,13 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SERVICE_IN                      = _UxGT("  dans:");
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Correction");
   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Lissage");
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Haut à Gauche");
+    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bas à Gauche");
+    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Haut à Droite");
+    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bas à Droite");
+    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Terminée");
+    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Échec de l'étalonnage");
+  #endif
 }

@@ -21,6 +21,10 @@
  */
 #pragma once
 
+/**
+ * HAL SPI Pins for Teensy 3.5 (MK64FX512) and Teensy 3.6 (MK66FX1M0)
+ */
+
 #define SCK_PIN   13
 #define MISO_PIN  12
 #define MOSI_PIN  11

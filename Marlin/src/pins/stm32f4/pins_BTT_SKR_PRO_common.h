@@ -21,8 +21,15 @@
  */
 #pragma once
 
-#ifndef TARGET_STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
+#endif
+
+// BigTreeTech driver expansion module https://bit.ly/3ptRRoj
+//#define BTT_MOTOR_EXPANSION
+
+#if BOTH(HAS_WIRED_LCD, BTT_MOTOR_EXPANSION)
+  #error "It's not possible to have both LCD and motor expansion module on EXP1/EXP2."
 #endif
 
 // Use one of these or SDCard-based Emulation will be used
@@ -41,6 +48,7 @@
 // Servos
 //
 #define SERVO0_PIN                          PA1
+#define SERVO1_PIN                          PC9
 
 //
 // Trinamic Stallguard pins
@@ -178,7 +186,7 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
+  //#define X_HARDWARE_SERIAL  Serial1
   //#define X2_HARDWARE_SERIAL Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Y2_HARDWARE_SERIAL Serial1
@@ -212,7 +220,7 @@
   #define E2_SERIAL_RX_PIN                  PD6
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -246,47 +254,131 @@
   #define SDCARD_CONNECTION                  LCD
 #endif
 
+/**
+ *               -----                                             -----
+ *           NC | 1 2 | GND                                    5V | 1 2 | GND
+ *        RESET | 3 4 | PF12(SD_DETECT)             (LCD_D7)  PG7 | 3 4 | PG6  (LCD_D6)
+ *   (MOSI)PB15 | 5 6   PF11(BTN_EN2)               (LCD_D5)  PG3 | 5 6   PG2  (LCD_D4)
+ *  (SD_SS)PB12 | 7 8 | PG10(BTN_EN1)               (LCD_RS) PD10 | 7 8 | PD11 (LCD_EN)
+ *    (SCK)PB13 | 9 10| PB14(MISO)                 (BTN_ENC)  PA8 | 9 10| PG4  (BEEPER)
+ *               -----                                             -----
+ *               EXP2                                              EXP1
+ */
+
+#define EXPA1_03_PIN                        PG7
+#define EXPA1_04_PIN                        PG6
+#define EXPA1_05_PIN                        PG3
+#define EXPA1_06_PIN                        PG2
+#define EXPA1_07_PIN                        PD10
+#define EXPA1_08_PIN                        PD11
+#define EXPA1_09_PIN                        PA8
+#define EXPA1_10_PIN                        PG4
+
+#define EXPA2_03_PIN                        -1
+#define EXPA2_04_PIN                        PF12
+#define EXPA2_05_PIN                        PB15
+#define EXPA2_06_PIN                        PF11
+#define EXPA2_07_PIN                        PB12
+#define EXPA2_08_PIN                        PG10
+#define EXPA2_09_PIN                        PB13
+#define EXPA2_10_PIN                        PB14
+
 //
 // Onboard SD card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
-#if SD_CONNECTION_IS(ONBOARD)
-  #define SOFTWARE_SPI                            // Use soft SPI for onboard SD
+#if SD_CONNECTION_IS(LCD)
+
+  #define SD_DETECT_PIN             EXPA2_04_PIN
+  #define SDSS                      EXPA2_07_PIN
+
+#elif SD_CONNECTION_IS(ONBOARD)
+
+  // The SKR Pro's ONBOARD SD interface is on SPI1.
+  // Due to a pull resistor on the clock line, it needs to use SPI Data Mode 3 to
+  // function with Hardware SPI. This is not currently configurable in the HAL,
+  // so force Software SPI to work around this issue.
+  #define SOFTWARE_SPI
   #define SDSS                              PA4
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6
   #define MOSI_PIN                          PB5
+  #define SD_DETECT_PIN                     PB11
+
+#elif SD_CONNECTION_IS(CUSTOM_CABLE)
+  #error "CUSTOM_CABLE is not a supported SDCARD_CONNECTION for this board"
 #endif
 
-/**
- *               _____                                             _____
- *           NC | · · | GND                                    5V | · · | GND
- *        RESET | · · | PF12(SD_DETECT)             (LCD_D7)  PG7 | · · | PG6  (LCD_D6)
- *   (MOSI)PB15 | · · | PF11(BTN_EN2)               (LCD_D5)  PG3 | · · | PG2  (LCD_D4)
- *  (SD_SS)PB12 | · · | PG10(BTN_EN1)               (LCD_RS) PD10 | · · | PD11 (LCD_EN)
- *    (SCK)PB13 | · · | PB14(MISO)                 (BTN_ENC)  PA8 | · · | PG4  (BEEPER)
- *               ￣￣                                               ￣￣
- *               EXP2                                              EXP1
- */
+#if ENABLED(BTT_MOTOR_EXPANSION)
+  /**
+   *               _____                                      _____
+   *           NC | · · | GND                             NC | · · | GND
+   *           NC | · · | PF12 (M1EN)            (M2EN)  PG7 | · · | PG6  (M3EN)
+   * (M1STP) PB15 | · ·   PF11 (M1DIR)           (M1RX)  PG3 | · ·   PG2  (M1DIAG)
+   * (M2DIR) PB12 | · · | PG10 (M2STP)           (M2RX) PD10 | · · | PD11 (M2DIAG)
+   * (M3DIR) PB13 | · · | PB14 (M3STP)           (M3RX)  PA8 | · · | PG4  (M3DIAG)
+   *               -----                                      -----
+   *               EXP2                                       EXP1
+   */
+
+  // M1 on Driver Expansion Module
+  #define E3_STEP_PIN               EXPA2_05_PIN
+  #define E3_DIR_PIN                EXPA2_06_PIN
+  #define E3_ENABLE_PIN             EXPA2_04_PIN
+  #define E3_DIAG_PIN               EXPA1_06_PIN
+  #define E3_CS_PIN                 EXPA1_05_PIN
+  #if HAS_TMC_UART
+    #define E3_SERIAL_TX_PIN        EXPA1_05_PIN
+    #define E3_SERIAL_RX_PIN        EXPA1_05_PIN
+  #endif
+
+  // M2 on Driver Expansion Module
+  #define E4_STEP_PIN               EXPA2_08_PIN
+  #define E4_DIR_PIN                EXPA2_07_PIN
+  #define E4_ENABLE_PIN             EXPA1_03_PIN
+  #define E4_DIAG_PIN               EXPA1_08_PIN
+  #define E4_CS_PIN                 EXPA1_07_PIN
+  #if HAS_TMC_UART
+    #define E4_SERIAL_TX_PIN        EXPA1_07_PIN
+    #define E4_SERIAL_RX_PIN        EXPA1_07_PIN
+  #endif
+
+  // M3 on Driver Expansion Module
+  #define E5_STEP_PIN               EXPA2_10_PIN
+  #define E5_DIR_PIN                EXPA2_09_PIN
+  #define E5_ENABLE_PIN             EXPA1_04_PIN
+  #define E5_DIAG_PIN               EXPA1_10_PIN
+  #define E5_CS_PIN                 EXPA1_09_PIN
+  #if HAS_TMC_UART
+    #define E5_SERIAL_TX_PIN        EXPA1_09_PIN
+    #define E5_SERIAL_RX_PIN        EXPA1_09_PIN
+  #endif
+
+#endif // BTT_MOTOR_EXPANSION
 
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
-  #define BEEPER_PIN                        PG4
-  #define BTN_ENC                           PA8
-  #if SD_CONNECTION_IS(LCD)
-    #define SDSS                            PB12  // Uses default hardware SPI for LCD's SD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS              EXPA2_08_PIN
   #endif
 
+#elif HAS_WIRED_LCD
+
+  #define BEEPER_PIN                EXPA1_10_PIN
+  #define BTN_ENC                   EXPA1_09_PIN
+
   #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS                     PG6
 
-    #define BTN_EN1                         PD11
-    #define BTN_EN2                         PG2
+    #define LCD_PINS_RS             EXPA1_04_PIN
 
-    #define LCD_PINS_ENABLE                 PG7
-    #define LCD_PINS_D4                     PG3
+    #define BTN_EN1                 EXPA1_08_PIN
+    #define BTN_EN2                 EXPA1_06_PIN
+
+    #define LCD_PINS_ENABLE         EXPA1_03_PIN
+    #define LCD_PINS_D4             EXPA1_05_PIN
 
     // CR10_STOCKDISPLAY default timing is too fast
     #undef BOARD_ST7920_DELAY_1
@@ -294,79 +386,84 @@
     #undef BOARD_ST7920_DELAY_3
 
   #elif ENABLED(MKS_MINI_12864)
-    #define DOGLCD_A0                       PG6
-    #define DOGLCD_CS                       PG3
+
+    #define DOGLCD_A0               EXPA1_04_PIN
+    #define DOGLCD_CS               EXPA1_05_PIN
+    #define BTN_EN1                 EXPA2_08_PIN
+    #define BTN_EN2                 EXPA2_06_PIN
 
   #else
 
-    #define LCD_PINS_RS                     PD10
+    #define LCD_PINS_RS             EXPA1_07_PIN
 
-    #define BTN_EN1                         PG10
-    #define BTN_EN2                         PF11
-    #define SD_DETECT_PIN                   PF12
+    #define BTN_EN1                 EXPA2_08_PIN
+    #define BTN_EN2                 EXPA2_06_PIN
 
-    #define LCD_SDSS                        PB12
-
-    #define LCD_PINS_ENABLE                 PD11
-    #define LCD_PINS_D4                     PG2
+    #define LCD_PINS_ENABLE         EXPA1_08_PIN
+    #define LCD_PINS_D4             EXPA1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
-      #define DOGLCD_CS                     PD11
-      #define DOGLCD_A0                     PD10
+      #define DOGLCD_CS             EXPA1_08_PIN
+      #define DOGLCD_A0             EXPA1_07_PIN
       //#define LCD_BACKLIGHT_PIN           -1
-      #define LCD_RESET_PIN                 PG2   // Must be high or open for LCD to operate normally.
+      #define LCD_RESET_PIN         EXPA1_06_PIN  // Must be high or open for LCD to operate normally.
       #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
         #ifndef RGB_LED_R_PIN
-          #define RGB_LED_R_PIN             PG3
+          #define RGB_LED_R_PIN     EXPA1_05_PIN
         #endif
         #ifndef RGB_LED_G_PIN
-          #define RGB_LED_G_PIN             PG6
+          #define RGB_LED_G_PIN     EXPA1_04_PIN
         #endif
         #ifndef RGB_LED_B_PIN
-          #define RGB_LED_B_PIN             PG7
+          #define RGB_LED_B_PIN     EXPA1_03_PIN
         #endif
       #elif ENABLED(FYSETC_MINI_12864_2_1)
-        #define NEOPIXEL_PIN                PG3
+        #define NEOPIXEL_PIN        EXPA1_05_PIN
       #endif
     #endif // !FYSETC_MINI_12864
 
-    #if ENABLED(ULTIPANEL)
-      #define LCD_PINS_D5                   PG3
-      #define LCD_PINS_D6                   PG6
-      #define LCD_PINS_D7                   PG7
+    #if IS_ULTIPANEL
+      #define LCD_PINS_D5           EXPA1_05_PIN
+      #define LCD_PINS_D6           EXPA1_04_PIN
+      #define LCD_PINS_D7           EXPA1_03_PIN
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif
 
-  // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
-    #ifndef BOARD_ST7920_DELAY_1
-      #define BOARD_ST7920_DELAY_1  DELAY_NS(96)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_2
-      #define BOARD_ST7920_DELAY_2  DELAY_NS(48)
-    #endif
-    #ifndef BOARD_ST7920_DELAY_3
-      #define BOARD_ST7920_DELAY_3 DELAY_NS(600)
-    #endif
-  #endif
+#endif // HAS_WIRED_LCD
 
-#endif // HAS_SPI_LCD
+// Alter timing for graphical display
+#if HAS_MARLINUI_U8GLIB
+  #ifndef BOARD_ST7920_DELAY_1
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_2
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+  #endif
+  #ifndef BOARD_ST7920_DELAY_3
+    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+  #endif
+#endif
 
 //
 // WIFI
 //
 
 /**
- *          _____
+ *          -----
  *      TX | 1 2 | GND      Enable PG1   // Must be high for module to run
  *  Enable | 3 4 | GPIO2    Reset  PG0   // active low, probably OK to leave floating
  *   Reset | 5 6 | GPIO0    GPIO2  PF15  // must be high (ESP3D software configures this with a pullup so OK to leave as floating)
- *     3.3V| 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
- *           ￣￣
+ *    3.3V | 7 8 | RX       GPIO0  PF14  // Leave as unused (ESP3D software configures this with a pullup so OK to leave as floating)
+ *          -----
  *            W1
  */
-#define ESP_WIFI_MODULE_COM 6                     // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
+#define ESP_WIFI_MODULE_COM                    6  // Must also set either SERIAL_PORT or SERIAL_PORT_2 to this
 #define ESP_WIFI_MODULE_BAUDRATE        BAUDRATE  // Must use same BAUDRATE as SERIAL_PORT & SERIAL_PORT_2
 #define ESP_WIFI_MODULE_RESET_PIN           PG0
 #define ESP_WIFI_MODULE_ENABLE_PIN          PG1

@@ -182,6 +182,12 @@
     HAL_SPI_Transmit(BUS_SPI_HANDLE(bus_num), (uint8_t*)buf, count, SPI_TRANSFER_TIMEOUT);
   }
 
+  void spiBegin() {
+    #if PIN_EXISTS(SS)
+      OUT_WRITE(SS_PIN, HIGH);
+    #endif
+  }
+
   // Convert Marlin speed enum to STM prescaler
   uint32_t getPrescaler(uint8_t spiRate) {
     switch (spiRate) {

@@ -17,12 +17,12 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE)
+#if BOTH(TOUCH_UI_FTDI_EVE, SDSUPPORT)
 
 #include "screens.h"
 #include "screen_data.h"
@@ -83,15 +83,19 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
   cmd.font(font_medium)
      .rectangle( 0, BTN_Y(header_h+line), display_width, BTN_H(1));
   cmd.cmd(COLOR_RGB(is_highlighted ? normal_btn.rgb : bg_text_enabled));
+  constexpr uint16_t dim[2] = {BTN_SIZE(6,1)};
+  #define POS_AND_SHORTEN(SHORTEN) BTN_POS(1,header_h+line), dim[0] - (SHORTEN), dim[1]
+  #define POS_AND_SIZE             POS_AND_SHORTEN(0)
   #if ENABLED(SCROLL_LONG_FILENAMES)
     if (is_highlighted) {
       cmd.cmd(SAVE_CONTEXT());
       cmd.cmd(MACRO(0));
-    }
+      cmd.text(POS_AND_SIZE, filename, OPT_CENTERY | OPT_NOFIT);
+    } else
   #endif
-  cmd.text  (BTN_POS(1,header_h+line), BTN_SIZE(6,1), filename, OPT_CENTERY | TERN0(SCROLL_LONG_FILENAMES, OPT_NOFIT));
-  if (is_dir) {
-    cmd.text(BTN_POS(1,header_h+line), BTN_SIZE(6,1), F("> "),  OPT_CENTERY | OPT_RIGHTX);
+  draw_text_with_ellipsis(cmd, POS_AND_SHORTEN(is_dir ? 20 : 0), filename, OPT_CENTERY, font_medium);
+  if (is_dir && !is_highlighted) {
+    cmd.text(POS_AND_SIZE, F("> "),  OPT_CENTERY | OPT_RIGHTX);
   }
   #if ENABLED(SCROLL_LONG_FILENAMES)
     if (is_highlighted) {
@@ -102,7 +106,7 @@ void FilesScreen::drawFileButton(const char* filename, uint8_t tag, bool is_dir,
 
 void FilesScreen::drawFileList() {
   FileList files;
-  screen_data.FilesScreen.num_page = max(1,(ceil)(float(files.count()) / files_per_page));
+  screen_data.FilesScreen.num_page = max(1,ceil(float(files.count()) / files_per_page));
   screen_data.FilesScreen.cur_page = min(screen_data.FilesScreen.cur_page, screen_data.FilesScreen.num_page-1);
   screen_data.FilesScreen.flags.is_root  = files.isAtRootDir();
 
@@ -111,7 +115,7 @@ void FilesScreen::drawFileList() {
   #define MARGIN_T 0
   #define MARGIN_B 0
   uint16_t fileIndex = screen_data.FilesScreen.cur_page * files_per_page;
-  for(uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
+  for (uint8_t i = 0; i < files_per_page; i++, fileIndex++) {
     if (files.seek(fileIndex)) {
       drawFileButton(files.filename(), getTagForLine(i), files.isDir(), false);
     }
@@ -134,7 +138,6 @@ void FilesScreen::drawHeader() {
   sprintf_P(str, PSTR("Page %d of %d"),
     screen_data.FilesScreen.cur_page + 1, screen_data.FilesScreen.num_page);
 
-
   CommandProcessor cmd;
   cmd.colors(normal_btn)
      .font(font_small)
@@ -149,11 +152,11 @@ void FilesScreen::drawFooter() {
   #undef MARGIN_T
   #undef MARGIN_B
   #ifdef TOUCH_UI_PORTRAIT
-  #define MARGIN_T 15
-  #define MARGIN_B 5
+    #define MARGIN_T 15
+    #define MARGIN_B 5
   #else
-  #define MARGIN_T 5
-  #define MARGIN_B 5
+    #define MARGIN_T 5
+    #define MARGIN_B 5
   #endif
   const bool    has_selection = screen_data.FilesScreen.selected_tag != 0xFF;
   const uint8_t back_tag      = screen_data.FilesScreen.flags.is_root ? 240 : 245;
@@ -167,11 +170,11 @@ void FilesScreen::drawFooter() {
      .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BACK))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
-  if (screen_data.FilesScreen.flags.is_dir) {
+
+  if (screen_data.FilesScreen.flags.is_dir)
     cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_OPEN));
-  } else {
+  else
     cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_PRINT));
-  }
 }
 
 void FilesScreen::onRedraw(draw_mode_t what) {

@@ -21,6 +21,10 @@
  */
 #pragma once
 
+//
+// settings.cpp - Settings and EEPROM storage
+//
+
 #include "../inc/MarlinConfig.h"
 
 #if ENABLED(EEPROM_SETTINGS)

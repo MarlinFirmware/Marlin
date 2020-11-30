@@ -22,7 +22,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
@@ -170,4 +170,4 @@ void GcodeSuite::M217() {
   M217_report();
 }
 
-#endif // EXTRUDERS > 1
+#endif // HAS_MULTI_EXTRUDER

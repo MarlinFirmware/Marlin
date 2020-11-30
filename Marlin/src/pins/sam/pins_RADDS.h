@@ -25,7 +25,7 @@
  * RADDS
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -36,7 +36,7 @@
 //
 #if EITHER(NO_EEPROM_SELECTED, I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE 0x2000               // 8KB
+  #define MARLIN_EEPROM_SIZE              0x2000  // 8KB
 #endif
 
 //
@@ -226,7 +226,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
@@ -248,7 +248,7 @@
     #define SDSS                              10
     #define SD_DETECT_PIN                     14
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     // The REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER requires
     // an adapter such as https://www.thingiverse.com/thing:1740725
@@ -266,7 +266,7 @@
     #define SDSS                              10
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52
@@ -287,7 +287,11 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-#endif // HAS_SPI_LCD
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD
 
 #ifndef SDSS
   #define SDSS                                 4

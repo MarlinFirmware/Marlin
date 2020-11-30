@@ -27,7 +27,7 @@
 
 #define BOARD_INFO_NAME "ADSK"
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due or Mega' in 'Tools > Board.'"
 #endif
 
@@ -204,5 +204,4 @@ A stepper for E0 extruder
  *
  * Standard ethernet pairs: 1&2, 3&6, 4&5, 7&8
  * Use CAT7 cable to have all pairs shielded
- *
  */

@@ -67,7 +67,8 @@ void HAL_init() {
     // Temporary measure to prevent devices on the bus trying to become master.
     // This will be done again when the SPI device is initialized.
     for (uint8_t dev = 0; dev < NUM_SPI_DEVICES; dev++) {
-      OUT_WRITE(CS_OF_DEV(dev), HIGH);                                                      // Set CS HIGH (inactive) before other SPI users start.
+      extDigitalWrite(CS_OF_DEV(dev), HIGH);                                                // Set CS HIGH (inactive) before other SPI users start.
+      pinMode(CS_OF_DEV(dev), OUTPUT);
       if (IS_DEV_SD(dev) && SW_OF_SD(dev) != NC)                                            // For an SD card with a real switch, set the pin as input
         _SET_MODE(SW_OF_SD(dev), DLV_OF_SD(dev) == LOW ? INPUT_PULLUP : INPUT_PULLDOWN);    // with the appropriate pull.
     }
@@ -87,7 +88,7 @@ void HAL_init() {
     LL_PWR_EnableBkUpRegulator();
     // Wait until backup regulator is initialized
     while (!LL_PWR_IsActiveFlag_BRR());
-  #endif // SRAM_EEPROM_EMULATION
+  #endif
 
   #if HAS_TMC_SW_SERIAL
     SoftwareSerial::setInterruptPriority(SWSERIAL_TIMER_IRQ_PRIO, 0);
@@ -95,7 +96,9 @@ void HAL_init() {
 
   SetTimerInterruptPriorities();
 
-  TERN_(EMERGENCY_PARSER, USB_Hook_init());
+  #if ENABLED(EMERGENCY_PARSER) && USBD_USE_CDC
+    USB_Hook_init();
+  #endif
 }
 
 void HAL_clear_reset_source() { __HAL_RCC_CLEAR_RESET_FLAGS(); }
@@ -136,9 +139,18 @@ extern "C" {
 
 // TODO: Make sure this doesn't cause any delay
 void HAL_adc_start_conversion(const uint8_t adc_pin) { HAL_adc_result = analogRead(adc_pin); }
-
 uint16_t HAL_adc_get_result() { return HAL_adc_result; }
 
+// Reset the system (to initiate a firmware flash)
 void flashFirmware(const int16_t) { NVIC_SystemReset(); }
+
+// Maple Compatibility
+volatile uint32_t systick_uptime_millis = 0;
+systickCallback_t systick_user_callback;
+void systick_attach_callback(systickCallback_t cb) { systick_user_callback = cb; }
+void HAL_SYSTICK_Callback() {
+  systick_uptime_millis++;
+  if (systick_user_callback) systick_user_callback();
+}
 
 #endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

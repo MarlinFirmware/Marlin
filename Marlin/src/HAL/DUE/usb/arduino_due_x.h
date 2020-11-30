@@ -93,5 +93,5 @@
 #define USB_VBOF_GPIO               (PIO_PB10_IDX)
 #define USB_VBOF_FLAGS              (PIO_PERIPH_A | PIO_DEFAULT)
 /*! Active level of the USB_VBOF output pin. */
-#define USB_VBOF_ACTIVE_LEVEL       LOW
+#define USB_VBOF_ACTIVE_STATE       LOW
 /* ------------------------------------------------------------------------ */
