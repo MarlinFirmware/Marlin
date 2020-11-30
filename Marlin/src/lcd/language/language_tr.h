@@ -57,7 +57,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Ana");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("Gelişmiş Ayarlar");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Yapılandırma");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Oto. Başlat");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Oto. Başlat");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motorları Durdur");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Hata Ayıklama");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Durum Çubuğu Testi");
@@ -306,7 +306,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Sıcaklık");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Hareket");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filaman");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ekstrüzyon/mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("Ekstrüzyon/mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Filaman Çapı");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Filaman Çapı *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Çıkart mm");

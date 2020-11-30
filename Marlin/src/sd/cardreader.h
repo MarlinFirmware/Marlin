@@ -159,9 +159,9 @@ public:
   static inline uint32_t getIndex() { return sdpos; }
   static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
-  static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
-  static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+  static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
@@ -244,17 +244,17 @@ private:
   static SdVolume volume;
   static SdFile file;
 
-  static uint32_t filesize, sdpos;
+  static uint32_t filesize, // Total size of the current file, in bytes
+                  sdpos;    // Index most recently read (one behind file.getPos)
 
   //
   // Procedure calls to other files
   //
-  #ifndef SD_PROCEDURE_DEPTH
-    #define SD_PROCEDURE_DEPTH 1
+  #if HAS_MEDIA_SUBCALLS
+    static uint8_t file_subcall_ctr;
+    static uint32_t filespos[SD_PROCEDURE_DEPTH];
+    static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   #endif
-  static uint8_t file_subcall_ctr;
-  static uint32_t filespos[SD_PROCEDURE_DEPTH];
-  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
 
   //
   // SD Auto Reporting

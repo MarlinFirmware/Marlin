@@ -308,8 +308,8 @@ void GcodeSuite::M917() {
             L64xxManager.set_param(axis_index[j], L6470_KVAL_HOLD, kval_hold);
         }
         DEBUG_ECHOLNPGM(".");
-        gcode.reset_stepper_timeout(); // reset_stepper_timeout to keep steppers powered
-        watchdog_refresh();;   // beat the dog
+        gcode.reset_stepper_timeout(); // keep steppers powered
+        watchdog_refresh();
         safe_delay(5000);
         status_composite_temp = 0;
         for (j = 0; j < driver_count; j++) {
