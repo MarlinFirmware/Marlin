@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 // R25 = 500 KOhm, beta25 = 3800 K, 4.7 kOhm pull-up, SliceEngineering 450 °C Thermistor
-const short temptable_67[][2] PROGMEM = {
+const temp_entry_t temptable_67[] PROGMEM = {
   { OV(  22 ),  500 },
   { OV(  23 ),  490 },
   { OV(  25 ),  480 },

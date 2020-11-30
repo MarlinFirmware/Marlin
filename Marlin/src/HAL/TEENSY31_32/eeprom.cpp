@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __MK20DX256__
@@ -22,9 +22,19 @@
 
 #if USE_WIRED_EEPROM
 
-#include "../shared/eeprom_api.h"
+/**
+ * HAL PersistentStore for Teensy 3.2 (MK20DX256)
+ */
 
-bool PersistentStore::access_start() { return true; }
+#include "../shared/eeprom_api.h"
+#include <avr/eeprom.h>
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE size_t(E2END + 1)
+#endif
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
+
+bool PersistentStore::access_start()  { return true; }
 bool PersistentStore::access_finish() { return true; }
 
 bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, uint16_t *crc) {
@@ -43,11 +53,11 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
     crc16(crc, &v, 1);
     pos++;
     value++;
-  };
+  }
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;

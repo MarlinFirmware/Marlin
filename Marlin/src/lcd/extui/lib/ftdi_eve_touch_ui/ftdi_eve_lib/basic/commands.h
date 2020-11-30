@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
   /****************************************************************************
@@ -133,6 +133,7 @@ class CLCD {
     static void set_brightness (uint8_t brightness);
     static uint8_t get_brightness();
     static void host_cmd (unsigned char host_command, unsigned char byte2);
+    static uint32_t dl_size() {return CLCD::mem_read_32(REG::CMD_DL) & 0x1FFF;}
 
     static void get_font_metrics (uint8_t font, struct FontMetrics &fm);
     static uint16_t get_text_width(const uint8_t font, const char *str);

@@ -16,13 +16,13 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 #pragma once
 
 typedef const char Language_Str[];
 
-#if defined(LCD_LANGUAGE_5)
+#ifdef LCD_LANGUAGE_5
   #define NUM_LANGUAGES 5
 #elif defined(LCD_LANGUAGE_4)
   #define NUM_LANGUAGES 4

@@ -12,7 +12,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -252,6 +252,9 @@
   #define _TERN(E,V...)       __TERN(_CAT(T_,E),V)    // Prepend 'T_' to get 'T_0' or 'T_1'
   #define __TERN(T,V...)      ___TERN(_CAT(_NO,T),V)  // Prepend '_NO' to get '_NOT_0' or '_NOT_1'
   #define ___TERN(P,V...)     THIRD(P,V)              // If first argument has a comma, A. Else B.
+
+  #define IF_ENABLED          TERN_
+  #define IF_DISABLED(O,A)    _TERN(_ENA_1(O),,A)
 
   #define ANY(V...)          !DISABLED(V)
   #define NONE(V...)          DISABLED(V)

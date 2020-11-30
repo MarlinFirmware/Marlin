@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Build tests for STM32F103RE BigTreeTech (SKR E3 DIP v1.0)
+#
+
+# exit on first failure
+set -e
+
+#
+# Build with the default configurations
+#
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_SKR_E3_DIP
+opt_set SERIAL_PORT 1
+opt_set SERIAL_PORT_2 -1
+opt_set X_DRIVER_TYPE TMC2209
+opt_set Y_DRIVER_TYPE TMC2130
+exec_test $1 $2 "BigTreeTech SKR E3 DIP v1.0 - Basic Config with mixed TMC Drivers" "$3"
+
+# clean up
+restore_configs

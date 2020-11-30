@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_basic.h"
@@ -932,7 +932,8 @@ template <class T> bool CLCD::CommandFifo::_write_unaligned(T data, uint16_t len
     if (command_read_ptr <= command_write_ptr) {
       bytes_tail = 4096U - command_write_ptr;
       bytes_head = command_read_ptr;
-    } else {
+    }
+    else {
       bytes_tail = command_read_ptr - command_write_ptr;
       bytes_head = 0;
     }
@@ -1057,11 +1058,13 @@ void CLCD::init() {
   host_cmd(Use_Crystal ? CLKEXT : CLKINT, 0);
   host_cmd(FTDI::ACTIVE, 0);                        // Activate the System Clock
 
-  /* read the device-id until it returns 0x7c or times out, should take less than 150ms */
+  delay(40); // FTDI/BRT recommendation: no SPI traffic during startup. EVE needs at the very least 45ms to start, so leave her alone for a little while.
+
+  /* read the device-id until it returns 0x7C or times out, should take less than 150ms */
   uint8_t counter;
   for (counter = 0; counter < 250; counter++) {
    uint8_t device_id = mem_read_8(REG::ID);            // Read Device ID, Should Be 0x7C;
-   if (device_id == 0x7c) {
+   if (device_id == 0x7C) {
      #if ENABLED(TOUCH_UI_DEBUG)
        SERIAL_ECHO_MSG("FTDI chip initialized ");
      #endif
@@ -1076,6 +1079,24 @@ void CLCD::init() {
        SERIAL_ECHOLNPAIR("Timeout waiting for device ID, should be 124, got ", device_id);
      #endif
    }
+  }
+
+  /* make sure that all units are in working conditions, usually the touch-controller needs a little more time */
+  for (counter = 0; counter < 100; counter++) {
+    uint8_t reset_status = mem_read_8(REG::CPURESET) & 0x03;
+    if (reset_status == 0x00) {
+      #if ENABLED(TOUCH_UI_DEBUG)
+        SERIAL_ECHO_MSG("FTDI chip all units running ");
+      #endif
+      break;
+    }
+    else
+      delay(1);
+
+    if (ENABLED(TOUCH_UI_DEBUG) && counter == 99) {
+      SERIAL_ECHO_START();
+      SERIAL_ECHOLNPAIR("Timeout waiting for reset status. Should be 0x00, got ", reset_status);
+    }
   }
 
   mem_write_8(REG::PWM_DUTY, 0);   // turn off Backlight, Frequency already is set to 250Hz default
@@ -1124,13 +1145,10 @@ void CLCD::init() {
 
   mem_write_8(REG::PCLK, Pclk); // Turns on Clock by setting PCLK Register to the value necessary for the module
 
-  mem_write_16(REG::PWM_HZ, ENABLED(LCD_FYSETC_TFT81050) ? 0x2710 : 0x00FA);
+  mem_write_16(REG::PWM_HZ, 0x00FA);
 
   // Turning off dithering seems to help prevent horizontal line artifacts on certain colors
   mem_write_8(REG::DITHER,  0);
-
-  // Initialize the command FIFO
-  CommandFifo::reset();
 
   default_touch_transform();
   default_display_orientation();
@@ -1151,17 +1169,13 @@ void CLCD::default_display_orientation() {
   #if FTDI_API_LEVEL >= 810
     // Set the initial display orientation. On the FT810, we use the command
     // processor to do this since it will also update the transform matrices.
-    if (FTDI::ftdi_chip >= 810) {
-      CommandFifo cmd;
-      cmd.setrotate(
-          ENABLED(TOUCH_UI_MIRRORED) * 4
-        + ENABLED(TOUCH_UI_PORTRAIT) * 2
-        + ENABLED(TOUCH_UI_INVERTED) * 1
-      );
-      cmd.execute();
-    }
-    else
-      TERN_(TOUCH_UI_INVERTED, mem_write_32(REG::ROTATE, 1));
+    CommandFifo cmd;
+    cmd.setrotate(
+        ENABLED(TOUCH_UI_MIRRORED) * 4
+      + ENABLED(TOUCH_UI_PORTRAIT) * 2
+      + ENABLED(TOUCH_UI_INVERTED) * 1
+    );
+    cmd.execute();
   #elif ANY(TOUCH_UI_PORTRAIT, TOUCH_UI_MIRRORED)
     #error "PORTRAIT or MIRRORED orientation not supported on the FT800."
   #elif ENABLED(TOUCH_UI_INVERTED)

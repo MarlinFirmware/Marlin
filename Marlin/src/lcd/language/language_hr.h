@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
@@ -42,7 +41,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("SD kartica uklonjena");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Main");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto pokretanje");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto pokretanje");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Ugasi steppere");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Automatski homing");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Home-aj X");
@@ -55,20 +54,23 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Postavi home offsete");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offsets postavljeni");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Postavi ishodište");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Predgrij ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Predgrij ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Predgrij ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Predgrij ") PREHEAT_2_LABEL _UxGT(" Dizna");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Predgrij ") PREHEAT_2_LABEL _UxGT(" Dizna ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Predgrij ") PREHEAT_2_LABEL _UxGT(" Sve");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Predgrij ") PREHEAT_2_LABEL _UxGT(" Bed");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Predgrij ") PREHEAT_2_LABEL _UxGT(" conf");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Predgrij ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Predgrij ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Dizna ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Sve");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" Bed");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Predgrij ") PREHEAT_1_LABEL _UxGT(" conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Predgrij $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Predgrij $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Predgrij $ Dizna");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Predgrij $ Dizna ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Predgrij $ Sve");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Predgrij $ Bed");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Predgrij $ conf");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Hlađenje");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Uključi napajanje");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Isključi napajanje");
@@ -92,7 +94,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_SELECT_E                        = _UxGT("Odaberi *");
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperature");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Gibanje");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Kontrast LCD-a");

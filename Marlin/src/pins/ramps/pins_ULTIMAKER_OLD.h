@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -60,7 +60,7 @@
 //#define BOARD_REV_1_0
 //#define BOARD_REV_1_5
 
-#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__AVR_ATmega1280__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -174,11 +174,11 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif ENABLED(BOARD_REV_1_5, ULTRA_LCD)
+#elif BOTH(BOARD_REV_1_5, IS_ULTRA_LCD)
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
     #define LCD_PINS_ENABLE                   17
@@ -194,7 +194,7 @@
 
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !NEWPANEL - Old style panel with shift register
+  #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
     #define SHIFT_CLK                         38
@@ -209,7 +209,7 @@
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif
 

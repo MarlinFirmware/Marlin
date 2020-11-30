@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#undef I2C_EEPROM // Arduino framework provides code for I2C
-
 #if USE_FALLBACK_EEPROM
   #define FLASH_EEPROM_EMULATION
+#elif EITHER(I2C_EEPROM, SPI_EEPROM)
+  #define USE_SHARED_EEPROM 1
 #endif

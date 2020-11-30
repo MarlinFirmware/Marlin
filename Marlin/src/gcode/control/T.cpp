@@ -16,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 #include "../../module/tool_change.h"
 
-#if ENABLED(DEBUG_LEVELING_FEATURE) || EXTRUDERS > 1
+#if EITHER(HAS_MULTI_EXTRUDER, DEBUG_LEVELING_FEATURE)
   #include "../../module/motion.h"
 #endif
 
-#if ENABLED(PRUSA_MMU2)
-  #include "../../feature/mmu2/mmu2.h"
+#if HAS_PRUSA_MMU2
+  #include "../../feature/mmu/mmu2.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -40,20 +40,21 @@
  *   F[units/min] Set the movement feedrate
  *   S1           Don't move the tool in XY after change
  *
- * For PRUSA_MMU2:
+ * For PRUSA_MMU2(S) and SMUFF_EMU_MMU2(S)
  *   T[n] Gcode to extrude at least 38.10 mm at feedrate 19.02 mm/s must follow immediately to load to extruder wheels.
  *   T?   Gcode to extrude shouldn't have to follow. Load to extruder wheels is done automatically.
  *   Tx   Same as T?, but nozzle doesn't have to be preheated. Tc requires a preheated nozzle to finish filament load.
  *   Tc   Load to nozzle after filament was prepared by Tc and nozzle is already heated.
  */
-void GcodeSuite::T(const uint8_t tool_index) {
+void GcodeSuite::T(const int8_t tool_index) {
 
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_ECHOLNPAIR(">>> T(", tool_index, ")");
-    DEBUG_POS("BEFORE", current_position);
-  }
+  DEBUG_SECTION(log_T, "T", DEBUGGING(LEVELING));
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("...(", tool_index, ")");
 
-  #if ENABLED(PRUSA_MMU2)
+  // Count this command as movement / activity
+  reset_stepper_timeout();
+
+  #if HAS_PRUSA_MMU2
     if (parser.string_arg) {
       mmu2.tool_change(parser.string_arg);   // Special commands T?/Tx/Tc
       return;
@@ -72,9 +73,4 @@ void GcodeSuite::T(const uint8_t tool_index) {
     );
 
   #endif
-
-  if (DEBUGGING(LEVELING)) {
-    DEBUG_POS("AFTER", current_position);
-    DEBUG_ECHOLNPGM("<<< T()");
-  }
 }

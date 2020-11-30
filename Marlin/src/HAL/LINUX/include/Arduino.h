@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -67,8 +67,11 @@ void cli(); // Disable
 void sei(); // Enable
 void attachInterrupt(uint32_t pin, void (*callback)(), uint32_t mode);
 void detachInterrupt(uint32_t pin);
-extern "C" void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
-extern "C" void GpioDisableInt(uint32_t port, uint32_t pin);
+
+extern "C" {
+  void GpioEnableInt(uint32_t port, uint32_t pin, uint32_t mode);
+  void GpioDisableInt(uint32_t port, uint32_t pin);
+}
 
 // Program Memory
 #define pgm_read_ptr(addr)        (*((void**)(addr)))
@@ -92,9 +95,7 @@ using std::memcpy;
 #define strlen_P strlen
 
 // Time functions
-extern "C" {
-  void delay(const int milis);
-}
+extern "C" void delay(const int milis);
 void _delay_ms(const int delay);
 void delayMicroseconds(unsigned long);
 uint32_t millis();
@@ -105,12 +106,6 @@ void digitalWrite(pin_t, uint8_t);
 bool digitalRead(pin_t);
 void analogWrite(pin_t, int);
 uint16_t analogRead(pin_t);
-
-// EEPROM
-void eeprom_write_byte(unsigned char *pos, unsigned char value);
-unsigned char eeprom_read_byte(unsigned char *pos);
-void eeprom_read_block(void *__dst, const void *__src, size_t __n);
-void eeprom_update_block(const void *__src, void *__dst, size_t __n);
 
 int32_t random(int32_t);
 int32_t random(int32_t, int32_t);

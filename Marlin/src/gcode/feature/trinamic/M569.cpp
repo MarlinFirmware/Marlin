@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,7 @@ template<typename TMC>
 void tmc_say_stealth_status(TMC &st) {
   st.printLabel();
   SERIAL_ECHOPGM(" driver mode:\t");
-  serialprintPGM(st.get_stealthChop_status() ? PSTR("stealthChop") : PSTR("spreadCycle"));
+  serialprintPGM(st.get_stealthChop() ? PSTR("stealthChop") : PSTR("spreadCycle"));
   SERIAL_EOL();
 }
 template<typename TMC>

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -177,7 +177,7 @@ void PrintCounter::saveStats() {
 #endif
 
 void PrintCounter::showStats() {
-  char buffer[21];
+  char buffer[22];
 
   SERIAL_ECHOPGM(STR_STATS);
   SERIAL_ECHOLNPAIR(

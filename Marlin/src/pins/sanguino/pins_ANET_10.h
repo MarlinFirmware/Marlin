@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,7 +30,6 @@
  *
  * 1) no longer uses Sanguino files to define some of the pins
  * 2) added pointers to useable Arduino IDE extensions
- *
  */
 
 /**
@@ -48,7 +47,6 @@
  * "Anet V1.0 (Optiboot)" frees up another 3K of FLASH.  You'll need to burn
  * a new bootloader to the board to be able to automatically download a
  * compiled image.
- *
  */
 
 /**
@@ -66,7 +64,6 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
 /**
@@ -82,14 +79,14 @@
  * Additional info:
  *
  *   Anet Schematics                    - https://github.com/ralf-e/ANET-3D-Board-V1.0
- *   Wiring RRDFG Smart Controller      - http://www.thingiverse.com/thing:2103748
+ *   Wiring RRDFG Smart Controller      - https://www.thingiverse.com/thing:2103748
  *   SkyNet3D Anet software development - https://github.com/SkyNet3D/Marlin/
  *   Anet Users / Skynet SW on Facebook - https://www.facebook.com/skynet3ddevelopment/
  *
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
 
-#ifndef __AVR_ATmega1284P__
+#if NOT_TARGET(__AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
 #endif
 
@@ -148,13 +145,16 @@
  *
  * Only the following displays are supported:
  *  ZONESTAR_LCD
- *  ANET_FULL_GRAPHICS_LCD
+ *  ANET_FULL_GRAPHICS_LCD(_ALT_WIRING)?
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
+
   #define LCD_SDSS                            28
-  #if ENABLED(ADC_KEYPAD)
+
+  #if HAS_ADC_BUTTONS
+
     #define SERVO0_PIN                        27  // free for BLTouch/3D-Touch
     #define LCD_PINS_RS                       28
     #define LCD_PINS_ENABLE                   29
@@ -163,26 +163,53 @@
     #define LCD_PINS_D6                       16
     #define LCD_PINS_D7                       17
     #define ADC_KEYPAD_PIN                     1
-  #elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD)
+
+  #elif IS_RRD_FG_SC
+
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
-    #define SERVO0_PIN                        29  // free for BLTouch/3D-Touch
-    #define BEEPER_PIN                        17
-    #define LCD_PINS_RS                       27
-    #define LCD_PINS_ENABLE                   28
-    #define LCD_PINS_D4                       30
-    #define BTN_EN1                           11
-    #define BTN_EN2                           10
-    #define BTN_ENC                           16
-    #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
-    #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
-    #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
-    #define STD_ENCODER_PULSES_PER_STEP        4
-    #define STD_ENCODER_STEPS_PER_MENU_ITEM    1
+
+    #if ENABLED(ANET_FULL_GRAPHICS_LCD_ALT_WIRING)
+      #define SERVO0_PIN                      30
+      #define BEEPER_PIN                      27
+      #define LCD_PINS_RS                     29
+      #define LCD_PINS_ENABLE                 16
+      #define LCD_PINS_D4                     11
+      #define BTN_EN1                         28
+      #define BTN_EN2                         10
+      #define BTN_ENC                         17
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(250)
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(250)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(250)
+    #else
+      #define SERVO0_PIN                      29  // free for BLTouch/3D-Touch
+      #define BEEPER_PIN                      17
+      #define LCD_PINS_RS                     27
+      #define LCD_PINS_ENABLE                 28
+      #define LCD_PINS_D4                     30
+      #define BTN_EN1                         11
+      #define BTN_EN2                         10
+      #define BTN_ENC                         16
+      #define BOARD_ST7920_DELAY_1 DELAY_NS(0)
+      #define BOARD_ST7920_DELAY_2 DELAY_NS(63)
+      #define BOARD_ST7920_DELAY_3 DELAY_NS(125)
+    #endif
+
   #endif
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
 #else
+
   #define SERVO0_PIN                          27
+
+#endif
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN              SERVO0_PIN
 #endif
 
 /**
@@ -209,7 +236,7 @@
  * ====================================================================
  *
  *   Anet V1.0 controller           | ZONESTAR_LCD      | ANET_FULL_      | RepRapDiscount Full      | Thingiverse RepRap wiring
- *   physical   logical   alt       |                   | GRAPHICS_LCD    | Graphics Display Wiring  | http://www.thingiverse
+ *   physical   logical   alt       |                   | GRAPHICS_LCD    | Graphics Display Wiring  | https://www.thingiverse
  *     pin        pin     functions |                   |                 |                          | .com/thing:2103748
  *------------------------------------------------------------------------------------------------------------------------
  *   ANET-J3.1    8 ***             | N/A               | J3_TX ***       |                          |

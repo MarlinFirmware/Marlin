@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,7 +25,7 @@
  * MegaTronics v3.0 / v3.1 / v3.2 pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -132,7 +132,10 @@
 #define SDSS                                  53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
-#define CASE_LIGHT_PIN                        45  // Try the keypad connector
+
+#ifndef CASE_LIGHT_PIN
+  #define CASE_LIGHT_PIN                      45  // Try the keypad connector
+#endif
 
 //
 // LCD / Controller

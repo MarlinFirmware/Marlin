@@ -16,23 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#define BOARD_INFO_NAME "BIGTREE SKR 1.1"
-
-//
-// EEPROM
-//
-#define FLASH_EEPROM_EMULATION
-//#define SDCARD_EEPROM_EMULATION
+#define BOARD_INFO_NAME "BTT SKR V1.1"
 
 //
 // Limit Switches
 //
-
 #define X_MIN_PIN                          P1_29
 #define X_MAX_PIN                          P1_28
 #define Y_MIN_PIN                          P1_27
@@ -72,7 +65,16 @@
  * by redrawing the screen after SD card accesses.
  */
 
-#if HAS_SPI_LCD
+#if IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31
+
+#elif HAS_WIRED_LCD
+
   #define BTN_EN1                          P3_26
   #define BTN_EN2                          P3_25
   #define BTN_ENC                          P2_11
@@ -87,7 +89,8 @@
     #define DOGLCD_CS                      P2_06
     #define DOGLCD_A0                      P0_16
   #endif
-#endif
+
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support
@@ -96,7 +99,7 @@
 // requires jumpers on the SKR V1.1 board as documented here:
 // https://www.facebook.com/groups/505736576548648/permalink/630639874058317/
 #ifndef SDCARD_CONNECTION
-  #if EITHER(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY, IS_TFTGLCD_PANEL)
     #define SDCARD_CONNECTION                LCD
   #else
     #define SDCARD_CONNECTION            ONBOARD
@@ -151,31 +154,26 @@
     #if AXIS_DRIVER_TYPE_X(TMC2130)
       #define X_CS_PIN                     P4_28
       #undef X_ENABLE_PIN
-      #define X_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Y(TMC2130)
       #define Y_CS_PIN                     P2_00
       #undef Y_ENABLE_PIN
-      #define Y_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_Z(TMC2130)
       #define Z_CS_PIN                     P0_19
       #undef Z_ENABLE_PIN
-      #define Z_ENABLE_PIN                 -1
     #endif
 
     #if AXIS_DRIVER_TYPE_E0(TMC2130)
       #define E0_CS_PIN                    P2_12
       #undef E0_ENABLE_PIN
-      #define E0_ENABLE_PIN                -1
     #endif
 
     #if AXIS_DRIVER_TYPE_E1(TMC2130)
       #define E1_CS_PIN                    P0_10
       #undef E1_ENABLE_PIN
-      #define E1_ENABLE_PIN                -1
     #endif
 
   #else                                           // !SOFTWARE_DRIVER_ENABLE

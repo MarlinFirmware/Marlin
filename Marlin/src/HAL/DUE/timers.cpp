@@ -16,14 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL Timers for Arduino Due and compatible (SAM3X8E)
  */
 
 #ifdef ARDUINO_ARCH_SAM
@@ -33,8 +31,6 @@
 // ------------------------
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
-
-#include "timers.h"
 
 // ------------------------
 // Local defines

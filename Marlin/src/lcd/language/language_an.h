@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -43,7 +42,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Tarcheta sacada");
   PROGMEM Language_Str MSG_LCD_ENDSTOPS                    = _UxGT("Endstops"); // Max length 8 characters
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu prencipal");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Inicio automatico");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Inicio automatico");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Amortar motors");
   PROGMEM Language_Str MSG_AUTO_HOME                       = _UxGT("Levar a l'orichen");
   PROGMEM Language_Str MSG_AUTO_HOME_X                     = _UxGT("Orichen X");
@@ -56,20 +55,23 @@ namespace Language_an {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Achustar desfases");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Desfase aplicau");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Establir orichen");
-  PROGMEM Language_Str MSG_PREHEAT_1                       = _UxGT("Precalentar ") PREHEAT_1_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_1_H                     = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_1_END                   = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
-  PROGMEM Language_Str MSG_PREHEAT_1_END_E                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
-  PROGMEM Language_Str MSG_PREHEAT_1_ALL                   = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY               = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
-  PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS              = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
-  PROGMEM Language_Str MSG_PREHEAT_2                       = _UxGT("Precalentar ") PREHEAT_2_LABEL;
-  PROGMEM Language_Str MSG_PREHEAT_2_H                     = _UxGT("Precalentar ") PREHEAT_2_LABEL " ~";
-  PROGMEM Language_Str MSG_PREHEAT_2_END                   = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Boquilla");
-  PROGMEM Language_Str MSG_PREHEAT_2_END_E                 = _UxGT("Precal. ") PREHEAT_2_LABEL _UxGT(" Boquilla ~");
-  PROGMEM Language_Str MSG_PREHEAT_2_ALL                   = _UxGT("Precalentar ") PREHEAT_2_LABEL _UxGT(" Tot");
-  PROGMEM Language_Str MSG_PREHEAT_2_BEDONLY               = _UxGT("Precalentar ") PREHEAT_2_LABEL _UxGT(" Base");
-  PROGMEM Language_Str MSG_PREHEAT_2_SETTINGS              = _UxGT("Precalentar ") PREHEAT_2_LABEL _UxGT(" Conf");
+  #if PREHEAT_COUNT
+    PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Precalentar ") PREHEAT_1_LABEL;
+    PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Precalentar ") PREHEAT_1_LABEL " ~";
+    PROGMEM Language_Str MSG_PREHEAT_1_END                 = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla");
+    PROGMEM Language_Str MSG_PREHEAT_1_END_E               = _UxGT("Precal. ") PREHEAT_1_LABEL _UxGT(" Boquilla ~");
+    PROGMEM Language_Str MSG_PREHEAT_1_ALL                 = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Tot");
+    PROGMEM Language_Str MSG_PREHEAT_1_BEDONLY             = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Base");
+    PROGMEM Language_Str MSG_PREHEAT_1_SETTINGS            = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Conf");
+
+    PROGMEM Language_Str MSG_PREHEAT_M                     = _UxGT("Precalentar $");
+    PROGMEM Language_Str MSG_PREHEAT_M_H                   = _UxGT("Precalentar $ ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_END                 = _UxGT("Precal. $ Boquilla");
+    PROGMEM Language_Str MSG_PREHEAT_M_END_E               = _UxGT("Precal. $ Boquilla ~");
+    PROGMEM Language_Str MSG_PREHEAT_M_ALL                 = _UxGT("Precalentar $ Tot");
+    PROGMEM Language_Str MSG_PREHEAT_M_BEDONLY             = _UxGT("Precalentar $ Base");
+    PROGMEM Language_Str MSG_PREHEAT_M_SETTINGS            = _UxGT("Precalentar $ Conf");
+  #endif
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Enfriar");
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Enchegar Fuent");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Amortar Fuent");
@@ -119,7 +121,7 @@ namespace Language_an {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Temperatura");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Movimiento");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Filamento");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E in mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Fil. Dia.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Fil. Dia. *");
   PROGMEM Language_Str MSG_CONTRAST                        = _UxGT("Contraste");
@@ -165,7 +167,6 @@ namespace Language_an {
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("Error de temperatura");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Error: Temp Max");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Error: Temp Min");
-  PROGMEM Language_Str MSG_ERR_Z_HOMING                    = _UxGT("Home XY first");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESORA ATURADA");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Per favor reinic.");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");

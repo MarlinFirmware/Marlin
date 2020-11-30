@@ -16,22 +16,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef STM32F7xx
+#if NOT_TARGET(STM32F7xx)
   #error "Oops! Select an STM32F7 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME      "RemRam v1"
 #define DEFAULT_MACHINE_NAME "RemRam"
 
-#define SRAM_EEPROM_EMULATION                     // Emulate the EEPROM using Backup SRAM
+#if NO_EEPROM_SELECTED
+  #define SRAM_EEPROM_EMULATION                   // Emulate the EEPROM using Backup SRAM
+#endif
 
 #if HOTENDS > 1 || E_STEPPERS > 1
-  #error "RemRam supports only one hotend / E-stepper."
+  #error "RemRam only supports one hotend / E-stepper."
 #endif
 
 //

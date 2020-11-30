@@ -16,17 +16,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfig.h"
 
+#define IFSD(A,B) TERN(SDSUPPORT,A,B)
+
 #if ENABLED(SDSUPPORT)
 
 #if BOTH(SDCARD_SORT_ALPHA, SDSORT_DYNAMIC_RAM)
   #define SD_RESORT 1
+#endif
+
+#if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+  #define SD_ORDER(N,C) ((C) - 1 - (N))
+#else
+  #define SD_ORDER(N,C) N
 #endif
 
 #define MAX_DIR_DEPTH     10       // Maximum folder depth
@@ -57,7 +65,7 @@ public:
 
   // Fast! binary file transfer
   #if ENABLED(BINARY_FILE_TRANSFER)
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t transfer_port_index;
     #else
       static constexpr int8_t transfer_port_index = 0;
@@ -91,6 +99,7 @@ public:
   static void openFileRead(char * const path, const uint8_t subcall=0);
   static void openFileWrite(char * const path);
   static void closefile(const bool store_location=false);
+  static bool fileExists(const char * const name);
   static void removeFile(const char * const name);
 
   static inline char* longest_filename() { return longFilename[0] ? longFilename : filename; }
@@ -148,10 +157,11 @@ public:
 
   static inline bool isFileOpen() { return isMounted() && file.isOpen(); }
   static inline uint32_t getIndex() { return sdpos; }
+  static inline uint32_t getFileSize() { return filesize; }
   static inline bool eof() { return sdpos >= filesize; }
-  static inline void setIndex(const uint32_t index) { sdpos = index; file.seekSet(index); }
+  static inline void setIndex(const uint32_t index) { file.seekSet((sdpos = index)); }
   static inline char* getWorkDirName() { workDir.getDosName(filename); return filename; }
-  static inline int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
+  static inline int16_t get() { int16_t out = (int16_t)file.read(); sdpos = file.curPosition(); return out; }
   static inline int16_t read(void* buf, uint16_t nbyte) { return file.isOpen() ? file.read(buf, nbyte) : -1; }
   static inline int16_t write(void* buf, uint16_t nbyte) { return file.isOpen() ? file.write(buf, nbyte) : -1; }
 
@@ -160,9 +170,7 @@ public:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static void auto_report_sd_status();
     static inline void set_auto_report_interval(uint8_t v) {
-      #if NUM_SERIAL > 1
-        auto_report_port = serial_port_index;
-      #endif
+      TERN_(HAS_MULTI_SERIAL, auto_report_port = serial_port_index);
       NOMORE(v, 60);
       auto_report_sd_interval = v;
       next_sd_report_ms = millis() + 1000UL * v;
@@ -236,17 +244,17 @@ private:
   static SdVolume volume;
   static SdFile file;
 
-  static uint32_t filesize, sdpos;
+  static uint32_t filesize, // Total size of the current file, in bytes
+                  sdpos;    // Index most recently read (one behind file.getPos)
 
   //
   // Procedure calls to other files
   //
-  #ifndef SD_PROCEDURE_DEPTH
-    #define SD_PROCEDURE_DEPTH 1
+  #if HAS_MEDIA_SUBCALLS
+    static uint8_t file_subcall_ctr;
+    static uint32_t filespos[SD_PROCEDURE_DEPTH];
+    static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   #endif
-  static uint8_t file_subcall_ctr;
-  static uint32_t filespos[SD_PROCEDURE_DEPTH];
-  static char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
 
   //
   // SD Auto Reporting
@@ -254,7 +262,7 @@ private:
   #if ENABLED(AUTO_REPORT_SD_STATUS)
     static uint8_t auto_report_sd_interval;
     static millis_t next_sd_report_ms;
-    #if NUM_SERIAL > 1
+    #if HAS_MULTI_SERIAL
       static int8_t auto_report_port;
     #endif
   #endif

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,13 +30,18 @@
 
 #include "spindle_laser.h"
 
-SpindleLaser cutter;
+#if ENABLED(SPINDLE_SERVO)
+  #include "../module/servo.h"
+#endif
 
-cutter_power_t SpindleLaser::power;
-bool SpindleLaser::isOn;                                                       // state to determine when to apply setPower to power
-cutter_setPower_t SpindleLaser::setPower = interpret_power(SPEED_POWER_MIN);   // spindle/laser speed/power control in PWM, Percentage or RPM
+SpindleLaser cutter;
+uint8_t SpindleLaser::power;
+bool SpindleLaser::isReady;                                           // Ready to apply power setting from the UI to OCR
+cutter_power_t SpindleLaser::menuPower,                               // Power set via LCD menu in PWM, PERCENT, or RPM
+               SpindleLaser::unitPower;                               // LCD status power in PWM, PERCENT, or RPM
+
 #if ENABLED(MARLIN_DEV_MODE)
-  cutter_frequency_t SpindleLaser::frequency;                                  // setting PWM frequency; range: 2K - 50K
+  cutter_frequency_t SpindleLaser::frequency;                         // PWM frequency setting; range: 2K - 50K
 #endif
 #define SPINDLE_LASER_PWM_OFF ((SPINDLE_LASER_PWM_INVERT) ? 255 : 0)
 
@@ -44,13 +49,17 @@ cutter_setPower_t SpindleLaser::setPower = interpret_power(SPEED_POWER_MIN);   /
 // Init the cutter to a safe OFF state
 //
 void SpindleLaser::init() {
-  OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH); // Init spindle to off
+  #if ENABLED(SPINDLE_SERVO)
+    MOVE_SERVO(SPINDLE_SERVO_NR, SPINDLE_SERVO_MIN);
+  #else
+    OUT_WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);    // Init spindle to off
+  #endif
   #if ENABLED(SPINDLE_CHANGE_DIR)
-    OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);   // Init rotation to clockwise (M3)
+    OUT_WRITE(SPINDLE_DIR_PIN, SPINDLE_INVERT_DIR ? 255 : 0);         // Init rotation to clockwise (M3)
   #endif
   #if ENABLED(SPINDLE_LASER_PWM)
     SET_PWM(SPINDLE_LASER_PWM_PIN);
-    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);  // set to lowest speed
+    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Set to lowest speed
   #endif
   #if ENABLED(HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
     set_pwm_frequency(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_FREQUENCY);
@@ -59,38 +68,52 @@ void SpindleLaser::init() {
 }
 
 #if ENABLED(SPINDLE_LASER_PWM)
-
   /**
-  * Set the cutter PWM directly to the given ocr value
-  **/
+   * Set the cutter PWM directly to the given ocr value
+   */
   void SpindleLaser::set_ocr(const uint8_t ocr) {
-    WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_HIGH); // turn spindle on
+    WRITE(SPINDLE_LASER_ENA_PIN, SPINDLE_LASER_ACTIVE_STATE);         // Turn spindle on
     analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #if NEEDS_HARDWARE_PWM && SPINDLE_LASER_FREQUENCY
+      set_pwm_duty(pin_t(SPINDLE_LASER_PWM_PIN), ocr ^ SPINDLE_LASER_PWM_OFF);
+    #endif
   }
-
+  void SpindleLaser::ocr_off() {
+    WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_STATE);        // Turn spindle off
+    analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF); // Only write low byte
+  }
 #endif
 
 //
-// Set cutter ON state (and PWM) to the given cutter power value
+// Set cutter ON/OFF state (and PWM) to the given cutter power value
 //
-void SpindleLaser::apply_power(const cutter_power_t inpow) {
-  static cutter_power_t last_power_applied = 0;
-  if (inpow == last_power_applied) return;
-  last_power_applied = inpow;
+void SpindleLaser::apply_power(const uint8_t opwr) {
+  static uint8_t last_power_applied = 0;
+  if (opwr == last_power_applied) return;
+  last_power_applied = opwr;
+  power = opwr;
   #if ENABLED(SPINDLE_LASER_PWM)
-    if (enabled())
-      set_ocr(translate_power(inpow));
-    else {
-      WRITE(SPINDLE_LASER_ENA_PIN, !SPINDLE_LASER_ACTIVE_HIGH);                           // Turn spindle off
-      analogWrite(pin_t(SPINDLE_LASER_PWM_PIN), SPINDLE_LASER_PWM_OFF);                   // Only write low byte
+    if (cutter.unitPower == 0 && CUTTER_UNIT_IS(RPM)) {
+      ocr_off();
+      isReady = false;
     }
+    else if (enabled() || ENABLED(CUTTER_POWER_RELATIVE)) {
+      set_ocr(power);
+      isReady = true;
+    }
+    else {
+      ocr_off();
+      isReady = false;
+    }
+  #elif ENABLED(SPINDLE_SERVO)
+    MOVE_SERVO(SPINDLE_SERVO_NR, power);
   #else
-    WRITE(SPINDLE_LASER_ENA_PIN, (SPINDLE_LASER_ACTIVE_HIGH) ? enabled() : !enabled());
+    WRITE(SPINDLE_LASER_ENA_PIN, enabled() ? SPINDLE_LASER_ACTIVE_STATE : !SPINDLE_LASER_ACTIVE_STATE);
+    isReady = true;
   #endif
 }
 
 #if ENABLED(SPINDLE_CHANGE_DIR)
-
   //
   // Set the spindle direction and apply immediately
   // Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
@@ -100,7 +123,6 @@ void SpindleLaser::apply_power(const cutter_power_t inpow) {
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
   }
-
 #endif
 
 #endif // HAS_CUTTER

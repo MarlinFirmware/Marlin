@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef TARGET_LPC1768
@@ -37,6 +37,11 @@ extern uint32_t MSC_Release_Lock();
 FATFS fat_fs;
 FIL eeprom_file;
 bool eeprom_file_open = false;
+
+#ifndef MARLIN_EEPROM_SIZE
+  #define MARLIN_EEPROM_SIZE size_t(0x1000) // 4KiB of Emulated EEPROM
+#endif
+size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE; }
 
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
@@ -138,7 +143,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return bytes_written != size;  // return true for any error
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, const size_t size, uint16_t *crc, const bool writing/*=true*/) {
   if (!eeprom_file_open) return true;
   UINT bytes_read = 0;
   FRESULT s;
@@ -167,8 +172,6 @@ bool PersistentStore::read_data(int &pos, uint8_t* value, const size_t size, uin
   pos += size;
   return bytes_read != size;  // return true for any error
 }
-
-size_t PersistentStore::capacity() { return 4096; } // 4KiB of Emulated EEPROM
 
 #endif // SDCARD_EEPROM_EMULATION
 #endif // TARGET_LPC1768

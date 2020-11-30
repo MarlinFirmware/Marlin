@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -36,7 +36,7 @@
 #endif
 
 #if ENABLED(LCD_BED_LEVELING)
-  #include "../../lcd/ultralcd.h"
+  #include "../../lcd/marlinui.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
@@ -47,17 +47,9 @@
 #endif
 
 bool leveling_is_valid() {
-  return
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.has_mesh()
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      !!bilinear_grid_spacing.x
-    #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      ubl.mesh_is_valid()
-    #else // 3POINT, LINEAR
-      true
-    #endif
-  ;
+  return TERN1(MESH_BED_LEVELING,          mbl.has_mesh())
+      && TERN1(AUTO_BED_LEVELING_BILINEAR, !!bilinear_grid_spacing.x)
+      && TERN1(AUTO_BED_LEVELING_UBL,      ubl.mesh_is_valid());
 }
 
 /**
@@ -69,11 +61,7 @@ bool leveling_is_valid() {
  */
 void set_bed_leveling_enabled(const bool enable/*=true*/) {
 
-  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    const bool can_change = (!enable || leveling_is_valid());
-  #else
-    constexpr bool can_change = true;
-  #endif
+  const bool can_change = TERN1(AUTO_BED_LEVELING_BILINEAR, !enable || leveling_is_valid());
 
   if (can_change && enable != planner.leveling_active) {
 

@@ -16,19 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef STM32F4
+#if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS_ROBIN2 supports up to 2 hotends / E-steppers."
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_NAME "MKS_ROBIN2"
+  #define BOARD_INFO_NAME "MKS_ROBIN2"
 #endif
 
 #ifndef DEFAULT_MACHINE_NAME

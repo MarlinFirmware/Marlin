@@ -16,7 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
+
+// If no real EEPROM, Flash emulation, or SRAM emulation is available fall back to SD emulation
+#if USE_FALLBACK_EEPROM
+  #define SDCARD_EEPROM_EMULATION
+#elif EITHER(I2C_EEPROM, SPI_EEPROM)
+  #define USE_SHARED_EEPROM 1
+#endif
+
+// Allow SDSUPPORT to be disabled
+#if DISABLED(SDSUPPORT)
+  #undef SDIO_SUPPORT
+#endif

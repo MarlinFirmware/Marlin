@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
@@ -26,7 +26,7 @@
 /********************** VIRTUAL DISPATCH DATA TYPE  ******************************/
 
 uint8_t ScreenRef::lookupScreen(onRedraw_func_t onRedraw_ptr) {
-  for(uint8_t type = 0; type < functionTableSize; type++) {
+  for (uint8_t type = 0; type < functionTableSize; type++) {
     if (GET_METHOD(type, onRedraw) == onRedraw_ptr) {
       return type;
     }
@@ -50,9 +50,8 @@ void ScreenRef::setScreen(onRedraw_func_t onRedraw_ptr) {
 }
 
 void ScreenRef::initializeAll() {
-  for(uint8_t type = 0; type < functionTableSize; type++) {
+  for (uint8_t type = 0; type < functionTableSize; type++)
     GET_METHOD(type, onStartup)();
-  }
 }
 
 /********************** SCREEN STACK  ******************************/

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -30,19 +30,20 @@
 #include "../SdInfo.h"
 
 /**
- * define SOFTWARE_SPI to use bit-bang SPI
+ * Define SOFTWARE_SPI to use bit-bang SPI
  */
-#if MEGA_SOFT_SPI || USE_SOFTWARE_SPI
+#if EITHER(MEGA_SOFT_SPI, USE_SOFTWARE_SPI)
   #define SOFTWARE_SPI
 #endif
 
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
-#if DISABLED(SOFTWARE_SPI)
+#if ENABLED(SOFTWARE_SPI)
+  #warning "Auto-assigning '10' as the SD_CHIP_SELECT_PIN."
+  #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
+#else
   // hardware pin defs
   #define SD_CHIP_SELECT_PIN  SS_PIN            // The default chip select pin for the SD card is SS.
-#else  // SOFTWARE_SPI
-  #define SD_CHIP_SELECT_PIN  10                // Software SPI chip select pin for the SD
-#endif // SOFTWARE_SPI
+#endif
 
 class Sd2Card {
   private:
