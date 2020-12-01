@@ -516,6 +516,9 @@
   #if ENABLED(CASE_LIGHT_USE_NEOPIXEL)
     #define CASE_LIGHT_NEOPIXEL_COLOR { 255, 255, 255, 255 } // { Red, Green, Blue, White }
   #endif
+  #if EITHER(RGB_LED, RGBW_LED)
+    #define RGB_LED_IS_CASE_LIGHT
+  #endif
 #endif
 
 // @section homing

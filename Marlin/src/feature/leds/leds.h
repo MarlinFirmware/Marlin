@@ -194,6 +194,8 @@ public:
 
   #if ENABLED(LED_CONTROL_MENU)
     static void toggle();  // swap "off" with color
+  #endif
+  #if EITHER(LED_CONTROL_MENU, RGB_LED_IS_CASE_LIGHT)
     static inline void update() { set_color(color); }
   #endif
 

@@ -42,6 +42,10 @@
   #include "pca9533.h"
 #endif
 
+#if BOTH(CASE_LIGHT_ENABLE, RGB_LED_IS_CASE_LIGHT)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(LED_COLOR_PRESETS)
   const LEDColor LEDLights::defaultLEDColor = MakeLEDColor(
     LED_USER_PRESET_RED, LED_USER_PRESET_GREEN, LED_USER_PRESET_BLUE,
@@ -85,8 +89,11 @@ void LEDLights::set_color(const LEDColor &incol
 
     #ifdef NEOPIXEL_BKGD_LED_INDEX
       if (NEOPIXEL_BKGD_LED_INDEX == nextLed) {
-        if (++nextLed >= neo.pixels()) nextLed = 0;
-        return;
+        neo.set_color_background();
+        if (++nextLed >= neo.pixels()) {
+          nextLed = 0;
+          return;
+        }
       }
     #endif
 
@@ -116,13 +123,19 @@ void LEDLights::set_color(const LEDColor &incol
     // If the pins can do PWM then their intensity will be set.
     #define UPDATE_RGBW(C,c) do {                       \
       if (PWM_PIN(RGB_LED_##C##_PIN))                   \
-        analogWrite(pin_t(RGB_LED_##C##_PIN), incol.c); \
+        analogWrite(pin_t(RGB_LED_##C##_PIN), c); \
       else                                              \
-        WRITE(RGB_LED_##C##_PIN, incol.c ? HIGH : LOW); \
+        WRITE(RGB_LED_##C##_PIN, c ? HIGH : LOW); \
     }while(0)
-    UPDATE_RGBW(R,r); UPDATE_RGBW(G,g); UPDATE_RGBW(B,b);
+    #if BOTH(CASE_LIGHT_ENABLE, RGB_LED_IS_CASE_LIGHT)
+      #define UPDATE_RGBW_(C,c) UPDATE_RGBW(C, (caselight.on ? incol.c : 0))
+    #else
+      #define UPDATE_RGBW_(C,c) UPDATE_RGBW(C, incol.c)
+    #endif
+
+    UPDATE_RGBW_(R,r); UPDATE_RGBW_(G,g); UPDATE_RGBW_(B,b);
     #if ENABLED(RGBW_LED)
-      UPDATE_RGBW(W,w);
+      UPDATE_RGBW_(W,w);
     #endif
 
   #endif
