@@ -31,6 +31,10 @@
   #include "../sd/cardreader.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "tft_io/touch_calibration.h"
+#endif
+
 #if EITHER(HAS_LCD_MENU, ULTIPANEL_FEEDMULTIPLY)
   #define HAS_ENCODER_ACTION 1
 #endif
@@ -74,18 +78,16 @@
     uint8_t get_ADC_keyValue();
   #endif
 
-  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_XPT2046, 50, 100)
+  #define LCD_UPDATE_INTERVAL TERN(HAS_TOUCH_BUTTONS, 50, 100)
 
   #if HAS_LCD_MENU
 
     #include "lcdprint.h"
 
-    void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
-    inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
-    inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
-
-    #if ENABLED(SDSUPPORT)
-      #include "../sd/cardreader.h"
+    #if !HAS_GRAPHICAL_TFT
+      void _wrap_string(uint8_t &col, uint8_t &row, const char * const string, read_byte_cb_t cb_read_byte, const bool wordwrap=false);
+      inline void wrap_string_P(uint8_t &col, uint8_t &row, PGM_P const pstr, const bool wordwrap=false) { _wrap_string(col, row, pstr, read_byte_rom, wordwrap); }
+      inline void wrap_string(uint8_t &col, uint8_t &row, const char * const string, const bool wordwrap=false) { _wrap_string(col, row, string, read_byte_ram, wordwrap); }
     #endif
 
     typedef void (*screenFunc_t)();
@@ -148,7 +150,7 @@
 
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_XPT2046
+  #if BUTTON_EXISTS(ENC) || HAS_TOUCH_BUTTONS
     #define BLEN_C 2
     #define EN_C _BV(BLEN_C)
   #endif
@@ -214,7 +216,7 @@
 
 #endif
 
-#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_XPT2046, IS_TFTGLCD_PANEL)
+#if BUTTON_EXISTS(BACK) || EITHER(HAS_TOUCH_BUTTONS, IS_TFTGLCD_PANEL)
   #define BLEN_D 3
   #define EN_D _BV(BLEN_D)
   #define LCD_BACK_CLICKED() (buttons & EN_D)
@@ -313,7 +315,14 @@ public:
   // LCD implementations
   static void clear_lcd();
 
+  #if BOTH(HAS_LCD_MENU, TOUCH_SCREEN_CALIBRATION)
+    static void check_touch_calibration() {
+      if (touch_calibration.need_calibration()) currentScreen = touch_calibration_screen;
+    }
+  #endif
+
   #if ENABLED(SDSUPPORT)
+    #define MEDIA_MENU_GATEWAY TERN(PASSWORD_ON_SD_PRINT_MENU, password.media_gatekeeper, menu_media)
     static void media_changed(const uint8_t old_stat, const uint8_t stat);
   #endif
 
@@ -364,23 +373,37 @@ public:
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
 
-  #if HAS_DISPLAY
-
-    static void init();
-    static void update();
-    static void set_alert_status_P(PGM_P const message);
-
+  #if HAS_STATUS_MESSAGE
     static char status_message[];
-    static bool has_status();
-
     static uint8_t alert_level; // Higher levels block lower levels
-    static inline void reset_alert_level() { alert_level = 0; }
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;
       static void advance_status_scroll();
       static char* status_and_len(uint8_t &len);
     #endif
+
+    static bool has_status();
+    static void reset_status(const bool no_welcome=false);
+    static void set_status(const char* const message, const bool persist=false);
+    static void set_status_P(PGM_P const message, const int8_t level=0);
+    static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
+    static void set_alert_status_P(PGM_P const message);
+    static inline void reset_alert_level() { alert_level = 0; }
+  #else
+    static constexpr bool has_status() { return false; }
+    static inline void reset_status(const bool=false) {}
+    static void set_status(const char* message, const bool=false);
+    static void set_status_P(PGM_P message, const int8_t=0);
+    static void status_printf_P(const uint8_t, PGM_P message, ...);
+    static inline void set_alert_status_P(PGM_P const) {}
+    static inline void reset_alert_level() {}
+  #endif
+
+  #if HAS_DISPLAY
+
+    static void init();
+    static void update();
 
     static void abort_print();
     static void pause_print();
@@ -454,7 +477,7 @@ public:
         static void draw_hotend_status(const uint8_t row, const uint8_t extruder);
       #endif
 
-      #if HAS_TOUCH_XPT2046
+      #if HAS_TOUCH_BUTTONS
         static bool on_edit_screen;
         static void screen_click(const uint8_t row, const uint8_t col, const uint8_t x, const uint8_t y);
       #endif
@@ -472,25 +495,12 @@ public:
     static bool get_blink();
     static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
-    static void set_status(const char* const message, const bool persist=false);
-    static void set_status_P(PGM_P const message, const int8_t level=0);
-    static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
-    static void reset_status(const bool no_welcome=false);
 
   #else // No LCD
-
-    // Send status to host as a notification
-    static void set_status(const char* message, const bool=false);
-    static void set_status_P(PGM_P message, const int8_t=0);
-    static void status_printf_P(const uint8_t, PGM_P message, ...);
 
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
-    static inline void set_alert_status_P(PGM_P const) {}
-    static inline void reset_status(const bool=false) {}
-    static inline void reset_alert_level() {}
-    static constexpr bool has_status() { return false; }
 
   #endif
 
@@ -514,7 +524,7 @@ public:
       static millis_t return_to_status_ms;
     #endif
 
-    #if HAS_TOUCH_XPT2046
+    #if HAS_TOUCH_BUTTONS
       static uint8_t touch_buttons;
       static uint8_t repeat_delay;
     #endif
@@ -614,7 +624,7 @@ public:
   //
   // Special handling if a move is underway
   //
-  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
     #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
@@ -684,7 +694,7 @@ public:
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    static void touch_calibration();
+    static void touch_calibration_screen();
   #endif
 
   #if HAS_GRAPHICAL_TFT
@@ -693,7 +703,7 @@ public:
 
 private:
 
-  #if HAS_DISPLAY
+  #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 

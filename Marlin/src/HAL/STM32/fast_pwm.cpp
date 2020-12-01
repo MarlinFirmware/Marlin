@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfigPre.h"
 
@@ -32,7 +33,7 @@ void set_pwm_frequency(const pin_t pin, int f_desired) {
 
   PinName pin_name = digitalPinToPinName(pin);
   TIM_TypeDef *Instance = (TIM_TypeDef *)pinmap_peripheral(pin_name, PinMap_PWM); // Get HAL timer instance
-  
+
   LOOP_S_L_N(i, 0, NUM_HARDWARE_TIMERS) // Protect used timers
     if (timer_instance[i] && timer_instance[i]->getHandle()->Instance == Instance)
       return;
@@ -55,3 +56,4 @@ void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size/*=255
 }
 
 #endif // NEEDS_HARDWARE_PWM
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

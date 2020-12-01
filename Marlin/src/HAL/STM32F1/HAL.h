@@ -42,7 +42,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#ifdef USE_USB_COMPOSITE
+#if HAS_SD_HOST_DRIVE
   #include "msc_sd.h"
 #endif
 
@@ -61,7 +61,7 @@
 #endif
 
 #ifdef SERIAL_USB
-  #ifndef USE_USB_COMPOSITE
+  #if !HAS_SD_HOST_DRIVE
     #define UsbSerial Serial
   #else
     #define UsbSerial MarlinCompositeSerial
@@ -189,8 +189,10 @@ inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 /*
 extern "C" {
@@ -200,20 +202,14 @@ extern "C" {
 
 extern "C" char* _sbrk(int incr);
 
-/*
-static int freeMemory() {
-  volatile int top;
-  top = (int)((char*)&top - reinterpret_cast<char*>(_sbrk(0)));
-  return top;
-}
-*/
-
-static int freeMemory() {
+static inline int freeMemory() {
   volatile char top;
-  return &top - reinterpret_cast<char*>(_sbrk(0));
+  return &top - _sbrk(0);
 }
 
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC

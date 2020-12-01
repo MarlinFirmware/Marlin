@@ -113,7 +113,7 @@ bool PersistentStore::access_start() {
       // This must be the first time since power on that we have accessed the storage, or someone
       // loaded and called write_data and never called access_finish.
       // Lets go looking for the slot that holds our configuration.
-      if (eeprom_data_written) DEBUG_ECHOLN("Dangling EEPROM write_data");
+      if (eeprom_data_written) DEBUG_ECHOLNPGM("Dangling EEPROM write_data");
       uint32_t address = FLASH_ADDRESS_START;
       while (address <= FLASH_ADDRESS_END) {
         uint32_t address_value = (*(__IO uint32_t*)address);

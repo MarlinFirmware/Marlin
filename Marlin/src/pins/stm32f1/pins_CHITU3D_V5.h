@@ -21,8 +21,8 @@
  */
 #pragma once
 
-#if NOT_TARGET(__STM32F1__, __STM32F4__)
-  #error "Oops! Select an STM32F1/4 board in 'Tools > Board.'"
+#if NOT_TARGET(__STM32F1__)
+  #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 /**
@@ -31,6 +31,8 @@
 
 #define BOARD_INFO_NAME      "Chitu3D V5"
 #define DEFAULT_MACHINE_NAME "STM32F103ZET6"
+
+#define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
 
@@ -156,17 +158,17 @@
 
 // XPT2046 Touch Screen calibration
 #if ANY(TFT_LVGL_UI, TFT_COLOR_UI, TFT_CLASSIC_UI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -17181
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X           -17181
   #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          11434
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            11434
   #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 501
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                   501
   #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                  -9
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    -9
   #endif
 #endif
 
