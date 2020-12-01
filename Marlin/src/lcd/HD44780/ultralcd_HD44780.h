@@ -16,32 +16,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
- * Implementation of the LCD display routines for a Hitachi HD44780 display.
- * These are the most common LCD character displays.
+ * Hitachi HD44780 display defines and headers
  */
 
 #include "../../inc/MarlinConfig.h"
 
-#if LCD_HEIGHT > 3
-  #include "../../libs/duration_t.h"
-#endif
-
-////////////////////////////////////
-// Setup button and encode mappings for each panel (into 'buttons' variable
-//
-// This is just to map common functions (across different panels) onto the same
-// macro name. The mapping is independent of whether the button is directly connected or
-// via a shift/i2c register.
-
-////////////////////////////////////
-// Create LCD class instance and chipset-specific information
 #if ENABLED(LCD_I2C_TYPE_PCF8575)
+
   // NOTE: These are register-mapped pins on the PCF8575 controller, not Arduino pins.
   #define LCD_I2C_PIN_BL  3
   #define LCD_I2C_PIN_EN  2
@@ -58,6 +45,7 @@
   #define LCD_CLASS LiquidCrystal_I2C
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23017)
+
   // For the LED indicators (which may be mapped to different events in update_indicators())
   #define LCD_HAS_STATUS_INDICATORS
   #define LED_A 0x04 //100
@@ -69,40 +57,45 @@
   #define LCD_CLASS LiquidTWI2
 
 #elif ENABLED(LCD_I2C_TYPE_MCP23008)
+
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
 
 #elif ENABLED(LCD_I2C_TYPE_PCA8574)
+
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
 #elif ENABLED(SR_LCD_2W_NL)
+
   // 2 wire Non-latching LCD SR from:
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-//  extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
+
 #elif ENABLED(SR_LCD_3W_NL)
 
-//NewLiquidCrystal was not working for me, but this worked first try
-//https://github.com/mikeshub/SailfishLCD
-//uses the code directly from Sailfish
+  // NewLiquidCrystal didn't work, so this uses
+  // https://github.com/mikeshub/SailfishLCD
 
   #include <SailfishLCD.h>
   #define LCD_CLASS LiquidCrystalSerial
 
 #elif ENABLED(LCM1602)
+
   #include <Wire.h>
   #include <LCD.h>
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
 
 #else
+
   // Standard directly connected LCD implementations
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
+
 #endif
 
 #include "../fontutils.h"

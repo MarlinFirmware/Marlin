@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,7 +41,7 @@ void GcodeSuite::G42() {
     const int8_t iy = hasJ ? parser.value_int() : 0;
 
     if ((hasI && !WITHIN(ix, 0, GRID_MAX_POINTS_X - 1)) || (hasJ && !WITHIN(iy, 0, GRID_MAX_POINTS_Y - 1))) {
-      SERIAL_ECHOLNPGM(MSG_ERR_MESH_XY);
+      SERIAL_ECHOLNPGM(STR_ERR_MESH_XY);
       return;
     }
 

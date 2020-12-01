@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,7 +25,7 @@
 #include "../../module/stepper.h"
 
 #if ENABLED(I2C_POSITION_ENCODERS)
-  #include "../../feature/I2CPositionEncoder.h"
+  #include "../../feature/encoder_i2c.h"
 #endif
 
 /**
@@ -99,5 +99,7 @@ void GcodeSuite::G92() {
   if    (sync_XYZ) sync_plan_position();
   else if (sync_E) sync_plan_position_e();
 
-  report_current_position();
+  #if DISABLED(DIRECT_STEPPING)
+    report_current_position();
+  #endif
 }

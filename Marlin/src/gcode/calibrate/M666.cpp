@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -38,15 +38,14 @@
    * M666: Set delta endstop adjustment
    */
   void GcodeSuite::M666() {
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> M666");
+    DEBUG_SECTION(log_M666, "M666", DEBUGGING(LEVELING));
     LOOP_XYZ(i) {
-      if (parser.seen(axis_codes[i])) {
+      if (parser.seen(XYZ_CHAR(i))) {
         const float v = parser.value_linear_units();
         if (v * Z_HOME_DIR <= 0) delta_endstop_adj[i] = v;
-        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", axis_codes[i], "] = ", delta_endstop_adj[i]);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("delta_endstop_adj[", XYZ_CHAR(i), "] = ", delta_endstop_adj[i]);
       }
     }
-    if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("<<< M666");
   }
 
 #elif HAS_EXTRA_ENDSTOPS

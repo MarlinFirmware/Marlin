@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,6 +28,8 @@
  *
  * Parameters
  *   S<percent> : Set the feed rate percentage factor
+ *
+ * Report the current speed percentage factor if no parameter is specified
  *
  * With PRUSA_MMU2...
  *   B : Flag to back up the current factor
@@ -43,4 +45,9 @@ void GcodeSuite::M220() {
 
   if (parser.seenval('S')) feedrate_percentage = parser.value_int();
 
+  if (!parser.seen_any()) {
+    SERIAL_ECHOPAIR("FR:", feedrate_percentage);
+    SERIAL_CHAR('%');
+    SERIAL_EOL();
+  }
 }

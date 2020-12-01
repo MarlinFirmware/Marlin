@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -25,11 +25,11 @@
 #if ENABLED(POWER_LOSS_RECOVERY)
 
 #include "../../gcode.h"
-#include "../../../feature/power_loss_recovery.h"
+#include "../../../feature/powerloss.h"
 #include "../../../module/motion.h"
 #include "../../../lcd/ultralcd.h"
 #if ENABLED(EXTENSIBLE_UI)
-  #include "../../../lcd/extensible_ui/ui_api.h"
+  #include "../../../lcd/extui/ui_api.h"
 #endif
 
 #define DEBUG_OUT ENABLED(DEBUG_POWER_LOSS_RECOVERY)
@@ -41,7 +41,7 @@ inline void plr_error(PGM_P const prefix) {
   #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
     DEBUG_ECHO_START();
     serialprintPGM(prefix);
-    DEBUG_ECHOLNPGM(" Power-Loss Recovery Data");
+    DEBUG_ECHOLNPGM(" Job Recovery Data");
   #else
     UNUSED(prefix);
   #endif
@@ -62,8 +62,10 @@ void GcodeSuite::M1000() {
     if (parser.seen('S')) {
       #if HAS_LCD_MENU
         ui.goto_screen(menu_job_recovery);
+      #elif ENABLED(DWIN_CREALITY_LCD)
+        recovery.dwin_flag = true;
       #elif ENABLED(EXTENSIBLE_UI)
-        ExtUI::OnPowerLossResume();
+        ExtUI::onPowerLossResume();
       #else
         SERIAL_ECHO_MSG("Resume requires LCD.");
       #endif
@@ -74,9 +76,7 @@ void GcodeSuite::M1000() {
       #else
         recovery.cancel();
       #endif
-      #if ENABLED(EXTENSIBLE_UI)
-        ExtUI::onPrintTimerStopped();
-      #endif
+      TERN_(EXTENSIBLE_UI, ExtUI::onPrintTimerStopped());
     }
     else
       recovery.resume();

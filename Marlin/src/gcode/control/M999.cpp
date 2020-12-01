@@ -16,14 +16,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "../gcode.h"
 
 #include "../../lcd/ultralcd.h" // for lcd_reset_alert_level
-#include "../../MarlinCore.h"   // for Running
+#include "../../MarlinCore.h"   // for marlin_state
 #include "../queue.h"           // for flush_and_request_resend
 
 /**
@@ -34,10 +34,9 @@
  *
  * Sending "M999 S1" will resume printing without flushing the
  * existing command buffer.
- *
  */
 void GcodeSuite::M999() {
-  Running = true;
+  marlin_state = MF_RUNNING;
   ui.reset_alert_level();
 
   if (parser.boolval('S')) return;

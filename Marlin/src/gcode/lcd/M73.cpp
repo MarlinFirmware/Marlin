@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -33,9 +33,6 @@
  *
  * Example:
  *   M73 P25 ; Set progress to 25%
- *
- * Notes:
- *   This has no effect during an SD print job
  */
 void GcodeSuite::M73() {
   if (parser.seen('P'))

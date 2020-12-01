@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,6 @@
 
 #if SAVED_POSITIONS
 
-#include "../../../core/language.h"
 #include "../../../module/planner.h"
 #include "../../gcode.h"
 #include "../../../module/motion.h"
@@ -42,7 +41,7 @@ void GcodeSuite::G61(void) {
 
   #if SAVED_POSITIONS < 256
     if (slot >= SAVED_POSITIONS) {
-      SERIAL_ERROR_MSG(MSG_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
+      SERIAL_ERROR_MSG(STR_INVALID_POS_SLOT STRINGIFY(SAVED_POSITIONS));
       return;
     }
   #endif
@@ -54,18 +53,18 @@ void GcodeSuite::G61(void) {
   const float fr = parser.linearval('F');
   if (fr > 0.0) feedrate_mm_s = MMM_TO_MMS(fr);
 
-  SERIAL_ECHOPAIR(MSG_RESTORING_POS " S", int(slot));
+  SERIAL_ECHOPAIR(STR_RESTORING_POS " S", int(slot));
   LOOP_XYZ(i) {
-    destination[i] = parser.seen(axis_codes[i])
+    destination[i] = parser.seen(XYZ_CHAR(i))
       ? stored_position[slot][i] + parser.value_axis_units((AxisEnum)i)
       : current_position[i];
-    SERIAL_CHAR(' ', axis_codes[i]);
+    SERIAL_CHAR(' ', XYZ_CHAR(i));
     SERIAL_ECHO_F(destination[i]);
   }
   SERIAL_EOL();
 
   // Move to the saved position
-  prepare_move_to_destination();
+  prepare_line_to_destination();
 }
 
 #endif // SAVED_POSITIONS

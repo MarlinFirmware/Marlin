@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# Build tests for BigTreeTech GTR 1.0
+#
+
+# exit on first failure
+set -e
+
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_GTR_V1_0
+opt_set SERIAL_PORT -1
+opt_set EXTRUDERS 8
+opt_set TEMP_SENSOR_1 1
+opt_set TEMP_SENSOR_2 1
+opt_set TEMP_SENSOR_3 1
+opt_set TEMP_SENSOR_4 1
+opt_set TEMP_SENSOR_5 1
+opt_set TEMP_SENSOR_6 1
+opt_set TEMP_SENSOR_7 1
+# Not necessary to enable auto-fan for all extruders to hit problematic code paths
+opt_set E0_AUTO_FAN_PIN PC10
+opt_set E1_AUTO_FAN_PIN PC11
+opt_set E2_AUTO_FAN_PIN PC12
+opt_set X_DRIVER_TYPE TMC2208
+opt_set Y_DRIVER_TYPE TMC2130
+opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+exec_test $1 $2 "BigTreeTech GTR 8 Extruders with Auto-Fan and Mixed TMC Drivers"
+
+restore_configs
+opt_set MOTHERBOARD BOARD_BTT_GTR_V1_0
+opt_set SERIAL_PORT -1
+opt_set EXTRUDERS 6
+opt_set TEMP_SENSOR_1 1
+opt_set TEMP_SENSOR_2 1
+opt_set TEMP_SENSOR_3 1
+opt_set TEMP_SENSOR_4 1
+opt_set TEMP_SENSOR_5 1
+opt_set NUM_Z_STEPPER_DRIVERS 3
+opt_set DEFAULT_Kp_LIST "{ 22.2, 20.0, 21.0, 19.0, 18.0, 17.0 }"
+opt_set DEFAULT_Ki_LIST "{ 1.08 }"
+opt_set DEFAULT_Kd_LIST "{ 114.0, 112.0, 110.0, 108.0 }"
+opt_enable TOOLCHANGE_FILAMENT_SWAP TOOLCHANGE_MIGRATION_FEATURE TOOLCHANGE_FS_INIT_BEFORE_SWAP TOOLCHANGE_FS_PRIME_FIRST_USED PID_PARAMS_PER_HOTEND
+exec_test $1 $2 "BigTreeTech GTR 6 Extruders Triple Z"
+
+# clean up
+restore_configs

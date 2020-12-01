@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -24,7 +24,6 @@
  * planner_bezier.cpp
  *
  * Compute and buffer movement commands for bezier curves
- *
  */
 
 #include "../inc/MarlinConfig.h"
@@ -36,7 +35,6 @@
 #include "temperature.h"
 
 #include "../MarlinCore.h"
-#include "../core/language.h"
 #include "../gcode/queue.h"
 
 // See the meaning in the documentation of cubic_b_spline().
