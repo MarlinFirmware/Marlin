@@ -447,6 +447,12 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
     set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
 
+  // Disable E steppers
+  #if HAS_E_STEPPER_ENABLE
+    disable_e_stepper(active_extruder);
+    safe_delay(100);
+  #endif
+
   return true;
 }
 
