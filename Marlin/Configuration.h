@@ -957,6 +957,7 @@
  * - Use a caliper or ruler to measure the distance from the tip of
  *   the Nozzle to the center-point of the Probe in the X and Y axes.
  * - For the Z offset use your best known value and adjust at runtime.
+ *   For most Probes Z offset has a negative value! (Exeptions: CR-6 SE, FLSUN, Kossel, ZYYX)
  * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
  *
  * Assuming the typical work area orientation:
@@ -982,6 +983,9 @@
  *     O-- FRONT --+
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+
+// Only enable this option, if you have a special probe that triggers above the nozzle.
+//#define NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
