@@ -41,9 +41,9 @@
 // EEPROM Emulation
 //
 #if NO_EEPROM_SELECTED
-  #define FLASH_EEPROM_EMULATION
+  //#define FLASH_EEPROM_EMULATION
   //#define SRAM_EEPROM_EMULATION
-  //#define I2C_EEPROM
+  #define I2C_EEPROM
 #endif
 
 #if ENABLED(FLASH_EEPROM_EMULATION)
@@ -51,7 +51,7 @@
   // 128 kB sector allocated for EEPROM emulation.
   #define FLASH_EEPROM_LEVELING
 #elif ENABLED(I2C_EEPROM)
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4KB
+  #define MARLIN_EEPROM_SIZE              0x0800  // 2KB
 #endif
 
 //
@@ -62,12 +62,24 @@
 //
 // Limit Switches
 //
-#define X_MIN_PIN                           PB14
-#define X_MAX_PIN                           PA1
-#define Y_MIN_PIN                           PB13
-#define Y_MAX_PIN                           PA2
-#define Z_MIN_PIN                           PA0
-#define Z_MAX_PIN                           PA3
+#ifndef X_MIN_PIN
+  #define X_MIN_PIN                         PB14
+#endif
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN                         PA1
+#endif
+#ifndef Y_MIN_PIN
+  #define Y_MIN_PIN                         PB13
+#endif
+#ifndef Y_MAX_PIN
+  #define Y_MAX_PIN                         PA2
+#endif
+#ifndef Z_MIN_PIN
+  #define Z_MIN_PIN                         PA0
+#endif
+#ifndef Z_MAX_PIN
+  #define Z_MAX_PIN                         PA3
+#endif
 
 //
 // Filament Sensor
@@ -169,14 +181,28 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PB3
-#define HEATER_1_PIN                        PB4
-#define HEATER_2_PIN                        PB15
-#define HEATER_BED_PIN                      PC8
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN                      PB3
+#endif
+#ifndef HEATER_1_PIN
+  #define HEATER_1_PIN                      PB4
+#endif
+#ifndef HEATER_2_PIN
+  #define HEATER_2_PIN                      PB15
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN                    PC8
+#endif
 
-#define FAN_PIN                             PB0
-#define FAN1_PIN                            PB1
-#define FAN2_PIN                            PB2
+#ifndef FAN_PIN
+  #define FAN_PIN                           PB0
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN                          PB1
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN                          PB2
+#endif
 
 //
 // SPI
