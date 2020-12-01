@@ -264,7 +264,7 @@
 
   // Remove compiler warning on an unused variable
   #ifndef UNUSED
-    #if ANY(ARDUINO_ARCH_STM32, ARDUINO_ARCH_STM32F1) && !defined(STM32GENERIC)
+    #if EITHER(ARDUINO_ARCH_STM32, ARDUINO_ARCH_STM32F1) && !defined(STM32GENERIC)
       #define UNUSED(X) (void)X
     #else
       #define UNUSED(x) ((void)(x))
