@@ -91,6 +91,7 @@ public:
   static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
+  static bool state;                      // Cutter/Laser on/off state 
   static uint8_t power;
 
   #if ENABLED(MARLIN_DEV_MODE)
