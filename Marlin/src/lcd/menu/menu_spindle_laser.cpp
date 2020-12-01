@@ -26,7 +26,7 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#if (HAS_LCD_MENU && HAS_CUTTER)
+#if HAS_LCD_MENU && HAS_CUTTER
 
   #include "menu_item.h"
 
@@ -35,7 +35,7 @@
   void menu_spindle_laser() {
 
     const bool is_enabled = cutter.enabled() && cutter.isReady;
-    
+
     START_MENU();
     BACK_ITEM(MSG_MAIN);
     // Messing with a Cutter/Laser manually needs the menu to stay modal
@@ -46,18 +46,18 @@
       // Power is displayed and set in units and range according to CUTTER_POWER_UNIT
       EDIT_ITEM_FAST(CUTTER_MENU_POWER_TYPE, MSG_CUTTER(POWER), &cutter.menuPower,
         cutter.mpower_min(), cutter.mpower_max(), cutter.update_from_mpower);
-    #endif 
+    #endif
 
-    if (is_enabled)   
+    if (is_enabled)
       EDIT_ITEM(bool, MSG_CUTTER(STATE), &cutter.state, cutter.disable);
     else {
       #if ENABLED(SPINDLE_CHANGE_DIR)
         EDIT_ITEM(bool, MSG_CUTTER(STATE), &cutter.state, cutter.enable_reverse);
       #else
-        EDIT_ITEM(bool, MSG_CUTTER(STATE), &cutter.state, cutter.enable_forward);  
-      #endif 
-    } 
-    
+        EDIT_ITEM(bool, MSG_CUTTER(STATE), &cutter.state, cutter.enable_forward);
+      #endif
+    }
+
     #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
       EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
     #endif
