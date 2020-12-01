@@ -76,7 +76,7 @@
   #include "../LPC1768/Servo.h"
 #elif defined(__STM32F1__) || defined(TARGET_STM32F1)
   #include "../STM32F1/Servo.h"
-#elif defined(ARDUINO_ARCH_STM32)
+#elif ANY(ARDUINO_ARCH_STM32, ARDUINO_ARCH_STM32F1)
   #include "../STM32/Servo.h"
 #elif defined(ARDUINO_ARCH_ESP32)
   #include "../ESP32/Servo.h"

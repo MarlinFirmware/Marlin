@@ -53,7 +53,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#if defined(ARDUINO) && !defined(ARDUINO_ARCH_STM32) && !defined(ARDUINO_ARCH_SAM)
+#if defined(ARDUINO) && !defined(ARDUINO_ARCH_STM32) && !defined(ARDUINO_ARCH_STM32F1) && !defined(ARDUINO_ARCH_SAM)
 
 #include "../../inc/MarlinConfigPre.h"
 
