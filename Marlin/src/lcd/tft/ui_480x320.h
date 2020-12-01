@@ -41,12 +41,12 @@ void menu_item(const uint8_t row, bool sel = false);
 #if HAS_UI_480x320
   #define MENU_FONT_NAME    Helvetica18
   #define SYMBOLS_FONT_NAME Helvetica18_symbols
-  #define MENU_ITEM_SIZE    43
+  #define MENU_ITEM_HEIGHT  43
   #define FONT_LINE_HEIGHT  34
 #elif HAS_UI_480x272
   #define MENU_FONT_NAME    Helvetica14
   #define SYMBOLS_FONT_NAME Helvetica14_symbols
-  #define MENU_ITEM_SIZE    36
+  #define MENU_ITEM_HEIGHT  36
   #define FONT_LINE_HEIGHT  24
 #endif
 
