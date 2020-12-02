@@ -2217,6 +2217,10 @@
   #endif
 #endif
 
+#if !PREHEAT_COUNT
+  #undef PREHEAT_MENU_ITEM_SHORTCUT
+#endif
+
 /**
  * Up to 3 PWM fans
  */

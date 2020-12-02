@@ -39,10 +39,6 @@
   #include "../../module/tool_change.h"
 #endif
 
-#if !PREHEAT_COUNT
-  #undef PREHEAT_MENU_ITEM_SHORTCUT
-#endif
-
 //
 // "Temperature" submenu items
 //
