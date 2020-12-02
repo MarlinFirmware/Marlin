@@ -1556,8 +1556,8 @@
 #define PREHEAT_2_TEMP_BED    110
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
-// Insert a menu for preheating at the top level to allow for quick access 
-#define LCD_PREHEAT_MENU
+// Insert a menu for preheating at the top level to allow for quick access
+#define PREHEAT_MENU_ITEM_SHORTCUT
 
 /**
  * Nozzle Park

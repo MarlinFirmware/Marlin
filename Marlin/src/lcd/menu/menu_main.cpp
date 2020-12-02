@@ -93,8 +93,8 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
-#if ENABLED(LCD_PREHEAT_MENU)
-  void menu_quick_preheat();
+#if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
+  void menu_preheat_only();
 #endif
 
 extern const char M21_STR[];
@@ -170,8 +170,8 @@ void menu_main() {
       ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
     #endif
 
-    #if ENABLED(LCD_PREHEAT_MENU)
-      SUBMENU(MSG_PREHEAT_CUSTOM, menu_quick_preheat); 
+    #if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
+      SUBMENU(MSG_PREHEAT_CUSTOM, menu_preheat_only);
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
