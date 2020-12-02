@@ -107,7 +107,7 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // If wizard-homing was done by probe with with PROBE_OFFSET_WIZARD_START_Z
+    // If wizard-homing was done by probe with PROBE_OFFSET_WIZARD_START_Z
     #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
       set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
       queue.inject_P(PSTR("G28Z"));
