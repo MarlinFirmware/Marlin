@@ -185,7 +185,6 @@ bool dwin_abort_flag = false; // Flag to reset feedrate, return to Home
 
 constexpr float default_max_feedrate[]        = DEFAULT_MAX_FEEDRATE;
 constexpr float default_max_acceleration[]    = DEFAULT_MAX_ACCELERATION;
-constexpr float default_max_jerk[]            = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
 
 #if HAS_CLASSIC_JERK
   constexpr float default_max_jerk[]          = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
