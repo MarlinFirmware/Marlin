@@ -56,9 +56,12 @@ static lv_obj_t * buttonPause, *buttonOperat, *buttonStop;
   static lv_obj_t* labelBed;
 #endif
 
-#define ID_PAUSE  1
-#define ID_STOP   2
-#define ID_OPTION 3
+#define ID_PAUSE    1
+#define ID_STOP     2
+#define ID_OPTION   3
+#define ID_TEMP     4
+#define ID_BABYSTEP 5
+#define ID_FAN      6
 
 uint8_t once_flag = 0;
 extern uint32_t To_pre_view;
@@ -134,10 +137,41 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         }
       }
       break;
+    case ID_TEMP:
+      if (event == LV_EVENT_CLICKED) {
+        // nothing to do
+      }
+      else if (event == LV_EVENT_RELEASED) {
+        lv_clear_printing();
+        lv_draw_preHeat();
+      }
+      break;
+    case ID_BABYSTEP:
+      if (event == LV_EVENT_CLICKED) {
+        // nothing to do
+      }
+      else if (event == LV_EVENT_RELEASED) {
+        lv_clear_printing();
+        lv_draw_baby_stepping();
+      }
+      break;
+    case ID_FAN:
+      if (event == LV_EVENT_CLICKED) {
+        // nothing to do
+      }
+      else if (event == LV_EVENT_RELEASED) {
+        lv_clear_printing();
+        lv_draw_fan();
+      }
+      break;      
   }
 }
 
 void lv_draw_printing(void) {
+  #if !defined(SINGLENOZZLE) && EXTRUDERS == 2
+    lv_obj_t *buttonExt2;
+  #endif
+
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
   disp_state_stack._disp_state[disp_state_stack._disp_index] = PRINTING_UI;
@@ -160,36 +194,44 @@ void lv_draw_printing(void) {
   lv_refr_now(lv_refr_get_disp_refreshing());
 
   // Create image buttons
-  lv_obj_t *buttonExt1 = lv_img_create(scr, NULL);
+  lv_obj_t *buttonExt1 = lv_imgbtn_create(scr, NULL);
+  lv_obj_set_event_cb_mks(buttonExt1, event_handler, ID_TEMP, NULL, 0);
+  lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_REL, "F:/bmp_ext1_state.bin");
+  lv_imgbtn_set_src(buttonExt1, LV_BTN_STATE_PR, "F:/bmp_ext1_state.bin");
+
   #if HAS_MULTI_EXTRUDER
-    lv_obj_t *buttonExt2 = lv_img_create(scr, NULL);
+    lv_obj_t *buttonExt2 = lv_imgbtn_create(scr, NULL);
+    lv_obj_set_event_cb_mks(buttonExt2, event_handler, ID_TEMP, NULL, 0);
+    lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_REL, "F:/bmp_ext2_state.bin");
+    lv_imgbtn_set_src(buttonExt2, LV_BTN_STATE_PR, "F:/bmp_ext2_state.bin");
   #endif
   #if HAS_HEATED_BED
-    lv_obj_t *buttonBedstate = lv_img_create(scr, NULL);
+    lv_obj_t *buttonBedstate = lv_imgbtn_create(scr, NULL);
+    lv_obj_set_event_cb_mks(buttonBedstate, event_handler, ID_TEMP, NULL, 0);
+    lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_REL, "F:/bmp_bed_state.bin");
+    lv_imgbtn_set_src(buttonBedstate, LV_BTN_STATE_PR, "F:/bmp_bed_state.bin");
   #endif
-  lv_obj_t *buttonFanstate = lv_img_create(scr, NULL);
+  lv_obj_t *buttonFanstate = lv_imgbtn_create(scr, NULL);
+  lv_obj_set_event_cb_mks(buttonFanstate, event_handler, ID_FAN, NULL, 0);
+  lv_imgbtn_set_src(buttonFanstate, LV_BTN_STATE_REL, "F:/bmp_fan_state.bin");
+  lv_imgbtn_set_src(buttonFanstate, LV_BTN_STATE_PR, "F:/bmp_fan_state.bin");
+  
   lv_obj_t *buttonTime     = lv_img_create(scr, NULL);
-  lv_obj_t *buttonZpos     = lv_img_create(scr, NULL);
+  lv_img_set_src(buttonTime, "F:/bmp_time_state.bin");
+
+  lv_obj_t *buttonZpos     = lv_imgbtn_create(scr, NULL);
+  lv_obj_set_event_cb_mks(buttonZpos, event_handler, ID_BABYSTEP, NULL, 0);
+  lv_imgbtn_set_src(buttonZpos, LV_BTN_STATE_REL, "F:/bmp_zpos_state.bin");
+  lv_imgbtn_set_src(buttonZpos, LV_BTN_STATE_PR, "F:/bmp_zpos_state.bin");
+  
   buttonPause    = lv_imgbtn_create(scr, NULL);
   buttonStop     = lv_imgbtn_create(scr, NULL);
   buttonOperat   = lv_imgbtn_create(scr, NULL);
 
-  lv_img_set_src(buttonExt1, "F:/bmp_ext1_state.bin");
   #if 1
-    #if HAS_MULTI_EXTRUDER
-      lv_img_set_src(buttonExt2, "F:/bmp_ext2_state.bin");
-    #endif
-    #if HAS_HEATED_BED
-      lv_img_set_src(buttonBedstate, "F:/bmp_bed_state.bin");
-    #endif
 
-    lv_img_set_src(buttonFanstate, "F:/bmp_fan_state.bin");
 
-    lv_img_set_src(buttonTime, "F:/bmp_time_state.bin");
-
-    lv_img_set_src(buttonZpos, "F:/bmp_zpos_state.bin");
-
-    if (uiCfg.print_state == WORKING) {
+    if (uiCfg.print_state == WORKING || uiCfg.print_state == RESUMING) {
       lv_imgbtn_set_src(buttonPause, LV_BTN_STATE_REL, "F:/bmp_pause.bin");
       lv_imgbtn_set_src(buttonPause, LV_BTN_STATE_PR, "F:/bmp_pause.bin");
     }
@@ -419,6 +461,7 @@ void setProBarRate() {
             marlin_state = MF_RUNNING;
           }
         #endif
+        uiCfg.print_state = IDLE;
       }
     }
   }

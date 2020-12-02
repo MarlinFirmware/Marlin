@@ -116,7 +116,17 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         lv_draw_filament_change();
       }
       break;
-    case ID_T_MORE: break;
+    case ID_T_MORE:       
+      #if ENABLED(CUSTOM_USER_MENUS)
+        if (event == LV_EVENT_CLICKED) {
+          // nothing to do
+        }
+        else if (event == LV_EVENT_RELEASED) {
+          lv_clear_tool();
+          lv_draw_more();
+        }
+      #endif
+      break;
     case ID_T_RETURN:
       if (event == LV_EVENT_CLICKED) {
         // nothing to do
@@ -134,6 +144,9 @@ void lv_draw_tool(void) {
   lv_obj_t *buttonPreHeat, *buttonExtrusion, *buttonMove, *buttonHome, *buttonLevel;
   lv_obj_t *buttonFilament;
   lv_obj_t *buttonBack;
+  #if ENABLED(CUSTOM_USER_MENUS)
+    lv_obj_t *buttonMore;
+  #endif
 
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != TOOL_UI) {
     disp_state_stack._disp_index++;
@@ -165,6 +178,9 @@ void lv_draw_tool(void) {
   buttonFilament  = lv_imgbtn_create(scr, NULL);
   //buttonMore    = lv_imgbtn_create(scr, NULL);
   buttonBack      = lv_imgbtn_create(scr, NULL);
+  #if ENABLED(CUSTOM_USER_MENUS)
+    buttonMore    = lv_imgbtn_create(scr, NULL);
+  #endif
 
   lv_obj_set_event_cb_mks(buttonPreHeat, event_handler, ID_T_PRE_HEAT, NULL, 0);
   lv_imgbtn_set_src(buttonPreHeat, LV_BTN_STATE_REL, "F:/bmp_preHeat.bin");
@@ -208,13 +224,23 @@ void lv_draw_tool(void) {
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
 
+  #if ENABLED(CUSTOM_USER_MENUS)
+    lv_obj_set_event_cb_mks(buttonMore, event_handler,ID_T_MORE,NULL,0);
+    lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_REL, "F:/bmp_more.bin");
+    lv_imgbtn_set_src(buttonMore, LV_BTN_STATE_PR, "F:/bmp_more.bin");
+    lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_PR, &tft_style_label_pre);
+    lv_imgbtn_set_style(buttonMore, LV_BTN_STATE_REL, &tft_style_label_rel);
+  #endif
+
   lv_obj_set_pos(buttonPreHeat, INTERVAL_V, titleHeight);
   lv_obj_set_pos(buttonExtrusion, BTN_X_PIXEL + INTERVAL_V * 2, titleHeight);
   lv_obj_set_pos(buttonMove, BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight);
   lv_obj_set_pos(buttonHome, BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight);
   lv_obj_set_pos(buttonLevel, INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
   lv_obj_set_pos(buttonFilament,BTN_X_PIXEL+INTERVAL_V*2,BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  //lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  #if ENABLED(CUSTOM_USER_MENUS)
+    lv_obj_set_pos(buttonMore,BTN_X_PIXEL*2+INTERVAL_V*3, BTN_Y_PIXEL+INTERVAL_H+titleHeight);
+  #endif
   lv_obj_set_pos(buttonBack, BTN_X_PIXEL * 3 + INTERVAL_V * 4, BTN_Y_PIXEL + INTERVAL_H + titleHeight);
 
   // Create labels on the image buttons
@@ -224,8 +250,10 @@ void lv_draw_tool(void) {
   lv_btn_set_layout(buttonHome, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonLevel, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonFilament, LV_LAYOUT_OFF);
-  //lv_btn_set_layout(buttonMore, LV_LAYOUT_OFF);
   lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
+  #if ENABLED(CUSTOM_USER_MENUS)
+    lv_btn_set_layout(buttonMore, LV_LAYOUT_OFF);
+  #endif
 
   lv_obj_t *labelPreHeat   = lv_label_create(buttonPreHeat, NULL);
   lv_obj_t *labelExtrusion = lv_label_create(buttonExtrusion, NULL);
@@ -233,8 +261,10 @@ void lv_draw_tool(void) {
   lv_obj_t *label_Home     = lv_label_create(buttonHome, NULL);
   lv_obj_t *label_Level    = lv_label_create(buttonLevel, NULL);
   lv_obj_t *label_Filament = lv_label_create(buttonFilament, NULL);
-  //lv_obj_t *label_More   = lv_label_create(buttonMore, NULL);
   lv_obj_t *label_Back     = lv_label_create(buttonBack, NULL);
+  #if ENABLED(CUSTOM_USER_MENUS)
+    lv_obj_t *label_More   = lv_label_create(buttonMore, NULL);
+  #endif
 
   if (gCfgItems.multiple_language != 0) {
     lv_label_set_text(labelPreHeat, tool_menu.preheat);
@@ -255,8 +285,10 @@ void lv_draw_tool(void) {
     lv_label_set_text(label_Filament, tool_menu.filament);
     lv_obj_align(label_Filament, buttonFilament, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
 
-    //lv_label_set_text(label_More, tool_menu.more);
-    //lv_obj_align(label_More, buttonMore, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #if ENABLED(CUSTOM_USER_MENUS)
+      lv_label_set_text(label_More, tool_menu.more);
+      lv_obj_align(label_More, buttonMore, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
+    #endif
 
     lv_label_set_text(label_Back, common_menu.text_back);
     lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);
@@ -270,6 +302,9 @@ void lv_draw_tool(void) {
       lv_group_add_obj(g, buttonLevel);
       lv_group_add_obj(g, buttonFilament);
       lv_group_add_obj(g, buttonBack);
+      #if ENABLED(CUSTOM_USER_MENUS)
+        lv_group_add_obj(g, buttonMore);
+      #endif
     }
   #endif
 }

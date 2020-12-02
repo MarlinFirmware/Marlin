@@ -188,6 +188,17 @@ static void btn_ok_event_cb(lv_obj_t * btn, lv_event_t event) {
       clear_cur_ui();
       draw_return_ui();
     }
+    #if ENABLED(USE_WIFI_FUNCTION)
+      else if(uiCfg.dialogType == DIALOG_TYPE_UNBIND) {
+        cloud_unbind();
+        clear_cur_ui();
+        draw_return_ui();
+      }
+    #endif
+    else {
+      clear_cur_ui();
+      draw_return_ui();
+    }    
   }
 }
 
@@ -250,11 +261,12 @@ void lv_draw_dialog(uint8_t type) {
   lv_obj_set_style(scr, &tft_style_scr);
   lv_scr_load(scr);
   lv_obj_clean(scr);
-
-  lv_obj_t * title = lv_label_create(scr, NULL);
-  lv_obj_set_style(title, &tft_style_label_rel);
-  lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
-  lv_label_set_text(title, creat_title_text());
+  if(uiCfg.dialogType != DIALOG_TYPE_UPDATE_ESP_FIRMARE && uiCfg.dialogType != DIALOG_TYPE_UPLOAD_FILE) {
+    lv_obj_t * title = lv_label_create(scr, NULL);
+    lv_obj_set_style(title, &tft_style_label_rel);
+    lv_obj_set_pos(title, TITLE_XPOS, TITLE_YPOS);
+    lv_label_set_text(title, creat_title_text());
+  }
 
   lv_refr_now(lv_refr_get_disp_refreshing());
 
@@ -358,6 +370,9 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_t *labelOk = lv_label_create(btnOk, NULL);
         lv_label_set_text(labelOk, print_file_dialog_menu.confirm);
       }
+    }
+    else if(uiCfg.dialogType == DIALOG_TYPE_UPDATE_ESP_FIRMARE) {
+      // nothing to do
     }
   #endif //USE_WIFI_FUNCTION
   else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT
@@ -516,17 +531,17 @@ void lv_draw_dialog(uint8_t type) {
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
   }
   else if (uiCfg.dialogType == DIALOG_TRANSFER_NO_DEVICE) {
-    lv_label_set_text(labelDialog, DIALOG_UPDATE_NO_DEVICE_EN);
+    lv_label_set_text(labelDialog, machine_menu.wifiDialogNoUpdate);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
   }
   #if ENABLED(USE_WIFI_FUNCTION)
     else if (uiCfg.dialogType == DIALOG_TYPE_UPLOAD_FILE) {
       if (upload_result == 1) {
-        lv_label_set_text(labelDialog, DIALOG_UPLOAD_ING_EN);
+        lv_label_set_text(labelDialog, machine_menu.wifiUploadIng);
         lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
       }
       else if (upload_result == 2) {
-        lv_label_set_text(labelDialog, DIALOG_UPLOAD_ERROR_EN);
+        lv_label_set_text(labelDialog, machine_menu.wifiUploadErr);
         lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
       }
       else if (upload_result == 3) {
@@ -535,24 +550,24 @@ void lv_draw_dialog(uint8_t type) {
 
         ZERO(buf);
 
-        strcpy(buf, DIALOG_UPLOAD_FINISH_EN);
+        strcpy(buf, machine_menu.wifiUploadFin);
         _index = strlen(buf);
         buf[_index] = '\n';
         _index++;
-        strcat(buf, DIALOG_UPLOAD_SIZE_EN);
+        strcat(buf, machine_menu.wifiUploadSize);
 
         _index = strlen(buf);
         buf[_index] = ':';
         _index++;
         sprintf(&buf[_index], " %d KBytes\n", (int)(upload_size / 1024));
 
-        strcat(buf, DIALOG_UPLOAD_TIME_EN);
+        strcat(buf, machine_menu.wifiUploadTime);
         _index = strlen(buf);
         buf[_index] = ':';
         _index++;
         sprintf(&buf[_index], " %d s\n", (int)upload_time);
 
-        strcat(buf, DIALOG_UPLOAD_SPEED_EN);
+        strcat(buf, machine_menu.wifiUploadSpeed);
         _index = strlen(buf);
         buf[_index] = ':';
         _index++;
@@ -562,7 +577,11 @@ void lv_draw_dialog(uint8_t type) {
         lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
 
       }
-    }
+      }
+      else if(uiCfg.dialogType == DIALOG_TYPE_UPDATE_ESP_FIRMARE) {
+        lv_label_set_text(labelDialog, DIALOG_UPDATE_WIFI_FIRMWARE_EN);
+        lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -20);
+      }
   #endif //USE_WIFI_FUNCTION
   else if (uiCfg.dialogType == DIALOG_TYPE_FILAMENT_LOAD_HEAT) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_load_heat);
@@ -596,6 +615,12 @@ void lv_draw_dialog(uint8_t type) {
     lv_label_set_text(labelDialog, filament_menu.filament_dialog_unloading);
     lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
   }
+  #if ENABLED(USE_WIFI_FUNCTION)
+    else if (uiCfg.dialogType == DIALOG_TYPE_UNBIND) {
+      lv_label_set_text(labelDialog, common_menu.unbind_printer_tips);
+      lv_obj_align(labelDialog, NULL, LV_ALIGN_CENTER, 0, -70);
+    }
+  #endif
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
       if (btnOk) lv_group_add_obj(g, btnOk);

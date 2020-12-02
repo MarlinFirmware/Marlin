@@ -119,9 +119,9 @@ uint8_t have_pre_pic(char *path) {
     char *ps1, *ps2, *cur_name = strrchr(path, '/');
 
     card.openFileRead(cur_name);
-    card.read(public_buf, 512);
+    card.read(public_buf, 511);
     ps1 = strstr((char *)public_buf, ";simage:");
-    card.read(public_buf, 512);
+    card.read(public_buf, 511);
     ps2 = strstr((char *)public_buf, ";simage:");
     if (ps1 || ps2) {
       card.closefile();
@@ -383,6 +383,14 @@ void disp_gcode_icon(uint8_t file_num) {
           strcat(test_public_buf_l,list_file.file_name[i]);
           char *temp = strstr(test_public_buf_l,".GCO");
           if (temp) { strcpy(temp,".bin"); }
+
+          // Check https://github.com/makerbase-mks/Mks-Robin-Nano-Marlin2.0-Firmware/commit/5b9f6fa4f9675cd5d7fd1c58d350c3eed6536802 as it seems to crash
+          // char *cur_name = strrchr(list_file.file_name[i], '/');
+          // ZERO(test_public_buf_l[i]);
+          // strcat(test_public_buf_l[i],"S:");
+          // strcat(test_public_buf_l[i],cur_name);
+          // char *temp = strstr(test_public_buf_l[i],".GCO");
+
           lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), NULL, 0);
           lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_REL, test_public_buf_l);
           lv_imgbtn_set_src(buttonGcode[i], LV_BTN_STATE_PR, test_public_buf_l);
@@ -461,7 +469,7 @@ uint32_t lv_open_gcode_file(char *path) {
     cur_name = strrchr(path, '/');
 
     card.openFileRead(cur_name);
-    card.read(public_buf, 512);
+    card.read(public_buf, 511);
     ps4 = (uint32_t *)strstr((char *)public_buf, ";simage:");
     // Ignore the beginning message of gcode file
     if (ps4) {

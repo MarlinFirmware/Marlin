@@ -257,6 +257,8 @@ void lv_draw_extrusion(void) {
     }
   #endif
 
+  uiCfg.curSprayerChoose = active_extruder; // Not sure, remove if it breaks compilation here
+
   disp_ext_type();
   disp_ext_step();
   disp_ext_speed();

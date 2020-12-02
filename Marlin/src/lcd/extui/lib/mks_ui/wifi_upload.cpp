@@ -21,13 +21,14 @@
  */
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if HAS_TFT_LVGL_UI
+#if HAS_TFT_LVGL_UI && ENABLED(USE_WIFI_FUNCTION)
 
 #include "draw_ui.h"
 #include "wifi_module.h"
 #include "wifi_upload.h"
 
 #include "../../../../MarlinCore.h"
+#include "../../../../sd/cardreader.h"
 
 #define WIFI_SET()        WRITE(WIFI_RESET_PIN, HIGH);
 #define WIFI_RESET()      WRITE(WIFI_RESET_PIN, LOW);
@@ -115,22 +116,16 @@ signed char IsReady() {
 }
 
 void uploadPort_write(const uint8_t *buf, size_t len) {
-  #if 0
-  int i;
-
-  for (i = 0; i < len; i++) {
-    while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET) { /* nada */ }
-    USART_SendData(USART1, *(buf + i));
+  for(size_t i = 0; i < len; i++) {
+    WIFISERIAL.write(*(buf + i));
   }
-  #endif
 }
 
 char uploadPort_read() {
-  uint8_t retChar;
-  if (readUsartFifo(&WifiRxFifo, (int8_t *)&retChar, 1) == 1)
-    return retChar;
-  else
-    return 0;
+	uint8_t retChar;
+	retChar = WIFISERIAL.read();
+	if(retChar > 0) return retChar;
+	else return 0;
 }
 
 int uploadPort_available() {
@@ -542,7 +537,6 @@ uint16_t checksum(const uint8_t *data, uint16_t dataLen, uint16_t cksum) {
 }
 
 EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
-  #if 0
   const uint32_t blkSize = EspFlashBlockSize;
   int i;
 
@@ -562,62 +556,51 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   putData(0, 4, blkBuf, hdrOfst + 8);
   putData(0, 4, blkBuf, hdrOfst + 12);
 
-  // Get the data for the block
-  f_read(&esp_upload.uploadFile, blkBuf + dataOfst,  blkSize, &cnt );//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
-  if (cnt != blkSize) {
-    if (f_tell(&esp_upload.uploadFile) == esp_upload.fileSize) {
-      // partial last block, fill the remainder
-      memset(blkBuf + dataOfst + cnt, 0xFF, blkSize - cnt);
-    }
-    else {
-      return fileRead;
-    }
-  }
+ 	// Get the data for the block
+	cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
+	if (cnt != blkSize) {
+		if (update_file.curPosition() == esp_upload.fileSize) {
+			// partial last block, fill the remainder
+			memset(blkBuf + dataOfst + cnt, 0xff, blkSize - cnt);
+		}
+		else {
+			return fileRead;
+		}
+	}
 
-  // Patch the flash parameters into the first block if it is loaded at address 0
-  if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0) {
-    // update the Flash parameters
-    uint32_t flashParm = getData(2, blkBuf + dataOfst + 2, 0) & ~(uint32_t)flashParmMask;
-    putData(flashParm | flashParmVal, 2, blkBuf + dataOfst + 2, 0);
-  }
+	// Patch the flash parameters into the first block if it is loaded at address 0
+	if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0)
+		// update the Flash parameters
+		uint32_t flashParm = getData(2, blkBuf + dataOfst + 2, 0) & ~(uint32_t)flashParmMask;
+		putData(flashParm | flashParmVal, 2, blkBuf + dataOfst + 2, 0);
+	}
 
-  // Calculate the block checksum
-  cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
+	// Calculate the block checksum
+	cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
+	
+	for (i = 0; i < 3; i++){
+		if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success) {
+			break;
+		}
+	}
 
-  for (i = 0; i < 3; i++) {
-    if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success) {
-      break;
-    }
-  }
+	//printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
 
-  //printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
-
-  return stat;
-  #else
-    return success;
-  #endif
+	return stat;
 }
 
 void upload_spin() {
-  #if 0
   switch (esp_upload.state) {
   case resetting:
 
     if (esp_upload.connectAttemptNumber == 9) {
       // Time to give up
-      //Network::ResetWiFi();
       esp_upload.uploadResult = connected;
       esp_upload.state = done;
     }
     else {
 
       // Reset the serial port at the new baud rate. Also reset the ESP8266.
-      //  const uint32_t baud = uploadBaudRates[esp_upload.connectAttemptNumber/esp_upload.retriesPerBaudRate];
-      if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {
-      }
-      //uploadPort.begin(baud);
-      //uploadPort_close();
-
       uploadPort_begin();
 
       wifi_delay(2000);
@@ -708,12 +691,7 @@ void upload_spin() {
     break;
 
   case done:
-    f_close(&esp_upload.uploadFile);
-    //uploadPort.end();
-    //uploadPort_close();
-
-    //WIFI_COM.begin(115200, true);
-    //wifi_init();
+    update_file.close();
 
     if (esp_upload.uploadResult == success) {
       //printf("upload successfully\n");
@@ -727,79 +705,41 @@ void upload_spin() {
   default:
     break;
   }
-  #endif
 }
 
 // Try to upload the given file at the given address
 void SendUpdateFile(const char *file, uint32_t address) {
-  #if 0
-  FRESULT res = f_open(&esp_upload.uploadFile, file,  FA_OPEN_EXISTING | FA_READ);
-
-  if (res !=  FR_OK) return;
-
-  esp_upload.fileSize = f_size(&esp_upload.uploadFile);
+	const char * const fname = card.diveToFile(true, update_curDir, ESP_FIRMWARE_FILE);
+	if (!update_file.open(update_curDir, fname, O_READ)) return;
+ 
+  esp_upload.fileSize = update_file.fileSize();
   if (esp_upload.fileSize == 0) {
-    f_close(&esp_upload.uploadFile);
+    update_file.close();
     return;
   }
-  f_lseek(&esp_upload.uploadFile, 0);
-
   esp_upload.uploadAddress = address;
   esp_upload.connectAttemptNumber = 0;
   esp_upload.state = resetting;
-  #endif
 }
 
 static const uint32_t FirmwareAddress = 0x00000000, WebFilesAddress = 0x00100000;
 
 void ResetWiFiForUpload(int begin_or_end) {
-  #if 0
-    uint32_t start, now;
-
-    GPIO_InitTypeDef GPIO_InitStructure;
-
-    #if V1_0_V1_1
-      GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-      GPIO_InitStructure.Pin = GPIO_Pin_8;
-      GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-      HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-    #else
-      GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
-      GPIO_InitStructure.Pin = GPIO_Pin_13;
-      GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-      HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-    #endif
-    start = getWifiTick();
-    now = start;
-
-    if (begin_or_end == 0) {
-      #if V1_0_V1_1
-        HAL_GPIO_WritePin(GPIOA,GPIO_Pin_8,GPIO_PIN_RESET); //update mode
-      #else
-        HAL_GPIO_WritePin(GPIOC,GPIO_Pin_13,GPIO_PIN_RESET); //update mode
-      #endif
-    }
-    else {
-      #if V1_0_V1_1
-        #if V1_0_V1_1
-          HAL_GPIO_WritePin(GPIOA,GPIO_Pin_8,GPIO_PIN_SET); //boot mode
-          GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-          GPIO_InitStructure.Pin = GPIO_Pin_8;
-          GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-          HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-        #endif
-      #else
-        HAL_GPIO_WritePin(GPIOC,GPIO_Pin_13,GPIO_PIN_SET); //boot mode
-        GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStructure.Pin = GPIO_Pin_13;
-        GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStructure);
-      #endif
-    }
+	uint32_t start, now;
+	
+	start = getWifiTick();
+	now = start;
+	
+	if(begin_or_end == 0) {
+		SET_OUTPUT(WIFI_IO0_PIN);
+	  WRITE(WIFI_IO0_PIN, LOW);
+	}
+	else {
+		SET_INPUT_PULLUP(WIFI_IO0_PIN);
+	}
     WIFI_RESET();
     while (getWifiTickDiff(start, now) < 500) now = getWifiTick();
     WIFI_SET();
-  #endif
 }
 
 int32_t wifi_upload(int type) {

@@ -46,6 +46,7 @@
 #include "draw_preHeat.h"
 #include "draw_extrusion.h"
 #include "draw_home.h"
+#include "draw_more.h"
 #include "draw_move_motor.h"
 #include "draw_fan.h"
 #include "draw_about.h"
@@ -84,7 +85,9 @@
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"
   #include "draw_wifi_tips.h"
+  #include "draw_cloud_bind.h"
 #endif
+
 
 #include "../../inc/MarlinConfigPre.h"
 #define FILE_SYS_USB  0
@@ -156,6 +159,11 @@
 
   #define PARA_UI_BACK_BTN_X_SIZE   70
   #define PARA_UI_BACK_BTN_Y_SIZE   40
+
+  #define QRCODE_X 	                20
+  #define QRCODE_Y 	                40
+  #define QRCODE_WIDTH	            160
+
 
 #else // ifdef TFT35
 
@@ -237,6 +245,7 @@ typedef struct {
   float desireSprayerTempBak;
   float current_x_position_bak;
   float current_y_position_bak;
+  float current_z_position_bak;
   float current_e_position_bak;
 } UI_CFG;
 
@@ -271,7 +280,9 @@ typedef enum {
   FILAMENTCHANGE_UI,
   LEVELING_UI,
   MESHLEVELING_UI,
-  BIND_UI,
+  #if ENABLED(USE_WIFI_FUNCTION)
+    BIND_UI,
+  #endif
   #if HAS_BED_PROBE
     NOZZLE_PROBE_OFFSET_UI,
   #endif

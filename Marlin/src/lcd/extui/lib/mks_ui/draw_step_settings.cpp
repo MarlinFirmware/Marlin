@@ -93,6 +93,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         lv_draw_number_key();
       }
       break;
+  #if HAS_MULTI_EXTRUDER
     case ID_STEP_E1:
       if (event == LV_EVENT_CLICKED) {
 
@@ -123,16 +124,19 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
         lv_draw_step_settings();
       }
       break;
+  #endif
   }
 }
 
 void lv_draw_step_settings(void) {
-  lv_obj_t *buttonBack = NULL, *label_Back = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
+  lv_obj_t *buttonBack = NULL, *label_Back = NULL;
   lv_obj_t *labelXText = NULL, *buttonXValue = NULL, *labelXValue = NULL;
   lv_obj_t *labelYText = NULL, *buttonYValue = NULL, *labelYValue = NULL;
   lv_obj_t *labelZText = NULL, *buttonZValue = NULL, *labelZValue = NULL;
   lv_obj_t *labelE0Text = NULL, *buttonE0Value = NULL, *labelE0Value = NULL;
-  lv_obj_t *labelE1Text = NULL, *buttonE1Value = NULL, *labelE1Value = NULL;
+#if HAS_MULTI_EXTRUDER
+  lv_obj_t *labelE1Text = NULL, *buttonE1Value = NULL, *labelE1Value = NULL, *buttonTurnPage = NULL, *labelTurnPage = NULL;
+#endif
   lv_obj_t * line1 = NULL, * line2 = NULL, * line3 = NULL, * line4 = NULL;
   if (disp_state_stack._disp_state[disp_state_stack._disp_index] != STEPS_UI) {
     disp_state_stack._disp_index++;
@@ -217,11 +221,12 @@ void lv_draw_step_settings(void) {
 
     line4 = lv_line_create(scr, NULL);
     lv_ex_line(line4, line_points[3]);
-
-    buttonTurnPage = lv_btn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_DOWN, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    #if HAS_MULTI_EXTRUDER
+      buttonTurnPage = lv_btn_create(scr, NULL);
+      lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_DOWN, NULL, 0);
+      lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
+      lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    #endif
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -234,26 +239,28 @@ void lv_draw_step_settings(void) {
     #endif
   }
   else {
-    labelE1Text = lv_label_create(scr, NULL);
-    lv_obj_set_style(labelE1Text, &tft_style_label_rel);
-    lv_obj_set_pos(labelE1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
-    lv_label_set_text(labelE1Text, machine_menu.E1_Steps);
+    #if HAS_MULTI_EXTRUDER
+      labelE1Text = lv_label_create(scr, NULL);
+      lv_obj_set_style(labelE1Text, &tft_style_label_rel);
+      lv_obj_set_pos(labelE1Text, PARA_UI_POS_X, PARA_UI_POS_Y + 10);
+      lv_label_set_text(labelE1Text, machine_menu.E1_Steps);
 
-    buttonE1Value = lv_btn_create(scr, NULL);
-    lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
-    lv_obj_set_size(buttonE1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
-    lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_STEP_E1, NULL, 0);
-    lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_REL, &style_para_value);
-    lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_PR, &style_para_value);
-    labelE1Value = lv_label_create(buttonE1Value, NULL);
+      buttonE1Value = lv_btn_create(scr, NULL);
+      lv_obj_set_pos(buttonE1Value, PARA_UI_VALUE_POS_X, PARA_UI_POS_Y + PARA_UI_VALUE_V);
+      lv_obj_set_size(buttonE1Value, PARA_UI_VALUE_BTN_X_SIZE, PARA_UI_VALUE_BTN_Y_SIZE);
+      lv_obj_set_event_cb_mks(buttonE1Value, event_handler, ID_STEP_E1, NULL, 0);
+      lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_REL, &style_para_value);
+      lv_btn_set_style(buttonE1Value, LV_BTN_STYLE_PR, &style_para_value);
+      labelE1Value = lv_label_create(buttonE1Value, NULL);
 
-    line1 = lv_line_create(scr, NULL);
-    lv_ex_line(line1, line_points[0]);
+      line1 = lv_line_create(scr, NULL);
+      lv_ex_line(line1, line_points[0]);
 
-    buttonTurnPage = lv_btn_create(scr, NULL);
-    lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_UP, NULL, 0);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
-    lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+      buttonTurnPage = lv_btn_create(scr, NULL);
+      lv_obj_set_event_cb_mks(buttonTurnPage, event_handler, ID_STEP_UP, NULL, 0);
+      lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_REL, &style_para_back);
+      lv_btn_set_style(buttonTurnPage, LV_BTN_STYLE_PR, &style_para_back);
+    #endif
 
     #if HAS_ROTARY_ENCODER
       if (gCfgItems.encoder_enable) {
@@ -263,9 +270,11 @@ void lv_draw_step_settings(void) {
     #endif
   }
 
-  lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
-  lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
-  labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  #if HAS_MULTI_EXTRUDER
+    lv_obj_set_pos(buttonTurnPage, PARA_UI_TURN_PAGE_POS_X, PARA_UI_TURN_PAGE_POS_Y);
+    lv_obj_set_size(buttonTurnPage, PARA_UI_BACK_BTN_X_SIZE, PARA_UI_BACK_BTN_Y_SIZE);
+    labelTurnPage = lv_label_create(buttonTurnPage, NULL);
+  #endif
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_btn_set_style(buttonBack, LV_BTN_STYLE_REL, &style_para_back);
@@ -280,8 +289,10 @@ void lv_draw_step_settings(void) {
 
   if (gCfgItems.multiple_language != 0) {
     if (uiCfg.para_ui_page != 1) {
-      lv_label_set_text(labelTurnPage, machine_menu.next);
-      lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
+      #if HAS_MULTI_EXTRUDER
+        lv_label_set_text(labelTurnPage, machine_menu.next);
+        lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
+      #endif
 
       ZERO(public_buf_l);
       sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.axis_steps_per_mm[X_AXIS]);
@@ -304,13 +315,15 @@ void lv_draw_step_settings(void) {
       lv_obj_align(labelE0Value, buttonE0Value, LV_ALIGN_CENTER, 0, 0);
     }
     else {
-      lv_label_set_text(labelTurnPage, machine_menu.previous);
-      lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
+      #if HAS_MULTI_EXTRUDER
+        lv_label_set_text(labelTurnPage, machine_menu.previous);
+        lv_obj_align(labelTurnPage, buttonTurnPage, LV_ALIGN_CENTER, 0, 0);
 
-      ZERO(public_buf_l);
-      sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
-      lv_label_set_text(labelE1Value, public_buf_l);
-      lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
+        ZERO(public_buf_l);
+        sprintf_P(public_buf_l, PSTR("%.1f"), planner.settings.axis_steps_per_mm[E_AXIS_N(1)]);
+        lv_label_set_text(labelE1Value, public_buf_l);
+        lv_obj_align(labelE1Value, buttonE1Value, LV_ALIGN_CENTER, 0, 0);
+      #endif
     }
 
     lv_label_set_text(label_Back, common_menu.text_back);

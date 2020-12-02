@@ -208,12 +208,27 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   #if ENABLED(USE_WIFI_FUNCTION)
     //wifi screen
     "bmp_wifi.bin",
+    "bmp_cloud.bin",
   #endif
 
   //babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
   "bmp_baby_move0_1.bin"
+
+  //presets screen
+  //"bmp_preHeat.bin",
+  //"bmp_preHeat.bin",
+  //"bmp_Fan.bin",
+
+  // more screen
+  "bmp_custom1.bin",
+  "bmp_custom2.bin",
+  "bmp_custom3.bin",
+  "bmp_custom4.bin",
+  "bmp_custom5.bin",
+  "bmp_custom6.bin",
+  "bmp_custom7.bin"  
 };
 
 #if HAS_SPI_FLASH_FONT

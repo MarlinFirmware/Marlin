@@ -48,8 +48,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      lv_clear_wifi_settings();
-            draw_return_ui();
+        lv_clear_wifi_settings();
+        draw_return_ui();
       }
     break;
     case ID_WIFI_MODEL:
@@ -57,18 +57,18 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      if (gCfgItems.wifi_mode_sel == AP_MODEL) {
-        gCfgItems.wifi_mode_sel = STA_MODEL;
-        lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
-        update_spi_flash();
-      }
-      else{
-        gCfgItems.wifi_mode_sel = AP_MODEL;
-        lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
-        lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
-        update_spi_flash();
-      }
+        if (gCfgItems.wifi_mode_sel == AP_MODEL) {
+          gCfgItems.wifi_mode_sel = STA_MODEL;
+          lv_label_set_text(labelModelValue, WIFI_STA_TEXT);
+          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
+          update_spi_flash();
+        }
+        else{
+          gCfgItems.wifi_mode_sel = AP_MODEL;
+          lv_label_set_text(labelModelValue, WIFI_AP_TEXT);
+          lv_obj_align(labelModelValue, buttonModelValue, LV_ALIGN_CENTER,0, 0);
+          update_spi_flash();
+        }
       }
     break;
     case ID_WIFI_NAME:
@@ -76,9 +76,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      keyboard_value=wifiName;
-      lv_clear_wifi_settings();
-          lv_draw_keyboard();
+        keyboard_value=wifiName;
+        lv_clear_wifi_settings();
+        lv_draw_keyboard();
       }
     break;
     case ID_WIFI_PASSWORD:
@@ -86,9 +86,9 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      keyboard_value=wifiPassWord;
-      lv_clear_wifi_settings();
-          lv_draw_keyboard();
+        keyboard_value=wifiPassWord;
+        lv_clear_wifi_settings();
+        lv_draw_keyboard();
       }
     break;
     case ID_WIFI_CLOUD:
@@ -115,8 +115,8 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-      lv_clear_wifi_settings();
-          lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
+        lv_clear_wifi_settings();
+        lv_draw_dialog(DIALOG_WIFI_CONFIG_TIPS);
       }
     break;
   }
@@ -222,7 +222,7 @@ void lv_draw_wifi_settings(void) {
 
   buttonConfig = lv_imgbtn_create(scr, NULL);
   lv_obj_set_event_cb_mks(buttonConfig, event_handler,ID_WIFI_CONFIG, NULL,0);
-    lv_imgbtn_set_src(buttonConfig, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
+  lv_imgbtn_set_src(buttonConfig, LV_BTN_STATE_REL, "F:/bmp_back70x40.bin");
   lv_imgbtn_set_src(buttonConfig, LV_BTN_STATE_PR, "F:/bmp_back70x40.bin");
   lv_imgbtn_set_style(buttonConfig, LV_BTN_STATE_PR, &tft_style_label_pre);
   lv_imgbtn_set_style(buttonConfig, LV_BTN_STATE_REL, &tft_style_label_rel);

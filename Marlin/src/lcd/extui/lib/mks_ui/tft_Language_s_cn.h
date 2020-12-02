@@ -99,6 +99,7 @@
 #define PROBE_Z_SPEED_CN              "探针Z方向移动速度"
 #define ENABLE_CN                     "是"
 #define DISABLE_CN                    "否"
+#define LOCKED_CN                     "否"
 #define Z_MIN_CN                      "ZMin"
 #define Z_MAX_CN                      "ZMax"
 
@@ -225,18 +226,18 @@
 #define Z_ENABLE_PINS_INVERT_CN         "Z轴电机使能电平"
 #define E_ENABLE_PINS_INVERT_CN         "E轴电机使能电平"
 
-#define PAUSE_POSITION_CN         "打印暂停位置设置"
-#define PAUSE_POSITION_X_CN       "X轴暂停位置(绝对位置,-1无效)"
-#define PAUSE_POSITION_Y_CN       "Y轴暂停位置(绝对位置,-1无效)"
-#define PAUSE_POSITION_Z_CN       "Z轴暂停位置(相对位置,-1无效)"
-#define WIFI_SETTINGS_TITLE_CN    "机器参数>Wi-Fi设置"
-#define WIFI_SETTINGS_MODE_CN     "Wi-Fi 模式"
-#define WIFI_SETTINGS_NAME_CN     "Wi-Fi 名称: "
-#define WIFI_SETTINGS_PASSWORD_CN "Wi-Fi 密码: "
-#define WIFI_SETTINGS_CLOUD_CN    "是否使用云服务?"
-#define WIFI_SETTINGS_CONFIG_CN   "配置"
-#define WIFI_SETTINGS_EDIT_CN     "编辑"
-#define WIFI_CONFIG_TIPS_CN       "进行Wi-Fi配置?"
+#define PAUSE_POSITION_CN    "打印暂停位置设置"
+#define PAUSE_POSITION_X_CN  "X轴暂停位置(绝对位置,-1无效)"
+#define PAUSE_POSITION_Y_CN  "Y轴暂停位置(绝对位置,-1无效)"
+#define PAUSE_POSITION_Z_CN  "Z轴暂停位置(相对位置,-1无效)"
+#define WIFI_SETTINGS_TITLE_CN		"机器参数>Wi-Fi设置"
+#define WIFI_SETTINGS_MODE_CN			"Wi-Fi 模式"
+#define WIFI_SETTINGS_NAME_CN			"Wi-Fi 名称: "
+#define WIFI_SETTINGS_PASSWORD_CN	"Wi-Fi 密码: "
+#define WIFI_SETTINGS_CLOUD_CN		"是否使用云服务?"
+#define WIFI_SETTINGS_CONFIG_CN		"配置"
+#define WIFI_SETTINGS_EDIT_CN			"编辑"
+#define WIFI_CONFIG_TIPS_CN			  "进行Wi-Fi配置?"
 
 #define OFFSET_TITLE_CN  "机器参数>偏移设置"
 #define OFFSET_X_CN      "X轴与调平开关偏移"
@@ -259,6 +260,7 @@
 #define PRINT_TEXT_CN               "打印"
 #define EXTRUDE_TEXT_CN             "挤出"
 #define LEVELING_TEXT_CN            "调平"
+#define MLEVELING_TEXT_CN            "调平"
 #define AUTO_LEVELING_TEXT_CN       "自动调平"
 #define SET_TEXT_CN                 "设置"
 #define MORE_TEXT_CN                "更多"
@@ -280,6 +282,7 @@
 #define TOOL_MOVE_CN                "移动"
 #define TOOL_HOME_CN                "回零"
 #define TOOL_LEVELING_CN            "调平"
+#define TOOL_MLEVELING_CN            "调平"
 #define TOOL_AUTO_LEVELING_CN       "自动调平"
 #define TOOL_FILAMENT_CN            "换料"
 #define TOOL_MORE_CN                "更多"
@@ -497,3 +500,11 @@
 #define EEPROM_STORE_TIPS_CN  "是否保存参数到EEPROM?"
 #define EEPROM_READ_TIPS_CN   "是否使用EEPROM参数?"
 #define EEPROM_REVERT_TIPS_CN "是否恢复默认参数?"
+
+#define MORE_CUSTOM1_TEXT_CN  USER_DESC_1
+#define MORE_CUSTOM2_TEXT_CN  USER_DESC_2
+#define MORE_CUSTOM3_TEXT_CN  USER_DESC_3
+#define MORE_CUSTOM4_TEXT_CN  USER_DESC_4
+#define MORE_CUSTOM5_TEXT_CN  USER_DESC_5
+#define MORE_CUSTOM6_TEXT_CN  USER_DESC_6
+#define MORE_CUSTOM7_TEXT_CN  USER_DESC_7

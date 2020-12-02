@@ -511,9 +511,11 @@ char *getDispText(int index) {
     case MESHLEVELING_UI:
       strcpy(public_buf_l, leveling_menu.title);
       break;
-    case BIND_UI:
-      strcpy(public_buf_l, cloud_menu.title);
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case BIND_UI:
+        strcpy(public_buf_l, cloud_menu.title);
+        break;
+    #endif
     case TOOL_UI:
       strcpy(public_buf_l, tool_menu.title);
       break;
@@ -602,7 +604,7 @@ char *creat_title_text() {
       gPicturePreviewStart = 0;
       cur_name             = strrchr(path, '/');
       card.openFileRead(cur_name);
-      card.read(public_buf, 512);
+      card.read(public_buf, 511);
       p1 = (uint32_t *)strstr((char *)public_buf, ";simage:");
 
       if (p1) {
@@ -1025,11 +1027,11 @@ void GUI_RefreshPage() {
           temperature_change_frequency = 0;
         }
         break;
-    #endif
 
-    case BIND_UI:
-      /*refresh_bind_ui();*/
-      break;
+      case BIND_UI:
+        refresh_bind_ui();
+        break;
+    #endif
 
     case FILAMENTCHANGE_UI:
       if (temperature_change_frequency) {
@@ -1181,7 +1183,7 @@ void clear_cur_ui() {
         break;
     #endif
     case MORE_UI:
-      //Clear_more();
+      lv_clear_more();
       break;
     case FILETRANSFER_UI:
       //Clear_fileTransfer();
@@ -1201,9 +1203,11 @@ void clear_cur_ui() {
     case LEVELING_UI:
       lv_clear_manualLevel();
       break;
-    case BIND_UI:
-      //Clear_Bind();
-      break;
+    #if ENABLED(USE_WIFI_FUNCTION)
+      case BIND_UI:
+        lv_clear_cloud_bind();
+        break;
+    #endif  //USE_WIFI_FUNCTION
     #if HAS_BED_PROBE
       case NOZZLE_PROBE_OFFSET_UI:
         lv_clear_auto_level_offset_settings();
@@ -1417,9 +1421,12 @@ void draw_return_ui() {
         case WIFI_UI:
           lv_draw_wifi();
           break;
+        case BIND_UI:
+          lv_draw_cloud_bind();
+        break;          
       #endif
       case MORE_UI:
-        //draw_More();
+        lv_draw_More();
         break;
       case PRINT_MORE_UI:
         //draw_printmore();
@@ -1429,9 +1436,6 @@ void draw_return_ui() {
         break;
       case LEVELING_UI:
         lv_draw_manualLevel();
-        break;
-      case BIND_UI:
-        //draw_bind();
         break;
       #if HAS_BED_PROBE
         case NOZZLE_PROBE_OFFSET_UI:

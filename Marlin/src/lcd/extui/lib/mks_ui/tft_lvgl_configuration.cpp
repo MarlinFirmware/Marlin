@@ -190,6 +190,10 @@ void tft_lvgl_init() {
 
   lv_encoder_pin_init();
 
+  #if ENABLED(USE_WIFI_FUNCTION)
+    mks_wifi_firmware_upddate();
+  #endif
+
   #if ENABLED(POWER_LOSS_RECOVERY)
     recovery.load();
     if (recovery.valid()) {
