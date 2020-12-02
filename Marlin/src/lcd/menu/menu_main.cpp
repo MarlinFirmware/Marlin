@@ -93,6 +93,10 @@ void menu_configuration();
   void menu_spindle_laser();
 #endif
 
+#if ENABLED(LCD_PREHEAT_MENU)
+  void menu_quick_preheat();
+#endif
+
 extern const char M21_STR[];
 
 void menu_main() {
@@ -164,6 +168,10 @@ void menu_main() {
 
     #if ENABLED(HOST_START_MENU_ITEM) && defined(ACTION_ON_START)
       ACTION_ITEM(MSG_HOST_START_PRINT, host_action_start);
+    #endif
+
+    #if ENABLED(LCD_PREHEAT_MENU)
+      SUBMENU(MSG_PREHEAT_CUSTOM, menu_quick_preheat); 
     #endif
 
     SUBMENU(MSG_MOTION, menu_motion);
