@@ -33,13 +33,10 @@
   #include "../../feature/spindle_laser.h"
 
   void menu_spindle_laser() {
-
     const bool is_enabled = cutter.enabled() && cutter.isReady;
 
     START_MENU();
     BACK_ITEM(MSG_MAIN);
-    // Messing with a Cutter/Laser manually needs the menu to stay modal
-    ui.defer_status_screen();
 
     #if ENABLED(SPINDLE_LASER_PWM)
       // Change the cutter's "current power" value without turning the cutter on or off
