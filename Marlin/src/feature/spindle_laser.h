@@ -215,6 +215,7 @@ public:
     }
     FORCE_INLINE static void enable_forward() { enable_with_dir(false); }
     FORCE_INLINE static void enable_reverse() { enable_with_dir(true); }
+    FORCE_INLINE static void enable_same_dir() { enable_with_dir(is_reverse()); }
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void update_from_mpower() {

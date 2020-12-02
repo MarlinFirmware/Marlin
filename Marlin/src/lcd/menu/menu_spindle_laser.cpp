@@ -34,6 +34,9 @@
 
   void menu_spindle_laser() {
     bool is_enabled = cutter.enabled() && cutter.isReady;
+    #if ENABLED(SPINDLE_CHANGE_DIR)
+      bool is_rev = cutter.is_reverse();
+    #endif
 
     START_MENU();
     BACK_ITEM(MSG_MAIN);
@@ -45,16 +48,15 @@
         cutter.mpower_min(), cutter.mpower_max(), cutter.update_from_mpower);
     #endif
 
-    if (is_enabled)
-      EDIT_ITEM(bool, MSG_CUTTER(SWITCH), &is_enabled, cutter.disable);
-    else {
-      #if ENABLED(SPINDLE_CHANGE_DIR)
-        EDIT_ITEM(bool, MSG_CUTTER(FORWARD), &is_enabled, cutter.enable_forward);
-        EDIT_ITEM(bool, MSG_CUTTER(REVERSE), &is_enabled, cutter.enable_reverse);
-      #else
-        EDIT_ITEM(bool, MSG_CUTTER(SWITCH), &is_enabled, cutter.enable);
-      #endif
-    }
+    editable.state = is_enabled;
+    EDIT_ITEM(bool, MSG_CUTTER(TOGGLE), &is_enabled, []{ if (editable.state) cutter.disable(); else cutter.enable_same_dir(); });
+
+    #if ENABLED(SPINDLE_CHANGE_DIR)
+      if (!is_enabled) {
+        editable.state = is_rev;
+        ACTION_ITEM_P(is_rev ? GET_TEXT(MSG_CUTTER_REVERSE) : GET_TEXT(MSG_CUTTER_FORWARD), []{ cutter.set_reverse(!editable.state); });
+      }
+    #endif
 
     #if BOTH(MARLIN_DEV_MODE, HAL_CAN_SET_PWM_FREQ) && defined(SPINDLE_LASER_FREQUENCY)
       EDIT_ITEM_FAST(CUTTER_MENU_FREQUENCY_TYPE, MSG_CUTTER_FREQUENCY, &cutter.frequency, 2000, 50000, cutter.refresh_frequency);
