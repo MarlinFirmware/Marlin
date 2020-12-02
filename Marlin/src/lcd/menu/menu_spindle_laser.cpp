@@ -33,7 +33,7 @@
   #include "../../feature/spindle_laser.h"
 
   void menu_spindle_laser() {
-    const bool is_enabled = cutter.enabled() && cutter.isReady;
+    bool is_enabled = cutter.enabled() && cutter.isReady;
 
     START_MENU();
     BACK_ITEM(MSG_MAIN);
@@ -46,13 +46,13 @@
     #endif
 
     if (is_enabled)
-      ACTION_ITEM(MSG_CUTTER(STATE), cutter.disable);
+      EDIT_ITEM(bool, MSG_CUTTER(SWITCH), &is_enabled, cutter.disable);
     else {
       #if ENABLED(SPINDLE_CHANGE_DIR)
-        ACTION_ITEM(MSG_CUTTER(STATE), cutter.enable_forward);
-        ACTION_ITEM(MSG_CUTTER(STATE), cutter.enable_reverse);
+        EDIT_ITEM(bool, MSG_CUTTER(FORWARD), &is_enabled, cutter.enable_forward);
+        EDIT_ITEM(bool, MSG_CUTTER(REVERSE), &is_enabled, cutter.enable_reverse);
       #else
-        ACTION_ITEM(MSG_CUTTER(STATE), cutter.enable);
+        EDIT_ITEM(bool, MSG_CUTTER(SWITCH), &is_enabled, cutter.enable);
       #endif
     }
 
