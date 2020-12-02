@@ -54,7 +54,7 @@
     #if ENABLED(SPINDLE_CHANGE_DIR)
       if (!is_enabled) {
         editable.state = is_rev;
-        ACTION_ITEM_P(is_rev ? GET_TEXT(MSG_CUTTER_REVERSE) : GET_TEXT(MSG_CUTTER_FORWARD), []{ cutter.set_reverse(!editable.state); });
+        ACTION_ITEM_P(is_rev ? GET_TEXT(MSG_CUTTER(REVERSE)) : GET_TEXT(MSG_CUTTER(FORWARD)), []{ cutter.set_reverse(!editable.state); });
       }
     #endif
 
