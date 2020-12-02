@@ -356,9 +356,9 @@ namespace ExtUI {
   bool canMove(const axis_t axis) {
     switch (axis) {
       #if IS_KINEMATIC || ENABLED(NO_MOTION_BEFORE_HOMING)
-        case X: return TEST(axis_homed, X_AXIS);
-        case Y: return TEST(axis_homed, Y_AXIS);
-        case Z: return TEST(axis_homed, Z_AXIS);
+        case X: return axis_should_home(X_AXIS);
+        case Y: return axis_should_home(Y_AXIS);
+        case Z: return axis_should_home(Z_AXIS);
       #else
         case X: case Y: case Z: return true;
       #endif
@@ -889,9 +889,9 @@ namespace ExtUI {
 
   bool commandsInQueue() { return (planner.movesplanned() || queue.has_commands_queued()); }
 
-  bool isAxisPositionKnown(const axis_t axis) { return TEST(axis_known_position, axis); }
-  bool isAxisPositionKnown(const extruder_t) { return TEST(axis_known_position, E_AXIS); }
-  bool isPositionKnown() { return all_axes_known(); }
+  bool isAxisPositionKnown(const axis_t axis) { return axis_is_trusted((AxisEnum)axis); }
+  bool isAxisPositionKnown(const extruder_t) { return axis_is_trusted(E_AXIS); }
+  bool isPositionKnown() { return all_axes_trusted(); }
   bool isMachineHomed() { return all_axes_homed(); }
 
   PGM_P getFirmwareName_str() {
