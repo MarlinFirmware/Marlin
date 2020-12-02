@@ -954,11 +954,21 @@
 /**
  * Nozzle-to-Probe offsets { X, Y, Z }
  *
- * - Use a caliper or ruler to measure the distance from the tip of
+ * X and Y offset
+ *   Use a caliper or ruler to measure the distance from the tip of
  *   the Nozzle to the center-point of the Probe in the X and Y axes.
+ * 
+ * Z offset
  * - For the Z offset use your best known value and adjust at runtime.
- *   For most Probes Z offset has a negative value! (Exeptions: CR-6 SE, FLSUN, Kossel, ZYYX)
- * - Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
+ *   Common Probes have negative values for Z offset!
+ * - For Probes pushing the nozzle into the bed to trigger a switch,
+ *   use a small positive value between 0.0 and 0.25 (Examples: CR-6 SE, FLSUN, Kossel).
+ * - For Homing a printer where the nozzle dives below the bed,
+ *   enable NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE and use a coresponding value (Example: ZYYX).
+ * 
+ * Tune and Adjust
+ * -  Probe Offsets can be tuned at runtime with 'M851', LCD menus, babystepping, etc.
+ * -  PROBE_OFFSET_WIZARD (configuration_adv.h) can be used for setting the Z offset.
  *
  * Assuming the typical work area orientation:
  *  - Probe to RIGHT of the Nozzle has a Positive X offset
@@ -984,7 +994,7 @@
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 
-// Only enable this option, if you have a special probe that triggers above the nozzle.
+// Only enable this option, if you have a special probe that triggers above the nozzle! Z offset > 0.25
 //#define NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE
 
 // Most probes should stay away from the edges of the bed, but
