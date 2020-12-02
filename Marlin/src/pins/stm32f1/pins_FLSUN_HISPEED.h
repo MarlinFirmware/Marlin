@@ -246,7 +246,7 @@
 #endif
 
 // Use the on-board card socket labeled SD_Extender
-#if SD_CONNECTION_IS(CUSTOM_CABLE) 
+#if SD_CONNECTION_IS(CUSTOM_CABLE)
   #define SCK_PIN                           PC12
   #define MISO_PIN                          PC8
   #define MOSI_PIN                          PD2

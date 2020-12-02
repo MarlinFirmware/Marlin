@@ -257,42 +257,37 @@ void MarlinUI::draw_status_screen() {
   tft.set_background(COLOR_BACKGROUND);
   tft.add_rectangle(0, 0, 312, 24, COLOR_AXIS_HOMED);
 
-  uint16_t color;
-  uint16_t offset;
-  bool is_homed;
-
   tft.add_text( 10, 3, COLOR_AXIS_HOMED , "X");
   tft.add_text(127, 3, COLOR_AXIS_HOMED , "Y");
   tft.add_text(219, 3, COLOR_AXIS_HOMED , "Z");
 
-  is_homed = TEST(axis_homed, X_AXIS);
-  tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
-  tft.add_text( 68 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  bool not_homed = axis_should_home(X_AXIS);
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
+  tft.add_text( 68 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Y_AXIS);
-  tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
-  tft.add_text(185 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  not_homed = axis_should_home(Y_AXIS);
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
+  tft.add_text(185 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Z_AXIS);
-  if (blink & !is_homed) {
+  not_homed = axis_should_home(Z_AXIS);
+  uint16_t offset = 25;
+  if (blink && not_homed)
     tft_string.set("?");
-    offset = 25; // ".00"
-  }
   else {
     const float z = LOGICAL_Z_POSITION(current_position.z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
-    offset = tft_string.width();
+    offset += tft_string.width();
 
     tft_string.set(ftostr52sp(z));
-    offset += 25 - tft_string.width();
+    offset -= tft_string.width();
   }
-  tft.add_text(301 - tft_string.width() - offset, 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  tft.add_text(301 - tft_string.width() - offset, 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   // feed rate
   tft.canvas(70, 136, 80, 32);
   tft.set_background(COLOR_BACKGROUND);
-  color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+  uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
