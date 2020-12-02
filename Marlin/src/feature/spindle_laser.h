@@ -191,9 +191,11 @@ public:
   }
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
-    static void set_direction(const bool reverse);
+    static void set_reverse(const bool reverse);
+    static bool is_reverse() { return READ(SPINDLE_DIR_PIN) == SPINDLE_INVERT_DIR; }
   #else
-    static inline void set_direction(const bool) {}
+    static inline void set_reverse(const bool) {}
+    static bool is_reverse() { return false; }
   #endif
 
   static inline void disable() { isReady = false; set_enabled(false); }
@@ -208,7 +210,7 @@ public:
       else
         menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
       unitPower = menuPower;
-      set_direction(reverse);
+      set_reverse(reverse);
       set_enabled(true);
     }
     FORCE_INLINE static void enable_forward() { enable_with_dir(false); }
