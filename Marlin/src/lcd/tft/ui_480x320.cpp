@@ -257,10 +257,12 @@ void MarlinUI::draw_status_screen() {
     }
   }
 
+  y += TERN(HAS_UI_480x272, 118, 128);
+
   // coordinates
-  tft.canvas(4, 132, TFT_WIDTH - 8, 34);
+  tft.canvas(4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT);
   tft.set_background(COLOR_BACKGROUND);
-  tft.add_rectangle(0, 0, TFT_WIDTH - 8, 34, COLOR_AXIS_HOMED);
+  tft.add_rectangle(0, 0, TFT_WIDTH - 8, FONT_LINE_HEIGHT, COLOR_AXIS_HOMED);
 
   tft.add_text( 16, 3, COLOR_AXIS_HOMED , "X");
   tft.add_text(192, 3, COLOR_AXIS_HOMED , "Y");
@@ -288,10 +290,11 @@ void MarlinUI::draw_status_screen() {
     offset -= tft_string.width();
   }
   tft.add_text(455 - tft_string.width() - offset, 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
-  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, 132, TFT_WIDTH - 8, 34));
+  TERN_(TOUCH_SCREEN, touch.add_control(MOVE_AXIS, 4, y, TFT_WIDTH - 8, FONT_LINE_HEIGHT));
 
+  y += TERN(HAS_UI_480x272, 38, 48);
   // feed rate
-  tft.canvas(96, 180, 100, 32);
+  tft.canvas(96, y, 100, 32);
   tft.set_background(COLOR_BACKGROUND);
   uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
