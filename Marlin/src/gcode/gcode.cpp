@@ -252,6 +252,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   #if ENABLED(PASSWORD_FEATURE)
     if (password.is_locked && !parser.is_command('M', 511)) {
       SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
+      if (!no_ok) queue.ok_to_send();
       return;
     }
   #endif
