@@ -252,32 +252,6 @@ void menu_temperature() {
 
   END_MENU();
 }
-#if ENABLED(LCD_PREHEAT_MENU)
-
-  void menu_quick_preheat(){
-    #if PREHEAT_COUNT
-      #if HAS_TEMP_HOTEND || HAS_HEATED_BED
-        bool has_heat = false;
-        #if HAS_TEMP_HOTEND
-          HOTEND_LOOP() if (thermalManager.temp_hotend[HOTEND_INDEX].target) { has_heat = true; break; }
-        #endif
-      #endif
-
-      START_MENU();
-      BACK_ITEM(MSG_MAIN);
-
-      LOOP_L_N(m, PREHEAT_COUNT) {
-          editable.int8 = m;
-            //SUBMENU_S(ui.get_preheat_label(m), MSG_PREHEAT_M, menu_preheat_m);
-          // ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, do_preheat_end_m);
-            ACTION_ITEM_S(ui.get_preheat_label(m), MSG_PREHEAT_M_ALL, []{ _preheat_both(editable.int8, 0); });
-
-        }
-    #endif
-    END_MENU();
-  }
-#endif //LCD_PREHEAT_MENU
-
 
 #if ENABLED(PREHEAT_MENU_ITEM_SHORTCUT)
 
