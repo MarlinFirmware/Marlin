@@ -1495,8 +1495,8 @@ void HMI_MaxAccelerationXYZE() {
       if (Apply_Encoder(encoder_diffState, HMI_ValueStruct.Max_Jerk)) {
         checkkey = MaxJerk;
         EncoderRate.enabled = false;
-        if (WITHIN(HMI_flag.step_axis, X_AXIS, E_AXIS))
-          planner.set_max_jerk(HMI_flag.step_axis, HMI_ValueStruct.Max_Jerk / 10);
+        if (WITHIN(HMI_flag.jerk_axis, X_AXIS, E_AXIS))
+          planner.set_max_jerk(HMI_flag.jerk_axis, HMI_ValueStruct.Max_Jerk / 10);
         DWIN_Draw_FloatValue(true, true, 0, font8x16, Color_White, Color_Bg_Black, 3, 1, 210, MBASE(select_jerk.now), HMI_ValueStruct.Max_Jerk);
         return;
       }
