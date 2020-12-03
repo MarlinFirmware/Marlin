@@ -35,7 +35,7 @@ try:
 		print("**************************************************")
 		print()
 		exit(1)
-except ImportError:
+except:
 	print("Can't detect PlatformIO Version")
 
 
