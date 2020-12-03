@@ -16,6 +16,29 @@ except ImportError:
 	# PIO >= 4.4
 	from platformio.package.meta import PackageSpec as PackageManager
 
+PIO_VERSION_MIN = (5, 0, 3)
+try:
+	from platformio import VERSION as PIO_VERSION
+	weights = (10000, 1000, 100)
+	version_min = sum([x[0] * x[1] for x in zip(weights, PIO_VERSION_MIN)])
+	version_cur = sum([x[0] * x[1] for x in zip(weights, PIO_VERSION)])
+	if version_cur < version_min:
+		print()
+		print("**************************************************")
+		print("******    Unsupported PlatformIO Version    ******")
+		print("******          for Building Marlin         ******")
+		print("******                                      ******")
+		print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
+		print("******      Current Version: ", PIO_VERSION, "    ******")
+		print("******                                      ******")
+		print("******           Please, update it          ******")
+		print("**************************************************")
+		print()
+		exit(1)
+except ImportError:
+	print("Can't detect PlatformIO Version")
+
+
 Import("env")
 
 #print(env.Dump())
