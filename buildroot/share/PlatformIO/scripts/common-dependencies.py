@@ -35,6 +35,8 @@ try:
 		print("**************************************************")
 		print()
 		exit(1)
+except SystemExit:
+	exit(1)
 except:
 	print("Can't detect PlatformIO Version")
 
