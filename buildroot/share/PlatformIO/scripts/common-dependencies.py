@@ -25,19 +25,18 @@ try:
 	if version_cur < version_min:
 		print()
 		print("**************************************************")
-		print("******    Unsupported PlatformIO Version    ******")
-		print("******          for Building Marlin         ******")
+		print("******      An update to PlatformIO is      ******")
+		print("******  required to build Marlin Firmware.  ******")
 		print("******                                      ******")
 		print("******      Minimum version: ", PIO_VERSION_MIN, "    ******")
 		print("******      Current Version: ", PIO_VERSION, "    ******")
 		print("******                                      ******")
-		print("******           Please, update it          ******")
+		print("******   Update PlatformIO and try again.   ******")
 		print("**************************************************")
 		print()
 		exit(1)
 except:
 	print("Can't detect PlatformIO Version")
-
 
 Import("env")
 
