@@ -1353,16 +1353,16 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Check for improper NOZZLE_TO_PROBE_OFFSET
    */
   constexpr xyz_pos_t sanity_nozzle_to_probe_offset = NOZZLE_TO_PROBE_OFFSET;
-  #if ENABLED(NOZZLE_AS_PROBE)
+  #if EITHER(NOZZLE_AS_PROBE, STRAIN_GAUGE_PROBE)
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
                   "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
   #else
     #ifndef NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE
-      static_assert(sanity_nozzle_to_probe_offset.z <= 0.25,
-                    "Are you sure your Probe triggers above the nozzle? Set a negative Z value in the NOZZLE_TO_PROBE_OFFSET or enable NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
+      static_assert(sanity_nozzle_to_probe_offset.z <= 0.0,
+                    "Are you sure your Probe triggers above the nozzle? Set a negative Z value in the NOZZLE_TO_PROBE_OFFSET or enable NOZZLE_AS_PROBE/STRAIN_GAUGE_PROBE/NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
       #ifdef PROBE_OFFSET_WIZARD_START_Z
-        static_assert(PROBE_OFFSET_WIZARD_START_Z <= 0.25,
-                      "Are you sure your Probe triggers above the nozzle? Set a negative value for PROBE_OFFSET_WIZARD_START_Z enable NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
+        static_assert(PROBE_OFFSET_WIZARD_START_Z <= 0.0,
+                      "Are you sure your Probe triggers above the nozzle? Set a negative value for PROBE_OFFSET_WIZARD_START_Z or enable NOZZLE_AS_PROBE/STRAIN_GAUGE_PROBE/NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
       #endif
     #endif
     static_assert(PROBING_MARGIN       >= 0, "PROBING_MARGIN must be >= 0.");

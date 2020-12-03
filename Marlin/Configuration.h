@@ -880,6 +880,12 @@
 //#define FIX_MOUNTED_PROBE
 
 /**
+ * Use the nozzle as the probe, with the hotend
+ * assembly attached to a sensitive strain gauge.
+ */
+//#define STRAIN_GAUGE_PROBE
+
+/**
  * Use the nozzle as the probe, as with a conductive
  * nozzle system or a piezo-electric smart effector.
  */
@@ -961,7 +967,7 @@
  * Z offset
  * - For the Z offset use your best known value and adjust at runtime.
  *   Common Probes have negative values for Z offset!
- * - For Probes pushing the nozzle into the bed to trigger a switch,
+ * - For Probes pushing the nozzle into the bed to trigger a switch/strain gauge,
  *   use a small positive value between 0.0 and 0.25 (Examples: CR-6 SE, FLSUN, Kossel).
  * - For Homing a printer where the nozzle dives below the bed,
  *   enable NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE and use a coresponding value (Example: ZYYX).
@@ -994,7 +1000,8 @@
  */
 #define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
 
-// Only enable this option, if you have a special probe that triggers above the nozzle! Z offset > 0.25
+// Only enable this option, if you have a special probe that
+// triggers above the nozzle and dives the nozzle below the bed!
 //#define NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE
 
 // Most probes should stay away from the edges of the bed, but
