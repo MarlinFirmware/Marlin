@@ -335,13 +335,12 @@
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-
   #if ENABLED(TFT_CLASSIC_UI)
-    #define TFT_MARLINBG_COLOR            0x3186  // White
-    #define TFT_MARLINUI_COLOR            0xC7B6  // green
+    #define TFT_MARLINBG_COLOR            0x3186  // Grey
+    #define TFT_MARLINUI_COLOR            0xC7B6  // Green
     #define TFT_BTARROWS_COLOR            0xDEE6  // Yellow
     #define TFT_BTOKMENU_COLOR            0x145F  // Cyan
-  #endif  
+  #endif
   #define TFT_BUFFER_SIZE                  14400
 #elif HAS_GRAPHICAL_TFT
   #define TFT_RESET_PIN                     PC6
