@@ -1732,6 +1732,12 @@
   //#define MESH_MAX_Y Y_BED_SIZE - (MESH_INSET)
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  // Store mesh offsets as steps rather than mm.
+  // This will also store the values as int16_t to save EEPROM space
+  //#define MESH_STORE_STEPS
+#endif
+
 /**
  * Repeatedly attempt G29 leveling until it succeeds.
  * Stop after G29_MAX_RETRIES attempts.

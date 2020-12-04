@@ -41,6 +41,10 @@ struct mesh_index_pair;
 #define MESH_X_DIST (float(MESH_MAX_X - (MESH_MIN_X)) / float(GRID_MAX_POINTS_X - 1))
 #define MESH_Y_DIST (float(MESH_MAX_Y - (MESH_MIN_Y)) / float(GRID_MAX_POINTS_Y - 1))
 
+#if ENABLED(MESH_STORE_STEPS)
+  typedef int16_t bed_mesh_steps_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
+#endif
+
 class unified_bed_leveling {
   private:
 
@@ -106,6 +110,10 @@ class unified_bed_leveling {
     static int8_t storage_slot;
 
     static bed_mesh_t z_values;
+    #if ENABLED(MESH_STORE_STEPS)
+      static void set_z_step_values(const bed_mesh_t &values, bed_mesh_steps_t &step_values);
+      static void set_z_values(const bed_mesh_steps_t &step_values, bed_mesh_t &values);
+    #endif
     static const float _mesh_index_to_xpos[GRID_MAX_POINTS_X],
                        _mesh_index_to_ypos[GRID_MAX_POINTS_Y];
 
