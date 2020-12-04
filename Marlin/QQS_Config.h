@@ -7,16 +7,22 @@
 * config/examples/delta/FLSUN/ directory and customize for your machine.
 *
 * TIPS:
-* -For reduce binary size : https://thborges.github.io/blog/marlin/2019/01/07/reducing-marlin-binary-size.html
+* -For UI CLASSIC use old env: hispeed.
 * 
-* -For NeoPixel use library : https://github.com/Foxies-CSTL/Nano-NeoPixel-Lib/archive/master.zip,
-* and active it into the part of platformio.ini "env:flsun_hispeed",
-* and commented error in SanityCheck.h for pass error check.
+* -For NeoPixel use standard library and commented error in SanityCheck.h for pass error check.
 *
 * -For 2209 change TMC2208 by TMC2209 at the bottom file.
+* 
 */
 
 //========= Hardware ==========//
+/*-------Motherboard-----------*/
+#define STOCK                       // env = hispeedv1
+// In progress........... ;-)
+//#define SKR14                     // env = lpc1768 (BTT_SKR_V1_4)
+//#define SKR14T                    // env = lpc1769 (BTT_SKR_V1_4_TURBO)
+//#define SKR12PRO                  // env = BIGTREE_SKR_PRO (BTT_SKR_PRO_V1_2)
+
 /*------Drivers-(1 CHOICE)-----*/
 #define QQS                        //(S) For 4xA4988(green or red color)
 //#define QQS_TMC                    //(8) For 4xTMC220x_STANDALONE For 2208(white color) or 2209(black color)
@@ -37,16 +43,21 @@
 */
 //#define INV_EXT                    //(T) Uncommment to reverse direction.
 //#define BMG                        //(B) Uncomment to change Extruder step(417).
-//#define Mini                        //(b) Uncomment BMG&Mini to change Extruder step(141).
+//#define Mini                       //(b) Uncomment BMG&Mini to change Extruder step(141).
 
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
-#define MKS_ROBIN_TFT32            //Mks_Robin_TFTV_2.0
-//#define MKS_ROBIN_TFT28            //Mks_Robin_TFT
-//#define MKS_ROBIN_TFT_V1_1R
-//#define MKS_ROBIN_TFT24
-//#define TFT_GENERIC
+#if ANY(SKR14, SKR14T, SKR12PRO)
+  #define MKS_TS35_V2_0
+  #define BTT_UI_SPI  //
+#else
+  #define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
+  //#define MKS_ROBIN_TFT28          // Mks_Robin_TFT
+  //#define MKS_ROBIN_TFT_V1_1R
+  //#define MKS_ROBIN_TFT24
+  //#define TFT_GENERIC
+#endif
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
@@ -59,31 +70,33 @@
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 //Many options for Modules: 
-#define POWER_LOSS_RECOVERY        //NC LVGL pb SD
-#define FILAMENT_RUNOUT_SENSOR     //NC LVGL
-#define ADVANCED_PAUSE_FEATURE     //NC LVGL
+#define POWER_LOSS_RECOVERY        // NC LVGL pb SD
+#define FILAMENT_RUNOUT_SENSOR     // NC LVGL
+#define ADVANCED_PAUSE_FEATURE     // NC LVGL
 #define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
 #define ARC_SUPPORT                //(R)
 
 //============= End_Hardware ===============//
 
 //Choice add menu: (OPT)
-//#define DELTA_CALIBRATION_MENU     //auto for CLASSIC and COLOR (NC LVGL)
+//#define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
 #define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
-#define PAUSE_BEFORE_DEPLOY_STOW   //Message Stow/remove Probe.
+#define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
 #define LCD_INFO_MENU              // Informations printer.
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
 #define AUTO_BED_LEVELING_UBL      //(U)
+
+// ---Expe tools
 //#define LEVEL_BED_CORNERS
-//#define PROBE_OFFSET_WIZARD
+//#define PROBE_OFFSET_WIZARD        // Bug because Delta no have #define HOMING_FEEDRATE_XY
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define UTF_FILENAME_SUPPORT      // Bug at the reboot
+//#define UTF_FILENAME_SUPPORT       // Bug at the reboot
 //#define CANCEL_OBJECTS
 
 /* OPTION no validate */
@@ -108,7 +121,7 @@
 #endif
 
 //Set for A4988 
-#if ANY(QQS, STOCK)
+#ifdef QQS
     #define DRIVER_AXES A4988
     #ifndef DRIVER_EXT
       #define DRIVER_EXT A4988
