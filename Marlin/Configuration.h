@@ -97,7 +97,7 @@
 #endif
 
 // Show the bitmap in Marlin/_Statusscreen.h on the status screen.
-#ifdef TFT_CLASSIC_UI 
+#ifdef TFT_CLASSIC_UI
   #define CUSTOM_STATUS_SCREEN_IMAGE  //TIPS
 #endif
 
@@ -111,7 +111,7 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if ANY(STOCK, QQS, QQS_TMC, QQS_UART)
+#if ANY(QQS, QQS_TMC, QQS_UART)
   #define SERIAL_PORT 3
 
 /**
@@ -142,23 +142,20 @@
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #ifdef STOCK
-    #define MOTHERBOARD BOARD_MKS_ROBIN_MINI
-  #endif
-  #ifdef QQS
     #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #endif  
+  #ifdef SKR14
+    #define MOTHERBOARD BOARD_BTT_SKR_V1_4
   #endif
-  #ifdef QQS_TMC
-    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #ifdef SKR14T
+    #define MOTHERBOARD BOARD_BTT_SKR_V1_4_TURBO
   #endif
-  #ifdef QQS_UART
-    #define MOTHERBOARD BOARD_FLSUN_HISPEED
+  #ifdef SKR12PRO
+    #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_2
   #endif
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
-#ifdef STOCK
-  #define CUSTOM_MACHINE_NAME "FLSUN QQ-S"
-#endif
 #ifdef QQS
   #define CUSTOM_MACHINE_NAME "FLSUN QQS-Pro"
 #endif
@@ -580,12 +577,6 @@
   //#define DEFAULT_bedKi .023
   //#define DEFAULT_bedKd 305.4
 
-  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from pidautotune
-  //#define DEFAULT_bedKp 97.1
-  //#define DEFAULT_bedKi 1.41
-  //#define DEFAULT_bedKd 1675.16
-
   // FLSUN QQS-Pro 1.6mm aluminium heater with 4mm lattice glass
   #define DEFAULT_bedKp 82.98
   #define DEFAULT_bedKi 15.93
@@ -723,7 +714,7 @@
   #endif
 
   // Distance between bed and nozzle Z home position
-  #define DELTA_HEIGHT 370            //370 E3D 360 (mm) Get this value from G33 auto calibrate
+  #define DELTA_HEIGHT 370.0                 //370 E3D-360 (mm) Get this value from G33 auto calibrate
 
   #define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // Get these values from G33 auto calibrate
 
@@ -738,6 +729,7 @@
 
 #endif
 
+//===========================================================================
 //============================== Endstop Settings ===========================
 //===========================================================================
 
@@ -882,7 +874,7 @@
   #ifdef Mini
     #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 141 }  //141 default steps per unit
   #else
-    #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 417 }  //415 default steps per unit
+    #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 415 }  //415 default steps per unit
   #endif
 #else
   #define DEFAULT_AXIS_STEPS_PER_UNIT   { DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, DEFAULT_XYZ_STEPS_PER_UNIT, 397  }  //397 default steps per unit
@@ -924,9 +916,9 @@
  *   M204 R    Retract Acceleration
  *   M204 T    Travel Acceleration
  */
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
+#define DEFAULT_ACCELERATION           800   // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000   // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000   // X, Y, Z acceleration for travel (non printing) moves
 
 /**
  * Default Jerk limits (mm/s)
@@ -950,7 +942,7 @@
   #endif
 #endif
 
-#define DEFAULT_EJERK    5  // May be used by Linear Advance
+#define DEFAULT_EJERK    5.0  // May be used by Linear Advance
 
 /**
  * Junction Deviation Factor
@@ -989,7 +981,9 @@
  * The probe replaces the Z-MIN endstop and is used for Z homing.
  * (Automatically enables USE_PROBE_FOR_Z_HOMING.)
  */
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#ifdef STOCK
+  #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
 
 // Force the use of the probe for Z-axis homing
 //#define USE_PROBE_FOR_Z_HOMING
@@ -1176,13 +1170,13 @@
 #define PROBING_MARGIN 20
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED  (84*60)
+#define XY_PROBE_SPEED  (70*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 
 // Feedrate (mm/min) for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 6)
 
 /**
  * Multiple Probing
@@ -1269,14 +1263,14 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#if ANY(QQS, STOCK)
+#ifdef QQS
   #define INVERT_X_DIR false
   #define INVERT_Y_DIR false
   #define INVERT_Z_DIR false
   #ifdef INV_EXT
-  #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR false
   #else
-  #define INVERT_E0_DIR true
+    #define INVERT_E0_DIR true
   #endif
 #endif
 #if EITHER(QQS_TMC, QQS_UART)
@@ -1284,9 +1278,9 @@
   #define INVERT_Y_DIR true
   #define INVERT_Z_DIR true
   #ifdef INV_EXT
-  #define INVERT_E0_DIR true
+    #define INVERT_E0_DIR true
   #else
-  #define INVERT_E0_DIR false
+    #define INVERT_E0_DIR false
   #endif
 #endif 
 // @section extruder
@@ -1358,7 +1352,7 @@
 #endif
 
 #if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-  //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+  //#define SOFT_ENDSTOPS_MENU_ITEM   // Enable/Disable software endstops from the LCD
 #endif
 
 /**
@@ -1555,7 +1549,7 @@
 
   //#define MESH_EDIT_GFX_OVERLAY   // Display a graphics overlay while editing the mesh
 
-  #define MESH_INSET 10              // Set Mesh bounds as an inset region of the bed
+  #define MESH_INSET 10             // Set Mesh bounds as an inset region of the bed
   #define GRID_MAX_POINTS_X 7       // Don't use more than 15 points per axis, implementation limited.
   /// 10=53points, 13=90points, 15=110points
   #define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
@@ -1721,7 +1715,7 @@
  *   M501 - Read settings from EEPROM. (i.e., Throw away unsaved changes)
  *   M502 - Revert settings to "factory" defaults. (Follow with M500 to init the EEPROM.)
  */
-#define EEPROM_SETTINGS     // Persistent storage with M500 and M501
+#define EEPROM_SETTINGS       // Persistent storage with M500 and M501
 //#define DISABLE_M503        // Saves ~2700 bytes of PROGMEM. Disable for release!
 #define EEPROM_CHITCHAT       // Give feedback on EEPROM commands. Disable to save PROGMEM.
 #define EEPROM_BOOT_SILENT    // Keep M503 quiet and only give errors during first load
@@ -1735,7 +1729,7 @@
 // When enabled Marlin will send a busy status message to the host
 // every couple of seconds when it can't accept commands.
 //
-#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
+//#define HOST_KEEPALIVE_FEATURE        // Disable this if your host doesn't like keepalive messages
 #define DEFAULT_KEEPALIVE_INTERVAL 3  // Number of seconds between "busy" messages. Set with M113.
 #define BUSY_WHILE_HEATING            // Some hosts require "busy" messages even during heating
 
@@ -2610,13 +2604,17 @@
   #define BUTTON_DELAY_EDIT  50 // (ms) Button repeat delay for edit screens
   #define BUTTON_DELAY_MENU 250 // (ms) Button repeat delay for menus
 
-  #define TOUCH_SCREEN_CALIBRATION
+  #define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
-  #define TOUCH_CALIBRATION_X 12033
-  #define TOUCH_CALIBRATION_Y -9047
-  #define TOUCH_OFFSET_X        -30
-  #define TOUCH_OFFSET_Y        254
-
+  // QQS-Pro use MKS Robin TFT v2.0
+  //#define TOUCH_CALIBRATION_X 12033
+  //#define TOUCH_CALIBRATION_Y -9047
+  //#define TOUCH_OFFSET_X        -30
+  //#define TOUCH_OFFSET_Y        254
+  //#define XPT2046_X_CALIBRATION   12033
+  //#define XPT2046_Y_CALIBRATION  -9047
+  //#define XPT2046_X_OFFSET       -301
+  //#define XPT2046_Y_OFFSET        254
   #if ENABLED(TFT_COLOR_UI)
     //#define SINGLE_TOUCH_NAVIGATION
   #endif
