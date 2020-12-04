@@ -296,6 +296,18 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 }
 
 /**
+ * Disabling E steppers for manual filament change should be fine
+ * as long as users don't spin the E motor ridiculously fast and
+ * send current back to their board, potentially frying it.
+ */
+inline void disable_active_extruder() {
+  #if HAS_E_STEPPER_ENABLE
+    disable_e_stepper(active_extruder);
+    safe_delay(100);
+  #endif
+}
+
+/**
  * Unload filament from the hotend
  *
  * - Fail if the a safe temperature was not reached
@@ -357,11 +369,8 @@ bool unload_filament(const float &unload_length, const bool show_lcd/*=false*/,
     planner.settings.retract_acceleration = saved_acceleration;
   #endif
 
-  // Disable E steppers for manual change
-  #if HAS_E_STEPPER_ENABLE
-    disable_e_stepper(active_extruder);
-    safe_delay(100);
-  #endif
+  // Disable the Extruder for manual change
+  disable_active_extruder();
 
   return true;
 }
@@ -446,6 +455,9 @@ bool pause_print(const float &retract, const xyz_pos_t &park_point, const float 
   #if ENABLED(DUAL_X_CARRIAGE)
     set_duplication_enabled(saved_ext_dup_mode, saved_ext);
   #endif
+
+  // Disable the Extruder for manual change
+  disable_active_extruder();
 
   return true;
 }
