@@ -296,9 +296,9 @@ bool load_filament(const float &slow_load_length/*=0*/, const float &fast_load_l
 }
 
 /**
- * For liberty: Disable E steppers for manual filament change, the
- * procedure where the user yanks the filament, spins the E motor,
- * and sends current back to their board, potentially frying it.
+ * Disabling E steppers for manual filament change should be fine
+ * as long as users don't spin the E motor ridiculously fast and
+ * send current back to their board, potentially frying it.
  */
 inline void disable_active_extruder() {
   #if HAS_E_STEPPER_ENABLE
