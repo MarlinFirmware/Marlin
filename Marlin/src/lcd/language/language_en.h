@@ -429,11 +429,13 @@ namespace Language_en {
   PROGMEM Language_Str MSG_TOOL_MIGRATION_END              = _UxGT("Last Extruder");
   PROGMEM Language_Str MSG_TOOL_MIGRATION_SWAP             = _UxGT("Migrate to *");
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
-  PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
+  PROGMEM Language_Str MSG_CHANGE_E                = _UxGT("Change *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Load Filament");
   PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Load Filament *");
+  PROGMEM Language_Str MSG_LOAD_E                          = _UxGT("Load *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Unload Filament");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload Filament *");
+  PROGMEM Language_Str MSG_UNLOAD_E                        = _UxGT("Unload *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Unload All");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Attach Media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
