@@ -2607,10 +2607,10 @@
   #define TOUCH_SCREEN_CALIBRATION //or (M995) 
 
   // QQS-Pro use MKS Robin TFT v2.0
-  //#define TOUCH_CALIBRATION_X 12033
-  //#define TOUCH_CALIBRATION_Y -9047
-  //#define TOUCH_OFFSET_X        -30
-  //#define TOUCH_OFFSET_Y        254
+  #define TOUCH_CALIBRATION_X 12033
+  #define TOUCH_CALIBRATION_Y -9047
+  #define TOUCH_OFFSET_X        -30
+  #define TOUCH_OFFSET_Y        254
   //#define XPT2046_X_CALIBRATION   12033
   //#define XPT2046_Y_CALIBRATION  -9047
   //#define XPT2046_X_OFFSET       -301
