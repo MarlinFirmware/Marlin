@@ -44,21 +44,12 @@
 #define DATASIZE_16BIT SPI_DATASIZE_16BIT
 #define TFT_IO_DRIVER  TFT_FSMC
 
-typedef struct {
-  __IO uint16_t REG;
-  __IO uint16_t RAM;
-} LCD_CONTROLLER_TypeDef;
+typedef IF<ENABLED(IS_ANET_ET), uint8_t, uint16_t>::type ctrl_data_t;
 
-#if IS_ANET_ET
-  #define LCD_RAM_ADR 0x60040000
-  #define LCD_RAM *(__IO uint8_t *)LCD_RAM_ADR
-  #define LCD_REG *(__IO uint8_t *)0x60000000
-  #define LCD_REG_DATA(V) ((V) & 0xFF)
-#else
-  #define LCD_RAM LCD->RAM
-  #define LCD_REG LCD->REG
-  #define LCD_REG_DATA(V) (V)
-#endif
+typedef struct {
+  __IO ctrl_data_t REG;
+  __IO ctrl_data_t RAM;
+} LCD_CONTROLLER_TypeDef;
 
 class TFT_FSMC {
   private:
@@ -67,12 +58,9 @@ class TFT_FSMC {
 
     static LCD_CONTROLLER_TypeDef *LCD;
 
-    #if !IS_ANET_ET
-      static uint32_t ReadID(uint16_t Reg);
-    #endif
-
-    static void Transmit(uint8_t Data) { LCD_RAM = Data; __DSB(); }
-    static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
+    static uint32_t ReadID(ctrl_data_t Reg);
+    static void Transmit(uint8_t Data) { LCD->RAM = Data; __DSB(); }
+    static void TransmitDMA(uint32_t MemoryIncrease, ctrl_data_t *Data, uint16_t Count);
 
   public:
     static void Init();
@@ -83,8 +71,8 @@ class TFT_FSMC {
     static void DataTransferBegin(uint16_t DataWidth = TERN(IS_ANET_ET, DATASIZE_8BIT, DATASIZE_16BIT)) {}
     static void DataTransferEnd() {};
 
-    static void WriteData(uint16_t Data) { Transmit(LCD_REG_DATA(Data)); }
-    static void WriteReg(uint16_t Reg) { LCD_REG = LCD_REG_DATA(Reg); __DSB(); }
+    static void WriteData(ctrl_data_t Data) { Transmit(Data); }
+    static void WriteReg(ctrl_data_t Reg) { LCD->REG = Reg; __DSB(); }
 
     static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
     static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
@@ -137,7 +125,7 @@ const PinMap PinMap_FSMC_CS[] = {
   {NC,    NP,    0}
 };
 
-#define FSMC_RS(A)  (void *)((2 << A) - 2)
+#define FSMC_RS(A)  (void *)((2 << (A-1)) - 1)
 
 const PinMap PinMap_FSMC_RS[] = {
   #ifdef PF0
@@ -158,18 +146,14 @@ const PinMap PinMap_FSMC_RS[] = {
     {PG_4,  FSMC_RS(14), FSMC_PIN_DATA}, // FSMC_A14
     {PG_5,  FSMC_RS(15), FSMC_PIN_DATA}, // FSMC_A15
   #endif
-  #if !IS_ANET_ET
-    {PD_11, FSMC_RS(16), FSMC_PIN_DATA}, // FSMC_A16
-    {PD_12, FSMC_RS(17), FSMC_PIN_DATA}, // FSMC_A17
-  #endif
-  {PD_13, FSMC_RS(18), FSMC_PIN_DATA}, // FSMC_A18
-  #if !IS_ANET_ET
-    {PE_3,  FSMC_RS(19), FSMC_PIN_DATA}, // FSMC_A19
-    {PE_4,  FSMC_RS(20), FSMC_PIN_DATA}, // FSMC_A20
-    {PE_5,  FSMC_RS(21), FSMC_PIN_DATA}, // FSMC_A21
-    {PE_6,  FSMC_RS(22), FSMC_PIN_DATA}, // FSMC_A22
-    {PE_2,  FSMC_RS(23), FSMC_PIN_DATA}, // FSMC_A23
-  #endif
+   {PD_11, FSMC_RS(16), FSMC_PIN_DATA}, // FSMC_A16
+   {PD_12, FSMC_RS(17), FSMC_PIN_DATA}, // FSMC_A17
+   {PD_13, FSMC_RS(18), FSMC_PIN_DATA}, // FSMC_A18
+   {PE_3,  FSMC_RS(19), FSMC_PIN_DATA}, // FSMC_A19
+   {PE_4,  FSMC_RS(20), FSMC_PIN_DATA}, // FSMC_A20
+   {PE_5,  FSMC_RS(21), FSMC_PIN_DATA}, // FSMC_A21
+   {PE_6,  FSMC_RS(22), FSMC_PIN_DATA}, // FSMC_A22
+   {PE_2,  FSMC_RS(23), FSMC_PIN_DATA}, // FSMC_A23
   #ifdef PF0
     {PG_13, FSMC_RS(24), FSMC_PIN_DATA}, // FSMC_A24
     {PG_14, FSMC_RS(25), FSMC_PIN_DATA}, // FSMC_A25

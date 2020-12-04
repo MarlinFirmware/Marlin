@@ -33,6 +33,12 @@
 //
 // EEPROM
 //
+
+/**
+ * Status: Working.
+ * Hardware: AT24C04C (ATMLH744 04CM) 4 Kb => http://ww1.microchip.com/downloads/en/DeviceDoc/AT24C04C-AT24C08C-I2C-Compatible-%20Two-Wire-Serial-EEPROM-4-Kbit-8-Kbit-20006127A.pdf
+ */
+
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -61,7 +67,9 @@
 //
 // Z Probe
 //
-#ifndef Z_MIN_PROBE_PIN
+#if ENABLED(BLTOUCH)
+  #define SERVO0_PIN                        PC3
+#elif !defined(Z_MIN_PROBE_PIN)
   #define Z_MIN_PROBE_PIN                   PC3
 #endif
 
@@ -128,7 +136,18 @@
 //
 // LCD / Controller
 //
-#define TFT_DRIVER                        ST7789
+
+/**
+ * Status: Working. Merged FSMC/DMA implementation for stm32f4 from jmz52 fork.
+ * Hardware: IC ST7789V | STP320240_0280E2T (40P/1,5): ST7789 (YT280S008)  => https://a.aliexpress.com/_dV4Bghv
+ * Notes:
+ *  - Defined PINS: CSX, DCX, WRX, RESX, RDX, DB[8:15]
+ *  - FSMC/DMA and 8080-8 interface
+ */
+
+#ifndef TFT_DRIVER
+  #define TFT_DRIVER                        AUTO
+#endif
 #define TFT_RESET_PIN                       PE6
 #define TFT_CS_PIN                          PD7
 #define TFT_RS_PIN                          PD13
@@ -136,54 +155,10 @@
 //
 // Touch Screen
 //
-
-#define COLOR_ORANGEZ           0xFDE0
-#define COLOR_BACKGROUND        0x2124
-#define COLOR_SELECTION_BG      COLOR_ORANGEZ
-#define COLOR_WEBSITE_URL       0x03B7
-
-#define COLOR_REDZ              0xF003
-
-#define COLOR_INACTIVE          COLOR_GREY
-#define COLOR_COLD              COLOR_ORANGEZ
-#define COLOR_HOTEND            COLOR_REDZ
-#define COLOR_HEATED_BED        COLOR_REDZ
-#define COLOR_CHAMBER           COLOR_DARK_ORANGE
-#define COLOR_FAN               COLOR_ORANGEZ
-
-#define COLOR_AXIS_HOMED        COLOR_WHITE
-#define COLOR_AXIS_NOT_HOMED    COLOR_ORANGEZ
-
-#define COLOR_RATE_100          0xA7E0
-#define COLOR_RATE_ALTERED      COLOR_ORANGEZ
-
-#define COLOR_PRINT_TIME        COLOR_WHITE
-
-#define COLOR_PROGRESS_FRAME    COLOR_WHITE
-#define COLOR_PROGRESS_BAR      COLOR_ORANGEZ
-#define COLOR_PROGRESS_BG       COLOR_BLACK
-
-#define COLOR_STATUS_MESSAGE    COLOR_ORANGEZ
-
-#define COLOR_CONTROL_ENABLED   COLOR_ORANGEZ
-#define COLOR_CONTROL_DISABLED  COLOR_GREY
-#define COLOR_CONTROL_CANCEL    COLOR_SCARLET
-#define COLOR_CONTROL_CONFIRM   COLOR_VIVID_GREEN
-#define COLOR_BUSY              COLOR_SILVER
-
-#define COLOR_MENU_TEXT         COLOR_WHITE
-#define COLOR_MENU_VALUE        COLOR_WHITE
-#define COLOR_MENU_VALUE_FONT   COLOR_ORANGEZ
-
-#define COLOR_SLIDER            COLOR_WHITE
-#define COLOR_SLIDER_INACTIVE   COLOR_GREY
-
-#define COLOR_UBL               COLOR_WHITE
-
-#define COLOR_TOUCH_CALIBRATION COLOR_WHITE
-
-#define COLOR_KILL_SCREEN_BG    COLOR_MAROON
-#define COLOR_KILL_SCREEN_TEXT  COLOR_WHITE
+/**
+ * Status: Working. Merged implementation from jmz52 fork.
+ * Hardware: TOUCH: XPT2046 => https://ldm-systems.ru/f/doc/catalog/HY-TFT-2,8/XPT2046.pdf
+ */
 
 #if ENABLED(TOUCH_SCREEN)
   #define TOUCH_CS_PIN                      PB2
@@ -199,7 +174,7 @@
 //#define SDIO_SUPPORT
 
 #ifndef SDCARD_CONNECTION
-  #define SDCARD_CONNECTION              ONBOARD
+  #define SDCARD_CONNECTION         CUSTOM_CABLE
 #endif
 
 #if ENABLED(SDSUPPORT)
