@@ -19,31 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
+#pragma once
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../inc/MarlinConfigPre.h"
+#include "../gcode/parser.h"
 
-#if ENABLED(USE_WATCHDOG)
+#include <stdint.h>
 
-#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
+#define MAX_REPEAT_NESTING 10
 
-#include "../../inc/MarlinConfig.h"
+typedef struct {
+  uint32_t sdpos;   // The repeat file position
+  int16_t counter;  // The counter for looping
+} repeat_marker_t;
 
-#include "watchdog.h"
-#include <IWatchdog.h>
+class Repeat {
+private:
+  static repeat_marker_t marker[MAX_REPEAT_NESTING];
+  static uint8_t index;
+public:
+  static inline void reset() { index = 0; }
+  static bool is_command_M808(char * const cmd) { return cmd[0] == 'M' && cmd[1] == '8' && cmd[2] == '0' && cmd[3] == '8' && !NUMERIC(cmd[4]); }
+  static void early_parse_M808(char * const cmd);
+  static void add_marker(const uint32_t sdpos, const uint16_t count);
+  static void loop();
+  static void cancel();
+};
 
-void watchdog_init() {
-  #if DISABLED(DISABLE_WATCHDOG_INIT)
-    IWatchdog.begin(WDT_TIMEOUT_US);
-  #endif
-}
-
-void HAL_watchdog_refresh() {
-  IWatchdog.reload();
-  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heartbeat indicator
-  #endif
-}
-
-#endif // USE_WATCHDOG
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+extern Repeat repeat;

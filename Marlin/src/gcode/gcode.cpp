@@ -252,6 +252,7 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
   #if ENABLED(PASSWORD_FEATURE)
     if (password.is_locked && !parser.is_command('M', 511)) {
       SERIAL_ECHO_MSG(STR_PRINTER_LOCKED);
+      if (!no_ok) queue.ok_to_send();
       return;
     }
   #endif
@@ -880,6 +881,10 @@ void GcodeSuite::process_parsed_command(const bool no_ok/*=false*/) {
 
       #if ENABLED(DEBUG_GCODE_PARSER)
         case 800: parser.debug(); break;                          // M800: GCode Parser Test for M
+      #endif
+
+      #if ENABLED(GCODE_REPEAT_MARKERS)
+        case 808: M808(); break;                                  // M808: Set / Goto repeat markers
       #endif
 
       #if ENABLED(I2C_POSITION_ENCODERS)

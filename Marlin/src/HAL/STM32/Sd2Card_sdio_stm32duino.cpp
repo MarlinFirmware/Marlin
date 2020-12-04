@@ -19,10 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
 
 #include "../../inc/MarlinConfig.h"
 
-#if ENABLED(SDIO_SUPPORT) && !defined(STM32GENERIC)
+#if ENABLED(SDIO_SUPPORT)
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -319,3 +320,4 @@
 
 #endif // !USBD_USE_CDC_COMPOSITE
 #endif // SDIO_SUPPORT
+#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC

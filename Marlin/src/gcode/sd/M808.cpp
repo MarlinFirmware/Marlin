@@ -19,31 +19,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(ARDUINO_ARCH_STM32) && !defined(STM32GENERIC)
-
-#include "../../inc/MarlinConfigPre.h"
-
-#if ENABLED(USE_WATCHDOG)
-
-#define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
 
 #include "../../inc/MarlinConfig.h"
 
-#include "watchdog.h"
-#include <IWatchdog.h>
+#if ENABLED(GCODE_REPEAT_MARKERS)
 
-void watchdog_init() {
-  #if DISABLED(DISABLE_WATCHDOG_INIT)
-    IWatchdog.begin(WDT_TIMEOUT_US);
-  #endif
+#include "../gcode.h"
+#include "../../feature/repeat.h"
+
+/**
+ * M808: Set / Goto a repeat marker
+ *
+ *  L<count> - Set a repeat marker with 'count' repetitions. If omitted, infinity.
+ *
+ * Examples:
+ *
+ *    M808 L   ; Set a loop marker with a count of infinity
+ *    M808 L2  ; Set a loop marker with a count of 2
+ *    M808     ; Decrement and loop if not zero.
+ */
+void GcodeSuite::M808() {
+
+  // Handled early and ignored here in the queue.
+  // Allowed to go into the queue for logging purposes.
+
+  // M808 K sent from the host to cancel all loops
+  if (parser.seen('K')) repeat.cancel();
+
 }
 
-void HAL_watchdog_refresh() {
-  IWatchdog.reload();
-  #if DISABLED(PINS_DEBUGGING) && PIN_EXISTS(LED)
-    TOGGLE(LED_PIN);  // heartbeat indicator
-  #endif
-}
-
-#endif // USE_WATCHDOG
-#endif // ARDUINO_ARCH_STM32 && !STM32GENERIC
+#endif // GCODE_REPEAT_MARKERS

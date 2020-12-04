@@ -71,35 +71,11 @@
 
 #if MB(RAMPS_OLD)
   #include "ramps/pins_RAMPS_OLD.h"             // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_13_EFB)
+#elif MB(RAMPS_13_EFB, RAMPS_13_EEB, RAMPS_13_EFF, RAMPS_13_EEF, RAMPS_13_SF)
   #include "ramps/pins_RAMPS_13.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_13_EEB)
-  #include "ramps/pins_RAMPS_13.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_13_EFF)
-  #include "ramps/pins_RAMPS_13.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_13_EEF)
-  #include "ramps/pins_RAMPS_13.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_13_SF)
-  #include "ramps/pins_RAMPS_13.h"              // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_EFB)
+#elif MB(RAMPS_14_EFB, RAMPS_14_EEB, RAMPS_14_EFF, RAMPS_14_EEF, RAMPS_14_SF)
   #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_EEB)
-  #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_EFF)
-  #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_EEF)
-  #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_14_SF)
-  #include "ramps/pins_RAMPS.h"                 // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_PLUS_EFB)
-  #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_PLUS_EEB)
-  #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_PLUS_EFF)
-  #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_PLUS_EEF)
-  #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
-#elif MB(RAMPS_PLUS_SF)
+#elif MB(RAMPS_PLUS_EFB, RAMPS_PLUS_EEB, RAMPS_PLUS_EFF, RAMPS_PLUS_EEF, RAMPS_PLUS_SF)
   #include "ramps/pins_RAMPS_PLUS.h"            // ATmega1280, ATmega2560                 env:mega1280 env:mega2560
 
 //
@@ -178,9 +154,7 @@
   #include "ramps/pins_MAKEBOARD_MINI.h"        // ATmega2560                             env:mega2560
 #elif MB(TRIGORILLA_13)
   #include "ramps/pins_TRIGORILLA_13.h"         // ATmega2560                             env:mega2560
-#elif MB(TRIGORILLA_14)
-  #include "ramps/pins_TRIGORILLA_14.h"         // ATmega2560                             env:mega2560
-#elif MB(TRIGORILLA_14_11)
+#elif MB(TRIGORILLA_14, TRIGORILLA_14_11)
   #include "ramps/pins_TRIGORILLA_14.h"         // ATmega2560                             env:mega2560
 #elif MB(RAMPS_ENDER_4)
   #include "ramps/pins_RAMPS_ENDER_4.h"         // ATmega2560                             env:mega2560
@@ -214,11 +188,7 @@
   #include "ramps/pins_TENLOG_D3_HERO.h"        // ATmega2560                             env:mega2560
 #elif MB(MKS_GEN_L_V21)
   #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
-#elif MB(RAMPS_S_12_EEFB)
-  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
-#elif MB(RAMPS_S_12_EEEB)
-  #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
-#elif MB(RAMPS_S_12_EFFB)
+#elif MB(RAMPS_S_12_EEFB, RAMPS_S_12_EEEB, RAMPS_S_12_EFFB)
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
 #elif MB(RAMPS_LONGER3D_LKPRO)
   #include "ramps/pins_LONGER3D_LK4PRO.h"       // ATmega2560                             env:mega2560
@@ -383,15 +353,7 @@
 // LPC1768 ARM Cortex M3
 //
 
-#elif MB(RAMPS_14_RE_ARM_EFB)
-  #include "lpc1768/pins_RAMPS_RE_ARM.h"        // LPC1768                                env:LPC1768
-#elif MB(RAMPS_14_RE_ARM_EEB)
-  #include "lpc1768/pins_RAMPS_RE_ARM.h"        // LPC1768                                env:LPC1768
-#elif MB(RAMPS_14_RE_ARM_EFF)
-  #include "lpc1768/pins_RAMPS_RE_ARM.h"        // LPC1768                                env:LPC1768
-#elif MB(RAMPS_14_RE_ARM_EEF)
-  #include "lpc1768/pins_RAMPS_RE_ARM.h"        // LPC1768                                env:LPC1768
-#elif MB(RAMPS_14_RE_ARM_SF)
+#elif MB(RAMPS_14_RE_ARM_EFB, RAMPS_14_RE_ARM_EEB, RAMPS_14_RE_ARM_EFF, RAMPS_14_RE_ARM_EEF, RAMPS_14_RE_ARM_SF)
   #include "lpc1768/pins_RAMPS_RE_ARM.h"        // LPC1768                                env:LPC1768
 #elif MB(MKS_SBASE)
   #include "lpc1768/pins_MKS_SBASE.h"           // LPC1768                                env:LPC1768
@@ -461,35 +423,11 @@
   #include "sam/pins_RAMPS_FD_V1.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
 #elif MB(RAMPS_FD_V2)
   #include "sam/pins_RAMPS_FD_V2.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_SMART_EFB)
+#elif MB(RAMPS_SMART_EFB, RAMPS_SMART_EEB, RAMPS_SMART_EFF, RAMPS_SMART_EEF, RAMPS_SMART_SF)
   #include "sam/pins_RAMPS_SMART.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_SMART_EEB)
-  #include "sam/pins_RAMPS_SMART.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_SMART_EFF)
-  #include "sam/pins_RAMPS_SMART.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_SMART_EEF)
-  #include "sam/pins_RAMPS_SMART.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_SMART_SF)
-  #include "sam/pins_RAMPS_SMART.h"             // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_DUO_EFB)
+#elif MB(RAMPS_DUO_EFB, RAMPS_DUO_EEB, RAMPS_DUO_EFF, RAMPS_DUO_EEF, RAMPS_DUO_SF)
   #include "sam/pins_RAMPS_DUO.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_DUO_EEB)
-  #include "sam/pins_RAMPS_DUO.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_DUO_EFF)
-  #include "sam/pins_RAMPS_DUO.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_DUO_EEF)
-  #include "sam/pins_RAMPS_DUO.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS_DUO_SF)
-  #include "sam/pins_RAMPS_DUO.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS4DUE_EFB)
-  #include "sam/pins_RAMPS4DUE.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS4DUE_EEB)
-  #include "sam/pins_RAMPS4DUE.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS4DUE_EFF)
-  #include "sam/pins_RAMPS4DUE.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS4DUE_EEF)
-  #include "sam/pins_RAMPS4DUE.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
-#elif MB(RAMPS4DUE_SF)
+#elif MB(RAMPS4DUE_EFB, RAMPS4DUE_EEB, RAMPS4DUE_EFF, RAMPS4DUE_EEF, RAMPS4DUE_SF)
   #include "sam/pins_RAMPS4DUE.h"               // SAM3X8E                                env:DUE env:DUE_USB env:DUE_debug
 #elif MB(ULTRATRONICS_PRO)
   #include "sam/pins_ULTRATRONICS_PRO.h"        // SAM3X8E                                env:DUE env:DUE_debug
@@ -616,9 +554,7 @@
 
 #elif MB(ARMED)
   #include "stm32f4/pins_ARMED.h"               // STM32F4                                env:ARMED
-#elif MB(RUMBA32_V1_0)
-  #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
-#elif MB(RUMBA32_V1_1)
+#elif MB(RUMBA32_V1_0, RUMBA32_V1_1)
   #include "stm32f4/pins_RUMBA32_AUS3D.h"       // STM32F4                                env:rumba32
 #elif MB(RUMBA32_MKS)
   #include "stm32f4/pins_RUMBA32_MKS.h"         // STM32F4                                env:rumba32
