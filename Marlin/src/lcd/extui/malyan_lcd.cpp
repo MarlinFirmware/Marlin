@@ -531,6 +531,12 @@ namespace ExtUI {
   #if ENABLED(POWER_LOSS_RECOVERY)
     void onPowerLossResume() {}
   #endif
+
+  void onHomingStart() {};
+  void onHomingComplete() {};
+  void onPrintFinished() {};
+  void onSteppersEnabled() {};
+  void onSteppersDisabled() {};
 }
 
 #endif // MALYAN_LCD

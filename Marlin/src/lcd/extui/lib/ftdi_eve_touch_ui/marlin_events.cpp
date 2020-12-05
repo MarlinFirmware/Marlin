@@ -170,6 +170,13 @@ namespace ExtUI {
       GOTO_SCREEN(StatusScreen);
     }
   #endif // HAS_PID_HEATING
+
+  void onHomingStart() {};
+  void onHomingComplete() {};
+  void onPrintFinished() {};
+  void onSteppersEnabled() {};
+  void onSteppersDisabled() {};
+
 }
 
 #endif // TOUCH_UI_FTDI_EVE

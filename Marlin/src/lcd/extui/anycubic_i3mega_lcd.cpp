@@ -99,6 +99,13 @@ namespace ExtUI {
       // Called for temperature PID tuning result
     }
   #endif
+
+  void onHomingStart() {};
+  void onHomingComplete() {};
+  void onPrintFinished() {};
+  void onSteppersEnabled() {};
+  void onSteppersDisabled() {};
+
 }
 
 #endif // ANYCUBIC_LCD_I3MEGA

@@ -110,6 +110,13 @@ namespace ExtUI {
       // Called for temperature PID tuning result
     }
   #endif
+
+  void onHomingStart() {};
+  void onHomingComplete() {};
+  void onPrintFinished() {};
+  void onSteppersEnabled() {};
+  void onSteppersDisabled() {};
+
 }
 
 #endif // EXTUI_EXAMPLE && EXTENSIBLE_UI

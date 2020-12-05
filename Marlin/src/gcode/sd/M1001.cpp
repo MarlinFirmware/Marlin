@@ -74,6 +74,8 @@ void GcodeSuite::M1001() {
   // Purge the recovery file
   TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
+  TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());
+
   // Announce SD file completion
   {
     PORT_REDIRECT(SERIAL_BOTH);

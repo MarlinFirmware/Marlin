@@ -146,5 +146,11 @@ namespace ExtUI {
     }
   #endif
 
+  void onHomingStart() {};
+  void onHomingComplete() {};
+  void onPrintFinished() {};
+  void onSteppersEnabled() {};
+  void onSteppersDisabled() {};
+
 }
 #endif // HAS_DGUS_LCD

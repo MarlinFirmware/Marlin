@@ -515,6 +515,8 @@ G29_TYPE GcodeSuite::G29() {
 
     #if ABL_GRID
 
+      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+
       // Skip any unreachable points
       while (abl_probe_index < abl_points) {
 
