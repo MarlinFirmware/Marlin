@@ -105,6 +105,8 @@ public:
   }
 
   static inline void show() {
+    // Some platforms cannot maintain PWM output when NeoPixel disables interrupts for long durations.
+    TERN_(HAS_PAUSE_SERVO_OUTPUT, PAUSE_SERVO_OUTPUT());
     adaneo1.show();
     #if PIN_EXISTS(NEOPIXEL2)
       #if CONJOINED_NEOPIXEL
@@ -115,6 +117,7 @@ public:
         adaneo1.setPin(NEOPIXEL_PIN);
       #endif
     #endif
+    TERN_(HAS_PAUSE_SERVO_OUTPUT, RESUME_SERVO_OUTPUT());
   }
 
   #if 0
