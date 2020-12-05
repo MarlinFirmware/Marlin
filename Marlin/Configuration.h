@@ -885,7 +885,9 @@
  */
 //#define NOZZLE_AS_PROBE
 #if ENABLED(NOZZLE_AS_PROBE)
-  #define PROBE_REQUIRES_MINTEMP // Require a minimum temperature when using the nozzle as a probe
+  // Require a minimum temperature when using the nozzle as a probe. Useful on machines such as the Lulzbot series
+  // which uses a conductive nozzle or the Creality CR6 and other strain gauge sensors to prevent misreads from filament debris.
+  #define PROBE_REQUIRES_MINTEMP
   #if ENABLED(PROBE_REQUIRES_MINTEMP)
     #define PROBE_REQUIRES_MINTEMP_NOZZLE 150
     #define PROBE_REQUIRES_MINTEMP_BED 50
