@@ -190,8 +190,8 @@
   #include "ramps/pins_MKS_GEN_L_V21.h"         // ATmega2560                             env:mega2560
 #elif MB(RAMPS_S_12_EEFB, RAMPS_S_12_EEEB, RAMPS_S_12_EFFB)
   #include "ramps/pins_RAMPS_S_12.h"            // ATmega2560                             env:mega2560
-#elif MB(RAMPS_LONGER3D_LKPRO)
-  #include "ramps/pins_LONGER3D_LK4PRO.h"       // ATmega2560                             env:mega2560
+#elif MB(LONGER3D_LK1_PRO, LONGER3D_LKx_PRO)
+  #include "ramps/pins_LONGER3D_LKx_PRO.h"      // ATmega2560                             env:mega2560
 
 //
 // RAMBo and derivatives
@@ -663,6 +663,7 @@
   #define BOARD_RUMBA32                 -1018
   #define BOARD_RUMBA32_AUS3D           -1019
   #define BOARD_RAMPS_DAGOMA            -1020
+  #define BOARD_RAMPS_LONGER3D_LK4PRO   -1021
 
   #if MB(MKS_13)
     #error "BOARD_MKS_13 has been renamed BOARD_MKS_GEN_13. Please update your configuration."
@@ -708,6 +709,8 @@
     #error "BOARD_RUMBA32_AUS3D is now BOARD_RUMBA32_V1_0. Please update your configuration."
   #elif MB(RAMPS_DAGOMA)
     #error "BOARD_RAMPS_DAGOMA is now BOARD_DAGOMA_F5. Please update your configuration."
+  #elif MB(RAMPS_LONGER3D_LK4PRO)
+    #error "BOARD_RAMPS_LONGER3D_LK4PRO is now BOARD_LONGER3D_LKx_PRO. Please update your configuration."
   #else
     #error "Unknown MOTHERBOARD value set in Configuration.h"
   #endif
@@ -733,6 +736,7 @@
   #undef BOARD_RUMBA32
   #undef BOARD_RUMBA32_AUS3D
   #undef BOARD_RAMPS_DAGOMA
+  #undef BOARD_RAMPS_LONGER3D_LK4PRO
 
 #endif
 
