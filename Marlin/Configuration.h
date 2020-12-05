@@ -344,9 +344,10 @@
     #define AUTO_POWER_E_FANS
     #define AUTO_POWER_CONTROLLERFAN
     #define AUTO_POWER_CHAMBER_FAN
-    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU over this temperature
-    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU over this temperature
-    #define POWER_TIMEOUT 30
+    //#define AUTO_POWER_E_TEMP        50 // (°C) Turn on PSU if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) Turn on PSU if the chamber is over this temperature
+    #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
+    //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
   #endif
 #endif
 
@@ -503,10 +504,12 @@
     #define DEFAULT_Ki_LIST {   2.62,   2.62 }
     #define DEFAULT_Kd_LIST {  78.81,  78.81 }
   #else
-    // Ender 3 v2
-    #define DEFAULT_Kp  28.72
-    #define DEFAULT_Ki   2.62
-    #define DEFAULT_Kd  78.81
+    // Ender 3 v2 (M.A.R.C. Actual Hotend PID parameters)
+    // After burn new firmware execute M106 S255; M303 E0 S210 C15 U1; for PID
+    // Save to EEPROM with M500;
+    #define DEFAULT_Kp  22.89
+    #define DEFAULT_Ki   1.87
+    #define DEFAULT_Kd  70.18
   #endif
 #endif // PIDTEMP
 
@@ -673,6 +676,8 @@
  * stepper drivers that support them. You may also override timing options in Configuration_adv.h.
  *
  * A4988 is assumed for unspecified drivers.
+ *
+ * Use TMC2208/TMC2208_STANDALONE for TMC2225 drivers and TMC2209/TMC2209_STANDALONE for TMC2226 drivers.
  *
  * Options: A4988, A5984, DRV8825, LV8729, L6470, L6474, POWERSTEP01,
  *          TB6560, TB6600, TMC2100,
@@ -1169,6 +1174,12 @@
 /**
  * Filament Runout Sensors
  * Mechanical or opto endstops are used to check for the presence of filament.
+ *
+ * IMPORTANT: Runout will only trigger if Marlin is aware that a print job is running.
+ * Marlin knows a print job is running when:
+ *  1. Running a print job from media started with M24.
+ *  2. The Print Job Timer has been started with M75.
+ *  3. The heaters were turned on and PRINTJOB_TIMER_AUTOSTART is enabled.
  *
  * RAMPS-based boards use SERVO3_PIN for the first runout sensor.
  * For other boards you may need to define FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN, etc.
@@ -2087,9 +2098,10 @@
 //
 // Anet 128x64 full graphics lcd with rotary encoder as used on Anet A6
 // A clone of the RepRapDiscount full graphics display but with
-// different pins/wiring (see pins_ANET_10.h).
+// different pins/wiring (see pins_ANET_10.h). Enable one of these.
 //
 //#define ANET_FULL_GRAPHICS_LCD
+//#define ANET_FULL_GRAPHICS_LCD_ALT_WIRING
 
 //
 // AZSMZ 12864 LCD with SD
@@ -2339,6 +2351,10 @@
   //#define XPT2046_Y_CALIBRATION -8981
   //#define XPT2046_X_OFFSET        -43
   //#define XPT2046_Y_OFFSET        257
+
+  #if ENABLED(TFT_COLOR_UI)
+    //#define SINGLE_TOUCH_NAVIGATION
+  #endif
 #endif
 
 //
