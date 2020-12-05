@@ -884,6 +884,13 @@
  * nozzle system or a piezo-electric smart effector.
  */
 //#define NOZZLE_AS_PROBE
+#if ENABLED(NOZZLE_AS_PROBE)
+  #define PROBE_REQUIRES_MINTEMP // Require a minimum temperature when using the nozzle as a probe
+  #if ENABLED(PROBE_REQUIRES_MINTEMP)
+    #define PROBE_REQUIRES_MINTEMP_NOZZLE 150
+    #define PROBE_REQUIRES_MINTEMP_BED 50
+  #endif
+#endif
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
