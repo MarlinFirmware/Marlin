@@ -26,10 +26,8 @@
 
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
-#endif
-
-#if HOTENDS > 1 || E_STEPPERS > 1
-  #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
+#elif HOTENDS > 1 || E_STEPPERS > 1
+  #error "CREALITY_V452 supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #define BOARD_NAME "Creality v4.5.2"
