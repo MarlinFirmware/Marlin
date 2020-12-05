@@ -112,7 +112,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser Control");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Control");
   PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laser Power");
-  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Power");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Pwr");
   PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Toggle Laser");
   PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Toggle Spindle");
   PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Spindle Forward");
