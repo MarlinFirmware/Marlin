@@ -21,10 +21,10 @@
  */
 
 /**
- * Creality v4.5.2 (STM32F103) board pin assignments
+ * Creality v4.5.2 (STM32F103RET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -35,21 +35,23 @@
 #define BOARD_NAME "Creality v4.5.2"
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
-  #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                  PA11
-    #define IIC_EEPROM_SCL                  PA12
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
-  #endif
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
 #endif
 
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA                  PA11
+  #define IIC_EEPROM_SCL                  PA12
+  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
+#endif
 
 //
 // Limit Switches
@@ -58,7 +60,7 @@
 // #define X_MAX_PIN          PA7
 #define Y_MIN_PIN           PC5
 #define Z_MIN_PIN           PA4
-#define COM_PIN             PA5
+#define PROBE_TARE_PIN      PA5
 
 //
 // Steppers
@@ -111,6 +113,3 @@
 
 #define FIL_RUNOUT_PIN PA7
 #define PROBE_ENABLE_PIN    PC6 // Optoswitch to Enable Z Probe
-
-
-#define TEMP_TIMER_CHAN 4 // Channel of the timer to use for compare and interrupts
