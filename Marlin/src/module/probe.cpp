@@ -479,10 +479,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   return !probe_triggered;
 }
 
-#if ENABLED(PROBE_NEEDS_TARE)
+#if ENABLED(PROBE_CAN_TARE
 bool Probe::tare_z_probe() {
-  #if ENABLED(PROBE_ENABLE_WINDOW)
-    if ((READ(PROBE_ENABLE_PIN) == PROBE_NEEDS_ENABLE_STATE)) {
+  #if ENABLED(PROBE_TARE_WHILE_INACTIVEACTIVE)
+    if ((READ(PROBE_ENABLE_PIN) == PROBE_ENABLED_INPUTT_STATE)) {
       SERIAL_ECHOLN("Cannot tare probe, already Enabled");
       return true;
     }
@@ -513,8 +513,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
     // Do a first probe at the fast speed
 
-    #if ENABLED(PROBE_NEEDS_TARE)
-      if(tare_z_probe()) return true;
+    #if ENABLED(PROBE_CAN_TARE
+      if(tare_z_probe()) return NAN;
     #endif
 
     const bool probe_fail = probe_down_to_z(z_probe_low_point, fr_mm_s),            // No probe trigger?
@@ -530,7 +530,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     #else
       UNUSED(plbl);
     #endif
-    return (int)(probe_fail || early_fail);
+    return (bool)(probe_fail || early_fail);
   };
 
   // Stop the probe before it goes too low to prevent damage.
@@ -541,8 +541,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    #if ENABLED(PROBE_NEEDS_TARE)
-      if(tare_z_probe()) return true;
+    #if ENABLED(PROBE_CAN_TARE
+      if(tare_z_probe()) return NAN;
     #endif
 
     if (try_to_probe(PSTR("FAST"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST),
@@ -583,7 +583,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
     {
       // Probe downward slowly to find the bed
-      #if ENABLED(PROBE_NEEDS_TARE)
+      #if ENABLED(PROBE_CAN_TARE
         if(tare_z_probe()) return true;
       #endif
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),
