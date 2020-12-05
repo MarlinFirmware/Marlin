@@ -284,7 +284,7 @@ void Endstops::init() {
     SET_INPUT(PROBE_ENABLE_PIN)
   #endif
 
-  #if ENABLED(PROBE_CAN_TARE
+  #if ENABLED(PROBE_CAN_TARE)
     probe.tare_z_probe();
   #endif
 
