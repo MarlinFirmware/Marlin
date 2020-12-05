@@ -329,6 +329,7 @@
 #define BOARD_CHITU3D_V6              4036  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
+#define BOARD_CREALITY_V452           4043  // Creality v4.5.2 (STM32F103RE)
 #define BOARD_TRIGORILLA_PRO          4039  // Trigorilla Pro (STM32F103ZET6)
 #define BOARD_FLY_MINI                4040  // FLY MINI (STM32F103RCT6)
 #define BOARD_FLSUN_HISPEED           4041  // FLSUN HiSpeedV1 (STM32F103VET6)
