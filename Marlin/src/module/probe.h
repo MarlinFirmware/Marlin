@@ -206,6 +206,10 @@ public:
     static void set_probing_paused(const bool p);
   #endif
 
+  #if ENABLED(PROBE_NEEDS_TARE)
+    static bool tare_z_probe();
+  #endif
+
 private:
   static bool probe_down_to_z(const float z, const feedRate_t fr_mm_s);
   static void do_z_raise(const float z_raise);

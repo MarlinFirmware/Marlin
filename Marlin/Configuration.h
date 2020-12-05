@@ -996,6 +996,28 @@
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
+// For probes that require an explicit enable input such as feedback an arm is deployed or an opto switch reporting in-range
+//#define PROBE_NEEDS_ENABLE
+#if ENABLED(PROBE_NEEDS_ENABLE)
+  #define PROBE_NEEDS_ENABLE_STATE LOW
+#endif
+//#define PROBE_ENABLE_PIN PC6 // Override default probe enable pin
+
+// Probe requires Tare - Usefull for Strain guage or Piezo type probes which may see force from cabling or bowden tubes following moves
+//#define PROBE_NEEDS_TARE
+#if ENABLED(PROBE_NEEDS_TARE)
+  #define PROBE_TARE_TIME  200    // Time to hold tare pin
+  #define PROBE_TARE_DELAY 200    // Dwell following tare before continuing
+  #define PROBE_TARE_STATE HIGH   // State to write pin for tare
+  //#define PROBE_TARE_PIN PA5      // Override default Tare pin
+  #if ENABLED(PROBE_NEEDS_ENABLE)
+    // Assume probe enable will come on in a Z window rather than detecting probe deployment.
+    // Useful when TARE can be assured outside enable range to avoid potential crash situations.
+    // Prevents tare unless enable switch is off
+    //#define PROBE_ENABLE_WINDOW
+  #endif
+#endif
+
 /**
  * Multiple Probing
  *

@@ -1603,6 +1603,10 @@ void homeaxis(const AxisEnum axis) {
     if (axis == Z_AXIS && bltouch.deploy()) return; // The initial DEPLOY
   #endif
 
+  #if ENABLED(PROBE_NEEDS_TARE)
+    if (probe.tare_z_probe()) return;
+  #endif
+
   #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
     const xy_float_t backoff = SENSORLESS_BACKOFF_MM;
     if (((ENABLED(X_SENSORLESS) && axis == X_AXIS) || (ENABLED(Y_SENSORLESS) && axis == Y_AXIS)) && backoff[axis])
