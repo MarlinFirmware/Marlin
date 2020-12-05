@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -39,7 +39,7 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+  #define IIC_BL24CXX_EEPROM                    // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
 #endif
 
@@ -102,12 +102,12 @@
 
 /* SD card detect */
 #define SD_DETECT_PIN      PC7
-#define NO_SD_HOST_DRIVE  // This board's SD is only seen by the printer
+#define NO_SD_HOST_DRIVE       // SD is only seen by the printer
 
-#define SDIO_SUPPORT      // Extra added by Creality
-#define SDIO_CLOCK 6000000 // In original source code overridden by Creality in sdio.h
+#define SDIO_SUPPORT           // Extra added by Creality
+#define SDIO_CLOCK     6000000 // In original source code overridden by Creality in sdio.h
 
-#define CASE_LIGHT_PIN PA6
+#define CASE_LIGHT_PIN     PA6
 
-#define FIL_RUNOUT_PIN PA7
-#define PROBE_ENABLE_PIN    PC6 // Optoswitch to Enable Z Probe
+#define FIL_RUNOUT_PIN     PA7
+#define PROBE_ENABLE_PIN   PC6 // Optoswitch to Enable Z Probe
