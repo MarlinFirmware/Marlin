@@ -1997,6 +1997,9 @@
 #if NUM_SERVOS > 0
   #define HAS_SERVOS 1
 #endif
+#if HAS_SERVOS && defined(PAUSE_SERVO_OUTPUT) && defined(RESUME_SERVO_OUTPUT)
+  #define HAS_PAUSE_SERVO_OUTPUT 1
+#endif
 
 // Sensors
 #if PIN_EXISTS(FILWIDTH)
