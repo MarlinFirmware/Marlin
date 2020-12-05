@@ -77,6 +77,10 @@
   #include "lcd/dwin/e3v2/rotary_encoder.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "lcd/extui/ui_api.h"
+#endif
+
 #if HAS_ETHERNET
   #include "feature/ethernet.h"
 #endif
