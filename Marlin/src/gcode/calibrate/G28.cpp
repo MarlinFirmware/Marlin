@@ -50,6 +50,10 @@
   #include "../../lcd/dwin/e3v2/dwin.h"
 #endif
 
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+
 #if HAS_L64XX                         // set L6470 absolute position registers to counts
   #include "../../libs/L64XX/L64XX_Marlin.h"
 #endif
@@ -208,6 +212,8 @@ void GcodeSuite::G28() {
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
   TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
@@ -461,6 +467,8 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   report_current_position();
 
