@@ -1653,7 +1653,7 @@
   // For a purge/clean station mounted on the X axis
   //#define NOZZLE_CLEAN_NO_Y
 
-  #define NOZZLE_CLEAN_MIN_TEMP
+  //#define NOZZLE_CLEAN_MIN_TEMP
   #if ENABLED(NOZZLE_CLEAN_MIN_TEMP)
     #define NOZZE_CLEAN_TEMP  170
     // Default behavior is to skip nozzles that are too cold. The allows you to force them to heat instead
