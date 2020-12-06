@@ -482,7 +482,7 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
 #if ENABLED(PROBE_CAN_TARE)
 bool Probe::tare_z_probe() {
   #if ENABLED(PROBE_TARE_WHILE_INACTIVEACTIVE)
-    if ((READ(PROBE_ENABLE_PIN) == PROBE_ENABLED_INPUTT_STATE)) {
+    if ((READ(PROBE_ENABLE_PIN) == PROBE_ENABLED_INPUT_STATE)) {
       SERIAL_ECHOLN("Cannot tare probe, already Enabled");
       return true;
     }
