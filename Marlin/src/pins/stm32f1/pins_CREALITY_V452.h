@@ -33,81 +33,88 @@
 #define BOARD_NAME "Creality v4.5.2"
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
+//
+// Release PB4 (Z_STEP_PIN) from JTAG NRST role
+//
+#define DISABLE_DEBUG
+
 #define BOARD_NO_NATIVE_USB
 
 //
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  #define IIC_BL24CXX_EEPROM                    // EEPROM on I2C-0
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA                  PA11
-  #define IIC_EEPROM_SCL                  PA12
-  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
 #endif
 
 //
 // Limit Switches
 //
-#define X_MIN_PIN           PC4
-// #define X_MAX_PIN          PA7
-#define Y_MIN_PIN           PC5
-#define Z_MIN_PIN           PA4
-#define PROBE_TARE_PIN      PA5
+#define X_STOP_PIN                          PC4
+#define Y_STOP_PIN                          PC5
+#define Z_STOP_PIN                          PA4
+
+#define FIL_RUNOUT_PIN                      PA7
+
+//
+// Probe
+//
+#define PROBE_TARE_PIN                      PA5
+#define PROBE_ENABLE_PIN                    PC6   // Optoswitch to Enable Z Probe
 
 //
 // Steppers
 //
-#define X_ENABLE_PIN        PC3
-#define X_STEP_PIN          PB8
-#define X_DIR_PIN           PB7
+#define X_ENABLE_PIN                        PC3
+#define X_STEP_PIN                          PB8
+#define X_DIR_PIN                           PB7
 
-#define Y_ENABLE_PIN        PC3
-#define Y_STEP_PIN          PB6
-#define Y_DIR_PIN           PB5
+#define Y_ENABLE_PIN                        PC3
+#define Y_STEP_PIN                          PB6
+#define Y_DIR_PIN                           PB5
 
-#define Z_ENABLE_PIN        PC3
-#define Z_STEP_PIN          PB4
-#define Z_DIR_PIN           PB3
+#define Z_ENABLE_PIN                        PC3
+#define Z_STEP_PIN                          PB4
+#define Z_DIR_PIN                           PB3
 
-#define E0_ENABLE_PIN       PC3
-#define E0_STEP_PIN         PC2
-#define E0_DIR_PIN          PB9
-
-
-//
-// Release PB4 (Z_STEP_PIN) from JTAG NRST role
-//
-#define DISABLE_DEBUG
+#define E0_ENABLE_PIN                       PC3
+#define E0_STEP_PIN                         PC2
+#define E0_DIR_PIN                          PB9
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         PB1   // TH1
-#define TEMP_BED_PIN       PB0   // TB1
+#define TEMP_0_PIN                          PB1   // TH1
+#define TEMP_BED_PIN                        PB0   // TB1
 
 //
 // Heaters / Fans
+//
+#define HEATER_0_PIN                        PA1   // HEATER1
+#define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define HEATER_0_PIN       PA1   // HEATER1
-#define HEATER_BED_PIN     PA2   // HOT BED
-
-#define FAN_PIN            PA0   // FAN
+#define FAN_PIN                             PA0   // FAN
 #define FAN_SOFT_PWM
 
-/* SD card detect */
-#define SD_DETECT_PIN      PC7
-#define NO_SD_HOST_DRIVE       // SD is only seen by the printer
+//
+// SD Card
+//
+#define SD_DETECT_PIN                       PC7
+#define NO_SD_HOST_DRIVE                          // SD is only seen by the printer
 
-#define SDIO_SUPPORT           // Extra added by Creality
-#define SDIO_CLOCK     6000000 // In original source code overridden by Creality in sdio.h
+#define SDIO_SUPPORT                              // Extra added by Creality
+#define SDIO_CLOCK                       6000000  // In original source code overridden by Creality in sdio.h
 
-#define CASE_LIGHT_PIN     PA6
-
-#define FIL_RUNOUT_PIN     PA7
-#define PROBE_ENABLE_PIN   PC6 // Optoswitch to Enable Z Probe
+//
+// Misc. Functions
+//
+#define CASE_LIGHT_PIN                      PA6
