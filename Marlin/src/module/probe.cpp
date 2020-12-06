@@ -348,33 +348,33 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool deploy_stow_condition = true;
   #endif
 
-  #if BOTH(NOZZLE_AS_PROBE, PROBE_REQUIRES_MINTEMP)
-    bool setting_hotend, setting_bed = false;
-    #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && PROBE_REQUIRES_MINTEMP_NOZZLE < 0 && HAS_TEMP_HOTEND
-      if (thermalManager.degTargetHotend(0) < PROBE_REQUIRES_MINTEMP_NOZZLE) {
-        uint16_t hotendTemperature = AUTOLEVEL_PREHEAT_NOZZLE_TEMP;
-        SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
-        thermalManager.setTargetHotend(hotendTemperature, 0);
-        setting_hotend = true;
-      }
-    #endif
-
-    #if defined(PROBE_REQUIRES_MINTEMP_BED) && PROBE_REQUIRES_MINTEMP_BED < 0 && HAS_HEATED_BED
-      if (thermalManager.degBed() < PROBE_REQUIRES_MINTEMP_BED) {
-        uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
-        SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
-        thermalManager.setTargetBed(bedTemperature);
-        setting_bed = true;
-      }
-      #endif
-
-    #if HAS_TEMP_HOTEND
-      if (setting_hotend) thermalManager.wait_for_hotend(0);
-    #endif
-    #if HAS_HEATED_BED
-      if (setting_bed) thermalManager.wait_for_bed_heating();
-    #endif
+  #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && PROBE_REQUIRES_MINTEMP_NOZZLE < 0 && HAS_TEMP_HOTEND
+    if (thermalManager.degTargetHotend(0) < PROBE_REQUIRES_MINTEMP_NOZZLE) {
+      bool setting_hotend = false;
+      uint16_t hotendTemperature = AUTOLEVEL_PREHEAT_NOZZLE_TEMP;
+      SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
+      thermalManager.setTargetHotend(hotendTemperature, 0);
+      setting_hotend = true;
+    }
   #endif
+
+  #if defined(PROBE_REQUIRES_MINTEMP_BED) && PROBE_REQUIRES_MINTEMP_BED < 0 && HAS_HEATED_BED
+    bool setting_hotend, setting_bed = false;
+    if (thermalManager.degBed() < PROBE_REQUIRES_MINTEMP_BED) {
+      uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
+      SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
+      thermalManager.setTargetBed(bedTemperature);
+      setting_bed = true;
+    }
+  #endif
+
+  #if HAS_TEMP_HOTEND
+    if (setting_hotend) thermalManager.wait_for_hotend(0);
+  #endif
+  #if HAS_HEATED_BED
+     if (setting_bed) thermalManager.wait_for_bed_heating();
+  #endif
+
 
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)

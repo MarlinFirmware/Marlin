@@ -884,15 +884,6 @@
  * nozzle system or a piezo-electric smart effector.
  */
 //#define NOZZLE_AS_PROBE
-#if ENABLED(NOZZLE_AS_PROBE)
-  // Require a minimum temperature when using the nozzle as a probe. Useful on machines such as the Lulzbot series
-  // which uses a conductive nozzle or the Creality CR6 and other strain gauge sensors to prevent misreads from filament debris.
-  #define PROBE_REQUIRES_MINTEMP
-  #if ENABLED(PROBE_REQUIRES_MINTEMP)
-    #define PROBE_REQUIRES_MINTEMP_NOZZLE 150
-    #define PROBE_REQUIRES_MINTEMP_BED 50
-  #endif
-#endif
 
 /**
  * Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -1065,6 +1056,13 @@
 //#define PROBING_FANS_OFF          // Turn fans off when probing
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
+
+// Require a minimum temperature when ubefore allowing probing. Useful on machines such as the Lulzbot series
+// which uses a conductive nozzle or the Creality CR6 and other strain gauge sensors to prevent misreads from filament debris.
+#define PROBE_REQUIRES_MINTEMP_NOZZLE 150
+#define PROBE_REQUIRES_MINTEMP_BED 50
+
+
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
