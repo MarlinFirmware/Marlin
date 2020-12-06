@@ -110,7 +110,7 @@
     #error "LCD_SERIAL_PORT must be -1 or from 1 to 3. Please update your configuration."
   #endif
 
-  #define SERIAL_GET_TX_BUFFER_FREE LCD_SERIAL.availableForWrite
+  #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
 #endif
 
 // Set interrupt grouping for this MCU

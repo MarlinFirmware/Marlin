@@ -364,6 +364,7 @@ void enable_all_steppers() {
   ENABLE_AXIS_Y();
   ENABLE_AXIS_Z();
   enable_e_steppers();
+
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersEnabled());
 }
 
@@ -384,6 +385,7 @@ void disable_all_steppers() {
   DISABLE_AXIS_Y();
   DISABLE_AXIS_Z();
   disable_e_steppers();
+
   TERN_(EXTENSIBLE_UI, ExtUI::onSteppersDisabled());
 }
 
