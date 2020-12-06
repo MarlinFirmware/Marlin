@@ -27,7 +27,7 @@
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "Creality_V4 only supports one hotend / E-stepper. Comment out this line to continue."
+  #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME
