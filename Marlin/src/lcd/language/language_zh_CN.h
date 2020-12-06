@@ -51,7 +51,7 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("主菜单");     //"Main"
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("高级设置");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("配置");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("自动开始");     //"Autostart"
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("自动开始");     //"Autostart"
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("关闭步进电机");     //"Disable steppers"
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("调试菜单");     // "Debug Menu"
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("进度条测试");     // "Progress Bar Test"
@@ -313,8 +313,8 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("温度");     //"Temperature"
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("运动");     //"Motion"
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("料丝");     //"Filament" menu_advanced_filament
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm³");     //"E in mm3" volumetric_enabled
-  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm³");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E 在 mm") SUPERSCRIPT_THREE;     //"E in mm3" volumetric_enabled
+  PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT                = _UxGT("E 限制 在 mm") SUPERSCRIPT_THREE;
   PROGMEM Language_Str MSG_VOLUMETRIC_LIMIT_E              = _UxGT("E 限制 *");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("丝料直径");     //"Fil. Dia."
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("丝料直径 *");

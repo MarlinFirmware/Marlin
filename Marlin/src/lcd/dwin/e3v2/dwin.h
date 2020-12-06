@@ -369,5 +369,7 @@ void DWIN_Update();
 void EachMomentUpdate();
 void DWIN_HandleScreen();
 
+inline void DWIN_StartHoming() { HMI_flag.home_flag = true; }
+
 void DWIN_CompletedHoming();
 void DWIN_CompletedLeveling();

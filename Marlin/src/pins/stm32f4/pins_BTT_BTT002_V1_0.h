@@ -24,7 +24,7 @@
 #if NOT_TARGET(STM32F4)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "BIGTREE BTT002 V1.0 supports up to 1 hotends / E-steppers."
+  #error "BIGTREE BTT002 V1.0 only supports one hotend / E-stepper."
 #endif
 
 #define BOARD_INFO_NAME "BTT BTT002 V1.0"
@@ -232,6 +232,11 @@
       #define LCD_PINS_D5                   PE11
       #define LCD_PINS_D6                   PE12
       #define LCD_PINS_D7                   PE13
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif

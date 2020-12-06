@@ -129,8 +129,10 @@ timer_dev* get_timer_dev(int number);
   #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler()
 #endif
 
-extern "C" void tempTC_Handler();
-extern "C" void stepTC_Handler();
+extern "C" {
+  void tempTC_Handler();
+  void stepTC_Handler();
+}
 
 // ------------------------
 // Public Variables

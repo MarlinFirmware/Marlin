@@ -88,7 +88,7 @@ void GcodeSuite::M600() {
                               // In this case, for duplicating modes set DXC_ext to the extruder that ran out.
       #if HAS_FILAMENT_SENSOR && NUM_RUNOUT_SENSORS > 1
         if (idex_is_duplicating())
-          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT_STATE) ? 1 : 0;
+          DXC_ext = (READ(FIL_RUNOUT2_PIN) == FIL_RUNOUT2_STATE) ? 1 : 0;
       #else
         DXC_ext = active_extruder;
       #endif
@@ -102,7 +102,7 @@ void GcodeSuite::M600() {
 
   #if ENABLED(HOME_BEFORE_FILAMENT_CHANGE)
     // If needed, home before parking for filament change
-    if (!all_axes_known()) home_all_axes();
+    if (!all_axes_trusted()) home_all_axes();
   #endif
 
   #if HAS_MULTI_EXTRUDER

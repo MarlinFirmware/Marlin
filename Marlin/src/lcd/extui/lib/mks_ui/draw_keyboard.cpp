@@ -122,7 +122,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
       //if (res != LV_RES_OK) return;
       const char * ret_ta_txt = lv_ta_get_text(ext->ta);
       switch (keyboard_value) {
-        #if ENABLED(USE_WIFI_FUNCTION)
+        #if ENABLED(MKS_WIFI_MODULE)
           case wifiName:
             memcpy(uiCfg.wifi_name,ret_ta_txt,sizeof(uiCfg.wifi_name));
             lv_clear_keyboard();
@@ -158,7 +158,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             wifi_tips_type = TIPS_TYPE_JOINING;
             lv_draw_wifi_tips();
             break;
-        #endif // USE_WIFI_FUNCTION
+        #endif // MKS_WIFI_MODULE
         case gcodeCommand:
           uint8_t buf[100];
           strncpy((char *)buf,ret_ta_txt,sizeof(buf));

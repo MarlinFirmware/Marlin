@@ -87,7 +87,7 @@ void AnycubicTFTClass::OnSetup() {
     SET_INPUT_PULLUP(SD_DETECT_PIN);
   #endif
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+    SET_INPUT_PULLUP(FIL_RUNOUT1_PIN);
   #endif
 
   mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;
@@ -935,7 +935,7 @@ void AnycubicTFTClass::DoFilamentRunoutCheck() {
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     // NOTE: ExtUI::getFilamentRunoutState() only returns the runout state if the job is printing
     // we want to actually check the status of the pin here, regardless of printstate
-    if (READ(FIL_RUNOUT_PIN)) {
+    if (READ(FIL_RUNOUT1_PIN)) {
       if (mediaPrintingState == AMPRINTSTATE_PRINTING || mediaPrintingState == AMPRINTSTATE_PAUSED || mediaPrintingState == AMPRINTSTATE_PAUSE_REQUESTED) {
         // play tone to indicate filament is out
         ExtUI::injectCommands_P(PSTR("\nM300 P200 S1567\nM300 P200 S1174\nM300 P200 S1567\nM300 P200 S1174\nM300 P2000 S1567"));
@@ -983,7 +983,7 @@ void AnycubicTFTClass::PausePrint() {
 void AnycubicTFTClass::ResumePrint() {
   #if ENABLED(SDSUPPORT)
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-      if (READ(FIL_RUNOUT_PIN)) {
+      if (READ(FIL_RUNOUT1_PIN)) {
         #if ENABLED(ANYCUBIC_LCD_DEBUG)
           SERIAL_ECHOLNPGM("TFT Serial Debug: Resume Print with filament sensor still tripped... ");
         #endif

@@ -89,7 +89,7 @@ void TFT_SPI::Init() {
   #elif TFT_MISO_PIN == BOARD_SPI2_MISO_PIN
     SPIx.setModule(2);
   #endif
-  SPIx.setClock(SPI_CLOCK_MAX);
+  SPIx.setClock(SPI_CLOCK_MAX_TFT);
   SPIx.setBitOrder(MSBFIRST);
   SPIx.setDataMode(SPI_MODE0);
 }
@@ -125,7 +125,7 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     }
 
     DataTransferEnd();
-    SPIx.setClock(SPI_CLOCK_MAX);
+    SPIx.setClock(SPI_CLOCK_MAX_TFT);
   #endif
 
   return data >> 7;

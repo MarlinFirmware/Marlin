@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -365,6 +365,9 @@ class MainMenu : public BaseScreen, public CachedScreen<MENU_SCREEN_CACHE> {
 };
 
 class TuneMenu : public BaseScreen, public CachedScreen<TUNE_SCREEN_CACHE> {
+  private:
+    static void pausePrint();
+    static void resumePrint();
   public:
     static void onRedraw(draw_mode_t);
     static bool onTouchEnd(uint8_t tag);
