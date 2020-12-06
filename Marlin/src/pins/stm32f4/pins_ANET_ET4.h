@@ -34,11 +34,6 @@
 // EEPROM
 //
 
-/**
- * Status: Working.
- * Hardware: AT24C04C (ATMLH744 04CM) 4 Kb => http://ww1.microchip.com/downloads/en/DeviceDoc/AT24C04C-AT24C08C-I2C-Compatible-%20Two-Wire-Serial-EEPROM-4-Kbit-8-Kbit-20006127A.pdf
- */
-
 // Use one of these or SDCard-based Emulation will be used
 #if NO_EEPROM_SELECTED
   //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
@@ -136,17 +131,8 @@
 //
 // LCD / Controller
 //
-
-/**
- * Status: Working. Merged FSMC/DMA implementation for stm32f4 from jmz52 fork.
- * Hardware: IC ST7789V | STP320240_0280E2T (40P/1,5): ST7789 (YT280S008)  => https://a.aliexpress.com/_dV4Bghv
- * Notes:
- *  - Defined PINS: CSX, DCX, WRX, RESX, RDX, DB[8:15]
- *  - FSMC/DMA and 8080-8 interface
- */
-
 #ifndef TFT_DRIVER
-  #define TFT_DRIVER                        AUTO
+  #define TFT_DRIVER                        AUTO  // ST7789
 #endif
 #define TFT_RESET_PIN                       PE6
 #define TFT_CS_PIN                          PD7
@@ -154,12 +140,8 @@
 
 //
 // Touch Screen
+// https://ldm-systems.ru/f/doc/catalog/HY-TFT-2,8/XPT2046.pdf
 //
-/**
- * Status: Working. Merged implementation from jmz52 fork.
- * Hardware: TOUCH: XPT2046 => https://ldm-systems.ru/f/doc/catalog/HY-TFT-2,8/XPT2046.pdf
- */
-
 #if ENABLED(TOUCH_SCREEN)
   #define TOUCH_CS_PIN                      PB2
   #define TOUCH_SCK_PIN                     PB0
