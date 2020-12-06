@@ -211,10 +211,6 @@ void GcodeSuite::G28() {
 
   TERN_(LASER_MOVE_G28_OFF, cutter.set_inline_enabled(false));  // turn off laser
 
-  TERN_(DWIN_CREALITY_LCD, HMI_flag.home_flag = true);
-
-  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
-
   #if ENABLED(DUAL_X_CARRIAGE)
     bool IDEX_saved_duplication_state = extruder_duplication_enabled;
     DualXMode IDEX_saved_mode = dual_x_carriage_mode;
@@ -236,17 +232,17 @@ void GcodeSuite::G28() {
     return;
   }
 
+  TERN_(DWIN_CREALITY_LCD, DWIN_StartHoming());
+  TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
+
   planner.synchronize();          // Wait for planner moves to finish!
 
   SET_SOFT_ENDSTOP_LOOSE(false);  // Reset a leftover 'loose' motion state
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-
-    // Cancel the active G29 session
-    TERN_(PROBE_MANUALLY, g29_in_progress = false);
-
     TERN_(RESTORE_LEVELING_AFTER_G28, const bool leveling_was_active = planner.leveling_active);
+    TERN_(PROBE_MANUALLY, g29_in_progress = false);  // Cancel the active G29 session
     set_bed_leveling_enabled(false);
   #endif
 
@@ -467,7 +463,6 @@ void GcodeSuite::G28() {
   ui.refresh();
 
   TERN_(DWIN_CREALITY_LCD, DWIN_CompletedHoming());
-
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingComplete());
 
   report_current_position();
