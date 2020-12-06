@@ -177,7 +177,9 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
+  #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
+    ExtUI::onMeshLevelingStart();
+  #endif
 
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
          no_action = seenA || seenQ,
@@ -510,8 +512,6 @@ G29_TYPE GcodeSuite::G29() {
     //
 
     #if ABL_GRID
-
-      TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
 
       // Skip any unreachable points
       while (abl_probe_index < abl_points) {

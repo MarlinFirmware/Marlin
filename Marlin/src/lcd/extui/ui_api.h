@@ -152,8 +152,6 @@ namespace ExtUI {
       } probe_state_t;
       void onMeshUpdate(const int8_t xpos, const int8_t ypos, probe_state_t state);
       inline void onMeshUpdate(const xy_int8_t &pos, probe_state_t state) { onMeshUpdate(pos.x, pos.y, state); }
-
-      inline void onMeshLevelingStart();
     #endif
   #endif
 
@@ -368,11 +366,6 @@ namespace ExtUI {
   #if HAS_PID_HEATING
     void onPidTuning(const result_t rst);
   #endif
-  void onHomingStart();
-  void onHomingComplete();
-  void onPrintFinished();
-  void onSteppersEnabled();
-  void onSteppersDisabled();
 };
 
 /**
