@@ -348,6 +348,8 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool deploy_stow_condition = true;
   #endif
 
+  bool setting_bed = false;
+  bool setting_hotend = false;
   #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && PROBE_REQUIRES_MINTEMP_NOZZLE < 0 && HAS_TEMP_HOTEND
     if (thermalManager.degTargetHotend(0) < PROBE_REQUIRES_MINTEMP_NOZZLE) {
       bool setting_hotend = false;
@@ -359,7 +361,6 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   #if defined(PROBE_REQUIRES_MINTEMP_BED) && PROBE_REQUIRES_MINTEMP_BED < 0 && HAS_HEATED_BED
-    bool setting_hotend, setting_bed = false;
     if (thermalManager.degBed() < PROBE_REQUIRES_MINTEMP_BED) {
       uint16_t bedTemperature = AUTOLEVEL_PREHEAT_BED_TEMP;
       SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);

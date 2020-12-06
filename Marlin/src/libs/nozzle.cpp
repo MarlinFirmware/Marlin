@@ -153,6 +153,19 @@ Nozzle nozzle;
 
     const uint8_t arrPos = ANY(SINGLENOZZLE, MIXING_EXTRUDER) ? 0 : active_extruder;
 
+    #if ENABLED(NOZZLE_CLEAN_MIN_TEMP) && NOZZE_CLEAN_TEMP > 0
+      if(thermalManager.degTargetHotend(arrPos)) < NOZZE_CLEAN_TEMP) {
+        #if ENABLED(NOZLE_CLEAN_HEAT_LOWTEMP)
+          SERIAL_ECHOLNPGM("Nozzle too Cold - Heating");
+          thermalManager.setTargetHotend(NOZZE_CLEAN_TEMP, arrPos);
+          thermalManager.wait_for_hotend(0);
+        #else
+          SERIAL_ECHOLNPGM("Nozzle too cold - Skipping Wipe");
+          return;
+        #endif
+      }
+    #endif
+
     #if HAS_SOFTWARE_ENDSTOPS
 
       #define LIMIT_AXIS(A) do{ \

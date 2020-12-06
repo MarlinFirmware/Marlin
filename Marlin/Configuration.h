@@ -1059,8 +1059,8 @@
 
 // Require a minimum temperature when ubefore allowing probing. Useful on machines such as the Lulzbot series
 // which uses a conductive nozzle or the Creality CR6 and other strain gauge sensors to prevent misreads from filament debris.
-#define PROBE_REQUIRES_MINTEMP_NOZZLE 150
-#define PROBE_REQUIRES_MINTEMP_BED 50
+//#define PROBE_REQUIRES_MINTEMP_NOZZLE 150
+//#define PROBE_REQUIRES_MINTEMP_BED 50
 
 
 
@@ -1652,6 +1652,13 @@
 
   // For a purge/clean station mounted on the X axis
   //#define NOZZLE_CLEAN_NO_Y
+
+  #define NOZZLE_CLEAN_MIN_TEMP
+  #if ENABLED(NOZZLE_CLEAN_MIN_TEMP)
+    #define NOZZE_CLEAN_TEMP  170
+    // Default behavior is to skip nozzles that are too cold. The allows you to force them to heat instead
+    //#define NOZLE_CLEAN_HEAT_LOWTEMP
+  #endif
 
   // Explicit wipe G-code script applies to a G12 with no arguments.
   //#define WIPE_SEQUENCE_COMMANDS "G1 X-17 Y25 Z10 F4000\nG1 Z1\nM114\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 Z15\nM400\nG0 X-10.0 Y-9.0"
