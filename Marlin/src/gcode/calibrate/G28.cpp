@@ -435,6 +435,8 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
+  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_was_active));
+
   restore_feedrate_and_scaling();
 
   // Restore the active tool after homing
@@ -457,8 +459,6 @@ void GcodeSuite::G28() {
       stepperY2.rms_current(tmc_save_current_Y2);
     #endif
   #endif
-
-  TERN_(HAS_LEVELING, set_bed_leveling_enabled(leveling_restore_state));
 
   ui.refresh();
 
