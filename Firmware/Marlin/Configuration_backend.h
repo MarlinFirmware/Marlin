@@ -81,7 +81,7 @@
   #define DEFAULT_Kd 114
 #endif
 
-#if DISABLED(SPACE_SAVER) && ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
+#if ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
   #define PIDTEMPBED
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
