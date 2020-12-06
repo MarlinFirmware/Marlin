@@ -248,6 +248,7 @@
     #define BUTTON_DELAY_MENU 100 // (ms) Button repeat delay for menus
 
     #define TOUCH_SCREEN_CALIBRATION
+    #define TFT_ROTATION TFT_ROTATE_180_MIRROR_X
 
     /* MKS Robin TFT v2.0 */
     #define XPT2046_X_CALIBRATION  12013
