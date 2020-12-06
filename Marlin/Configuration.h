@@ -171,6 +171,7 @@
 //#define SKR_ReverseSteppers // Some users reported directions backwards than others on SKR with various drivers.
 //#define DualZ // Uses 5th driver on CRX or SKR boards as Z2
 
+#define PowerShutoffKit
  /*
   *
   * If any non-stock dual extruder is used, define type here
@@ -776,13 +777,18 @@
  * Enable and connect the power supply to the PS_ON_PIN.
  * Specify whether the power supply is active HIGH or active LOW.
  */
-#if ENABLED(MachineCR2020)
+#if ANY(MachineCR2020, PowerShutoffKit)
   #define PSU_CONTROL
 #endif
 //#define PSU_NAME "Power Supply"
 
 #if ENABLED(PSU_CONTROL)
-  #define PSU_ACTIVE_STATE LOW      // Set 'LOW' for ATX, 'HIGH' for X-Box
+  #if ENABLED(PowerShutoffKit)
+    #define PS_ON_PIN 12
+    #define PSU_ACTIVE_HIGH HIGH
+  #else
+    #define PSU_ACTIVE_HIGH FALSE      // Set 'LOW' for ATX, 'HIGH' for X-Box
+  #endif
 
   //#define PSU_DEFAULT_OFF         // Keep power off until enabled directly with M80
   //#define PSU_POWERUP_DELAY 250   // (ms) Delay for the PSU to warm up to full power
