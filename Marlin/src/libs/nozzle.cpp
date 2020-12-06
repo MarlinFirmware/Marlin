@@ -31,6 +31,10 @@ Nozzle nozzle;
 #include "../MarlinCore.h"
 #include "../module/motion.h"
 
+#if ENABLED(NOZZLE_CLEAN_MIN_TEMP)
+  #include "../module/temperature.h"
+#endif
+
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
   /**
