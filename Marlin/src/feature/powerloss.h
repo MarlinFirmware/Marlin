@@ -152,7 +152,7 @@ class PrintJobRecovery {
     static void resume();
     static void purge();
 
-    static inline void cancel() { purge(); card.autostart_index = 0; }
+    static inline void cancel() { purge(); IF_DISABLED(NO_SD_AUTOSTART, card.autofile_begin()); }
 
     static void load();
     static void save(const bool force=ENABLED(SAVE_EACH_CMD_MODE), const float zraise=0);
