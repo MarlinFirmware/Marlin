@@ -1191,12 +1191,6 @@
     #define TOUCH_OFFSET_X       XPT2046_X_OFFSET
     #define TOUCH_OFFSET_Y       XPT2046_Y_OFFSET
     #define TOUCH_ORIENTATION    TOUCH_LANDSCAPE
-  #else
-    #define TOUCH_CALIBRATION_X  0
-    #define TOUCH_CALIBRATION_Y  0
-    #define TOUCH_OFFSET_X       0
-    #define TOUCH_OFFSET_Y       0
-    #define TOUCH_ORIENTATION    TOUCH_ORIENTATION_NONE
   #endif
 #endif
 
