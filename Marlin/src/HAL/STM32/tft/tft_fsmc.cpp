@@ -55,7 +55,7 @@ void TFT_FSMC::Init() {
   SRAMx.Init.NSBank = NSBank;
   SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-  SRAMx.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_8;
+  SRAMx.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
   SRAMx.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
   SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
   SRAMx.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
@@ -74,8 +74,8 @@ void TFT_FSMC::Init() {
   Timing.AddressHoldTime = 15;
   Timing.DataSetupTime = 24;
   Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision = TERN(IS_ANET_ET, 0, 16);
-  Timing.DataLatency = TERN(IS_ANET_ET, 0, 17);
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
   // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
@@ -142,7 +142,7 @@ uint32_t TFT_FSMC::GetID() {
   return id;
 }
 
-uint32_t TFT_FSMC::ReadID(ctrl_data_t Reg) {
+uint32_t TFT_FSMC::ReadID(uint16_t Reg) {
   uint32_t id;
   WriteReg(Reg);
   id = LCD->RAM; // dummy read
@@ -160,7 +160,7 @@ bool TFT_FSMC::isBusy() {
   return __IS_DMA_ENABLED(&DMAtx);
 }
 
-void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, ctrl_data_t *Data, uint16_t Count) {
+void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count) {
   DMAtx.Init.PeriphInc = MemoryIncrease;
   HAL_DMA_Init(&DMAtx);
 
@@ -172,9 +172,6 @@ void TFT_FSMC::TransmitDMA(uint32_t MemoryIncrease, ctrl_data_t *Data, uint16_t 
     DMAtx.Instance->CPAR = (uint32_t)Data;
     DMAtx.Instance->CMAR = (uint32_t)&(LCD->RAM);
   #elif defined(STM32F4xx)
-    //#if IS_ANET_ET
-      //DMAtx.Instance->NDTR = (Count*2);
-    //#endif
     DMAtx.Instance->NDTR = Count;
     DMAtx.Instance->PAR = (uint32_t)Data;
     DMAtx.Instance->M0AR = (uint32_t)&(LCD->RAM);
