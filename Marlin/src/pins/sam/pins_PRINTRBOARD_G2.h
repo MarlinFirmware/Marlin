@@ -30,7 +30,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "PRINTRBOARD_G2"
+  #define BOARD_INFO_NAME "Printrboard G2"
 #endif
 
 //

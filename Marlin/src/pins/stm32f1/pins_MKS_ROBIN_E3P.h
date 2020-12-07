@@ -28,12 +28,12 @@
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "MKS Robin e3p supports up to 1 hotends / E-steppers. Comment out this line to continue."
+  #error "MKS Robin E3P only supports one hotend / E-stepper. Comment out this line to continue."
 #elif HAS_FSMC_TFT
-  #error "MKS Robin e3p doesn't support FSMC-based TFT displays."
+  #error "MKS Robin E3P doesn't support FSMC-based TFT displays."
 #endif
 
-#define BOARD_INFO_NAME "MKS Robin e3p"
+#define BOARD_INFO_NAME "MKS Robin E3P"
 
 #define BOARD_NO_NATIVE_USB
 
@@ -309,6 +309,11 @@
       #define LCD_PINS_D5                   PE15
       #define LCD_PINS_D6                   PD11
       #define LCD_PINS_D7                   PD10
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #ifndef BOARD_ST7920_DELAY_1

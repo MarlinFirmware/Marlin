@@ -21,13 +21,13 @@
  */
 
 /**
- * CREALITY (STM32F103) board pin assignments
+ * Creality 4.2.x (STM32F103RET6) board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "CREALITY supports up to 1 hotends / E-steppers. Comment out this line to continue."
+  #error "Creality V4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -43,30 +43,16 @@
 // EEPROM
 //
 #if NO_EEPROM_SELECTED
-  // FLASH
-  //#define FLASH_EEPROM_EMULATION
+  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
+  //#define SDCARD_EEPROM_EMULATION
+#endif
 
-  // I2C
-  #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0 used only for display settings
-  #if ENABLED(IIC_BL24CXX_EEPROM)
-    #define IIC_EEPROM_SDA                  PA11
-    #define IIC_EEPROM_SCL                  PA12
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
-  #else
-    #define SDCARD_EEPROM_EMULATION               // SD EEPROM until all EEPROM is BL24CXX
-    #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
-  #endif
-
-  // SPI
-  //#define SPI_EEPROM                            // EEPROM on SPI-0
-  //#define SPI_CHAN_EEPROM1  ?
-  //#define SPI_EEPROM1_CS    ?
-
-  // 2K EEPROM
-  //#define SPI_EEPROM2_CS    ?
-
-  // 32Mb FLASH
-  //#define SPI_FLASH_CS      ?
+#if ENABLED(IIC_BL24CXX_EEPROM)
+  #define IIC_EEPROM_SDA                  PA11
+  #define IIC_EEPROM_SCL                  PA12
+  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+#elif ENABLED(SDCARD_EEPROM_EMULATION)
+  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
 #endif
 
 //

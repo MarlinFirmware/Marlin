@@ -70,8 +70,12 @@
 #define Y_DIR_PIN                           PB9
 #define Y_ENABLE_PIN                        PB12
 
-#define Z_STEP_PIN                          PB7
-#define Z_DIR_PIN                           PB6
+#ifndef Z_STEP_PIN
+  #define Z_STEP_PIN                        PB7
+#endif
+#ifndef Z_DIR_PIN
+  #define Z_DIR_PIN                         PB6
+#endif
 #define Z_ENABLE_PIN                        PB8
 
 #define E0_STEP_PIN                         PB4
@@ -160,6 +164,11 @@
       #define LCD_PINS_D5                   PA7
       #define LCD_PINS_D6                   PC4
       #define LCD_PINS_D7                   PC5
+
+      #if !defined(BTN_ENC_EN) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864

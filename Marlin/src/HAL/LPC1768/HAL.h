@@ -107,10 +107,16 @@ extern "C" volatile uint32_t _millis;
 //
 // Utility functions
 //
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC API
@@ -205,4 +211,12 @@ inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 // Add strcmp_P if missing
 #ifndef strcmp_P
   #define strcmp_P(a, b) strcmp((a), (b))
+#endif
+
+#ifndef strcat_P
+  #define strcat_P(a, b) strcat((a), (b))
+#endif
+
+#ifndef strcpy_P
+  #define strcpy_P(a, b) strcpy((a), (b))
 #endif

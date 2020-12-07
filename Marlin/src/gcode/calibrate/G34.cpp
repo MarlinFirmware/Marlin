@@ -39,7 +39,7 @@
 void GcodeSuite::G34() {
 
   // Home before the alignment procedure
-  if (!all_axes_known()) home_all_axes();
+  if (!all_axes_trusted()) home_all_axes();
 
   SET_SOFT_ENDSTOP_LOOSE(true);
   TEMPORARY_BED_LEVELING_STATE(false);

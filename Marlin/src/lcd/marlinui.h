@@ -373,23 +373,37 @@ public:
     static constexpr uint8_t get_progress_percent() { return 0; }
   #endif
 
-  #if HAS_DISPLAY
-
-    static void init();
-    static void update();
-    static void set_alert_status_P(PGM_P const message);
-
+  #if HAS_STATUS_MESSAGE
     static char status_message[];
-    static bool has_status();
-
     static uint8_t alert_level; // Higher levels block lower levels
-    static inline void reset_alert_level() { alert_level = 0; }
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
       static uint8_t status_scroll_offset;
       static void advance_status_scroll();
       static char* status_and_len(uint8_t &len);
     #endif
+
+    static bool has_status();
+    static void reset_status(const bool no_welcome=false);
+    static void set_status(const char* const message, const bool persist=false);
+    static void set_status_P(PGM_P const message, const int8_t level=0);
+    static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
+    static void set_alert_status_P(PGM_P const message);
+    static inline void reset_alert_level() { alert_level = 0; }
+  #else
+    static constexpr bool has_status() { return false; }
+    static inline void reset_status(const bool=false) {}
+    static void set_status(const char* message, const bool=false);
+    static void set_status_P(PGM_P message, const int8_t=0);
+    static void status_printf_P(const uint8_t, PGM_P message, ...);
+    static inline void set_alert_status_P(PGM_P const) {}
+    static inline void reset_alert_level() {}
+  #endif
+
+  #if HAS_DISPLAY
+
+    static void init();
+    static void update();
 
     static void abort_print();
     static void pause_print();
@@ -481,25 +495,12 @@ public:
     static bool get_blink();
     static void kill_screen(PGM_P const lcd_error, PGM_P const lcd_component);
     static void draw_kill_screen();
-    static void set_status(const char* const message, const bool persist=false);
-    static void set_status_P(PGM_P const message, const int8_t level=0);
-    static void status_printf_P(const uint8_t level, PGM_P const fmt, ...);
-    static void reset_status(const bool no_welcome=false);
 
   #else // No LCD
-
-    // Send status to host as a notification
-    static void set_status(const char* message, const bool=false);
-    static void set_status_P(PGM_P message, const int8_t=0);
-    static void status_printf_P(const uint8_t, PGM_P message, ...);
 
     static inline void init() {}
     static inline void update() {}
     static inline void return_to_status() {}
-    static inline void set_alert_status_P(PGM_P const) {}
-    static inline void reset_status(const bool=false) {}
-    static inline void reset_alert_level() {}
-    static constexpr bool has_status() { return false; }
 
   #endif
 
@@ -623,7 +624,7 @@ public:
   //
   // Special handling if a move is underway
   //
-  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING)) || (ENABLED(PROBE_OFFSET_WIZARD) && defined(PROBE_OFFSET_WIZARD_XY_POS))
+  #if ANY(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION, PROBE_OFFSET_WIZARD) || (ENABLED(LCD_BED_LEVELING) && EITHER(PROBE_MANUALLY, MESH_BED_LEVELING))
     #define LCD_HAS_WAIT_FOR_MOVE 1
     static bool wait_for_move;
   #else
@@ -702,7 +703,7 @@ public:
 
 private:
 
-  #if HAS_DISPLAY
+  #if HAS_STATUS_MESSAGE
     static void finish_status(const bool persist);
   #endif
 

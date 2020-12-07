@@ -11,7 +11,7 @@ set -e
 #
 #restore_configs
 #opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
-#exec_test $1 $2 "Default Configuration"
+#exec_test $1 $2 "Default Configuration" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RAMPS_14_RE_ARM_EFB
@@ -21,7 +21,7 @@ exec_test $1 $2 "ReARM EFB VIKI2, SDSUPPORT, 2 Serial ports (USB CDC + UART0), N
 
 #restore_configs
 #use_example_configs Mks/Sbase
-#exec_test $1 $2 "MKS SBASE Example Config"
+#exec_test $1 $2 "MKS SBASE Example Config" "$3"
 
 restore_configs
 opt_set MOTHERBOARD BOARD_MKS_SBASE

@@ -10,7 +10,7 @@ set -e
 # Build with the default configurations
 #
 #restore_configs
-#exec_test $1 $2 "Default Configuration"
+#exec_test $1 $2 "Default Configuration" "$3"
 
 #
 # Test MESH_BED_LEVELING feature, with LCD

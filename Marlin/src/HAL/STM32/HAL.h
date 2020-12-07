@@ -29,6 +29,7 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
+#include "Servo.h"
 #include "watchdog.h"
 #include "MarlinSerial.h"
 
@@ -110,6 +111,8 @@
 typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB libServo
+#define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+#define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // ------------------------
 // Public Variables
@@ -140,15 +143,19 @@ void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC

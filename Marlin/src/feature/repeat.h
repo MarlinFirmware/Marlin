@@ -4,7 +4,6 @@
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
- * Copyright (c) 2017 Victor Perez
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,32 +19,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#if defined(STM32GENERIC) && (defined(STM32F4) || defined(STM32F7))
+#pragma once
 
-#include "../../inc/MarlinConfig.h"
+#include "../inc/MarlinConfigPre.h"
+#include "../gcode/parser.h"
 
-#if HAS_SERVOS
+#include <stdint.h>
 
-#include "Servo.h"
+#define MAX_REPEAT_NESTING 10
 
-int8_t libServo::attach(const int pin) {
-  if (servoIndex >= MAX_SERVOS) return -1;
-  return super::attach(pin);
-}
+typedef struct {
+  uint32_t sdpos;   // The repeat file position
+  int16_t counter;  // The counter for looping
+} repeat_marker_t;
 
-int8_t libServo::attach(const int pin, const int min, const int max) {
-  return super::attach(pin, min, max);
-}
+class Repeat {
+private:
+  static repeat_marker_t marker[MAX_REPEAT_NESTING];
+  static uint8_t index;
+public:
+  static inline void reset() { index = 0; }
+  static bool is_command_M808(char * const cmd) { return cmd[0] == 'M' && cmd[1] == '8' && cmd[2] == '0' && cmd[3] == '8' && !NUMERIC(cmd[4]); }
+  static void early_parse_M808(char * const cmd);
+  static void add_marker(const uint32_t sdpos, const uint16_t count);
+  static void loop();
+  static void cancel();
+};
 
-void libServo::move(const int value) {
-  constexpr uint16_t servo_delay[] = SERVO_DELAY;
-  static_assert(COUNT(servo_delay) == NUM_SERVOS, "SERVO_DELAY must be an array NUM_SERVOS long.");
-  if (attach(0) >= 0) {
-    write(value);
-    safe_delay(servo_delay[servoIndex]);
-    TERN_(DEACTIVATE_SERVOS_AFTER_MOVE, detach());
-  }
-}
-
-#endif // HAS_SERVOS
-#endif // STM32GENERIC && (STM32F4 || STM32F7)
+extern Repeat repeat;

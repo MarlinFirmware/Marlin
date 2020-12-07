@@ -13,4 +13,9 @@ use_example_configs "Creality/Ender-3 V2"
 opt_enable MARLIN_DEV_MODE
 exec_test $1 $2 "Ender 3 v2" "$3"
 
+use_example_configs "Creality/Ender-3 V2"
+opt_disable CLASSIC_JERK
+opt_add SDCARD_EEPROM_EMULATION
+exec_test $1 $2 "Ender 3 v2, SD EEPROM, w/o CLASSIC_JERK" "$3"
+
 restore_configs
