@@ -113,7 +113,8 @@
 #define BOARD_RAMPS_S_12_EEFB         1157  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_RAMPS_S_12_EEEB         1158  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend0, Hotend1, Hotend2, Bed)
 #define BOARD_RAMPS_S_12_EFFB         1159  // Ramps S 1.2 by Sakul.cz (Power outputs: Hotend, Fan0, Fan1, Bed)
-#define BOARD_RAMPS_LONGER3D_LK4PRO   1160  // Longer LKxxPRO/ Alfawise UxxPro (PRO version)
+#define BOARD_LONGER3D_LK1_PRO        1160  // Longer LK1 PRO / Alfawise U20 Pro (PRO version)
+#define BOARD_LONGER3D_LKx_PRO        1161  // Longer LKx PRO / Alfawise Uxx Pro (PRO version)
 
 //
 // RAMBo and derivatives
@@ -328,10 +329,11 @@
 #define BOARD_CHITU3D_V6              4036  // Chitu3D TronXY X5SA V5 Board
 #define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4039  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4040  // FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4041  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4042  // STM32F103RET6 Libmaple-based controller
+#define BOARD_CREALITY_V452           4039  // Creality v4.5.2 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4040  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4041  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4042  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4043  // STM32F103RET6 Libmaple-based controller
 
 //
 // ARM Cortex-M4F
