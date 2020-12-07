@@ -213,7 +213,7 @@ void TFT_IO::write_esc_sequence(const uint16_t *Sequence) {
     data = *Sequence++;
     if (data == 0x7FFF) return;
     if (data == 0xFFFF)
-      io.WriteData(TERN(IS_ANET_ET, 0xFF, 0xFFFF));
+      io.WriteData(0xFFFF);
     else if (data & 0x8000)
       delay(data & 0x7FFF);
     else if ((data & 0xFF00) == 0)

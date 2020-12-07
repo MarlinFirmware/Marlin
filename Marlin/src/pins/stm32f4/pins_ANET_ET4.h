@@ -131,12 +131,10 @@
 //
 // LCD / Controller
 //
-#ifndef TFT_DRIVER
-  #define TFT_DRIVER                        AUTO  // ST7789
-#endif
 #define TFT_RESET_PIN                       PE6
 #define TFT_CS_PIN                          PD7
 #define TFT_RS_PIN                          PD13
+#define TFT_INTERFACE_FSMC_8BIT
 
 //
 // Touch Screen
