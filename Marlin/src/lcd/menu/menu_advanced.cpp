@@ -143,13 +143,13 @@ void menu_backlash();
       EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
       #if HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_FAST_N(float3, n, MSG_UNLOAD_E, &fc_settings[n].unload_length, 0, extrude_maxlength);
+          EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTUNLOAD_E, &fc_settings[n].unload_length, 0, extrude_maxlength);
       #endif
 
       EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
       #if HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
-          EDIT_ITEM_FAST_N(float3, n, MSG_LOAD_E, &fc_settings[n].load_length, 0, extrude_maxlength);
+          EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTLOAD_E, &fc_settings[n].load_length, 0, extrude_maxlength);
       #endif
     #endif
 
