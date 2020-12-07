@@ -212,3 +212,11 @@ inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 #ifndef strcmp_P
   #define strcmp_P(a, b) strcmp((a), (b))
 #endif
+
+#ifndef strcat_P
+  #define strcat_P(a, b) strcat((a), (b))
+#endif
+
+#ifndef strcpy_P
+  #define strcpy_P(a, b) strcpy((a), (b))
+#endif
