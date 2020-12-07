@@ -46,11 +46,11 @@
 /*-------Driver TFT Color--(1 CHOICE)-----*/
 #define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
 //#define TFT_GENERIC
-#endif
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
-#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+#define TFT_COLOR_UI               //(C) UI MARLIN
+
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
 /*For LedStrip which need an external power source on Vcc pin.*/
@@ -66,12 +66,13 @@
 //============= End_Hardware ===============//
 
 //Choice add menu: (OPT)
-//#define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
+#define LCD_INFO_MENU              // Informations printer.
+#define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
 #define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
 #define PID_EDIT_MENU              //
 #define PID_AUTOTUNE_MENU          //
 #define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
-#define LCD_INFO_MENU              // Informations printer.
+
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
