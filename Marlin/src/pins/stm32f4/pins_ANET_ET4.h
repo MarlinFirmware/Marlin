@@ -28,7 +28,7 @@
   #error "Anet ET4 only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
-#define BOARD_INFO_NAME "Anet ET4"
+#define BOARD_INFO_NAME "Anet ET4-MB_V1.x"
 
 //
 // EEPROM
