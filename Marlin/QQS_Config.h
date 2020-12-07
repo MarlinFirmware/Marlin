@@ -18,10 +18,6 @@
 //========= Hardware ==========//
 /*-------Motherboard-----------*/
 #define STOCK                       // env = hispeedv1
-// In progress........... ;-)
-//#define SKR14                     // env = lpc1768 (BTT_SKR_V1_4)
-//#define SKR14T                    // env = lpc1769 (BTT_SKR_V1_4_TURBO)
-//#define SKR12PRO                  // env = BIGTREE_SKR_PRO (BTT_SKR_PRO_V1_2)
 
 /*------Drivers-(1 CHOICE)-----*/
 #define QQS                        //(S) For 4xA4988(green or red color)
@@ -48,26 +44,15 @@
 //#define FLYING                     //(Y) Uncomment to change Extruder flying.
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
-#if ANY(SKR14, SKR14T, SKR12PRO)
-  //#define MKS_TS35_V2_0
-  //#define MKS_ROBIN_TFT35
-  #define REPRAP_DISCOUNT_SMART_CONTROLLER
-  //#define BTT_UI_SPI  //
-#else
-  #define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
-  //#define MKS_ROBIN_TFT28          // Mks_Robin_TFT
-  //#define MKS_ROBIN_TFT_V1_1R
-  //#define MKS_ROBIN_TFT24
-  //#define TFT_GENERIC
+#define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
+//#define TFT_GENERIC
 #endif
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
 #define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
-
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
-
 /*For LedStrip which need an external power source on Vcc pin.*/
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
@@ -108,7 +93,7 @@
 //
 //==================Part for Driver defintions=============//
 // Options for Modules Hardware
-#ifdef ESP_WIFI
+#ifdef ESP_WIF
   #define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 #endif
 #ifdef NEOPIXEL_LED
@@ -161,4 +146,3 @@
       #define DRIVER_EXT TMC2209
     #endif
 #endif
-
