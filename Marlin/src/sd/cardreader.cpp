@@ -662,14 +662,24 @@ void CardReader::openFileWrite(char * const path) {
 //
 bool CardReader::fileExists(const char * const path) {
   if (!isMounted()) return false;
+
+  DEBUG_ECHOLNPAIR("fileExists: ", path);
+
+  // Dive to the file's directory and get the base name
   SdFile *diveDir = nullptr;
   const char * const fname = diveToFile(false, diveDir, path);
-  if (fname) {
-    diveDir->rewind();
-    selectByName(*diveDir, fname);
-    //diveDir->close();
-  }
-  return !!fname;
+  if (!fname) return false;
+
+  // Get the longname of the checked file
+  //diveDir->rewind();
+  //selectByName(*diveDir, fname);
+  //diveDir->close();
+
+  // Try to open the file and return the result
+  SdFile tmpFile;
+  const bool success = tmpFile.open(diveDir, fname, O_READ);
+  if (success) tmpFile.close();
+  return success;
 }
 
 //
@@ -1231,7 +1241,7 @@ void CardReader::fileHasFinished() {
     if (!isMounted()) return;
     if (recovery.file.isOpen()) return;
     if (!recovery.file.open(&root, recovery.filename, read ? O_READ : O_CREAT | O_WRITE | O_TRUNC | O_SYNC))
-      SERIAL_ECHOLNPAIR(STR_SD_OPEN_FILE_FAIL, recovery.filename, ".");
+      openFailed(recovery.filename);
     else if (!read)
       echo_write_to_file(recovery.filename);
   }
