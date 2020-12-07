@@ -128,11 +128,6 @@
 #endif
 #define LED_PIN                             PB2
 
-#if HAS_FSMC_TFT || HAS_GRAPHICAL_TFT
-  #define TFT_CS_PIN                        PG12  // NE4
-  #define TFT_RS_PIN                        PF0   // A0
-#endif
-
 #if HAS_FSMC_TFT
   /**
    * Note: MKS Robin TFT screens use various TFT controllers
@@ -140,21 +135,22 @@
    * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
-   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * If the screen stays white, disable 'TFT_RESET_PIN'
    * to let the bootloader init the screen.
    *
-   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-  //#define LCD_RESET_PIN                   PF6
-  #define LCD_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
+
   #define FSMC_CS_PIN                 TFT_CS_PIN
   #define FSMC_RS_PIN                 TFT_RS_PIN
 
   #define LCD_USE_DMA_FSMC                        // Use DMA transfers to send data to the TFT
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
-#elif HAS_GRAPHICAL_TFT
+
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
 #endif
