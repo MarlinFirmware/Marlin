@@ -17,11 +17,11 @@
 
 //========= Hardware ==========//
 /*-------Motherboard-----------*/
-#define STOCK                       // env = hispeedv1
+//#define STOCK                       // env = hispeedv1
 // In progress........... ;-)
 //#define SKR14                     // env = lpc1768 (BTT_SKR_V1_4)
 //#define SKR14T                    // env = lpc1769 (BTT_SKR_V1_4_TURBO)
-//#define SKR12PRO                  // env = BIGTREE_SKR_PRO (BTT_SKR_PRO_V1_2)
+#define SKR12PRO                  // env = BIGTREE_SKR_PRO (BTT_SKR_PRO_V1_2)
 
 /*------Drivers-(1 CHOICE)-----*/
 #define QQS                        //(S) For 4xA4988(green or red color)
@@ -49,8 +49,10 @@
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
 #if ANY(SKR14, SKR14T, SKR12PRO)
-  #define MKS_TS35_V2_0
-  #define BTT_UI_SPI  //
+  //#define MKS_TS35_V2_0
+  //#define MKS_ROBIN_TFT35
+  #define REPRAP_DISCOUNT_SMART_CONTROLLER
+  //#define BTT_UI_SPI  //
 #else
   #define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
   //#define MKS_ROBIN_TFT28          // Mks_Robin_TFT
@@ -61,7 +63,7 @@
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
-#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
+//#define TFT_COLOR_UI               //(C) UI MARLIN (too big with mode UART+UBL=ok with nanolib)
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
@@ -70,10 +72,10 @@
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
 //Many options for Modules: 
-#define POWER_LOSS_RECOVERY        // NC LVGL pb SD
-#define FILAMENT_RUNOUT_SENSOR     // NC LVGL
-#define ADVANCED_PAUSE_FEATURE     // NC LVGL
-#define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
+//#define POWER_LOSS_RECOVERY        // NC LVGL pb SD
+//#define FILAMENT_RUNOUT_SENSOR     // NC LVGL
+//#define ADVANCED_PAUSE_FEATURE     // NC LVGL
+//#define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
 #define ARC_SUPPORT                //(R)
 
 //============= End_Hardware ===============//
@@ -81,8 +83,8 @@
 //Choice add menu: (OPT)
 //#define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
 #define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
-#define PID_EDIT_MENU              //
-#define PID_AUTOTUNE_MENU          //
+//#define PID_EDIT_MENU              //
+//#define PID_AUTOTUNE_MENU          //
 #define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
 #define LCD_INFO_MENU              // Informations printer.
 
