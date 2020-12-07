@@ -149,17 +149,43 @@
   #define TOUCH_INT_PIN                     PB1
 #endif
 
+// Touchscreen calibration does not work correctly with ANET_ET5_TFT35 or ANET_ET4_TFT28
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #undef TOUCH_SCREEN_CALIBRATION
+#endif
+
 #if ENABLED(ANET_ET5_TFT35)
-
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)        // Touchscreen calibration does not work correctly with ANET_ET5_TFT35
-    #undef TOUCH_SCREEN_CALIBRATION
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X             17125
   #endif
-
-  #define TOUCH_CALIBRATION_X             17125
-  #define TOUCH_CALIBRATION_Y            -11307
-  #define TOUCH_OFFSET_X                    -26
-  #define TOUCH_OFFSET_Y                    337
-  #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y            -11307
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                    -26
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    337
+  #endif
+  #ifndef TOUCH_ORIENTATION
+    #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+  #endif
+#elif ENABLED(ANET_ET4_TFT28)
+  #ifndef TOUCH_CALIBRATION_X
+    #define TOUCH_CALIBRATION_X             11303
+  #endif
+  #ifndef TOUCH_CALIBRATION_Y
+    #define TOUCH_CALIBRATION_Y             -8480
+  #endif
+  #ifndef TOUCH_OFFSET_X
+    #define TOUCH_OFFSET_X                    -17
+  #endif
+  #ifndef TOUCH_OFFSET_Y
+    #define TOUCH_OFFSET_Y                    253
+  #endif
+  #ifndef TOUCH_ORIENTATION
+    #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+  #endif
 #endif
 
 //
