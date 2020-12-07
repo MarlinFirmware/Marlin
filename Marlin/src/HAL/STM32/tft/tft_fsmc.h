@@ -57,7 +57,7 @@ class TFT_FSMC {
     static LCD_CONTROLLER_TypeDef *LCD;
 
     static uint32_t ReadID(uint16_t Reg);
-    static void Transmit(uint8_t Data) { LCD->RAM = Data; __DSB(); }
+    static void Transmit(uint16_t Data) { LCD->RAM = Data; __DSB(); }
     static void TransmitDMA(uint32_t MemoryIncrease, uint16_t *Data, uint16_t Count);
 
   public:
@@ -66,7 +66,7 @@ class TFT_FSMC {
     static bool isBusy();
     static void Abort() { __HAL_DMA_DISABLE(&DMAtx); }
 
-    static void DataTransferBegin(uint16_t DataWidth = TERN(IS_ANET_ET, DATASIZE_8BIT, DATASIZE_16BIT)) {}
+    static void DataTransferBegin(uint16_t DataWidth = DATASIZE_16BIT) {}
     static void DataTransferEnd() {};
 
     static void WriteData(uint16_t Data) { Transmit(Data); }
