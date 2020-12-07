@@ -58,9 +58,6 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
-  #if ENABLED(MKS_WIFI_MODULE)
-    char buf[6] = { 0 };
-  #endif
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
       lv_clear_set();
@@ -101,13 +98,8 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           }
           else {
             if (uiCfg.command_send == 1) {
-              buf[0] = 0xA5;
-              buf[1] = 0x07;
-              buf[2] = 0x00;
-              buf[3] = 0x00;
-              buf[4] = 0xFC;
-              raw_send_to_wifi(buf, 5);
-
+              uint8_t buf[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
+              raw_send_to_wifi(buf, COUNT(buf));
               last_disp_state = SET_UI;
               lv_clear_set();
               lv_draw_wifi_list();

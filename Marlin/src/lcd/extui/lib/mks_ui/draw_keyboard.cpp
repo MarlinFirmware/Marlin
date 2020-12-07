@@ -142,7 +142,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
 
             gCfgItems.wifi_mode_sel = STA_MODEL;
 
-            package_to_wifi(WIFI_PARA_SET, (char *)0, 0);
+            package_to_wifi(WIFI_PARA_SET, (uint8_t *)0, 0);
 
             public_buf_l[0] = 0xA5;
             public_buf_l[1] = 0x09;
@@ -151,7 +151,7 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
             public_buf_l[4] = 0x01;
             public_buf_l[5] = 0xFC;
             public_buf_l[6] = 0x00;
-            raw_send_to_wifi(public_buf_l, 6);
+            raw_send_to_wifi((uint8_t*)public_buf_l, 6);
 
             last_disp_state = KEY_BOARD_UI;
             lv_clear_keyboard();
