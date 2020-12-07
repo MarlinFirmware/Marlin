@@ -149,6 +149,19 @@
   #define TOUCH_INT_PIN                     PB1
 #endif
 
+#if ENABLED(ANET_ET5_TFT35)
+
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)        // Touchscreen calibration does not work correctly with ANET_ET5_TFT35
+    #undef TOUCH_SCREEN_CALIBRATION
+  #endif
+
+  #define TOUCH_CALIBRATION_X             17125
+  #define TOUCH_CALIBRATION_Y            -11307
+  #define TOUCH_OFFSET_X                    -26
+  #define TOUCH_OFFSET_Y                    337
+  #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+#endif
+
 //
 // SD Card
 //
