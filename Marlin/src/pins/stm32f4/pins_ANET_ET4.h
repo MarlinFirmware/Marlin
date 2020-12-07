@@ -172,16 +172,16 @@
   #endif
 #elif ENABLED(ANET_ET4_TFT28)
   #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X             11303
+    #define TOUCH_CALIBRATION_X            -11838
   #endif
   #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y             -8480
+    #define TOUCH_CALIBRATION_Y              8776
   #endif
   #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                    -17
+    #define TOUCH_OFFSET_X                    333
   #endif
   #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                    253
+    #define TOUCH_OFFSET_Y                    -17
   #endif
   #ifndef TOUCH_ORIENTATION
     #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
