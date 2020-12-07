@@ -36,8 +36,8 @@
 #if BOTH(HAS_WIRED_LCD,HAS_BTT_EXP_MOT)
   #if EITHER(CR10_STOCKDISPLAY,ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY
-  #else   
-    #ERROR "Having a LCD that uses both EXP1/EXP2 and a expanion motor module on EXP1/EXP2 is not possable."
+  #else
+    #error "Having a LCD that uses both EXP1/EXP2 and a expanion motor module on EXP1/EXP2 is not possible."
   #endif
 #endif
 
