@@ -153,6 +153,9 @@
 
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
+
+  #define TOUCH_BUTTONS_HW_SPI
+  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
 #endif
 
 #if NEED_TOUCH_PINS
