@@ -165,11 +165,7 @@
 // SPI1(PA7) & SPI3(PB5) not available
 #define SPI_DEVICE                             2
 
-// STM32F1 do not support SW SPI on SD cards
-#ifdef ARDUINO_ARCH_STM32F1
-  #define SDIO_SUPPORT
-#endif
-
+#define SDIO_SUPPORT
 #if ENABLED(SDIO_SUPPORT)
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
