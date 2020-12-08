@@ -174,7 +174,7 @@
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
-  #define SD_DETECT_PIN                     PF12  // SD_CD
+  #define SD_DETECT_PIN                     -1    // SD_CD
 #else
   // SD as custom software SPI (SDIO pins)
   #define SCK_PIN                           PC12
