@@ -17,7 +17,7 @@
 
 //========= Hardware ==========//
 /*-------Motherboard-----------*/
-#define STOCK                       // env = hispeedv1
+#define STOCK                       // env = hispeed
 
 /*------Drivers-(1 CHOICE)-----*/
 #define QQS                        //(S) For 4xA4988(green or red color)
@@ -41,11 +41,11 @@
 //#define BMG                        //(B) Uncomment to change Extruder step(417).
 //#define Mini                       //(b) Uncomment BMG&Mini to change Extruder step(141).
 
-//#define FLYING                     //(Y) Uncomment to change Extruder flying.
+//#define FLYING                     //(Y) Uncomment to change Extruder flying (You must modified the parameters of DELTA part)
 
 /*-------Driver TFT Color--(1 CHOICE)-----*/
 #define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
-//#define TFT_GENERIC
+//#define TFT_GENERIC            // For the user who haven't the same screen.
 
 /*--- Choice UI TFT ----*/
 //#define TFT_CLASSIC_UI             //(F) UI STANDARD 
@@ -60,19 +60,19 @@
 #define POWER_LOSS_RECOVERY        // NC LVGL pb SD
 #define FILAMENT_RUNOUT_SENSOR     // NC LVGL
 #define ADVANCED_PAUSE_FEATURE     // NC LVGL
-#define LIN_ADVANCE                //(L) Possible Bug with BabyStep.For TMC_UART prefer mode spreadCycle         
+#define LIN_ADVANCE                //(L) For TMC_UART prefer mode spreadCycle(by TFT menu)         
 #define ARC_SUPPORT                //(R)
 
 //============= End_Hardware ===============//
-
-//Choice add menu: (OPT)
+// For users who do not have a terminal like (Prontoface/Octoprint/HostRepertier/Astoprint)
+//Choice add menu on TFT: (OPT)
 #define LCD_INFO_MENU              // Informations printer.
 #define DELTA_CALIBRATION_MENU     // auto for CLASSIC and COLOR (NC LVGL)
 #define SOFT_ENDSTOPS_MENU_ITEM    // for UI CLASSIC and UI COLOR
-#define PID_EDIT_MENU              //
-#define PID_AUTOTUNE_MENU          //
-#define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
+#define PID_EDIT_MENU              // tune PID Bed and Nozzle.
+#define PID_AUTOTUNE_MENU          // tune auto PID
 
+#define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
 
 //  Type Calibration (CAL)
 //#define AUTO_BED_LEVELING_BILINEAR //(A)
@@ -80,16 +80,14 @@
 
 // ---Expe tools
 //#define LEVEL_BED_CORNERS
-//#define PROBE_OFFSET_WIZARD        // Bug because Delta no have #define HOMING_FEEDRATE_XY
 
 // Option for Octoprint (OCTO)
 //#define HOST_ACTION_COMMANDS       // Action Command Prompt support Message on Octoprint
-//#define UTF_FILENAME_SUPPORT       // Bug at the reboot
 //#define CANCEL_OBJECTS
 
 /* OPTION no validate */
 //#define USE_CONTROLLER_FAN         //BOARD FAN
-//EXTRUDER_AUTO_FAN   //
+//EXTRUDER_AUTO_FAN                 //
 
 //
 //==================Part for Driver defintions=============//
