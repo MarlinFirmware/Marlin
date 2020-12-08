@@ -1013,7 +1013,7 @@
   #define PROBE_TARE_DELAY 200    // Delay after tare before (milliseconds)
   #define PROBE_TARE_STATE HIGH   // State to write pin for tare
   //#define PROBE_TARE_PIN PA5    // Override default pin
-  #if ENABLED(PROBE_ENABLED_INPUT)
+  #if ENABLED(PROBE_ACTIVE_INPUT)
     // Fail to tare/probe if PROBE_ACTIVE_INPUT reports the probe to be active
     //#define PROBE_TARE_ONLY_WHILE_INACTIVE
   #endif
