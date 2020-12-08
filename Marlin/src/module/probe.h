@@ -206,7 +206,7 @@ public:
     static void set_probing_paused(const bool p);
   #endif
 
-  #if ENABLED(PROBE_CAN_TARE)
+  #if ENABLED(PROBE_TARE)
     static bool tare_z_probe();
   #endif
 

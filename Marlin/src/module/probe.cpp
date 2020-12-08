@@ -479,24 +479,31 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
   return !probe_triggered;
 }
 
-#if ENABLED(PROBE_CAN_TARE)
-bool Probe::tare_z_probe() {
-  #if ENABLED(PROBE_TARE_WHILE_INACTIVE)
-    if ((READ(PROBE_ENABLE_PIN) == PROBE_ENABLED_INPUT_STATE)) {
-      SERIAL_ECHOLN("Cannot tare probe, already Enabled");
-      return true;
-    }
-  #endif
+#if ENABLED(PROBE_TARE)
+  /**
+   * @brief Tare the Z probe
+   *
+   * @details Signals to the probe to tare measurement
+   *
+   * @return TRUE if the tare cold not be completed
+   */
+  bool Probe::tare_z_probe() {
+    #if ENABLED(PROBE_TARE_ONLY_WHILE_INACTIVE)
+      if ((READ(PROBE_ACTIVE_INPUT_PIN) == PROBE_ACTIVE_INPUT_STATE)) {
+        SERIAL_ECHOLN("Cannot tare probe, already active");
+        return true;
+      }
+    #endif
 
-  SERIAL_ECHOLN("Taring the probe");
-  WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
-  delay(PROBE_TARE_TIME);
-  WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
-  delay(PROBE_TARE_DELAY);
+    SERIAL_ECHOLN("Taring the probe");
+    WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
+    delay(PROBE_TARE_TIME);
+    WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    delay(PROBE_TARE_DELAY);
 
-  endstops.hit_on_purpose();
-  return false;
-}
+    endstops.hit_on_purpose();
+    return false;
+  }
 #endif
 
 /**
@@ -510,10 +517,10 @@ bool Probe::tare_z_probe() {
 float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   DEBUG_SECTION(log_probe, "Probe::run_z_probe", DEBUGGING(LEVELING));
 
-  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) {
+  auto try_to_probe = [&](PGM_P const plbl, const float &z_probe_low_point, const feedRate_t fr_mm_s, const bool scheck, const float clearance) -> bool {
     // Do a first probe at the fast speed
 
-    #if ENABLED(PROBE_CAN_TARE)
+    #if ENABLED(PROBE_TARE)
       if(tare_z_probe()) return NAN;
     #endif
 
@@ -530,7 +537,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     #else
       UNUSED(plbl);
     #endif
-    return (bool)(probe_fail || early_fail);
+    return probe_fail || early_fail;
   };
 
   // Stop the probe before it goes too low to prevent damage.
@@ -541,7 +548,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    #if ENABLED(PROBE_CAN_TARE)
+    #if ENABLED(PROBE_TARE)
       if(tare_z_probe()) return NAN;
     #endif
 
@@ -583,7 +590,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #endif
     {
       // Probe downward slowly to find the bed
-      #if ENABLED(PROBE_CAN_TARE)
+      #if ENABLED(PROBE_TARE)
         if(tare_z_probe()) return true;
       #endif
       if (try_to_probe(PSTR("SLOW"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_SLOW),

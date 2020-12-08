@@ -996,25 +996,26 @@
 // Feedrate (mm/min) for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
-// For probes that require an explicit enable input such as feedback an arm is deployed or an opto switch reporting in-range
-//#define PROBE_ENABLED_INPUT
-#if ENABLED(PROBE_ENABLED_INPUT)
-  #define PROBE_ENABLED_INPUT_STATE LOW
-  //#define PROBE_ENABLE_PIN PC6 // Override default probe enable pin
+// Fail to probe if the probe does not indicate itself as active.
+// This may be a switch indicating proper deployment, or an optical switch to report the carriage is near the bed.
+//#define PROBE_ACTIVE_INPUT
+#if ENABLED(PROBE_ACTIVE_INPUT)
+  #define PROBE_ACTIVE_INPUT_STATE LOW // State indicating probe is active
+  //#define PROBE_ACTIVE_INPUT_PIN PC6 // Override default pin
 #endif
 
-// Probe requires Tare - Usefull for Strain guage or Piezo type probes which may see force from cabling or bowden tubes following moves
-//#define PROBE_CAN_TARE
-#if ENABLED(PROBE_CAN_TARE)
-  #define PROBE_TARE_TIME  200    // Time to hold tare pin
-  #define PROBE_TARE_DELAY 200    // Dwell following tare before continuing
+// Probe should be tared prior to each probe
+// Useful for strain or piezo sensors which must exclude strain such
+// as that from cables or bowden cables pulling on the carriage.
+//#define PROBE_TARE
+#if ENABLED(PROBE_TARE)
+  #define PROBE_TARE_TIME  200    // Time to hold tare pin (milliseconds)
+  #define PROBE_TARE_DELAY 200    // Delay after tare before (milliseconds)
   #define PROBE_TARE_STATE HIGH   // State to write pin for tare
-  //#define PROBE_TARE_PIN PA5      // Override default Tare pin
+  //#define PROBE_TARE_PIN PA5    // Override default pin
   #if ENABLED(PROBE_ENABLED_INPUT)
-    // Assume probe enable will come on in a Z window rather than detecting probe deployment.
-    // Useful when TARE can be assured outside enable range to avoid potential crash situations.
-    // Prevents tare unless enable switch is off
-    //#define PROBE_TARE_WHILE_INACTIVE
+    // Fail to tare/probe if PROBE_ACTIVE_INPUT reports the probe to be active
+    //#define PROBE_TARE_ONLY_WHILE_INACTIVE
   #endif
 #endif
 

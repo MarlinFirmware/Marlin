@@ -69,7 +69,7 @@
 // Probe
 //
 #define PROBE_TARE_PIN                      PA5
-#define PROBE_ENABLE_PIN                    PC6   // Optoswitch to Enable Z Probe
+#define PROBE_ACTIVE_INPUT_PIN              PC6   // Optoswitch to indicate probe is near bed (active)
 
 //
 // Steppers

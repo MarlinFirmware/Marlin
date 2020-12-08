@@ -1603,7 +1603,7 @@ void homeaxis(const AxisEnum axis) {
     #if BOTH(HOMING_Z_WITH_PROBE, BLTOUCH)
       if (bltouch.deploy()) return; // The initial DEPLOY
     #endif
-    #if ENABLED(PROBE_CAN_TARE)
+    #if ENABLED(PROBE_TARE)
       if (probe.tare_z_probe()) return;
     #endif
   }
