@@ -63,7 +63,7 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 
       }
       else if (event == LV_EVENT_RELEASED) {
-        char buf[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
+        unsigned char buf[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
         raw_send_to_wifi(buf, 5);
         clear_cur_ui();
         lv_draw_wifi_list();

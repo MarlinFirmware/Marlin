@@ -69,11 +69,11 @@ typedef enum{
 #define TRANS_RCV_FIFO_BLOCK_NUM    14
 
 typedef struct {
-  unsigned char *bufferAddr[TRANS_RCV_FIFO_BLOCK_NUM];
-  unsigned char *p;
+  uint8_t *bufferAddr[TRANS_RCV_FIFO_BLOCK_NUM];
+  uint8_t *p;
   UDISK_DATA_BUFFER_STATE state[TRANS_RCV_FIFO_BLOCK_NUM];
-  unsigned char read_cur;
-  unsigned char write_cur;
+  uint8_t read_cur;
+  uint8_t write_cur;
 } WIFI_DMA_RCV_FIFO;
 
 typedef struct {
@@ -190,7 +190,7 @@ extern void mks_esp_wifi_init();
 extern int  cfg_cloud_flag;
 extern int  send_to_wifi(char *buf, int len);
 extern void wifi_looping();
-extern int  raw_send_to_wifi(char *buf, int len);
+extern int  raw_send_to_wifi(uint8_t *buf, int len);
 extern int  package_to_wifi(WIFI_RET_TYPE type,char *buf, int len);
 extern void get_wifi_list_command_send();
 extern void get_wifi_commands();

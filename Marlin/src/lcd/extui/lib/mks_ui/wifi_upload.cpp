@@ -88,6 +88,7 @@ static const uint32_t eraseTimeout = 15000;
 static const uint32_t blockWriteTimeout = 200;
 static const uint32_t blockWriteInterval = 15;      // 15ms is long enough, 10ms is mostly too short
 
+static SdFile update_file, *update_curDir;
 // Messages corresponding to result codes, should make sense when followed by " error"
 const char *resultMessages[] = {
   "no",
@@ -538,7 +539,6 @@ uint16_t checksum(const uint8_t *data, uint16_t dataLen, uint16_t cksum) {
 
 EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   const uint32_t blkSize = EspFlashBlockSize;
-  int i;
 
   // Allocate a data buffer for the combined header and block data
   const uint16_t hdrOfst = 0;
@@ -546,8 +546,6 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   const uint16_t blkBufSize = dataOfst + blkSize;
   uint32_t blkBuf32[blkBufSize/4];
   uint8_t * const blkBuf = (uint8_t*)(blkBuf32);
-  uint32_t cnt;
-  uint16_t cksum;
   EspUploadResult stat;
 
   // Prepare the header for the block
@@ -557,7 +555,7 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   putData(0, 4, blkBuf, hdrOfst + 12);
 
  	// Get the data for the block
-	cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
+	uint32_t cnt = update_file.read(blkBuf + dataOfst,  blkSize);//->Read(reinterpret_cast<char *>(blkBuf + dataOfst), blkSize);
 	if (cnt != blkSize) {
 		if (update_file.curPosition() == esp_upload.fileSize) {
 			// partial last block, fill the remainder
@@ -569,16 +567,16 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
 	}
 
 	// Patch the flash parameters into the first block if it is loaded at address 0
-	if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0)
+	if (esp_upload.uploadBlockNumber == 0 && esp_upload.uploadAddress == 0 && blkBuf[dataOfst] == ESP_IMAGE_MAGIC && flashParmMask != 0) {
 		// update the Flash parameters
 		uint32_t flashParm = getData(2, blkBuf + dataOfst + 2, 0) & ~(uint32_t)flashParmMask;
 		putData(flashParm | flashParmVal, 2, blkBuf + dataOfst + 2, 0);
 	}
 
 	// Calculate the block checksum
-	cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
+	uint16_t cksum = checksum(blkBuf + dataOfst, blkSize, ESP_CHECKSUM_MAGIC);
 	
-	for (i = 0; i < 3; i++){
+	for (int i = 0; i < 3; i++){
 		if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success) {
 			break;
 		}

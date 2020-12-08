@@ -45,7 +45,7 @@
 
 #include HAL_PATH(../../HAL, tft/xpt2046.h)
 #include "../../../ultralcd.h"
-XPT2046 touch;
+extern XPT2046 touchIO;
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -130,7 +130,7 @@ void tft_lvgl_init() {
   watchdog_refresh();
   mks_test_get();
 
-  touch.Init();
+  touchIO.Init();
 
   lv_init();
 
@@ -235,6 +235,28 @@ void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * co
   W25QXX.init(SPI_QUARTER_SPEED);
 }
 
+void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv_color_t bk_color) {
+  uint16_t width, height;
+  width = x2 - x1 + 1;
+  height = y2 - y1 + 1;
+
+  SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
+  #if ENABLED(TFT_LVGL_UI_FSMC)
+    SPI_TFT.tftio.WriteReg(0x002C);
+  #endif
+
+  #ifdef LCD_USE_DMA_FSMC
+    SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
+  #else
+    for (uint32_t i = 0; i < width * height; i++)
+        SPI_TFT.tftio.WriteData(bk_color.full);
+  #endif
+
+  #if ENABLED(TFT_LVGL_UI_SPI)
+    W25QXX.init(SPI_QUARTER_SPEED);
+  #endif
+}
+
 #define TICK_CYCLE 1
 
 unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
@@ -242,7 +264,7 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 }
 
 static bool get_point(int16_t *x, int16_t *y) {
-  bool is_touched = touch.getRawPoint(x, y);
+  bool is_touched = touchIO.getRawPoint(x, y);
 
   if (is_touched) {
     *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;

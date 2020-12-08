@@ -1426,7 +1426,7 @@ void draw_return_ui() {
         break;          
       #endif
       case MORE_UI:
-        lv_draw_More();
+        lv_draw_more();
         break;
       case PRINT_MORE_UI:
         //draw_printmore();

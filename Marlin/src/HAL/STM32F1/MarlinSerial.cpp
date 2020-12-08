@@ -95,7 +95,7 @@ constexpr bool serial_handles_emergency(int port) {
             BOARD_USART##n##_TX_PIN,      \
             BOARD_USART##n##_RX_PIN,      \
             serial_handles_emergency(n)); \
-  extern "C" void __irq_usart##n(void) {  \
+  extern "C" void __attribute__((weak)) __irq_usart##n(void) {  \
     my_usart_irq(USART##n->rb, USART##n->wb, USART##n##_BASE, MSerial##n); \
   }
 

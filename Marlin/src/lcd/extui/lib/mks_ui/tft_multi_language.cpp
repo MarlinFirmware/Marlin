@@ -1767,7 +1767,7 @@ void disp_language_init() {
 			      MachinePara_menu.MachineSetting     = MACHINE_TYPE_CNOFIG_RU;
             MachinePara_menu.title              = MACHINE_PARA_TITLE_RU;
 			      MachinePara_menu.MotorSetting       = MOTOR_CONFIG_RU;
-			      MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG
+			      MachinePara_menu.leveling           = MACHINE_LEVELING_CONFIG_RU;
 			      MachinePara_menu.AdvanceSetting     = ADVANCE_CONFIG_RU;
 
             machine_menu.MachineConfigTitle    = MACHINE_CONFIG_TITLE_RU;
@@ -1779,17 +1779,17 @@ void disp_language_init() {
             machine_menu.TMCcurrentConf        = TMC_CURRENT_RU;
             machine_menu.TMCStepModeConf       = TMC_STEP_MODE_RU;
             machine_menu.PausePosition         = PAUSE_POSITION_RU;
-            machine_menu.FilamentConf          = MACHINE_FILAMENT_CONFIG_RU
+            machine_menu.FilamentConf          = MACHINE_FILAMENT_CONFIG_RU;
             machine_menu.EncoderSettings       = ENCODER_SETTINGS_RU;
             machine_menu.AdvancedConfTitle     = ADVANCED_CONF_TITLE_RU;
 
             machine_menu.LevelingParaConfTitle   = LEVELING_CONF_TITLE_RU;
             machine_menu.LevelingParaConf        = LEVELING_PARA_CONF_RU;
             machine_menu.LevelingManuPosConf     = LEVELING_MANUAL_POS_RU;
-        	  machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_R
-        	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_R
+        	  machine_menu.LevelingAutoCommandConf = LEVELING_AUTO_COMMAND_RU;
+        	  machine_menu.LevelingAutoZoffsetConf = LEVELING_AUTO_ZOFFSET_RU;
 
-            machine_menu.AccelerationConfTitle = ACCELERATION_CONF_TITLE_RU
+            machine_menu.AccelerationConfTitle = ACCELERATION_CONF_TITLE_RU;
             machine_menu.PrintAcceleration     = PRINT_ACCELERATION_RU;
             machine_menu.RetractAcceleration   = RETRACT_ACCELERATION_RU;
             machine_menu.TravelAcceleration    = TRAVEL_ACCELERATION_RU;

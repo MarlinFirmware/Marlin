@@ -214,7 +214,7 @@ static const char assets[][LONG_FILENAME_LENGTH] = {
   //babystep screen
   "bmp_baby_move0_01.bin",
   "bmp_baby_move0_05.bin",
-  "bmp_baby_move0_1.bin"
+  "bmp_baby_move0_1.bin",
 
   //presets screen
   //"bmp_preHeat.bin",

@@ -154,7 +154,7 @@ static void lv_kb_event_cb(lv_obj_t * kb, lv_event_t event) {
             public_buf_l[4] = 0x01;
             public_buf_l[5] = 0xFC;
             public_buf_l[6] = 0x00;
-            raw_send_to_wifi(public_buf_l, 6);
+            raw_send_to_wifi((uint8_t*)public_buf_l, 6);
 
             last_disp_state = KEY_BOARD_UI;
             lv_clear_keyboard();

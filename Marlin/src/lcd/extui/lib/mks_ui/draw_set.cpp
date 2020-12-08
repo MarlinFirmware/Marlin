@@ -50,7 +50,7 @@ extern lv_group_t*  g;
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   #if ENABLED(USE_WIFI_FUNCTION)
-    char buf[6] = { 0 };
+    unsigned char buf[6] = { 0 };
   #endif
   switch (obj->mks_obj_id) {
 

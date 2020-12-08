@@ -114,6 +114,7 @@
 #define PROBE_Z_SPEED_EN                "Probe Z-axis speed"
 #define ENABLE_EN                       "YES"
 #define DISABLE_EN                      "NO"
+#define LOCKED_EN                       "N/A"
 #define Z_MIN_EN                        "ZMin"
 #define Z_MAX_EN                        "ZMax"
 
@@ -275,6 +276,7 @@
 #define PRINT_TEXT_EN           "Printing"
 #define EXTRUDE_TEXT_EN         "Extrusion"
 #define LEVELING_TEXT_EN        "Leveling"
+#define MLEVELING_TEXT_EN       "MLeveling"
 #define AUTO_LEVELING_TEXT_EN   "AutoLevel"
 #define SET_TEXT_EN             "Settings"
 #define MORE_TEXT_EN            "More"
@@ -296,6 +298,7 @@
 #define TOOL_MOVE_EN            "Move"
 #define TOOL_HOME_EN            "Home"
 #define TOOL_LEVELING_EN        "Leveling"
+#define TOOL_MLEVELING_EN       "MLeveling"
 #define TOOL_AUTO_LEVELING_EN   "AutoLevel"
 #define TOOL_FILAMENT_EN        "Filament"
 #define TOOL_MORE_EN            "More"
