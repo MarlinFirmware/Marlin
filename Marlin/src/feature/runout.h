@@ -130,10 +130,10 @@ class TFilamentMonitor : public FilamentMonitorBase {
           #if ENABLED(WATCH_ALL_RUNOUT_SENSORS)
             const bool ran_out = !!sensor_bitmask;  // any sensor triggers
             uint8_t extruder = 0;
-            if ( ran_out ) {
+            if (ran_out) {
               uint8_t bitmask = sensor_bitmask;
-              while ( !(bitmask & 1) ) {
-                bitmask = bitmask >> 1;
+              while (!(bitmask & 1)) {
+                bitmask >>= 1;
                 extruder++;
               }
             }
@@ -149,8 +149,7 @@ class TFilamentMonitor : public FilamentMonitorBase {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (sensor_bitmask) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i = 0; i < 8; i++)
-              SERIAL_ECHO('0' + TEST(sensor_bitmask, i));
+            LOOP_L_N(i, 8) SERIAL_ECHO('0' + TEST(sensor_bitmask, i));
             SERIAL_ECHOPAIR(" -> ", extruder);
             if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
             SERIAL_EOL();
