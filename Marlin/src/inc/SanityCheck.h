@@ -1357,14 +1357,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
                   "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
   #else
-    #ifndef NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE
-      static_assert(sanity_nozzle_to_probe_offset.z <= 0.0,
-                    "Are you sure your Probe triggers above the nozzle? Set a negative Z value in the NOZZLE_TO_PROBE_OFFSET or enable NOZZLE_AS_PROBE/STRAIN_GAUGE_PROBE/NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
-      #ifdef PROBE_OFFSET_WIZARD_START_Z
-        static_assert(PROBE_OFFSET_WIZARD_START_Z <= 0.0,
-                      "Are you sure your Probe triggers above the nozzle? Set a negative value for PROBE_OFFSET_WIZARD_START_Z or enable NOZZLE_AS_PROBE/STRAIN_GAUGE_PROBE/NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE.");
-      #endif
-    #endif
     static_assert(PROBING_MARGIN       >= 0, "PROBING_MARGIN must be >= 0.");
     static_assert(PROBING_MARGIN_BACK  >= 0, "PROBING_MARGIN_BACK must be >= 0.");
     static_assert(PROBING_MARGIN_FRONT >= 0, "PROBING_MARGIN_FRONT must be >= 0.");
@@ -1393,8 +1385,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
   #elif Z_AFTER_PROBING < 0
     #error "Probes need Z_AFTER_PROBING >= 0."
-  #elif ENABLED(NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE)
-    static_assert((Z_CLEARANCE_BETWEEN_PROBES) > sanity_nozzle_to_probe_offset.z, "Probes with positive Z offset need Z_CLEARANCE_BETWEEN_PROBES > NOZZLE_TO_PROBE_OFFSET Z.");
   #endif
 
   #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
