@@ -1057,7 +1057,7 @@
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
-// Require minimum nozzle or bed temperature for probing.
+// Require minimum nozzle or bed temperature for probing. Currently applies only to the first extruder.
 //#define PROBE_REQUIRES_MINTEMP_NOZZLE 150
 //#define PROBE_REQUIRES_MINTEMP_BED     50
 
