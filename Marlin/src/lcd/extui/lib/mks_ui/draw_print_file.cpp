@@ -58,7 +58,7 @@ uint8_t sel_id = 0;
 
   static uint8_t search_file() {
     int valid_name_cnt = 0;
-    //char tmp[SHORT_NEME_LEN*MAX_DIR_LEVEL+1];
+    //char tmp[SHORT_NAME_LEN*MAX_DIR_LEVEL+1];
 
     list_file.Sd_file_cnt = 0;
     //list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
@@ -243,7 +243,7 @@ void lv_draw_print_file(void) {
   }
   */
 }
-static char test_public_buf_l[FILE_NUM][SHORT_NEME_LEN + 6];
+static char test_public_buf_l[FILE_NUM][SHORT_NAME_LEN + 6];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
