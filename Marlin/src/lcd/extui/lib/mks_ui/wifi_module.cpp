@@ -199,7 +199,7 @@ void exchangeFlashMode(char dmaMode) {
 }
 
 static bool longName2DosName(const char *longName, uint8_t *dosName) {
-  uint8_t i = 11;
+  uint8_t i = FILENAME_LENGTH;
   while (i)
     dosName[--i] = '\0';
   while (*longName) {

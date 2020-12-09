@@ -138,11 +138,9 @@ void gCfgItems_init() {
   gCfgItems.levelingPos[4][0] = X_BED_SIZE / 2;
   gCfgItems.levelingPos[4][1] = Y_BED_SIZE / 2;
   gCfgItems.cloud_enable      = false;
-  //#if ENABLED(MKS_WIFI_MODULE)
-    gCfgItems.wifi_mode_sel = STA_MODEL;
-    gCfgItems.fileSysType   = FILE_SYS_SD;
-    gCfgItems.wifi_type     = ESP_WIFI;
-  //#endif
+  gCfgItems.wifi_mode_sel = STA_MODEL;
+  gCfgItems.fileSysType   = FILE_SYS_SD;
+  gCfgItems.wifi_type     = ESP_WIFI;
   gCfgItems.filamentchange_load_length   = 200;
   gCfgItems.filamentchange_load_speed    = 1000;
   gCfgItems.filamentchange_unload_length = 200;

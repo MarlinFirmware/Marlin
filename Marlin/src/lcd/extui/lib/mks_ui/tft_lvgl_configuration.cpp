@@ -253,28 +253,16 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   uint16_t width, height;
   width = x2 - x1 + 1;
   height = y2 - y1 + 1;
-  #if 1 || ENABLED(TFT_LVGL_UI_SPI)
-    const uint16 size = (uint16)width;
-    uint16_t buf[size];
-    for (uint16 j = 0; j < size; j++)
-      buf[j] = bk_color.full;
+  const uint16 size = (uint16)width;
+  uint16_t buf[size];
+  for (uint16 j = 0; j < size; j++)
+    buf[j] = bk_color.full;
 
-    SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
-    for (uint16_t i = 0; i < height; i++)
-      SPI_TFT.tftio.WriteSequence(buf, width);
+  SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
+  for (uint16_t i = 0; i < height; i++)
+    SPI_TFT.tftio.WriteSequence(buf, width);
 
-    W25QXX.init(SPI_QUARTER_SPEED);
-  #else
-    //tft_set_cursor(0, 0);
-    //LCD_setWindowArea((uint16_t)x1, (uint16_t)y1, width, height);
-    //LCD_WriteRAM_Prepare();
-    //#ifdef LCD_USE_DMA_FSMC
-    //  LCD_IO_WriteMultiple(bk_color.full, width * height);
-    //#else
-    //  for (uint32_t i = 0; i < width * height; i++)
-    //    LCD_IO_WriteData(bk_color.full);
-    //#endif
-  #endif
+  W25QXX.init(SPI_QUARTER_SPEED);
 }
 
 #define TICK_CYCLE 1
@@ -324,7 +312,6 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
       data->state = LV_INDEV_STATE_PR;
 
       // Set the coordinates (if released use the last-pressed coordinates)
-
       data->point.x = last_x;
       data->point.y = last_y;
 
