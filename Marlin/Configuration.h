@@ -171,7 +171,7 @@
 //#define SKR_ReverseSteppers // Some users reported directions backwards than others on SKR with various drivers.
 //#define DualZ // Uses 5th driver on CRX or SKR boards as Z2
 
-#define PowerShutoffKit
+//#define PowerShutoffKit
  /*
   *
   * If any non-stock dual extruder is used, define type here
