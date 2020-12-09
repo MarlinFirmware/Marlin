@@ -45,9 +45,8 @@ void TemperatureScreen::onRedraw(draw_mode_t what) {
       w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE), getTargetTemp_celsius(E0));
       w.adjuster(   4, GET_TEXT_F(MSG_BODY), getTargetTemp_celsius(E1));
       #if ENABLED(COCOA_PRESS_EXTRA_HEATER)
-      if(has_extra_heater()) {
-         w.adjuster(   6, GET_TEXT_F(MSG_EXTERNAL), getTargetTemp_celsius(E2));
-      }
+        if (has_extra_heater())
+          w.adjuster(6, GET_TEXT_F(MSG_EXTERNAL), getTargetTemp_celsius(E2));
       #endif
     #elif HOTENDS == 1
       w.adjuster(   2, GET_TEXT_F(MSG_NOZZLE),   getTargetTemp_celsius(E0));
@@ -103,12 +102,12 @@ bool TemperatureScreen::onTouchHeld(uint8_t tag) {
       case 11: UI_INCREMENT(TargetFan_percent, FAN0); break;
     #endif
     case 30:
-      #define _HOTEND_OFF(N) setTargetTemp_celsius(0,E##N);
+      #define _HOTEND_OFF(N) setTargetTemp_celsius(0, E##N);
       REPEAT(HOTENDS, _HOTEND_OFF);
-      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0,BED));
-      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0,CHAMBER));
+      TERN_(HAS_HEATED_BED, setTargetTemp_celsius(0, BED));
+      TERN_(HAS_HEATED_CHAMBER, setTargetTemp_celsius(0, CHAMBER));
       #if HAS_FAN
-        setTargetFan_percent(0,FAN0);
+        setTargetFan_percent(0, FAN0);
       #endif
       break;
     default:

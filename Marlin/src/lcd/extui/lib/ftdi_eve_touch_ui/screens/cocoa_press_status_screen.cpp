@@ -58,7 +58,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
 
   cmd.cmd(COLOR_RGB(accent_color_1));
   cmd.font(font_medium);
-    
+
   if (what & BACKGROUND) {
     ui.bounds(POLY(print_time_label), x, y, h, v);
     cmd.text(x, y, h, v, GET_TEXT_F(MSG_ELAPSED_PRINT));
@@ -73,7 +73,7 @@ void StatusScreen::draw_progress(draw_mode_t what) {
     sprintf_P(str, PSTR(" %02d : %02d"), hrs, min);
     ui.bounds(POLY(print_time_hms), x, y, h, v);
     cmd.text(x, y, h, v, str);
-    
+
     sprintf_P(str, PSTR("%-3d%%"), getProgress_percent() );
     ui.bounds(POLY(print_time_percent), x, y, h, v);
     cmd.text(x, y, h, v, str);
@@ -102,7 +102,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     cmd.text(x, y, h, v, GET_TEXT_F(MSG_BODY));
 
     #if ENABLED(COCOA_PRESS_EXTRA_HEATER)
-      if(has_extra_heater()) {
+      if (has_extra_heater()) {
         ui.bounds(POLY(h2_label), x, y, h, v);
         cmd.text(x, y, h, v, GET_TEXT_F(MSG_EXTERNAL));
       }
@@ -131,7 +131,7 @@ void StatusScreen::draw_temperature(draw_mode_t what) {
     cmd.text(x, y, h, v, str);
 
     #if ENABLED(COCOA_PRESS_EXTRA_HEATER)
-      if(has_extra_heater()) {
+      if (has_extra_heater()) {
         format_temp(str, getActualTemp_celsius(E2));
         ui.bounds(POLY(h2_temp), x, y, h, v);
         cmd.text(x, y, h, v, str);
@@ -194,7 +194,7 @@ void StatusScreen::draw_buttons(draw_mode_t what) {
   PolyUI ui(cmd, what);
 
   ui.bounds(POLY(unload_cartridge_btn), x, y, h, v);
-  
+
   cmd.font(font_medium).colors(normal_btn);
 
   ui.bounds(POLY(unload_cartridge_btn), x, y, h, v);

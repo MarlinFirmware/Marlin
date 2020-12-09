@@ -35,7 +35,7 @@ using namespace Theme;
 void PreheatMenu::onRedraw(draw_mode_t what) {
   const int16_t w = has_extra_heater() ? BTN_W(1) : BTN_W(2);
   const int16_t h = BTN_H(1);
-  
+
   if (what & BACKGROUND) {
     CommandProcessor cmd;
     cmd.cmd(CLEAR_COLOR_RGB(Theme::bg_color))
@@ -44,7 +44,7 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
        .cmd(COLOR_RGB(bg_text_enabled))
        .font(Theme::font_medium)
        .text  ( BTN_POS(1,1), w, h, GET_TEXT_F(MSG_INTERNAL));
-    if(has_extra_heater()) {
+    if (has_extra_heater()) {
         cmd.text( BTN_POS(2,1), w, h, GET_TEXT_F(MSG_EXTERNAL));
     }
   }
@@ -56,7 +56,7 @@ void PreheatMenu::onRedraw(draw_mode_t what) {
        .tag(2).button( BTN_POS(1,2), w, h, F("Dark Chocolate"))
        .tag(3).button( BTN_POS(1,3), w, h, F("Milk Chocolate"))
        .tag(4).button( BTN_POS(1,4), w, h, F("White Chocolate"));
-    if(has_extra_heater()) {
+    if (has_extra_heater()) {
         cmd.tag(5).button( BTN_POS(2,2), w, h, F("Dark Chocolate"))
            .tag(6).button( BTN_POS(2,3), w, h, F("Milk Chocolate"))
            .tag(7).button( BTN_POS(2,4), w, h, F("White Chocolate"));
