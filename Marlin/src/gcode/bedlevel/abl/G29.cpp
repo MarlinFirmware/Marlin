@@ -177,8 +177,6 @@ G29_TYPE GcodeSuite::G29() {
     if (DISABLED(PROBE_MANUALLY) && seenQ) G29_RETURN(false);
   #endif
 
-  TERN_(EXTENSIBLE_UI, ExtUI::onMeshLevelingStart());
-
   const bool seenA = TERN0(PROBE_MANUALLY, parser.seen('A')),
          no_action = seenA || seenQ,
               faux = ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY) ? parser.boolval('C') : no_action;
@@ -397,6 +395,10 @@ G29_TYPE GcodeSuite::G29() {
     #if ENABLED(AUTO_BED_LEVELING_3POINT)
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
       points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
+    #endif
+
+    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
+      ExtUI::onMeshLevelingStart();
     #endif
 
     if (!faux) remember_feedrate_scaling_off();
