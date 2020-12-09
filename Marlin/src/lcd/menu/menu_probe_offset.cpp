@@ -175,7 +175,6 @@ void goto_probe_offset_wizard() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
-      SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
       z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
       ui.goto_screen(prepare_for_probe_offset_wizard);
       ui.defer_status_screen();
