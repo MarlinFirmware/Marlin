@@ -1387,14 +1387,14 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     #error "You must define Z_CLEARANCE_DEPLOY_PROBE in your configuration."
   #elif !defined(Z_CLEARANCE_BETWEEN_PROBES)
     #error "You must define Z_CLEARANCE_BETWEEN_PROBES in your configuration."
-  #elif enabled(NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE) && Z_CLEARANCE_BETWEEN_PROBES <= sanity_nozzle_to_probe_offset.z
-    #error "Probes with positive Z offset need Z_CLEARANCE_BETWEEN_PROBES > NOZZLE_TO_PROBE_OFFSET Z."
   #elif Z_CLEARANCE_DEPLOY_PROBE < 0
     #error "Probes need Z_CLEARANCE_DEPLOY_PROBE >= 0."
   #elif Z_CLEARANCE_BETWEEN_PROBES < 0
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
   #elif Z_AFTER_PROBING < 0
     #error "Probes need Z_AFTER_PROBING >= 0."
+  #elif ENABLED(NOZZLE_TO_PROBE_OFFSET_Z_POSITIVE)
+    static_assert((Z_CLEARANCE_BETWEEN_PROBES) > sanity_nozzle_to_probe_offset.z, "Probes with positive Z offset need Z_CLEARANCE_BETWEEN_PROBES > NOZZLE_TO_PROBE_OFFSET Z.");
   #endif
 
   #if MULTIPLE_PROBING > 0 || EXTRA_PROBING > 0
