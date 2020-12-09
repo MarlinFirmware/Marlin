@@ -93,8 +93,6 @@ void lv_draw_wifi_list(void) {
 
   lv_obj_t *buttonDown = lv_imgbtn_create(scr, "F:/bmp_pageDown.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + OTHER_BTN_YPIEL + INTERVAL_H, event_handler, ID_WL_DOWN);
   lv_obj_t *buttonBack = lv_imgbtn_create(scr, "F:/bmp_back.bin", OTHER_BTN_XPIEL * 3 + INTERVAL_V * 4, titleHeight + (OTHER_BTN_YPIEL + INTERVAL_H) * 2, event_handler, ID_WL_RETURN);
-  UNUSED(buttonDown);
-  UNUSED(buttonBack);
 
   for (uint8_t i = 0; i < NUMBER_OF_PAGE; i++) {
     buttonWifiN[i] = lv_label_btn_create(scr, 0, NAME_BTN_Y * i + 10 + titleHeight, NAME_BTN_X, NAME_BTN_Y, event_handler, i + 1);
@@ -124,6 +122,9 @@ void lv_draw_wifi_list(void) {
       lv_group_add_obj(g, buttonDown);
       lv_group_add_obj(g, buttonBack);
     }
+  #else
+    UNUSED(buttonDown);
+    UNUSED(buttonBack);
   #endif
 
   disp_wifi_list();

@@ -151,8 +151,9 @@ void wifi_reset() {
 }
 
 void mount_file_sys(uint8_t disk_type) {
-  if (disk_type == FILE_SYS_SD)
+  if (disk_type == FILE_SYS_SD) {
     TERN_(SDSUPPORT, card.mount());
+  }
   else if (disk_type == FILE_SYS_USB) {
   }
 }
@@ -197,25 +198,37 @@ void exchangeFlashMode(char dmaMode) {
   }
 }
 
-static bool longName2DosName(const char* longName, uint8_t* dosName) {
+static bool longName2DosName(const char *longName, uint8_t *dosName) {
   uint8_t i = 11;
-  while (i) dosName[--i] = '\0';
+  while (i)
+    dosName[--i] = '\0';
   while (*longName) {
     uint8_t c = *longName++;
-    if (c == '.') {                   // For a dot...
-  if (i == 0) { return false; }
-  else { strcat((char *)dosName,".GCO"); return dosName[0] != '\0'; }
+    if (c == '.') { // For a dot...
+      if (i == 0) {
+        return false;
+      }
+      else {
+        strcat((char *)dosName, ".GCO");
+        return dosName[0] != '\0';
+      }
     }
     else {
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];,*\"\\");
-      while (uint8_t b = pgm_read_byte(p++)) if (b == c) return false;
-      if (c < 0x21 || c == 0x7F) return false;           // Check size, non-printable characters
+      while (uint8_t b = pgm_read_byte(p++))
+        if (b == c)
+          return false;
+      if (c < 0x21 || c == 0x7F)
+        return false;                                                // Check size, non-printable characters
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a')); // Uppercase required for 8.3 name
     }
-    if (i >= 5) { strcat((char *)dosName,"~1.GCO"); return dosName[0] != '\0'; }
+    if (i >= 5) {
+      strcat((char *)dosName, "~1.GCO");
+      return dosName[0] != '\0';
+    }
   }
-  return dosName[0] != '\0';              // Return true if any name was set
+  return dosName[0] != '\0'; // Return true if any name was set
 }
 
 static int storeRcvData(volatile uint8_t *bufToCpy, int32_t len) {

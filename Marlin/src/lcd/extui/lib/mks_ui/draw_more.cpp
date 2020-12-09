@@ -27,10 +27,6 @@
 #include "draw_ready_print.h"
 #include "draw_set.h"
 #include "lv_conf.h"
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 #include "draw_ui.h"
 #include "../../../../gcode/queue.h"
 
@@ -47,77 +43,46 @@ static lv_obj_t * scr;
 #define ID_M_RETURN   8
 
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
+  if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_CUSTOM_1:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_1_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_1));
-        #endif
-      }
+      #if ENABLED(USER_CMD_1_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_1));
+      #endif
       break;
     case ID_CUSTOM_2:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_2_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_2));
-        #endif
-      }
+      #if ENABLED(USER_CMD_2_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_2));
+      #endif
       break;
     case ID_CUSTOM_3:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_3_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_3));
-        #endif
-      }
+      #if ENABLED(USER_CMD_3_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_3));
+      #endif
       break;
     case ID_CUSTOM_4:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_4_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_4));
-        #endif
-      }
+      #if ENABLED(USER_CMD_4_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_4));
+      #endif
       break;
     case ID_CUSTOM_5:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_5_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_5));
-        #endif
-      }
+      #if ENABLED(USER_CMD_5_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_5));
+      #endif
       break;
     case ID_CUSTOM_6:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_6_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_6));
-        #endif
-      }
+      #if ENABLED(USER_CMD_6_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_6));
+      #endif
       break;
     case ID_CUSTOM_7:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        #if ENABLED(USER_CMD_7_ENABLE)
-          queue.inject_P(PSTR(USER_GCODE_7));
-        #endif
-      }
+      #if ENABLED(USER_CMD_7_ENABLE)
+        queue.inject_P(PSTR(USER_GCODE_7));
+      #endif
       break;
     case ID_M_RETURN:
-      if (event == LV_EVENT_CLICKED) {
-      }
-      else if (event == LV_EVENT_RELEASED) {
-        lv_clear_more();
-        lv_draw_tool();
-      }
+      lv_clear_more();
+      lv_draw_tool();
       break;
   }
 }
