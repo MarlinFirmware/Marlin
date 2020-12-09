@@ -57,7 +57,7 @@ public:
   static const inline uint8_t cpwr_to_pct(const cutter_cpower_t cpwr) {
     constexpr cutter_cpower_t power_floor = TERN(CUTTER_POWER_RELATIVE, SPEED_POWER_MIN, 0),
                               power_range = SPEED_POWER_MAX - power_floor;
-    return unitPower ? round(100.0f * (cpwr - power_floor) / power_range) : 0;
+    return cpwr ? round(100.0f * (cpwr - power_floor) / power_range) : 0;
   }
 
   // Convert a cpower (e.g., SPEED_POWER_STARTUP) to unit power (upwr, upower),
@@ -191,9 +191,11 @@ public:
   }
 
   #if ENABLED(SPINDLE_CHANGE_DIR)
-    static void set_direction(const bool reverse);
+    static void set_reverse(const bool reverse);
+    static bool is_reverse() { return READ(SPINDLE_DIR_PIN) == SPINDLE_INVERT_DIR; }
   #else
-    static inline void set_direction(const bool) {}
+    static inline void set_reverse(const bool) {}
+    static bool is_reverse() { return false; }
   #endif
 
   static inline void disable() { isReady = false; set_enabled(false); }
@@ -208,11 +210,12 @@ public:
       else
         menuPower = cpwr_to_upwr(SPEED_POWER_STARTUP);
       unitPower = menuPower;
-      set_direction(reverse);
+      set_reverse(reverse);
       set_enabled(true);
     }
     FORCE_INLINE static void enable_forward() { enable_with_dir(false); }
     FORCE_INLINE static void enable_reverse() { enable_with_dir(true); }
+    FORCE_INLINE static void enable_same_dir() { enable_with_dir(is_reverse()); }
 
     #if ENABLED(SPINDLE_LASER_PWM)
       static inline void update_from_mpower() {

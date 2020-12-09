@@ -170,7 +170,7 @@ void menu_main() {
   }
 
   #if HAS_CUTTER
-    SUBMENU(MSG_CUTTER(MENU), menu_spindle_laser);
+    SUBMENU(MSG_CUTTER(MENU), STICKY_SCREEN(menu_spindle_laser));
   #endif
 
   #if HAS_TEMPERATURE

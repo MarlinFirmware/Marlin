@@ -118,7 +118,7 @@ void SpindleLaser::apply_power(const uint8_t opwr) {
   // Set the spindle direction and apply immediately
   // Stop on direction change if SPINDLE_STOP_ON_DIR_CHANGE is enabled
   //
-  void SpindleLaser::set_direction(const bool reverse) {
+  void SpindleLaser::set_reverse(const bool reverse) {
     const bool dir_state = (reverse == SPINDLE_INVERT_DIR); // Forward (M3) HIGH when not inverted
     if (TERN0(SPINDLE_STOP_ON_DIR_CHANGE, enabled()) && READ(SPINDLE_DIR_PIN) != dir_state) disable();
     WRITE(SPINDLE_DIR_PIN, dir_state);
