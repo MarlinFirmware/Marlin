@@ -23,7 +23,6 @@
 
 /**
  * MKS Robin (STM32F130ZET6) board pin assignments
- *
  * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
  */
 
@@ -121,7 +120,7 @@
 #define PS_ON_PIN                           PA3   // PW_OFF
 #define FIL_RUNOUT_PIN                      PF11  // MT_DET
 
-#define BEEPER_PIN                        PC13
+#define BEEPER_PIN                          PC13
 #define LED_PIN                             PB2
 
 #if HAS_FSMC_TFT
