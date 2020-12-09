@@ -45,41 +45,41 @@ static lv_obj_t * scr;
 static void event_handler(lv_obj_t * obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
-    case ID_CUSTOM_1:
-      #if ENABLED(USER_CMD_1_ENABLE)
+    #if ENABLED(USER_CMD_1_ENABLE)
+      case ID_CUSTOM_1:
         queue.inject_P(PSTR(USER_GCODE_1));
-      #endif
-      break;
-    case ID_CUSTOM_2:
-      #if ENABLED(USER_CMD_2_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_2_ENABLE)
+      case ID_CUSTOM_2:
         queue.inject_P(PSTR(USER_GCODE_2));
-      #endif
-      break;
-    case ID_CUSTOM_3:
-      #if ENABLED(USER_CMD_3_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_3_ENABLE)
+      case ID_CUSTOM_3:
         queue.inject_P(PSTR(USER_GCODE_3));
-      #endif
-      break;
-    case ID_CUSTOM_4:
-      #if ENABLED(USER_CMD_4_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_4_ENABLE)
+      case ID_CUSTOM_4:
         queue.inject_P(PSTR(USER_GCODE_4));
-      #endif
-      break;
-    case ID_CUSTOM_5:
-      #if ENABLED(USER_CMD_5_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_5_ENABLE)
+      case ID_CUSTOM_5:
         queue.inject_P(PSTR(USER_GCODE_5));
-      #endif
-      break;
-    case ID_CUSTOM_6:
-      #if ENABLED(USER_CMD_6_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_6_ENABLE)
+      case ID_CUSTOM_6:
         queue.inject_P(PSTR(USER_GCODE_6));
-      #endif
-      break;
-    case ID_CUSTOM_7:
-      #if ENABLED(USER_CMD_7_ENABLE)
+        break;
+    #endif
+    #if ENABLED(USER_CMD_7_ENABLE)
+      case ID_CUSTOM_7:
         queue.inject_P(PSTR(USER_GCODE_7));
-      #endif
-      break;
+        break;
+    #endif
     case ID_M_RETURN:
       lv_clear_more();
       lv_draw_tool();
@@ -88,71 +88,48 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
 }
 
 void lv_draw_more(void) {
-  #if ENABLED(USER_CMD_1_ENABLE)
-    lv_obj_t *buttonCustom1;
-  #endif
-  #if ENABLED(USER_CMD_2_ENABLE)
-    lv_obj_t *buttonCustom2;
-  #endif
-  #if ENABLED(USER_CMD_3_ENABLE)
-    lv_obj_t *buttonCustom3;
-  #endif
-  #if ENABLED(USER_CMD_4_ENABLE)
-    lv_obj_t *buttonCustom4;
-  #endif
-  #if ENABLED(USER_CMD_5_ENABLE)
-    lv_obj_t *buttonCustom5;
-  #endif
-  #if ENABLED(USER_CMD_6_ENABLE)
-    lv_obj_t *buttonCustom6;
-  #endif
-  #if ENABLED(USER_CMD_7_ENABLE)
-    lv_obj_t *buttonCustom7;
-  #endif
   scr = lv_screen_create(MORE_UI);
-
-  /*Create an Image button and label*/
 
   const bool enc_ena = TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable);
 
   #if ENABLED(USER_CMD_1_ENABLE)
-    buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", INTERVAL_V, titleHeight, event_handler, ID_CUSTOM_1);
+    lv_obj_t *buttonCustom1 = lv_imgbtn_create(scr, "F:/bmp_custom1.bin", INTERVAL_V, titleHeight, event_handler, ID_CUSTOM_1);
     if (enc_ena) lv_group_add_obj(g, buttonCustom1);
     lv_obj_t *labelCustom1 = lv_label_create_empty(buttonCustom1);
   #endif
 
   #if ENABLED(USER_CMD_2_ENABLE)
-    buttonCustom2 = lv_imgbtn_create(scr, "F:/bmp_custom2.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_CUSTOM_2);
+    lv_obj_t *buttonCustom2 = lv_imgbtn_create(scr, "F:/bmp_custom2.bin", BTN_X_PIXEL + INTERVAL_V * 2, titleHeight, event_handler, ID_CUSTOM_2);
     if (enc_ena) lv_group_add_obj(g, buttonCustom2);
     lv_obj_t *labelCustom2 = lv_label_create_empty(buttonCustom2);
   #endif
 
   #if ENABLED(USER_CMD_3_ENABLE)
-    buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_CUSTOM_3);
+    lv_obj_t *buttonCustom3 = lv_imgbtn_create(scr, "F:/bmp_custom3.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, titleHeight, event_handler, ID_CUSTOM_3);
     if (enc_ena) lv_group_add_obj(g, buttonCustom3);
     lv_obj_t *labelCustom3 = lv_label_create_empty(buttonCustom3);
   #endif
 
   #if ENABLED(USER_CMD_4_ENABLE)
-    buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_CUSTOM_4);
+    lv_obj_t *buttonCustom4 = lv_imgbtn_create(scr, "F:/bmp_custom4.bin", BTN_X_PIXEL * 3 + INTERVAL_V * 4, titleHeight, event_handler, ID_CUSTOM_4);
     if (enc_ena) lv_group_add_obj(g, buttonCustom4);
     lv_obj_t *labelCustom4 = lv_label_create_empty(buttonCustom4);
   #endif
 
   #if ENABLED(USER_CMD_5_ENABLE)
-    buttonCustom5 = lv_imgbtn_create(scr, "F:/bmp_custom5.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_5);
+    lv_obj_t *buttonCustom5 = lv_imgbtn_create(scr, "F:/bmp_custom5.bin", INTERVAL_V, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_5);
     if (enc_ena) lv_group_add_obj(g, buttonCustom5);
     lv_obj_t *labelCustom5 = lv_label_create_empty(buttonCustom5);
   #endif
 
   #if ENABLED(USER_CMD_6_ENABLE)
-    buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_6);
+    lv_obj_t *buttonCustom6 = lv_imgbtn_create(scr, "F:/bmp_custom6.bin", BTN_X_PIXEL + INTERVAL_V * 2, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_6);
     if (enc_ena) lv_group_add_obj(g, buttonCustom6);
     lv_obj_t *labelCustom6 = lv_label_create_empty(buttonCustom6);
   #endif
 
   #if ENABLED(USER_CMD_7_ENABLE)
-    buttonCustom7 = lv_imgbtn_create(scr, "F:/bmp_custom7.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_7);
+    blv_obj_t *uttonCustom7 = lv_imgbtn_create(scr, "F:/bmp_custom7.bin", BTN_X_PIXEL * 2 + INTERVAL_V * 3, BTN_Y_PIXEL + INTERVAL_H + titleHeight, event_handler, ID_CUSTOM_7);
     if (enc_ena) lv_group_add_obj(g, buttonCustom7);
     lv_obj_t *labelCustom7 = lv_label_create_empty(buttonCustom7);
   #endif
