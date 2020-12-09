@@ -349,32 +349,27 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && (PROBE_REQUIRES_MINTEMP_NOZZLE) > 0 && HAS_TEMP_HOTEND
-    bool setting_hotend = false;
-    if (thermalManager.degTargetHotend(0) < PROBE_REQUIRES_MINTEMP_NOZZLE) {
+    #define WAIT_FOR_NOZZLE_HEAT 1
+    bool setting_hotend = thermalManager.degTargetHotend(0) < (PROBE_REQUIRES_MINTEMP_NOZZLE);
+    if (setting_hotend) {
       uint16_t hotendTemperature = (PROBE_REQUIRES_MINTEMP_NOZZLE);
-      SERIAL_ECHOLNPAIR("Preheating hot-end to ", hotendTemperature);
+      SERIAL_ECHOLNPAIR("Preheating hotend to ", hotendTemperature);
       thermalManager.setTargetHotend(hotendTemperature, 0);
-      setting_hotend = true;
     }
   #endif
 
   #if defined(PROBE_REQUIRES_MINTEMP_BED) && (PROBE_REQUIRES_MINTEMP_BED) > 0 && HAS_HEATED_BED
-    bool setting_bed = false;
-    if (thermalManager.degBed() < (PROBE_REQUIRES_MINTEMP_BED)) {
+    #define WAIT_FOR_BED_HEAT 1
+    bool setting_bed = thermalManager.degBed() < (PROBE_REQUIRES_MINTEMP_BED);
+    if (setting_bed) {
       uint16_t bedTemperature = (PROBE_REQUIRES_MINTEMP_BED);
       SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
       thermalManager.setTargetBed(bedTemperature);
-      setting_bed = true;
     }
   #endif
 
-  #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && (PROBE_REQUIRES_MINTEMP_NOZZLE) < 0 && HAS_TEMP_HOTEND
-    if (setting_hotend) thermalManager.wait_for_hotend(0);
-  #endif
-
-  #if defined(PROBE_REQUIRES_MINTEMP_BED) && (PROBE_REQUIRES_MINTEMP_BED) < 0 && HAS_HEATED_BED
-     if (setting_bed) thermalManager.wait_for_bed_heating();
-  #endif
+  TERN_(WAIT_FOR_NOZZLE_HEAT, if (setting_hotend) thermalManager.wait_for_hotend(0));
+  TERN_(WAIT_FOR_BED_HEAT, if (setting_bed) thermalManager.wait_for_bed_heating());
 
   // For beds that fall when Z is powered off only raise for trusted Z
   #if ENABLED(UNKNOWN_Z_NO_RAISE)
