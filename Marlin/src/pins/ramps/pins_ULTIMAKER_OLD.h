@@ -174,11 +174,11 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         30
 
-#elif BOTH(BOARD_REV_1_5, ULTRA_LCD)
+#elif BOTH(BOARD_REV_1_5, IS_ULTRA_LCD)
 
   #define BEEPER_PIN                          18
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
 
     #define LCD_PINS_RS                       20
     #define LCD_PINS_ENABLE                   17
@@ -194,7 +194,7 @@
 
     #define SD_DETECT_PIN                     38
 
-  #else                                           // !NEWPANEL - Old style panel with shift register
+  #else                                           // !IS_NEWPANEL - Old style panel with shift register
 
     // Buttons attached to a shift register
     #define SHIFT_CLK                         38
@@ -209,7 +209,7 @@
     #define LCD_PINS_D6                       20
     #define LCD_PINS_D7                       19
 
-  #endif // !NEWPANEL
+  #endif // !IS_NEWPANEL
 
 #endif
 

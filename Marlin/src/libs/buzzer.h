@@ -84,9 +84,9 @@
 
     public:
       /**
-       * @brief Class constructor
+       * @brief Init Buzzer
        */
-      Buzzer() {
+      static inline void init() {
         SET_OUTPUT(BEEPER_PIN);
         reset();
       }

@@ -22,9 +22,7 @@
 #pragma once
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
- *
- * For ARDUINO_ARCH_SAM
+ * HAL for Arduino Due and compatible (SAM3X8E)
  */
 
 #define CPU_32_BIT
@@ -107,13 +105,15 @@ void sei();                     // Enable interrupts
 void HAL_clear_reset_source();  // clear reset reason
 uint8_t HAL_get_reset_source(); // get reset reason
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 //
 // ADC
 //
 extern uint16_t HAL_adc_result;     // result of last ADC conversion
 
 #ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+  #define analogInputToDigitalPin(p) ((p < 12U) ? (p) + 54U : -1)
 #endif
 
 #define HAL_ANALOG_SELECT(ch)
@@ -153,10 +153,16 @@ void HAL_init();
 //
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 int freeMemory();
-#pragma GCC diagnostic pop
+
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 #ifdef __cplusplus
   extern "C" {

@@ -29,6 +29,7 @@
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
 #include "fastio.h"
+#include "Servo.h"
 #include "watchdog.h"
 #include "MarlinSerial.h"
 
@@ -110,6 +111,8 @@
 typedef int16_t pin_t;
 
 #define HAL_SERVO_LIB libServo
+#define PAUSE_SERVO_OUTPUT() libServo::pause_all_servos()
+#define RESUME_SERVO_OUTPUT() libServo::resume_all_servos()
 
 // ------------------------
 // Public Variables
@@ -134,19 +137,25 @@ void HAL_clear_reset_source();
 // Reset reason
 uint8_t HAL_get_reset_source();
 
+inline void HAL_reboot() {}  // reboot the board or restart the bootloader
+
 void _delay_ms(const int delay);
 
 extern "C" char* _sbrk(int incr);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 static inline int freeMemory() {
   volatile char top;
   return &top - reinterpret_cast<char*>(_sbrk(0));
 }
 
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC
@@ -177,3 +186,26 @@ uint16_t HAL_adc_get_result();
 
 #define PLATFORM_M997_SUPPORT
 void flashFirmware(const int16_t);
+
+// Maple Compatibility
+typedef void (*systickCallback_t)(void);
+void systick_attach_callback(systickCallback_t cb);
+void HAL_SYSTICK_Callback();
+extern volatile uint32_t systick_uptime_millis;
+
+#define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
+
+/**
+ * set_pwm_frequency
+ *  Set the frequency of the timer corresponding to the provided pin
+ *  All Timer PWM pins run at the same frequency
+ */
+void set_pwm_frequency(const pin_t pin, int f_desired);
+
+/**
+ * set_pwm_duty
+ *  Set the PWM duty cycle of the provided pin to the provided value
+ *  Optionally allows inverting the duty cycle [default = false]
+ *  Optionally allows changing the maximum size of the provided value to enable finer PWM duty control [default = 255]
+ */
+void set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v_size=255, const bool invert=false);

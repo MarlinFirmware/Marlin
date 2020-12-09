@@ -29,7 +29,6 @@
  * A Magyar fordítást készítette: AntoszHUN
  *
  *
- *
  */
 
 namespace Language_hu {
@@ -57,7 +56,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("<Fömenü>");
   PROGMEM Language_Str MSG_ADVANCED_SETTINGS               = _UxGT("További Beállítások");
   PROGMEM Language_Str MSG_CONFIGURATION                   = _UxGT("Konfiguráció");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Autoinditás");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Autoinditás");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Motorok kikapcsolása");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Hiba Menü");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Haladás sáv teszt");
@@ -319,7 +318,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_TEMPERATURE                     = _UxGT("Höfok");
   PROGMEM Language_Str MSG_MOTION                          = _UxGT("Mozgatások");
   PROGMEM Language_Str MSG_FILAMENT                        = _UxGT("Nyomtatószál");
-  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E mm³-ben");
+  PROGMEM Language_Str MSG_VOLUMETRIC_ENABLED              = _UxGT("E mm") SUPERSCRIPT_THREE _UxGT("-ben");
   PROGMEM Language_Str MSG_FILAMENT_DIAM                   = _UxGT("Szál. Átm.");
   PROGMEM Language_Str MSG_FILAMENT_DIAM_E                 = _UxGT("Szál. Átm. *");
   PROGMEM Language_Str MSG_FILAMENT_UNLOAD                 = _UxGT("Kiadás mm");
@@ -376,7 +375,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Ugrás mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Visszah.helyre mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Csere.Visszah.helyre mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("UnRet V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVisszah.");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Visszahúzás Távolság");
@@ -624,8 +623,8 @@ namespace Language_hu {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

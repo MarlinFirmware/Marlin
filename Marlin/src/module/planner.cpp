@@ -66,7 +66,7 @@
 #include "stepper.h"
 #include "motion.h"
 #include "temperature.h"
-#include "../lcd/ultralcd.h"
+#include "../lcd/marlinui.h"
 #include "../gcode/parser.h"
 
 #include "../MarlinCore.h"
@@ -213,7 +213,7 @@ xyze_float_t Planner::previous_speed;
 float Planner::previous_nominal_speed_sqr;
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
-  uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
+  last_move_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
 #endif
 
 #ifdef XY_FREQUENCY_LIMIT
@@ -234,7 +234,7 @@ float Planner::previous_nominal_speed_sqr;
   xyze_pos_t Planner::position_cart;
 #endif
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   volatile uint32_t Planner::block_buffer_runtime_us = 0;
 #endif
 
@@ -339,7 +339,6 @@ void Planner::init() {
      *  const uint32_t r = _BV(24) - x * d;                             // Estimate remainder
      *  if (r >= d) x++;                                                // Check whether to adjust result
      *  return uint32_t(x);                                             // x holds the proper estimation
-     *
      */
     static uint32_t get_period_inverse(uint32_t d) {
 
@@ -747,7 +746,7 @@ block_t* Planner::get_current_block() {
     if (TEST(block->flag, BLOCK_BIT_RECALCULATE)) return nullptr;
 
     // We can't be sure how long an active block will take, so don't count it.
-    TERN_(HAS_SPI_LCD, block_buffer_runtime_us -= block->segment_time_us);
+    TERN_(HAS_WIRED_LCD, block_buffer_runtime_us -= block->segment_time_us);
 
     // As this block is busy, advance the nonbusy block pointer
     block_buffer_nonbusy = next_block_index(block_buffer_tail);
@@ -761,7 +760,7 @@ block_t* Planner::get_current_block() {
   }
 
   // The queue became empty
-  TERN_(HAS_SPI_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+  TERN_(HAS_WIRED_LCD, clear_block_buffer_runtime()); // paranoia. Buffer is empty now - so reset accumulated time to zero.
 
   return nullptr;
 }
@@ -1578,7 +1577,7 @@ void Planner::quick_stop() {
   // forced to empty, there's no risk the ISR will touch this.
   delay_before_delivering = BLOCK_DELAY_FOR_1ST_MOVE;
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     // Clear the accumulated runtime
     clear_block_buffer_runtime();
   #endif
@@ -2038,22 +2037,20 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
         LOOP_L_N(i, EXTRUDERS)
-          if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
-
-        #if HAS_DUPLICATION_MODE
-          if (extruder_duplication_enabled && extruder == 0) {
-            ENABLE_AXIS_E1();
-            g_uc_extruder_last_move[1] = (BLOCK_BUFFER_SIZE) * 2;
-          }
-        #endif
+          if (g_uc_extruder_last_move[i]) g_uc_extruder_last_move[i]--;
 
         #define ENABLE_ONE_E(N) do{ \
           if (extruder == N) { \
             ENABLE_AXIS_E##N(); \
             g_uc_extruder_last_move[N] = (BLOCK_BUFFER_SIZE) * 2; \
+            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
+              ENABLE_AXIS_E1(); \
           } \
-          else if (!g_uc_extruder_last_move[N]) \
+          else if (!g_uc_extruder_last_move[N]) { \
             DISABLE_AXIS_E##N(); \
+            if ((N) == 0 && TERN0(HAS_DUPLICATION_MODE, extruder_duplication_enabled)) \
+              DISABLE_AXIS_E1(); \
+          } \
         }while(0);
 
       #else
@@ -2081,7 +2078,7 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
   const uint8_t moves_queued = nonbusy_movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if EITHER(SLOWDOWN, HAS_SPI_LCD) || defined(XY_FREQUENCY_LIMIT)
+  #if EITHER(SLOWDOWN, HAS_WIRED_LCD) || defined(XY_FREQUENCY_LIMIT)
     // Segment time im micro seconds
     int32_t segment_time_us = LROUND(1000000.0f / inverse_secs);
   #endif
@@ -2096,14 +2093,14 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
         // Buffer is draining so add extra time. The amount of time added increases if the buffer is still emptied more.
         const int32_t nst = segment_time_us + LROUND(2 * time_diff / moves_queued);
         inverse_secs = 1000000.0f / nst;
-        #if defined(XY_FREQUENCY_LIMIT) || HAS_SPI_LCD
+        #if defined(XY_FREQUENCY_LIMIT) || HAS_WIRED_LCD
           segment_time_us = nst;
         #endif
       }
     }
   #endif
 
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     // Protect the access to the position.
     const bool was_enabled = stepper.suspend();
 
@@ -2243,7 +2240,6 @@ bool Planner::_populate_block(block_t * const block, bool split_move,
       #define MAX_E_JERK(N) TERN(HAS_LINEAR_E_JERK, max_e_jerk[E_INDEX_N(N)], max_jerk.e)
 
       /**
-       *
        * Use LIN_ADVANCE for blocks if all these are true:
        *
        * esteps             : This is a print move, because we checked for A, B, C steps before.
@@ -3029,7 +3025,7 @@ void Planner::set_max_jerk(const AxisEnum axis, float targetValue) {
   #endif
 }
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   uint16_t Planner::block_buffer_runtime() {
     #ifdef __AVR__

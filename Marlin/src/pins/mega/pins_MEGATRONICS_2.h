@@ -130,7 +130,7 @@
 //
 #define BEEPER_PIN                            64
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         14
   #define LCD_PINS_ENABLE                     15
@@ -139,7 +139,7 @@
   #define LCD_PINS_D6                         32
   #define LCD_PINS_D7                         33
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // Buttons are directly attached using keypad
     #define BTN_EN1                           61
     #define BTN_EN2                           59
@@ -152,4 +152,4 @@
     #define SHIFT_EN                          17
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

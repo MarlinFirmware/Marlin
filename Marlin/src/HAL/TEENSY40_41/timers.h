@@ -16,12 +16,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 #pragma once
 
 /**
- * Description: HAL for
- * Teensy4.0/4.1 (__IMXRT1062__)
+ * HAL Timers for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
 
 #include <stdint.h>
@@ -72,14 +72,16 @@ typedef uint32_t hal_timer_t;
 #define DISABLE_TEMPERATURE_INTERRUPT() HAL_timer_disable_interrupt(TEMP_TIMER_NUM)
 
 #ifndef HAL_STEP_TIMER_ISR
-  #define HAL_STEP_TIMER_ISR()  extern "C" void stepTC_Handler() // GPT1_Handler()
+  #define HAL_STEP_TIMER_ISR() extern "C" void stepTC_Handler() // GPT1_Handler()
 #endif
 #ifndef HAL_TEMP_TIMER_ISR
-  #define HAL_TEMP_TIMER_ISR()  extern "C" void tempTC_Handler() // GPT2_Handler()
+  #define HAL_TEMP_TIMER_ISR() extern "C" void tempTC_Handler() // GPT2_Handler()
 #endif
 
-extern "C" void stepTC_Handler();
-extern "C" void tempTC_Handler();
+extern "C" {
+  void stepTC_Handler();
+  void tempTC_Handler();
+}
 
 void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency);
 

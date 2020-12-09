@@ -147,6 +147,9 @@
 #if defined(BTN_EN2) && BTN_EN2 >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_EN2)
 #endif
+#if defined(BTN_ENC_EN) && BTN_ENC_EN >= 0
+  REPORT_NAME_DIGITAL(__LINE__, BTN_ENC_EN)
+#endif
 #if defined(BTN_ENC) && BTN_ENC >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_ENC)
 #endif
@@ -260,6 +263,9 @@
 #endif
 #if defined(TMC_SW_SCK) && TMC_SW_SCK >= 0
   REPORT_NAME_DIGITAL(__LINE__, TMC_SW_SCK)
+#endif
+#if defined(TFTGLCD_CS) && TFTGLCD_CS >= 0
+  REPORT_NAME_DIGITAL(__LINE__, TFTGLCD_CS)
 #endif
 #if PIN_EXISTS(E_MUX0)
   REPORT_NAME_DIGITAL(__LINE__, E_MUX0_PIN)

@@ -1,9 +1,9 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,8 +88,8 @@ public:
     FORCE_INLINE static float getPower() { return getAmps() * getVolts(); }
   #endif
 
-  #if HAS_SPI_LCD
-    #if HAS_GRAPHICAL_LCD && DISABLED(LIGHTWEIGHT_UI)
+  #if HAS_WIRED_LCD
+    #if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
       FORCE_INLINE static bool display_enabled() { return flags != 0x00; }
     #endif
     #if ENABLED(POWER_MONITOR_CURRENT)

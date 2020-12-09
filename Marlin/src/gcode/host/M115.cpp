@@ -27,6 +27,10 @@
   #include "../../module/motion.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
@@ -102,7 +106,7 @@ void GcodeSuite::M115() {
 
     // TOGGLE_LIGHTS (M355)
     cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, PWM_PIN(CASE_LIGHT_PIN)));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, TERN0(CASELIGHT_USES_BRIGHTNESS, TERN(CASE_LIGHT_USE_NEOPIXEL, true, PWM_PIN(CASE_LIGHT_PIN)))));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
@@ -112,6 +116,9 @@ void GcodeSuite::M115() {
 
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
+
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
 
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));

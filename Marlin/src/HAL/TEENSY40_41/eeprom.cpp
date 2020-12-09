@@ -27,8 +27,7 @@
 #if USE_WIRED_EEPROM
 
 /**
- * PersistentStore for Arduino-style EEPROM interface
- * with implementations supplied by the framework.
+ * HAL PersistentStore for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
  */
 
 #include "../shared/eeprom_api.h"
@@ -62,7 +61,7 @@ bool PersistentStore::write_data(int &pos, const uint8_t *value, size_t size, ui
   return false;
 }
 
-bool PersistentStore::read_data(int &pos, uint8_t* value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
+bool PersistentStore::read_data(int &pos, uint8_t *value, size_t size, uint16_t *crc, const bool writing/*=true*/) {
   do {
     uint8_t c = eeprom_read_byte((uint8_t*)pos);
     if (writing) *value = c;

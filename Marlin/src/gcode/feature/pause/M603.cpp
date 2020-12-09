@@ -39,7 +39,6 @@
  *  T[toolhead] - Select extruder to configure, active extruder if not specified
  *  U[distance] - Retract distance for removal, for the specified extruder
  *  L[distance] - Extrude distance for insertion, for the specified extruder
- *
  */
 void GcodeSuite::M603() {
 

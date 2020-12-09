@@ -72,7 +72,7 @@ static_assert(!(NUM_SERVOS && ENABLED(FAST_PWM_FAN)), "BLTOUCH and Servos are in
 //#endif
 
 #if MB(RAMPS_14_RE_ARM_EFB, RAMPS_14_RE_ARM_EEB, RAMPS_14_RE_ARM_EFF, RAMPS_14_RE_ARM_EEF, RAMPS_14_RE_ARM_SF)
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
+  #if IS_RRD_FG_SC && HAS_DRIVER(TMC2130) && DISABLED(TMC_USE_SW_SPI)
     #error "Re-ARM with REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER and TMC2130 requires TMC_USE_SW_SPI."
   #endif
 #endif
@@ -97,8 +97,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define IS_RX0(P) (P == P0_03)
   #if IS_TX0(TMC_SW_MISO) || IS_RX0(TMC_SW_MOSI)
     #error "Serial port pins (0) conflict with Trinamic SPI pins!"
-  #elif ENABLED(MK2_MULTIPLEXER) && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
-    #error "Serial port pins (0) conflict with MK2 multiplexer pins!"
+  #elif HAS_PRUSA_MMU1 && (IS_TX0(E_MUX1_PIN) || IS_RX0(E_MUX0_PIN))
+    #error "Serial port pins (0) conflict with Multi-Material-Unit multiplexer pins!"
   #elif (AXIS_HAS_SPI(X) && IS_TX0(X_CS_PIN)) || (AXIS_HAS_SPI(Y) && IS_RX0(Y_CS_PIN))
     #error "Serial port pins (0) conflict with X/Y axis SPI pins!"
   #endif
@@ -113,7 +113,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
   #define _IS_RX1_1 IS_RX1
   #if IS_TX1(TMC_SW_SCK)
     #error "Serial port pins (1) conflict with other pins!"
-  #elif HAS_SPI_LCD
+  #elif HAS_WIRED_LCD
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
       #error "Serial port pins (1) conflict with Encoder Buttons!"
     #elif ANY_TX(1, SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK) \
@@ -191,7 +191,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
 //
 // Flag any i2c pin conflicts
 //
-#if ANY(HAS_I2C_DIGIPOT, DAC_STEPPER_CURRENT, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, PCA9632, I2C_EEPROM)
+#if ANY(HAS_MOTOR_CURRENT_I2C, HAS_MOTOR_CURRENT_DAC, EXPERIMENTAL_I2CBUS, I2C_POSITION_ENCODERS, PCA9632, I2C_EEPROM)
   #define USEDI2CDEV_M 1  // <Arduino>/Wire.cpp
 
   #if USEDI2CDEV_M == 0         // P0_27 [D57] (AUX-1) .......... P0_28 [D58] (AUX-1)

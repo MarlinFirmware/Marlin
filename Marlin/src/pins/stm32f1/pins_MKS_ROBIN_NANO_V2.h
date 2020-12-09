@@ -25,7 +25,7 @@
  * MKS Robin nano (STM32F130VET6) board pin assignments
  */
 
-#if NOT_TARGET(__STM32F1__)
+#if NOT_TARGET(__STM32F1__, STM32F1)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
   #error "MKS Robin nano supports up to 2 hotends / E-steppers. Comment out this line to continue."
@@ -34,6 +34,8 @@
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin nano V2.0"
+
+#define BOARD_NO_NATIVE_USB
 
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
@@ -55,8 +57,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE                           2
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 //
 // Limit Switches
@@ -233,9 +234,6 @@
 //
 // LCD / Controller
 //
-#ifndef BEEPER_PIN
-  #define BEEPER_PIN                        PC5
-#endif
 
 /**
  * Note: MKS Robin TFT screens use various TFT controllers.
@@ -272,78 +270,22 @@
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          1
 
-  #ifndef TFT_WIDTH
-    #define TFT_WIDTH                        480
-  #endif
-  #ifndef TFT_HEIGHT
-    #define TFT_HEIGHT                       320
-  #endif
-
-  #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
 #endif
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-
-  // LVGL
-
-  #define XPT2046_X_CALIBRATION           -17253
-  #define XPT2046_Y_CALIBRATION            11579
-  #define XPT2046_X_OFFSET                   514
-  #define XPT2046_Y_OFFSET                   -24
-
-#elif ENABLED(SPI_GRAPHICAL_TFT)
-
+#if ENABLED(TFT_CLASSIC_UI)
   // Emulated DOGM SPI
-
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -11386
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION           8684
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 339
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -18
-  #endif
-
-  #ifndef GRAPHICAL_TFT_UPSCALE
-    #define GRAPHICAL_TFT_UPSCALE              3
-  #endif
-  #ifndef TFT_PIXEL_OFFSET_Y
-    #define TFT_PIXEL_OFFSET_Y                32
-  #endif
-
+  #define LCD_PINS_ENABLE                   PD13
+  #define LCD_PINS_RS                       PC6
   #define BTN_ENC                           PE13
   #define BTN_EN1                           PE8
   #define BTN_EN2                           PE11
-
-  #define LCD_PINS_ENABLE                   PD13
-  #define LCD_PINS_RS                       PC6
-
-#elif ENABLED(TFT_480x320_SPI)
-  #ifndef XPT2046_X_CALIBRATION
-    #define XPT2046_X_CALIBRATION         -17253
-  #endif
-  #ifndef XPT2046_Y_CALIBRATION
-    #define XPT2046_Y_CALIBRATION          11579
-  #endif
-  #ifndef XPT2046_X_OFFSET
-    #define XPT2046_X_OFFSET                 514
-  #endif
-  #ifndef XPT2046_Y_OFFSET
-    #define XPT2046_Y_OFFSET                 -24
-  #endif
-
-  #define TFT_DRIVER                      ST7796
+#elif ENABLED(TFT_COLOR_UI)
   #define TFT_BUFFER_SIZE                  14400
-
 #endif
 
-#if HAS_SPI_LCD && !HAS_SPI_TFT
+#if HAS_WIRED_LCD && !HAS_SPI_TFT
 
   // NON TFT Displays
 
@@ -359,13 +301,31 @@
     #define DOGLCD_SCK                      PA5
     #define DOGLCD_MOSI                     PA7
 
+  #elif IS_TFTGLCD_PANEL
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define PIN_SPI_SCK                   PA5
+      #define PIN_TFT_MISO                  PA6
+      #define PIN_TFT_MOSI                  PA7
+      #define TFTGLCD_CS                    PE8
+    #endif
+
+    #ifndef BEEPER_PIN
+      #define BEEPER_PIN                    -1
+    #endif
+
   #else                                           // !MKS_MINI_12864
 
     #define LCD_PINS_D4                     PE14
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PE15
       #define LCD_PINS_D6                   PD11
       #define LCD_PINS_D7                   PD10
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
     #ifndef BOARD_ST7920_DELAY_1
@@ -380,15 +340,19 @@
 
   #endif // !MKS_MINI_12864
 
-#endif // HAS_SPI_LCD && !HAS_SPI_TFT
+#endif // HAS_WIRED_LCD && !HAS_SPI_TFT
 
 #define HAS_SPI_FLASH                          1
-#define SPI_FLASH_SIZE                 0x1000000  // 16MB
 #if HAS_SPI_FLASH
+  #define SPI_FLASH_SIZE               0x1000000  // 16MB
   #define W25QXX_CS_PIN                     PB12
   #define W25QXX_MOSI_PIN                   PB15
   #define W25QXX_MISO_PIN                   PB14
   #define W25QXX_SCK_PIN                    PB13
+#endif
+
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                        PC5
 #endif
 
 #if ENABLED(SPEAKER) && BEEPER_PIN == PC5

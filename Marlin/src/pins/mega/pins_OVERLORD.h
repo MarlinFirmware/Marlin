@@ -119,7 +119,7 @@
 //
 // LCD / Controller
 //
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   // OVERLORD OLED pins
   #define LCD_PINS_RS                         20
   #define LCD_PINS_D5                         21
@@ -132,7 +132,7 @@
   #endif
 #endif
 
-#if ENABLED(NEWPANEL)
+#if IS_NEWPANEL
   #define BTN_ENC                             16  // Enter Pin
   #define BTN_UP                              19  // Button UP Pin
   #define BTN_DWN                             17  // Button DOWN Pin

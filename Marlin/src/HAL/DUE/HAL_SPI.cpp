@@ -30,7 +30,7 @@
  */
 
 /**
- * Description: HAL for Arduino Due and compatible (SAM3X8E)
+ * HAL for Arduino Due and compatible (SAM3X8E)
  *
  * For ARDUINO_ARCH_SAM
  */
@@ -759,7 +759,6 @@
      *
      *  All of the above can be avoided by defining FORCE_SOFT_SPI to force the
      *  display to use software SPI.
-     *
      */
 
     void spiInit(uint8_t spiRate=6) {  // Default to slowest rate if not specified)

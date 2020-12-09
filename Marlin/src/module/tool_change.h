@@ -24,6 +24,8 @@
 #include "../inc/MarlinConfigPre.h"
 #include "../core/types.h"
 
+//#define DEBUG_TOOLCHANGE_MIGRATION_FEATURE
+
 #if HAS_MULTI_EXTRUDER
 
   typedef struct {

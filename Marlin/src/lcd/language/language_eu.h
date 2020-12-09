@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 
 #define DISPLAY_CHARSET_ISO10646_1
@@ -43,7 +42,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MEDIA_INSERTED                  = _UxGT("Txartela sartuta");
   PROGMEM Language_Str MSG_MEDIA_REMOVED                   = _UxGT("Txartela kenduta");
   PROGMEM Language_Str MSG_MAIN                            = _UxGT("Menu nagusia");
-  PROGMEM Language_Str MSG_AUTOSTART                       = _UxGT("Auto hasiera");
+  PROGMEM Language_Str MSG_RUN_AUTO_FILES                  = _UxGT("Auto hasiera");
   PROGMEM Language_Str MSG_DISABLE_STEPPERS                = _UxGT("Itzali motoreak");
   PROGMEM Language_Str MSG_DEBUG_MENU                      = _UxGT("Arazketa Menua");
   PROGMEM Language_Str MSG_PROGRESS_BAR_TEST               = _UxGT("Prog. Barra Proba");

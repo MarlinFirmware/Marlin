@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "../config.h"
@@ -152,11 +152,11 @@ void FilesScreen::drawFooter() {
   #undef MARGIN_T
   #undef MARGIN_B
   #ifdef TOUCH_UI_PORTRAIT
-  #define MARGIN_T 15
-  #define MARGIN_B 5
+    #define MARGIN_T 15
+    #define MARGIN_B 5
   #else
-  #define MARGIN_T 5
-  #define MARGIN_B 5
+    #define MARGIN_T 5
+    #define MARGIN_B 5
   #endif
   const bool    has_selection = screen_data.FilesScreen.selected_tag != 0xFF;
   const uint8_t back_tag      = screen_data.FilesScreen.flags.is_root ? 240 : 245;
@@ -170,11 +170,11 @@ void FilesScreen::drawFooter() {
      .tag(back_tag).button( BTN_POS(4,y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BACK))
      .enabled(has_selection)
      .colors(has_selection ? action_btn : normal_btn);
-  if (screen_data.FilesScreen.flags.is_dir) {
+
+  if (screen_data.FilesScreen.flags.is_dir)
     cmd.tag(244).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_OPEN));
-  } else {
+  else
     cmd.tag(243).button( BTN_POS(1, y), BTN_SIZE(3,h), GET_TEXT_F(MSG_BUTTON_PRINT));
-  }
 }
 
 void FilesScreen::onRedraw(draw_mode_t what) {

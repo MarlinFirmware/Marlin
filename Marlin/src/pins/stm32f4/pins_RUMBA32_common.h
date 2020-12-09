@@ -23,7 +23,6 @@
 
 /**
  * Common pin assignments for all RUMBA32 boards
- *
  */
 
 #if NOT_TARGET(STM32F4)
@@ -48,7 +47,6 @@
 
 #define STEP_TIMER 10
 #define TEMP_TIMER 14
-#define HAL_TIMER_RATE                     F_CPU
 
 //
 // Limit Switches
@@ -147,7 +145,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BTN_EN1                           PB2
   #define BTN_EN2                           PB1
@@ -162,14 +160,19 @@
     #define DOGLCD_A0                       PE14
   #endif
 
-  #if ENABLED(ULTIPANEL)
+  #if IS_ULTIPANEL
     #define LCD_PINS_D5                     PE13
     #define LCD_PINS_D6                     PE14
     #define LCD_PINS_D7                     PE15
+
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
+
   #endif
 
   // Alter timing for graphical display
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(96)
     #endif

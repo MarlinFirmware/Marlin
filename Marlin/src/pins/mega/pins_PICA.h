@@ -137,7 +137,7 @@
 //
 #define BEEPER_PIN                            29
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                         33
   #define LCD_PINS_ENABLE                     30
   #define LCD_PINS_D4                         35

@@ -33,6 +33,8 @@
 
 #define BOARD_INFO_NAME "MKS Robin pro"
 
+#define BOARD_NO_NATIVE_USB
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
@@ -41,8 +43,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE                           2
-#define ENABLE_SPI2
+#define SPI_DEVICE                             2
 
 //
 // Servos
@@ -191,7 +192,6 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD)
-  #define ENABLE_SPI2
   #define SD_DETECT_PIN                     PG3
   #define SCK_PIN                           PB13
   #define MISO_PIN                          PB14
@@ -200,6 +200,7 @@
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -209,7 +210,7 @@
  * If the screen stays white, disable 'LCD_RESET_PIN'
  * to let the bootloader init the screen.
  */
-#if ENABLED(FSMC_GRAPHICAL_TFT)
+#if HAS_FSMC_GRAPHICAL_TFT
   #define FSMC_CS_PIN                       PD7   // NE4
   #define FSMC_RS_PIN                       PD11  // A0
 
@@ -225,7 +226,13 @@
     #define BTN_EN2                         PG4
   #endif
 
-#elif HAS_SPI_LCD
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                      PG5
+  #endif
+
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PG2
@@ -247,13 +254,19 @@
   #else                                           // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
 
     #define LCD_PINS_D4                     PF14
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                   PF15
       #define LCD_PINS_D6                   PF12
       #define LCD_PINS_D7                   PF13
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+
 #endif
 
 #ifndef BOARD_ST7920_DELAY_1

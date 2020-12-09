@@ -32,8 +32,8 @@
 
 #include <lvgl.h>
 
-//#define GRAPHICAL_TFT_ROTATE_180
-#define USE_WIFI_FUNCTION 0
+//#define TFT_ROTATION TFT_ROTATE_180
+#define MKS_WIFI_MODULE 0
 
 extern void tft_lvgl_init();
 extern void my_disp_flush(lv_disp_drv_t * disp, const lv_area_t * area, lv_color_t * color_p);

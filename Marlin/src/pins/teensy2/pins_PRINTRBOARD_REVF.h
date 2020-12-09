@@ -67,7 +67,7 @@
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
-#ifndef USBCON
+#if !defined(__MARLIN_DEPS__) && !defined(USBCON)
   #error "USBCON should be defined by the platform for this board."
 #endif
 
@@ -143,7 +143,7 @@
 #endif // NO_EXTRUDRBOARD
 
 // Enable control of stepper motor currents with the I2C based MCP4728 DAC used on Printrboard REVF
-#define DAC_STEPPER_CURRENT
+#define HAS_MOTOR_CURRENT_DAC
 
 // Set default drive strength percents if not already defined - X, Y, Z, E axis
 #ifndef DAC_MOTOR_CURRENT_DEFAULT
@@ -201,7 +201,7 @@
 //
 //#define USE_INTERNAL_SD
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_ENABLE                      8  // E0       JP11-10
   #define LCD_PINS_D4                          7  // D7       JP11-8

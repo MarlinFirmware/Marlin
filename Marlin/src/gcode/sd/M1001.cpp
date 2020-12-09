@@ -27,12 +27,16 @@
 #include "../gcode.h"
 #include "../../module/printcounter.h"
 
+#if DISABLED(NO_SD_AUTOSTART)
+  #include "../../sd/cardreader.h"
+#endif
+
 #ifdef SD_FINISHED_RELEASECOMMAND
   #include "../queue.h"
 #endif
 
 #if EITHER(LCD_SET_PROGRESS_MANUALLY, SD_REPRINT_LAST_SELECTED_FILE)
-  #include "../../lcd/ultralcd.h"
+  #include "../../lcd/marlinui.h"
 #endif
 
 #if ENABLED(POWER_LOSS_RECOVERY)
@@ -60,6 +64,11 @@
  * M1001: Execute actions for SD print completion
  */
 void GcodeSuite::M1001() {
+  // If there's another auto#.g file to run...
+  if (TERN(NO_SD_AUTOSTART, false, card.autofile_check())) return;
+
+  // Purge the recovery file...
+  TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
   // Report total print time
   const bool long_print = print_job_timer.duration() > 60;
@@ -70,9 +79,6 @@ void GcodeSuite::M1001() {
 
   // Set the progress bar "done" state
   TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress_done());
-
-  // Purge the recovery file
-  TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
   // Announce SD file completion
   {
@@ -93,8 +99,10 @@ void GcodeSuite::M1001() {
 
   // Inject SD_FINISHED_RELEASECOMMAND, if any
   #ifdef SD_FINISHED_RELEASECOMMAND
-    queue.inject_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    gcode.process_subcommands_now_P(PSTR(SD_FINISHED_RELEASECOMMAND));
   #endif
+
+  TERN_(EXTENSIBLE_UI, ExtUI::onPrintFinished());
 
   // Re-select the last printed file in the UI
   TERN_(SD_REPRINT_LAST_SELECTED_FILE, ui.reselect_last_file());

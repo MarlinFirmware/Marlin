@@ -142,7 +142,7 @@
 #endif
 
 // Alter timing for graphical display
-#if HAS_GRAPHICAL_LCD
+#if HAS_MARLINUI_U8GLIB
   #ifndef BOARD_ST7920_DELAY_1
     #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
   #endif
@@ -165,7 +165,6 @@
 // SD-NAND
 //
 #if SD_CONNECTION_IS(ONBOARD)
-  #define ENABLE_SPI1
   #define SD_DETECT_PIN                     -1
   #define SCK_PIN                           PA5
   #define MISO_PIN                          PA6

@@ -26,7 +26,7 @@
 
 #include "ui_320x240.h"
 
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../menu/menu.h"
 #include "../../libs/numtostr.h"
 
@@ -257,42 +257,37 @@ void MarlinUI::draw_status_screen() {
   tft.set_background(COLOR_BACKGROUND);
   tft.add_rectangle(0, 0, 312, 24, COLOR_AXIS_HOMED);
 
-  uint16_t color;
-  uint16_t offset;
-  bool is_homed;
-
   tft.add_text( 10, 3, COLOR_AXIS_HOMED , "X");
   tft.add_text(127, 3, COLOR_AXIS_HOMED , "Y");
   tft.add_text(219, 3, COLOR_AXIS_HOMED , "Z");
 
-  is_homed = TEST(axis_homed, X_AXIS);
-  tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
-  tft.add_text( 68 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  bool not_homed = axis_should_home(X_AXIS);
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_X_POSITION(current_position.x)));
+  tft.add_text( 68 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Y_AXIS);
-  tft_string.set(blink & !is_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
-  tft.add_text(185 - tft_string.width(), 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  not_homed = axis_should_home(Y_AXIS);
+  tft_string.set(blink && not_homed ? "?" : ftostr4sign(LOGICAL_Y_POSITION(current_position.y)));
+  tft.add_text(185 - tft_string.width(), 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
-  is_homed = TEST(axis_homed, Z_AXIS);
-  if (blink & !is_homed) {
+  not_homed = axis_should_home(Z_AXIS);
+  uint16_t offset = 25;
+  if (blink && not_homed)
     tft_string.set("?");
-    offset = 25; // ".00"
-  }
   else {
     const float z = LOGICAL_Z_POSITION(current_position.z);
     tft_string.set(ftostr52sp((int16_t)z));
     tft_string.rtrim();
-    offset = tft_string.width();
+    offset += tft_string.width();
 
     tft_string.set(ftostr52sp(z));
-    offset += 25 - tft_string.width();
+    offset -= tft_string.width();
   }
-  tft.add_text(301 - tft_string.width() - offset, 3, is_homed ? COLOR_AXIS_HOMED : COLOR_AXIS_NOT_HOMED, tft_string);
+  tft.add_text(301 - tft_string.width() - offset, 3, not_homed ? COLOR_AXIS_NOT_HOMED : COLOR_AXIS_HOMED, tft_string);
 
   // feed rate
   tft.canvas(70, 136, 80, 32);
   tft.set_background(COLOR_BACKGROUND);
-  color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
+  uint16_t color = feedrate_percentage == 100 ? COLOR_RATE_100 : COLOR_RATE_ALTERED;
   tft.add_image(0, 0, imgFeedRate, color);
   tft_string.set(i16tostr3rj(feedrate_percentage));
   tft_string.add('%');
@@ -336,7 +331,7 @@ void MarlinUI::draw_status_screen() {
 
   #if ENABLED(TOUCH_SCREEN)
     add_control(256, 130, menu_main, imgSettings);
-    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, card.isMounted() && !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
+    TERN_(SDSUPPORT, add_control(0, 130, menu_media, imgSD, !printingIsActive(), COLOR_CONTROL_ENABLED, card.isMounted() && printingIsActive() ? COLOR_BUSY : COLOR_CONTROL_DISABLED));
   #endif
 }
 
@@ -452,7 +447,7 @@ void MenuEditItemBase::draw_edit_screen(PGM_P const pstr, const char* const valu
 void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const bool yesno, PGM_P const pref, const char * const string/*=nullptr*/, PGM_P const suff/*=nullptr*/) {
   uint16_t line = 1;
 
-  if (string == NULL) line++;
+  if (!string) line++;
 
   menu_line(line++);
   tft_string.set(pref);
@@ -584,32 +579,36 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
 #endif // AUTO_BED_LEVELING_UBL
 
 #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-  void MarlinUI::touch_calibration() {
-    static uint16_t x, y;
+  void MarlinUI::touch_calibration_screen() {
+    uint16_t x, y;
 
-    calibrationState calibration_stage = touch.get_calibration_state();
+    calibrationState calibration_stage = touch_calibration.get_calibration_state();
 
     if (calibration_stage == CALIBRATION_NONE) {
       defer_status_screen(true);
       clear_lcd();
-      calibration_stage = touch.calibration_start();
+      calibration_stage = touch_calibration.calibration_start();
     }
     else {
+      x = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].x;
+      y = touch_calibration.calibration_points[_MIN(calibration_stage - 1, CALIBRATION_BOTTOM_RIGHT)].y;
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
     }
 
-    x = 20; y = 20;
     touch.clear();
 
     if (calibration_stage < CALIBRATION_SUCCESS) {
       switch (calibration_stage) {
-        case CALIBRATION_POINT_1: tft_string.set("Top Left"); break;
-        case CALIBRATION_POINT_2: y = TFT_HEIGHT - 21; tft_string.set("Bottom Left"); break;
-        case CALIBRATION_POINT_3: x = TFT_WIDTH  - 21; tft_string.set("Top Right"); break;
-        case CALIBRATION_POINT_4: x = TFT_WIDTH  - 21; y = TFT_HEIGHT - 21; tft_string.set("Bottom Right"); break;
+        case CALIBRATION_TOP_LEFT: tft_string.set(GET_TEXT(MSG_TOP_LEFT)); break;
+        case CALIBRATION_BOTTOM_LEFT: tft_string.set(GET_TEXT(MSG_BOTTOM_LEFT)); break;
+        case CALIBRATION_TOP_RIGHT: tft_string.set(GET_TEXT(MSG_TOP_RIGHT)); break;
+        case CALIBRATION_BOTTOM_RIGHT: tft_string.set(GET_TEXT(MSG_BOTTOM_RIGHT)); break;
         default: break;
       }
+
+      x = touch_calibration.calibration_points[calibration_stage].x;
+      y = touch_calibration.calibration_points[calibration_stage].y;
 
       tft.canvas(x - 15, y - 15, 31, 31);
       tft.set_background(COLOR_BACKGROUND);
@@ -619,9 +618,9 @@ void MenuItem_confirm::draw_select_screen(PGM_P const yes, PGM_P const no, const
       touch.add_control(CALIBRATE, 0, 0, TFT_WIDTH, TFT_HEIGHT, uint32_t(x) << 16 | uint32_t(y));
     }
     else {
-      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? "Calibration Completed" : "Calibration Failed");
+      tft_string.set(calibration_stage == CALIBRATION_SUCCESS ? GET_TEXT(MSG_CALIBRATION_COMPLETED) : GET_TEXT(MSG_CALIBRATION_FAILED));
       defer_status_screen(false);
-      touch.calibration_end();
+      touch_calibration.calibration_end();
       touch.add_control(BACK, 0, 0, TFT_WIDTH, TFT_HEIGHT);
     }
 
@@ -647,7 +646,10 @@ void menu_item(const uint8_t row, bool sel ) {
   #endif
 
   menu_line(row, sel ? COLOR_SELECTION_BG : COLOR_BACKGROUND);
-  TERN_(TOUCH_SCREEN, touch.add_control(sel ? CLICK : MENU_ITEM, 0, 2 + 34 * row, 320, 32, encoderTopLine + row));
+  #if ENABLED(TOUCH_SCREEN)
+    const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
+    touch.add_control(tct, 0, 2 + 34 * row, TFT_WIDTH, 32, encoderTopLine + row);
+  #endif
 }
 
 void MarlinUI::move_axis_screen() {

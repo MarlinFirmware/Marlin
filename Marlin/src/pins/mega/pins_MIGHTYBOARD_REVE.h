@@ -212,9 +212,9 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
-  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       33  // C4: LCD-STROBE
     #define LCD_PINS_ENABLE                   72  // J2: LEFT
@@ -260,7 +260,7 @@
   #define BTN_CENTER                          15  // J0
   #define BTN_ENC                     BTN_CENTER
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // SD Card

@@ -22,7 +22,7 @@
 #pragma once
 
 #include "menu.h"
-#include "../ultralcd.h"
+#include "../marlinui.h"
 #include "../../gcode/queue.h" // for inject_P
 
 #include "../../inc/MarlinConfigPre.h"
@@ -354,6 +354,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define MENU_ITEM_P(TYPE, PLABEL, V...)                 _MENU_ITEM_P(TYPE, false, PLABEL, ##V)
 #define MENU_ITEM(TYPE, LABEL, V...)                     MENU_ITEM_P(TYPE, GET_TEXT(LABEL), ##V)
 
+#define BACK_ITEM_P(PLABEL)                              MENU_ITEM_P(back, PLABEL)
 #define BACK_ITEM(LABEL)                                   MENU_ITEM(back, LABEL)
 
 #define ACTION_ITEM_N_S_P(N, S, PLABEL, ACTION)      MENU_ITEM_N_S_P(function, N, S, PLABEL, ACTION)
@@ -452,3 +453,41 @@ class MenuItem_bool : public MenuEditItemBase {
 #if ENABLED(LEVEL_BED_CORNERS)
   void _lcd_level_bed_corners();
 #endif
+
+#if HAS_FAN
+
+  #include "../../module/temperature.h"
+
+  inline void on_fan_update() {
+    thermalManager.set_fan_speed(MenuItemBase::itemIndex, editable.uint8);
+  }
+
+  #if ENABLED(EXTRA_FAN_SPEED)
+    #define EDIT_EXTRA_FAN_SPEED(V...) EDIT_ITEM_FAST_N(V)
+  #else
+    #define EDIT_EXTRA_FAN_SPEED(...)
+  #endif
+
+  #define _FAN_EDIT_ITEMS(F,L) do{ \
+    editable.uint8 = thermalManager.fan_speed[F]; \
+    EDIT_ITEM_FAST_N(percent, F, MSG_##L, &editable.uint8, 0, 255, on_fan_update); \
+    EDIT_EXTRA_FAN_SPEED(percent, F, MSG_EXTRA_##L, &thermalManager.new_fan_speed[F], 3, 255); \
+  }while(0)
+
+  #if FAN_COUNT > 1
+    #define FAN_EDIT_ITEMS(F) _FAN_EDIT_ITEMS(F,FAN_SPEED_N)
+  #endif
+
+  #define SNFAN(N) (ENABLED(SINGLENOZZLE_STANDBY_FAN) && !HAS_FAN##N && EXTRUDERS > N)
+
+  #if SNFAN(1) || SNFAN(2) || SNFAN(3) || SNFAN(4) || SNFAN(5) || SNFAN(6) || SNFAN(7)
+    #define DEFINE_SINGLENOZZLE_ITEM() \
+      auto singlenozzle_item = [&](const uint8_t f) { \
+        editable.uint8 = singlenozzle_fan_speed[f]; \
+        EDIT_ITEM_FAST_N(percent, f, MSG_STORED_FAN_N, &editable.uint8, 0, 255, on_fan_update); \
+      }
+  #else
+    #define DEFINE_SINGLENOZZLE_ITEM() NOOP
+  #endif
+
+#endif // HAS_FAN

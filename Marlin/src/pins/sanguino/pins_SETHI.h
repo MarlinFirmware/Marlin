@@ -47,7 +47,6 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
 #if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega644__, __AVR_ATmega1284P__)

@@ -23,9 +23,7 @@
 
 #if HAS_TFT_LVGL_UI
 
-#if ENABLED(TFT_LVGL_UI_SPI)
-  #include "SPI_TFT.h"
-#endif
+#include "SPI_TFT.h"
 
 #include "tft_lvgl_configuration.h"
 #include "draw_ready_print.h"
@@ -626,10 +624,8 @@ static const uint16_t ASCII_Table_16x24[] PROGMEM = {
 void disp_char_1624(uint16_t x, uint16_t y, uint8_t c, uint16_t charColor, uint16_t bkColor) {
   for (uint16_t i = 0; i < 24; i++) {
     const uint16_t tmp_char = pgm_read_word(&ASCII_Table_16x24[((c - 0x20) * 24) + i]);
-    for (uint16_t j = 0; j < 16; j++) {
-      TERN(TFT_LVGL_UI_SPI, SPI_TFT.SetPoint, tft_set_point)
-        (x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
-    }
+    for (uint16_t j = 0; j < 16; j++)
+      SPI_TFT.SetPoint(x + j, y + i, ((tmp_char >> j) & 0x01) ? charColor : bkColor);
   }
 }
 
@@ -641,9 +637,9 @@ void disp_string(uint16_t x, uint16_t y, const char * string, uint16_t charColor
   }
 }
 
-//static lv_obj_t * scr_test;
+//static lv_obj_t *scr_test;
 void disp_assets_update() {
-  TERN(TFT_LVGL_UI_SPI,, LCD_Clear(0x0000));
+  SPI_TFT.LCD_clear(0x0000);
   disp_string(100, 140, "Assets Updating...", 0xFFFF, 0x0000);
 }
 
@@ -662,7 +658,7 @@ const char *MKSTestPath = "MKS_TEST";
   void mks_test_get() {
     SdFile dir, root = card.getroot();
     if (dir.open(&root, MKSTestPath, O_RDONLY))
-      mks_test_flag = 0x1e;
+      mks_test_flag = 0x1E;
   }
 #endif
 

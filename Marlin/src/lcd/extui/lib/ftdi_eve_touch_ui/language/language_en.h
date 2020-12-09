@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -57,8 +57,11 @@ namespace Language_en {
   PROGMEM Language_Str MSG_AMAX_Y                   = u8"Amax Y";
   PROGMEM Language_Str MSG_AMAX_Z                   = u8"Amax Z";
   PROGMEM Language_Str MSG_AXIS_X                   = u8"X";
+  PROGMEM Language_Str MSG_AXIS_X2                  = u8"X2";
   PROGMEM Language_Str MSG_AXIS_Y                   = u8"Y";
+  PROGMEM Language_Str MSG_AXIS_Y2                  = u8"Y2";
   PROGMEM Language_Str MSG_AXIS_Z                   = u8"Z";
+  PROGMEM Language_Str MSG_AXIS_Z2                  = u8"Z2";
   PROGMEM Language_Str MSG_AXIS_E                   = u8"E";
   PROGMEM Language_Str MSG_AXIS_E1                  = u8"E1";
   PROGMEM Language_Str MSG_AXIS_E2                  = u8"E2";
@@ -116,7 +119,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_CAUTION                  = u8"Caution:";
   PROGMEM Language_Str MSG_HOT                      = u8"Hot!";
   PROGMEM Language_Str MSG_UNLOAD_FILAMENT          = u8"Unload/Retract";
-  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extruder";
+  PROGMEM Language_Str MSG_LOAD_FILAMENT            = u8"Load/Extrude";
   PROGMEM Language_Str MSG_MOMENTARY                = u8"Momentary";
   PROGMEM Language_Str MSG_CONTINUOUS               = u8"Continuous";
   PROGMEM Language_Str MSG_PLEASE_WAIT              = u8"Please wait...";

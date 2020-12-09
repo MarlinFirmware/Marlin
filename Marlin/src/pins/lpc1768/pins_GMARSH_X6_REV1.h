@@ -125,7 +125,7 @@
 //
 // LCD
 //
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if IS_RRD_SC
   #define BEEPER_PIN                       P0_19
   #define BTN_EN1                          P1_23
   #define BTN_EN2                          P1_24
@@ -136,6 +136,11 @@
   #define LCD_PINS_D5                      P0_22
   #define LCD_PINS_D6                      P1_29
   #define LCD_PINS_D7                      P1_28
+
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
 #endif
 
 //

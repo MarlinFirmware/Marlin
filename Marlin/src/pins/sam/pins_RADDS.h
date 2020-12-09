@@ -226,7 +226,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if ENABLED(RADDS_DISPLAY)
 
@@ -248,7 +248,7 @@
     #define SDSS                              10
     #define SD_DETECT_PIN                     14
 
-  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #elif IS_RRD_FG_SC
 
     // The REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER requires
     // an adapter such as https://www.thingiverse.com/thing:1740725
@@ -287,7 +287,11 @@
 
   #endif // SPARK_FULL_GRAPHICS
 
-#endif // HAS_SPI_LCD
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
+
+#endif // HAS_WIRED_LCD
 
 #ifndef SDSS
   #define SDSS                                 4

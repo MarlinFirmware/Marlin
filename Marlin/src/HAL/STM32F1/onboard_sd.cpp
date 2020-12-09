@@ -9,8 +9,9 @@
  * No restriction on use. You can use, modify and redistribute it for
  * personal, non-profit or commercial products UNDER YOUR RESPONSIBILITY.
  * Redistributions of source code must retain the above copyright notice.
- *
  */
+
+#ifdef __STM32F1__
 
 #include "../../inc/MarlinConfig.h"
 
@@ -20,10 +21,11 @@
 #include "SPI.h"
 #include "fastio.h"
 
-#if HAS_SHARED_MEDIA
-  #ifndef ONBOARD_SPI_DEVICE
-    #define ONBOARD_SPI_DEVICE SPI_DEVICE
-  #endif
+#ifndef ONBOARD_SPI_DEVICE
+  #define ONBOARD_SPI_DEVICE SPI_DEVICE
+#endif
+
+#if HAS_SD_HOST_DRIVE
   #define ONBOARD_SD_SPI SPI
 #else
   SPIClass OnboardSPI(ONBOARD_SPI_DEVICE);
@@ -554,3 +556,4 @@ DRESULT disk_read (
 #endif // _DISKIO_IOCTL
 
 #endif // SD_CONNECTION_IS(ONBOARD)
+#endif // __STM32F1__

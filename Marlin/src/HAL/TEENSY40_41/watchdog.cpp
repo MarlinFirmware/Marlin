@@ -21,24 +21,25 @@
  */
 #ifdef __IMXRT1062__
 
+/**
+ * HAL Watchdog for Teensy 4.0 (IMXRT1062DVL6A) / 4.1 (IMXRT1062DVJ6A)
+ */
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(USE_WATCHDOG)
 
 #include "watchdog.h"
 
-// 4 seconds timeout
-#define WDTO 4 //seconds
+#define WDT_TIMEOUT TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
-uint8_t timeoutval = (WDTO - 0.5f) / 0.5f;
+constexpr uint8_t timeoutval = (WDT_TIMEOUT - 0.5f) / 0.5f;
 
 void watchdog_init() {
-
   CCM_CCGR3 |= CCM_CCGR3_WDOG1(3);  // enable WDOG1 clocks
   WDOG1_WMCR = 0;                   // disable power down PDE
   WDOG1_WCR |= WDOG_WCR_SRS | WDOG_WCR_WT(timeoutval);
   WDOG1_WCR |= WDOG_WCR_WDE | WDOG_WCR_WDT | WDOG_WCR_SRE;
-
 }
 
 void HAL_watchdog_refresh() {
@@ -48,5 +49,4 @@ void HAL_watchdog_refresh() {
 }
 
 #endif // USE_WATCHDOG
-
 #endif // __IMXRT1062__
