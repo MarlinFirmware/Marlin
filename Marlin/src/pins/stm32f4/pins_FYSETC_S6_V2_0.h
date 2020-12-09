@@ -29,7 +29,6 @@
 #if NO_EEPROM_SELECTED
   #undef NO_EEPROM_SELECTED
   //#define FLASH_EEPROM_EMULATION
-  //#define SRAM_EEPROM_EMULATION
   #define I2C_EEPROM
 #endif
 
