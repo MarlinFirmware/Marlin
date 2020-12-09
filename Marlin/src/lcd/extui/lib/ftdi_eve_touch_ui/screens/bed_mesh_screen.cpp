@@ -21,7 +21,7 @@
 
 #include "../config.h"
 
-#if BOTH(TOUCH_UI_FTDI_EVE, HAS_MESH)
+#if BOTH(TOUCH_UI_FTDI_EVE, AUTO_BED_LEVELING_UBL)
 
 #include "screens.h"
 #include "screen_data.h"

@@ -98,6 +98,10 @@ enum {
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
   PREHEAT_MENU_CACHE,
   PREHEAT_TIMER_SCREEN_CACHE,
+  UNLOAD_CARTRIDGE_SCREEN_CACHE,
+  LOAD_CHOCOLATE_SCREEN_CACHE,
+  MOVE_XYZ_SCREEN_CACHE,
+  MOVE_E_SCREEN_CACHE,
 #endif
 #if ENABLED(SDSUPPORT)
   FILES_SCREEN_CACHE,
@@ -112,7 +116,7 @@ enum {
 // To save MCU RAM, the status message is "baked" in to the status screen
 // cache, so we reserve a large chunk of memory for the DL cache
 
-#define STATUS_SCREEN_DL_SIZE        2048
+#define STATUS_SCREEN_DL_SIZE        4096
 #define ALERT_BOX_DL_SIZE            3072
 #define SPINNER_DL_SIZE              3072
 #define FILE_SCREEN_DL_SIZE          4160
@@ -280,6 +284,7 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
       static bool  jog_xy;
       static bool  fine_motion;
 
+      static void draw_progress(draw_mode_t what);
       static void draw_temperature(draw_mode_t what);
       static void draw_syringe(draw_mode_t what);
       static void draw_arrows(draw_mode_t what);
@@ -331,29 +336,6 @@ class StatusScreen : public BaseScreen, public CachedScreen<STATUS_SCREEN_CACHE,
   class BioConfirmHomeE : public DialogBoxBaseClass, public UncachedScreen {
     public:
       static void onRedraw(draw_mode_t);
-      static bool onTouchEnd(uint8_t tag);
-  };
-#endif
-
-#if ENABLED(TOUCH_UI_COCOA_PRESS)
-  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
-    public:
-      static void onRedraw(draw_mode_t);
-      static bool onTouchEnd(uint8_t tag);
-  };
-
-  class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
-    private:
-      static uint16_t secondsRemaining();
-
-      static void draw_message(draw_mode_t);
-      static void draw_time_remaining(draw_mode_t);
-      static void draw_interaction_buttons(draw_mode_t);
-    public:
-      static void onRedraw(draw_mode_t);
-
-      static void onEntry();
-      static void onIdle();
       static bool onTouchEnd(uint8_t tag);
   };
 #endif
@@ -467,7 +449,7 @@ class BaseNumericAdjustmentScreen : public BaseScreen {
     static bool onTouchEnd(uint8_t tag);
 };
 
-class MoveAxisScreen : public BaseNumericAdjustmentScreen, public CachedScreen<MOVE_AXIS_SCREEN_CACHE> {
+class BaseMoveAxisScreen : public BaseNumericAdjustmentScreen {
   private:
     static float getManualFeedrate(uint8_t axis, float increment_mm);
   public:
@@ -475,8 +457,12 @@ class MoveAxisScreen : public BaseNumericAdjustmentScreen, public CachedScreen<M
     static void setManualFeedrate(ExtUI::extruder_t, float increment_mm);
 
     static void onEntry();
-    static void onRedraw(draw_mode_t);
     static bool onTouchHeld(uint8_t tag);
+};
+
+class MoveAxisScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_AXIS_SCREEN_CACHE> {
+  public:
+    static void onRedraw(draw_mode_t);
     static void onIdle();
 };
 
@@ -850,5 +836,56 @@ class MediaPlayerScreen : public BaseScreen, public UncachedScreen {
     public:
       static void onRedraw(draw_mode_t);
       static bool onTouchEnd(uint8_t tag);
+  };
+#endif
+
+#if ENABLED(TOUCH_UI_COCOA_PRESS)
+  class PreheatMenu : public BaseScreen, public CachedScreen<PREHEAT_MENU_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
+  class PreheatTimerScreen : public BaseScreen, public CachedScreen<PREHEAT_TIMER_SCREEN_CACHE> {
+    private:
+      static uint16_t secondsRemaining();
+
+      static void draw_message(draw_mode_t);
+      static void draw_time_remaining(draw_mode_t);
+      static void draw_interaction_buttons(draw_mode_t);
+      static void draw_adjuster(draw_mode_t, uint8_t tag, progmem_str label, float value, int16_t x, int16_t y, int16_t w, int16_t h);
+    public:
+      static void onRedraw(draw_mode_t);
+
+      static void onEntry();
+      static void onIdle();
+      static bool onTouchHeld(uint8_t tag);
+      static bool onTouchEnd(uint8_t tag);
+  };
+
+  class UnloadCartridgeScreen : public BaseScreen, public CachedScreen<UNLOAD_CARTRIDGE_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+      static bool onTouchHeld(uint8_t tag);
+  };
+
+  class LoadChocolateScreen : public BaseScreen, public CachedScreen<LOAD_CHOCOLATE_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static bool onTouchEnd(uint8_t tag);
+      static bool onTouchHeld(uint8_t tag);
+  };
+
+  class MoveXYZScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_XYZ_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static void onIdle();
+  };
+
+  class MoveEScreen : public BaseMoveAxisScreen, public CachedScreen<MOVE_E_SCREEN_CACHE> {
+    public:
+      static void onRedraw(draw_mode_t);
+      static void onIdle();
   };
 #endif

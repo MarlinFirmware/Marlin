@@ -29,12 +29,6 @@
   #define COPYRIGHT_SIGN    u8"(c)"
 #endif
 
-#if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-  #define SUPERSCRIPT_TWO   u8"²"
-#else
-  #define SUPERSCRIPT_TWO   u8"^2"
-#endif
-
 #if ENABLED(TOUCH_UI_UTF8_WESTERN_CHARSET)
   #define DEGREE_SIGN       u8"°"
 #else
@@ -162,9 +156,21 @@ namespace Language_en {
   #endif
 
   #ifdef TOUCH_UI_COCOA_PRESS
-    PROGMEM Language_Str MSG_ZONE_1                 = u8"Zone 1:";
-    PROGMEM Language_Str MSG_ZONE_2                 = u8"Zone 2:";
-    PROGMEM Language_Str MSG_ZONE_3                 = u8"Zone 3:";
+    PROGMEM Language_Str MSG_BODY                   = u8"Body";
+    PROGMEM Language_Str MSG_INTERNAL               = u8"Internal";
+    PROGMEM Language_Str MSG_EXTERNAL               = u8"External";
+    PROGMEM Language_Str MSG_CHOCOLATE              = u8"Chocolate";
+    PROGMEM Language_Str MSG_UNLOAD_CARTRIDGE       = u8"Unload Cartridge";
+    PROGMEM Language_Str MSG_LOAD_CHOCOLATE         = u8"Load Chocolate";
+    PROGMEM Language_Str MSG_CARTRIDGE_IN           = u8"Cartridge In";
+    PROGMEM Language_Str MSG_CARTRIDGE_OUT          = u8"Cartridge Out";
+    PROGMEM Language_Str MSG_PREHEAT_CHOCOLATE      = u8"Preheat Chocolate";
     PROGMEM Language_Str MSG_PREHEAT_FINISHED       = u8"Preheat finished";
+    PROGMEM Language_Str MSG_PREHEAT                = u8"Preheat";
+    PROGMEM Language_Str MSG_BUTTON_PAUSE           = u8"Pause";
+    PROGMEM Language_Str MSG_BUTTON_RESUME          = u8"Resume";
+    PROGMEM Language_Str MSG_ELAPSED_PRINT          = u8"Elapsed Print";
+    PROGMEM Language_Str MSG_XYZ_MOVE               = u8"XYZ Move";
+    PROGMEM Language_Str MSG_E_MOVE                 = u8"Extrusion Move";
   #endif
 }; // namespace Language_en

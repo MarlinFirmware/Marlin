@@ -1,10 +1,11 @@
-/***********************
- * z_offset_screen.cpp *
- ***********************/
+/************************************
+ * cocoa_press_move_xyz_screen.cpp *
+ ************************************/
 
 /****************************************************************************
  *   Written By Mark Pelletier  2017 - Aleph Objects, Inc.                  *
  *   Written By Marcio Teixeira 2018 - Aleph Objects, Inc.                  *
+ *   Written By Marcio Teixeira 2019 - Cocoa Press                          *
  *                                                                          *
  *   This program is free software: you can redistribute it and/or modify   *
  *   it under the terms of the GNU General Public License as published by   *
@@ -17,38 +18,36 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                             *
+ *   location: <https://www.gnu.org/licenses/>.                              *
  ****************************************************************************/
 
 #include "../config.h"
 
-#if ENABLED(TOUCH_UI_FTDI_EVE) && BOTH(HAS_LEVELING, HAS_BED_PROBE)
+#if BOTH(TOUCH_UI_FTDI_EVE, TOUCH_UI_COCOA_PRESS)
 
 #include "screens.h"
+#include "screen_data.h"
 
 using namespace FTDI;
 using namespace ExtUI;
-using namespace Theme;
 
-void ZOffsetScreen::onRedraw(draw_mode_t what) {
+void MoveXYZScreen::onRedraw(draw_mode_t what) {
   widgets_t w(what);
-  w.precision(2, BaseNumericAdjustmentScreen::DEFAULT_MIDRANGE).units(GET_TEXT_F(MSG_UNITS_MM));
-
-  w.heading(                  GET_TEXT_F(MSG_ZPROBE_ZOFFSET));
-  w.color(z_axis).adjuster(4, GET_TEXT_F(MSG_ZPROBE_ZOFFSET), getZOffset_mm());
+  w.precision(1);
+  w.units(GET_TEXT_F(MSG_UNITS_MM));
+  w.heading(                           GET_TEXT_F(MSG_XYZ_MOVE));
+  w.home_buttons(20);
+  w.color(Theme::x_axis).adjuster(  2, GET_TEXT_F(MSG_AXIS_X),  getAxisPosition_mm(X), canMove(X));
+  w.color(Theme::y_axis).adjuster(  4, GET_TEXT_F(MSG_AXIS_Y),  getAxisPosition_mm(Y), canMove(Y));
+  w.color(Theme::z_axis).adjuster(  6, GET_TEXT_F(MSG_AXIS_Z),  getAxisPosition_mm(Z), canMove(Z));
   w.increments();
 }
 
-bool ZOffsetScreen::onTouchHeld(uint8_t tag) {
-  const float increment = getIncrement();
-  switch (tag) {
-    case 4: UI_DECREMENT(ZOffset_mm); break;
-    case 5: UI_INCREMENT(ZOffset_mm); break;
-    default:
-      return false;
+void MoveXYZScreen::onIdle() {
+  if (refresh_timer.elapsed(STATUS_UPDATE_INTERVAL)) {
+    onRefresh();
+    refresh_timer.start();
   }
-  SaveSettingsDialogBox::settingsChanged();
-  return true;
+  BaseScreen::onIdle();
 }
-
-#endif // TOUCH_UI_FTDI_EVE && HAS_BED_PROBE
+#endif // TOUCH_UI_FTDI_EVE
