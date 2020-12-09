@@ -1057,12 +1057,9 @@
 //#define PROBING_STEPPERS_OFF      // Turn steppers off (unless needed to hold position) when probing
 //#define DELAY_BEFORE_PROBING 200  // (ms) To prevent vibrations from triggering piezo sensors
 
-// Require a minimum temperature when ubefore allowing probing. Useful on machines such as the Lulzbot series
-// which uses a conductive nozzle or the Creality CR6 and other strain gauge sensors to prevent misreads from filament debris.
+// Require minimum nozzle or bed temperature for probing.
 //#define PROBE_REQUIRES_MINTEMP_NOZZLE 150
-//#define PROBE_REQUIRES_MINTEMP_BED 50
-
-
+//#define PROBE_REQUIRES_MINTEMP_BED     50
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{ 0:'Low', 1:'High' }
@@ -1655,9 +1652,9 @@
 
   //#define NOZZLE_CLEAN_MIN_TEMP
   #if ENABLED(NOZZLE_CLEAN_MIN_TEMP)
-    #define NOZZE_CLEAN_TEMP  170
-    // Default behavior is to skip nozzles that are too cold. The allows you to force them to heat instead
-    //#define NOZLE_CLEAN_HEAT_LOWTEMP
+    #define NOZZLE_CLEAN_TEMP  170
+    // Heat nozzle if temperature is too low. Default behavior is to skip cleaning.
+    //#define NOZZLE_CLEAN_HEAT_LOWTEMP
   #endif
 
   // Explicit wipe G-code script applies to a G12 with no arguments.
