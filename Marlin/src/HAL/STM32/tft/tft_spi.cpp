@@ -40,19 +40,15 @@ void TFT_SPI::Init() {
   if ((spiInstance = (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_SCK_PIN),  PinMap_SPI_SCLK)) == NP) return;
   if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MOSI_PIN), PinMap_SPI_MOSI)) return;
 
-  #if PIN_EXISTS(TFT_MISO)
-    if (TFT_MISO_PIN != TFT_MOSI_PIN)
-      if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO)) return;
+  #if PIN_EXISTS(TFT_MISO) && TFT_MISO_PIN != TFT_MOSI_PIN
+    if (spiInstance != (SPI_TypeDef *)pinmap_peripheral(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO)) return;
   #endif
 
   SPIx.Instance                = spiInstance;
   SPIx.State                   = HAL_SPI_STATE_RESET;
   SPIx.Init.NSS                = SPI_NSS_SOFT;
   SPIx.Init.Mode               = SPI_MODE_MASTER;
-  if (TFT_MISO_PIN == TFT_MOSI_PIN)
-    SPIx.Init.Direction         = SPI_DIRECTION_1LINE;
-  else
-    SPIx.Init.Direction         = SPI_DIRECTION_2LINES;
+  SPIx.Init.Direction          = (TFT_MISO_PIN == TFT_MOSI_PIN) ? SPI_DIRECTION_1LINE : SPI_DIRECTION_2LINES;
   SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_2;
   SPIx.Init.CLKPhase           = SPI_PHASE_1EDGE;
   SPIx.Init.CLKPolarity        = SPI_POLARITY_LOW;
@@ -64,9 +60,8 @@ void TFT_SPI::Init() {
 
   pinmap_pinout(digitalPinToPinName(TFT_SCK_PIN), PinMap_SPI_SCLK);
   pinmap_pinout(digitalPinToPinName(TFT_MOSI_PIN), PinMap_SPI_MOSI);
-  #if PIN_EXISTS(TFT_MISO)
-    if (TFT_MISO_PIN != TFT_MOSI_PIN)
-      pinmap_pinout(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO);
+  #if PIN_EXISTS(TFT_MISO) && TFT_MISO_PIN != TFT_MOSI_PIN
+    pinmap_pinout(digitalPinToPinName(TFT_MISO_PIN), PinMap_SPI_MISO);
   #endif
   pin_PullConfig(get_GPIO_Port(STM_PORT(digitalPinToPinName(TFT_SCK_PIN))), STM_LL_GPIO_PIN(digitalPinToPinName(TFT_SCK_PIN)), GPIO_PULLDOWN);
 
@@ -119,7 +114,7 @@ void TFT_SPI::Init() {
   DMAtx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
   DMAtx.Init.Mode = DMA_NORMAL;
   DMAtx.Init.Priority = DMA_PRIORITY_LOW;
-  #if defined(STM32F4xx)
+  #ifdef STM32F4xx
     DMAtx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
   #endif
 }
@@ -140,11 +135,10 @@ uint32_t TFT_SPI::GetID() {
 }
 
 uint32_t TFT_SPI::ReadID(uint16_t Reg) {
-  #if !PIN_EXISTS(TFT_MISO)
-    return 0;
-  #else
+  uint32_t Data = 0;
+  #if PIN_EXISTS(TFT_MISO)
     uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
-    uint32_t i, Data = 0;
+    uint32_t i;
 
     SPIx.Init.BaudRatePrescaler = SPIx.Instance == SPI1 ? SPI_BAUDRATEPRESCALER_8 : SPI_BAUDRATEPRESCALER_4;
     DataTransferBegin(DATASIZE_8BIT);
@@ -154,12 +148,12 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     __HAL_SPI_ENABLE(&SPIx);
 
     for (i = 0; i < 4; i++) {
-      if (TFT_MISO_PIN != TFT_MOSI_PIN) {
+      #if TFT_MISO_PIN != TFT_MOSI_PIN
         //if (hspi->Init.Direction == SPI_DIRECTION_2LINES) {
           while ((SPIx.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE) {}
           SPIx.Instance->DR = 0;
         //}
-      }
+      #endif
       while ((SPIx.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE) {}
       Data = (Data << 8) | SPIx.Instance->DR;
     }
@@ -168,9 +162,9 @@ uint32_t TFT_SPI::ReadID(uint16_t Reg) {
     DataTransferEnd();
 
     SPIx.Init.BaudRatePrescaler   = BaudRatePrescaler;
-
-    return Data >> 7;
   #endif
+
+  return Data >> 7;
 }
 
 bool TFT_SPI::isBusy() {
@@ -183,9 +177,8 @@ bool TFT_SPI::isBusy() {
     if (__HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TC_FLAG_INDEX(&DMAtx)) != 0 || __HAL_DMA_GET_FLAG(&DMAtx, __HAL_DMA_GET_TE_FLAG_INDEX(&DMAtx)) != 0)
       Abort();
   }
-  else {
+  else
     Abort();
-  }
   return dmaEnabled;
 }
 

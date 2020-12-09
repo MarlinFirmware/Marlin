@@ -141,8 +141,7 @@ uint8_t get_pin_mode(const pin_t Ard_num) {
   uint32_t ll_pin  = STM_LL_GPIO_PIN(dp);
   GPIO_TypeDef *port = get_GPIO_Port(STM_PORT(dp));
   uint32_t mode = LL_GPIO_GetPinMode(port, ll_pin);
-  switch (mode)
-  {
+  switch (mode) {
     case LL_GPIO_MODE_ANALOG: return MODE_PIN_ANALOG;
     case LL_GPIO_MODE_INPUT: return MODE_PIN_INPUT;
     case LL_GPIO_MODE_OUTPUT: return MODE_PIN_OUTPUT;
