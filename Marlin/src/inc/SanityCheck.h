@@ -1353,7 +1353,7 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
    * Check for improper NOZZLE_TO_PROBE_OFFSET
    */
   constexpr xyz_pos_t sanity_nozzle_to_probe_offset = NOZZLE_TO_PROBE_OFFSET;
-  #if EITHER(NOZZLE_AS_PROBE, STRAIN_GAUGE_PROBE)
+  #if ENABLED(NOZZLE_AS_PROBE)
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
                   "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
   #else
