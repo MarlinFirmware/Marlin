@@ -1084,7 +1084,8 @@
     #if ENABLED(PROBE_OFFSET_WIZARD)
       //
       // Enable to init the Probe Z-Offset when starting the Wizard.
-      // Use the estimated nozzle-to-probe Z offset, plus a little more.
+      // Use a height slightly above the estimated nozzle-to-probe Z offset.
+      // For example, with an offset of -5, consider a starting height of -4.
       //
       //#define PROBE_OFFSET_WIZARD_START_Z -4.0
 
