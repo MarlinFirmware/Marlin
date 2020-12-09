@@ -125,23 +125,20 @@ void event_filament_runout(const uint8_t extruder) {
 
   if (run_runout_script) {
     #if NUM_RUNOUT_SENSORS > 1
-      char script[] = FILAMENT_RUNOUT_SCRIPT;
-      char *ptr = strstr(script, "%t");
-      if ( ptr ) {
+      char script[] = FILAMENT_RUNOUT_SCRIPT,
+           *ptr = strstr_P(script, PSTR("%t"));
+      if (ptr) {
         // replace %t with tool
         *ptr++ = tool; *ptr = ' ';
       }
-      #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-        SERIAL_ECHOPGM("Runout Command: ");
-        SERIAL_ECHO(script);
-        SERIAL_ECHOPGM("\n");
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+        SERIAL_ECHOLNPAIR("Runout Command: ", script);
       #endif
       queue.inject(script);
     #else
-      #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+      #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
         SERIAL_ECHOPGM("Runout Command: ");
-        SERIAL_ECHOPGM(PSTR(FILAMENT_RUNOUT_SCRIPT));
-        SERIAL_ECHOPGM("\n");
+        SERIAL_ECHOLNPGM(FILAMENT_RUNOUT_SCRIPT);
       #endif
       queue.inject_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
     #endif

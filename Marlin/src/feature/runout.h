@@ -145,18 +145,18 @@ class TFilamentMonitor : public FilamentMonitorBase {
           const bool ran_out = !!sensor_bitmask;
           uint8_t extruder = active_extruder;
         #endif
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          if ( sensor_bitmask ) {
+
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+          if (sensor_bitmask) {
             SERIAL_ECHOPGM("Runout Sensors: ");
-            for (uint8_t i=0; i<8; i++)
-              SERIAL_ECHO(sensor_bitmask&(1<<i) ? '1' : '0');
-            SERIAL_ECHOPGM("->");
-            SERIAL_ECHO(extruder);
-            if (ran_out)
-              SERIAL_ECHOPGM(" RUN OUT");
-            SERIAL_ECHOPGM("\n");
+            for (uint8_t i = 0; i < 8; i++)
+              SERIAL_ECHO('0' + TEST(sensor_bitmask, i));
+            SERIAL_ECHOPAIR(" -> ", extruder);
+            if (ran_out) SERIAL_ECHOPGM(" RUN OUT");
+            SERIAL_EOL();
           }
         #endif
+
         if (ran_out) {
           filament_ran_out = true;
           event_filament_runout(extruder);
@@ -266,7 +266,7 @@ class FilamentSensorBase {
                       change    = old_state ^ new_state;
         old_state = new_state;
 
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           if (change) {
             SERIAL_ECHOPGM("Motion detected:");
             LOOP_L_N(e, NUM_RUNOUT_SENSORS)
@@ -316,19 +316,18 @@ class FilamentSensorBase {
       static inline void block_completed(const block_t* const) {}
 
       static inline void run() {
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
-          static bool was_out[NUM_RUNOUT_SENSORS] = {false};
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
+          static bool was_out[NUM_RUNOUT_SENSORS] = { false };
         #endif
-        for (uint8_t s = 0; s < NUM_RUNOUT_SENSORS; s++) {
+        LOOP_L_N(s, NUM_RUNOUT_SENSORS) {
           const bool out = poll_runout_state(s);
           if (!out) filament_present(s);
-          #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+          #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
             if (out != was_out[s]) {
               was_out[s] = out;
-              SERIAL_ECHOPGM("Filament Sensor");
-              const char tool = '0' + s;
-              SERIAL_ECHO(tool);
-              serialprintPGM(out ? PSTR(" OUT\n") : PSTR(" IN\n"));
+              SERIAL_ECHOPAIR("Filament Sensor", '0' + s);
+              serialprintPGM(out ? PSTR(" OUT") : PSTR(" IN"));
+              SERIAL_EOL();
             }
           #endif
         }
@@ -357,7 +356,7 @@ class FilamentSensorBase {
       }
 
       static inline void run() {
-        #ifdef FILAMENT_RUNOUT_SENSOR_DEBUG
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
           static millis_t t = 0;
           const millis_t ms = millis();
           if (ELAPSED(ms, t)) {
@@ -421,7 +420,7 @@ class FilamentSensorBase {
       static inline void block_completed(const block_t* const) { }
 
       static inline void filament_present(const uint8_t extruder) {
-        runout_count[extruder] = runout_threshold; 
+        runout_count[extruder] = runout_threshold;
       }
   };
 
