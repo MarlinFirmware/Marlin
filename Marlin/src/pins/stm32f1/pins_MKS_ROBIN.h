@@ -169,7 +169,18 @@
   #define SCK_PIN                           PB13  // SPI2
   #define MISO_PIN                          PB14  // SPI2
   #define MOSI_PIN                          PB15  // SPI2
-  #define SD_DETECT_PIN                     -1    // SD_CD
+  /**
+   * MKS Robin has a few hardware revisions
+   * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
+   *
+   * MKS Robin less or equal to V2.3 don't have SD_DETECT_PIN.
+   *
+   * MKS Robin greater or equal to V2.4 have SD_DETECT_PIN at PF12.
+   *
+   * You can uncomment it here, or you can add it SD_DETECT_PIN to your Configuration.h
+   */
+  //#define SD_DETECT_PIN                   -1
+  //#define SD_DETECT_PIN                   PF12  // SD_CD
 #else
   // SD as custom software SPI (SDIO pins)
   #define SCK_PIN                           PC12
