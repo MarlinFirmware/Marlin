@@ -86,7 +86,7 @@
 #endif
 
 #ifndef MACHINE_SIZE
-  #define MACHINE_SIZE "220x220x250"
+  #define MACHINE_SIZE "230x230x250"    // M.A.R.C. Max usable bed-size
 #endif
 #ifndef CORP_WEBSITE_C
   #define CORP_WEBSITE_C "www.cxsw3d.com"
