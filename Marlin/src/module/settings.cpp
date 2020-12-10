@@ -563,7 +563,7 @@ void MarlinSettings::postprocess() {
                 "ARCHIM2_SPI_FLASH_EEPROM_BACKUP_SIZE is insufficient to capture all EEPROM data.");
 #endif
 
-//#define DEBUG_OUT 1
+#define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -571,7 +571,7 @@ void MarlinSettings::postprocess() {
   #define EEPROM_START()          if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; } \
                                   int eeprom_index = EEPROM_OFFSET
   #define EEPROM_FINISH()         persistentStore.access_finish()
-  #define EEPROM_SKIP(VAR)        (eeprom_index += sizeof(VAR))
+  #define EEPROM_SKI(VAR)        (eeprom_index += sizeof(VAR))
   #define EEPROM_WRITE(VAR)       do{ persistentStore.write_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);              }while(0)
   #define EEPROM_READ(VAR)        do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc, !validating);  }while(0)
   #define EEPROM_READ_ALWAYS(VAR) do{ persistentStore.read_data(eeprom_index, (uint8_t*)&VAR, sizeof(VAR), &working_crc);               }while(0)
@@ -2294,14 +2294,14 @@ void MarlinSettings::postprocess() {
 
           if (!ubl.sanity_check()) {
             SERIAL_EOL();
-            #if ENABLED(EEPROM_CHITCHAT)
+            #if BOTH(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
               ubl.echo_name();
               DEBUG_ECHOLNPGM(" initialized.\n");
             #endif
           }
           else {
             eeprom_error = true;
-            #if ENABLED(EEPROM_CHITCHAT)
+            #if BOTH(EEPROM_CHITCHAT, DEBUG_LEVELING_FEATURE)
               DEBUG_ECHOPGM("?Can't enable ");
               ubl.echo_name();
               DEBUG_ECHOLNPGM(".");
