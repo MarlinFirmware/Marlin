@@ -148,12 +148,6 @@ const feedRate_t homing_feedrate_mm_s[XYZ] PROGMEM = {
   #if ENABLED(DELTA)
     MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
   #else
-    #ifndef HOMING_FEEDRATE_X 
-      #define HOMING_FEEDRATE_X HOMING_FEEDRATE_XY
-    #endif 
-    #ifndef HOMING_FEEDRATE_Y 
-      #define HOMING_FEEDRATE_Y HOMING_FEEDRATE_XY
-    #endif 
     MMM_TO_MMS(HOMING_FEEDRATE_X), MMM_TO_MMS(HOMING_FEEDRATE_Y),
   #endif
   MMM_TO_MMS(HOMING_FEEDRATE_Z)
