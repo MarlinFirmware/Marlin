@@ -71,9 +71,9 @@
       YEN_SIGN,
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      SUPERSCRIPT_ONE,
-      SUPERSCRIPT_TWO,
-      SUPERSCRIPT_THREE,
+      SUPERSCRIPT_1,
+      SUPERSCRIPT_2,
+      SUPERSCRIPT_3,
     #endif
     #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
       MASCULINE_ORDINAL,
@@ -177,15 +177,15 @@
       {UTF8('±'),  0 , NOT_SIGN,           32   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('²'),  0 , SUPERSCRIPT_TWO,    16   },
-      {UTF8('³'),  0 , SUPERSCRIPT_THREE,  16   },
+      {UTF8('²'),  0 , SUPERSCRIPT_2,    16   },
+      {UTF8('³'),  0 , SUPERSCRIPT_3,  16   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SYMBOLS)
       {UTF8('µ'),  0 , MICRON_SIGN,        28   },
       {UTF8('¶'),  0 , PILCROW_SIGN,       24   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_SUPERSCRIPTS)
-      {UTF8('¹'),  0 , SUPERSCRIPT_ONE,    16   },
+      {UTF8('¹'),  0 , SUPERSCRIPT_1,    16   },
     #endif
     #if ENABLED(TOUCH_UI_UTF8_ORDINALS)
       {UTF8('º'),  0 , MASCULINE_ORDINAL,  19   },

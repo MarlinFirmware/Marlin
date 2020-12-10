@@ -30,7 +30,7 @@
 using namespace FTDI;
 using namespace ExtUI;
 
-void MoveAxisScreen::onEntry() {
+void BaseMoveAxisScreen::onEntry() {
   // Since Marlin keeps only one absolute position for all the extruders,
   // we have to keep track of the relative motion of individual extruders
   // ourselves. The relative distances are reset to zero whenever this
@@ -68,7 +68,7 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
   w.increments();
 }
 
-bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
+bool BaseMoveAxisScreen::onTouchHeld(uint8_t tag) {
   #define UI_INCREMENT_AXIS(axis) UI_INCREMENT(AxisPosition_mm, axis);
   #define UI_DECREMENT_AXIS(axis) UI_DECREMENT(AxisPosition_mm, axis);
   const float increment = getIncrement();
@@ -106,7 +106,7 @@ bool MoveAxisScreen::onTouchHeld(uint8_t tag) {
   return true;
 }
 
-float MoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
+float BaseMoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
   // Compute feedrate so that the tool lags the adjuster when it is
   // being held down, this allows enough margin for the planner to
   // connect segments and even out the motion.
@@ -114,11 +114,11 @@ float MoveAxisScreen::getManualFeedrate(uint8_t axis, float increment_mm) {
   return min(max_manual_feedrate[axis] / 60.0f, abs(increment_mm * (TOUCH_REPEATS_PER_SECOND) * 0.80f));
 }
 
-void MoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {
+void BaseMoveAxisScreen::setManualFeedrate(ExtUI::axis_t axis, float increment_mm) {
   ExtUI::setFeedrate_mm_s(getManualFeedrate(X_AXIS + (axis - ExtUI::X), increment_mm));
 }
 
-void MoveAxisScreen::setManualFeedrate(ExtUI::extruder_t, float increment_mm) {
+void BaseMoveAxisScreen::setManualFeedrate(ExtUI::extruder_t, float increment_mm) {
   ExtUI::setFeedrate_mm_s(getManualFeedrate(E_AXIS, increment_mm));
 }
 

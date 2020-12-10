@@ -107,16 +107,17 @@ namespace Language_en {
   #endif
   PROGMEM Language_Str MSG_PREHEAT_CUSTOM                  = _UxGT("Preheat Custom");
   PROGMEM Language_Str MSG_COOLDOWN                        = _UxGT("Cooldown");
+
   PROGMEM Language_Str MSG_CUTTER_FREQUENCY                = _UxGT("Frequency");
   PROGMEM Language_Str MSG_LASER_MENU                      = _UxGT("Laser Control");
-  PROGMEM Language_Str MSG_LASER_OFF                       = _UxGT("Laser Off");
-  PROGMEM Language_Str MSG_LASER_ON                        = _UxGT("Laser On");
-  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laser Power");
   PROGMEM Language_Str MSG_SPINDLE_MENU                    = _UxGT("Spindle Control");
-  PROGMEM Language_Str MSG_SPINDLE_OFF                     = _UxGT("Spindle Off");
-  PROGMEM Language_Str MSG_SPINDLE_ON                      = _UxGT("Spindle On");
-  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Power");
+  PROGMEM Language_Str MSG_LASER_POWER                     = _UxGT("Laser Power");
+  PROGMEM Language_Str MSG_SPINDLE_POWER                   = _UxGT("Spindle Pwr");
+  PROGMEM Language_Str MSG_LASER_TOGGLE                    = _UxGT("Toggle Laser");
+  PROGMEM Language_Str MSG_SPINDLE_TOGGLE                  = _UxGT("Toggle Spindle");
+  PROGMEM Language_Str MSG_SPINDLE_FORWARD                 = _UxGT("Spindle Forward");
   PROGMEM Language_Str MSG_SPINDLE_REVERSE                 = _UxGT("Spindle Reverse");
+
   PROGMEM Language_Str MSG_SWITCH_PS_ON                    = _UxGT("Switch Power On");
   PROGMEM Language_Str MSG_SWITCH_PS_OFF                   = _UxGT("Switch Power Off");
   PROGMEM Language_Str MSG_EXTRUDE                         = _UxGT("Extrude");
@@ -431,9 +432,9 @@ namespace Language_en {
   PROGMEM Language_Str MSG_FILAMENTCHANGE                  = _UxGT("Change Filament");
   PROGMEM Language_Str MSG_FILAMENTCHANGE_E                = _UxGT("Change Filament *");
   PROGMEM Language_Str MSG_FILAMENTLOAD                    = _UxGT("Load Filament");
-  PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Load Filament *");
+  PROGMEM Language_Str MSG_FILAMENTLOAD_E                  = _UxGT("Load *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD                  = _UxGT("Unload Filament");
-  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload Filament *");
+  PROGMEM Language_Str MSG_FILAMENTUNLOAD_E                = _UxGT("Unload *");
   PROGMEM Language_Str MSG_FILAMENTUNLOAD_ALL              = _UxGT("Unload All");
   PROGMEM Language_Str MSG_ATTACH_MEDIA                    = _UxGT("Attach Media");
   PROGMEM Language_Str MSG_CHANGE_MEDIA                    = _UxGT("Change Media");
