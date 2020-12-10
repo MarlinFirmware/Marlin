@@ -17,7 +17,6 @@
 //===========================================================================
 
 //#define AC_MEGA_ZERO
-//#define AC_MEGA_ZERO_V2
 
 // EZABL Probe Mounts
 //#define AC_MEGA_ZERO_OEM
@@ -357,6 +356,8 @@
         #define TEMP_SENSOR_BED 11
       #endif
     #endif
+  #else
+    #define TEMP_SENSOR_BED 0
   #endif
 
   #define TEMP_SENSOR_PROBE 0

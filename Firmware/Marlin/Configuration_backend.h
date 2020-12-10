@@ -113,9 +113,9 @@
   #define ABL_ENABLE
   #define NOZZLE_TO_PROBE_OFFSET { -52, -19, 0 }
 #endif
-#if ENABLED(SUNLUS8_OEM)
+#if ENABLED(SUNLU_S8_OEM)
   #define ABL_ENABLE
-  #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 } //Not actual offsets, design not done yet 12/5/20
+  #define NOZZLE_TO_PROBE_OFFSET { -53, -12, 0 }
 #endif
 #if ENABLED(KP3_OEM_MOUNT)
   #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }

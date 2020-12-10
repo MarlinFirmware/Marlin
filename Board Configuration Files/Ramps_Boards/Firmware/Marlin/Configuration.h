@@ -114,7 +114,7 @@
 //#define SUNLU_S8
 
 // EZABL Probe Mounts
-//#define SUNLUS8_OEM
+//#define SUNLU_S8_OEM
 //#define CUSTOM_PROBE
 
 //===========================================================================
