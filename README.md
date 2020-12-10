@@ -16,7 +16,9 @@ This GitHub repository is for tracking code changes. We have a local script that
 
 For best results getting help with configuration and troubleshooting, please use the following resources:
 
+- [Unified 2 Bug/Feature Thread](https://support.th3dstudio.com/hc/en-us/community/posts/360073274371-Unified-2-Firmware-Bug-Tracking-Feature-Requests)
 - [TH3D Forum](https://support.th3dstudio.com/hc/en-us/community/topics/360001750572-Unified-2-Firmware)
+- [TH3D MeWe](https://mewe.com/join/th3dcommunity3dprintinggroup)
 - [TH3D Discord](http://Discord.TH3DStudio.com)
 - [TH3D Help Center](https://support.th3dstudio.com)
 - [3D Printer Support Facebook Group](https://www.facebook.com/groups/c3dforum/)

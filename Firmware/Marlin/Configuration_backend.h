@@ -6,7 +6,7 @@
 //======================= DO NOT MODIFY THIS FILE ===========================
 //===========================================================================
 
-#define UNIFIED_VERSION "TH3D UFW 2.12b"
+#define UNIFIED_VERSION "TH3D UFW 2.13"
 
 /**
  * Temp Settings
@@ -81,7 +81,7 @@
   #define DEFAULT_Kd 114
 #endif
 
-#if DISABLED(SPACE_SAVER) && ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
+#if ENABLED(ENABLE_PIDBED) // PID Bed is not needed. Bang Bang loop is set to 500ms
   #define PIDTEMPBED
   #define MAX_BED_POWER 255
   #if ENABLED(PIDTEMPBED)
@@ -108,6 +108,14 @@
 
 #if ENABLED(CUSTOM_PROBE)
   #define ABL_ENABLE
+#endif
+#if ENABLED(AC_MEGA_ZERO_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -52, -19, 0 }
+#endif
+#if ENABLED(SUNLU_S8_OEM)
+  #define ABL_ENABLE
+  #define NOZZLE_TO_PROBE_OFFSET { -53, -12, 0 }
 #endif
 #if ENABLED(KP3_OEM_MOUNT)
   #define NOZZLE_TO_PROBE_OFFSET { -46, -15, 0 }

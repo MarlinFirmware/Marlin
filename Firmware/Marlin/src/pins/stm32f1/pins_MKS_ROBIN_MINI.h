@@ -163,7 +163,9 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  #define LCD_RESET_PIN                     PC6   // FSMC_RST
+  #if DISABLED(KINGROON_KP3)
+    #define LCD_RESET_PIN                   PC6   // FSMC_RST
+  #endif
   #define LCD_BACKLIGHT_PIN                 PD13
 
   #if NEED_TOUCH_PINS

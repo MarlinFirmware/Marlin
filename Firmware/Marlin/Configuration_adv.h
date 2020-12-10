@@ -1674,8 +1674,14 @@
   //#define BABYSTEP_XY                     // Also enable X/Y Babystepping. Not supported on DELTA!
   #define BABYSTEP_INVERT_Z false           // Change if Z babysteps should go the other way
   #define BABYSTEP_MILLIMETER_UNITS         // Specify BABYSTEP_MULTIPLICATOR_(XY|Z) in mm instead of micro-steps
-  #define BABYSTEP_MULTIPLICATOR_Z  0.025   // (steps or mm) Steps or millimeter distance for each Z babystep
-  #define BABYSTEP_MULTIPLICATOR_XY 0.025   // (steps or mm) Steps or millimeter distance for each XY babystep
+  
+  #if ENABLED(FINE_BABYSTEPPING)
+    #define BABYSTEP_MULTIPLICATOR_Z  0.010   // (steps or mm) Steps or millimeter distance for each Z babystep
+    #define BABYSTEP_MULTIPLICATOR_XY 0.010   // (steps or mm) Steps or millimeter distance for each XY babystep
+  #else
+    #define BABYSTEP_MULTIPLICATOR_Z  0.025   // (steps or mm) Steps or millimeter distance for each Z babystep
+    #define BABYSTEP_MULTIPLICATOR_XY 0.025   // (steps or mm) Steps or millimeter distance for each XY babystep
+  #endif
 
   #if DISABLED(DWIN_CREALITY_LCD)
     #define DOUBLECLICK_FOR_Z_BABYSTEPPING  // Double-click on the Status Screen for Z Babystepping.
