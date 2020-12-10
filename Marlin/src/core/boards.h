@@ -174,7 +174,7 @@
 #define BOARD_AZTEEG_X1               1509  // Azteeg X1
 #define BOARD_ANET_10                 1510  // Anet 1.0 (Melzi clone)
 #define BOARD_ZMIB_V2                 1511  // ZoneStar ZMIB V2
-
+#define BOARD_Gotor_G8                1512  //Gotor 1.0(Melzi Clone)
 //
 // Other ATmega644P, ATmega644, ATmega1284P
 //
@@ -223,7 +223,7 @@
 #define BOARD_BTT_SKR_V1_1            2012  // BigTreeTech SKR v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_BTT_SKR_V1_3            2013  // BigTreeTech SKR v1.3 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_BTT_SKR_V1_4            2014  // BigTreeTech SKR v1.4 (Power outputs: Hotend0, Hotend1, Fan, Bed)
-
+#define BOARD_GTT_LPC_V1_1            2015  // Gotor GTT LPC v1.1 (Power outputs: Hotend0, Hotend1, Fan, Bed)
 //
 // LPC1769 ARM Cortex M3
 //
@@ -239,7 +239,7 @@
 #define BOARD_BTT_SKR_V1_4_TURBO      2508  // BigTreeTech SKR v1.4 TURBO (Power outputs: Hotend0, Hotend1, Fan, Bed)
 #define BOARD_MKS_SGEN_L_V2           2509  // MKS SGEN_L V2 (Power outputs: Hotend0, Hotend1, Bed, Fan)
 #define BOARD_BTT_SKR_E3_TURBO        2510  // BigTreeTech SKR E3 Turbo (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1)
-
+#define BOARD_GTT_LPC_E3_TURBO        2511  // Gotor GTT LPC E3 Turbo (Power outputs: Hotend0, Hotend1, Bed, Fan0, Fan1)
 //
 // SAM3X8E ARM Cortex M3
 //
@@ -321,7 +321,7 @@
 #define BOARD_CREALITY_V427           4035  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_TRIGORILLA_PRO          4036  // Trigorilla Pro (STM32F103ZET6)
 #define BOARD_FLY_MINI                4037  // FLY MINI (STM32F103RCT6)
-
+#define BOARD_GTT_E3_DIP              4038  //Gotor GTT E3 DIP V1.0 (STM32F103RC /STM32F103RE)
 //
 // ARM Cortex-M4F
 //
@@ -354,6 +354,8 @@
 #define BOARD_FYSETC_S6_V2_0          4218  // FYSETC S6 v2.0 board
 #define BOARD_FLYF407ZG               4219  // FLYF407ZG board (STM32F407ZG)
 #define BOARD_MKS_ROBIN2              4220  // MKS_ROBIN2 (STM32F407ZE)
+#define BOARD_GTT_PRO_V1_1            4221  //Gotor GTT PRO V1.1(STM32F407ZG)
+#define BOARD_GTT_PRO_V1_2            4222  //Gotor GTT PRO V1.2(STM32F407IGT)
 
 //
 // ARM Cortex M7
