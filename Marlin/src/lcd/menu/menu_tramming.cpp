@@ -80,7 +80,7 @@ void tramming_wizard_menu() {
     SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), []{ _menu_single_probe(MenuItemBase::itemIndex); });
 
   ACTION_ITEM(MSG_BUTTON_DONE, []{
-    probe.stow(); // Stow before exiting wizard
+    probe.stow(); // Stow before exiting Tramming Wizard
     ui.goto_previous_screen_no_defer();
     });
   END_MENU();
