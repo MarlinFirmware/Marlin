@@ -36,7 +36,7 @@
     "stm32cube",
     "libopencm3"
   ],
-  "name": "STM32F407VG (192k RAM. 1024k Flash)",
+  "name": "STM32F407VG (128k RAM, 64k CCM RAM, 1024k Flash",
   "upload": {
     "disable_flushing": false,
     "maximum_ram_size": 131072,
