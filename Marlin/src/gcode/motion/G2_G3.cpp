@@ -99,7 +99,7 @@ void plan_arc(
     switch (((angular_travel < 0) << 1) | clockwise) {
       case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
-    } }
+    } } else return; //Target != position, but angle == 0? Bail. In future, maybe add logic to replace G2/G3 with single G1 command to target position.
     #ifdef MIN_ARC_SEGMENTS
       min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
       NOLESS(min_segments, 1U);
