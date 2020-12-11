@@ -77,9 +77,8 @@ void plan_arc(
               rt_Y = cart[q_axis] - center_Q,
               start_L = current_position[l_axis];
 
-  // Angle of rotation between position and target from the circle center. Zero if target and position same. 
-  const bool target_position_same = NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis]);
-  float angular_travel = target_position_same ? 0 : ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
+  // Angle of rotation between position and target from the circle center. Will be determined below. 
+  float angular_travel = 0;
 
   #ifdef MIN_ARC_SEGMENTS
     uint16_t min_segments = MIN_ARC_SEGMENTS;
@@ -87,17 +86,20 @@ void plan_arc(
     constexpr uint16_t min_segments = 1;
   #endif
 
-  // Do a full circle if angular rotation is 0
-  if (!angular_travel) {
+  // Do a full circle if starting and ending positions same
+  if (NEAR(current_position[p_axis], cart[p_axis]) && NEAR(current_position[q_axis], cart[q_axis])) {
     // Preserve direction for circles
     angular_travel = clockwise ? -RADIANS(360) : RADIANS(360);
   }
   else {
-    // Make sure angular travel over 180 degrees goes the other way around.
+    //Calculate angle
+    angular_travel = ATAN2(rvec.a * rt_Y - rvec.b * rt_X, rvec.a * rt_X + rvec.b * rt_Y);
+    // Make sure angular travel over 180 degrees goes the other way around, but ensure zero stays zero
+    if (angular_travel) { //only if != 0
     switch (((angular_travel < 0) << 1) | clockwise) {
       case 1: angular_travel -= RADIANS(360); break; // Positive but CW? Reverse direction.
       case 2: angular_travel += RADIANS(360); break; // Negative but CCW? Reverse direction.
-    }
+    } }
     #ifdef MIN_ARC_SEGMENTS
       min_segments = CEIL(min_segments * ABS(angular_travel) / RADIANS(360));
       NOLESS(min_segments, 1U);
