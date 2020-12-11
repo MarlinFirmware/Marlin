@@ -79,7 +79,10 @@ void tramming_wizard_menu() {
   LOOP_L_N(i, G35_PROBE_COUNT)
     SUBMENU_N_P(i, (char*)pgm_read_ptr(&tramming_point_name[i]), []{ _menu_single_probe(MenuItemBase::itemIndex); });
 
-  ACTION_ITEM(MSG_BUTTON_DONE, []{ ui.goto_previous_screen_no_defer(); });
+  ACTION_ITEM(MSG_BUTTON_DONE, []{
+    probe.stow(); // Stow before exiting wizard
+    ui.goto_previous_screen_no_defer();
+    });
   END_MENU();
 }
 
