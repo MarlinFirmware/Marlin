@@ -133,10 +133,12 @@ void prepare_for_probe_offset_wizard() {
 
     // Probe for Z reference
     ui.wait_for_move = true;
-    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_RAISE, 0, true);
+    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
     ui.wait_for_move = false;
 
   #endif
+
+  SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
@@ -173,7 +175,6 @@ void goto_probe_offset_wizard() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
-      SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
       z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
       ui.goto_screen(prepare_for_probe_offset_wizard);
       ui.defer_status_screen();
