@@ -24,7 +24,9 @@
 #if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 2 || E_STEPPERS > 2
-  #error "MKS Robin Nano V3 supports up to 1 hotends / E-steppers."
+  #error "MKS Robin Nano V3 supports up to 2 hotends / E-steppers."
+#elif HAS_FSMC_TFT
+  #error "MKS Robin Nano V3 doesn't support FSMC-based TFT displays."
 #endif
 
 #define BOARD_INFO_NAME "MKS Robin Nano V3"
@@ -35,13 +37,8 @@
 #define I2C_EEPROM
 
 //
-// Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
+// Release PB4 (Z_DIR_PIN) from JTAG NRST role
 //
-
-//
-// Note: MKS Robin board is using SPI2 interface.
-//
-//#define SPI_MODULE                           2
 
 //
 // Limit Switches
@@ -57,10 +54,6 @@
 #define Y_STOP_PIN                          PD2
 #define Z_MIN_PIN                           PC8
 #define Z_MAX_PIN                           PC4
-
-#ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4   // MT_DET
-#endif
 
 //
 // Steppers
@@ -103,41 +96,27 @@
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
+// This board only support SW SPI for stepper drivers
+#if HAS_TMC_SPI
+  #define TMC_USE_SW_SPI
+#endif
 #if ENABLED(TMC_USE_SW_SPI)
-  #ifndef TMC_SW_MOSI
+  #if !defined(TMC_SW_MOSI) || TMC_SW_MOSI == -1
     #define TMC_SW_MOSI                     PD14
   #endif
-  #ifndef TMC_SW_MISO
+  #if !defined(TMC_SW_MISO) || TMC_SW_MISO == -1
     #define TMC_SW_MISO                     PD1
   #endif
-  #ifndef TMC_SW_SCK
+  #if !defined(TMC_SW_SCK) || TMC_SW_SCK == -1
     #define TMC_SW_SCK                      PD0
   #endif
 #endif
 
 #if HAS_TMC_UART
-  /**
-   * TMC2208/TMC2209 stepper drivers
-   *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
-   */
-  //#define X_HARDWARE_SERIAL  Serial1
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
-
   //
   // Software serial
+  // No Hardware serial for steppers
   //
-
   #define X_SERIAL_TX_PIN                   PD5
   #define X_SERIAL_RX_PIN                   PD5
 
@@ -155,7 +134,7 @@
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
-#endif // TMC2208 || TMC2209
+#endif
 
 //
 // Temperature Sensors
@@ -177,19 +156,40 @@
 //
 // Thermocouples
 //
-//#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
-//#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
+//#define MAX6675_SS_PIN            HEATER_0_PIN  // TC1 - CS1
+//#define MAX6675_SS_PIN            HEATER_1_PIN  // TC2 - CS2
 
 //
 // Misc. Functions
 //
-// #define POWER_LOSS_PIN                      PA2   // PW_DET
-// #define PS_ON_PIN                           PA3   // PW_OFF
-// #define SUICIDE_PIN                         PB2     // Enable MKSPWC support
-// #define KILL_PIN                            PA2     // Enable MKSPWC support
-// #define KILL_PIN_INVERTING                  true     // Enable MKSPWC support
+#define MT_DET_1                            PA4
+#define MT_DET_2                            PE6
+#define PW_DET                              PA13
+#define PW_OFF                              PB2
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN                MT_DET_1
+#endif
+#ifndef FIL_RUNOUT2_PIN
+  #define FIL_RUNOUT2_PIN               MT_DET_2
+#endif
+
+#define POWER_LOSS_PIN                    PW_DET
+#define PS_ON_PIN                         PW_OFF
+//
+// Enable MKSPWC support
+//
+//#define SUICIDE_PIN                       PB2
+//#define KILL_PIN                          PA2
+//#define KILL_PIN_INVERTING                true
+
 #define SERVO0_PIN                          PA8   // Enable BLTOUCH support
 //#define LED_PIN                           PB2
+
+// Random Info
+#define WIFI_SERIAL                         3  //USART3
+#define MKS_WIFI_MODULE_SERIAL              1  //USART1
+#define MKS_WIFI_MODULE_SPI                 2  //SPI2
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
@@ -197,10 +197,9 @@
 
 //
 // Onboard SD card
-// NOT compatible with LCD
 //
 // detect pin dont work when ONBOARD and NO_SD_HOST_DRIVE disabled
-#if !defined(SDCARD_CONNECTION) || SDCARD_CONNECTION == ONBOARD
+#if SD_CONNECTION_IS(ONBOARD)
   #define CUSTOM_SPI_PINS                         // TODO: needed because is the only way to set SPI3 for SD on STM32 (by now)
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI3
@@ -213,11 +212,10 @@
   #endif
 #endif
 
-/*
 //
 // LCD SD
 //
-#if SDCARD_CONNECTION == LCD
+#if SD_CONNECTION_IS(LCD)
   #define CUSTOM_SPI_PINS
   #if ENABLED(CUSTOM_SPI_PINS)
     #define ENABLE_SPI1
@@ -228,7 +226,6 @@
     #define SD_DETECT_PIN                   PE12
   #endif
 #endif
-*/
 
 //
 // LCD / Controller
@@ -306,7 +303,6 @@
   #define LCD_READ_ID                       0xD3
   #define LCD_USE_DMA_SPI
 
-  // #define TFT_DRIVER                      ST7796
   #define TFT_BUFFER_SIZE                  14400
 
 #elif HAS_SPI_LCD
@@ -340,15 +336,9 @@
       #define LCD_PINS_D7                   PD10
     #endif
 
-    #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1          DELAY_NS(96)
-    #endif
-    #ifndef ST7920_DELAY_2
-      #define ST7920_DELAY_2        DELAY_NS(48)
-    #endif
-    #ifndef ST7920_DELAY_3
-      #define ST7920_DELAY_3       DELAY_NS(600)
-    #endif
+    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
+    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
+    #define BOARD_ST7920_DELAY_3    DELAY_NS(600)
 
   #endif // !MKS_MINI_12864
 
