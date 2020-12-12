@@ -676,9 +676,9 @@ extern dialog_menu_def dialog_menu;
 typedef struct print_file_dialog_disp {
   const char *title;
   const char *confirm;
-  const char *cancle;
+  const char *cancel;
   const char *print_file;
-  const char *cancle_print;
+  const char *cancel_print;
   const char *retry;
   const char *stop;
   const char *no_file_print_tips;

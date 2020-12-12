@@ -72,9 +72,6 @@ void printer_state_polling() {
         uiCfg.print_state = PAUSED;
         uiCfg.current_e_position_bak = current_position.e;
 
-        // #if ENABLED(POWER_LOSS_RECOVERY)
-        //  if (recovery.enabled) recovery.save(true);
-        // #endif
         gCfgItems.pause_reprint = true;
         update_spi_flash();
       }
@@ -93,11 +90,6 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_m);
       }
       if (gCfgItems.pausePosZ != (float)-1) {
-        // gcode.process_subcommands_now_P(PSTR("G91"));
-        // ZERO(public_buf_l);
-        // sprintf_P(public_buf_l, PSTR("G1 Z-%.1f"), gCfgItems.pausePosZ);
-        // gcode.process_subcommands_now(public_buf_l);
-        // gcode.process_subcommands_now_P(PSTR("G90"));
         ZERO(public_buf_m);
         sprintf_P(public_buf_m, PSTR("G1 Z%.1f"), uiCfg.current_z_position_bak);
         gcode.process_subcommands_now(public_buf_m);
