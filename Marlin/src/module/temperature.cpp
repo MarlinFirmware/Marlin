@@ -44,7 +44,43 @@
   #include "../lcd/extui/ui_api.h"
 #endif
 
-#if MAX6675_0_IS_MAX31865 || MAX6675_1_IS_MAX31865
+//
+// Only needed for LPC176x boards
+//
+#if MAX6675_HAS_MAX31855_LPC176X
+  #include <Adafruit_MAX31855.h>
+  #if !defined(MAX31855_CS_PIN) && PIN_EXISTS(MAX6675_SS)
+    #define MAX31855_CS_PIN   MAX6675_SS_PIN
+  #endif
+  #if !defined(MAX31855_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
+    #define MAX31855_CS2_PIN  MAX6675_SS2_PIN
+  #endif
+  #if !defined(MAX31855_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
+    #define MAX31855_MISO_PIN MAX6675_DO_PIN
+  #endif
+  #if !defined(MAX31855_SCK_PIN) && PIN_EXISTS(MAX6675_SCK)
+    #define MAX31855_SCK_PIN  MAX6675_SCK_PIN
+  #endif
+  #if MAX6675_0_IS_MAX31855 && PIN_EXISTS(MAX31855_CS) && MAX31855_USES_SW_LIB
+    #define HAS_MAX31855 1
+    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(MAX31855_SCK_PIN, MAX31855_CS_PIN, MAX31855_MISO_PIN);
+  #elif MAX6675_0_IS_MAX31855 && PIN_EXISTS(MAX31855_CS)
+    #define HAS_MAX31855 1  
+    Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(MAX31855_CS_PIN);  
+  #endif
+  #if MAX6675_1_IS_MAX31855 && PIN_EXISTS(MAX31855_CS2) && MAX31855_USES_SW_LIB
+    #define HAS_MAX31855 1
+    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_SCK_PIN, MAX31855_CS2_PIN, MAX31855_MISO_PIN);                       
+  #elif MAX6675_1_IS_MAX31855 && PIN_EXISTS(MAX31855_CS2)
+    #define HAS_MAX31855 1  
+    Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_CS2_PIN);  
+  #endif
+#endif
+
+//
+// For boards that are not LPC176x
+//
+#if MAX6675_HAS_MAX31865
   #include <Adafruit_MAX31865.h>
   #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
     #define MAX31865_CS_PIN   MAX6675_SS_PIN
@@ -79,7 +115,82 @@
   #endif
 #endif
 
-#if EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO)
+//
+// Only needed for LPC176x boards
+//
+#if LPC1768_HAS_MAX31865
+  #include <Adafruit_MAX31865.h>
+  #if !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
+    #define MAX31865_CS_PIN   MAX6675_SS_PIN
+  #endif
+  #if !defined(MAX31865_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
+    #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
+  #endif
+  #ifndef MAX31865_MOSI_PIN
+    #define MAX31865_MOSI_PIN MOSI_PIN
+  #endif  
+  #if !defined(MAX31865_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
+    #define MAX31865_MISO_PIN MAX6675_DO_PIN
+  #endif
+  #if !defined(MAX31865_SCK_PIN) && PIN_EXISTS(MAX6675_SCK)
+    #define MAX31865_SCK_PIN  MAX6675_SCK_PIN
+  #endif
+  #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
+    #define HAS_MAX31865 1
+    Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
+      #if MAX31865_USES_SW_LIB
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
+      #endif
+    );
+  #endif
+  #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
+    #define HAS_MAX31865 1
+    Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
+      #if MAX31865_USES_SW_LIB
+        , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
+      #endif
+    );
+  #endif
+#endif
+
+//
+// Only needed for LPC176x boards
+//
+#if LPC1768_HAS_MAX6675
+  #include <MAX6675.h>
+  #if !defined(MAX6675_CS_PIN) && PIN_EXISTS(MAX6675_SS)
+    #define MAX6675_CS_PIN MAX6675_SS_PIN
+  #endif
+  #if !defined(MAX6675_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
+    #define MAX6675_CS2_PIN  MAX6675_SS2_PIN
+  #endif
+  #if !defined(MAX6675_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
+    #define MAX6675_MISO_PIN MAX6675_DO_PIN
+  #endif
+  #if MAX6675_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
+    #define HAS_MAX6675_FOR_LPC 1
+    MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN 
+      #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
+        , MAX6675_SCK_PIN, MAX6675_MISO_PIN
+      #endif
+    );
+  //#elif defined(MAX6675_CS_PIN) && !PIN_EXISTS(MAX6675_SS)
+    //#define MAX6675_SS_PIN MAX6675_CS_PIN
+  #endif
+  #if MAX6675_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
+    #define HAS_MAX6675_FOR_LPC 1
+    MAX6675 max6675_1 = MAX6675(MAX6675_CS2_PIN
+      #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
+        , MAX6675_SCK_PIN, MAX6675_MISO_PIN
+      #endif
+    ); 
+  //#elif defined(MAX6675_CS2_PIN) && !PIN_EXISTS(MAX6675_SS2)
+    //#define MAX6675_SS2_PIN MAX6675_CS2_PIN
+  #endif
+#endif
+
+
+#if EITHER(HEATER_0_USES_MAX6675, HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO) && !HAS_MAX31855 && !HAS_MAX31865 && !HAS_MAX6675_FOR_LPC
   #define MAX6675_SEPARATE_SPI 1
 #endif
 
@@ -1701,6 +1812,14 @@ void Temperature::init() {
 
   TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
   TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
+  #if HAS_MAX31855
+    TERN_(MAX6675_0_IS_MAX31855, max31855_0.begin());
+    TERN_(MAX6675_1_IS_MAX31855, max31855_1.begin());
+  #endif
+  #if HAS_MAX6675_FOR_LPC
+    TERN_(MAX6675_0_IS_MAX6675, max6675_0.begin());
+    TERN_(MAX6675_1_IS_MAX6675, max6675_1.begin());
+  #endif
 
   #if EARLY_WATCHDOG
     // Flag that the thermalManager should be running
@@ -1718,10 +1837,10 @@ void Temperature::init() {
   #endif
 
   // Thermistor activation by MCU pin
-  #if PIN_EXISTS(TEMP_0_TR_ENABLE_PIN)
+  #if PIN_EXISTS(TEMP_0_TR_ENABLE)
     OUT_WRITE(TEMP_0_TR_ENABLE_PIN, ENABLED(HEATER_0_USES_MAX6675));
   #endif
-  #if PIN_EXISTS(TEMP_1_TR_ENABLE_PIN)
+  #if PIN_EXISTS(TEMP_1_TR_ENABLE)
     OUT_WRITE(TEMP_1_TR_ENABLE_PIN, ENABLED(HEATER_1_USES_MAX6675));
   #endif
 
@@ -2224,7 +2343,7 @@ void Temperature::disable_all_heaters() {
     #else
       constexpr uint8_t hindex = 0;
       #define MAX6675_TEMP(I) max6675_temp
-      #if MAX6675_1_IS_MAX31865
+      #if MAX6675_1_IS_MAX31865 || MAX6675_1_IS_MAX31855 || MAX6675_1_IS_MAX6675
         #define MAX6675_SEL(A,B) B
       #else
         #define MAX6675_SEL(A,B) A
@@ -2246,84 +2365,130 @@ void Temperature::disable_all_heaters() {
     if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
-    #if HAS_MAX31865
-      Adafruit_MAX31865 &maxref = MAX6675_SEL(max31865_0, max31865_1);
-      const uint16_t max31865_ohms = (uint32_t(maxref.readRTD()) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
-    #endif
-
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
-    #if !MAX6675_SEPARATE_SPI
+    #if !MAX6675_SEPARATE_SPI && !HAS_MAX31865 && !HAS_MAX31855 && !HAS_MAX6675_FOR_LPC
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
     #endif
 
-    MAX6675_WRITE(LOW);  // enable TT_MAX6675
-    DELAY_NS(100);       // Ensure 100ns delay
+    #if !HAS_MAX31865 && !HAS_MAX31855 && !HAS_MAX6675_FOR_LPC
+      MAX6675_WRITE(LOW);  // enable TT_MAX6675 
+      DELAY_NS(100);       // Ensure 100ns delay  
+    #endif
 
     // Read a big-endian temperature value
     max6675_temp = 0;
-    for (uint8_t i = sizeof(max6675_temp); i--;) {
-      max6675_temp |= TERN(MAX6675_SEPARATE_SPI, max6675_spi.receive(), spiRec());
-      if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
-    }
-
-    MAX6675_WRITE(HIGH); // disable TT_MAX6675
-
-    const uint8_t fault_31865 = TERN1(HAS_MAX31865, maxref.readFault());
-
-    if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
-      max6675_errors[hindex]++;
-      if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
-        SERIAL_ERROR_START();
-        SERIAL_ECHOPGM("Temp measurement error! ");
-        #if MAX6675_ERROR_MASK == 7
-          SERIAL_ECHOPGM("MAX31855 ");
-          if (max6675_temp & 1)
-            SERIAL_ECHOLNPGM("Open Circuit");
-          else if (max6675_temp & 2)
-            SERIAL_ECHOLNPGM("Short to GND");
-          else if (max6675_temp & 4)
-            SERIAL_ECHOLNPGM("Short to VCC");
-        #elif HAS_MAX31865
-          if (fault_31865) {
-            maxref.clearFault();
-            SERIAL_ECHOPAIR("MAX31865 Fault :(", fault_31865, ")  >>");
-            if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
-              SERIAL_ECHOLNPGM("RTD High Threshold");
-            else if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
-              SERIAL_ECHOLNPGM("RTD Low Threshold");
-            else if (fault_31865 & MAX31865_FAULT_REFINLOW)
-              SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
-            else if (fault_31865 & MAX31865_FAULT_REFINHIGH)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault_31865 & MAX31865_FAULT_RTDINLOW)
-              SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
-            else if (fault_31865 & MAX31865_FAULT_OVUV)
-              SERIAL_ECHOLNPGM("Under/Over voltage");
-          }
-        #else
-          SERIAL_ECHOLNPGM("MAX6675");
-        #endif
-
-        // Thermocouple open
-        max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
+    #if !HAS_MAX31865 && !HAS_MAX31855 && !HAS_MAX6675_FOR_LPC
+      for (uint8_t i = sizeof(max6675_temp); i--;) {
+        max6675_temp |= TERN(MAX6675_SEPARATE_SPI, max6675_spi.receive(), spiRec());
+        if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
       }
-      else
+        MAX6675_WRITE(HIGH); // disable TT_MAX6675
+    #endif
+
+    #if HAS_MAX31855
+      Adafruit_MAX31855 &max855ref = MAX6675_SEL(max31855_0, max31855_1);  
+      max6675_temp = max855ref.readRaw32();  
+    #endif
+
+    #if HAS_MAX31865
+      Adafruit_MAX31865 &max865ref = MAX6675_SEL(max31865_0, max31865_1);
+    #endif
+
+    #if HAS_MAX6675_FOR_LPC
+      MAX6675 &max6675ref = MAX6675_SEL(max6675_0, max6675_1);
+    #endif
+    
+    #if LPC1768_HAS_MAX31865
+      max6675_temp = max865ref.readRTD_with_Fault();
+    #elif HAS_MAX6675_FOR_LPC
+      max6675_temp = max6675ref.readRaw16();
+    #else
+      // At the present time we do not have the ability to set the MAX31865 HIGH threshold 
+      // or thr LOW threshold, so no need to check for them, zero these bits out
+      const uint8_t fault_31865 = TERN1(HAS_MAX31865, (max865ref.readFault() & 0x3FU));
+    #endif   
+
+    #if LPC1768_HAS_MAX31865 || HAS_MAX6675_FOR_LPC
+      if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK)) {
+    #else
+      if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
+    #endif
+        max6675_errors[hindex]++;
+        if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
+          SERIAL_ERROR_START();
+          SERIAL_ECHOPGM("Temp measurement error! ");
+          #if MAX6675_ERROR_MASK == 7
+              SERIAL_ECHOPGM("MAX31855 ");
+              if (max6675_temp & 1)
+                SERIAL_ECHOLNPAIR("Fault :(", max6675_temp & 1 ,")  >> Open Circuit");
+              else if (max6675_temp & 2)
+                SERIAL_ECHOLNPAIR("Fault : (", max6675_temp & 2 ,")  >> Short to GND");
+              else if (max6675_temp & 4)
+                SERIAL_ECHOLNPAIR("Fault : (", max6675_temp & 4 ,")  >> Short to VCC");
+          #elif MAX6675_HAS_MAX31865
+              max865ref.clearFault();        
+            if (fault_31865) {
+              SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
+              if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
+                SERIAL_ECHOLNPGM("RTD High Threshold");
+              if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
+                SERIAL_ECHOLNPGM("RTD Low Threshold");
+              if (fault_31865 & MAX31865_FAULT_REFINLOW)
+                SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
+              if (fault_31865 & MAX31865_FAULT_REFINHIGH)
+                SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              if (fault_31865 & MAX31865_FAULT_RTDINLOW)
+                SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              if (fault_31865 & MAX31865_FAULT_OVUV)
+                SERIAL_ECHOLNPGM("Under/Over voltage");
+            }
+          #elif LPC1768_HAS_MAX31865
+            const uint8_t fault_31865 = max865ref.readFault(); 
+            max865ref.clearFault();        
+            if (fault_31865) {
+              SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
+              if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
+                SERIAL_ECHOLNPGM("RTD High Threshold");
+              if (fault_31865 & MAX31865_FAULT_LOWTHRESH)
+                SERIAL_ECHOLNPGM("RTD Low Threshold");
+              if (fault_31865 & MAX31865_FAULT_REFINLOW)
+                SERIAL_ECHOLNPGM("REFIN- > 0.85 x Bias");
+              if (fault_31865 & MAX31865_FAULT_REFINHIGH)
+                SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              if (fault_31865 & MAX31865_FAULT_RTDINLOW)
+                SERIAL_ECHOLNPGM("REFIN- < 0.85 x Bias - FORCE- open");
+              if (fault_31865 & MAX31865_FAULT_OVUV)
+                SERIAL_ECHOLNPGM("Under/Over voltage");
+            }        
+          #else
+              SERIAL_ECHOPGM("MAX6675 ");
+              SERIAL_ECHOLNPGM("Open Circuit"); 
+          #endif
+
+          // Thermocouple open
+          max6675_temp = 4 * MAX6675_SEL(HEATER_0_MAX6675_TMAX, HEATER_1_MAX6675_TMAX);
+        }
+        else
+          max6675_temp >>= MAX6675_DISCARD_BITS;
+      }
+      else {
         max6675_temp >>= MAX6675_DISCARD_BITS;
-    }
-    else {
-      max6675_temp >>= MAX6675_DISCARD_BITS;
-      max6675_errors[hindex] = 0;
-    }
+        max6675_errors[hindex] = 0;
+      }
 
     #if MAX6675_0_IS_MAX31855 || MAX6675_1_IS_MAX31855
       if (max6675_temp & 0x00002000) max6675_temp |= 0xFFFFC000; // Support negative temperature
     #endif
 
     // Return the RTD resistance for MAX31865 for display in SHOW_TEMP_ADC_VALUES
-    TERN_(HAS_MAX31865, max6675_temp = max31865_ohms);
+    #if MAX6675_HAS_MAX31865
+      max6675_temp = (uint32_t(max865ref.readRTD()) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
+    #elif LPC1768_HAS_MAX31865
+      max6675_temp = (uint32_t(max6675_temp) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
+    #endif
 
     MAX6675_TEMP(hindex) = max6675_temp;
 

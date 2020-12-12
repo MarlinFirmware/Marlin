@@ -29,7 +29,7 @@
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
-// If you have the Big tree tech driver expantion module, enable HAS_BTT_EXP_MOT
+// If you have the Big tree tech driver expansion module, enable HAS_BTT_EXP_MOT
 // https://github.com/bigtreetech/BTT-Expansion-module/tree/master/BTT%20EXP-MOT
 //#define HAS_BTT_EXP_MOT 1
 
@@ -37,7 +37,7 @@
   #if EITHER(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
     #define EXP_MOT_USE_EXP2_ONLY
   #else
-    #error "Having a LCD that uses both EXP1/EXP2 and a expanion motor module on EXP1/EXP2 is not possible."
+    #error "Having a LCD that uses both EXP1/EXP2 and an expansion motor module on EXP1/EXP2 is not possible."
   #endif
 #endif
 

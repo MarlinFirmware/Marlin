@@ -1698,7 +1698,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 /**
  * Pins and Sensor IDs must be set for each heater
  */
-#if HEATER_0_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS)
+#if HEATER_0_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS) && !(PIN_EXISTS(MAX31855_CS) || PIN_EXISTS(MAX31865_CS) || PIN_EXISTS(MAX6675_CS))
   #error "MAX6675_SS_PIN (required for TEMP_SENSOR_0) not defined for this board."
 #elif HAS_HOTEND && !HAS_TEMP_HOTEND && !HEATER_0_DUMMY_THERMISTOR
   #error "TEMP_0_PIN (required for TEMP_SENSOR_0) not defined for this board."
@@ -1707,7 +1707,7 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #endif
 
 #if HAS_MULTI_HOTEND
-  #if HEATER_1_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS2)
+  #if HEATER_1_USES_MAX6675 && !PIN_EXISTS(MAX6675_SS2) && !(PIN_EXISTS(MAX31855_CS2) || PIN_EXISTS(MAX31865_CS2) || PIN_EXISTS(MAX6675_CS2))
     #error "MAX6675_SS2_PIN (required for TEMP_SENSOR_1) not defined for this board."
   #elif TEMP_SENSOR_1 == 0
     #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
