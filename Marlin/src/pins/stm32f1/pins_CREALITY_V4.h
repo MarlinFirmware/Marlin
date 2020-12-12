@@ -48,20 +48,20 @@
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
-  #define IIC_EEPROM_SDA                  PA11
-  #define IIC_EEPROM_SCL                  PA12
-  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb (24C16)
+  #define IIC_EEPROM_SDA                    PA11
+  #define IIC_EEPROM_SCL                    PA12
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE             0x800  // 2Kb
+  #define MARLIN_EEPROM_SIZE               0x800  // 2Kb
 #endif
 
 //
 // Servos
 //
 #ifndef HAS_PIN_27_BOARD
-  #define SERVO0_PIN                          PB0   // BLTouch OUT
+  #define SERVO0_PIN                        PB0   // BLTouch OUT
 #else 
-  #define SERVO0_PIN                          PC6
+  #define SERVO0_PIN                        PC6
 #endif
 
 //
@@ -161,7 +161,7 @@
   #define BTN_EN2                           PB14
 
   #ifndef HAS_PIN_27_BOARD
-    #define BEEPER_PIN                        PC6
+    #define BEEPER_PIN                      PC6
   #endif
 
 #elif ENABLED(VET6_12864_LCD)
