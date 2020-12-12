@@ -142,12 +142,14 @@ Caption:
   
   **TIPS-LEVELLING**
 
-    You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature
+    - You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature
      (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back 
      when you slice from the PLA by command G29 L1 in the startGCode * of your filament.
      (* PrusaSlicer).
 
-    If you later notice that the dimensions of your printed objects are inaccurate then it will be necessary to carry out a final calibration of your turns by printing an object to correct these errors.
+    - If you later notice that the dimensions of your printed objects are inaccurate then 
+    it will be necessary to carry out a final calibration of your turns by printing an object
+    to correct these errors.
 
 This chapter is being written ...............
 
