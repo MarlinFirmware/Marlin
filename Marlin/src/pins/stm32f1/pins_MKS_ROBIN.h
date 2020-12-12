@@ -179,9 +179,9 @@
   #define MISO_PIN                          PC8
   #define MOSI_PIN                          PD2
   #define SS_PIN                            -1
-  #define ONBOARD_SD_CS_PIN                 PC11
   #define SDSS                              PD2
 #endif
+#define ONBOARD_SD_CS_PIN                 PC11
 
 /**
  * MKS Robin has a few hardware revisions
@@ -263,10 +263,11 @@
       #define TFT_BUFFER_SIZE              14400
       #define ST7789V_COLOR_RGB
 
-    // YV for normal screen mounting
-    //#define ST7789V_ORIENTATION ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
-    // XV for 180° rotated screen mounting
-    #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
+      // YV for normal screen mounting
+      //#define ST7789V_ORIENTATION ST7789V_MADCTL_MY | ST7789V_MADCTL_MV
+      // XV for 180° rotated screen mounting
+      #define ST7789V_ORIENTATION ST7789V_MADCTL_MX | ST7789V_MADCTL_MV
+    #endif
   #endif
 #endif
 
