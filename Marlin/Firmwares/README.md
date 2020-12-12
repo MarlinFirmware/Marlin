@@ -115,9 +115,11 @@ Caption:
   After the flash, you must reset your printer using the menu or M502,
   M500 put the probe then start a calibration or G33 V3 (5/8 iterations).
     
-    **Tip**: After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
-             it means that you have a problem with the structure of your printer!
-             A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
+  **Tip**: 
+        
+        After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
+        it means that you have a problem with the structure of your printer!
+        A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
   
   Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
   Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -141,13 +143,18 @@ Caption:
   
   **TIPS-LEVELLING**
 
-    You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back when you slice from the PLA by command G29 L1 in the startGCode * of your filament (* PrusaSlicer).
+    You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature
+     (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back 
+     when you slice from the PLA by command G29 L1 in the startGCode * of your filament.
+     (* PrusaSlicer).
 
   **TIPS-SLICER** 
   
     In your **Start GCode** on your Slicer.
     - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
-    - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
+    - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line
+     "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx 
+     in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
