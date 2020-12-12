@@ -1111,7 +1111,11 @@
 
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
 //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
-//#define UNKNOWN_Z_NO_RAISE      // Don't raise Z (lower the bed) if Z is "unknown." For beds that fall when Z is powered off.
+
+// Enable Z_AFTER_DEACTIVATE, if the Z-Axis moves by it self, when steppers are disabled or printer is turned off.
+// Z_MIN_POS: Use if your Nozzle falls down to the bed.
+// Z_MAX_POS: Use if your Bed falls down, away from the Nozzle.
+//#define Z_IDLE_POS Z_HOME_POS
 
 //#define Z_HOMING_HEIGHT  4      // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
                                   // Be sure to have this much clearance over your Z_MAX_POS to prevent grinding.
@@ -1137,6 +1141,7 @@
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
 #define Z_MAX_POS 200
+
 
 /**
  * Software Endstops
