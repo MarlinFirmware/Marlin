@@ -1160,8 +1160,8 @@ static int32_t charAtArray(const uint8_t *_array, uint32_t _arrayLen, uint8_t _c
 }
 
 void get_wifi_list_command_send() {
-  uint8_t buf[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
-  raw_send_to_wifi(buf, COUNT(buf));
+  uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
+  raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
 }
 
 static void net_msg_handle(uint8_t * msg, uint16_t msgLen) {
