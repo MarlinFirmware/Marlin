@@ -26,6 +26,8 @@ __Not for production use. Use with caution!__
 
 With activate parts:
 
+![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
+
 * [PID_EDIT_MENU]
 * [DELTA_CALIBRATION_MENU]
 * [POWER_LOSS_RECOVERY]
