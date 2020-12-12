@@ -107,8 +107,8 @@ void probe_offset_wizard_menu() {
 
   ACTION_ITEM(MSG_BUTTON_CANCEL, []{
     set_offset_and_go_back(z_offset_backup);
-    // If wizard-homing was done by probe with with PROBE_OFFSET_WIZARD_START_Z
-    #if EITHER(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING) && defined(PROBE_OFFSET_WIZARD_START_Z)
+    // If wizard-homing was done by probe with PROBE_OFFSET_WIZARD_START_Z
+    #if HOMING_Z_WITH_PROBE && defined(PROBE_OFFSET_WIZARD_START_Z)
       set_axis_never_homed(Z_AXIS); // On cancel the Z position needs correction
       queue.inject_P(PSTR("G28Z"));
     #else // Otherwise do a Z clearance move like after Homing
@@ -122,7 +122,7 @@ void probe_offset_wizard_menu() {
 void prepare_for_probe_offset_wizard() {
   if (ui.wait_for_move) return;
 
-  #if defined(PROBE_OFFSET_WIZARD_XY_POS) || NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, USE_PROBE_FOR_Z_HOMING)
+  #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !HOMING_Z_WITH_PROBE
     if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_PROBE_WIZARD_PROBING));
 
     #ifndef PROBE_OFFSET_WIZARD_XY_POS
@@ -137,6 +137,8 @@ void prepare_for_probe_offset_wizard() {
     ui.wait_for_move = false;
 
   #endif
+
+  SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
@@ -173,7 +175,6 @@ void goto_probe_offset_wizard() {
   ui.goto_screen([]{
     _lcd_draw_homing();
     if (all_axes_homed()) {
-      SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
       z_offset_ref = 0;             // Set Z Value for Wizard Position to 0
       ui.goto_screen(prepare_for_probe_offset_wizard);
       ui.defer_status_screen();
