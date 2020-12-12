@@ -71,8 +71,8 @@ public:
   static void DataTransferBegin(uint16_t DataWidth = DATASIZE_8BIT) {}
   static void DataTransferEnd() {};
 
-  static void WriteData(uint8_t Data) { Transmit(Data); }
-  static void WriteReg(uint8_t Reg) { LCD->REG = Reg; __DSB(); }
+  static void WriteData(uint16_t Data) { Transmit((uint8_t)Data); }
+  static void WriteReg(uint16_t Reg) { LCD->REG = (uint8_t)Reg; __DSB(); }
 
   static void WriteSequence(uint16_t *Data, uint16_t Count) { TransmitDMA(DMA_PINC_ENABLE, Data, Count); }
   static void WriteMultiple(uint16_t Color, uint16_t Count) { static uint16_t Data; Data = Color; TransmitDMA(DMA_PINC_DISABLE, &Data, Count); }
