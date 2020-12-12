@@ -47,12 +47,15 @@
 #if NO_EEPROM_SELECTED
   #ifdef ARDUINO_ARCH_STM32
     #define FLASH_EEPROM_EMULATION
-    #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
-    #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-    #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
   #else
     #define SDCARD_EEPROM_EMULATION
   #endif
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION)
+  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #endif
 
 //
@@ -117,7 +120,7 @@
 
 //
 // Thermocouples
-// 
+//
 //#define MAX6675_SS_PIN                    PE5   // TC1 - CS1
 //#define MAX6675_SS_PIN                    PE6   // TC2 - CS2
 
@@ -152,22 +155,6 @@
 #define WIFI_IO0_PIN                        PG1
 
 //
-// SD Card
-//
-
-#define SPI_DEVICE                             2
-
-#ifndef SDCARD_CONNECTION
-  // Set ONBOARD connection even if you use MKS SLOT.
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#define SDIO_SUPPORT
-#define SDIO_CLOCK                       4500000  // 4.5 MHz
-#define SD_DETECT_PIN                       -1    // Set this to PF12 if you got an MKS Robin v2.4 board
-#define ONBOARD_SD_CS_PIN                   PC11
-
-//
 // LCD screen
 //
 #if HAS_FSMC_TFT
@@ -177,16 +164,14 @@
    * ILI9488 is not supported
    * Define init sequences for other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
    *
-   * If the screen stays white, disable 'LCD_RESET_PIN'
+   * If the screen stays white, disable 'TFT_RESET_PIN'
    * to let the bootloader init the screen.
    *
-   * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
+   * Setting an 'TFT_RESET_PIN' may cause a flicker when entering the LCD menu
    * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
    */
-
-  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
-  #define LCD_RESET_PIN                     PF6   // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PG11
+  #define TFT_CS_PIN                        PG12  // NE4
+  #define TFT_RS_PIN                        PF0   // A0
 
   #define FSMC_CS_PIN                 TFT_CS_PIN
   #define FSMC_RS_PIN                 TFT_RS_PIN
@@ -195,9 +180,8 @@
   #define FSMC_DMA_DEV                      DMA2
   #define FSMC_DMA_CHANNEL               DMA_CH5
 
-  // The screen may stay white or flicker on entering some menus by setting an LCD_RESET_PIN.
-  #define LCD_RESET_PIN                     PF6  // FSMC_RST
-  #define LCD_BACKLIGHT_PIN                 PG11
+  #define TFT_RESET_PIN                     PF6
+  #define TFT_BACKLIGHT_PIN                 PG11
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
@@ -210,6 +194,45 @@
   #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
   #define TOUCH_INT_PIN                     -1
 #endif
+
+// SPI1(PA7) & SPI3(PB5) not available
+#define SPI_DEVICE                             2
+
+#ifndef SDCARD_CONNECTION
+  // Set ONBOARD connection even if you use MKS SLOT.
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#define SDIO_SUPPORT
+
+#if ENABLED(SDIO_SUPPORT)
+  #define SDIO_CLOCK                       4500000  // 4.5 MHz
+
+  #define SCK_PIN                           PB13  // SPI2
+  #define MISO_PIN                          PB14  // SPI2
+  #define MOSI_PIN                          PB15  // SPI2
+#else
+  // SD as custom software SPI (SDIO pins)
+  #define SCK_PIN                           PC12
+  #define MISO_PIN                          PC8
+  #define MOSI_PIN                          PD2
+  #define SS_PIN                            -1
+  #define ONBOARD_SD_CS_PIN                 PC11
+  #define SDSS                              PD2
+#endif
+
+  /**
+   * MKS Robin has a few hardware revisions
+   * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
+   *
+   * MKS Robin less or equal to V2.3 don't have SD_DETECT_PIN.
+   *
+   * MKS Robin greater or equal to V2.4 have SD_DETECT_PIN at PF12.
+   *
+   * You can uncomment it here, or you can add it SD_DETECT_PIN to your Configuration.h
+   */
+//#define SD_DETECT_PIN                   PF12  // SD_CD
+#define ONBOARD_SD_CS_PIN                   PC11
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
@@ -293,7 +316,7 @@
   // It seems like MSerial0 is the best choice for most MKS Robin users.
   // If you have issues to setup an hardware serial connection on MSerial0 for your Trinamic drivers,
   // please try MSerial1.
-  
+
   #define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
     #define X_HARDWARE_SERIAL            MSerial0
@@ -304,14 +327,8 @@
     #define Z2_HARDWARE_SERIAL           MSerial0
     #define E0_HARDWARE_SERIAL           MSerial0
     #define E1_HARDWARE_SERIAL           MSerial0
-    #define E2_HARDWARE_SERIAL           MSerial0
-    #define E3_HARDWARE_SERIAL           MSerial0
-    #define E4_HARDWARE_SERIAL           MSerial0
-  #endif
-
-  // Software serial on unused servo pins
-  //#define TMC_SOFTWARE_SERIAL
-  #if ENABLED(TMC_SOFTWARE_SERIAL)
+  #else
+    // Software serial on unused servo pins
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
