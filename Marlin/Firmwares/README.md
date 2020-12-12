@@ -38,17 +38,22 @@ With activate parts:
 Hardware for the QQS-Pro printers.
   
   * MotherBoards: 
-    
-    1_A4988 (no removable)
+    With integrated stepper drivers (A4988)
 
     ![First Version-A4988](../../docs/images/HiSpeed.jpg)
     
+    With removable stepper drivers.
     2&3_A4988(Green/Red)
     
     ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg) ![Seconds Version-A4988](../../docs/images/HiSpeedv1-A4988red.jpg)
-
+    
     4_TMC2208 MKS
+    
     ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
+  
+  * Others Micro Steppinp Drivers
+  
+    ![Drivers](../../docs/images/MicroSteppinpDrivers.jpg)
 
 Typically the probe for the QQS-Pro printers.
   
@@ -66,10 +71,6 @@ Optionals:
   
     ![ESP12](../../docs/images/esp12.jpg)
     ![ESP8266](../../docs/images/WemosD1.jpg)
-
-  * Micro Steppinp Drivers
-  
-    ![Drivers](../../docs/images/MicroSteppinpDrivers.jpg)
 
   * Led Strip with additional converter 24v/12-5v
   
