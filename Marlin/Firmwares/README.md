@@ -150,8 +150,7 @@ Caption:
     - If you later notice that the dimensions of your printed objects are inaccurate then 
     it will be necessary to carry out a final calibration of your turns by printing an object
     to correct these errors.
-
-This chapter is being written ...............
+    This chapter is being written ...............
 
 
   **TIPS-SLICER** 
