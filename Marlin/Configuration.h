@@ -1112,7 +1112,7 @@
 //#define NO_MOTION_BEFORE_HOMING // Inhibit movement until all axes have been homed. Also enable HOME_AFTER_DEACTIVATE for extra safety.
 //#define HOME_AFTER_DEACTIVATE   // Require rehoming after steppers are deactivated. Also enable NO_MOTION_BEFORE_HOMING for extra safety.
 
-// Enable Z_AFTER_DEACTIVATE, if the Z-Axis moves by it self, when steppers are disabled or printer is turned off.
+// Enable Z_IDLE_POS, if the Z-Axis moves by it self, when steppers are disabled or printer is turned off.
 // Z_MIN_POS: Use if your Nozzle falls down to the bed.
 // Z_MAX_POS: Use if your Bed falls down, away from the Nozzle.
 //#define Z_IDLE_POS Z_HOME_POS
