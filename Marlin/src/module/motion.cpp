@@ -94,7 +94,11 @@ bool relative_mode; // = false;
  *   Used by 'line_to_current_position' to do a move after changing it.
  *   Used by 'sync_plan_position' to update 'planner.position'.
  */
-xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, TERN(Z_IDLE_POS, Z_IDLE_POS, Z_HOME_POS) };
+#ifdef Z_IDLE_POS
+  xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_IDLE_POS };
+#else
+  xyze_pos_t current_position = { X_HOME_POS, Y_HOME_POS, Z_HOME_POS };
+#endif
 
 /**
  * Cartesian Destination
