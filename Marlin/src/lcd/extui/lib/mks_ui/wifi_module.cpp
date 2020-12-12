@@ -76,9 +76,6 @@ extern uint8_t pause_resum;
 uint8_t wifi_connect_flg = 0;
 extern volatile uint8_t get_temp_flag;
 
-extern uint8_t public_buf[513];
-
-
 #define WIFI_MODE 2
 #define WIFI_AP_MODE  3
 
@@ -116,8 +113,6 @@ extern CLOUD_PARA cloud_para;
 
 extern bool once_flag, flash_preview_begin, default_preview_flg, gcode_preview_over;
 extern char flash_dma_mode;
-
-extern uint8_t bmp_public_buf[14 * 1024];
 
 uint32_t getWifiTick() {
   return millis();

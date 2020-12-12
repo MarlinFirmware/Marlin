@@ -83,8 +83,6 @@ extern uint8_t sel_id;
 
 extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
-uint8_t bmp_public_buf[14 * 1024];
-
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
