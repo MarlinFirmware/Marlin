@@ -151,7 +151,7 @@
 #define HEATER_BED_PIN                      PA0   // HOT BED
 
 #define FAN_PIN                             PB1   // FAN
-#define FAN2_PIN                            PC14  // FAN2
+#define FAN1_PIN                            PC14  // FAN1
 
 //
 // Thermocouples
@@ -236,8 +236,8 @@
 #define SPI_FLASH_SIZE                 0x1000000
 #if ENABLED(SPI_FLASH)
   #define W25QXX_CS_PIN                     PB12
-  #define W25QXX_MOSI_PIN                   PB15
-  #define W25QXX_MISO_PIN                   PB14
+  #define W25QXX_MOSI_PIN                   PC3
+  #define W25QXX_MISO_PIN                   PC2
   #define W25QXX_SCK_PIN                    PB13
 #endif
 

@@ -155,7 +155,7 @@ extern "C" {
   #define TIMER_SERVO           TIM7
 #endif
 #ifndef TIMER_SERIAL
-  #define TIMER_SERIAL          TIM9
+  #define TIMER_SERIAL          TIM5
 #endif
 
 // UART Definitions
