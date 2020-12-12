@@ -104,7 +104,6 @@ Caption:
   ### /*-------Options UI TFT--------*/
   - (F) UI STANDARD 
   - (C) UI MARLIN 
-  - (I) UI MKS
   ### /*-------Others options in firmware----*/ 
   - (A) BED_LEVELING_BILINEAR
   - (U) BED_LEVELING_UBL
@@ -112,10 +111,10 @@ Caption:
   - (L) Linear Advance (Possible Bug with BabyStep and TMC)
 
   ## HELP - PROCEDURE - TIPS 
-  After the flash, you must reset your printer using the menu or M502,
-  M500 put the probe then start a calibration or G33 V3 (5/8 iterations).
+  After the flash, you must **RESET** your printer using the menu or M502,
+  M500 then start a calibration or G33 V3 (5/8 iterations).
     
-  **Tip**: 
+  **Tip**(Via a terminal like Prontoface, Octoprint, Repetier, Astroprint,...: 
         
         After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
         it means that you have a problem with the structure of your printer!
@@ -124,7 +123,7 @@ Caption:
   Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
   Then lower the nozzle slowly to adjust to a sheet of paper.
   View the value on the display and enter the value in the Probe_Z_Offset menu Configuration or M851 Z-xx.xx and finally store the parameters (M500).
-  Through a terminal (I do it through the web page of the Wifi module),
+  Through a terminal,
 
   Perform a bed calibration (UBL) with this commands:
   - M190 S60 (temp bed at 60° or other)
@@ -148,13 +147,17 @@ Caption:
      when you slice from the PLA by command G29 L1 in the startGCode * of your filament.
      (* PrusaSlicer).
 
+    If you later notice that the dimensions of your printed objects are inaccurate then it will be necessary to carry out a final calibration of your turns by printing an object to correct these errors.
+
+This chapter is being written ...............
+
+
   **TIPS-SLICER** 
   
-    In your **Start GCode** on your Slicer.
+    In your **Start_GCode** on your Slicer.
     - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
     - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line
-     "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx 
-     in the printer start GCode.
+     "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
