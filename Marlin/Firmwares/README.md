@@ -37,11 +37,10 @@ With activate parts:
 
 Typically the probe for the QQS-Pro printers.
   * MotherBoards:
-    ![First Version-A4988](../../docs/images/Hispeed.jpg)
-    ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg)
-    ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
 
-  * Z Probe Offset of -16.2mm
+    ![First Version-A4988](../../docs/images/HiSpeed.jpg) ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg) ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
+
+  * Z Probe Offset of -16.2mm 
 
     ![Version Probe](../../docs/images/VersionProbe.jpg)
   
