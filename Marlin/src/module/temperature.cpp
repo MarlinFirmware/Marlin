@@ -174,8 +174,6 @@
         , MAX6675_SCK_PIN, MAX6675_MISO_PIN
       #endif
     );
-  //#elif defined(MAX6675_CS_PIN) && !PIN_EXISTS(MAX6675_SS)
-    //#define MAX6675_SS_PIN MAX6675_CS_PIN
   #endif
   #if MAX6675_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
     #define HAS_MAX6675_FOR_LPC 1
@@ -184,8 +182,6 @@
         , MAX6675_SCK_PIN, MAX6675_MISO_PIN
       #endif
     ); 
-  //#elif defined(MAX6675_CS2_PIN) && !PIN_EXISTS(MAX6675_SS2)
-    //#define MAX6675_SS2_PIN MAX6675_CS2_PIN
   #endif
 #endif
 
