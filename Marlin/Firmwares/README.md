@@ -35,7 +35,7 @@ With activate parts:
 * [LIN_ADVANCE]
 * [ARC_SUPPORT]
 
-Hardware for the QQS-Pro printers.
+**Hardware for the QQS-Pro printers.**
   
   * MotherBoards: 
     With integrated stepper drivers (A4988)
@@ -77,7 +77,7 @@ Optionals:
     ![Neopixels](../../docs/images/LedsStip.jpg)
 
 No validate:
--TMC51
+-TMC5121
 
   ## Exemple: 
 
@@ -117,7 +117,7 @@ Caption:
     
     **Tip**: After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
              it means that you have a problem with the structure of your printer!
-             A "std dev:" of 0.04 and less is excellent !!
+             A "std dev:" of 0.04 and less is excellent !! standard is 0.08.
   
   Remove the probe and then redo the Z offset by deactivating the endstops by menu or "M211 S0".
   Then lower the nozzle slowly to adjust to a sheet of paper.
@@ -131,19 +131,23 @@ Caption:
   - G29 P3 T (Repeat until all mesh points are filled in)
   - G29 P3 T (bis)
   - G29 T (View the Z compensation values)
-  - G29 S1 (Save UBL mesh points to EEPROM)
+  - G29 S0 (Save UBL mesh points to EEPROM in the default location 0 )
   - G29 F 5 (Set Fade Height for correction at 5 mm)
   - G29 A (Activate the UBL System)
   - M500 (Save to EEPROM)
   - M140 S0 (Stop temp bed)
 
   Remember to adjust your temperatures by doing your **bed PID** and adjust your **eSteps** for stable filament flow.
+  
+  **TIPS-LEVELLING**
+
+    You have 5 locations: so you can save (G29 Sx) different meshes at different bed temperature (example: 1 for PLA, 2 for PETG, 3 for FLEX, etc. ) and call them back when you slice from the PLA by command G29 L1 in the startGCode * of your filament (* PrusaSlicer).
 
   **TIPS-SLICER** 
   
-  In your **Start GCode** on your Slicer.
-  - M420 S1 enable bed leveling
-  - M420 Lx (Load mesh_x correction)
+    In your **Start GCode** on your Slicer.
+    - M420 S1 enable bed leveling but in my firmware G28 activate the last mesh used or the default one (0)
+    - M420 Lx or G29 Lx(Load mesh_x correction). If you are using PrusaSlicer you can add a line "G29 Lx; load mesh PLA" in the starting GCode instead instead of the G29 Lx in the printer start GCode.
 
   And on my **EndGCode** I remove G28 and I substitute with this type of code:
 
