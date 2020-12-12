@@ -348,14 +348,7 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool deploy_stow_condition = true;
   #endif
 
-  // For beds that fall when Z is powered off only raise for trusted Z
-  #if ENABLED(UNKNOWN_Z_NO_RAISE)
-    const bool unknown_condition = axis_is_trusted(Z_AXIS);
-  #else
-    constexpr float unknown_condition = true;
-  #endif
-
-  if (deploy_stow_condition && unknown_condition)
+  if (deploy_stow_condition)
     do_z_raise(_MAX(Z_CLEARANCE_BETWEEN_PROBES, Z_CLEARANCE_DEPLOY_PROBE));
 
   #if EITHER(Z_PROBE_SLED, Z_PROBE_ALLEN_KEY)
