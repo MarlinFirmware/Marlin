@@ -24,9 +24,7 @@ __Not for production use. Use with caution!__
 
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire
 
-With activate parts:
-
-![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
+With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png)
 
 * [PID_EDIT_MENU]
 * [DELTA_CALIBRATION_MENU]
