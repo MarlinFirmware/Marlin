@@ -155,6 +155,45 @@
 #define WIFI_IO0_PIN                        PG1
 
 //
+// SPI
+// SPI2 is shared by LCD touch driver and flash
+// SPI1(PA7) & SPI3(PB5) not available
+//
+#define SPI_DEVICE                             2
+
+#ifndef SDCARD_CONNECTION
+  // Set ONBOARD connection even if you use MKS SLOT.
+  #define SDCARD_CONNECTION              ONBOARD
+#endif
+
+#define SDIO_SUPPORT
+#if ENABLED(SDIO_SUPPORT)
+  #define SDIO_CLOCK                     4500000  // 4.5 MHz
+
+  #define SCK_PIN                           PB13  // SPI2
+  #define MISO_PIN                          PB14  // SPI2
+  #define MOSI_PIN                          PB15  // SPI2
+#else
+  // SD as custom software SPI (SDIO pins)
+  #define SCK_PIN                           PC12
+  #define MISO_PIN                          PC8
+  #define MOSI_PIN                          PD2
+  #define SS_PIN                            -1
+  #define ONBOARD_SD_CS_PIN                 PC11
+  #define SDSS                              PD2
+#endif
+
+/**
+ * MKS Robin has a few hardware revisions
+ * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
+ *
+ * MKS Robin less or equal to V2.3 don't have SD_DETECT_PIN.
+ * MKS Robin greater or equal to V2.4 have SD_DETECT_PIN at PF12.
+ * If your board has an SD_DETECT pin, uncomment it below or add it do your Configuration.h.
+ */
+//#define SD_DETECT_PIN                     PF12  // SD_CD
+
+//
 // LCD screen
 //
 #if HAS_FSMC_TFT
@@ -182,57 +221,6 @@
 
   #define TFT_RESET_PIN                     PF6
   #define TFT_BACKLIGHT_PIN                 PG11
-
-  #define TOUCH_BUTTONS_HW_SPI
-  #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
-#endif
-
-#if NEED_TOUCH_PINS
-  #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
-  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
-  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
-  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
-  #define TOUCH_INT_PIN                     -1
-#endif
-
-// SPI1(PA7) & SPI3(PB5) not available
-#define SPI_DEVICE                             2
-
-#ifndef SDCARD_CONNECTION
-  // Set ONBOARD connection even if you use MKS SLOT.
-  #define SDCARD_CONNECTION              ONBOARD
-#endif
-
-#define SDIO_SUPPORT
-
-#if ENABLED(SDIO_SUPPORT)
-  #define SDIO_CLOCK                       4500000  // 4.5 MHz
-
-  #define SCK_PIN                           PB13  // SPI2
-  #define MISO_PIN                          PB14  // SPI2
-  #define MOSI_PIN                          PB15  // SPI2
-#else
-  // SD as custom software SPI (SDIO pins)
-  #define SCK_PIN                           PC12
-  #define MISO_PIN                          PC8
-  #define MOSI_PIN                          PD2
-  #define SS_PIN                            -1
-  #define ONBOARD_SD_CS_PIN                 PC11
-  #define SDSS                              PD2
-#endif
-
-  /**
-   * MKS Robin has a few hardware revisions
-   * https://github.com/makerbase-mks/MKS-Robin/tree/master/MKS%20Robin/Hardware
-   *
-   * MKS Robin less or equal to V2.3 don't have SD_DETECT_PIN.
-   *
-   * MKS Robin greater or equal to V2.4 have SD_DETECT_PIN at PF12.
-   *
-   * You can uncomment it here, or you can add it SD_DETECT_PIN to your Configuration.h
-   */
-//#define SD_DETECT_PIN                   PF12  // SD_CD
-#define ONBOARD_SD_CS_PIN                   PC11
 
   #define TOUCH_BUTTONS_HW_SPI
   #define TOUCH_BUTTONS_HW_SPI_DEVICE          2
@@ -282,42 +270,32 @@
   #endif
 #endif
 
-#elif HAS_GRAPHICAL_TFT
-
-  #define TFT_RESET_PIN                     PF6
-  #define TFT_BACKLIGHT_PIN                 PG11
-
+#if NEED_TOUCH_PINS
+  #define TOUCH_CS_PIN                      PB1   // SPI2_NSS
+  #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK
+  #define TOUCH_MISO_PIN                    PB14  // SPI2_MISO
+  #define TOUCH_MOSI_PIN                    PB15  // SPI2_MOSI
+  #define TOUCH_INT_PIN                     -1
 #endif
-
-//
-// SPI
-//
-#define ENABLE_SPI2
-#define SCK_PIN                             PB13
-#define MISO_PIN                            PB14
-#define MOSI_PIN                            PB15
-// SPI2 is already shared by LCD touch driver and flash
-// SPI2 MOSI (PB15) can be retrieved by soldering job on R17
-// SPI1(PA7) & SPI3(PB5) are not available
 
 //
 // Trinamic TMC2208/2209 UART
 //
 #if HAS_TMC_UART
-
   /**
    * TMC2208/TMC2209 stepper drivers
    *
-   * Hardware serial communication ports.
-   * If undefined software serial is used according to the pins below
+   * This board does not have dedicated TMC UART pins. Custom wiring is needed.
+   * You may uncomment one of the options below, or add it to your Configuration.h.
+   *
+   * When using up to four TMC2209 drivers, hardware serial is recommented on
+   * MSerial0 or MSerial1.
+   *
+   * When using TMC2208 or more than four drivers, SoftwareSerial will be needed,
+   * to provide dedicated pins for each drier.
    */
 
-  // Hardware serial on MSerial 0
-  // It seems like MSerial0 is the best choice for most MKS Robin users.
-  // If you have issues to setup an hardware serial connection on MSerial0 for your Trinamic drivers,
-  // please try MSerial1.
-
-  #define TMC_HARDWARE_SERIAL
+  //#define TMC_HARDWARE_SERIAL
   #if ENABLED(TMC_HARDWARE_SERIAL)
     #define X_HARDWARE_SERIAL            MSerial0
     #define X2_HARDWARE_SERIAL           MSerial0
@@ -327,8 +305,10 @@
     #define Z2_HARDWARE_SERIAL           MSerial0
     #define E0_HARDWARE_SERIAL           MSerial0
     #define E1_HARDWARE_SERIAL           MSerial0
-  #else
-    // Software serial on unused servo pins
+  #endif
+
+  //#define TMC_SOFTWARE_SERIAL
+  #if ENABLED(TMC_SOFTWARE_SERIAL)
     #define X_SERIAL_TX_PIN                 PF8   // SERVO3_PIN -- XS2 - 6
     #define Y_SERIAL_TX_PIN                 PF9   // SERVO2_PIN -- XS2 - 5
     #define Z_SERIAL_TX_PIN                 PA1   // SERVO1_PIN -- XS1 - 6
