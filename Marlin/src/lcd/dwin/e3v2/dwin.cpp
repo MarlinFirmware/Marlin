@@ -1690,7 +1690,7 @@ inline void Draw_SDItem(const uint16_t item, int16_t row=-1) {
     return;
   }
 
-  card.getfilename_sorted(item - is_subdir);
+  card.getfilename_sorted(SD_ORDER(item - is_subdir, card.get_num_Files()));
   char * const name = card.longest_filename();
 
   #if ENABLED(SCROLL_LONG_FILENAMES)
