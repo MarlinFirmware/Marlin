@@ -382,35 +382,35 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
 
   uint8_t check_tool_sensor_stats(uint8_t active_tool, bool kill_on_error, bool disable)
   {
-    do
-    {
-      if ((poll_tool_sensor_pins()) == (0b1 << active_tool))
-      {
-        sensor_try_Again = 0;
-        return active_tool;
-      }
-      else if (kill_on_error == true && (disable_sensor == false || disable == true))
-      {
-#ifdef HAS_TOOL_SENSOR
-        sensor_try_Again++;
-        if (sensor_try_Again > 10)
-        {
-          std::string status = "Tool sensor error " + std::to_string(active_tool);
-          kill(status.c_str());
-        }
-        safe_delay(5);
-    #endif
-      }
-      else
-      {
-        sensor_try_Again++;
-        if (sensor_try_Again > 10)
-        {
-          return -1;
-        }
-        safe_delay(5);
-      }
-    } while (true);
+//     do
+//     {
+//       if ((poll_tool_sensor_pins()) == (0b1 << active_tool))
+//       {
+//         sensor_try_Again = 0;
+//         return active_tool;
+//       }
+//       else if (kill_on_error == true && (disable_sensor == false || disable == true))
+//       {
+// #ifdef HAS_TOOL_SENSOR
+//         sensor_try_Again++;
+//         if (sensor_try_Again > 10)
+//         {
+//           std::string status = "TS error " + std::to_string(active_tool);
+//           kill(status.c_str());
+//         }
+//         safe_delay(5);
+//     #endif
+//       }
+//       else
+//       {
+//         sensor_try_Again++;
+//         if (sensor_try_Again > 10)
+//         {
+//           return -1;
+//         }
+//         safe_delay(5);
+//       }
+//     } while (true);
   }
 
   inline void swt_lock(const bool locked=true) {
