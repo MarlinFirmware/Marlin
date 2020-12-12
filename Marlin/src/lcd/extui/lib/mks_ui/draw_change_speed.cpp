@@ -25,10 +25,6 @@
 
 #include "draw_ui.h"
 #include <lv_conf.h>
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../module/planner.h"
 #include "../../../../inc/MarlinConfig.h"
@@ -65,9 +61,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           planner.flow_percentage[0] += uiCfg.stepPrintSpeed;
         else
           planner.flow_percentage[0] = MAX_EXT_SPEED_PERCENT;
-        //planner.e_factor[0]= planner.flow_percentage[0]*0.01;
-        //planner.flow_percentage[1] = planner.flow_percentage[0];
-        //planner.e_factor[1]= planner.flow_percentage[1]*0.01;
         planner.refresh_e_factor(0);
         #if HAS_MULTI_EXTRUDER
           planner.flow_percentage[1] = planner.flow_percentage[0];
@@ -88,9 +81,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           planner.flow_percentage[0] -= uiCfg.stepPrintSpeed;
         else
           planner.flow_percentage[0] = MIN_EXT_SPEED_PERCENT;
-        //planner.e_factor[0]= planner.flow_percentage[0] * 0.01;
-        //planner.flow_percentage[1] = planner.flow_percentage[0];
-        //planner.e_factor[1]= planner.flow_percentage[1] * 0.01;
         planner.refresh_e_factor(0);
         #if HAS_MULTI_EXTRUDER
           planner.flow_percentage[1] = planner.flow_percentage[0];

@@ -27,10 +27,6 @@
 #include <lv_conf.h>
 
 #include "tft_lvgl_configuration.h"
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "SPI_TFT.h"
 #include "mks_hardware_test.h"

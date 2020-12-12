@@ -25,10 +25,6 @@
 
 #include "lv_conf.h"
 #include "draw_ui.h"
-//#include "../lvgl/src/lv_objx/lv_imgbtn.h"
-//#include "../lvgl/src/lv_objx/lv_img.h"
-//#include "../lvgl/src/lv_core/lv_disp.h"
-//#include "../lvgl/src/lv_core/lv_refr.h"
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
@@ -37,7 +33,6 @@
 
 extern lv_group_t * g;
 static lv_obj_t * scr;
-//static lv_obj_t * qr;
 static lv_obj_t *button_bind_or_not = NULL, *label_bind_or_not = NULL;
 static lv_obj_t *buttonReleaseBind = NULL, *label_ReleaseBind = NULL;
 static lv_obj_t * text_id;
@@ -70,8 +65,6 @@ void lv_draw_cloud_bind(void) {
   lv_obj_t *buttonBack = NULL, *label_Back = NULL;
   scr = lv_screen_create(BIND_UI);
 
-  //buttonBack = lv_imgbtn_create(scr, NULL);
-
   button_bind_or_not = lv_btn_create(scr, NULL);
   lv_obj_set_pos(button_bind_or_not, TFT_WIDTH - 130, TFT_HEIGHT - 80 * 3);
   lv_obj_set_size(button_bind_or_not, PARA_UI_VALUE_BTN_X_SIZE + 15, PARA_UI_VALUE_BTN_Y_SIZE + 15);
@@ -87,22 +80,6 @@ void lv_draw_cloud_bind(void) {
   label_ReleaseBind = lv_label_create_empty(buttonReleaseBind);
   lv_label_set_text(label_ReleaseBind, cloud_menu.unbind);
   lv_obj_align(label_ReleaseBind, buttonReleaseBind, LV_ALIGN_CENTER, 0, 0);
-
-  //lv_obj_set_event_cb_mks(buttonBack, event_handler,ID_CLOUD_BIND_RETURN, NULL,0);
-  //lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_REL, "F:/bmp_return.bin");
-  //lv_imgbtn_set_src(buttonBack, LV_BTN_STATE_PR, "F:/bmp_return.bin");
-  //lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_PR, &tft_style_label_pre);
-  //lv_imgbtn_set_style(buttonBack, LV_BTN_STATE_REL, &tft_style_label_rel);
-
-  //lv_obj_set_pos(buttonBack,BTN_X_PIXEL*3+INTERVAL_V*4,  BTN_Y_PIXEL+INTERVAL_H+titleHeight);
-  //lv_btn_set_layout(buttonBack, LV_LAYOUT_OFF);
-
-  //label_Back = lv_label_create(buttonBack, NULL);
-
-  //if (gCfgItems.multiple_language !=0) {
-  //  lv_label_set_text(label_Back, common_menu.text_back);
-  //  lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-  //}
 
   buttonBack = lv_btn_create(scr, NULL);
   lv_obj_set_pos(buttonBack, TFT_WIDTH - 130, TFT_HEIGHT - 80);
@@ -120,22 +97,6 @@ void lv_draw_cloud_bind(void) {
       lv_group_add_obj(g, buttonBack);
     }
   #endif
-
-  //lv_task_handler();
-
-  //lv_fill_rect(0, titleHeight + 30, TFT_HEIGHT - (titleHeight + 30), TFT_HEIGHT - (titleHeight + 30), LV_COLOR_WHITE);
-
-  ///*Create a 100x100 QR code*/
-  //qr = lv_qrcode_create(scr, 200, lv_color_hex3(0xffffff), lv_color_hex3(0x000000));
-
-  //lv_obj_set_pos(qr, (TFT_HEIGHT - (titleHeight + 30)) / 2 - 100, (TFT_HEIGHT - (titleHeight + 30)) / 2 - 100 + titleHeight + 30);
-
-  ///*Set data*/
-  //lv_qrcode_update(qr, (char *)cloud_para.id, strlen((char *)cloud_para.id));
-
-  //if (!id_mark) id_mark = 1;
-
-  //display_qrcode((uint8_t *)cloud_para.id);
 
   text_id = lv_label_create_empty(scr);
   lv_obj_set_pos(text_id, 50, 60 + 200 + 20);

@@ -97,12 +97,15 @@ static bool __user_font_get_glyph_dsc(const lv_font_t * font, lv_font_glyph_dsc_
   return false;
 }
 
-/*lv_font_t gb2312_puhui32 = {
-.get_glyph_bitmap = __user_font_get_bitmap,
-.get_glyph_dsc = __user_font_get_glyph_dsc,
-.line_height = 25,
-.base_line = 0,
-};*/
+/*
+lv_font_t gb2312_puhui32 = {
+  .get_glyph_bitmap = __user_font_get_bitmap,
+  .get_glyph_dsc = __user_font_get_glyph_dsc,
+  .line_height = 25,
+  .base_line = 0,
+};
+*/
+
 lv_font_t gb2312_puhui32;
 void init_gb2312_font() {
   gb2312_puhui32.get_glyph_bitmap = __user_font_get_bitmap;
