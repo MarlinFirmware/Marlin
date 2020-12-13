@@ -30,6 +30,10 @@
 
 #include "spindle_laser_types.h"
 
+#if USE_BEEPER
+  #include "../libs/buzzer.h"
+#endif
+
 #if ENABLED(LASER_POWER_INLINE)
   #include "../module/planner.h"
 #endif
@@ -89,6 +93,12 @@ public:
 
   static const cutter_power_t mpower_min() { return cpwr_to_upwr(SPEED_POWER_MIN); }
   static const cutter_power_t mpower_max() { return cpwr_to_upwr(SPEED_POWER_MAX); }
+  
+  #ifdef LASER_FEATURE
+    static const uint16_t pulse_min() { return (LASER_TEST_PULSE_MIN); }
+    static const uint16_t pulse_max() { return (LASER_TEST_PULSE_MAX); }
+    static cutter_test_pulse_t testPulse;               // Test fire Pulse ms value.
+  #endif
 
   static bool isReady;                    // Ready to apply power setting from the UI to OCR
   static uint8_t power;
@@ -224,6 +234,21 @@ public:
       }
     #endif
 
+    #ifdef LASER_FEATURE
+    /**
+     * Test fire the laser using the testPulse ms duration
+     * Also fires with any PWM power that was previous set
+     * If not set defaults to 80% power
+     */
+    void test_fire_pulse(void) {
+      enable_forward();                  // Turn Laser on (Spindle speak but same funct)
+      #if USE_BEEPER
+        buzzer.tone(30, 3000);
+      #endif
+      delay(testPulse);                  // Delay for time set by user in pulse ms menu screen.
+      disable();                         // Turn laser off
+    }
+    #endif
   #endif
 
   #if ENABLED(LASER_POWER_INLINE)
