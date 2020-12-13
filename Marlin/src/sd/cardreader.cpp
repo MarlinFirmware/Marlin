@@ -758,7 +758,7 @@ void CardReader::write_command(char * const buf) {
    * Return 'true' if there was nothing to do
    */
   bool CardReader::autofile_check() {
-    if (!autofile_index) return false;
+    if (!autofile_index) return true;
 
     if (!isMounted())
       mount();
