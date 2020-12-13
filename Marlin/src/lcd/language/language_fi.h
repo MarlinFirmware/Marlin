@@ -72,7 +72,7 @@ namespace Language_fi {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Liikuta Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Liikuta %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Liikuta %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Liikuta 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Liikuta 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Liikuta 10mm");
