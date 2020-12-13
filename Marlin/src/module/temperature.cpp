@@ -219,7 +219,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 /**
  * Macros to include the heater id in temp errors. The compiler's dead-code
  * elimination should (hopefully) optimize out the unused strings.
- */
+ */ 
 
 #if HAS_HEATED_BED
   #define _BED_PSTR(h) (h) == H_BED ? GET_TEXT(MSG_BED) :
