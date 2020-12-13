@@ -79,7 +79,7 @@ namespace Language_hr {
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveliraj bed");
   PROGMEM Language_Str MSG_MOVE_X                          = _UxGT("Miči X");
   PROGMEM Language_Str MSG_MOVE_Y                          = _UxGT("Miči Y");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Miči %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Miči %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Miči 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Miči 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Miči 10mm");

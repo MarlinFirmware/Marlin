@@ -139,7 +139,7 @@ namespace Language_eu {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mugitu Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Estrusorea");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Estrusorea *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mugitu %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mugitu %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mugitu 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mugitu 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mugitu 10mm");

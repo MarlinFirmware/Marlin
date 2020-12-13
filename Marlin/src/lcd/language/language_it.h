@@ -250,7 +250,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Estrusore");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Estrusore *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Ugello freddo");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Muovi di %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Muovi di %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Muovi di 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Muovi di 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Muovi di 10mm");

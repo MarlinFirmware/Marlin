@@ -290,7 +290,7 @@ namespace Language_ru {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Экструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Экструдер *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло не нагрето");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Движение %sмм");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Движение %sмм");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Движение 0.1мм");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Движение 1мм");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Движение 10мм");

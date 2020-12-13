@@ -143,8 +143,8 @@ void lcd_move_z() { _lcd_move_xyz(GET_TEXT(MSG_MOVE_Z), Z_AXIS); }
 // "Motion" > "Move Xmm" > "Move XYZ" submenu
 //
 
-#ifndef SHORT_MANUAL_Z_MOVE
-  #define SHORT_MANUAL_Z_MOVE 0.025
+#ifndef FINE_MANUAL_MOVE
+  #define FINE_MANUAL_MOVE 0.025
 #endif
 
 screenFunc_t _manual_move_func_ptr;
@@ -180,22 +180,22 @@ void _menu_move_distance(const AxisEnum axis, const screenFunc_t func, const int
     SUBMENU(MSG_MOVE_10MM, []{ _goto_manual_move(10);    });
     SUBMENU(MSG_MOVE_1MM,  []{ _goto_manual_move( 1);    });
     SUBMENU(MSG_MOVE_01MM, []{ _goto_manual_move( 0.1f); });
-    if (axis == Z_AXIS && (SHORT_MANUAL_Z_MOVE) > 0.0f && (SHORT_MANUAL_Z_MOVE) < 0.1f) {
+    if (axis == Z_AXIS && (FINE_MANUAL_MOVE) > 0.0f && (FINE_MANUAL_MOVE) < 0.1f) {
       // Determine digits needed right of decimal
-      constexpr uint8_t digs = !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) * 1000 - int((SHORT_MANUAL_Z_MOVE) * 1000)) ? 4 :
-                               !UNEAR_ZERO((SHORT_MANUAL_Z_MOVE) *  100 - int((SHORT_MANUAL_Z_MOVE) *  100)) ? 3 : 2;
-      PGM_P const label = GET_TEXT(MSG_MOVE_Z_DIST);
+      constexpr uint8_t digs = !UNEAR_ZERO((FINE_MANUAL_MOVE) * 1000 - int((FINE_MANUAL_MOVE) * 1000)) ? 4 :
+                               !UNEAR_ZERO((FINE_MANUAL_MOVE) *  100 - int((FINE_MANUAL_MOVE) *  100)) ? 3 : 2;
+      PGM_P const label = GET_TEXT(MSG_MOVE_N_MM);
       char tmp[strlen_P(label) + 10 + 1], numstr[10];
-      sprintf_P(tmp, label, dtostrf(SHORT_MANUAL_Z_MOVE, 1, digs, numstr));
+      sprintf_P(tmp, label, dtostrf(FINE_MANUAL_MOVE, 1, digs, numstr));
 
       #if DISABLED(HAS_GRAPHICAL_TFT)
         extern const char NUL_STR[];
-        SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+        SUBMENU_P(NUL_STR, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
         MENU_ITEM_ADDON_START(0 + ENABLED(HAS_MARLINUI_HD44780));
         lcd_put_u8str(tmp);
         MENU_ITEM_ADDON_END();
       #else
-        SUBMENU_P(tmp, []{ _goto_manual_move(float(SHORT_MANUAL_Z_MOVE)); });
+        SUBMENU_P(tmp, []{ _goto_manual_move(float(FINE_MANUAL_MOVE)); });
       #endif
     }
   }

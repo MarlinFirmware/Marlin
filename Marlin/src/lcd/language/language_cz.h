@@ -241,7 +241,7 @@ namespace Language_cz {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudér");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudér *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend je studený");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Posunout o %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Posunout o %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Posunout o 0,1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Posunout o 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Posunout o 10mm");

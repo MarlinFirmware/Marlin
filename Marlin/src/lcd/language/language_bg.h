@@ -75,7 +75,7 @@ namespace Language_bg {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Движение по Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Премести с %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Премести с %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Премести с 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Премести с 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Премести с 10mm");

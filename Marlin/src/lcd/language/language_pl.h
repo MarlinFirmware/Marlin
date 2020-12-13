@@ -230,7 +230,7 @@ namespace Language_pl {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Ekstruzja (os E)");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Ekstruzja (os E) *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Dysza za zimna");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Przesuń co %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Przesuń co %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Przesuń co .1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Przesuń co 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Przesuń co 10mm");
