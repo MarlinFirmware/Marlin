@@ -115,7 +115,6 @@ extern uint8_t default_preview_flg;
 extern uint8_t gcode_preview_over;
 
 extern char flash_dma_mode;
-extern uint8_t bmp_public_buf[17 * 1024];
 
 
 uint32_t   getWifiTick() {

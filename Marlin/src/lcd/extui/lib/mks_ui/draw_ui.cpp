@@ -68,7 +68,8 @@ uint8_t printing_rate_update_flag;
 extern uint8_t once_flag;
 extern uint8_t sel_id;
 extern uint8_t public_buf[512];
-extern uint8_t bmp_public_buf[17 * 1024];
+
+uint8_t bmp_public_buf[14 * 1024];
 
 extern void LCD_IO_WriteData(uint16_t RegValue);
 

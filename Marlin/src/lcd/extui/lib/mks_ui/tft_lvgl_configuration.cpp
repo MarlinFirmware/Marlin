@@ -74,8 +74,6 @@ extern uint8_t sel_id;
 
 extern uint8_t gcode_preview_over, flash_preview_begin, default_preview_flg;
 
-uint8_t bmp_public_buf[17 * 1024];
-
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
@@ -105,8 +103,6 @@ void SysTick_Callback() {
   }
 }
 
-extern uint8_t bmp_public_buf[17 * 1024];
-
 void tft_lvgl_init() {
 
   //uint16_t test_id=0;
@@ -134,7 +130,7 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, NULL, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, NULL, LV_HOR_RES_MAX * 14); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
