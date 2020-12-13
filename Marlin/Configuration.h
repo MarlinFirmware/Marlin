@@ -488,14 +488,14 @@
   #if ENABLED(PID_PARAMS_PER_HOTEND)
     // Specify between 1 and HOTENDS values per array.
     // If fewer than EXTRUDER values are provided, the last element will be repeated.
-    #define DEFAULT_Kp_LIST {  14.90,  14.90 }
-    #define DEFAULT_Ki_LIST {   1.25,   1.25 }
-    #define DEFAULT_Kd_LIST {  44.40,  44.40 }
+    #define DEFAULT_Kp_LIST {  24.19,  24.19 }
+    #define DEFAULT_Ki_LIST {   2.14,   2.14 }
+    #define DEFAULT_Kd_LIST {  68.33,  68.33 }
   #else
-    // CR-30 Beta with silicone sock and 100% fan tuned at 220c
-    #define DEFAULT_Kp  14.90
-    #define DEFAULT_Ki   1.25
-    #define DEFAULT_Kd  44.40
+    // Creality 3DPrintMill U-shaped cooling duct and 100% fan tuned at 220c
+    #define DEFAULT_Kp  24.19
+    #define DEFAULT_Ki   2.14
+    #define DEFAULT_Kd  68.33
   #endif
 #endif // PIDTEMP
 
@@ -532,10 +532,10 @@
   //#define MIN_BED_POWER 0
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
-  // 24V 270W silicone heater onto 3mm Aluminium (CR-30 Beta) tuned at 55c
-  #define DEFAULT_bedKp  96.72
-  #define DEFAULT_bedKi  16.17
-  #define DEFAULT_bedKd 385.83
+  // 24V 3mm Aluminium 5mm glass plate (3DPrintMill) tuned at 55c
+  #define DEFAULT_bedKp  49.06
+  #define DEFAULT_bedKi   8.87
+  #define DEFAULT_bedKd 180.88
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -742,7 +742,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1149.45, 137.65 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 1152.95, 137.65 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -762,7 +762,7 @@
  * Override with M201
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
-#define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
+#define DEFAULT_MAX_ACCELERATION      { 300, 300, 100, 1000 }
 
 //#define LIMITED_MAX_ACCEL_EDITING     // Limit edit via M201 or LCD to DEFAULT_MAX_ACCELERATION * 2
 #if ENABLED(LIMITED_MAX_ACCEL_EDITING)
@@ -999,7 +999,7 @@
 #define PROBING_MARGIN 10
 
 // X and Y axis travel speed (mm/min) between probes
-#define XY_PROBE_SPEED (50*60)
+#define XY_PROBE_SPEED (120*60)
 
 // Feedrate (mm/min) for the first approach when double-probing (MULTIPLE_PROBING == 2)
 #define Z_PROBE_SPEED_FAST (4*60)
@@ -1162,8 +1162,8 @@
 // @section machine
 
 // The size of the print bed
-#define X_BED_SIZE 210
-#define Y_BED_SIZE 245
+#define X_BED_SIZE 220
+#define Y_BED_SIZE 250
 
 // Travel limits (mm) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
@@ -1513,7 +1513,7 @@
 #endif
 
 // Homing speeds (mm/min)
-#define HOMING_FEEDRATE_MM_M { (25*60), (25*60), (4*60) }
+#define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }
 
 // Validate that endstops are triggered on homing moves
 #define VALIDATE_HOMING_ENDSTOPS
