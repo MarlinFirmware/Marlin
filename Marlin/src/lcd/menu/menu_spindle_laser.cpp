@@ -60,6 +60,7 @@
 
     #if ENABLED(LASER_FEATURE)
       // Setup and fire a test pulse using the current PWM power level for for a duration of test_pulse_min to test_pulse_max ms.
+      if (cutter.testPulse == 0) cutter.testPulse = 50; //Init the testPulse value
       EDIT_ITEM_FAST(CUTTER_MENU_PULSE_TYPE, MSG_LASER_PULSE_MS, &cutter.testPulse, cutter.pulse_min(), cutter.pulse_max());
       ACTION_ITEM_P(GET_TEXT(MSG_LASER_FIRE_PULSE), [] {cutter.test_fire_pulse(); });
     #endif
