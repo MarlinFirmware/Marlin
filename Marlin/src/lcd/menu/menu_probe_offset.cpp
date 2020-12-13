@@ -120,10 +120,10 @@ void probe_offset_wizard_menu() {
 }
 
 void prepare_for_probe_offset_wizard() {
-  if (ui.wait_for_move) return;
-
   #if defined(PROBE_OFFSET_WIZARD_XY_POS) || !HOMING_Z_WITH_PROBE
     if (ui.should_draw()) MenuItem_static::draw(1, GET_TEXT(MSG_PROBE_WIZARD_PROBING));
+
+    if (ui.wait_for_move) return;
 
     #ifndef PROBE_OFFSET_WIZARD_XY_POS
       #define PROBE_OFFSET_WIZARD_XY_POS XY_CENTER
@@ -133,12 +133,15 @@ void prepare_for_probe_offset_wizard() {
 
     // Probe for Z reference
     ui.wait_for_move = true;
-    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_STOW, 0, true);
+    z_offset_ref = probe.probe_at_point(wizard_pos, PROBE_PT_RAISE, 0, true);
     ui.wait_for_move = false;
 
+    // Stow the probe, as the last call to probe.probe_at_point(...) left
+    // the probe deployed if it was successful.
+    probe.stow();
+  #else
+    if (ui.wait_for_move) return;
   #endif
-
-  SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
   // Move Nozzle to Probing/Homing Position
   ui.wait_for_move = true;
@@ -146,6 +149,8 @@ void prepare_for_probe_offset_wizard() {
   line_to_current_position(MMM_TO_MMS(HOMING_FEEDRATE_XY));
   ui.synchronize(GET_TEXT(MSG_PROBE_WIZARD_MOVING));
   ui.wait_for_move = false;
+
+  SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
 
   // Go to Calibration Menu
   ui.goto_screen(probe_offset_wizard_menu);
