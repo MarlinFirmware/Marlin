@@ -126,7 +126,7 @@
     #define HAS_MAX6675_TEMP 1
     MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN 
       #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
-        , MAX6675_SCK_PIN, MAX6675_MISO_PIN
+        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
     );
   #endif
@@ -134,7 +134,7 @@
     #define HAS_MAX6675_TEMP 1
     MAX6675 max6675_1 = MAX6675(MAX6675_CS2_PIN
       #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
-        , MAX6675_SCK_PIN, MAX6675_MISO_PIN
+        , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
     ); 
   #endif
