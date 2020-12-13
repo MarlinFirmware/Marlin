@@ -115,7 +115,7 @@
 // Only needed for LPC176x boards
 //
 #if MAX6675_HAS_MAX6675
-  #include <MAX6675.h>
+  #include <max6675.h>
   #if MAX6675_0_IS_MAX6675 && !defined(MAX6675_CS_PIN) && PIN_EXISTS(MAX6675_SS)
     #define MAX6675_CS_PIN MAX6675_SS_PIN
   #endif
