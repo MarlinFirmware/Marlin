@@ -1357,12 +1357,6 @@ static_assert(Y_MAX_LENGTH >= Y_BED_SIZE, "Movement bounds (Y_MIN_POS, Y_MAX_POS
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
                   "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
   #else
-    static_assert(sanity_nozzle_to_probe_offset.z <= 0.25,
-                  "Are you sure your Probe triggers above the nozzle? Set a negative Z value in the NOZZLE_TO_PROBE_OFFSET.");
-    #ifdef PROBE_OFFSET_WIZARD_START_Z
-      static_assert(PROBE_OFFSET_WIZARD_START_Z <= 0.25,
-                    "Are you sure your Probe triggers above the nozzle? Set a negative value for PROBE_OFFSET_WIZARD_START_Z.");
-    #endif
     static_assert(PROBING_MARGIN       >= 0, "PROBING_MARGIN must be >= 0.");
     static_assert(PROBING_MARGIN_BACK  >= 0, "PROBING_MARGIN_BACK must be >= 0.");
     static_assert(PROBING_MARGIN_FRONT >= 0, "PROBING_MARGIN_FRONT must be >= 0.");
@@ -2660,6 +2654,10 @@ static_assert(hbm[Z_AXIS] >= 0, "HOMING_BUMP_MM.Z must be greater than or equal 
 #if ENABLED(SENSORLESS_PROBING)
   #if ENABLED(DELTA) && !(X_SENSORLESS && Y_SENSORLESS && Z_SENSORLESS)
     #error "SENSORLESS_PROBING for DELTA requires TMC stepper drivers with StallGuard on X, Y, and Z axes."
+  #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #error "SENSORLESS_PROBING cannot be used with Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN."
+  #elif ENABLED(USE_PROBE_FOR_Z_HOMING)
+    #error "SENSORLESS_PROBING cannot be used with USE_PROBE_FOR_Z_HOMING."   
   #elif !Z_SENSORLESS
     #error "SENSORLESS_PROBING requires a TMC stepper driver with StallGuard on Z."
   #endif
