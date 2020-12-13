@@ -406,5 +406,3 @@
 
 #define _MB_1(B)  (defined(BOARD_##B) && MOTHERBOARD==BOARD_##B)
 #define MB(V...)  DO(MB,||,V)
-
-#define IS_LPC1768 MB(BTT_SKR_V1_3, BTT_SKR_V1_4, BTT_SKR_V1_4_TURBO)
