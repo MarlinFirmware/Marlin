@@ -375,8 +375,8 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Ugrás mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("Visszah.helyre mm");
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("Csere.Visszah.helyre mm");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Unretract V");
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("Visszavonás V");
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S Vi.vo V");
   PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("AutoVisszah.");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("Visszahúzás Távolság");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("Extra Csere");
@@ -422,11 +422,11 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_BLTOUCH_MODE_CHANGE             = _UxGT("VESZÉLY: A rossz beállítások kárt okozhatnak! Biztos továbblép?");
   PROGMEM Language_Str MSG_TOUCHMI_PROBE                   = _UxGT("TouchMI");
   PROGMEM Language_Str MSG_TOUCHMI_INIT                    = _UxGT("Kezd TouchMI");
-  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Z Offset Teszt");
+  PROGMEM Language_Str MSG_TOUCHMI_ZTEST                   = _UxGT("Z Eltolás Teszt");
   PROGMEM Language_Str MSG_TOUCHMI_SAVE                    = _UxGT("Mentés");
   PROGMEM Language_Str MSG_MANUAL_DEPLOY_TOUCHMI           = _UxGT("TouchMI Használ");
-  PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Z-Probe Használ");
-  PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Z-Probe Elhelyezés");
+  PROGMEM Language_Str MSG_MANUAL_DEPLOY                   = _UxGT("Z-Szonda Használ");
+  PROGMEM Language_Str MSG_MANUAL_STOW                     = _UxGT("Z-Szonda Elhelyezés");
   PROGMEM Language_Str MSG_HOME_FIRST                      = _UxGT("Elsö %s%s%s Kell");
   PROGMEM Language_Str MSG_ZPROBE_OFFSETS                  = _UxGT("Szonda Eltolások");
   PROGMEM Language_Str MSG_ZPROBE_XOFFSET                  = _UxGT("Szonda X Eltolás");
@@ -439,9 +439,9 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Végállás megszakítva!");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Fütés hiba!");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Hiba: SZÜKSÉGTELEN HÖFOK");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("FÜTÉS KIMARADÁS");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ÁGY FÜTÉS KIMARADÁS");
-  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("KAMRA FÜTÉS KIMARADÁS");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("FÜTÉSKIMARADÁS");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ÁGY FÜTÉSKIMARADÁS");
+  PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("KAMRA FÜTÉSKIMARADÁS");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Hiba: MAX Höfok");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Hiba: MIN Höfok");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("A NYOMTATÓ LEFAGYOTT");
@@ -585,7 +585,7 @@ namespace Language_hu {
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_LOAD          = _UxGT(MSG_2_LINE("Várj a", "szál betöltésére"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_PURGE         = _UxGT(MSG_2_LINE("Várj a", "szál tisztításra"));
     PROGMEM Language_Str MSG_FILAMENT_CHANGE_CONT_PURGE    = _UxGT(MSG_2_LINE("Kattints a készre", "szál tiszta"));
-    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd foltyat..."));
+    PROGMEM Language_Str MSG_FILAMENT_CHANGE_RESUME        = _UxGT(MSG_2_LINE("Várj a nyomtatóra", "majd folytat..."));
   #else
     PROGMEM Language_Str MSG_ADVANCED_PAUSE_WAITING        = _UxGT(MSG_1_LINE("Katt a folytatáshoz"));
     PROGMEM Language_Str MSG_PAUSE_PRINT_PARKING           = _UxGT(MSG_1_LINE("Parkolás..."));
