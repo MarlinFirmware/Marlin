@@ -111,21 +111,17 @@
  *
  * :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-#if ANY(SKR14, SKR14T, SKR12PRO)
-  #define SERIAL_PORT -1
+#define SERIAL_PORT 3
 
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
  * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
  */
-  #define SERIAL_PORT_0 -1
-#else
-  #define SERIAL_PORT 3
-  #define SERIAL_PORT_2 1
-  #if ENABLED(ESP_WIFI)
+#define SERIAL_PORT_2 1
+
+#if ENABLED(ESP_WIFI)
     #define NUM_SERIAL 2  //MKS WIFI
-  #endif
 #endif
 
 /**
@@ -144,18 +140,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #ifdef STOCK
-    #define MOTHERBOARD BOARD_FLSUN_HISPEED
-  #endif  
-  #ifdef SKR14
-    #define MOTHERBOARD BOARD_BTT_SKR_V1_4
-  #endif
-  #ifdef SKR14T
-    #define MOTHERBOARD BOARD_BTT_SKR_V1_4_TURBO
-  #endif
-  #ifdef SKR12PRO
-    #define MOTHERBOARD BOARD_BTT_SKR_PRO_V1_2
-  #endif
+  #define MOTHERBOARD BOARD_FLSUN_HISPEED
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -844,7 +829,7 @@
 //=============================================================================
 // @section motion
 
-// delta speeds must be the same on xyz                                       
+// delta speeds must be the same on xyz
 /**
  * Default Settings
  *

@@ -14,12 +14,13 @@
 __Not for production use. Use with caution!__
 
 ## Marlin 2.0 Bugfix Branch
- Update Marlin-BugFix 20201120
-  - Last fix by feedback users.
-  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
-  - Validate TMC2209 modes.
-  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
-
+ Update Marlin-BugFix 20201213
+  - Last fix by Marlin,
+  - **New_Core** size reduction and build optimization,
+  - Some optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - No fix for "Mesh Edit".
+  - Validate Connecttion Rpi/OctoPi direct (No_USB).
+  
   ## Validate:
 
   - Firmware for QQS-Pro with A4988/TMC220x_Standalone/TMC220x_UART/TMC2209_UART one-wire
@@ -31,9 +32,11 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 * [POWER_LOSS_RECOVERY]
 * [FILAMENT_RUNOUT_SENSOR]
 * [AUTO_BED_LEVELING_UBL]
+* [BABYSTEPPING]
 * [PAUSE_BEFORE_DEPLOY_STOW]
 * [LIN_ADVANCE]
 * [ARC_SUPPORT]
+* [UART_MODE_for_TMC/RPI/ESP]
 
 **Hardware for the QQS-Pro printers.**
   
@@ -210,7 +213,13 @@ Enjoy....🙃
 
 # Version history
 ## Marlin 2.0 Bugfix Branch 
-Update Marlin-BugFix 20201030
+ Update Marlin-BugFix 20201120
+  - Last fix by feedback users.
+  - **News Firmwares with optimisation moves/accel printing, Calibration UBL, Standard Home, etc**
+  - Validate TMC2209 modes.
+  - Validate Module Wifi ESP8266/ESP12 [Firmware ESP3Dv2](https://github.com/luc-github/ESP3D/wiki/Install-Instructions)
+
+ Update Marlin-BugFix 20201030
   - Last correction for Black screen in UI Color
   - Correction thermal protection hysterisis.
   - Enable mode TMC220x UART SoftSerial

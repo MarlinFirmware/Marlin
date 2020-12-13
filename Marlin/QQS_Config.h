@@ -7,12 +7,8 @@
 * config/examples/delta/FLSUN/ directory and customize for your machine.
 *
 * TIPS:
-* -For UI CLASSIC use old env: hispeed.
-* 
-* -For NeoPixel use standard library and commented error in SanityCheck.h for pass error check.
-*
+* -For NeoPixel use special library and commented error in SanityCheck.h for pass error check.
 * -For 2209 change TMC2208 by TMC2209 at the bottom file.
-* 
 */
 
 //========= Hardware ==========//
@@ -43,25 +39,30 @@
 
 //#define FLYING                     //(Y) Uncomment to change Extruder flying (You must modified the parameters of DELTA part)
 
-/*-------Driver TFT Color--(1 CHOICE)-----*/
-#define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
-//#define TFT_GENERIC            // For the user who haven't the same screen.
-
 /*--- Choice UI TFT ----*/
-//#define TFT_CLASSIC_UI             //(F) UI STANDARD 
 #define TFT_COLOR_UI               //(C) UI MARLIN
+//#define TFT_CLASSIC_UI             //(F) UI STANDARD 
 
 /*----  Modules -----*/
 #define ESP_WIFI                   //(W) Module ESP8266/ESP12
 /*For LedStrip which need an external power source on Vcc pin.*/
 //#define NEOPIXEL_LED               //(N) Use port GPIO Wifi module (PA10/PA9/PA8/PC7)
 
+//  Type Calibration (CAL)
+#define AUTO_BED_LEVELING_UBL      //(U)
+//#define AUTO_BED_LEVELING_BILINEAR //(A)
+
 //Many options for Modules: 
-#define POWER_LOSS_RECOVERY        // NC LVGL pb SD
-#define FILAMENT_RUNOUT_SENSOR     // NC LVGL
-#define ADVANCED_PAUSE_FEATURE     // NC LVGL
 #define LIN_ADVANCE                //(L) For TMC_UART prefer mode spreadCycle(by TFT menu)         
 #define ARC_SUPPORT                //(R)
+
+#define POWER_LOSS_RECOVERY
+#define FILAMENT_RUNOUT_SENSOR
+#define ADVANCED_PAUSE_FEATURE
+
+/*-------Driver TFT Color--(1 CHOICE)-----*/
+#define MKS_ROBIN_TFT32          // Mks_Robin_TFT_V2.0
+//#define TFT_GENERIC            // For the user who haven't the same screen.
 
 //============= End_Hardware ===============//
 // For users who do not have a terminal like (Prontoface/Octoprint/HostRepertier/Astoprint)
@@ -73,10 +74,6 @@
 #define PID_AUTOTUNE_MENU          // tune auto PID
 
 #define PAUSE_BEFORE_DEPLOY_STOW   // Message Stow/remove Probe.
-
-//  Type Calibration (CAL)
-//#define AUTO_BED_LEVELING_BILINEAR //(A)
-#define AUTO_BED_LEVELING_UBL      //(U)
 
 // ---Expe tools
 //#define LEVEL_BED_CORNERS
@@ -92,7 +89,7 @@
 //
 //==================Part for Driver defintions=============//
 // Options for Modules Hardware
-#ifdef ESP_WIF
+#ifdef ESP_WIFI
   #define BINARY_FILE_TRANSFER       // Bin transfert for host like ESP3D or others.
 #endif
 #ifdef NEOPIXEL_LED
