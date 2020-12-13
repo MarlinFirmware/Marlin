@@ -392,6 +392,15 @@ G29_TYPE GcodeSuite::G29() {
 
     planner.synchronize();
 
+    #if ENABLED(AUTO_BED_LEVELING_3POINT)
+      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
+      points[0].z = points[1].z = points[2].z = 0;  // Probe at 3 arbitrary points
+    #endif
+
+    #if BOTH(AUTO_BED_LEVELING_BILINEAR, EXTENSIBLE_UI)
+      ExtUI::onMeshLevelingStart();
+    #endif
+
     if (!faux) remember_feedrate_scaling_off();
 
     // Disable auto bed leveling during G29.
@@ -409,7 +418,6 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-
       if (TERN1(PROBE_MANUALLY, !no_action)
         && (gridSpacing != bilinear_grid_spacing || probe_position_lf != bilinear_start)
       ) {
@@ -423,17 +431,7 @@ G29_TYPE GcodeSuite::G29() {
         // Can't re-enable (on error) until the new grid is written
         abl_should_enable = false;
       }
-
     #endif // AUTO_BED_LEVELING_BILINEAR
-
-    #if ENABLED(AUTO_BED_LEVELING_3POINT)
-
-      if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("> 3-point Leveling");
-
-      // Probe at 3 arbitrary points
-      points[0].z = points[1].z = points[2].z = 0;
-
-    #endif // AUTO_BED_LEVELING_3POINT
 
   } // !g29_in_progress
 
