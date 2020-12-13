@@ -29,14 +29,14 @@ extern "C" {
 
 //                  | DIGITAL | ANALOG IN  | ANALOG OUT | UART/USART            | TWI                  | SPI                               | SPECIAL   |
 //                  |---------|------------|------------|-----------------------|----------------------|-----------------------------------|-----------|
-#define PA0  A0  // | 0       | A0 (ADC1)  |            | UART4_TX              |                      |                                   |           |
-#define PA1  A1  // | 1       | A1 (ADC1)  |            | UART4_RX              |                      |                                   |           |
-#define PA2  A2  // | 2       | A2 (ADC1)  |            | USART2_TX             |                      |                                   |           |
-#define PA3  A3  // | 3       | A3 (ADC1)  |            | USART2_RX             |                      |                                   |           |
-#define PA4  A4  // | 4       | A4 (ADC1)  | DAC_OUT1   |                       |                      | SPI1_SS, (SPI3_SS)                |           |
-#define PA5  A5  // | 5       | A5 (ADC1)  | DAC_OUT2   |                       |                      | SPI1_SCK                          |           |
-#define PA6  A6  // | 6       | A6 (ADC1)  |            |                       |                      | SPI1_MISO                         |           |
-#define PA7  A7  // | 7       | A7 (ADC1)  |            |                       |                      | SPI1_MOSI                         |           |
+#define PA0  PIN_A0  // | 0       | A0 (ADC1)  |            | UART4_TX              |                      |                                   |           |
+#define PA1  PIN_A1  // | 1       | A1 (ADC1)  |            | UART4_RX              |                      |                                   |           |
+#define PA2  PIN_A2  // | 2       | A2 (ADC1)  |            | USART2_TX             |                      |                                   |           |
+#define PA3  PIN_A3  // | 3       | A3 (ADC1)  |            | USART2_RX             |                      |                                   |           |
+#define PA4  PIN_A4  // | 4       | A4 (ADC1)  | DAC_OUT1   |                       |                      | SPI1_SS, (SPI3_SS)                |           |
+#define PA5  PIN_A5  // | 5       | A5 (ADC1)  | DAC_OUT2   |                       |                      | SPI1_SCK                          |           |
+#define PA6  PIN_A6  // | 6       | A6 (ADC1)  |            |                       |                      | SPI1_MISO                         |           |
+#define PA7  PIN_A7  // | 7       | A7 (ADC1)  |            |                       |                      | SPI1_MOSI                         |           |
 #define PA8  8   // | 8       |            |            |                       | TWI3_SCL             |                                   |           |
 #define PA9  9   // | 9       |            |            | USART1_TX             |                      |                                   |           |
 #define PA10 10  // | 10      |            |            | USART1_RX             |                      |                                   |           |
@@ -46,8 +46,8 @@ extern "C" {
 #define PA14 14  // | 14      |            |            |                       |                      |                                   | SWD_SWCLK |
 #define PA15 15  // | 15      |            |            |                       |                      | SPI3_SS, (SPI1_SS)                |           |
 //                  |---------|------------|------------|-----------------------|----------------------|-----------------------------------|-----------|
-#define PB0  A8  // | 16      | A8 (ADC1)  |            |                       |                      |                                   |           |
-#define PB1  A9  // | 17      | A9 (ADC1)  |            |                       |                      |                                   |           |
+#define PB0  PIN_A8  // | 16      | A8 (ADC1)  |            |                       |                      |                                   |           |
+#define PB1  PIN_A9  // | 17      | A9 (ADC1)  |            |                       |                      |                                   |           |
 #define PB2  18  // | 18      |            |            |                       |                      |                                   | BOOT1     |
 #define PB3  19  // | 19      |            |            |                       |                      | SPI3_SCK,  (SPI1_SCK)             |           |
 #define PB4  20  // | 20      |            |            |                       |                      | SPI3_MISO, (SPI1_MISO)            |           |
@@ -63,12 +63,12 @@ extern "C" {
 #define PB14 30  // | 30      |            |            |                       |                      | SPI2_MISO                         |           |
 #define PB15 31  // | 31      |            |            |                       |                      | SPI2_MOSI                         |           |
 //                  |---------|------------|------------|-----------------------|----------------------|-----------------------------------|-----------|
-#define PC0  A10 // | 32      | A10 (ADC1) |            |                       |                      |                                   |           |
-#define PC1  A11 // | 33      | A11 (ADC1) |            |                       |                      |                                   |           |
-#define PC2  A12 // | 34      | A12 (ADC1) |            |                       |                      | SPI2_MISO                         |           |
-#define PC3  A13 // | 35      | A13 (ADC1) |            |                       |                      | SPI2_MOSI                         |           |
-#define PC4  A14 // | 36      | A14 (ADC1) |            |                       |                      |                                   |           |
-#define PC5  A15 // | 37      | A15 (ADC1) |            | USART3_RX             |                      |                                   |           |
+#define PC0  PIN_A10 // | 32      | A10 (ADC1) |            |                       |                      |                                   |           |
+#define PC1  PIN_A11 // | 33      | A11 (ADC1) |            |                       |                      |                                   |           |
+#define PC2  PIN_A12 // | 34      | A12 (ADC1) |            |                       |                      | SPI2_MISO                         |           |
+#define PC3  PIN_A13 // | 35      | A13 (ADC1) |            |                       |                      | SPI2_MOSI                         |           |
+#define PC4  PIN_A14 // | 36      | A14 (ADC1) |            |                       |                      |                                   |           |
+#define PC5  PIN_A15 // | 37      | A15 (ADC1) |            | USART3_RX             |                      |                                   |           |
 #define PC6  38  // | 38      |            |            | USART6_TX             |                      |                                   |           |
 #define PC7  39  // | 39      |            |            | USART6_RX             |                      |                                   |           |
 #define PC8  40  // | 40      |            |            |                       |                      |                                   |           |
