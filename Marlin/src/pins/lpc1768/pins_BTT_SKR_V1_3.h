@@ -25,12 +25,12 @@
 
 //
 // Trinamic Stallguard pins
-////ga
+//
 #define X_DIAG_PIN                         P1_29  // X-
 #define Y_DIAG_PIN                         P1_27  // Y-
 #define Z_DIAG_PIN                         P1_25  // Z-
 #define E0_DIAG_PIN                        P1_28  // X+
-//#define E1_DIAG_PIN                        P1_26  // Y+
+#define E1_DIAG_PIN                        P1_26  // Y+
 
 //
 // Limit Switches
@@ -96,27 +96,27 @@
 
 //
 // Steppers
-////ga
+//
 #define X_STEP_PIN                         P2_02
 #define X_DIR_PIN                          P2_06
 #define X_ENABLE_PIN                       P2_01
-//#ifndef X_CS_PIN
-  //#define X_CS_PIN                         P1_17
-//#endif
+#ifndef X_CS_PIN
+  #define X_CS_PIN                         P1_17
+#endif
 
 #define Y_STEP_PIN                         P0_19
 #define Y_DIR_PIN                          P0_20
 #define Y_ENABLE_PIN                       P2_08
-//#ifndef Y_CS_PIN
-  //#define Y_CS_PIN                         P1_15
-//#endif
+#ifndef Y_CS_PIN
+  #define Y_CS_PIN                         P1_15
+#endif
 
 #define Z_STEP_PIN                         P0_22
 #define Z_DIR_PIN                          P2_11
 #define Z_ENABLE_PIN                       P0_21
-//#ifndef Z_CS_PIN
-  //#define Z_CS_PIN                         P1_10
-//#endif
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN                         P1_10
+#endif
 
 #define E0_STEP_PIN                        P2_13
 #define E0_DIR_PIN                         P0_11
@@ -125,13 +125,13 @@
   #define E0_CS_PIN                        P1_08
 #endif
 
-//#ifndef E1_CS_PIN
-  //#define E1_CS_PIN                        P1_01
-//#endif
+#ifndef E1_CS_PIN
+  #define E1_CS_PIN                        P1_01
+#endif
 
 //
 // Software SPI pins for TMC2130 stepper drivers
-////ga
+//
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
     #define TMC_SW_MOSI                    P4_28
@@ -165,7 +165,7 @@
 
   //
   // Software serial
-  ////ga
+  //
   #define X_SERIAL_TX_PIN                  P4_29
   #define X_SERIAL_RX_PIN                  P1_17
 
@@ -175,11 +175,11 @@
   #define Z_SERIAL_TX_PIN                  P1_14
   #define Z_SERIAL_RX_PIN                  P1_10
 
-  //#define E0_SERIAL_TX_PIN                 P1_09
-  //#define E0_SERIAL_RX_PIN                 P1_08
+  #define E0_SERIAL_TX_PIN                 P1_09
+  #define E0_SERIAL_RX_PIN                 P1_08
 
-  //#define E1_SERIAL_TX_PIN                 P1_04
-  //#define E1_SERIAL_RX_PIN                 P1_01
+  #define E1_SERIAL_TX_PIN                 P1_04
+  #define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -368,7 +368,7 @@
 
 //
 // SD Support
-////ga
+//
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION                  LCD

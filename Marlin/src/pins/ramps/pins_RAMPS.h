@@ -149,14 +149,13 @@
 #ifndef E0_CS_PIN
   #define E0_CS_PIN                           42
 #endif
-/*
+
 #define E1_STEP_PIN                           36
 #define E1_DIR_PIN                            34
 #define E1_ENABLE_PIN                         30
 #ifndef E1_CS_PIN
   #define E1_CS_PIN                           44
 #endif
-*/
 
 //
 // Temperature Sensors
@@ -177,10 +176,6 @@
 #ifndef MAX6675_SS_PIN
   #define MAX6675_SS_PIN                      66  // Don't use 53 if using Display/SD card (SDSS) or 49 (SD_DETECT_PIN)
 #endif
-
-//GADGETANGEL SECTION Begins
-
-//GADGETANGEL SECTION Ends
 
 //
 // Augmentation for auto-assigning RAMPS plugs
@@ -251,19 +246,19 @@
 // Misc. Functions
 //
 #define SDSS                                  53
-//#define LED_PIN                               13
+#define LED_PIN                               13
 
 #ifndef FILWIDTH_PIN
-  //#define FILWIDTH_PIN                         5  // Analog Input on AUX2
+  #define FILWIDTH_PIN                         5  // Analog Input on AUX2
 #endif
 
 // RAMPS 1.4 DIO 4 on the servos connector
 #ifndef FIL_RUNOUT_PIN
-  //#define FIL_RUNOUT_PIN                       4
+  #define FIL_RUNOUT_PIN                       4
 #endif
 
 #ifndef PS_ON_PIN
-  //#define PS_ON_PIN                           12
+  #define PS_ON_PIN                           12
 #endif
 
 #if ENABLED(CASE_LIGHT_ENABLE) && !defined(CASE_LIGHT_PIN) && !defined(SPINDLE_LASER_ENA_PIN)
@@ -293,7 +288,7 @@
 
 //
 // TMC software SPI
-////ga
+//
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
     #define TMC_SW_MOSI                       66
@@ -327,7 +322,7 @@
 
   //
   // Software serial
-  ////ga
+  //
 
   #ifndef X_SERIAL_TX_PIN
     #define X_SERIAL_TX_PIN                   40
@@ -418,10 +413,9 @@
   #endif
 #endif
 
-/*
 //
 // Průša i3 MK2 Multiplexer Support
-////ga
+//
 #ifndef E_MUX0_PIN
   #define E_MUX0_PIN                          40  // Z_CS_PIN
 #endif
@@ -431,7 +425,6 @@
 #ifndef E_MUX2_PIN
   #define E_MUX2_PIN                          44  // E1_CS_PIN
 #endif
-*/
 
 //////////////////////////
 // LCDs and Controllers //

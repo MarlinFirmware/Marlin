@@ -52,13 +52,13 @@
 
 //
 // Trinamic Stallguard pins
-////ga
+//
 #define X_DIAG_PIN                          PB10  // X-
 #define Y_DIAG_PIN                          PE12  // Y-
 #define Z_DIAG_PIN                          PG8   // Z-
 #define E0_DIAG_PIN                         PE15  // E0
-//#define E1_DIAG_PIN                         PE10  // E1
-//#define E2_DIAG_PIN                         PG5   // E2
+#define E1_DIAG_PIN                         PE10  // E1
+#define E2_DIAG_PIN                         PG5   // E2
 
 //
 // Limit Switches
@@ -121,27 +121,27 @@
 
 //
 // Steppers
-////ga
+//
 #define X_STEP_PIN                          PE9
 #define X_DIR_PIN                           PF1
 #define X_ENABLE_PIN                        PF2
-//#ifndef X_CS_PIN
-  //#define X_CS_PIN                          PA15
-//#endif
+#ifndef X_CS_PIN
+  #define X_CS_PIN                          PA15
+#endif
 
 #define Y_STEP_PIN                          PE11
 #define Y_DIR_PIN                           PE8
 #define Y_ENABLE_PIN                        PD7
-//#ifndef Y_CS_PIN
-  //#define Y_CS_PIN                          PB8
-//#endif
+ #ifndef Y_CS_PIN
+  #define Y_CS_PIN                          PB8
+#endif
 
 #define Z_STEP_PIN                          PE13
 #define Z_DIR_PIN                           PC2
 #define Z_ENABLE_PIN                        PC0
-//#ifndef Z_CS_PIN
-  //#define Z_CS_PIN                          PB9
-//#endif
+#ifndef Z_CS_PIN
+  #define Z_CS_PIN                          PB9
+#endif
 
 #define E0_STEP_PIN                         PE14
 #define E0_DIR_PIN                          PA0
@@ -150,7 +150,6 @@
   #define E0_CS_PIN                         PB3
 #endif
 
-/*
 #define E1_STEP_PIN                         PD15
 #define E1_DIR_PIN                          PE7
 #define E1_ENABLE_PIN                       PA3
@@ -165,7 +164,6 @@
   #define E2_CS_PIN                         PG12
 #endif
 
-*/
 //
 // Software SPI pins for TMC2130 stepper drivers
 //
@@ -212,7 +210,6 @@
   #define Z_SERIAL_TX_PIN                   PE1
   #define Z_SERIAL_RX_PIN                   PE1
 
-  /*
   #define E0_SERIAL_TX_PIN                  PD4
   #define E0_SERIAL_RX_PIN                  PD4
 
@@ -221,7 +218,6 @@
 
   #define E2_SERIAL_TX_PIN                  PD6
   #define E2_SERIAL_RX_PIN                  PD6
-  */
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -230,8 +226,8 @@
 //
 // Temperature Sensors
 //
-//#define TEMP_0_PIN                          PF4   // T1 <-> E0
-//#define TEMP_1_PIN                          PF5   // T2 <-> E1
+#define TEMP_0_PIN                          PF4   // T1 <-> E0
+#define TEMP_1_PIN                          PF5   // T2 <-> E1
 #define TEMP_2_PIN                          PF6   // T3 <-> E2
 #define TEMP_BED_PIN                        PF3   // T0 <-> Bed
 
