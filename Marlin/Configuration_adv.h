@@ -3444,6 +3444,9 @@
   #define JOY_Y_LIMITS { 5600, 8250-100, 8250+100, 11000 }
   #define JOY_Z_LIMITS { 4800, 8080-100, 8080+100, 11550 }
   //#define JOYSTICK_DEBUG
+  
+  //ensure joystick axis are homed
+  #define JOY_NO_MOVE_BEFORE_HOME
 #endif
 
 /**
