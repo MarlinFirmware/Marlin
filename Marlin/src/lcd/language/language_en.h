@@ -257,7 +257,7 @@ namespace Language_en {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Hotend too cold");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Move %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Move %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Move 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Move 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Move 10mm");
