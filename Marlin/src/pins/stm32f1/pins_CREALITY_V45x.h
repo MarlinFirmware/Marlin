@@ -21,7 +21,7 @@
  */
 
 /**
- * Creality v4.5.2 (STM32F103RET6) board pin assignments
+ * Creality v4.5.2 and v4.5.3 (STM32F103RET6) board pin assignments
  */
 
 #if NOT_TARGET(__STM32F1__)
@@ -30,7 +30,12 @@
   #error "CREALITY_V452 supports up to 1 hotends / E-steppers. Comment out this line to continue."
 #endif
 
-#define BOARD_NAME "Creality v4.5.2"
+#if MB(CREALITY_V452)
+  #define BOARD_NAME "Creality v4.5.2"
+#elif MB(CREALITY_V453)
+  #define BOARD_NAME "Creality v4.5.3"
+#endif
+
 #define DEFAULT_MACHINE_NAME "Creality3D"
 
 //
@@ -69,7 +74,12 @@
 // Probe
 //
 #define PROBE_TARE_PIN                      PA5
-#define PROBE_ENABLE_PIN                    PC6   // Optoswitch to Enable Z Probe
+
+#if MB(CREALITY_V452)
+  #define PROBE_ENABLE_PIN                    PC6   // Optoswitch to Enable Z Probe
+#elif MB(CREALITY_V453)
+  #define PROBE_ENABLE_PIN                    PB2   // Optoswitch to Enable Z Probe
+#endif
 
 //
 // Steppers
@@ -99,10 +109,18 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN                        PA1   // HEATER1
-#define HEATER_BED_PIN                      PA2   // HOT BED
+#if MB(CREALITY_V452)
+  #define HEATER_0_PIN                        PA1   // HEATER1
+  #define HEATER_BED_PIN                      PA2   // HOT BED
 
-#define FAN_PIN                             PA0   // FAN
+  #define FAN_PIN                             PA0   // FAN
+#elif MB(CREALITY_V453)
+  #define HEATER_0_PIN                        PB14  // HEATER1
+  #define HEATER_BED_PIN                      PB13  // HOT BED
+
+  #define FAN_PIN                             PB15  // FAN
+#endif
+
 #define FAN_SOFT_PWM
 
 //
