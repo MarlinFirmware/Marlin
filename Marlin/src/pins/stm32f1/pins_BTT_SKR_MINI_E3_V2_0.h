@@ -38,10 +38,10 @@
 
 // Release PA13/PA14 (led, usb control) from SWD pins
 #define DISABLE_DEBUG
+//ga
+//#define NEOPIXEL_PIN                       PA8   // LED driving pin
 
-#define NEOPIXEL_PIN                       PA8   // LED driving pin
-
-#define PS_ON_PIN                          PC13  // Power Supply Control
+//#define PS_ON_PIN                          PC13  // Power Supply Control
 
 #define FAN1_PIN                           PC7
 

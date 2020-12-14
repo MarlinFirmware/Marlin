@@ -48,13 +48,13 @@
 
 //
 // Trinamic Stallguard pins
-//
+////ga
 #define X_DIAG_PIN                          PF2   // X-
 #define Y_DIAG_PIN                          PC13  // Y-
 #define Z_DIAG_PIN                          PE0   // Z-
 #define E0_DIAG_PIN                         PG14  // X+
-#define E1_DIAG_PIN                         PG9   // Y+
-#define E2_DIAG_PIN                         PD3   // Z+
+//#define E1_DIAG_PIN                         PG9   // Y+
+//#define E2_DIAG_PIN                         PD3   // Z+
 
 //
 // Limit Switches
@@ -110,27 +110,27 @@
 
 //
 // Steppers
-//
+////ga
 #define X_STEP_PIN                          PC15
 #define X_DIR_PIN                           PF0
 #define X_ENABLE_PIN                        PF1
-#ifndef X_CS_PIN
-  #define X_CS_PIN                          PC14
-#endif
+//#ifndef X_CS_PIN
+  //#define X_CS_PIN                          PC14
+//#endif
 
 #define Y_STEP_PIN                          PE3
 #define Y_DIR_PIN                           PE2
 #define Y_ENABLE_PIN                        PE4
-#ifndef Y_CS_PIN
-  #define Y_CS_PIN                          PE1
-#endif
+//#ifndef Y_CS_PIN
+  //#define Y_CS_PIN                          PE1
+//#endif
 
 #define Z_STEP_PIN                          PB8
 #define Z_DIR_PIN                           PB7   // PB7
 #define Z_ENABLE_PIN                        PB9
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN                          PB5
-#endif
+//#ifndef Z_CS_PIN
+  //#define Z_CS_PIN                          PB5
+//#endif
 
 #define E0_STEP_PIN                         PG12
 #define E0_DIR_PIN                          PG11
@@ -139,6 +139,7 @@
   #define E0_CS_PIN                         PG10
 #endif
 
+/*
 #define E1_STEP_PIN                         PD6
 #define E1_DIR_PIN                          PD5
 #define E1_ENABLE_PIN                       PD7
@@ -187,6 +188,7 @@
 #ifndef E7_CS_PIN
   #define E7_CS_PIN                         PH14
 #endif
+*/
 
 //
 // Software SPI pins for TMC2130 stepper drivers
@@ -227,7 +229,7 @@
 
   //
   // Software serial
-  //
+  ////ga
   #define X_SERIAL_TX_PIN                   PC14
   #define X_SERIAL_RX_PIN                   PC14
 
@@ -237,6 +239,7 @@
   #define Z_SERIAL_TX_PIN                   PB5
   #define Z_SERIAL_RX_PIN                   PB5
 
+  /*
   #define E0_SERIAL_TX_PIN                  PG10
   #define E0_SERIAL_RX_PIN                  PG10
 
@@ -260,6 +263,7 @@
 
   #define E7_SERIAL_TX_PIN                  PH14
   #define E7_SERIAL_RX_PIN                  PH14
+  */
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -268,18 +272,19 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PC1   // T1 <-> E0
-#define TEMP_1_PIN                          PC2   // T2 <-> E1
-#define TEMP_2_PIN                          PC3   // T3 <-> E2
+//#define TEMP_0_PIN                          PC1   // T1 <-> E0
+//#define TEMP_1_PIN                          PC2   // T2 <-> E1
+//#define TEMP_2_PIN                          PC3   // T3 <-> E2
 
-#define TEMP_3_PIN                          PA3   // T4 <-> E3
-#define TEMP_4_PIN                          PF9   // T5 <-> E4
-#define TEMP_5_PIN                          PF10  // T6 <-> E5
-#define TEMP_6_PIN                          PF7   // T7 <-> E6
-#define TEMP_7_PIN                          PF5   // T8 <-> E7
+//#define TEMP_3_PIN                          PA3   // T4 <-> E3
+//#define TEMP_4_PIN                          PF9   // T5 <-> E4
+//#define TEMP_5_PIN                          PF10  // T6 <-> E5
+//#define TEMP_6_PIN                          PF7   // T7 <-> E6
+//#define TEMP_7_PIN                          PF5   // T8 <-> E7
 
 #define TEMP_BED_PIN                        PC0   // T0 <-> Bed
 
+/*
 // SPI for Max6675 or Max31855 Thermocouple
 // Uses a separate SPI bus
 // If you have a two-way thermocouple, you can customize two THERMO_CSx_PIN pins (x:1~2)
@@ -293,6 +298,10 @@
 #define MAX6675_SS2_PIN           THERMO_CS2_PIN
 #define MAX6675_SCK_PIN           THERMO_SCK_PIN
 #define MAX6675_DO_PIN             THERMO_DO_PIN
+*/
+
+
+
 
 //
 // Heaters / Fans
@@ -319,6 +328,7 @@
 //#define FAN6_PIN                          PC9   // Fan6
 //#define FAN7_PIN                          PE14  // Fan7
 
+//ga
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION ONBOARD
 #endif

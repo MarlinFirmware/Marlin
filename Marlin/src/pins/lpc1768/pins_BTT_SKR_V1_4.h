@@ -31,7 +31,7 @@
 
 //
 // SD Connection
-//
+////ga
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION LCD
 #endif
@@ -39,7 +39,7 @@
 //
 // Servos
 //
-#define SERVO0_PIN                         P2_00
+//#define SERVO0_PIN                         P2_00
 
 //
 // TMC StallGuard DIAG pins
@@ -48,7 +48,7 @@
 #define Y_DIAG_PIN                         P1_28  // Y-STOP
 #define Z_DIAG_PIN                         P1_27  // Z-STOP
 #define E0_DIAG_PIN                        P1_26  // E0DET
-#define E1_DIAG_PIN                        P1_25  // E1DET
+//#define E1_DIAG_PIN                        P1_25  // E1DET
 
 //
 // Limit Switches
@@ -95,49 +95,49 @@
   #define Z_MIN_PROBE_PIN                  P0_10
 #endif
 
-//
+////ga
 // Filament Runout Sensor
 //
-#define FIL_RUNOUT_PIN                     P1_26  // E0DET
-#define FIL_RUNOUT2_PIN                    P1_25  // E1DET
+//#define FIL_RUNOUT_PIN                     P1_26  // E0DET
+//#define FIL_RUNOUT2_PIN                    P1_25  // E1DET
 
 //
 // Power Supply Control
 //
-#ifndef PS_ON_PIN
-  #define PS_ON_PIN                        P1_00  // PWRDET
-#endif
+//#ifndef PS_ON_PIN
+  //#define PS_ON_PIN                        P1_00  // PWRDET
+//#endif
 
 //
 // Power Loss Detection
 //
-#ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                   P1_00  // PWRDET
-#endif
+//#ifndef POWER_LOSS_PIN
+  //#define POWER_LOSS_PIN                   P1_00  // PWRDET
+//#endif
 
 //
 // Steppers
-//
+////ga
 #define X_STEP_PIN                         P2_02
 #define X_DIR_PIN                          P2_06
 #define X_ENABLE_PIN                       P2_01
-#ifndef X_CS_PIN
-  #define X_CS_PIN                         P1_10
-#endif
+//#ifndef X_CS_PIN
+  //#define X_CS_PIN                         P1_10
+//#endif
 
 #define Y_STEP_PIN                         P0_19
 #define Y_DIR_PIN                          P0_20
 #define Y_ENABLE_PIN                       P2_08
-#ifndef Y_CS_PIN
-  #define Y_CS_PIN                         P1_09
-#endif
+//#ifndef Y_CS_PIN
+  //#define Y_CS_PIN                         P1_09
+//#endif
 
 #define Z_STEP_PIN                         P0_22
 #define Z_DIR_PIN                          P2_11
 #define Z_ENABLE_PIN                       P0_21
-#ifndef Z_CS_PIN
-  #define Z_CS_PIN                         P1_08
-#endif
+//#ifndef Z_CS_PIN
+  //#define Z_CS_PIN                         P1_08
+//#endif
 
 #define E0_STEP_PIN                        P2_13
 #define E0_DIR_PIN                         P0_11
@@ -146,19 +146,21 @@
   #define E0_CS_PIN                        P1_04
 #endif
 
+/*
 #define E1_STEP_PIN                        P1_15
 #define E1_DIR_PIN                         P1_14
 #define E1_ENABLE_PIN                      P1_16
-#ifndef E1_CS_PIN
-  #define E1_CS_PIN                        P1_01
-#endif
+//#ifndef E1_CS_PIN
+  //#define E1_CS_PIN                        P1_01
+//#endif
+*/
 
-#define TEMP_1_PIN                      P0_23_A0  // A0 (T0) - (67) - TEMP_1_PIN
+//#define TEMP_1_PIN                      P0_23_A0  // A0 (T0) - (67) - TEMP_1_PIN
 #define TEMP_BED_PIN                    P0_25_A2  // A2 (T2) - (69) - TEMP_BED_PIN
 
 //
 // Software SPI pins for TMC2130 stepper drivers
-//
+////ga
 #if ENABLED(TMC_USE_SW_SPI)
   #ifndef TMC_SW_MOSI
     #define TMC_SW_MOSI                    P1_17
@@ -192,7 +194,7 @@
 
   //
   // Software serial
-  //
+  ////ga
   #define X_SERIAL_TX_PIN                  P1_10
   #define X_SERIAL_RX_PIN                  P1_10
 
@@ -202,11 +204,11 @@
   #define Z_SERIAL_TX_PIN                  P1_08
   #define Z_SERIAL_RX_PIN                  P1_08
 
-  #define E0_SERIAL_TX_PIN                 P1_04
-  #define E0_SERIAL_RX_PIN                 P1_04
+  //#define E0_SERIAL_TX_PIN                 P1_04
+  //#define E0_SERIAL_RX_PIN                 P1_04
 
-  #define E1_SERIAL_TX_PIN                 P1_01
-  #define E1_SERIAL_RX_PIN                 P1_01
+  //#define E1_SERIAL_TX_PIN                 P1_01
+  //#define E1_SERIAL_RX_PIN                 P1_01
 
   // Reduce baud rate to improve software serial reliability
   #define TMC_BAUD_RATE                    19200
@@ -442,7 +444,7 @@
 // NeoPixel LED
 //
 #ifndef NEOPIXEL_PIN
-  #define NEOPIXEL_PIN                     P1_24
+  //#define NEOPIXEL_PIN                     P1_24
 #endif
 
 /**

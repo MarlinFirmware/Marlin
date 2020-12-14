@@ -40,8 +40,8 @@
 
 //
 // Servos
-//
-#define SERVO0_PIN                          PA1   // "SERVOS"
+////ga
+//#define SERVO0_PIN                          PA1   // "SERVOS"
 
 //
 // Limit Switches
@@ -57,16 +57,16 @@
 
 //
 // Filament Runout Sensor
-//
+////ga
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PC15  // "E0-STOP"
+  //#define FIL_RUNOUT_PIN                    PC15  // "E0-STOP"
 #endif
 
 //
 // Power-loss Detection
-//
+////ga
 #ifndef POWER_LOSS_PIN
-  #define POWER_LOSS_PIN                    PC12  // Power Loss Detection: PWR-DET
+  //#define POWER_LOSS_PIN                    PC12  // Power Loss Detection: PWR-DET
 #endif
 
 //
@@ -91,8 +91,12 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PA0   // Analog Input "TH0"
+//#define TEMP_0_PIN                          PA0   // Analog Input "TH0"
 #define TEMP_BED_PIN                        PC3   // Analog Input "TB0"
+
+//GADGETANGEL SECTION Begins
+
+//GADGETANGEL SECTION Ends
 
 //
 // Heaters / Fans
@@ -264,7 +268,7 @@
 
 //
 // SD Support
-//
+////ga
 
 #ifndef SDCARD_CONNECTION
   #define SDCARD_CONNECTION              ONBOARD
@@ -278,6 +282,6 @@
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif
-
+//ga
 #define ONBOARD_SPI_DEVICE                     1  // SPI1
 #define ONBOARD_SD_CS_PIN                   PA4   // Chip select for "System" SD card

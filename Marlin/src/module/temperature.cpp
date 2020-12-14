@@ -25,6 +25,7 @@
  */
 
 // Useful when debugging thermocouples
+//ga
 //#define IGNORE_THERMOCOUPLE_ERRORS
 
 #include "temperature.h"
@@ -43,28 +44,16 @@
 #if ENABLED(EXTENSIBLE_UI)
   #include "../lcd/extui/ui_api.h"
 #endif
-
+//ga
 #if MAX6675_HAS_MAX31855
   #include <Adafruit_MAX31855.h>
-  #if MAX6675_0_IS_MAX31855 && !defined(MAX31855_CS_PIN) && PIN_EXISTS(MAX6675_SS)
-    #define MAX31855_CS_PIN   MAX6675_SS_PIN
-  #endif
-  #if MAX6675_1_IS_MAX31855 && !defined(MAX31855_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
-    #define MAX31855_CS2_PIN  MAX6675_SS2_PIN
-  #endif
-  #if !defined(MAX31855_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
-    #define MAX31855_MISO_PIN MAX6675_DO_PIN
-  #endif
-  #if !defined(MAX31855_SCK_PIN) && PIN_EXISTS(MAX6675_SCK)
-    #define MAX31855_SCK_PIN  MAX6675_SCK_PIN
-  #endif
-  #if ANY_PIN(MAX6675_DO, MAX31855_MISO) && ANY_PIN(MAX6675_SCK, MAX31855_SCK)
-    #define MAX31855_USES_SW_LIB 1
+  #if PIN_EXISTS(MAX31855_MISO) && PIN_EXISTS(MAX31855_SCK)
+    #define MAX31855_USES_SW_SPI 1
   #endif
   #if MAX6675_0_IS_MAX31855 && PIN_EXISTS(MAX31855_CS)
     #define HAS_MAX31855_TEMP 1
     Adafruit_MAX31855 max31855_0 = Adafruit_MAX31855(MAX31855_CS_PIN
-      #if MAX31855_USES_SW_LIB
+      #if MAX31855_USES_SW_SPI
         , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
     );
@@ -72,7 +61,7 @@
   #if MAX6675_1_IS_MAX31855 && PIN_EXISTS(MAX31855_CS2)
     #define HAS_MAX31855_TEMP 1
     Adafruit_MAX31855 max31855_1 = Adafruit_MAX31855(MAX31855_CS2_PIN
-      #if MAX31855_USES_SW_LIB
+      #if MAX31855_USES_SW_SPI
         , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
     );
@@ -81,28 +70,13 @@
 
 #if MAX6675_HAS_MAX31865
   #include <Adafruit_MAX31865.h>
-  #if MAX6675_0_IS_MAX31865 && !defined(MAX31865_CS_PIN) && PIN_EXISTS(MAX6675_SS)
-    #define MAX31865_CS_PIN   MAX6675_SS_PIN
-  #endif
-  #if MAX6675_1_IS_MAX31865 && !defined(MAX31865_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
-    #define MAX31865_CS2_PIN  MAX6675_SS2_PIN
-  #endif
-  #ifndef MAX31865_MOSI_PIN
-    #define MAX31865_MOSI_PIN MOSI_PIN
-  #endif
-  #if !defined(MAX31865_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
-    #define MAX31865_MISO_PIN MAX6675_DO_PIN
-  #endif
-  #if !defined(MAX31865_SCK_PIN) && PIN_EXISTS(MAX6675_SCK)
-    #define MAX31865_SCK_PIN  MAX6675_SCK_PIN
-  #endif
-  #if ANY_PIN(MAX6675_DO, MAX31865_MISO) && ANY_PIN(MAX6675_SCK, MAX31865_SCK)
-    #define MAX31865_USES_SW_LIB 1
+  #if PIN_EXISTS(MAX31865_MISO) && PIN_EXISTS(MAX31865_SCK)
+    #define MAX31865_USES_SW_SPI 1
   #endif
   #if MAX6675_0_IS_MAX31865 && PIN_EXISTS(MAX31865_CS)
     #define HAS_MAX31865_TEMP 1
     Adafruit_MAX31865 max31865_0 = Adafruit_MAX31865(MAX31865_CS_PIN
-      #if MAX31865_USES_SW_LIB
+      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI) 
         , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
       #endif
     );
@@ -110,7 +84,7 @@
   #if MAX6675_1_IS_MAX31865 && PIN_EXISTS(MAX31865_CS2)
     #define HAS_MAX31865_TEMP 1
     Adafruit_MAX31865 max31865_1 = Adafruit_MAX31865(MAX31865_CS2_PIN
-      #if MAX31865_USES_SW_LIB
+      #if MAX31865_USES_SW_SPI && PIN_EXISTS(MAX31865_MOSI)
         , MAX31865_MOSI_PIN, MAX31865_MISO_PIN, MAX31865_SCK_PIN // For software SPI also set MOSI/MISO/SCK
       #endif
     );
@@ -119,22 +93,13 @@
 
 #if MAX6675_HAS_MAX6675
   #include <max6675.h>
-  #if MAX6675_0_IS_MAX6675 && !defined(MAX6675_CS_PIN) && PIN_EXISTS(MAX6675_SS)
-    #define MAX6675_CS_PIN MAX6675_SS_PIN
-  #endif
-  #if MAX6675_1_IS_MAX6675 && !defined(MAX6675_CS2_PIN) && PIN_EXISTS(MAX6675_SS2)
-    #define MAX6675_CS2_PIN  MAX6675_SS2_PIN
-  #endif
-  #if !defined(MAX6675_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
-    #define MAX6675_MISO_PIN MAX6675_DO_PIN
-  #endif
-  #if ANY_PIN(MAX6675_DO, MAX6675_MISO) && PIN_EXISTS(MAX6675_SCK)
-    #define MAX6675_USES_SW_LIB 1
+  #if PIN_EXISTS(MAX6675_MISO) && PIN_EXISTS(MAX6675_SCK)
+    #define MAX6675_USES_SW_SPI 1
   #endif
   #if MAX6675_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
     #define HAS_MAX6675_TEMP 1
     MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN
-      #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
+      #if MAX6675_USES_SW_SPI 
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
     );
@@ -142,7 +107,7 @@
   #if MAX6675_1_IS_MAX6675 && PIN_EXISTS(MAX6675_CS2)
     #define HAS_MAX6675_TEMP 1
     MAX6675 max6675_1 = MAX6675(MAX6675_CS2_PIN
-      #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
+      #if MAX6675_USES_SW_SPI 
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
     );
@@ -1541,7 +1506,7 @@ void Temperature::manage_heater() {
     return _MIN(value + THERMISTOR_ABS_ZERO_C, 999);
   }
 #endif
-
+//ga
 #if HAS_HOTEND
   // Derived from RepRap FiveD extruder::getTemperature()
   // For hot end temperature measurement.
@@ -1714,7 +1679,7 @@ void Temperature::manage_heater() {
  * The raw values are created in interrupt context,
  * and this function is called from normal context
  * as it would block the stepper routine.
- */
+ *///ga
 void Temperature::updateTemperaturesFromRawValues() {
   TERN_(HEATER_0_USES_MAX6675, temp_hotend[0].raw = READ_MAX6675(0));
   TERN_(HEATER_1_USES_MAX6675, temp_hotend[1].raw = READ_MAX6675(1));
@@ -1734,6 +1699,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   raw_temps_ready = false;
 }
 
+//ga
 #if MAX6675_SEPARATE_SPI
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
   SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
@@ -1772,7 +1738,7 @@ void Temperature::updateTemperaturesFromRawValues() {
  * The manager is implemented by periodic calls to manage_heater()
  */
 void Temperature::init() {
-
+//ga
   TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
   TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
   #if HAS_MAX31855_TEMP
@@ -1881,6 +1847,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
+  //ga
   TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
 
   HAL_adc_init();
@@ -2271,7 +2238,7 @@ void Temperature::disable_all_heaters() {
 #endif // PROBING_HEATERS_OFF
 
 #if HAS_MAX6675
-
+//ga
   #ifndef THERMOCOUPLE_MAX_ERRORS
     #define THERMOCOUPLE_MAX_ERRORS 15
   #endif
@@ -2330,7 +2297,7 @@ void Temperature::disable_all_heaters() {
 
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
-    //
+    ////ga
     #if !MAX6675_SEPARATE_SPI && NO_THERMO_TEMPS
       spiBegin();
       spiInit(MAX6675_SPEED_BITS);
@@ -2359,6 +2326,9 @@ void Temperature::disable_all_heaters() {
     #if HAS_MAX31865_TEMP
       Adafruit_MAX31865 &max865ref = MAX6675_SEL(max31865_0, max31865_1);
       max6675_temp = max865ref.readRTD_with_Fault();
+      #if ECHO_TEMP
+          SERIAL_ECHOLNPAIR("Max31865 RTD MSB:    ", max6675_temp >> 8 ,"    LSB:    ", max6675_temp & 0x00FF," "); 
+      #endif
     #endif
 
     #if HAS_MAX6675_TEMP
@@ -2371,6 +2341,7 @@ void Temperature::disable_all_heaters() {
     const uint8_t fault_31865 = TERN1(HAS_MAX31865_TEMP, (max865ref.readFault() & 0x3FU));
 
 
+  //ga
     if (DISABLED(IGNORE_THERMOCOUPLE_ERRORS) && (max6675_temp & MAX6675_ERROR_MASK) && fault_31865) {
       max6675_errors[hindex]++;
       if (max6675_errors[hindex] > THERMOCOUPLE_MAX_ERRORS) {
@@ -2426,6 +2397,18 @@ void Temperature::disable_all_heaters() {
     #if MAX6675_HAS_MAX31865
       max6675_temp = (uint32_t(max6675_temp) * MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) >> 16;
     #endif
+  //ga
+    #if ECHO_TEMP
+      #if HAS_MAX31855 || HAS_MAX6675_TEMP
+        SERIAL_ECHOLNPAIR("Temp: ", max6675_temp ," "); 
+      #endif
+      #if HAS_MAX6675_TEMP
+        SERIAL_ECHOLNPAIR("Max6675 Temp in Celsius : ", max6675ref.readCelsius() ," "); 
+      #endif 
+      #if MAX6675_HAS_MAX31865 && ECHO_MAX31865_RESITANCE
+        SERIAL_ECHOLNPAIR("MAX31865 RTD readRTD_Resistance     : ", max865ref.readRTD_Resistance(MAX6675_SEL(MAX31865_CALIBRATION_OHMS_0, MAX31865_CALIBRATION_OHMS_1)) ,"      Calculated     : ", max6675_temp ," ");
+      #endif
+    #endif 
 
     MAX6675_TEMP(hindex) = max6675_temp;
 
@@ -2506,7 +2489,9 @@ void Temperature::readings_ready() {
       const int8_t tdir = temp_dir[e];
       if (tdir) {
         const int16_t rawtemp = temp_hotend[e].raw * tdir; // normal direction, +rawtemp, else -rawtemp
-        const bool heater_on = (temp_hotend[e].target > 0
+        //ga NEEDED FOR TESTING ON THE BENCH WITH TEMPERATURE SENSORS
+        //const bool heater_on = (temp_hotend[e].target > 0       
+        const bool heater_on = (temp_hotend[e].target >= 0
           || TERN0(PIDTEMP, temp_hotend[e].soft_pwm_amount) > 0
         );
         if (rawtemp > temp_range[e].raw_max * tdir) max_temp_error((heater_id_t)e);
