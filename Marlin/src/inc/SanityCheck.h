@@ -531,6 +531,8 @@
   #error "PROBE_OFFSET_START is now PROBE_OFFSET_WIZARD_START_Z."
 #elif defined(POWER_LOSS_PULL)
   #error "POWER_LOSS_PULL is now specifically POWER_LOSS_PULL(UP|DOWN)."
+#elif defined(SHORT_MANUAL_Z_MOVE)
+  #error "SHORT_MANUAL_Z_MOVE is now FINE_MANUAL_MOVE, applying to Z on most printers."
 #elif defined(FIL_RUNOUT_INVERTING)
   #if FIL_RUNOUT_INVERTING
     #error "FIL_RUNOUT_INVERTING true is now FIL_RUNOUT_STATE HIGH."

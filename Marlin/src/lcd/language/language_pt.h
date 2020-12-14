@@ -81,7 +81,7 @@ namespace Language_pt {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Mover Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Mover Extrusor");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Mover Extrusor *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mover %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mover %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mover 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mover 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mover 10mm");

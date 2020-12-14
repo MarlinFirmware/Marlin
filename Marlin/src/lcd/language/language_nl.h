@@ -87,7 +87,7 @@ namespace Language_nl {
   PROGMEM Language_Str MSG_MOVE_Z                          = _UxGT("Verplaats Z");
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extruder *");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Verplaats %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Verplaats %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Verplaats 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Verplaats 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Verplaats 10mm");

@@ -286,7 +286,7 @@ namespace Language_uk {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Екструдер");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Екструдер *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Сопло дуже холодне");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Рух по %sмм");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Рух по %sмм");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Рух по 0.1мм");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Рух по 1мм");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Рух по 10мм");
