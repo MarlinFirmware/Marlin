@@ -1013,12 +1013,6 @@ void setup() {
   SETUP_RUN(HAL_init());
 
   // Init and disable SPI thermocouples
-  #if HEATER_0_USES_MAX6675 && PIN_EXISTS(MAX6675_SS)
-    OUT_WRITE(MAX6675_SS_PIN, HIGH);
-  #endif
-  #if HEATER_1_USES_MAX6675 && PIN_EXISTS(MAX6675_SS2)
-    OUT_WRITE(MAX6675_SS2_PIN, HIGH);
-  #endif
   #if HEATER_0_USES_MAX6675 && PIN_EXISTS(MAX6675_CS)
     OUT_WRITE(MAX6675_CS_PIN, HIGH);
   #endif

@@ -113,17 +113,21 @@
   #endif
 #endif
 
+/*
 #if !HAS_MAX6675_TEMP && !HAS_MAX31855_TEMP && !HAS_MAX31865_TEMP
   #define NO_THERMO_TEMPS 1
 #endif
+
 
 #if (HEATER_0_USES_MAX6675 || HEATER_1_USES_MAX6675) && PINS_EXIST(MAX6675_SCK, MAX6675_DO) && NO_THERMO_TEMPS
   #define MAX6675_SEPARATE_SPI 1
 #endif
 
+
 #if MAX6675_SEPARATE_SPI
   #include "../libs/private_spi.h"
 #endif
+*/
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
@@ -1698,10 +1702,12 @@ void Temperature::updateTemperaturesFromRawValues() {
   raw_temps_ready = false;
 }
 
+/*
 #if MAX6675_SEPARATE_SPI
   template<uint8_t MisoPin, uint8_t MosiPin, uint8_t SckPin> SoftSPI<MisoPin, MosiPin, SckPin> SPIclass<MisoPin, MosiPin, SckPin>::softSPI;
   SPIclass<MAX6675_DO_PIN, MOSI_PIN, MAX6675_SCK_PIN> max6675_spi;
 #endif
+*/
 
 // Init fans according to whether they're native PWM or Software PWM
 #ifdef ALFAWISE_UX0
@@ -1737,8 +1743,10 @@ void Temperature::updateTemperaturesFromRawValues() {
  */
 void Temperature::init() {
 
-  TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
-  TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
+  #if HAS_MAX31865_TEMP
+    TERN_(MAX6675_0_IS_MAX31865, max31865_0.begin(MAX31865_2WIRE)); // MAX31865_2WIRE, MAX31865_3WIRE, MAX31865_4WIRE
+    TERN_(MAX6675_1_IS_MAX31865, max31865_1.begin(MAX31865_2WIRE));
+  #endif
   #if HAS_MAX31855_TEMP
     TERN_(MAX6675_0_IS_MAX31855, max31855_0.begin());
     TERN_(MAX6675_1_IS_MAX31855, max31855_1.begin());
@@ -1845,7 +1853,7 @@ void Temperature::init() {
     INIT_FAN_PIN(CONTROLLER_FAN_PIN);
   #endif
 
-  TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
+  //TERN_(MAX6675_SEPARATE_SPI, max6675_spi.init());
 
   HAL_adc_init();
 
@@ -2265,8 +2273,8 @@ void Temperature::disable_all_heaters() {
       static uint16_t max6675_temp_previous[COUNT_6675] = { 0 };
       #define MAX6675_TEMP(I) max6675_temp_previous[I]
       #define MAX6675_SEL(A,B) (hindex ? (B) : (A))
-      #define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
-      #define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
+      //#define MAX6675_WRITE(V)     do{ switch (hindex) { case 1:      WRITE(MAX6675_SS2_PIN, V); break; default:      WRITE(MAX6675_SS_PIN, V); } }while(0)
+      //#define MAX6675_SET_OUTPUT() do{ switch (hindex) { case 1: SET_OUTPUT(MAX6675_SS2_PIN);    break; default: SET_OUTPUT(MAX6675_SS_PIN);    } }while(0)
     #else
       constexpr uint8_t hindex = 0;
       #define MAX6675_TEMP(I) max6675_temp
@@ -2275,6 +2283,7 @@ void Temperature::disable_all_heaters() {
       #else
         #define MAX6675_SEL(A,B) A
       #endif
+      /*
       #if HEATER_0_USES_MAX6675
         #define MAX6675_WRITE(V)          WRITE(MAX6675_SS_PIN, V)
         #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS_PIN)
@@ -2282,6 +2291,7 @@ void Temperature::disable_all_heaters() {
         #define MAX6675_WRITE(V)          WRITE(MAX6675_SS2_PIN, V)
         #define MAX6675_SET_OUTPUT() SET_OUTPUT(MAX6675_SS2_PIN)
       #endif
+      */
     #endif
 
     static uint8_t max6675_errors[COUNT_6675] = { 0 };
@@ -2292,6 +2302,7 @@ void Temperature::disable_all_heaters() {
     if (PENDING(ms, next_max6675_ms[hindex])) return int(MAX6675_TEMP(hindex));
     next_max6675_ms[hindex] = ms + MAX6675_HEAT_INTERVAL;
 
+    /*
     //
     // TODO: spiBegin, spiRec and spiInit doesn't work when soft spi is used.
     //
@@ -2304,9 +2315,12 @@ void Temperature::disable_all_heaters() {
       MAX6675_WRITE(LOW);  // enable TT_MAX6675
       DELAY_NS(100);       // Ensure 100ns delay
     #endif
+    */
 
-    // Read a big-endian temperature value
     max6675_temp = 0;
+
+    /*
+    // Read a big-endian temperature value
     #if NO_THERMO_TEMPS
       for (uint8_t i = sizeof(max6675_temp); i--;) {
         max6675_temp |= TERN(MAX6675_SEPARATE_SPI, max6675_spi.receive(), spiRec());
@@ -2314,6 +2328,7 @@ void Temperature::disable_all_heaters() {
       }
         MAX6675_WRITE(HIGH); // disable TT_MAX6675
     #endif
+    */
 
     #if HAS_MAX31855_TEMP
       Adafruit_MAX31855 &max855ref = MAX6675_SEL(max31855_0, max31855_1);
