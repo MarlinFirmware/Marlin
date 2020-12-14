@@ -72,7 +72,7 @@
       #if MAX31855_USES_SW_LIB
         , MAX31855_MISO_PIN, MAX31855_SCK_PIN  // For software SPI also set MISO/SCK
       #endif
-    );                       
+    );
   #endif
 #endif
 
@@ -86,7 +86,7 @@
   #endif
   #ifndef MAX31865_MOSI_PIN
     #define MAX31865_MOSI_PIN MOSI_PIN
-  #endif  
+  #endif
   #if !defined(MAX31865_MISO_PIN) && PIN_EXISTS(MAX6675_DO)
     #define MAX31865_MISO_PIN MAX6675_DO_PIN
   #endif
@@ -124,7 +124,7 @@
   #endif
   #if MAX6675_0_IS_MAX6675 && PIN_EXISTS(MAX6675_CS)
     #define HAS_MAX6675_TEMP 1
-    MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN 
+    MAX6675 max6675_0 = MAX6675(MAX6675_CS_PIN
       #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
@@ -136,7 +136,7 @@
       #if MAX6675_USES_SW_LIB && PIN_EXISTS(MAX6675_SCK)
         , MAX6675_MISO_PIN, MAX6675_SCK_PIN   // For software SPI also set MISO/SCK
       #endif
-    ); 
+    );
   #endif
 #endif
 
@@ -216,7 +216,7 @@ const char str_t_thermal_runaway[] PROGMEM = STR_T_THERMAL_RUNAWAY,
 /**
  * Macros to include the heater id in temp errors. The compiler's dead-code
  * elimination should (hopefully) optimize out the unused strings.
- */   
+ */
 
 #if HAS_HEATED_BED
   #define _BED_PSTR(h) (h) == H_BED ? GET_TEXT(MSG_BED) :
@@ -2325,8 +2325,8 @@ void Temperature::disable_all_heaters() {
     #endif
 
     #if !HAS_MAX31865 && !HAS_MAX31855 && !HAS_MAX6675_TEMP
-      MAX6675_WRITE(LOW);  // enable TT_MAX6675 
-      DELAY_NS(100);       // Ensure 100ns delay  
+      MAX6675_WRITE(LOW);  // enable TT_MAX6675
+      DELAY_NS(100);       // Ensure 100ns delay
     #endif
 
     // Read a big-endian temperature value
@@ -2340,8 +2340,8 @@ void Temperature::disable_all_heaters() {
     #endif
 
     #if HAS_MAX31855
-      Adafruit_MAX31855 &max855ref = MAX6675_SEL(max31855_0, max31855_1);  
-      max6675_temp = max855ref.readRaw32();  
+      Adafruit_MAX31855 &max855ref = MAX6675_SEL(max31855_0, max31855_1);
+      max6675_temp = max855ref.readRaw32();
     #endif
 
     #if HAS_MAX31865
@@ -2353,8 +2353,8 @@ void Temperature::disable_all_heaters() {
       MAX6675 &max6675ref = MAX6675_SEL(max6675_0, max6675_1);
       max6675_temp = max6675ref.readRaw16();
     #endif
-    
-    // At the present time we do not have the ability to set the MAX31865 HIGH threshold 
+
+    // At the present time we do not have the ability to set the MAX31865 HIGH threshold
     // or thr LOW threshold, so no need to check for them, zero these bits out
     const uint8_t fault_31865 = TERN1(HAS_MAX31865, (max865ref.readFault() & 0x3FU));
 
@@ -2373,8 +2373,8 @@ void Temperature::disable_all_heaters() {
             else if (max6675_temp & 4)
               SERIAL_ECHOLNPAIR("Fault : (", max6675_temp & 4 ,")  >> Short to VCC");
         #elif MAX6675_HAS_MAX31865
-          const uint8_t fault_31865 = max865ref.readFault(); 
-            max865ref.clearFault();        
+          const uint8_t fault_31865 = max865ref.readFault();
+            max865ref.clearFault();
           if (fault_31865) {
             SERIAL_ECHOLNPAIR("\nMAX31865 Fault :(", fault_31865, ")  >>");
             if (fault_31865 & MAX31865_FAULT_HIGHTHRESH)
@@ -2392,7 +2392,7 @@ void Temperature::disable_all_heaters() {
           }
         #else
             SERIAL_ECHOPGM("MAX6675 ");
-            SERIAL_ECHOLNPGM("Open Circuit"); 
+            SERIAL_ECHOLNPGM("Open Circuit");
         #endif
 
         // Thermocouple open

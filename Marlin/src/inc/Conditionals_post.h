@@ -479,7 +479,7 @@
     #define MAX31855_USES_DO 1
   #endif
   #if PIN_EXISTS(MAX6675_SCK) || PIN_EXISTS(MAX31855_SCK)
-   #define MAX31855_USES_SCK 1
+    #define MAX31855_USES_SCK 1
   #endif
   #if MAX31855_USES_DO && MAX31855_USES_SCK
     #define MAX31855_USES_SW_LIB 1
@@ -492,7 +492,7 @@
     #define MAX31865_USES_DO 1
   #endif
   #if PIN_EXISTS(MAX6675_SCK) || PIN_EXISTS(MAX31865_SCK)
-   #define MAX31865_USES_SCK 1
+    #define MAX31865_USES_SCK 1
   #endif
   #if MAX31865_USES_DO && MAX31865_USES_SCK
     #define MAX31865_USES_SW_LIB 1
@@ -505,7 +505,7 @@
     #define MAX6675_USES_DO 1
   #endif
   #if PIN_EXISTS(MAX6675_SCK)
-   #define MAX6675_USES_SCK 1
+    #define MAX6675_USES_SCK 1
   #endif
   #if MAX6675_USES_DO && MAX6675_USES_SCK
     #define MAX6675_USES_SW_LIB 1
