@@ -496,9 +496,10 @@ bool Probe::probe_down_to_z(const float z, const feedRate_t fr_mm_s) {
     #endif
 
     SERIAL_ECHOLN("Taring the probe");
-    WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
+    const uint8_t value = !PROBE_TARE_STATE ? HIGH : LOW;
+    OUT_WRITE(PROBE_TARE_PIN, PROBE_TARE_STATE);
     delay(PROBE_TARE_TIME);
-    WRITE(PROBE_TARE_PIN, !PROBE_TARE_STATE);
+    OUT_WRITE(PROBE_TARE_PIN, value);
     delay(PROBE_TARE_DELAY);
 
     endstops.hit_on_purpose();

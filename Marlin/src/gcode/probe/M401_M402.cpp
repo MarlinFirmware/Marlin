@@ -33,6 +33,9 @@
  */
 void GcodeSuite::M401() {
   probe.deploy();
+  #if ENABLED(PROBE_TARE)
+    probe.tare_z_probe();
+  #endif
   report_current_position();
 }
 
