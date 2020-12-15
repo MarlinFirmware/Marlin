@@ -1284,12 +1284,13 @@
 //#define MESH_BED_LEVELING
 
 /**
- * Normally G28 leaves leveling disabled on completion. Enable one of
- * these options to restore the prior leveling state or to always enable
- * leveling immediately after G28.
+ * Normally G28 leaves leveling disabled on completion.
+ * Enable one of these options to change behaviour:
+ * ACTIVATE_LVL   = force leveling activation
+ * DEACTIVATE_LVL = keep leveling deactivated
+ * RESTORE_LVL    = restore previous leveling state
  */
-//#define RESTORE_LEVELING_AFTER_G28
-//#define ENABLE_LEVELING_AFTER_G28
+//#define LEVELING_AFTER_G28
 
 /**
  * Auto-leveling needs preheating

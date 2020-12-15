@@ -130,7 +130,7 @@ void GcodeSuite::G34() {
 
       // Disable the leveling matrix before auto-aligning
       #if HAS_LEVELING
-        TERN_(RESTORE_LEVELING_AFTER_G34, const bool leveling_was_active = planner.leveling_active);
+        TERN_(CHANGES_LEVELING_AFTER_G34, const bool leveling_was_active = LEVELING_AFTER_G34 == ACTIVATE_LVL || planner.leveling_active);
         set_bed_leveling_enabled(false);
       #endif
 
@@ -431,9 +431,7 @@ void GcodeSuite::G34() {
       // Restore the active tool after homing
       TERN_(HAS_MULTI_HOTEND, tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER))); // Fetch previous tool for parking extruder
 
-      #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G34)
-        set_bed_leveling_enabled(leveling_was_active);
-      #endif
+      TERN_(CHANGES_LEVELING_AFTER_G34, set_bed_leveling_enabled(leveling_was_active);
 
     }while(0);
   #endif

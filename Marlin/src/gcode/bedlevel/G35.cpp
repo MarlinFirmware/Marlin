@@ -92,7 +92,7 @@ void GcodeSuite::G35() {
 
   // Disable the leveling matrix before auto-aligning
   #if HAS_LEVELING
-    TERN_(RESTORE_LEVELING_AFTER_G35, const bool leveling_was_active = planner.leveling_active);
+    TERN_(CHANGES_LEVELING_AFTER_G35, const bool leveling_was_active = LEVELING_AFTER_G35 == ACTIVATE_LVL || planner.leveling_active);
     set_bed_leveling_enabled(false);
   #endif
 
@@ -170,9 +170,7 @@ void GcodeSuite::G35() {
     tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
   #endif
 
-  #if BOTH(HAS_LEVELING, RESTORE_LEVELING_AFTER_G35)
-    set_bed_leveling_enabled(leveling_was_active);
-  #endif
+  TERN_(CHANGES_LEVELING_AFTER_G35, set_bed_leveling_enabled(leveling_was_active);
 
   // Stow the probe, as the last call to probe.probe_at_point(...) left
   // the probe deployed if it was successful.
