@@ -330,10 +330,11 @@
 #define BOARD_CREALITY_V4             4037  // Creality v4.x (STM32F103RE)
 #define BOARD_CREALITY_V427           4038  // Creality v4.2.7 (STM32F103RE)
 #define BOARD_CREALITY_V452           4039  // Creality v4.5.2 (STM32F103RE)
-#define BOARD_TRIGORILLA_PRO          4040  // Trigorilla Pro (STM32F103ZET6)
-#define BOARD_FLY_MINI                4041  // FLY MINI (STM32F103RCT6)
-#define BOARD_FLSUN_HISPEED           4042  // FLSUN HiSpeedV1 (STM32F103VET6)
-#define BOARD_BEAST                   4043  // STM32F103RET6 Libmaple-based controller
+#define BOARD_CREALITY_V453           4040  // Creality v4.5.3 (STM32F103RE)
+#define BOARD_TRIGORILLA_PRO          4041  // Trigorilla Pro (STM32F103ZET6)
+#define BOARD_FLY_MINI                4042  // FLY MINI (STM32F103RCT6)
+#define BOARD_FLSUN_HISPEED           4043  // FLSUN HiSpeedV1 (STM32F103VET6)
+#define BOARD_BEAST                   4044  // STM32F103RET6 Libmaple-based controller
 
 //
 // ARM Cortex-M4F
