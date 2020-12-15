@@ -60,7 +60,7 @@
 //
 #ifndef HAS_PIN_27_BOARD
   #define SERVO0_PIN                        PB0   // BLTouch OUT
-#else 
+#else
   #define SERVO0_PIN                        PC6
 #endif
 
