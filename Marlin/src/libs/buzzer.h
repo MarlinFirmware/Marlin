@@ -118,6 +118,7 @@
 #elif HAS_BUZZER
 
   // Buzz indirectly via the MarlinUI instance
+  #include "../lcd/marlinui.h"
   #define BUZZ(d,f) ui.buzz(d,f)
 
 #else
