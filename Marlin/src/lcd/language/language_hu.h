@@ -235,7 +235,7 @@ namespace Language_hu {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Adagoló");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Adagoló *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("A fúvóka túl hideg");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Mozgás %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Mozgás %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Mozgás 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Mozgás 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Mozgás 10mm");
