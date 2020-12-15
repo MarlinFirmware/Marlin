@@ -26,7 +26,7 @@
 
 #if ENABLED(DGUS_LCD_UI_ORIGIN)
 
-#include "../DGUSDisplayDef.h"
+#include "DGUSDisplayDef.h"
 #include "../DGUSDisplay.h"
 #include "../DGUSScreenHandler.h"
 
