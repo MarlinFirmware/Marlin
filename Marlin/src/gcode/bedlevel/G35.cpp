@@ -170,7 +170,7 @@ void GcodeSuite::G35() {
     tool_change(old_tool_index, DISABLED(PARKING_EXTRUDER)); // Fetch previous toolhead if not PARKING_EXTRUDER
   #endif
 
-  TERN_(CHANGES_LEVELING_AFTER_G35, set_bed_leveling_enabled(leveling_was_active);
+  TERN_(CHANGES_LEVELING_AFTER_G35, set_bed_leveling_enabled(leveling_was_active));
 
   // Stow the probe, as the last call to probe.probe_at_point(...) left
   // the probe deployed if it was successful.

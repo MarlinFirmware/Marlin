@@ -1285,7 +1285,7 @@
 
 /**
  * Normally G28 leaves leveling disabled on completion.
- * Enable one of these options to change behaviour:
+ * Use one of these options to change behaviour:
  * ACTIVATE_LVL   = force leveling activation
  * DEACTIVATE_LVL = keep leveling deactivated
  * RESTORE_LVL    = restore previous leveling state
