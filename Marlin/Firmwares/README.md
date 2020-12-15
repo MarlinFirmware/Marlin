@@ -41,16 +41,16 @@ With activate parts: ![Capabilities](../../docs/images/Marlin-QQS-Pro_Foxies.png
 **Hardware for the QQS-Pro printers.**
   
   * MotherBoards: 
-    With integrated stepper drivers (A4988)
+    With integrated stepper drivers(A4988)=>(Sxxx-Robin_mini.bin)
 
     ![First Version-A4988](../../docs/images/HiSpeed.jpg)
     
     With removable stepper drivers.
-    2&3_A4988(Green/Red)
+    2&3_A4988(Green/Red)=>(Sxxx-Robin_mini.bin)
     
     ![Second Version-A4988](../../docs/images/HiSpeedv1-A4988.jpg) ![Seconds Version-A4988](../../docs/images/HiSpeedv1-A4988red.jpg)
     
-    4_TMC2208 MKS
+    4_TMC2208 MKS =>(8xxx-Robin_mini.bin)
     
     ![Last Version-TMC2208](../../docs/images/HiSpeedv1-TMC.jpg)
   
