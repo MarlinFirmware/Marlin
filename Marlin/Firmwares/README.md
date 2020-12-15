@@ -171,8 +171,10 @@ Caption:
 
   ## **You will find some Slicer profiles in the "Slicers" [directory](../Slicers).(in progresss...)** 
 
-![Final_Print](../../docs/images/Final.jpg)
+![Final_Print](../../docs/images/Final.png)
+
 ![Presentation](../../docs/images/Final2.jpg)
+
 ![Tests](../../docs/images/Tests.png)
 
   # For the Wifi Module (ESP3DV2 directory):
