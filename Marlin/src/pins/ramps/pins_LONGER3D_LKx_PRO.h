@@ -28,7 +28,7 @@
 #if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "Longer3D LGT KIT V1.0 board only supports 1 hotend / E-stepper. Comment out this line to continue."
+  #error "Longer3D LGT KIT V1.0 board only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #if SERIAL_PORT == 1 || SERIAL_PORT_2 == 1

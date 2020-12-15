@@ -21,7 +21,7 @@
 #if NOT_TARGET(STM32F4, STM32F4xx)
   #error "Oops! Select an STM32F4 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
-  #error "LERDGE X only supports one hotend / E-steppers"
+  #error "LERDGE X only supports one hotend / E-stepper. Comment out this line to continue."
 #endif
 
 #define BOARD_INFO_NAME      "Lerdge X"
