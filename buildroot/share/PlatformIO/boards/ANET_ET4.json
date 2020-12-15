@@ -15,7 +15,7 @@
       ]
     ],
     "mcu": "stm32f407vgt6",
-    "variant": "ANET_ET4"
+    "variant": "MARLIN_ANET_ET4"
   },
   "debug": {
     "jlink_device": "STM32F407VG",

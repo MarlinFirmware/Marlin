@@ -591,9 +591,9 @@
 #elif MB(MKS_ROBIN_PRO_V2)
   #include "stm32f4/pins_MKS_ROBIN_PRO_V2.h"    // STM32F4                                env:mks_robin_pro2
 #elif MB(ANET_ET4)
-  #include "stm32f4/pins_ANET_ET4.h"            // STM32F4                                env:ANET_ET4_OPENBLT
+  #include "stm32f4/pins_ANET_ET4.h"            // STM32F4                                env:Anet_ET4_OpenBLT
 #elif MB(ANET_ET4P)
-  #include "stm32f4/pins_ANET_ET4P.h"           // STM32F4                                env:ANET_ET4_OPENBLT
+  #include "stm32f4/pins_ANET_ET4P.h"           // STM32F4                                env:Anet_ET4_OpenBLT
 
 //
 // ARM Cortex M7

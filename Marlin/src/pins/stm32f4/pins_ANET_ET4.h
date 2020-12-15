@@ -29,7 +29,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Anet ET4-MB_V1.x"
+  #define BOARD_INFO_NAME "Anet ET4 1.x"
 #endif
 
 //
@@ -158,35 +158,35 @@
 
 #if ENABLED(ANET_ET5_TFT35)
   #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X             17125
+    #define TOUCH_CALIBRATION_X            17125
   #endif
   #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y            -11307
+    #define TOUCH_CALIBRATION_Y           -11307
   #endif
   #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                    -26
+    #define TOUCH_OFFSET_X                   -26
   #endif
   #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                    337
+    #define TOUCH_OFFSET_Y                   337
   #endif
   #ifndef TOUCH_ORIENTATION
-    #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+    #define TOUCH_ORIENTATION     TOUCH_PORTRAIT
   #endif
 #elif ENABLED(ANET_ET4_TFT28)
   #ifndef TOUCH_CALIBRATION_X
-    #define TOUCH_CALIBRATION_X            -11838
+    #define TOUCH_CALIBRATION_X           -11838
   #endif
   #ifndef TOUCH_CALIBRATION_Y
-    #define TOUCH_CALIBRATION_Y              8776
+    #define TOUCH_CALIBRATION_Y             8776
   #endif
   #ifndef TOUCH_OFFSET_X
-    #define TOUCH_OFFSET_X                    333
+    #define TOUCH_OFFSET_X                   333
   #endif
   #ifndef TOUCH_OFFSET_Y
-    #define TOUCH_OFFSET_Y                    -17
+    #define TOUCH_OFFSET_Y                   -17
   #endif
   #ifndef TOUCH_ORIENTATION
-    #define TOUCH_ORIENTATION      TOUCH_PORTRAIT
+    #define TOUCH_ORIENTATION     TOUCH_PORTRAIT
   #endif
 #endif
 
