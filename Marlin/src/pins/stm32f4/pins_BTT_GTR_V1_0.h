@@ -47,9 +47,8 @@
 // Servos
 //
 #if ENABLED(TP)
-  #define SERVO0_PIN       PB11
-  #define SOL0_PIN       PC7 
-  // #define MANUAL_SOLENOID_CONTROL
+  #define SERVO0_PIN       PB11 // BLTOUCH
+  #define SOL0_PIN       PC7  // toolchanger
 #endif
 
 //#define HAS_TOOL_SENSOR 1
