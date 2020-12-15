@@ -21,8 +21,6 @@
  */
 #pragma once
 
-#include "../DGUSDisplayDef.h"
-
 enum DGUSLCD_Screens : uint8_t {
   DGUSLCD_SCREEN_BOOT = 0,
   DGUSLCD_SCREEN_MAIN = 10,
