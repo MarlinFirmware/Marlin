@@ -195,7 +195,7 @@ void menu_main() {
     #ifdef CUSTOM_MENUS_MAIN_TITLE
       SUBMENU_P(PSTR(CUSTOM_MENUS_MAIN_TITLE), custom_menus_main);
     #else
-      SUBMENU(MSG_CUSTOM_MENUS_MAIN, custom_menus_main);
+      SUBMENU(MSG_CUSTOM_COMMANDS, custom_menus_main);
     #endif
   #endif
 

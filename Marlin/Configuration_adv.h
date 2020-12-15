@@ -3295,7 +3295,7 @@
 /**
  * Custom Main and Configuration Menu items that execute user-defined G-Code
  */
-// Custom Menus, Main Menu 
+// Custom Menus, Main Menu
 //#define CUSTOM_MENUS_MAIN
 #if ENABLED(CUSTOM_MENUS_MAIN)
   //#define CUSTOM_MENUS_MAIN_TITLE "Custom Commands"
@@ -3338,7 +3338,7 @@
 
   //#define CUSTOM_MENU_CONFIGURATION_DESC_4 "Wifi ????"
   //#define CUSTOM_MENU_CONFIGURATION_GCODE_4 "M118 ????"
-  
+
   //#define CUSTOM_MENU_CONFIGURATION_DESC_5 "Wifi ????"
   //#define CUSTOM_MENU_CONFIGURATION_GCODE_5 "M118 ????"
 #endif

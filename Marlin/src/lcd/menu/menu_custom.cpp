@@ -47,12 +47,8 @@
 
   void _lcd_custom_menu_main_gcode(PGM_P const cmd) {
     queue.inject_P(cmd);
-    #if ENABLED(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
-      ui.completion_feedback();
-    #endif
-    #if ENABLED(CUSTOM_MENU_MAIN_SCRIPT_RETURN)
-      ui.return_to_status();
-    #endif
+    TERN_(CUSTOM_MENU_MAIN_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    TERN_(CUSTOM_MENU_MAIN_SCRIPT_RETURN, ui.return_to_status());
   }
 
   void custom_menus_main() {
@@ -144,12 +140,8 @@
 
   void _lcd_custom_menus_configuration_gcode(PGM_P const cmd) {
     queue.inject_P(cmd);
-    #if ENABLED(CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK) && HAS_BUZZER
-      ui.completion_feedback();
-    #endif
-    #if ENABLED(CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN)
-      ui.return_to_status();
-    #endif
+    TERN_(CUSTOM_MENUS_CONFIGURATION_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
+    TERN_(CUSTOM_MENUS_CONFIGURATION_SCRIPT_RETURN, ui.return_to_status());
   }
 
   void custom_menus_configuration() {
