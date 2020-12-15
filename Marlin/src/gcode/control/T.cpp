@@ -69,7 +69,10 @@ void GcodeSuite::T(const int8_t tool_index) {
 
     tool_change(
       tool_index,
-      (tool_index == active_extruder) || parser.boolval('S')
+      #if DISABLED(PARKING_EXTRUDER) // motion is decided inside tool_change() for PARKING_EXTRUDER
+        (tool_index == active_extruder) || 
+      #endif
+      parser.boolval('S')
     );
 
   #endif
