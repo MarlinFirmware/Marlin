@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,7 +31,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -65,8 +65,8 @@
 /**
  * Teensy++ 2.0 Breadboard pin assignments (AT90USB1286)
  * Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
- * http://www.pjrc.com/teensy/teensyduino.html
- * See http://reprap.org/wiki/Printrboard for more info
+ * https://www.pjrc.com/teensy/teensyduino.html
+ * See https://reprap.org/wiki/Printrboard for more info
  *
  * CLI build: HARDWARE_MOTHERBOARD=84 make
  *
@@ -107,7 +107,7 @@
  *       E DIR   35 a7  a3 31 Y DIR
  */
 
-#ifndef __AVR_AT90USB1286__
+#if NOT_TARGET(__AVR_AT90USB1286__)
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
@@ -168,7 +168,7 @@
 //
 // LCD / Controller
 //
-#if ENABLED(ULTIPANEL)
+#if IS_ULTIPANEL
   #define LCD_PINS_RS                          8  // E0
   #define LCD_PINS_ENABLE                      9  // E1
   #define LCD_PINS_D4                         10  // C0

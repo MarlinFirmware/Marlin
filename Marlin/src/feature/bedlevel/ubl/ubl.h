@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -59,10 +59,10 @@ class unified_bed_leveling {
       static int  g29_grid_size;
     #endif
 
-    #if ENABLED(NEWPANEL)
+    #if IS_NEWPANEL
       static void move_z_with_encoder(const float &multiplier);
       static float measure_point_with_encoder();
-      static float measure_business_card_thickness(float in_height);
+      static float measure_business_card_thickness();
       static void manually_probe_remaining_mesh(const xy_pos_t&, const float&, const float&, const bool) _O0;
       static void fine_tune_mesh(const xy_pos_t &pos, const bool do_ubl_mesh_map) _O0;
     #endif
@@ -111,9 +111,12 @@ class unified_bed_leveling {
 
     #if HAS_LCD_MENU
       static bool lcd_map_control;
+      static void steppers_were_disabled();
+    #else
+      static inline void steppers_were_disabled() {}
     #endif
 
-    static volatile int encoder_diff; // Volatile because it's changed at interrupt time.
+    static volatile int16_t encoder_diff; // Volatile because buttons may changed it at interrupt time
 
     unified_bed_leveling();
 

@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -42,7 +42,7 @@
  * version was tagged.
  */
 #ifndef STRING_DISTRIBUTION_DATE
-  #define STRING_DISTRIBUTION_DATE "2020-05-31"
+  #define STRING_DISTRIBUTION_DATE "2020-12-15"
 #endif
 
 /**
@@ -52,7 +52,7 @@
  * to alert users to major changes.
  */
 
-#define MARLIN_HEX_VERSION 020005
+#define MARLIN_HEX_VERSION 020008
 #ifndef REQUIRED_CONFIGURATION_H_VERSION
   #define REQUIRED_CONFIGURATION_H_VERSION MARLIN_HEX_VERSION
 #endif
@@ -97,7 +97,7 @@
    * documentation about a specific Marlin release. Displayed in the Info Menu.
    */
 #ifndef WEBSITE_URL
-  #define WEBSITE_URL "http://marlinfw.org"
+  #define WEBSITE_URL "https://marlinfw.org"
 #endif
 
 /**

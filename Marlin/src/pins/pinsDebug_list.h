@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -30,7 +30,7 @@
 // Analog Pin Assignments
 //
 
-#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_PINS)
+#define ANALOG_OK(PN) ((PN) >= 0 && (PN) < NUM_ANALOG_INPUTS)
 
 #if defined(EXT_AUX_A0) && ANALOG_OK(EXT_AUX_A0)
   REPORT_NAME_ANALOG(__LINE__, EXT_AUX_A0)
@@ -147,6 +147,9 @@
 #if defined(BTN_EN2) && BTN_EN2 >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_EN2)
 #endif
+#if defined(BTN_ENC_EN) && BTN_ENC_EN >= 0
+  REPORT_NAME_DIGITAL(__LINE__, BTN_ENC_EN)
+#endif
 #if defined(BTN_ENC) && BTN_ENC >= 0
   REPORT_NAME_DIGITAL(__LINE__, BTN_ENC)
 #endif
@@ -260,6 +263,9 @@
 #endif
 #if defined(TMC_SW_SCK) && TMC_SW_SCK >= 0
   REPORT_NAME_DIGITAL(__LINE__, TMC_SW_SCK)
+#endif
+#if defined(TFTGLCD_CS) && TFTGLCD_CS >= 0
+  REPORT_NAME_DIGITAL(__LINE__, TFTGLCD_CS)
 #endif
 #if PIN_EXISTS(E_MUX0)
   REPORT_NAME_DIGITAL(__LINE__, E_MUX0_PIN)
@@ -1420,4 +1426,23 @@
 #endif
 #if PIN_EXISTS(ESP_WIFI_MODULE_GPIO2)
   REPORT_NAME_DIGITAL(__LINE__, ESP_WIFI_MODULE_GPIO2_PIN)
+#endif
+// TFT PINS
+#if PIN_EXISTS(TFT_CS)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_CS_PIN)
+#endif
+#if PIN_EXISTS(TFT_A0)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_A0_PIN)
+#endif
+#if PIN_EXISTS(TFT_DC)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_DC_PIN)
+#endif
+#if PIN_EXISTS(TFT_MISO)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_MISO_PIN)
+#endif
+#if PIN_EXISTS(TFT_BACKLIGHT)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_BACKLIGHT_PIN)
+#endif
+#if PIN_EXISTS(TFT_RESET)
+  REPORT_NAME_DIGITAL(__LINE__, TFT_RESET_PIN)
 #endif

@@ -16,12 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -29,16 +29,17 @@
 
 #define BOARD_INFO_NAME   "FYSETC Cheetah"
 #define BOARD_WEBSITE_URL "fysetc.com"
-// https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
+
+#define BOARD_NO_NATIVE_USB
 
 #define DISABLE_JTAG
 
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
@@ -130,10 +131,10 @@
 * Note: Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
 */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                       PB14
     #define DOGLCD_CS                       PB12
     #define DOGLCD_SCK                      PB13
@@ -151,9 +152,9 @@
   #define LCD_PINS_D4                       PB13  // SCLK
   #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
 
-  //#define LCD_CONTRAST_INIT 190
+  //#define LCD_CONTRAST_INIT                190
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11
     #define BTN_ENC                         PC12
@@ -172,6 +173,6 @@
     #define CLCD_SOFT_SPI_MISO              PB14
     #define CLCD_SOFT_SPI_SCLK              PB13
   #else
-    #define CLCD_SPI_BUS 2
+    #define CLCD_SPI_BUS                       2
   #endif
 #endif

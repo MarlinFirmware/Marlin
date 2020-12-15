@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <http://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -47,4 +47,5 @@
   #include "sound_list.h"
   #include "polygon.h"
   #include "text_box.h"
+  #include "text_ellipsis.h"
 #endif

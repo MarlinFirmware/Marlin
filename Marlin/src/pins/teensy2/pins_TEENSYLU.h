@@ -16,8 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.   If not, see <http://www.gnu.org/licenses/>.
- *
+ * along with this program.   If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
@@ -30,7 +29,7 @@
  *  There are two Arduino IDE extensions that are compatible with this board
  *  and with the mainstream Marlin software.  All have been used with Arduino 1.6.12
  *
- *  Teensyduino - http://www.pjrc.com/teensy/teensyduino.html
+ *  Teensyduino - https://www.pjrc.com/teensy/teensyduino.html
  *    Select Teensy++ 2.0 in Arduino IDE from the 'Tools > Board' menu
  *
  *    Installation instructions are at the above URL.  Don't bother loading the
@@ -73,7 +72,7 @@
   *  The pin assignments in this file match the silkscreen.
   */
 
-#if !defined(__AVR_AT90USB1286__) && !defined(__AVR_AT90USB1286P__)
+#if NOT_TARGET(__AVR_AT90USB1286__, __AVR_AT90USB1286P__)
   #error "Oops! Select 'Teensy++ 2.0' or 'Printrboard' in 'Tools > Board.'"
 #endif
 
@@ -142,7 +141,7 @@
 //
 // LCD / Controller
 //
-#if BOTH(ULTRA_LCD, NEWPANEL)
+#if IS_ULTRA_LCD && IS_NEWPANEL
 
   #define BEEPER_PIN                          -1
 
@@ -155,7 +154,7 @@
 
   #define SD_DETECT_PIN                       -1
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // IS_ULTRA_LCD && IS_NEWPANEL
 
 //
 // M3/M4/M5 - Spindle/Laser Control

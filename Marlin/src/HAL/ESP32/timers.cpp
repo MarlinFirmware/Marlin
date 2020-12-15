@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef ARDUINO_ARCH_ESP32
@@ -27,9 +27,7 @@
 #include <driver/periph_ctrl.h>
 #include <driver/timer.h>
 
-#include "HAL.h"
-
-#include "timers.h"
+#include "../../inc/MarlinConfig.h"
 
 // ------------------------
 // Local defines

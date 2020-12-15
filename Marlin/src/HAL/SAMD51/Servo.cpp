@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -32,7 +32,6 @@
 #include "../shared/servo.h"
 #include "../shared/servo_private.h"
 #include "SAMD51.h"
-#include "timers.h"
 
 #define __TC_GCLK_ID(t)         TC##t##_GCLK_ID
 #define _TC_GCLK_ID(t)          __TC_GCLK_ID(t)

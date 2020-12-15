@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -54,17 +54,17 @@ public:
   #endif
 
   static inline float get_measurement(const AxisEnum a) {
+    UNUSED(a);
     // Return the measurement averaged over all readings
     return TERN(MEASURE_BACKLASH_WHEN_PROBING
       , measured_count[a] > 0 ? measured_mm[a] / measured_count[a] : 0
       , 0
     );
-    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_measurement(const AxisEnum a) {
+    UNUSED(a);
     return TERN0(MEASURE_BACKLASH_WHEN_PROBING, measured_count[a] > 0);
-    TERN(MEASURE_BACKLASH_WHEN_PROBING,,UNUSED(a));
   }
 
   static inline bool has_any_measurement() {

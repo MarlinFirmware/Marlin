@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -31,12 +31,11 @@
  *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
  *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
- *
  */
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers
 
-#ifndef MCU_LPC1768
+#if NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -158,7 +157,7 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -171,7 +170,7 @@
 #define TEMP_2_PIN                      P0_26_A3  // A3 - (63) - J5-3 & AUX-2
 #define TEMP_3_PIN                      P1_30_A4  // A4 - (37) - BUZZER_PIN
 //#define TEMP_4_PIN                    P1_31_A5  // A5 - (49) - SD_DETECT_PIN
-//#define ??                  P0_03_A6   // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
+//#define ??                  P0_03_A6            // A6 - ( 0)  - RXD0 - J4-4 & AUX-1
 #define FILWIDTH_PIN                    P0_02_A7  // A7 - ( 1)  - TXD0 - J4-5 & AUX-1
 
 //
@@ -293,7 +292,7 @@
  * All controllers can use J3 and J5 on the Re-ARM board. Custom cabling will be required.
  *
  * - https://github.com/wolfmanjm/universal-panel-adapter
- * - http://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
+ * - https://panucattdevices.freshdesk.com/support/solutions/articles/1000243195-lcd-display-installation
  */
 
 /**
@@ -326,7 +325,16 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
-#elif HAS_SPI_LCD
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+
+#elif HAS_WIRED_LCD
 
   //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
   //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
@@ -349,8 +357,8 @@
   #define LCD_PINS_RS                      P0_16  // (16) J3-7 & AUX-4
   #define LCD_SDSS                         P1_23  // (53) J3-5 & AUX-3
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(REPRAPWORLD_KEYPAD)
+  #if IS_NEWPANEL
+    #if IS_RRW_KEYPAD
       #define SHIFT_OUT                    P0_18  // (51) (MOSI) J3-10 & AUX-3
       #define SHIFT_CLK                    P0_15  // (52) (SCK)  J3-9 & AUX-3
       #define SHIFT_LD                     P1_31  // (49)        J3-1 & AUX-3 (NOT 5V tolerant)
@@ -363,15 +371,16 @@
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
     #define DOGLCD_SCK                   SCK_PIN
     #define DOGLCD_MOSI                 MOSI_PIN
 
-    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
+    #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
+
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -407,10 +416,15 @@
     #define LCD_BACKLIGHT_PIN              P0_16  //(16) J3-7 & AUX-4 - only used on DOGLCD controllers
     #define LCD_PINS_ENABLE                P0_18  // (51) (MOSI) J3-10 & AUX-3
     #define LCD_PINS_D4                    P0_15  // (52) (SCK)  J3-9 & AUX-3
-    #if ENABLED(ULTIPANEL)
+    #if IS_ULTIPANEL
       #define LCD_PINS_D5                  P1_17  // (71) ENET_MDIO
       #define LCD_PINS_D6                  P1_14  // (73) ENET_RX_ER
       #define LCD_PINS_D7                  P1_10  // (75) ENET_RXD1
+
+      #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
+      #endif
+
     #endif
   #endif
 
@@ -420,14 +434,14 @@
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
-  #endif
+ #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // Ethernet pins
 //
-#if DISABLED(ULTIPANEL)
+#if !IS_ULTIPANEL
   #define ENET_MDIO                        P1_17  // (71)  J12-4
   #define ENET_RX_ER                       P1_14  // (73)  J12-6
   #define ENET_RXD1                        P1_10  // (75)  J12-8

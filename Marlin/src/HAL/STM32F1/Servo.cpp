@@ -17,7 +17,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #ifdef __STM32F1__
@@ -29,7 +29,6 @@
 uint8_t ServoCount = 0;
 
 #include "Servo.h"
-#include "timers.h"
 
 //#include "Servo.h"
 
@@ -75,6 +74,7 @@ void libServo::servoWrite(uint8_t inPin, uint16_t duty_cycle) {
 
 libServo::libServo() {
   servoIndex = ServoCount < MAX_SERVOS ? ServoCount++ : INVALID_SERVO;
+  timer_set_interrupt_priority(SERVO0_TIMER_NUM, SERVO0_TIMER_IRQ_PRIO);
 }
 
 bool libServo::attach(const int32_t inPin, const int32_t inMinAngle, const int32_t inMaxAngle) {

@@ -16,16 +16,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 /**
  * ReprapWorld ULTRATRONICS v1.0
+ * https://reprapworld.com/documentation/datasheet_ultratronics10_05.pdf
  */
 
-#ifndef ARDUINO_ARCH_SAM
+#if NOT_TARGET(ARDUINO_ARCH_SAM)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -145,6 +146,10 @@
 #define SPI_EEPROM1_CS                        -1
 #define SPI_EEPROM2_CS                        -1
 #define SPI_FLASH_CS                          -1
+
+#define SCK_PIN                               76
+#define MISO_PIN                              74
+#define MOSI_PIN                              75
 
 // SPI for Max6675 or Max31855 Thermocouple
 #define MAX6675_SS_PIN                        65

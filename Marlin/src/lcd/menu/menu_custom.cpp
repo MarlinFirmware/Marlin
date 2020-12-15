@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU && ( ENABLED(CUSTOM_MENUS_MAIN) || ENABLED(CUSTOM_MENUS_CONFIGURATION) )
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../gcode/queue.h"
 
 #ifdef CUSTOM_MENU_MAIN_SCRIPT_DONE

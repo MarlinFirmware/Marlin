@@ -16,31 +16,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
 #define BOARD_INFO_NAME   "FYSETC AIO II"
 #define BOARD_WEBSITE_URL "fysetc.com"
 
+#define BOARD_NO_NATIVE_USB
+
 #define DISABLE_JTAG
 
-#define pins_v2_20190128   // new pins define
+#define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Flash EEPROM Emulation
 //
 #if EITHER(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2KB
 #endif
@@ -84,7 +86,7 @@
 #define E0_DIR_PIN                          PC14
 #define E0_ENABLE_PIN                       PC13
 
-#if HAS_TMC220x
+#if HAS_TMC_UART
 
   /**
    * TMC2208/TMC2209 stepper drivers
@@ -93,13 +95,21 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  Serial1
-  #define Y_HARDWARE_SERIAL  Serial1
-  #define Z_HARDWARE_SERIAL  Serial1
-  #define E0_HARDWARE_SERIAL Serial1
-  #define TMC_SERIAL_MULTIPLEXER
-  #define SERIAL_MUL_PIN1                   PB13
-  #define SERIAL_MUL_PIN2                   PB12
+  #define X_HARDWARE_SERIAL  MSerial2
+  #define Y_HARDWARE_SERIAL  MSerial2
+  #define Z_HARDWARE_SERIAL  MSerial2
+  #define E0_HARDWARE_SERIAL MSerial2
+
+  // The 4xTMC2209 module doesn't have a serial multiplexer and
+  // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
+  #if HAS_DRIVER(TMC2208)
+    #define TMC_SERIAL_MULTIPLEXER
+    #define SERIAL_MUL_PIN1                 PB13
+    #define SERIAL_MUL_PIN2                 PB12
+  #endif
+
+  // Reduce baud rate to improve software serial reliability
+  #define TMC_BAUD_RATE                    19200
 
 #endif
 
@@ -107,7 +117,7 @@
 // Stepper current PWM
 //
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // origin:2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
@@ -134,11 +144,11 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #define DOGLCD_A0                       PA15
     #ifdef pins_v2_20190128
@@ -147,7 +157,7 @@
       #define DOGLCD_CS                     PB7
     #endif
 
-    //#define LCD_CONTRAST_INIT 190
+    //#define LCD_CONTRAST_INIT              190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
@@ -157,7 +167,7 @@
   // not connected to a pin
   #define SD_DETECT_PIN                     PC3
 
-  #if ENABLED(NEWPANEL)
+  #if IS_NEWPANEL
     // The encoder and click button
     #define BTN_EN1                         PC10
     #define BTN_EN2                         PC11

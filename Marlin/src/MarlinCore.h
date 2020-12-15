@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -87,19 +87,18 @@ extern bool wait_for_heatup;
   void wait_for_user_response(millis_t ms=0, const bool no_sleep=false);
 #endif
 
-// Inactivity shutdown timer
-extern millis_t max_inactive_time, stepper_inactive_time;
-
 #if ENABLED(PSU_CONTROL)
   extern bool powersupply_on;
-  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_HIGH); powersupply_on = true; }while(0)
-  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_HIGH); powersupply_on = false; }while(0)
+  #define PSU_PIN_ON()  do{ OUT_WRITE(PS_ON_PIN,  PSU_ACTIVE_STATE); powersupply_on = true;  }while(0)
+  #define PSU_PIN_OFF() do{ OUT_WRITE(PS_ON_PIN, !PSU_ACTIVE_STATE); powersupply_on = false; }while(0)
   #if ENABLED(AUTO_POWER_CONTROL)
-    #define PSU_ON()  powerManager.power_on()
-    #define PSU_OFF() powerManager.power_off()
+    #define PSU_ON()       powerManager.power_on()
+    #define PSU_OFF()      powerManager.power_off()
+    #define PSU_OFF_SOON() powerManager.power_off_soon()
   #else
-    #define PSU_ON()  PSU_PIN_ON()
-    #define PSU_OFF() PSU_PIN_OFF()
+    #define PSU_ON()     PSU_PIN_ON()
+    #define PSU_OFF()    PSU_PIN_OFF()
+    #define PSU_OFF_SOON PSU_OFF
   #endif
 #endif
 
@@ -123,5 +122,6 @@ void protected_pin_err();
 #endif
 
 extern const char NUL_STR[], M112_KILL_STR[], G28_STR[], M21_STR[], M23_STR[], M24_STR[],
+                  SP_A_STR[], SP_B_STR[], SP_C_STR[],
                   SP_P_STR[], SP_T_STR[], SP_X_STR[], SP_Y_STR[], SP_Z_STR[], SP_E_STR[],
                   X_LBL[], Y_LBL[], Z_LBL[], E_LBL[], SP_X_LBL[], SP_Y_LBL[], SP_Z_LBL[], SP_E_LBL[];

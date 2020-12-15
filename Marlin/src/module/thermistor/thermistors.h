@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -41,6 +41,8 @@
 #define OV(N) int16_t(OV_SCALE(N) * (OVERSAMPLENR) * (THERMISTOR_TABLE_SCALE))
 
 #define ANY_THERMISTOR_IS(n) (THERMISTOR_HEATER_0 == n || THERMISTOR_HEATER_1 == n || THERMISTOR_HEATER_2 == n || THERMISTOR_HEATER_3 == n || THERMISTOR_HEATER_4 == n || THERMISTOR_HEATER_5 == n || THERMISTOR_HEATER_6 == n || THERMISTOR_HEATER_7 == n || THERMISTORBED == n || THERMISTORCHAMBER == n || THERMISTORPROBE == n)
+
+typedef struct { int16_t value, celsius; } temp_entry_t;
 
 // Pt1000 and Pt100 handling
 //
@@ -69,6 +71,12 @@
 #endif
 #if ANY_THERMISTOR_IS(501) // 100K Zonestar thermistor
   #include "thermistor_501.h"
+#endif
+#if ANY_THERMISTOR_IS(502) // Unknown thermistor used by the Zonestar Průša P802M hot bed
+  #include "thermistor_502.h"
+#endif
+#if ANY_THERMISTOR_IS(503) // Zonestar (Z8XM2) Heated Bed thermistor
+  #include "thermistor_503.h"
 #endif
 #if ANY_THERMISTOR_IS(512) // 100k thermistor in RPW-Ultra hotend, Pull-up = 4.7 kOhm, "unknown model"
   #include "thermistor_512.h"
@@ -100,6 +108,9 @@
 #if ANY_THERMISTOR_IS(15) // JGAurora A5 thermistor calibration
   #include "thermistor_15.h"
 #endif
+#if ANY_THERMISTOR_IS(17) // Dagoma NTC 100k white thermistor
+  #include "thermistor_17.h"
+#endif
 #if ANY_THERMISTOR_IS(18) // ATC Semitec 204GT-2 (4.7k pullup) Dagoma.Fr - MKS_Base_DKU001327
   #include "thermistor_18.h"
 #endif
@@ -114,6 +125,9 @@
 #endif
 #if ANY_THERMISTOR_IS(23) // By AluOne #12622. Formerly 22 above. May need calibration/checking.
   #include "thermistor_23.h"
+#endif
+#if ANY_THERMISTOR_IS(30) // Kis3d Silicone mat 24V 200W/300W with 6mm Precision cast plate (EN AW 5083)
+  #include "thermistor_30.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // beta25 = 4092 K, R25 = 100 kOhm, Pull-up = 1 kOhm, "EPCOS"
   #include "thermistor_51.h"
@@ -182,16 +196,17 @@
   #include "thermistor_999.h"
 #endif
 #if ANY_THERMISTOR_IS(1000) // Custom
-  const short temptable_1000[][2] PROGMEM = { { 0, 0 } };
+  const temp_entry_t temptable_1000[] PROGMEM = { { 0, 0 } };
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
 
+
 #if THERMISTOR_HEATER_0
   #define HEATER_0_TEMPTABLE TT_NAME(THERMISTOR_HEATER_0)
   #define HEATER_0_TEMPTABLE_LEN COUNT(HEATER_0_TEMPTABLE)
-#elif defined(HEATER_0_USES_THERMISTOR)
+#elif HEATER_0_USES_THERMISTOR
   #error "No heater 0 thermistor table specified"
 #else
   #define HEATER_0_TEMPTABLE nullptr
@@ -201,7 +216,7 @@
 #if THERMISTOR_HEATER_1
   #define HEATER_1_TEMPTABLE TT_NAME(THERMISTOR_HEATER_1)
   #define HEATER_1_TEMPTABLE_LEN COUNT(HEATER_1_TEMPTABLE)
-#elif defined(HEATER_1_USES_THERMISTOR)
+#elif HEATER_1_USES_THERMISTOR
   #error "No heater 1 thermistor table specified"
 #else
   #define HEATER_1_TEMPTABLE nullptr
@@ -211,7 +226,7 @@
 #if THERMISTOR_HEATER_2
   #define HEATER_2_TEMPTABLE TT_NAME(THERMISTOR_HEATER_2)
   #define HEATER_2_TEMPTABLE_LEN COUNT(HEATER_2_TEMPTABLE)
-#elif defined(HEATER_2_USES_THERMISTOR)
+#elif HEATER_2_USES_THERMISTOR
   #error "No heater 2 thermistor table specified"
 #else
   #define HEATER_2_TEMPTABLE nullptr
@@ -221,7 +236,7 @@
 #if THERMISTOR_HEATER_3
   #define HEATER_3_TEMPTABLE TT_NAME(THERMISTOR_HEATER_3)
   #define HEATER_3_TEMPTABLE_LEN COUNT(HEATER_3_TEMPTABLE)
-#elif defined(HEATER_3_USES_THERMISTOR)
+#elif HEATER_3_USES_THERMISTOR
   #error "No heater 3 thermistor table specified"
 #else
   #define HEATER_3_TEMPTABLE nullptr
@@ -231,7 +246,7 @@
 #if THERMISTOR_HEATER_4
   #define HEATER_4_TEMPTABLE TT_NAME(THERMISTOR_HEATER_4)
   #define HEATER_4_TEMPTABLE_LEN COUNT(HEATER_4_TEMPTABLE)
-#elif defined(HEATER_4_USES_THERMISTOR)
+#elif HEATER_4_USES_THERMISTOR
   #error "No heater 4 thermistor table specified"
 #else
   #define HEATER_4_TEMPTABLE nullptr
@@ -241,7 +256,7 @@
 #if THERMISTOR_HEATER_5
   #define HEATER_5_TEMPTABLE TT_NAME(THERMISTOR_HEATER_5)
   #define HEATER_5_TEMPTABLE_LEN COUNT(HEATER_5_TEMPTABLE)
-#elif defined(HEATER_5_USES_THERMISTOR)
+#elif HEATER_5_USES_THERMISTOR
   #error "No heater 5 thermistor table specified"
 #else
   #define HEATER_5_TEMPTABLE nullptr
@@ -251,7 +266,7 @@
 #if THERMISTOR_HEATER_6
   #define HEATER_6_TEMPTABLE TT_NAME(THERMISTOR_HEATER_6)
   #define HEATER_6_TEMPTABLE_LEN COUNT(HEATER_6_TEMPTABLE)
-#elif defined(HEATER_6_USES_THERMISTOR)
+#elif HEATER_6_USES_THERMISTOR
   #error "No heater 6 thermistor table specified"
 #else
   #define HEATER_6_TEMPTABLE nullptr
@@ -261,7 +276,7 @@
 #if THERMISTOR_HEATER_7
   #define HEATER_7_TEMPTABLE TT_NAME(THERMISTOR_HEATER_7)
   #define HEATER_7_TEMPTABLE_LEN COUNT(HEATER_7_TEMPTABLE)
-#elif defined(HEATER_7_USES_THERMISTOR)
+#elif HEATER_7_USES_THERMISTOR
   #error "No heater 7 thermistor table specified"
 #else
   #define HEATER_7_TEMPTABLE nullptr
@@ -271,7 +286,7 @@
 #ifdef THERMISTORBED
   #define BED_TEMPTABLE TT_NAME(THERMISTORBED)
   #define BED_TEMPTABLE_LEN COUNT(BED_TEMPTABLE)
-#elif defined(HEATER_BED_USES_THERMISTOR)
+#elif HEATER_BED_USES_THERMISTOR
   #error "No bed thermistor table specified"
 #else
   #define BED_TEMPTABLE_LEN 0
@@ -280,14 +295,17 @@
 #ifdef THERMISTORCHAMBER
   #define CHAMBER_TEMPTABLE TT_NAME(THERMISTORCHAMBER)
   #define CHAMBER_TEMPTABLE_LEN COUNT(CHAMBER_TEMPTABLE)
-#elif defined(HEATER_CHAMBER_USES_THERMISTOR)
+#elif HEATER_CHAMBER_USES_THERMISTOR
   #error "No chamber thermistor table specified"
 #else
   #define CHAMBER_TEMPTABLE_LEN 0
 #endif
+
 #ifdef THERMISTORPROBE
   #define PROBE_TEMPTABLE TT_NAME(THERMISTORPROBE)
   #define PROBE_TEMPTABLE_LEN COUNT(PROBE_TEMPTABLE)
+#elif HEATER_PROBE_USES_THERMISTOR
+  #error "No probe thermistor table specified"
 #else
   #define PROBE_TEMPTABLE_LEN 0
 #endif
@@ -297,7 +315,7 @@ static_assert(
      HEATER_0_TEMPTABLE_LEN < 256 && HEATER_1_TEMPTABLE_LEN < 256
   && HEATER_2_TEMPTABLE_LEN < 256 && HEATER_3_TEMPTABLE_LEN < 256
   && HEATER_4_TEMPTABLE_LEN < 256 && HEATER_5_TEMPTABLE_LEN < 256
-  && HEATER_6_TEMPTABLE_LEN < 258 && HEATER_7_TEMPTABLE_LEN < 258
+  && HEATER_6_TEMPTABLE_LEN < 256 && HEATER_7_TEMPTABLE_LEN < 256
   &&      BED_TEMPTABLE_LEN < 256 &&  CHAMBER_TEMPTABLE_LEN < 256
   &&    PROBE_TEMPTABLE_LEN < 256,
   "Temperature conversion tables over 255 entries need special consideration."
@@ -306,8 +324,85 @@ static_assert(
 // Set the high and low raw values for the heaters
 // For thermistors the highest temperature results in the lowest ADC value
 // For thermocouples the highest temperature results in the highest ADC value
+
+#define _TT_REV(N) REVERSE_TEMP_SENSOR_RANGE_##N
+#define TT_REV(N) _TT_REV(N)
+
+#ifdef HEATER_0_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_0)
+    #define HEATER_0_SENSOR_MINTEMP_IND 0
+    #define HEATER_0_SENSOR_MAXTEMP_IND HEATER_0_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_0_SENSOR_MINTEMP_IND HEATER_0_TEMPTABLE_LEN - 1
+    #define HEATER_0_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_1_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_1)
+    #define HEATER_1_SENSOR_MINTEMP_IND 0
+    #define HEATER_1_SENSOR_MAXTEMP_IND HEATER_1_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_1_SENSOR_MINTEMP_IND HEATER_1_TEMPTABLE_LEN - 1
+    #define HEATER_1_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_2_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_2)
+    #define HEATER_2_SENSOR_MINTEMP_IND 0
+    #define HEATER_2_SENSOR_MAXTEMP_IND HEATER_2_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_2_SENSOR_MINTEMP_IND HEATER_2_TEMPTABLE_LEN - 1
+    #define HEATER_2_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_3_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_3)
+    #define HEATER_3_SENSOR_MINTEMP_IND 0
+    #define HEATER_3_SENSOR_MAXTEMP_IND HEATER_3_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_3_SENSOR_MINTEMP_IND HEATER_3_TEMPTABLE_LEN - 1
+    #define HEATER_3_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_4_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_4)
+    #define HEATER_4_SENSOR_MINTEMP_IND 0
+    #define HEATER_4_SENSOR_MAXTEMP_IND HEATER_4_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_4_SENSOR_MINTEMP_IND HEATER_4_TEMPTABLE_LEN - 1
+    #define HEATER_4_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_5_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_5)
+    #define HEATER_5_SENSOR_MINTEMP_IND 0
+    #define HEATER_5_SENSOR_MAXTEMP_IND HEATER_5_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_5_SENSOR_MINTEMP_IND HEATER_5_TEMPTABLE_LEN - 1
+    #define HEATER_5_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_6_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_6)
+    #define HEATER_6_SENSOR_MINTEMP_IND 0
+    #define HEATER_6_SENSOR_MAXTEMP_IND HEATER_6_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_6_SENSOR_MINTEMP_IND HEATER_6_TEMPTABLE_LEN - 1
+    #define HEATER_6_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+#ifdef HEATER_7_TEMPTABLE
+  #if TT_REV(THERMISTOR_HEATER_7)
+    #define HEATER_7_SENSOR_MINTEMP_IND 0
+    #define HEATER_7_SENSOR_MAXTEMP_IND HEATER_7_TEMPTABLE_LEN - 1
+  #else
+    #define HEATER_7_SENSOR_MINTEMP_IND HEATER_7_TEMPTABLE_LEN - 1
+    #define HEATER_7_SENSOR_MAXTEMP_IND 0
+  #endif
+#endif
+
 #ifndef HEATER_0_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_0_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_0) || !HEATER_0_USES_THERMISTOR
     #define HEATER_0_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_0_RAW_LO_TEMP 0
   #else
@@ -316,7 +411,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_1_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_1_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_1) || !HEATER_1_USES_THERMISTOR
     #define HEATER_1_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_1_RAW_LO_TEMP 0
   #else
@@ -325,7 +420,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_2_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_2_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_2) || !HEATER_2_USES_THERMISTOR
     #define HEATER_2_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_2_RAW_LO_TEMP 0
   #else
@@ -334,7 +429,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_3_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_3_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_3) || !HEATER_3_USES_THERMISTOR
     #define HEATER_3_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_3_RAW_LO_TEMP 0
   #else
@@ -343,7 +438,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_4_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_4_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_4) || !HEATER_4_USES_THERMISTOR
     #define HEATER_4_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_4_RAW_LO_TEMP 0
   #else
@@ -352,7 +447,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_5_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_5_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_5) || !HEATER_5_USES_THERMISTOR
     #define HEATER_5_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_5_RAW_LO_TEMP 0
   #else
@@ -361,7 +456,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_6_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_6_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_6) || !HEATER_6_USES_THERMISTOR
     #define HEATER_6_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_6_RAW_LO_TEMP 0
   #else
@@ -370,7 +465,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_7_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_7_USES_THERMISTOR)
+  #if TT_REV(THERMISTOR_HEATER_7) || !HEATER_7_USES_THERMISTOR
     #define HEATER_7_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_7_RAW_LO_TEMP 0
   #else
@@ -379,7 +474,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_BED_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_BED_USES_THERMISTOR)
+  #if TT_REV(THERMISTORBED) || !HEATER_BED_USES_THERMISTOR
     #define HEATER_BED_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_BED_RAW_LO_TEMP 0
   #else
@@ -388,7 +483,7 @@ static_assert(
   #endif
 #endif
 #ifndef HEATER_CHAMBER_RAW_HI_TEMP
-  #if defined(REVERSE_TEMP_SENSOR_RANGE) || !defined(HEATER_CHAMBER_USES_THERMISTOR)
+  #if TT_REV(THERMISTORCHAMBER) || !HEATER_CHAMBER_USES_THERMISTOR
     #define HEATER_CHAMBER_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
     #define HEATER_CHAMBER_RAW_LO_TEMP 0
   #else
@@ -396,5 +491,15 @@ static_assert(
     #define HEATER_CHAMBER_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
   #endif
 #endif
+#ifndef HEATER_PROBE_RAW_HI_TEMP
+  #if TT_REV(THERMISTORPROBE) || !HEATER_PROBE_USES_THERMISTOR
+    #define HEATER_PROBE_RAW_HI_TEMP MAX_RAW_THERMISTOR_VALUE
+    #define HEATER_PROBE_RAW_LO_TEMP 0
+  #else
+    #define HEATER_PROBE_RAW_HI_TEMP 0
+    #define HEATER_PROBE_RAW_LO_TEMP MAX_RAW_THERMISTOR_VALUE
+  #endif
+#endif
 
-#undef REVERSE_TEMP_SENSOR_RANGE
+#undef _TT_REV
+#undef TT_REV

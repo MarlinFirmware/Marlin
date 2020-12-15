@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
@@ -41,14 +41,10 @@
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
   FORCE_INLINE void mod_probe_offset(const float &offs) {
-    if (true
-      #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        && active_extruder == 0
-      #endif
-    ) {
+    if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
       probe.offset.z += offs;
       SERIAL_ECHO_START();
-      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET STR_Z ": ", probe.offset.z);
+      SERIAL_ECHOLNPAIR(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
@@ -131,7 +127,7 @@ void GcodeSuite::M290() {
         #else
           PSTR("Babystep Z")
         #endif
-        , babystep.axis_total[BS_AXIS_IND(Z_AXIS)]
+        , babystep.axis_total[BS_TOTAL_IND(Z_AXIS)]
       );
     }
     #endif

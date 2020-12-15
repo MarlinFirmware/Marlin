@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -22,7 +22,7 @@
  * Longer3D LK1/LK2 & Alfawise U20/U30 (STM32F103VET6) board pin assignments
  */
 
-#if !defined(__STM32F1__) && !defined(STM32F1xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx)
   #error "Oops! Select a STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "Longer3D board only supports 1 hotend / E-stepper. Comment out this line to continue."
@@ -30,6 +30,8 @@
 
 #define BOARD_INFO_NAME "Longer3D"
 #define ALFAWISE_UX0                              // Common to all Longer3D STM32F1 boards (used for Open drain mosfets)
+
+#define BOARD_NO_NATIVE_USB
 
 //#define DISABLE_DEBUG                           //  We still want to debug with STLINK...
 #define DISABLE_JTAG                              //  We free the jtag pins (PA15) but keep STLINK
@@ -86,8 +88,8 @@
 
 #define FAN_PIN                             PA15  // pin 77 (4cm Fan)
 #define FAN_SOFT_PWM                              // Required to avoid issues with heating or STLink
-#define FAN_MIN_PWM 35                            // Fan will not start in 1-30 range
-#define FAN_MAX_PWM 255
+#define FAN_MIN_PWM                           35  // Fan will not start in 1-30 range
+#define FAN_MAX_PWM                          255
 
 //#define BEEPER_PIN                        PD13  // pin 60 (Servo PWM output 5V/GND on Board V0G+) made for BL-Touch sensor
                                  // Can drive a PC Buzzer, if connected between PWM and 5V pins
@@ -106,20 +108,8 @@
   //#undef Z_MAX_PIN                              // Uncomment if using ZMAX connector (PE5)
 #endif
 
-/**
- * Note: Alfawise screens use various TFT controllers. Supported screens
- * are based on the ILI9341, ILI9328 and ST7798V. Define init sequences for
- * other screens in u8g_dev_tft_320x240_upscale_from_128x64.cpp
- *
- * If the screen stays white, disable 'LCD_RESET_PIN' to let the bootloader
- * init the screen.
- *
- * Setting an 'LCD_RESET_PIN' may cause a flicker when entering the LCD menu
- * because Marlin uses the reset as a failsafe to revive a glitchy LCD.
- */
-
-#define LCD_RESET_PIN                       PC4   // pin 33
-#define LCD_BACKLIGHT_PIN                   PD12  // pin 59
+#define TFT_RESET_PIN                       PC4   // pin 33
+#define TFT_BACKLIGHT_PIN                   PD12  // pin 59
 #define FSMC_CS_PIN                         PD7   // pin 88 = FSMC_NE1
 #define FSMC_RS_PIN                         PD11  // pin 58 A16 Register. Only one address needed
 
@@ -130,12 +120,15 @@
 #define DOGLCD_MOSI                         -1    // Prevent auto-define by Conditionals_post.h
 #define DOGLCD_SCK                          -1
 
+// Buffer for Color UI
+#define TFT_BUFFER_SIZE                     3200
+
 /**
  * Note: Alfawise U20/U30 boards DON'T use SPI2, as the hardware designer
  * mixed up MOSI and MISO pins. SPI is managed in SW, and needs pins
  * declared below.
  */
-#if ENABLED(TOUCH_BUTTONS)
+#if NEED_TOUCH_PINS
   #define TOUCH_CS_PIN                      PB12  // pin 51 SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // pin 52
   #define TOUCH_MOSI_PIN                    PB14  // pin 53
@@ -154,18 +147,18 @@
 
 #if ENABLED(SPI_EEPROM)
   // SPI1 EEPROM Winbond W25Q64 (8MB/64Mbits)
-  #define SPI_CHAN_EEPROM1 1
+  #define SPI_CHAN_EEPROM1                     1
   #define SPI_EEPROM1_CS                    PC5   // pin 34
   #define EEPROM_SCK          BOARD_SPI1_SCK_PIN  // PA5 pin 30
   #define EEPROM_MISO        BOARD_SPI1_MISO_PIN  // PA6 pin 31
   #define EEPROM_MOSI        BOARD_SPI1_MOSI_PIN  // PA7 pin 32
-  #define EEPROM_PAGE_SIZE 0x1000U                // 4KB (from datasheet)
+  #define EEPROM_PAGE_SIZE               0x1000U  // 4KB (from datasheet)
   #define MARLIN_EEPROM_SIZE 16UL * (EEPROM_PAGE_SIZE)   // Limit to 64KB for now...
 #elif ENABLED(FLASH_EEPROM_EMULATION)
   // SoC Flash (framework-arduinoststm32-maple/STM32F1/libraries/EEPROM/EEPROM.h)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2KB
+  #define EEPROM_PAGE_SIZE     (0x800U)           // 2KB
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
 #else
-  #define MARLIN_EEPROM_SIZE 0x800U               // On SD, Limit to 2KB, require this amount of RAM
+  #define MARLIN_EEPROM_SIZE              0x800U  // On SD, Limit to 2KB, require this amount of RAM
 #endif

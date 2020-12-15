@@ -16,13 +16,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #pragma once
 
-#if NONE(__STM32F1__, STM32F1xx, STM32F0xx)
+#if NOT_TARGET(__STM32F1__, STM32F1xx, STM32F0xx)
   #error "Oops! Select a 'Malyan M300' board in 'Tools > Board.'"
 #endif
 
@@ -33,6 +33,9 @@
 //
 #if NO_EEPROM_SELECTED
   #define FLASH_EEPROM_EMULATION
+  #ifndef MARLIN_EEPROM_SIZE
+    #define MARLIN_EEPROM_SIZE 0x800U             // 2KB
+  #endif
 #endif
 
 //
@@ -43,8 +46,8 @@
 //
 // Timers
 //
-#define STEP_TIMER 6
-#define TEMP_TIMER 7
+#define STEP_TIMER                             6
+#define TEMP_TIMER                             7
 
 //
 // Limit Switches

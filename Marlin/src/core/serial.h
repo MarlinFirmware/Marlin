@@ -16,12 +16,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #pragma once
 
 #include "../inc/MarlinConfig.h"
+
+#if HAS_ETHERNET
+  #include "../feature/ethernet.h"
+#endif
 
 /**
  * Define debug bit-masks
@@ -47,14 +51,21 @@ extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (MARLIN_DEBUG_## F))
 
 #define SERIAL_BOTH 0x7F
-#if NUM_SERIAL > 1
+#if HAS_MULTI_SERIAL
   extern int8_t serial_port_index;
   #define _PORT_REDIRECT(n,p)   REMEMBER(n,serial_port_index,p)
   #define _PORT_RESTORE(n)      RESTORE(n)
-  #define SERIAL_OUT(WHAT, V...) do{ \
-    if (!serial_port_index || serial_port_index == SERIAL_BOTH) (void)MYSERIAL0.WHAT(V); \
-    if ( serial_port_index) (void)MYSERIAL1.WHAT(V); \
-  }while(0)
+
+  #ifdef SERIAL_CATCHALL
+    #define SERIAL_OUT(WHAT, V...) (void)CAT(MYSERIAL,SERIAL_CATCHALL).WHAT(V)
+  #else
+    #define SERIAL_OUT(WHAT, V...) do{ \
+      const bool port2_open = TERN1(HAS_ETHERNET, ethernet.have_telnet_client); \
+      if ( serial_port_index == 0 || serial_port_index == SERIAL_BOTH)                (void)MYSERIAL0.WHAT(V); \
+      if ((serial_port_index == 1 || serial_port_index == SERIAL_BOTH) && port2_open) (void)MYSERIAL1.WHAT(V); \
+    }while(0)
+  #endif
+
   #define SERIAL_ASSERT(P)      if(serial_port_index!=(P)){ debugger(); }
 #else
   #define _PORT_REDIRECT(n,p)   NOOP
@@ -280,20 +291,26 @@ extern uint8_t marlin_debug_flags;
 
 #define SERIAL_ECHO_TERNARY(TF, PRE, ON, OFF, POST) serial_ternary(TF, PSTR(PRE), PSTR(ON), PSTR(OFF), PSTR(POST))
 
+#if SERIAL_FLOAT_PRECISION
+  #define SERIAL_DECIMAL(V) SERIAL_PRINT(V, SERIAL_FLOAT_PRECISION)
+#else
+  #define SERIAL_DECIMAL(V) SERIAL_ECHO(V)
+#endif
+
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
 void serial_echopair_PGM(PGM_P const s_P, const char *v);
 void serial_echopair_PGM(PGM_P const s_P, char v);
 void serial_echopair_PGM(PGM_P const s_P, int v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
 void serial_echopair_PGM(PGM_P const s_P, long v);
+void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 void serial_echopair_PGM(PGM_P const s_P, float v);
 void serial_echopair_PGM(PGM_P const s_P, double v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned int v);
-void serial_echopair_PGM(PGM_P const s_P, unsigned long v);
 inline void serial_echopair_PGM(PGM_P const s_P, uint8_t v) { serial_echopair_PGM(s_P, (int)v); }
 inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
-inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (unsigned long)v); }
+inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
 void serialprintPGM(PGM_P str);
 void serial_echo_start();
