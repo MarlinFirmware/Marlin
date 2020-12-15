@@ -435,7 +435,9 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  TERN_(RESTORE_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
+  #if EITHER(RESTORE_LEVELING_AFTER_G28, ENABLE_LEVELING_AFTER_G28)
+    set_bed_leveling_enabled(leveling_restore_state);
+  #endif
 
   restore_feedrate_and_scaling();
 
