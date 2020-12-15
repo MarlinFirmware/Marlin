@@ -55,7 +55,7 @@ void TFT_FSMC::Init() {
   SRAMx.Init.NSBank = NSBank;
   SRAMx.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   SRAMx.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-  SRAMx.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
+  SRAMx.Init.MemoryDataWidth = TERN(TFT_INTERFACE_FSMC_8BIT, FSMC_NORSRAM_MEM_BUS_WIDTH_8, FSMC_NORSRAM_MEM_BUS_WIDTH_16);
   SRAMx.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
   SRAMx.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
   SRAMx.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;
@@ -74,8 +74,8 @@ void TFT_FSMC::Init() {
   Timing.AddressHoldTime = 15;
   Timing.DataSetupTime = 24;
   Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision = 16;
-  Timing.DataLatency = 17;
+  Timing.CLKDivision = TERN(TFT_INTERFACE_FSMC_8BIT, 0, 16);
+  Timing.DataLatency = TERN(TFT_INTERFACE_FSMC_8BIT, 0, 17);
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   // Write Timing
   // Can be decreases from 8-15-8 to 0-0-1 with risk of stability loss
@@ -142,7 +142,7 @@ uint32_t TFT_FSMC::GetID() {
   return id;
 }
 
-uint32_t TFT_FSMC::ReadID(uint16_t Reg) {
+uint32_t TFT_FSMC::ReadID(tft_data_t Reg) {
   uint32_t id;
   WriteReg(Reg);
   id = LCD->RAM; // dummy read

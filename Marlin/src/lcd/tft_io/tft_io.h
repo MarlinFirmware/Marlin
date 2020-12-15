@@ -28,11 +28,7 @@
 #if HAS_SPI_TFT
   #include HAL_PATH(../../HAL, tft/tft_spi.h)
 #elif HAS_FSMC_TFT
-  #if ENABLED(TFT_INTERFACE_FSMC_8BIT)
-    #include HAL_PATH(../../HAL, tft/tft_fsmc8.h)
-  #else
-    #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
-  #endif
+  #include HAL_PATH(../../HAL, tft/tft_fsmc.h)
 #else
   #error "TFT IO only supports SPI or FSMC interface"
 #endif
