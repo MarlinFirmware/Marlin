@@ -65,7 +65,7 @@
  */
 void GcodeSuite::M1001() {
   // If there's another auto#.g file to run...
-  if (TERN(NO_SD_AUTOSTART, false, card.autofile_check())) return;
+  if (TERN(NO_SD_AUTOSTART, false, !card.autofile_check())) return;
 
   // Purge the recovery file...
   TERN_(POWER_LOSS_RECOVERY, recovery.purge());
