@@ -173,6 +173,7 @@ Caption:
 
 ![Final_Print](../../docs/images/Final.jpg)
 ![Presentation](../../docs/images/Final2.jpg)
+![Tests](../../docs/images/Tests.png)
 
   # For the Wifi Module (ESP3DV2 directory):
 
