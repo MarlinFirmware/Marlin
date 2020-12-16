@@ -117,7 +117,7 @@ Caption:
   After the flash, you must **RESET** your printer using the menu or M502,
   M500 then start a calibration or G33 V3 (5/8 iterations).
     
-  **Tip**(Via a terminal like Prontoface, Octoprint, Repetier, Astroprint,...: 
+  **Tip** (Via a terminal like Pronterface, Octoprint, Repetier, Astroprint,...): 
         
         After a Delta calibration (G33 v3) if you get a "std dev:" sup.> 0.2, 
         it means that you have a problem with the structure of your printer!
