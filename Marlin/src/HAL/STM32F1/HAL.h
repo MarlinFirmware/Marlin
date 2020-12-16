@@ -191,8 +191,10 @@ inline void HAL_reboot() {}  // reboot the board or restart the bootloader
 
 void _delay_ms(const int delay);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 /*
 extern "C" {
@@ -207,7 +209,9 @@ static inline int freeMemory() {
   return &top - _sbrk(0);
 }
 
-#pragma GCC diagnostic pop
+#if GCC_VERSION <= 50000
+  #pragma GCC diagnostic pop
+#endif
 
 //
 // ADC
