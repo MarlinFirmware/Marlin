@@ -1,3 +1,7 @@
+
+![PrusaSlicer logo](../../docs/images/PrusaSlicer.png?raw=true)
+
+
 # 1. Slicers configuration files
 
 You will find here 2 types of configuration files, Cura and Prusa Slic3r configuration files
@@ -22,6 +26,8 @@ Select File -> Import -> Import Config Bundle... for a pack of Presets/Filaments
 and -> Import Config... for a single pack Preset/Filament/Printer. 
 
 ![picture 1](../../docs/images/PS_Import.png)  
+
+[F.A.Q](https://help.prusa3d.com/en/article/faq-prusaslicer_1789)
 
 ## 1.3. How to import Cura configuration
 
