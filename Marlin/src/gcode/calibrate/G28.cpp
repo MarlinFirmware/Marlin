@@ -241,7 +241,7 @@ void GcodeSuite::G28() {
 
   // Disable the leveling matrix before homing
   #if HAS_LEVELING
-    TERN_(CHANGES_LEVELING_AFTER_G28, const bool leveling_restore_state = LEVELING_AFTER_G28 == ACTIVATE_LVL || planner.leveling_active);
+    IF_ENABLED(CHANGES_LEVELING_AFTER_G28, const bool leveling_restore_state = LEVELING_AFTER_G28 == ACTIVATE_LVL || planner.leveling_active);
     TERN_(PROBE_MANUALLY, g29_in_progress = false);  // Cancel the active G29 session
     set_bed_leveling_enabled(false);
   #endif
@@ -435,7 +435,7 @@ void GcodeSuite::G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  TERN_(CHANGES_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
+  IF_ENABLED(CHANGES_LEVELING_AFTER_G28, set_bed_leveling_enabled(leveling_restore_state));
 
   restore_feedrate_and_scaling();
 
