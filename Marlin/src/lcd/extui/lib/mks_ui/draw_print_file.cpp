@@ -98,6 +98,7 @@ uint8_t sel_id = 0;
 bool have_pre_pic(char *path) {
   #if ENABLED(SDSUPPORT)
     char *ps1, *ps2, *cur_name = strrchr(path, '/');
+    if (!cur_name) return false;
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
     ps1 = strstr((char *)public_buf, ";simage:");
