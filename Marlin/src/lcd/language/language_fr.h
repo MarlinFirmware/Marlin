@@ -594,12 +594,10 @@ namespace Language_fr {
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sons");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Coin haut gauche");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Coin bas gauche");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Coin haut droit");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Coin bas droit");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration terminée");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Échec de l'étalonnage");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Coin haut gauche");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Coin bas gauche");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Coin haut droit");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Coin bas droit");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibration terminée");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Échec de l'étalonnage");
 }
