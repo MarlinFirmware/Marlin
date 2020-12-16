@@ -226,6 +226,7 @@
   #define DOGLCD_SCK                          17
   #define DOGLCD_A0                  LCD_PINS_DC
 
+  #undef KILL_PIN
   #define KILL_PIN                            -1  // NC
   #define NEOPIXEL_PIN                        27
 
@@ -243,7 +244,6 @@
       #define LCD_BACKLIGHT_PIN               27
     #endif
 
-    #define KILL_PIN                          41
     #define LCD_RESET_PIN                     23  // Must be high or open for LCD to operate normally.
                                   // Seems to work best if left open.
 
