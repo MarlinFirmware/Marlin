@@ -677,12 +677,10 @@ namespace Language_it {
 
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Suono");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Alto Sinistra");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Basso Sinistra");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Alto Destra");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Basso Destra");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibrazione completata");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Calibrazion fallita");
-  #endif
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Alto Sinistra");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Basso Sinistra");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Alto Destra");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Basso Destra");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibrazione completata");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibrazion fallita");
 }
