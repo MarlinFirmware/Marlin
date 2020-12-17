@@ -27,7 +27,7 @@
 #include "digipot.h"
 
 #include <Stream.h>
-#include <SlowSoftI2CMaster.h>  // https://github.com/stawel/SlowSoftI2CMaster
+#include <SlowSoftI2CMaster.h>  // https://github.com/felias-fogg/SlowSoftI2CMaster
 
 // Settings for the I2C based DIGIPOT (MCP4018) based on WT150
 
