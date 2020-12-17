@@ -332,7 +332,7 @@ bool I2CPositionEncoder::test_axis() {
 
   const float startPosition = soft_endstop.min[encoderAxis] + 10,
               endPosition = soft_endstop.max[encoderAxis] - 10;
-  const feedRate_t fr_mm_s = FLOOR(MMM_TO_MMS(homing_feedrate(encoderAxis));
+  const feedRate_t fr_mm_s = FLOOR(homing_feedrate(encoderAxis));
 
   ec = false;
 

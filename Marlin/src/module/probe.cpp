@@ -664,11 +664,8 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
 
-  const float old_feedrate_mm_s = feedrate_mm_s;
-  feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-
   // Move the probe to the starting XYZ
-  do_blocking_move_to(npos);
+  do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   float measured_z = NAN;
   if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
@@ -682,8 +679,6 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
     if (verbose_level > 2)
       SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
-
-  feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
     stow();
