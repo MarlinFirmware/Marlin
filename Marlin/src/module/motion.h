@@ -73,12 +73,16 @@ extern const feedRate_t homing_feedrate_mm_s[XYZ];
 FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) { return pgm_read_float(&homing_feedrate_mm_s[a]); }
 feedRate_t get_homing_bump_feedrate(const AxisEnum axis);
 
+/**
+ * The default feedrate for many moves, set by the most recent move
+ */
 extern feedRate_t feedrate_mm_s;
 
 /**
- * Feedrate scaling
+ * Feedrate scaling is applied to all G0/G1, G2/G3, and G5 moves
  */
 extern int16_t feedrate_percentage;
+#define MMS_SCALED(V) ((V) * 0.01f * feedrate_percentage)
 
 // The active extruder (tool). Set with T<extruder> command.
 #if HAS_MULTI_EXTRUDER

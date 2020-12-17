@@ -53,8 +53,6 @@ enum {
 static lv_obj_t *label_PowerOff;
 static lv_obj_t *buttonPowerOff;
 
-extern feedRate_t feedrate_mm_s;
-
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {

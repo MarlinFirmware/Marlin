@@ -1166,7 +1166,7 @@ void HMI_Move_X() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(X_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
@@ -1189,7 +1189,7 @@ void HMI_Move_Y() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_XY), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(Y_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
@@ -1212,7 +1212,7 @@ void HMI_Move_Z() {
       if (!planner.is_full()) {
         // Wait for planner moves to finish!
         planner.synchronize();
-        planner.buffer_line(current_position, MMM_TO_MMS(HOMING_FEEDRATE_Z), active_extruder);
+        planner.buffer_line(current_position, homing_feedrate(Z_AXIS), active_extruder);
       }
       DWIN_UpdateLCD();
       return;
