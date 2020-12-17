@@ -152,8 +152,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   inline void run_stow_moves_script() {
     const xyz_pos_t oldpos = current_position;
     endstops.enable_z_probe(false);
-    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, MMM_TO_MMS(HOMING_FEEDRATE_Z));
-    do_blocking_move_to(oldpos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
+    do_blocking_move_to(oldpos, homing_feedrate(Z_AXIS));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
