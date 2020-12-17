@@ -235,7 +235,7 @@ namespace Language_tr {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Ekstruder");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Ekstruder *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Nozul Çok Soğuk");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("%smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("%smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("10mm");

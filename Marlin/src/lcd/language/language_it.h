@@ -71,7 +71,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_AUTO_HOME_Y                     = _UxGT("Home asse Y");
   PROGMEM Language_Str MSG_AUTO_HOME_Z                     = _UxGT("Home asse Z");
   PROGMEM Language_Str MSG_AUTO_Z_ALIGN                    = _UxGT("Allineam.automat. Z");
-  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Tramming assistito");
   PROGMEM Language_Str MSG_ITERATION                       = _UxGT("Iterazione G34: %i");
   PROGMEM Language_Str MSG_DECREASING_ACCURACY             = _UxGT("Precis.in calo!");
   PROGMEM Language_Str MSG_ACCURACY_ACHIEVED               = _UxGT("Precis.raggiunta");
@@ -83,6 +82,10 @@ namespace Language_it {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Imp. offset home");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Offset applicato");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Imposta Origine");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Tramming assistito");
+  PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Wizard Tramming");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Selez. origine");
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Ultimo valore ");
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Preriscalda ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Preriscalda ") PREHEAT_1_LABEL " ~";
@@ -120,6 +123,8 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Livella piano");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Livella piano");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Livella spigoli");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Sollevare il letto finché la sonda non viene attivata");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Tutti gli angoli entro tolleranza. Livella il piano");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Prossimo spigolo");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Editor Mesh");
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifica Mesh");
@@ -129,7 +134,6 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MESH_Y                          = _UxGT("Indice Y");
   PROGMEM Language_Str MSG_MESH_EDIT_Z                     = _UxGT("Valore di Z");
   PROGMEM Language_Str MSG_USER_MENU                       = _UxGT("Comandi personaliz.");
-  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punto inclinaz.");
   PROGMEM Language_Str MSG_M48_TEST                        = _UxGT("Test sonda M48");
   PROGMEM Language_Str MSG_M48_POINT                       = _UxGT("Punto M48");
   PROGMEM Language_Str MSG_M48_OUT_OF_BOUNDS               = _UxGT("Sonda oltre i limiti");
@@ -140,12 +144,14 @@ namespace Language_it {
   PROGMEM Language_Str MSG_IDEX_MODE_DUPLICATE             = _UxGT("Duplicazione");
   PROGMEM Language_Str MSG_IDEX_MODE_MIRRORED_COPY         = _UxGT("Copia speculare");
   PROGMEM Language_Str MSG_IDEX_MODE_FULL_CTRL             = _UxGT("Pieno controllo");
+  PROGMEM Language_Str MSG_IDEX_DUPE_GAP                   = _UxGT("X-Gap-X duplicato");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_X                 = _UxGT("2° ugello X");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Y                 = _UxGT("2° ugello Y");
   PROGMEM Language_Str MSG_HOTEND_OFFSET_Z                 = _UxGT("2° ugello Z");
   PROGMEM Language_Str MSG_UBL_DOING_G29                   = _UxGT("G29 in corso");
   PROGMEM Language_Str MSG_UBL_TOOLS                       = _UxGT("Strumenti UBL");
-  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Unified Bed Leveling");
+  PROGMEM Language_Str MSG_UBL_LEVEL_BED                   = _UxGT("Livel.letto unificato");
+  PROGMEM Language_Str MSG_LCD_TILTING_MESH                = _UxGT("Punto inclinaz.");
   PROGMEM Language_Str MSG_UBL_MANUAL_MESH                 = _UxGT("Mesh Manuale");
   PROGMEM Language_Str MSG_UBL_BC_INSERT                   = _UxGT("Metti spes. e misura");
   PROGMEM Language_Str MSG_UBL_BC_INSERT2                  = _UxGT("Misura");
@@ -250,10 +256,13 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Estrusore");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Estrusore *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Ugello freddo");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Muovi di %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Muovi di %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Muovi di 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Muovi di 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Muovi di 10mm");
+  PROGMEM Language_Str MSG_MOVE_0001IN                     = _UxGT("Muovi di 0.001in");
+  PROGMEM Language_Str MSG_MOVE_001IN                      = _UxGT("Muovi di 0.01in");
+  PROGMEM Language_Str MSG_MOVE_01IN                       = _UxGT("Muovi di 0.1in");
   PROGMEM Language_Str MSG_SPEED                           = _UxGT("Velocità");
   PROGMEM Language_Str MSG_BED_Z                           = _UxGT("Piatto Z");
   PROGMEM Language_Str MSG_NOZZLE                          = _UxGT("Ugello");
@@ -372,6 +381,7 @@ namespace Language_it {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Fatto");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Indietro");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procedi");
+  PROGMEM Language_Str MSG_BUTTON_SKIP                     = _UxGT("Salta");
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Messa in pausa...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pausa stampa");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Riprendi stampa");
@@ -554,14 +564,14 @@ namespace Language_it {
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
   PROGMEM Language_Str MSG_KILL_MMU2_FIRMWARE              = _UxGT("Agg.firmware MMU!");
   PROGMEM Language_Str MSG_MMU2_NOT_RESPONDING             = _UxGT("MMU chiede attenz.");
-  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("Riprendi stampa");
-  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("Ripresa...");
-  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("Carica filamento");
-  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("Carica tutto");
+  PROGMEM Language_Str MSG_MMU2_RESUME                     = _UxGT("MMU riprendi");
+  PROGMEM Language_Str MSG_MMU2_RESUMING                   = _UxGT("MMU ripresa...");
+  PROGMEM Language_Str MSG_MMU2_LOAD_FILAMENT              = _UxGT("MMU carica");
+  PROGMEM Language_Str MSG_MMU2_LOAD_ALL                   = _UxGT("MMU carica tutto");
   PROGMEM Language_Str MSG_MMU2_LOAD_TO_NOZZLE             = _UxGT("Carica fino ugello");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("Espelli filamento");
-  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("Espelli filam.~");
-  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("Scarica filamento");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT             = _UxGT("MMU espelli");
+  PROGMEM Language_Str MSG_MMU2_EJECT_FILAMENT_N           = _UxGT("MMU espelli ~");
+  PROGMEM Language_Str MSG_MMU2_UNLOAD_FILAMENT            = _UxGT("MMU scarica");
   PROGMEM Language_Str MSG_MMU2_LOADING_FILAMENT           = _UxGT("Caric.fil. %i...");
   PROGMEM Language_Str MSG_MMU2_EJECTING_FILAMENT          = _UxGT("Esplus.filam. ...");
   PROGMEM Language_Str MSG_MMU2_UNLOADING_FILAMENT         = _UxGT("Scaric.filam. ...");
@@ -662,5 +672,15 @@ namespace Language_it {
   PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Riscaldando...");
 
   PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Proc.guid.sonda Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Tasteggio rif.Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Movim.a pos.tasteg.");
+
   PROGMEM Language_Str MSG_SOUND                           = _UxGT("Suono");
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Alto Sinistra");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Basso Sinistra");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Alto Destra");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Basso Destra");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibrazione completata");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Calibrazion fallita");
 }

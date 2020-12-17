@@ -36,9 +36,12 @@
 #include "../../../module/probe.h"
 #include "../../queue.h"
 
+#if EITHER(PROBE_TEMP_COMPENSATION, PREHEAT_BEFORE_LEVELING)
+  #include "../../../module/temperature.h"
+#endif
+
 #if ENABLED(PROBE_TEMP_COMPENSATION)
   #include "../../../feature/probe_temp_comp.h"
-  #include "../../../module/temperature.h"
 #endif
 
 #if HAS_DISPLAY
@@ -402,6 +405,24 @@ G29_TYPE GcodeSuite::G29() {
     #endif
 
     if (!faux) remember_feedrate_scaling_off();
+
+    #if ENABLED(PREHEAT_BEFORE_LEVELING)
+      #ifndef LEVELING_NOZZLE_TEMP
+        #define LEVELING_NOZZLE_TEMP 0
+      #endif
+      #ifndef LEVELING_BED_TEMP
+        #define LEVELING_BED_TEMP 0
+      #endif
+      if (!dryrun && !faux) {
+        constexpr uint16_t hotendPreheat = LEVELING_NOZZLE_TEMP, bedPreheat = LEVELING_BED_TEMP;
+        if (DEBUGGING(LEVELING))
+          DEBUG_ECHOLNPAIR("Preheating hotend (", hotendPreheat, ") and bed (", bedPreheat, ")");
+        if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0);
+        if (bedPreheat)    thermalManager.setTargetBed(bedPreheat);
+        if (hotendPreheat) thermalManager.wait_for_hotend(0);
+        if (bedPreheat)    thermalManager.wait_for_bed_heating();
+      }
+    #endif
 
     // Disable auto bed leveling during G29.
     // Be formal so G29 can be done successively without G28.

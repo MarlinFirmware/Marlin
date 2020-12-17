@@ -69,6 +69,10 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_SET_HOME_OFFSETS                = _UxGT("Régl. décal origine");
   PROGMEM Language_Str MSG_HOME_OFFSETS_APPLIED            = _UxGT("Décalages appliqués");
   PROGMEM Language_Str MSG_SET_ORIGIN                      = _UxGT("Régler origine");
+  PROGMEM Language_Str MSG_ASSISTED_TRAMMING               = _UxGT("Assistant Molettes");
+  PROGMEM Language_Str MSG_TRAMMING_WIZARD                 = _UxGT("Assistant Molettes");
+  PROGMEM Language_Str MSG_SELECT_ORIGIN                   = _UxGT("Molette du lit"); // Not a selection of the origin
+  PROGMEM Language_Str MSG_LAST_VALUE_SP                   = _UxGT("Ecart origine ");
   #if PREHEAT_COUNT
     PROGMEM Language_Str MSG_PREHEAT_1                     = _UxGT("Préchauffage ") PREHEAT_1_LABEL;
     PROGMEM Language_Str MSG_PREHEAT_1_H                   = _UxGT("Préchauffage ") PREHEAT_1_LABEL " ~";
@@ -99,6 +103,8 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BED_LEVELING                    = _UxGT("Régler Niv. lit");
   PROGMEM Language_Str MSG_LEVEL_BED                       = _UxGT("Niveau du lit");
   PROGMEM Language_Str MSG_LEVEL_CORNERS                   = _UxGT("Niveau des coins");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_RAISE             = _UxGT("Relever le coin jusqu'à la sonde");
+  PROGMEM Language_Str MSG_LEVEL_CORNERS_IN_RANGE          = _UxGT("Coins dans la tolérance. Niveau lit ");
   PROGMEM Language_Str MSG_NEXT_CORNER                     = _UxGT("Coin suivant");
   PROGMEM Language_Str MSG_MESH_EDITOR                     = _UxGT("Modif. maille"); // 13 car. max
   PROGMEM Language_Str MSG_EDIT_MESH                       = _UxGT("Modifier grille");
@@ -225,7 +231,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_MOVE_E                          = _UxGT("Extrudeur");
   PROGMEM Language_Str MSG_MOVE_EN                         = _UxGT("Extrudeur *");
   PROGMEM Language_Str MSG_HOTEND_TOO_COLD                 = _UxGT("Buse trop froide");
-  PROGMEM Language_Str MSG_MOVE_Z_DIST                     = _UxGT("Déplacer %smm");
+  PROGMEM Language_Str MSG_MOVE_N_MM                       = _UxGT("Déplacer %smm");
   PROGMEM Language_Str MSG_MOVE_01MM                       = _UxGT("Déplacer 0.1mm");
   PROGMEM Language_Str MSG_MOVE_1MM                        = _UxGT("Déplacer 1mm");
   PROGMEM Language_Str MSG_MOVE_10MM                       = _UxGT("Déplacer 10mm");
@@ -313,6 +319,7 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BUTTON_DONE                     = _UxGT("Terminé");
   PROGMEM Language_Str MSG_BUTTON_BACK                     = _UxGT("Retour");
   PROGMEM Language_Str MSG_BUTTON_PROCEED                  = _UxGT("Procéder");
+  PROGMEM Language_Str MSG_BUTTON_SKIP                     = _UxGT("Passer");
   PROGMEM Language_Str MSG_PAUSING                         = _UxGT("Mise en pause...");
   PROGMEM Language_Str MSG_PAUSE_PRINT                     = _UxGT("Pause impression");
   PROGMEM Language_Str MSG_RESUME_PRINT                    = _UxGT("Reprendre impr.");
@@ -571,12 +578,26 @@ namespace Language_fr {
   PROGMEM Language_Str MSG_BACKLASH_CORRECTION             = _UxGT("Correction");
   PROGMEM Language_Str MSG_BACKLASH_SMOOTHING              = _UxGT("Lissage");
 
-  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-    PROGMEM Language_Str MSG_TOP_LEFT                      = _UxGT("Haut à Gauche");
-    PROGMEM Language_Str MSG_BOTTOM_LEFT                   = _UxGT("Bas à Gauche");
-    PROGMEM Language_Str MSG_TOP_RIGHT                     = _UxGT("Haut à Droite");
-    PROGMEM Language_Str MSG_BOTTOM_RIGHT                  = _UxGT("Bas à Droite");
-    PROGMEM Language_Str MSG_CALIBRATION_COMPLETED         = _UxGT("Calibration Terminée");
-    PROGMEM Language_Str MSG_CALIBRATION_FAILED            = _UxGT("Échec de l'étalonnage");
+  PROGMEM Language_Str MSG_LEVEL_X_AXIS                    = _UxGT("Niveau axe X");
+  PROGMEM Language_Str MSG_AUTO_CALIBRATE                  = _UxGT("Etalon. auto.");
+  #if ENABLED(TOUCH_UI_FTDI_EVE)
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("En protection, temp. réduite. Ok pour rechauffer et continuer.");
+  #else
+    PROGMEM Language_Str MSG_HEATER_TIMEOUT                = _UxGT("En protection");
   #endif
+  PROGMEM Language_Str MSG_REHEAT                          = _UxGT("Chauffer");
+  PROGMEM Language_Str MSG_REHEATING                       = _UxGT("Réchauffe...");
+
+  PROGMEM Language_Str MSG_PROBE_WIZARD                    = _UxGT("Assistant Sonde Z");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_PROBING            = _UxGT("Mesure référence");
+  PROGMEM Language_Str MSG_PROBE_WIZARD_MOVING             = _UxGT("Dépl. vers pos");
+
+  PROGMEM Language_Str MSG_SOUND                           = _UxGT("Sons");
+
+  PROGMEM Language_Str MSG_TOP_LEFT                        = _UxGT("Coin haut gauche");
+  PROGMEM Language_Str MSG_BOTTOM_LEFT                     = _UxGT("Coin bas gauche");
+  PROGMEM Language_Str MSG_TOP_RIGHT                       = _UxGT("Coin haut droit");
+  PROGMEM Language_Str MSG_BOTTOM_RIGHT                    = _UxGT("Coin bas droit");
+  PROGMEM Language_Str MSG_CALIBRATION_COMPLETED           = _UxGT("Calibration terminée");
+  PROGMEM Language_Str MSG_CALIBRATION_FAILED              = _UxGT("Échec de l'étalonnage");
 }
