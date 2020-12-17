@@ -526,19 +526,16 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     // Raise to give the probe clearance
     do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
-  #else
+  #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
-    if (Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW)
-      // If the nozzle is well over the travel height then
-      // move down quickly before doing the slow probe
-      const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (offset.z < 0 ? -offset.z : 0);
-      if (current_position.z > z) {
-        // Probe down fast. If the probe never triggered, raise for probe clearance
-        if (!probe_down_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
-          do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-      }
+    // If the nozzle is well over the travel height then
+    // move down quickly before doing the slow probe
+    const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (offset.z < 0 ? -offset.z : 0);
+    if (current_position.z > z) {
+      // Probe down fast. If the probe never triggered, raise for probe clearance
+      if (!probe_down_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
+        do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     }
-
   #endif
 
   #if EXTRA_PROBING > 0
