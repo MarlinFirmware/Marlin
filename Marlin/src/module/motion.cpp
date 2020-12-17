@@ -143,16 +143,6 @@ xyze_pos_t destination; // {0}
 feedRate_t feedrate_mm_s = MMM_TO_MMS(1500);
 int16_t feedrate_percentage = 100;
 
-// Homing feedrate is const progmem - compare to constexpr in the header
-const feedRate_t homing_feedrate_mm_s[XYZ] PROGMEM = {
-  #if ENABLED(DELTA)
-    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
-  #else
-    MMM_TO_MMS(HOMING_FEEDRATE_X), MMM_TO_MMS(HOMING_FEEDRATE_Y),
-  #endif
-  MMM_TO_MMS(HOMING_FEEDRATE_Z)
-};
-
 // Cartesian conversion result goes here:
 xyz_pos_t cartes;
 

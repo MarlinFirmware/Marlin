@@ -2317,11 +2317,7 @@
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
   #ifndef XY_PROBE_SPEED
-    #ifdef HOMING_FEEDRATE_X
-      #define XY_PROBE_SPEED ((HOMING_FEEDRATE_X+HOMING_FEEDRATE_Y)/2)
-    #else
-      #define XY_PROBE_SPEED 4000
-    #endif
+    #define XY_PROBE_SPEED ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }
@@ -2696,10 +2692,3 @@
 #elif NUM_SERIAL > 1
   #define HAS_MULTI_SERIAL 1
 #endif
-
-#ifndef HOMING_FEEDRATE_X 
-  #define HOMING_FEEDRATE_X HOMING_FEEDRATE_XY
-#endif 
-#ifndef HOMING_FEEDRATE_Y 
-  #define HOMING_FEEDRATE_Y HOMING_FEEDRATE_XY
-#endif 
