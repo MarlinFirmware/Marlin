@@ -61,19 +61,10 @@ void GcodeSuite::T(const int8_t tool_index) {
     }
   #endif
 
-  #if EXTRUDERS < 2
-
-    tool_change(tool_index);
-
-  #else
-
-    tool_change(
-      tool_index,
-      #if DISABLED(PARKING_EXTRUDER) // motion is decided inside tool_change() for PARKING_EXTRUDER
-        (tool_index == active_extruder) || 
-      #endif
-      parser.boolval('S')
-    );
-
-  #endif
+  tool_change(tool_index
+    #if HAS_MULTI_EXTRUDER
+      ,  TERN(PARKING_EXTRUDER, false, tool_index == active_extruder) // For PARKING_EXTRUDER motion is decided in tool_change()
+      || parser.boolval('S')
+    #endif
+  );
 }
