@@ -51,17 +51,16 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_ready_print();
+
   switch (obj->mks_obj_id) {
     case ID_TOOL:
-      lv_clear_ready_print();
       lv_draw_tool();
       break;
     case ID_SET:
-      lv_clear_ready_print();
       lv_draw_set();
       break;
     case ID_PRINT:
-      lv_clear_ready_print();
       lv_draw_print_file();
       break;
   }

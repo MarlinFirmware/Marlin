@@ -62,7 +62,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
   char baby_buf[30] = { 0 };
   switch (obj->mks_obj_id) {
     case ID_BABY_STEP_X_P:
-      sprintf_P(baby_buf, PSTR("M290 X%.3f"), +babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 X%.3f"), babystep_dist);
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
@@ -72,7 +72,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Y_P:
-      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), +babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Y%.3f"), babystep_dist);
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;
@@ -82,7 +82,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       has_adjust_z = 1;
       break;
     case ID_BABY_STEP_Z_P:
-      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), +babystep_dist);
+      sprintf_P(baby_buf, PSTR("M290 Z%.3f"), babystep_dist);
       gcode.process_subcommands_now_P(PSTR(baby_buf));
       has_adjust_z = 1;
       break;

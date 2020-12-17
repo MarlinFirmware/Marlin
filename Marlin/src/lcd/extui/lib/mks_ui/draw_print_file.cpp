@@ -360,7 +360,8 @@ uint32_t lv_open_gcode_file(char *path) {
     char *cur_name;
 
     cur_name = strrchr(path, '/');
-
+    if (!cur_name) return 0;
+    public_buf[511] = 0;
     card.openFileRead(cur_name);
     card.read(public_buf, 512);
     ps4 = (uint32_t *)strstr((char *)public_buf, ";simage:");
@@ -394,21 +395,22 @@ void lv_gcode_file_read(uint8_t *data_buf) {
     uint16_t i = 0, j = 0, k = 0;
     uint16_t row_1    = 0;
     bool ignore_start = true;
-    char temp_test[200];
+    const size_t pic_width = 200;
+    char temp_test[pic_width];
     volatile uint16_t *p_index;
 
-    memset(public_buf, 0, 200);
+    memset(public_buf, 0, pic_width);
 
     while (card.isFileOpen()) {
       if (ignore_start) card.read(temp_test, 8); // line start -> ignore
-      card.read(temp_test, 200); // data
+      card.read(temp_test, pic_width); // data
       // \r;;gimage: we got the bit img, so stop here
       if (temp_test[1] == ';') {
         card.closefile();
         break;
       }
-      for (i = 0; i < 200;) {
-        public_buf[row_1 * 200 + 100 * k + j] = (char)(ascii2dec_test(&temp_test[i]) << 4 | ascii2dec_test(&temp_test[i + 1]));
+      for (i = 0; i < pic_width;) {
+        public_buf[row_1 * pic_width + 100 * k + j] = (char)(ascii2dec_test(&temp_test[i]) << 4 | ascii2dec_test(&temp_test[i + 1]));
         j++;
         i += 2;
       }
@@ -421,8 +423,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       j = 0;
       ignore_start = false;
     }
-    #if HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
+      for (i = 0; i < pic_width;) {
         p_index = (uint16_t *)(&public_buf[i]);
 
         //Color = (*p_index >> 8);
@@ -430,16 +431,7 @@ void lv_gcode_file_read(uint8_t *data_buf) {
         i += 2;
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
-    #else // !HAS_TFT_LVGL_UI_SPI
-      for (i = 0; i < 200;) {
-        p_index = (uint16_t *)(&public_buf[i]);
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
-        i += 2;
-        if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full; // 0x18C3;
-      }
-    #endif // !HAS_TFT_LVGL_UI_SPI
-    memcpy(data_buf, public_buf, 200);
+    memcpy(data_buf, public_buf, pic_width);
   #endif // SDSUPPORT
 }
 

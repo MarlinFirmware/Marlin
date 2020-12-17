@@ -251,16 +251,22 @@ void lv_fill_rect(lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2, lv
   uint16_t width, height;
   width = x2 - x1 + 1;
   height = y2 - y1 + 1;
-  const uint16 size = (uint16)width;
-  uint16_t buf[size];
-  for (uint16 j = 0; j < size; j++)
-    buf[j] = bk_color.full;
-
+ 
   SPI_TFT.setWindow((uint16_t)x1, (uint16_t)y1, width, height);
-  for (uint16_t i = 0; i < height; i++)
-    SPI_TFT.tftio.WriteSequence(buf, width);
+  #if ENABLED(TFT_LVGL_UI_FSMC)
+    SPI_TFT.tftio.WriteReg(0x002C);
+  #endif
 
-  W25QXX.init(SPI_QUARTER_SPEED);
+  #ifdef LCD_USE_DMA_FSMC
+    SPI_TFT.tftio.WriteMultiple(bk_color.full, width * height);
+  #else
+    for (uint32_t i = 0; i < width * height; i++)
+        SPI_TFT.tftio.WriteData(bk_color.full);
+  #endif
+
+  #if ENABLED(TFT_LVGL_UI_SPI)
+    W25QXX.init(SPI_QUARTER_SPEED);
+  #endif
 }
 
 #define TICK_CYCLE 1

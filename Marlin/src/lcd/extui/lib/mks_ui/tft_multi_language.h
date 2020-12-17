@@ -318,7 +318,6 @@ typedef struct main_menu_disp {
   const char *print;
   const char *extrude;
   const char *leveling;
-  const char *mleveling;
   const char *autoleveling;
   const char *fan;
   const char *set;
@@ -701,7 +700,6 @@ typedef struct tool_menu_disp {
   const char *move;
   const char *home;
   const char *leveling;
-  const char *mleveling;
   const char *autoleveling;
   const char *filament;
   const char *more;
@@ -840,7 +838,7 @@ extern eeprom_def eeprom_menu;
 #define DIALOG_UPLOAD_SPEED_EN          "Speed"
 #define DIALOG_UPDATE_WIFI_FIRMWARE_EN  "Updating wifi model firmware"
 #define DIALOG_UPDATE_WIFI_WEB_EN       "Updating wifi model web data"
-#define DIALOG_UPDATE_NO_DEVICE_EN      "please check \nwether memory device insert!"
+#define DIALOG_UPDATE_NO_DEVICE_EN      "Please check\nwether memory device insert!"
 
 #define ZOFFSET_STEP001                 "0.01 mm"
 #define ZOFFSET_STEP01                  "0.1 mm"

@@ -50,21 +50,18 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_tool();
   switch (obj->mks_obj_id) {
     case ID_T_PRE_HEAT:
-      lv_clear_tool();
       lv_draw_preHeat();
       break;
     case ID_T_EXTRUCT:
-      lv_clear_tool();
       lv_draw_extrusion();
       break;
     case ID_T_MOV:
-      lv_clear_tool();
       lv_draw_move_motor();
       break;
     case ID_T_HOME:
-      lv_clear_tool();
       lv_draw_home();
       break;
     case ID_T_LEVELING:
@@ -76,19 +73,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         queue.inject_P(PSTR(public_buf_m));
       #else
         uiCfg.leveling_first_time = 1;
-        lv_clear_tool();
         lv_draw_manualLevel();
       #endif
       break;
     case ID_T_FILAMENT:
       uiCfg.desireSprayerTempBak = thermalManager.temp_hotend[uiCfg.curSprayerChoose].target;
-      lv_clear_tool();
       lv_draw_filament_change();
       break;
     case ID_T_MORE: break;
     case ID_T_RETURN:
       TERN_(MKS_TEST, curent_disp_ui = 1);
-      lv_clear_tool();
       lv_draw_ready_print();
       break;
   }

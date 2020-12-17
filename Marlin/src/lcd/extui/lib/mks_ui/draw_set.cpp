@@ -54,33 +54,28 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  lv_clear_set();
   switch (obj->mks_obj_id) {
     case ID_S_FAN:
-      lv_clear_set();
       lv_draw_fan();
       break;
     case ID_S_ABOUT:
-      lv_clear_set();
       lv_draw_about();
       break;
-    case ID_S_CONTINUE: break;
+    case ID_S_CONTINUE: return;
     case ID_S_MOTOR_OFF:
       TERN(HAS_SUICIDE, suicide(), queue.enqueue_now_P(PSTR("M84")));
-      break;
+      return;
     case ID_S_LANGUAGE:
-      lv_clear_set();
       lv_draw_language();
       break;
     case ID_S_MACHINE_PARA:
-      lv_clear_set();
       lv_draw_machine_para();
       break;
     case ID_S_EEPROM_SET:
-      lv_clear_set();
       lv_draw_eeprom_settings();
       break;
     case ID_S_RETURN:
-      lv_clear_set();
       lv_draw_ready_print();
       break;
 
@@ -89,7 +84,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
         if (gCfgItems.wifi_mode_sel == STA_MODEL) {
           if (wifi_link_state == WIFI_CONNECTED) {
             last_disp_state = SET_UI;
-            lv_clear_set();
             lv_draw_wifi();
           }
           else {
@@ -97,19 +91,16 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
               uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
               raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
               last_disp_state = SET_UI;
-              lv_clear_set();
               lv_draw_wifi_list();
             }
             else {
               last_disp_state = SET_UI;
-              lv_clear_set();
               lv_draw_dialog(DIALOG_WIFI_ENABLE_TIPS);
             }
           }
         }
         else {
           last_disp_state = SET_UI;
-          lv_clear_set();
           lv_draw_wifi();
         }
         break;

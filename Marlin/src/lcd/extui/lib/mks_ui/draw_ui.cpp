@@ -893,7 +893,7 @@ char *creat_title_text() {
 
   #endif // if 1
 
-  void Draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
+  void draw_default_preview(int xpos_pixel, int ypos_pixel, uint8_t sel) {
     int index;
     int y_off = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -922,12 +922,12 @@ char *creat_title_text() {
     #if HAS_BAK_VIEW_IN_FLASH
       if (flash_preview_begin) {
         flash_preview_begin = false;
-        Draw_default_preview(xpos_pixel, ypos_pixel, 1);
+        draw_default_preview(xpos_pixel, ypos_pixel, 1);
       }
     #endif
     #if HAS_GCODE_DEFAULT_VIEW_IN_FLASH
       if (default_preview_flg) {
-        Draw_default_preview(xpos_pixel, ypos_pixel, 0);
+        draw_default_preview(xpos_pixel, ypos_pixel, 0);
         default_preview_flg = false;
       }
     #endif

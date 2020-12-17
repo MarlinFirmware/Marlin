@@ -708,7 +708,7 @@ void ResetWiFiForUpload(int begin_or_end) {
 
   if (begin_or_end == 0) {
     SET_OUTPUT(WIFI_IO0_PIN);
-      WRITE(WIFI_IO0_PIN, LOW);
+    WRITE(WIFI_IO0_PIN, LOW);
   }
   else
     SET_INPUT_PULLUP(WIFI_IO0_PIN);

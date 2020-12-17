@@ -41,20 +41,18 @@ enum {
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
+  clear_cur_ui();
   switch (obj->mks_obj_id) {
     case ID_W_RETURN:
-      clear_cur_ui();
       lv_draw_set();
       break;
     case ID_W_CLOUD:
-      clear_cur_ui();
       lv_draw_cloud_bind();
       break;
     #if ENABLED(MKS_WIFI_MODULE)
       case ID_W_RECONNECT: {
         uint8_t cmd_wifi_list[] = { 0xA5, 0x07, 0x00, 0x00, 0xFC };
         raw_send_to_wifi(cmd_wifi_list, COUNT(cmd_wifi_list));
-        clear_cur_ui();
         lv_draw_wifi_list();
       } break;
     #endif
