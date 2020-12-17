@@ -953,7 +953,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       }
     #endif
 
-    if (new_tool != old_tool TERN_(PARKING_EXTRUDER, || !extruder_unparked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
+    if (new_tool != old_tool || TERN0(PARKING_EXTRUDER, !extruder_unparked)) { // PARKING_EXTRUDER may need to attach old_tool when homing
       destination = current_position;
 
       #if BOTH(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
