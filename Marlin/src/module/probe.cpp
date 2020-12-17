@@ -152,8 +152,8 @@ xyz_pos_t Probe::offset; // Initialized by settings.load()
   inline void run_stow_moves_script() {
     const xyz_pos_t oldpos = current_position;
     endstops.enable_z_probe(false);
-    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, MMM_TO_MMS(HOMING_FEEDRATE_Z));
-    do_blocking_move_to(oldpos, MMM_TO_MMS(HOMING_FEEDRATE_Z));
+    do_blocking_move_to_z(TOUCH_MI_RETRACT_Z, homing_feedrate(Z_AXIS));
+    do_blocking_move_to(oldpos, homing_feedrate(Z_AXIS));
   }
 
 #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -516,7 +516,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
   #if TOTAL_PROBING == 2
 
     // Do a first probe at the fast speed
-    if (try_to_probe(PSTR("FAST"), z_probe_low_point, MMM_TO_MMS(Z_PROBE_SPEED_FAST),
+    if (try_to_probe(PSTR("FAST"), z_probe_low_point, z_probe_fast_mm_s,
                      sanity_check, Z_CLEARANCE_BETWEEN_PROBES) ) return NAN;
 
     const float first_probe_z = current_position.z;
@@ -524,7 +524,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("1st Probe Z:", first_probe_z);
 
     // Raise to give the probe clearance
-    do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+    do_blocking_move_to_z(current_position.z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
 
   #elif Z_PROBE_SPEED_FAST != Z_PROBE_SPEED_SLOW
 
@@ -533,8 +533,8 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
     const float z = Z_CLEARANCE_DEPLOY_PROBE + 5.0 + (offset.z < 0 ? -offset.z : 0);
     if (current_position.z > z) {
       // Probe down fast. If the probe never triggered, raise for probe clearance
-      if (!probe_down_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST)))
-        do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      if (!probe_down_to_z(z, z_probe_fast_mm_s))
+        do_blocking_move_to_z(current_position.z + Z_CLEARANCE_BETWEEN_PROBES, z_probe_fast_mm_s);
     }
   #endif
 
@@ -582,7 +582,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/) {
           #if EXTRA_PROBING > 0
             < TOTAL_PROBING - 1
           #endif
-        ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+        ) do_blocking_move_to_z(z + Z_CLEARANCE_MULTI_PROBE, z_probe_fast_mm_s);
       #endif
     }
 
@@ -664,26 +664,21 @@ float Probe::probe_at_point(const float &rx, const float &ry, const ProbePtRaise
   }
   else if (!position_is_reachable(npos)) return NAN;        // The given position is in terms of the nozzle
 
-  const float old_feedrate_mm_s = feedrate_mm_s;
-  feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
-
   // Move the probe to the starting XYZ
-  do_blocking_move_to(npos);
+  do_blocking_move_to(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
   float measured_z = NAN;
   if (!deploy()) measured_z = run_z_probe(sanity_check) + offset.z;
   if (!isnan(measured_z)) {
     const bool big_raise = raise_after == PROBE_PT_BIG_RAISE;
     if (big_raise || raise_after == PROBE_PT_RAISE)
-      do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      do_blocking_move_to_z(current_position.z + (big_raise ? 25 : Z_CLEARANCE_BETWEEN_PROBES), z_probe_fast_mm_s);
     else if (raise_after == PROBE_PT_STOW)
       if (stow()) measured_z = NAN;   // Error on stow?
 
     if (verbose_level > 2)
       SERIAL_ECHOLNPAIR("Bed X: ", LOGICAL_X_POSITION(rx), " Y: ", LOGICAL_Y_POSITION(ry), " Z: ", measured_z);
   }
-
-  feedrate_mm_s = old_feedrate_mm_s;
 
   if (isnan(measured_z)) {
     stow();
