@@ -227,7 +227,6 @@
   #define DOGLCD_A0                  LCD_PINS_DC
 
   #undef KILL_PIN
-  #define KILL_PIN                            -1  // NC
   #define NEOPIXEL_PIN                        27
 
 #else
