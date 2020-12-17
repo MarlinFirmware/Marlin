@@ -72,11 +72,16 @@ extern xyz_pos_t cartes;
 constexpr xyz_feedrate_t homing_feedrate_mm_m = HOMING_FEEDRATE_MM_M;
 FORCE_INLINE feedRate_t homing_feedrate(const AxisEnum a) {
   float v;
-  switch (a) {
-    case X_AXIS: v = homing_feedrate_mm_m.x; break;
-    case Y_AXIS: v = homing_feedrate_mm_m.y; break;
-    case Z_AXIS: v = homing_feedrate_mm_m.z; break;
-  }
+  #if ENABLED(DELTA)
+    v = homing_feedrate_mm_m.z;
+  #else
+    switch (a) {
+      case X_AXIS: v = homing_feedrate_mm_m.x; break;
+      case Y_AXIS: v = homing_feedrate_mm_m.y; break;
+      case Z_AXIS:
+          default: v = homing_feedrate_mm_m.z;
+    }
+  #endif
   return MMM_TO_MMS(v);
 }
 
