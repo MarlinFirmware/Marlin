@@ -390,9 +390,9 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
     }
     else if (!skip_solenoid_activation) { // && nomove == true 
       // Deactivate old extruder solenoid 
-      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid(active_extruder), pe_deactivate_solenoid(active_extruder));
+      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_activate_solenoid, pe_deactivate_solenoid)(active_extruder);
       // Only engage magnetic field for new extruder
-      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_deactivate_solenoid(new_tool), pe_activate_solenoid(new_tool));
+      TERN(PARKING_EXTRUDER_SOLENOIDS_INVERT, pe_deactivate_solenoid, pe_activate_solenoid)(new_tool);
     }
 
     skip_solenoid_activation = false; // flag is needed only for one tool_change()
