@@ -365,19 +365,12 @@
 #define FILAMENT_EXT1_TEXT_T_CN         "噴頭2"
 #define FILAMENT_HEAT_TEXT_T_CN         "預熱"
 #define FILAMENT_STOP_TEXT_T_CN         "停止"
-//#define FILAMENT_CHANGE_TEXT_T_CN     "準備換料"
 #define FILAMENT_TIPS2_TEXT_T_CN        "T:"
 #define FILAMENT_TIPS3_TEXT_T_CN        "正在進料"
 #define FILAMENT_TIPS4_TEXT_T_CN        "正在退料"
 #define FILAMENT_TIPS5_TEXT_T_CN        "溫度太低,請先預熱"
 #define FILAMENT_TIPS6_TEXT_T_CN        "換料完成"
-
-#if 0
-  #define FILAMENT_REPLAYS_IDLE_TEXT_T_CN "請按<進料>或<退料>進行換料!"
-  #define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,請按<進料>或<退料>進行換料!"
-#endif
-
-  #define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,\n請按<進料>或<退料>"
+#define FILAMENT_CHANGE_TEXT_T_CN       "待打印機暫停后,\n請按<進料>或<退料>"
 
 #define FILAMENT_DIALOG_LOAD_HEAT_TIPS_T_CN       "準備進料,正在加熱,請稍等"
 #define FILAMENT_DIALOG_UNLOAD_HEAT_TIPS_T_CN     "準備退料,正在加熱,請稍等"
@@ -460,7 +453,6 @@
 #define DIALOG_RETRY_T_CN             "重試"
 #define DIALOG_STOP_T_CN              "停止"
 #define DIALOG_REPRINT_FROM_BREAKPOINT_T_CN "從斷點續打?"
-//#define DIALOG_UNBIND_PRINTER_T_CN    "解除綁定?"
 #define DIALOG_ERROR_TIPS1_T_CN       "錯誤:找不到文件,請插入sd卡/u盤!"
 #define DIALOG_ERROR_TIPS2_T_CN       "錯誤:通信失敗,請檢查波特率或主板硬件!"
 #define DIALOG_ERROR_TIPS3_T_CN       "錯誤:文件名或文件路徑太長!"

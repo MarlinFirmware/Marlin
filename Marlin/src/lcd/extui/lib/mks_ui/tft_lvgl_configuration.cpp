@@ -19,12 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-
-/**
- * @file tft_lvgl_configuration.cpp
- * @date    2020-02-21
- */
-
 #include "../../../../inc/MarlinConfigPre.h"
 
 #if HAS_TFT_LVGL_UI
@@ -113,9 +107,7 @@ void SysTick_Callback() {
 
 void tft_lvgl_init() {
 
-  //uint16_t test_id=0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  //test_id=W25QXX.W25QXX_ReadID();
 
   gCfgItems_init();
   ui_cfg_init();
@@ -133,7 +125,6 @@ void tft_lvgl_init() {
 
   watchdog_refresh();     // LVGL init takes time
 
-  //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
@@ -304,11 +295,6 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 
   tmpTime = millis();
   diffTime = getTickDiff(tmpTime, touch_time1);
-  /*Save the state and save the pressed coordinate*/
-  //data->state = TOUCH_PressValid(last_x, last_y) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-  //if (data->state == LV_INDEV_STATE_PR)  ADS7843_Rd_Addata((u16 *)&last_x, (u16 *)&last_y);
-  //touchpad_get_xy(&last_x, &last_y);
-  /*Save the pressed coordinates and the state*/
   if (diffTime > 20) {
     if (get_point(&last_x, &last_y)) {
 
@@ -402,7 +388,6 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
 char *cur_namefff;
 uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
-  //cur_namefff = strrchr(path, '/');
   char name_buf[100];
   *name_buf = '/';
   strcpy(name_buf + 1, path);
@@ -410,7 +395,6 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
-  //if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
   return LV_FS_RES_OK;
 }
 
@@ -423,13 +407,11 @@ lv_fs_res_t sd_close_cb (lv_fs_drv_t * drv, void * file_p) {
 lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br) {
   if (btr == 200) {
     lv_gcode_file_read((uint8_t *)buf);
-    //pic_read_addr_offset += 208;
     *br = 200;
   }
   else if (btr == 4) {
     uint8_t header_pic[4] = { 0x04, 0x90, 0x81, 0x0C };
     memcpy(buf, header_pic, 4);
-    //pic_read_addr_offset += 4;
     *br = 4;
   }
   return LV_FS_RES_OK;
@@ -477,9 +459,6 @@ void lv_encoder_pin_init() {
 }
 
 #if 1 // HAS_ENCODER_ACTION
-
-  //static const int8_t encoderDirection = 1;
-  //static int16_t enc_Direction;
   void lv_update_encoder() {
     static uint32_t encoder_time1;
     uint32_t tmpTime, diffTime = 0;
@@ -520,10 +499,7 @@ void lv_encoder_pin_init() {
         #define encrot0 0
         #define encrot1 1
         #define encrot2 2
-
-        // Manage encoder rotation
-        //#define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: enc_Direction += encoderDirection; break; case _E2: enc_Direction -= encoderDirection; }
-
+        
         uint8_t enc = 0;
         if (buttons & EN_A) enc |= B01;
         if (buttons & EN_B) enc |= B10;

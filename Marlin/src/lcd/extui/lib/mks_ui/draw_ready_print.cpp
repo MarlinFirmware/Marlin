@@ -112,7 +112,6 @@ void lv_draw_ready_print(void) {
   disp_state_stack._disp_index = 0;
   ZERO(disp_state_stack._disp_state);
   scr = lv_screen_create(PRINT_READY_UI, "");
-  //lv_obj_set_hidden(scr, true);
 
   if (mks_test_flag == 0x1E) {
     // Create image buttons

@@ -35,25 +35,6 @@
 static lv_obj_t *scr;
 
 void lv_draw_error_message(PGM_P const msg) {
-  #if 0
-    static lv_obj_t *message = nullptr, *kill_message = nullptr, *reset_tips = nullptr;
-
-    scr = lv_screen_create(ERROR_MESSAGE_UI, "");
-
-    if (msg) {
-      message = lv_label_create(scr, msg);
-      lv_obj_align(message, nullptr, LV_ALIGN_CENTER, 0, -50);
-    }
-
-    kill_message = lv_label_create(scr, "PRINTER HALTED");
-    lv_obj_align(kill_message, nullptr, LV_ALIGN_CENTER, 0, -10);
-
-    reset_tips = lv_label_create(scr, "Please Reset");
-    lv_obj_align(reset_tips, nullptr, LV_ALIGN_CENTER, 0, 30);
-
-    lv_task_handler();
-  #endif
-
   SPI_TFT.LCD_clear(0x0000);
   if (msg) disp_string((TFT_WIDTH - strlen(msg) * 16) / 2, 100, msg, 0xFFFF, 0x0000);
   disp_string((TFT_WIDTH - strlen("PRINTER HALTED") * 16) / 2, 140, "PRINTER HALTED", 0xFFFF, 0x0000);

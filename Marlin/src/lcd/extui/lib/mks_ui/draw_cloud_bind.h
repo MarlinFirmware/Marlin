@@ -32,7 +32,6 @@ extern void refresh_bind_ui();
 extern void display_qrcode(uint8_t *qrcode_data);
 extern void cloud_unbind();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
 } /* C-declarations for C++ */
 #endif

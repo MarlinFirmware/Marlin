@@ -85,7 +85,6 @@ extern void filament_sprayer_temp();
 extern void filament_dialog_handle();
 extern void lv_filament_setbar();
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

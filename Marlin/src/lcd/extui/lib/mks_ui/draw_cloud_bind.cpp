@@ -48,7 +48,6 @@ static void event_handler(lv_obj_t * obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   switch (obj->mks_obj_id) {
     case ID_CLOUD_BIND_RETURN:
-      //lv_qrcode_delete(qr);
       clear_cur_ui();
       draw_return_ui();
       break;
@@ -155,7 +154,6 @@ void refresh_bind_ui() {
   }
   if (cloud_para.id[0]) {
     if (!id_mark) {
-      //lv_qrcode_update(qr, (char *)cloud_para.id, strlen((char *)cloud_para.id));
       display_qrcode((uint8_t *)cloud_para.id);
       lv_label_set_text(text_id, (char *)cloud_para.id);
     }

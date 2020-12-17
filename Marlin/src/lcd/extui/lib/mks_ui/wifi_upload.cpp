@@ -76,7 +76,6 @@ const uint32_t ESP_UNKNOWN_ADDR = 0x40001121;   // not used
 const uint32_t ESP_USER_DATA_RAM_ADDR = 0x3FFE8000; // &user data ram
 const uint32_t ESP_IRAM_ADDR = 0x40100000;      // instruction RAM
 const uint32_t ESP_FLASH_ADDR = 0x40200000;     // address of start of Flash
-//const uint32_t ESP_FLASH_READ_STUB_BEGIN = IRAM_ADDR + 0x18;
 
 UPLOAD_STRUCT esp_upload;
 
@@ -367,7 +366,6 @@ EspUploadResult readPacket(uint8_t op, uint32_t *valp, size_t *bodyLen, uint32_t
   opRet = (uint8_t)getData(1, hdr, 1);
   // Sync packets often provoke a response with a zero opcode instead of ESP_SYNC
   if (resp != 0x01 || opRet != op) {
-    //printf("resp %02x %02x\n", resp, opRet); //debug
     return respHeader;
   }
 
@@ -427,7 +425,6 @@ void sendCommand(uint8_t op, uint32_t checkVal, const uint8_t *data, size_t data
   putData(checkVal, 4, hdr, 4);
 
   // send the packet
-  //flushInput();
   if (op == ESP_SYNC)
     writePacketRaw(hdr, sizeof(hdr), data, dataLen);
   else
@@ -563,9 +560,6 @@ EspUploadResult flashWriteBlock(uint16_t flashParmVal, uint16_t flashParmMask) {
   for (i = 0; i < 3; i++)
     if ((stat = doCommand(ESP_FLASH_DATA, blkBuf, blkBufSize, cksum, 0, blockWriteTimeout)) == success)
       break;
-
-  //printf("Upload %d\%\n", ftell(&esp_upload.uploadFile) * 100 / esp_upload.fileSize);
-
   return stat;
 }
 
@@ -579,7 +573,6 @@ void upload_spin() {
         esp_upload.state = done;
       }
       else{
-        //if (esp_upload.connectAttemptNumber % esp_upload.retriesPerBaudRate == 0) {}
         uploadPort_begin();
 
         wifi_delay(2000);
@@ -623,17 +616,14 @@ void upload_spin() {
                   ? (numSectors + 1) / 2 * sectorSize
                   : (numSectors - headSectors) * sectorSize;
 
-        //MessageF("Erasing %u bytes...\n", fileSize);
         esp_upload.uploadResult = flashBegin(esp_upload.uploadAddress, eraseSize);
         if (esp_upload.uploadResult == success) {
-          //MessageF("Uploading file...\n");
           esp_upload.uploadBlockNumber = 0;
           esp_upload.uploadNextPercentToReport = percentToReportIncrement;
           esp_upload.lastAttemptTime = getWifiTick();
           esp_upload.state = uploading;
         }
         else {
-          //MessageF("Erase failed\n");
           esp_upload.state = done;
         }
       }
@@ -648,13 +638,11 @@ void upload_spin() {
           esp_upload.uploadResult = flashWriteBlock(0, 0);
           esp_upload.lastAttemptTime = getWifiTick();
           if (esp_upload.uploadResult != success) {
-            //MessageF("Flash block upload failed\n");
             esp_upload.state = done;
           }
           percentComplete = (100 * esp_upload.uploadBlockNumber)/blkCnt;
           ++esp_upload.uploadBlockNumber;
           if (percentComplete >= esp_upload.uploadNextPercentToReport) {
-            //MessageF("%u%% complete\n", percentComplete);
             esp_upload.uploadNextPercentToReport += percentToReportIncrement;
           }
         }
@@ -665,13 +653,6 @@ void upload_spin() {
 
     case done:
       update_file.close();
-
-      if (esp_upload.uploadResult == success) {
-        //printf("upload successfully\n");
-      }
-      else {
-        //printf("upload failed\n");
-      }
       esp_upload.state = upload_idle;//idle;
       break;
 
@@ -736,7 +717,6 @@ int32_t wifi_upload(int type) {
   while (esp_upload.state != upload_idle) {
     upload_spin();
     watchdog_refresh();
-    //IWDG_ReloadCounter();
   }
 
   ResetWiFiForUpload(1);

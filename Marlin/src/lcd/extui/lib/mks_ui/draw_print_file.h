@@ -39,7 +39,6 @@ extern DIR_OFFSET dir_offset[10];
 #define MAX_DIR_LEVEL  10
 
 typedef struct {
-  //char longName[FILE_NUM][LONG_FILENAME_LENGTH];
   char file_name[FILE_NUM][SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
   char curDirPath[SHORT_NAME_LEN * MAX_DIR_LEVEL + 1];
   char long_name[FILE_NUM][SHORT_NAME_LEN * 2 + 1];
@@ -60,7 +59,6 @@ extern int ascii2dec_test(char *ascii);
 extern void lv_clear_print_file();
 extern void lv_gcode_file_seek(uint32_t pos);
 
-//extern void disp_temp_ready_print();
 #ifdef __cplusplus
   } /* C-declarations for C++ */
 #endif

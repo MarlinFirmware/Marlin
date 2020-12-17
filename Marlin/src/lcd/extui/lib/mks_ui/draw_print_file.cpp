@@ -53,16 +53,11 @@ uint8_t sel_id = 0;
 
   static uint8_t search_file() {
     int valid_name_cnt = 0;
-    //char tmp[SHORT_NAME_LEN*MAX_DIR_LEVEL+1];
 
     list_file.Sd_file_cnt = 0;
-    //list_file.Sd_file_offset = dir_offset[curDirLever].cur_page_first_offset;
-
-    //root2.rewind();
-    //SERIAL_ECHOLN(list_file.curDirPath);
 
     if (curDirLever != 0) card.cd(list_file.curDirPath);
-    else card.cdroot(); // while(card.cdup());
+    else card.cdroot(); 
 
     const uint16_t fileCnt = card.get_num_Files();
 
@@ -89,7 +84,6 @@ uint8_t sel_id = 0;
       }
       list_file.Sd_file_cnt++;
     }
-    //card.closefile(false);
     return valid_name_cnt;
   }
 
@@ -114,11 +108,9 @@ bool have_pre_pic(char *path) {
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
   if (event != LV_EVENT_RELEASED) return;
   uint8_t i, file_count = 0;
-  //switch (obj->mks_obj_id)
-  //{
+  
   if (obj->mks_obj_id == ID_P_UP) {
     if (dir_offset[curDirLever].curPage > 0) {
-      // 2015.05.19
       list_file.Sd_file_cnt = 0;
 
       if (dir_offset[curDirLever].cur_page_first_offset >= FILE_NUM)
@@ -202,7 +194,6 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 }
 
 void lv_draw_print_file(void) {
-  //uint8_t i;
   uint8_t file_count;
 
   curDirLever = 0;
@@ -221,25 +212,8 @@ void lv_draw_print_file(void) {
     file_count = search_file();
   #endif
   disp_gcode_icon(file_count);
-
-  //lv_obj_t *labelPageUp = lv_label_create_empty(buttonPageUp);
-  //lv_obj_t *labelPageDown = lv_label_create_empty(buttonPageDown);
-  //lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
-
-  /*
-  if (gCfgItems.multiple_language) {
-    lv_label_set_text(labelPageUp, tool_menu.preheat);
-    lv_obj_align(labelPageUp, buttonPageUp, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(labelPageDown, tool_menu.extrude);
-    lv_obj_align(labelPageDown, buttonPageDown, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-
-    lv_label_set_text(label_Back, common_menu.text_back);
-    lv_obj_align(label_Back, buttonBack, LV_ALIGN_IN_BOTTOM_MID,0, BUTTON_TEXT_Y_OFFSET);
-  }
-  */
 }
-static char test_public_buf_l[FILE_NUM][SHORT_NAME_LEN + 6];
+static char test_public_buf_l[FILE_NUM][SHORT_NAME_LEN + strlen("S:/") + 1];
 void disp_gcode_icon(uint8_t file_num) {
   uint8_t i;
 
@@ -252,16 +226,7 @@ void disp_gcode_icon(uint8_t file_num) {
 
   // Create labels on the image buttons
   for (i = 0; i < FILE_BTN_CNT; i++) {
-    /*
-    if (seq) {
-      j = (FILE_BTN_CNT-1) - i;
-      back_flg = 1;
-    }
-    else {
-      j = i;
-      back_flg = 0;
-    }
-    */
+    
     if (i >= file_num) break;
 
     #ifdef TFT35
@@ -288,8 +253,6 @@ void disp_gcode_icon(uint8_t file_num) {
       else {
         if (have_pre_pic((char *)list_file.file_name[i])) {
 
-          //lv_obj_set_event_cb_mks(buttonGcode[i], event_handler, (i + 1), list_file.file_name[i], 1);
-
           char *cur_name = strrchr(list_file.file_name[i], '/');
           test_public_buf_l[i][0] = '\0';
           strcat(test_public_buf_l[i],"S:");
@@ -301,24 +264,20 @@ void disp_gcode_icon(uint8_t file_num) {
           if (i < 3) {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, nullptr);
-            //lv_obj_set_event_cb(buttonText[i], event_handler);
 
             lv_btn_use_label_style(buttonText[i]);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),"", 0);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * i + INTERVAL_V * (i + 1) + FILE_PRE_PIC_X_OFFSET, titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
           else {
             lv_obj_set_pos(buttonGcode[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1) + FILE_PRE_PIC_X_OFFSET, BTN_Y_PIXEL + INTERVAL_H + titleHeight + FILE_PRE_PIC_Y_OFFSET);
             buttonText[i] = lv_btn_create(scr, nullptr);
-            //lv_obj_set_event_cb(buttonText[i], event_handler);
 
             lv_btn_use_label_style(buttonText[i]);
             lv_obj_clear_protect(buttonText[i], LV_PROTECT_FOLLOW);
             lv_btn_set_layout(buttonText[i], LV_LAYOUT_OFF);
-            //lv_obj_set_event_cb_mks(buttonText[i], event_handler,(i+10),"", 0);
             lv_obj_set_pos(buttonText[i], BTN_X_PIXEL * (i - 3) + INTERVAL_V * ((i - 3) + 1) + FILE_PRE_PIC_X_OFFSET, BTN_Y_PIXEL + INTERVAL_H + titleHeight + FILE_PRE_PIC_Y_OFFSET + 100);
             lv_obj_set_size(buttonText[i], 100, 40);
           }
@@ -426,8 +385,6 @@ void lv_gcode_file_read(uint8_t *data_buf) {
       for (i = 0; i < pic_width;) {
         p_index = (uint16_t *)(&public_buf[i]);
 
-        //Color = (*p_index >> 8);
-        //*p_index = Color | ((*p_index & 0xFF) << 8);
         i += 2;
         if (*p_index == 0x0000) *p_index = LV_COLOR_BACKGROUND.full;
       }
@@ -465,7 +422,6 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
   #endif
 
   beginIndex = (strIndex1 != 0
-                //&& (strIndex2 != 0) && (strIndex1 < strIndex2)
                 ) ? strIndex1 + 1 : tmpFile;
 
   if (strIndex2 == 0 || (strIndex1 > strIndex2)) { // not gcode file
@@ -487,7 +443,6 @@ void cutFileName(char *path, int len, int bytePerLine, char *outStr) {
         wcsncpy(outStr, (const WCHAR *)beginIndex, len - 3);
         wcscat(outStr, (const WCHAR *)gFileTail);
       #else
-        //strncpy(outStr, beginIndex, len - 3);
         strncpy(outStr, beginIndex, len - 4);
         strcat_P(outStr, PSTR("~.g"));
       #endif

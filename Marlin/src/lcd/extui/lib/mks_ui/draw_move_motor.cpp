@@ -135,8 +135,6 @@ void lv_draw_move_motor(void) {
 }
 
 void disp_move_dist() {
-  // char buf[30] = {0};
-
   if ((int)(10 * uiCfg.move_dist) == 1)
     lv_imgbtn_set_src_both(buttonV, "F:/bmp_step_move0_1.bin");
   else if ((int)(10 * uiCfg.move_dist) == 10)

@@ -73,8 +73,6 @@ static const lv_btnm_ctrl_t kb_ctrl_num_map[] = {
         1, 1, 1, 1, 1};
 
 static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
-  //LV_ASSERT_OBJ(kb, LV_OBJX_NAME);
-
   if (event != LV_EVENT_VALUE_CHANGED) return;
 
   lv_kb_ext_t * ext = (lv_kb_ext_t * )lv_obj_get_ext_attr(kb);
@@ -104,8 +102,6 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   }
   else if (strcmp(txt, LV_SYMBOL_CLOSE) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
-      //lv_res_t res = lv_event_send(kb, LV_EVENT_CANCEL, nullptr);
-      //if (res != LV_RES_OK) return;
       lv_clear_keyboard();
       draw_return_ui();
     }
@@ -118,8 +114,6 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
   }
   else if (strcmp(txt, LV_SYMBOL_OK) == 0) {
     if (kb->event_cb != lv_kb_def_event_cb) {
-      //lv_res_t res = lv_event_send(kb, LV_EVENT_APPLY, nullptr);
-      //if (res != LV_RES_OK) return;
       const char * ret_ta_txt = lv_ta_get_text(ext->ta);
       switch (keyboard_value) {
         #if ENABLED(MKS_WIFI_MODULE)
@@ -238,8 +232,6 @@ void lv_draw_keyboard() {
   lv_kb_set_style(kb, LV_KB_STYLE_BTN_PR, &pr_style);
   #if HAS_ROTARY_ENCODER
     if (gCfgItems.encoder_enable) {
-      //lv_group_add_obj(g, kb);
-      //lv_group_set_editing(g, true);
     }
   #endif
 
@@ -260,9 +252,6 @@ void lv_draw_keyboard() {
 }
 
 void lv_clear_keyboard() {
-  #if HAS_ROTARY_ENCODER
-    if (gCfgItems.encoder_enable) { /* lv_group_remove_all_objs(g); */ }
-  #endif
   lv_obj_del(scr);
 }
 

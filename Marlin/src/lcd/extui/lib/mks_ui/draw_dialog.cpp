@@ -90,7 +90,6 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
         card.openFileRead(cur_name);
         if (card.isFileOpen()) {
           feedrate_percentage = 100;
-          //saved_feedrate_percentage = feedrate_percentage;
           planner.flow_percentage[0] = 100;
           planner.e_factor[0]        = planner.flow_percentage[0] * 0.01f;
           #if HAS_MULTI_EXTRUDER
@@ -113,20 +112,8 @@ static void btn_ok_event_cb(lv_obj_t *btn, lv_event_t event) {
     lv_draw_ready_print();
 
     #if ENABLED(SDSUPPORT)
-      //card.endFilePrint();
-      //wait_for_heatup = false;
       uiCfg.print_state           = IDLE;
       card.flag.abort_sd_printing = true;
-      //queue.clear();
-      //quickstop_stepper();
-      //print_job_timer.stop();
-      //thermalManager.disable_all_heaters();
-
-      //#if ENABLED(POWER_LOSS_RECOVERY)
-      //  recovery.purge();
-      //#endif
-      //queue.enqueue_now_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0"));
-      //queue.inject_P(PSTR("G91\nG1 Z10\nG90\nG28 X0 Y0\nM84\nM107"));
     #endif
   }
   else if (DIALOG_IS(TYPE_FINISH_PRINT)) {
