@@ -1,6 +1,7 @@
 
 ![PrusaSlicer logo](../../docs/images/PrusaSlicer.png?raw=true)
 
+[PrusaSlicer Releases](https://github.com/prusa3d/PrusaSlicer/releases)
 
 # 1. Slicers configuration files
 
