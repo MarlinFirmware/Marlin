@@ -25,7 +25,7 @@
 // FYSETC F6 1.3 (and 1.4) pin assignments
 //
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'FYSETC F6' in 'Tools > Board.'"
 #endif
 
@@ -261,7 +261,7 @@
       #define NEOPIXEL_PIN                    25
     #endif
 
-  #elif HAS_GRAPHICAL_LCD
+  #elif HAS_MARLINUI_U8GLIB
 
     #define LCD_PINS_RS                       16
     #define LCD_PINS_ENABLE                   17

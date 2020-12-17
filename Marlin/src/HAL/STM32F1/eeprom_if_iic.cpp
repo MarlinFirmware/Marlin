@@ -25,6 +25,8 @@
  * Enable USE_SHARED_EEPROM if not supplied by the framework.
  */
 
+#ifdef __STM32F1__
+
 #include "../../inc/MarlinConfig.h"
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -49,3 +51,4 @@ uint8_t eeprom_read_byte(uint8_t *pos) {
 }
 
 #endif // IIC_BL24CXX_EEPROM
+#endif // __STM32F1__

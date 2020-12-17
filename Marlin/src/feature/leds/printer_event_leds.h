@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * printer_event_leds.h - LED color changing based on printer status
+ * feature/leds/printer_event_leds.h - LED color changing based on printer status
  */
 
 #include "leds.h"

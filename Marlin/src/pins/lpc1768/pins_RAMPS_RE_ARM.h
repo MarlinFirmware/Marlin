@@ -31,12 +31,11 @@
  *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
  *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
- *
  */
 
 // Numbers in parentheses () are the corresponding mega2560 pin numbers
 
-#ifndef MCU_LPC1768
+#if NOT_TARGET(MCU_LPC1768)
   #error "Oops! Make sure you have the LPC1768 environment selected in your IDE."
 #endif
 
@@ -158,7 +157,7 @@
   #endif
 
   // Reduce baud rate to improve software serial reliability
-  #define TMC_BAUD_RATE 19200
+  #define TMC_BAUD_RATE                    19200
 #endif
 
 //
@@ -326,7 +325,16 @@
   #define LCD_PINS_ENABLE                  P0_18  // J3-10 & AUX-3 (SID, MOSI)
   #define LCD_PINS_D4                      P2_06  // J3-8 & AUX-3 (SCK, CLK)
 
-#elif HAS_SPI_LCD
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                     P3_26  // (31) J3-2 & AUX-4
+  #endif
+
+  #define SD_DETECT_PIN                    P1_31  // (49) J3-1 & AUX-3 (NOT 5V tolerant)
+  #define KILL_PIN                         P1_22  // (41) J5-4 & AUX-4
+
+#elif HAS_WIRED_LCD
 
   //#define SCK_PIN                        P0_15  // (52)  system defined J3-9 & AUX-3
   //#define MISO_PIN                       P0_17  // (50)  system defined J3-10 & AUX-3
@@ -363,15 +371,16 @@
   #endif
 
   #if ANY(VIKI2, miniVIKI)
-    // #define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
     #define DOGLCD_CS                      P0_16  // (16)
     #define DOGLCD_A0                      P2_06  // (59) J3-8 & AUX-2
     #define DOGLCD_SCK                   SCK_PIN
     #define DOGLCD_MOSI                 MOSI_PIN
 
-    #define STAT_LED_BLUE_PIN              P0_26  //(63)  may change if cable changes
+    #define STAT_LED_BLUE_PIN              P0_26  // (63)  may change if cable changes
     #define STAT_LED_RED_PIN               P1_21  // ( 6)  may change if cable changes
+
   #else
 
     #if ENABLED(FYSETC_MINI_12864)
@@ -420,9 +429,9 @@
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270
-  #endif
+ #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // Ethernet pins

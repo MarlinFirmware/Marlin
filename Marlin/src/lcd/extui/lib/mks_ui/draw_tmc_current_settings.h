@@ -22,13 +22,13 @@
 #pragma once
 
 #ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
+  extern "C" { /* C-declarations for C++ */
 #endif
 
 extern void lv_draw_tmc_current_settings(void);
 extern void lv_clear_tmc_current_settings();
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif
 

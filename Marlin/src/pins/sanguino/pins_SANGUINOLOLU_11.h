@@ -31,7 +31,6 @@
  * 1) added pointer to a current Arduino IDE extension
  * 2) added support for M3, M4 & M5 spindle control commands
  * 3) added case light pin definition
- *
  */
 
 /**
@@ -49,10 +48,9 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
-#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
+#if NOT_TARGET(__AVR_ATmega644P__, __AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Boards' and 'ATmega644P' or 'ATmega1284P' in 'Tools > Processor.'"
 #endif
 
@@ -154,11 +152,11 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define SD_DETECT_PIN                       -1
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #if ENABLED(LCD_FOR_MELZI)
 
@@ -290,7 +288,7 @@
     #define BTN_EN2                           10
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 //
 // M3/M4/M5 - Spindle/Laser Control

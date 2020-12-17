@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -32,7 +32,7 @@
 // https://github.com/FYSETC/Cheetah
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 #define DISABLE_JTAG
 
@@ -130,10 +130,10 @@
 * Note: Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
 */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                       PB14
     #define DOGLCD_CS                       PB12
     #define DOGLCD_SCK                      PB13
@@ -151,7 +151,7 @@
   #define LCD_PINS_D4                       PB13  // SCLK
   #define LCD_PINS_ENABLE                   PB15  // DATA MOSI
 
-  //#define LCD_CONTRAST_INIT 190
+  //#define LCD_CONTRAST_INIT                190
 
   #if ENABLED(NEWPANEL)
     #define BTN_EN1                         PC10
@@ -172,6 +172,6 @@
     #define CLCD_SOFT_SPI_MISO              PB14
     #define CLCD_SOFT_SPI_SCLK              PB13
   #else
-    #define CLCD_SPI_BUS 2
+    #define CLCD_SPI_BUS                       2
   #endif
 #endif

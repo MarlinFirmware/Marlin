@@ -33,7 +33,7 @@ opt_set EXTRUDER_AUTO_FAN_SPEED 100
 opt_set TEMP_SENSOR_CHAMBER 3
 opt_add TEMP_CHAMBER_PIN 6
 opt_set HEATER_CHAMBER_PIN 45
-exec_test $1 $2 "RAMPS4DUE_EFB with ABL (Bilinear), EXTENSIBLE_UI, S-Curve, many options."
+exec_test $1 $2 "RAMPS4DUE_EFB with ABL (Bilinear), ExtUI, S-Curve, many options."
 
 restore_configs
 opt_set MOTHERBOARD BOARD_RADDS

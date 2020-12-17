@@ -98,7 +98,9 @@ void GcodeSuite::M25() {
 
     print_job_timer.pause();
 
-    TERN(DWIN_CREALITY_LCD,,ui.reset_status());
+    #if DISABLED(DWIN_CREALITY_LCD)
+      ui.reset_status();
+    #endif
 
     #if ENABLED(HOST_ACTION_COMMANDS)
       TERN_(HOST_PROMPT_SUPPORT, host_prompt_open(PROMPT_PAUSE_RESUME, PSTR("Pause SD"), PSTR("Resume")));

@@ -23,15 +23,17 @@
 
 #if HAS_TFT_LVGL_UI
 
-#include "../../../../MarlinCore.h"
-
 #include "string.h"
-
+#include "draw_ui.h"
 #include "pic_manager.h"
-#include "W25Qxx.h"
-#include "../../../../sd/cardreader.h"
 #include "draw_ready_print.h"
 #include "mks_hardware_test.h"
+
+#include "SPIFlashStorage.h"
+#include "../../../../libs/W25Qxx.h"
+
+#include "../../../../sd/cardreader.h"
+#include "../../../../MarlinCore.h"
 
 extern uint16_t DeviceCode;
 extern unsigned char bmp_public_buf[17 * 1024];
@@ -40,59 +42,61 @@ extern unsigned char bmp_public_buf[17 * 1024];
   extern char *createFilename(char * const buffer, const dir_t &p);
 #endif
 
-static char assets[][LONG_FILENAME_LENGTH] = {
+static const char assets[][LONG_FILENAME_LENGTH] = {
   //homing screen
-  "bmp_Zero.bin",
+  "bmp_zeroAll.bin",
+  "bmp_zero.bin",
   "bmp_zeroX.bin",
   "bmp_zeroY.bin",
   "bmp_zeroZ.bin",
   "bmp_manual_off.bin",
 
   //tool screen
-  "bmp_PreHeat.bin",
-  "bmp_Extruct.bin",
-  "bmp_Mov.bin",
+  "bmp_preHeat.bin",
+  "bmp_extruct.bin",
+  "bmp_mov.bin",
   // "bmp_Zero.bin",
-  "bmp_Leveling.bin",
+  "bmp_leveling.bin",
+  "bmp_filamentchange.bin",
 
   //fan screen
   "bmp_Add.bin",
   "bmp_Dec.bin",
-  "bmp_Speed255.bin",
-  "bmp_Speed127.bin",
-  "bmp_Speed0.bin",
+  "bmp_speed255.bin",
+  "bmp_speed127.bin",
+  "bmp_speed0.bin",
 
   //preheat screen
   // "bmp_Add.bin",
   // "bmp_Dec.bin",
-  "bmp_Speed0.bin",
+  "bmp_speed0.bin",
   // "bmp_Extru2.bin",
   // "bmp_Extru1.bin",
-  "bmp_Bed.bin",
-  "bmp_Step1_degree.bin",
-  "bmp_Step5_degree.bin",
-  "bmp_Step10_degree.bin",
+  "bmp_bed.bin",
+  "bmp_step1_degree.bin",
+  "bmp_step5_degree.bin",
+  "bmp_step10_degree.bin",
 
   //extrusion screen
-  "bmp_In.bin",
-  "bmp_Out.bin",
-  "bmp_Extru1.bin",
-  #if EXTRUDERS > 1
-    "bmp_Extru2.bin",
+  "bmp_in.bin",
+  "bmp_out.bin",
+  "bmp_extru1.bin",
+  #if HAS_MULTI_EXTRUDER
+    "bmp_extru2.bin",
   #endif
-  "bmp_Speed_high.bin",
-  "bmp_Speed_slow.bin",
-  "bmp_Speed_normal.bin",
-  "bmp_Step1_mm.bin",
-  "bmp_Step5_mm.bin",
-  "bmp_Step10_mm.bin",
+  "bmp_speed_high.bin",
+  "bmp_speed_slow.bin",
+  "bmp_speed_normal.bin",
+  "bmp_step1_mm.bin",
+  "bmp_step5_mm.bin",
+  "bmp_step10_mm.bin",
 
   //select file screen
   "bmp_pageUp.bin",
   "bmp_pageDown.bin",
-  "bmp_Back.bin", //TODO: why two back buttons? Why not just one? (return / back)
-  "bmp_Dir.bin",
-  "bmp_File.bin",
+  "bmp_back.bin", //TODO: why two back buttons? Why not just one? (return / back)
+  "bmp_dir.bin",
+  "bmp_file.bin",
 
   //move motor screen
   //TODO: 6 equal icons, just in diffenct rotation... it may be optimized too
@@ -102,68 +106,69 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_yDec.bin",
   "bmp_zAdd.bin",
   "bmp_zDec.bin",
-  "bmp_Step_move0_1.bin",
-  "bmp_Step_move1.bin",
-  "bmp_Step_move10.bin",
+  "bmp_step_move0_1.bin",
+  "bmp_step_move1.bin",
+  "bmp_step_move10.bin",
 
   //operation screen
   "bmp_auto_off.bin",
-  "bmp_Speed.bin",
+  "bmp_speed.bin",
   //"bmp_Mamual.bin", //TODO: didn't find it.. changed to bmp_manual_off.bin
-  "bmp_Fan.bin",
-  //"bmp_PreHeat.bin",
-  //"bmp_Extruct.bin",
-  // "bmp_Mov.bin",
+  "bmp_fan.bin",
+  "bmp_temp.bin",
+  "bmp_extrude_opr.bin",
+  "bmp_move_opr.bin",
 
   //change speed screen
-  "bmp_Step1_percent.bin",
-  "bmp_Step5_percent.bin",
-  "bmp_Step10_percent.bin",
+  "bmp_step1_percent.bin",
+  "bmp_step5_percent.bin",
+  "bmp_step10_percent.bin",
   "bmp_extruct_sel.bin",
   "bmp_mov_changespeed.bin",
   // "bmp_extrude_opr.bin", equal to "bmp_Extruct.bin"
   "bmp_mov_sel.bin",
+  "bmp_speed_extruct.bin",
 
   //printing screen
-  "bmp_Pause.bin",
-  "bmp_Resume.bin",
-  "bmp_Stop.bin",
-  "bmp_Ext1_state.bin",
-  #if EXTRUDERS > 1
-    "bmp_Ext2_state.bin",
+  "bmp_pause.bin",
+  "bmp_resume.bin",
+  "bmp_stop.bin",
+  "bmp_ext1_state.bin",
+  #if HAS_MULTI_EXTRUDER
+    "bmp_ext2_state.bin",
   #endif
-  "bmp_Bed_state.bin",
-  "bmp_Fan_state.bin",
-  "bmp_Time_state.bin",
-  "bmp_Zpos_state.bin",
-  "bmp_Operate.bin",
+  "bmp_bed_state.bin",
+  "bmp_fan_state.bin",
+  "bmp_time_state.bin",
+  "bmp_zpos_state.bin",
+  "bmp_operate.bin",
 
   //manual leval screen (only if disabled auto level)
   #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
-    "bmp_Leveling1.bin",
-    "bmp_Leveling2.bin",
-    "bmp_Leveling3.bin",
-    "bmp_Leveling4.bin",
-    "bmp_Leveling5.bin",
+    "bmp_leveling1.bin",
+    "bmp_leveling2.bin",
+    "bmp_leveling3.bin",
+    "bmp_leveling4.bin",
+    "bmp_leveling5.bin",
   #endif
 
   //lang select screen
   #if HAS_LANG_SELECT_SCREEN
-    "bmp_Language.bin",
+    "bmp_language.bin",
     "bmp_simplified_cn.bin",
     "bmp_simplified_cn_sel.bin",
     "bmp_traditional_cn.bin",
     "bmp_traditional_cn_sel.bin",
-    "bmp_English.bin",
-    "bmp_English_sel.bin",
-    "bmp_Russian.bin",
-    "bmp_Russian_sel.bin",
-    "bmp_Spanish.bin",
-    "bmp_Spanish_sel.bin",
-    "bmp_French.bin",
-    "bmp_French_sel.bin",
-    "bmp_Italy.bin",
-    "bmp_Italy_sel.bin",
+    "bmp_english.bin",
+    "bmp_english_sel.bin",
+    "bmp_russian.bin",
+    "bmp_russian_sel.bin",
+    "bmp_spanish.bin",
+    "bmp_spanish_sel.bin",
+    "bmp_french.bin",
+    "bmp_french_sel.bin",
+    "bmp_italy.bin",
+    "bmp_italy_sel.bin",
   #endif // HAS_LANG_SELECT_SCREEN
 
   // gcode preview
@@ -176,21 +181,15 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   #endif
 
   // settings screen
-  "bmp_About.bin",
+  "bmp_about.bin",
   //"bmp_Language.bin",
   //"bmp_Fan.bin",
   //"bmp_manual_off.bin",
 
   //start screen
   "bmp_printing.bin",
-  "bmp_Set.bin",
-  "bmp_Tool.bin",
-
-  #if ENABLED(HAS_STEALTHCHOP)
-    //"bmp_back70x40.bin",
-    "bmp_disable.bin",
-    "bmp_enable.bin",
-  #endif
+  "bmp_set.bin",
+  "bmp_tool.bin",
 
   // settings screen
   "bmp_eeprom_settings.bin",
@@ -201,14 +200,27 @@ static char assets[][LONG_FILENAME_LENGTH] = {
   "bmp_arrow.bin",
   "bmp_back70x40.bin",
   "bmp_value_blank.bin",
-  "bmp_Return.bin"
+  "bmp_blank_sel.bin",
+  "bmp_disable.bin",
+  "bmp_enable.bin",
+  "bmp_return.bin",
+
+  #if ENABLED(USE_WIFI_FUNCTION)
+    //wifi screen
+    "bmp_wifi.bin",
+  #endif
+
+  //babystep screen
+  "bmp_baby_move0_01.bin",
+  "bmp_baby_move0_05.bin",
+  "bmp_baby_move0_1.bin"
 };
 
 #if HAS_SPI_FLASH_FONT
-  static char fonts[][LONG_FILENAME_LENGTH] = {
-    "FontUNIGBK.bin",
-  };
+  static char fonts[][LONG_FILENAME_LENGTH] = { "FontUNIGBK.bin" };
 #endif
+
+uint8_t currentFlashPage = 0;
 
 uint32_t lv_get_pic_addr(uint8_t *Pname) {
   uint8_t Pic_cnt;
@@ -216,6 +228,8 @@ uint32_t lv_get_pic_addr(uint8_t *Pname) {
   PIC_MSG PIC;
   uint32_t tmp_cnt = 0;
   uint32_t addr = 0;
+
+  currentFlashPage = 0;
 
   #if ENABLED(MARLIN_DEV_MODE)
     SERIAL_ECHOLNPAIR("Getting picture SPI Flash Address: ", (const char*)Pname);
@@ -250,16 +264,26 @@ const char *bakPath = "_assets";
 void spiFlashErase_PIC() {
   volatile uint32_t pic_sectorcnt = 0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  for (pic_sectorcnt = 0; pic_sectorcnt < PIC_SIZE_xM * 1024 / 64; pic_sectorcnt++)
-    W25QXX.SPI_FLASH_BlockErase(PICINFOADDR + pic_sectorcnt * 64 * 1024);
+  //erase 0x001000 -64K
+  for (pic_sectorcnt = 0; pic_sectorcnt < (64 - 4) / 4; pic_sectorcnt++) {
+    watchdog_refresh();
+    W25QXX.SPI_FLASH_SectorErase(PICINFOADDR + pic_sectorcnt * 4 * 1024);
+  }
+  //erase 64K -- 6M
+  for (pic_sectorcnt = 0; pic_sectorcnt < (PIC_SIZE_xM * 1024 / 64 - 1); pic_sectorcnt++) {
+    watchdog_refresh();
+    W25QXX.SPI_FLASH_BlockErase((pic_sectorcnt + 1) * 64 * 1024);
+  }
 }
 
 #if HAS_SPI_FLASH_FONT
   void spiFlashErase_FONT() {
     volatile uint32_t Font_sectorcnt = 0;
     W25QXX.init(SPI_QUARTER_SPEED);
-    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++)
+    for (Font_sectorcnt = 0; Font_sectorcnt < 32-1; Font_sectorcnt++) {
+      watchdog_refresh();
       W25QXX.SPI_FLASH_BlockErase(FONTINFOADDR + Font_sectorcnt * 64 * 1024);
+    }
   }
 #endif
 
@@ -371,6 +395,10 @@ uint8_t public_buf[512];
     return -1;
   }
 
+  #if ENABLED(MARLIN_DEV_MODE)
+    static uint32_t totalSizes = 0, totalCompressed = 0;
+  #endif
+
   #define ASSET_TYPE_ICON       0
   #define ASSET_TYPE_LOGO       1
   #define ASSET_TYPE_TITLE_LOGO 2
@@ -387,6 +415,7 @@ uint8_t public_buf[512];
       return;
     }
 
+    watchdog_refresh();
     disp_assets_update_progress(fn);
 
     W25QXX.init(SPI_QUARTER_SPEED);
@@ -398,43 +427,57 @@ uint8_t public_buf[512];
     pfileSize = file.fileSize();
     totalSizeLoaded += pfileSize;
     if (assetType == ASSET_TYPE_LOGO) {
-      while (1) {
+      do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_Logo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_TITLE_LOGO) {
-      while (1) {
+      do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        Pic_TitleLogo_Write((uint8_t *)fn, public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_G_PREVIEW) {
-      while (1) {
+      do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        default_view_Write(public_buf, pbr); //
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+        default_view_Write(public_buf, pbr);
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
     else if (assetType == ASSET_TYPE_ICON) {
       Pic_Write_Addr = Pic_Info_Write((uint8_t *)fn, pfileSize);
-      while (1) {
-        pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
-        W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
-        Pic_Write_Addr += pbr;
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+      SPIFlash.beginWrite(Pic_Write_Addr);
+      #if HAS_SPI_FLASH_COMPRESSION
+        do {
+          watchdog_refresh();
+          pbr = file.read(public_buf, SPI_FLASH_PageSize);
+          TERN_(MARLIN_DEV_MODE, totalSizes += pbr);
+          SPIFlash.writeData(public_buf, SPI_FLASH_PageSize);
+        } while (pbr >= SPI_FLASH_PageSize);
+      #else
+        do {
+          pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
+          W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
+          Pic_Write_Addr += pbr;
+        } while (pbr >= BMP_WRITE_BUF_LEN);
+      #endif
+      #if ENABLED(MARLIN_DEV_MODE)
+        SERIAL_ECHOLNPAIR("Space used: ", fn, " - ", (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize / 1024, "KB");
+        totalCompressed += (SPIFlash.getCurrentPage() + 1) * SPI_FLASH_PageSize;
+      #endif
+      SPIFlash.endWrite();
     }
     else if (assetType == ASSET_TYPE_FONT) {
       Pic_Write_Addr = UNIGBK_FLASH_ADDR;
-      while (1) {
+      do {
+        watchdog_refresh();
         pbr = file.read(public_buf, BMP_WRITE_BUF_LEN);
         W25QXX.SPI_FLASH_BufferWrite(public_buf, Pic_Write_Addr, pbr);
         Pic_Write_Addr += pbr;
-        if (pbr < BMP_WRITE_BUF_LEN) break;
-      }
+      } while (pbr >= BMP_WRITE_BUF_LEN);
     }
 
     file.close();
@@ -450,23 +493,25 @@ uint8_t public_buf[512];
 
       disp_assets_update();
       disp_assets_update_progress("Erasing pics...");
+      watchdog_refresh();
       spiFlashErase_PIC();
       #if HAS_SPI_FLASH_FONT
         disp_assets_update_progress("Erasing fonts...");
+        watchdog_refresh();
         spiFlashErase_FONT();
       #endif
 
       disp_assets_update_progress("Reading files...");
       dir_t d;
       while (dir.readDir(&d, card.longFilename) > 0) {
-        // if we dont get a long name, but gets a short one, try it
+        // If we dont get a long name, but gets a short one, try it
         if (card.longFilename[0] == 0 && d.name[0] != 0)
           dosName2LongName((const char*)d.name, card.longFilename);
         if (card.longFilename[0] == 0) continue;
         if (card.longFilename[0] == '.') continue;
 
-        uint8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
-        if (a >= 0 && a < COUNT(assets)) {
+        int8_t a = arrayFindStr(assets, COUNT(assets), card.longFilename);
+        if (a >= 0 && a < (int8_t)COUNT(assets)) {
           uint8_t assetType = ASSET_TYPE_ICON;
           if (strstr(assets[a], "_logo"))
             assetType = ASSET_TYPE_LOGO;
@@ -482,9 +527,8 @@ uint8_t public_buf[512];
 
         #if HAS_SPI_FLASH_FONT
           a = arrayFindStr(fonts, COUNT(fonts), card.longFilename);
-          if (a >= 0 && a < COUNT(fonts)) {
+          if (a >= 0 && a < (int8_t)COUNT(fonts))
             loadAsset(dir, d, fonts[a], ASSET_TYPE_FONT);
-          }
         #endif
       }
       dir.rename(&root, bakPath);
@@ -495,12 +539,13 @@ uint8_t public_buf[512];
       uint8_t pic_counter = 0;
       W25QXX.SPI_FLASH_BufferRead(&pic_counter, PIC_COUNTER_ADDR, 1);
       SERIAL_ECHOLNPAIR("Total assets loaded: ", pic_counter);
+      SERIAL_ECHOLNPAIR("Total Uncompressed: ", totalSizes, ", Compressed: ", totalCompressed);
     #endif
   }
 
   #if HAS_SPI_FLASH_FONT
     void spi_flash_read_test() { W25QXX.SPI_FLASH_BufferRead(public_buf, UNIGBK_FLASH_ADDR, BMP_WRITE_BUF_LEN); }
-  #endif // HAS_SPI_FLASH_FONT
+  #endif
 
 #endif // SDSUPPORT
 
@@ -511,7 +556,7 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
   PIC_MSG PIC;
 
   W25QXX.SPI_FLASH_BufferRead(&Pic_cnt, PIC_COUNTER_ADDR, 1);
-  if (Pic_cnt == 0xff)
+  if (Pic_cnt == 0xFF)
     Pic_cnt = 0;
 
   for (i = 0; i < Pic_cnt; i++) {
@@ -531,8 +576,15 @@ void Pic_Read(uint8_t *Pname, uint8_t *P_Rbuff) {
 }
 
 void lv_pic_test(uint8_t *P_Rbuff, uint32_t addr, uint32_t size) {
-  W25QXX.init(SPI_QUARTER_SPEED);
-  W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
+  #if HAS_SPI_FLASH_COMPRESSION
+    if (currentFlashPage == 0)
+      SPIFlash.beginRead(addr);
+    SPIFlash.readData(P_Rbuff, size);
+    currentFlashPage++;
+  #else
+    W25QXX.init(SPI_QUARTER_SPEED);
+    W25QXX.SPI_FLASH_BufferRead((uint8_t *)P_Rbuff, addr, size);
+  #endif
 }
 
 #if HAS_SPI_FLASH_FONT

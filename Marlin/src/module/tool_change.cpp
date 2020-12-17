@@ -36,7 +36,7 @@
 #define DEBUG_OUT ENABLED(DEBUG_TOOL_CHANGE)
 #include "../core/debug_out.h"
 
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   toolchange_settings_t toolchange_settings;  // Initialized by settings.load()
 #endif
 
@@ -174,7 +174,7 @@ inline void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_a
                 grabpos = mpe_settings.parking_xpos[new_tool] + (new_tool ? mpe_settings.grab_distance : -mpe_settings.grab_distance),
                 offsetcompensation = TERN0(HAS_HOTEND_OFFSET, hotend_offset[active_extruder].x * mpe_settings.compensation_factor);
 
-    if (axis_unhomed_error(_BV(X_AXIS))) return;
+    if (homing_needed_error(_BV(X_AXIS))) return;
 
     /**
      * Z Lift and Nozzle Offset shift ar defined in caller method to work equal with any Multi Hotend realization
@@ -870,7 +870,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool) invalid_extruder_error(new_tool);
     return;
 
-  #else // EXTRUDERS > 1
+  #elif HAS_MULTI_EXTRUDER
 
     planner.synchronize();
 
@@ -1017,14 +1017,10 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Raise by a configured distance to avoid workpiece, except with
         // SWITCHING_NOZZLE_TWO_SERVOS, as both nozzles will lift instead.
         if (!no_move) {
-          #if HAS_SOFTWARE_ENDSTOPS
-            const float maxz = _MIN(soft_endstop.max.z, Z_MAX_POS);
-          #else
-            constexpr float maxz = Z_MAX_POS;
-          #endif
+          const float newz = current_position.z + _MAX(-diff.z, 0.0);
 
           // Check if Z has space to compensate at least z_offset, and if not, just abort now
-          const float newz = current_position.z + _MAX(-diff.z, 0.0);
+          const float maxz = _MIN(TERN(HAS_SOFTWARE_ENDSTOPS, soft_endstop.max.z, Z_MAX_POS), Z_MAX_POS);
           if (newz > maxz) return;
 
           current_position.z = _MIN(newz + toolchange_settings.z_raise, maxz);
@@ -1132,7 +1128,8 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
             #if ENABLED(TOOLCHANGE_PARK)
               if (toolchange_settings.enable_park) do_blocking_move_to_xy_z(destination, destination.z, MMM_TO_MMS(TOOLCHANGE_PARK_XY_FEEDRATE));
             #else
-              do_blocking_move_to_xy(destination);
+              do_blocking_move_to_xy(destination, planner.settings.max_feedrate_mm_s[X_AXIS]);
+              do_blocking_move_to_z(destination.z, planner.settings.max_feedrate_mm_s[Z_AXIS]);
             #endif
 
           #endif
@@ -1196,7 +1193,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     SERIAL_ECHO_START();
     SERIAL_ECHOLNPAIR(STR_ACTIVE_EXTRUDER, int(active_extruder));
 
-  #endif // EXTRUDERS > 1
+  #endif // HAS_MULTI_EXTRUDER
 }
 
 #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)

@@ -51,11 +51,12 @@
   #error "Oops! Set MOTHERBOARD to an STM32F1-based board when building for STM32F1."
 #endif
 
-#if NONE(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768)
-  #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-    #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
-  #endif
+#if NOT_TARGET(IS_RAMPS_SMART, IS_RAMPS_DUO, IS_RAMPS4DUE, TARGET_LPC1768, __AVR_ATmega1280__, __AVR_ATmega2560__)
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
+
+// Custom flags and defines for the build
+//#define BOARD_CUSTOM_BUILD_FLAGS -D__FOO__
 
 #ifndef BOARD_INFO_NAME
   #define BOARD_INFO_NAME "RAMPS 1.4"
@@ -429,7 +430,7 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   //
   // LCD Display output pins
@@ -448,6 +449,10 @@
     #define LCD_PINS_D5                       66
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
+
+  #elif ENABLED(TFTGLCD_PANEL_SPI)
+
+    #define TFTGLCD_CS                        33
 
   #else
 
@@ -681,6 +686,10 @@
 
       // Pins only defined for RAMPS_SMART currently
 
+    #elif IS_TFTGLCD_PANEL
+
+      #define SD_DETECT_PIN                   49
+
     #else
 
       // Beeper on AUX-4
@@ -705,7 +714,7 @@
     #endif
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(ADC_KEYPAD)
   #define SHIFT_OUT                           40

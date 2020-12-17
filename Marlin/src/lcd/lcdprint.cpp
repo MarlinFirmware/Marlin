@@ -26,7 +26,7 @@
 
 #include "../inc/MarlinConfigPre.h"
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
 #include "lcdprint.h"
 
@@ -44,24 +44,33 @@ lcd_uint_t lcd_put_u8str_ind_P(PGM_P const pstr, const int8_t ind, PGM_P const i
     if (ch == '=' || ch == '~' || ch == '*') {
       if (ind >= 0) {
         if (ch == '*') { lcd_put_wchar('E'); n--; }
-        if (n) { lcd_put_wchar(ind + ((ch == '=') ? '0' : LCD_FIRST_TOOL)); n--; }
+        if (n) {
+          int8_t inum = ind + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+          if (inum >= 10) {
+            lcd_put_wchar('0' + (inum / 10)); n--;
+            inum %= 10;
+          }
+          if (n) { lcd_put_wchar('0' + inum); n--; }
+        }
       }
       else {
         PGM_P const b = ind == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED);
         n -= lcd_put_u8str_max_P(b, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
       }
-      if (n) n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
-      continue;
+      if (n) {
+        n -= lcd_put_u8str_max_P((PGM_P)p, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
+        break;
+      }
     }
     else if (ch == '$' && inStr) {
       n -= lcd_put_u8str_max_P(inStr, n * (MENU_FONT_WIDTH)) / (MENU_FONT_WIDTH);
-      continue;
     }
-
-    lcd_put_wchar(ch);
-    n--;
+    else {
+      lcd_put_wchar(ch);
+      n--;
+    }
   }
   return n;
 }
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

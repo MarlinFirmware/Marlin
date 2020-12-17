@@ -43,7 +43,7 @@
  *       A15 | A11
  */
 
-#if !defined(__SAM3X8E__) && !defined(__AVR_ATmega2560__)
+#if NOT_TARGET(__SAM3X8E__, __AVR_ATmega2560__)
   #error "Oops! Select 'Arduino Due' or 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -76,7 +76,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #if BOTH(NEWPANEL, PANEL_ONE)
     #undef LCD_PINS_D4
@@ -129,4 +129,4 @@
 
   #endif // NEWPANEL
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

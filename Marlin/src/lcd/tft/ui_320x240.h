@@ -73,6 +73,8 @@ const tImage Images[imgCount] = {
   Refresh_32x32x4,
   Leveling_32x32x4,
   Slider8x16x4,
+  Home_64x64x4,
+  BtnRounded_64x52x4,
 };
 
 #if HAS_TEMP_CHAMBER && HOTENDS > 1

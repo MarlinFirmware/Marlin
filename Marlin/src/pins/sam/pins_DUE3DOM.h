@@ -25,7 +25,7 @@
  * DUE3DOM pin assignments
  */
 
-#ifndef __SAM3X8E__
+#if NOT_TARGET(__SAM3X8E__)
   #error "Oops! Select 'Arduino Due' in 'Tools > Board.'"
 #endif
 
@@ -113,7 +113,7 @@
 //
 // LCD / Controller
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
   #define LCD_PINS_ENABLE                     43
@@ -147,7 +147,7 @@
     #define SDSS                               4
     #define SD_DETECT_PIN                     14
 
-  #elif HAS_SSD1306_OLED_I2C
+  #elif HAS_U8GLIB_I2C_OLED
 
     #define BTN_EN1                           50
     #define BTN_EN2                           52
@@ -168,4 +168,4 @@
 
     #define BEEPER_PIN                        -1
   #endif // SPARK_FULL_GRAPHICS
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD

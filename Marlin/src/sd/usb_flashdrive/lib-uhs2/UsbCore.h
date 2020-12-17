@@ -78,16 +78,16 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define USB_CLASS_PRINTER               0x07    // Printer
 #define USB_CLASS_MASS_STORAGE          0x08    // Mass Storage
 #define USB_CLASS_HUB                   0x09    // Hub
-#define USB_CLASS_CDC_DATA              0x0a    // CDC-Data
-#define USB_CLASS_SMART_CARD            0x0b    // Smart-Card
-#define USB_CLASS_CONTENT_SECURITY      0x0d    // Content Security
-#define USB_CLASS_VIDEO                 0x0e    // Video
-#define USB_CLASS_PERSONAL_HEALTH       0x0f    // Personal Healthcare
-#define USB_CLASS_DIAGNOSTIC_DEVICE     0xdc    // Diagnostic Device
-#define USB_CLASS_WIRELESS_CTRL         0xe0    // Wireless Controller
-#define USB_CLASS_MISC                  0xef    // Miscellaneous
-#define USB_CLASS_APP_SPECIFIC          0xfe    // Application Specific
-#define USB_CLASS_VENDOR_SPECIFIC       0xff    // Vendor Specific
+#define USB_CLASS_CDC_DATA              0x0A    // CDC-Data
+#define USB_CLASS_SMART_CARD            0x0B    // Smart-Card
+#define USB_CLASS_CONTENT_SECURITY      0x0D    // Content Security
+#define USB_CLASS_VIDEO                 0x0E    // Video
+#define USB_CLASS_PERSONAL_HEALTH       0x0F    // Personal Healthcare
+#define USB_CLASS_DIAGNOSTIC_DEVICE     0xDC    // Diagnostic Device
+#define USB_CLASS_WIRELESS_CTRL         0xE0    // Wireless Controller
+#define USB_CLASS_MISC                  0xEF    // Miscellaneous
+#define USB_CLASS_APP_SPECIFIC          0xFE    // Application Specific
+#define USB_CLASS_VENDOR_SPECIFIC       0xFF    // Vendor Specific
 
 // Additional Error Codes
 #define USB_DEV_CONFIG_ERROR_DEVICE_NOT_SUPPORTED       0xD1
@@ -117,7 +117,7 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define HUB_PORT_RESET_DELAY    20      // hub port reset delay 10 ms recomended, can be up to 20 ms
 
 /* USB state machine states */
-#define USB_STATE_MASK                                      0xf0
+#define USB_STATE_MASK                                      0xF0
 
 #define USB_STATE_DETACHED                                  0x10
 #define USB_DETACHED_SUBSTATE_INITIALIZE                    0x11
@@ -132,7 +132,7 @@ typedef MAX3421e<P10, P9> MAX3421E; // Official Arduinos (UNO, Duemilanove, Mega
 #define USB_STATE_ADDRESSING                                0x70
 #define USB_STATE_CONFIGURING                               0x80
 #define USB_STATE_RUNNING                                   0x90
-#define USB_STATE_ERROR                                     0xa0
+#define USB_STATE_ERROR                                     0xA0
 
 class USBDeviceConfig {
 public:

@@ -30,7 +30,11 @@
   #include "watchdog.h"
   #include <IWatchdog.h>
 
-  void watchdog_init() { IWatchdog.begin(4000000); } // 4 sec timeout
+  void watchdog_init() {
+    #if DISABLED(DISABLE_WATCHDOG_INIT)
+      IWatchdog.begin(4000000); // 4 sec timeout
+    #endif
+  }
 
   void HAL_watchdog_refresh() {
     IWatchdog.reload();

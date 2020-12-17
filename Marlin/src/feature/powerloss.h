@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * power_loss_recovery.h - Resume an SD print after power-loss
+ * feature/powerloss.h - Resume an SD print after power-loss
  */
 
 #include "../sd/cardreader.h"
@@ -58,7 +58,7 @@ typedef struct {
 
   uint16_t feedrate;
 
-  #if EXTRUDERS > 1
+  #if HAS_MULTI_EXTRUDER
     uint8_t active_extruder;
   #endif
 
@@ -106,6 +106,12 @@ typedef struct {
 
   // Job elapsed time
   millis_t print_job_elapsed;
+
+  // Misc. Marlin flags
+  struct {
+    bool dryrun:1;                // M111 S8
+    bool allow_cold_extrusion:1;  // M302 P1
+  } flag;
 
   uint8_t valid_foot;
 
@@ -173,7 +179,10 @@ class PrintJobRecovery {
       }
     #endif
 
-    static inline bool valid() { return info.valid(); }
+    // The referenced file exists
+    static inline bool interrupted_file_exists() { return card.fileExists(info.sd_filename); }
+
+    static inline bool valid() { return info.valid() && interrupted_file_exists(); }
 
     #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
       static void debug(PGM_P const prefix);

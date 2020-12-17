@@ -111,7 +111,7 @@ xyze_pos_t destination; // {0}
 #endif
 
 // The active extruder (tool). Set with T<extruder> command.
-#if EXTRUDERS > 1
+#if HAS_MULTI_EXTRUDER
   uint8_t active_extruder = 0; // = 0
 #endif
 
@@ -510,7 +510,7 @@ void do_z_clearance(const float &zclear, const bool z_known/*=true*/, const bool
   const bool rel = raise_on_unknown && !z_known;
   float zdest = zclear + (rel ? current_position.z : 0.0f);
   if (!lower_allowed) NOLESS(zdest, current_position.z);
-  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+  do_blocking_move_to_z(_MIN(zdest, Z_MAX_POS), MMM_TO_MMS(TERN(HAS_BED_PROBE, Z_PROBE_SPEED_FAST, HOMING_FEEDRATE_Z)));
 }
 
 //
@@ -534,10 +534,9 @@ void restore_feedrate_and_scaling() {
 
 #if HAS_SOFTWARE_ENDSTOPS
 
-  bool soft_endstops_enabled = true;
-
   // Software Endstops are based on the configured limits.
-  axis_limits_t soft_endstop = {
+  soft_endstops_t soft_endstop = {
+    true, false,
     { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
     { X_MAX_POS, Y_MAX_POS, Z_MAX_POS }
   };
@@ -624,9 +623,9 @@ void restore_feedrate_and_scaling() {
 
     #endif
 
-  if (DEBUGGING(LEVELING))
-    SERIAL_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
-}
+    if (DEBUGGING(LEVELING))
+      SERIAL_ECHOLNPAIR("Axis ", XYZ_CHAR(axis), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
+  }
 
   /**
    * Constrain the given coordinates to the software endstops.
@@ -636,7 +635,7 @@ void restore_feedrate_and_scaling() {
    */
   void apply_motion_limits(xyz_pos_t &target) {
 
-    if (!soft_endstops_enabled) return;
+    if (!soft_endstop._enabled) return;
 
     #if IS_KINEMATIC
 
@@ -688,7 +687,11 @@ void restore_feedrate_and_scaling() {
     }
   }
 
-#endif // HAS_SOFTWARE_ENDSTOPS
+#else // !HAS_SOFTWARE_ENDSTOPS
+
+  soft_endstops_t soft_endstop;
+
+#endif // !HAS_SOFTWARE_ENDSTOPS
 
 #if !UBL_SEGMENTED
 
@@ -1097,17 +1100,16 @@ void prepare_line_to_destination() {
   current_position = destination;
 }
 
-uint8_t axes_need_homing(uint8_t axis_bits/*=0x07*/) {
-  #define HOMED_FLAGS TERN(HOME_AFTER_DEACTIVATE, axis_known_position, axis_homed)
-  // Clear test bits that are homed
-  if (TEST(axis_bits, X_AXIS) && TEST(HOMED_FLAGS, X_AXIS)) CBI(axis_bits, X_AXIS);
-  if (TEST(axis_bits, Y_AXIS) && TEST(HOMED_FLAGS, Y_AXIS)) CBI(axis_bits, Y_AXIS);
-  if (TEST(axis_bits, Z_AXIS) && TEST(HOMED_FLAGS, Z_AXIS)) CBI(axis_bits, Z_AXIS);
+uint8_t axes_should_home(uint8_t axis_bits/*=0x07*/) {
+  // Clear test bits that are trusted
+  if (TEST(axis_bits, X_AXIS) && TEST(axis_homed, X_AXIS)) CBI(axis_bits, X_AXIS);
+  if (TEST(axis_bits, Y_AXIS) && TEST(axis_homed, Y_AXIS)) CBI(axis_bits, Y_AXIS);
+  if (TEST(axis_bits, Z_AXIS) && TEST(axis_homed, Z_AXIS)) CBI(axis_bits, Z_AXIS);
   return axis_bits;
 }
 
-bool axis_unhomed_error(uint8_t axis_bits/*=0x07*/) {
-  if ((axis_bits = axes_need_homing(axis_bits))) {
+bool homing_needed_error(uint8_t axis_bits/*=0x07*/) {
+  if ((axis_bits = axes_should_home(axis_bits))) {
     PGM_P home_first = GET_TEXT(MSG_HOME_FIRST);
     char msg[strlen_P(home_first)+1];
     sprintf_P(msg, home_first,
@@ -1127,8 +1129,9 @@ bool axis_unhomed_error(uint8_t axis_bits/*=0x07*/) {
  * Homing bump feedrate (mm/s)
  */
 feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
-  if (TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS))
-    return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+  #if HOMING_Z_WITH_PROBE
+    if (axis == Z_AXIS) return MMM_TO_MMS(Z_PROBE_SPEED_SLOW);
+  #endif
   static const uint8_t homing_bump_divisor[] PROGMEM = HOMING_BUMP_DIVISOR;
   uint8_t hbd = pgm_read_byte(&homing_bump_divisor[axis]);
   if (hbd < 1) {
@@ -1153,7 +1156,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             stealth_states.x2 = tmc_enable_stallguard(stepperX2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             stealth_states.y = tmc_enable_stallguard(stepperY);
           #elif CORE_IS_XZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1166,7 +1169,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             stealth_states.y2 = tmc_enable_stallguard(stepperY2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             stealth_states.x = tmc_enable_stallguard(stepperX);
           #elif CORE_IS_YZ && Z_SENSORLESS
             stealth_states.z = tmc_enable_stallguard(stepperZ);
@@ -1217,7 +1220,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(X2)
             tmc_disable_stallguard(stepperX2, enable_stealth.x2);
           #endif
-          #if CORE_IS_XY && Y_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && Y_SENSORLESS
             tmc_disable_stallguard(stepperY, enable_stealth.y);
           #elif CORE_IS_XZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1230,7 +1233,7 @@ feedRate_t get_homing_bump_feedrate(const AxisEnum axis) {
           #if AXIS_HAS_STALLGUARD(Y2)
             tmc_disable_stallguard(stepperY2, enable_stealth.y2);
           #endif
-          #if CORE_IS_XY && X_SENSORLESS
+          #if EITHER(CORE_IS_XY, MARKFORGED_XY) && X_SENSORLESS
             tmc_disable_stallguard(stepperX, enable_stealth.x);
           #elif CORE_IS_YZ && Z_SENSORLESS
             tmc_disable_stallguard(stepperZ, enable_stealth.z);
@@ -1431,15 +1434,15 @@ void set_axis_is_at_home(const AxisEnum axis) {
 }
 
 /**
- * Set an axis' to be unhomed.
+ * Set an axis to be unhomed.
  */
-void set_axis_not_trusted(const AxisEnum axis) {
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_not_trusted(", axis_codes[axis], ")");
+void set_axis_never_homed(const AxisEnum axis) {
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR(">>> set_axis_never_homed(", axis_codes[axis], ")");
 
   CBI(axis_known_position, axis);
   CBI(axis_homed, axis);
 
-  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_not_trusted(", axis_codes[axis], ")");
+  if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("<<< set_axis_never_homed(", axis_codes[axis], ")");
 
   TERN_(I2C_POSITION_ENCODERS, I2CPEM.unhomed(axis));
 }
@@ -1463,10 +1466,12 @@ void set_axis_not_trusted(const AxisEnum axis) {
             effectorBackoutDir, // Direction in which the effector mm coordinates move away from endstop.
             stepperBackoutDir;  // Direction in which the TMC µstep count(phase) move away from endstop.
 
+    #define PHASE_PER_MICROSTEP(N) (256 / _MAX(1, N##_MICROSTEPS))
+
     switch (axis) {
       #ifdef X_MICROSTEPS
         case X_AXIS:
-          phasePerUStep = 256 / (X_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(X);
           phaseCurrent = stepperX.get_microstep_counter();
           effectorBackoutDir = -X_HOME_DIR;
           stepperBackoutDir = INVERT_X_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1474,7 +1479,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
       #endif
       #ifdef Y_MICROSTEPS
         case Y_AXIS:
-          phasePerUStep = 256 / (Y_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Y);
           phaseCurrent = stepperY.get_microstep_counter();
           effectorBackoutDir = -Y_HOME_DIR;
           stepperBackoutDir = INVERT_Y_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1482,7 +1487,7 @@ void set_axis_not_trusted(const AxisEnum axis) {
       #endif
       #ifdef Z_MICROSTEPS
         case Z_AXIS:
-          phasePerUStep = 256 / (Z_MICROSTEPS);
+          phasePerUStep = PHASE_PER_MICROSTEP(Z);
           phaseCurrent = stepperZ.get_microstep_counter();
           effectorBackoutDir = -Z_HOME_DIR;
           stepperBackoutDir = INVERT_Z_DIR ? effectorBackoutDir : -effectorBackoutDir;
@@ -1589,7 +1594,7 @@ void homeaxis(const AxisEnum axis) {
   // When homing Z with probe respect probe clearance
   const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(Z_AXIS));
   const float bump = axis_home_dir * (
-    use_probe_bump ? _MAX(Z_CLEARANCE_BETWEEN_PROBES, home_bump_mm(Z_AXIS)) : home_bump_mm(axis)
+    use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(Z_AXIS)) : home_bump_mm(axis)
   );
 
   // If a second homing move is configured...
@@ -1790,7 +1795,7 @@ void homeaxis(const AxisEnum axis) {
       do_homing_move(axis, adjDistance, get_homing_bump_feedrate(axis));
     }
 
-  #else // CARTESIAN / CORE
+  #else // CARTESIAN / CORE / MARKFORGED_XY
 
     set_axis_is_at_home(axis);
     sync_plan_position();
@@ -1819,8 +1824,11 @@ void homeaxis(const AxisEnum axis) {
 
       #if ENABLED(SENSORLESS_HOMING)
         planner.synchronize();
-        if (TERN0(IS_CORE, axis != NORMAL_AXIS))
-          safe_delay(200);  // Short delay to allow belts to spring back
+        if (false
+          #if EITHER(IS_CORE, MARKFORGED_XY)
+            || axis != NORMAL_AXIS
+          #endif
+        ) safe_delay(200);  // Short delay to allow belts to spring back
       #endif
     }
   #endif

@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 1 || E_STEPPERS > 1
   #error "MKS Robin Lite supports only 1 hotend / E-stepper. Comment out this line to continue."
@@ -81,7 +81,7 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define BEEPER_PIN                        PD2
   #define BTN_ENC                           PB3
   #define LCD_PINS_RS                       PC3
@@ -111,7 +111,7 @@
 
   #endif // !MKS_MINI_12864
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
     #ifndef BOARD_ST7920_DELAY_1
       #define BOARD_ST7920_DELAY_1 DELAY_NS(125)
     #endif
@@ -123,7 +123,7 @@
     #endif
   #endif
 
-#endif // HAS_SPI_LCD
+#endif // HAS_WIRED_LCD
 
 // Motor current PWM pins
 #define MOTOR_CURRENT_PWM_XY_PIN            PB0

@@ -25,7 +25,7 @@
  * Wanhao Duplicator i3 Plus pin assignments
  */
 
-#ifndef __AVR_ATmega2560__
+#if NOT_TARGET(__AVR_ATmega2560__)
   #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
 #endif
 
@@ -87,7 +87,7 @@
 //
 // LCDs and Controllers
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #if ENABLED(ZONESTAR_LCD)
     #define LCD_PINS_RS                        2
     #define LCD_PINS_ENABLE                   36
@@ -113,7 +113,7 @@
  * # Pin | ATMEGA2560 Pin | Arduino #
  * ##################################
  * #  1  | 52 / PG1 (!RD) |    40   #
- * #  2  | 95 / PF2 (A2)  |     2   #
+ * #  2  | 95 / PF2 (A2)  |    56   #
  * #  3  | 54 / PC1 (A9)  |    36   #
  * #  4  | 53 / PC0 (A8)  |    37   #
  * #  5  | 56 / PC3 (A11) |    34   #

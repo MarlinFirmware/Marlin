@@ -21,11 +21,9 @@
  */
 #pragma once
 
-#ifdef __cplusplus
-extern "C" { /* C-declarations for C++ */
-#endif
+#include "../../../../inc/MarlinConfig.h"
 
-#include "../../inc/MarlinConfigPre.h"
+#include "../../../../libs/W25Qxx.h"
 
 #include <lvgl.h>
 
@@ -63,7 +61,7 @@ extern "C" { /* C-declarations for C++ */
 #define DEFAULT_VIEW_MAX_SIZE           (200*200*2)
 #define FLASH_VIEW_MAX_SIZE             (200*200*2)
 
-#define PER_PIC_MAX_SPACE_TFT35         (32*1024)
+#define PER_PIC_MAX_SPACE_TFT35         (9*1024)
 #define PER_PIC_MAX_SPACE_TFT32         (16*1024)
 #define PER_FONT_MAX_SPACE              (16*1024)
 
@@ -78,7 +76,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_DATA_ADDR                 0x003000      //
 
   // TFT35
-  #define DEFAULT_VIEW_ADDR_TFT35       0x1ea070
+  #define DEFAULT_VIEW_ADDR_TFT35       0x1EA070
   #define BAK_VIEW_ADDR_TFT35           (DEFAULT_VIEW_ADDR_TFT35+90*1024)
   #define PIC_ICON_LOGO_ADDR_TFT35      (BAK_VIEW_ADDR_TFT35+80*1024)
   #define PIC_DATA_ADDR_TFT35           0x003000 // (PIC_ICON_LOGO_ADDR_TFT35+350*1024) //0xC5800
@@ -88,7 +86,7 @@ extern "C" { /* C-declarations for C++ */
   #define PIC_OTHER_SIZE_ADDR_TFT32     0x5EE000
 
   // font
-  #define FONTINFOADDR                  0x183000 // 6M -- font addr
+  #define FONTINFOADDR                  0x150000 // 6M -- font addr
   #define UNIGBK_FLASH_ADDR            (FONTINFOADDR+4096) // 4*1024
 
 #else
@@ -121,9 +119,22 @@ extern "C" { /* C-declarations for C++ */
 
 // Flash flag
 #define REFLSHE_FLGA_ADD                (0X800000-32)
-#define FLASH_INF_VALID_FLAG            0xAA558761
+
 // SD card information first addr
 #define VAR_INF_ADDR                    0x000000
+#define FLASH_INF_VALID_FLAG            0x20200831
+
+//Store some gcode commands, such as auto leveling commands
+#define GCODE_COMMAND_ADDR              VAR_INF_ADDR + 3*1024
+#define AUTO_LEVELING_COMMAND_ADDR      GCODE_COMMAND_ADDR
+#define OTHERS_COMMAND_ADDR_1           AUTO_LEVELING_COMMAND_ADDR + 100
+#define OTHERS_COMMAND_ADDR_2           OTHERS_COMMAND_ADDR_1 + 100
+#define OTHERS_COMMAND_ADDR_3           OTHERS_COMMAND_ADDR_2 + 100
+#define OTHERS_COMMAND_ADDR_4           OTHERS_COMMAND_ADDR_3 + 100
+
+#ifdef __cplusplus
+  extern "C" { /* C-declarations for C++ */
+#endif
 
 union union32 {
   uint8_t bytes[4];
@@ -155,5 +166,5 @@ extern void default_view_Read(uint8_t *default_view_Rbuff, uint32_t default_view
 extern void flash_view_Read(uint8_t *flash_view_Rbuff, uint32_t flash_view_Readsize);
 
 #ifdef __cplusplus
-} /* C-declarations for C++ */
+  } /* C-declarations for C++ */
 #endif

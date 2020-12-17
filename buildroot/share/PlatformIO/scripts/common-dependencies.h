@@ -19,7 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
 
 /**
  * The purpose of this file is just include Marlin Configuration files,
@@ -27,41 +26,90 @@
  * Used by common-dependencies.py
  */
 
-#include <stdint.h>
+#define NUM_SERIAL 1 // Normally provided by HAL/HAL.h
 
-// Include platform headers
-//#include "../../../../Marlin/src/HAL/platforms.h"
+#include "../../../../Marlin/src/inc/MarlinConfig.h"
 
-#include "../../../../Marlin/src/core/boards.h"
-#include "../../../../Marlin/src/core/macros.h"
-#include "../../../../Marlin/Configuration.h"
-
-#include "../../../../Marlin/Version.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_LCD.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_LCD.h)
+//
+// Conditionals only used for [features]
+//
+#if ENABLED(SR_LCD_3W_NL)
+  // Feature checks for SR_LCD_3W_NL
+#elif EITHER(LCD_I2C_TYPE_MCP23017, LCD_I2C_TYPE_MCP23008)
+  #define USES_LIQUIDTWI2
+#elif ANY(HAS_MARLINUI_HD44780, LCD_I2C_TYPE_PCF8575, LCD_I2C_TYPE_PCA8574, SR_LCD_2W_NL, LCM1602)
+  #define USES_LIQUIDCRYSTAL
 #endif
 
-#include "../../../../Marlin/src/core/drivers.h"
-#include "../../../../Marlin/Configuration_adv.h"
-
-#include "../../../../Marlin/src/inc/Conditionals_adv.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_adv.h)
+#if SAVED_POSITIONS
+  #define HAS_SAVED_POSITIONS
 #endif
 
-//#include "../../../../Marlin/src/pins/pins.h"
-
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, timers.h)
-  #include HAL_PATH(../../../../Marlin/src/HAL, spi_pins.h)
+#if ENABLED(HOST_PROMPT_SUPPORT) && DISABLED(EMERGENCY_PARSER)
+  #define HAS_GCODE_M876
 #endif
 
-#include "../../../../Marlin/src/inc/Conditionals_post.h"
+#if EXTRUDERS
+  #define HAS_EXTRUDERS
+#endif
 
-#ifdef HAL_PATH
-  #include HAL_PATH(../../../../Marlin/src/HAL, inc/Conditionals_post.h)
+#if ENABLED(DUET_SMART_EFFECTOR) && PIN_EXISTS(SMART_EFFECTOR_MOD)
+  #define HAS_SMART_EFF_MOD
+#endif
+
+#if HAS_LCD_MENU
+  #if ENABLED(BACKLASH_GCODE)
+    #define HAS_MENU_BACKLASH
+  #endif
+  #if ENABLED(LEVEL_BED_CORNERS)
+    #define HAS_MENU_BED_CORNERS
+  #endif
+  #if ENABLED(CANCEL_OBJECTS)
+    #define HAS_MENU_CANCELOBJECT
+  #endif
+  #if ENABLED(CUSTOM_USER_MENUS)
+    #define HAS_MENU_CUSTOM
+  #endif
+  #if EITHER(DELTA_CALIBRATION_MENU, DELTA_AUTO_CALIBRATION)
+    #define HAS_MENU_DELTA_CALIBRATE
+  #endif
+  #if EITHER(LED_CONTROL_MENU, CASE_LIGHT_MENU)
+    #define HAS_MENU_LED
+  #endif
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    #define HAS_MENU_FILAMENT
+  #endif
+  #if ENABLED(SDSUPPORT)
+    #define HAS_MENU_MEDIA
+  #endif
+  #if ENABLED(MIXING_EXTRUDER)
+    #define HAS_MENU_MIXER
+  #endif
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    #define HAS_MENU_JOB_RECOVERY
+  #endif
+  #if HAS_POWER_MONITOR
+    #define HAS_MENU_POWER_MONITOR
+  #endif
+  #if HAS_CUTTER
+    #define HAS_MENU_CUTTER
+  #endif
+  #if HAS_TEMPERATURE
+    #define HAS_MENU_TEMPERATURE
+  #endif
+  #if ENABLED(MMU2_MENUS)
+    #define HAS_MENU_MMU2
+  #endif
+  #if ENABLED(PASSWORD_FEATURE)
+    #define HAS_MENU_PASSWORD
+  #endif
+  #if HAS_TRINAMIC_CONFIG
+    #define HAS_MENU_TMC
+  #endif
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    #define HAS_MENU_TOUCH_SCREEN
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    #define HAS_MENU_UBL
+  #endif
 #endif

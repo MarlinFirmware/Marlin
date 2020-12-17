@@ -106,7 +106,7 @@
 
   #define BEEPER_PIN                          33
 
-#endif // HAS_SPI_LCD && NEWPANEL
+#endif // ULTRA_LCD && NEWPANEL
 
 /**
  *  M3/M4/M5 - Spindle/Laser Control

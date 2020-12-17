@@ -27,7 +27,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_pt_br {
   using namespace Language_en; // Inherit undefined strings from English
@@ -351,18 +350,12 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("Total");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("Abortar Fim de Curso");
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("Aquecimento falhou");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("Aquecer mesa falhou");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("Aquecer câmara falhou");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("Erro:Temp Redundante");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("ESCAPE TÉRMICO");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("ESCAPE TÉRMICO MESA");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("ESCAPE TÉRMICO CAMARA");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("Erro:Temp Máxima");
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("Erro:Temp Mínima");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("Erro:Temp Mesa Máx");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("Erro:Temp Mesa Mín");
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Máx");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("Erro:Temp Câmara Min");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("IMPRESSORA PAROU");
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("Favor resetar");
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("d");
@@ -434,7 +427,6 @@ namespace Language_pt_br {
   PROGMEM Language_Str MSG_RUNOUT_SENSOR                   = _UxGT("Sensor filamento");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("Falha ao ir à origem");
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("Falha ao sondar");
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: Muito frio");
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("ESCOLHER FILAMENTO");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");

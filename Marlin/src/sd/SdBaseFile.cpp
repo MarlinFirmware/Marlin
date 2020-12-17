@@ -154,7 +154,6 @@ bool SdBaseFile::contiguousRange(uint32_t* bgnBlock, uint32_t* endBlock) {
  * an invalid DOS 8.3 file name, the FAT volume has not been initialized,
  * a file is already open, the file already exists, the root
  * directory is full or an I/O error.
- *
  */
 bool SdBaseFile::createContiguous(SdBaseFile* dirFile, const char* path, uint32_t size) {
   if (ENABLED(SDCARD_READONLY)) return false;
@@ -1663,7 +1662,6 @@ bool SdBaseFile::truncate(uint32_t length) {
  * \a nbyte.  If an error occurs, write() returns -1.  Possible errors
  * include write() is called before a file has been opened, write is called
  * for a read-only file, device is full, a corrupt file system or an I/O error.
- *
  */
 int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
   #if ENABLED(SDCARD_READONLY)

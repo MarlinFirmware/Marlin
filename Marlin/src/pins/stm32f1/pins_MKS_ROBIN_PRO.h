@@ -25,7 +25,7 @@
  * MKS Robin pro (STM32F103ZET6) board pin assignments
  */
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #elif HOTENDS > 3 || E_STEPPERS > 3
   #error "MKS Robin pro supports up to 3 hotends / E-steppers. Comment out this line to continue."
@@ -41,7 +41,7 @@
 //
 // Note: MKS Robin board is using SPI2 interface.
 //
-//#define SPI_MODULE 2
+//#define SPI_MODULE                           2
 #define ENABLE_SPI2
 
 //
@@ -125,17 +125,12 @@
    * Hardware serial communication ports.
    * If undefined software serial is used according to the pins below
    */
-  //#define X_HARDWARE_SERIAL  Serial
-  //#define X2_HARDWARE_SERIAL Serial1
-  //#define Y_HARDWARE_SERIAL  Serial1
-  //#define Y2_HARDWARE_SERIAL Serial1
-  //#define Z_HARDWARE_SERIAL  Serial1
-  //#define Z2_HARDWARE_SERIAL Serial1
-  //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial1
-  //#define E2_HARDWARE_SERIAL Serial1
-  //#define E3_HARDWARE_SERIAL Serial1
-  //#define E4_HARDWARE_SERIAL Serial1
+  //#define X_HARDWARE_SERIAL  MSerial1
+  //#define Y_HARDWARE_SERIAL  MSerial1
+  //#define Z_HARDWARE_SERIAL  MSerial1
+  //#define E0_HARDWARE_SERIAL MSerial1
+  //#define E1_HARDWARE_SERIAL MSerial1
+  //#define E2_HARDWARE_SERIAL MSerial1
 
   //
   // Software serial
@@ -205,6 +200,7 @@
 #elif SD_CONNECTION_IS(ONBOARD)
   #define SDIO_SUPPORT
   #define SD_DETECT_PIN                     PD12
+  #define ONBOARD_SD_CS_PIN                 PC11
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "No custom SD drive cable defined for this board."
 #endif
@@ -230,7 +226,13 @@
     #define BTN_EN2                         PG4
   #endif
 
-#elif HAS_SPI_LCD
+#elif IS_TFTGLCD_PANEL
+
+  #if ENABLED(TFTGLCD_PANEL_SPI)
+    #define TFTGLCD_CS                      PG5
+  #endif
+
+#elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC5
   #define BTN_ENC                           PG2
@@ -259,6 +261,7 @@
     #endif
 
   #endif // !MKS_MINI_12864 && !ENDER2_STOCKDISPLAY
+
 #endif
 
 #ifndef BOARD_ST7920_DELAY_1

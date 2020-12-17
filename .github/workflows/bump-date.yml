@@ -11,6 +11,8 @@ on:
 
 jobs:
   bump_date:
+    name: Bump Distribution Date
+    if: github.repository == 'MarlinFirmware/Marlin'
 
     runs-on: ubuntu-latest
 
@@ -24,7 +26,6 @@ jobs:
     - name: Bump Distribution Date
       run: |
         # Inline Bump Script
-        [[ "$GITHUB_REPOSITORY" == "MarlinFirmware/Marlin" ]] || exit 0
         DIST=$( date +"%Y-%m-%d" )
         eval "sed -E -i 's/(#define +STRING_DISTRIBUTION_DATE) .*$/\1 \"$DIST\"/g' Marlin/src/inc/Version.h" && \
         git config user.name "${GITHUB_ACTOR}" && \

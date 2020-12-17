@@ -61,8 +61,8 @@ void format_temp_and_material(char *str, float t1, const char *material) {
 /**
  * Formats a position value (e.g. "10 mm")
  */
-void format_position(char *str, float p) {
-  dtostrf(p, 5, 1, str);
+void format_position(char *str, float p, uint8_t decimals) {
+  dtostrf(p, 4 + decimals, decimals, str);
   strcat_P(str, PSTR(" "));
   strcat_P(str, GET_TEXT(MSG_UNITS_MM));
 }

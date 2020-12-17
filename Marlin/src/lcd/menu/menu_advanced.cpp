@@ -28,7 +28,7 @@
 
 #if HAS_LCD_MENU
 
-#include "menu.h"
+#include "menu_item.h"
 #include "../../module/planner.h"
 
 #if DISABLED(NO_VOLUMETRICS)
@@ -48,23 +48,26 @@
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE)
-  #include "../../module/configuration_store.h"
+  #include "../../module/settings.h"
+#endif
+
+#if ENABLED(PASSWORD_FEATURE)
+  #include "../../feature/password/password.h"
 #endif
 
 void menu_tmc();
 void menu_backlash();
-void menu_cancelobject();
 
-#if ENABLED(DAC_STEPPER_CURRENT)
+#if ENABLED(HAS_MOTOR_CURRENT_DAC)
 
   #include "../../feature/dac/stepper_dac.h"
 
   void menu_dac() {
     static xyze_uint8_t driverPercent;
-    LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i);
+    LOOP_XYZE(i) driverPercent[i] = stepper_dac.get_current_percent((AxisEnum)i);
     START_MENU();
     BACK_ITEM(MSG_ADVANCED_SETTINGS);
-    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ dac_current_set_percents(driverPercent); })
+    #define EDIT_DAC_PERCENT(A) EDIT_ITEM(uint8, MSG_DAC_PERCENT_##A, &driverPercent[_AXIS(A)], 0, 100, []{ stepper_dac.set_current_percents(driverPercent); })
     EDIT_DAC_PERCENT(X);
     EDIT_DAC_PERCENT(Y);
     EDIT_DAC_PERCENT(Z);
@@ -108,7 +111,7 @@ void menu_cancelobject();
     #if ENABLED(LIN_ADVANCE)
       #if EXTRUDERS == 1
         EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
-      #elif EXTRUDERS > 1
+      #elif HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
           EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
       #endif
@@ -119,7 +122,7 @@ void menu_cancelobject();
 
       #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
         EDIT_ITEM_FAST(float42_52, MSG_VOLUMETRIC_LIMIT, &planner.volumetric_extruder_limit[active_extruder], 0.0f, 20.0f, planner.calculate_volumetric_extruder_limits);
-        #if EXTRUDERS > 1
+        #if HAS_MULTI_EXTRUDER
           LOOP_L_N(n, EXTRUDERS)
             EDIT_ITEM_FAST_N(float42_52, n, MSG_VOLUMETRIC_LIMIT_E, &planner.volumetric_extruder_limit[n], 0.0f, 20.00f, planner.calculate_volumetric_extruder_limits);
         #endif
@@ -127,7 +130,7 @@ void menu_cancelobject();
 
       if (parser.volumetric_enabled) {
         EDIT_ITEM_FAST(float43, MSG_FILAMENT_DIAM, &planner.filament_size[active_extruder], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
-        #if EXTRUDERS > 1
+        #if HAS_MULTI_EXTRUDER
           LOOP_L_N(n, EXTRUDERS)
             EDIT_ITEM_FAST_N(float43, n, MSG_FILAMENT_DIAM_E, &planner.filament_size[n], 1.5f, 3.25f, planner.calculate_volumetric_multipliers);
         #endif
@@ -138,13 +141,13 @@ void menu_cancelobject();
       constexpr float extrude_maxlength = TERN(PREVENT_LENGTHY_EXTRUDE, EXTRUDE_MAXLENGTH, 999);
 
       EDIT_ITEM_FAST(float3, MSG_FILAMENT_UNLOAD, &fc_settings[active_extruder].unload_length, 0, extrude_maxlength);
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
           EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTUNLOAD_E, &fc_settings[n].unload_length, 0, extrude_maxlength);
       #endif
 
       EDIT_ITEM_FAST(float3, MSG_FILAMENT_LOAD, &fc_settings[active_extruder].load_length, 0, extrude_maxlength);
-      #if EXTRUDERS > 1
+      #if HAS_MULTI_EXTRUDER
         LOOP_L_N(n, EXTRUDERS)
           EDIT_ITEM_FAST_N(float3, n, MSG_FILAMENTLOAD_E, &fc_settings[n].load_length, 0, extrude_maxlength);
       #endif
@@ -483,6 +486,11 @@ void menu_cancelobject();
         EDIT_ITEM(float31sign, MSG_ZPROBE_YOFFSET, &probe.offset.y, -(Y_BED_SIZE), Y_BED_SIZE);
       #endif
       EDIT_ITEM(LCD_Z_OFFSET_TYPE, MSG_ZPROBE_ZOFFSET, &probe.offset.z, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+
+      #if ENABLED(PROBE_OFFSET_WIZARD)
+        SUBMENU(MSG_PROBE_WIZARD, goto_probe_offset_wizard);
+      #endif
+
       END_MENU();
     }
   #endif
@@ -560,11 +568,7 @@ void menu_advanced_settings() {
     SUBMENU(MSG_BACKLASH, menu_backlash);
   #endif
 
-  #if ENABLED(CANCEL_OBJECTS)
-    SUBMENU(MSG_CANCEL_OBJECT, []{ editable.int8 = -1; ui.goto_screen(menu_cancelobject); });
-  #endif
-
-  #if ENABLED(DAC_STEPPER_CURRENT)
+  #if ENABLED(HAS_MOTOR_CURRENT_DAC)
     SUBMENU(MSG_DRIVE_STRENGTH, menu_dac);
   #endif
   #if HAS_MOTOR_CURRENT_PWM
@@ -584,7 +588,7 @@ void menu_advanced_settings() {
   #elif ENABLED(LIN_ADVANCE)
     #if EXTRUDERS == 1
       EDIT_ITEM(float42_52, MSG_ADVANCE_K, &planner.extruder_advance_K[0], 0, 999);
-    #elif EXTRUDERS > 1
+    #elif HAS_MULTI_EXTRUDER
       LOOP_L_N(n, E_STEPPERS)
         EDIT_ITEM_N(float42_52, n, MSG_ADVANCE_K_E, &planner.extruder_advance_K[n], 0, 999);
     #endif
@@ -608,10 +612,14 @@ void menu_advanced_settings() {
     });
   #endif
 
+  #if ENABLED(PASSWORD_FEATURE)
+    SUBMENU(MSG_PASSWORD_SETTINGS, password.access_menu_password);
+  #endif
+
   #if ENABLED(EEPROM_SETTINGS) && DISABLED(SLIM_LCD_MENUS)
     CONFIRM_ITEM(MSG_INIT_EEPROM,
       MSG_BUTTON_INIT, MSG_BUTTON_CANCEL,
-      ui.init_eeprom, ui.goto_previous_screen,
+      ui.init_eeprom, nullptr,
       GET_TEXT(MSG_INIT_EEPROM), (const char *)nullptr, PSTR("?")
     );
   #endif

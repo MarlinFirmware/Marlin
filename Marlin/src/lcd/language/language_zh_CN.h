@@ -26,7 +26,6 @@
  *
  * LCD Menu Messages
  * See also https://marlinfw.org/docs/development/lcd_language.html
- *
  */
 namespace Language_zh_CN {
   using namespace Language_en;  // Inherit undefined strings from English
@@ -374,13 +373,13 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_STOPPED                         = _UxGT("已停止");     //"STOPPED. "
   PROGMEM Language_Str MSG_CONTROL_RETRACT                 = _UxGT("回抽长度mm");     //"Retract mm" retract_length, retract length (positive mm)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_SWAP            = _UxGT("换手回抽长度mm");     //"Swap Re.mm" swap_retract_length, swap retract length (positive mm), for extruder change
-  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回抽速率mm/s");     //"Retract  V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACTF                = _UxGT("回抽速率mm/s");     //"Retract V" retract_feedrate_mm_s, feedrate for retracting (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_ZHOP            = _UxGT("Hop mm");     //"Hop mm" retract_zraise, retract Z-lift
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER         = _UxGT("回抽恢复长度mm");     //"UnRet +mm" retract_recover_extra, additional recover length (mm, added to retract length when recovering)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAP    = _UxGT("换手回抽恢复长度mm");     //"S UnRet+mm" swap_retract_recover_extra, additional swap recover length (mm, added to retract length when recovering from extruder change)
-  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回抽恢复后进料速率mm/s");     //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
+  PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVERF        = _UxGT("回抽恢复后进料速率mm/s");     //"Unretract V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
   PROGMEM Language_Str MSG_CONTROL_RETRACT_RECOVER_SWAPF   = _UxGT("S UnRet V");     // "S UnRet V"
-  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自动抽回");     //"AutoRetr." autoretract_enabled,
+  PROGMEM Language_Str MSG_AUTORETRACT                     = _UxGT("自动抽回");     //"Auto-Retract" autoretract_enabled,
   PROGMEM Language_Str MSG_FILAMENT_SWAP_LENGTH            = _UxGT("交换长度");
   PROGMEM Language_Str MSG_FILAMENT_SWAP_EXTRA             = _UxGT("额外的交换");
   PROGMEM Language_Str MSG_FILAMENT_PURGE_LENGTH           = _UxGT("清洗长度");
@@ -441,18 +440,12 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_BABYSTEP_TOTAL                  = _UxGT("总计");
   PROGMEM Language_Str MSG_ENDSTOP_ABORT                   = _UxGT("挡块终止");     //"Endstop abort"
   PROGMEM Language_Str MSG_HEATING_FAILED_LCD              = _UxGT("加热失败");     //"Heating failed"
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_BED          = _UxGT("热床加热失败");
-  PROGMEM Language_Str MSG_HEATING_FAILED_LCD_CHAMBER      = _UxGT("机箱加热失败");
   PROGMEM Language_Str MSG_ERR_REDUNDANT_TEMP              = _UxGT("错误：冗余温度");     //"Err: REDUNDANT TEMP"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY                 = _UxGT("温控失控");     //"THERMAL RUNAWAY"
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_BED             = _UxGT("热床热量失控");
   PROGMEM Language_Str MSG_THERMAL_RUNAWAY_CHAMBER         = _UxGT("机箱热量失控");
   PROGMEM Language_Str MSG_ERR_MAXTEMP                     = _UxGT("错误：最高温度");     //"Err: MAXTEMP"
   PROGMEM Language_Str MSG_ERR_MINTEMP                     = _UxGT("错误：最低温度");     //"Err: MINTEMP"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_BED                 = _UxGT("错误：最高热床温度");     //"Err: MAXTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MINTEMP_BED                 = _UxGT("错误：最低热床温度");     //"Err: MINTEMP BED"
-  PROGMEM Language_Str MSG_ERR_MAXTEMP_CHAMBER             = _UxGT("错误：最高机箱温度");
-  PROGMEM Language_Str MSG_ERR_MINTEMP_CHAMBER             = _UxGT("错误：最低机箱温度");
   PROGMEM Language_Str MSG_HALTED                          = _UxGT("打印停机");     //"PRINTER HALTED"
   PROGMEM Language_Str MSG_PLEASE_RESET                    = _UxGT("请重置");     //"Please reset"
   PROGMEM Language_Str MSG_SHORT_DAY                       = _UxGT("天");     //"d" // One character only
@@ -534,7 +527,6 @@ namespace Language_zh_CN {
   PROGMEM Language_Str MSG_RUNOUT_DISTANCE_MM              = _UxGT("断料距离mm");
   PROGMEM Language_Str MSG_KILL_HOMING_FAILED              = _UxGT("归原位失败");     // "Homing failed"
   PROGMEM Language_Str MSG_LCD_PROBING_FAILED              = _UxGT("探针探测失败");     // "Probing failed"
-  PROGMEM Language_Str MSG_M600_TOO_COLD                   = _UxGT("M600: 太凉");     // "M600: Too cold"
 
   PROGMEM Language_Str MSG_MMU2_CHOOSE_FILAMENT_HEADER     = _UxGT("选择料");
   PROGMEM Language_Str MSG_MMU2_MENU                       = _UxGT("MMU");
@@ -638,8 +630,8 @@ namespace Language_zh_CN {
 
 #if FAN_COUNT == 1
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED
 #else
   #define MSG_FIRST_FAN_SPEED       MSG_FAN_SPEED_N
-  #define MSG_FIRST_EXTRA_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
+  #define MSG_EXTRA_FIRST_FAN_SPEED MSG_EXTRA_FAN_SPEED_N
 #endif

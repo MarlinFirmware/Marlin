@@ -21,7 +21,7 @@
  */
 #pragma once
 
-#ifndef __STM32F1__
+#if NOT_TARGET(__STM32F1__)
   #error "Oops! Select an STM32F1 board in 'Tools > Board.'"
 #endif
 
@@ -33,7 +33,7 @@
 #define pins_v2_20190128                          // new pins define
 
 // Ignore temp readings during development.
-//#define BOGUS_TEMPERATURE_GRACE_PERIOD 2000
+//#define BOGUS_TEMPERATURE_GRACE_PERIOD    2000
 
 //
 // Flash EEPROM Emulation
@@ -93,10 +93,10 @@
   //
   // Hardware serial with switch
   //
-  #define X_HARDWARE_SERIAL  Serial1
-  #define Y_HARDWARE_SERIAL  Serial1
-  #define Z_HARDWARE_SERIAL  Serial1
-  #define E0_HARDWARE_SERIAL Serial1
+  #define X_HARDWARE_SERIAL  MSerial1
+  #define Y_HARDWARE_SERIAL  MSerial1
+  #define Z_HARDWARE_SERIAL  MSerial1
+  #define E0_HARDWARE_SERIAL MSerial1
 
   // The 4xTMC2209 module doesn't have a serial multiplexer and
   // needs to set *_SLAVE_ADDRESS in Configuration_adv.h for X,Y,Z,E0
@@ -112,7 +112,7 @@
 // Stepper current PWM
 //
 #ifndef MOTOR_CURRENT_PWM_RANGE
-  #define MOTOR_CURRENT_PWM_RANGE 1500            // origin:2000
+  #define MOTOR_CURRENT_PWM_RANGE           1500  // origin:2000
 #endif
 #define DEFAULT_PWM_MOTOR_CURRENT { 500, 500, 400 } // origin: {1300,1300,1250}
 
@@ -139,11 +139,11 @@
 //
 // LCD Pins
 //
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
 
   #define BEEPER_PIN                        PC9
 
-  #if HAS_GRAPHICAL_LCD
+  #if HAS_MARLINUI_U8GLIB
 
     #define DOGLCD_A0                       PA15
     #ifdef pins_v2_20190128
@@ -152,7 +152,7 @@
       #define DOGLCD_CS                     PB7
     #endif
 
-    //#define LCD_CONTRAST_INIT 190
+    //#define LCD_CONTRAST_INIT              190
     //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
     //#define LCD_SCREEN_ROT_270

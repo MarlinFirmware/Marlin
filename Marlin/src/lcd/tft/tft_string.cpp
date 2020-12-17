@@ -86,33 +86,43 @@ void TFT_String::set() {
 
 uint8_t read_byte(uint8_t *byte) { return *byte; }
 
-void TFT_String::add(uint8_t *string, uint8_t index, uint8_t *itemString) {
-  uint8_t character;
+void TFT_String::add(uint8_t *string, int8_t index, uint8_t *itemString) {
   wchar_t wchar;
 
   while (*string) {
     string = get_utf8_value_cb(string, read_byte, &wchar);
-    if (wchar > 255)
-      wchar |= 0x0080;
-    character = (uint8_t) (wchar & 0x00FF);
+    if (wchar > 255) wchar |= 0x0080;
+    uint8_t ch = uint8_t(wchar & 0x00FF);
 
-    if (character == '=' || character == '~' || character == '*') {
+    if (ch == '=' || ch == '~' || ch == '*') {
       if (index >= 0) {
-        if (character == '*')
-          add_character('E');
-        add_character(index + ((character == '=') ? '0' : LCD_FIRST_TOOL));
+        int8_t inum = index + ((ch == '=') ? 0 : LCD_FIRST_TOOL);
+        if (ch == '*') add_character('E');
+        if (inum >= 10) { add_character('0' + (inum / 10)); inum %= 10; }
+        add_character('0' + inum);
       }
       else {
         add(index == -2 ? GET_TEXT(MSG_CHAMBER) : GET_TEXT(MSG_BED));
       }
       continue;
     }
-    else if (character == '$' && itemString) {
+    else if (ch == '$' && itemString) {
       add(itemString);
       continue;
     }
 
-    add_character(character);
+    add_character(ch);
+  }
+  eol();
+}
+
+void TFT_String::add(uint8_t *string) {
+  wchar_t wchar;
+  while (*string) {
+    string = get_utf8_value_cb(string, read_byte, &wchar);
+    if (wchar > 255) wchar |= 0x0080;
+    uint8_t ch = uint8_t(wchar & 0x00FF);
+    add_character(ch);
   }
   eol();
 }

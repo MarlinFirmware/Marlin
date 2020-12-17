@@ -38,7 +38,7 @@
  */
 void GcodeSuite::M430() {
   bool do_report = true;
-  #if HAS_SPI_LCD
+  #if HAS_WIRED_LCD
     #if ENABLED(POWER_MONITOR_CURRENT)
       if (parser.seen('I')) { power_monitor.set_current_display(parser.value_bool()); do_report = false; }
     #endif

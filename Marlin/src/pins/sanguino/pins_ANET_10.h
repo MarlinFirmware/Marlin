@@ -30,7 +30,6 @@
  *
  * 1) no longer uses Sanguino files to define some of the pins
  * 2) added pointers to useable Arduino IDE extensions
- *
  */
 
 /**
@@ -48,7 +47,6 @@
  * "Anet V1.0 (Optiboot)" frees up another 3K of FLASH.  You'll need to burn
  * a new bootloader to the board to be able to automatically download a
  * compiled image.
- *
  */
 
 /**
@@ -66,7 +64,6 @@
  * Just use the above JSON URL instead of Sparkfun's JSON.
  *
  * Once installed select the Sanguino board and then select the CPU.
- *
  */
 
 /**
@@ -89,7 +86,7 @@
  *   Many thanks to Hans Raaf (@oderwat) for developing the Anet-specific software and supporting the Anet community.
  */
 
-#ifndef __AVR_ATmega1284P__
+#if NOT_TARGET(__AVR_ATmega1284P__)
   #error "Oops! Select 'Sanguino' in 'Tools > Board' and 'ATmega1284P' in 'Tools > Processor.' (For PlatformIO, use 'melzi' or 'melzi_optiboot.')"
 #endif
 
@@ -152,7 +149,7 @@
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
-#if HAS_SPI_LCD
+#if HAS_WIRED_LCD
   #define LCD_SDSS                            28
   #if ENABLED(ADC_KEYPAD)
     #define SERVO0_PIN                        27  // free for BLTouch/3D-Touch
@@ -163,7 +160,7 @@
     #define LCD_PINS_D6                       16
     #define LCD_PINS_D7                       17
     #define ADC_KEYPAD_PIN                     1
-  #elif EITHER(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER, ANET_FULL_GRAPHICS_LCD)
+  #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board  // https://go.aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
