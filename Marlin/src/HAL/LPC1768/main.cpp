@@ -46,6 +46,8 @@ extern "C" {
 
 void SysTick_Callback() { disk_timerproc(); }
 
+TERN_(POSTMORTEM_DEBUGGING, extern void install_min_serial());
+
 void HAL_init() {
 
   // Init LEDs
@@ -123,9 +125,7 @@ void HAL_init() {
   delay(1000);                              // Give OS time to notice
   USB_Connect(true);
 
-  #if HAS_SD_HOST_DRIVE
-    MSC_SD_Init(0);                         // Enable USB SD card access
-  #endif
+  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
   const millis_t usb_timeout = millis() + 2000;
   while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
@@ -137,6 +137,8 @@ void HAL_init() {
   }
 
   HAL_timer_init();
+
+  TERN_(POSTMORTEM_DEBUGGING, install_min_serial()); // Install the min serial handler
 }
 
 // HAL idle task
