@@ -1,7 +1,6 @@
 /*
 ******************************************************************************
 **
-
 **  File        : LinkerScript.ld
 **
 **  Abstract    : Linker script for STM32F4x7Vx Device with
@@ -192,7 +191,6 @@ SECTIONS
   } >RAM
 
 
-
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -203,5 +201,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-
-
