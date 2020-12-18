@@ -349,21 +349,21 @@ bool Probe::set_deployed(const bool deploy) {
   #endif
 
   #if BOTH(HAS_TEMP_HOTEND, PREHEAT_BEFORE_PROBING) && PROBING_NOZZLE_TEMP > 0
-    #define WAIT_FOR_NOZZLE_HEAT 1
+    #define WAIT_FOR_NOZZLE_HEAT
     const bool setting_hotend = thermalManager.degTargetHotend(0) < (PROBING_NOZZLE_TEMP);
     if (setting_hotend) {
       constexpr uint16_t hotendTemperature = PROBING_NOZZLE_TEMP;
-      SERIAL_ECHOLNPAIR("Preheating hotend to ", hotendTemperature);
+      DEBUG_ECHOLNPAIR("Preheating hotend: ", hotendTemperature);
       thermalManager.setTargetHotend(hotendTemperature, 0);
     }
   #endif
 
   #if BOTH(HAS_HEATED_BED, PREHEAT_BEFORE_PROBING) && PROBING_BED_TEMP > 0
-    #define WAIT_FOR_BED_HEAT 1
-    const bool setting_bed = thermalManager.degBed() < (PROBING_BED_TEMP);
+    #define WAIT_FOR_BED_HEAT
+    const bool setting_bed = thermalManager.degTargetBed() < (PROBING_BED_TEMP);
     if (setting_bed) {
       constexpr uint16_t bedTemperature = PROBING_BED_TEMP;
-      SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
+      DEBUG_ECHOLNPAIR("Preheating bed: ", bedTemperature);
       thermalManager.setTargetBed(bedTemperature);
     }
   #endif
