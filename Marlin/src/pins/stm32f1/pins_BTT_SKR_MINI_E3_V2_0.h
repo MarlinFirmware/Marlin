@@ -58,4 +58,17 @@
   #define Y_HARDWARE_SERIAL  MSerial4
   #define Z_HARDWARE_SERIAL  MSerial4
   #define E0_HARDWARE_SERIAL MSerial4
+
+  // Override default config TMC slave addresses
+  #undef X_SLAVE_ADDRESS
+  #define X_SLAVE_ADDRESS 0
+
+  #undef Y_SLAVE_ADDRESS
+  #define Y_SLAVE_ADDRESS 2
+
+  #undef Z_SLAVE_ADDRESS
+  #define Z_SLAVE_ADDRESS 1
+
+  #undef E0_SLAVE_ADDRESS
+  #define E0_SLAVE_ADDRESS 3
 #endif
