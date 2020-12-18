@@ -348,21 +348,21 @@ bool Probe::set_deployed(const bool deploy) {
     constexpr bool deploy_stow_condition = true;
   #endif
 
-  #if defined(PROBE_REQUIRES_MINTEMP_NOZZLE) && (PROBE_REQUIRES_MINTEMP_NOZZLE) > 0 && HAS_TEMP_HOTEND
+  #if HAS_TEMP_HOTEND && PROBE_REQUIRES_MINTEMP_NOZZLE > 0
     #define WAIT_FOR_NOZZLE_HEAT 1
-    bool setting_hotend = thermalManager.degTargetHotend(0) < (PROBE_REQUIRES_MINTEMP_NOZZLE);
+    const bool setting_hotend = thermalManager.degTargetHotend(0) < (PROBE_REQUIRES_MINTEMP_NOZZLE);
     if (setting_hotend) {
-      uint16_t hotendTemperature = (PROBE_REQUIRES_MINTEMP_NOZZLE);
+      constexpr uint16_t hotendTemperature = PROBE_REQUIRES_MINTEMP_NOZZLE;
       SERIAL_ECHOLNPAIR("Preheating hotend to ", hotendTemperature);
       thermalManager.setTargetHotend(hotendTemperature, 0);
     }
   #endif
 
-  #if defined(PROBE_REQUIRES_MINTEMP_BED) && (PROBE_REQUIRES_MINTEMP_BED) > 0 && HAS_HEATED_BED
+  #if HAS_HEATED_BED && PROBE_REQUIRES_MINTEMP_BED > 0
     #define WAIT_FOR_BED_HEAT 1
-    bool setting_bed = thermalManager.degBed() < (PROBE_REQUIRES_MINTEMP_BED);
+    const bool setting_bed = thermalManager.degBed() < (PROBE_REQUIRES_MINTEMP_BED);
     if (setting_bed) {
-      uint16_t bedTemperature = (PROBE_REQUIRES_MINTEMP_BED);
+      constexpr uint16_t bedTemperature = PROBE_REQUIRES_MINTEMP_BED;
       SERIAL_ECHOLNPAIR("Preheating bed to ", bedTemperature);
       thermalManager.setTargetBed(bedTemperature);
     }
