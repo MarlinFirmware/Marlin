@@ -414,13 +414,21 @@ G29_TYPE GcodeSuite::G29() {
         #define LEVELING_BED_TEMP 0
       #endif
       if (!dryrun && !faux) {
-        constexpr uint16_t hotendPreheat = LEVELING_NOZZLE_TEMP, bedPreheat = LEVELING_BED_TEMP;
-        if (DEBUGGING(LEVELING))
-          DEBUG_ECHOLNPAIR("Preheating hotend (", hotendPreheat, ") and bed (", bedPreheat, ")");
-        if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0);
-        if (bedPreheat)    thermalManager.setTargetBed(bedPreheat);
-        if (hotendPreheat) thermalManager.wait_for_hotend(0);
-        if (bedPreheat)    thermalManager.wait_for_bed_heating();
+        const uint16_t hotendPreheat = TERN0(HAS_HOTEND,     thermalManager.degHotend(0) < (LEVELING_NOZZLE_TEMP)) ? (LEVELING_NOZZLE_TEMP) : 0,
+                          bedPreheat = TERN0(HAS_HEATED_BED, thermalManager.degBed()     < (LEVELING_BED_TEMP))    ? (LEVELING_BED_TEMP)    : 0;
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPAIR("Preheating "
+          #if HAS_HOTEND
+            "hotend (", hotendPreheat, ") " TERN_(HAS_HEATED_BED, "and ")
+          #endif
+          #if HAS_HEATED_BED
+            "bed (", bedPreheat, ")"
+          #endif
+        );
+        TERN_(HAS_HOTEND,     if (hotendPreheat) thermalManager.setTargetHotend(hotendPreheat, 0));
+        TERN_(HAS_HEATED_BED, if (bedPreheat)    thermalManager.setTargetBed(bedPreheat));
+        TERN_(HAS_HOTEND,     if (hotendPreheat) thermalManager.wait_for_hotend(0));
+        TERN_(HAS_HEATED_BED, if (bedPreheat)    thermalManager.wait_for_bed_heating());
+        UNUSED(hotendPreheat); UNUSED(bedPreheat);
       }
     #endif
 
