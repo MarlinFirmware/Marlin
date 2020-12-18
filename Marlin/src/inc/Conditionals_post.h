@@ -2317,11 +2317,7 @@
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
   #ifndef XY_PROBE_SPEED
-    #ifdef HOMING_FEEDRATE_XY
-      #define XY_PROBE_SPEED HOMING_FEEDRATE_XY
-    #else
-      #define XY_PROBE_SPEED 4000
-    #endif
+    #define XY_PROBE_SPEED ((homing_feedrate_mm_m.x + homing_feedrate_mm_m.y) / 2)
   #endif
   #ifndef NOZZLE_TO_PROBE_OFFSET
     #define NOZZLE_TO_PROBE_OFFSET { 0, 0, 0 }

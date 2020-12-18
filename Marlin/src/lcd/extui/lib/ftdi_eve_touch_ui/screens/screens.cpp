@@ -115,6 +115,10 @@ SCREEN_TABLE {
 #if ENABLED(TOUCH_UI_COCOA_PRESS)
   DECL_SCREEN(PreheatMenu),
   DECL_SCREEN(PreheatTimerScreen),
+  DECL_SCREEN(UnloadCartridgeScreen),
+  DECL_SCREEN(LoadChocolateScreen),
+  DECL_SCREEN(MoveXYZScreen),
+  DECL_SCREEN(MoveEScreen),
 #endif
 #if ENABLED(TOUCH_UI_DEVELOPER_MENU)
   DECL_SCREEN(DeveloperMenu),
